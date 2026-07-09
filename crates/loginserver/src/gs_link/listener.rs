@@ -4,11 +4,11 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use tokio::sync::Mutex;
-use tracing::{info, warn};
-
 use crate::context::LoginContext;
 use crate::gs_link::connection;
+use commons::util;
+use tokio::sync::Mutex;
+use tracing::{info, warn};
 
 #[derive(Default)]
 struct ForeignConnection {
@@ -17,15 +17,9 @@ struct ForeignConnection {
     is_flooding: bool,
 }
 
-fn now_millis() -> i64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis() as i64)
-        .unwrap_or(0)
-}
-
 pub async fn accept_loop(ctx: Arc<LoginContext>, listener: tokio::net::TcpListener) {
-    let flood: Arc<Mutex<HashMap<String, ForeignConnection>>> = Arc::new(Mutex::new(HashMap::new()));
+    let flood: Arc<Mutex<HashMap<String, ForeignConnection>>> =
+        Arc::new(Mutex::new(HashMap::new()));
 
     loop {
         let Ok((stream, addr)) = listener.accept().await else {
@@ -35,12 +29,13 @@ pub async fn accept_loop(ctx: Arc<LoginContext>, listener: tokio::net::TcpListen
 
         if ctx.config.enable_flood_protection {
             let mut map = flood.lock().await;
-            let now = now_millis();
+            let now = util::now_millis();
             match map.get_mut(&ip) {
                 Some(entry) => {
                     entry.connection_number += 1;
                     let too_fast = (entry.connection_number > ctx.config.fast_connection_limit
-                        && (now - entry.last_connection) < ctx.config.normal_connection_time as i64)
+                        && (now - entry.last_connection)
+                            < ctx.config.normal_connection_time as i64)
                         || (now - entry.last_connection) < ctx.config.fast_connection_time as i64
                         || entry.connection_number > ctx.config.max_connection_per_ip;
                     if too_fast {
@@ -62,7 +57,11 @@ pub async fn accept_loop(ctx: Arc<LoginContext>, listener: tokio::net::TcpListen
                 None => {
                     map.insert(
                         ip.clone(),
-                        ForeignConnection { connection_number: 1, last_connection: now, is_flooding: false },
+                        ForeignConnection {
+                            connection_number: 1,
+                            last_connection: now,
+                            is_flooding: false,
+                        },
                     );
                 }
             }

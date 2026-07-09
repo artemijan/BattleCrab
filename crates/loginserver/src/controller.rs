@@ -5,23 +5,28 @@
 
 use std::collections::HashMap;
 
-use commons::crypt::hash_password;
-use sqlx::SqlitePool;
-use tokio::sync::{mpsc, oneshot};
-use tracing::{info, warn};
-
 use crate::dao;
 use crate::enums::LoginFailReason;
 use crate::gs_table::{
-    hexid_to_string, login_server_fail, server_status, GameServerEntry, GameServerTable, GsCommand, Subnet,
+    hexid_to_string, login_server_fail, server_status, GameServerEntry, GameServerTable, GsCommand,
+    Subnet,
 };
 use crate::session::SessionKey;
+use commons::crypt::hash_password;
+use commons::util;
+use sqlx::SqlitePool;
+use tokio::sync::{mpsc, oneshot};
+use tracing::{info, warn};
 
 /// `LoginResult` outcomes seen by `RequestAuthLogin`.
 #[derive(Debug)]
 pub enum AuthOutcome {
     /// AUTH_SUCCESS — account checked in on the LS.
-    Success { key: SessionKey, access_level: i32, last_server: i32 },
+    Success {
+        key: SessionKey,
+        access_level: i32,
+        last_server: i32,
+    },
     /// Java: `retriveAccountInfo` returned null (bad account/password).
     AccessFailed,
     /// Java: `canCheckin` failed (ipauth lists / DB error).
@@ -62,8 +67,14 @@ pub struct GsRegistration {
 }
 
 pub enum Msg {
-    IsBanned { ip: String, reply: oneshot::Sender<bool> },
-    AddBan { ip: String, duration_ms: i64 },
+    IsBanned {
+        ip: String,
+        reply: oneshot::Sender<bool>,
+    },
+    AddBan {
+        ip: String,
+        duration_ms: i64,
+    },
     TryAuthLogin {
         login: String,
         password: String,
@@ -71,8 +82,13 @@ pub enum Msg {
         kick: mpsc::Sender<LoginFailReason>,
         reply: oneshot::Sender<AuthOutcome>,
     },
-    RemoveAuthedClient { account: String },
-    GetSessionKey { account: String, reply: oneshot::Sender<Option<SessionKey>> },
+    RemoveAuthedClient {
+        account: String,
+    },
+    GetSessionKey {
+        account: String,
+        reply: oneshot::Sender<Option<SessionKey>>,
+    },
     // --- GS link ---
     RegisterGameServer {
         desired_id: i32,
@@ -84,21 +100,62 @@ pub enum Msg {
         link: mpsc::Sender<GsCommand>,
         reply: oneshot::Sender<Result<GsRegistration, u8>>,
     },
-    GsDisconnected { server_id: i32 },
-    SetServerStatus { server_id: i32, attributes: Vec<(i32, i32)> },
-    PlayerInGame { server_id: i32, accounts: Vec<String> },
-    PlayerLogout { server_id: i32, account: String },
-    PlayerAuthRequest { account: String, key: SessionKey, reply: oneshot::Sender<bool> },
-    ServerListData { client_ip: String, access_level: i32, reply: oneshot::Sender<Vec<ServerListEntry>> },
-    IsLoginPossible { server_id: i32, access_level: i32, account: String, last_server: i32, reply: oneshot::Sender<bool> },
+    GsDisconnected {
+        server_id: i32,
+    },
+    SetServerStatus {
+        server_id: i32,
+        attributes: Vec<(i32, i32)>,
+    },
+    PlayerInGame {
+        server_id: i32,
+        accounts: Vec<String>,
+    },
+    PlayerLogout {
+        server_id: i32,
+        account: String,
+    },
+    PlayerAuthRequest {
+        account: String,
+        key: SessionKey,
+        reply: oneshot::Sender<bool>,
+    },
+    ServerListData {
+        client_ip: String,
+        access_level: i32,
+        reply: oneshot::Sender<Vec<ServerListEntry>>,
+    },
+    IsLoginPossible {
+        server_id: i32,
+        access_level: i32,
+        account: String,
+        last_server: i32,
+        reply: oneshot::Sender<bool>,
+    },
     /// ReplyCharacters (0x08) — `setCharactersOnServer`.
-    SetCharactersOnServer { server_id: i32, account: String, chars: i32 },
+    SetCharactersOnServer {
+        server_id: i32,
+        account: String,
+        chars: i32,
+    },
     /// `LoginClient.getCharsOnServ` — None until any GS replied.
-    GetCharsOnServers { account: String, reply: oneshot::Sender<Option<HashMap<i32, i32>>> },
+    GetCharsOnServers {
+        account: String,
+        reply: oneshot::Sender<Option<HashMap<i32, i32>>>,
+    },
     /// RequestTempBan (0x0A).
-    TempBan { account: String, ip: String, ban_time: i64 },
+    TempBan {
+        account: String,
+        ip: String,
+        ban_time: i64,
+    },
     /// ChangePassword (0x0B) — full flow incl. the response to the right GS.
-    ChangePassword { account: String, character_name: String, current_password: String, new_password: String },
+    ChangePassword {
+        account: String,
+        character_name: String,
+        current_password: String,
+        new_password: String,
+    },
 }
 
 pub struct ControllerSettings {
@@ -125,7 +182,11 @@ pub struct ControllerHandle {
     tx: mpsc::Sender<Msg>,
 }
 
-pub fn spawn(settings: ControllerSettings, pool: SqlitePool, gs: GameServerTable) -> ControllerHandle {
+pub fn spawn(
+    settings: ControllerSettings,
+    pool: SqlitePool,
+    gs: GameServerTable,
+) -> ControllerHandle {
     let (tx, mut rx) = mpsc::channel(256);
     let mut controller = Controller {
         settings,
@@ -147,12 +208,24 @@ pub fn spawn(settings: ControllerSettings, pool: SqlitePool, gs: GameServerTable
 impl ControllerHandle {
     pub async fn is_banned(&self, ip: &str) -> bool {
         let (reply, rx) = oneshot::channel();
-        let _ = self.tx.send(Msg::IsBanned { ip: ip.to_string(), reply }).await;
+        let _ = self
+            .tx
+            .send(Msg::IsBanned {
+                ip: ip.to_string(),
+                reply,
+            })
+            .await;
         rx.await.unwrap_or(false)
     }
 
     pub async fn add_ban(&self, ip: &str, duration_ms: i64) {
-        let _ = self.tx.send(Msg::AddBan { ip: ip.to_string(), duration_ms }).await;
+        let _ = self
+            .tx
+            .send(Msg::AddBan {
+                ip: ip.to_string(),
+                duration_ms,
+            })
+            .await;
     }
 
     pub async fn try_auth_login(
@@ -163,17 +236,37 @@ impl ControllerHandle {
         kick: mpsc::Sender<LoginFailReason>,
     ) -> AuthOutcome {
         let (reply, rx) = oneshot::channel();
-        let _ = self.tx.send(Msg::TryAuthLogin { login, password, ip, kick, reply }).await;
+        let _ = self
+            .tx
+            .send(Msg::TryAuthLogin {
+                login,
+                password,
+                ip,
+                kick,
+                reply,
+            })
+            .await;
         rx.await.unwrap_or(AuthOutcome::InvalidPassword)
     }
 
     pub async fn remove_authed_client(&self, account: &str) {
-        let _ = self.tx.send(Msg::RemoveAuthedClient { account: account.to_string() }).await;
+        let _ = self
+            .tx
+            .send(Msg::RemoveAuthedClient {
+                account: account.to_string(),
+            })
+            .await;
     }
 
     pub async fn session_key(&self, account: &str) -> Option<SessionKey> {
         let (reply, rx) = oneshot::channel();
-        let _ = self.tx.send(Msg::GetSessionKey { account: account.to_string(), reply }).await;
+        let _ = self
+            .tx
+            .send(Msg::GetSessionKey {
+                account: account.to_string(),
+                reply,
+            })
+            .await;
         rx.await.ok().flatten()
     }
 
@@ -191,9 +284,19 @@ impl ControllerHandle {
         let (reply, rx) = oneshot::channel();
         let _ = self
             .tx
-            .send(Msg::RegisterGameServer { desired_id, accept_alternative, port, max_players, hex_id, hosts, link, reply })
+            .send(Msg::RegisterGameServer {
+                desired_id,
+                accept_alternative,
+                port,
+                max_players,
+                hex_id,
+                hosts,
+                link,
+                reply,
+            })
             .await;
-        rx.await.unwrap_or(Err(crate::gs_table::login_server_fail::NOT_AUTHED))
+        rx.await
+            .unwrap_or(Err(crate::gs_table::login_server_fail::NOT_AUTHED))
     }
 
     pub async fn gs_disconnected(&self, server_id: i32) {
@@ -201,11 +304,23 @@ impl ControllerHandle {
     }
 
     pub async fn set_server_status(&self, server_id: i32, attributes: Vec<(i32, i32)>) {
-        let _ = self.tx.send(Msg::SetServerStatus { server_id, attributes }).await;
+        let _ = self
+            .tx
+            .send(Msg::SetServerStatus {
+                server_id,
+                attributes,
+            })
+            .await;
     }
 
     pub async fn player_in_game(&self, server_id: i32, accounts: Vec<String>) {
-        let _ = self.tx.send(Msg::PlayerInGame { server_id, accounts }).await;
+        let _ = self
+            .tx
+            .send(Msg::PlayerInGame {
+                server_id,
+                accounts,
+            })
+            .await;
     }
 
     pub async fn player_logout(&self, server_id: i32, account: String) {
@@ -214,40 +329,104 @@ impl ControllerHandle {
 
     pub async fn player_auth_request(&self, account: String, key: SessionKey) -> bool {
         let (reply, rx) = oneshot::channel();
-        let _ = self.tx.send(Msg::PlayerAuthRequest { account, key, reply }).await;
+        let _ = self
+            .tx
+            .send(Msg::PlayerAuthRequest {
+                account,
+                key,
+                reply,
+            })
+            .await;
         rx.await.unwrap_or(false)
     }
 
-    pub async fn server_list_data(&self, client_ip: String, access_level: i32) -> Vec<ServerListEntry> {
+    pub async fn server_list_data(
+        &self,
+        client_ip: String,
+        access_level: i32,
+    ) -> Vec<ServerListEntry> {
         let (reply, rx) = oneshot::channel();
-        let _ = self.tx.send(Msg::ServerListData { client_ip, access_level, reply }).await;
+        let _ = self
+            .tx
+            .send(Msg::ServerListData {
+                client_ip,
+                access_level,
+                reply,
+            })
+            .await;
         rx.await.unwrap_or_default()
     }
 
-    pub async fn is_login_possible(&self, server_id: i32, access_level: i32, account: String, last_server: i32) -> bool {
+    pub async fn is_login_possible(
+        &self,
+        server_id: i32,
+        access_level: i32,
+        account: String,
+        last_server: i32,
+    ) -> bool {
         let (reply, rx) = oneshot::channel();
-        let _ = self.tx.send(Msg::IsLoginPossible { server_id, access_level, account, last_server, reply }).await;
+        let _ = self
+            .tx
+            .send(Msg::IsLoginPossible {
+                server_id,
+                access_level,
+                account,
+                last_server,
+                reply,
+            })
+            .await;
         rx.await.unwrap_or(false)
     }
 
     pub async fn set_characters_on_server(&self, server_id: i32, account: String, chars: i32) {
-        let _ = self.tx.send(Msg::SetCharactersOnServer { server_id, account, chars }).await;
+        let _ = self
+            .tx
+            .send(Msg::SetCharactersOnServer {
+                server_id,
+                account,
+                chars,
+            })
+            .await;
     }
 
     pub async fn chars_on_servers(&self, account: &str) -> Option<HashMap<i32, i32>> {
         let (reply, rx) = oneshot::channel();
-        let _ = self.tx.send(Msg::GetCharsOnServers { account: account.to_string(), reply }).await;
+        let _ = self
+            .tx
+            .send(Msg::GetCharsOnServers {
+                account: account.to_string(),
+                reply,
+            })
+            .await;
         rx.await.ok().flatten()
     }
 
     pub async fn temp_ban(&self, account: String, ip: String, ban_time: i64) {
-        let _ = self.tx.send(Msg::TempBan { account, ip, ban_time }).await;
-    }
-
-    pub async fn change_password(&self, account: String, character_name: String, current: String, new: String) {
         let _ = self
             .tx
-            .send(Msg::ChangePassword { account, character_name, current_password: current, new_password: new })
+            .send(Msg::TempBan {
+                account,
+                ip,
+                ban_time,
+            })
+            .await;
+    }
+
+    pub async fn change_password(
+        &self,
+        account: String,
+        character_name: String,
+        current: String,
+        new: String,
+    ) {
+        let _ = self
+            .tx
+            .send(Msg::ChangePassword {
+                account,
+                character_name,
+                current_password: current,
+                new_password: new,
+            })
             .await;
     }
 }
@@ -268,13 +447,6 @@ fn resolve_host(host: &str) -> Option<[u8; 4]> {
         })
 }
 
-fn now_millis() -> i64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis() as i64)
-        .unwrap_or(0)
-}
-
 impl Controller {
     async fn handle(&mut self, msg: Msg) {
         match msg {
@@ -282,7 +454,13 @@ impl Controller {
                 let _ = reply.send(self.is_banned_address(&ip));
             }
             Msg::AddBan { ip, duration_ms } => self.add_ban_for_address(ip, duration_ms),
-            Msg::TryAuthLogin { login, password, ip, kick, reply } => {
+            Msg::TryAuthLogin {
+                login,
+                password,
+                ip,
+                kick,
+                reply,
+            } => {
                 let outcome = self.try_auth_login(login, password, ip, kick).await;
                 let _ = reply.send(outcome);
             }
@@ -292,9 +470,27 @@ impl Controller {
             Msg::GetSessionKey { account, reply } => {
                 let _ = reply.send(self.authed_clients.get(&account).map(|e| e.key));
             }
-            Msg::RegisterGameServer { desired_id, accept_alternative, port, max_players, hex_id, hosts, link, reply } => {
-                let result =
-                    self.register_game_server(desired_id, accept_alternative, port, max_players, hex_id, hosts, link).await;
+            Msg::RegisterGameServer {
+                desired_id,
+                accept_alternative,
+                port,
+                max_players,
+                hex_id,
+                hosts,
+                link,
+                reply,
+            } => {
+                let result = self
+                    .register_game_server(
+                        desired_id,
+                        accept_alternative,
+                        port,
+                        max_players,
+                        hex_id,
+                        hosts,
+                        link,
+                    )
+                    .await;
                 let _ = reply.send(result);
             }
             Msg::GsDisconnected { server_id } => {
@@ -302,14 +498,24 @@ impl Controller {
                     if entry.authed {
                         info!(
                             "Server [{server_id}] {} is now set as disconnected.",
-                            self.gs.server_names.get(&server_id).cloned().unwrap_or_default()
+                            self.gs
+                                .server_names
+                                .get(&server_id)
+                                .cloned()
+                                .unwrap_or_default()
                         );
                     }
                     entry.set_down();
                 }
             }
-            Msg::SetServerStatus { server_id, attributes } => self.set_server_status(server_id, attributes),
-            Msg::PlayerInGame { server_id, accounts } => {
+            Msg::SetServerStatus {
+                server_id,
+                attributes,
+            } => self.set_server_status(server_id, attributes),
+            Msg::PlayerInGame {
+                server_id,
+                accounts,
+            } => {
                 if let Some(entry) = self.gs.servers.get_mut(&server_id) {
                     for account in accounts {
                         // addAccountOnGameServer also frees the LS-side slot.
@@ -324,7 +530,11 @@ impl Controller {
                 }
                 self.authed_clients.remove(&account);
             }
-            Msg::PlayerAuthRequest { account, key, reply } => {
+            Msg::PlayerAuthRequest {
+                account,
+                key,
+                reply,
+            } => {
                 let matches = match self.authed_clients.get(&account) {
                     Some(entry) => {
                         // SessionKey.equals: only the playOk pair when the
@@ -342,10 +552,18 @@ impl Controller {
                 }
                 let _ = reply.send(matches);
             }
-            Msg::ServerListData { client_ip, access_level, reply } => {
+            Msg::ServerListData {
+                client_ip,
+                access_level,
+                reply,
+            } => {
                 let _ = reply.send(self.server_list_data(&client_ip, access_level));
             }
-            Msg::SetCharactersOnServer { server_id, account, chars } => {
+            Msg::SetCharactersOnServer {
+                server_id,
+                account,
+                chars,
+            } => {
                 if let Some(entry) = self.authed_clients.get_mut(&account) {
                     let map = entry.chars_on_servers.get_or_insert_with(HashMap::new);
                     if chars > 0 {
@@ -354,9 +572,17 @@ impl Controller {
                 }
             }
             Msg::GetCharsOnServers { account, reply } => {
-                let _ = reply.send(self.authed_clients.get(&account).and_then(|e| e.chars_on_servers.clone()));
+                let _ = reply.send(
+                    self.authed_clients
+                        .get(&account)
+                        .and_then(|e| e.chars_on_servers.clone()),
+                );
             }
-            Msg::TempBan { account, ip, ban_time } => {
+            Msg::TempBan {
+                account,
+                ip,
+                ban_time,
+            } => {
                 // insert_or_update_account_data (SQLite dialect).
                 let _ = sqlx::query(
                     "INSERT INTO account_data VALUES (?, 'ban_temp', ?) ON CONFLICT(account_name, var) DO UPDATE SET value=?",
@@ -370,10 +596,22 @@ impl Controller {
                 // passed as a duration to addBanForAddress.
                 self.add_ban_for_address(ip, ban_time);
             }
-            Msg::ChangePassword { account, character_name, current_password, new_password } => {
-                self.change_password(account, character_name, current_password, new_password).await;
+            Msg::ChangePassword {
+                account,
+                character_name,
+                current_password,
+                new_password,
+            } => {
+                self.change_password(account, character_name, current_password, new_password)
+                    .await;
             }
-            Msg::IsLoginPossible { server_id, access_level, account, last_server, reply } => {
+            Msg::IsLoginPossible {
+                server_id,
+                access_level,
+                account,
+                last_server,
+                reply,
+            } => {
                 let possible = match self.gs.servers.get(&server_id) {
                     Some(entry) if entry.authed => entry.can_login(access_level),
                     _ => false,
@@ -421,7 +659,9 @@ impl Controller {
                     .copied()
                     .find(|id| !self.gs.servers.contains_key(id))
                     .ok_or(login_server_fail::REASON_NO_FREE_ID)?;
-                self.gs.servers.insert(free, GameServerEntry::new(free, hex_id.clone()));
+                self.gs
+                    .servers
+                    .insert(free, GameServerEntry::new(free, hex_id.clone()));
                 self.register_server_on_db(free, &hex_id, &hosts).await;
                 free
             }
@@ -429,8 +669,11 @@ impl Controller {
                 if !self.settings.accept_new_gameserver {
                     return Err(login_server_fail::REASON_WRONG_HEXID);
                 }
-                self.gs.servers.insert(desired_id, GameServerEntry::new(desired_id, hex_id.clone()));
-                self.register_server_on_db(desired_id, &hex_id, &hosts).await;
+                self.gs
+                    .servers
+                    .insert(desired_id, GameServerEntry::new(desired_id, hex_id.clone()));
+                self.register_server_on_db(desired_id, &hex_id, &hosts)
+                    .await;
                 desired_id
             }
         };
@@ -445,17 +688,31 @@ impl Controller {
         entry.link = Some(link);
         entry.authed = true;
 
-        let server_name = self.gs.server_names.get(&assigned_id).cloned().unwrap_or_default();
+        let server_name = self
+            .gs
+            .server_names
+            .get(&assigned_id)
+            .cloned()
+            .unwrap_or_default();
         info!("Updated Gameserver [{assigned_id}] {server_name} IP's:");
         for (_, host) in &hosts {
             info!("{host}");
         }
-        Ok(GsRegistration { server_id: assigned_id, server_name })
+        Ok(GsRegistration {
+            server_id: assigned_id,
+            server_name,
+        })
     }
 
     /// `ChangePassword.java`: verify against the stored hash, update, and
     /// report the result to the GS hosting the account.
-    async fn change_password(&mut self, account: String, character_name: String, current: String, new: String) {
+    async fn change_password(
+        &mut self,
+        account: String,
+        character_name: String,
+        current: String,
+        new: String,
+    ) {
         let Some(link) = self
             .gs
             .servers
@@ -470,16 +727,19 @@ impl Controller {
             message: message.to_string(),
         };
 
-        let stored: Option<(Option<String>,)> = sqlx::query_as("SELECT password FROM accounts WHERE login=?")
-            .bind(&account)
-            .fetch_optional(&self.pool)
-            .await
-            .ok()
-            .flatten();
+        let stored: Option<(Option<String>,)> =
+            sqlx::query_as("SELECT password FROM accounts WHERE login=?")
+                .bind(&account)
+                .fetch_optional(&self.pool)
+                .await
+                .ok()
+                .flatten();
         let stored = stored.and_then(|(p,)| p).unwrap_or_default();
 
         if hash_password(&current) != stored {
-            let _ = link.try_send(respond("The typed current password doesn't match with your current one."));
+            let _ = link.try_send(respond(
+                "The typed current password doesn't match with your current one.",
+            ));
             return;
         }
 
@@ -499,7 +759,10 @@ impl Controller {
     }
 
     async fn register_server_on_db(&self, id: i32, hex_id: &[u8], hosts: &[(String, String)]) {
-        let external_host = hosts.first().map(|(_, host)| host.clone()).unwrap_or_default();
+        let external_host = hosts
+            .first()
+            .map(|(_, host)| host.clone())
+            .unwrap_or_default();
         let _ = sqlx::query("INSERT INTO gameservers (hexid,server_id,host) values (?,?,?)")
             .bind(hexid_to_string(hex_id))
             .bind(id)
@@ -535,7 +798,8 @@ impl Controller {
 
     /// `ServerList` data (`ServerData` construction).
     fn server_list_data(&self, client_ip: &str, access_level: i32) -> Vec<ServerListEntry> {
-        let client_addr: std::net::Ipv4Addr = client_ip.parse().unwrap_or(std::net::Ipv4Addr::LOCALHOST);
+        let client_addr: std::net::Ipv4Addr =
+            client_ip.parse().unwrap_or(std::net::Ipv4Addr::LOCALHOST);
         let mut entries: Vec<ServerListEntry> = self
             .gs
             .servers
@@ -579,7 +843,7 @@ impl Controller {
         kick: mpsc::Sender<LoginFailReason>,
     ) -> AuthOutcome {
         let hash = hash_password(&password);
-        let now = now_millis();
+        let now = util::now_millis();
 
         // retriveAccountInfo
         let mut info = dao::select_account_info(&self.pool, &login, now).await;
@@ -594,7 +858,8 @@ impl Controller {
                     self.record_failed_login_attempt(&ip);
                     return AuthOutcome::AccessFailed;
                 }
-                if let Err(e) = dao::auto_create_account(&self.pool, &login, &hash, now, &ip).await {
+                if let Err(e) = dao::auto_create_account(&self.pool, &login, &hash, now, &ip).await
+                {
                     warn!("Exception while auto creating account for '{login}': {e}");
                     return AuthOutcome::AccessFailed;
                 }
@@ -614,18 +879,29 @@ impl Controller {
 
         // canCheckin: accounts_ipauth white/black lists + lastactive/lastIP update.
         let (white, black) = dao::select_ipauth(&self.pool, &info.login).await;
-        if (!white.is_empty() && !white.contains(&ip)) || (!black.is_empty() && black.contains(&ip)) {
-            warn!("Account checkin attempt from address({ip}) blocked by ipauth for account '{}'.", info.login);
+        if (!white.is_empty() && !white.contains(&ip)) || (!black.is_empty() && black.contains(&ip))
+        {
+            warn!(
+                "Account checkin attempt from address({ip}) blocked by ipauth for account '{}'.",
+                info.login
+            );
             return AuthOutcome::InvalidPassword;
         }
         dao::update_account_info(&self.pool, &info.login, &ip, now).await;
 
         // ALREADY_ON_GS: kick from the game server (RequestAuthLogin does
         // gsi.getGameServerThread().kickPlayer(login)).
-        if let Some(entry) = self.gs.servers.values().find(|e| e.accounts.contains(&info.login)) {
+        if let Some(entry) = self
+            .gs
+            .servers
+            .values()
+            .find(|e| e.accounts.contains(&info.login))
+        {
             if entry.authed {
                 if let Some(link) = &entry.link {
-                    let _ = link.try_send(GsCommand::KickPlayer { account: info.login.clone() });
+                    let _ = link.try_send(GsCommand::KickPlayer {
+                        account: info.login.clone(),
+                    });
                 }
             }
             return AuthOutcome::AlreadyOnGs;
@@ -638,23 +914,38 @@ impl Controller {
         }
 
         let key = SessionKey::random();
-        self.authed_clients
-            .insert(info.login.clone(), AuthedEntry { key, kick, chars_on_servers: None });
+        self.authed_clients.insert(
+            info.login.clone(),
+            AuthedEntry {
+                key,
+                kick,
+                chars_on_servers: None,
+            },
+        );
 
         // getCharactersOnAccount: ask every authed GS for character counts.
         for entry in self.gs.servers.values() {
             if entry.authed {
                 if let Some(link) = &entry.link {
-                    let _ = link.try_send(GsCommand::RequestCharacters { account: info.login.clone() });
+                    let _ = link.try_send(GsCommand::RequestCharacters {
+                        account: info.login.clone(),
+                    });
                 }
             }
         }
 
-        AuthOutcome::Success { key, access_level: info.access_level, last_server: info.last_server }
+        AuthOutcome::Success {
+            key,
+            access_level: info.access_level,
+            last_server: info.last_server,
+        }
     }
 
     fn record_failed_login_attempt(&mut self, ip: &str) {
-        let attempts = self.failed_login_attempts.entry(ip.to_string()).or_insert(0);
+        let attempts = self
+            .failed_login_attempts
+            .entry(ip.to_string())
+            .or_insert(0);
         *attempts += 1;
         if *attempts >= self.settings.login_try_before_ban {
             self.add_ban_for_address(ip.to_string(), self.settings.login_block_after_ban_ms);
@@ -668,7 +959,11 @@ impl Controller {
     }
 
     fn add_ban_for_address(&mut self, ip: String, duration_ms: i64) {
-        let expiry = if duration_ms > 0 { now_millis() + duration_ms } else { i64::MAX };
+        let expiry = if duration_ms > 0 {
+            util::now_millis() + duration_ms
+        } else {
+            i64::MAX
+        };
         self.banned_ips.entry(ip).or_insert(expiry);
     }
 
@@ -683,7 +978,7 @@ impl Controller {
         }
         for candidate in candidates {
             if let Some(&expiry) = self.banned_ips.get(&candidate) {
-                if expiry > 0 && expiry < now_millis() {
+                if expiry > 0 && expiry < util::now_millis() {
                     self.banned_ips.remove(&candidate);
                     info!("Removed expired ip address ban {candidate}.");
                     return false;
