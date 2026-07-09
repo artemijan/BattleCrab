@@ -10,6 +10,7 @@ use sqlx::SqlitePool;
 use tracing::info;
 
 use crate::config::LoginConfig;
+use crate::controller::ControllerHandle;
 
 const KEYPAIRS: usize = 10;
 const BLOWFISH_KEYS: usize = 20;
@@ -17,12 +18,13 @@ const BLOWFISH_KEYS: usize = 20;
 pub struct LoginContext {
     pub config: LoginConfig,
     pub pool: SqlitePool,
+    pub controller: ControllerHandle,
     keypairs: Vec<Arc<ScrambledKeyPair>>,
     blowfish_keys: Vec<[u8; 16]>,
 }
 
 impl LoginContext {
-    pub fn new(config: LoginConfig, pool: SqlitePool) -> Self {
+    pub fn new(config: LoginConfig, pool: SqlitePool, controller: ControllerHandle) -> Self {
         let keypairs: Vec<_> = (0..KEYPAIRS).map(|_| Arc::new(ScrambledKeyPair::generate())).collect();
         info!("Cached {KEYPAIRS} KeyPairs for RSA communication.");
 
@@ -35,7 +37,7 @@ impl LoginContext {
             .collect();
         info!("Stored {BLOWFISH_KEYS} keys for Blowfish communication.");
 
-        Self { config, pool, keypairs, blowfish_keys }
+        Self { config, pool, controller, keypairs, blowfish_keys }
     }
 
     pub fn random_keypair(&self) -> Arc<ScrambledKeyPair> {

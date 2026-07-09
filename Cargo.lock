@@ -616,6 +616,7 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "commons",
+ "num-bigint-dig",
  "rand",
  "sqlx",
  "thiserror",

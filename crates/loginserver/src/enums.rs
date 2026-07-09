@@ -19,6 +19,16 @@ pub enum LoginFailReason {
     ReasonRestrictedIp = 0x16,
 }
 
+/// `AccountKickedReason.java`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(i32)]
+pub enum AccountKickedReason {
+    ReasonDataStealer = 0x01,
+    ReasonGenericViolation = 0x08,
+    Reason7DaysSuspended = 0x10,
+    ReasonPermanentlyBanned = 0x20,
+}
+
 /// `loginserver/network/ConnectionState.java`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ConnectionState {

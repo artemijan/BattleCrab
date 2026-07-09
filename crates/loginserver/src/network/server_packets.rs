@@ -4,7 +4,8 @@
 
 use commons::network::PacketWriter;
 
-use crate::enums::LoginFailReason;
+use crate::enums::{AccountKickedReason, LoginFailReason};
+use crate::session::SessionKey;
 
 pub const PROTOCOL_REVISION: i32 = 0x0000c621;
 
@@ -42,5 +43,29 @@ pub fn login_fail(reason: LoginFailReason) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0x01);
     w.write_u8(reason as u8);
+    w.into_bytes()
+}
+
+/// `LoginOk.java` — the loginOk half of the session key.
+pub fn login_ok(key: &SessionKey) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(0x03);
+    w.write_i32(key.login_ok1);
+    w.write_i32(key.login_ok2);
+    w.write_i32(0x00);
+    w.write_i32(0x00);
+    w.write_i32(0x000003ea);
+    w.write_i32(0x00);
+    w.write_i32(0x00);
+    w.write_i32(0x00);
+    w.write_bytes(&[0u8; 16]);
+    w.into_bytes()
+}
+
+/// `AccountKicked.java`.
+pub fn account_kicked(reason: AccountKickedReason) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(0x02);
+    w.write_i32(reason as i32);
     w.into_bytes()
 }
