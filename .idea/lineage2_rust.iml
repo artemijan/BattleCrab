@@ -6,7 +6,9 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/commons/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/crates/loginserver/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/loginserver/tests" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/.idea/dataSources" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/tools/vector-dump/out" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

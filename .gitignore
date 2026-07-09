@@ -1,3 +1,7 @@
+.idea
+.claude
 target/
 tools/vector-dump/out/
 *.db
+*.db-shm
+*.db-wal
