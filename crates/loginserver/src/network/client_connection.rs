@@ -16,7 +16,7 @@ use tracing::{debug, info};
 
 use crate::context::LoginContext;
 use crate::controller::AuthOutcome;
-use crate::enums::{AccountKickedReason, ConnectionState, LoginFailReason};
+use crate::enums::{AccountKickedReason, ConnectionState, LoginFailReason, PlayFailReason};
 use crate::network::encryption::LoginEncryption;
 use crate::network::server_packets;
 use crate::session::SessionKey;
@@ -33,6 +33,8 @@ pub struct ClientSession {
     pub ip: String,
     pub account: Option<String>,
     pub session_key: Option<SessionKey>,
+    pub access_level: i32,
+    pub last_server: i32,
     pub joined_gs: bool,
 }
 
@@ -47,6 +49,8 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
         ip,
         account: None,
         session_key: None,
+        access_level: 0,
+        last_server: 1,
         joined_gs: false,
     };
     let mut encryption = LoginEncryption::new(&session.blowfish_key);
@@ -137,6 +141,51 @@ async fn dispatch(
         (ConnectionState::AuthedGg, 0x00) => {
             request_auth_login(ctx, session, r, write, encryption, kick_tx).await
         }
+        // REQUEST_SERVER_LIST(0x05, ConnectionState.AUTHED_LOGIN)
+        (ConnectionState::AuthedLogin, 0x05) => {
+            if r.remaining() < 8 {
+                return Ok(false);
+            }
+            let skey1 = r.read_i32().unwrap();
+            let skey2 = r.read_i32().unwrap();
+            let key = session.session_key.expect("authed implies session key");
+            if key.login_ok1 == skey1 && key.login_ok2 == skey2 {
+                let servers = ctx.controller.server_list_data(session.ip.clone(), session.access_level).await;
+                send(write, encryption, server_packets::server_list(&servers, session.last_server, None)).await?;
+                Ok(true)
+            } else {
+                close(write, encryption, LoginFailReason::ReasonAccessFailed).await
+            }
+        }
+        // REQUEST_SERVER_LOGIN(0x02, ConnectionState.AUTHED_LOGIN)
+        (ConnectionState::AuthedLogin, 0x02) => {
+            if r.remaining() < 9 {
+                return Ok(false);
+            }
+            let skey1 = r.read_i32().unwrap();
+            let skey2 = r.read_i32().unwrap();
+            let server_id = r.read_u8().unwrap() as i32;
+            let key = session.session_key.expect("authed implies session key");
+            // If the license screen was skipped, the client never got the
+            // loginOk pair, so it can't be checked.
+            if !ctx.config.show_licence || (key.login_ok1 == skey1 && key.login_ok2 == skey2) {
+                let account = session.account.clone().unwrap_or_default();
+                if ctx
+                    .controller
+                    .is_login_possible(server_id, session.access_level, account, session.last_server)
+                    .await
+                {
+                    session.joined_gs = true;
+                    send(write, encryption, server_packets::play_ok(&key)).await?;
+                    Ok(true)
+                } else {
+                    send(write, encryption, server_packets::play_fail(PlayFailReason::ReasonServerOverloaded)).await?;
+                    Ok(false)
+                }
+            } else {
+                close(write, encryption, LoginFailReason::ReasonAccessFailed).await
+            }
+        }
         _ => {
             debug!("Ignored packet 0x{opcode:02x} in state {:?} from {}", session.state, session.ip);
             Ok(true)
@@ -188,9 +237,11 @@ async fn request_auth_login(
         .await;
 
     match outcome {
-        AuthOutcome::Success { key, .. } => {
+        AuthOutcome::Success { key, access_level, last_server } => {
             session.account = Some(user);
             session.session_key = Some(key);
+            session.access_level = access_level;
+            session.last_server = last_server;
             session.state = ConnectionState::AuthedLogin;
             if ctx.config.show_licence {
                 send(write, encryption, server_packets::login_ok(&key)).await?;

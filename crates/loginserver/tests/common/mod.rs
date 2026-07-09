@@ -69,29 +69,55 @@ pub async fn setup_schema(pool: &sqlx::SqlitePool) {
     .execute(pool)
     .await
     .unwrap();
+    sqlx::query(
+        "CREATE TABLE gameservers (server_id INT NOT NULL DEFAULT 0, hexid VARCHAR(50) NOT NULL DEFAULT '', \
+         host VARCHAR(50) NOT NULL DEFAULT '', PRIMARY KEY (server_id))",
+    )
+    .execute(pool)
+    .await
+    .unwrap();
 }
 
 pub struct TestServer {
     pub addr: std::net::SocketAddr,
+    pub gs_addr: std::net::SocketAddr,
     pub pool: sqlx::SqlitePool,
 }
 
 pub async fn start_server(config: LoginConfig) -> TestServer {
     let pool = sqlx::SqlitePool::connect("sqlite::memory:").await.unwrap();
     setup_schema(&pool).await;
+    // Seed the stock gameservers row + server names like dist data.
+    sqlx::query("INSERT INTO gameservers VALUES (1, '-2ad66b3f483c22be097019f55c8abdf0', '')")
+        .execute(&pool)
+        .await
+        .unwrap();
+    let mut gs_table = loginserver::gs_table::GameServerTable::load(&pool).await;
+    gs_table.server_names.insert(1, "Bartz".to_string());
+    gs_table.server_names.insert(2, "Sieghardt".to_string());
+
     let controller = spawn(
         ControllerSettings {
             auto_create_accounts: config.auto_create_accounts,
             login_try_before_ban: config.login_try_before_ban,
             login_block_after_ban_ms: config.login_block_after_ban as i64 * 1000,
+            show_licence: config.show_licence,
+            accept_new_gameserver: config.accept_new_gameserver,
         },
         pool.clone(),
+        gs_table,
     );
     let ctx = Arc::new(LoginContext::new(config, pool.clone(), controller));
+
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();
-    tokio::spawn(client_connection::accept_loop(ctx, listener));
-    TestServer { addr, pool }
+    tokio::spawn(client_connection::accept_loop(ctx.clone(), listener));
+
+    let gs_listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let gs_addr = gs_listener.local_addr().unwrap();
+    tokio::spawn(loginserver::gs_link::listener::accept_loop(ctx, gs_listener));
+
+    TestServer { addr, gs_addr, pool }
 }
 
 /// Client-side inverse of `NewCrypt.encXORPass` (as the real client decodes `Init`).

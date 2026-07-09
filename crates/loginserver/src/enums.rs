@@ -19,6 +19,19 @@ pub enum LoginFailReason {
     ReasonRestrictedIp = 0x16,
 }
 
+/// `PlayFailReason.java`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum PlayFailReason {
+    ReasonNoMessage = 0x00,
+    ReasonSystemErrorLoginLater = 0x01,
+    ReasonUserOrPassWrong = 0x02,
+    ReasonAccessFailedTryAgainLater = 0x04,
+    ReasonAccountInUse = 0x07,
+    ReasonServerOverloaded = 0x0F,
+    ReasonServerMaintenance = 0x10,
+}
+
 /// `AccountKickedReason.java`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]

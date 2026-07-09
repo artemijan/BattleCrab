@@ -7,5 +7,7 @@ pub mod context;
 pub mod controller;
 pub mod dao;
 pub mod enums;
+pub mod gs_link;
+pub mod gs_table;
 pub mod network;
 pub mod session;

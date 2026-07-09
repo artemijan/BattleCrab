@@ -12,6 +12,9 @@ use tracing::{info, warn};
 
 use crate::dao;
 use crate::enums::LoginFailReason;
+use crate::gs_table::{
+    hexid_to_string, login_server_fail, server_status, GameServerEntry, GameServerTable, GsCommand, Subnet,
+};
 use crate::session::SessionKey;
 
 /// `LoginResult` outcomes seen by `RequestAuthLogin`.
@@ -34,6 +37,27 @@ struct AuthedEntry {
     kick: mpsc::Sender<LoginFailReason>,
 }
 
+/// One row of the client `ServerList` packet, fully resolved.
+#[derive(Debug, Clone)]
+pub struct ServerListEntry {
+    pub server_id: u8,
+    pub ip: [u8; 4],
+    pub port: i32,
+    pub age_limit: u8,
+    pub pvp: bool,
+    pub current_players: u16,
+    pub max_players: u16,
+    pub up: bool,
+    pub server_type: i32,
+    pub brackets: bool,
+}
+
+/// Result of a `GameServerAuth` registration attempt.
+pub struct GsRegistration {
+    pub server_id: i32,
+    pub server_name: String,
+}
+
 pub enum Msg {
     IsBanned { ip: String, reply: oneshot::Sender<bool> },
     AddBan { ip: String, duration_ms: i64 },
@@ -46,12 +70,32 @@ pub enum Msg {
     },
     RemoveAuthedClient { account: String },
     GetSessionKey { account: String, reply: oneshot::Sender<Option<SessionKey>> },
+    // --- GS link ---
+    RegisterGameServer {
+        desired_id: i32,
+        accept_alternative: bool,
+        port: u16,
+        max_players: i32,
+        hex_id: Vec<u8>,
+        hosts: Vec<(String, String)>,
+        link: mpsc::Sender<GsCommand>,
+        reply: oneshot::Sender<Result<GsRegistration, u8>>,
+    },
+    GsDisconnected { server_id: i32 },
+    SetServerStatus { server_id: i32, attributes: Vec<(i32, i32)> },
+    PlayerInGame { server_id: i32, accounts: Vec<String> },
+    PlayerLogout { server_id: i32, account: String },
+    PlayerAuthRequest { account: String, key: SessionKey, reply: oneshot::Sender<bool> },
+    ServerListData { client_ip: String, access_level: i32, reply: oneshot::Sender<Vec<ServerListEntry>> },
+    IsLoginPossible { server_id: i32, access_level: i32, account: String, last_server: i32, reply: oneshot::Sender<bool> },
 }
 
 pub struct ControllerSettings {
     pub auto_create_accounts: bool,
     pub login_try_before_ban: i32,
     pub login_block_after_ban_ms: i64,
+    pub show_licence: bool,
+    pub accept_new_gameserver: bool,
 }
 
 struct Controller {
@@ -60,6 +104,9 @@ struct Controller {
     authed_clients: HashMap<String, AuthedEntry>,
     failed_login_attempts: HashMap<String, i32>,
     banned_ips: HashMap<String, i64>,
+    gs: GameServerTable,
+    /// `LoginServer._loginStatus` — global override (STATUS_NORMAL default).
+    login_status: i32,
 }
 
 #[derive(Clone)]
@@ -67,7 +114,7 @@ pub struct ControllerHandle {
     tx: mpsc::Sender<Msg>,
 }
 
-pub fn spawn(settings: ControllerSettings, pool: SqlitePool) -> ControllerHandle {
+pub fn spawn(settings: ControllerSettings, pool: SqlitePool, gs: GameServerTable) -> ControllerHandle {
     let (tx, mut rx) = mpsc::channel(256);
     let mut controller = Controller {
         settings,
@@ -75,6 +122,8 @@ pub fn spawn(settings: ControllerSettings, pool: SqlitePool) -> ControllerHandle
         authed_clients: HashMap::new(),
         failed_login_attempts: HashMap::new(),
         banned_ips: HashMap::new(),
+        gs,
+        login_status: server_status::STATUS_NORMAL,
     };
     tokio::spawn(async move {
         while let Some(msg) = rx.recv().await {
@@ -116,6 +165,75 @@ impl ControllerHandle {
         let _ = self.tx.send(Msg::GetSessionKey { account: account.to_string(), reply }).await;
         rx.await.ok().flatten()
     }
+
+    #[allow(clippy::too_many_arguments)]
+    pub async fn register_game_server(
+        &self,
+        desired_id: i32,
+        accept_alternative: bool,
+        port: u16,
+        max_players: i32,
+        hex_id: Vec<u8>,
+        hosts: Vec<(String, String)>,
+        link: mpsc::Sender<GsCommand>,
+    ) -> Result<GsRegistration, u8> {
+        let (reply, rx) = oneshot::channel();
+        let _ = self
+            .tx
+            .send(Msg::RegisterGameServer { desired_id, accept_alternative, port, max_players, hex_id, hosts, link, reply })
+            .await;
+        rx.await.unwrap_or(Err(crate::gs_table::login_server_fail::NOT_AUTHED))
+    }
+
+    pub async fn gs_disconnected(&self, server_id: i32) {
+        let _ = self.tx.send(Msg::GsDisconnected { server_id }).await;
+    }
+
+    pub async fn set_server_status(&self, server_id: i32, attributes: Vec<(i32, i32)>) {
+        let _ = self.tx.send(Msg::SetServerStatus { server_id, attributes }).await;
+    }
+
+    pub async fn player_in_game(&self, server_id: i32, accounts: Vec<String>) {
+        let _ = self.tx.send(Msg::PlayerInGame { server_id, accounts }).await;
+    }
+
+    pub async fn player_logout(&self, server_id: i32, account: String) {
+        let _ = self.tx.send(Msg::PlayerLogout { server_id, account }).await;
+    }
+
+    pub async fn player_auth_request(&self, account: String, key: SessionKey) -> bool {
+        let (reply, rx) = oneshot::channel();
+        let _ = self.tx.send(Msg::PlayerAuthRequest { account, key, reply }).await;
+        rx.await.unwrap_or(false)
+    }
+
+    pub async fn server_list_data(&self, client_ip: String, access_level: i32) -> Vec<ServerListEntry> {
+        let (reply, rx) = oneshot::channel();
+        let _ = self.tx.send(Msg::ServerListData { client_ip, access_level, reply }).await;
+        rx.await.unwrap_or_default()
+    }
+
+    pub async fn is_login_possible(&self, server_id: i32, access_level: i32, account: String, last_server: i32) -> bool {
+        let (reply, rx) = oneshot::channel();
+        let _ = self.tx.send(Msg::IsLoginPossible { server_id, access_level, account, last_server, reply }).await;
+        rx.await.unwrap_or(false)
+    }
+}
+
+/// `InetAddress.getByName(host).getAddress()` — accepts an IP literal or a
+/// resolvable hostname.
+fn resolve_host(host: &str) -> Option<[u8; 4]> {
+    if let Ok(ip) = host.parse::<std::net::Ipv4Addr>() {
+        return Some(ip.octets());
+    }
+    use std::net::ToSocketAddrs;
+    (host, 0)
+        .to_socket_addrs()
+        .ok()?
+        .find_map(|addr| match addr.ip() {
+            std::net::IpAddr::V4(v4) => Some(v4.octets()),
+            std::net::IpAddr::V6(_) => None,
+        })
 }
 
 fn now_millis() -> i64 {
@@ -142,7 +260,209 @@ impl Controller {
             Msg::GetSessionKey { account, reply } => {
                 let _ = reply.send(self.authed_clients.get(&account).map(|e| e.key));
             }
+            Msg::RegisterGameServer { desired_id, accept_alternative, port, max_players, hex_id, hosts, link, reply } => {
+                let result =
+                    self.register_game_server(desired_id, accept_alternative, port, max_players, hex_id, hosts, link).await;
+                let _ = reply.send(result);
+            }
+            Msg::GsDisconnected { server_id } => {
+                if let Some(entry) = self.gs.servers.get_mut(&server_id) {
+                    if entry.authed {
+                        info!(
+                            "Server [{server_id}] {} is now set as disconnected.",
+                            self.gs.server_names.get(&server_id).cloned().unwrap_or_default()
+                        );
+                    }
+                    entry.set_down();
+                }
+            }
+            Msg::SetServerStatus { server_id, attributes } => self.set_server_status(server_id, attributes),
+            Msg::PlayerInGame { server_id, accounts } => {
+                if let Some(entry) = self.gs.servers.get_mut(&server_id) {
+                    for account in accounts {
+                        // addAccountOnGameServer also frees the LS-side slot.
+                        self.authed_clients.remove(&account);
+                        entry.accounts.insert(account);
+                    }
+                }
+            }
+            Msg::PlayerLogout { server_id, account } => {
+                if let Some(entry) = self.gs.servers.get_mut(&server_id) {
+                    entry.accounts.remove(&account);
+                }
+                self.authed_clients.remove(&account);
+            }
+            Msg::PlayerAuthRequest { account, key, reply } => {
+                let matches = match self.authed_clients.get(&account) {
+                    Some(entry) => {
+                        // SessionKey.equals: only the playOk pair when the
+                        // license screen is skipped.
+                        if self.settings.show_licence {
+                            entry.key == key
+                        } else {
+                            entry.key.play_ok1 == key.play_ok1 && entry.key.play_ok2 == key.play_ok2
+                        }
+                    }
+                    None => false,
+                };
+                if matches {
+                    self.authed_clients.remove(&account);
+                }
+                let _ = reply.send(matches);
+            }
+            Msg::ServerListData { client_ip, access_level, reply } => {
+                let _ = reply.send(self.server_list_data(&client_ip, access_level));
+            }
+            Msg::IsLoginPossible { server_id, access_level, account, last_server, reply } => {
+                let possible = match self.gs.servers.get(&server_id) {
+                    Some(entry) if entry.authed => entry.can_login(access_level),
+                    _ => false,
+                };
+                if possible && last_server != server_id {
+                    let _ = sqlx::query("UPDATE accounts SET lastServer = ? WHERE login = ?")
+                        .bind(server_id)
+                        .bind(&account)
+                        .execute(&self.pool)
+                        .await;
+                }
+                let _ = reply.send(possible);
+            }
         }
+    }
+
+    /// `GameServerAuth.handleRegProcess`.
+    #[allow(clippy::too_many_arguments)]
+    async fn register_game_server(
+        &mut self,
+        desired_id: i32,
+        accept_alternative: bool,
+        port: u16,
+        max_players: i32,
+        hex_id: Vec<u8>,
+        hosts: Vec<(String, String)>,
+        link: mpsc::Sender<GsCommand>,
+    ) -> Result<GsRegistration, u8> {
+        let assigned_id = match self.gs.servers.get(&desired_id) {
+            Some(existing) if existing.hex_id == hex_id => {
+                if existing.authed {
+                    return Err(login_server_fail::REASON_ALREADY_LOGGED_IN);
+                }
+                desired_id
+            }
+            Some(_) => {
+                // Registered with a different hexid: try an alternative id.
+                if !(self.settings.accept_new_gameserver && accept_alternative) {
+                    return Err(login_server_fail::REASON_WRONG_HEXID);
+                }
+                let free = self
+                    .gs
+                    .server_names
+                    .keys()
+                    .copied()
+                    .find(|id| !self.gs.servers.contains_key(id))
+                    .ok_or(login_server_fail::REASON_NO_FREE_ID)?;
+                self.gs.servers.insert(free, GameServerEntry::new(free, hex_id.clone()));
+                self.register_server_on_db(free, &hex_id, &hosts).await;
+                free
+            }
+            None => {
+                if !self.settings.accept_new_gameserver {
+                    return Err(login_server_fail::REASON_WRONG_HEXID);
+                }
+                self.gs.servers.insert(desired_id, GameServerEntry::new(desired_id, hex_id.clone()));
+                self.register_server_on_db(desired_id, &hex_id, &hosts).await;
+                desired_id
+            }
+        };
+
+        let entry = self.gs.servers.get_mut(&assigned_id).expect("just ensured");
+        entry.port = port;
+        entry.max_players = max_players;
+        entry.addresses = hosts
+            .iter()
+            .filter_map(|(subnet, host)| Subnet::parse(subnet).map(|s| (s, host.clone())))
+            .collect();
+        entry.link = Some(link);
+        entry.authed = true;
+
+        let server_name = self.gs.server_names.get(&assigned_id).cloned().unwrap_or_default();
+        info!("Updated Gameserver [{assigned_id}] {server_name} IP's:");
+        for (_, host) in &hosts {
+            info!("{host}");
+        }
+        Ok(GsRegistration { server_id: assigned_id, server_name })
+    }
+
+    async fn register_server_on_db(&self, id: i32, hex_id: &[u8], hosts: &[(String, String)]) {
+        let external_host = hosts.first().map(|(_, host)| host.clone()).unwrap_or_default();
+        let _ = sqlx::query("INSERT INTO gameservers (hexid,server_id,host) values (?,?,?)")
+            .bind(hexid_to_string(hex_id))
+            .bind(id)
+            .bind(external_host)
+            .execute(&self.pool)
+            .await;
+    }
+
+    /// `ServerStatus` packet application.
+    fn set_server_status(&mut self, server_id: i32, attributes: Vec<(i32, i32)>) {
+        let login_status = self.login_status;
+        let Some(entry) = self.gs.servers.get_mut(&server_id) else {
+            return;
+        };
+        for (kind, value) in attributes {
+            match kind {
+                server_status::SERVER_LIST_STATUS => {
+                    // GameServerInfo.setStatus: the global LS status wins.
+                    entry.status = match login_status {
+                        server_status::STATUS_DOWN => server_status::STATUS_DOWN,
+                        server_status::STATUS_GM_ONLY => server_status::STATUS_GM_ONLY,
+                        _ => value,
+                    };
+                }
+                server_status::SERVER_TYPE => entry.server_type = value,
+                server_status::SERVER_LIST_SQUARE_BRACKET => entry.showing_brackets = value == 1,
+                server_status::MAX_PLAYERS => entry.max_players = value,
+                server_status::SERVER_AGE => entry.age_limit = value,
+                _ => {}
+            }
+        }
+    }
+
+    /// `ServerList` data (`ServerData` construction).
+    fn server_list_data(&self, client_ip: &str, access_level: i32) -> Vec<ServerListEntry> {
+        let client_addr: std::net::Ipv4Addr = client_ip.parse().unwrap_or(std::net::Ipv4Addr::LOCALHOST);
+        let mut entries: Vec<ServerListEntry> = self
+            .gs
+            .servers
+            .values()
+            .map(|gsi| {
+                let ip = gsi
+                    .address_for(client_addr)
+                    .and_then(resolve_host)
+                    .unwrap_or([127, 0, 0, 1]);
+                let status = if access_level < 0
+                    || (gsi.status == server_status::STATUS_GM_ONLY && access_level <= 0)
+                {
+                    server_status::STATUS_DOWN
+                } else {
+                    gsi.status
+                };
+                ServerListEntry {
+                    server_id: gsi.id as u8,
+                    ip,
+                    port: gsi.port as i32,
+                    age_limit: 0,
+                    pvp: true, // GameServerInfo.IS_PVP
+                    current_players: gsi.accounts.len() as u16,
+                    max_players: gsi.max_players as u16,
+                    up: status != server_status::STATUS_DOWN,
+                    server_type: gsi.server_type,
+                    brackets: gsi.showing_brackets,
+                }
+            })
+            .collect();
+        entries.sort_by_key(|e| e.server_id);
+        entries
     }
 
     /// `RequestAuthLogin.run` DB half: `retriveAccountInfo` + `tryCheckinAccount`.
@@ -195,7 +515,16 @@ impl Controller {
         }
         dao::update_account_info(&self.pool, &info.login, &ip, now).await;
 
-        // ALREADY_ON_GS: stub until the GS link exists (M4).
+        // ALREADY_ON_GS: kick from the game server (RequestAuthLogin does
+        // gsi.getGameServerThread().kickPlayer(login)).
+        if let Some(entry) = self.gs.servers.values().find(|e| e.accounts.contains(&info.login)) {
+            if entry.authed {
+                if let Some(link) = &entry.link {
+                    let _ = link.try_send(GsCommand::KickPlayer { account: info.login.clone() });
+                }
+            }
+            return AuthOutcome::AlreadyOnGs;
+        }
 
         // ALREADY_ON_LS: kick the previous client, like RequestAuthLogin does.
         if let Some(old) = self.authed_clients.remove(&info.login) {
