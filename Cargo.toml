@@ -1,0 +1,29 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/commons",
+    "crates/loginserver",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "GPL-3.0"
+
+[workspace.dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "net", "sync", "time", "macros", "signal", "io-util"] }
+bytes = "1"
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "sqlite", "macros"] }
+blowfish = "0.9"
+byteorder = "1"
+cipher = "0.4"
+sha1 = "0.10"
+base64 = "0.22"
+num-bigint-dig = { version = "0.8", features = ["rand"] }
+rsa = "0.9"
+num-traits = "0.2"
+rand = "0.8"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+thiserror = "2"
+quick-xml = "0.37"

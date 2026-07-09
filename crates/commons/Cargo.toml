@@ -1,0 +1,24 @@
+[package]
+name = "commons"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+tokio.workspace = true
+bytes.workspace = true
+sqlx.workspace = true
+blowfish.workspace = true
+byteorder.workspace = true
+cipher.workspace = true
+rsa.workspace = true
+sha1.workspace = true
+base64.workspace = true
+num-bigint-dig.workspace = true
+num-traits.workspace = true
+rand.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+serde_json = "1"
