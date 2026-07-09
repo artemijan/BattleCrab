@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="NewbieGuides">
+		<group>
+			<npc id="31076" x="-83123" y="150868" z="-3120" respawnTime="60sec" />
+			<npc id="31077" x="-13920" y="121977" z="-2984" heading="32142" respawnTime="60sec" />
+			<npc id="31077" x="17136" y="144896" z="-3008" heading="26624" respawnTime="60sec" /> <!-- custom -->
+			<npc id="31077" x="82839" y="149377" z="-3464" heading="49224" respawnTime="60sec" /> <!-- custom -->
+		</group>
+	</spawn>
+</list>

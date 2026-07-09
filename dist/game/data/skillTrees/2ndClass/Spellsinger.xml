@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="27" parentClassId="26">
+		<skill skillId="146" skillLevel="13" skillName="Anti Magic" levelUpSp="9000" getLevel="40" />
+		<skill skillId="146" skillLevel="14" skillName="Anti Magic" levelUpSp="9000" getLevel="40" />
+		<skill skillId="146" skillLevel="15" skillName="Anti Magic" levelUpSp="9000" getLevel="40" />
+		<skill skillId="213" skillLevel="3" skillName="Boost Mana" levelUpSp="27000" getLevel="40" />
+		<skill skillId="228" skillLevel="2" skillName="Fast Spell Casting" levelUpSp="27000" getLevel="40" />
+		<skill skillId="234" skillLevel="9" skillName="Robe Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="234" skillLevel="10" skillName="Robe Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="234" skillLevel="11" skillName="Robe Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="249" skillLevel="10" skillName="Weapon Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="249" skillLevel="11" skillName="Weapon Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="249" skillLevel="12" skillName="Weapon Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="285" skillLevel="9" skillName="Higher Mana Gain" levelUpSp="14000" getLevel="40" />
+		<skill skillId="285" skillLevel="10" skillName="Higher Mana Gain" levelUpSp="14000" getLevel="40" />
+		<skill skillId="1047" skillLevel="1" skillName="Mana Regeneration" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1069" skillLevel="10" skillName="Sleep" levelUpSp="9000" getLevel="40" />
+		<skill skillId="1069" skillLevel="11" skillName="Sleep" levelUpSp="9000" getLevel="40" />
+		<skill skillId="1069" skillLevel="12" skillName="Sleep" levelUpSp="9000" getLevel="40" />
+		<skill skillId="1071" skillLevel="1" skillName="Surrender To Water" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1164" skillLevel="6" skillName="Curse: Weakness" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1169" skillLevel="1" skillName="Curse Fear" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1182" skillLevel="2" skillName="Resist Aqua" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1223" skillLevel="2" skillName="Surrender To Earth" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1231" skillLevel="1" skillName="Aura Flare" levelUpSp="14000" getLevel="40" />
+		<skill skillId="1231" skillLevel="2" skillName="Aura Flare" levelUpSp="14000" getLevel="40" />
+		<skill skillId="1235" skillLevel="1" skillName="Hydro Blast" levelUpSp="14000" getLevel="40" />
+		<skill skillId="1235" skillLevel="2" skillName="Hydro Blast" levelUpSp="14000" getLevel="40" />
+		<skill skillId="1236" skillLevel="1" skillName="Frost Bolt" levelUpSp="14000" getLevel="40" />
+		<skill skillId="1236" skillLevel="2" skillName="Frost Bolt" levelUpSp="14000" getLevel="40" />
+		<skill skillId="1238" skillLevel="1" skillName="Freezing Skin" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1265" skillLevel="1" skillName="Solar Flare" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1275" skillLevel="1" skillName="Aura Bolt" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1297" skillLevel="1" skillName="Clear Mind" levelUpSp="27000" getLevel="40" />
+		<skill skillId="146" skillLevel="16" skillName="Anti Magic" levelUpSp="12000" getLevel="44" />
+		<skill skillId="146" skillLevel="17" skillName="Anti Magic" levelUpSp="12000" getLevel="44" />
+		<skill skillId="146" skillLevel="18" skillName="Anti Magic" levelUpSp="12000" getLevel="44" />
+		<skill skillId="212" skillLevel="2" skillName="Fast HP Recovery" levelUpSp="35000" getLevel="44" />
+		<skill skillId="229" skillLevel="3" skillName="Fast Mana Recovery" levelUpSp="35000" getLevel="44" />
+		<skill skillId="234" skillLevel="12" skillName="Robe Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="234" skillLevel="13" skillName="Robe Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="234" skillLevel="14" skillName="Robe Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="249" skillLevel="13" skillName="Weapon Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="249" skillLevel="14" skillName="Weapon Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="249" skillLevel="15" skillName="Weapon Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="285" skillLevel="11" skillName="Higher Mana Gain" levelUpSp="18000" getLevel="44" />
+		<skill skillId="285" skillLevel="12" skillName="Higher Mana Gain" levelUpSp="18000" getLevel="44" />
+		<skill skillId="1069" skillLevel="13" skillName="Sleep" levelUpSp="12000" getLevel="44" />
+		<skill skillId="1069" skillLevel="14" skillName="Sleep" levelUpSp="12000" getLevel="44" />
+		<skill skillId="1069" skillLevel="15" skillName="Sleep" levelUpSp="12000" getLevel="44" />
+		<skill skillId="1071" skillLevel="2" skillName="Surrender To Water" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1072" skillLevel="1" skillName="Sleeping Cloud" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1164" skillLevel="7" skillName="Curse: Weakness" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1169" skillLevel="2" skillName="Curse Fear" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1182" skillLevel="3" skillName="Resist Aqua" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1183" skillLevel="1" skillName="Freezing Shackle" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1223" skillLevel="3" skillName="Surrender To Earth" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1231" skillLevel="3" skillName="Aura Flare" levelUpSp="18000" getLevel="44" />
+		<skill skillId="1231" skillLevel="4" skillName="Aura Flare" levelUpSp="18000" getLevel="44" />
+		<skill skillId="1235" skillLevel="3" skillName="Hydro Blast" levelUpSp="18000" getLevel="44" />
+		<skill skillId="1235" skillLevel="4" skillName="Hydro Blast" levelUpSp="18000" getLevel="44" />
+		<skill skillId="1236" skillLevel="3" skillName="Frost Bolt" levelUpSp="18000" getLevel="44" />
+		<skill skillId="1236" skillLevel="4" skillName="Frost Bolt" levelUpSp="18000" getLevel="44" />
+		<skill skillId="1237" skillLevel="1" skillName="Ice Dagger" levelUpSp="18000" getLevel="44" />
+		<skill skillId="1237" skillLevel="2" skillName="Ice Dagger" levelUpSp="18000" getLevel="44" />
+		<skill skillId="1265" skillLevel="2" skillName="Solar Flare" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1275" skillLevel="2" skillName="Aura Bolt" levelUpSp="35000" getLevel="44" />
+		<skill skillId="146" skillLevel="19" skillName="Anti Magic" levelUpSp="19000" getLevel="48" />
+		<skill skillId="146" skillLevel="20" skillName="Anti Magic" levelUpSp="19000" getLevel="48" />
+		<skill skillId="146" skillLevel="21" skillName="Anti Magic" levelUpSp="19000" getLevel="48" />
+		<skill skillId="164" skillLevel="3" skillName="Quick Recovery" levelUpSp="57000" getLevel="48" />
+		<skill skillId="213" skillLevel="4" skillName="Boost Mana" levelUpSp="57000" getLevel="48" />
+		<skill skillId="234" skillLevel="15" skillName="Robe Mastery" levelUpSp="19000" getLevel="48" />
+		<skill skillId="234" skillLevel="16" skillName="Robe Mastery" levelUpSp="19000" getLevel="48" />
+		<skill skillId="234" skillLevel="17" skillName="Robe Mastery" levelUpSp="19000" getLevel="48" />
+		<skill skillId="249" skillLevel="16" skillName="Weapon Mastery" levelUpSp="19000" getLevel="48" />
+		<skill skillId="249" skillLevel="17" skillName="Weapon Mastery" levelUpSp="19000" getLevel="48" />
+		<skill skillId="249" skillLevel="18" skillName="Weapon Mastery" levelUpSp="19000" getLevel="48" />
+		<skill skillId="285" skillLevel="13" skillName="Higher Mana Gain" levelUpSp="29000" getLevel="48" />
+		<skill skillId="285" skillLevel="14" skillName="Higher Mana Gain" levelUpSp="29000" getLevel="48" />
+		<skill skillId="1047" skillLevel="2" skillName="Mana Regeneration" levelUpSp="57000" getLevel="48" />
+		<skill skillId="1056" skillLevel="1" skillName="Cancellation" levelUpSp="57000" getLevel="48" />
+		<skill skillId="1069" skillLevel="16" skillName="Sleep" levelUpSp="19000" getLevel="48" />
+		<skill skillId="1069" skillLevel="17" skillName="Sleep" levelUpSp="19000" getLevel="48" />
+		<skill skillId="1069" skillLevel="18" skillName="Sleep" levelUpSp="19000" getLevel="48" />
+		<skill skillId="1071" skillLevel="3" skillName="Surrender To Water" levelUpSp="57000" getLevel="48" />
+		<skill skillId="1164" skillLevel="8" skillName="Curse: Weakness" levelUpSp="57000" getLevel="48" />
+		<skill skillId="1169" skillLevel="3" skillName="Curse Fear" levelUpSp="57000" getLevel="48" />
+		<skill skillId="1223" skillLevel="4" skillName="Surrender To Earth" levelUpSp="57000" getLevel="48" />
+		<skill skillId="1231" skillLevel="5" skillName="Aura Flare" levelUpSp="29000" getLevel="48" />
+		<skill skillId="1231" skillLevel="6" skillName="Aura Flare" levelUpSp="29000" getLevel="48" />
+		<skill skillId="1235" skillLevel="5" skillName="Hydro Blast" levelUpSp="29000" getLevel="48" />
+		<skill skillId="1235" skillLevel="6" skillName="Hydro Blast" levelUpSp="29000" getLevel="48" />
+		<skill skillId="1236" skillLevel="5" skillName="Frost Bolt" levelUpSp="29000" getLevel="48" />
+		<skill skillId="1236" skillLevel="6" skillName="Frost Bolt" levelUpSp="29000" getLevel="48" />
+		<skill skillId="1237" skillLevel="3" skillName="Ice Dagger" levelUpSp="29000" getLevel="48" />
+		<skill skillId="1237" skillLevel="4" skillName="Ice Dagger" levelUpSp="29000" getLevel="48" />
+		<skill skillId="1238" skillLevel="2" skillName="Freezing Skin" levelUpSp="57000" getLevel="48" />
+		<skill skillId="1265" skillLevel="3" skillName="Solar Flare" levelUpSp="57000" getLevel="48" />
+		<skill skillId="1275" skillLevel="3" skillName="Aura Bolt" levelUpSp="57000" getLevel="48" />
+		<skill skillId="1297" skillLevel="2" skillName="Clear Mind" levelUpSp="57000" getLevel="48" />
+		<skill skillId="146" skillLevel="22" skillName="Anti Magic" levelUpSp="30000" getLevel="52" />
+		<skill skillId="146" skillLevel="23" skillName="Anti Magic" levelUpSp="30000" getLevel="52" />
+		<skill skillId="146" skillLevel="24" skillName="Anti Magic" levelUpSp="30000" getLevel="52" />
+		<skill skillId="212" skillLevel="3" skillName="Fast HP Recovery" levelUpSp="90000" getLevel="52" />
+		<skill skillId="229" skillLevel="4" skillName="Fast Mana Recovery" levelUpSp="90000" getLevel="52" />
+		<skill skillId="234" skillLevel="18" skillName="Robe Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="234" skillLevel="19" skillName="Robe Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="234" skillLevel="20" skillName="Robe Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="249" skillLevel="19" skillName="Weapon Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="249" skillLevel="20" skillName="Weapon Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="249" skillLevel="21" skillName="Weapon Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="285" skillLevel="15" skillName="Higher Mana Gain" levelUpSp="45000" getLevel="52" />
+		<skill skillId="285" skillLevel="16" skillName="Higher Mana Gain" levelUpSp="45000" getLevel="52" />
+		<skill skillId="1056" skillLevel="2" skillName="Cancellation" levelUpSp="90000" getLevel="52" />
+		<skill skillId="1069" skillLevel="19" skillName="Sleep" levelUpSp="30000" getLevel="52" />
+		<skill skillId="1069" skillLevel="20" skillName="Sleep" levelUpSp="30000" getLevel="52" />
+		<skill skillId="1069" skillLevel="21" skillName="Sleep" levelUpSp="30000" getLevel="52" />
+		<skill skillId="1071" skillLevel="4" skillName="Surrender To Water" levelUpSp="90000" getLevel="52" />
+		<skill skillId="1164" skillLevel="9" skillName="Curse: Weakness" levelUpSp="90000" getLevel="52" />
+		<skill skillId="1169" skillLevel="4" skillName="Curse Fear" levelUpSp="90000" getLevel="52" />
+		<skill skillId="1174" skillLevel="1" skillName="Frost Wall" levelUpSp="45000" getLevel="52" />
+		<skill skillId="1174" skillLevel="2" skillName="Frost Wall" levelUpSp="45000" getLevel="52" />
+		<skill skillId="1183" skillLevel="2" skillName="Freezing Shackle" levelUpSp="90000" getLevel="52" />
+		<skill skillId="1223" skillLevel="5" skillName="Surrender To Earth" levelUpSp="90000" getLevel="52" />
+		<skill skillId="1231" skillLevel="7" skillName="Aura Flare" levelUpSp="45000" getLevel="52" />
+		<skill skillId="1231" skillLevel="8" skillName="Aura Flare" levelUpSp="45000" getLevel="52" />
+		<skill skillId="1235" skillLevel="7" skillName="Hydro Blast" levelUpSp="45000" getLevel="52" />
+		<skill skillId="1235" skillLevel="8" skillName="Hydro Blast" levelUpSp="45000" getLevel="52" />
+		<skill skillId="1236" skillLevel="7" skillName="Frost Bolt" levelUpSp="45000" getLevel="52" />
+		<skill skillId="1236" skillLevel="8" skillName="Frost Bolt" levelUpSp="45000" getLevel="52" />
+		<skill skillId="1237" skillLevel="5" skillName="Ice Dagger" levelUpSp="45000" getLevel="52" />
+		<skill skillId="1237" skillLevel="6" skillName="Ice Dagger" levelUpSp="45000" getLevel="52" />
+		<skill skillId="1265" skillLevel="4" skillName="Solar Flare" levelUpSp="90000" getLevel="52" />
+		<skill skillId="1275" skillLevel="4" skillName="Aura Bolt" levelUpSp="90000" getLevel="52" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="1" getLevel="52" levelUpSp="230000">			<item id="8618" count="1" /> <!-- Ancient Book: Divine Inspiration (Modern Language Version) -->		</skill>
+		<skill skillId="146" skillLevel="25" skillName="Anti Magic" levelUpSp="30000" getLevel="56" />
+		<skill skillId="146" skillLevel="26" skillName="Anti Magic" levelUpSp="30000" getLevel="56" />
+		<skill skillId="146" skillLevel="27" skillName="Anti Magic" levelUpSp="30000" getLevel="56" />
+		<skill skillId="213" skillLevel="5" skillName="Boost Mana" levelUpSp="91000" getLevel="56" />
+		<skill skillId="228" skillLevel="3" skillName="Fast Spell Casting" levelUpSp="91000" getLevel="56" />
+		<skill skillId="234" skillLevel="21" skillName="Robe Mastery" levelUpSp="30000" getLevel="56" />
+		<skill skillId="234" skillLevel="22" skillName="Robe Mastery" levelUpSp="30000" getLevel="56" />
+		<skill skillId="234" skillLevel="23" skillName="Robe Mastery" levelUpSp="30000" getLevel="56" />
+		<skill skillId="249" skillLevel="22" skillName="Weapon Mastery" levelUpSp="30000" getLevel="56" />
+		<skill skillId="249" skillLevel="23" skillName="Weapon Mastery" levelUpSp="30000" getLevel="56" />
+		<skill skillId="249" skillLevel="24" skillName="Weapon Mastery" levelUpSp="30000" getLevel="56" />
+		<skill skillId="285" skillLevel="17" skillName="Higher Mana Gain" levelUpSp="45000" getLevel="56" />
+		<skill skillId="285" skillLevel="18" skillName="Higher Mana Gain" levelUpSp="45000" getLevel="56" />
+		<skill skillId="1056" skillLevel="3" skillName="Cancellation" levelUpSp="91000" getLevel="56" />
+		<skill skillId="1069" skillLevel="22" skillName="Sleep" levelUpSp="30000" getLevel="56" />
+		<skill skillId="1069" skillLevel="23" skillName="Sleep" levelUpSp="30000" getLevel="56" />
+		<skill skillId="1069" skillLevel="24" skillName="Sleep" levelUpSp="30000" getLevel="56" />
+		<skill skillId="1071" skillLevel="5" skillName="Surrender To Water" levelUpSp="91000" getLevel="56" />
+		<skill skillId="1072" skillLevel="2" skillName="Sleeping Cloud" levelUpSp="91000" getLevel="56" />
+		<skill skillId="1164" skillLevel="10" skillName="Curse: Weakness" levelUpSp="91000" getLevel="56" />
+		<skill skillId="1169" skillLevel="5" skillName="Curse Fear" levelUpSp="91000" getLevel="56" />
+		<skill skillId="1174" skillLevel="3" skillName="Frost Wall" levelUpSp="45000" getLevel="56" />
+		<skill skillId="1174" skillLevel="4" skillName="Frost Wall" levelUpSp="45000" getLevel="56" />
+		<skill skillId="1223" skillLevel="6" skillName="Surrender To Earth" levelUpSp="91000" getLevel="56" />
+		<skill skillId="1231" skillLevel="9" skillName="Aura Flare" levelUpSp="45000" getLevel="56" />
+		<skill skillId="1231" skillLevel="10" skillName="Aura Flare" levelUpSp="45000" getLevel="56" />
+		<skill skillId="1235" skillLevel="9" skillName="Hydro Blast" levelUpSp="45000" getLevel="56" />
+		<skill skillId="1235" skillLevel="10" skillName="Hydro Blast" levelUpSp="45000" getLevel="56" />
+		<skill skillId="1236" skillLevel="9" skillName="Frost Bolt" levelUpSp="45000" getLevel="56" />
+		<skill skillId="1236" skillLevel="10" skillName="Frost Bolt" levelUpSp="45000" getLevel="56" />
+		<skill skillId="1237" skillLevel="7" skillName="Ice Dagger" levelUpSp="45000" getLevel="56" />
+		<skill skillId="1237" skillLevel="8" skillName="Ice Dagger" levelUpSp="45000" getLevel="56" />
+		<skill skillId="1238" skillLevel="3" skillName="Freezing Skin" levelUpSp="91000" getLevel="56" />
+		<skill skillId="1265" skillLevel="5" skillName="Solar Flare" levelUpSp="91000" getLevel="56" />
+		<skill skillId="1275" skillLevel="5" skillName="Aura Bolt" levelUpSp="91000" getLevel="56" />
+		<skill skillId="1297" skillLevel="3" skillName="Clear Mind" levelUpSp="91000" getLevel="56" />
+		<skill skillId="146" skillLevel="28" skillName="Anti Magic" levelUpSp="58000" getLevel="58" />
+		<skill skillId="146" skillLevel="29" skillName="Anti Magic" levelUpSp="58000" getLevel="58" />
+		<skill skillId="212" skillLevel="4" skillName="Fast HP Recovery" levelUpSp="116000" getLevel="58" />
+		<skill skillId="234" skillLevel="24" skillName="Robe Mastery" levelUpSp="58000" getLevel="58" />
+		<skill skillId="234" skillLevel="25" skillName="Robe Mastery" levelUpSp="58000" getLevel="58" />
+		<skill skillId="249" skillLevel="25" skillName="Weapon Mastery" levelUpSp="58000" getLevel="58" />
+		<skill skillId="249" skillLevel="26" skillName="Weapon Mastery" levelUpSp="58000" getLevel="58" />
+		<skill skillId="285" skillLevel="19" skillName="Higher Mana Gain" levelUpSp="116000" getLevel="58" />
+		<skill skillId="1056" skillLevel="4" skillName="Cancellation" levelUpSp="116000" getLevel="58" />
+		<skill skillId="1069" skillLevel="25" skillName="Sleep" levelUpSp="58000" getLevel="58" />
+		<skill skillId="1069" skillLevel="26" skillName="Sleep" levelUpSp="58000" getLevel="58" />
+		<skill skillId="1071" skillLevel="6" skillName="Surrender To Water" levelUpSp="116000" getLevel="58" />
+		<skill skillId="1164" skillLevel="11" skillName="Curse: Weakness" levelUpSp="116000" getLevel="58" />
+		<skill skillId="1169" skillLevel="6" skillName="Curse Fear" levelUpSp="116000" getLevel="58" />
+		<skill skillId="1174" skillLevel="5" skillName="Frost Wall" levelUpSp="58000" getLevel="58" />
+		<skill skillId="1174" skillLevel="6" skillName="Frost Wall" levelUpSp="58000" getLevel="58" />
+		<skill skillId="1223" skillLevel="7" skillName="Surrender To Earth" levelUpSp="116000" getLevel="58" />
+		<skill skillId="1231" skillLevel="11" skillName="Aura Flare" levelUpSp="58000" getLevel="58" />
+		<skill skillId="1231" skillLevel="12" skillName="Aura Flare" levelUpSp="58000" getLevel="58" />
+		<skill skillId="1235" skillLevel="11" skillName="Hydro Blast" levelUpSp="58000" getLevel="58" />
+		<skill skillId="1235" skillLevel="12" skillName="Hydro Blast" levelUpSp="58000" getLevel="58" />
+		<skill skillId="1236" skillLevel="11" skillName="Frost Bolt" levelUpSp="116000" getLevel="58" />
+		<skill skillId="1237" skillLevel="9" skillName="Ice Dagger" levelUpSp="116000" getLevel="58" />
+		<skill skillId="1265" skillLevel="6" skillName="Solar Flare" levelUpSp="116000" getLevel="58" />
+		<skill skillId="1275" skillLevel="6" skillName="Aura Bolt" levelUpSp="116000" getLevel="58" />
+		<skill skillId="1295" skillLevel="1" skillName="Aqua Splash" levelUpSp="116000" getLevel="58" />
+		<skill skillId="1417" skillLevel="1" skillName="Aura Flash" levelUpSp="110000" getLevel="58" />
+		<skill skillId="146" skillLevel="30" skillName="Anti Magic" levelUpSp="71000" getLevel="60" />
+		<skill skillId="146" skillLevel="31" skillName="Anti Magic" levelUpSp="71000" getLevel="60" />
+		<skill skillId="213" skillLevel="6" skillName="Boost Mana" levelUpSp="143000" getLevel="60" />
+		<skill skillId="229" skillLevel="5" skillName="Fast Mana Recovery" levelUpSp="143000" getLevel="60" />
+		<skill skillId="234" skillLevel="26" skillName="Robe Mastery" levelUpSp="71000" getLevel="60" />
+		<skill skillId="234" skillLevel="27" skillName="Robe Mastery" levelUpSp="71000" getLevel="60" />
+		<skill skillId="249" skillLevel="27" skillName="Weapon Mastery" levelUpSp="71000" getLevel="60" />
+		<skill skillId="249" skillLevel="28" skillName="Weapon Mastery" levelUpSp="71000" getLevel="60" />
+		<skill skillId="285" skillLevel="20" skillName="Higher Mana Gain" levelUpSp="143000" getLevel="60" />
+		<skill skillId="1047" skillLevel="3" skillName="Mana Regeneration" levelUpSp="143000" getLevel="60" />
+		<skill skillId="1056" skillLevel="5" skillName="Cancellation" levelUpSp="143000" getLevel="60" />
+		<skill skillId="1069" skillLevel="27" skillName="Sleep" levelUpSp="71000" getLevel="60" />
+		<skill skillId="1069" skillLevel="28" skillName="Sleep" levelUpSp="71000" getLevel="60" />
+		<skill skillId="1071" skillLevel="7" skillName="Surrender To Water" levelUpSp="143000" getLevel="60" />
+		<skill skillId="1164" skillLevel="12" skillName="Curse: Weakness" levelUpSp="143000" getLevel="60" />
+		<skill skillId="1169" skillLevel="7" skillName="Curse Fear" levelUpSp="143000" getLevel="60" />
+		<skill skillId="1174" skillLevel="7" skillName="Frost Wall" levelUpSp="71000" getLevel="60" />
+		<skill skillId="1174" skillLevel="8" skillName="Frost Wall" levelUpSp="71000" getLevel="60" />
+		<skill skillId="1223" skillLevel="8" skillName="Surrender To Earth" levelUpSp="143000" getLevel="60" />
+		<skill skillId="1231" skillLevel="13" skillName="Aura Flare" levelUpSp="71000" getLevel="60" />
+		<skill skillId="1231" skillLevel="14" skillName="Aura Flare" levelUpSp="71000" getLevel="60" />
+		<skill skillId="1235" skillLevel="13" skillName="Hydro Blast" levelUpSp="71000" getLevel="60" />
+		<skill skillId="1235" skillLevel="14" skillName="Hydro Blast" levelUpSp="71000" getLevel="60" />
+		<skill skillId="1236" skillLevel="12" skillName="Frost Bolt" levelUpSp="143000" getLevel="60" />
+		<skill skillId="1237" skillLevel="10" skillName="Ice Dagger" levelUpSp="143000" getLevel="60" />
+		<skill skillId="1265" skillLevel="7" skillName="Solar Flare" levelUpSp="143000" getLevel="60" />
+		<skill skillId="1275" skillLevel="7" skillName="Aura Bolt" levelUpSp="143000" getLevel="60" />
+		<skill skillId="1295" skillLevel="2" skillName="Aqua Splash" levelUpSp="143000" getLevel="60" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="2" getLevel="61" levelUpSp="640000">			<item id="8619" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Language Version) -->		</skill>
+		<skill skillId="146" skillLevel="32" skillName="Anti Magic" levelUpSp="100000" getLevel="62" />
+		<skill skillId="146" skillLevel="33" skillName="Anti Magic" levelUpSp="100000" getLevel="62" />
+		<skill skillId="234" skillLevel="28" skillName="Robe Mastery" levelUpSp="100000" getLevel="62" />
+		<skill skillId="234" skillLevel="29" skillName="Robe Mastery" levelUpSp="100000" getLevel="62" />
+		<skill skillId="249" skillLevel="29" skillName="Weapon Mastery" levelUpSp="100000" getLevel="62" />
+		<skill skillId="249" skillLevel="30" skillName="Weapon Mastery" levelUpSp="100000" getLevel="62" />
+		<skill skillId="285" skillLevel="21" skillName="Higher Mana Gain" levelUpSp="200000" getLevel="62" />
+		<skill skillId="1056" skillLevel="6" skillName="Cancellation" levelUpSp="200000" getLevel="62" />
+		<skill skillId="1069" skillLevel="29" skillName="Sleep" levelUpSp="100000" getLevel="62" />
+		<skill skillId="1069" skillLevel="30" skillName="Sleep" levelUpSp="100000" getLevel="62" />
+		<skill skillId="1071" skillLevel="8" skillName="Surrender To Water" levelUpSp="200000" getLevel="62" />
+		<skill skillId="1072" skillLevel="3" skillName="Sleeping Cloud" levelUpSp="200000" getLevel="62" />
+		<skill skillId="1164" skillLevel="13" skillName="Curse: Weakness" levelUpSp="200000" getLevel="62" />
+		<skill skillId="1169" skillLevel="8" skillName="Curse Fear" levelUpSp="200000" getLevel="62" />
+		<skill skillId="1174" skillLevel="9" skillName="Frost Wall" levelUpSp="100000" getLevel="62" />
+		<skill skillId="1174" skillLevel="10" skillName="Frost Wall" levelUpSp="100000" getLevel="62" />
+		<skill skillId="1223" skillLevel="9" skillName="Surrender To Earth" levelUpSp="200000" getLevel="62" />
+		<skill skillId="1231" skillLevel="15" skillName="Aura Flare" levelUpSp="100000" getLevel="62" />
+		<skill skillId="1231" skillLevel="16" skillName="Aura Flare" levelUpSp="100000" getLevel="62" />
+		<skill skillId="1235" skillLevel="15" skillName="Hydro Blast" levelUpSp="100000" getLevel="62" />
+		<skill skillId="1235" skillLevel="16" skillName="Hydro Blast" levelUpSp="100000" getLevel="62" />
+		<skill skillId="1236" skillLevel="13" skillName="Frost Bolt" levelUpSp="200000" getLevel="62" />
+		<skill skillId="1237" skillLevel="11" skillName="Ice Dagger" levelUpSp="200000" getLevel="62" />
+		<skill skillId="1265" skillLevel="8" skillName="Solar Flare" levelUpSp="200000" getLevel="62" />
+		<skill skillId="1275" skillLevel="8" skillName="Aura Bolt" levelUpSp="200000" getLevel="62" />
+		<skill skillId="1295" skillLevel="3" skillName="Aqua Splash" levelUpSp="200000" getLevel="62" />
+		<skill skillId="1297" skillLevel="4" skillName="Clear Mind" levelUpSp="200000" getLevel="62" />
+		<skill skillId="1417" skillLevel="2" skillName="Aura Flash" levelUpSp="190000" getLevel="62" />
+		<skill skillId="146" skillLevel="34" skillName="Anti Magic" levelUpSp="120000" getLevel="64" />
+		<skill skillId="146" skillLevel="35" skillName="Anti Magic" levelUpSp="120000" getLevel="64" />
+		<skill skillId="212" skillLevel="5" skillName="Fast HP Recovery" levelUpSp="240000" getLevel="64" />
+		<skill skillId="234" skillLevel="30" skillName="Robe Mastery" levelUpSp="120000" getLevel="64" />
+		<skill skillId="234" skillLevel="31" skillName="Robe Mastery" levelUpSp="120000" getLevel="64" />
+		<skill skillId="249" skillLevel="31" skillName="Weapon Mastery" levelUpSp="120000" getLevel="64" />
+		<skill skillId="249" skillLevel="32" skillName="Weapon Mastery" levelUpSp="120000" getLevel="64" />
+		<skill skillId="285" skillLevel="22" skillName="Higher Mana Gain" levelUpSp="240000" getLevel="64" />
+		<skill skillId="1056" skillLevel="7" skillName="Cancellation" levelUpSp="240000" getLevel="64" />
+		<skill skillId="1069" skillLevel="31" skillName="Sleep" levelUpSp="120000" getLevel="64" />
+		<skill skillId="1069" skillLevel="32" skillName="Sleep" levelUpSp="120000" getLevel="64" />
+		<skill skillId="1071" skillLevel="9" skillName="Surrender To Water" levelUpSp="240000" getLevel="64" />
+		<skill skillId="1164" skillLevel="14" skillName="Curse: Weakness" levelUpSp="240000" getLevel="64" />
+		<skill skillId="1169" skillLevel="9" skillName="Curse Fear" levelUpSp="240000" getLevel="64" />
+		<skill skillId="1174" skillLevel="11" skillName="Frost Wall" levelUpSp="120000" getLevel="64" />
+		<skill skillId="1174" skillLevel="12" skillName="Frost Wall" levelUpSp="120000" getLevel="64" />
+		<skill skillId="1183" skillLevel="3" skillName="Freezing Shackle" levelUpSp="240000" getLevel="64" />
+		<skill skillId="1223" skillLevel="10" skillName="Surrender To Earth" levelUpSp="240000" getLevel="64" />
+		<skill skillId="1231" skillLevel="17" skillName="Aura Flare" levelUpSp="120000" getLevel="64" />
+		<skill skillId="1231" skillLevel="18" skillName="Aura Flare" levelUpSp="120000" getLevel="64" />
+		<skill skillId="1235" skillLevel="17" skillName="Hydro Blast" levelUpSp="120000" getLevel="64" />
+		<skill skillId="1235" skillLevel="18" skillName="Hydro Blast" levelUpSp="120000" getLevel="64" />
+		<skill skillId="1236" skillLevel="14" skillName="Frost Bolt" levelUpSp="240000" getLevel="64" />
+		<skill skillId="1237" skillLevel="12" skillName="Ice Dagger" levelUpSp="240000" getLevel="64" />
+		<skill skillId="1265" skillLevel="9" skillName="Solar Flare" levelUpSp="240000" getLevel="64" />
+		<skill skillId="1275" skillLevel="9" skillName="Aura Bolt" levelUpSp="240000" getLevel="64" />
+		<skill skillId="1295" skillLevel="4" skillName="Aqua Splash" levelUpSp="240000" getLevel="64" />
+		<skill skillId="146" skillLevel="36" skillName="Anti Magic" levelUpSp="170000" getLevel="66" />
+		<skill skillId="146" skillLevel="37" skillName="Anti Magic" levelUpSp="170000" getLevel="66" />
+		<skill skillId="213" skillLevel="7" skillName="Boost Mana" levelUpSp="330000" getLevel="66" />
+		<skill skillId="234" skillLevel="32" skillName="Robe Mastery" levelUpSp="170000" getLevel="66" />
+		<skill skillId="234" skillLevel="33" skillName="Robe Mastery" levelUpSp="170000" getLevel="66" />
+		<skill skillId="249" skillLevel="33" skillName="Weapon Mastery" levelUpSp="170000" getLevel="66" />
+		<skill skillId="249" skillLevel="34" skillName="Weapon Mastery" levelUpSp="170000" getLevel="66" />
+		<skill skillId="285" skillLevel="23" skillName="Higher Mana Gain" levelUpSp="330000" getLevel="66" />
+		<skill skillId="1056" skillLevel="8" skillName="Cancellation" levelUpSp="330000" getLevel="66" />
+		<skill skillId="1069" skillLevel="33" skillName="Sleep" levelUpSp="170000" getLevel="66" />
+		<skill skillId="1069" skillLevel="34" skillName="Sleep" levelUpSp="170000" getLevel="66" />
+		<skill skillId="1071" skillLevel="10" skillName="Surrender To Water" levelUpSp="330000" getLevel="66" />
+		<skill skillId="1072" skillLevel="4" skillName="Sleeping Cloud" levelUpSp="330000" getLevel="66" />
+		<skill skillId="1164" skillLevel="15" skillName="Curse: Weakness" levelUpSp="330000" getLevel="66" />
+		<skill skillId="1169" skillLevel="10" skillName="Curse Fear" levelUpSp="330000" getLevel="66" />
+		<skill skillId="1174" skillLevel="13" skillName="Frost Wall" levelUpSp="170000" getLevel="66" />
+		<skill skillId="1174" skillLevel="14" skillName="Frost Wall" levelUpSp="170000" getLevel="66" />
+		<skill skillId="1223" skillLevel="11" skillName="Surrender To Earth" levelUpSp="330000" getLevel="66" />
+		<skill skillId="1231" skillLevel="19" skillName="Aura Flare" levelUpSp="170000" getLevel="66" />
+		<skill skillId="1231" skillLevel="20" skillName="Aura Flare" levelUpSp="170000" getLevel="66" />
+		<skill skillId="1235" skillLevel="19" skillName="Hydro Blast" levelUpSp="170000" getLevel="66" />
+		<skill skillId="1235" skillLevel="20" skillName="Hydro Blast" levelUpSp="170000" getLevel="66" />
+		<skill skillId="1236" skillLevel="15" skillName="Frost Bolt" levelUpSp="330000" getLevel="66" />
+		<skill skillId="1237" skillLevel="13" skillName="Ice Dagger" levelUpSp="330000" getLevel="66" />
+		<skill skillId="1265" skillLevel="10" skillName="Solar Flare" levelUpSp="330000" getLevel="66" />
+		<skill skillId="1275" skillLevel="10" skillName="Aura Bolt" levelUpSp="330000" getLevel="66" />
+		<skill skillId="1286" skillLevel="1" skillName="Seed of Water" levelUpSp="330000" getLevel="66" />
+		<skill skillId="1295" skillLevel="5" skillName="Aqua Splash" levelUpSp="330000" getLevel="66" />
+		<skill skillId="1417" skillLevel="3" skillName="Aura Flash" levelUpSp="320000" getLevel="66" />
+		<skill skillId="146" skillLevel="38" skillName="Anti Magic" levelUpSp="180000" getLevel="68" />
+		<skill skillId="146" skillLevel="39" skillName="Anti Magic" levelUpSp="180000" getLevel="68" />
+		<skill skillId="229" skillLevel="6" skillName="Fast Mana Recovery" levelUpSp="370000" getLevel="68" />
+		<skill skillId="234" skillLevel="34" skillName="Robe Mastery" levelUpSp="180000" getLevel="68" />
+		<skill skillId="234" skillLevel="35" skillName="Robe Mastery" levelUpSp="180000" getLevel="68" />
+		<skill skillId="249" skillLevel="35" skillName="Weapon Mastery" levelUpSp="180000" getLevel="68" />
+		<skill skillId="249" skillLevel="36" skillName="Weapon Mastery" levelUpSp="180000" getLevel="68" />
+		<skill skillId="285" skillLevel="24" skillName="Higher Mana Gain" levelUpSp="370000" getLevel="68" />
+		<skill skillId="1056" skillLevel="9" skillName="Cancellation" levelUpSp="370000" getLevel="68" />
+		<skill skillId="1069" skillLevel="35" skillName="Sleep" levelUpSp="180000" getLevel="68" />
+		<skill skillId="1069" skillLevel="36" skillName="Sleep" levelUpSp="180000" getLevel="68" />
+		<skill skillId="1071" skillLevel="11" skillName="Surrender To Water" levelUpSp="370000" getLevel="68" />
+		<skill skillId="1164" skillLevel="16" skillName="Curse: Weakness" levelUpSp="370000" getLevel="68" />
+		<skill skillId="1169" skillLevel="11" skillName="Curse Fear" levelUpSp="370000" getLevel="68" />
+		<skill skillId="1174" skillLevel="15" skillName="Frost Wall" levelUpSp="180000" getLevel="68" />
+		<skill skillId="1174" skillLevel="16" skillName="Frost Wall" levelUpSp="180000" getLevel="68" />
+		<skill skillId="1223" skillLevel="12" skillName="Surrender To Earth" levelUpSp="370000" getLevel="68" />
+		<skill skillId="1231" skillLevel="21" skillName="Aura Flare" levelUpSp="180000" getLevel="68" />
+		<skill skillId="1231" skillLevel="22" skillName="Aura Flare" levelUpSp="180000" getLevel="68" />
+		<skill skillId="1235" skillLevel="21" skillName="Hydro Blast" levelUpSp="180000" getLevel="68" />
+		<skill skillId="1235" skillLevel="22" skillName="Hydro Blast" levelUpSp="180000" getLevel="68" />
+		<skill skillId="1236" skillLevel="16" skillName="Frost Bolt" levelUpSp="370000" getLevel="68" />
+		<skill skillId="1237" skillLevel="14" skillName="Ice Dagger" levelUpSp="370000" getLevel="68" />
+		<skill skillId="1265" skillLevel="11" skillName="Solar Flare" levelUpSp="370000" getLevel="68" />
+		<skill skillId="1275" skillLevel="11" skillName="Aura Bolt" levelUpSp="370000" getLevel="68" />
+		<skill skillId="1288" skillLevel="1" skillName="Aura Symphony" levelUpSp="370000" getLevel="68" />
+		<skill skillId="1295" skillLevel="6" skillName="Aqua Splash" levelUpSp="370000" getLevel="68" />
+		<skill skillId="1297" skillLevel="5" skillName="Clear Mind" levelUpSp="370000" getLevel="68" />
+		<skill skillId="146" skillLevel="40" skillName="Anti Magic" levelUpSp="220000" getLevel="70" />
+		<skill skillId="146" skillLevel="41" skillName="Anti Magic" levelUpSp="220000" getLevel="70" />
+		<skill skillId="234" skillLevel="36" skillName="Robe Mastery" levelUpSp="220000" getLevel="70" />
+		<skill skillId="234" skillLevel="37" skillName="Robe Mastery" levelUpSp="220000" getLevel="70" />
+		<skill skillId="249" skillLevel="37" skillName="Weapon Mastery" levelUpSp="220000" getLevel="70" />
+		<skill skillId="249" skillLevel="38" skillName="Weapon Mastery" levelUpSp="220000" getLevel="70" />
+		<skill skillId="285" skillLevel="25" skillName="Higher Mana Gain" levelUpSp="450000" getLevel="70" />
+		<skill skillId="1047" skillLevel="4" skillName="Mana Regeneration" levelUpSp="450000" getLevel="70" />
+		<skill skillId="1056" skillLevel="10" skillName="Cancellation" levelUpSp="450000" getLevel="70" />
+		<skill skillId="1069" skillLevel="37" skillName="Sleep" levelUpSp="220000" getLevel="70" />
+		<skill skillId="1069" skillLevel="38" skillName="Sleep" levelUpSp="220000" getLevel="70" />
+		<skill skillId="1071" skillLevel="12" skillName="Surrender To Water" levelUpSp="450000" getLevel="70" />
+		<skill skillId="1072" skillLevel="5" skillName="Sleeping Cloud" levelUpSp="450000" getLevel="70" />
+		<skill skillId="1164" skillLevel="17" skillName="Curse: Weakness" levelUpSp="450000" getLevel="70" />
+		<skill skillId="1169" skillLevel="12" skillName="Curse Fear" levelUpSp="450000" getLevel="70" />
+		<skill skillId="1174" skillLevel="17" skillName="Frost Wall" levelUpSp="220000" getLevel="70" />
+		<skill skillId="1174" skillLevel="18" skillName="Frost Wall" levelUpSp="220000" getLevel="70" />
+		<skill skillId="1223" skillLevel="13" skillName="Surrender To Earth" levelUpSp="450000" getLevel="70" />
+		<skill skillId="1231" skillLevel="23" skillName="Aura Flare" levelUpSp="220000" getLevel="70" />
+		<skill skillId="1231" skillLevel="24" skillName="Aura Flare" levelUpSp="220000" getLevel="70" />
+		<skill skillId="1235" skillLevel="23" skillName="Hydro Blast" levelUpSp="220000" getLevel="70" />
+		<skill skillId="1235" skillLevel="24" skillName="Hydro Blast" levelUpSp="220000" getLevel="70" />
+		<skill skillId="1236" skillLevel="17" skillName="Frost Bolt" levelUpSp="450000" getLevel="70" />
+		<skill skillId="1237" skillLevel="15" skillName="Ice Dagger" levelUpSp="450000" getLevel="70" />
+		<skill skillId="1265" skillLevel="12" skillName="Solar Flare" levelUpSp="450000" getLevel="70" />
+		<skill skillId="1275" skillLevel="12" skillName="Aura Bolt" levelUpSp="450000" getLevel="70" />
+		<skill skillId="1290" skillLevel="1" skillName="Blizzard" levelUpSp="450000" getLevel="70" />
+		<skill skillId="1295" skillLevel="7" skillName="Aqua Splash" levelUpSp="450000" getLevel="70" />
+		<skill skillId="1417" skillLevel="4" skillName="Aura Flash" levelUpSp="430000" getLevel="70" />
+		<skill skillId="146" skillLevel="42" skillName="Anti Magic" levelUpSp="380000" getLevel="72" />
+		<skill skillId="146" skillLevel="43" skillName="Anti Magic" levelUpSp="380000" getLevel="72" />
+		<skill skillId="213" skillLevel="8" skillName="Boost Mana" levelUpSp="750000" getLevel="72" />
+		<skill skillId="234" skillLevel="38" skillName="Robe Mastery" levelUpSp="380000" getLevel="72" />
+		<skill skillId="234" skillLevel="39" skillName="Robe Mastery" levelUpSp="380000" getLevel="72" />
+		<skill skillId="249" skillLevel="39" skillName="Weapon Mastery" levelUpSp="380000" getLevel="72" />
+		<skill skillId="249" skillLevel="40" skillName="Weapon Mastery" levelUpSp="380000" getLevel="72" />
+		<skill skillId="285" skillLevel="26" skillName="Higher Mana Gain" levelUpSp="750000" getLevel="72" />
+		<skill skillId="1056" skillLevel="11" skillName="Cancellation" levelUpSp="750000" getLevel="72" />
+		<skill skillId="1069" skillLevel="39" skillName="Sleep" levelUpSp="380000" getLevel="72" />
+		<skill skillId="1069" skillLevel="40" skillName="Sleep" levelUpSp="380000" getLevel="72" />
+		<skill skillId="1071" skillLevel="13" skillName="Surrender To Water" levelUpSp="750000" getLevel="72" />
+		<skill skillId="1164" skillLevel="18" skillName="Curse: Weakness" levelUpSp="750000" getLevel="72" />
+		<skill skillId="1169" skillLevel="13" skillName="Curse Fear" levelUpSp="750000" getLevel="72" />
+		<skill skillId="1174" skillLevel="19" skillName="Frost Wall" levelUpSp="380000" getLevel="72" />
+		<skill skillId="1174" skillLevel="20" skillName="Frost Wall" levelUpSp="380000" getLevel="72" />
+		<skill skillId="1223" skillLevel="14" skillName="Surrender To Earth" levelUpSp="750000" getLevel="72" />
+		<skill skillId="1231" skillLevel="25" skillName="Aura Flare" levelUpSp="380000" getLevel="72" />
+		<skill skillId="1231" skillLevel="26" skillName="Aura Flare" levelUpSp="380000" getLevel="72" />
+		<skill skillId="1235" skillLevel="25" skillName="Hydro Blast" levelUpSp="380000" getLevel="72" />
+		<skill skillId="1235" skillLevel="26" skillName="Hydro Blast" levelUpSp="380000" getLevel="72" />
+		<skill skillId="1236" skillLevel="18" skillName="Frost Bolt" levelUpSp="750000" getLevel="72" />
+		<skill skillId="1237" skillLevel="16" skillName="Ice Dagger" levelUpSp="750000" getLevel="72" />
+		<skill skillId="1265" skillLevel="13" skillName="Solar Flare" levelUpSp="750000" getLevel="72" />
+		<skill skillId="1275" skillLevel="13" skillName="Aura Bolt" levelUpSp="750000" getLevel="72" />
+		<skill skillId="1293" skillLevel="1" skillName="Elemental Symphony" levelUpSp="750000" getLevel="72" />
+		<skill skillId="1295" skillLevel="8" skillName="Aqua Splash" levelUpSp="750000" getLevel="72" />
+		<skill skillId="146" skillLevel="44" skillName="Anti Magic" levelUpSp="520000" getLevel="74" />
+		<skill skillId="146" skillLevel="45" skillName="Anti Magic" levelUpSp="520000" getLevel="74" />
+		<skill skillId="212" skillLevel="6" skillName="Fast HP Recovery" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="229" skillLevel="7" skillName="Fast Mana Recovery" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="234" skillLevel="40" skillName="Robe Mastery" levelUpSp="520000" getLevel="74" />
+		<skill skillId="234" skillLevel="41" skillName="Robe Mastery" levelUpSp="520000" getLevel="74" />
+		<skill skillId="249" skillLevel="41" skillName="Weapon Mastery" levelUpSp="520000" getLevel="74" />
+		<skill skillId="249" skillLevel="42" skillName="Weapon Mastery" levelUpSp="520000" getLevel="74" />
+		<skill skillId="285" skillLevel="27" skillName="Higher Mana Gain" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="1056" skillLevel="12" skillName="Cancellation" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="1069" skillLevel="41" skillName="Sleep" levelUpSp="520000" getLevel="74" />
+		<skill skillId="1069" skillLevel="42" skillName="Sleep" levelUpSp="520000" getLevel="74" />
+		<skill skillId="1071" skillLevel="14" skillName="Surrender To Water" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="1164" skillLevel="19" skillName="Curse: Weakness" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="1169" skillLevel="14" skillName="Curse Fear" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="1174" skillLevel="21" skillName="Frost Wall" levelUpSp="520000" getLevel="74" />
+		<skill skillId="1174" skillLevel="22" skillName="Frost Wall" levelUpSp="520000" getLevel="74" />
+		<skill skillId="1183" skillLevel="4" skillName="Freezing Shackle" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="1223" skillLevel="15" skillName="Surrender To Earth" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="1231" skillLevel="27" skillName="Aura Flare" levelUpSp="520000" getLevel="74" />
+		<skill skillId="1231" skillLevel="28" skillName="Aura Flare" levelUpSp="520000" getLevel="74" />
+		<skill skillId="1235" skillLevel="27" skillName="Hydro Blast" levelUpSp="520000" getLevel="74" />
+		<skill skillId="1235" skillLevel="28" skillName="Hydro Blast" levelUpSp="520000" getLevel="74" />
+		<skill skillId="1236" skillLevel="19" skillName="Frost Bolt" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="1237" skillLevel="17" skillName="Ice Dagger" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="1265" skillLevel="14" skillName="Solar Flare" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="1275" skillLevel="14" skillName="Aura Bolt" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="1295" skillLevel="9" skillName="Aqua Splash" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="1297" skillLevel="6" skillName="Clear Mind" levelUpSp="1050000" getLevel="74" />
+		<skill skillId="1417" skillLevel="5" skillName="Aura Flash" levelUpSp="1000000" getLevel="74" />
+	</skillTree>
+</list>

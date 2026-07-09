@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="LotteryTicketSellers">
+		<group>
+			<npc id="30990" x="-84143" y="244637" z="-3728" heading="41000" respawnTime="60sec" />
+			<npc id="30990" x="-80785" y="149735" z="-3040" heading="23000" respawnTime="60sec" />
+			<npc id="30990" x="-14634" y="124028" z="-3131" heading="49412" respawnTime="60sec" />
+			<npc id="30990" x="13015" y="181610" z="-3560" heading="16000" respawnTime="60sec" />
+			<npc id="30990" x="15693" y="142886" z="-2696" heading="16000" respawnTime="60sec" />
+			<npc id="20266" x="30990" y="130725" z="-3228" heading="7858" respawnTime="60sec" />
+			<npc id="30990" x="83001" y="53224" z="-1488" heading="31000" respawnTime="60sec" />
+			<npc id="30990" x="83331" y="147905" z="-3400" heading="16700" respawnTime="60sec" />
+			<npc id="30990" x="111417" y="219422" z="-3544" heading="48000" respawnTime="60sec" />
+			<npc id="30990" x="117148" y="76865" z="-2688" heading="34000" respawnTime="60sec" />
+			<npc id="30990" x="146738" y="25756" z="-2008" heading="0" respawnTime="60sec" />
+			<npc id="30991" x="46960" y="51506" z="-2976" heading="47000" respawnTime="60sec" />
+			<npc id="30992" x="9656" y="15578" z="-4568" heading="6000" respawnTime="60sec" />
+			<npc id="30993" x="115075" y="-178133" z="-880" heading="1000" respawnTime="60sec" />
+			<npc id="30994" x="-45266" y="-112468" z="-240" heading="500" respawnTime="60sec" />
+			<npc id="30994" x="87091" y="-143443" z="-1293" heading="13029" respawnTime="60sec" />
+		</group>
+	</spawn>
+</list>

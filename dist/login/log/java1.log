@@ -1,0 +1,28 @@
+2026.07.09 14:15:18,854	INFO	1	org.l2jmobius.commons.database.DatabaseFactory	Database: Initialized.
+2026.07.09 14:15:18,867	INFO	1	org.l2jmobius.commons.database.queries.SqlQueryManager	SqlQueryManager: Loaded 2 login queries for dialect SQLITE.
+2026.07.09 14:15:18,868	INFO	1	org.l2jmobius.commons.threads.ThreadPool	ThreadPool: Initialized
+2026.07.09 14:15:18,870	INFO	1	org.l2jmobius.commons.threads.ThreadPool	...scheduled pool executor with 2 total threads.
+2026.07.09 14:15:18,870	INFO	1	org.l2jmobius.commons.threads.ThreadPool	...instant pool executor with 2 total threads.
+2026.07.09 14:15:18,871	INFO	1	org.l2jmobius.loginserver.LoginController	Loading LoginController...
+2026.07.09 14:15:18,979	INFO	1	org.l2jmobius.loginserver.LoginController	Cached 10 KeyPairs for RSA communication.
+2026.07.09 14:15:18,986	INFO	1	org.l2jmobius.loginserver.LoginController	Stored 20 keys for Blowfish communication.
+2026.07.09 14:15:19,026	INFO	1	org.l2jmobius.loginserver.GameServerTable	Loaded 127 server names.
+2026.07.09 14:15:19,029	INFO	1	org.l2jmobius.loginserver.GameServerTable	Loaded 1 registered Game Servers.
+2026.07.09 14:15:19,053	INFO	1	org.l2jmobius.loginserver.GameServerTable	Cached 10 RSA keys for Game Server communication.
+2026.07.09 14:15:19,054	INFO	1	org.l2jmobius.loginserver.LoginServer	Loaded 2 IP Bans.
+2026.07.09 14:15:19,055	INFO	1	org.l2jmobius.loginserver.LoginServer	Listening for GameServers on *:9014
+2026.07.09 14:15:19,063	INFO	1	org.l2jmobius.loginserver.LoginServer	LoginServer: is now listening on: 0.0.0.0:2106
+2026.07.09 14:15:35,916	INFO	57	org.l2jmobius.loginserver.GameServerThread	Updated Gameserver [1] Bartz IP's:
+2026.07.09 14:15:35,916	INFO	57	org.l2jmobius.loginserver.GameServerThread	10.37.129.2/10.37.129.0/24
+2026.07.09 14:15:35,916	INFO	57	org.l2jmobius.loginserver.GameServerThread	10.211.55.2/10.211.55.0/24
+2026.07.09 14:15:35,916	INFO	57	org.l2jmobius.loginserver.GameServerThread	192.168.1.17/192.168.1.0/24
+2026.07.09 14:15:35,916	INFO	57	org.l2jmobius.loginserver.GameServerThread	127.0.0.1/127.0.0.0/8
+2026.07.09 14:15:35,916	INFO	57	org.l2jmobius.loginserver.GameServerThread	95.19.225.52/0.0.0.0/0
+2026.07.09 14:19:36,366	INFO	38	org.l2jmobius.loginserver.LoginController	Auto created account 'admin'.
+2026.07.09 14:46:45,935	INFO	57	org.l2jmobius.loginserver.GameServerThread	Server [1] Bartz is now set as disconnected.
+2026.07.09 14:47:03,535	INFO	59	org.l2jmobius.loginserver.GameServerThread	Updated Gameserver [1] Bartz IP's:
+2026.07.09 14:47:03,535	INFO	59	org.l2jmobius.loginserver.GameServerThread	10.37.129.2/10.37.129.0/24
+2026.07.09 14:47:03,535	INFO	59	org.l2jmobius.loginserver.GameServerThread	10.211.55.2/10.211.55.0/24
+2026.07.09 14:47:03,535	INFO	59	org.l2jmobius.loginserver.GameServerThread	192.168.1.17/192.168.1.0/24
+2026.07.09 14:47:03,535	INFO	59	org.l2jmobius.loginserver.GameServerThread	127.0.0.1/127.0.0.0/8
+2026.07.09 14:47:03,535	INFO	59	org.l2jmobius.loginserver.GameServerThread	95.19.225.52/0.0.0.0/0

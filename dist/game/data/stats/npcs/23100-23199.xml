@@ -1,0 +1,3993 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
+	<npc id="23100" level="39" type="Monster" name="Ant Warrior Captain">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="100" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<param name="AttackLowHP" value="1" />
+			<skill name="Buff" id="4074" level="2" />
+		</parameters>
+		<race>BUG</race>
+		<sex>MALE</sex>
+		<acquire exp="5648" sp="1" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="925" hpRegen="4.5" mp="463" mpRegen="1.8" />
+			<speed>
+				<walk ground="80" />
+				<run ground="130" />
+			</speed>
+			<attack physical="166.06476" magical="113.4007" critical="4" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" accuracy="5" />
+			<defence physical="152.46752" magical="111.56912" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="10" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4413" level="10" /> <!-- Slightly Weak M. Def. -->
+			<skill id="4416" level="12" /> <!-- Bugs -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="1" /> <!-- Bare Hands -->
+			<skill id="4074" level="1" /> <!-- Haste -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>ANT</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="36" grown="42" />
+			<height normal="21" />
+		</collision>
+	</npc>
+	<npc id="23101" level="61" type="Monster" name="Slaughter Bathin">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="74" />
+			<param name="MoveAroundSocial1" value="74" />
+			<param name="MoveAroundSocial2" value="74" />
+			<skill name="PhysicalSpecial" id="4032" level="6" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="85638" sp="20" />
+		<equipment rhand="75" /> <!-- Caliburs -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1985" hpRegen="7.5" mp="1066" mpRegen="2.7" />
+			<speed>
+				<walk ground="27" />
+				<run ground="110" />
+			</speed>
+			<attack physical="501.08068" magical="342.17315" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="252.49346" magical="184.76376" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="17" /> <!-- Very Strong M. Atk. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="16" /> <!-- HP Increase (8x) -->
+			<skill id="4032" level="1" /> <!-- Power Strike -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>OMAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="12" grown="14.5" />
+			<height normal="31" grown="36" />
+		</collision>
+	</npc>
+	<npc id="23102" level="60" type="Monster" name="Bathin's Knight">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="215" />
+			<param name="MoveAroundSocial1" value="215" />
+			<param name="MoveAroundSocial2" value="215" />
+			<skill name="PhysicalSpecial" id="4032" level="6" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="74260" sp="17" />
+		<equipment rhand="150" /> <!-- Elemental Sword -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1933" hpRegen="6.5" mp="1036" mpRegen="2.4" />
+			<speed>
+				<walk ground="40" />
+				<run ground="160" />
+			</speed>
+			<attack physical="481.34551" magical="328.69659" critical="4" attackSpeed="253" range="80" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="247.65008" magical="181.21958" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="12" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="13" /> <!-- HP Increase (5x) -->
+			<skill id="4415" level="13" /> <!-- Two-handed Sword -->
+			<skill id="4032" level="1" /> <!-- Power Strike -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>OMAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="10" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23103" level="60" type="Monster" name="Bathin's Wizard">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="0" />
+			<param name="MoveAroundSocial2" value="0" />
+			<skill name="MagicHeal" id="4065" level="6" />
+			<skill name="DeBuff" id="4118" level="6" />
+		</parameters>
+		<race>DEMONIC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="74967" sp="17" />
+		<equipment rhand="3939" /> <!-- Monster Only (Bensh) -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1933" hpRegen="6.5" mp="1036" mpRegen="2.4" />
+			<speed>
+				<walk ground="80" />
+				<run ground="160" />
+			</speed>
+			<attack physical="481.34551" magical="328.69659" critical="1" attackSpeed="253" range="40" type="BLUNT" distance="80" width="120" random="20" accuracy="9" />
+			<defence physical="247.65008" magical="181.21958" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="15" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="10" /> <!-- Slightly Weak M. Atk. -->
+			<skill id="4412" level="12" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4414" level="3" /> <!-- Light Armor Type -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4408" level="13" /> <!-- HP Increase (5x) -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
+			<skill id="4065" level="1" /> <!-- Heal -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>OMAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="9" />
+			<height normal="23" />
+		</collision>
+	</npc>
+	<npc id="23104" level="65" type="Monster" name="Elmoreden's Lady">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="0" />
+			<param name="MoveAroundSocial2" value="0" />
+			<skill name="DDMagic" id="4087" level="6" />
+		</parameters>
+		<race>DEMONIC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="94499" sp="22" />
+		<equipment rhand="3939" /> <!-- Monster Only (Bensh) -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
+			<speed>
+				<walk ground="80" />
+				<run ground="160" />
+			</speed>
+			<attack physical="582.81759" magical="397.98887" critical="1" attackSpeed="253" range="40" type="BLUNT" distance="80" width="120" random="20" accuracy="9" />
+			<defence physical="271.89033" magical="198.95754" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="15" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4414" level="3" /> <!-- Light Armor Type -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4408" level="16" /> <!-- HP Increase (8x) -->
+			<skill id="4087" level="1" /> <!-- Blaze -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>OMAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="13.5" />
+			<height normal="38" />
+		</collision>
+	</npc>
+	<npc id="23105" level="64" type="Monster" name="Elmoreden's Archer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="157" />
+			<param name="MoveAroundSocial1" value="157" />
+			<param name="MoveAroundSocial2" value="157" />
+			<skill name="PhysicalSpecial" id="4040" level="6" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="83747" sp="20" />
+		<equipment rhand="284" /> <!-- Dark Elven Longbow -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2141" hpRegen="7.5" mp="1158" mpRegen="2.7" />
+			<speed>
+				<walk ground="40" />
+				<run ground="140" />
+			</speed>
+			<attack physical="562.02275" magical="383.78868" critical="8" attackSpeed="253" range="1100" type="BOW" distance="10" width="0" random="5" accuracy="0" />
+			<defence physical="267.04468" magical="195.41171" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4411" level="10" /> <!-- Slightly Weak M. Atk. -->
+			<skill id="4414" level="3" /> <!-- Light Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="13" /> <!-- HP Increase (5x) -->
+			<skill id="4415" level="9" /> <!-- Bows -->
+			<skill id="4040" level="1" /> <!-- Power Shot -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>OMAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="11" />
+			<height normal="27" />
+		</collision>
+	</npc>
+	<npc id="23106" level="64" type="Monster" name="Elmoreden's Maid">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="50" />
+			<param name="MoveAroundSocial1" value="50" />
+			<param name="MoveAroundSocial2" value="50" />
+			<skill name="Buff" id="4099" level="2" />
+		</parameters>
+		<race>DEMONIC</race>
+		<sex>MALE</sex>
+		<acquire exp="82626" sp="19" />
+		<equipment rhand="5129" lhand="5129" /> <!-- Doll Knife / Doll Knife -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2141" hpRegen="7.5" mp="1158" mpRegen="2.7" />
+			<speed>
+				<walk ground="22" />
+				<run ground="150" />
+			</speed>
+			<attack physical="562.02275" magical="383.78868" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="267.04468" magical="195.41171" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="10" /> <!-- Slightly Weak M. Atk. -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4408" level="13" /> <!-- HP Increase (5x) -->
+			<skill id="4099" level="1" /> <!-- Berserker Spirit -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>OMAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="6" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="23107" level="64" type="Monster" name="Elmoreden's Warrior">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="215" />
+			<param name="MoveAroundSocial1" value="215" />
+			<param name="MoveAroundSocial2" value="215" />
+			<skill name="PhysicalSpecial" id="4032" level="6" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="85893" sp="20" />
+		<equipment rhand="150" /> <!-- Elemental Sword -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2141" hpRegen="7.5" mp="1158" mpRegen="2.7" />
+			<speed>
+				<walk ground="40" />
+				<run ground="160" />
+			</speed>
+			<attack physical="562.02275" magical="383.78868" critical="4" attackSpeed="253" range="80" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="267.04468" magical="195.41171" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4411" level="17" /> <!-- Very Strong M. Atk. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="13" /> <!-- HP Increase (5x) -->
+			<skill id="4415" level="13" /> <!-- Two-handed Sword -->
+			<skill id="4032" level="1" /> <!-- Power Strike -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>OMAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="10" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23108" level="69" type="Monster" name="Binder">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="90" />
+			<param name="MoveAroundSocial1" value="74" />
+			<param name="MoveAroundSocial2" value="90" />
+			<skill name="PhysicalSpecial" id="4032" level="7" />
+		</parameters>
+		<race>DIVINE</race>
+		<sex>MALE</sex>
+		<acquire exp="112040" sp="26" />
+		<equipment rhand="147" /> <!-- Tear of Darkness -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2395" hpRegen="7.5" mp="1314" mpRegen="2.7" />
+			<speed>
+				<walk ground="50" />
+				<run ground="170" />
+			</speed>
+			<attack physical="667.50361" magical="455.81844" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="291.15063" magical="213.05139" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="19" /> <!-- Extremely Strong M. Atk. -->
+			<skill id="4412" level="12" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+			<skill id="4408" level="16" /> <!-- HP Increase (8x) -->
+			<skill id="4032" level="1" /> <!-- Power Strike -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>OMAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="19" />
+			<height normal="48" />
+		</collision>
+	</npc>
+	<npc id="23109" level="68" type="Monster" name="Bound Warrior">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="110" />
+			<param name="MoveAroundSocial1" value="74" />
+			<param name="MoveAroundSocial2" value="110" />
+			<skill name="PhysicalSpecial" id="4032" level="7" />
+		</parameters>
+		<race>DIVINE</race>
+		<sex>MALE</sex>
+		<acquire exp="95657" sp="22" />
+		<equipment rhand="148" /> <!-- Sword of Valhalla -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2345" hpRegen="7.5" mp="1282" mpRegen="2.7" />
+			<speed>
+				<walk ground="50" />
+				<run ground="160" />
+			</speed>
+			<attack physical="646.17968" magical="441.25696" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="286.3615" magical="209.54692" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="15" /> <!-- Strong M. Atk. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+			<skill id="4408" level="13" /> <!-- HP Increase (5x) -->
+			<skill id="4032" level="1" /> <!-- Power Strike -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>OMAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="13" grown="15" />
+			<height normal="28" grown="34" />
+		</collision>
+	</npc>
+	<npc id="23110" level="68" type="Monster" name="Bound Archer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="80" />
+			<param name="MoveAroundSocial1" value="74" />
+			<param name="MoveAroundSocial2" value="80" />
+			<skill name="PhysicalSpecial" id="4040" level="7" />
+		</parameters>
+		<race>DIVINE</race>
+		<sex>MALE</sex>
+		<acquire exp="94542" sp="22" />
+		<equipment rhand="288" /> <!-- Carnage Bow -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2345" hpRegen="7.5" mp="1282" mpRegen="2.7" />
+			<speed>
+				<walk ground="50" />
+				<run ground="160" />
+			</speed>
+			<attack physical="646.17968" magical="441.25696" critical="8" attackSpeed="253" range="1100" type="BOW" distance="10" width="0" random="5" accuracy="0" />
+			<defence physical="286.3615" magical="209.54692" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="10" /> <!-- Slightly Weak M. Atk. -->
+			<skill id="4412" level="10" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+			<skill id="4408" level="13" /> <!-- HP Increase (5x) -->
+			<skill id="4415" level="9" /> <!-- Bows -->
+			<skill id="4040" level="1" /> <!-- Power Shot -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>OMAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="13" />
+			<height normal="27" />
+		</collision>
+	</npc>
+	<npc id="23111" level="74" type="Monster" name="Heaven's Palace Seraphim">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="90" />
+			<param name="MoveAroundSocial1" value="98" />
+			<param name="MoveAroundSocial2" value="90" />
+			<param name="IsAggressive" value="1" />
+		</parameters>
+		<race>DIVINE</race>
+		<sex>MALE</sex>
+		<acquire exp="126994" sp="30" />
+		<equipment rhand="97" /> <!-- Lance -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2632" hpRegen="8.5" mp="1475" mpRegen="3" />
+			<speed>
+				<walk ground="50" />
+				<run ground="170" />
+			</speed>
+			<attack physical="773.81598" magical="528.41601" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="314.65987" magical="230.25444" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="19" /> <!-- Extremely Strong M. Atk. -->
+			<skill id="4412" level="12" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+			<skill id="4408" level="16" /> <!-- HP Increase (8x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>OMAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="13" />
+			<height normal="37.5" />
+		</collision>
+	</npc>
+	<npc id="23112" level="73" type="Monster" name="Heaven's Palace Seraphim Escort">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="191" />
+			<param name="MoveAroundSocial1" value="191" />
+			<param name="MoveAroundSocial2" value="191" />
+		</parameters>
+		<race>DIVINE</race>
+		<sex>MALE</sex>
+		<acquire exp="108419" sp="26" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2586" hpRegen="8.5" mp="1442" mpRegen="3" />
+			<speed>
+				<walk ground="30" />
+				<run ground="66" />
+			</speed>
+			<attack physical="752.73928" magical="514.02335" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="310.02959" magical="226.8662" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="15" /> <!-- Strong M. Atk. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+			<skill id="4408" level="13" /> <!-- HP Increase (5x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>OMAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="14" />
+			<height normal="31.5" />
+		</collision>
+	</npc>
+	<npc id="23113" level="4" type="Monster" name="Crawler" title="Husk">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+		</parameters>
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<acquire exp="175" sp="1" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="68" hpRegen="2" mp="62" mpRegen="0.9" />
+			<speed>
+				<walk ground="8" />
+				<run ground="120" />
+			</speed>
+			<attack physical="11.24892" magical="7.68155" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="49.73343" magical="36.39277" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="6.5" />
+			<height normal="18.5" />
+		</collision>
+	</npc>
+	<npc id="23114" level="6" type="Monster" name="Stalker" title="Husk">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<skill name="Skill02_ID" id="14157" level="1" />
+		</parameters>
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<acquire exp="263" sp="1" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="93" hpRegen="2" mp="77" mpRegen="0.9" />
+			<speed>
+				<walk ground="10" />
+				<run ground="120" />
+			</speed>
+			<attack physical="13.52471" magical="9.23562" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="53.53373" magical="39.17366" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4416" level="14" /> <!-- Humans -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="9.4" />
+			<height normal="20" />
+		</collision>
+	</npc>
+	<npc id="23115" level="12" type="Monster" name="Critter" title="Husk">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+		</parameters>
+		<race>ANIMAL</race>
+		<sex>MALE</sex>
+		<acquire exp="526" sp="1" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="199" hpRegen="2.5" mp="124" mpRegen="1.2" />
+			<speed>
+				<walk ground="30" />
+				<run ground="120" />
+			</speed>
+			<attack physical="22.99606" magical="15.70333" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="66.32989" magical="48.53733" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4416" level="4" /> <!-- Animals -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="14.5" />
+			<height normal="18" />
+		</collision>
+	</npc>
+	<npc id="23116" level="14" type="Monster" name="Avian" title="Husk">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+		</parameters>
+		<race>ANIMAL</race>
+		<sex>MALE</sex>
+		<acquire exp="614" sp="1" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="230" hpRegen="2.5" mp="140" mpRegen="1.2" />
+			<speed>
+				<walk ground="25" />
+				<run ground="120" />
+			</speed>
+			<attack physical="27.24646" magical="18.6058" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="71.08179" magical="52.01457" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4416" level="4" /> <!-- Animals -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="11" />
+			<height normal="16.5" />
+		</collision>
+	</npc>
+	<npc id="23117" level="16" type="Monster" name="Rider" title="Husk">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<skill name="Skill02_ID" id="14163" level="1" />
+		</parameters>
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<acquire exp="704" sp="1" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="264" hpRegen="2.5" mp="157" mpRegen="1.2" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+			<attack physical="32.16396" magical="21.96382" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="76.08628" magical="55.67663" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4416" level="14" /> <!-- Humans -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="31" />
+			<height normal="36.5" />
+		</collision>
+	</npc>
+	<npc id="23118" level="8" type="Monster" name="Krapher" title="Husk">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<skill name="Skill02_ID" id="14165" level="1" />
+		</parameters>
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<acquire exp="351" sp="1" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="124" hpRegen="2" mp="92" mpRegen="0.9" />
+			<speed>
+				<walk ground="15" />
+				<run ground="120" />
+			</speed>
+			<attack physical="16.20165" magical="11.06363" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="57.56203" magical="42.1214" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="9" />
+			<height normal="22.5" />
+		</collision>
+	</npc>
+	<npc id="23119" level="18" type="Monster" name="Handyman" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<skill name="Skill02_ID" id="14168" level="1" />
+		</parameters>
+		<race>HUMANOID</race>
+		<sex>FEMALE</sex>
+		<acquire exp="789" sp="0" />
+		<equipment rhand="15302" /> <!-- Transparent Bow (NPC) -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="301" hpRegen="2.5" mp="174" mpRegen="1.2" />
+			<speed>
+				<walk ground="40" />
+				<run ground="120" />
+			</speed>
+			<attack physical="37.82932" magical="25.83252" critical="8" attackSpeed="253" range="1100" type="BOW" distance="10" width="0" random="5" accuracy="0" />
+			<defence physical="81.34791" magical="59.52687" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4415" level="9" /> <!-- Bows -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="6" />
+			<height normal="22.5" />
+		</collision>
+	</npc>
+	<npc id="23120" level="18" type="Monster" name="Operative" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<skill name="Skill02_ID" id="14170" level="1" />
+			<skill name="Skill03_ID" id="14171" level="1" />
+		</parameters>
+		<race>HUMANOID</race>
+		<sex>FEMALE</sex>
+		<acquire exp="789" sp="0" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="301" hpRegen="2.5" mp="174" mpRegen="1.2" />
+			<speed>
+				<walk ground="40" />
+				<run ground="120" />
+			</speed>
+			<attack physical="37.82932" magical="25.83252" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="81.34791" magical="59.52687" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="6" />
+			<height normal="22.5" />
+		</collision>
+	</npc>
+	<npc id="23121" level="8" type="Monster" name="Thief">
+		<!-- TODO: Confirm me -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill02_ID" id="14173" level="1" />
+			<skill name="Skill03_ID" id="14174" level="1" />
+		</parameters>
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<acquire exp="352" sp="0" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="400" hpRegen="2" mp="92" mpRegen="0.9" />
+			<attack physical="16.20165" magical="11.06363" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="57.56203" magical="42.1214" />
+			<speed>
+				<walk ground="40" />
+				<run ground="120" />
+			</speed>
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4416" level="14" /> <!-- Humans -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="9" />
+			<height normal="22" />
+		</collision>
+	</npc>
+	<npc id="23122" level="20" type="Monster" name="Eyesaroch" title="Husk">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+		</parameters>
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<acquire exp="879" sp="1" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="342" hpRegen="2.5" mp="192" mpRegen="1.2" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+			<attack physical="44.32863" magical="30.2707" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="86.87049" magical="63.56806" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="24" />
+			<height normal="29" />
+		</collision>
+	</npc>
+	<npc id="23123" level="98" type="Monster" name="Isolation Room Warden">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="0" />
+			<param name="MoveAroundSocial2" value="0" />
+			<param name="Attack_BoostValue" value="151" />
+		</parameters>
+		<race>ELEMENTAL</race>
+		<sex>MALE</sex>
+		<mpReward value="92" type="DIFF" ticks="10" affects="PARTY" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="356012" hpRegen="8.5" mp="23174" mpRegen="30" />
+			<speed>
+				<walk ground="100" />
+				<run ground="100" />
+			</speed>
+			<attack physical="45027.4086463771" magical="7933.39078546243" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="515.39249724918" magical="297.335874351375" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4416" level="7" /> <!-- Spirits -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="60" />
+			<height normal="99.5" />
+		</collision>
+	</npc>
+	<npc id="23124" level="97" type="Monster" name="Istina's Creation">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<skill name="Skill03_ID" id="14234" level="1" />
+			<param name="Attack_BoostValue" value="148" />
+		</parameters>
+		<race>BEAST</race>
+		<sex>MALE</sex>
+		<mpReward value="10" type="DIFF" ticks="10" affects="PARTY" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="115836" hpRegen="8.5" mp="22800" mpRegen="30" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+			<attack physical="42936.9452133851" magical="7578.69252885478" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="1768.5036670315" magical="1015.2932294925" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="16" />
+			<height normal="36" />
+		</collision>
+	</npc>
+	<npc id="23125" level="97" type="Monster" name="Istina's Creation">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<skill name="Skill03_ID" id="14234" level="1" />
+			<param name="Attack_BoostValue" value="148" />
+		</parameters>
+		<race>BEAST</race>
+		<sex>MALE</sex>
+		<mpReward value="10" type="DIFF" ticks="10" affects="PARTY" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="115836" hpRegen="8.5" mp="22800" mpRegen="30" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+			<attack physical="42936.9452133851" magical="7578.69252885478" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="1768.5036670315" magical="1015.2932294925" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="16" />
+			<height normal="36" />
+		</collision>
+	</npc>
+	<npc id="23126" level="95" type="Monster" name="Elite Escort" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="1683" level="1" />
+			<skill name="Skill02_ID" id="1637" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>HUMAN</race>
+		<sex>MALE</sex>
+		<acquire exp="3551001" sp="852" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
+			<speed>
+				<walk ground="35" />
+				<run ground="130" />
+			</speed>
+			<attack physical="13006.6570723381" magical="2302.7074232383" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="388.532688972703" magical="220.884734214396" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="14" /> <!-- Humans -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="5273" level="1" /> <!-- Power Strike -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>EMBRYO_HIGH</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="15" />
+			<height normal="29" />
+		</collision>
+	</npc>
+	<npc id="23127" level="95" type="Monster" name="Elite Manhunter" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="1692" level="1" />
+			<skill name="Skill02_ID" id="14485" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>HUMAN</race>
+		<sex>MALE</sex>
+		<acquire exp="2542693" sp="610" />
+		<equipment rhand="15302" /> <!-- Transparent Bow (NPC) -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
+			<speed>
+				<walk ground="48" />
+				<run ground="180" />
+			</speed>
+			<attack physical="13006.6570723381" magical="2302.7074232383" critical="8" attackSpeed="253" range="1100" type="BOW" distance="10" width="0" random="5" accuracy="0" />
+			<defence physical="310.826151178162" magical="176.707787371517" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="14" /> <!-- Humans -->
+			<skill id="4415" level="9" /> <!-- Bows -->
+			<skill id="5298" level="1" /> <!-- Power Shot -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>EMBRYO_HIGH</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="15" />
+			<height normal="29" />
+		</collision>
+	</npc>
+	<npc id="23128" level="95" type="Monster" name="Elite Warrior" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="1687" level="1" />
+			<skill name="Skill02_ID" id="1663" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>HUMAN</race>
+		<sex>MALE</sex>
+		<acquire exp="2578796" sp="618" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
+			<speed>
+				<walk ground="35" />
+				<run ground="130" />
+			</speed>
+			<attack physical="13006.6570723381" magical="2302.7074232383" critical="4" attackSpeed="253" range="80" type="POLE" distance="80" width="120" random="10" accuracy="0" />
+			<defence physical="388.532688972703" magical="220.884734214396" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="14" /> <!-- Humans -->
+			<skill id="5275" level="1" /> <!-- Spinning Slasher -->
+			<skill id="4415" level="11" /> <!-- Spears -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>EMBRYO_HIGH</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="15" />
+			<height normal="29" />
+		</collision>
+	</npc>
+	<npc id="23129" level="95" type="Monster" name="Elite Alchemist" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="1698" level="1" />
+			<skill name="Skill02_ID" id="1656" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<acquire exp="2640687" sp="633" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="33087" mpRegen="30" />
+			<speed>
+				<walk ground="32" />
+				<run ground="136" />
+			</speed>
+			<attack physical="13006.6570723381" magical="4605.4148464766" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="310.826151178162" magical="220.884734214396" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4416" level="14" /> <!-- Humans -->
+			<skill id="5312" level="1" /> <!-- Blaze -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>EMBRYO_HIGH</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="12" />
+			<height normal="21" />
+		</collision>
+	</npc>
+	<npc id="23130" level="95" type="Monster" name="Elite High Priest" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="4002" level="11" />
+			<skill name="Skill02_ID" id="14455" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<acquire exp="2506588" sp="601" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="33087" mpRegen="30" />
+			<speed>
+				<walk ground="32" />
+				<run ground="136" />
+			</speed>
+			<attack physical="13006.6570723381" magical="4605.4148464766" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="310.826151178162" magical="220.884734214396" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="14" /> <!-- Humans -->
+			<skill id="4002" level="1" /> <!-- Blood Siphon -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>EMBRYO_HIGH</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="12" />
+			<height normal="21" />
+		</collision>
+	</npc>
+	<npc id="23131" level="95" type="Monster" name="Executor Captain" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="5483" level="1" />
+			<skill name="Skill02_ID" id="1687" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>HUMAN</race>
+		<sex>MALE</sex>
+		<acquire exp="8739270" sp="2097" />
+		<equipment rhand="13979" lhand="13980" /> <!-- Monster Only (Dragontroop Commando) / Monster Only (Dragontroop Defender) -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
+			<speed>
+				<walk ground="36.48" />
+				<run ground="160" />
+			</speed>
+			<attack physical="78039.9424340284" magical="13816.2445394298" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="485.665861215878" magical="276.105917767995" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4416" level="14" /> <!-- Humans -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="5273" level="1" /> <!-- Power Strike -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="12" />
+			<height normal="29.5" />
+		</collision>
+	</npc>
+	<npc id="23132" level="95" type="Monster" name="Shilen's Enchanter" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="1652" level="1" />
+			<skill name="Skill02_ID" id="1655" level="1" />
+			<skill name="p_SKILL_HEAL" id="14455" level="1" />
+			<skill name="p_SKILL_MULTI_HEAL" id="14456" level="1" />
+			<skill name="p_SKILL_BLINK" id="14448" level="1" />
+			<skill name="p_SKILL_HATE" id="14447" level="1" />
+			<skill name="p_SKILL_AIR_ATTACK" id="14449" level="1" />
+			<skill name="p_SKILL_AIR_BIND" id="14469" level="1" />
+			<skill name="p_SKILL_INVISIBLE" id="14488" level="1" />
+			<skill name="p_SKILL_SPEED_SHOT" id="14485" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>DIVINE</race>
+		<sex>MALE</sex>
+		<acquire exp="5795272" sp="1390" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
+			<speed>
+				<walk ground="50" />
+				<run ground="160" />
+			</speed>
+			<attack physical="78039.9424340284" magical="13816.2445394298" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="485.665861215878" magical="276.105917767995" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5336" level="1" /> <!-- Spinning Slasher -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="15" />
+			<height normal="30" />
+		</collision>
+	</npc>
+	<npc id="23133" level="95" type="Monster" name="Shilen's Priest" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="4002" level="12" />
+			<skill name="Skill02_ID" id="14455" level="1" />
+			<skill name="p_SKILL_HEAL" id="14455" level="1" />
+			<skill name="p_SKILL_MULTI_HEAL" id="14456" level="1" />
+			<skill name="p_SKILL_BLINK" id="14448" level="1" />
+			<skill name="p_SKILL_HATE" id="14447" level="1" />
+			<skill name="p_SKILL_AIR_ATTACK" id="14449" level="1" />
+			<skill name="p_SKILL_AIR_BIND" id="14469" level="1" />
+			<skill name="p_SKILL_INVISIBLE" id="14488" level="1" />
+			<skill name="p_SKILL_SPEED_SHOT" id="14485" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>DIVINE</race>
+		<sex>FEMALE</sex>
+		<acquire exp="2506588" sp="601" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="33087" mpRegen="30" />
+			<speed>
+				<walk ground="60" />
+				<run ground="160" />
+			</speed>
+			<attack physical="13006.6570723381" magical="4605.4148464766" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="310.826151178162" magical="220.884734214396" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+			<skill id="4002" level="1" /> <!-- Blood Siphon -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="14" />
+			<height normal="30" />
+		</collision>
+	</npc>
+	<npc id="23134" level="95" type="Monster" name="Shilen's Protector" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="5483" level="1" />
+			<skill name="Skill02_ID" id="1683" level="1" />
+			<skill name="p_SKILL_HEAL" id="14455" level="1" />
+			<skill name="p_SKILL_MULTI_HEAL" id="14456" level="1" />
+			<skill name="p_SKILL_BLINK" id="14448" level="1" />
+			<skill name="p_SKILL_HATE" id="14447" level="1" />
+			<skill name="p_SKILL_AIR_ATTACK" id="14449" level="1" />
+			<skill name="p_SKILL_AIR_BIND" id="14469" level="1" />
+			<skill name="p_SKILL_INVISIBLE" id="14488" level="1" />
+			<skill name="p_SKILL_SPEED_SHOT" id="14485" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>DIVINE</race>
+		<sex>MALE</sex>
+		<acquire exp="3551001" sp="852" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
+			<speed>
+				<walk ground="30" />
+				<run ground="160" />
+			</speed>
+			<attack physical="13006.6570723381" magical="2302.7074232383" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="388.532688972703" magical="220.884734214396" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="5334" level="1" /> <!-- Power Strike -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="14" />
+			<height normal="31.5" />
+		</collision>
+	</npc>
+	<npc id="23135" level="95" type="Monster" name="Shilen's Warrior" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="1687" level="1" />
+			<skill name="Skill02_ID" id="1691" level="1" />
+			<skill name="p_SKILL_HEAL" id="14455" level="1" />
+			<skill name="p_SKILL_MULTI_HEAL" id="14456" level="1" />
+			<skill name="p_SKILL_BLINK" id="14448" level="1" />
+			<skill name="p_SKILL_HATE" id="14447" level="1" />
+			<skill name="p_SKILL_AIR_ATTACK" id="14449" level="1" />
+			<skill name="p_SKILL_AIR_BIND" id="14469" level="1" />
+			<skill name="p_SKILL_INVISIBLE" id="14488" level="1" />
+			<skill name="p_SKILL_SPEED_SHOT" id="14485" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>DIVINE</race>
+		<sex>MALE</sex>
+		<acquire exp="2326074" sp="558" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
+			<speed>
+				<walk ground="50" />
+				<run ground="160" />
+			</speed>
+			<attack physical="13006.6570723381" magical="2302.7074232383" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="388.532688972703" magical="220.884734214396" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="15" /> <!-- Strong P. Atk. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+			<skill id="5334" level="1" /> <!-- Power Strike -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="15" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23136" level="95" type="Monster" name="Shilen's Mage" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="1697" level="1" />
+			<skill name="Skill02_ID" id="1655" level="1" />
+			<skill name="p_SKILL_HEAL" id="14455" level="1" />
+			<skill name="p_SKILL_MULTI_HEAL" id="14456" level="1" />
+			<skill name="p_SKILL_BLINK" id="14448" level="1" />
+			<skill name="p_SKILL_HATE" id="14447" level="1" />
+			<skill name="p_SKILL_AIR_ATTACK" id="14449" level="1" />
+			<skill name="p_SKILL_AIR_BIND" id="14469" level="1" />
+			<skill name="p_SKILL_INVISIBLE" id="14488" level="1" />
+			<skill name="p_SKILL_SPEED_SHOT" id="14485" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>DIVINE</race>
+		<sex>FEMALE</sex>
+		<acquire exp="2640687" sp="633" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="33087" mpRegen="30" />
+			<speed>
+				<walk ground="50" />
+				<run ground="160" />
+			</speed>
+			<attack physical="13006.6570723381" magical="4605.4148464766" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="310.826151178162" magical="220.884734214396" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+			<skill id="5373" level="1" /> <!-- Blaze -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="12" />
+			<height normal="32" />
+		</collision>
+	</npc>
+	<npc id="23137" level="95" type="Monster" name="Shilen's Assassin" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="6093" level="1" />
+			<skill name="Skill02_ID" id="14007" level="1" />
+			<skill name="p_SKILL_HEAL" id="14455" level="1" />
+			<skill name="p_SKILL_MULTI_HEAL" id="14456" level="1" />
+			<skill name="p_SKILL_BLINK" id="14448" level="1" />
+			<skill name="p_SKILL_HATE" id="14447" level="1" />
+			<skill name="p_SKILL_AIR_ATTACK" id="14449" level="1" />
+			<skill name="p_SKILL_AIR_BIND" id="14469" level="1" />
+			<skill name="p_SKILL_INVISIBLE" id="14488" level="1" />
+			<skill name="p_SKILL_SPEED_SHOT" id="14485" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>DIVINE</race>
+		<sex>MALE</sex>
+		<acquire exp="2578796" sp="618" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
+			<speed>
+				<walk ground="50" />
+				<run ground="160" />
+			</speed>
+			<attack physical="13006.6570723381" magical="2302.7074232383" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="388.532688972703" magical="220.884734214396" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="19" /> <!-- Misc. -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="6093" level="1" /> <!-- Panther Hide -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="15" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23138" level="95" type="Monster" name="Shilen's Bladers" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="6093" level="1" />
+			<skill name="Skill02_ID" id="1653" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>DEMONIC</race>
+		<sex>MALE</sex>
+		<acquire exp="8739270" sp="2097" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
+			<speed>
+				<walk ground="30" />
+				<run ground="180" />
+			</speed>
+			<attack physical="78039.9424340284" magical="13816.2445394298" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="485.665861215878" magical="276.105917767995" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="6093" level="1" /> <!-- Panther Hide -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="14" />
+			<height normal="34" />
+		</collision>
+	</npc>
+	<npc id="23139" level="95" type="Monster" name="Researcher" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="1653" level="1" />
+			<skill name="Skill02_ID" id="1656" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>DARK_ELF</race>
+		<sex>MALE</sex>
+		<acquire exp="1792262" sp="430" />
+		<equipment rhand="10278" lhand="10278" /> <!-- Monster Only (Behamah Dual) / Monster Only (Behamah Dual) -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
+			<speed>
+				<walk ground="29.8" />
+				<run ground="160" />
+			</speed>
+			<attack physical="13006.6570723381" magical="2302.7074232383" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="388.532688972703" magical="220.884734214396" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="16" /> <!-- Dark Elves -->
+			<skill id="4408" level="9" /> <!-- HP Increase (1/2x) -->
+			<skill id="5328" level="1" /> <!-- Unholy Strike -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>EMBRYO_LOW</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="12" />
+			<height normal="33" />
+		</collision>
+	</npc>
+	<npc id="23140" level="95" type="Monster" name="Archer Recruit" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="1654" level="1" />
+			<skill name="Skill02_ID" id="14485" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>ELF</race>
+		<sex>MALE</sex>
+		<acquire exp="1774210" sp="425" />
+		<equipment rhand="15302" /> <!-- Transparent Bow (NPC) -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
+			<speed>
+				<walk ground="30" />
+				<run ground="160" />
+			</speed>
+			<attack physical="13006.6570723381" magical="2302.7074232383" critical="8" attackSpeed="253" range="1100" type="BOW" distance="10" width="0" random="5" accuracy="0" />
+			<defence physical="310.826151178162" magical="176.707787371517" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="15" /> <!-- Elves -->
+			<skill id="4408" level="9" /> <!-- HP Increase (1/2x) -->
+			<skill id="4415" level="9" /> <!-- Bows -->
+			<skill id="5298" level="1" /> <!-- Power Shot -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>EMBRYO_LOW</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="12" />
+			<height normal="29" />
+		</collision>
+	</npc>
+	<npc id="23141" level="95" type="Monster" name="Soldier Recruit" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="1687" level="1" />
+			<skill name="Skill02_ID" id="1634" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>ORC</race>
+		<sex>MALE</sex>
+		<acquire exp="1820630" sp="436" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="33087" mpRegen="30" />
+			<speed>
+				<walk ground="40" />
+				<run ground="160" />
+			</speed>
+			<attack physical="13006.6570723381" magical="4605.4148464766" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="310.826151178162" magical="220.884734214396" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4416" level="17" /> <!-- Orcs -->
+			<skill id="4408" level="9" /> <!-- HP Increase (1/2x) -->
+			<skill id="5273" level="1" /> <!-- Power Strike -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>EMBRYO_LOW</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="15" />
+			<height normal="36" />
+		</collision>
+	</npc>
+	<npc id="23142" level="95" type="Monster" name="Knight Recruit" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="1682" level="1" />
+			<skill name="Skill02_ID" id="1683" level="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<acquire exp="1794842" sp="430" />
+		<equipment rhand="13979" lhand="13980" /> <!-- Monster Only (Dragontroop Commando) / Monster Only (Dragontroop Defender) -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
+			<speed>
+				<walk ground="30" />
+				<run ground="160" />
+			</speed>
+			<attack physical="13006.6570723381" magical="2302.7074232383" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="388.532688972703" magical="220.884734214396" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4416" level="14" /> <!-- Humans -->
+			<skill id="4408" level="9" /> <!-- HP Increase (1/2x) -->
+			<skill id="5273" level="1" /> <!-- Power Strike -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>EMBRYO_LOW</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="10" />
+			<height normal="29" />
+		</collision>
+	</npc>
+	<npc id="23143" level="99" type="Monster" name="Octavis' Gladiator">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="80" />
+			<param name="MoveAroundSocial1" value="80" />
+			<param name="MoveAroundSocial2" value="80" />
+			<skill name="Skill01_ID" id="14034" level="1" />
+			<skill name="Fishnet_Skill" id="14245" level="1" />
+			<param name="Attack_BoostValue" value="155" />
+		</parameters>
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<mpReward value="78" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="8.5" mp="2355" mpRegen="3" />
+			<speed>
+				<walk ground="18" />
+				<run ground="190" />
+			</speed>
+			<attack physical="6745.74369699808" magical="1186.41216252556" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="525.700347194163" magical="304.76927121016" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="35" />
+			<height normal="67" />
+		</collision>
+	</npc>
+	<npc id="23144" level="99" type="Monster" name="Beast of the Arena">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<skill name="Skill03_ID" id="14245" level="1" />
+			<param name="Attack_BoostValue" value="155" />
+		</parameters>
+		<race>BEAST</race>
+		<sex>MALE</sex>
+		<mpReward value="92" type="DIFF" ticks="10" affects="PARTY" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="356248" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+			<attack physical="47220.2058789866" magical="8304.88513767892" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="525.700347194163" magical="304.76927121016" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="40" />
+			<height normal="26" />
+		</collision>
+	</npc>
+	<npc id="23145" level="97" type="Monster" name="Octavis' Gladiator">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="80" />
+			<param name="MoveAroundSocial1" value="80" />
+			<param name="MoveAroundSocial2" value="80" />
+			<skill name="Skill01_ID" id="14034" level="1" />
+			<skill name="EnterSkill" id="14277" level="1" />
+			<skill name="DespawnSkill" id="14278" level="1" />
+			<param name="Attack_BoostValue" value="148" />
+		</parameters>
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<mpReward value="78" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15685" hpRegen="8.5" mp="2280" mpRegen="3" />
+			<speed>
+				<walk ground="18" />
+				<run ground="190" />
+			</speed>
+			<attack physical="6133.84931619787" magical="1082.67036126497" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="505.286762009" magical="290.083779855" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="35" />
+			<height normal="67" />
+		</collision>
+	</npc>
+	<npc id="23146" level="97" type="Monster" name="Beast of the Arena">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<skill name="EnterSkill" id="14277" level="1" />
+			<skill name="DespawnSkill" id="14278" level="1" />
+			<param name="Attack_BoostValue" value="148" />
+		</parameters>
+		<race>BEAST</race>
+		<sex>MALE</sex>
+		<mpReward value="99" type="DIFF" ticks="10" affects="PARTY" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="355923" hpRegen="8.5" mp="22800" mpRegen="30" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+			<attack physical="42936.9452133851" magical="7578.69252885478" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="505.286762009" magical="290.083779855" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="40" />
+			<height normal="26" />
+		</collision>
+	</npc>
+	<npc id="23147" level="95" type="Monster" name="Resurrected Creation">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="90" />
+			<param name="MoveAroundSocial1" value="90" />
+			<param name="MoveAroundSocial2" value="90" />
+			<param name="IsAggressive" value="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="1818917" sp="436" />
+		<mpReward value="86" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="14806" hpRegen="8.5" mp="2205" mpRegen="3" />
+			<speed>
+				<walk ground="30" />
+				<run ground="100" />
+			</speed>
+			<attack physical="5574.2816024306" magical="986.874609959272" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="388.532688972703" magical="248.495325991196" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="12" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="12" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4225" level="2" /> <!-- Stun Resistance -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>EMBRYO</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="28" />
+			<height normal="41" />
+		</collision>
+	</npc>
+	<npc id="23148" level="95" type="Monster" name="Lunatic Creature">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="80" />
+			<param name="MoveAroundSocial1" value="80" />
+			<param name="MoveAroundSocial2" value="80" />
+			<param name="IsAggressive" value="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="2062566" sp="495" />
+		<mpReward value="94" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="14806" hpRegen="8.5" mp="2205" mpRegen="3" />
+			<speed>
+				<walk ground="45" />
+				<run ground="150" />
+			</speed>
+			<attack physical="5574.2816024306" magical="986.874609959272" critical="4" attackSpeed="253" range="40" type="DUAL" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="388.532688972703" magical="248.495325991196" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="15" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="19" /> <!-- Dualsword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>EMBRYO</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="35" />
+			<height normal="32.5" />
+		</collision>
+	</npc>
+	<npc id="23149" level="95" type="Monster" name="Undead Creature">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="80" />
+			<param name="MoveAroundSocial1" value="80" />
+			<param name="MoveAroundSocial2" value="80" />
+			<param name="IsAggressive" value="1" />
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="3106473" sp="745" />
+		<mpReward value="126" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="14806" hpRegen="8.5" mp="2205" mpRegen="3" />
+			<speed>
+				<walk ground="20" />
+				<run ground="90" />
+			</speed>
+			<attack physical="5574.2816024306" magical="986.874609959272" critical="1" attackSpeed="253" range="40" type="BLUNT" distance="80" width="120" random="20" accuracy="9" />
+			<defence physical="485.665861215878" magical="276.105917767995" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4225" level="2" /> <!-- Stun Resistance -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="12" /> <!-- HP Increase (4x) -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>EMBRYO</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="13" />
+			<height normal="40" />
+		</collision>
+	</npc>
+	<npc id="23150" level="96" type="Monster" name="Hellish Creature">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="126" />
+			<param name="MoveAroundSocial1" value="126" />
+			<param name="MoveAroundSocial2" value="126" />
+			<param name="IsAggressive" value="1" />
+			<param name="Attack_BoostValue" value="146" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="3334574" sp="800" />
+		<mpReward value="134" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="14890" hpRegen="8.5" mp="2242" mpRegen="3" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+			<attack physical="5845.53506617802" magical="1033.01266087889" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="495.379178440196" magical="283.008565712195" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="12" /> <!-- HP Increase (4x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>EMBRYO</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="34" />
+			<height normal="34" />
+		</collision>
+	</npc>
+	<npc id="23151" level="96" type="Monster" name="Shilen's Messenger">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="180" />
+			<param name="MoveAroundSocial1" value="180" />
+			<param name="MoveAroundSocial2" value="180" />
+			<param name="IsAggressive" value="1" />
+			<param name="Attack_BoostValue" value="146" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="2191396" sp="525" />
+		<equipment rhand="13983" /> <!-- Monster Only (Death Knight_2hs) -->
+		<mpReward value="96" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="14890" hpRegen="8.5" mp="2242" mpRegen="3" />
+			<speed>
+				<walk ground="42.5" />
+				<run ground="180" />
+			</speed>
+			<attack physical="5845.53506617802" magical="1033.01266087889" critical="4" attackSpeed="253" range="80" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="396.303342752157" magical="254.707709140976" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="15" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4225" level="3" /> <!-- Stun Resistance -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="13" /> <!-- Two-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>EMBRYO</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="22.88" />
+			<height normal="41.6" />
+		</collision>
+	</npc>
+	<npc id="23152" level="10" type="Monster" name="Eyesaroch">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+		</parameters>
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<acquire exp="439" sp="0" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="163" hpRegen="2" mp="108" mpRegen="0.9" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+			<attack physical="19.33758" magical="13.20506" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="61.82527" magical="45.24105" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4158" level="1" /> <!-- Prominence -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="24" />
+			<height normal="29" />
+		</collision>
+	</npc>
+	<npc id="23153" level="51" type="Monster" name="Achelando">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="0" />
+			<param name="MoveAroundSocial2" value="0" />
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="4158" level="5" />
+			<skill name="Skill02_ID" id="4566" level="5" />
+			<skill name="Skill03_ID" id="6915" level="5" />
+			<skill name="Skill04_ID" id="4582" level="6" />
+			<skill name="Skill05_ID" id="5259" level="5" />
+		</parameters>
+		<race>CONSTRUCT</race>
+		<sex>MALE</sex>
+		<acquire exp="17059" sp="4" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1470" hpRegen="6.5" mp="775" mpRegen="2.4" />
+			<speed>
+				<walk ground="80" />
+				<run ground="170" />
+			</speed>
+			<attack physical="321.13207" magical="219.29157" critical="1" attackSpeed="253" range="40" type="BLUNT" distance="80" width="120" random="20" accuracy="9" />
+			<defence physical="204.85194" magical="149.90176" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="18" /> <!-- Very Strong P. Atk. -->
+			<skill id="4411" level="18" /> <!-- Extremely Strong M. Atk. -->
+			<skill id="4413" level="16" /> <!-- Strong M. Def. -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
+			<skill id="4036" level="1" /> <!-- Poison -->
+			<skill id="4412" level="16" /> <!-- Very Strong P. Def. -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="11" />
+			<height normal="32" />
+		</collision>
+	</npc>
+	<npc id="23154" level="51" type="Monster" name="Styrindo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="0" />
+			<param name="MoveAroundSocial2" value="0" />
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="4158" level="5" />
+			<skill name="Skill02_ID" id="4566" level="5" />
+			<skill name="Skill03_ID" id="6915" level="5" />
+			<skill name="Skill04_ID" id="4036" level="5" />
+			<skill name="Skill05_ID" id="5259" level="5" />
+		</parameters>
+		<race>CONSTRUCT</race>
+		<sex>MALE</sex>
+		<acquire exp="16342" sp="3" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1470" hpRegen="6.5" mp="775" mpRegen="2.4" />
+			<speed>
+				<walk ground="80" />
+				<run ground="170" />
+			</speed>
+			<attack physical="577.86157941437" magical="498.2448103842" critical="1" attackSpeed="253" range="40" />
+			<defence physical="243.57142857143" magical="144.82678716255" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="18" /> <!-- Very Strong P. Atk. -->
+			<skill id="4411" level="18" /> <!-- Extremely Strong M. Atk. -->
+			<skill id="4413" level="16" /> <!-- Strong M. Def. -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
+			<skill id="4032" level="1" /> <!-- Power Strike -->
+			<skill id="4412" level="16" /> <!-- Very Strong P. Def. -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="15" />
+			<height normal="35" />
+		</collision>
+	</npc>
+	<npc id="23155" level="51" type="Monster" name="Ashende">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="0" />
+			<param name="MoveAroundSocial2" value="0" />
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="4032" level="5" />
+			<skill name="Skill02_ID" id="4232" level="5" />
+			<skill name="Skill03_ID" id="6915" level="5" />
+			<skill name="Skill04_ID" id="4592" level="5" />
+			<skill name="Skill05_ID" id="4580" level="6" />
+		</parameters>
+		<race>CONSTRUCT</race>
+		<sex>MALE</sex>
+		<acquire exp="18591" sp="4" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1470" hpRegen="6.5" mp="775" mpRegen="2.4" />
+			<speed>
+				<walk ground="27" />
+				<run ground="174" />
+			</speed>
+			<attack physical="569.15807560137" magical="498.15359492479" critical="4" attackSpeed="253" range="40" />
+			<defence physical="243.50649350649" magical="145.06617028183" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="18" /> <!-- Extremely Strong P. Atk. -->
+			<skill id="4411" level="18" /> <!-- Very Strong M. Atk. -->
+			<skill id="4412" level="16" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="16" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
+			<skill id="4032" level="1" /> <!-- Power Strike -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="20" grown="25" />
+			<height normal="35" grown="41.5" />
+		</collision>
+	</npc>
+	<npc id="23156" level="51" type="Monster" name="Meforde">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="170" />
+			<param name="MoveAroundSocial1" value="170" />
+			<param name="MoveAroundSocial2" value="170" />
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="4032" level="5" />
+			<skill name="Skill02_ID" id="4232" level="5" />
+			<skill name="Skill03_ID" id="6915" level="5" />
+			<skill name="Skill04_ID" id="4592" level="5" />
+			<skill name="Skill05_ID" id="4580" level="6" />
+		</parameters>
+		<race>GIANT</race>
+		<sex>MALE</sex>
+		<acquire exp="18591" sp="4" />
+		<equipment rhand="3937" /> <!-- Monster Only (Lesser Giant) -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1470" hpRegen="6.5" mp="775" mpRegen="2.4" />
+			<speed>
+				<walk ground="15" />
+				<run ground="180" />
+			</speed>
+			<attack physical="569.15807560137" magical="498.15359492479" critical="1" attackSpeed="253" range="40" />
+			<defence physical="243.50649350649" magical="145.06617028183" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="18" /> <!-- Extremely Strong P. Atk. -->
+			<skill id="4411" level="18" /> <!-- Very Strong M. Atk. -->
+			<skill id="4412" level="16" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="16" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
+			<skill id="4032" level="1" /> <!-- Power Strike -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="50" />
+			<height normal="44" />
+		</collision>
+	</npc>
+	<npc id="23157" level="51" type="Monster" name="Rorka">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="120" />
+			<param name="MoveAroundSocial1" value="120" />
+			<param name="MoveAroundSocial2" value="120" />
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="4697" level="5" />
+			<skill name="Skill02_ID" id="4032" level="5" />
+			<skill name="Skill03_ID" id="4592" level="6" />
+			<skill name="Skill04_ID" id="4038" level="5" />
+			<skill name="Skill05_ID" id="6168" level="5" />
+		</parameters>
+		<race>GIANT</race>
+		<sex>MALE</sex>
+		<acquire exp="17004" sp="4" />
+		<equipment rhand="4028" /> <!-- Giant Cannon -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1470" hpRegen="6.5" mp="775" mpRegen="2.4" />
+			<speed>
+				<walk ground="80" />
+				<run ground="180" />
+			</speed>
+			<attack physical="578.08716707022" magical="498.26241352339" critical="8" attackSpeed="253" range="1100" />
+			<defence physical="243.8238453276" magical="145.0445718049" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="18" /> <!-- Very Strong P. Atk. -->
+			<skill id="4411" level="18" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="16" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="16" /> <!-- Strong M. Def. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
+			<skill id="4415" level="9" /> <!-- Bows -->
+			<skill id="4036" level="1" /> <!-- Poison -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="50" />
+			<height normal="44" />
+		</collision>
+	</npc>
+	<npc id="23158" level="51" type="Monster" name="Shumerun">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="110" />
+			<param name="MoveAroundSocial1" value="110" />
+			<param name="MoveAroundSocial2" value="110" />
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="4158" level="5" />
+			<skill name="Skill02_ID" id="4566" level="5" />
+			<skill name="Skill03_ID" id="6915" level="5" />
+			<skill name="Skill04_ID" id="4036" level="5" />
+			<skill name="Skill05_ID" id="5259" level="5" />
+		</parameters>
+		<race>GIANT</race>
+		<sex>MALE</sex>
+		<acquire exp="20375" sp="4" />
+		<equipment rhand="3938" /> <!-- Monster Only (Lesser Giant Wizard's Weapon) -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1470" hpRegen="6.5" mp="775" mpRegen="2.4" />
+			<speed>
+				<walk ground="15" />
+				<run ground="180" />
+			</speed>
+			<attack physical="577.86157941437" magical="498.2448103842" critical="1" attackSpeed="253" range="40" />
+			<defence physical="243.57142857143" magical="144.82678716255" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4410" level="18" /> <!-- Very Strong P. Atk. -->
+			<skill id="4411" level="18" /> <!-- Extremely Strong M. Atk. -->
+			<skill id="4413" level="16" /> <!-- Strong M. Def. -->
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="4408" level="12" /> <!-- HP Increase (4x) -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
+			<skill id="4412" level="16" /> <!-- Very Strong P. Def. -->
+			<skill id="4158" level="1" /> <!-- Prominence -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="50" />
+			<height normal="66" />
+		</collision>
+	</npc>
+	<npc id="23159" level="45" type="Monster" name="Accencio" title="Event Monster">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<skill name="Skill02_ID" id="14275" level="1" />
+		</parameters>
+		<race>CONSTRUCT</race>
+		<sex>MALE</sex>
+		<acquire exp="473303" sp="113" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1400000" hpRegen="1" mp="610" mpRegen="2.1" />
+			<speed>
+				<walk ground="27" />
+				<run ground="150" />
+			</speed>
+			<attack physical="667.348949019213" magical="142.928040387499" critical="1" attackSpeed="253" range="40" type="BLUNT" distance="80" width="120" random="20" accuracy="9" />
+			<defence physical="533.36238" magical="130.09715" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="20" grown="25" />
+			<height normal="35" grown="41.5" />
+		</collision>
+	</npc>
+	<npc id="23160" level="93" type="Monster" name="Garden Chief Priest">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="IsAggressive" value="1" />
+			<param name="MoveArounding" value="1" />
+			<param name="Party_Type" value="2" />
+			<minions name="Privates">
+				<npc id="23161" count="4" respawnTime="0" weightPoint="1" />
+			</minions>
+			<skill name="Skill02_ID" id="14079" level="1" />
+			<param name="Attack_BoostValue" value="140" />
+		</parameters>
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<acquire exp="1463561" sp="351" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="312844" hpRegen="8.5" mp="21324" mpRegen="30" />
+			<speed>
+				<walk ground="57" />
+				<run ground="180" />
+			</speed>
+			<attack physical="35459.9874241795" magical="6296.76383568414" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="466.806863913762" magical="262.801587405588" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="150" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>MGG_PARTY</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="40" />
+			<height normal="54" />
+		</collision>
+	</npc>
+	<npc id="23161" level="92" type="Monster" name="Garden Priest">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveArounding" value="1" />
+			<param name="Party_Type" value="1" />
+			<skill name="Skill01_ID" id="14069" level="3" />
+			<param name="Attack_BoostValue" value="139" />
+		</parameters>
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<acquire exp="57629" sp="13" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="14213" hpRegen="8.5" mp="3144" mpRegen="3" />
+			<speed>
+				<walk ground="13" />
+				<run ground="120" />
+			</speed>
+			<attack physical="4830.82624752625" magical="261.823763291887" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="320.357651705523" magical="307.670151108981" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="6610" level="1" /> <!-- Earth Magic -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="150" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>MGG_PARTY</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="14" />
+			<height normal="23" />
+		</collision>
+	</npc>
+	<npc id="23162" level="87" type="Monster" name="Corpse Devourer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="130" />
+			<param name="MoveAroundSocial1" value="130" />
+			<param name="MoveAroundSocial2" value="130" />
+			<param name="Skill01_Probablity" value="2000" />
+			<param name="Skill01_Type" value="2" />
+			<param name="Attack_BoostValue" value="129" />
+		</parameters>
+		<race>BUG</race>
+		<sex>MALE</sex>
+		<acquire exp="1088188" sp="261" />
+		<mpReward value="76" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13497" hpRegen="8.5" mp="1917" mpRegen="3" />
+			<speed>
+				<walk ground="40" />
+				<run ground="120" />
+			</speed>
+			<attack physical="3807.59812976916" magical="683.286551825142" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="414.511136163505" magical="226.612985189284" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4416" level="12" /> <!-- Bugs -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="45" />
+			<height normal="8" />
+		</collision>
+	</npc>
+	<npc id="23163" level="87" type="Monster" name="Corpse Absorber">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="170" />
+			<param name="MoveAroundSocial1" value="170" />
+			<param name="MoveAroundSocial2" value="170" />
+			<param name="Skill01_Probablity" value="2000" />
+			<param name="Skill01_Type" value="2" />
+			<param name="Attack_BoostValue" value="129" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="1088188" sp="261" />
+		<mpReward value="83" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13497" hpRegen="8.5" mp="2875" mpRegen="3" />
+			<speed>
+				<walk ground="46" />
+				<run ground="200" />
+			</speed>
+			<attack physical="3807.59812976916" magical="209.402194343328" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="290.157795314454" magical="271.93558222714" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="23" />
+			<height normal="31" />
+		</collision>
+	</npc>
+	<npc id="23164" level="88" type="Monster" name="Corpse Shredder">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="150" />
+			<param name="MoveAroundSocial1" value="150" />
+			<param name="MoveAroundSocial2" value="150" />
+			<param name="IsAggressive" value="1" />
+			<param name="Skill01_Probablity" value="2000" />
+			<param name="Skill01_Type" value="2" />
+			<param name="Attack_BoostValue" value="131" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="1235532" sp="296" />
+		<mpReward value="94" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13568" hpRegen="8.5" mp="1952" mpRegen="3" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+			<attack physical="3992.46856160874" magical="715.083260014663" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="422.801358886775" magical="232.278309819016" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4412" level="12" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="12" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="36" />
+			<height normal="31" />
+		</collision>
+	</npc>
+	<npc id="23165" level="87" type="Monster" name="Plagueworm">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<param name="Attack_BoostValue" value="129" />
+		</parameters>
+		<race>BUG</race>
+		<sex>MALE</sex>
+		<acquire exp="54635" sp="13" />
+		<mpReward value="26" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13497" hpRegen="8.5" mp="1917" mpRegen="3" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+			<attack physical="3807.59812976916" magical="683.286551825142" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="331.608908930804" magical="203.951686670355" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="8" /> <!-- Slightly Weak P. Atk. -->
+			<skill id="4411" level="8" /> <!-- Weak M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4413" level="7" /> <!-- Weak M. Def. -->
+			<skill id="4416" level="12" /> <!-- Bugs -->
+			<skill id="4408" level="9" /> <!-- HP Increase (1/2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="17" />
+			<height normal="20" />
+		</collision>
+	</npc>
+	<npc id="23166" level="88" type="Monster" name="Contaminated Rotten Root">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="80" />
+			<param name="MoveAroundSocial1" value="80" />
+			<param name="MoveAroundSocial2" value="80" />
+			<param name="Skill01_Probablity" value="1000" />
+			<param name="Skill01_Type" value="2" />
+			<param name="MoveArounding" value="1" />
+			<param name="Attack_BoostValue" value="131" />
+		</parameters>
+		<race>PLANT</race>
+		<sex>MALE</sex>
+		<acquire exp="1302317" sp="312" />
+		<mpReward value="97" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13568" hpRegen="8.5" mp="2928" mpRegen="3" />
+			<speed>
+				<walk ground="30" />
+				<run ground="180" />
+			</speed>
+			<attack physical="3992.46856160874" magical="215.12881231327" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="295.960951220743" magical="278.733971782819" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="36" />
+			<height normal="50" />
+		</collision>
+	</npc>
+	<npc id="23167" level="88" type="Monster" name="Decayed Spore">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<param name="IsAggressive" value="1" />
+			<param name="Skill01_Probablity" value="5000" />
+			<param name="Skill01_Type" value="2" />
+			<param name="MoveArounding" value="1" />
+			<param name="Attack_BoostValue" value="131" />
+		</parameters>
+		<race>BEAST</race>
+		<sex>MALE</sex>
+		<acquire exp="1116532" sp="267" />
+		<mpReward value="83" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13568" hpRegen="8.5" mp="1952" mpRegen="3" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+			<attack physical="3992.46856160874" magical="715.083260014663" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="422.801358886775" magical="232.278309819016" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="22" />
+			<height normal="22" />
+		</collision>
+	</npc>
+	<npc id="23168" level="89" type="Monster" name="Swamp Tracker">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="150" />
+			<param name="MoveAroundSocial2" value="150" />
+			<param name="IsAggressive" value="1" />
+			<param name="Skill01_Probablity" value="0" />
+			<param name="Skill01_Type" value="1" />
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
+		<race>DEMONIC</race>
+		<sex>MALE</sex>
+		<acquire exp="1187693" sp="285" />
+		<mpReward value="82" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<speed>
+				<walk ground="45" />
+				<run ground="180" />
+			</speed>
+			<attack physical="4186.37204072787" magical="748.3800155032" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4413" level="12" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="15" />
+			<height normal="20" />
+		</collision>
+	</npc>
+	<npc id="23169" level="89" type="Monster" name="Swamp Assassin">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="126" />
+			<param name="MoveAroundSocial1" value="126" />
+			<param name="MoveAroundSocial2" value="126" />
+			<param name="IsAggressive" value="1" />
+			<param name="Skill01_Probablity" value="500" />
+			<param name="Skill01_Type" value="2" />
+			<param name="Skill02_Probablity" value="1000" />
+			<param name="Skill02_Type" value="2" />
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="1171119" sp="281" />
+		<mpReward value="89" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<speed>
+				<walk ground="50" />
+				<run ground="90" />
+			</speed>
+			<attack physical="4186.37204072787" magical="748.3800155032" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="14" />
+			<height normal="22" />
+		</collision>
+	</npc>
+	<npc id="23170" level="90" type="Monster" name="Swamp Watcher">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="100" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<param name="IsAggressive" value="1" />
+			<param name="Skill01_Probablity" value="0" />
+			<param name="MoveArounding" value="1" />
+			<param name="Attack_BoostValue" value="135" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="1200462" sp="288" />
+		<mpReward value="90" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13886" hpRegen="8.5" mp="3035" mpRegen="3" />
+			<speed>
+				<walk ground="45" />
+				<run ground="300" />
+			</speed>
+			<attack physical="4393.39231302655" magical="251.933019343748" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="307.917773650061" magical="292.844879104324" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
+			<skill id="4440" level="5" /> <!-- Greater Paralysis Resistance -->
+			<skill id="4441" level="5" /> <!-- Greater Mental Attack Resistance -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="20" />
+			<height normal="55" />
+		</collision>
+	</npc>
+	<npc id="23171" level="90" type="Monster" name="Corpse Collector">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="120" />
+			<param name="MoveAroundSocial1" value="120" />
+			<param name="MoveAroundSocial2" value="120" />
+			<param name="IsAggressive" value="1" />
+			<param name="Skill01_Probablity" value="0" />
+			<param name="Attack_BoostValue" value="135" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="1247606" sp="299" />
+		<mpReward value="92" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13886" hpRegen="8.5" mp="3035" mpRegen="3" />
+			<speed>
+				<walk ground="110" />
+				<run ground="200" />
+			</speed>
+			<attack physical="4393.39231302655" magical="251.933019343748" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="307.917773650061" magical="292.844879104324" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4413" level="12" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="40" />
+			<height normal="23" />
+		</collision>
+	</npc>
+	<npc id="23172" level="90" type="Monster" name="Delegate of Blood">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="130" />
+			<param name="MoveAroundSocial1" value="130" />
+			<param name="MoveAroundSocial2" value="130" />
+			<param name="IsAggressive" value="1" />
+			<skill name="Skill01_ID" id="14055" level="1" />
+			<param name="Attack_BoostValue" value="135" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="1278398" sp="306" />
+		<equipment rhand="15302" /> <!-- Transparent Bow (NPC) -->
+		<mpReward value="94" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13886" hpRegen="8.5" mp="2023" mpRegen="3" />
+			<speed>
+				<walk ground="45" />
+				<run ground="170" />
+			</speed>
+			<attack physical="4393.39231302655" magical="784.547871934874" critical="8" attackSpeed="253" range="1100" type="BOW" distance="10" width="0" random="5" accuracy="0" />
+			<defence physical="351.906027028641" magical="219.633659328243" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="13" /> <!-- Strong P. Atk. -->
+			<skill id="4412" level="12" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="9" /> <!-- Bows -->
+			<skill id="14055" level="2" /> <!-- Power Shot -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="13" />
+			<height normal="26" />
+		</collision>
+	</npc>
+	<npc id="23173" level="90" type="Monster" name="Blood Aide">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="100" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<param name="Skill01_Probablity" value="5000" />
+			<param name="MoveArounding" value="1" />
+			<param name="Attack_BoostValue" value="135" />
+		</parameters>
+		<race>DEMONIC</race>
+		<sex>MALE</sex>
+		<acquire exp="1328513" sp="318" />
+		<mpReward value="96" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13886" hpRegen="8.5" mp="3035" mpRegen="3" />
+			<speed>
+				<walk ground="45" />
+				<run ground="180" />
+			</speed>
+			<attack physical="4393.39231302655" magical="251.933019343748" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="307.917773650061" magical="292.844879104324" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4410" level="13" /> <!-- Strong P. Atk. -->
+			<skill id="4412" level="12" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="12" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="18" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23174" level="85" type="Monster" name="Arbitor of Darkness">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="150" />
+			<param name="MoveAroundSocial2" value="150" />
+			<param name="IsAggressive" value="1" />
+			<param name="Skill01_Probablity" value="0" />
+			<param name="Skill01_Type" value="2" />
+			<param name="Attack_BoostValue" value="126" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>FEMALE</sex>
+		<acquire exp="1037107" sp="248" />
+		<mpReward value="87" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
+			<speed>
+				<walk ground="45" />
+				<run ground="150" />
+			</speed>
+			<attack physical="3463.28644201689" magical="623.9238874734" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="398.415163555849" magical="215.693501667373" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4410" level="10" /> <!-- Slightly Weak P. Atk. -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="20" />
+			<height normal="38" />
+		</collision>
+	</npc>
+	<npc id="23175" level="85" type="Monster" name="Altar of Evil Spirit Offering Box">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="110" />
+			<param name="MoveAroundSocial1" value="110" />
+			<param name="MoveAroundSocial2" value="110" />
+			<param name="Skill01_Probablity" value="0" />
+			<param name="Skill01_Type" value="2" />
+			<param name="Attack_BoostValue" value="126" />
+		</parameters>
+		<race>CONSTRUCT</race>
+		<sex>FEMALE</sex>
+		<acquire exp="1147643" sp="275" />
+		<mpReward value="93" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13188" hpRegen="8.5" mp="2770" mpRegen="3" />
+			<speed>
+				<walk ground="30" />
+				<run ground="80" />
+			</speed>
+			<attack physical="3463.28644201689" magical="198.371046635709" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="278.890614489094" magical="258.832202000848" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5464" level="1" /> <!-- Wind Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="12" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="12" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
+			<skill id="4440" level="5" /> <!-- Greater Paralysis Resistance -->
+			<skill id="4441" level="5" /> <!-- Greater Mental Attack Resistance -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="20" />
+			<height normal="15" />
+		</collision>
+	</npc>
+	<npc id="23176" level="86" type="Monster" name="Mutated Cerberos">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<param name="IsAggressive" value="1" />
+			<param name="Skill01_Probablity" value="0" />
+			<param name="Skill01_Type" value="1" />
+			<param name="MoveArounding" value="1" />
+			<param name="Attack_BoostValue" value="127" />
+		</parameters>
+		<race>ANIMAL</race>
+		<sex>MALE</sex>
+		<acquire exp="1062967" sp="255" />
+		<mpReward value="76" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13256" hpRegen="8.5" mp="1881" mpRegen="3" />
+			<speed>
+				<walk ground="50" />
+				<run ground="140" />
+			</speed>
+			<attack physical="3631.33830052703" magical="652.921765425807" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="406.383466826966" magical="221.085839209057" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5464" level="1" /> <!-- Wind Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4416" level="4" /> <!-- Animals -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="30" />
+			<height normal="19.5" />
+		</collision>
+	</npc>
+	<npc id="23177" level="85" type="Monster" name="Dartanion">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<param name="IsAggressive" value="1" />
+			<param name="Skill01_Probablity" value="0" />
+			<param name="Attack_BoostValue" value="126" />
+		</parameters>
+		<race>CONSTRUCT</race>
+		<sex>MALE</sex>
+		<acquire exp="1270208" sp="304" />
+		<mpReward value="96" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
+			<speed>
+				<walk ground="20" />
+				<run ground="80" />
+			</speed>
+			<attack physical="3463.28644201689" magical="623.9238874734" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="398.415163555849" magical="215.693501667373" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5464" level="1" /> <!-- Wind Attack -->
+			<skill id="4410" level="13" /> <!-- Strong P. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="44" />
+			<height normal="38" />
+		</collision>
+	</npc>
+	<npc id="23178" level="87" type="Monster" name="Insane Phion">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="MoveAroundSocial2" value="100" />
+			<param name="Skill01_Probablity" value="2000" />
+			<param name="Attack_BoostValue" value="129" />
+		</parameters>
+		<race>ANIMAL</race>
+		<sex>MALE</sex>
+		<acquire exp="1088188" sp="261" />
+		<mpReward value="82" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13497" hpRegen="8.5" mp="1917" mpRegen="3" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+			<attack physical="3807.59812976916" magical="683.286551825142" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="414.511136163505" magical="226.612985189284" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4416" level="4" /> <!-- Animals -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="40" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23179" level="87" type="Monster" name="Dimensional Rifter">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="120" />
+			<param name="MoveAroundSocial1" value="120" />
+			<param name="MoveAroundSocial2" value="120" />
+			<param name="Skill01_Probablity" value="0" />
+			<param name="Attack_BoostValue" value="129" />
+		</parameters>
+		<race>DRAGON</race>
+		<sex>MALE</sex>
+		<acquire exp="1199629" sp="287" />
+		<mpReward value="92" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13497" hpRegen="8.5" mp="1917" mpRegen="3" />
+			<speed>
+				<walk ground="46" />
+				<run ground="160" />
+			</speed>
+			<attack physical="3807.59812976916" magical="683.286551825142" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="414.511136163505" magical="226.612985189284" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="10" /> <!-- Dragons -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="40" />
+			<height normal="44" />
+		</collision>
+	</npc>
+	<npc id="23180" level="87" type="Monster" name="Hellgate Fighting Dog">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="0" />
+			<param name="MoveAroundSocial2" value="0" />
+			<param name="Skill01_Probablity" value="0" />
+			<param name="Attack_BoostValue" value="129" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="1300618" sp="312" />
+		<mpReward value="98" type="DIFF" ticks="10" affects="SOLO" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13497" hpRegen="8.5" mp="1917" mpRegen="3" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+			<attack physical="3807.59812976916" magical="683.286551825142" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="414.511136163505" magical="226.612985189284" />
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="42" />
+			<height normal="30" />
+		</collision>
+	</npc>
+	<npc id="23181" level="78" type="Monster" name="Succubus Soldier">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="73219" sp="17" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2974" hpRegen="8.5" mp="1607" mpRegen="3" />
+			<speed>
+				<walk ground="50" />
+				<run ground="180" />
+			</speed>
+			<attack physical="890.50085998804" magical="608.096657928153" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="332.70061" magical="243.45587" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>VI_NIGHTMARE</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="15" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23182" level="79" type="Monster" name="Succubus Warrior">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="85" />
+			<param name="MoveAroundSocial1" value="85" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="75108" sp="18" />
+		<equipment rhand="134" lhand="6721" /> <!-- Sword of Nightmare / Monster Only (Shield of Imperial Warlord Zombie) -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="3127" hpRegen="8.5" mp="1641" mpRegen="3" />
+			<speed>
+				<walk ground="39" />
+				<run ground="170" />
+			</speed>
+			<attack physical="929.930814318487" magical="635.022195830619" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="337.07008" magical="246.65326" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>VI_NIGHTMARE</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="7" grown="8" />
+			<height normal="30" grown="36" />
+		</collision>
+	</npc>
+	<npc id="23183" level="78" type="Monster" name="Succubus Archer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>FEMALE</sex>
+		<acquire exp="73219" sp="17" />
+		<equipment rhand="15302" /> <!-- Transparent Bow (NPC) -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2974" hpRegen="8.5" mp="1607" mpRegen="3" />
+			<speed>
+				<walk ground="50" />
+				<run ground="140" />
+			</speed>
+			<attack physical="890.50085998804" magical="608.096657928153" critical="8" attackSpeed="253" range="1100" type="BOW" distance="10" width="0" random="5" accuracy="0" />
+			<defence physical="332.70061" magical="243.45587" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="15" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="3" /> <!-- Light Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="9" /> <!-- Bows -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>VI_NIGHTMARE</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="7" />
+			<height normal="22" />
+		</collision>
+	</npc>
+	<npc id="23184" level="78" type="Monster" name="Succubus Shaman">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="0" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>DEMONIC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="71576" sp="17" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2974" hpRegen="8.5" mp="1607" mpRegen="3" />
+			<speed>
+				<walk ground="80" />
+				<run ground="140" />
+			</speed>
+			<attack physical="890.50085998804" magical="608.096657928153" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="332.70061" magical="243.45587" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="15" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="15" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="9" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4414" level="3" /> <!-- Light Armor Type -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>VI_NIGHTMARE</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="9" />
+			<height normal="23" />
+		</collision>
+	</npc>
+	<npc id="23185" level="81" type="Monster" name="Bloody Succubus" title="Succubus Disciple">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="0" />
+			<param name="IsAggressive" value="0" />
+			<skill name="i_s_elite_real" id="14965" level="1" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="312713" sp="75" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="11001" hpRegen="113.419259781018" mp="1708" mpRegen="3" />
+			<speed>
+				<walk ground="80" />
+				<run ground="120" />
+			</speed>
+			<attack physical="6693.44043368154" magical="4570.75213290544" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="552.978032" magical="606.967992" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="3" /> <!-- Extremely Weak P. Atk. -->
+			<skill id="4411" level="7" /> <!-- Weak M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="20" />
+			<height normal="42" />
+		</collision>
+	</npc>
+	<npc id="23186" level="80" type="Monster" name="Phantom Soldier">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="130" />
+			<param name="MoveAroundSocial1" value="130" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="74741" sp="17" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
+			<speed>
+				<walk ground="45" />
+				<run ground="180" />
+			</speed>
+			<attack physical="970.537548504614" magical="662.751329129412" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="341.375" magical="249.80341" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>VI_NIGHTMARE</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="12" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23187" level="81" type="Monster" name="Phantom Warrior">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="150" />
+			<param name="MoveAroundSocial1" value="150" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>DEMONIC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="78549" sp="18" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="3461" hpRegen="8.5" mp="1708" mpRegen="3" />
+			<speed>
+				<walk ground="45" />
+				<run ground="170" />
+			</speed>
+			<attack physical="1012.32268463427" magical="691.285164307598" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="345.61127" magical="252.90333" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>VI_NIGHTMARE</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="15" />
+			<height normal="31" />
+		</collision>
+	</npc>
+	<npc id="23188" level="81" type="Monster" name="Phantom Archer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="130" />
+			<param name="MoveAroundSocial1" value="130" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="78549" sp="18" />
+		<equipment rhand="15302" /> <!-- Transparent Bow (NPC) -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="3461" hpRegen="8.5" mp="1708" mpRegen="3" />
+			<speed>
+				<walk ground="45" />
+				<run ground="140" />
+			</speed>
+			<attack physical="1012.32268463427" magical="691.285164307598" critical="8" attackSpeed="253" range="1100" type="BOW" distance="10" width="0" random="5" accuracy="0" />
+			<defence physical="345.61127" magical="252.90333" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="15" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="3" /> <!-- Light Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="9" /> <!-- Bows -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>VI_NIGHTMARE</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="13" />
+			<height normal="26" />
+		</collision>
+	</npc>
+	<npc id="23189" level="81" type="Monster" name="Phantom Shaman">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="150" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="76733" sp="18" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="3461" hpRegen="8.5" mp="1708" mpRegen="3" />
+			<speed>
+				<walk ground="45" />
+				<run ground="140" />
+			</speed>
+			<attack physical="1012.32268463427" magical="691.285164307598" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="345.61127" magical="252.90333" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="15" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="15" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="9" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4414" level="3" /> <!-- Light Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>VI_NIGHTMARE</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="15" />
+			<height normal="26.5" />
+		</collision>
+	</npc>
+	<npc id="23190" level="81" type="Monster" name="Phantom Martyr">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="0" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="78549" sp="18" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="3461" hpRegen="8.5" mp="1708" mpRegen="3" />
+			<speed>
+				<walk ground="60" />
+				<run ground="140" />
+			</speed>
+			<attack physical="1012.32268463427" magical="691.285164307598" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="345.61127" magical="252.90333" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="3" /> <!-- Light Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>VI_NIGHTMARE</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="15" />
+			<height normal="38" />
+		</collision>
+	</npc>
+	<npc id="23191" level="82" type="Monster" name="Succubus of Death" title="Succubus Disciple">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="0" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="340448" sp="81" />
+		<equipment rhand="8679" /> <!-- Sword of Ipos -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="10982" hpRegen="112.558039826218" mp="1743" mpRegen="3" />
+			<speed>
+				<walk ground="40" />
+				<run ground="120" />
+			</speed>
+			<attack physical="6734.49667710476" magical="4598.788195986" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="559.639632" magical="614.28" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="3" /> <!-- Extremely Weak P. Atk. -->
+			<skill id="4411" level="7" /> <!-- Weak M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="21" grown="25" />
+			<height normal="48" />
+		</collision>
+	</npc>
+	<npc id="23192" level="82" type="Monster" name="Succubus of Darkness" title="Succubus Disciple">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="0" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="340448" sp="81" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="10982" hpRegen="112.558039826218" mp="1743" mpRegen="3" />
+			<speed>
+				<walk ground="80" />
+				<run ground="120" />
+			</speed>
+			<attack physical="6734.49667710476" magical="4598.788195986" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="559.639632" magical="614.28" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="3" /> <!-- Extremely Weak P. Atk. -->
+			<skill id="4411" level="7" /> <!-- Weak M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="24" />
+			<height normal="50.4" />
+		</collision>
+	</npc>
+	<npc id="23193" level="82" type="Monster" name="Apparition Destroyer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="150" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>DEMONIC</race>
+		<sex>MALE</sex>
+		<acquire exp="82499" sp="19" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="3643" hpRegen="8.5" mp="1743" mpRegen="3" />
+			<speed>
+				<walk ground="45" />
+				<run ground="170" />
+			</speed>
+			<attack physical="1055.28566004965" magical="720.623302603812" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="349.77477" magical="255.95" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>VI_NIGHTMARE</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="15" />
+			<height normal="20" />
+		</collision>
+	</npc>
+	<npc id="23194" level="83" type="Monster" name="Apparition Assassin">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="70" />
+			<param name="MoveAroundSocial1" value="70" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>DEMONIC</race>
+		<sex>MALE</sex>
+		<acquire exp="86598" sp="20" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
+			<speed>
+				<walk ground="45" />
+				<run ground="180" />
+			</speed>
+			<attack physical="1099.42361669366" magical="750.763809564873" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="353.86144" magical="258.94045" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="3" /> <!-- Light Armor Type -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>VI_NIGHTMARE</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="12" />
+			<height normal="32" />
+		</collision>
+	</npc>
+	<npc id="23195" level="83" type="Monster" name="Apparition Sniper">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="160" />
+			<param name="MoveAroundSocial1" value="160" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="86598" sp="20" />
+		<equipment rhand="15302" /> <!-- Transparent Bow (NPC) -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
+			<speed>
+				<walk ground="45" />
+				<run ground="150" />
+			</speed>
+			<attack physical="1099.42361669366" magical="750.763809564873" critical="8" attackSpeed="253" range="1100" type="BOW" distance="10" width="0" random="5" accuracy="0" />
+			<defence physical="353.86144" magical="258.94045" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="15" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="3" /> <!-- Light Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="9" /> <!-- Bows -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>VI_NIGHTMARE</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="18" />
+			<height normal="27.5" />
+		</collision>
+	</npc>
+	<npc id="23196" level="83" type="Monster" name="Apparition Wizard">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="114" />
+			<param name="MoveAroundSocial1" value="114" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>DEMONIC</race>
+		<sex>MALE</sex>
+		<acquire exp="84597" sp="20" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
+			<speed>
+				<walk ground="70" />
+				<run ground="140" />
+			</speed>
+			<attack physical="1099.42361669366" magical="750.763809564873" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="353.86144" magical="258.94045" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="15" /> <!-- Strong P. Atk. -->
+			<skill id="4411" level="15" /> <!-- Strong M. Atk. -->
+			<skill id="4412" level="9" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4414" level="3" /> <!-- Light Armor Type -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300">
+			<clanList>
+				<clan>VI_NIGHTMARE</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="12" />
+			<height normal="40" />
+		</collision>
+	</npc>
+	<npc id="23197" level="84" type="Monster" name="Succubus of Lunacy" title="Succubus Disciple">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="120" />
+			<param name="MoveAroundSocial1" value="120" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>DEMONIC</race>
+		<sex>MALE</sex>
+		<acquire exp="378034" sp="90" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="10914" hpRegen="110.577296732991" mp="1812" mpRegen="3" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="6814.81634856241" magical="4653.63613914267" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="572.587568" magical="628.492104" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="3" /> <!-- Extremely Weak P. Atk. -->
+			<skill id="4411" level="7" /> <!-- Weak M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="25" />
+			<height normal="44" />
+		</collision>
+	</npc>
+	<npc id="23198" level="84" type="Monster" name="Succubus of Silence" title="Succubus Disciple">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="100" />
+			<param name="MoveAroundSocial1" value="100" />
+			<param name="IsAggressive" value="0" />
+		</parameters>
+		<race>DEMONIC</race>
+		<sex>MALE</sex>
+		<acquire exp="378034" sp="90" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="10914" hpRegen="110.577296732991" mp="1812" mpRegen="3" />
+			<speed>
+				<walk ground="45" />
+				<run ground="120" />
+			</speed>
+			<attack physical="6814.81634856241" magical="4653.63613914267" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="572.587568" magical="628.492104" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4410" level="3" /> <!-- Extremely Weak P. Atk. -->
+			<skill id="4411" level="7" /> <!-- Weak M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" clanHelpRange="300" />
+		<collision>
+			<radius normal="20" />
+			<height normal="48" />
+		</collision>
+	</npc>
+	<npc id="23199" level="96" type="Monster" name="Sadiac the Killer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<param name="MoveAroundSocial" value="80" />
+			<param name="MoveAroundSocial1" value="80" />
+			<param name="IsAggressive" value="0" />
+			<skill name="Skill01_ID" id="15055" level="1" />
+			<skill name="Skill02_ID" id="15056" level="1" />
+			<skill name="Skill03_ID" id="15091" level="1" />
+			<skill name="Skill06_ID" id="15087" level="1" />
+			<skill name="Skill07_ID" id="15090" level="1" />
+			<param name="Attack_BoostValue" value="146" />
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="12663060" sp="3039" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="627960" hpRegen="8.5" mp="22428" mpRegen="30" />
+			<speed>
+				<walk ground="45" />
+				<run ground="150" />
+			</speed>
+			<attack physical="65652.4903459599" magical="18614.9328177446" critical="4" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" accuracy="5" />
+			<defence physical="277.41" magical="158.48" />
+			<abnormalResist physical="0" magical="0" />
+		</stats>
+		<status attackable="false" undying="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="300" />
+		<collision>
+			<radius normal="35" />
+			<height normal="32.5" />
+		</collision>
+	</npc>
+</list>

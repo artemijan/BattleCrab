@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/multisell.xsd">
+	<npcs>
+		<npc>31126</npc> <!-- Blacksmith of Mammon -->
+	</npcs>
+	
+	<!-- Craft A-Grade Duals -->
+	
+	<item>
+		<ingredient id="142" count="1" /> <!-- Keshanberk -->
+		<ingredient id="142" count="1" /> <!-- Keshanberk -->
+		<ingredient id="5126" count="1" /> <!-- Dualsword Craft Stamp -->
+		<ingredient id="5575" count="1953000" /> <!-- Ancient Adena -->
+		<production id="5233" count="1" /> <!-- Keshanberk*Keshanberk -->
+	</item>
+	<item>
+		<ingredient id="142" count="1" /> <!-- Keshanberk -->
+		<ingredient id="79" count="1" /> <!-- Sword of Damascus -->
+		<ingredient id="5126" count="1" /> <!-- Dualsword Craft Stamp -->
+		<ingredient id="5575" count="3989000" /> <!-- Ancient Adena -->
+		<production id="5705" count="1" /> <!-- Keshanberk*Damascus -->
+	</item>
+	<item>
+		<ingredient id="79" count="1" /> <!-- Sword of Damascus -->
+		<ingredient id="79" count="1" /> <!-- Sword of Damascus -->
+		<ingredient id="5126" count="1" /> <!-- Dualsword Craft Stamp -->
+		<ingredient id="5575" count="2310000" /> <!-- Ancient Adena -->
+		<production id="5706" count="1" /> <!-- Damascus*Damascus -->
+	</item>
+	<item>
+		<ingredient id="80" count="1" /> <!-- Tallum Blade -->
+		<ingredient id="79" count="1" /> <!-- Sword of Damascus -->
+		<ingredient id="5126" count="1" /> <!-- Dualsword Craft Stamp -->
+		<ingredient id="5575" count="3900000" /> <!-- Ancient Adena -->
+		<production id="8938" count="1" /> <!-- Damascus*Tallum Blade -->
+	</item>
+</list>

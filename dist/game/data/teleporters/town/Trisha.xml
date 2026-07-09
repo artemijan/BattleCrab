@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/teleporterData.xsd">
+	<npc id="30059"> <!-- Trisha -->
+		<teleport type="NORMAL">
+			<!-- Interlude - C6 -->
+			<location npcStringId="1010007" x="83463" y="148045" z="-3400" feeCount="6800" /> <!-- Town of Giran -->
+			<location npcStringId="1010049" x="111455" y="219400" z="-3544" feeCount="12000" /> <!-- Heine -->
+			<location npcStringId="1010005" x="-14455" y="123986" z="-3120" feeCount="3400" /> <!-- Town of Gludio -->
+			<location npcStringId="1010199" x="147850" y="-55300" z="-2728" feeCount="71000" /> <!-- Town of Goddard -->
+			<location npcStringId="1010200" x="43835" y="-47749" z="-792" feeCount="57000" /> <!-- Town of Rune -->
+			<location npcStringId="1010574" x="87145" y="-143372" z="-1288" feeCount="88000" /> <!-- Town of Schuttgart -->
+			<location npcStringId="1010023" x="146783" y="25808" z="-2008" feeCount="52000" /> <!-- Town of Aden -->
+			<location npcStringId="1010013" x="82971" y="53207" z="-1488" feeCount="33000" /> <!-- Town of Oren -->
+			<location npcStringId="1010614" x="5106" y="126916" z="-3664" feeCount="760" /> <!-- Cruma Marshlands (Lv. 25) -->
+			<location npcStringId="1010116" x="17225" y="114173" z="-3440" feeCount="2300" /> <!-- Cruma Tower (Lv. 40) -->
+			<location npcStringId="1010113" x="47382" y="111278" z="-2104" feeCount="1700" /> <!-- Fortress of Resistance (Lv. 23) -->
+			<location npcStringId="1010111" x="630" y="179184" z="-3720" feeCount="1000" /> <!-- Plains of Dion (Lv. 23) -->
+			<location npcStringId="1010112" x="34475" y="188095" z="-2976" feeCount="2900" /> <!-- Bee Hive (Lv. 34) -->
+			<location npcStringId="1010115" x="58316" y="163851" z="-2816" feeCount="3800" /> <!-- Tanor Canyon (Lv. 46) -->
+		</teleport>
+	</npc>
+</list>

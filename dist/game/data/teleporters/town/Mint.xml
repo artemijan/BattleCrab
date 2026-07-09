@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/teleporterData.xsd">
+	<npc id="30146"> <!-- Mint -->
+		<teleport type="NORMAL">
+			<!-- Interlude - C6 -->
+			<location npcStringId="1010005" x="-14455" y="123986" z="-3120" feeCount="9200" /> <!-- Town of Gludio -->
+			<location npcStringId="1010158" x="115120" y="-178224" z="-880" feeCount="23000" /> <!-- Dwarven Village -->
+			<location npcStringId="1010001" x="-84141" y="244623" z="-3728" feeCount="23000" /> <!-- Talking Island Village -->
+			<location npcStringId="1010157" x="-45158" y="-112583" z="-240" feeCount="18000" /> <!-- Orc Village -->
+			<location npcStringId="1010167" x="21362" y="51122" z="-3688" feeCount="710" /> <!-- Elven Forest (Lv. 8) -->
+			<location npcStringId="1010560" x="29294" y="74968" z="-3776" feeCount="820" /> <!-- Elven Fortress (Lv. 10) -->
+			<location npcStringId="1010612" x="-10612" y="75881" z="-3592" feeCount="1700" /> <!-- Neutral Zone (Lv. 15) -->
+		</teleport>
+	</npc>
+</list>

@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+	<item id="90300" name="Hunter Tarantula's Venom" type="EtcItem">
+		<!-- Though lethal, Hunter Tarantula's Venom is used as glue thanks to its ability to harden instantly. -->
+		<set name="icon" val="icon.etc_fruit_juice_glass_bottle_i02" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90301" name="Plunder Tarantula's Kidney Stone" type="EtcItem">
+		<!-- A transparent stone that can be found in a body of Plunder Tarantula. Very smooth and shiny, used as an adornment. -->
+		<set name="icon" val="icon.r_soul_stone_piece_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90302" name="New Cleaning Tool's Supply List" type="EtcItem">
+		<!-- Priest Gerald tries to make tools for decorating the inner parts of the Temple that is currently under repairs. This is the list of materials that he needs. -->
+		<set name="icon" val="icon.etc_paper_white_i00" />
+		<set name="default_action" val="SHOW_HTML" />
+		<set name="immediate_effect" val="true" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90303" name="Bat Bristle" type="EtcItem">
+		<!-- Bristles from the neck of a Barbed Bat. Very soft, used for making brushes. -->
+		<set name="icon" val="icon.etc_mane_i00" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90304" name="Trimden Web" type="EtcItem">
+		<!-- Trimden Web. When its sticky enzyme is removed, it becomes very smooth and gleaming. Used as a fiber for making expensive fabric. -->
+		<set name="icon" val="icon.etc_cobweb_i00" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90305" name="Kerope Werewolf's Twig Charm" type="EtcItem">
+		<!-- Kerope Werewolf Charm. -->
+		<set name="icon" val="icon.etc_royal_seal_of_lord_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+  <item id="90306" name="Warrior's Armor" type="Armor">
+    <!-- Cannot be exchanged, dropped, or sold. Can be stored in a private warehouse. Can be shared within account through Dimensional Merchant. -->
+    <set name="icon" val="icon.armor_t33_u_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="armor_type" val="LIGHT" />
+    <set name="bodypart" val="chest" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="BONE" />
+    <set name="weight" val="8970" />
+    <set name="is_tradable" val="false" />
+    <set name="is_dropable" val="false" />
+    <set name="is_sellable" val="false" />
+    <set name="is_freightable" val="true" />
+    <stats>
+      <stat type="pDef">45</stat>
+    </stats>
+  </item>
+  <item id="90307" name="Warrior's Gaiters" type="Armor">
+    <!-- Cannot be exchanged, dropped, or sold. Can be stored in a private warehouse. Can be shared within account through Dimensional Merchant. -->
+    <set name="icon" val="icon.armor_t33_l_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="armor_type" val="LIGHT" />
+    <set name="bodypart" val="legs" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="BONE" />
+    <set name="weight" val="4020" />
+    <set name="is_tradable" val="false" />
+    <set name="is_dropable" val="false" />
+    <set name="is_sellable" val="false" />
+    <set name="is_freightable" val="true" />
+    <stats>
+      <stat type="pDef">29</stat>
+    </stats>
+  </item>
+  <item id="90308" name="Medium's Tunic" type="Armor">
+    <!-- Cannot be exchanged, dropped, or sold. Can be stored in a private warehouse. Can be shared within account through Dimensional Merchant. -->
+    <set name="icon" val="icon.armor_t58_u_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="armor_type" val="MAGIC" />
+    <set name="bodypart" val="chest" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="CLOTH" />
+    <set name="weight" val="2080" />
+    <set name="is_tradable" val="false" />
+    <set name="is_dropable" val="false" />
+    <set name="is_sellable" val="false" />
+    <set name="is_freightable" val="true" />
+    <stats>
+      <stat type="pDef">27</stat>
+      <stat type="maxMp">60</stat>
+    </stats>
+  </item>
+  <item id="90309" name="Medium's Stockings" type="Armor">
+    <!-- Cannot be exchanged, dropped, or sold. Can be stored in a private warehouse. Can be shared within account through Dimensional Merchant. -->
+    <set name="icon" val="icon.armor_t58_l_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="armor_type" val="MAGIC" />
+    <set name="bodypart" val="legs" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="CLOTH" />
+    <set name="weight" val="1030" />
+    <set name="is_tradable" val="false" />
+    <set name="is_dropable" val="false" />
+    <set name="is_sellable" val="false" />
+    <set name="is_freightable" val="true" />
+    <stats>
+      <stat type="pDef">17</stat>
+      <stat type="maxMp">38</stat>
+    </stats>
+  </item>
+  <item id="90310" name="MP Recovery Potion (Novice)" type="EtcItem">
+    <!-- Magical MP-recovering potion. Cannot be exchanged, dropped, sold, or stored in a private warehouse. -->
+    <set name="icon" val="icon.etc_lesser_potion_blue_i00" />
+    <set name="default_action" val="SKILL_REDUCE" />
+    <set name="etcitem_type" val="POTION" />
+    <set name="commissionItemType" val="POTION" />
+    <set name="immediate_effect" val="true" />
+    <set name="weight" val="5" />
+    <set name="is_tradable" val="false" />
+    <set name="is_dropable" val="false" />
+    <set name="is_sellable" val="false" />
+    <set name="is_stackable" val="true" />
+    <set name="handler" val="ItemSkills" />
+    <set name="material" val="LIQUID" />
+    <skills>
+      <skill id="39257" level="1" /> <!-- Newbie MP Recovery Potion -->
+    </skills>
+  </item>
+</list>

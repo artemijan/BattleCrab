@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="SchuttgartCastle">
+		<group>
+			<npc id="35514" x="78442" y="-154520" z="224" respawnTime="60sec" /> <!-- Altar of Wind -->
+			<npc id="35515" x="76674" y="-154520" z="224" heading="32768" respawnTime="60sec" /> <!-- Altar of Earth -->
+			<npc id="35544" x="77384" y="-151832" z="-545" heading="58944" respawnTime="60sec" /> <!-- Gatekeeper -->
+			<npc id="35544" x="78735" y="-153060" z="1018" heading="2556" respawnTime="60sec" /> <!-- Gatekeeper -->
+			<npc id="35544" x="78752" y="-153229" z="1050" heading="53375" respawnTime="60sec" /> <!-- Gatekeeper -->
+			<npc id="35545" x="76346" y="-153227" z="1050" heading="35323" respawnTime="60sec" /> <!-- Gatekeeper -->
+			<npc id="35545" x="76399" y="-153055" z="1043" heading="22854" respawnTime="60sec" /> <!-- Gatekeeper -->
+			<npc id="35545" x="77687" y="-150108" z="-353" heading="21438" respawnTime="60sec" /> <!-- Gatekeeper -->
+			<npc id="35547" x="77557" y="-150501" z="745" heading="48655" respawnTime="60sec" /> <!-- Mass Gatekeeper -->
+			<npc id="35548" x="77350" y="-149735" z="-353" heading="57344" respawnTime="60sec" /> <!-- Outer Castle Gatekeeper -->
+			<npc id="35548" x="77381" y="-149411" z="-353" heading="16384" respawnTime="60sec" /> <!-- Outer Castle Gatekeeper -->
+			<npc id="35549" x="75731" y="-152159" z="-678" heading="30710" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35549" x="76006" y="-152166" z="-678" heading="62180" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35550" x="77629" y="-150364" z="-357" heading="6134" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35550" x="77641" y="-150176" z="-353" heading="27354" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35550" x="77659" y="-151796" z="-545" heading="46651" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35550" x="79098" y="-152149" z="-678" heading="37821" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35550" x="79371" y="-152142" z="-652" heading="61567" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35553" x="77105" y="-152827" z="-907" heading="11176" respawnTime="60sec" /> <!-- Blacksmith -->
+			<npc id="35554" x="77906" y="-152872" z="-934" heading="25468" respawnTime="60sec" /> <!-- Warehouse Keeper -->
+			<npc id="35556" x="77552" y="-152208" z="1226" heading="48792" respawnTime="60sec" /> <!-- Gallic -->
+			<npc id="35557" x="77795" y="-153326" z="-514" heading="14662" respawnTime="60sec" /> <!-- Kendrew -->
+			<npc id="35559" x="75707" y="-144899" z="-1296" respawnTime="120sec" /> <!-- Daguerre -->
+		</group>
+	</spawn>
+</list>

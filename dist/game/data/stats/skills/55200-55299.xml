@@ -1,0 +1,303 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
+	<skill id="55200" toLevel="1" name="Sealed Rune Lvl 8">
+		<icon>BranchIcon.Icon.g_blue_sealed_rune</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70007</itemConsumeId> <!-- Sealed Rune - Lv. 8 -->
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="12.5">
+						<item id="29825" count="1" /> <!-- Sigels Rune - Stage 8 -->
+					</item>
+					<item chance="12.5">
+						<item id="29845" count="1" /> <!-- Tyrrs Rune - Stage 8 -->
+					</item>
+					<item chance="12.5">
+						<item id="29865" count="1" /> <!-- Othells Rune - Stage 8 -->
+					</item>
+					<item chance="12.5">
+						<item id="29885" count="1" /> <!-- Yuls Rune - Stage 8 -->
+					</item>
+					<item chance="12.5">
+						<item id="29905" count="1" /> <!-- Feohs Rune - Stage 8 -->
+					</item>
+					<item chance="12.5">
+						<item id="29925" count="1" /> <!-- Iss Rune - Stage 8 -->
+					</item>
+					<item chance="12.5">
+						<item id="29945" count="1" /> <!-- Wynns Rune - Stage 8 -->
+					</item>
+					<item chance="12.5">
+						<item id="29965" count="1" /> <!-- Aeores Rune - Stage 8 -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55201" toLevel="1" name="Sealed Rune Lvl 9">
+		<icon>BranchIcon.Icon.g_blue_sealed_rune</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70008</itemConsumeId> <!-- Sealed Rune - Lv. 9 -->
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="12.5">
+						<item id="29826" count="1" /> <!-- Sigels Rune - Stage 9 -->
+					</item>
+					<item chance="12.5">
+						<item id="29846" count="1" /> <!-- Tyrrs Rune - Stage 9 -->
+					</item>
+					<item chance="12.5">
+						<item id="29866" count="1" /> <!-- Othells Rune - Stage 9 -->
+					</item>
+					<item chance="12.5">
+						<item id="29886" count="1" /> <!-- Yuls Rune - Stage 9 -->
+					</item>
+					<item chance="12.5">
+						<item id="29906" count="1" /> <!-- Feohs Rune - Stage 9 -->
+					</item>
+					<item chance="12.5">
+						<item id="29926" count="1" /> <!-- Iss Rune - Stage 9 -->
+					</item>
+					<item chance="12.5">
+						<item id="29946" count="1" /> <!-- Wynns Rune - Stage 9 -->
+					</item>
+					<item chance="12.5">
+						<item id="29966" count="1" /> <!-- Aeores Rune - Stage 9 -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55202" toLevel="1" name="Sealed Rune Lv. 10">
+		<icon>BranchIcon.Icon.g_blue_sealed_rune</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70009</itemConsumeId> <!-- Sealed Rune - Lv. 10 -->
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="12.5">
+						<item id="29827" count="1" /> <!-- Sigels Rune - Stage 10 -->
+					</item>
+					<item chance="12.5">
+						<item id="29847" count="1" /> <!-- Tyrrs Rune - Stage 10 -->
+					</item>
+					<item chance="12.5">
+						<item id="29867" count="1" /> <!-- Othells Rune - Stage 10 -->
+					</item>
+					<item chance="12.5">
+						<item id="29887" count="1" /> <!-- Yuls Rune - Stage 10 -->
+					</item>
+					<item chance="12.5">
+						<item id="29907" count="1" /> <!-- Feohs Rune - Stage 10 -->
+					</item>
+					<item chance="12.5">
+						<item id="29927" count="1" /> <!-- Iss Rune - Stage 10 -->
+					</item>
+					<item chance="12.5">
+						<item id="29947" count="1" /> <!-- Wynns Rune - Stage 10 -->
+					</item>
+					<item chance="12.5">
+						<item id="29967" count="1" /> <!-- Aeores Rune - Stage 10 -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55203" toLevel="1" name="Sealed Rune Lv. 11">
+		<icon>BranchIcon.Icon.g_red_sealed_rune_01</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70010</itemConsumeId> <!-- Sealed Rune - Lv. 11 -->
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="12.5">
+						<item id="29828" count="1" /> <!-- Sigels Rune - Stage 11 -->
+					</item>
+					<item chance="12.5">
+						<item id="29848" count="1" /> <!-- Tyrrs Rune - Stage 11 -->
+					</item>
+					<item chance="12.5">
+						<item id="29868" count="1" /> <!-- Othells Rune - Stage 11 -->
+					</item>
+					<item chance="12.5">
+						<item id="29888" count="1" /> <!-- Yuls Rune - Stage 11 -->
+					</item>
+					<item chance="12.5">
+						<item id="29908" count="1" /> <!-- Feohs Rune - Stage 11 -->
+					</item>
+					<item chance="12.5">
+						<item id="29928" count="1" /> <!-- Iss Rune - Stage 11 -->
+					</item>
+					<item chance="12.5">
+						<item id="29948" count="1" /> <!-- Wynns Rune - Stage 11 -->
+					</item>
+					<item chance="12.5">
+						<item id="29968" count="1" /> <!-- Aeores Rune - Stage 11 -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55204" toLevel="1" name="Sealed Rune Lv. 12">
+		<icon>BranchIcon.Icon.g_red_sealed_rune_01</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70011</itemConsumeId> <!-- Sealed Rune - Lv. 12 -->
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="12.5">
+						<item id="29829" count="1" /> <!-- Sigels Rune - Stage 12 -->
+					</item>
+					<item chance="12.5">
+						<item id="29849" count="1" /> <!-- Tyrrs Rune - Stage 12 -->
+					</item>
+					<item chance="12.5">
+						<item id="29869" count="1" /> <!-- Othells Rune - Stage 12 -->
+					</item>
+					<item chance="12.5">
+						<item id="29889" count="1" /> <!-- Yuls Rune - Stage 12 -->
+					</item>
+					<item chance="12.5">
+						<item id="29909" count="1" /> <!-- Feohs Rune - Stage 12 -->
+					</item>
+					<item chance="12.5">
+						<item id="29929" count="1" /> <!-- Iss Rune - Stage 12 -->
+					</item>
+					<item chance="12.5">
+						<item id="29949" count="1" /> <!-- Wynns Rune - Stage 12 -->
+					</item>
+					<item chance="12.5">
+						<item id="29969" count="1" /> <!-- Aeores Rune - Stage 12 -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55205" toLevel="1" name="Sealed Rune Lv. 13">
+		<icon>BranchIcon.Icon.g_red_sealed_rune_01</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70012</itemConsumeId> <!-- Sealed Rune - Lv. 13 -->
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="12.5">
+						<item id="29830" count="1" /> <!-- Sigels Rune - Stage 13 -->
+					</item>
+					<item chance="12.5">
+						<item id="29850" count="1" /> <!-- Tyrrs Rune - Stage 13 -->
+					</item>
+					<item chance="12.5">
+						<item id="29870" count="1" /> <!-- Othells Rune - Stage 13 -->
+					</item>
+					<item chance="12.5">
+						<item id="29890" count="1" /> <!-- Yuls Rune - Stage 13 -->
+					</item>
+					<item chance="12.5">
+						<item id="29910" count="1" /> <!-- Feohs Rune - Stage 13 -->
+					</item>
+					<item chance="12.5">
+						<item id="29930" count="1" /> <!-- Iss Rune - Stage 13 -->
+					</item>
+					<item chance="12.5">
+						<item id="29950" count="1" /> <!-- Wynns Rune - Stage 13 -->
+					</item>
+					<item chance="12.5">
+						<item id="29970" count="1" /> <!-- Aeores Rune - Stage 13 -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+</list>

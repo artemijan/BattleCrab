@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+	<item id="49504" name="Report about Fish" type="EtcItem">
+		<!-- Report of Analysis Result of local fish. Take it to water researcher Baikal. -->
+		<set name="icon" val="icon.mercenary_certification_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
+	</item>
+	<item id="49505" name="Sealed Bottle" type="EtcItem">
+		<!-- A bottle filled with water polluting substance. Take it to Fisher Pierre. -->
+		<set name="icon" val="icon.etc_hot_spring_glass_bottle_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
+	</item>
+	<item id="49510" name="Pierre's letter" type="EtcItem">
+		<!-- Urgent message from Fisherman Pierre. Take it to Ferma. -->
+		<set name="icon" val="icon.etc_letter_envelope_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
+	</item>
+	<item id="49555" name="Mold" type="EtcItem">
+		<!-- Goods delivered by Trader Damion in Gludio. Take them to Amora near Fellmere Lake. -->
+		<set name="icon" val="icon.etc_mold_i00" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="is_questitem" val="true" />
+	</item>
+	<item id="49556" name="Amora's Receipt" type="EtcItem">
+		<!-- A receipt received from Amora. Take it to Trader Damion in Gludio. -->
+		<set name="icon" val="icon.etc_piece_of_paper_gray_i00" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="is_questitem" val="true" />
+	</item>
+	<item id="49557" name="Armor Trade Contract" type="EtcItem">
+		<!-- A contract, found on Turek Orc Commander. There's a Dwarven seal on it. Take it to the Moon Knight Jones. -->
+		<set name="icon" val="icon.etc_paper_black_i00" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="is_questitem" val="true" />
+	</item>
+	<item id="49558" name="Turek Orc Order" type="EtcItem">
+		<!-- An order to attack, found on Turek Orc Commander. Take it to the Moon Knight Jones. -->
+		<set name="icon" val="icon.etc_roll_of_paper_black_i00" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="is_questitem" val="true" />
+	</item>
+	<item id="49561" name="Turek Orc Invader Head" type="EtcItem">
+		<!-- Cut Turek Orc Invader Head. Collect 10 items and bring them to Hierarch Ol Mahum Gudzu. -->
+		<set name="icon" val="icon.etc_skull_black_i00" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+</list>

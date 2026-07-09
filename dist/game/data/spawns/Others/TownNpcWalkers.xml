@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="TownNpcWalkers">
+		<group>
+			<npc id="31357" x="-82428" y="245203" z="-3712" heading="0" respawnTime="60sec" />
+			<npc id="31356" x="-81920" y="243892" z="-3714" heading="7000" respawnTime="60sec" />
+			<npc id="31365" x="-48820" y="-113748" z="-233" heading="0" respawnTime="60sec" />
+			<npc id="31364" x="-46512" y="-117696" z="-252" heading="0" respawnTime="60sec" />
+			<npc id="31361" x="23436" y="11152" z="-3728" heading="0" respawnTime="60sec" />
+			<npc id="31360" x="10976" y="14616" z="-4246" heading="0" respawnTime="60sec" />
+			<npc id="31358" x="43936" y="51092" z="-2994" heading="0" respawnTime="60sec" />
+			<npc id="31359" x="44947" y="50556" z="-3056" heading="0" respawnTime="60sec" />
+			<npc id="32070" x="84460" y="-144052" z="-1530" heading="0" respawnTime="60sec" />
+			<npc id="32072" x="84460" y="-144052" z="-1530" heading="15666" respawnTime="60sec" />
+			<npc id="31363" x="115756" y="-183472" z="-1477" heading="0" respawnTime="60sec" />
+			<npc id="31362" x="115820" y="-181568" z="-1338" heading="0" respawnTime="60sec" />
+		</group>
+	</spawn>
+</list>

@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+  <item id="49039" name="Necklace (Novice)" type="Armor">
+    <!-- Novice Necklace. -->
+    <set name="icon" val="icon.accessary_necklace_of_knowledge_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="bodypart" val="neck" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="SILVER" />
+    <set name="weight" val="150" />
+    <set name="is_sellable" val="false" />
+    <stats>
+      <stat type="mDef">18</stat>
+    </stats>
+  </item>
+  <item id="49040" name="Earring (Novice)" type="Armor">
+    <!-- Novice Earring. -->
+    <set name="icon" val="icon.accessary_mage_earing_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="bodypart" val="rear;lear" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="SILVER" />
+    <set name="weight" val="150" />
+    <set name="is_sellable" val="false" />
+    <stats>
+      <stat type="mDef">13</stat>
+    </stats>
+  </item>
+  <item id="49041" name="Ring (Novice)" type="Armor">
+    <!-- Novice Ring. -->
+    <set name="icon" val="icon.accessary_ring_of_knowledge_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="bodypart" val="rfinger;lfinger" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="GOLD" />
+    <set name="weight" val="150" />
+    <set name="is_sellable" val="false" />
+    <stats>
+      <stat type="mDef">10</stat>
+    </stats>
+  </item>
+  <item id="49043" name="Sword of Solidarity (Novice)" type="Weapon">
+    <!-- A mithril sword forged long ago to commemorate the alliance between Elves and Humans. Novice only. -->
+    <set name="icon" val="icon.weapon_long_sword_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="weapon_type" val="SWORD" />
+    <set name="bodypart" val="rhand" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="BRONZE" />
+    <set name="weight" val="1300" />
+    <set name="soulshots" val="1" />
+    <set name="spiritshots" val="1" />
+    <set name="is_sellable" val="false" />
+    <stats>
+      <stat type="pAtk">17</stat>
+      <stat type="mAtk">12</stat>
+      <stat type="rCrit">8</stat>
+      <stat type="pAtkSpd">379</stat>
+      <stat type="randomDamage">10</stat>
+      <stat type="pAtkRange">40</stat>
+    </stats>
+  </item>
+  <item id="49044" name="Wand of Adept (Novice)" type="Weapon">
+    <!-- The wand presented to those who have finished their studies at the school of magic. Novice only. -->
+    <set name="icon" val="icon.weapon_apprentices_wand_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="weapon_type" val="BLUNT" />
+    <set name="bodypart" val="rhand" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="WOOD" />
+    <set name="weight" val="1300" />
+    <set name="soulshots" val="1" />
+    <set name="spiritshots" val="1" />
+    <set name="is_magic_weapon" val="true" />
+    <set name="is_sellable" val="false" />
+    <stats>
+      <stat type="pAtk">17</stat>
+      <stat type="mAtk">15</stat>
+      <stat type="rCrit">6</stat>
+      <stat type="accCombat">8</stat>
+      <stat type="pAtkSpd">379</stat>
+      <stat type="randomDamage">20</stat>
+      <stat type="pAtkRange">40</stat>
+    </stats>
+  </item>
+  <item id="49045" name="Red Sunset Staff (Novice)" type="Weapon">
+    <!-- A staff used by warriors belonging to the Red Sunset clan. Novice only. -->
+    <set name="icon" val="icon.weapon_cedar_staff_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="weapon_type" val="BLUNT" />
+    <set name="bodypart" val="lrhand" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="WOOD" />
+    <set name="weight" val="1700" />
+    <set name="soulshots" val="1" />
+    <set name="spiritshots" val="1" />
+    <set name="is_magic_weapon" val="true" />
+    <set name="is_sellable" val="false" />
+    <stats>
+      <stat type="pAtk">15</stat>
+      <stat type="mAtk">18</stat>
+      <stat type="rCrit">6</stat>
+      <stat type="accCombat">8</stat>
+      <stat type="pAtkSpd">325</stat>
+      <stat type="randomDamage">20</stat>
+      <stat type="pAtkRange">40</stat>
+    </stats>
+  </item>
+  <item id="49046" name="Red Sunset Sword (Novice)" type="Weapon">
+    <!-- A sword used by warriors belonging to the Red Sunset clan. Novice only. -->
+    <set name="icon" val="icon.weapon_brandish_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="weapon_type" val="SWORD" />
+    <set name="bodypart" val="lrhand" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="STEEL" />
+    <set name="weight" val="1300" />
+    <set name="soulshots" val="1" />
+    <set name="spiritshots" val="1" />
+    <set name="is_sellable" val="false" />
+    <stats>
+      <stat type="pAtk">17</stat>
+      <stat type="mAtk">15</stat>
+      <stat type="rCrit">8</stat>
+      <stat type="pAtkSpd">325</stat>
+      <stat type="randomDamage">10</stat>
+      <stat type="pAtkRange">40</stat>
+    </stats>
+  </item>
+  <item id="49049" name="Eldritch Dagger (Novice)" type="Weapon">
+    <!-- A steel dagger engraved with the runes of Shilen and Gran Kain. Novice only. -->
+    <set name="icon" val="icon.weapon_knife_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="weapon_type" val="DAGGER" />
+    <set name="bodypart" val="rhand" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="STEEL" />
+    <set name="weight" val="1130" />
+    <set name="soulshots" val="1" />
+    <set name="spiritshots" val="1" />
+    <set name="is_sellable" val="false" />
+    <stats>
+      <stat type="pAtk">17</stat>
+      <stat type="mAtk">15</stat>
+      <stat type="rCrit">12</stat>
+      <stat type="accCombat">-3.75</stat>
+      <stat type="pAtkSpd">433</stat>
+      <stat type="randomDamage">5</stat>
+      <stat type="pAtkRange">40</stat>
+    </stats>
+  </item>
+  <item id="49050" name="Blood Saber (Novice)" type="Weapon">
+    <!-- An Oriharukon sword crafted in the Abella style of the east. Novice only. -->
+    <set name="icon" val="icon.weapon_broad_sword_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="weapon_type" val="SWORD" />
+    <set name="bodypart" val="rhand" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="ORIHARUKON" />
+    <set name="weight" val="1450" />
+    <set name="soulshots" val="1" />
+    <set name="spiritshots" val="1" />
+    <set name="is_sellable" val="false" />
+    <stats>
+      <stat type="pAtk">17</stat>
+      <stat type="mAtk">15</stat>
+      <stat type="rCrit">8</stat>
+      <stat type="pAtkSpd">379</stat>
+      <stat type="randomDamage">10</stat>
+      <stat type="pAtkRange">40</stat>
+    </stats>
+  </item>
+  <item id="49052" name="Butcher's Sword (Novice)" type="Weapon">
+    <!-- Sword granted to young Orc Fighters who distinguished themselves at war. -->
+    <set name="icon" val="icon.weapon_orcish_sword_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="weapon_type" val="SWORD" />
+    <set name="bodypart" val="rhand" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="STEEL" />
+    <set name="weight" val="1450" />
+    <set name="soulshots" val="1" />
+    <set name="spiritshots" val="1" />
+    <set name="is_sellable" val="false" />
+    <stats>
+      <stat type="pAtk">17</stat>
+      <stat type="mAtk">15</stat>
+      <stat type="rCrit">8</stat>
+      <stat type="pAtkSpd">379</stat>
+      <stat type="randomDamage">10</stat>
+      <stat type="pAtkRange">40</stat>
+    </stats>
+  </item>
+  <item id="49053" name="Silversmith Hammer (Novice)" type="Weapon">
+    <!-- A hammer silversmiths of the ancient Elmoreden used. Novice only. -->
+    <set name="icon" val="icon.weapon_iron_hammer_i00" />
+    <set name="default_action" val="EQUIP" />
+    <set name="weapon_type" val="BLUNT" />
+    <set name="bodypart" val="rhand" />
+    <set name="immediate_effect" val="true" />
+    <set name="material" val="STEEL" />
+    <set name="weight" val="1860" />
+    <set name="soulshots" val="1" />
+    <set name="spiritshots" val="1" />
+    <set name="is_sellable" val="false" />
+    <stats>
+      <stat type="pAtk">17</stat>
+      <stat type="mAtk">15</stat>
+      <stat type="rCrit">6</stat>
+      <stat type="accCombat">8</stat>
+      <stat type="pAtkSpd">379</stat>
+      <stat type="randomDamage">20</stat>
+      <stat type="pAtkRange">40</stat>
+    </stats>
+  </item>
+  <item id="49087" name="Improved Scroll of Escape" type="EtcItem">
+		<!-- Magic Scroll that relocates you to the nearest village. -->
+		<set name="icon" val="icon.etc_scroll_of_return_i01" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="PAPER" />
+		<set name="weight" val="120" />
+		<set name="price" val="20000" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<set name="commissionItemType" val="SCROLL_OTHER" />
+		<skills>
+			<skill id="39075" level="1" /> <!-- Improved Scroll of Escape -->
+		</skills>
+	</item>
+</list>

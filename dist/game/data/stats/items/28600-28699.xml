@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+	<item id="28600" name="Spirit Stone - Elmore" type="EtcItem">
+		<!-- Legendary Spirit Stone for the Elmore Cloak. Can augment all ancient kingdom cloaks when they have been enchanted to +15, and a random effect will be added when augmented. Effects bestowed through augmentation will be applied when the enchant level is +15 or higher. Once augmented, it cannot be canceled, but it can be augmented again. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_cloak_mineral_elmore" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="28601" name="Spirit Stone - Ferios" type="EtcItem">
+		<!-- Legendary Spirit Stone for the Ferios Cloak. Can augment all ancient kingdom cloaks when they have been enchanted to +15, and a random effect will be added when augmented. Effects bestowed through augmentation will be applied when the enchant level is +15 or higher. Once augmented, it cannot be canceled, but it can be augmented again. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_cloak_mineral_perios" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="28602" name="Spirit Stone Pack - Legendary" type="EtcItem">
+		<!-- Double-click to obtain 1 Spirit Stone - Elmoreden/Aden/Elmore/Ferios randomly. -->
+		<set name="icon" val="BranchIcon.icon.etc_g_bm_godspirit_box" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="28603" name="Dragon's Treasure Chest" type="EtcItem">
+		<!-- Double-click to obtain a rare item at random:. Seven Signs' Energy, Baium's Soul Ring, Bottle of Antharas' / Valakas' Soul, +7 Pa'agrio's / Sayha's / Eva's / Maphr's Shirt Pack, Windy Lucky Enchant Stone: Weapon / Armor (R-grade), Giant's Scroll: Enchant Weapon / Armor (R-grade), Blessed Lucky Enchant Stone: Weapon / Armor Pack (R-grade), Blessed Scroll: Enchant Weapon / Armor (R-grade), Scroll: Enchant Weapon / Armor Pack (R-grade), Destruction Scroll: Enchant Elemental Shirt, Giant's Energy 20-unit Pack, Energy of Destruction 20-unit Pack, Mysterious Wind Scroll Pack, Rune Stone, Wind Vitality Tonic, Gemstone (R-grade) x15, Dragon's Gold Key, Dragon's Elemental Potion. -->
+		<set name="icon" val="icon.bm_dragon_present" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="LEATHER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="28604" name="Shining Dragon's Treasure Chest" type="EtcItem">
+		<!-- Double-click to obtain a rare item at random:. Fragment of Dragon Claw weapon, Dragon Claw, Dark / Bloody Helios Enhancement Stone, Dark / Bloody Eternal Enhancement Stone, Lindvior's Earring, Blessed Valakas' Necklace, Blessed Antharas' Earring, Ring of Creation, +7 Physical / Magical Reflect Shirt Pack, +7 Shiny Elemental Shirt Pack, Freya's Lucky Enchant Stone: Weapon / Armor (R-grade), Windy Lucky Enchant Stone: Weapon / Armor (R-grade), Blessed Lucky Enchant Stone: Weapon Pack (R-grade), Giant's Scroll: Enchant Weapon (R-grade), Blessed Scroll: Enchant Weapon (R-grade), Prestige Rune 100% Pack (30-day), XP Rune III (Lv. 1-100+) 100% Pack (30-day), Eva's Rune Pack (30-day), Zodiac Agathion Pack, Destruction Scroll: Enchant Elemental Shirt, Superior Giant's Codex - Mastery Chapter 1, Superior Giant's Codex - Mastery x2, Giant's Energy 100-unit Pack, Energy of Destruction 100-unit Pack, Top-grade Spirit Stone, Emperor's Vitality Tonic (Medium), Durandil Wire x5, Dragon's Elemental Potion (EXP) x3. -->
+		<set name="icon" val="icon.bm_dragon_shinning_present" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="LEATHER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="28605" name="+10 Elmoreden Cloak - Legendary Box" type="EtcItem">
+		<!-- Double-click to obtain a +10 Elmoreden Cloak - Legendary. -->
+		<set name="icon" val="BranchIcon.icon.etc_g_bm_godspirit_box" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="material" val="LEATHER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="28589" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Elmoreden Cloak - Legendary -->
+		</capsuled_items>
+	</item>
+	<item id="28606" name="+10 Aden Cloak - Legendary Box" type="EtcItem">
+		<!-- Double-click to obtain a +10 Aden Cloak - Legendary. -->
+		<set name="icon" val="BranchIcon.icon.etc_g_bm_godspirit_box" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="material" val="LEATHER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="28590" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Aden Cloak - Legendary -->
+		</capsuled_items>
+	</item>
+	<item id="28607" name="+10 Elmore Cloak - Legendary Box" type="EtcItem">
+		<!-- Double-click to obtain a +10 Elmore Cloak - Legendary. -->
+		<set name="icon" val="BranchIcon.icon.etc_g_bm_godspirit_box" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="material" val="LEATHER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="28591" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Elmore Cloak - Legendary -->
+		</capsuled_items>
+	</item>
+	<item id="28608" name="+10 Ferios Cloak - Legendary Box" type="EtcItem">
+		<!-- Double-click to obtain a +10 Ferios Cloak - Legendary. -->
+		<set name="icon" val="BranchIcon.icon.etc_g_bm_godspirit_box" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="material" val="LEATHER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="28592" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Ferios Cloak - Legendary -->
+		</capsuled_items>
+	</item>
+</list>

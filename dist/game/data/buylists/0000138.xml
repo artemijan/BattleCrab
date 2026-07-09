@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list baseTax="50" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/buylist.xsd">
+	<npcs>
+		<npc>31319</npc>
+	</npcs>
+	<item id="3031" price="400" />
+	<item id="1785" price="250" />
+	<item id="5192" price="100" />
+	<item id="5193" price="150" />
+	<item id="5194" price="250" />
+	<item id="5195" price="400" />
+	<item id="2130" price="1000" />
+	<item id="2131" price="3000" />
+	<item id="2132" price="10000" />
+</list>

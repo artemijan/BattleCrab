@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/multisell.xsd">
+	<npcs>
+		<npc>31126</npc> <!-- Blacksmith of Mammon -->
+	</npcs>
+	
+	<!-- Craft S-Grade Dualswords -->
+	
+	<item>
+		<ingredient id="80" count="1" /> <!-- Tallum Blade -->
+		<ingredient id="2500" count="1" /> <!-- Dark Legion's Edge -->
+		<ingredient id="5126" count="1" /> <!-- Dualsword Craft Stamp -->
+		<ingredient id="5575" count="3600000" /> <!-- Ancient Adena -->
+		<production id="6580" count="1" /> <!-- Tallum Blade*Dark Legion's Edge -->
+	</item>
+</list>

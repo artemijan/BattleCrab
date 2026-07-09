@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Interlude_22_15">
+		<group>
+			<npc id="27317" x="86108" y="-76340" z="-3524" respawnTime="360sec" /> <!-- Spirit of a Drowned -->
+			<npc id="27317" x="86209" y="-76162" z="-3524" respawnTime="360sec" /> <!-- Spirit of a Drowned -->
+			<npc id="27317" x="87052" y="-75716" z="-3584" respawnTime="360sec" /> <!-- Spirit of a Drowned -->
+			<npc id="27317" x="87153" y="-75538" z="-3584" respawnTime="360sec" /> <!-- Spirit of a Drowned -->
+			<npc id="27317" x="86700" y="-75316" z="-3584" respawnTime="360sec" /> <!-- Spirit of a Drowned -->
+			<npc id="27317" x="86801" y="-75138" z="-3584" respawnTime="360sec" /> <!-- Spirit of a Drowned -->
+			<npc id="27216" x="72224" y="-83539" z="-4313" heading="42935" respawnTime="360sec" /> <!-- Watcher of the Ancient Pledge -->
+			<npc id="27216" x="72172" y="-82869" z="-4313" heading="18466" respawnTime="360sec" /> <!-- Watcher of the Ancient Pledge -->
+			<npc id="27216" x="71704" y="-82996" z="-4362" respawnTime="360sec" /> <!-- Watcher of the Ancient Pledge -->
+			<npc id="27216" x="72468" y="-84970" z="-4296" heading="48719" respawnTime="360sec" /> <!-- Watcher of the Ancient Pledge -->
+			<npc id="27216" x="72827" y="-86301" z="-4280" heading="51316" respawnTime="360sec" /> <!-- Watcher of the Ancient Pledge -->
+			<npc id="27216" x="72651" y="-86366" z="-4281" heading="48343" respawnTime="360sec" /> <!-- Watcher of the Ancient Pledge -->
+			<npc id="27216" x="72397" y="-83765" z="-4313" heading="13380" respawnTime="360sec" /> <!-- Watcher of the Ancient Pledge -->
+			<npc id="27216" x="72193" y="-82473" z="-4267" heading="10658" respawnTime="360sec" /> <!-- Watcher of the Ancient Pledge -->
+			<npc id="27216" x="72408" y="-82818" z="-4362" respawnTime="360sec" /> <!-- Watcher of the Ancient Pledge -->
+			<npc id="27216" x="72265" y="-84395" z="-4313" heading="50667" respawnTime="360sec" /> <!-- Watcher of the Ancient Pledge -->
+			<npc id="31367" x="67737" y="-72369" z="-3722" heading="33486" respawnTime="60sec" /> <!-- Voice of Splendor -->
+			<npc id="31368" x="97136" y="-75648" z="-1615" heading="37000" respawnTime="60sec" /> <!-- Mikellan -->
+			<npc id="31518" x="68064" y="-71712" z="-3712" heading="30000" respawnTime="60sec" /> <!-- Mysterious Necromancer -->
+			<npc id="31517" x="72704" y="-72480" z="-4478" heading="49000" respawnTime="60sec" /> <!-- Hierarch -->
+			<npc id="31512" x="72656" y="-72480" z="-4478" heading="49000" respawnTime="60sec" /> <!-- Evil Altar -->
+			<npc id="31517" x="95476" y="-87316" z="-3813" heading="12000" respawnTime="60sec" /> <!-- Hierarch -->
+			<npc id="31513" x="95516" y="-87328" z="-3813" heading="12000" respawnTime="60sec" /> <!-- Evil Altar -->
+			<npc id="31517" x="69952" y="-83904" z="-4320" heading="49000" respawnTime="60sec" /> <!-- Hierarch -->
+			<npc id="31514" x="69904" y="-83904" z="-4320" heading="49000" respawnTime="60sec" /> <!-- Evil Altar -->
+			<npc id="31517" x="78416" y="-75760" z="-4485" respawnTime="60sec" /> <!-- Hierarch -->
+			<npc id="31515" x="78416" y="-75808" z="-4485" respawnTime="60sec" /> <!-- Evil Altar -->
+			<npc id="31517" x="89204" y="-92656" z="-3800" heading="9000" respawnTime="60sec" /> <!-- Hierarch -->
+			<npc id="31516" x="89236" y="-92684" z="-3800" heading="9000" respawnTime="60sec" /> <!-- Evil Altar -->
+			<npc id="31508" x="76656" y="-76416" z="-3602" heading="30000" respawnTime="60sec" /> <!-- Altar of Saints -->
+			<npc id="31509" x="97264" y="-90784" z="-2786" heading="23000" respawnTime="60sec" /> <!-- Altar of Saints -->
+			<npc id="31510" x="72767" y="-89068" z="-3127" heading="9000" respawnTime="60sec" /> <!-- Altar of Saints -->
+			<npc id="31511" x="91744" y="-75824" z="-3634" heading="33000" respawnTime="60sec" /> <!-- Altar of Saints -->
+			<npc id="31519" x="78064" y="-82672" z="-3642" respawnTime="60sec" /> <!-- Enfeux -->
+			<npc id="31746" x="85884" y="-76588" z="-3475" heading="8000" respawnTime="60sec" /> <!-- Fallen Unicorn -->
+			<npc id="31748" x="85832" y="-76652" z="-3475" heading="42000" respawnTime="60sec" /> <!-- Bound Cornerstone -->
+			<npc id="31748" x="85824" y="-76544" z="-3475" heading="24000" respawnTime="60sec" /> <!-- Bound Cornerstone -->
+			<npc id="31748" x="85940" y="-76536" z="-3475" heading="8000" respawnTime="60sec" /> <!-- Bound Cornerstone -->
+			<npc id="31748" x="85936" y="-76640" z="-3475" heading="57000" respawnTime="60sec" /> <!-- Bound Cornerstone -->
+			<npc id="31647" x="94160" y="-88912" z="-3792" heading="25000" respawnTime="60sec" /> <!-- Tablet Of Vision -->
+			<npc id="31648" x="80240" y="-72720" z="-4468" heading="42000" respawnTime="60sec" /> <!-- Tablet Of Vision -->
+			<npc id="31649" x="71344" y="-82704" z="-4272" heading="57000" respawnTime="60sec" /> <!-- Tablet Of Vision -->
+		</group>
+	</spawn>
+</list>

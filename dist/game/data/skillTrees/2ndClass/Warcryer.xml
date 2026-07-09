@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="52" parentClassId="50">
+		<skill skillId="146" skillLevel="13" skillName="Anti Magic" levelUpSp="9000" getLevel="40" />
+		<skill skillId="146" skillLevel="14" skillName="Anti Magic" levelUpSp="9000" getLevel="40" />
+		<skill skillId="146" skillLevel="15" skillName="Anti Magic" levelUpSp="9000" getLevel="40" />
+		<skill skillId="211" skillLevel="1" skillName="Boost HP" levelUpSp="27000" getLevel="40" />
+		<skill skillId="213" skillLevel="3" skillName="Boost Mana" levelUpSp="27000" getLevel="40" />
+		<skill skillId="228" skillLevel="2" skillName="Fast Spell Casting" levelUpSp="27000" getLevel="40" />
+		<skill skillId="250" skillLevel="10" skillName="Weapon Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="250" skillLevel="11" skillName="Weapon Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="250" skillLevel="12" skillName="Weapon Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="251" skillLevel="13" skillName="Robe Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="251" skillLevel="14" skillName="Robe Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="251" skillLevel="15" skillName="Robe Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="252" skillLevel="13" skillName="Light Armor Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="252" skillLevel="14" skillName="Light Armor Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="252" skillLevel="15" skillName="Light Armor Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="253" skillLevel="11" skillName="Heavy Armor Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="253" skillLevel="12" skillName="Heavy Armor Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="253" skillLevel="13" skillName="Heavy Armor Mastery" levelUpSp="9000" getLevel="40" />
+		<skill skillId="260" skillLevel="1" skillName="Hammer Crush" levelUpSp="9000" getLevel="40" />
+		<skill skillId="260" skillLevel="2" skillName="Hammer Crush" levelUpSp="9000" getLevel="40" />
+		<skill skillId="260" skillLevel="3" skillName="Hammer Crush" levelUpSp="9000" getLevel="40" />
+		<skill skillId="1001" skillLevel="5" skillName="Soul Cry" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1006" skillLevel="2" skillName="Chant of Fire" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1009" skillLevel="3" skillName="Chant of Shielding" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1092" skillLevel="6" skillName="Fear" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1095" skillLevel="4" skillName="Venom" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1097" skillLevel="7" skillName="Dreaming Spirit" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1105" skillLevel="5" skillName="Madness" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1229" skillLevel="5" skillName="Chant of Life" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1244" skillLevel="1" skillName="Freezing Flame" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1245" skillLevel="1" skillName="Steal Essence" levelUpSp="27000" getLevel="40" />
+		<skill skillId="1252" skillLevel="1" skillName="Chant of Evasion" levelUpSp="27000" getLevel="40" />
+		<skill skillId="146" skillLevel="16" skillName="Anti Magic" levelUpSp="12000" getLevel="44" />
+		<skill skillId="146" skillLevel="17" skillName="Anti Magic" levelUpSp="12000" getLevel="44" />
+		<skill skillId="146" skillLevel="18" skillName="Anti Magic" levelUpSp="12000" getLevel="44" />
+		<skill skillId="211" skillLevel="2" skillName="Boost HP" levelUpSp="37000" getLevel="44" />
+		<skill skillId="212" skillLevel="2" skillName="Fast HP Recovery" levelUpSp="37000" getLevel="44" />
+		<skill skillId="229" skillLevel="3" skillName="Fast Mana Recovery" levelUpSp="37000" getLevel="44" />
+		<skill skillId="250" skillLevel="13" skillName="Weapon Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="250" skillLevel="14" skillName="Weapon Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="250" skillLevel="15" skillName="Weapon Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="251" skillLevel="16" skillName="Robe Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="251" skillLevel="17" skillName="Robe Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="251" skillLevel="18" skillName="Robe Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="252" skillLevel="16" skillName="Light Armor Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="252" skillLevel="17" skillName="Light Armor Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="252" skillLevel="18" skillName="Light Armor Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="253" skillLevel="14" skillName="Heavy Armor Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="253" skillLevel="15" skillName="Heavy Armor Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="253" skillLevel="16" skillName="Heavy Armor Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="260" skillLevel="4" skillName="Hammer Crush" levelUpSp="12000" getLevel="44" />
+		<skill skillId="260" skillLevel="5" skillName="Hammer Crush" levelUpSp="12000" getLevel="44" />
+		<skill skillId="260" skillLevel="6" skillName="Hammer Crush" levelUpSp="12000" getLevel="44" />
+		<skill skillId="1002" skillLevel="2" skillName="Flame Chant" levelUpSp="37000" getLevel="44" />
+		<skill skillId="1007" skillLevel="3" skillName="Chant of Battle" levelUpSp="37000" getLevel="44" />
+		<skill skillId="1092" skillLevel="7" skillName="Fear" levelUpSp="37000" getLevel="44" />
+		<skill skillId="1097" skillLevel="8" skillName="Dreaming Spirit" levelUpSp="37000" getLevel="44" />
+		<skill skillId="1102" skillLevel="3" skillName="Aura Sink" levelUpSp="37000" getLevel="44" />
+		<skill skillId="1105" skillLevel="6" skillName="Madness" levelUpSp="37000" getLevel="44" />
+		<skill skillId="1229" skillLevel="6" skillName="Chant of Life" levelUpSp="37000" getLevel="44" />
+		<skill skillId="1245" skillLevel="2" skillName="Steal Essence" levelUpSp="37000" getLevel="44" />
+		<skill skillId="1253" skillLevel="1" skillName="Chant of Rage" levelUpSp="37000" getLevel="44" />
+		<skill skillId="1310" skillLevel="1" skillName="Chant of Vampire" levelUpSp="37000" getLevel="44" />
+		<skill skillId="146" skillLevel="19" skillName="Anti Magic" levelUpSp="21000" getLevel="48" />
+		<skill skillId="146" skillLevel="20" skillName="Anti Magic" levelUpSp="21000" getLevel="48" />
+		<skill skillId="146" skillLevel="21" skillName="Anti Magic" levelUpSp="21000" getLevel="48" />
+		<skill skillId="164" skillLevel="3" skillName="Quick Recovery" levelUpSp="63000" getLevel="48" />
+		<skill skillId="211" skillLevel="3" skillName="Boost HP" levelUpSp="63000" getLevel="48" />
+		<skill skillId="213" skillLevel="4" skillName="Boost Mana" levelUpSp="63000" getLevel="48" />
+		<skill skillId="250" skillLevel="16" skillName="Weapon Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="250" skillLevel="17" skillName="Weapon Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="250" skillLevel="18" skillName="Weapon Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="251" skillLevel="19" skillName="Robe Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="251" skillLevel="20" skillName="Robe Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="251" skillLevel="21" skillName="Robe Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="252" skillLevel="19" skillName="Light Armor Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="252" skillLevel="20" skillName="Light Armor Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="252" skillLevel="21" skillName="Light Armor Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="253" skillLevel="17" skillName="Heavy Armor Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="253" skillLevel="18" skillName="Heavy Armor Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="253" skillLevel="19" skillName="Heavy Armor Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="260" skillLevel="7" skillName="Hammer Crush" levelUpSp="21000" getLevel="48" />
+		<skill skillId="260" skillLevel="8" skillName="Hammer Crush" levelUpSp="21000" getLevel="48" />
+		<skill skillId="260" skillLevel="9" skillName="Hammer Crush" levelUpSp="21000" getLevel="48" />
+		<skill skillId="1001" skillLevel="6" skillName="Soul Cry" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1092" skillLevel="8" skillName="Fear" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1097" skillLevel="9" skillName="Dreaming Spirit" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1105" skillLevel="7" skillName="Madness" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1229" skillLevel="7" skillName="Chant of Life" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1245" skillLevel="3" skillName="Steal Essence" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1251" skillLevel="1" skillName="Chant of Fury" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1252" skillLevel="2" skillName="Chant of Evasion" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1308" skillLevel="1" skillName="Chant of Predator" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1309" skillLevel="1" skillName="Chant of Eagle" levelUpSp="63000" getLevel="48" />
+		<skill skillId="146" skillLevel="22" skillName="Anti Magic" levelUpSp="32000" getLevel="52" />
+		<skill skillId="146" skillLevel="23" skillName="Anti Magic" levelUpSp="32000" getLevel="52" />
+		<skill skillId="146" skillLevel="24" skillName="Anti Magic" levelUpSp="32000" getLevel="52" />
+		<skill skillId="211" skillLevel="4" skillName="Boost HP" levelUpSp="95000" getLevel="52" />
+		<skill skillId="212" skillLevel="3" skillName="Fast HP Recovery" levelUpSp="95000" getLevel="52" />
+		<skill skillId="229" skillLevel="4" skillName="Fast Mana Recovery" levelUpSp="95000" getLevel="52" />
+		<skill skillId="250" skillLevel="19" skillName="Weapon Mastery" levelUpSp="32000" getLevel="52" />
+		<skill skillId="250" skillLevel="20" skillName="Weapon Mastery" levelUpSp="32000" getLevel="52" />
+		<skill skillId="250" skillLevel="21" skillName="Weapon Mastery" levelUpSp="32000" getLevel="52" />
+		<skill skillId="251" skillLevel="22" skillName="Robe Mastery" levelUpSp="32000" getLevel="52" />
+		<skill skillId="251" skillLevel="23" skillName="Robe Mastery" levelUpSp="32000" getLevel="52" />
+		<skill skillId="251" skillLevel="24" skillName="Robe Mastery" levelUpSp="32000" getLevel="52" />
+		<skill skillId="252" skillLevel="22" skillName="Light Armor Mastery" levelUpSp="32000" getLevel="52" />
+		<skill skillId="252" skillLevel="23" skillName="Light Armor Mastery" levelUpSp="32000" getLevel="52" />
+		<skill skillId="252" skillLevel="24" skillName="Light Armor Mastery" levelUpSp="32000" getLevel="52" />
+		<skill skillId="253" skillLevel="20" skillName="Heavy Armor Mastery" levelUpSp="32000" getLevel="52" />
+		<skill skillId="253" skillLevel="21" skillName="Heavy Armor Mastery" levelUpSp="32000" getLevel="52" />
+		<skill skillId="253" skillLevel="22" skillName="Heavy Armor Mastery" levelUpSp="32000" getLevel="52" />
+		<skill skillId="260" skillLevel="10" skillName="Hammer Crush" levelUpSp="32000" getLevel="52" />
+		<skill skillId="260" skillLevel="11" skillName="Hammer Crush" levelUpSp="32000" getLevel="52" />
+		<skill skillId="260" skillLevel="12" skillName="Hammer Crush" levelUpSp="32000" getLevel="52" />
+		<skill skillId="1006" skillLevel="3" skillName="Chant of Fire" levelUpSp="95000" getLevel="52" />
+		<skill skillId="1092" skillLevel="9" skillName="Fear" levelUpSp="95000" getLevel="52" />
+		<skill skillId="1095" skillLevel="5" skillName="Venom" levelUpSp="95000" getLevel="52" />
+		<skill skillId="1097" skillLevel="10" skillName="Dreaming Spirit" levelUpSp="95000" getLevel="52" />
+		<skill skillId="1102" skillLevel="4" skillName="Aura Sink" levelUpSp="95000" getLevel="52" />
+		<skill skillId="1105" skillLevel="8" skillName="Madness" levelUpSp="95000" getLevel="52" />
+		<skill skillId="1229" skillLevel="8" skillName="Chant of Life" levelUpSp="95000" getLevel="52" />
+		<skill skillId="1244" skillLevel="2" skillName="Freezing Flame" levelUpSp="95000" getLevel="52" />
+		<skill skillId="1245" skillLevel="4" skillName="Steal Essence" levelUpSp="95000" getLevel="52" />
+		<skill skillId="1253" skillLevel="2" skillName="Chant of Rage" levelUpSp="95000" getLevel="52" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="1" getLevel="52" levelUpSp="230000">			<item id="8618" count="1" /> <!-- Ancient Book: Divine Inspiration (Modern Language Version) -->		</skill>
+		<skill skillId="146" skillLevel="25" skillName="Anti Magic" levelUpSp="35000" getLevel="56" />
+		<skill skillId="146" skillLevel="26" skillName="Anti Magic" levelUpSp="35000" getLevel="56" />
+		<skill skillId="146" skillLevel="27" skillName="Anti Magic" levelUpSp="35000" getLevel="56" />
+		<skill skillId="211" skillLevel="5" skillName="Boost HP" levelUpSp="105000" getLevel="56" />
+		<skill skillId="213" skillLevel="5" skillName="Boost Mana" levelUpSp="105000" getLevel="56" />
+		<skill skillId="228" skillLevel="3" skillName="Fast Spell Casting" levelUpSp="105000" getLevel="56" />
+		<skill skillId="250" skillLevel="22" skillName="Weapon Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="250" skillLevel="23" skillName="Weapon Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="250" skillLevel="24" skillName="Weapon Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="251" skillLevel="25" skillName="Robe Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="251" skillLevel="26" skillName="Robe Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="251" skillLevel="27" skillName="Robe Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="252" skillLevel="25" skillName="Light Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="252" skillLevel="26" skillName="Light Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="252" skillLevel="27" skillName="Light Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="253" skillLevel="23" skillName="Heavy Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="253" skillLevel="24" skillName="Heavy Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="253" skillLevel="25" skillName="Heavy Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="260" skillLevel="13" skillName="Hammer Crush" levelUpSp="35000" getLevel="56" />
+		<skill skillId="260" skillLevel="14" skillName="Hammer Crush" levelUpSp="35000" getLevel="56" />
+		<skill skillId="260" skillLevel="15" skillName="Hammer Crush" levelUpSp="35000" getLevel="56" />
+		<skill skillId="1001" skillLevel="7" skillName="Soul Cry" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1002" skillLevel="3" skillName="Flame Chant" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1092" skillLevel="10" skillName="Fear" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1097" skillLevel="11" skillName="Dreaming Spirit" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1105" skillLevel="9" skillName="Madness" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1229" skillLevel="9" skillName="Chant of Life" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1245" skillLevel="5" skillName="Steal Essence" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1251" skillLevel="2" skillName="Chant of Fury" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1252" skillLevel="3" skillName="Chant of Evasion" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1253" skillLevel="3" skillName="Chant of Rage" levelUpSp="105000" getLevel="56" />
+		<skill skillId="146" skillLevel="28" skillName="Anti Magic" levelUpSp="69000" getLevel="58" />
+		<skill skillId="146" skillLevel="29" skillName="Anti Magic" levelUpSp="69000" getLevel="58" />
+		<skill skillId="212" skillLevel="4" skillName="Fast HP Recovery" levelUpSp="138000" getLevel="58" />
+		<skill skillId="250" skillLevel="25" skillName="Weapon Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="250" skillLevel="26" skillName="Weapon Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="251" skillLevel="28" skillName="Robe Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="251" skillLevel="29" skillName="Robe Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="252" skillLevel="28" skillName="Light Armor Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="252" skillLevel="29" skillName="Light Armor Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="253" skillLevel="26" skillName="Heavy Armor Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="253" skillLevel="27" skillName="Heavy Armor Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="260" skillLevel="16" skillName="Hammer Crush" levelUpSp="46000" getLevel="58" />
+		<skill skillId="260" skillLevel="17" skillName="Hammer Crush" levelUpSp="46000" getLevel="58" />
+		<skill skillId="260" skillLevel="18" skillName="Hammer Crush" levelUpSp="46000" getLevel="58" />
+		<skill skillId="1092" skillLevel="11" skillName="Fear" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1097" skillLevel="12" skillName="Dreaming Spirit" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1105" skillLevel="10" skillName="Madness" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1229" skillLevel="10" skillName="Chant of Life" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1245" skillLevel="6" skillName="Steal Essence" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1309" skillLevel="2" skillName="Chant of Eagle" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1310" skillLevel="2" skillName="Chant of Vampire" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1390" skillLevel="1" skillName="War Chant" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1391" skillLevel="1" skillName="Earth Chant" levelUpSp="138000" getLevel="58" />
+		<skill skillId="146" skillLevel="30" skillName="Anti Magic" levelUpSp="100000" getLevel="60" />
+		<skill skillId="146" skillLevel="31" skillName="Anti Magic" levelUpSp="100000" getLevel="60" />
+		<skill skillId="213" skillLevel="6" skillName="Boost Mana" levelUpSp="200000" getLevel="60" />
+		<skill skillId="229" skillLevel="5" skillName="Fast Mana Recovery" levelUpSp="200000" getLevel="60" />
+		<skill skillId="250" skillLevel="27" skillName="Weapon Mastery" levelUpSp="100000" getLevel="60" />
+		<skill skillId="250" skillLevel="28" skillName="Weapon Mastery" levelUpSp="100000" getLevel="60" />
+		<skill skillId="251" skillLevel="30" skillName="Robe Mastery" levelUpSp="100000" getLevel="60" />
+		<skill skillId="251" skillLevel="31" skillName="Robe Mastery" levelUpSp="100000" getLevel="60" />
+		<skill skillId="252" skillLevel="30" skillName="Light Armor Mastery" levelUpSp="100000" getLevel="60" />
+		<skill skillId="252" skillLevel="31" skillName="Light Armor Mastery" levelUpSp="100000" getLevel="60" />
+		<skill skillId="253" skillLevel="28" skillName="Heavy Armor Mastery" levelUpSp="100000" getLevel="60" />
+		<skill skillId="253" skillLevel="29" skillName="Heavy Armor Mastery" levelUpSp="100000" getLevel="60" />
+		<skill skillId="260" skillLevel="19" skillName="Hammer Crush" levelUpSp="67000" getLevel="60" />
+		<skill skillId="260" skillLevel="20" skillName="Hammer Crush" levelUpSp="67000" getLevel="60" />
+		<skill skillId="260" skillLevel="21" skillName="Hammer Crush" levelUpSp="67000" getLevel="60" />
+		<skill skillId="1001" skillLevel="8" skillName="Soul Cry" levelUpSp="200000" getLevel="60" />
+		<skill skillId="1092" skillLevel="12" skillName="Fear" levelUpSp="200000" getLevel="60" />
+		<skill skillId="1097" skillLevel="13" skillName="Dreaming Spirit" levelUpSp="200000" getLevel="60" />
+		<skill skillId="1105" skillLevel="11" skillName="Madness" levelUpSp="200000" getLevel="60" />
+		<skill skillId="1229" skillLevel="11" skillName="Chant of Life" levelUpSp="200000" getLevel="60" />
+		<skill skillId="1245" skillLevel="7" skillName="Steal Essence" levelUpSp="200000" getLevel="60" />
+		<skill skillId="1308" skillLevel="2" skillName="Chant of Predator" levelUpSp="200000" getLevel="60" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="2" getLevel="61" levelUpSp="640000">			<item id="8619" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Language Version) -->		</skill>
+		<skill skillId="146" skillLevel="32" skillName="Anti Magic" levelUpSp="150000" getLevel="62" />
+		<skill skillId="146" skillLevel="33" skillName="Anti Magic" levelUpSp="150000" getLevel="62" />
+		<skill skillId="211" skillLevel="6" skillName="Boost HP" levelUpSp="310000" getLevel="62" />
+		<skill skillId="250" skillLevel="29" skillName="Weapon Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="250" skillLevel="30" skillName="Weapon Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="251" skillLevel="32" skillName="Robe Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="251" skillLevel="33" skillName="Robe Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="252" skillLevel="32" skillName="Light Armor Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="252" skillLevel="33" skillName="Light Armor Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="253" skillLevel="30" skillName="Heavy Armor Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="253" skillLevel="31" skillName="Heavy Armor Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="260" skillLevel="22" skillName="Hammer Crush" levelUpSp="150000" getLevel="62" />
+		<skill skillId="260" skillLevel="23" skillName="Hammer Crush" levelUpSp="150000" getLevel="62" />
+		<skill skillId="1092" skillLevel="13" skillName="Fear" levelUpSp="310000" getLevel="62" />
+		<skill skillId="1097" skillLevel="14" skillName="Dreaming Spirit" levelUpSp="310000" getLevel="62" />
+		<skill skillId="1105" skillLevel="12" skillName="Madness" levelUpSp="310000" getLevel="62" />
+		<skill skillId="1229" skillLevel="12" skillName="Chant of Life" levelUpSp="310000" getLevel="62" />
+		<skill skillId="1245" skillLevel="8" skillName="Steal Essence" levelUpSp="310000" getLevel="62" />
+		<skill skillId="1284" skillLevel="1" skillName="Chant of Revenge" levelUpSp="310000" getLevel="62" />
+		<skill skillId="146" skillLevel="34" skillName="Anti Magic" levelUpSp="160000" getLevel="64" />
+		<skill skillId="146" skillLevel="35" skillName="Anti Magic" levelUpSp="160000" getLevel="64" />
+		<skill skillId="212" skillLevel="5" skillName="Fast HP Recovery" levelUpSp="320000" getLevel="64" />
+		<skill skillId="250" skillLevel="31" skillName="Weapon Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="250" skillLevel="32" skillName="Weapon Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="251" skillLevel="34" skillName="Robe Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="251" skillLevel="35" skillName="Robe Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="252" skillLevel="34" skillName="Light Armor Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="252" skillLevel="35" skillName="Light Armor Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="253" skillLevel="32" skillName="Heavy Armor Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="253" skillLevel="33" skillName="Heavy Armor Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="260" skillLevel="24" skillName="Hammer Crush" levelUpSp="160000" getLevel="64" />
+		<skill skillId="260" skillLevel="25" skillName="Hammer Crush" levelUpSp="160000" getLevel="64" />
+		<skill skillId="1092" skillLevel="14" skillName="Fear" levelUpSp="320000" getLevel="64" />
+		<skill skillId="1097" skillLevel="15" skillName="Dreaming Spirit" levelUpSp="320000" getLevel="64" />
+		<skill skillId="1102" skillLevel="5" skillName="Aura Sink" levelUpSp="320000" getLevel="64" />
+		<skill skillId="1105" skillLevel="13" skillName="Madness" levelUpSp="320000" getLevel="64" />
+		<skill skillId="1229" skillLevel="13" skillName="Chant of Life" levelUpSp="320000" getLevel="64" />
+		<skill skillId="1244" skillLevel="3" skillName="Freezing Flame" levelUpSp="320000" getLevel="64" />
+		<skill skillId="1245" skillLevel="9" skillName="Steal Essence" levelUpSp="320000" getLevel="64" />
+		<skill skillId="1309" skillLevel="3" skillName="Chant of Eagle" levelUpSp="320000" getLevel="64" />
+		<skill skillId="146" skillLevel="36" skillName="Anti Magic" levelUpSp="220000" getLevel="66" />
+		<skill skillId="146" skillLevel="37" skillName="Anti Magic" levelUpSp="220000" getLevel="66" />
+		<skill skillId="213" skillLevel="7" skillName="Boost Mana" levelUpSp="440000" getLevel="66" />
+		<skill skillId="250" skillLevel="33" skillName="Weapon Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="250" skillLevel="34" skillName="Weapon Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="251" skillLevel="36" skillName="Robe Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="251" skillLevel="37" skillName="Robe Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="252" skillLevel="36" skillName="Light Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="252" skillLevel="37" skillName="Light Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="253" skillLevel="34" skillName="Heavy Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="253" skillLevel="35" skillName="Heavy Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="260" skillLevel="26" skillName="Hammer Crush" levelUpSp="220000" getLevel="66" />
+		<skill skillId="260" skillLevel="27" skillName="Hammer Crush" levelUpSp="220000" getLevel="66" />
+		<skill skillId="1001" skillLevel="9" skillName="Soul Cry" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1092" skillLevel="15" skillName="Fear" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1097" skillLevel="16" skillName="Dreaming Spirit" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1105" skillLevel="14" skillName="Madness" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1229" skillLevel="14" skillName="Chant of Life" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1245" skillLevel="10" skillName="Steal Essence" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1310" skillLevel="3" skillName="Chant of Vampire" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1390" skillLevel="2" skillName="War Chant" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1391" skillLevel="2" skillName="Earth Chant" levelUpSp="440000" getLevel="66" />
+		<skill skillId="146" skillLevel="38" skillName="Anti Magic" levelUpSp="280000" getLevel="68" />
+		<skill skillId="146" skillLevel="39" skillName="Anti Magic" levelUpSp="280000" getLevel="68" />
+		<skill skillId="229" skillLevel="6" skillName="Fast Mana Recovery" levelUpSp="550000" getLevel="68" />
+		<skill skillId="250" skillLevel="35" skillName="Weapon Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="250" skillLevel="36" skillName="Weapon Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="251" skillLevel="38" skillName="Robe Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="251" skillLevel="39" skillName="Robe Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="252" skillLevel="38" skillName="Light Armor Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="252" skillLevel="39" skillName="Light Armor Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="253" skillLevel="36" skillName="Heavy Armor Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="253" skillLevel="37" skillName="Heavy Armor Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="260" skillLevel="28" skillName="Hammer Crush" levelUpSp="280000" getLevel="68" />
+		<skill skillId="260" skillLevel="29" skillName="Hammer Crush" levelUpSp="280000" getLevel="68" />
+		<skill skillId="1092" skillLevel="16" skillName="Fear" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1097" skillLevel="17" skillName="Dreaming Spirit" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1105" skillLevel="15" skillName="Madness" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1229" skillLevel="15" skillName="Chant of Life" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1245" skillLevel="11" skillName="Steal Essence" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1284" skillLevel="2" skillName="Chant of Revenge" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1308" skillLevel="3" skillName="Chant of Predator" levelUpSp="550000" getLevel="68" />
+		<skill skillId="146" skillLevel="40" skillName="Anti Magic" levelUpSp="360000" getLevel="70" />
+		<skill skillId="146" skillLevel="41" skillName="Anti Magic" levelUpSp="360000" getLevel="70" />
+		<skill skillId="211" skillLevel="7" skillName="Boost HP" levelUpSp="720000" getLevel="70" />
+		<skill skillId="250" skillLevel="37" skillName="Weapon Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="250" skillLevel="38" skillName="Weapon Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="251" skillLevel="40" skillName="Robe Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="251" skillLevel="41" skillName="Robe Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="252" skillLevel="40" skillName="Light Armor Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="252" skillLevel="41" skillName="Light Armor Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="253" skillLevel="38" skillName="Heavy Armor Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="253" skillLevel="39" skillName="Heavy Armor Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="260" skillLevel="30" skillName="Hammer Crush" levelUpSp="360000" getLevel="70" />
+		<skill skillId="260" skillLevel="31" skillName="Hammer Crush" levelUpSp="360000" getLevel="70" />
+		<skill skillId="1092" skillLevel="17" skillName="Fear" levelUpSp="720000" getLevel="70" />
+		<skill skillId="1097" skillLevel="18" skillName="Dreaming Spirit" levelUpSp="720000" getLevel="70" />
+		<skill skillId="1102" skillLevel="6" skillName="Aura Sink" levelUpSp="720000" getLevel="70" />
+		<skill skillId="1105" skillLevel="16" skillName="Madness" levelUpSp="720000" getLevel="70" />
+		<skill skillId="1229" skillLevel="16" skillName="Chant of Life" levelUpSp="720000" getLevel="70" />
+		<skill skillId="1245" skillLevel="12" skillName="Steal Essence" levelUpSp="720000" getLevel="70" />
+		<skill skillId="146" skillLevel="42" skillName="Anti Magic" levelUpSp="540000" getLevel="72" />
+		<skill skillId="146" skillLevel="43" skillName="Anti Magic" levelUpSp="540000" getLevel="72" />
+		<skill skillId="213" skillLevel="8" skillName="Boost Mana" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="250" skillLevel="39" skillName="Weapon Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="250" skillLevel="40" skillName="Weapon Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="251" skillLevel="42" skillName="Robe Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="251" skillLevel="43" skillName="Robe Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="252" skillLevel="42" skillName="Light Armor Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="252" skillLevel="43" skillName="Light Armor Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="253" skillLevel="40" skillName="Heavy Armor Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="253" skillLevel="41" skillName="Heavy Armor Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="260" skillLevel="32" skillName="Hammer Crush" levelUpSp="540000" getLevel="72" />
+		<skill skillId="260" skillLevel="33" skillName="Hammer Crush" levelUpSp="540000" getLevel="72" />
+		<skill skillId="1001" skillLevel="10" skillName="Soul Cry" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1092" skillLevel="18" skillName="Fear" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1097" skillLevel="19" skillName="Dreaming Spirit" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1105" skillLevel="17" skillName="Madness" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1229" skillLevel="17" skillName="Chant of Life" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1244" skillLevel="4" skillName="Freezing Flame" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1245" skillLevel="13" skillName="Steal Essence" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="146" skillLevel="44" skillName="Anti Magic" levelUpSp="680000" getLevel="74" />
+		<skill skillId="146" skillLevel="45" skillName="Anti Magic" levelUpSp="680000" getLevel="74" />
+		<skill skillId="212" skillLevel="6" skillName="Fast HP Recovery" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="229" skillLevel="7" skillName="Fast Mana Recovery" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="250" skillLevel="41" skillName="Weapon Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="250" skillLevel="42" skillName="Weapon Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="251" skillLevel="44" skillName="Robe Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="251" skillLevel="45" skillName="Robe Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="252" skillLevel="44" skillName="Light Armor Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="252" skillLevel="45" skillName="Light Armor Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="253" skillLevel="42" skillName="Heavy Armor Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="253" skillLevel="43" skillName="Heavy Armor Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="260" skillLevel="34" skillName="Hammer Crush" levelUpSp="680000" getLevel="74" />
+		<skill skillId="260" skillLevel="35" skillName="Hammer Crush" levelUpSp="680000" getLevel="74" />
+		<skill skillId="1092" skillLevel="19" skillName="Fear" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1097" skillLevel="20" skillName="Dreaming Spirit" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1105" skillLevel="18" skillName="Madness" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1229" skillLevel="18" skillName="Chant of Life" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1245" skillLevel="14" skillName="Steal Essence" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1284" skillLevel="3" skillName="Chant of Revenge" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1310" skillLevel="4" skillName="Chant of Vampire" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1390" skillLevel="3" skillName="War Chant" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1391" skillLevel="3" skillName="Earth Chant" levelUpSp="1350000" getLevel="74" />
+	</skillTree>
+</list>

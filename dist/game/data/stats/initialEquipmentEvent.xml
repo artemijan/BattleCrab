@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../xsd/initialEquipment.xsd">
+	<!-- Human Fighter -->
+	<equipment classId="0">
+
+		<item id="2369" count="1" equipped="true" /> <!-- Squire's Sword -->
+		<item id="10" count="1" /> <!-- Dagger -->
+		<item id="1146" count="1" equipped="true" /> <!-- Squire's Shirt -->
+		<item id="1147" count="1" equipped="true" /> <!-- Squire's Pants -->
+
+		<item id="15194" count="1" /> <!-- Knight set pack -->
+		<item id="15196" count="1" /> <!-- Warrior set pack -->
+		<item id="15197" count="1" /> <!-- Rogue set pack -->
+		<item id="1835" count="5000" /> <!-- Solushots N grade -->
+		<item id="22104" count="1" /> <!-- Solushots D Pack -->
+		<item id="22105" count="1" /> <!-- Solushots C Pack -->
+	</equipment>
+	<!-- Human Mystic -->
+	<equipment classId="10">
+		<item id="6" count="1" equipped="true" /> <!-- Apprentice's Wand -->
+		<item id="425" count="1" equipped="true" /> <!-- Apprentice's Tunic -->
+		<item id="461" count="1" equipped="true" /> <!-- Apprentice's Stockings -->
+
+		<item id="3947" count="5000" /> <!-- blessed spirit shots -->
+		<item id="22094" count="1" /> <!-- blessed spirit shots D pack -->
+		<item id="15195" count="1" /> <!-- Mage set pack -->
+	</equipment>
+	<!-- Elven Fighter -->
+	<equipment classId="18">
+		<item id="2369" count="1" equipped="true" /> <!-- Squire's Sword -->
+		<item id="10" count="1" /> <!-- Dagger -->
+		<item id="1146" count="1" equipped="true" /> <!-- Squire's Shirt -->
+		<item id="1147" count="1" equipped="true" /> <!-- Squire's Pants -->
+		<item id="15194" count="1" /> <!-- Knight set pack -->
+		<item id="15196" count="1" /> <!-- Warrior set pack -->
+		<item id="15197" count="1" /> <!-- Rogue set pack -->
+		<item id="1835" count="5000" /> <!-- Solushots N grade -->
+		<item id="22104" count="1" /> <!-- Solushots D Pack -->
+		<item id="22105" count="1" /> <!-- Solushots C Pack -->
+	</equipment>
+	<!-- Elven Mystic -->
+	<equipment classId="25">
+		<item id="6" count="1" equipped="true" /> <!-- Apprentice's Wand -->
+		<item id="425" count="1" equipped="true" /> <!-- Apprentice's Tunic -->
+		<item id="461" count="1" equipped="true" /> <!-- Apprentice's Stockings -->
+		<item id="3947" count="5000" /> <!-- blessed spirit shots -->
+		<item id="22094" count="1" /> <!-- blessed spirit shots D pack -->
+		<item id="15195" count="1" /> <!-- Mage set pack -->
+	</equipment>
+	<!-- Dark Fighter -->
+	<equipment classId="31">
+		<item id="2369" count="1" equipped="true" /> <!-- Squire's Sword -->
+		<item id="10" count="1" /> <!-- Dagger -->
+		<item id="1146" count="1" equipped="true" /> <!-- Squire's Shirt -->
+		<item id="1147" count="1" equipped="true" /> <!-- Squire's Pants -->
+		<item id="15194" count="1" /> <!-- Knight set pack -->
+		<item id="15196" count="1" /> <!-- Warrior set pack -->
+		<item id="15197" count="1" /> <!-- Rogue set pack -->
+		<item id="1835" count="5000" /> <!-- Solushots N grade -->
+		<item id="22104" count="1" /> <!-- Solushots D Pack -->
+		<item id="22105" count="1" /> <!-- Solushots C Pack -->
+	</equipment>
+	<!-- Dark Mystic -->
+	<equipment classId="38">
+		<item id="6" count="1" equipped="true" /> <!-- Apprentice's Wand -->
+		<item id="425" count="1" equipped="true" /> <!-- Apprentice's Tunic -->
+		<item id="461" count="1" equipped="true" /> <!-- Apprentice's Stockings -->
+		<item id="3947" count="5000" /> <!-- blessed spirit shots -->
+		<item id="22094" count="1" /> <!-- blessed spirit shots D pack -->
+		<item id="15195" count="1" /> <!-- Mage set pack -->
+	</equipment>
+	<!-- Orc Fighter -->
+	<equipment classId="44">
+		<item id="2369" count="1" equipped="true" /> <!-- Squire's Sword -->
+		<item id="10" count="1" /> <!-- Dagger -->
+		<item id="1146" count="1" equipped="true" /> <!-- Squire's Shirt -->
+		<item id="1147" count="1" equipped="true" /> <!-- Squire's Pants -->
+		<item id="1835" count="5000" /> <!-- Solushots N grade -->
+		<item id="22104" count="1" /> <!-- Solushots D Pack -->
+		<item id="22105" count="1" /> <!-- Solushots C Pack -->
+		<item id="15199" count="1" /> <!-- Ork fighter set pack -->
+	</equipment>
+	<!-- Orc Mystic -->
+	<!-- NOTE: This is orc_mage (orc_shaman is retail typo) -->
+	<equipment classId="49">
+		<item id="6" count="1" equipped="true" /> <!-- Apprentice's Wand -->
+		<item id="425" count="1" equipped="true" /> <!-- Apprentice's Tunic -->
+		<item id="461" count="1" equipped="true" /> <!-- Apprentice's Stockings -->
+		<item id="3947" count="5000" /> <!-- blessed spirit shots -->
+		<item id="22094" count="1" /> <!-- blessed spirit shots D pack -->
+		<item id="15195" count="1" /> <!-- Mage set pack -->
+	</equipment>
+	<!-- Dwarf Fighter -->
+	<equipment classId="53">
+		<item id="2369" count="1" equipped="true" /> <!-- Squire's Sword -->
+		<item id="10" count="1" /> <!-- Dagger -->
+		<item id="1146" count="1" equipped="true" /> <!-- Squire's Shirt -->
+		<item id="1147" count="1" equipped="true" /> <!-- Squire's Pants -->
+		<item id="15194" count="1" /> <!-- Knight set pack -->
+		<item id="15196" count="1" /> <!-- Warrior set pack -->
+		<item id="15197" count="1" /> <!-- Rogue set pack -->
+		<item id="1835" count="5000" /> <!-- Solushots N grade -->
+		<item id="22104" count="1" /> <!-- Solushots D Pack -->
+		<item id="22105" count="1" /> <!-- Solushots C Pack -->
+	</equipment>
+</list>

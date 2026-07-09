@@ -1,0 +1,291 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+	<item id="29057" name="Sayha's Talisman Stage 1" type="Armor">
+		<!-- When equipped, P. Def. + 112, M. Def. + 74, XP/SP Gain + 1%. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<set name="icon" val="icon.bm_sayhas_talisman" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="deco1" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<skills>
+			<skill id="28142" level="1" /> <!-- Sayha's Talisman Stage 1 -->
+		</skills>
+	</item>
+	<item id="29058" name="Sayha's Talisman Stage 2" type="Armor">
+		<!-- When equipped, P. Def. + 225, M. Def. + 147, XP/SP Gain + 2%.. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<set name="icon" val="icon.bm_sayhas_talisman" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="deco1" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<skills>
+			<skill id="28142" level="2" /> <!-- Sayha's Talisman Stage 2 -->
+		</skills>
+	</item>
+	<item id="29059" name="Sayha's Talisman Stage 3" type="Armor">
+		<!-- When equipped, P. Def. + 450, M. Def. + 294, XP/SP Gain + 3%.. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<set name="icon" val="icon.bm_sayhas_talisman" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="deco1" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<skills>
+			<skill id="28142" level="3" /> <!-- Sayha's Talisman Stage 3 -->
+		</skills>
+	</item>
+	<item id="29060" name="Sayha's Talisman Stage 4" type="Armor">
+		<!-- When equipped, P. Def. + 676, M. Def. + 441, X/SP Gain + 5%. If equipped with Venir's Talisman Stage 12 or above, Skill Power + 2%, Skill Cooldown - 2%. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<set name="icon" val="icon.bm_sayhas_talisman" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="deco1" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<skills>
+			<skill id="28142" level="4" /> <!-- Sayha's Talisman Stage 4 -->
+		</skills>
+	</item>
+	<item id="29061" name="Sayha's Talisman Stage 5" type="Armor">
+		<!-- When equipped, P. Def. + 901, M. Def. + 589, XP/SP Gain + 7%. If equipped with Venir's Talisman Stage 12 or above, Skill Power + 2%, Skill Cooldown - 2%. Active Skills. Sayha's Protection Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<set name="icon" val="icon.bm_sayhas_talisman" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="deco1" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<skills>
+			<skill id="28142" level="5" /> <!-- Sayha's Talisman Stage 5 -->
+			<skill id="28144" level="1" /> <!-- Sayha's Protection -->
+		</skills>
+	</item>
+	<item id="29062" name="Sayha's Talisman Stage 6" type="Armor">
+		<!-- When equipped, P. Def. + 1126, M. Def. + 736, XP/SP Gain + 10%. If equipped with Venir's Talisman Stage 12 or above, Skill Power + 3%, Skill Cooldown - 3%. Active Skills. Sayha's Protection Lv. 1. Sayha's Encouragement Lv1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<set name="icon" val="icon.bm_sayhas_talisman" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="deco1" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<skills>
+			<skill id="28142" level="6" /> <!-- Sayha's Talisman Stage 6 -->
+			<skill id="28144" level="1" /> <!-- Sayha's Protection -->
+			<skill id="28145" level="1" /> <!-- Sayha's Encouragement -->
+		</skills>
+	</item>
+	<item id="29063" name="Sayha's Talisman Stage 7" type="Armor">
+		<!-- When equipped, P. Def. + 1351, M. Def. + 883, XP/SP Gain + 15%. If equipped with Venir's Talisman Stage 12 or above, Skill Power + 3%, Skill Cooldown - 3%. <Active Skills>. Sayha's Protection Lv. 1. Sayha's Encouragement Lv. 1. Sayha's Anger Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<set name="icon" val="icon.bm_sayhas_talisman" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="deco1" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<skills>
+			<skill id="28142" level="7" /> <!-- Sayha's Talisman Stage 7 -->
+			<skill id="28144" level="1" /> <!-- Sayha's Protection -->
+			<skill id="28145" level="1" /> <!-- Sayha's Encouragement -->
+			<skill id="28146" level="1" /> <!-- Sayha's Anger -->
+		</skills>
+	</item>
+	<item id="29064" name="Sayha's Talisman Stage 8" type="Armor">
+		<!-- When equipped, P. Def. + 1576, M. Def. + 1030, XP/SP Gain + 20%. If equipped with Venir's Talisman Stage 12 or above, Skill Power + 5%, Skill Cooldown - 5%. <Active Skills>. Sayha's Protection Lv. 2. Sayha's Encouragement Lv. 2. Sayha's Anger Lv. 2. Sayha's Support Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<set name="icon" val="icon.bm_sayhas_talisman" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="deco1" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<skills>
+			<skill id="28142" level="8" /> <!-- Sayha's Talisman Stage 8 -->
+			<skill id="28144" level="2" /> <!-- Sayha's Protection -->
+			<skill id="28145" level="2" /> <!-- Sayha's Encouragement -->
+			<skill id="28146" level="2" /> <!-- Sayha's Anger -->
+			<skill id="28147" level="1" /> <!-- Sayha's Support -->
+		</skills>
+	</item>
+	<item id="29065" name="Sayha's Talisman Stage 9" type="Armor">
+		<!-- When equipped, P. Def. + 1801, M. Def. + 1178, XP/SP Gain + 25%, Effect of Potions/Medicines + 1000. If equipped with Venir's Talisman Stage 12 or above, Skill Power + 5%, Skill Cooldown - 5%. <Active Skills>. Sayha's Protection Lv. 3. Sayha's Encouragement Lv. 3. Sayha's Anger Lv. 3. Sayha's Support Lv. 2. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<set name="icon" val="icon.bm_sayhas_talisman" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="deco1" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<skills>
+			<skill id="28142" level="9" /> <!-- Sayha's Talisman Stage 9 -->
+			<skill id="28144" level="3" /> <!-- Sayha's Protection -->
+			<skill id="28145" level="3" /> <!-- Sayha's Encouragement -->
+			<skill id="28146" level="3" /> <!-- Sayha's Anger -->
+			<skill id="28147" level="2" /> <!-- Sayha's Support -->
+		</skills>
+	</item>
+	<item id="29066" name="Sayha's Talisman Stage 10" type="Armor">
+		<!-- When equipped, P. Def. + 2027, M. Def. + 1325, XP/SP Gain + 30%, Effect of Potions/Medicines + 2000. If equipped with Venir's Talisman Stage 12 or above, Skill Power + 9%, Skill Cooldown - 5%. <Active Skills>. Sayha's Protection Lv. 4. Sayha's Encouragement Lv. 4. Sayha's Anger Lv. 4. Sayha's Support Lv. 3. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<set name="icon" val="icon.bm_sayhas_talisman" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="deco1" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<skills>
+			<skill id="28142" level="10" /> <!-- Sayha's Talisman Stage 10 -->
+			<skill id="28144" level="4" /> <!-- Sayha's Protection -->
+			<skill id="28145" level="4" /> <!-- Sayha's Encouragement -->
+			<skill id="28146" level="4" /> <!-- Sayha's Anger -->
+			<skill id="28147" level="3" /> <!-- Sayha's Support -->
+		</skills>
+	</item>
+	<item id="29067" name="Sayha's Talisman Pack" type="EtcItem">
+		<!-- Wrapped pack containing Sayha's Talisman Stage 1. The talisman cannot be dropped or exchanged. -->
+		<set name="icon" val="icon.bm_sayhas_talisman_box" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="29057" min="1" max="1" chance="100" /> <!-- Sayha's Talisman Stage 1 -->
+		</capsuled_items>
+	</item>
+	<item id="29068" name="Sayha's Talisman Stage 7 Pack" type="EtcItem">
+		<!-- Wrapped pack containing Sayha's Talisman Stage 7. The talisman cannot be dropped or exchanged. -->
+		<set name="icon" val="icon.bm_sayhas_talisman_box" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="29063" min="1" max="1" chance="100" /> <!-- Sayha's Talisman Stage 7 -->
+		</capsuled_items>
+	</item>
+	<item id="29069" name="Sayha's Talisman Stage 8 Pack" type="EtcItem">
+		<!-- Wrapped pack containing Sayha's Talisman Stage 8. The talisman cannot be dropped or exchanged. -->
+		<set name="icon" val="icon.bm_sayhas_talisman_box" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="29064" min="1" max="1" chance="100" /> <!-- Sayha's Talisman Stage 8 -->
+		</capsuled_items>
+	</item>
+	<item id="29070" name="Sayha's Talisman Stage 9 Pack" type="EtcItem">
+		<!-- Wrapped pack containing Sayha's Talisman Stage 9. The talisman cannot be dropped or exchanged. -->
+		<set name="icon" val="icon.bm_sayhas_talisman_box" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="29065" min="1" max="1" chance="100" /> <!-- Sayha's Talisman Stage 9 -->
+		</capsuled_items>
+	</item>
+	<item id="29071" name="Sayha's Talisman Stage 10 Pack" type="EtcItem">
+		<!-- Wrapped pack containing Sayha's Talisman Stage 10. The talisman cannot be dropped or exchanged. -->
+		<set name="icon" val="icon.bm_sayhas_talisman_box" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="29066" min="1" max="1" chance="100" /> <!-- Sayha's Talisman Stage 10 -->
+		</capsuled_items>
+	</item>
+	<item id="29072" name="Fortune Talisman Pack" type="EtcItem">
+		<!-- Double-click to obtain a Sayha's Talisman Stage 3-10 or Venir's Talisman Stage 10-15. -->
+		<set name="icon" val="icon.bm_pendant_pve_box" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="LEATHER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="29074" name="Jack O'Lantern" type="EtcItem">
+		<!-- Jack O'Lantern made with love. Go find NPC Rico with it in your inventory to receive the Halloween Blessing. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_wp_halloween" />
+		<set name="material" val="LIQUID" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="29075" name="Halloween Gift" type="EtcItem">
+		<!-- Double-click to obtain one of the various items: Dragon Claw, Bottle of Baium's / Orfen's / Frintezza's / Queen Ant's Soul, Life Stone Instilled with Giants' Power, Queen Ant's Ring, Blessed Helios / Eternal Pack, Helios / Specter / Apocalypse Weapon Crafting Pack, Eternal / Seraph / Twilight Armor Crafting Pack, Blessed High-grade Lucky Enchant Stone: Weapon / Armor (R-grade), High-grade Lucky Enchant Stone: Weapon / Armor (R-grade), Scroll of Blessing: Weapon / Armor (R99-grade), Top-grade Spirit Stone, Wind Vitality Tonic, Enchant Scroll Pack, Crafting Ingredients Pack, Blessed Scroll of Resurrection, Gemstone (R-grade) x3, Red Potion of Regeneration x10, Halloween Candy. Will be deleted after the event. -->
+		<set name="icon" val="icon.event_halloween_king_pumpkini00" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="29076" name="Halloween Candy" additionalName="Event" type="EtcItem">
+		<!-- Sweet candy from the Halloween Gift. Take it to Rico to exchange for a cosmetic item in the style of Halloween. Will be deleted after the event. -->
+		<set name="icon" val="BranchSys.br_hallowinday_candy_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="29077" name="Talisman - Abundance Pack" type="EtcItem">
+		<!-- Double-click to get a Talisman - Abundance (War, Tactics, Morale, or Physique.) -->
+		<set name="icon" val="icon.event_hero_treasure_box_i00" />
+		<set name="material" val="LEATHER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="28154" level="1" /> <!-- Talisman - Abundance Pack -->
+		</skills>
+	</item>
+	<item id="29080" name="Wondrous Jewelry Box" additionalName="Event" type="EtcItem">
+		<!-- Double-click to obtain 1 of the following types of items randomly: Lv. 1 La Vie En Rose? Jewelry Box, Radiant Gemstone Fragment, La Vie En Rose's Radiant Brooch Chest, or a very small chance to win a Lv. 3 Jewelry Box. -->
+		<set name="icon" val="icon.bm_sayha_blessed_box" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="LEATHER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+</list>

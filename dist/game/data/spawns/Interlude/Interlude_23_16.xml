@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Interlude_23_16">
+		<group>
+			<npc id="31560" x="105452" y="-36775" z="-1050" heading="34000" respawnTime="129600sec" /> <!-- Varka's Holy Altar -->
+			<npc id="31561" x="106288" y="-53808" z="-2288" heading="33000" respawnTime="60sec" /> <!-- Udan Mardui's Box -->
+			<npc id="31378" x="125440" y="-40944" z="-3701" heading="7000" respawnTime="60sec" /> <!-- Naran Ashanuk -->
+			<npc id="31377" x="106880" y="-53792" z="-2278" respawnTime="60sec" /> <!-- Ashas Varka Durai -->
+			<npc id="31380" x="107296" y="-54576" z="-2393" respawnTime="60sec" /> <!-- Diyabu -->
+			<npc id="31381" x="107376" y="-55424" z="-2393" heading="6000" respawnTime="60sec" /> <!-- Hagos -->
+			<npc id="31382" x="107232" y="-52776" z="-2393" heading="60000" respawnTime="60sec" /> <!-- Shikon -->
+			<npc id="31383" x="107680" y="-52112" z="-2405" heading="60000" respawnTime="60sec" /> <!-- Teranu Mardui -->
+			<npc id="31379" x="109156" y="-53392" z="-2672" heading="45000" respawnTime="60sec" /> <!-- Udan Mardui -->
+		</group>
+	</spawn>
+</list>

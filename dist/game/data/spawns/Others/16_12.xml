@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="16_12">
+		<group>
+			<!-- Wandering Dead of the Dungeon -->
+			
+			<!-- Wandering Spirit of the Dungeon -->
+			
+			<!-- Wandering Ghost of the Dungeon -->
+			
+			<!-- Wandering Evil Thoughts of the Dungeon -->
+			
+			<!-- Wandering Dead of the Abyss -->
+			
+			<!-- Wandering Spirit of the Abyss -->
+			
+			<!-- Wandering Ghost of the Abyss -->
+			
+			<!-- Wandering Evil Thoughts of the Abyss -->
+		</group>
+	</spawn>
+</list>

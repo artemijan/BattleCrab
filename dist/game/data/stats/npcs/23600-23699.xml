@@ -1,0 +1,1825 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
+	<npc id="23600" level="85" type="Monster" name="Atelia Flame Master">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="63066" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="50" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="11" />
+			<height normal="25.5" />
+		</collision>
+	</npc>
+	<npc id="23601" level="85" type="Monster" name="Fortress Archon">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="473004" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="50" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="16" /> <!-- Very Strong P. Def. -->
+			<skill id="4413" level="16" /> <!-- Very Strong M. Def. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="14" />
+			<height normal="29" />
+		</collision>
+	</npc>
+	<npc id="23602" level="85" type="Monster" name="Atelia High Priest">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="473004" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="50" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="16" /> <!-- Very Strong P. Def. -->
+			<skill id="4413" level="16" /> <!-- Very Strong M. Def. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="14" />
+			<height normal="29" />
+		</collision>
+	</npc>
+	<npc id="23603" level="85" type="Monster" name="Guardian Sinistra" title="Burnstein's Servant">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="473004" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="50" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<collision>
+			<radius normal="21" />
+			<height normal="52.5" />
+		</collision>
+	</npc>
+	<npc id="23604" level="85" type="Monster" name="Guardian Destra" title="Burnstein's Servant">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="473004" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="50" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<collision>
+			<radius normal="21" />
+			<height normal="52.5" />
+		</collision>
+	</npc>
+	<npc id="23605" level="85" type="Monster" name="Aden Elite Knight" title="Brainwashed">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="473004" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="35" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="14" /> <!-- Humans -->
+		</skillList>
+		<collision>
+			<radius normal="15" />
+			<height normal="29" />
+		</collision>
+	</npc>
+	<npc id="23606" level="85" type="Monster" name="Aden Elite Warrior" title="Brainwashed">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="473004" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="35" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="14" /> <!-- Humans -->
+		</skillList>
+		<collision>
+			<radius normal="15" />
+			<height normal="29" />
+		</collision>
+	</npc>
+	<npc id="23607" level="85" type="Monster" name="Aden Elite Archer" title="Brainwashed">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="473004" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="48" />
+				<run ground="190" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="14" /> <!-- Humans -->
+		</skillList>
+		<collision>
+			<radius normal="15" />
+			<height normal="29" />
+		</collision>
+	</npc>
+	<npc id="23608" level="85" type="Monster" name="Aden Elite Wizard" title="Brainwashed">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="473004" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="32" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="14" /> <!-- Humans -->
+		</skillList>
+		<collision>
+			<radius normal="12" />
+			<height normal="21" />
+		</collision>
+	</npc>
+	<npc id="23609" level="85" type="Monster" name="Corrupted Captain" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="512263" hpRegen="7.5" mp="25074" mpRegen="2.7" />
+			<speed>
+				<walk ground="50" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+		</skillList>
+		<collision>
+			<radius normal="15" />
+			<height normal="30" />
+		</collision>
+	</npc>
+	<npc id="23610" level="85" type="Monster" name="Corrupted High Priest" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="512263" hpRegen="7.5" mp="25074" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+		</skillList>
+		<collision>
+			<radius normal="14" />
+			<height normal="30" />
+		</collision>
+	</npc>
+	<npc id="23611" level="85" type="Monster" name="Elite Commander" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="473004" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="30" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+		</skillList>
+		<collision>
+			<radius normal="14" />
+			<height normal="31.5" />
+		</collision>
+	</npc>
+	<npc id="23612" level="85" type="Monster" name="Elite Priest" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="473004" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="50" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+		</skillList>
+		<collision>
+			<radius normal="12" />
+			<height normal="32" />
+		</collision>
+	</npc>
+	<npc id="23613" level="85" type="Monster" name="Elite Instructor" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="473004" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="50" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+		</skillList>
+		<collision>
+			<radius normal="15" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23614" level="85" type="Monster" name="Elite Executioner" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="473004" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="30" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="14" />
+			<height normal="34" />
+		</collision>
+	</npc>
+	<npc id="23615" level="85" type="Monster" name="Elite Shaman" title="Embryo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="473004" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="50" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+		</skillList>
+		<collision>
+			<radius normal="12" />
+			<height normal="32" />
+		</collision>
+	</npc>
+	<npc id="23616" level="85" type="Monster" name="Unit 1 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23617" level="85" type="Monster" name="Unit 2 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="11" />
+			<height normal="28" />
+		</collision>
+	</npc>
+	<npc id="23618" level="85" type="Monster" name="Unit 3 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23619" level="85" type="Monster" name="Unit 4 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="23.5" />
+		</collision>
+	</npc>
+	<npc id="23620" level="85" type="Monster" name="Unit 5 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="23.5" />
+		</collision>
+	</npc>
+	<npc id="23621" level="85" type="Monster" name="Unit 6 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="27" />
+		</collision>
+	</npc>
+	<npc id="23622" level="85" type="Monster" name="Unit 7 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="23.5" />
+		</collision>
+	</npc>
+	<npc id="23623" level="85" type="Monster" name="Unit 8 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="8" />
+			<height normal="25.5" />
+		</collision>
+	</npc>
+	<npc id="23624" level="85" type="Monster" name="Unit 1 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23625" level="85" type="Monster" name="Unit 2 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="11" />
+			<height normal="28" />
+		</collision>
+	</npc>
+	<npc id="23626" level="85" type="Monster" name="Unit 3 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23627" level="85" type="Monster" name="Unit 4 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="23.5" />
+		</collision>
+	</npc>
+	<npc id="23628" level="85" type="Monster" name="Unit 5 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="23.5" />
+		</collision>
+	</npc>
+	<npc id="23629" level="85" type="Monster" name="Unit 6 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="27" />
+		</collision>
+	</npc>
+	<npc id="23630" level="85" type="Monster" name="Unit 7 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="23.5" />
+		</collision>
+	</npc>
+	<npc id="23631" level="85" type="Monster" name="Unit 8 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="8" />
+			<height normal="25.5" />
+		</collision>
+	</npc>
+	<npc id="23632" level="85" type="Monster" name="Unit 1 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23633" level="85" type="Monster" name="Unit 2 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="11" />
+			<height normal="28" />
+		</collision>
+	</npc>
+	<npc id="23634" level="85" type="Monster" name="Unit 3 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23635" level="85" type="Monster" name="Unit 4 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="23.5" />
+		</collision>
+	</npc>
+	<npc id="23636" level="85" type="Monster" name="Unit 5 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="23.5" />
+		</collision>
+	</npc>
+	<npc id="23637" level="85" type="Monster" name="Unit 6 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="27" />
+		</collision>
+	</npc>
+	<npc id="23638" level="85" type="Monster" name="Unit 7 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="23.5" />
+		</collision>
+	</npc>
+	<npc id="23639" level="85" type="Monster" name="Unit 8 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="8" />
+			<height normal="25.5" />
+		</collision>
+	</npc>
+	<npc id="23640" level="85" type="Monster" name="Unit 1 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23641" level="85" type="Monster" name="Unit 2 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="11" />
+			<height normal="28" />
+		</collision>
+	</npc>
+	<npc id="23642" level="85" type="Monster" name="Unit 3 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23643" level="85" type="Monster" name="Unit 4 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="23.5" />
+		</collision>
+	</npc>
+	<npc id="23644" level="85" type="Monster" name="Unit 5 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="23.5" />
+		</collision>
+	</npc>
+	<npc id="23645" level="85" type="Monster" name="Unit 6 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="27" />
+		</collision>
+	</npc>
+	<npc id="23646" level="85" type="Monster" name="Unit 7 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="23.5" />
+		</collision>
+	</npc>
+	<npc id="23647" level="85" type="Monster" name="Unit 8 Elite Soldier" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="8" />
+			<height normal="25.5" />
+		</collision>
+	</npc>
+	<npc id="23648" level="85" type="Monster" name="Dark Crusader">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="12" />
+			<height normal="28.6" />
+		</collision>
+	</npc>
+	<npc id="23649" level="85" type="Monster" name="Banshee Queen">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="50" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="12" />
+			<height normal="23.5" />
+		</collision>
+	</npc>
+	<npc id="23650" level="85" type="Monster" name="Dwarf Spy" title="Spy">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="9" />
+			<height normal="18" />
+		</collision>
+	</npc>
+	<npc id="23651" level="85" type="Monster" name="Unit Signalman" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="27" />
+		</collision>
+	</npc>
+	<npc id="23652" level="85" type="Monster" name="Unit Guard" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23653" level="85" type="Monster" name="Unit 1 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="9" />
+			<height normal="23" />
+		</collision>
+	</npc>
+	<npc id="23654" level="85" type="Monster" name="Unit 2 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="11" />
+			<height normal="28" />
+		</collision>
+	</npc>
+	<npc id="23655" level="85" type="Monster" name="Unit 2 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="11" />
+			<height normal="28" />
+		</collision>
+	</npc>
+	<npc id="23656" level="85" type="Monster" name="Unit 2 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="11" />
+			<height normal="28" />
+		</collision>
+	</npc>
+	<npc id="23657" level="85" type="Monster" name="Unit 3 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23658" level="85" type="Monster" name="Unit 4 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23659" level="85" type="Monster" name="Unit 4 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23660" level="85" type="Monster" name="Unit 5 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="22.8" />
+		</collision>
+	</npc>
+	<npc id="23661" level="85" type="Monster" name="Unit 6 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="22.8" />
+		</collision>
+	</npc>
+	<npc id="23662" level="85" type="Monster" name="Unit 7 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23663" level="85" type="Monster" name="Unit 8 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23664" level="85" type="Monster" name="Unit 8 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23665" level="85" type="Monster" name="Unit 1 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="9" />
+			<height normal="23" />
+		</collision>
+	</npc>
+	<npc id="23666" level="85" type="Monster" name="Unit 2 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="11" />
+			<height normal="28" />
+		</collision>
+	</npc>
+	<npc id="23667" level="85" type="Monster" name="Unit 2 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="11" />
+			<height normal="28" />
+		</collision>
+	</npc>
+	<npc id="23668" level="85" type="Monster" name="Unit 2 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="11" />
+			<height normal="28" />
+		</collision>
+	</npc>
+	<npc id="23669" level="85" type="Monster" name="Unit 3 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23670" level="85" type="Monster" name="Unit 4 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23671" level="85" type="Monster" name="Unit 4 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23672" level="85" type="Monster" name="Unit 5 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="22.8" />
+		</collision>
+	</npc>
+	<npc id="23673" level="85" type="Monster" name="Unit 6 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="22.8" />
+		</collision>
+	</npc>
+	<npc id="23674" level="85" type="Monster" name="Unit 7 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23675" level="85" type="Monster" name="Unit 8 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23676" level="85" type="Monster" name="Unit 8 Commander" title="Ashan Shadow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="638514" hpRegen="7.5" mp="49380" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="150" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23677" level="85" type="Folk" name="Fortress Raider" title="Army Recruit">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="58233" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="180.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="15.0" />
+			<height normal="30.0" />
+		</collision>
+	</npc>
+	<npc id="23678" level="85" type="Folk" name="Fortress Guardian Captain" title="Army Recruit">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="473004" hpRegen="7.5" mp="24690" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="180.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="16.0" />
+			<height normal="35.5" />
+		</collision>
+	</npc>
+	<npc id="23679" level="85" type="Folk" name="Atelia Passionate Soldier" title="Army Recruit">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="58233" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="180.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="15.0" />
+			<height normal="30.0" />
+		</collision>
+	</npc>
+	<npc id="23680" level="85" type="Folk" name="Flame Golem">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2511960" hpRegen="7.5" mp="47856" mpRegen="2.7" />
+			<speed>
+				<walk ground="13.0" />
+				<run ground="180.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<collision>
+			<radius normal="76.0" />
+			<height normal="93.0" />
+		</collision>
+	</npc>
+	<npc id="23681" level="85" type="Folk" name="Flame Stakato">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="53771" hpRegen="7.5" mp="23928" mpRegen="2.7" />
+			<speed>
+				<walk ground="25.0" />
+				<run ground="180.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="13.0" />
+			<height normal="40.0" />
+		</collision>
+	</npc>
+	<npc id="23682" level="85" type="Folk" name="Flame Scorpion">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="107542" hpRegen="7.5" mp="23928" mpRegen="2.7" />
+			<speed>
+				<walk ground="37.0" />
+				<run ground="180.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4416" level="12" /> <!-- Bugs -->
+		</skillList>
+		<collision>
+			<radius normal="24.0" />
+			<height normal="52.8" />
+		</collision>
+	</npc>
+	<npc id="23683" level="85" type="Folk" name="Seal Archangel">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2511960" hpRegen="7.5" mp="47856" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="180.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+		</skillList>
+		<collision>
+			<radius normal="40.0" />
+			<height normal="76.0" />
+		</collision>
+	</npc>
+	<npc id="23684" level="85" type="Folk" name="Seal Angel">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="180.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+		</skillList>
+		<collision>
+			<radius normal="21.0" />
+			<height normal="37.5" />
+		</collision>
+	</npc>
+	<npc id="23685" level="85" type="Folk" name="Seal Angel">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="180.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+		</skillList>
+		<collision>
+			<radius normal="21.0" />
+			<height normal="35.25" />
+		</collision>
+	</npc>
+	<npc id="23686" level="85" type="Folk" name="Frost Glacier Golem">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="403282" hpRegen="7.5" mp="23928" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="180.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="4416" level="7" /> <!-- Spirits -->
+		</skillList>
+		<collision>
+			<radius normal="50.0" />
+			<height normal="47.5" />
+		</collision>
+	</npc>
+	<npc id="23687" level="85" type="Folk" name="Frost Glacier Golem" title="Frostbringer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="403282" hpRegen="7.5" mp="23928" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="180.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="4416" level="7" /> <!-- Spirits -->
+		</skillList>
+		<collision>
+			<radius normal="75.0" />
+			<height normal="72.75" />
+		</collision>
+	</npc>
+	<npc id="23688" level="85" type="Folk" name="Frost Knight">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="53771" hpRegen="7.5" mp="23928" mpRegen="2.7" />
+			<speed>
+				<walk ground="36.0" />
+				<run ground="180.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="12.0" />
+			<height normal="25.0" />
+		</collision>
+	</npc>
+	<npc id="23689" level="85" type="Folk" name="Freya">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2511960" hpRegen="7.5" mp="47856" mpRegen="2.7" />
+			<speed>
+				<walk ground="54.0" />
+				<run ground="180.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="22.0" />
+			<height normal="55.0" />
+		</collision>
+	</npc>
+	<npc id="23690" level="85" type="Folk" name="Kelbim" title="Dragonclaw Clan Leader">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2511960" hpRegen="7.5" mp="47856" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="200.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="12.0" />
+			<height normal="35.1" />
+		</collision>
+	</npc>
+	<npc id="23691" level="85" type="Folk" name="Haren" title="Dragonclaw Knight Captain">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="837320" hpRegen="7.5" mp="47856" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="200.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="9.0" />
+			<height normal="23.0" />
+		</collision>
+	</npc>
+	<npc id="23692" level="85" type="Folk" name="Fiora" title="Dragonclaw Knight Captain">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="837320" hpRegen="7.5" mp="47856" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="200.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.0" />
+			<height normal="23.5" />
+		</collision>
+	</npc>
+	<npc id="23693" level="85" type="Folk" name="Typhoon" title="Dragonclaw Royal Guard Captain">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2511960" hpRegen="7.5" mp="47856" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="200.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="11.0" />
+			<height normal="28.0" />
+		</collision>
+	</npc>
+	<npc id="23694" level="85" type="Folk" name="Royal Guard Knight">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="200.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24.0" />
+		</collision>
+	</npc>
+	<npc id="23695" level="85" type="Folk" name="Royal Guard Healer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="200.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="23.0" />
+		</collision>
+	</npc>
+	<npc id="23696" level="85" type="Folk" name="Domithan" title="Dragonclaw Royal Guard">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="200.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.0" />
+			<height normal="27.0" />
+		</collision>
+	</npc>
+	<npc id="23697" level="85" type="Folk" name="Knight Soldier">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="200.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.0" />
+			<height normal="27.0" />
+		</collision>
+	</npc>
+	<npc id="23698" level="85" type="Folk" name="Knight Archer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="200.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24.0" />
+		</collision>
+	</npc>
+	<npc id="23699" level="85" type="Folk" name="Royal Guard Wizard">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="200.0" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="6.5" />
+			<height normal="22.5" />
+		</collision>
+	</npc>
+</list>

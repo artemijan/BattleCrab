@@ -1,0 +1,303 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+	<item id="48202" name="Circlet of Authority" type="Armor">
+		<!-- Circlet of Authority. <Upgrade Requirement>. Enchant to +5 to upgrade to a Noble Circlet of Authority. -->
+		<set name="icon" val="icon.bm_pattack_circlet_01" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="hair2" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="WOOD" />
+		<set name="weight" val="10" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<skills>
+			<skill id="35104" level="1" /> <!-- Warrior's Circlet) -->
+			<skill id="35105" level="1" type="ON_ENCHANT" type_value="1" /> <!-- Warrior's Circlet Enchant Effect -->
+			<skill id="35105" level="2" type="ON_ENCHANT" type_value="2" /> <!-- Warrior's Circlet Enchant Effect -->
+			<skill id="35105" level="3" type="ON_ENCHANT" type_value="3" /> <!-- Warrior's Circlet Enchant Effect -->
+			<skill id="35105" level="4" type="ON_ENCHANT" type_value="4" /> <!-- Warrior's Circlet Enchant Effect -->
+			<skill id="35105" level="5" type="ON_ENCHANT" type_value="5" /> <!-- Warrior's Circlet Enchant Effect -->
+		</skills>
+	</item>
+	<item id="48203" name="Noble Circlet of Authority" type="Armor">
+		<!-- Noble Circlet of Authority.. <Upgrade Requirement>. Enchant to +5 to upgrade to a Radiant Circlet of Authority. Can be augmented. -->
+		<set name="icon" val="icon.bm_pattack_circlet_02" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="hair2" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="WOOD" />
+		<set name="weight" val="10" />
+		<set name="is_sellable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<skills>
+			<skill id="35104" level="2" /> <!-- Warrior's Circlet -->
+			<skill id="35106" level="1" type="ON_ENCHANT" type_value="1" /> <!-- Noble Warrior's Circlet Enchant Effect -->
+			<skill id="35106" level="2" type="ON_ENCHANT" type_value="2" /> <!-- Noble Warrior's Circlet Enchant Effect -->
+			<skill id="35106" level="3" type="ON_ENCHANT" type_value="3" /> <!-- Noble Warrior's Circlet Enchant Effect -->
+			<skill id="35106" level="4" type="ON_ENCHANT" type_value="4" /> <!-- Noble Warrior's Circlet Enchant Effect -->
+			<skill id="35106" level="5" type="ON_ENCHANT" type_value="5" /> <!-- Noble Warrior's Circlet Enchant Effect -->
+		</skills>
+	</item>
+	<item id="48204" name="Radiant Circlet of Authority" type="Armor">
+		<!-- Radiant Circlet of Authority. Can be augmented. -->
+		<set name="icon" val="icon.bm_pattack_circlet_03" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="hair2" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="WOOD" />
+		<set name="weight" val="10" />
+		<set name="is_sellable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<skills>
+			<skill id="35104" level="3" /> <!-- Warrior's Circlet -->
+			<skill id="35107" level="1" type="ON_ENCHANT" type_value="1" /> <!-- Radiant Warrior's Circlet Enchant Effect -->
+			<skill id="35107" level="2" type="ON_ENCHANT" type_value="2" /> <!-- Radiant Warrior's Circlet Enchant Effect -->
+			<skill id="35107" level="3" type="ON_ENCHANT" type_value="3" /> <!-- Radiant Warrior's Circlet Enchant Effect -->
+			<skill id="35107" level="4" type="ON_ENCHANT" type_value="4" /> <!-- Radiant Warrior's Circlet Enchant Effect -->
+			<skill id="35107" level="5" type="ON_ENCHANT" type_value="5" /> <!-- Radiant Warrior's Circlet Enchant Effect -->
+			<skill id="35107" level="6" type="ON_ENCHANT" type_value="6" /> <!-- Radiant Warrior's Circlet Enchant Effect -->
+			<skill id="35107" level="7" type="ON_ENCHANT" type_value="7" /> <!-- Radiant Warrior's Circlet Enchant Effect -->
+			<skill id="35107" level="8" type="ON_ENCHANT" type_value="8" /> <!-- Radiant Warrior's Circlet Enchant Effect -->
+			<skill id="35107" level="9" type="ON_ENCHANT" type_value="9" /> <!-- Radiant Warrior's Circlet Enchant Effect -->
+			<skill id="35107" level="10" type="ON_ENCHANT" type_value="10" /> <!-- Radiant Warrior's Circlet Enchant Effect -->
+		</skills>
+	</item>
+	<item id="48205" name="Circlet of Foresight" type="Armor">
+		<!-- Circlet of Foresight. <Upgrade Requirement>. Enchant to +5 to upgrade to a Noble Circlet of Foresight. -->
+		<set name="icon" val="icon.bm_mattack_circlet_01" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="hair2" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="WOOD" />
+		<set name="weight" val="10" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<skills>
+			<skill id="35108" level="1" /> <!-- Wizard's Circlet -->
+			<skill id="35109" level="1" type="ON_ENCHANT" type_value="1" /> <!-- Wizard's Circlet Enchant Effect -->
+			<skill id="35109" level="2" type="ON_ENCHANT" type_value="2" /> <!-- Wizard's Circlet Enchant Effect -->
+			<skill id="35109" level="3" type="ON_ENCHANT" type_value="3" /> <!-- Wizard's Circlet Enchant Effect -->
+			<skill id="35109" level="4" type="ON_ENCHANT" type_value="4" /> <!-- Wizard's Circlet Enchant Effect -->
+			<skill id="35109" level="5" type="ON_ENCHANT" type_value="5" /> <!-- Wizard's Circlet Enchant Effect -->
+		</skills>
+	</item>
+	<item id="48206" name="Noble Circlet of Foresight" type="Armor">
+		<!-- Noble Circlet of Foresight. <Upgrade Requirement>. Enchant to +5 to upgrade to a Rdiant Circlet of Foresight. Can be augmented. -->
+		<set name="icon" val="icon.bm_mattack_circlet_02" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="hair2" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="WOOD" />
+		<set name="weight" val="10" />
+		<set name="is_sellable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<skills>
+			<skill id="35108" level="2" /> <!-- Wizard's Circlet -->
+			<skill id="35110" level="1" type="ON_ENCHANT" type_value="1" /> <!-- Noble Wizard's Circlet Enchant Effect -->
+			<skill id="35110" level="2" type="ON_ENCHANT" type_value="2" /> <!-- Noble Wizard's Circlet Enchant Effect -->
+			<skill id="35110" level="3" type="ON_ENCHANT" type_value="3" /> <!-- Noble Wizard's Circlet Enchant Effect -->
+			<skill id="35110" level="4" type="ON_ENCHANT" type_value="4" /> <!-- Noble Wizard's Circlet Enchant Effect -->
+			<skill id="35110" level="5" type="ON_ENCHANT" type_value="5" /> <!-- Noble Wizard's Circlet Enchant Effect -->
+		</skills>
+	</item>
+	<item id="48207" name="Radiant Circlet of Foresight" type="Armor">
+		<!-- Radiant Circlet of Foresight. Can be augmented. -->
+		<set name="icon" val="icon.bm_mattack_circlet_03" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="hair2" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="WOOD" />
+		<set name="weight" val="10" />
+		<set name="is_sellable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<skills>
+			<skill id="35108" level="3" /> <!-- Wizard's Circlet -->
+			<skill id="35111" level="1" type="ON_ENCHANT" type_value="1" /> <!-- Radiant Wizard's Circlet Enchant Effect -->
+			<skill id="35111" level="2" type="ON_ENCHANT" type_value="2" /> <!-- Radiant Wizard's Circlet Enchant Effect -->
+			<skill id="35111" level="3" type="ON_ENCHANT" type_value="3" /> <!-- Radiant Wizard's Circlet Enchant Effect -->
+			<skill id="35111" level="4" type="ON_ENCHANT" type_value="4" /> <!-- Radiant Wizard's Circlet Enchant Effect -->
+			<skill id="35111" level="5" type="ON_ENCHANT" type_value="5" /> <!-- Radiant Wizard's Circlet Enchant Effect -->
+			<skill id="35111" level="6" type="ON_ENCHANT" type_value="6" /> <!-- Radiant Wizard's Circlet Enchant Effect -->
+			<skill id="35111" level="7" type="ON_ENCHANT" type_value="7" /> <!-- Radiant Wizard's Circlet Enchant Effect -->
+			<skill id="35111" level="8" type="ON_ENCHANT" type_value="8" /> <!-- Radiant Wizard's Circlet Enchant Effect -->
+			<skill id="35111" level="9" type="ON_ENCHANT" type_value="9" /> <!-- Radiant Wizard's Circlet Enchant Effect -->
+			<skill id="35111" level="10" type="ON_ENCHANT" type_value="10" /> <!-- Radiant Wizard's Circlet Enchant Effect -->
+		</skills>
+	</item>
+	<item id="48208" name="Circlet of Grace" type="Armor">
+		<!-- Circlet of Grace. <Upgrade Requirement>. Enchant to +5 to upgrade to a Noble Circlet of Grace. -->
+		<set name="icon" val="icon.bm_defense_circlet_01" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="hair2" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="WOOD" />
+		<set name="weight" val="10" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<skills>
+			<skill id="35112" level="1" /> <!-- Knight's Circlet -->
+			<skill id="35113" level="1" type="ON_ENCHANT" type_value="1" /> <!-- Knight's Circlet Enchant Effect -->
+			<skill id="35113" level="2" type="ON_ENCHANT" type_value="2" /> <!-- Knight's Circlet Enchant Effect -->
+			<skill id="35113" level="3" type="ON_ENCHANT" type_value="3" /> <!-- Knight's Circlet Enchant Effect -->
+			<skill id="35113" level="4" type="ON_ENCHANT" type_value="4" /> <!-- Knight's Circlet Enchant Effect -->
+			<skill id="35113" level="5" type="ON_ENCHANT" type_value="5" /> <!-- Knight's Circlet Enchant Effect -->
+		</skills>
+	</item>
+	<item id="48209" name="Noble Circlet of Grace" type="Armor">
+		<!-- Noble Circlet of Grace. <Upgrade Requirement>. Enchant to +5 to upgrade to a Radiant Circlet of Grace. Can be augmented. -->
+		<set name="icon" val="icon.bm_defense_circlet_02" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="hair2" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="WOOD" />
+		<set name="weight" val="10" />
+		<set name="is_sellable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<skills>
+			<skill id="35112" level="2" /> <!-- Knight's Circlet -->
+			<skill id="35114" level="1" type="ON_ENCHANT" type_value="1" /> <!-- Noble Knight's Circlet Enchant Effect -->
+			<skill id="35114" level="2" type="ON_ENCHANT" type_value="2" /> <!-- Noble Knight's Circlet Enchant Effect -->
+			<skill id="35114" level="3" type="ON_ENCHANT" type_value="3" /> <!-- Noble Knight's Circlet Enchant Effect -->
+			<skill id="35114" level="4" type="ON_ENCHANT" type_value="4" /> <!-- Noble Knight's Circlet Enchant Effect -->
+			<skill id="35114" level="5" type="ON_ENCHANT" type_value="5" /> <!-- Noble Knight's Circlet Enchant Effect -->
+		</skills>
+	</item>
+	<item id="48210" name="Radiant Circlet of Grace" type="Armor">
+		<!-- Radiant Circlet of Grace. Can be augmented. -->
+		<set name="icon" val="icon.bm_defense_circlet_03" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="hair2" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="WOOD" />
+		<set name="weight" val="10" />
+		<set name="is_sellable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<skills>
+			<skill id="35112" level="3" /> <!-- Knight's Circlet -->
+			<skill id="35115" level="1" type="ON_ENCHANT" type_value="1" /> <!-- Radiant Knight's Circlet Enchant Effect -->
+			<skill id="35115" level="2" type="ON_ENCHANT" type_value="2" /> <!-- Radiant Knight's Circlet Enchant Effect -->
+			<skill id="35115" level="3" type="ON_ENCHANT" type_value="3" /> <!-- Radiant Knight's Circlet Enchant Effect -->
+			<skill id="35115" level="4" type="ON_ENCHANT" type_value="4" /> <!-- Radiant Knight's Circlet Enchant Effect -->
+			<skill id="35115" level="5" type="ON_ENCHANT" type_value="5" /> <!-- Radiant Knight's Circlet Enchant Effect -->
+			<skill id="35115" level="6" type="ON_ENCHANT" type_value="6" /> <!-- Radiant Knight's Circlet Enchant Effect -->
+			<skill id="35115" level="7" type="ON_ENCHANT" type_value="7" /> <!-- Radiant Knight's Circlet Enchant Effect -->
+			<skill id="35115" level="8" type="ON_ENCHANT" type_value="8" /> <!-- Radiant Knight's Circlet Enchant Effect -->
+			<skill id="35115" level="9" type="ON_ENCHANT" type_value="9" /> <!-- Radiant Knight's Circlet Enchant Effect -->
+			<skill id="35115" level="10" type="ON_ENCHANT" type_value="10" /> <!-- Radiant Knight's Circlet Enchant Effect -->
+		</skills>
+	</item>
+	<item id="48211" name="Blessed Circlet Enchant Scroll" type="EtcItem">
+		<!-- Enchant scroll for Circlets of Authority/Foresight/Grace. Can be enchanted up to +5. If enchantment fails, the circlet's enchantment level is reset. -->
+		<set name="icon" val="icon.bm_blessed_scrl_of_ench_hair" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
+		<set name="material" val="PAPER" />
+		<set name="weight" val="10" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="EnchantScrolls" />
+		<set name="immediate_effect" val="true" />
+		<set name="is_stackable" val="true" />
+		<skills>
+			<skill id="35103" level="1" /> <!-- Blessed Circlet Enchant Scroll -->
+		</skills>
+	</item>
+	<item id="48212" name="Noble Upgrade Stone" type="EtcItem">
+		<!-- Ingredient needed to upgrade Circlets of Authority/Foresight/Grace into Noble Circlets. Talk to Head Blacksmith Ferris of Aden to upgrade +5 Circlets into Noble Circlets. -->
+		<set name="icon" val="icon.bm_hair_acc_upgrade_1" />
+		<set name="material" val="LIQUID" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="48213" name="Radiant Upgrade Stone" type="EtcItem">
+		<!-- Ingredient needed to upgrade Noble Circlets of Authority/Foresight/Grace into Radiant Circlets. Talk to Head Blacksmith Ferris of Aden to upgrade +5 Noble Circlets into Radiant Circlets. -->
+		<set name="icon" val="icon.bm_hair_acc_upgrade_2" />
+		<set name="material" val="LIQUID" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="48214" name="Reconstruction Society's Enchantment Pack" type="EtcItem">
+		<!-- Double-click to obtain 1 Blessed Circlet Enchant SCroll. Has a chance obtain 1 Circlet Spirit Stone, 1 Noble Upgrade Stone or 1 Radiant Upgrade Stone. -->
+		<set name="icon" val="icon.bm_aden_renewal_box" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
+		<skills>
+			<skill id="35142" level="1" /> <!-- Reconstruction Society's Enchantment Pack -->
+		</skills>
+	</item>
+	<item id="48215" name="Circlet Spirit Stone" type="EtcItem">
+		<!-- Spirit Stone for circlets. Can only augment Noble/Radiant circlets. -->
+		<set name="icon" val="Icon.bm_mineral_circlet_hair_acc" />
+		<set name="material" val="WOOD" />
+		<set name="weight" val="2" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="48216" name="Circlet Upgrade Stone Pack" type="EtcItem">
+		<!-- Double-click to obtain a Noble Upgrade Stone or a Radiant Upgrade Stone. -->
+		<set name="icon" val="icon.bm_circlet_upgrade_box" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
+		<skills>
+			<skill id="35143" level="1" /> <!-- Circlet Upgrade Stone Pack -->
+		</skills>
+	</item>
+	<item id="48217" name="High-grade Balthus Knight Mark" type="EtcItem">
+		<!-- Makes you eligible to receive a Member of the Balthus Knight disguise for 2 hours. Can be used only by characters of Level 85 or higher. Buff gets deleted upon Subclass/Dual Class change. To be deleted after the event ends. -->
+		<set name="icon" val="icon.ev_balthus_token" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="is_freightable" val="true" />
+	</item>
+	<item id="48218" name="Veteran Duo's Bracelet Chest" additionalName="Event" type="EtcItem">
+		<!-- Contains Veteran Duo's Bracelet. -->
+		<set name="icon" val="icon.etc_pi_gift_box_i03" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="STEEL" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="48219" name="Returned Duo's Bracelet Chest" additionalName="Event" type="EtcItem">
+		<!-- Returned Duo's Bracelet -->
+		<set name="icon" val="icon.etc_pi_gift_box_i03" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="STEEL" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="48220" name="Royal White Save Ticket (R99)" additionalName="Event" type="EtcItem">
+		<!-- A ticket that enhances probability by 15% when using a Normal Armor Enchant Scroll to enchant R99-grade Armor. Can only be used on 3-9 enchanted items. When Enchant fails, the item does not crystallize, but the existing enchant level decreases by 1. -->
+		<set name="icon" val="icon.bm_royal_white_save_ticket" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+</list>

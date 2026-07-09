@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="115" parentClassId="51">
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="3" getLevel="76" levelUpSp="8100000">
+			<item id="8620" count="1" /> <!-- Ancient Book: Divine Inspiration (Manuscript) -->
+		</skill>
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="4" getLevel="76" levelUpSp="8100000">
+			<item id="8621" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Version) -->
+		</skill>
+		<skill skillId="328" skillLevel="1" skillName="Wisdom" levelUpSp="8340000" getLevel="76" />
+		<skill skillId="329" skillLevel="1" skillName="Health" levelUpSp="8340000" getLevel="76" />
+		<skill skillId="1367" skillLevel="1" skillName="Seal of Disease" levelUpSp="8340000" getLevel="76" />
+		<skill skillId="331" skillLevel="1" skillName="Skill Mastery" levelUpSp="11000000" getLevel="77" />
+		<skill skillId="427" skillLevel="1" skillName="Spell Force" levelUpSp="11000000" getLevel="77" />
+		<skill skillId="1364" skillLevel="1" skillName="The Eye of Pa'agrio" levelUpSp="11000000" getLevel="77" />
+		<skill skillId="1365" skillLevel="1" skillName="The Soul of Pa'agrio" levelUpSp="11000000" getLevel="77" />
+		<skill skillId="337" skillLevel="1" skillName="Arcane Power" levelUpSp="16000000" getLevel="78" />
+		<skill skillId="436" skillLevel="1" skillName="Divine Lore" levelUpSp="16000000" getLevel="78" />
+		<skill skillId="1366" skillLevel="1" skillName="Seal of Despair" levelUpSp="16000000" getLevel="78" />
+		<skill skillId="1415" skillLevel="1" skillName="Pa'agrio's Emblem" levelUpSp="16000000" getLevel="78" />
+		<skill skillId="1414" skillLevel="1" skillName="Victories of Pa'agrio" levelUpSp="80000000" getLevel="79" />
+		<skill skillId="1416" skillLevel="1" skillName="Pa'agrio's Fist" levelUpSp="80000000" getLevel="79" />
+		<skill skillId="1427" skillLevel="1" skillName="Flames of Invincibility" levelUpSp="150000000" getLevel="80" />
+	</skillTree>
+</list>

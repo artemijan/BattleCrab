@@ -1,0 +1,11 @@
+2026.07.09 10:39:20,955	SEVERE	1	org.l2jmobius.commons.database.DatabaseFactory	Database: Could not get a connection. java.sql.SQLException: opening db: '//interlude_classic.db': Read-only file system
+2026.07.09 10:39:21,469	SEVERE	1	org.l2jmobius.commons.database.DatabaseFactory	Database: Could not get a connection. java.sql.SQLException: opening db: '//interlude_classic.db': Read-only file system
+2026.07.09 10:39:21,970	SEVERE	1	org.l2jmobius.commons.database.DatabaseFactory	Database: Could not get a connection. java.sql.SQLException: opening db: '//interlude_classic.db': Read-only file system
+2026.07.09 10:39:22,476	SEVERE	1	org.l2jmobius.commons.database.DatabaseFactory	Database: Could not get a connection. java.sql.SQLException: opening db: '//interlude_classic.db': Read-only file system
+2026.07.09 10:39:22,978	SEVERE	1	org.l2jmobius.commons.database.DatabaseFactory	Database: Could not get a connection. java.sql.SQLException: opening db: '//interlude_classic.db': Read-only file system
+2026.07.09 10:39:23,481	SEVERE	1	org.l2jmobius.commons.database.DatabaseFactory	Database: Could not get a connection. java.sql.SQLException: opening db: '//interlude_classic.db': Read-only file system
+2026.07.09 10:39:23,982	SEVERE	1	org.l2jmobius.commons.database.DatabaseFactory	Database: Could not get a connection. java.sql.SQLException: opening db: '//interlude_classic.db': Read-only file system
+2026.07.09 10:39:24,484	SEVERE	1	org.l2jmobius.commons.database.DatabaseFactory	Database: Could not get a connection. java.sql.SQLException: opening db: '//interlude_classic.db': Read-only file system
+2026.07.09 10:39:24,987	SEVERE	1	org.l2jmobius.commons.database.DatabaseFactory	Database: Could not get a connection. java.sql.SQLException: opening db: '//interlude_classic.db': Read-only file system
+2026.07.09 10:39:25,492	SEVERE	1	org.l2jmobius.commons.database.DatabaseFactory	Database: Could not get a connection. java.sql.SQLException: opening db: '//interlude_classic.db': Read-only file system
+2026.07.09 10:39:25,996	SEVERE	1	org.l2jmobius.commons.database.DatabaseFactory	Database: Could not get a connection. java.sql.SQLException: opening db: '//interlude_classic.db': Read-only file system

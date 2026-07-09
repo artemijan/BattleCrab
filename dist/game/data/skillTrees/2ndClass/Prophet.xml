@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="17" parentClassId="15">
+		<skill skillId="146" skillLevel="13" skillName="Anti Magic" levelUpSp="11000" getLevel="40" />
+		<skill skillId="146" skillLevel="14" skillName="Anti Magic" levelUpSp="11000" getLevel="40" />
+		<skill skillId="146" skillLevel="15" skillName="Anti Magic" levelUpSp="11000" getLevel="40" />
+		<skill skillId="211" skillLevel="1" skillName="Boost HP" levelUpSp="32000" getLevel="40" />
+		<skill skillId="213" skillLevel="3" skillName="Boost Mana" levelUpSp="32000" getLevel="40" />
+		<skill skillId="228" skillLevel="2" skillName="Fast Spell Casting" levelUpSp="32000" getLevel="40" />
+		<skill skillId="235" skillLevel="9" skillName="Robe Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="235" skillLevel="10" skillName="Robe Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="235" skillLevel="11" skillName="Robe Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="236" skillLevel="9" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="236" skillLevel="10" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="236" skillLevel="11" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="249" skillLevel="10" skillName="Weapon Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="249" skillLevel="11" skillName="Weapon Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="249" skillLevel="12" skillName="Weapon Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="259" skillLevel="1" skillName="Heavy Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="259" skillLevel="2" skillName="Heavy Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="259" skillLevel="3" skillName="Heavy Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="1032" skillLevel="1" skillName="Invigor" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1035" skillLevel="2" skillName="Mental Shield" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1050" skillLevel="1" skillName="Return" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1068" skillLevel="3" skillName="Might" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1191" skillLevel="2" skillName="Resist Fire" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1201" skillLevel="10" skillName="Dryad Root" levelUpSp="11000" getLevel="40" />
+		<skill skillId="1201" skillLevel="11" skillName="Dryad Root" levelUpSp="11000" getLevel="40" />
+		<skill skillId="1201" skillLevel="12" skillName="Dryad Root" levelUpSp="11000" getLevel="40" />
+		<skill skillId="1240" skillLevel="1" skillName="Guidance" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1242" skillLevel="1" skillName="Death Whisper" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1243" skillLevel="1" skillName="Bless Shield" levelUpSp="32000" getLevel="40" />
+		<skill skillId="146" skillLevel="16" skillName="Anti Magic" levelUpSp="13000" getLevel="44" />
+		<skill skillId="146" skillLevel="17" skillName="Anti Magic" levelUpSp="13000" getLevel="44" />
+		<skill skillId="146" skillLevel="18" skillName="Anti Magic" levelUpSp="13000" getLevel="44" />
+		<skill skillId="211" skillLevel="2" skillName="Boost HP" levelUpSp="39000" getLevel="44" />
+		<skill skillId="212" skillLevel="2" skillName="Fast HP Recovery" levelUpSp="39000" getLevel="44" />
+		<skill skillId="229" skillLevel="3" skillName="Fast Mana Recovery" levelUpSp="39000" getLevel="44" />
+		<skill skillId="235" skillLevel="12" skillName="Robe Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="235" skillLevel="13" skillName="Robe Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="235" skillLevel="14" skillName="Robe Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="236" skillLevel="12" skillName="Light Armor Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="236" skillLevel="13" skillName="Light Armor Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="236" skillLevel="14" skillName="Light Armor Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="249" skillLevel="13" skillName="Weapon Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="249" skillLevel="14" skillName="Weapon Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="249" skillLevel="15" skillName="Weapon Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="259" skillLevel="4" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="259" skillLevel="5" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="259" skillLevel="6" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="1036" skillLevel="1" skillName="Magic Barrier" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1040" skillLevel="3" skillName="Shield" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1045" skillLevel="1" skillName="Bless the Body" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1048" skillLevel="1" skillName="Bless the Soul" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1077" skillLevel="2" skillName="Focus" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1078" skillLevel="3" skillName="Concentration" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1086" skillLevel="1" skillName="Haste" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1191" skillLevel="3" skillName="Resist Fire" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1201" skillLevel="13" skillName="Dryad Root" levelUpSp="13000" getLevel="44" />
+		<skill skillId="1201" skillLevel="14" skillName="Dryad Root" levelUpSp="13000" getLevel="44" />
+		<skill skillId="1201" skillLevel="15" skillName="Dryad Root" levelUpSp="13000" getLevel="44" />
+		<skill skillId="1272" skillLevel="1" skillName="Word of Fear" levelUpSp="39000" getLevel="44" />
+		<skill skillId="146" skillLevel="19" skillName="Anti Magic" levelUpSp="21000" getLevel="48" />
+		<skill skillId="146" skillLevel="20" skillName="Anti Magic" levelUpSp="21000" getLevel="48" />
+		<skill skillId="146" skillLevel="21" skillName="Anti Magic" levelUpSp="21000" getLevel="48" />
+		<skill skillId="164" skillLevel="3" skillName="Quick Recovery" levelUpSp="63000" getLevel="48" />
+		<skill skillId="211" skillLevel="3" skillName="Boost HP" levelUpSp="63000" getLevel="48" />
+		<skill skillId="213" skillLevel="4" skillName="Boost Mana" levelUpSp="63000" getLevel="48" />
+		<skill skillId="235" skillLevel="15" skillName="Robe Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="235" skillLevel="16" skillName="Robe Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="235" skillLevel="17" skillName="Robe Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="236" skillLevel="15" skillName="Light Armor Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="236" skillLevel="16" skillName="Light Armor Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="236" skillLevel="17" skillName="Light Armor Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="249" skillLevel="16" skillName="Weapon Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="249" skillLevel="17" skillName="Weapon Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="249" skillLevel="18" skillName="Weapon Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="259" skillLevel="7" skillName="Heavy Armor Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="259" skillLevel="8" skillName="Heavy Armor Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="259" skillLevel="9" skillName="Heavy Armor Mastery" levelUpSp="21000" getLevel="48" />
+		<skill skillId="1032" skillLevel="2" skillName="Invigor" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1035" skillLevel="3" skillName="Mental Shield" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1044" skillLevel="2" skillName="Regeneration" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1045" skillLevel="2" skillName="Bless the Body" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1048" skillLevel="2" skillName="Bless the Soul" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1085" skillLevel="3" skillName="Acumen" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1201" skillLevel="16" skillName="Dryad Root" levelUpSp="21000" getLevel="48" />
+		<skill skillId="1201" skillLevel="17" skillName="Dryad Root" levelUpSp="21000" getLevel="48" />
+		<skill skillId="1201" skillLevel="18" skillName="Dryad Root" levelUpSp="21000" getLevel="48" />
+		<skill skillId="1240" skillLevel="2" skillName="Guidance" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1242" skillLevel="2" skillName="Death Whisper" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1243" skillLevel="2" skillName="Bless Shield" levelUpSp="63000" getLevel="48" />
+		<skill skillId="1272" skillLevel="2" skillName="Word of Fear" levelUpSp="63000" getLevel="48" />
+		<skill skillId="146" skillLevel="22" skillName="Anti Magic" levelUpSp="30000" getLevel="52" />
+		<skill skillId="146" skillLevel="23" skillName="Anti Magic" levelUpSp="30000" getLevel="52" />
+		<skill skillId="146" skillLevel="24" skillName="Anti Magic" levelUpSp="30000" getLevel="52" />
+		<skill skillId="211" skillLevel="4" skillName="Boost HP" levelUpSp="89000" getLevel="52" />
+		<skill skillId="212" skillLevel="3" skillName="Fast HP Recovery" levelUpSp="89000" getLevel="52" />
+		<skill skillId="229" skillLevel="4" skillName="Fast Mana Recovery" levelUpSp="89000" getLevel="52" />
+		<skill skillId="235" skillLevel="18" skillName="Robe Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="235" skillLevel="19" skillName="Robe Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="235" skillLevel="20" skillName="Robe Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="236" skillLevel="18" skillName="Light Armor Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="236" skillLevel="19" skillName="Light Armor Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="236" skillLevel="20" skillName="Light Armor Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="249" skillLevel="19" skillName="Weapon Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="249" skillLevel="20" skillName="Weapon Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="249" skillLevel="21" skillName="Weapon Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="259" skillLevel="10" skillName="Heavy Armor Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="259" skillLevel="11" skillName="Heavy Armor Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="259" skillLevel="12" skillName="Heavy Armor Mastery" levelUpSp="30000" getLevel="52" />
+		<skill skillId="1036" skillLevel="2" skillName="Magic Barrier" levelUpSp="89000" getLevel="52" />
+		<skill skillId="1045" skillLevel="3" skillName="Bless the Body" levelUpSp="89000" getLevel="52" />
+		<skill skillId="1048" skillLevel="3" skillName="Bless the Soul" levelUpSp="89000" getLevel="52" />
+		<skill skillId="1062" skillLevel="2" skillName="Berserker Spirit" levelUpSp="89000" getLevel="52" />
+		<skill skillId="1073" skillLevel="2" skillName="Kiss of Eva" levelUpSp="89000" getLevel="52" />
+		<skill skillId="1077" skillLevel="3" skillName="Focus" levelUpSp="89000" getLevel="52" />
+		<skill skillId="1078" skillLevel="4" skillName="Concentration" levelUpSp="89000" getLevel="52" />
+		<skill skillId="1086" skillLevel="2" skillName="Haste" levelUpSp="89000" getLevel="52" />
+		<skill skillId="1201" skillLevel="19" skillName="Dryad Root" levelUpSp="30000" getLevel="52" />
+		<skill skillId="1201" skillLevel="20" skillName="Dryad Root" levelUpSp="30000" getLevel="52" />
+		<skill skillId="1201" skillLevel="21" skillName="Dryad Root" levelUpSp="30000" getLevel="52" />
+		<skill skillId="1272" skillLevel="3" skillName="Word of Fear" levelUpSp="89000" getLevel="52" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="1" getLevel="52" levelUpSp="230000">			<item id="8618" count="1" /> <!-- Ancient Book: Divine Inspiration (Modern Language Version) -->		</skill>
+		<skill skillId="1405" skillLevel="2" skillName="Divine Inspiration" autoGet="true" getLevel="52" />
+		<skill skillId="146" skillLevel="25" skillName="Anti Magic" levelUpSp="35000" getLevel="56" />
+		<skill skillId="146" skillLevel="26" skillName="Anti Magic" levelUpSp="35000" getLevel="56" />
+		<skill skillId="146" skillLevel="27" skillName="Anti Magic" levelUpSp="35000" getLevel="56" />
+		<skill skillId="211" skillLevel="5" skillName="Boost HP" levelUpSp="105000" getLevel="56" />
+		<skill skillId="213" skillLevel="5" skillName="Boost Mana" levelUpSp="105000" getLevel="56" />
+		<skill skillId="228" skillLevel="3" skillName="Fast Spell Casting" levelUpSp="105000" getLevel="56" />
+		<skill skillId="235" skillLevel="21" skillName="Robe Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="235" skillLevel="22" skillName="Robe Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="235" skillLevel="23" skillName="Robe Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="236" skillLevel="21" skillName="Light Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="236" skillLevel="22" skillName="Light Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="236" skillLevel="23" skillName="Light Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="249" skillLevel="22" skillName="Weapon Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="249" skillLevel="23" skillName="Weapon Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="249" skillLevel="24" skillName="Weapon Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="259" skillLevel="13" skillName="Heavy Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="259" skillLevel="14" skillName="Heavy Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="259" skillLevel="15" skillName="Heavy Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="1032" skillLevel="3" skillName="Invigor" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1035" skillLevel="4" skillName="Mental Shield" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1044" skillLevel="3" skillName="Regeneration" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1045" skillLevel="4" skillName="Bless the Body" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1048" skillLevel="4" skillName="Bless the Soul" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1050" skillLevel="2" skillName="Return" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1201" skillLevel="22" skillName="Dryad Root" levelUpSp="35000" getLevel="56" />
+		<skill skillId="1201" skillLevel="23" skillName="Dryad Root" levelUpSp="35000" getLevel="56" />
+		<skill skillId="1201" skillLevel="24" skillName="Dryad Root" levelUpSp="35000" getLevel="56" />
+		<skill skillId="1240" skillLevel="3" skillName="Guidance" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1242" skillLevel="3" skillName="Death Whisper" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1243" skillLevel="3" skillName="Bless Shield" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1272" skillLevel="4" skillName="Word of Fear" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1395" skillLevel="1" skillName="Erase" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1398" skillLevel="1" skillName="Mana Burn" levelUpSp="105000" getLevel="56" />
+		<skill skillId="146" skillLevel="28" skillName="Anti Magic" levelUpSp="69000" getLevel="58" />
+		<skill skillId="146" skillLevel="29" skillName="Anti Magic" levelUpSp="69000" getLevel="58" />
+		<skill skillId="212" skillLevel="4" skillName="Fast HP Recovery" levelUpSp="138000" getLevel="58" />
+		<skill skillId="235" skillLevel="24" skillName="Robe Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="235" skillLevel="25" skillName="Robe Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="236" skillLevel="24" skillName="Light Armor Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="236" skillLevel="25" skillName="Light Armor Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="249" skillLevel="25" skillName="Weapon Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="249" skillLevel="26" skillName="Weapon Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="259" skillLevel="16" skillName="Heavy Armor Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="259" skillLevel="17" skillName="Heavy Armor Mastery" levelUpSp="69000" getLevel="58" />
+		<skill skillId="1182" skillLevel="1" skillName="Resist Aqua" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1189" skillLevel="1" skillName="Resist Wind" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1201" skillLevel="25" skillName="Dryad Root" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1272" skillLevel="5" skillName="Word of Fear" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1388" skillLevel="1" skillName="Greater Might" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1389" skillLevel="1" skillName="Greater Shield" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1392" skillLevel="1" skillName="Holy Resistance" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1393" skillLevel="1" skillName="Unholy Resistance" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1395" skillLevel="2" skillName="Erase" levelUpSp="138000" getLevel="58" />
+		<skill skillId="1398" skillLevel="2" skillName="Mana Burn" levelUpSp="138000" getLevel="58" />
+		<skill skillId="146" skillLevel="30" skillName="Anti Magic" levelUpSp="115000" getLevel="60" />
+		<skill skillId="146" skillLevel="31" skillName="Anti Magic" levelUpSp="115000" getLevel="60" />
+		<skill skillId="213" skillLevel="6" skillName="Boost Mana" levelUpSp="231000" getLevel="60" />
+		<skill skillId="229" skillLevel="5" skillName="Fast Mana Recovery" levelUpSp="231000" getLevel="60" />
+		<skill skillId="235" skillLevel="26" skillName="Robe Mastery" levelUpSp="115000" getLevel="60" />
+		<skill skillId="235" skillLevel="27" skillName="Robe Mastery" levelUpSp="115000" getLevel="60" />
+		<skill skillId="236" skillLevel="26" skillName="Light Armor Mastery" levelUpSp="115000" getLevel="60" />
+		<skill skillId="236" skillLevel="27" skillName="Light Armor Mastery" levelUpSp="115000" getLevel="60" />
+		<skill skillId="249" skillLevel="27" skillName="Weapon Mastery" levelUpSp="115000" getLevel="60" />
+		<skill skillId="249" skillLevel="28" skillName="Weapon Mastery" levelUpSp="115000" getLevel="60" />
+		<skill skillId="259" skillLevel="18" skillName="Heavy Armor Mastery" levelUpSp="115000" getLevel="60" />
+		<skill skillId="259" skillLevel="19" skillName="Heavy Armor Mastery" levelUpSp="115000" getLevel="60" />
+		<skill skillId="1033" skillLevel="1" skillName="Resist Poison" levelUpSp="231000" getLevel="60" />
+		<skill skillId="1078" skillLevel="5" skillName="Concentration" levelUpSp="231000" getLevel="60" />
+		<skill skillId="1201" skillLevel="26" skillName="Dryad Root" levelUpSp="231000" getLevel="60" />
+		<skill skillId="1272" skillLevel="6" skillName="Word of Fear" levelUpSp="231000" getLevel="60" />
+		<skill skillId="1395" skillLevel="3" skillName="Erase" levelUpSp="231000" getLevel="60" />
+		<skill skillId="1398" skillLevel="3" skillName="Mana Burn" levelUpSp="231000" getLevel="60" />
+		<skill skillId="146" skillLevel="32" skillName="Anti Magic" levelUpSp="150000" getLevel="62" />
+		<skill skillId="146" skillLevel="33" skillName="Anti Magic" levelUpSp="150000" getLevel="62" />
+		<skill skillId="211" skillLevel="6" skillName="Boost HP" levelUpSp="310000" getLevel="62" />
+		<skill skillId="235" skillLevel="28" skillName="Robe Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="235" skillLevel="29" skillName="Robe Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="236" skillLevel="28" skillName="Light Armor Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="236" skillLevel="29" skillName="Light Armor Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="249" skillLevel="29" skillName="Weapon Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="249" skillLevel="30" skillName="Weapon Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="259" skillLevel="20" skillName="Heavy Armor Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="259" skillLevel="21" skillName="Heavy Armor Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="1048" skillLevel="5" skillName="Bless the Soul" levelUpSp="301000" getLevel="62" />
+		<skill skillId="1182" skillLevel="2" skillName="Resist Aqua" levelUpSp="301000" getLevel="62" />
+		<skill skillId="1189" skillLevel="2" skillName="Resist Wind" levelUpSp="301000" getLevel="62" />
+		<skill skillId="1201" skillLevel="27" skillName="Dryad Root" levelUpSp="301000" getLevel="62" />
+		<skill skillId="1272" skillLevel="7" skillName="Word of Fear" levelUpSp="301000" getLevel="62" />
+		<skill skillId="1395" skillLevel="4" skillName="Erase" levelUpSp="301000" getLevel="62" />
+		<skill skillId="1398" skillLevel="4" skillName="Mana Burn" levelUpSp="301000" getLevel="62" />
+		<skill skillId="146" skillLevel="34" skillName="Anti Magic" levelUpSp="200000" getLevel="64" />
+		<skill skillId="146" skillLevel="35" skillName="Anti Magic" levelUpSp="200000" getLevel="64" />
+		<skill skillId="212" skillLevel="5" skillName="Fast HP Recovery" levelUpSp="400000" getLevel="64" />
+		<skill skillId="235" skillLevel="30" skillName="Robe Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="235" skillLevel="31" skillName="Robe Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="236" skillLevel="30" skillName="Light Armor Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="236" skillLevel="31" skillName="Light Armor Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="249" skillLevel="31" skillName="Weapon Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="249" skillLevel="32" skillName="Weapon Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="259" skillLevel="22" skillName="Heavy Armor Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="259" skillLevel="23" skillName="Heavy Armor Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1033" skillLevel="2" skillName="Resist Poison" levelUpSp="400000" getLevel="64" />
+		<skill skillId="1045" skillLevel="5" skillName="Bless the Body" levelUpSp="400000" getLevel="64" />
+		<skill skillId="1201" skillLevel="28" skillName="Dryad Root" levelUpSp="400000" getLevel="64" />
+		<skill skillId="1272" skillLevel="8" skillName="Word of Fear" levelUpSp="400000" getLevel="64" />
+		<skill skillId="1395" skillLevel="5" skillName="Erase" levelUpSp="400000" getLevel="64" />
+		<skill skillId="1398" skillLevel="5" skillName="Mana Burn" levelUpSp="400000" getLevel="64" />
+		<skill skillId="146" skillLevel="36" skillName="Anti Magic" levelUpSp="220000" getLevel="66" />
+		<skill skillId="146" skillLevel="37" skillName="Anti Magic" levelUpSp="220000" getLevel="66" />
+		<skill skillId="213" skillLevel="7" skillName="Boost Mana" levelUpSp="440000" getLevel="66" />
+		<skill skillId="235" skillLevel="32" skillName="Robe Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="235" skillLevel="33" skillName="Robe Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="236" skillLevel="32" skillName="Light Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="236" skillLevel="33" skillName="Light Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="249" skillLevel="33" skillName="Weapon Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="249" skillLevel="34" skillName="Weapon Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="259" skillLevel="24" skillName="Heavy Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="259" skillLevel="25" skillName="Heavy Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="1182" skillLevel="3" skillName="Resist Aqua" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1189" skillLevel="3" skillName="Resist Wind" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1201" skillLevel="29" skillName="Dryad Root" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1272" skillLevel="9" skillName="Word of Fear" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1388" skillLevel="2" skillName="Greater Might" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1389" skillLevel="2" skillName="Greater Shield" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1392" skillLevel="2" skillName="Holy Resistance" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1393" skillLevel="2" skillName="Unholy Resistance" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1395" skillLevel="6" skillName="Erase" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1398" skillLevel="6" skillName="Mana Burn" levelUpSp="440000" getLevel="66" />
+		<skill skillId="146" skillLevel="38" skillName="Anti Magic" levelUpSp="320000" getLevel="68" />
+		<skill skillId="146" skillLevel="39" skillName="Anti Magic" levelUpSp="320000" getLevel="68" />
+		<skill skillId="229" skillLevel="6" skillName="Fast Mana Recovery" levelUpSp="640000" getLevel="68" />
+		<skill skillId="235" skillLevel="34" skillName="Robe Mastery" levelUpSp="320000" getLevel="68" />
+		<skill skillId="235" skillLevel="35" skillName="Robe Mastery" levelUpSp="320000" getLevel="68" />
+		<skill skillId="236" skillLevel="34" skillName="Light Armor Mastery" levelUpSp="320000" getLevel="68" />
+		<skill skillId="236" skillLevel="35" skillName="Light Armor Mastery" levelUpSp="320000" getLevel="68" />
+		<skill skillId="249" skillLevel="35" skillName="Weapon Mastery" levelUpSp="320000" getLevel="68" />
+		<skill skillId="249" skillLevel="36" skillName="Weapon Mastery" levelUpSp="320000" getLevel="68" />
+		<skill skillId="259" skillLevel="26" skillName="Heavy Armor Mastery" levelUpSp="320000" getLevel="68" />
+		<skill skillId="259" skillLevel="27" skillName="Heavy Armor Mastery" levelUpSp="320000" getLevel="68" />
+		<skill skillId="1033" skillLevel="3" skillName="Resist Poison" levelUpSp="640000" getLevel="68" />
+		<skill skillId="1078" skillLevel="6" skillName="Concentration" levelUpSp="640000" getLevel="68" />
+		<skill skillId="1201" skillLevel="30" skillName="Dryad Root" levelUpSp="640000" getLevel="68" />
+		<skill skillId="1272" skillLevel="10" skillName="Word of Fear" levelUpSp="640000" getLevel="68" />
+		<skill skillId="1395" skillLevel="7" skillName="Erase" levelUpSp="640000" getLevel="68" />
+		<skill skillId="1398" skillLevel="7" skillName="Mana Burn" levelUpSp="640000" getLevel="68" />
+		<skill skillId="146" skillLevel="40" skillName="Anti Magic" levelUpSp="430000" getLevel="70" />
+		<skill skillId="146" skillLevel="41" skillName="Anti Magic" levelUpSp="430000" getLevel="70" />
+		<skill skillId="211" skillLevel="7" skillName="Boost HP" levelUpSp="850000" getLevel="70" />
+		<skill skillId="235" skillLevel="36" skillName="Robe Mastery" levelUpSp="430000" getLevel="70" />
+		<skill skillId="235" skillLevel="37" skillName="Robe Mastery" levelUpSp="430000" getLevel="70" />
+		<skill skillId="236" skillLevel="36" skillName="Light Armor Mastery" levelUpSp="430000" getLevel="70" />
+		<skill skillId="236" skillLevel="37" skillName="Light Armor Mastery" levelUpSp="430000" getLevel="70" />
+		<skill skillId="249" skillLevel="37" skillName="Weapon Mastery" levelUpSp="430000" getLevel="70" />
+		<skill skillId="249" skillLevel="38" skillName="Weapon Mastery" levelUpSp="430000" getLevel="70" />
+		<skill skillId="259" skillLevel="28" skillName="Heavy Armor Mastery" levelUpSp="430000" getLevel="70" />
+		<skill skillId="259" skillLevel="29" skillName="Heavy Armor Mastery" levelUpSp="430000" getLevel="70" />
+		<skill skillId="1048" skillLevel="6" skillName="Bless the Soul" levelUpSp="850000" getLevel="70" />
+		<skill skillId="1201" skillLevel="31" skillName="Dryad Root" levelUpSp="850000" getLevel="70" />
+		<skill skillId="1272" skillLevel="11" skillName="Word of Fear" levelUpSp="850000" getLevel="70" />
+		<skill skillId="1395" skillLevel="8" skillName="Erase" levelUpSp="850000" getLevel="70" />
+		<skill skillId="1398" skillLevel="8" skillName="Mana Burn" levelUpSp="850000" getLevel="70" />
+		<skill skillId="146" skillLevel="42" skillName="Anti Magic" levelUpSp="680000" getLevel="72" />
+		<skill skillId="146" skillLevel="43" skillName="Anti Magic" levelUpSp="680000" getLevel="72" />
+		<skill skillId="213" skillLevel="8" skillName="Boost Mana" levelUpSp="1360000" getLevel="72" />
+		<skill skillId="235" skillLevel="38" skillName="Robe Mastery" levelUpSp="680000" getLevel="72" />
+		<skill skillId="235" skillLevel="39" skillName="Robe Mastery" levelUpSp="680000" getLevel="72" />
+		<skill skillId="236" skillLevel="38" skillName="Light Armor Mastery" levelUpSp="680000" getLevel="72" />
+		<skill skillId="236" skillLevel="39" skillName="Light Armor Mastery" levelUpSp="680000" getLevel="72" />
+		<skill skillId="249" skillLevel="39" skillName="Weapon Mastery" levelUpSp="680000" getLevel="72" />
+		<skill skillId="249" skillLevel="40" skillName="Weapon Mastery" levelUpSp="680000" getLevel="72" />
+		<skill skillId="259" skillLevel="30" skillName="Heavy Armor Mastery" levelUpSp="680000" getLevel="72" />
+		<skill skillId="259" skillLevel="31" skillName="Heavy Armor Mastery" levelUpSp="680000" getLevel="72" />
+		<skill skillId="1045" skillLevel="6" skillName="Bless the Body" levelUpSp="1360000" getLevel="72" />
+		<skill skillId="1201" skillLevel="32" skillName="Dryad Root" levelUpSp="1360000" getLevel="72" />
+		<skill skillId="1272" skillLevel="12" skillName="Word of Fear" levelUpSp="1360000" getLevel="72" />
+		<skill skillId="1395" skillLevel="9" skillName="Erase" levelUpSp="1360000" getLevel="72" />
+		<skill skillId="1398" skillLevel="9" skillName="Mana Burn" levelUpSp="1360000" getLevel="72" />
+		<skill skillId="146" skillLevel="44" skillName="Anti Magic" levelUpSp="770000" getLevel="74" />
+		<skill skillId="146" skillLevel="45" skillName="Anti Magic" levelUpSp="770000" getLevel="74" />
+		<skill skillId="212" skillLevel="6" skillName="Fast HP Recovery" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="229" skillLevel="7" skillName="Fast Mana Recovery" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="235" skillLevel="40" skillName="Robe Mastery" levelUpSp="770000" getLevel="74" />
+		<skill skillId="235" skillLevel="41" skillName="Robe Mastery" levelUpSp="770000" getLevel="74" />
+		<skill skillId="236" skillLevel="40" skillName="Light Armor Mastery" levelUpSp="770000" getLevel="74" />
+		<skill skillId="236" skillLevel="41" skillName="Light Armor Mastery" levelUpSp="770000" getLevel="74" />
+		<skill skillId="249" skillLevel="41" skillName="Weapon Mastery" levelUpSp="770000" getLevel="74" />
+		<skill skillId="249" skillLevel="42" skillName="Weapon Mastery" levelUpSp="770000" getLevel="74" />
+		<skill skillId="259" skillLevel="32" skillName="Heavy Armor Mastery" levelUpSp="770000" getLevel="74" />
+		<skill skillId="259" skillLevel="33" skillName="Heavy Armor Mastery" levelUpSp="770000" getLevel="74" />
+		<skill skillId="1201" skillLevel="33" skillName="Dryad Root" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="1272" skillLevel="13" skillName="Word of Fear" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="1388" skillLevel="3" skillName="Greater Might" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="1389" skillLevel="3" skillName="Greater Shield" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="1392" skillLevel="3" skillName="Holy Resistance" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="1393" skillLevel="3" skillName="Unholy Resistance" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="1395" skillLevel="10" skillName="Erase" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="1398" skillLevel="10" skillName="Mana Burn" levelUpSp="1530000" getLevel="74" />
+	</skillTree>
+</list>

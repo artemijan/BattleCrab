@@ -1,0 +1,1010 @@
+2026.07.08 14:17:33,177	INFO	1	org.l2jmobius.commons.util.IXmlReader	Network Config: ipconfig.xml doesn't exist using automatic configuration...
+2026.07.08 14:17:33,638	INFO	1	org.l2jmobius.commons.util.IXmlReader	Network Config: Adding new subnet: 10.37.129.0/24 address: 10.37.129.2
+2026.07.08 14:17:33,638	INFO	1	org.l2jmobius.commons.util.IXmlReader	Network Config: Adding new subnet: 10.211.55.0/24 address: 10.211.55.2
+2026.07.08 14:17:33,638	INFO	1	org.l2jmobius.commons.util.IXmlReader	Network Config: Adding new subnet: 192.168.1.0/24 address: 192.168.1.17
+2026.07.08 14:17:33,638	INFO	1	org.l2jmobius.commons.util.IXmlReader	Network Config: Adding new subnet: 127.0.0.0/8 address: 127.0.0.1
+2026.07.08 14:17:33,638	INFO	1	org.l2jmobius.commons.util.IXmlReader	Network Config: Adding new subnet: 0.0.0.0/0 address: 95.19.225.52
+2026.07.08 14:17:33,657	INFO	1	org.l2jmobius.Config	Loaded 6 Filter Words.
+2026.07.08 14:17:33,730	INFO	1	org.l2jmobius.Config	Loaded 428 allowed community board teleports.
+2026.07.08 14:17:33,740	INFO	1	org.l2jmobius.gameserver.GameServer	------------------------------------------------=[ Database ]
+2026.07.08 14:17:34,045	INFO	1	org.l2jmobius.commons.database.DatabaseFactory	Database: Initialized.
+2026.07.08 14:17:34,047	INFO	1	org.l2jmobius.commons.database.queries.SqlQueryManager	SqlQueryManager initialized with dialect: SQLite, base path: data/sql
+2026.07.08 14:17:34,047	INFO	1	org.l2jmobius.commons.database.DatabaseFactory	SqlQueryManager initialized with dialect: SQLite
+2026.07.08 14:17:34,047	INFO	1	org.l2jmobius.gameserver.GameServer	----------------------------------------------=[ ThreadPool ]
+2026.07.08 14:17:34,048	INFO	1	org.l2jmobius.commons.threads.ThreadPool	ThreadPool: Initialized
+2026.07.08 14:17:34,048	INFO	1	org.l2jmobius.commons.threads.ThreadPool	...scheduled pool executor with 16 high priority threads.
+2026.07.08 14:17:34,052	INFO	1	org.l2jmobius.commons.threads.ThreadPool	...scheduled pool executor with 64 total threads.
+2026.07.08 14:17:34,052	INFO	1	org.l2jmobius.commons.threads.ThreadPool	...instant pool executor with 32 total threads.
+2026.07.08 14:17:34,053	INFO	1	org.l2jmobius.gameserver.GameServer	-----------------------------------------------=[ IdManager ]
+2026.07.08 14:17:34,055	INFO	1	org.l2jmobius.gameserver.instancemanager.IdManager	Updated characters online status.
+2026.07.08 14:17:34,058	INFO	1	org.l2jmobius.gameserver.instancemanager.IdManager	IdManager: Cleaned 0 elements from database in 0 seconds.
+2026.07.08 14:17:34,061	INFO	1	org.l2jmobius.gameserver.instancemanager.IdManager	IdManager: Cleaned 0 expired timestamps from database.
+2026.07.08 14:17:34,064	INFO	1	org.l2jmobius.gameserver.instancemanager.IdManager	IdManager: 102912 id's available.
+2026.07.08 14:17:34,064	INFO	1	org.l2jmobius.gameserver.GameServer	----------------------------------------=[ Scripting Engine ]
+2026.07.08 14:17:34,253	INFO	1	org.l2jmobius.gameserver.scripting.ScriptEngineManager	Loaded 792 files to exclude.
+2026.07.08 14:17:34,253	INFO	1	org.l2jmobius.gameserver.GameServer	---------------------------------------------------=[ World ]
+2026.07.08 14:17:34,346	INFO	1	org.l2jmobius.gameserver.instancemanager.MapRegionManager	MapRegionManager: Loaded 57 map regions.
+2026.07.08 14:17:34,350	INFO	1	org.l2jmobius.gameserver.instancemanager.ZoneManager	ZoneManager 19 by 18 Zone Region Grid set up.
+2026.07.08 14:17:34,533	INFO	1	org.l2jmobius.gameserver.instancemanager.ZoneManager	ZoneManager: Loaded 32 zone classes and 2742 zones.
+2026.07.08 14:17:34,534	INFO	1	org.l2jmobius.gameserver.instancemanager.ZoneManager	ZoneManager: Last static id 200224.
+2026.07.08 14:17:34,659	INFO	1	org.l2jmobius.gameserver.data.xml.DoorData	DoorData: Loaded 1180 doors.
+2026.07.08 14:17:34,664	INFO	1	FenceData	FenceData: Loaded 1 fences.
+2026.07.08 14:17:34,671	INFO	1	org.l2jmobius.gameserver.instancemanager.GlobalVariablesManager	GlobalVariablesManager: Loaded 4 variables.
+2026.07.08 14:17:34,671	INFO	1	org.l2jmobius.gameserver.GameServer	----------------------------------------------------=[ Data ]
+2026.07.08 14:17:34,675	INFO	1	org.l2jmobius.gameserver.data.xml.ActionData	ActionData: Loaded 242 player actions.
+2026.07.08 14:17:34,692	INFO	1	org.l2jmobius.gameserver.data.xml.CategoryData	CategoryData: Loaded 215 categories.
+2026.07.08 14:17:34,695	INFO	1	org.l2jmobius.gameserver.data.xml.SecondaryAuthData	SecondaryAuthData: Loaded 328 forbidden passwords.
+2026.07.08 14:17:34,712	WARNING	1	org.l2jmobius.gameserver.data.xml.ItemData	Dir /Users/artem/dev/l2/interlude_classic/dist/game/data/stats/items/custom does not exist.
+2026.07.08 14:17:35,407	INFO	1	org.l2jmobius.gameserver.data.xml.ItemData	ItemData: Highest item id used: 90726
+2026.07.08 14:17:35,411	INFO	1	org.l2jmobius.gameserver.data.xml.ItemData	ItemData: Loaded 21741 Etc Items
+2026.07.08 14:17:35,411	INFO	1	org.l2jmobius.gameserver.data.xml.ItemData	ItemData: Loaded 11226 Armor Items
+2026.07.08 14:17:35,411	INFO	1	org.l2jmobius.gameserver.data.xml.ItemData	ItemData: Loaded 8662 Weapon Items
+2026.07.08 14:17:35,411	INFO	1	org.l2jmobius.gameserver.data.xml.ItemData	ItemData: Loaded 41629 Items in total.
+2026.07.08 14:17:35,413	INFO	1	org.l2jmobius.gameserver.data.xml.CombinationItemsData	CombinationItemsData: Loaded 855 combinations.
+2026.07.08 14:17:35,416	INFO	1	org.l2jmobius.gameserver.data.xml.SayuneData	SayuneData: Loaded 0 maps.
+2026.07.08 14:17:35,422	INFO	1	org.l2jmobius.gameserver.data.xml.ClanRewardData	ClanRewardData: Loaded 4 rewards for members online.
+2026.07.08 14:17:35,423	INFO	1	org.l2jmobius.gameserver.data.xml.ClanRewardData	ClanRewardData: Loaded 4 rewards for hunting monsters.
+2026.07.08 14:17:35,754	INFO	1	handlers.DailyMissionMasterHandler	DailyMissionMasterHandler: Loaded 9 handlers.
+2026.07.08 14:17:35,758	INFO	1	org.l2jmobius.gameserver.data.xml.DailyMissionData	DailyMissionData: Loaded 0 one day rewards.
+2026.07.08 14:17:35,758	INFO	1	org.l2jmobius.gameserver.GameServer	--------------------------------------------------=[ Skills ]
+2026.07.08 14:17:36,674	INFO	1	handlers.EffectMasterHandler	EffectMasterHandler: Loaded 365 effect handlers.
+2026.07.08 14:17:36,681	INFO	1	org.l2jmobius.gameserver.data.xml.EnchantSkillGroupsData	EnchantSkillGroupsData: Loaded 30 enchant routes, max enchant set to 30.
+2026.07.08 14:17:37,978	INFO	1	org.l2jmobius.gameserver.data.xml.SkillData	SkillData: Loaded 123350 Skills.
+2026.07.08 14:17:38,086	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 13708 Class skills for 89 class skill trees.
+2026.07.08 14:17:38,086	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 0 sub-class skills.
+2026.07.08 14:17:38,086	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 0 dual-class skills.
+2026.07.08 14:17:38,086	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 0 transfer skills for 0 transfer skill trees.
+2026.07.08 14:17:38,086	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 0 race skills for 0 race skill trees.
+2026.07.08 14:17:38,086	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 35 fishing skills, 8 Dwarven only fishing skills.
+2026.07.08 14:17:38,086	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 0 collect skills.
+2026.07.08 14:17:38,087	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 73 clan skills, 43 for clan and 30 residential.
+2026.07.08 14:17:38,087	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 18 sub-pledge skills.
+2026.07.08 14:17:38,088	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 32 transform skills.
+2026.07.08 14:17:38,088	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 8 noble skills.
+2026.07.08 14:17:38,088	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 5 hero skills.
+2026.07.08 14:17:38,088	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 34 game master skills.
+2026.07.08 14:17:38,088	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 1 game master aura skills.
+2026.07.08 14:17:38,088	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 0 ability skills.
+2026.07.08 14:17:38,088	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 0 alchemy skills.
+2026.07.08 14:17:38,088	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 0 class awaken save skills.
+2026.07.08 14:17:38,088	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 0 Revelation skills.
+2026.07.08 14:17:38,088	INFO	1	org.l2jmobius.gameserver.data.xml.SkillTreeData	SkillTreeData: Loaded 16 common skills.
+2026.07.08 14:17:38,093	INFO	1	org.l2jmobius.gameserver.data.xml.PetSkillData	PetSkillData: Loaded 1046 skills.
+2026.07.08 14:17:38,093	INFO	1	org.l2jmobius.gameserver.GameServer	---------------------------------------------------=[ Items ]
+2026.07.08 14:17:38,122	INFO	1	org.l2jmobius.gameserver.data.xml.EnchantItemGroupsData	EnchantItemGroupsData: Loaded 4 item group templates.
+2026.07.08 14:17:38,122	INFO	1	org.l2jmobius.gameserver.data.xml.EnchantItemGroupsData	EnchantItemGroupsData: Loaded 1 scroll group templates.
+2026.07.08 14:17:38,122	INFO	1	org.l2jmobius.gameserver.data.xml.EnchantItemGroupsData	EnchantItemGroupsData: Max weapon enchant is set to 30.
+2026.07.08 14:17:38,122	INFO	1	org.l2jmobius.gameserver.data.xml.EnchantItemGroupsData	EnchantItemGroupsData: Max armor enchant is set to 30.
+2026.07.08 14:17:38,123	INFO	1	org.l2jmobius.gameserver.data.xml.EnchantItemGroupsData	EnchantItemGroupsData: Max accessory enchant is set to 30.
+2026.07.08 14:17:38,127	INFO	1	org.l2jmobius.gameserver.data.xml.EnchantItemData	EnchantItemData: Loaded 248 enchant scrolls.
+2026.07.08 14:17:38,127	INFO	1	org.l2jmobius.gameserver.data.xml.EnchantItemData	EnchantItemData: Loaded 100 support items.
+2026.07.08 14:17:38,433	INFO	1	org.l2jmobius.gameserver.data.xml.OptionData	OptionData: Loaded 34053 options.
+2026.07.08 14:17:38,438	INFO	1	org.l2jmobius.gameserver.data.xml.EnchantItemOptionsData	EnchantItemOptionsData: Loaded 68 items and 1747 options.
+2026.07.08 14:17:38,441	INFO	1	org.l2jmobius.commons.util.IXmlReader	ElementalAttributeData: Loaded 0 elemental attribute items.
+2026.07.08 14:17:38,443	INFO	1	org.l2jmobius.gameserver.data.xml.ItemCrystallizationData	ItemCrystallizationData: Loaded 12 crystallization templates.
+2026.07.08 14:17:38,443	INFO	1	org.l2jmobius.gameserver.data.xml.ItemCrystallizationData	ItemCrystallizationData: Loaded 0 pre-defined crystallizable items.
+2026.07.08 14:17:38,446	INFO	1	org.l2jmobius.gameserver.data.xml.ItemCrystallizationData	ItemCrystallizationData: Generated 0 crystallizable items from templates.
+2026.07.08 14:17:38,475	INFO	1	VariationData	VariationData: Loaded 120 variations.
+2026.07.08 14:17:38,475	INFO	1	VariationData	VariationData: Loaded 4717 fees.
+2026.07.08 14:17:38,477	INFO	1	org.l2jmobius.gameserver.data.xml.EnchantItemHPBonusData	EnchantItemHPBonusData: Loaded 11 enchant HP bonuses.
+2026.07.08 14:17:38,583	INFO	1	org.l2jmobius.gameserver.data.xml.BuyListData	BuyListData: Loaded 481 buyLists.
+2026.07.08 14:17:38,651	INFO	1	org.l2jmobius.gameserver.data.xml.MultisellData	MultisellData: Loaded 101 multisell lists.
+2026.07.08 14:17:38,666	INFO	1	org.l2jmobius.gameserver.data.xml.RecipeData	RecipeData: Loaded 630 recipes.
+2026.07.08 14:17:38,680	INFO	1	org.l2jmobius.gameserver.data.xml.ArmorSetData	ArmorSetData: Loaded 317 armor sets.
+2026.07.08 14:17:38,682	INFO	1	org.l2jmobius.gameserver.data.xml.FishingData	FishingData: Loaded 3 bait and 13 rod data.
+2026.07.08 14:17:38,694	INFO	1	org.l2jmobius.gameserver.data.xml.HennaData	HennaData: Loaded 372 henna data.
+2026.07.08 14:17:38,696	INFO	1	org.l2jmobius.gameserver.data.xml.PrimeShopData	PrimeShopData: System is disabled.
+2026.07.08 14:17:38,708	INFO	1	org.l2jmobius.gameserver.data.xml.AppearanceItemData	AppearanceItemData: Loaded 1217 stones.
+2026.07.08 14:17:38,713	INFO	1	org.l2jmobius.commons.util.IXmlReader	LuckyGameData: Loaded 2 lucky game data.
+2026.07.08 14:17:38,714	INFO	1	org.l2jmobius.gameserver.data.xml.AttendanceRewardData	AttendanceRewardData: Disabled.
+2026.07.08 14:17:38,714	INFO	1	org.l2jmobius.gameserver.GameServer	----------------------------------------------=[ Characters ]
+2026.07.08 14:17:38,716	INFO	1	org.l2jmobius.gameserver.data.xml.ClassListData	ClassListData: Loaded 153 class data.
+2026.07.08 14:17:38,717	INFO	1	org.l2jmobius.gameserver.data.xml.InitialEquipmentData	InitialEquipmentData: Loaded 9 initial equipment data.
+2026.07.08 14:17:38,719	INFO	1	org.l2jmobius.gameserver.data.xml.InitialShortcutData	InitialShortcutData: Loaded 5 initial global shortcuts data.
+2026.07.08 14:17:38,719	INFO	1	org.l2jmobius.gameserver.data.xml.InitialShortcutData	InitialShortcutData: Loaded 4 initial shortcuts data.
+2026.07.08 14:17:38,719	INFO	1	org.l2jmobius.gameserver.data.xml.InitialShortcutData	InitialShortcutData: Loaded 0 macro presets.
+2026.07.08 14:17:38,721	INFO	1	org.l2jmobius.gameserver.data.xml.ExperienceData	ExperienceData: Loaded 81 levels.
+2026.07.08 14:17:38,721	INFO	1	org.l2jmobius.gameserver.data.xml.ExperienceData	ExperienceData: Max Player Level is 80.
+2026.07.08 14:17:38,721	INFO	1	org.l2jmobius.gameserver.data.xml.ExperienceData	ExperienceData: Max Pet Level is 81.
+2026.07.08 14:17:38,723	INFO	1	org.l2jmobius.gameserver.data.xml.KarmaData	KarmaData: Loaded 80 karma modifiers.
+2026.07.08 14:17:38,724	INFO	1	org.l2jmobius.gameserver.data.xml.HitConditionBonusData	HitConditionBonusData: Loaded hit condition bonuses.
+2026.07.08 14:17:38,806	INFO	1	org.l2jmobius.gameserver.data.xml.PlayerTemplateData	PlayerTemplateData: Loaded 89 character templates.
+2026.07.08 14:17:38,806	INFO	1	org.l2jmobius.gameserver.data.xml.PlayerTemplateData	PlayerTemplateData: Loaded 42720 level up gain records.
+2026.07.08 14:17:38,808	INFO	1	org.l2jmobius.gameserver.data.sql.CharInfoTable	CharInfoTable: Loaded 3 char names.
+2026.07.08 14:17:38,810	INFO	1	org.l2jmobius.gameserver.data.xml.AdminData	AdminData: Loaded 10 access levels.
+2026.07.08 14:17:38,812	INFO	1	org.l2jmobius.gameserver.data.xml.AdminData	AdminData: Loaded 458 access commands.
+2026.07.08 14:17:38,950	INFO	1	org.l2jmobius.gameserver.data.xml.PetDataTable	PetDataTable: Loaded 56 pets.
+2026.07.08 14:17:38,965	INFO	1	org.l2jmobius.gameserver.data.xml.CubicData	CubicData: Loaded 21 cubics.
+2026.07.08 14:17:38,972	INFO	1	org.l2jmobius.gameserver.GameServer	PremiumManager: Premium system is enabled.
+2026.07.08 14:17:38,973	INFO	1	org.l2jmobius.gameserver.GameServer	---------------------------------------------------=[ Clans ]
+2026.07.08 14:17:38,988	INFO	1	org.l2jmobius.gameserver.communitybbs.Manager.ForumsBBSManager	ForumsBBSManager: Loaded 4 forums. Last forum id used: 4
+2026.07.08 14:17:38,989	INFO	1	org.l2jmobius.gameserver.data.sql.ClanTable	ClanTable: Restored 0 clans from the database.
+2026.07.08 14:17:38,993	INFO	1	org.l2jmobius.gameserver.data.xml.ResidenceFunctionsData	ResidenceFunctionsData: Loaded 8 functions.
+2026.07.08 14:17:39,139	INFO	1	org.l2jmobius.gameserver.data.xml.ClanHallData	ClanHallData: Succesfully loaded 48 clan halls.
+2026.07.08 14:17:39,141	INFO	1	org.l2jmobius.gameserver.instancemanager.ClanHallAuctionManager	ClanHallAuctionManager: Clan Hall Auction has started!
+2026.07.08 14:17:39,179	INFO	1	org.l2jmobius.gameserver.instancemanager.ClanEntryManager	ClanEntryManager: Loaded 0 clan entries.
+2026.07.08 14:17:39,180	INFO	1	org.l2jmobius.gameserver.instancemanager.ClanEntryManager	ClanEntryManager: Loaded 0 players in waiting list.
+2026.07.08 14:17:39,181	INFO	1	org.l2jmobius.gameserver.instancemanager.ClanEntryManager	ClanEntryManager: Loaded 0 player applications.
+2026.07.08 14:17:39,181	INFO	1	org.l2jmobius.gameserver.GameServer	-------------------------------------------------=[ Geodata ]
+2026.07.08 14:17:41,704	INFO	1	org.l2jmobius.gameserver.geoengine.GeoEngine	GeoEngine: Loaded 227 regions.
+2026.07.08 14:17:41,705	INFO	1	org.l2jmobius.gameserver.GameServer	----------------------------------------------------=[ NPCs ]
+2026.07.08 14:17:42,589	INFO	1	org.l2jmobius.gameserver.data.xml.NpcData	NpcData: Loaded 14865 NPCs.
+2026.07.08 14:17:42,594	INFO	1	org.l2jmobius.gameserver.data.xml.NpcData	NpcData: Loaded 14 custom NPCs.
+2026.07.08 14:17:42,595	INFO	1	org.l2jmobius.gameserver.data.xml.FakePlayerData	FakePlayerData: Disabled.
+2026.07.08 14:17:42,595	INFO	1	org.l2jmobius.gameserver.instancemanager.FakePlayerChatManager	FakePlayerChatManager: Disabled.
+2026.07.08 14:17:42,736	INFO	1	org.l2jmobius.gameserver.data.xml.SpawnData	SpawnData: Loaded 27153 spawns
+2026.07.08 14:17:44,936	INFO	1	org.l2jmobius.gameserver.instancemanager.WalkingManager	WalkingManager: Loaded 13 walking routes.
+2026.07.08 14:17:44,942	INFO	1	org.l2jmobius.gameserver.data.xml.StaticObjectData	StaticObjectData: Loaded 86 static object templates.
+2026.07.08 14:17:44,944	INFO	1	org.l2jmobius.gameserver.instancemanager.ItemAuctionManager	ItemAuctionManager: Loaded 0 instances.
+2026.07.08 14:17:44,957	INFO	1	org.l2jmobius.gameserver.instancemanager.CastleManager	CastleManager: Loaded 9 castles.
+2026.07.08 14:17:44,961	INFO	1	org.l2jmobius.gameserver.data.SchemeBufferTable	SchemeBufferTable: Loaded 0 players schemes and 74 available buffs.
+2026.07.08 14:17:44,964	INFO	1	org.l2jmobius.gameserver.instancemanager.GrandBossManager	GrandBossManager: Gigantic Chaos Golem(25512) status is 0
+2026.07.08 14:17:44,964	INFO	1	org.l2jmobius.gameserver.instancemanager.GrandBossManager	GrandBossManager: Queen Ant(29001) status is 0
+2026.07.08 14:17:44,964	INFO	1	org.l2jmobius.gameserver.instancemanager.GrandBossManager	GrandBossManager: Core(29006) status is 0
+2026.07.08 14:17:44,964	INFO	1	org.l2jmobius.gameserver.instancemanager.GrandBossManager	GrandBossManager: Orfen(29014) status is 0
+2026.07.08 14:17:44,964	INFO	1	org.l2jmobius.gameserver.instancemanager.GrandBossManager	GrandBossManager: Baium(29020) status is 0
+2026.07.08 14:17:44,964	INFO	1	org.l2jmobius.gameserver.instancemanager.GrandBossManager	GrandBossManager: Zaken(29022) status is 0
+2026.07.08 14:17:44,964	INFO	1	org.l2jmobius.gameserver.instancemanager.GrandBossManager	GrandBossManager: Valakas(29028) status is 0
+2026.07.08 14:17:44,964	INFO	1	org.l2jmobius.gameserver.instancemanager.GrandBossManager	GrandBossManager: Antharas(29068) status is 0
+2026.07.08 14:17:44,964	INFO	1	org.l2jmobius.gameserver.instancemanager.GrandBossManager	GrandBossManager: Loaded 8 instances.
+2026.07.08 14:17:44,965	INFO	1	org.l2jmobius.gameserver.GameServer	------------------------------------------------=[ Instance ]
+2026.07.08 14:17:44,968	INFO	1	org.l2jmobius.gameserver.instancemanager.InstanceManager	InstanceManager: Loaded 267 instance names.
+2026.07.08 14:17:44,979	INFO	1	org.l2jmobius.gameserver.instancemanager.InstanceManager	InstanceManager: Loaded 6 instance templates.
+2026.07.08 14:17:44,980	INFO	1	org.l2jmobius.gameserver.instancemanager.InstanceManager	InstanceManager: Loaded instance reenter times for 0 players.
+2026.07.08 14:17:44,980	INFO	1	org.l2jmobius.gameserver.GameServer	------------------------------------------------=[ Olympiad ]
+2026.07.08 14:17:44,985	INFO	1	org.l2jmobius.gameserver.model.olympiad.Olympiad	Olympiad System: Loading....
+2026.07.08 14:17:44,985	INFO	1	org.l2jmobius.gameserver.model.olympiad.Olympiad	Olympiad System: Currently in Olympiad Period
+2026.07.08 14:17:44,985	INFO	1	org.l2jmobius.gameserver.model.olympiad.Olympiad	Olympiad System: 12 days, 21 hours and 42 mins until period ends.
+2026.07.08 14:17:44,985	INFO	1	org.l2jmobius.gameserver.model.olympiad.Olympiad	Olympiad System: Next weekly change is in 6 days, 23 hours and 9 mins.
+2026.07.08 14:17:44,985	INFO	1	org.l2jmobius.gameserver.model.olympiad.Olympiad	Olympiad System: Loaded 0 Nobles
+2026.07.08 14:17:44,987	INFO	1	org.l2jmobius.gameserver.model.olympiad.Olympiad	Olympiad System: Competition Period Starts in 3 days, 3 hours and 42 mins.
+2026.07.08 14:17:44,987	INFO	1	org.l2jmobius.gameserver.model.olympiad.Olympiad	Olympiad System: Event starts/started: Sat Jul 11 18:00:44 CEST 2026
+2026.07.08 14:17:44,990	INFO	1	org.l2jmobius.gameserver.model.olympiad.Hero	Hero System: Loaded 0 Heroes.
+2026.07.08 14:17:44,990	INFO	1	org.l2jmobius.gameserver.model.olympiad.Hero	Hero System: Loaded 0 all time Heroes.
+2026.07.08 14:17:44,990	INFO	1	org.l2jmobius.gameserver.GameServer	---------------------------------------------------=[ Cache ]
+2026.07.08 14:17:44,990	INFO	1	org.l2jmobius.gameserver.cache.HtmCache	Cache[HTML]: Running lazy cache.
+2026.07.08 14:17:44,992	INFO	1	org.l2jmobius.gameserver.data.sql.CrestTable	CrestTable: Loaded 0 Crests.
+2026.07.08 14:17:45,035	INFO	1	org.l2jmobius.gameserver.data.xml.TeleporterData	TeleporterData: Loaded 145 npc teleporters.
+2026.07.08 14:17:45,041	INFO	1	org.l2jmobius.gameserver.instancemanager.CursedWeaponsManager	CursedWeaponsManager: Loaded 2 cursed weapons.
+2026.07.08 14:17:45,208	INFO	1	org.l2jmobius.gameserver.data.xml.TransformData	TransformData: Loaded 174 transform templates.
+2026.07.08 14:17:45,214	INFO	1	org.l2jmobius.gameserver.data.BotReportTable	BotReportTable: Loaded 0 bot reports
+2026.07.08 14:17:45,217	INFO	1	org.l2jmobius.gameserver.instancemanager.SellBuffsManager	SellBuffsManager: Loaded 149 allowed buffs.
+2026.07.08 14:17:45,217	INFO	1	org.l2jmobius.gameserver.GameServer	-------------------------------------------------=[ Scripts ]
+2026.07.08 14:17:45,221	INFO	1	org.l2jmobius.gameserver.instancemanager.AirShipManager	AirShipManager: Loaded 0 private airships
+2026.07.08 14:17:45,226	INFO	1	org.l2jmobius.gameserver.data.xml.ShuttleData	ShuttleData: Loaded 1 shuttles.
+2026.07.08 14:17:45,227	INFO	1	org.l2jmobius.gameserver.GameServer	GameServer: Loading server scripts:
+2026.07.08 14:17:45,898	INFO	1	handlers.MasterHandler	Loading Handlers...
+2026.07.08 14:17:45,906	WARNING	1	org.l2jmobius.commons.database.queries.SqlQueryLoader	SQL file not found: data/sql/sqlite/game/quests.sql
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	ActionHandler: Loaded 10 handlers.
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	ActionShiftHandler: Loaded 6 handlers.
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	AdminCommandHandler: Loaded 450 handlers.
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	BypassHandler: Loaded 31 handlers.
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	ChatHandler: Loaded 14 handlers.
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	CommunityBoardHandler: Loaded 28 handlers.
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	ItemHandler: Loaded 30 handlers.
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	PunishmentHandler: Loaded 3 handlers.
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	UserCommandHandler: Loaded 16 handlers.
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	VoicedCommandHandler: Loaded 20 handlers.
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	TargetHandler: Loaded 21 handlers.
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	AffectObjectHandler: Loaded 11 handlers.
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	AffectScopeHandler: Loaded 19 handlers.
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	PlayerActionHandler: Loaded 24 handlers.
+2026.07.08 14:17:45,932	INFO	1	handlers.MasterHandler	Handlers Loaded...
+2026.07.08 14:17:46,907	INFO	1	org.l2jmobius.gameserver.model.quest.Quest	[EnhanceYourWeapon] Loaded 54 Soul Crystal data.
+2026.07.08 14:17:46,907	INFO	1	org.l2jmobius.gameserver.model.quest.Quest	[EnhanceYourWeapon] Loaded 124 npc Leveling info data.
+2026.07.08 14:17:46,965	INFO	1	ai.areas.ImperialTomb.FourSepulchers.FourSepulchers	[Four Sepulchers] Loaded 762 spawn zones data.
+2026.07.08 14:17:46,982	INFO	1	ai.others.ClassMaster.ClassMaster	ClassMaster: Loaded 3 class change options.
+2026.07.08 14:17:47,029	INFO	1	org.l2jmobius.gameserver.instancemanager.GrandBossManager	GrandBossManager: Updated Zaken(29022) status to 0.
+2026.07.08 14:17:47,039	INFO	1	org.l2jmobius.gameserver.model.quest.Quest	Event Watermelon Ninja has passed... Ignored 
+2026.07.08 14:17:47,041	INFO	1	org.l2jmobius.gameserver.model.quest.Quest	Event Merry Squashmas Event has passed... Ignored 
+2026.07.08 14:17:47,043	INFO	1	org.l2jmobius.gameserver.model.quest.Quest	Event Squash Event has passed... Ignored 
+2026.07.08 14:17:47,044	INFO	1	org.l2jmobius.gameserver.model.quest.Quest	Event Rudolphs Blessing has passed... Ignored 
+2026.07.08 14:17:47,048	INFO	1	org.l2jmobius.gameserver.model.quest.Quest	Event Happy Hours has passed... Ignored 
+2026.07.08 14:17:47,049	INFO	1	org.l2jmobius.gameserver.model.quest.Quest	Event Eve the Fortune Teller has passed... Ignored 
+2026.07.08 14:17:47,050	INFO	1	org.l2jmobius.gameserver.model.quest.Quest	Event The Power Of Love has passed... Ignored 
+2026.07.08 14:17:47,058	INFO	1	org.l2jmobius.gameserver.data.xml.SpawnData	SpawnData: Initializing spawns...
+2026.07.08 14:17:47,326	INFO	1	org.l2jmobius.gameserver.instancemanager.DBSpawnManager	DBSpawnManager: Loaded 225 instances.
+2026.07.08 14:17:47,326	INFO	1	org.l2jmobius.gameserver.instancemanager.DBSpawnManager	DBSpawnManager: Scheduled 0 instances.
+2026.07.08 14:17:48,848	INFO	1	org.l2jmobius.gameserver.data.xml.SpawnData	SpawnData: All spawns has been initialized!
+2026.07.08 14:17:48,848	INFO	1	org.l2jmobius.gameserver.GameServer	---------------------------------------------------=[ Siege ]
+2026.07.08 14:17:48,853	INFO	1	org.l2jmobius.gameserver.data.xml.SiegeScheduleData	SiegeScheduleData: Loaded 9 siege schedulers.
+2026.07.08 14:17:48,853	INFO	1	org.l2jmobius.gameserver.model.siege.Siege	Siege of Gludio: Sun Jul 12 16:00:00 CEST 2026
+2026.07.08 14:17:48,855	INFO	1	org.l2jmobius.gameserver.model.siege.Siege	Siege of Dion: Sun Jul 12 20:00:00 CEST 2026
+2026.07.08 14:17:48,856	INFO	1	org.l2jmobius.gameserver.model.siege.Siege	Siege of Giran: Sun Jul 12 16:00:00 CEST 2026
+2026.07.08 14:17:48,857	INFO	1	org.l2jmobius.gameserver.model.siege.Siege	Siege of Oren: Sun Jul 12 20:00:00 CEST 2026
+2026.07.08 14:17:48,858	INFO	1	org.l2jmobius.gameserver.model.siege.Siege	Siege of Aden: Sun Jul 12 16:00:00 CEST 2026
+2026.07.08 14:17:48,859	INFO	1	org.l2jmobius.gameserver.model.siege.Siege	Siege of Innadril: Sun Jul 12 20:00:00 CEST 2026
+2026.07.08 14:17:48,860	INFO	1	org.l2jmobius.gameserver.model.siege.Siege	Siege of Goddard: Sun Jul 12 16:00:00 CEST 2026
+2026.07.08 14:17:48,861	INFO	1	org.l2jmobius.gameserver.model.siege.Siege	Siege of Rune: Sun Jul 12 20:00:00 CEST 2026
+2026.07.08 14:17:48,862	INFO	1	org.l2jmobius.gameserver.model.siege.Siege	Siege of Schuttgart: Sun Jul 12 16:00:00 CEST 2026
+2026.07.08 14:17:48,865	INFO	1	org.l2jmobius.gameserver.instancemanager.CastleManorManager	CastleManorManager: Manor system is deactivated.
+2026.07.08 14:17:48,867	INFO	1	org.l2jmobius.gameserver.instancemanager.SiegeGuardManager	SiegeGuardManager: Loaded 0 siege guards tickets.
+2026.07.08 14:17:48,867	INFO	1	org.l2jmobius.gameserver.instancemanager.QuestManager	QuestManager: Loaded 216 quests.
+2026.07.08 14:17:48,867	INFO	1	org.l2jmobius.gameserver.instancemanager.QuestManager	QuestManager: Loaded 115 scripts.
+2026.07.08 14:17:48,873	INFO	1	org.l2jmobius.gameserver.taskmanager.TaskManager	TaskManager: Loaded 5 Tasks.
+2026.07.08 14:17:48,874	INFO	1	org.l2jmobius.gameserver.instancemanager.DailyTaskManager	DailyTaskManager: Next schedule at 09/07 06:30.
+2026.07.08 14:17:48,876	INFO	1	org.l2jmobius.gameserver.instancemanager.MailManager	MailManager: Loaded 0 messages.
+2026.07.08 14:17:48,876	INFO	1	org.l2jmobius.gameserver.instancemanager.CustomMailManager	CustomMailManager: Enabled.
+2026.07.08 14:17:48,878	INFO	1	org.l2jmobius.gameserver.instancemanager.PunishmentManager	PunishmentManager: Loaded 0 active and 0 expired punishments.
+2026.07.08 14:17:48,878	INFO	1	org.l2jmobius.gameserver.GameServer	IdManager: Free ObjectID's remaining: 1879008376
+2026.07.08 14:17:48,879	INFO	1	org.l2jmobius.gameserver.data.sql.OfflineTraderTable	OfflineTraderTable: Loading offline traders...
+2026.07.08 14:17:48,880	INFO	1	org.l2jmobius.gameserver.data.sql.OfflineTraderTable	OfflineTraderTable: Loaded 0 offline traders.
+2026.07.08 14:17:49,006	INFO	1	org.l2jmobius.gameserver.GameServer	GameServer: Started, using 2494 of 16384 MB total memory.
+2026.07.08 14:17:49,006	INFO	1	org.l2jmobius.gameserver.GameServer	GameServer: Maximum number of connected players is 2000.
+2026.07.08 14:17:49,006	INFO	1	org.l2jmobius.gameserver.GameServer	GameServer: Server loaded in 15 seconds.
+2026.07.08 14:17:49,021	INFO	190	org.l2jmobius.gameserver.LoginServerThread	LoginServerThread: Connecting to login on 127.0.0.1:9014
+2026.07.08 14:17:49,033	INFO	190	org.l2jmobius.gameserver.LoginServerThread	LoginServerThread: Registered on login as Server 1: Bartz
+2026.07.08 14:17:56,062	WARNING	133	org.l2jmobius.gameserver.model.actor.Creature	Master access level set for character QAQA! Just a warning to be careful ;)
+2026.07.08 14:18:03,660	WARNING	145	org.l2jmobius.gameserver.model.quest.Quest	could not insert char quest:
+2026.07.08 14:18:08,674	WARNING	95	org.l2jmobius.gameserver.model.quest.Quest	could not insert char quest:
+2026.07.08 14:18:08,678	WARNING	95	org.l2jmobius.gameserver.model.quest.Quest	could not insert char quest:
+2026.07.08 14:18:08,680	WARNING	95	org.l2jmobius.gameserver.model.quest.Quest	could not insert char quest:
+2026.07.08 14:19:02,655	INFO	145	org.l2jmobius.gameserver.network.PacketLogger	[S] CreatureSay
+2026.07.08 14:19:02,656	INFO	184	org.l2jmobius.gameserver.network.PacketLogger	[S] CreatureSay
+2026.07.08 14:19:02,656	INFO	184	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcHtmlMessage
+2026.07.08 14:19:02,667	INFO	78	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:02,667	INFO	186	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:03,023	INFO	160	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:03,530	INFO	51	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:03,667	INFO	100	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:04,530	INFO	109	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:04,663	INFO	60	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:05,023	INFO	150	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:05,023	INFO	150	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:05,524	INFO	99	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:05,526	INFO	69	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:05,663	INFO	81	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:05,663	INFO	171	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:06,025	INFO	160	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:06,529	INFO	78	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:06,665	INFO	89	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:07,025	INFO	160	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:07,025	INFO	175	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:07,025	INFO	175	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:07,025	INFO	160	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillUse
+2026.07.08 14:19:07,025	INFO	107	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillLaunched
+2026.07.08 14:19:07,528	INFO	91	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:07,529	INFO	91	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfoAbnormalVisualEffect
+2026.07.08 14:19:07,529	INFO	54	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:07,584	INFO	78	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:07,664	INFO	113	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:08,238	INFO	181	org.l2jmobius.gameserver.network.PacketLogger	[C] MoveBackwardToLocation
+2026.07.08 14:19:08,239	INFO	141	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:08,257	INFO	186	org.l2jmobius.gameserver.network.PacketLogger	[C] MoveBackwardToLocation
+2026.07.08 14:19:08,257	INFO	144	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:08,291	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[C EX] RequestStopMove
+2026.07.08 14:19:08,292	INFO	139	org.l2jmobius.gameserver.network.PacketLogger	[S] StopMove
+2026.07.08 14:19:08,309	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[C] ValidatePosition
+2026.07.08 14:19:08,520	INFO	103	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:08,526	INFO	112	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:09,024	INFO	162	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:09,087	INFO	153	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:09,531	INFO	77	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:09,667	INFO	114	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:09,667	INFO	171	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:10,025	INFO	149	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:10,026	INFO	149	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:10,202	INFO	174	org.l2jmobius.gameserver.network.PacketLogger	[C] RequestMagicSkillUse
+2026.07.08 14:19:10,202	INFO	117	org.l2jmobius.gameserver.network.PacketLogger	[S] MyTargetSelected
+2026.07.08 14:19:10,203	INFO	175	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:10,203	INFO	175	org.l2jmobius.gameserver.network.PacketLogger	[S EX] ExAbnormalStatusUpdateFromTarget
+2026.07.08 14:19:10,203	INFO	117	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:10,203	INFO	176	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:10,204	INFO	176	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillUse
+2026.07.08 14:19:10,204	INFO	117	org.l2jmobius.gameserver.network.PacketLogger	[S] SystemMessage
+2026.07.08 14:19:10,204	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] SetupGauge
+2026.07.08 14:19:10,204	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] ValidateLocation
+2026.07.08 14:19:10,204	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] MyTargetSelected
+2026.07.08 14:19:10,204	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:10,204	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S EX] ExAbnormalStatusUpdateFromTarget
+2026.07.08 14:19:10,234	INFO	180	org.l2jmobius.gameserver.network.PacketLogger	[C] ValidatePosition
+2026.07.08 14:19:10,528	INFO	110	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:10,529	INFO	62	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:11,026	INFO	149	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:11,026	INFO	149	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:11,026	INFO	149	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:11,026	INFO	149	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:11,027	INFO	149	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillUse
+2026.07.08 14:19:11,027	INFO	73	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillLaunched
+2026.07.08 14:19:11,524	INFO	70	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:11,526	INFO	86	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:11,528	INFO	90	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:11,528	INFO	90	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfoAbnormalVisualEffect
+2026.07.08 14:19:11,581	INFO	80	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:11,663	INFO	98	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:11,664	INFO	168	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:12,025	INFO	159	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:12,025	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:12,530	INFO	104	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:12,663	INFO	108	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:12,664	INFO	171	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:13,025	INFO	154	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:13,026	INFO	154	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:13,026	INFO	154	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:13,039	INFO	83	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillLaunched
+2026.07.08 14:19:13,531	INFO	86	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:13,531	INFO	176	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:13,540	INFO	87	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:13,541	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:13,665	INFO	71	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:13,670	INFO	180	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:13,670	INFO	180	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:13,670	INFO	180	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:14,024	INFO	156	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:14,520	INFO	81	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:14,527	INFO	82	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:14,527	INFO	182	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfoAbnormalVisualEffect
+2026.07.08 14:19:14,579	INFO	64	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:14,663	INFO	83	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:15,023	INFO	153	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:15,024	INFO	184	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:15,024	INFO	153	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:15,530	INFO	60	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:15,665	INFO	106	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:15,665	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:16,288	INFO	150	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:16,529	INFO	65	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:16,529	INFO	66	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:17,024	INFO	149	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:17,024	INFO	149	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:17,522	INFO	74	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:17,526	INFO	87	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:17,663	INFO	71	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:18,023	INFO	148	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:18,025	INFO	148	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:18,026	INFO	148	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:18,027	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:18,531	INFO	79	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:18,663	INFO	104	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:19,026	INFO	148	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:19,531	INFO	68	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:19,531	INFO	180	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:19,664	INFO	79	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:19,664	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:19,664	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:20,027	INFO	160	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:20,027	INFO	160	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:20,521	INFO	82	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:20,526	INFO	57	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:20,663	INFO	99	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:21,025	INFO	162	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillUse
+2026.07.08 14:19:21,026	INFO	186	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillLaunched
+2026.07.08 14:19:21,530	INFO	113	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:21,530	INFO	185	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:21,530	INFO	185	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfoAbnormalVisualEffect
+2026.07.08 14:19:21,584	INFO	61	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:21,663	INFO	86	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:21,663	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:22,026	INFO	149	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:22,529	INFO	53	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:22,529	INFO	169	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfoAbnormalVisualEffect
+2026.07.08 14:19:22,530	INFO	71	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:22,579	INFO	71	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:22,666	INFO	90	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:23,026	INFO	160	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:23,027	INFO	160	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:23,520	INFO	108	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:23,526	INFO	96	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:23,975	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[C] MoveBackwardToLocation
+2026.07.08 14:19:23,975	INFO	121	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:24,024	INFO	161	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:24,024	INFO	161	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:24,048	INFO	180	org.l2jmobius.gameserver.network.PacketLogger	[C EX] RequestStopMove
+2026.07.08 14:19:24,048	INFO	116	org.l2jmobius.gameserver.network.PacketLogger	[S] StopMove
+2026.07.08 14:19:24,066	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[C] ValidatePosition
+2026.07.08 14:19:24,531	INFO	87	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:24,664	INFO	92	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:24,664	INFO	183	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:25,023	INFO	156	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:25,024	INFO	156	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:25,529	INFO	111	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:25,530	INFO	186	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:25,665	INFO	114	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:25,665	INFO	185	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:26,026	INFO	150	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:26,026	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:26,026	INFO	150	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:26,520	INFO	106	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:26,527	INFO	98	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:26,530	INFO	75	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfoAbnormalVisualEffect
+2026.07.08 14:19:26,584	INFO	107	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:26,666	INFO	62	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:26,666	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:27,026	INFO	155	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:27,529	INFO	51	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:27,664	INFO	91	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:28,023	INFO	149	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillUse
+2026.07.08 14:19:28,024	INFO	174	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillLaunched
+2026.07.08 14:19:28,528	INFO	101	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:28,528	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:28,529	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfoAbnormalVisualEffect
+2026.07.08 14:19:28,529	INFO	100	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:28,584	INFO	69	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:28,663	INFO	81	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:28,664	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:29,188	INFO	156	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:29,189	INFO	180	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:29,189	INFO	180	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:29,523	INFO	111	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:29,526	INFO	68	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:29,665	INFO	72	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:29,666	INFO	182	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:30,025	INFO	162	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:30,530	INFO	100	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:30,662	INFO	99	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:31,027	INFO	150	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:31,028	INFO	186	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:31,528	INFO	66	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:31,529	INFO	53	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:32,027	INFO	153	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:32,523	INFO	69	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:32,526	INFO	69	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:32,663	INFO	55	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:33,023	INFO	162	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:33,530	INFO	63	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:33,663	INFO	84	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:34,530	INFO	101	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:34,530	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:34,663	INFO	110	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:35,024	INFO	51	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:35,530	INFO	77	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:35,665	INFO	88	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:35,666	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:35,666	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:35,666	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:36,023	INFO	157	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:36,529	INFO	103	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:36,533	INFO	56	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfoAbnormalVisualEffect
+2026.07.08 14:19:36,583	INFO	69	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:37,528	INFO	66	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:37,529	INFO	88	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:38,025	INFO	155	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:38,527	INFO	77	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:38,663	INFO	61	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:38,664	INFO	184	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:39,026	INFO	154	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:39,026	INFO	186	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:39,026	INFO	186	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:39,529	INFO	97	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:39,665	INFO	72	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:39,665	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:39,665	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:40,024	INFO	149	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:40,528	INFO	104	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:40,529	INFO	99	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:40,601	INFO	168	org.l2jmobius.gameserver.network.PacketLogger	[C] MoveBackwardToLocation
+2026.07.08 14:19:40,601	INFO	146	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:40,656	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[C EX] RequestStopMove
+2026.07.08 14:19:40,656	INFO	119	org.l2jmobius.gameserver.network.PacketLogger	[S] StopMove
+2026.07.08 14:19:40,664	INFO	102	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:40,665	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:40,674	INFO	171	org.l2jmobius.gameserver.network.PacketLogger	[C] ValidatePosition
+2026.07.08 14:19:41,529	INFO	56	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:42,024	INFO	162	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:42,529	INFO	109	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:42,664	INFO	88	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:42,664	INFO	175	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:43,027	INFO	148	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:43,027	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:43,530	INFO	93	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:43,531	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:43,531	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfoAbnormalVisualEffect
+2026.07.08 14:19:43,581	INFO	54	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:44,023	INFO	158	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:44,136	INFO	182	org.l2jmobius.gameserver.network.PacketLogger	[C] RequestItemList
+2026.07.08 14:19:44,442	INFO	69	org.l2jmobius.gameserver.network.PacketLogger	[S] ItemList
+2026.07.08 14:19:44,442	INFO	181	org.l2jmobius.gameserver.network.PacketLogger	[S EX] ExQuestItemList
+2026.07.08 14:19:44,442	INFO	181	org.l2jmobius.gameserver.network.PacketLogger	[S EX] ExAdenaInvenCount
+2026.07.08 14:19:44,442	INFO	181	org.l2jmobius.gameserver.network.PacketLogger	[S EX] ExUserInfoInvenWeight
+2026.07.08 14:19:44,527	INFO	66	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:44,664	INFO	106	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:44,664	INFO	184	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:44,967	INFO	186	org.l2jmobius.gameserver.network.PacketLogger	[C] RequestBypassToServer
+2026.07.08 14:19:44,969	INFO	125	org.l2jmobius.gameserver.network.PacketLogger	[S] CreatureSay
+2026.07.08 14:19:44,970	INFO	125	org.l2jmobius.gameserver.network.PacketLogger	[S] CreatureSay
+2026.07.08 14:19:44,971	INFO	125	org.l2jmobius.gameserver.network.PacketLogger	[S] ShowBoard
+2026.07.08 14:19:44,971	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] ShowBoard
+2026.07.08 14:19:44,971	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] ShowBoard
+2026.07.08 14:19:45,024	INFO	152	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:45,529	INFO	57	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:45,663	INFO	94	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:45,663	INFO	168	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:46,528	INFO	75	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:46,529	INFO	76	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:46,657	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[C] RequestBypassToServer
+2026.07.08 14:19:46,657	INFO	126	org.l2jmobius.gameserver.network.PacketLogger	[S] CreatureSay
+2026.07.08 14:19:46,660	INFO	126	org.l2jmobius.gameserver.network.PacketLogger	[S] CreatureSay
+2026.07.08 14:19:46,660	INFO	126	org.l2jmobius.gameserver.network.PacketLogger	[S] ShowBoard
+2026.07.08 14:19:46,661	INFO	174	org.l2jmobius.gameserver.network.PacketLogger	[S] ShowBoard
+2026.07.08 14:19:46,661	INFO	174	org.l2jmobius.gameserver.network.PacketLogger	[S] ShowBoard
+2026.07.08 14:19:46,664	INFO	88	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:46,664	INFO	176	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:47,025	INFO	152	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillUse
+2026.07.08 14:19:47,026	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillLaunched
+2026.07.08 14:19:47,026	INFO	152	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:47,527	INFO	74	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:47,527	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:47,527	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfoAbnormalVisualEffect
+2026.07.08 14:19:47,579	INFO	110	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:47,663	INFO	78	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:47,663	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:47,720	INFO	180	org.l2jmobius.gameserver.network.PacketLogger	[C] RequestBypassToServer
+2026.07.08 14:19:47,721	INFO	127	org.l2jmobius.gameserver.network.PacketLogger	[S] CreatureSay
+2026.07.08 14:19:47,723	INFO	127	org.l2jmobius.gameserver.network.PacketLogger	[S] CreatureSay
+2026.07.08 14:19:47,723	INFO	127	org.l2jmobius.gameserver.network.PacketLogger	[S] ShowBoard
+2026.07.08 14:19:47,724	INFO	183	org.l2jmobius.gameserver.network.PacketLogger	[S] ShowBoard
+2026.07.08 14:19:47,724	INFO	183	org.l2jmobius.gameserver.network.PacketLogger	[S] ShowBoard
+2026.07.08 14:19:48,530	INFO	96	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:48,663	INFO	83	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:49,025	INFO	151	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:49,531	INFO	51	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:49,531	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:49,664	INFO	104	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:49,664	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:50,024	INFO	163	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:50,024	INFO	163	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:50,024	INFO	163	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:50,528	INFO	75	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:51,027	INFO	159	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:19:51,530	INFO	83	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:51,665	INFO	74	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:51,665	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:51,970	INFO	171	org.l2jmobius.gameserver.network.PacketLogger	[C] RequestBypassToServer
+2026.07.08 14:19:51,971	INFO	128	org.l2jmobius.gameserver.network.PacketLogger	[S] CreatureSay
+2026.07.08 14:19:51,972	INFO	128	org.l2jmobius.gameserver.network.PacketLogger	[S] CreatureSay
+2026.07.08 14:19:51,972	INFO	128	org.l2jmobius.gameserver.network.PacketLogger	[S] ShowBoard
+2026.07.08 14:19:51,972	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[S] ShowBoard
+2026.07.08 14:19:51,972	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[S] ShowBoard
+2026.07.08 14:19:52,023	INFO	155	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillUse
+2026.07.08 14:19:52,023	INFO	175	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillLaunched
+2026.07.08 14:19:52,525	INFO	72	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:52,526	INFO	72	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfoAbnormalVisualEffect
+2026.07.08 14:19:52,529	INFO	72	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:52,529	INFO	113	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:19:52,577	INFO	105	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:52,664	INFO	58	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:19:52,669	INFO	183	org.l2jmobius.gameserver.network.PacketLogger	[C] RequestBypassToServer
+2026.07.08 14:19:52,670	INFO	129	org.l2jmobius.gameserver.network.PacketLogger	[S] CreatureSay
+2026.07.08 14:19:52,671	INFO	129	org.l2jmobius.gameserver.network.PacketLogger	[S] ShowBoard
+2026.07.08 14:19:52,671	INFO	129	org.l2jmobius.gameserver.network.PacketLogger	[S] ActionFailed
+2026.07.08 14:19:52,671	INFO	185	org.l2jmobius.gameserver.network.PacketLogger	[S] ActionFailed
+2026.07.08 14:19:52,671	INFO	185	org.l2jmobius.gameserver.network.PacketLogger	[S] TargetUnselected
+2026.07.08 14:19:52,672	INFO	129	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,672	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,672	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,672	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,672	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,672	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,672	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,672	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,672	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,672	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,672	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,672	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,672	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,673	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] TeleportToLocation
+2026.07.08 14:19:52,674	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S EX] ExTeleportToLocationActivate
+2026.07.08 14:19:52,706	INFO	168	org.l2jmobius.gameserver.network.PacketLogger	[C] ValidatePosition
+2026.07.08 14:19:54,876	INFO	169	org.l2jmobius.gameserver.network.PacketLogger	[C] Appearing
+2026.07.08 14:19:54,877	INFO	131	org.l2jmobius.gameserver.network.PacketLogger	[S] StaticObjectInfo
+2026.07.08 14:19:54,878	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] DoorStatusUpdate
+2026.07.08 14:19:54,878	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,878	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,878	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,878	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,878	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,879	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,879	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,879	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,879	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,879	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,879	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,879	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] StaticObjectInfo
+2026.07.08 14:19:54,879	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] DoorStatusUpdate
+2026.07.08 14:19:54,879	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,880	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,880	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,880	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,880	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,880	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,880	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,880	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,880	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,880	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,880	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,880	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,881	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,881	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,881	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,881	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,881	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,881	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,881	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,881	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] StaticObjectInfo
+2026.07.08 14:19:54,881	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] DoorStatusUpdate
+2026.07.08 14:19:54,881	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,881	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] StaticObjectInfo
+2026.07.08 14:19:54,881	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] DoorStatusUpdate
+2026.07.08 14:19:54,882	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,882	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,882	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,882	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,882	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,882	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,882	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,882	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,882	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,882	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,882	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,882	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,882	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,883	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,883	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,883	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,883	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,884	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,884	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,884	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,884	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,884	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,884	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,884	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,884	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,884	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:19:54,884	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S EX] ExSetCompassZoneCode
+2026.07.08 14:19:54,884	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] UserInfo
+2026.07.08 14:20:01,664	INFO	73	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:02,025	INFO	158	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:04,665	INFO	51	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:05,768	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[C] MoveBackwardToLocation
+2026.07.08 14:20:05,768	INFO	126	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:05,816	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[C] ValidatePosition
+2026.07.08 14:20:05,988	INFO	162	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:20:05,989	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:20:05,989	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:20:05,989	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:20:05,989	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:20:05,989	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:20:05,989	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:20:05,989	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:20:05,989	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:20:05,990	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,990	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,990	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,990	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,990	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,990	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,990	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,990	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,990	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,990	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,990	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,990	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] StaticObjectInfo
+2026.07.08 14:20:05,991	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] DoorStatusUpdate
+2026.07.08 14:20:05,991	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,991	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] StaticObjectInfo
+2026.07.08 14:20:05,991	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] DoorStatusUpdate
+2026.07.08 14:20:05,991	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,991	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,991	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,991	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,991	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:05,991	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:20:06,664	INFO	68	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:06,785	INFO	181	org.l2jmobius.gameserver.network.PacketLogger	[C] MoveBackwardToLocation
+2026.07.08 14:20:06,785	INFO	128	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:06,998	INFO	183	org.l2jmobius.gameserver.network.PacketLogger	[C EX] RequestStopMove
+2026.07.08 14:20:06,999	INFO	129	org.l2jmobius.gameserver.network.PacketLogger	[S] StopMove
+2026.07.08 14:20:07,003	INFO	186	org.l2jmobius.gameserver.network.PacketLogger	[C] MoveBackwardToLocation
+2026.07.08 14:20:07,004	INFO	130	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:07,018	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[C] ValidatePosition
+2026.07.08 14:20:07,034	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[C] ValidatePosition
+2026.07.08 14:20:07,129	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[C] ValidatePosition
+2026.07.08 14:20:07,665	INFO	77	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:08,663	INFO	86	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:10,663	INFO	52	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:11,819	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[C] MoveBackwardToLocation
+2026.07.08 14:20:11,819	INFO	135	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:12,665	INFO	79	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:12,832	INFO	171	org.l2jmobius.gameserver.network.PacketLogger	[C] MoveBackwardToLocation
+2026.07.08 14:20:12,833	INFO	136	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:12,924	INFO	174	org.l2jmobius.gameserver.network.PacketLogger	[C] ValidatePosition
+2026.07.08 14:20:13,554	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[C EX] RequestStopMove
+2026.07.08 14:20:13,554	INFO	137	org.l2jmobius.gameserver.network.PacketLogger	[S] StopMove
+2026.07.08 14:20:13,557	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[C] MoveBackwardToLocation
+2026.07.08 14:20:13,558	INFO	133	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:13,586	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[C] ValidatePosition
+2026.07.08 14:20:13,588	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[C] ValidatePosition
+2026.07.08 14:20:13,663	INFO	51	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:13,663	INFO	181	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:14,664	INFO	66	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:15,664	INFO	113	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:15,664	INFO	183	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:15,664	INFO	183	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:16,027	INFO	161	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:16,177	INFO	184	org.l2jmobius.gameserver.network.PacketLogger	[C EX] RequestSaveInventoryOrder
+2026.07.08 14:20:16,663	INFO	57	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:17,566	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[C] RequestMagicSkillUse
+2026.07.08 14:20:17,567	INFO	118	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:20:17,567	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:20:17,567	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillUse
+2026.07.08 14:20:17,567	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] SystemMessage
+2026.07.08 14:20:17,568	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] SetupGauge
+2026.07.08 14:20:17,596	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[C] ValidatePosition
+2026.07.08 14:20:17,664	INFO	113	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:19,663	INFO	94	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:20,403	INFO	90	org.l2jmobius.gameserver.network.PacketLogger	[S] MagicSkillLaunched
+2026.07.08 14:20:20,572	INFO	111	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:20:20,906	INFO	108	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:20:20,907	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:20:21,665	INFO	92	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:21,665	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:21,665	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:21,666	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:23,572	INFO	54	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:20:25,025	INFO	150	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:25,025	INFO	150	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:25,663	INFO	73	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:26,569	INFO	70	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:20:26,663	INFO	71	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:26,663	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:26,663	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:26,664	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:27,664	INFO	86	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:28,664	INFO	61	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:29,024	INFO	158	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:29,571	INFO	114	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:20:30,663	INFO	54	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:31,026	INFO	163	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:31,027	INFO	163	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:31,664	INFO	85	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:32,026	INFO	148	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:32,571	INFO	107	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:20:32,663	INFO	60	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:33,663	INFO	57	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:34,024	INFO	158	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:34,663	INFO	106	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:34,664	INFO	169	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:35,571	INFO	51	org.l2jmobius.gameserver.network.PacketLogger	[S] StatusUpdate
+2026.07.08 14:20:35,663	INFO	52	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:35,663	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:36,664	INFO	89	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:39,663	INFO	53	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:40,664	INFO	74	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:40,664	INFO	171	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:41,663	INFO	52	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:42,663	INFO	76	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:43,663	INFO	68	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:43,663	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:43,664	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:44,027	INFO	158	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:20:44,663	INFO	112	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:44,663	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:45,664	INFO	55	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:45,664	INFO	180	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:45,664	INFO	180	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:46,663	INFO	89	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:46,664	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:46,664	INFO	177	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:47,663	INFO	106	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:47,664	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:48,664	INFO	114	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:49,664	INFO	57	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:49,664	INFO	181	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:49,665	INFO	181	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:49,665	INFO	181	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:50,664	INFO	88	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:51,664	INFO	114	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:51,664	INFO	183	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:54,664	INFO	110	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:54,664	INFO	184	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:54,664	INFO	184	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:55,664	INFO	75	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:55,665	INFO	185	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:55,665	INFO	185	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:56,663	INFO	76	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:56,664	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:57,663	INFO	51	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:57,664	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:58,664	INFO	105	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:58,664	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:20:58,664	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:00,025	INFO	156	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:21:00,664	INFO	98	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:00,664	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:01,027	INFO	157	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:21:01,664	INFO	51	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:02,664	INFO	75	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:02,664	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:03,663	INFO	94	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:04,664	INFO	100	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:04,664	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:04,664	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:04,664	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:04,665	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:06,663	INFO	99	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:06,663	INFO	176	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:06,663	INFO	176	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:07,663	INFO	78	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:07,664	INFO	174	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:08,663	INFO	53	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:09,663	INFO	93	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:09,663	INFO	175	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:10,664	INFO	62	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:10,664	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:10,664	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:10,664	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:13,663	INFO	54	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:14,025	INFO	152	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:21:15,664	INFO	66	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:15,664	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:15,664	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:15,664	INFO	179	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:17,663	INFO	68	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:19,663	INFO	89	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:19,664	INFO	181	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:20,663	INFO	94	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:21,026	INFO	156	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:21:21,663	INFO	111	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:22,663	INFO	105	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:23,023	INFO	156	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:21:23,663	INFO	61	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:24,663	INFO	57	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:25,663	INFO	112	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:27,663	INFO	104	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:27,663	INFO	189	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:28,284	INFO	151	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:21:28,284	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:21:28,664	INFO	109	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:28,664	INFO	169	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:28,664	INFO	169	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:29,663	INFO	114	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:31,664	INFO	113	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:32,663	INFO	70	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:35,025	INFO	155	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:21:36,026	INFO	150	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:21:36,663	INFO	57	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:36,663	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:36,663	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:37,587	INFO	163	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:21:37,663	INFO	98	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:37,663	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:37,664	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:37,664	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:38,663	INFO	107	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:39,663	INFO	106	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:39,663	INFO	180	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:40,023	INFO	148	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:21:40,663	INFO	65	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:41,663	INFO	81	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:42,663	INFO	74	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:42,663	INFO	186	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:43,663	INFO	94	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:43,663	INFO	184	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:43,663	INFO	184	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:44,663	INFO	69	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:44,664	INFO	183	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:44,664	INFO	183	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:46,663	INFO	76	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:47,663	INFO	54	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:47,663	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:48,663	INFO	82	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:48,663	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:49,023	INFO	161	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:21:49,663	INFO	83	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:49,663	INFO	168	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:50,025	INFO	159	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:21:51,663	INFO	69	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:51,664	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:53,023	INFO	152	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:21:53,663	INFO	69	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:53,663	INFO	167	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:54,663	INFO	70	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:54,663	INFO	171	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:57,027	INFO	148	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:21:57,663	INFO	66	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:58,663	INFO	77	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:58,663	INFO	174	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:59,663	INFO	56	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:21:59,663	INFO	172	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:00,663	INFO	104	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:01,663	INFO	113	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:01,663	INFO	178	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:02,663	INFO	70	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:03,025	INFO	163	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:22:04,663	INFO	83	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:04,663	INFO	180	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:05,663	INFO	57	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:05,663	INFO	182	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:06,663	INFO	98	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:07,663	INFO	56	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:07,663	INFO	186	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:08,026	INFO	151	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:22:08,663	INFO	104	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:09,663	INFO	103	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:09,663	INFO	185	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:09,663	INFO	185	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:10,025	INFO	148	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:22:12,025	INFO	157	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:22:12,665	INFO	88	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:12,665	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:12,666	INFO	187	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:14,664	INFO	63	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:14,664	INFO	168	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:14,665	INFO	168	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:16,663	INFO	91	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:17,663	INFO	105	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:17,663	INFO	173	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:18,663	INFO	56	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:18,663	INFO	169	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:19,663	INFO	91	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:20,663	INFO	88	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:20,663	INFO	171	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:20,664	INFO	171	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:20,664	INFO	171	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:21,588	INFO	149	org.l2jmobius.gameserver.network.PacketLogger	[S] NpcInfo
+2026.07.08 14:22:21,588	INFO	170	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:22:21,666	INFO	76	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:21,667	INFO	176	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:21,667	INFO	176	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:22,024	INFO	156	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:22:23,663	INFO	54	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:23,686	INFO	162	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:22:24,663	INFO	53	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:26,663	INFO	89	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:27,663	INFO	78	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:28,023	INFO	154	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:22:28,663	INFO	54	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:30,588	INFO	151	org.l2jmobius.gameserver.network.PacketLogger	[S] DeleteObject
+2026.07.08 14:22:31,663	INFO	105	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:31,663	INFO	186	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:32,663	INFO	97	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:32,663	INFO	184	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:33,663	INFO	61	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:33,663	INFO	183	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:33,663	INFO	183	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:33,663	INFO	183	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:34,664	INFO	85	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:34,665	INFO	185	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:37,026	INFO	150	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:22:37,026	INFO	188	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:22:38,663	INFO	57	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:38,664	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:38,664	INFO	166	org.l2jmobius.gameserver.network.PacketLogger	[S] SocialAction
+2026.07.08 14:22:39,025	INFO	162	org.l2jmobius.gameserver.network.PacketLogger	[S] MoveToLocation
+2026.07.08 14:22:40,564	WARNING	164	org.l2jmobius.gameserver.Shutdown	Shutdown countdown is over. SIGTERM NOW!

@@ -1,0 +1,415 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+	<item id="90700" name="Sealed Rune - Stage 7" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 7, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_blue_sealed_rune" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="90540" min="1" max="1" chance="12" /> <!-- Sigels Rune - Stage 7 -->
+			<item id="90560" min="1" max="1" chance="13" /> <!-- Tyrrs Rune - Stage 7 -->
+			<item id="90580" min="1" max="1" chance="12" /> <!-- Othells Rune - Stage 7 -->
+			<item id="90600" min="1" max="1" chance="13" /> <!-- Yuls Rune - Stage 7 -->
+			<item id="90620" min="1" max="1" chance="12" /> <!-- Feohs Rune - Stage 7 -->
+			<item id="90640" min="1" max="1" chance="13" /> <!-- Iss Rune - Stage 7 -->
+			<item id="90660" min="1" max="1" chance="12" /> <!-- Wynns Rune - Stage 7 -->
+			<item id="90680" min="1" max="1" chance="13" /> <!-- Aeores Rune - Stage 7 -->
+		</capsuled_items>
+	</item>
+	<item id="90701" name="Sealed Rune - Stage 8" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 8, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_blue_sealed_rune" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="90541" min="1" max="1" chance="12" /> <!-- Sigels Rune - Stage 8 - Super -->
+			<item id="90561" min="1" max="1" chance="13" /> <!-- Tyrrs Rune - Stage 8 - Super -->
+			<item id="90581" min="1" max="1" chance="12" /> <!-- Othells Rune - Stage 8 - Super -->
+			<item id="90601" min="1" max="1" chance="13" /> <!-- Yuls Rune - Stage 8 - Super -->
+			<item id="90621" min="1" max="1" chance="12" /> <!-- Feohs Rune - Stage 8 - Super -->
+			<item id="90641" min="1" max="1" chance="13" /> <!-- Iss Rune - Stage 8 - Super -->
+			<item id="90661" min="1" max="1" chance="12" /> <!-- Wynns Rune - Stage 8 - Super -->
+			<item id="90681" min="1" max="1" chance="13" /> <!-- Aeores Rune - Stage 8 - Super -->
+		</capsuled_items>
+	</item>
+	<item id="90702" name="Sealed Rune - Stage 9" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 9, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_blue_sealed_rune" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="90542" min="1" max="1" chance="12" /> <!-- Sigels Rune - Stage 9 - Super -->
+			<item id="90562" min="1" max="1" chance="13" /> <!-- Tyrrs Rune - Stage 9 - Super -->
+			<item id="90582" min="1" max="1" chance="12" /> <!-- Othells Rune - Stage 9 - Super -->
+			<item id="90602" min="1" max="1" chance="13" /> <!-- Yuls Rune - Stage 9 - Super -->
+			<item id="90622" min="1" max="1" chance="12" /> <!-- Feohs Rune - Stage 9 - Super -->
+			<item id="90642" min="1" max="1" chance="13" /> <!-- Iss Rune - Stage 9 - Super -->
+			<item id="90662" min="1" max="1" chance="12" /> <!-- Wynns Rune - Stage 9 - Super -->
+			<item id="90682" min="1" max="1" chance="13" /> <!-- Aeores Rune - Stage 9 - Super -->
+		</capsuled_items>
+	</item>
+	<item id="90703" name="Sealed Rune - Stage 10" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 10, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_blue_sealed_rune" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="90543" min="1" max="1" chance="12" /> <!-- Sigels Rune - Stage 10 - Super -->
+			<item id="90563" min="1" max="1" chance="13" /> <!-- Tyrrs Rune - Stage 10 - Super -->
+			<item id="90583" min="1" max="1" chance="12" /> <!-- Othells Rune - Stage 10 - Super -->
+			<item id="90603" min="1" max="1" chance="13" /> <!-- Yuls Rune - Stage 10 - Super -->
+			<item id="90623" min="1" max="1" chance="12" /> <!-- Feohs Rune - Stage 10 - Super -->
+			<item id="90643" min="1" max="1" chance="13" /> <!-- Iss Rune - Stage 10 - Super -->
+			<item id="90663" min="1" max="1" chance="12" /> <!-- Wynns Rune - Stage 10 - Super -->
+			<item id="90683" min="1" max="1" chance="13" /> <!-- Aeores Rune - Stage 10 - Super -->
+		</capsuled_items>
+	</item>
+	<item id="90704" name="Sealed Rune - Stage 11" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 11, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_red_sealed_rune_01" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="90544" min="1" max="1" chance="12" /> <!-- Sigels Rune - Stage 11 - Super -->
+			<item id="90564" min="1" max="1" chance="13" /> <!-- Tyrrs Rune - Stage 11 - Super -->
+			<item id="90584" min="1" max="1" chance="12" /> <!-- Othells Rune - Stage 11 - Super -->
+			<item id="90604" min="1" max="1" chance="13" /> <!-- Yuls Rune - Stage 11 - Super -->
+			<item id="90624" min="1" max="1" chance="12" /> <!-- Feohs Rune - Stage 11 - Super -->
+			<item id="90644" min="1" max="1" chance="13" /> <!-- Iss Rune - Stage 11 - Super -->
+			<item id="90664" min="1" max="1" chance="12" /> <!-- Wynns Rune - Stage 11 - Super -->
+			<item id="90684" min="1" max="1" chance="13" /> <!-- Aeores Rune - Stage 11 - Super -->
+		</capsuled_items>
+	</item>
+	<item id="90705" name="Sealed Rune - Stage 12" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 12, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_red_sealed_rune_01" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="90545" min="1" max="1" chance="12" /> <!-- Sigels Rune - Stage 12 - Super -->
+			<item id="90565" min="1" max="1" chance="13" /> <!-- Tyrrs Rune - Stage 12 - Super -->
+			<item id="90585" min="1" max="1" chance="12" /> <!-- Othells Rune - Stage 12 - Super -->
+			<item id="90605" min="1" max="1" chance="13" /> <!-- Yuls Rune - Stage 12 - Super -->
+			<item id="90625" min="1" max="1" chance="12" /> <!-- Feohs Rune - Stage 12 - Super -->
+			<item id="90645" min="1" max="1" chance="13" /> <!-- Iss Rune - Stage 12 - Super -->
+			<item id="90665" min="1" max="1" chance="12" /> <!-- Wynns Rune - Stage 12 - Super -->
+			<item id="90685" min="1" max="1" chance="13" /> <!-- Aeores Rune - Stage 12 - Super -->
+		</capsuled_items>
+	</item>
+	<item id="90706" name="Sealed Rune - Stage 13" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 13, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_red_sealed_rune_01" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="90546" min="1" max="1" chance="12" /> <!-- Sigels Rune - Stage 13 - Super -->
+			<item id="90566" min="1" max="1" chance="13" /> <!-- Tyrrs Rune - Stage 13 - Super -->
+			<item id="90586" min="1" max="1" chance="12" /> <!-- Othells Rune - Stage 13 - Super -->
+			<item id="90606" min="1" max="1" chance="13" /> <!-- Yuls Rune - Stage 13 - Super -->
+			<item id="90626" min="1" max="1" chance="12" /> <!-- Feohs Rune - Stage 13 - Super -->
+			<item id="90646" min="1" max="1" chance="13" /> <!-- Iss Rune - Stage 13 - Super -->
+			<item id="90666" min="1" max="1" chance="12" /> <!-- Wynns Rune - Stage 13 - Super -->
+			<item id="90686" min="1" max="1" chance="13" /> <!-- Aeores Rune - Stage 13 - Super -->
+		</capsuled_items>
+	</item>
+	<item id="90707" name="Sealed Rune - Stage 14" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 14, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="icon.bm_pirate_king_box" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="90547" min="1" max="1" chance="12" /> <!-- Sigels Rune - Stage 14 -->
+			<item id="90567" min="1" max="1" chance="13" /> <!-- Tyrrs Rune - Stage 14 -->
+			<item id="90587" min="1" max="1" chance="12" /> <!-- Othells Rune - Stage 14 -->
+			<item id="90607" min="1" max="1" chance="13" /> <!-- Yuls Rune - Stage 14 -->
+			<item id="90627" min="1" max="1" chance="12" /> <!-- Feohs Rune - Stage 14 -->
+			<item id="90647" min="1" max="1" chance="13" /> <!-- Iss Rune - Stage 14 -->
+			<item id="90667" min="1" max="1" chance="12" /> <!-- Wynns Rune - Stage 14 -->
+			<item id="90687" min="1" max="1" chance="13" /> <!-- Aeores Rune - Stage 14 -->
+		</capsuled_items>
+	</item>
+	<item id="90708" name="Sealed Rune - Stage 15" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 15, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="icon.bm_pirate_king_box" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="90548" min="1" max="1" chance="12" /> <!-- Sigels Rune - Stage 15 -->
+			<item id="90568" min="1" max="1" chance="13" /> <!-- Tyrrs Rune - Stage 15 -->
+			<item id="90588" min="1" max="1" chance="12" /> <!-- Othells Rune - Stage 15 -->
+			<item id="90608" min="1" max="1" chance="13" /> <!-- Yuls Rune - Stage 15 -->
+			<item id="90628" min="1" max="1" chance="12" /> <!-- Feohs Rune - Stage 15 -->
+			<item id="90648" min="1" max="1" chance="13" /> <!-- Iss Rune - Stage 15 -->
+			<item id="90668" min="1" max="1" chance="12" /> <!-- Wynns Rune - Stage 15 -->
+			<item id="90688" min="1" max="1" chance="13" /> <!-- Aeores Rune - Stage 15 -->
+		</capsuled_items>
+	</item>
+	<item id="90709" name="Sealed Rune - Stage 16" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 16, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="icon.bm_pirate_king_box" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="90549" min="1" max="1" chance="12" /> <!-- Sigels Rune - Stage 16 -->
+			<item id="90569" min="1" max="1" chance="13" /> <!-- Tyrrs Rune - Stage 16 -->
+			<item id="90589" min="1" max="1" chance="12" /> <!-- Othells Rune - Stage 16 -->
+			<item id="90609" min="1" max="1" chance="13" /> <!-- Yuls Rune - Stage 16 -->
+			<item id="90629" min="1" max="1" chance="12" /> <!-- Feohs Rune - Stage 16 -->
+			<item id="90649" min="1" max="1" chance="13" /> <!-- Iss Rune - Stage 16 -->
+			<item id="90669" min="1" max="1" chance="12" /> <!-- Wynns Rune - Stage 16 -->
+			<item id="90689" min="1" max="1" chance="13" /> <!-- Aeores Rune - Stage 16 -->
+		</capsuled_items>
+	</item>
+	<item id="90710" name="Sealed Rune - Stage 17" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 17, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="icon.bm_pirate_king_box" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="90550" min="1" max="1" chance="12" /> <!-- Sigels Rune - Stage 17 -->
+			<item id="90570" min="1" max="1" chance="13" /> <!-- Tyrrs Rune - Stage 17 -->
+			<item id="90590" min="1" max="1" chance="12" /> <!-- Othells Rune - Stage 17 -->
+			<item id="90610" min="1" max="1" chance="13" /> <!-- Yuls Rune - Stage 17 -->
+			<item id="90630" min="1" max="1" chance="12" /> <!-- Feohs Rune - Stage 17 -->
+			<item id="90650" min="1" max="1" chance="13" /> <!-- Iss Rune - Stage 17 -->
+			<item id="90670" min="1" max="1" chance="12" /> <!-- Wynns Rune - Stage 17 -->
+			<item id="90690" min="1" max="1" chance="13" /> <!-- Aeores Rune - Stage 17 -->
+		</capsuled_items>
+	</item>
+	<item id="90711" name="Sealed Rune - Stage 18" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 18, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="icon.bm_pirate_king_box" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="90551" min="1" max="1" chance="12" /> <!-- Sigels Rune - Stage 18 -->
+			<item id="90571" min="1" max="1" chance="13" /> <!-- Tyrrs Rune - Stage 18 -->
+			<item id="90591" min="1" max="1" chance="12" /> <!-- Othells Rune - Stage 18 -->
+			<item id="90611" min="1" max="1" chance="13" /> <!-- Yuls Rune - Stage 18 -->
+			<item id="90631" min="1" max="1" chance="12" /> <!-- Feohs Rune - Stage 18 -->
+			<item id="90651" min="1" max="1" chance="13" /> <!-- Iss Rune - Stage 18 -->
+			<item id="90671" min="1" max="1" chance="12" /> <!-- Wynns Rune - Stage 18 -->
+			<item id="90691" min="1" max="1" chance="13" /> <!-- Aeores Rune - Stage 18 -->
+		</capsuled_items>
+	</item>
+	<item id="90712" name="Sealed Rune - Stage 19" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 19, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="icon.bm_pirate_king_box" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="90552" min="1" max="1" chance="12" /> <!-- Sigels Rune - Stage 19 -->
+			<item id="90572" min="1" max="1" chance="13" /> <!-- Tyrrs Rune - Stage 19 -->
+			<item id="90592" min="1" max="1" chance="12" /> <!-- Othells Rune - Stage 19 -->
+			<item id="90612" min="1" max="1" chance="13" /> <!-- Yuls Rune - Stage 19 -->
+			<item id="90632" min="1" max="1" chance="12" /> <!-- Feohs Rune - Stage 19 -->
+			<item id="90652" min="1" max="1" chance="13" /> <!-- Iss Rune - Stage 19 -->
+			<item id="90672" min="1" max="1" chance="12" /> <!-- Wynns Rune - Stage 19 -->
+			<item id="90692" min="1" max="1" chance="13" /> <!-- Aeores Rune - Stage 19 -->
+		</capsuled_items>
+	</item>
+	<item id="90713" name="Sealed Rune - Stage 20" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 20, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="icon.bm_pirate_king_box" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="90553" min="1" max="1" chance="12" /> <!-- Sigels Rune - Stage 20 -->
+			<item id="90573" min="1" max="1" chance="13" /> <!-- Tyrrs Rune - Stage 20 -->
+			<item id="90593" min="1" max="1" chance="12" /> <!-- Othells Rune - Stage 20 -->
+			<item id="90613" min="1" max="1" chance="13" /> <!-- Yuls Rune - Stage 20 -->
+			<item id="90633" min="1" max="1" chance="12" /> <!-- Feohs Rune - Stage 20 -->
+			<item id="90653" min="1" max="1" chance="13" /> <!-- Iss Rune - Stage 20 -->
+			<item id="90673" min="1" max="1" chance="12" /> <!-- Wynns Rune - Stage 20 -->
+			<item id="90693" min="1" max="1" chance="13" /> <!-- Aeores Rune - Stage 20 -->
+		</capsuled_items>
+	</item>
+	<item id="90714" name="Stage 1 Rune Coupon" type="EtcItem">
+		<!-- Take it to a top-rank blacksmith to exchange using a Rune of a suitable level. Cannot be exchanged, dropped or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.etc_exchange_ticket_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90715" name="Stage 2 Rune Coupon" type="EtcItem">
+		<!-- Take it to a top-rank blacksmith to exchange using a Rune of a suitable level. Cannot be exchanged, dropped or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.etc_exchange_ticket_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90716" name="Stage 3 Rune Coupon" type="EtcItem">
+		<!-- Take it to a top-rank blacksmith to exchange using a Rune of a suitable level. Cannot be exchanged, dropped or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.etc_exchange_ticket_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90717" name="Stage 4 Rune Coupon" type="EtcItem">
+		<!-- Take it to a top-rank blacksmith to exchange using a Rune of a suitable level. Cannot be exchanged, dropped or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.etc_exchange_ticket_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90718" name="Stage 5 Rune Coupon" type="EtcItem">
+		<!-- Take it to a top-rank blacksmith to exchange using a Rune of a suitable level. Cannot be exchanged, dropped or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.etc_exchange_ticket_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90719" name="Stage 6 Rune Coupon" type="EtcItem">
+		<!-- Take it to a top-rank blacksmith to exchange using a Rune of a suitable level. Cannot be exchanged, dropped or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.etc_exchange_ticket_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90720" name="Stage 7 Rune Coupon" type="EtcItem">
+		<!-- Take it to a top-rank blacksmith to exchange using a Rune of a suitable level. Cannot be exchanged, dropped or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.etc_exchange_ticket_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90721" name="Stage 8 Rune Coupon" type="EtcItem">
+		<!-- Take it to a top-rank blacksmith to exchange using a Rune of a suitable level. Cannot be exchanged, dropped or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.etc_exchange_ticket_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90722" name="Stage 9 Rune Coupon" type="EtcItem">
+		<!-- Take it to a top-rank blacksmith to exchange using a Rune of a suitable level. Cannot be exchanged, dropped or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.etc_exchange_ticket_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90723" name="Stage 10 Rune Coupon" type="EtcItem">
+		<!-- Take it to a top-rank blacksmith to exchange using a Rune of a suitable level. Cannot be exchanged, dropped or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.etc_exchange_ticket_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90724" name="Stage 11 Rune Coupon" type="EtcItem">
+		<!-- Take it to a top-rank blacksmith to exchange using a Rune of a suitable level. Cannot be exchanged, dropped or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.etc_exchange_ticket_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90725" name="Stage 12 Rune Coupon" type="EtcItem">
+		<!-- Take it to a top-rank blacksmith to exchange using a Rune of a suitable level. Cannot be exchanged, dropped or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.etc_exchange_ticket_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+	<item id="90726" name="Stage 13 Rune Coupon" type="EtcItem">
+		<!-- Take it to a top-rank blacksmith to exchange using a Rune of a suitable level. Cannot be exchanged, dropped or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.etc_exchange_ticket_i04" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="material" val="PAPER" />
+	</item>
+</list>

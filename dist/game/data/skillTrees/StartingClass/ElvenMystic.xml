@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="25">
+		<skill skillId="118" skillLevel="1" skillName="Magician's Movement" autoGet="true" getLevel="1" />
+		<skill skillId="163" skillLevel="1" skillName="Spellcraft" autoGet="true" getLevel="1" />
+		<skill skillId="214" skillLevel="1" skillName="Mana Recovery" autoGet="true" getLevel="1" />
+		<skill skillId="1177" skillLevel="1" skillName="Wind Strike" autoGet="true" getLevel="1" />
+		<skill skillId="1216" skillLevel="1" skillName="Self Heal" autoGet="true" getLevel="1" />
+		<skill skillId="146" skillLevel="1" skillName="Anti Magic" levelUpSp="260" getLevel="7" />
+		<skill skillId="146" skillLevel="2" skillName="Anti Magic" levelUpSp="260" getLevel="7" />
+		<skill skillId="244" skillLevel="1" skillName="Armor Mastery" levelUpSp="520" getLevel="7" />
+		<skill skillId="249" skillLevel="1" skillName="Weapon Mastery" levelUpSp="520" getLevel="7" />
+		<skill skillId="1011" skillLevel="1" skillName="Heal" levelUpSp="170" getLevel="7" />
+		<skill skillId="1011" skillLevel="2" skillName="Heal" levelUpSp="170" getLevel="7" />
+		<skill skillId="1011" skillLevel="3" skillName="Heal" levelUpSp="170" getLevel="7" />
+		<skill skillId="1012" skillLevel="1" skillName="Cure Poison" levelUpSp="520" getLevel="7" />
+		<skill skillId="1040" skillLevel="1" skillName="Shield" levelUpSp="520" getLevel="7" />
+		<skill skillId="1068" skillLevel="1" skillName="Might" levelUpSp="520" getLevel="7" />
+		<skill skillId="1177" skillLevel="2" skillName="Wind Strike" levelUpSp="260" getLevel="7" />
+		<skill skillId="1177" skillLevel="3" skillName="Wind Strike" levelUpSp="260" getLevel="7" />
+		<skill skillId="1184" skillLevel="1" skillName="Ice Bolt" levelUpSp="260" getLevel="7" />
+		<skill skillId="1184" skillLevel="2" skillName="Ice Bolt" levelUpSp="260" getLevel="7" />
+		<skill skillId="146" skillLevel="3" skillName="Anti Magic" levelUpSp="1100" getLevel="14" />
+		<skill skillId="146" skillLevel="4" skillName="Anti Magic" levelUpSp="1100" getLevel="14" />
+		<skill skillId="244" skillLevel="2" skillName="Armor Mastery" levelUpSp="1100" getLevel="14" />
+		<skill skillId="244" skillLevel="3" skillName="Armor Mastery" levelUpSp="1100" getLevel="14" />
+		<skill skillId="249" skillLevel="2" skillName="Weapon Mastery" levelUpSp="2100" getLevel="14" />
+		<skill skillId="1011" skillLevel="4" skillName="Heal" levelUpSp="700" getLevel="14" />
+		<skill skillId="1011" skillLevel="5" skillName="Heal" levelUpSp="700" getLevel="14" />
+		<skill skillId="1011" skillLevel="6" skillName="Heal" levelUpSp="700" getLevel="14" />
+		<skill skillId="1015" skillLevel="1" skillName="Battle Heal" levelUpSp="700" getLevel="14" />
+		<skill skillId="1015" skillLevel="2" skillName="Battle Heal" levelUpSp="700" getLevel="14" />
+		<skill skillId="1015" skillLevel="3" skillName="Battle Heal" levelUpSp="700" getLevel="14" />
+		<skill skillId="1027" skillLevel="1" skillName="Group Heal" levelUpSp="700" getLevel="14" />
+		<skill skillId="1027" skillLevel="2" skillName="Group Heal" levelUpSp="700" getLevel="14" />
+		<skill skillId="1027" skillLevel="3" skillName="Group Heal" levelUpSp="700" getLevel="14" />
+		<skill skillId="1164" skillLevel="1" skillName="Curse: Weakness" levelUpSp="2100" getLevel="14" />
+		<skill skillId="1177" skillLevel="4" skillName="Wind Strike" levelUpSp="1100" getLevel="14" />
+		<skill skillId="1177" skillLevel="5" skillName="Wind Strike" levelUpSp="1100" getLevel="14" />
+		<skill skillId="1184" skillLevel="3" skillName="Ice Bolt" levelUpSp="1100" getLevel="14" />
+		<skill skillId="1184" skillLevel="4" skillName="Ice Bolt" levelUpSp="1100" getLevel="14" />
+		<skill skillId="1206" skillLevel="1" skillName="Wind Shackle" levelUpSp="2100" getLevel="14" />
+	</skillTree>
+</list>

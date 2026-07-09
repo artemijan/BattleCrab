@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="../../xsd/multisell.xsd">
+  <npcs>
+    <npc>-1</npc> <!-- CB -->
+  </npcs>
+  <item>
+    <!-- Adena -->
+    <ingredient count="100000000" id="57"/>
+    <production count="1" id="22390"/> <!-- Halloween Cloak -->
+  </item>
+  <item>
+    <!-- Adena -->
+    <ingredient count="150000000" id="57"/>
+    <production count="1" id="22480"/> <!-- Santa Girl's Cloak -->
+  </item>
+  <item>
+    <!-- Adena -->
+    <ingredient count="100000000" id="57"/>
+    <production count="1" id="26325"/> <!-- Santa Cloak -->
+  </item>
+  <item>
+    <!-- Adena -->
+    <ingredient count="150000000" id="57"/>
+    <production count="1" id="22611"/> <!-- New Lineage II Awakening Party Cloak -->
+  </item>
+  <item>
+    <!-- Adena -->
+    <ingredient count="150000000" id="57"/>
+    <production count="1" id="23636"/> <!-- Polish Cloak -->
+  </item>
+  <item>
+    <!-- Adena -->
+    <ingredient count="200000000" id="57"/>
+    <production count="1" id="26249"/> <!-- Cloak of Light for the Chosen -->
+  </item>
+  <item>
+    <!-- Adena -->
+    <ingredient count="200000000" id="57"/>
+    <production count="1" id="26250"/> <!-- Cloak of Darkness for the Chosen -->
+  </item>
+  <item>
+    <ingredient count="500000000" id="57"/>
+    <production count="1" id="28585" enchantmentLevel="10"/> <!-- Elmoreden Cloak -->
+  </item>
+  <item>
+    <ingredient count="500000000" id="57"/>
+    <production count="1" id="28587" enchantmentLevel="10"/> <!-- Elmore Cloak -->
+  </item>
+  <item>
+    <ingredient count="500000000" id="57"/>
+    <production count="1" id="28586" enchantmentLevel="10"/> <!-- Aden Cloak -->
+  </item>
+  <item>
+    <ingredient count="500000000" id="57"/>
+    <production count="1" id="28588" enchantmentLevel="10"/> <!-- Ferios Cloak-->
+  </item>
+</list>

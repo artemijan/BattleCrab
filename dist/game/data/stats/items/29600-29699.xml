@@ -1,0 +1,217 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+	<item id="29668" name="Castle Owners' Coin" type="EtcItem">
+		<!-- A special coin that can only be obtained by a member of a clan that has taken over a castle. While you are in hold of the castle, you can exchange coins for special items through Chamberlain. -->
+		<set name="icon" val="icon.etc_11th_token" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="29669" name="Castle XP/SP Scroll - Normal" type="EtcItem">
+		<!-- Increases XP/SP gain by 35% for 20 minutes. Buff remains after death. -->
+		<set name="icon" val="icon.etc_recall_exp_scroll" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="LIQUID" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55061" level="2" /> <!-- XP Rune I (35%) -->
+		</skills>
+	</item>
+	<item id="29670" name="Castle XP/SP Scroll - Medium" type="EtcItem">
+		<!-- Increases XP/SP gain by 45% for 20 minutes. Buff remains after death. -->
+		<set name="icon" val="icon.etc_recall_exp_scroll" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="LIQUID" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55062" level="2" /> <!-- XP Rune I (45%) -->
+		</skills>
+	</item>
+	<item id="29671" name="Quick Castle Healing Potion" type="EtcItem">
+		<!-- Magic potion that instantly restores HP. Instant effect with no cooldown. Cannot be used when HP is full. -->
+		<set name="icon" val="icon.etc_potion_gold_i00" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="LIQUID" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55063" level="1" /> <!-- Quick Castle Healing Potion -->
+		</skills>
+	</item>
+	<item id="29672" name="Major Quick Castle Healing Potion" type="EtcItem">
+		<!-- Magic potion that instantly restores great amount of HP. Instant effect with no cooldown. Cannot be used when HP is full. Cannot be exchanged, dropped, sold, or stored in private warehouse. -->
+		<set name="icon" val="icon.etc_potion_gold_i00" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="LIQUID" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="is_freightable" val="true" />
+		<set name="etcitem_type" val="POTION" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55064" level="1" /> <!-- Major Quick Castle Healing Potion -->
+		</skills>
+	</item>
+	<item id="29673" name="Scroll: Castle Berserker Spirit" type="EtcItem">
+		<!-- For 20 minutes, P. Def. - 5%, M. Def. - 10%, P. Evasion - 2, P. Atk. + 5%, M. Atk. + 10%, Atk. Spd. + 5%, Casting Spd. + 5%, Speed + 5. -->
+		<set name="icon" val="icon.etc_scroll_white_i00" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="PAPER" />
+		<set name="weight" val="120" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
+		<set name="commissionItemType" val="SCROLL_OTHER" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55065" level="1" /> <!-- Scroll: Castle Berserker Spirit -->
+		</skills>
+	</item>
+	<item id="29674" name="Scroll: Castle Death Whisper" type="EtcItem">
+		<!-- For 20 minutes, P. Critical Damage + 25%. -->
+		<set name="icon" val="icon.etc_scroll_white_i00" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="PAPER" />
+		<set name="weight" val="120" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
+		<set name="commissionItemType" val="SCROLL_OTHER" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55066" level="1" /> <!-- Scroll: Castle Death Whisper -->
+		</skills>
+	</item>
+	<item id="29675" name="Blessed Castle Scroll of Escape" type="EtcItem">
+		<!-- Magical scroll that relocates you to the the nearest town. Cannot be exchanged, dropped, or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.etc_scroll_of_return_i01" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="PAPER" />
+		<set name="weight" val="120" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
+		<set name="commissionItemType" val="SCROLL_OTHER" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55067" level="1" /> <!-- Blessed Castle Scroll of Escape -->
+		</skills>
+	</item>
+	<item id="29676" name="Scroll: Castle Blessing" type="EtcItem">
+		<!-- Maintains buffs and debuffs even after death. The Noblesse Blessing and the Lucky Charm disappear, however. -->
+		<set name="icon" val="icon.etc_scroll_white_i00" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="PAPER" />
+		<set name="weight" val="120" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
+		<set name="commissionItemType" val="SCROLL_OTHER" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55068" level="1" /> <!-- Scroll: Castle Blessing -->
+		</skills>
+	</item>
+	<item id="29677" name="Castle Ring (10-day)" type="Armor">
+		<!-- 10-day item. When equipped, increases Max HP by 20, M. Atk. by 3, P. Atk. by 5. The effect does not stack, if two identical rings are equipped. Cannot be exchanged, dropped, or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.ev_11th_rare_acc_ring" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="rfinger;lfinger" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="time" val="14400" />
+		<set name="commissionItemType" val="RING" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55069" level="1" /> <!-- Castle Ring -->
+		</skills>
+		<stats>
+			<stat type="mDef">32</stat>
+		</stats>
+	</item>
+	<item id="29678" name="Castle Ring" type="Armor">
+		<!-- When equipped, increases HP by 20, M. Atk. by 3, P. Atk. by 5. The effect does not stack, if two identical rings are equipped. -->
+		<set name="icon" val="icon.ev_11th_rare_acc_ring" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="rfinger;lfinger" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="commissionItemType" val="RING" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55069" level="1" /> <!-- Castle Ring -->
+		</skills>
+		<stats>
+			<stat type="mDef">32</stat>
+		</stats>
+	</item>
+	<item id="29679" name="Castle Earring (10-day)" type="Armor">
+		<!-- 10-day item. When equipped, increases MP recovery rate by 0.2, Healing Power by 2%. The effect does not stack, if two identical earrings are equipped. Additionally increases MP by 10. Cannot be exchanged, dropped, or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.ev_11th_rare_acc_earing" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="rear;lear" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="time" val="14400" />
+		<set name="commissionItemType" val="EARRING" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55070" level="1" /> <!-- Castle Earring -->
+		</skills>
+		<stats>
+			<stat type="mDef">48</stat>
+			<stat type="maxMp">10</stat>
+		</stats>
+	</item>
+	<item id="29681" name="Castle Necklace (10-day)" type="Armor">
+		<!-- 10-day item. When equipped, increases Max MP by 20, M. Def. by 3, P. Def. by 5. Cannot be exchanged, dropped, or sold. Can be stored in a private warehouse. -->
+		<set name="icon" val="icon.ev_11th_rare_acc_necklace" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="neck" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="time" val="14400" />
+		<set name="commissionItemType" val="NECKLACE" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55071" level="1" /> <!-- Castle Necklace -->
+		</skills>
+		<stats>
+			<stat type="mDef">64</stat>
+			<stat type="maxMp">20</stat>
+		</stats>
+	</item>
+</list>

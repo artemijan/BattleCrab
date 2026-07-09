@@ -34,7 +34,8 @@ pub struct LoginConfig {
     pub login_server_schedule_restart_time: i64,
 }
 
-pub const LOGIN_CONFIG_FILE: &str = "config/LoginServer.ini";
+pub const LOGIN_CONFIG_FILE: &str = "dist/login/config/LoginServer.ini";
+pub const BANNED_IP_FILE: &str = "dist/login/banned_ip.cfg";
 
 impl LoginConfig {
     pub fn load() -> Self {

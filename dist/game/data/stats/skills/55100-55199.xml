@@ -1,0 +1,966 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
+	<skill id="55172" toLevel="1" name="Clan's Special Supplies">
+		<icon>icon.skill0000</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70025</itemConsumeId>
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="2.1">
+						<item id="1877" count="1" /> <!-- Adamantite Nugget -->
+					</item>
+					<item chance="26.4">
+						<item id="1884" count="1" /> <!-- Cord -->
+					</item>
+					<item chance="5.4">
+						<item id="1881" count="1" /> <!-- Coarse Bone Powder -->
+					</item>
+					<item chance="2.4">
+						<item id="1875" count="1" /> <!-- Stone of Purity -->
+					</item>
+					<item chance="3.3">
+						<item id="1885" count="1" /> <!-- High-grade Suede -->
+					</item>
+					<item chance="9.6">
+						<item id="1882" count="1" /> <!-- Leather -->
+					</item>
+					<item chance="6.9">
+						<item id="1879" count="1" /> <!-- Cokes -->
+					</item>
+					<item chance="10.6">
+						<item id="1895" count="1" /> <!-- Metallic Fiber -->
+					</item>
+					<item chance="7.7">
+						<item id="1876" count="1" /> <!-- Mithril Ore -->
+					</item>
+					<item chance="2.6">
+						<item id="1874" count="1" /> <!-- Oriharukon Ore -->
+					</item>
+					<item chance="19.0">
+						<item id="1878" count="1" /> <!-- Durable Braid -->
+					</item>
+					<item chance="2.7">
+						<item id="1880" count="1" /> <!-- Steel -->
+					</item>
+					<item chance="1.3">
+						<item id="1883" count="1" /> <!-- Steel Mold -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55173" toLevel="1" name="Clan's Special Supplies">
+		<icon>icon.skill0000</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70026</itemConsumeId>
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="2.1">
+						<item id="1877" count="1" /> <!-- Adamantite Nugget -->
+					</item>
+					<item chance="14.8">
+						<item id="1884" count="1" /> <!-- Cord -->
+					</item>
+					<item chance="0.7">
+						<item id="1894" count="1" /> <!-- Crafted Leather -->
+					</item>
+					<item chance="6.2">
+						<item id="1881" count="1" /> <!-- Coarse Bone Powder -->
+					</item>
+					<item chance="0.57">
+						<item id="70035" count="1" /> <!-- Yellow Talisman - P. Def. -->
+					</item>
+					<item chance="0.57">
+						<item id="70038" count="1" /> <!-- Yellow Talisman - Healing Power -->
+					</item>
+					<item chance="0.57">
+						<item id="70031" count="1" /> <!-- Yellow Talisman - M. Def. -->
+					</item>
+					<item chance="0.57">
+						<item id="70032" count="1" /> <!-- Yellow Talisman - M. Atk. -->
+					</item>
+					<item chance="0.57">
+						<item id="70033" count="1" /> <!-- Yellow Talisman - Casting Spd. -->
+					</item>
+					<item chance="0.57">
+						<item id="70030" count="1" /> <!-- Yellow Talisman - Atk. Spd. -->
+					</item>
+					<item chance="0.57">
+						<item id="70029" count="1" /> <!-- Yellow Talisman - P. Atk. -->
+					</item>
+					<item chance="0.57">
+						<item id="70036" count="1" /> <!-- Yellow Talisman - Speed -->
+					</item>
+					<item chance="0.57">
+						<item id="70034" count="1" /> <!-- Yellow Talisman - Accuracy -->
+					</item>
+					<item chance="0.57">
+						<item id="70037" count="1" /> <!-- Yellow Talisman - Evasion -->
+					</item>
+					<item chance="3.3">
+						<item id="1875" count="1" /> <!-- Stone of Purity -->
+					</item>
+					<item chance="5.0">
+						<item id="1885" count="1" /> <!-- High-grade Suede -->
+					</item>
+					<item chance="11.5">
+						<item id="1882" count="1" /> <!-- Leather -->
+					</item>
+					<item chance="8.9">
+						<item id="1879" count="1" /> <!-- Cokes -->
+					</item>
+					<item chance="7.6">
+						<item id="1895" count="1" /> <!-- Metallic Fiber -->
+					</item>
+					<item chance="9.8">
+						<item id="1876" count="1" /> <!-- Mithril Ore -->
+					</item>
+					<item chance="4.6">
+						<item id="1874" count="1" /> <!-- Oriharukon Ore -->
+					</item>
+					<item chance="9.0">
+						<item id="1878" count="1" /> <!-- Durable Braid -->
+					</item>
+					<item chance="2.9">
+						<item id="1889" count="1" /> <!-- Synthetic Braid -->
+					</item>
+					<item chance="0.4">
+						<item id="70039" count="1" /> <!-- Blue Talisman - Invisibility -->
+					</item>
+					<item chance="5.9">
+						<item id="1880" count="1" /> <!-- Steel -->
+					</item>
+					<item chance="1.6">
+						<item id="1883" count="1" /> <!-- Steel Mold -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55174" toLevel="1" name="Clan's Special Supplies">
+		<icon>icon.skill0000</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70027</itemConsumeId>
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="2.3">
+						<item id="1877" count="1" /> <!-- Adamantite Nugget -->
+					</item>
+					<item chance="1.4">
+						<item id="4043" count="1" /> <!-- Asofe -->
+					</item>
+					<item chance="14.25">
+						<item id="1884" count="1" /> <!-- Cord -->
+					</item>
+					<item chance="1.5">
+						<item id="1894" count="1" /> <!-- Crafted Leather -->
+					</item>
+					<item chance="6.2">
+						<item id="1881" count="1" /> <!-- Coarse Bone Powder -->
+					</item>
+					<item chance="0.51">
+						<item id="70035" count="1" /> <!-- Yellow Talisman - P. Def. -->
+					</item>
+					<item chance="0.51">
+						<item id="70038" count="1" /> <!-- Yellow Talisman - Healing Power -->
+					</item>
+					<item chance="0.51">
+						<item id="70031" count="1" /> <!-- Yellow Talisman - M. Def. -->
+					</item>
+					<item chance="0.51">
+						<item id="70032" count="1" /> <!-- Yellow Talisman - M. Atk. -->
+					</item>
+					<item chance="0.51">
+						<item id="70033" count="1" /> <!-- Yellow Talisman - Casting Spd. -->
+					</item>
+					<item chance="0.51">
+						<item id="70030" count="1" /> <!-- Yellow Talisman - Atk. Spd. -->
+					</item>
+					<item chance="0.51">
+						<item id="70029" count="1" /> <!-- Yellow Talisman - P. Atk. -->
+					</item>
+					<item chance="0.51">
+						<item id="70036" count="1" /> <!-- Yellow Talisman - Speed -->
+					</item>
+					<item chance="0.51">
+						<item id="70034" count="1" /> <!-- Yellow Talisman - Accuracy -->
+					</item>
+					<item chance="0.51">
+						<item id="70037" count="1" /> <!-- Yellow Talisman - Evasion -->
+					</item>
+					<item chance="3.5">
+						<item id="1875" count="1" /> <!-- Stone of Purity -->
+					</item>
+					<item chance="3.4">
+						<item id="1885" count="1" /> <!-- High-grade Suede -->
+					</item>
+					<item chance="1.3">
+						<item id="4039" count="1" /> <!-- Mold Glue -->
+					</item>
+					<item chance="9.9">
+						<item id="1882" count="1" /> <!-- Leather -->
+					</item>
+					<item chance="7.3">
+						<item id="1879" count="1" /> <!-- Cokes -->
+					</item>
+					<item chance="7.3">
+						<item id="1895" count="1" /> <!-- Metallic Fiber -->
+					</item>
+					<item chance="8.6">
+						<item id="1876" count="1" /> <!-- Mithril Ore -->
+					</item>
+					<item chance="0.8">
+						<item id="1890" count="1" /> <!-- Mithril Alloy -->
+					</item>
+					<item chance="0.3">
+						<item id="1893" count="1" /> <!-- Oriharukon -->
+					</item>
+					<item chance="3.2">
+						<item id="1874" count="1" /> <!-- Oriharukon Ore -->
+					</item>
+					<item chance="0.6">
+						<item id="4041" count="1" /> <!-- Mold Hardener -->
+					</item>
+					<item chance="0.8">
+						<item id="1887" count="1" /> <!-- Varnish of Purity -->
+					</item>
+					<item chance="9.2">
+						<item id="1878" count="1" /> <!-- Durable Braid -->
+					</item>
+					<item chance="2.6">
+						<item id="1889" count="1" /> <!-- Synthetic Braid -->
+					</item>
+					<item chance="0.1">
+						<item id="956" count="1" /> <!-- Scroll: Enchant Armor (D-grade) -->
+					</item>
+					<item chance="0.05">
+						<item id="952" count="1" /> <!-- Scroll: Enchant Armor (C-grade) -->
+					</item>
+					<item chance="0.4">
+						<item id="1886" count="1" /> <!-- Silver Mold -->
+					</item>
+					<item chance="0.5">
+						<item id="70039" count="1" /> <!-- Blue Talisman - Invisibility -->
+					</item>
+					<item chance="1.1">
+						<item id="1888" count="1" /> <!-- Synthetic Cokes -->
+					</item>
+					<item chance="0.5">
+						<item id="4040" count="1" /> <!-- Mold Lubricant -->
+					</item>
+					<item chance="3.8">
+						<item id="1880" count="1" /> <!-- Steel -->
+					</item>
+					<item chance="2.0">
+						<item id="1883" count="1" /> <!-- Steel Mold -->
+					</item>
+					<item chance="1.5">
+						<item id="4044" count="1" /> <!-- Thons -->
+					</item>
+					<item chance="0.5">
+						<item id="4042" count="1" /> <!-- Enria -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55175" toLevel="1" name="Clan's Special Supplies">
+		<icon>icon.skill0000</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70028</itemConsumeId>
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="2.2">
+						<item id="1877" count="1" /> <!-- Adamantite Nugget -->
+					</item>
+					<item chance="1.8">
+						<item id="4043" count="1" /> <!-- Asofe -->
+					</item>
+					<item chance="5.7">
+						<item id="1884" count="1" /> <!-- Cord -->
+					</item>
+					<item chance="1.6">
+						<item id="1894" count="1" /> <!-- Crafted Leather -->
+					</item>
+					<item chance="6.9">
+						<item id="1881" count="1" /> <!-- Coarse Bone Powder -->
+					</item>
+					<item chance="0.72">
+						<item id="70035" count="1" /> <!-- Yellow Talisman - P. Def. -->
+					</item>
+					<item chance="0.72">
+						<item id="70038" count="1" /> <!-- Yellow Talisman - Healing Power -->
+					</item>
+					<item chance="0.72">
+						<item id="70031" count="1" /> <!-- Yellow Talisman - M. Def. -->
+					</item>
+					<item chance="0.72">
+						<item id="70032" count="1" /> <!-- Yellow Talisman - M. Atk. -->
+					</item>
+					<item chance="0.72">
+						<item id="70033" count="1" /> <!-- Yellow Talisman - Casting Spd. -->
+					</item>
+					<item chance="0.72">
+						<item id="70030" count="1" /> <!-- Yellow Talisman - Atk. Spd. -->
+					</item>
+					<item chance="0.72">
+						<item id="70029" count="1" /> <!-- Yellow Talisman - P. Atk. -->
+					</item>
+					<item chance="0.72">
+						<item id="70036" count="1" /> <!-- Yellow Talisman - Speed -->
+					</item>
+					<item chance="0.72">
+						<item id="70034" count="1" /> <!-- Yellow Talisman - Accuracy -->
+					</item>
+					<item chance="0.72">
+						<item id="70037" count="1" /> <!-- Yellow Talisman - Evasion -->
+					</item>
+					<item chance="0.1">
+						<item id="1892" count="1" /> <!-- Blacksmith' Frame -->
+					</item>
+					<item chance="0.2">
+						<item id="4048" count="1" /> <!-- Maestro Mold -->
+					</item>
+					<item chance="0.1">
+						<item id="4047" count="1" /> <!-- Craftsman Mold -->
+					</item>
+					<item chance="0.1">
+						<item id="1891" count="1" /> <!-- Artisan's Frame -->
+					</item>
+					<item chance="0.2">
+						<item id="4046" count="1" /> <!-- Maestro Anvil Lock -->
+					</item>
+					<item chance="4.2">
+						<item id="1875" count="1" /> <!-- Stone of Purity -->
+					</item>
+					<item chance="5.3">
+						<item id="1885" count="1" /> <!-- High-grade Suede -->
+					</item>
+					<item chance="1.9">
+						<item id="4039" count="1" /> <!-- Mold Glue -->
+					</item>
+					<item chance="11.0">
+						<item id="1882" count="1" /> <!-- Leather -->
+					</item>
+					<item chance="6.6">
+						<item id="1879" count="1" /> <!-- Cokes -->
+					</item>
+					<item chance="5.2">
+						<item id="1895" count="1" /> <!-- Metallic Fiber -->
+					</item>
+					<item chance="10.24">
+						<item id="1876" count="1" /> <!-- Mithril Ore -->
+					</item>
+					<item chance="0.6">
+						<item id="1890" count="1" /> <!-- Mithril Alloy -->
+					</item>
+					<item chance="0.5">
+						<item id="1893" count="1" /> <!-- Oriharukon -->
+					</item>
+					<item chance="2.6">
+						<item id="1874" count="1" /> <!-- Oriharukon Ore -->
+					</item>
+					<item chance="0.3">
+						<item id="4041" count="1" /> <!-- Mold Hardener -->
+					</item>
+					<item chance="1.3">
+						<item id="1887" count="1" /> <!-- Varnish of Purity -->
+					</item>
+					<item chance="6.2">
+						<item id="1878" count="1" /> <!-- Durable Braid -->
+					</item>
+					<item chance="3.0">
+						<item id="1889" count="1" /> <!-- Synthetic Braid -->
+					</item>
+					<item chance="0.1">
+						<item id="4045" count="1" /> <!-- Maestro Holder -->
+					</item>
+					<item chance="0.2">
+						<item id="956" count="1" /> <!-- Scroll: Enchant Armor (D-grade) -->
+					</item>
+					<item chance="0.1">
+						<item id="952" count="1" /> <!-- Scroll: Enchant Armor (C-grade) -->
+					</item>
+					<item chance="0.5">
+						<item id="955" count="1" /> <!-- Scroll: Enchant Weapon (D-grade) -->
+					</item>
+					<item chance="0.1">
+						<item id="951" count="1" /> <!-- Scroll: Enchant Weapon (C-grade) -->
+					</item>
+					<item chance="1.2">
+						<item id="1886" count="1" /> <!-- Silver Mold -->
+					</item>
+					<item chance="0.4">
+						<item id="70039" count="1" /> <!-- Blue Talisman - Invisibility -->
+					</item>
+					<item chance="1.7">
+						<item id="1888" count="1" /> <!-- Synthetic Cokes -->
+					</item>
+					<item chance="0.8">
+						<item id="4040" count="1" /> <!-- Mold Lubricant -->
+					</item>
+					<item chance="4.7">
+						<item id="1880" count="1" /> <!-- Steel -->
+					</item>
+					<item chance="2.6">
+						<item id="1883" count="1" /> <!-- Steel Mold -->
+					</item>
+					<item chance="2.1">
+						<item id="4044" count="1" /> <!-- Thons -->
+					</item>
+					<item chance="1.0">
+						<item id="4042" count="1" /> <!-- Enria -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55176" toLevel="1" name="Yellow Talisman - P. Atk.">
+		<!-- Increases P. Atk. when equipped. -->
+		<icon>icon.etc_talisman_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PAtk">
+				<amount>8</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55177" toLevel="1" name="Yellow Talisman - Atk. Spd.">
+		<!-- Increases Atk. Spd. when equipped. -->
+		<icon>icon.etc_talisman_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PhysicalAttackSpeed">
+				<amount>8</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55178" toLevel="1" name="Yellow Talisman - M. Def.">
+		<!-- Increases M. Def. when equipped. -->
+		<icon>icon.etc_talisman_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PhysicalDefence">
+				<amount>6</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55179" toLevel="1" name="Yellow Talisman - M. Atk.">
+		<!-- Increases magic power when equipped. -->
+		<icon>icon.etc_talisman_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MAtk">
+				<amount>6</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55180" toLevel="1" name="Yellow Talisman - Casting Spd.">
+		<!-- Increases Casting Speed when equipped. -->
+		<icon>icon.etc_talisman_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MagicalAttackSpeed">
+				<amount>8</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55181" toLevel="1" name="Yellow Talisman - Accuracy">
+		<!-- Increases Accuracy when equipped. -->
+		<icon>icon.etc_talisman_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="Accuracy">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicAccuracy">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55182" toLevel="1" name="Yellow Talisman - P. Def.">
+		<!-- Increases P. Def. when equipped. -->
+		<icon>icon.etc_talisman_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PhysicalDefence">
+				<amount>6</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55183" toLevel="1" name="Yellow Talisman - Speed">
+		<!-- Increases Speed when equipped. -->
+		<icon>icon.etc_talisman_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="Speed">
+				<amount>10</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55184" toLevel="1" name="Yellow Talisman - Evasion">
+		<!-- Increases Evasion when equipped. -->
+		<icon>icon.etc_talisman_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PhysicalEvasion">
+				<amount>5</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="MagicalEvasion">
+				<amount>5</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55185" toLevel="1" name="Yellow Talisman - Healing">
+		<!-- Increases the efficiency of HP recovery magic. -->
+		<icon>icon.etc_talisman_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="Heal">
+				<amount>15</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55186" toLevel="1" name="Blue Talisman - Invisibility">
+		<!-- Protects from preemptive attacks from monsters by making your character invisible. -->
+		<icon>icon.etc_talisman_i01</icon>
+		<reuseDelay>240000</reuseDelay>
+		<hitTime>4000</hitTime>
+		<mpConsume>7</mpConsume>
+		<abnormalVisualEffect>STEALTH</abnormalVisualEffect>
+		<magicLevel>40</magicLevel>
+		<operateType>T</operateType>
+		<effectPoint>532</effectPoint>
+		<effects>
+			<effect name="ManaDamOverTime">
+				<power>9</power>
+				<ticks>5</ticks>
+			</effect>
+			<effect name="SilentMove">
+				<chance>100</chance>
+			</effect>
+			<effect name="Speed">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55193" toLevel="1" name="Sealed Rune Lvl 1">
+		<icon>BranchIcon.Icon.g_green_sealed_rune</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70000</itemConsumeId> <!-- Sealed Rune - Lv. 1 -->
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="12.5">
+						<item id="29818" count="1" /> <!-- Sigels Rune - Stage 1 -->
+					</item>
+					<item chance="12.5">
+						<item id="29838" count="1" /> <!-- Tyrrs Rune - Stage 1 -->
+					</item>
+					<item chance="12.5">
+						<item id="29858" count="1" /> <!-- Othells Rune - Stage 1 -->
+					</item>
+					<item chance="12.5">
+						<item id="29878" count="1" /> <!-- Yuls Rune - Stage 1 -->
+					</item>
+					<item chance="12.5">
+						<item id="29898" count="1" /> <!-- Feohs Rune - Stage 1 -->
+					</item>
+					<item chance="12.5">
+						<item id="29918" count="1" /> <!-- Iss Rune - Stage 1 -->
+					</item>
+					<item chance="12.5">
+						<item id="29938" count="1" /> <!-- Wynns Rune - Stage 1 -->
+					</item>
+					<item chance="12.5">
+						<item id="29958" count="1" /> <!-- Aeores Rune - Stage 1 -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55194" toLevel="1" name="Sealed Rune Lvl 2">
+		<icon>BranchIcon.Icon.g_green_sealed_rune</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70001</itemConsumeId> <!-- Sealed Rune - Lv. 2 -->
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="12.5">
+						<item id="29819" count="1" /> <!-- Sigels Rune - Stage 2 -->
+					</item>
+					<item chance="12.5">
+						<item id="29839" count="1" /> <!-- Tyrrs Rune - Stage 2 -->
+					</item>
+					<item chance="12.5">
+						<item id="29859" count="1" /> <!-- Othells Rune - Stage 2 -->
+					</item>
+					<item chance="12.5">
+						<item id="29879" count="1" /> <!-- Yuls Rune - Stage 2 -->
+					</item>
+					<item chance="12.5">
+						<item id="29899" count="1" /> <!-- Feohs Rune - Stage 2 -->
+					</item>
+					<item chance="12.5">
+						<item id="29919" count="1" /> <!-- Iss Rune - Stage 2 -->
+					</item>
+					<item chance="12.5">
+						<item id="29939" count="1" /> <!-- Wynns Rune - Stage 2 -->
+					</item>
+					<item chance="12.5">
+						<item id="29959" count="1" /> <!-- Aeores Rune - Stage 2 -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55195" toLevel="1" name="Sealed Rune Lvl 3">
+		<icon>BranchIcon.Icon.g_green_sealed_rune</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70002</itemConsumeId> <!-- Sealed Rune - Lv. 3 -->
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="12.5">
+						<item id="29820" count="1" /> <!-- Sigels Rune - Stage 3 -->
+					</item>
+					<item chance="12.5">
+						<item id="29840" count="1" /> <!-- Tyrrs Rune - Stage 3 -->
+					</item>
+					<item chance="12.5">
+						<item id="29860" count="1" /> <!-- Othells Rune - Stage 3 -->
+					</item>
+					<item chance="12.5">
+						<item id="29880" count="1" /> <!-- Yuls Rune - Stage 3 -->
+					</item>
+					<item chance="12.5">
+						<item id="29900" count="1" /> <!-- Feohs Rune - Stage 3 -->
+					</item>
+					<item chance="12.5">
+						<item id="29920" count="1" /> <!-- Iss Rune - Stage 3 -->
+					</item>
+					<item chance="12.5">
+						<item id="29940" count="1" /> <!-- Wynns Rune - Stage 3 -->
+					</item>
+					<item chance="12.5">
+						<item id="29960" count="1" /> <!-- Aeores Rune - Stage 3 -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55196" toLevel="1" name="Sealed Rune Lvl 4">
+		<icon>BranchIcon.Icon.g_green_sealed_rune</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70003</itemConsumeId> <!-- Sealed Rune - Lv. 4 -->
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="12.5">
+						<item id="29821" count="1" /> <!-- Sigels Rune - Stage 4 -->
+					</item>
+					<item chance="12.5">
+						<item id="29841" count="1" /> <!-- Tyrrs Rune - Stage 4 -->
+					</item>
+					<item chance="12.5">
+						<item id="29861" count="1" /> <!-- Othells Rune - Stage 4 -->
+					</item>
+					<item chance="12.5">
+						<item id="29881" count="1" /> <!-- Yuls Rune - Stage 4 -->
+					</item>
+					<item chance="12.5">
+						<item id="29901" count="1" /> <!-- Feohs Rune - Stage 4 -->
+					</item>
+					<item chance="12.5">
+						<item id="29921" count="1" /> <!-- Iss Rune - Stage 4 -->
+					</item>
+					<item chance="12.5">
+						<item id="29941" count="1" /> <!-- Wynns Rune - Stage 4 -->
+					</item>
+					<item chance="12.5">
+						<item id="29961" count="1" /> <!-- Aeores Rune - Stage 4 -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55197" toLevel="1" name="Sealed Rune Lvl 5">
+		<icon>BranchIcon.Icon.g_green_sealed_rune</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70004</itemConsumeId> <!-- Sealed Rune - Lv. 5 -->
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="12.5">
+						<item id="29822" count="1" /> <!-- Sigels Rune - Stage 5 -->
+					</item>
+					<item chance="12.5">
+						<item id="29842" count="1" /> <!-- Tyrrs Rune - Stage 5 -->
+					</item>
+					<item chance="12.5">
+						<item id="29862" count="1" /> <!-- Othells Rune - Stage 5 -->
+					</item>
+					<item chance="12.5">
+						<item id="29882" count="1" /> <!-- Yuls Rune - Stage 5 -->
+					</item>
+					<item chance="12.5">
+						<item id="29902" count="1" /> <!-- Feohs Rune - Stage 5 -->
+					</item>
+					<item chance="12.5">
+						<item id="29922" count="1" /> <!-- Iss Rune - Stage 5 -->
+					</item>
+					<item chance="12.5">
+						<item id="29942" count="1" /> <!-- Wynns Rune - Stage 5 -->
+					</item>
+					<item chance="12.5">
+						<item id="29962" count="1" /> <!-- Aeores Rune - Stage 5 -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55198" toLevel="1" name="Sealed Rune Lvl 6">
+		<icon>BranchIcon.Icon.g_blue_sealed_rune</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70005</itemConsumeId> <!-- Sealed Rune - Lv. 6 -->
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="12.5">
+						<item id="29823" count="1" /> <!-- Sigels Rune - Stage 6 -->
+					</item>
+					<item chance="12.5">
+						<item id="29843" count="1" /> <!-- Tyrrs Rune - Stage 6 -->
+					</item>
+					<item chance="12.5">
+						<item id="29863" count="1" /> <!-- Othells Rune - Stage 6 -->
+					</item>
+					<item chance="12.5">
+						<item id="29883" count="1" /> <!-- Yuls Rune - Stage 6 -->
+					</item>
+					<item chance="12.5">
+						<item id="29903" count="1" /> <!-- Feohs Rune - Stage 6 -->
+					</item>
+					<item chance="12.5">
+						<item id="29923" count="1" /> <!-- Iss Rune - Stage 6 -->
+					</item>
+					<item chance="12.5">
+						<item id="29943" count="1" /> <!-- Wynns Rune - Stage 6 -->
+					</item>
+					<item chance="12.5">
+						<item id="29963" count="1" /> <!-- Aeores Rune - Stage 6 -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="55199" toLevel="1" name="Sealed Rune Lvl 7">
+		<icon>BranchIcon.Icon.g_blue_sealed_rune</icon>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>70006</itemConsumeId> <!-- Sealed Rune - Lv. 7 -->
+		<magicLevel>1</magicLevel>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>20</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="12.5">
+						<item id="29824" count="1" /> <!-- Sigels Rune - Stage 7 -->
+					</item>
+					<item chance="12.5">
+						<item id="29844" count="1" /> <!-- Tyrrs Rune - Stage 7 -->
+					</item>
+					<item chance="12.5">
+						<item id="29864" count="1" /> <!-- Othells Rune - Stage 7 -->
+					</item>
+					<item chance="12.5">
+						<item id="29884" count="1" /> <!-- Yuls Rune - Stage 7 -->
+					</item>
+					<item chance="12.5">
+						<item id="29904" count="1" /> <!-- Feohs Rune - Stage 7 -->
+					</item>
+					<item chance="12.5">
+						<item id="29924" count="1" /> <!-- Iss Rune - Stage 7 -->
+					</item>
+					<item chance="12.5">
+						<item id="29944" count="1" /> <!-- Wynns Rune - Stage 7 -->
+					</item>
+					<item chance="12.5">
+						<item id="29964" count="1" /> <!-- Aeores Rune - Stage 7 -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+</list>

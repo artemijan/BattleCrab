@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Interlude_21_14">
+		<group>
+			<npc id="32090" x="35652" y="-117571" z="-1272" respawnTime="60sec" /> <!-- Dead Leopard's Carcass -->
+			<npc id="22001" x="46734" y="-115708" z="-3815" heading="31429" respawnTime="60sec" /> <!-- Grim Wolf -->
+			<npc id="22001" x="46259" y="-115912" z="-3718" heading="37476" respawnTime="60sec" /> <!-- Grim Wolf -->
+			<npc id="22001" x="49727" y="-115513" z="-3787" heading="1982" respawnTime="60sec" /> <!-- Grim Wolf -->
+			<npc id="22003" x="45485" y="-119731" z="-3537" heading="17977" respawnTime="60sec" /> <!-- Grave Robber Scout -->
+			<npc id="22004" x="45309" y="-119755" z="-3514" heading="37514" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22005" x="45340" y="-119665" z="-3508" heading="16652" respawnTime="60sec" /> <!-- Grave Robber Ranger -->
+			<npc id="22006" x="45307" y="-119938" z="-3549" heading="45606" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22005" x="44744" y="-120309" z="-3503" heading="42541" respawnTime="60sec" /> <!-- Grave Robber Ranger -->
+			<npc id="22006" x="44647" y="-120441" z="-3474" heading="42541" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22006" x="44694" y="-120405" z="-3483" heading="6818" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22003" x="44223" y="-119908" z="-3419" heading="27349" respawnTime="60sec" /> <!-- Grave Robber Scout -->
+			<npc id="22005" x="43948" y="-120141" z="-3435" heading="40099" respawnTime="60sec" /> <!-- Grave Robber Ranger -->
+			<npc id="22006" x="44010" y="-120506" z="-3415" heading="54365" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22006" x="43953" y="-120641" z="-3399" heading="44984" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22004" x="43476" y="-120466" z="-3409" heading="29108" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22004" x="43202" y="-119798" z="-3383" heading="29776" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22003" x="43306" y="-119574" z="-3383" heading="11851" respawnTime="60sec" /> <!-- Grave Robber Scout -->
+			<npc id="22006" x="43317" y="-119797" z="-3383" heading="49666" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22006" x="43976" y="-119527" z="-3403" heading="20642" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22006" x="44086" y="-119606" z="-3407" heading="59039" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22005" x="44151" y="-119569" z="-3411" heading="43680" respawnTime="60sec" /> <!-- Grave Robber Ranger -->
+			<npc id="22006" x="44208" y="-120622" z="-3415" heading="20121" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22006" x="43914" y="-121108" z="-3403" heading="44547" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22004" x="43868" y="-121316" z="-3399" heading="46881" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22003" x="43746" y="-121237" z="-3389" heading="26775" respawnTime="60sec" /> <!-- Grave Robber Scout -->
+			<npc id="22006" x="43818" y="-121224" z="-3394" heading="1864" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22005" x="43696" y="-121147" z="-3384" heading="29684" respawnTime="60sec" /> <!-- Grave Robber Ranger -->
+			<npc id="22006" x="46585" y="-106764" z="-1517" heading="28214" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22005" x="46963" y="-107221" z="-1562" heading="56795" respawnTime="60sec" /> <!-- Grave Robber Ranger -->
+			<npc id="22004" x="47232" y="-107298" z="-1614" heading="37743" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22005" x="47498" y="-107709" z="-1589" heading="52851" respawnTime="60sec" /> <!-- Grave Robber Ranger -->
+			<npc id="22006" x="47627" y="-108013" z="-1580" heading="17395" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22006" x="47620" y="-107941" z="-1572" heading="17395" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22006" x="47503" y="-108855" z="-1831" heading="48247" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22005" x="46518" y="-108855" z="-1832" heading="38459" respawnTime="60sec" /> <!-- Grave Robber Ranger -->
+			<npc id="22004" x="46451" y="-108753" z="-1832" heading="22471" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22006" x="46759" y="-108270" z="-1832" heading="13424" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22006" x="46967" y="-109498" z="-1718" heading="49152" respawnTime="60sec" /> <!-- Grave Robber Guard -->
+			<npc id="22004" x="47038" y="-109490" z="-1722" heading="1171" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22004" x="48242" y="-110178" z="-2082" heading="18883" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22004" x="48458" y="-110068" z="-2082" heading="4711" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22004" x="47079" y="-110732" z="-2349" heading="40540" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22003" x="47168" y="-110575" z="-2351" heading="8386" respawnTime="60sec" /> <!-- Grave Robber Scout -->
+			<npc id="22003" x="47479" y="-110646" z="-2334" heading="11997" respawnTime="60sec" /> <!-- Grave Robber Scout -->
+			<npc id="22003" x="47806" y="-111256" z="-2225" heading="26180" respawnTime="60sec" /> <!-- Grave Robber Scout -->
+			<npc id="22001" x="41672" y="-113145" z="-2191" heading="17948" respawnTime="60sec" /> <!-- Grim Wolf -->
+			<npc id="22001" x="41554" y="-112766" z="-2160" heading="19952" respawnTime="60sec" /> <!-- Grim Wolf -->
+			<npc id="22001" x="41393" y="-112883" z="-2113" heading="40455" respawnTime="60sec" /> <!-- Grim Wolf -->
+			<npc id="22001" x="41158" y="-112479" z="-2071" heading="25314" respawnTime="60sec" /> <!-- Grim Wolf -->
+			<npc id="22003" x="40907" y="-112967" z="-2059" heading="55063" respawnTime="60sec" /> <!-- Grave Robber Scout -->
+			<npc id="22003" x="40847" y="-113251" z="-2068" heading="63122" respawnTime="60sec" /> <!-- Grave Robber Scout -->
+			<npc id="22003" x="40630" y="-112931" z="-2028" heading="29870" respawnTime="60sec" /> <!-- Grave Robber Scout -->
+			<npc id="22002" x="40278" y="-112103" z="-1860" heading="24998" respawnTime="60sec" /> <!-- Grim Bear -->
+			<npc id="22002" x="40086" y="-111746" z="-1752" heading="21531" respawnTime="60sec" /> <!-- Grim Bear -->
+			<npc id="22002" x="40226" y="-111894" z="-1802" heading="57054" respawnTime="60sec" /> <!-- Grim Bear -->
+			<npc id="22004" x="40146" y="-111587" z="-1732" heading="21463" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22004" x="39364" y="-111618" z="-1467" heading="25880" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22003" x="39758" y="-111270" z="-1576" heading="8040" respawnTime="60sec" /> <!-- Grave Robber Scout -->
+			<npc id="22004" x="40859" y="-111185" z="-1748" heading="63642" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22002" x="40724" y="-111027" z="-1687" heading="22874" respawnTime="60sec" /> <!-- Grim Bear -->
+			<npc id="22003" x="40640" y="-111195" z="-1719" heading="51771" respawnTime="60sec" /> <!-- Grave Robber Scout -->
+			<npc id="22004" x="39870" y="-110701" z="-1486" heading="30058" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22002" x="39925" y="-110598" z="-1472" heading="3139" respawnTime="60sec" /> <!-- Grim Bear -->
+			<npc id="32030" x="35671" y="-117596" z="-1280" heading="4051" respawnTime="60sec" /> <!-- Garden Sculpture -->
+			<npc id="32017" x="47674" y="-115928" z="-3749" heading="12603" respawnTime="60sec" /> <!-- Karuda -->
+			<npc id="32026" x="59718" y="-115112" z="-3418" heading="14369" respawnTime="60sec" /> <!-- Hestui Guard -->
+			<npc id="22005" x="55367" y="-115658" z="-3529" heading="24186" respawnTime="60sec" /> <!-- Grave Robber Ranger -->
+			<npc id="22005" x="54752" y="-115901" z="-3479" heading="36917" respawnTime="60sec" /> <!-- Grave Robber Ranger -->
+			<npc id="22003" x="54599" y="-116394" z="-3458" heading="8567" respawnTime="60sec" /> <!-- Grave Robber Scout -->
+			<npc id="22003" x="53978" y="-116434" z="-3385" heading="32888" respawnTime="60sec" /> <!-- Grave Robber Scout -->
+			<npc id="22005" x="53578" y="-115477" z="-3342" heading="52726" respawnTime="60sec" /> <!-- Grave Robber Ranger -->
+			<npc id="22004" x="51132" y="-115203" z="-3589" heading="30025" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22004" x="50763" y="-115543" z="-3630" heading="39758" respawnTime="60sec" /> <!-- Grave Robber Lookout -->
+			<npc id="22002" x="49298" y="-115254" z="-3804" heading="25829" respawnTime="60sec" /> <!-- Grim Bear -->
+			<npc id="22002" x="48920" y="-115617" z="-3824" heading="44143" respawnTime="60sec" /> <!-- Grim Bear -->
+			<npc id="22001" x="48973" y="-115961" z="-3824" heading="45022" respawnTime="60sec" /> <!-- Grim Wolf -->
+		</group>
+	</spawn>
+</list>

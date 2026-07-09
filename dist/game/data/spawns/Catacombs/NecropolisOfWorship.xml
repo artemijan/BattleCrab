@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="NecropolisOfWorship">
+		<!-- Monsters -->
+		<group name="ssq09_2323_01">
+			<territories>
+				<territory name="ssq09_2323_01" minZ="-5480" maxZ="-5380">
+					<node x="113197" y="173979" />
+					<node x="113652" y="173981" />
+					<node x="113652" y="175534" />
+					<node x="113226" y="175535" />
+				</territory>
+			</territories>
+			<npc id="21217" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Hallowed Priest -->
+			<npc id="21148" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Liviona -->
+			<npc id="21174" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lith Commander -->
+			<npc id="21195" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Gigant Commander -->
+		</group>
+		<group name="ssq09_2323_02">
+			<territories>
+				<territory name="ssq09_2323_02" minZ="-5472" maxZ="-5272">
+					<node x="111512" y="176699" />
+					<node x="112963" y="176699" />
+					<node x="112963" y="177354" />
+					<node x="111512" y="177354" />
+				</territory>
+			</territories>
+			<npc id="21217" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Hallowed Priest -->
+			<npc id="21148" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Liviona -->
+			<npc id="21174" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lith Commander -->
+			<npc id="21195" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Gigant Commander -->
+		</group>
+		<group name="ssq09_2323_03">
+			<territories>
+				<territory name="ssq09_2323_03" minZ="-5472" maxZ="-5272">
+					<node x="111283" y="178288" />
+					<node x="111936" y="178288" />
+					<node x="111936" y="178940" />
+					<node x="111283" y="178940" />
+				</territory>
+			</territories>
+			<npc id="21217" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Hallowed Priest -->
+			<npc id="21148" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Liviona -->
+			<npc id="21174" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lith Commander -->
+			<npc id="21195" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Gigant Commander -->
+		</group>
+		<group name="ssq09_2323_04">
+			<territories>
+				<territory name="ssq09_2323_04" minZ="-5480" maxZ="-5280">
+					<node x="114443" y="173767" />
+					<node x="115079" y="173767" />
+					<node x="115079" y="175749" />
+					<node x="114443" y="175749" />
+				</territory>
+			</territories>
+			<npc id="21217" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Hallowed Priest -->
+			<npc id="21148" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Liviona -->
+			<npc id="21174" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lith Commander -->
+			<npc id="21195" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Gigant Commander -->
+		</group>
+		<group name="ssq09_2323_05">
+			<territories>
+				<territory name="ssq09_2323_05" minZ="-5472" maxZ="-5272">
+					<node x="113435" y="177267" />
+					<node x="114063" y="177267" />
+					<node x="114063" y="178762" />
+					<node x="113435" y="178762" />
+				</territory>
+			</territories>
+			<npc id="21217" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Hallowed Priest -->
+			<npc id="21148" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Liviona -->
+			<npc id="21174" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lith Commander -->
+			<npc id="21195" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Gigant Commander -->
+		</group>
+		<group name="ssq09_2323_06">
+			<territories>
+				<territory name="ssq09_2323_06" minZ="-5472" maxZ="-5272">
+					<node x="115195" y="177054" />
+					<node x="116646" y="177054" />
+					<node x="116646" y="177709" />
+					<node x="115195" y="177709" />
+				</territory>
+			</territories>
+			<npc id="21217" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Hallowed Priest -->
+			<npc id="21148" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Liviona -->
+			<npc id="21174" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lith Commander -->
+			<npc id="21195" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Gigant Commander -->
+		</group>
+		<group name="ssq09_2323_07">
+			<territories>
+				<territory name="ssq09_2323_07" minZ="-5472" maxZ="-5272">
+					<node x="115898" y="173683" />
+					<node x="116551" y="173683" />
+					<node x="116551" y="174336" />
+					<node x="115898" y="174336" />
+				</territory>
+			</territories>
+			<npc id="21217" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Hallowed Priest -->
+			<npc id="21148" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Liviona -->
+			<npc id="21174" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lith Commander -->
+			<npc id="21195" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Gigant Commander -->
+		</group>
+		<group name="ssq09_2323_08">
+			<territories>
+				<territory name="ssq09_2323_08" minZ="-5472" maxZ="-5272">
+					<node x="115893" y="178277" />
+					<node x="116545" y="178277" />
+					<node x="116545" y="178929" />
+					<node x="115893" y="178929" />
+				</territory>
+			</territories>
+			<npc id="21217" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Hallowed Priest -->
+			<npc id="21148" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Liviona -->
+			<npc id="21174" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lith Commander -->
+			<npc id="21195" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Gigant Commander -->
+		</group>
+		<group name="ssq09_2323_09">
+			<territories>
+				<territory name="ssq09_2323_09" minZ="-5472" maxZ="-5272">
+					<node x="116974" y="173678" />
+					<node x="117626" y="173678" />
+					<node x="117626" y="174330" />
+					<node x="116974" y="174330" />
+				</territory>
+			</territories>
+			<npc id="21218" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Overlord -->
+			<npc id="21147" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Gargoyle -->
+			<npc id="21175" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Butcher -->
+			<npc id="21196" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Sentinel -->
+		</group>
+		<group name="ssq09_2323_10">
+			<territories>
+				<territory name="ssq09_2323_10" minZ="-5472" maxZ="-5272">
+					<node x="116991" y="175291" />
+					<node x="117618" y="175291" />
+					<node x="117618" y="176786" />
+					<node x="116991" y="176786" />
+				</territory>
+			</territories>
+			<npc id="21218" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Overlord -->
+			<npc id="21147" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Gargoyle -->
+			<npc id="21175" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Butcher -->
+			<npc id="21196" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Sentinel -->
+		</group>
+		<group name="ssq09_2323_11">
+			<territories>
+				<territory name="ssq09_2323_11" minZ="-5472" maxZ="-5272">
+					<node x="116969" y="178293" />
+					<node x="117621" y="178293" />
+					<node x="117621" y="178945" />
+					<node x="116969" y="178945" />
+				</territory>
+			</territories>
+			<npc id="21218" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Overlord -->
+			<npc id="21147" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Gargoyle -->
+			<npc id="21175" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Butcher -->
+			<npc id="21196" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Sentinel -->
+		</group>
+		<group name="ssq09_2323_12">
+			<territories>
+				<territory name="ssq09_2323_12" minZ="-5472" maxZ="-5272">
+					<node x="118071" y="173673" />
+					<node x="118723" y="173673" />
+					<node x="118723" y="174325" />
+					<node x="118071" y="174325" />
+				</territory>
+			</territories>
+			<npc id="21218" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Overlord -->
+			<npc id="21147" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Gargoyle -->
+			<npc id="21175" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Butcher -->
+			<npc id="21196" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Sentinel -->
+		</group>
+		<group name="ssq09_2323_13">
+			<territories>
+				<territory name="ssq09_2323_13" minZ="-5480" maxZ="-5280">
+					<node x="119065" y="175764" />
+					<node x="119701" y="175764" />
+					<node x="119701" y="177746" />
+					<node x="119065" y="177746" />
+				</territory>
+			</territories>
+			<npc id="21218" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Overlord -->
+			<npc id="21147" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Gargoyle -->
+			<npc id="21175" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Butcher -->
+			<npc id="21196" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Sentinel -->
+		</group>
+		<group name="ssq09_2323_14">
+			<territories>
+				<territory name="ssq09_2323_14" minZ="-5472" maxZ="-5272">
+					<node x="119410" y="173648" />
+					<node x="120862" y="173648" />
+					<node x="120862" y="174303" />
+					<node x="119410" y="174303" />
+				</territory>
+			</territories>
+			<npc id="21218" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Overlord -->
+			<npc id="21147" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Gargoyle -->
+			<npc id="21175" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Butcher -->
+			<npc id="21196" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Sentinel -->
+		</group>
+		<group name="ssq09_2323_15">
+			<territories>
+				<territory name="ssq09_2323_15" minZ="-5472" maxZ="-5372">
+					<node x="119207" y="178794" />
+					<node x="120327" y="178794" />
+					<node x="120322" y="178435" />
+					<node x="119189" y="178439" />
+				</territory>
+			</territories>
+			<npc id="21218" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Overlord -->
+			<npc id="21147" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Gargoyle -->
+			<npc id="21175" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Butcher -->
+			<npc id="21196" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Sentinel -->
+		</group>
+		<group name="ssq09_2323_16">
+			<territories>
+				<territory name="ssq09_2323_16" minZ="-5472" maxZ="-5272">
+					<node x="121561" y="173689" />
+					<node x="122214" y="173689" />
+					<node x="122214" y="174341" />
+					<node x="121561" y="174341" />
+				</territory>
+			</territories>
+			<npc id="21218" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Overlord -->
+			<npc id="21147" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Gargoyle -->
+			<npc id="21175" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Butcher -->
+			<npc id="21196" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Sentinel -->
+		</group>
+		<group name="ssq09_2323_17">
+			<territories>
+				<territory name="ssq09_2323_17" minZ="-5472" maxZ="-5272">
+					<node x="121596" y="175493" />
+					<node x="122223" y="175493" />
+					<node x="122223" y="176987" />
+					<node x="121596" y="176987" />
+				</territory>
+			</territories>
+			<npc id="21218" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Overlord -->
+			<npc id="21147" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Gargoyle -->
+			<npc id="21175" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Butcher -->
+			<npc id="21196" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Sentinel -->
+		</group>
+		<group name="ssq09_2323_18">
+			<territories>
+				<territory name="ssq09_2323_18" minZ="-5472" maxZ="-5272">
+					<node x="121569" y="178303" />
+					<node x="122221" y="178303" />
+					<node x="122221" y="178955" />
+					<node x="121569" y="178955" />
+				</territory>
+			</territories>
+			<npc id="21218" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Overlord -->
+			<npc id="21147" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Catacomb Gargoyle -->
+			<npc id="21175" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Butcher -->
+			<npc id="21196" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Sentinel -->
+		</group>
+		<group name="ssq09_2323_19">
+			<territories>
+				<territory name="ssq09_2323_19" minZ="-5472" maxZ="-5272">
+					<node x="117072" y="180436" />
+					<node x="117604" y="179371" />
+					<node x="117604" y="180023" />
+					<node x="116952" y="180023" />
+				</territory>
+			</territories>
+			<npc id="21219" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Priest -->
+			<npc id="21149" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Decayed Ancient Pikeman -->
+			<npc id="21176" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq09_2323_20">
+			<territories>
+				<territory name="ssq09_2323_20" minZ="-5472" maxZ="-5272">
+					<node x="117116" y="180488" />
+					<node x="118241" y="180491" />
+					<node x="118234" y="180859" />
+					<node x="117116" y="180854" />
+				</territory>
+			</territories>
+			<npc id="21219" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Priest -->
+			<npc id="21149" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Decayed Ancient Pikeman -->
+			<npc id="21176" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq09_2323_21">
+			<territories>
+				<territory name="ssq09_2323_21" minZ="-5472" maxZ="-5372">
+					<node x="120201" y="180654" />
+					<node x="119830" y="180662" />
+					<node x="119830" y="180662" />
+					<node x="120207" y="179533" />
+				</territory>
+			</territories>
+			<npc id="21219" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Priest -->
+			<npc id="21149" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Decayed Ancient Pikeman -->
+			<npc id="21176" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq09_2323_22">
+			<territories>
+				<territory name="ssq09_2323_22" minZ="-5472" maxZ="-5272">
+					<node x="121574" y="179378" />
+					<node x="122227" y="179378" />
+					<node x="122227" y="180030" />
+					<node x="121574" y="180030" />
+				</territory>
+			</territories>
+			<npc id="21219" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Priest -->
+			<npc id="21149" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Decayed Ancient Pikeman -->
+			<npc id="21176" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq09_2323_23">
+			<territories>
+				<territory name="ssq09_2323_23" minZ="-5469" maxZ="-5369">
+					<node x="119627" y="181596" />
+					<node x="121164" y="181616" />
+					<node x="121164" y="182034" />
+					<node x="119627" y="182061" />
+				</territory>
+			</territories>
+			<npc id="21219" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Priest -->
+			<npc id="21149" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Decayed Ancient Pikeman -->
+			<npc id="21176" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq09_2323_24">
+			<territories>
+				<territory name="ssq09_2323_24" minZ="-5472" maxZ="-5272">
+					<node x="116991" y="181365" />
+					<node x="117618" y="181365" />
+					<node x="117618" y="182860" />
+					<node x="116991" y="182860" />
+				</territory>
+			</territories>
+			<npc id="21219" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Priest -->
+			<npc id="21149" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Decayed Ancient Pikeman -->
+			<npc id="21176" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq09_2323_25">
+			<territories>
+				<territory name="ssq09_2323_25" minZ="-5472" maxZ="-5272">
+					<node x="116960" y="183996" />
+					<node x="117612" y="183996" />
+					<node x="117612" y="184648" />
+					<node x="116960" y="184648" />
+				</territory>
+			</territories>
+			<npc id="21219" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Priest -->
+			<npc id="21149" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Decayed Ancient Pikeman -->
+			<npc id="21176" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq09_2323_26">
+			<territories>
+				<territory name="ssq09_2323_26" minZ="-5472" maxZ="-5272">
+					<node x="118396" y="183204" />
+					<node x="119024" y="183204" />
+					<node x="119024" y="184698" />
+					<node x="118396" y="184698" />
+				</territory>
+			</territories>
+			<npc id="21219" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Priest -->
+			<npc id="21149" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Decayed Ancient Pikeman -->
+			<npc id="21176" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="2" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq09_2323_27">
+			<territories>
+				<territory name="ssq09_2323_27" minZ="-5472" maxZ="-5272">
+					<node x="121570" y="183989" />
+					<node x="122222" y="183989" />
+					<node x="122222" y="184641" />
+					<node x="121570" y="184641" />
+				</territory>
+			</territories>
+			<npc id="21219" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Vault Priest -->
+			<npc id="21149" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Decayed Ancient Pikeman -->
+			<npc id="21176" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="1" respawnTime="143sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		
+		<!-- NPCs -->
+		<group name="ssq09_npc2323_01">
+			<npc id="31105" x="111600" y="174016" z="-5440" heading="16500" respawnTime="60sec" /> <!-- Gatekeeper Ziggurat -->
+		</group>
+		<group name="ssq09_npc2323_02">
+			<npc id="31097" x="110848" y="174016" z="-5437" heading="32500" respawnTime="60sec" /> <!-- Gatekeeper Ziggurat -->
+		</group>
+	</spawn>
+</list>

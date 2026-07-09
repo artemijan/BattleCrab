@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="91" parentClassId="6">
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="3" getLevel="76" levelUpSp="8100000">
+			<item id="8620" count="1" /> <!-- Ancient Book: Divine Inspiration (Manuscript) -->
+		</skill>
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="4" getLevel="76" levelUpSp="8100000">
+			<item id="8621" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Version) -->
+		</skill>
+		<skill skillId="328" skillLevel="1" skillName="Wisdom" levelUpSp="10000000" getLevel="76" />
+		<skill skillId="329" skillLevel="1" skillName="Health" levelUpSp="10000000" getLevel="76" />
+		<skill skillId="335" skillLevel="1" skillName="Fortitude" levelUpSp="10000000" getLevel="76" />
+		<skill skillId="353" skillLevel="1" skillName="Shield Slam" levelUpSp="13000000" getLevel="77" />
+		<skill skillId="368" skillLevel="1" skillName="Vengeance" levelUpSp="13000000" getLevel="77" />
+		<skill skillId="426" skillLevel="1" skillName="Battle Force" levelUpSp="13000000" getLevel="77" />
+		<skill skillId="342" skillLevel="1" skillName="Touch of Death" levelUpSp="21340000" getLevel="78" />
+		<skill skillId="350" skillLevel="1" skillName="Physical Mirror" levelUpSp="21340000" getLevel="78" />
+		<skill skillId="429" skillLevel="1" skillName="Knighthood" levelUpSp="21340000" getLevel="78" />
+		<skill skillId="439" skillLevel="1" skillName="Shield of Revenge" levelUpSp="80000000" getLevel="79" />
+		<skill skillId="454" skillLevel="1" skillName="Symbol of Defense" levelUpSp="150000000" getLevel="80" />
+	</skillTree>
+</list>

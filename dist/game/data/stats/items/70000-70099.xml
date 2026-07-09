@@ -1,0 +1,528 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+	<item id="70000" name="Sealed Rune - Stage 1" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 1, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_green_sealed_rune" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55193" level="1" /> <!-- Sealed Rune - Lv. 1 -->
+		</skills>
+	</item>
+	<item id="70001" name="Sealed Rune - Stage 2" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 2, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_green_sealed_rune" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55194" level="1" /> <!-- Sealed Rune - Lv. 2 -->
+		</skills>
+	</item>
+	<item id="70002" name="Sealed Rune - Stage 3" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 3, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_green_sealed_rune" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55195" level="1" /> <!-- Sealed Rune - Lv. 3 -->
+		</skills>
+	</item>
+	<item id="70003" name="Sealed Rune - Stage 4" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 4, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_green_sealed_rune" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55196" level="1" /> <!-- Sealed Rune - Lv. 4 -->
+		</skills>
+	</item>
+	<item id="70004" name="Sealed Rune - Stage 5" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 5, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_green_sealed_rune" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55197" level="1" /> <!-- Sealed Rune - Lv. 5 -->
+		</skills>
+	</item>
+	<item id="70005" name="Sealed Rune - Stage 6" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 6, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_blue_sealed_rune" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55198" level="1" /> <!-- Sealed Rune - Lv. 5 -->
+		</skills>
+	</item>
+	<item id="70006" name="Sealed Rune - Stage 7" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 7, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_blue_sealed_rune" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55199" level="1" /> <!-- Sealed Rune - Lv. 7 -->
+		</skills>
+	</item>
+	<item id="70007" name="Sealed Rune - Stage 8" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 8, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_blue_sealed_rune" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55200" level="1" /> <!-- Sealed Rune - Lv. 8 -->
+		</skills>
+	</item>
+	<item id="70008" name="Sealed Rune - Stage 9" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 9, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_blue_sealed_rune" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55201" level="1" /> <!-- Sealed Rune - Lv. 9 -->
+		</skills>
+	</item>
+	<item id="70009" name="Sealed Rune - Stage 10" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 10, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_blue_sealed_rune" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55202" level="1" /> <!-- Sealed Rune - Lv. 10 -->
+		</skills>
+	</item>
+	<item id="70010" name="Sealed Rune - Stage 11" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 11, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_red_sealed_rune_01" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55203" level="1" /> <!-- Sealed Rune - Lv. 11 -->
+		</skills>
+	</item>
+	<item id="70011" name="Sealed Rune - Stage 12" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 12, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_red_sealed_rune_01" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55204" level="1" /> <!-- Sealed Rune - Lv. 12 -->
+		</skills>
+	</item>
+	<item id="70012" name="Sealed Rune - Stage 13" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 13, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="BranchIcon.Icon.g_red_sealed_rune_01" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55205" level="1" /> <!-- Sealed Rune - Lv. 13 -->
+		</skills>
+	</item>
+	<item id="70013" name="Sealed Rune - Stage 14" additionalName="Not in Use" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 14, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="icon.bm_pirate_king_box" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="70014" name="Sealed Rune - Stage 15" additionalName="Not in Use" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 15, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="icon.bm_pirate_king_box" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="70015" name="Sealed Rune - Stage 16" additionalName="Not in Use" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 16, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="icon.bm_pirate_king_box" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="70016" name="Sealed Rune - Stage 17" additionalName="Not in Use" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 17, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="icon.bm_pirate_king_box" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="70017" name="Sealed Rune - Stage 18" additionalName="Not in Use" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 18, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="icon.bm_pirate_king_box" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="70018" name="Sealed Rune - Stage 19" additionalName="Not in Use" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 19, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="icon.bm_pirate_king_box" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="70019" name="Sealed Rune - Stage 20" additionalName="Not in Use" type="EtcItem">
+		<!-- Double-click to receive one Rune - Stage 20, which you can insert into your weapon. Cannot be sold in the grocery store. -->
+		<set name="icon" val="icon.bm_pirate_king_box" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="70020" name="Clan's Supplies" additionalName="Low Grade" type="EtcItem">
+		<!-- A box with the reward for clan members for hunting monsters. It may contain Daily Coin or Clans Special Supplies (Low-grade). Cannot be exchanged, dropped, or sold in a private store. -->
+		<set name="icon" val="icon.etc_box_of_adventure_2_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="weight" val="10" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="70024" min="1" max="1" chance="100.0" /> <!-- Daily Coin -->
+			<item id="70025" min="1" max="1" chance="100.0" /> <!-- Clan's Special Supplies - Low Grade -->
+		</capsuled_items>
+	</item>
+	<item id="70021" name="Clan's Supplies" additionalName="Medium Grade" type="EtcItem">
+		<!-- A box with the reward for clan members for hunting monsters. It may contain Daily Coin or Clans Special Supplies (Medium-grade). Cannot be exchanged, dropped, or sold in a private store. -->
+		<set name="icon" val="icon.etc_box_of_adventure_3_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="weight" val="10" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="70024" min="2" max="4" chance="100.0" /> <!-- Daily Coin -->
+			<item id="70026" min="1" max="1" chance="100.0" /> <!-- Clan's Special Supplies - Medium Grade -->
+		</capsuled_items>
+	</item>
+	<item id="70022" name="Clan's Supplies" additionalName="High Grade" type="EtcItem">
+		<!-- A box with the reward for clan members for hunting monsters. It may contain Daily Coin or Clans Special Supplies (High-grade). Cannot be exchanged, dropped, or sold in a private store. -->
+		<set name="icon" val="icon.etc_box_of_adventure_4_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="weight" val="10" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="70024" min="4" max="6" chance="100.0" /> <!-- Daily Coin -->
+			<item id="70027" min="1" max="1" chance="100.0" /> <!-- Clan's Special Supplies - High Grade -->
+		</capsuled_items>
+	</item>
+	<item id="70023" name="Clan's Supplies" additionalName="Highest Grade" type="EtcItem">
+		<!-- A box with the reward for clan members for hunting monsters. It may contain Daily Coin or Clans Special Supplies (Highest-grade). Cannot be exchanged, dropped, or sold in a private store. -->
+		<set name="icon" val="icon.etc_box_of_adventure_5_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="weight" val="10" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="70024" min="6" max="8" chance="100.0" /> <!-- Daily Coin -->
+			<item id="70028" min="1" max="1" chance="100.0" /> <!-- Clan's Special Supplies - Highest Grade -->
+		</capsuled_items>
+	</item>
+	<item id="70024" name="Daily Coin" type="EtcItem">
+		<!-- Can be exchanged for useful items with High Priest or Elder in any town. Cannot be exchanged, dropped, or sold in a private store. -->
+		<set name="icon" val="icon.ev_festival_goldcoin" />
+		<set name="material" val="LIQUID" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="70025" name="Clan's Special Supplies" additionalName="Low Grade" type="EtcItem">
+		<!-- A reward for your gaming as part of a clan. Contains one of many various clan rewards. Cannot be exchanged, dropped, or sold in a private store. -->
+		<set name="icon" val="icon.etc_box_of_adventure_2_i00" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="weight" val="10" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55172" level="1" /> <!-- Clan's Special Supplies -->
+		</skills>
+	</item>
+	<item id="70026" name="Clan's Special Supplies" additionalName="Medium Grade" type="EtcItem">
+		<!-- A reward for your gaming as part of a clan. Contains one of many various clan rewards. Cannot be exchanged, dropped, or sold in a private store. -->
+		<set name="icon" val="icon.etc_box_of_adventure_3_i00" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="weight" val="10" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55173" level="1" /> <!-- Clan's Special Supplies -->
+		</skills>
+	</item>
+	<item id="70027" name="Clan's Special Supplies" additionalName="High Grade" type="EtcItem">
+		<!-- A reward for your gaming as part of a clan. Contains one of many various clan rewards. Cannot be exchanged, dropped, or sold in a private store. -->
+		<set name="icon" val="icon.etc_box_of_adventure_4_i00" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="weight" val="10" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55174" level="1" /> <!-- Clan's Special Supplies -->
+		</skills>
+	</item>
+	<item id="70028" name="Clan's Special Supplies" additionalName="Highest Grade" type="EtcItem">
+		<!-- A reward for your gaming as part of a clan. Contains one of many various clan rewards. Cannot be exchanged, dropped, or sold in a private store. -->
+		<set name="icon" val="icon.etc_box_of_adventure_5_i00" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="FISH" />
+		<set name="weight" val="10" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="55175" level="1" /> <!-- Clan's Special Supplies -->
+		</skills>
+	</item>
+	<item id="70029" name="Yellow Talisman - P. Atk." type="Armor">
+		<!-- A Shadow Item that increases P. Atk. Effects do not stack when a Talisman of a similar type is used. -->
+		<set name="icon" val="icon.etc_talisman_i02" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="underwear" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="bodypart" val="talisman" />
+		<skills>
+			<skill id="55176" level="1" /> <!-- Yellow Talisman - P. Atk. -->
+		</skills>
+	</item>
+	<item id="70030" name="Yellow Talisman - Atk. Spd." type="Armor">
+		<!-- A Shadow Item that increases Atk. Spd. Effects do not stack when a Talisman of a similar type is used. -->
+		<set name="icon" val="icon.etc_talisman_i02" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="underwear" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="bodypart" val="talisman" />
+		<skills>
+			<skill id="55177" level="1" /> <!-- Yellow Talisman - Atk. Spd. -->
+		</skills>
+	</item>
+	<item id="70031" name="Yellow Talisman - M. Def." type="Armor">
+		<!-- A Shadow Item that increases M. Def. Effects do not stack when a Talisman of a similar type is used. -->
+		<set name="icon" val="icon.etc_talisman_i02" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="underwear" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="bodypart" val="talisman" />
+		<skills>
+			<skill id="55178" level="1" /> <!-- Yellow Talisman - M. Def. -->
+		</skills>
+	</item>
+	<item id="70032" name="Yellow Talisman - M. Atk." type="Armor">
+		<!-- A Shadow Item that increases M. Atk. Effects do not stack when a Talisman of a similar type is used. -->
+		<set name="icon" val="icon.etc_talisman_i02" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="underwear" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="bodypart" val="talisman" />
+		<skills>
+			<skill id="55179" level="1" /> <!-- Yellow Talisman - M. Atk. -->
+		</skills>
+	</item>
+	<item id="70033" name="Yellow Talisman - Casting Spd." type="Armor">
+		<!-- A Shadow Item that increases Casting Spd. Effects do not stack when a Talisman of a similar type is used. -->
+		<set name="icon" val="icon.etc_talisman_i02" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="underwear" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="bodypart" val="talisman" />
+		<skills>
+			<skill id="55180" level="1" /> <!-- Yellow Talisman - Casting Spd. -->
+		</skills>
+	</item>
+	<item id="70034" name="Yellow Talisman - Accuracy" type="Armor">
+		<!-- A Shadow Item that increases Accuracy. Effects do not stack when a Talisman of a similar type is used. -->
+		<set name="icon" val="icon.etc_talisman_i02" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="underwear" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="bodypart" val="talisman" />
+		<skills>
+			<skill id="55181" level="1" /> <!-- Yellow Talisman - Accuracy -->
+		</skills>
+	</item>
+	<item id="70035" name="Yellow Talisman - P. Def." type="Armor">
+		<!-- A Shadow Item that increases P. Def. Effects do not stack when a Talisman of a similar type is used. -->
+		<set name="icon" val="icon.etc_talisman_i02" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="underwear" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="bodypart" val="talisman" />
+		<skills>
+			<skill id="55182" level="1" /> <!-- Yellow Talisman - P. Def. -->
+		</skills>
+	</item>
+	<item id="70036" name="Yellow Talisman - Speed" type="Armor">
+		<!-- A Shadow Item that increases Speed. Effects do not stack when a Talisman of a similar type is used. -->
+		<set name="icon" val="icon.etc_talisman_i02" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="underwear" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="bodypart" val="talisman" />
+		<skills>
+			<skill id="55183" level="1" /> <!-- Yellow Talisman - Speed -->
+		</skills>
+	</item>
+	<item id="70037" name="Yellow Talisman - Evasion" type="Armor">
+		<!-- A Shadow Item that increases Evasion. Effects do not stack when a Talisman of a similar type is used. -->
+		<set name="icon" val="icon.etc_talisman_i02" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="underwear" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="bodypart" val="talisman" />
+		<skills>
+			<skill id="55184" level="1" /> <!-- Yellow Talisman - Evasion -->
+		</skills>
+	</item>
+	<item id="70038" name="Yellow Talisman - Healing Power" type="Armor">
+		<!-- A Shadow Item that increases HP. Effects do not stack when a Talisman of a similar type is used. -->
+		<set name="icon" val="icon.etc_talisman_i02" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="underwear" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="bodypart" val="talisman" />
+		<skills>
+			<skill id="55185" level="1" /> <!-- Yellow Talisman - Healing -->
+		</skills>
+	</item>
+	<item id="70039" name="Blue Talisman - Invisibility" type="Armor">
+		<!-- A Shadow Item that makes the character invisible to monsters. Effects do not stack when a Talisman of a similar type is used. -->
+		<set name="icon" val="icon.etc_talisman_i01" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="underwear" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="bodypart" val="talisman" />
+		<skills>
+			<skill id="55186" level="1" /> <!-- Blue Talisman - Invisibility -->
+		</skills>
+	</item>
+</list>

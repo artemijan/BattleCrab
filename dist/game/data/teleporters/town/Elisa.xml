@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/teleporterData.xsd">
+	<npc id="30848"> <!-- Elisa -->
+		<teleport type="NORMAL">
+			<!-- Interlude - C6 -->
+			<location npcStringId="1010199" x="147850" y="-55300" z="-2728" feeCount="8100" /> <!-- Town of Goddard -->
+			<location npcStringId="1010013" x="82971" y="53207" z="-1488" feeCount="6900" /> <!-- Town of Oren -->
+			<location npcStringId="1010007" x="83463" y="148045" z="-3400" feeCount="13000" /> <!-- Town of Giran -->
+			<location npcStringId="1010049" x="111455" y="219400" z="-3544" feeCount="59000" /> <!-- Heine -->
+			<location npcStringId="1010574" x="87170" y="-143355" z="-1288" feeCount="53000" /> <!-- Town of Schuttgart -->
+			<location npcStringId="1010006" x="15472" y="142880" z="-2688" feeCount="52000" /> <!-- Town of Dion -->
+			<location npcStringId="1010005" x="-14455" y="123986" z="-3120" feeCount="56000" /> <!-- Town of Gludio -->
+			<location npcStringId="1010200" x="43835" y="-47749" z="-792" feeCount="37000" /> <!-- Town of Rune -->
+			<location npcStringId="1010020" x="117088" y="76931" z="-2688" feeCount="5900" /> <!-- Hunter's Village -->
+			<location npcStringId="1010053" x="146440" y="46723" z="-3423" feeCount="2000" /> <!-- Coliseum -->
+			<location npcStringId="1010143" x="168217" y="37990" z="-4072" feeCount="1900" /> <!-- Forsaken Plains (Lv. 55) -->
+			<location npcStringId="1010604" x="184737" y="19750" z="-3168" feeCount="3300" /> <!-- Seal of Shilen (Lv. 60) -->
+			<location npcStringId="1010585" x="142065" y="81300" z="-3000" feeCount="4400" /> <!-- Forest of Mirrors (Lv. 40) -->
+			<location npcStringId="1010060" x="155310" y="-16339" z="-3320" feeCount="6800" /> <!-- Blazing Swamp (Lv. 65) -->
+			<location npcStringId="1010181" x="183543" y="-14974" z="-2776" feeCount="6500" /> <!-- Fields of Massacre (Lv. 55) -->
+			<location npcStringId="1010057" x="106517" y="-2871" z="-3416" feeCount="5900" /> <!-- Ancient Battleground (Lv. 64) -->
+			<location npcStringId="1010182" x="170838" y="55776" z="-5280" feeCount="6100" /> <!-- Silent Valley (Lv. 74) -->
+			<location npcStringId="1010144" x="119900" y="16090" z="-5000" feeCount="4200" /> <!-- Tower of Insolence (Lv. 60) -->
+		</teleport>
+	</npc>
+</list>

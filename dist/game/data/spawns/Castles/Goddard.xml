@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="GoddardCastle">
+		<group>
+			<npc id="31276" x="148880" y="-52608" z="-2736" heading="49500" respawnTime="60sec" /> <!-- Bernhard -->
+			<npc id="31277" x="149008" y="-52560" z="-2736" heading="49500" respawnTime="60sec" /> <!-- Felix -->
+			<npc id="31278" x="148736" y="-52560" z="-2736" heading="49500" respawnTime="60sec" /> <!-- Bronwyn -->
+			<npc id="31279" x="147712" y="-52688" z="-2731" heading="49000" respawnTime="60sec" /> <!-- Gregory -->
+			<npc id="31280" x="148048" y="-52416" z="-2736" heading="49000" respawnTime="60sec" /> <!-- Bastian -->
+			<npc id="31281" x="147376" y="-52416" z="-2736" heading="49000" respawnTime="60sec" /> <!-- Cerenas -->
+			<npc id="31282" x="146688" y="-52576" z="-2736" heading="49500" respawnTime="60sec" /> <!-- Justin -->
+			<npc id="31283" x="146416" y="-52564" z="-2736" heading="49500" respawnTime="60sec" /> <!-- Alminas -->
+			<npc id="31691" x="148784" y="-53008" z="-2736" respawnTime="60sec" /> <!-- Training Dummy -->
+			<npc id="31691" x="148976" y="-53008" z="-2736" respawnTime="60sec" /> <!-- Training Dummy -->
+			<npc id="31755" x="146553" y="-52608" z="-2760" heading="49500" respawnTime="60sec" /> <!-- Halaster -->
+			<npc id="35322" x="146601" y="-50441" z="-1496" heading="32768" respawnTime="60sec" /> <!-- Altar of Fire -->
+			<npc id="35323" x="148353" y="-50457" z="-1496" respawnTime="60sec" /> <!-- Altar of Water -->
+			<npc id="35355" x="147456" y="-46448" z="-963" heading="49000" respawnTime="60sec" /> <!-- Mass Gatekeeper -->
+			<npc id="35356" x="147264" y="-45632" z="-2083" heading="48500" respawnTime="60sec" /> <!-- Outer Castle Gatekeeper -->
+			<npc id="35356" x="147808" y="-45328" z="-2083" heading="16000" respawnTime="60sec" /> <!-- Outer Castle Gatekeeper -->
+			<npc id="35357" x="145640" y="-48096" z="-2382" heading="32000" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35357" x="145904" y="-48096" z="-2382" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35358" x="149024" y="-48080" z="-2382" heading="33000" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35358" x="149272" y="-48088" z="-2382" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35359" x="148612" y="-49004" z="-688" heading="16000" respawnTime="60sec" /> <!-- Gatekeeper -->
+			<npc id="35359" x="148664" y="-49168" z="-672" heading="48000" respawnTime="60sec" /> <!-- Gatekeeper -->
+			<npc id="35360" x="146280" y="-49180" z="-672" heading="48000" respawnTime="60sec" /> <!-- Gatekeeper -->
+			<npc id="35360" x="146312" y="-49004" z="-688" heading="16000" respawnTime="60sec" /> <!-- Gatekeeper -->
+			<npc id="35361" x="147037" y="-48781" z="-2639" heading="14839" respawnTime="60sec" /> <!-- Blacksmith -->
+			<npc id="35362" x="147908" y="-48807" z="-2639" heading="20214" respawnTime="60sec" /> <!-- Warehouse Keeper -->
+			<npc id="35364" x="147470" y="-49083" z="-503" heading="16500" respawnTime="60sec" /> <!-- Hadley -->
+			<npc id="35365" x="147696" y="-49312" z="-2275" heading="16500" respawnTime="60sec" /> <!-- Rowell -->
+			<npc id="35367" x="154208" y="-51648" z="-2992" respawnTime="60sec" /> <!-- Daven -->
+		</group>
+	</spawn>
+</list>

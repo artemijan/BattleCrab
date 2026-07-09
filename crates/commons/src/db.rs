@@ -16,11 +16,35 @@ pub enum DbError {
     #[error("unsupported database URL `{0}` — only SQLite is supported")]
     UnsupportedUrl(String),
     #[error(transparent)]
+    Open(#[from] OpenError),
+    #[error(transparent)]
     Sqlx(#[from] sqlx::Error),
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error("cannot open SQLite database at `{resolved}` (from URL `{url}`): {reason}")]
+pub struct OpenError {
+    pub url: String,
+    pub resolved: String,
+    pub reason: String,
 }
 
 pub async fn init(jdbc_url: &str, max_connections: u32) -> Result<SqlitePool, DbError> {
     let (path, params) = parse_jdbc_sqlite_url(jdbc_url)?;
+
+    // Resolve relative to cwd so failures name the real location, and fail
+    // clearly when the parent directory is missing (SQLite's "code 14" is
+    // unhelpfully vague about this).
+    let resolved = std::env::current_dir().map(|d| d.join(&path)).unwrap_or_else(|_| path.clone().into());
+    if let Some(parent) = resolved.parent() {
+        if !parent.as_os_str().is_empty() && !parent.exists() {
+            return Err(DbError::Open(OpenError {
+                url: jdbc_url.to_string(),
+                resolved: resolved.display().to_string(),
+                reason: format!("parent directory {} does not exist", parent.display()),
+            }));
+        }
+    }
 
     let mut options = SqliteConnectOptions::from_str(&format!("sqlite://{path}"))
         .map_err(DbError::Sqlx)?
@@ -44,9 +68,14 @@ pub async fn init(jdbc_url: &str, max_connections: u32) -> Result<SqlitePool, Db
     let pool = SqlitePoolOptions::new()
         .max_connections(max_connections)
         .connect_with(options)
-        .await?;
+        .await
+        .map_err(|e| OpenError {
+            url: jdbc_url.to_string(),
+            resolved: resolved.display().to_string(),
+            reason: e.to_string(),
+        })?;
 
-    info!("Database: Initialized ({path})");
+    info!("Database: Initialized ({})", resolved.display());
     Ok(pool)
 }
 

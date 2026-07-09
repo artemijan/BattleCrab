@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS `bbs_favorites`;
+CREATE TABLE IF NOT EXISTS `bbs_favorites` (
+	`favId` INTEGER PRIMARY KEY AUTOINCREMENT,
+	`playerId` INT NOT NULL,
+	`favTitle` VARCHAR(50) NOT NULL,
+	`favBypass` VARCHAR(127) NOT NULL,
+	`favAddDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ;
+CREATE UNIQUE INDEX IF NOT EXISTS `favId_playerId` ON `bbs_favorites` (`favId`, `playerId`);

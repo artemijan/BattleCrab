@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/multisell.xsd">
+	<npcs>
+		<npc>31126</npc> <!-- Blacksmith of Mammon -->
+	</npcs>
+	
+	<!-- Special Apability - S-Grade Weapons -->
+	
+	<item>
+		<ingredient id="6364" count="1" /> <!-- Forgotten Blade -->
+		<ingredient id="5908" count="1" /> <!-- Red Soul Crystal: Grade 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6581" count="1" /> <!-- Forgotten Blade - Haste -->
+	</item>
+	<item>
+		<ingredient id="6364" count="1" /> <!-- Forgotten Blade -->
+		<ingredient id="5911" count="1" /> <!-- Green Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6582" count="1" /> <!-- Forgotten Blade - Health -->
+	</item>
+	<item>
+		<ingredient id="6364" count="1" /> <!-- Forgotten Blade -->
+		<ingredient id="5914" count="1" /> <!-- Blue Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6583" count="1" /> <!-- Forgotten Blade - Focus -->
+	</item>
+	<item>
+		<ingredient id="6365" count="1" /> <!-- Basalt Battlehammer -->
+		<ingredient id="5908" count="1" /> <!-- Red Soul Crystal: Grade 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6584" count="1" /> <!-- Basalt Battlehammer - HP Drain -->
+	</item>
+	<item>
+		<ingredient id="6365" count="1" /> <!-- Basalt Battlehammer -->
+		<ingredient id="5911" count="1" /> <!-- Green Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6585" count="1" /> <!-- Basalt Battlehammer - Health -->
+	</item>
+	<item>
+		<ingredient id="6365" count="1" /> <!-- Basalt Battlehammer -->
+		<ingredient id="5914" count="1" /> <!-- Blue Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6586" count="1" /> <!-- Basalt Battlehammer - HP Regeneration -->
+	</item>
+	<item>
+		<ingredient id="6366" count="1" /> <!-- Imperial Staff -->
+		<ingredient id="5908" count="1" /> <!-- Red Soul Crystal: Grade 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6587" count="1" /> <!-- Imperial Staff - Empower -->
+	</item>
+	<item>
+		<ingredient id="6366" count="1" /> <!-- Imperial Staff -->
+		<ingredient id="5911" count="1" /> <!-- Green Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6588" count="1" /> <!-- Imperial Staff - MP Regeneration -->
+	</item>
+	<item>
+		<ingredient id="6366" count="1" /> <!-- Imperial Staff -->
+		<ingredient id="5914" count="1" /> <!-- Blue Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6589" count="1" /> <!-- Imperial Staff - Magic Hold -->
+	</item>
+	<item>
+		<ingredient id="6367" count="1" /> <!-- Angel Slayer -->
+		<ingredient id="5908" count="1" /> <!-- Red Soul Crystal: Grade 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6590" count="1" /> <!-- Angel Slayer - Critical Damage -->
+	</item>
+	<item>
+		<ingredient id="6367" count="1" /> <!-- Angel Slayer -->
+		<ingredient id="5911" count="1" /> <!-- Green Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6591" count="1" /> <!-- Angel Slayer - HP Drain -->
+	</item>
+	<item>
+		<ingredient id="6367" count="1" /> <!-- Angel Slayer -->
+		<ingredient id="5914" count="1" /> <!-- Blue Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6592" count="1" /> <!-- Angel Slayer - Haste -->
+	</item>
+	<item>
+		<ingredient id="7575" count="1" /> <!-- Draconic Bow -->
+		<ingredient id="5908" count="1" /> <!-- Red Soul Crystal: Grade 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="7576" count="1" /> <!-- Draconic Bow - Cheap Shot -->
+	</item>
+	<item>
+		<ingredient id="7575" count="1" /> <!-- Draconic Bow -->
+		<ingredient id="5911" count="1" /> <!-- Green Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="7577" count="1" /> <!-- Draconic Bow - Focus -->
+	</item>
+	<item>
+		<ingredient id="7575" count="1" /> <!-- Draconic Bow -->
+		<ingredient id="5914" count="1" /> <!-- Blue Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="7578" count="1" /> <!-- Draconic Bow - Critical Slow -->
+	</item>
+	<item>
+		<ingredient id="6369" count="1" /> <!-- Dragon Hunter Axe -->
+		<ingredient id="5908" count="1" /> <!-- Red Soul Crystal: Grade 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6596" count="1" /> <!-- Dragon Hunter Axe - HP Regeneration -->
+	</item>
+	<item>
+		<ingredient id="6369" count="1" /> <!-- Dragon Hunter Axe -->
+		<ingredient id="5911" count="1" /> <!-- Green Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6597" count="1" /> <!-- Dragon Hunter Axe - Health -->
+	</item>
+	<item>
+		<ingredient id="6369" count="1" /> <!-- Dragon Hunter Axe -->
+		<ingredient id="5914" count="1" /> <!-- Blue Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6598" count="1" /> <!-- Dragon Hunter Axe - HP Drain -->
+	</item>
+	<item>
+		<ingredient id="6370" count="1" /> <!-- Saint Spear -->
+		<ingredient id="5908" count="1" /> <!-- Red Soul Crystal: Grade 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6599" count="1" /> <!-- Saint Spear - Health -->
+	</item>
+	<item>
+		<ingredient id="6370" count="1" /> <!-- Saint Spear -->
+		<ingredient id="5911" count="1" /> <!-- Green Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6600" count="1" /> <!-- Saint Spear - Guidance -->
+	</item>
+	<item>
+		<ingredient id="6370" count="1" /> <!-- Saint Spear -->
+		<ingredient id="5914" count="1" /> <!-- Blue Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6601" count="1" /> <!-- Saint Spear - Haste -->
+	</item>
+	<item>
+		<ingredient id="6371" count="1" /> <!-- Demon Splinter -->
+		<ingredient id="5908" count="1" /> <!-- Red Soul Crystal: Grade 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6602" count="1" /> <!-- Demon Splinter - Focus -->
+	</item>
+	<item>
+		<ingredient id="6371" count="1" /> <!-- Demon Splinter -->
+		<ingredient id="5911" count="1" /> <!-- Green Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6603" count="1" /> <!-- Demon Splinter - Health -->
+	</item>
+	<item>
+		<ingredient id="6371" count="1" /> <!-- Demon Splinter -->
+		<ingredient id="5914" count="1" /> <!-- Blue Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6604" count="1" /> <!-- Demon Splinter - Critical Stun -->
+	</item>
+	<item>
+		<ingredient id="6372" count="1" /> <!-- Heaven's Divider -->
+		<ingredient id="5908" count="1" /> <!-- Red Soul Crystal: Grade 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6605" count="1" /> <!-- Heavens Divider - Haste -->
+	</item>
+	<item>
+		<ingredient id="6372" count="1" /> <!-- Heaven's Divider -->
+		<ingredient id="5911" count="1" /> <!-- Green Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6606" count="1" /> <!-- Heavens Divider - Health -->
+	</item>
+	<item>
+		<ingredient id="6372" count="1" /> <!-- Heaven's Divider -->
+		<ingredient id="5914" count="1" /> <!-- Blue Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6607" count="1" /> <!-- Heavens Divider - Focus -->
+	</item>
+	<item>
+		<ingredient id="6579" count="1" /> <!-- Arcana Mace -->
+		<ingredient id="5908" count="1" /> <!-- Red Soul Crystal: Grade 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6608" count="1" /> <!-- Arcana Mace - Acumen -->
+	</item>
+	<item>
+		<ingredient id="6579" count="1" /> <!-- Arcana Mace -->
+		<ingredient id="5911" count="1" /> <!-- Green Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6609" count="1" /> <!-- Arcana Mace - MP Regeneration -->
+	</item>
+	<item>
+		<ingredient id="6579" count="1" /> <!-- Arcana Mace -->
+		<ingredient id="5914" count="1" /> <!-- Blue Soul Crystal: Stage 13 -->
+		<ingredient id="2134" count="82" /> <!-- Gemstone S -->
+		<production id="6610" count="1" /> <!-- Arcana Mace - Mana Up -->
+	</item>
+</list>

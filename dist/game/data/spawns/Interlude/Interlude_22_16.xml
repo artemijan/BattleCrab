@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Interlude_22_16">
+		<group>
+			<npc id="31554" x="70000" y="-50064" z="-3264" heading="8000" respawnTime="60sec" /> <!-- Kahman -->
+			<npc id="31557" x="69840" y="-49888" z="-3264" heading="7000" respawnTime="60sec" /> <!-- Mercenary Sentry -->
+			<npc id="31553" x="69248" y="-50160" z="-3288" respawnTime="60sec" /> <!-- Pierce -->
+			<npc id="31555" x="69348" y="-50408" z="-3288" heading="10000" respawnTime="60sec" /> <!-- Abercrombie -->
+			<npc id="31556" x="69232" y="-49984" z="-3284" respawnTime="60sec" /> <!-- Selina -->
+			<npc id="31557" x="69376" y="-50080" z="-3288" respawnTime="60sec" /> <!-- Mercenary Sentry -->
+			<npc id="31557" x="69372" y="-50264" z="-3288" respawnTime="60sec" /> <!-- Mercenary Sentry -->
+			<npc id="31661" x="71994" y="-55705" z="-3142" heading="38569" respawnTime="60sec" /> <!-- Forgotten Monument -->
+			<npc id="31662" x="77184" y="-44064" z="-3264" respawnTime="60sec" /> <!-- Forgotten Monument -->
+			<npc id="31663" x="78832" y="-61536" z="-2308" respawnTime="60sec" /> <!-- Forgotten Monument -->
+			<npc id="31664" x="91840" y="-52471" z="-2620" heading="53787" respawnTime="60sec" /> <!-- Forgotten Monument -->
+			<npc id="31665" x="83168" y="-54320" z="-2328" respawnTime="60sec" /> <!-- Dwarf Corpse -->
+			<npc id="31751" x="97077" y="-60168" z="-2471" heading="35000" respawnTime="60sec" /> <!-- Mysterious Dark Knight -->
+			<npc id="31752" x="97100" y="-60088" z="-2478" respawnTime="60sec" /> <!-- Corpse of Angel -->
+			<npc id="31752" x="96990" y="-60111" z="-2470" heading="8000" respawnTime="60sec" /> <!-- Corpse of Angel -->
+			<npc id="31752" x="97030" y="-60245" z="-2484" heading="27000" respawnTime="60sec" /> <!-- Corpse of Angel -->
+			<npc id="31752" x="97183" y="-60218" z="-2490" heading="16000" respawnTime="60sec" /> <!-- Corpse of Angel -->
+			<npc id="32015" x="89872" y="-44896" z="-2144" respawnTime="240sec" /> <!-- Scout's Corpse -->
+		</group>
+	</spawn>
+</list>

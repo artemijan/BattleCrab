@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="PetManagers">
+		<group>
+			<npc id="30731" x="-84624" y="150832" z="-3120" respawnTime="60sec" /> <!-- Martin -->
+			<npc id="30827" x="-14797" y="123283" z="-3112" heading="800" respawnTime="60sec" /> <!-- Lundy -->
+			<npc id="30828" x="19276" y="142864" z="-3032" heading="32768" respawnTime="60sec" /> <!-- Waters -->
+			<npc id="30829" x="81100" y="145840" z="-3528" heading="32768" respawnTime="60sec" /> <!-- Cooper -->
+			<npc id="30830" x="81992" y="54048" z="-1488" respawnTime="60sec" /> <!-- Joey -->
+			<npc id="30831" x="117432" y="76044" z="-2720" heading="15000" respawnTime="60sec" /> <!-- Nelson -->
+			<npc id="30869" x="145168" y="30432" z="-2456" heading="57344" respawnTime="60sec" /> <!-- Lemper -->
+			<npc id="31067" x="110605" y="219495" z="-3664" heading="8192" respawnTime="60sec" /> <!-- Rood -->
+			<npc id="31265" x="148928" y="-58400" z="-2976" heading="20000" respawnTime="60sec" /> <!-- Annette -->
+			<npc id="31309" x="43456" y="-49520" z="-792" respawnTime="60sec" /> <!-- Woods -->
+			<npc id="31954" x="86368" y="-140144" z="-1536" heading="53000" respawnTime="60sec" /> <!-- Saroyan -->
+		</group>
+	</spawn>
+</list>

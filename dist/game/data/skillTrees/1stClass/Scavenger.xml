@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="54" parentClassId="53">
+		<skill skillId="34" skillLevel="1" skillName="Bandage" levelUpSp="4100" getLevel="20" />
+		<skill skillId="100" skillLevel="1" skillName="Stun Attack" levelUpSp="1400" getLevel="20" />
+		<skill skillId="100" skillLevel="2" skillName="Stun Attack" levelUpSp="1400" getLevel="20" />
+		<skill skillId="100" skillLevel="3" skillName="Stun Attack" levelUpSp="1400" getLevel="20" />
+		<skill skillId="205" skillLevel="1" skillName="Blunt Mastery" levelUpSp="4100" getLevel="20" />
+		<skill skillId="211" skillLevel="1" skillName="Boost HP" levelUpSp="4100" getLevel="20" />
+		<skill skillId="216" skillLevel="1" skillName="Polearm Mastery" levelUpSp="4100" getLevel="20" />
+		<skill skillId="227" skillLevel="1" skillName="Light Armor Mastery" levelUpSp="2100" getLevel="20" />
+		<skill skillId="227" skillLevel="2" skillName="Light Armor Mastery" levelUpSp="2100" getLevel="20" />
+		<skill skillId="231" skillLevel="1" skillName="Heavy Armor Mastery" levelUpSp="2100" getLevel="20" />
+		<skill skillId="231" skillLevel="2" skillName="Heavy Armor Mastery" levelUpSp="2100" getLevel="20" />
+		<skill skillId="245" skillLevel="1" skillName="Wild Sweep" levelUpSp="1400" getLevel="20" />
+		<skill skillId="245" skillLevel="2" skillName="Wild Sweep" levelUpSp="1400" getLevel="20" />
+		<skill skillId="245" skillLevel="3" skillName="Wild Sweep" levelUpSp="1400" getLevel="20" />
+		<skill skillId="254" skillLevel="2" skillName="Spoil" levelUpSp="4100" getLevel="20" />
+		<skill skillId="100" skillLevel="4" skillName="Stun Attack" levelUpSp="2600" getLevel="24" />
+		<skill skillId="100" skillLevel="5" skillName="Stun Attack" levelUpSp="2600" getLevel="24" />
+		<skill skillId="100" skillLevel="6" skillName="Stun Attack" levelUpSp="2600" getLevel="24" />
+		<skill skillId="148" skillLevel="1" skillName="Vital Force" levelUpSp="7700" getLevel="24" />
+		<skill skillId="150" skillLevel="2" skillName="Weight Limit" levelUpSp="7700" getLevel="24" />
+		<skill skillId="205" skillLevel="2" skillName="Blunt Mastery" levelUpSp="7700" getLevel="24" />
+		<skill skillId="212" skillLevel="1" skillName="Fast HP Recovery" levelUpSp="7700" getLevel="24" />
+		<skill skillId="216" skillLevel="2" skillName="Polearm Mastery" levelUpSp="7700" getLevel="24" />
+		<skill skillId="227" skillLevel="3" skillName="Light Armor Mastery" levelUpSp="3900" getLevel="24" />
+		<skill skillId="227" skillLevel="4" skillName="Light Armor Mastery" levelUpSp="3900" getLevel="24" />
+		<skill skillId="231" skillLevel="3" skillName="Heavy Armor Mastery" levelUpSp="3900" getLevel="24" />
+		<skill skillId="231" skillLevel="4" skillName="Heavy Armor Mastery" levelUpSp="3900" getLevel="24" />
+		<skill skillId="245" skillLevel="4" skillName="Wild Sweep" levelUpSp="2600" getLevel="24" />
+		<skill skillId="245" skillLevel="5" skillName="Wild Sweep" levelUpSp="2600" getLevel="24" />
+		<skill skillId="245" skillLevel="6" skillName="Wild Sweep" levelUpSp="2600" getLevel="24" />
+		<skill skillId="100" skillLevel="7" skillName="Stun Attack" levelUpSp="4400" getLevel="28" />
+		<skill skillId="100" skillLevel="8" skillName="Stun Attack" levelUpSp="4400" getLevel="28" />
+		<skill skillId="100" skillLevel="9" skillName="Stun Attack" levelUpSp="4400" getLevel="28" />
+		<skill skillId="205" skillLevel="3" skillName="Blunt Mastery" levelUpSp="6700" getLevel="28" />
+		<skill skillId="205" skillLevel="4" skillName="Blunt Mastery" levelUpSp="6700" getLevel="28" />
+		<skill skillId="211" skillLevel="2" skillName="Boost HP" levelUpSp="13000" getLevel="28" />
+		<skill skillId="216" skillLevel="3" skillName="Polearm Mastery" levelUpSp="6700" getLevel="28" />
+		<skill skillId="216" skillLevel="4" skillName="Polearm Mastery" levelUpSp="6700" getLevel="28" />
+		<skill skillId="227" skillLevel="5" skillName="Light Armor Mastery" levelUpSp="4400" getLevel="28" />
+		<skill skillId="227" skillLevel="6" skillName="Light Armor Mastery" levelUpSp="4400" getLevel="28" />
+		<skill skillId="227" skillLevel="7" skillName="Light Armor Mastery" levelUpSp="4400" getLevel="28" />
+		<skill skillId="231" skillLevel="5" skillName="Heavy Armor Mastery" levelUpSp="4400" getLevel="28" />
+		<skill skillId="231" skillLevel="6" skillName="Heavy Armor Mastery" levelUpSp="4400" getLevel="28" />
+		<skill skillId="231" skillLevel="7" skillName="Heavy Armor Mastery" levelUpSp="4400" getLevel="28" />
+		<skill skillId="245" skillLevel="7" skillName="Wild Sweep" levelUpSp="4400" getLevel="28" />
+		<skill skillId="245" skillLevel="8" skillName="Wild Sweep" levelUpSp="4400" getLevel="28" />
+		<skill skillId="245" skillLevel="9" skillName="Wild Sweep" levelUpSp="4400" getLevel="28" />
+		<skill skillId="254" skillLevel="3" skillName="Spoil" levelUpSp="13000" getLevel="28" />
+		<skill skillId="302" skillLevel="1" skillName="Spoil Festival" levelUpSp="13000" getLevel="28" />
+		<skill skillId="100" skillLevel="10" skillName="Stun Attack" levelUpSp="8300" getLevel="32" />
+		<skill skillId="100" skillLevel="11" skillName="Stun Attack" levelUpSp="8300" getLevel="32" />
+		<skill skillId="100" skillLevel="12" skillName="Stun Attack" levelUpSp="8300" getLevel="32" />
+		<skill skillId="148" skillLevel="2" skillName="Vital Force" levelUpSp="25000" getLevel="32" />
+		<skill skillId="205" skillLevel="5" skillName="Blunt Mastery" levelUpSp="13000" getLevel="32" />
+		<skill skillId="205" skillLevel="6" skillName="Blunt Mastery" levelUpSp="13000" getLevel="32" />
+		<skill skillId="212" skillLevel="2" skillName="Fast HP Recovery" levelUpSp="25000" getLevel="32" />
+		<skill skillId="216" skillLevel="5" skillName="Polearm Mastery" levelUpSp="13000" getLevel="32" />
+		<skill skillId="216" skillLevel="6" skillName="Polearm Mastery" levelUpSp="13000" getLevel="32" />
+		<skill skillId="227" skillLevel="8" skillName="Light Armor Mastery" levelUpSp="8300" getLevel="32" />
+		<skill skillId="227" skillLevel="9" skillName="Light Armor Mastery" levelUpSp="8300" getLevel="32" />
+		<skill skillId="227" skillLevel="10" skillName="Light Armor Mastery" levelUpSp="8300" getLevel="32" />
+		<skill skillId="231" skillLevel="8" skillName="Heavy Armor Mastery" levelUpSp="8300" getLevel="32" />
+		<skill skillId="231" skillLevel="9" skillName="Heavy Armor Mastery" levelUpSp="8300" getLevel="32" />
+		<skill skillId="231" skillLevel="10" skillName="Heavy Armor Mastery" levelUpSp="8300" getLevel="32" />
+		<skill skillId="245" skillLevel="10" skillName="Wild Sweep" levelUpSp="8300" getLevel="32" />
+		<skill skillId="245" skillLevel="11" skillName="Wild Sweep" levelUpSp="8300" getLevel="32" />
+		<skill skillId="245" skillLevel="12" skillName="Wild Sweep" levelUpSp="8300" getLevel="32" />
+		<skill skillId="100" skillLevel="13" skillName="Stun Attack" levelUpSp="11000" getLevel="36" />
+		<skill skillId="100" skillLevel="14" skillName="Stun Attack" levelUpSp="11000" getLevel="36" />
+		<skill skillId="100" skillLevel="15" skillName="Stun Attack" levelUpSp="11000" getLevel="36" />
+		<skill skillId="205" skillLevel="7" skillName="Blunt Mastery" levelUpSp="17000" getLevel="36" />
+		<skill skillId="205" skillLevel="8" skillName="Blunt Mastery" levelUpSp="17000" getLevel="36" />
+		<skill skillId="211" skillLevel="3" skillName="Boost HP" levelUpSp="35000" getLevel="36" />
+		<skill skillId="216" skillLevel="7" skillName="Polearm Mastery" levelUpSp="17000" getLevel="36" />
+		<skill skillId="216" skillLevel="8" skillName="Polearm Mastery" levelUpSp="17000" getLevel="36" />
+		<skill skillId="227" skillLevel="11" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="36" />
+		<skill skillId="227" skillLevel="12" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="36" />
+		<skill skillId="227" skillLevel="13" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="36" />
+		<skill skillId="231" skillLevel="11" skillName="Heavy Armor Mastery" levelUpSp="11000" getLevel="36" />
+		<skill skillId="231" skillLevel="12" skillName="Heavy Armor Mastery" levelUpSp="11000" getLevel="36" />
+		<skill skillId="231" skillLevel="13" skillName="Heavy Armor Mastery" levelUpSp="11000" getLevel="36" />
+		<skill skillId="245" skillLevel="13" skillName="Wild Sweep" levelUpSp="11000" getLevel="36" />
+		<skill skillId="245" skillLevel="14" skillName="Wild Sweep" levelUpSp="11000" getLevel="36" />
+		<skill skillId="245" skillLevel="15" skillName="Wild Sweep" levelUpSp="11000" getLevel="36" />
+		<skill skillId="254" skillLevel="4" skillName="Spoil" levelUpSp="35000" getLevel="36" />
+		<skill skillId="302" skillLevel="2" skillName="Spoil Festival" levelUpSp="35000" getLevel="36" />
+	</skillTree>
+</list>

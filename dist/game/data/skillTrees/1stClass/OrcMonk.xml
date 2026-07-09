@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="47" parentClassId="44">
+		<skill skillId="29" skillLevel="10" skillName="Iron Punch" levelUpSp="2600" getLevel="20" />
+		<skill skillId="29" skillLevel="11" skillName="Iron Punch" levelUpSp="2600" getLevel="20" />
+		<skill skillId="29" skillLevel="12" skillName="Iron Punch" levelUpSp="2600" getLevel="20" />
+		<skill skillId="83" skillLevel="1" skillName="Wolf Spirit Totem" levelUpSp="5300" getLevel="20" />
+		<skill skillId="95" skillLevel="1" skillName="Cripple" levelUpSp="5300" getLevel="20" />
+		<skill skillId="120" skillLevel="1" skillName="Stunning Fist" levelUpSp="2600" getLevel="20" />
+		<skill skillId="120" skillLevel="2" skillName="Stunning Fist" levelUpSp="2600" getLevel="20" />
+		<skill skillId="120" skillLevel="3" skillName="Stunning Fist" levelUpSp="2600" getLevel="20" />
+		<skill skillId="210" skillLevel="1" skillName="Fist Mastery" levelUpSp="5300" getLevel="20" />
+		<skill skillId="233" skillLevel="1" skillName="Light Armor Mastery" levelUpSp="2600" getLevel="20" />
+		<skill skillId="233" skillLevel="2" skillName="Light Armor Mastery" levelUpSp="2600" getLevel="20" />
+		<skill skillId="319" skillLevel="1" skillName="Agile Movement" levelUpSp="5300" getLevel="20" />
+		<skill skillId="29" skillLevel="13" skillName="Iron Punch" levelUpSp="3300" getLevel="24" />
+		<skill skillId="29" skillLevel="14" skillName="Iron Punch" levelUpSp="3300" getLevel="24" />
+		<skill skillId="29" skillLevel="15" skillName="Iron Punch" levelUpSp="3300" getLevel="24" />
+		<skill skillId="50" skillLevel="1" skillName="Focused Force" levelUpSp="10000" getLevel="24" />
+		<skill skillId="54" skillLevel="1" skillName="Force Blaster" levelUpSp="3300" getLevel="24" />
+		<skill skillId="54" skillLevel="2" skillName="Force Blaster" levelUpSp="3300" getLevel="24" />
+		<skill skillId="54" skillLevel="3" skillName="Force Blaster" levelUpSp="3300" getLevel="24" />
+		<skill skillId="95" skillLevel="2" skillName="Cripple" levelUpSp="10000" getLevel="24" />
+		<skill skillId="120" skillLevel="4" skillName="Stunning Fist" levelUpSp="3300" getLevel="24" />
+		<skill skillId="120" skillLevel="5" skillName="Stunning Fist" levelUpSp="3300" getLevel="24" />
+		<skill skillId="120" skillLevel="6" skillName="Stunning Fist" levelUpSp="3300" getLevel="24" />
+		<skill skillId="210" skillLevel="2" skillName="Fist Mastery" levelUpSp="10000" getLevel="24" />
+		<skill skillId="233" skillLevel="3" skillName="Light Armor Mastery" levelUpSp="5000" getLevel="24" />
+		<skill skillId="233" skillLevel="4" skillName="Light Armor Mastery" levelUpSp="5000" getLevel="24" />
+		<skill skillId="29" skillLevel="16" skillName="Iron Punch" levelUpSp="5700" getLevel="28" />
+		<skill skillId="29" skillLevel="17" skillName="Iron Punch" levelUpSp="5700" getLevel="28" />
+		<skill skillId="29" skillLevel="18" skillName="Iron Punch" levelUpSp="5700" getLevel="28" />
+		<skill skillId="54" skillLevel="4" skillName="Force Blaster" levelUpSp="5700" getLevel="28" />
+		<skill skillId="54" skillLevel="5" skillName="Force Blaster" levelUpSp="5700" getLevel="28" />
+		<skill skillId="54" skillLevel="6" skillName="Force Blaster" levelUpSp="5700" getLevel="28" />
+		<skill skillId="76" skillLevel="1" skillName="Bear Spirit Totem" levelUpSp="17000" getLevel="28" />
+		<skill skillId="95" skillLevel="3" skillName="Cripple" levelUpSp="17000" getLevel="28" />
+		<skill skillId="120" skillLevel="7" skillName="Stunning Fist" levelUpSp="5700" getLevel="28" />
+		<skill skillId="120" skillLevel="8" skillName="Stunning Fist" levelUpSp="5700" getLevel="28" />
+		<skill skillId="120" skillLevel="9" skillName="Stunning Fist" levelUpSp="5700" getLevel="28" />
+		<skill skillId="210" skillLevel="3" skillName="Fist Mastery" levelUpSp="8600" getLevel="28" />
+		<skill skillId="210" skillLevel="4" skillName="Fist Mastery" levelUpSp="8600" getLevel="28" />
+		<skill skillId="233" skillLevel="5" skillName="Light Armor Mastery" levelUpSp="8600" getLevel="28" />
+		<skill skillId="233" skillLevel="6" skillName="Light Armor Mastery" levelUpSp="8600" getLevel="28" />
+		<skill skillId="29" skillLevel="19" skillName="Iron Punch" levelUpSp="9500" getLevel="32" />
+		<skill skillId="29" skillLevel="20" skillName="Iron Punch" levelUpSp="9500" getLevel="32" />
+		<skill skillId="29" skillLevel="21" skillName="Iron Punch" levelUpSp="9500" getLevel="32" />
+		<skill skillId="50" skillLevel="2" skillName="Focused Force" levelUpSp="29000" getLevel="32" />
+		<skill skillId="54" skillLevel="7" skillName="Force Blaster" levelUpSp="9500" getLevel="32" />
+		<skill skillId="54" skillLevel="8" skillName="Force Blaster" levelUpSp="9500" getLevel="32" />
+		<skill skillId="54" skillLevel="9" skillName="Force Blaster" levelUpSp="9500" getLevel="32" />
+		<skill skillId="95" skillLevel="4" skillName="Cripple" levelUpSp="29000" getLevel="32" />
+		<skill skillId="120" skillLevel="10" skillName="Stunning Fist" levelUpSp="9500" getLevel="32" />
+		<skill skillId="120" skillLevel="11" skillName="Stunning Fist" levelUpSp="9500" getLevel="32" />
+		<skill skillId="120" skillLevel="12" skillName="Stunning Fist" levelUpSp="9500" getLevel="32" />
+		<skill skillId="210" skillLevel="5" skillName="Fist Mastery" levelUpSp="14000" getLevel="32" />
+		<skill skillId="210" skillLevel="6" skillName="Fist Mastery" levelUpSp="14000" getLevel="32" />
+		<skill skillId="233" skillLevel="7" skillName="Light Armor Mastery" levelUpSp="14000" getLevel="32" />
+		<skill skillId="233" skillLevel="8" skillName="Light Armor Mastery" levelUpSp="14000" getLevel="32" />
+		<skill skillId="29" skillLevel="22" skillName="Iron Punch" levelUpSp="13000" getLevel="36" />
+		<skill skillId="29" skillLevel="23" skillName="Iron Punch" levelUpSp="13000" getLevel="36" />
+		<skill skillId="29" skillLevel="24" skillName="Iron Punch" levelUpSp="13000" getLevel="36" />
+		<skill skillId="54" skillLevel="10" skillName="Force Blaster" levelUpSp="13000" getLevel="36" />
+		<skill skillId="54" skillLevel="11" skillName="Force Blaster" levelUpSp="13000" getLevel="36" />
+		<skill skillId="54" skillLevel="12" skillName="Force Blaster" levelUpSp="13000" getLevel="36" />
+		<skill skillId="95" skillLevel="5" skillName="Cripple" levelUpSp="39000" getLevel="36" />
+		<skill skillId="120" skillLevel="13" skillName="Stunning Fist" levelUpSp="13000" getLevel="36" />
+		<skill skillId="120" skillLevel="14" skillName="Stunning Fist" levelUpSp="13000" getLevel="36" />
+		<skill skillId="120" skillLevel="15" skillName="Stunning Fist" levelUpSp="13000" getLevel="36" />
+		<skill skillId="168" skillLevel="1" skillName="Boost Attack Speed" levelUpSp="39000" getLevel="36" />
+		<skill skillId="210" skillLevel="7" skillName="Fist Mastery" levelUpSp="19000" getLevel="36" />
+		<skill skillId="210" skillLevel="8" skillName="Fist Mastery" levelUpSp="19000" getLevel="36" />
+		<skill skillId="233" skillLevel="9" skillName="Light Armor Mastery" levelUpSp="19000" getLevel="36" />
+		<skill skillId="233" skillLevel="10" skillName="Light Armor Mastery" levelUpSp="19000" getLevel="36" />
+		<skill skillId="284" skillLevel="1" skillName="Hurricane Assault" levelUpSp="13000" getLevel="36" />
+		<skill skillId="284" skillLevel="2" skillName="Hurricane Assault" levelUpSp="13000" getLevel="36" />
+		<skill skillId="284" skillLevel="3" skillName="Hurricane Assault" levelUpSp="13000" getLevel="36" />
+	</skillTree>
+</list>

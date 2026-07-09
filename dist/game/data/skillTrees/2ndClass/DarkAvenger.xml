@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="6" parentClassId="4">
+		<skill skillId="18" skillLevel="1" skillName="Aura of Hate" levelUpSp="10000" getLevel="40" />
+		<skill skillId="18" skillLevel="2" skillName="Aura of Hate" levelUpSp="10000" getLevel="40" />
+		<skill skillId="18" skillLevel="3" skillName="Aura of Hate" levelUpSp="10000" getLevel="40" />
+		<skill skillId="28" skillLevel="13" skillName="Aggression" levelUpSp="10000" getLevel="40" />
+		<skill skillId="28" skillLevel="14" skillName="Aggression" levelUpSp="10000" getLevel="40" />
+		<skill skillId="28" skillLevel="15" skillName="Aggression" levelUpSp="10000" getLevel="40" />
+		<skill skillId="46" skillLevel="1" skillName="Life Scavenge" levelUpSp="30000" getLevel="40" />
+		<skill skillId="70" skillLevel="14" skillName="Drain Health" levelUpSp="10000" getLevel="40" />
+		<skill skillId="70" skillLevel="15" skillName="Drain Health" levelUpSp="10000" getLevel="40" />
+		<skill skillId="70" skillLevel="16" skillName="Drain Health" levelUpSp="10000" getLevel="40" />
+		<skill skillId="70" skillLevel="17" skillName="Drain Health" levelUpSp="10000" getLevel="40" />
+		<skill skillId="70" skillLevel="18" skillName="Drain Health" levelUpSp="10000" getLevel="40" />
+		<skill skillId="70" skillLevel="19" skillName="Drain Health" levelUpSp="10000" getLevel="40" />
+		<skill skillId="82" skillLevel="2" skillName="Majesty" levelUpSp="30000" getLevel="40" />
+		<skill skillId="86" skillLevel="1" skillName="Reflect Damage" levelUpSp="30000" getLevel="40" />
+		<skill skillId="92" skillLevel="16" skillName="Shield Stun" levelUpSp="10000" getLevel="40" />
+		<skill skillId="92" skillLevel="17" skillName="Shield Stun" levelUpSp="10000" getLevel="40" />
+		<skill skillId="92" skillLevel="18" skillName="Shield Stun" levelUpSp="10000" getLevel="40" />
+		<skill skillId="147" skillLevel="15" skillName="Magic Resistance" levelUpSp="10000" getLevel="40" />
+		<skill skillId="147" skillLevel="16" skillName="Magic Resistance" levelUpSp="10000" getLevel="40" />
+		<skill skillId="147" skillLevel="17" skillName="Magic Resistance" levelUpSp="10000" getLevel="40" />
+		<skill skillId="153" skillLevel="3" skillName="Shield Mastery" levelUpSp="30000" getLevel="40" />
+		<skill skillId="217" skillLevel="9" skillName="Sword Blunt Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="217" skillLevel="10" skillName="Sword Blunt Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="217" skillLevel="11" skillName="Sword Blunt Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="232" skillLevel="16" skillName="Heavy Armor Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="232" skillLevel="17" skillName="Heavy Armor Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="232" skillLevel="18" skillName="Heavy Armor Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="283" skillLevel="1" skillName="Summon Dark Panther" levelUpSp="30000" getLevel="40" />
+		<skill skillId="18" skillLevel="4" skillName="Aura of Hate" levelUpSp="13000" getLevel="43" />
+		<skill skillId="18" skillLevel="5" skillName="Aura of Hate" levelUpSp="13000" getLevel="43" />
+		<skill skillId="18" skillLevel="6" skillName="Aura of Hate" levelUpSp="13000" getLevel="43" />
+		<skill skillId="28" skillLevel="16" skillName="Aggression" levelUpSp="13000" getLevel="43" />
+		<skill skillId="28" skillLevel="17" skillName="Aggression" levelUpSp="13000" getLevel="43" />
+		<skill skillId="28" skillLevel="18" skillName="Aggression" levelUpSp="13000" getLevel="43" />
+		<skill skillId="46" skillLevel="2" skillName="Life Scavenge" levelUpSp="38000" getLevel="43" />
+		<skill skillId="70" skillLevel="20" skillName="Drain Health" levelUpSp="13000" getLevel="43" />
+		<skill skillId="70" skillLevel="21" skillName="Drain Health" levelUpSp="13000" getLevel="43" />
+		<skill skillId="70" skillLevel="22" skillName="Drain Health" levelUpSp="13000" getLevel="43" />
+		<skill skillId="72" skillLevel="1" skillName="Iron Will" levelUpSp="38000" getLevel="43" />
+		<skill skillId="92" skillLevel="19" skillName="Shield Stun" levelUpSp="13000" getLevel="43" />
+		<skill skillId="92" skillLevel="20" skillName="Shield Stun" levelUpSp="13000" getLevel="43" />
+		<skill skillId="92" skillLevel="21" skillName="Shield Stun" levelUpSp="13000" getLevel="43" />
+		<skill skillId="112" skillLevel="3" skillName="Deflect Arrow" levelUpSp="38000" getLevel="43" />
+		<skill skillId="127" skillLevel="1" skillName="Hamstring" levelUpSp="38000" getLevel="43" />
+		<skill skillId="147" skillLevel="18" skillName="Magic Resistance" levelUpSp="13000" getLevel="43" />
+		<skill skillId="147" skillLevel="19" skillName="Magic Resistance" levelUpSp="13000" getLevel="43" />
+		<skill skillId="147" skillLevel="20" skillName="Magic Resistance" levelUpSp="13000" getLevel="43" />
+		<skill skillId="191" skillLevel="2" skillName="Focus Mind" levelUpSp="38000" getLevel="43" />
+		<skill skillId="217" skillLevel="12" skillName="Sword Blunt Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="217" skillLevel="13" skillName="Sword Blunt Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="217" skillLevel="14" skillName="Sword Blunt Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="232" skillLevel="19" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="232" skillLevel="20" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="232" skillLevel="21" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="18" skillLevel="7" skillName="Aura of Hate" levelUpSp="15000" getLevel="46" />
+		<skill skillId="18" skillLevel="8" skillName="Aura of Hate" levelUpSp="15000" getLevel="46" />
+		<skill skillId="18" skillLevel="9" skillName="Aura of Hate" levelUpSp="15000" getLevel="46" />
+		<skill skillId="28" skillLevel="19" skillName="Aggression" levelUpSp="15000" getLevel="46" />
+		<skill skillId="28" skillLevel="20" skillName="Aggression" levelUpSp="15000" getLevel="46" />
+		<skill skillId="28" skillLevel="21" skillName="Aggression" levelUpSp="15000" getLevel="46" />
+		<skill skillId="46" skillLevel="3" skillName="Life Scavenge" levelUpSp="46000" getLevel="46" />
+		<skill skillId="65" skillLevel="1" skillName="Horror" levelUpSp="46000" getLevel="46" />
+		<skill skillId="70" skillLevel="23" skillName="Drain Health" levelUpSp="15000" getLevel="46" />
+		<skill skillId="70" skillLevel="24" skillName="Drain Health" levelUpSp="15000" getLevel="46" />
+		<skill skillId="70" skillLevel="25" skillName="Drain Health" levelUpSp="15000" getLevel="46" />
+		<skill skillId="86" skillLevel="2" skillName="Reflect Damage" levelUpSp="46000" getLevel="46" />
+		<skill skillId="92" skillLevel="22" skillName="Shield Stun" levelUpSp="15000" getLevel="46" />
+		<skill skillId="92" skillLevel="23" skillName="Shield Stun" levelUpSp="15000" getLevel="46" />
+		<skill skillId="92" skillLevel="24" skillName="Shield Stun" levelUpSp="15000" getLevel="46" />
+		<skill skillId="103" skillLevel="1" skillName="Corpse Plague" levelUpSp="46000" getLevel="46" />
+		<skill skillId="110" skillLevel="2" skillName="Ultimate Defense" levelUpSp="46000" getLevel="46" />
+		<skill skillId="127" skillLevel="2" skillName="Hamstring" levelUpSp="46000" getLevel="46" />
+		<skill skillId="147" skillLevel="21" skillName="Magic Resistance" levelUpSp="15000" getLevel="46" />
+		<skill skillId="147" skillLevel="22" skillName="Magic Resistance" levelUpSp="15000" getLevel="46" />
+		<skill skillId="147" skillLevel="23" skillName="Magic Resistance" levelUpSp="15000" getLevel="46" />
+		<skill skillId="217" skillLevel="15" skillName="Sword Blunt Mastery" levelUpSp="15000" getLevel="46" />
+		<skill skillId="217" skillLevel="16" skillName="Sword Blunt Mastery" levelUpSp="15000" getLevel="46" />
+		<skill skillId="217" skillLevel="17" skillName="Sword Blunt Mastery" levelUpSp="15000" getLevel="46" />
+		<skill skillId="232" skillLevel="22" skillName="Heavy Armor Mastery" levelUpSp="15000" getLevel="46" />
+		<skill skillId="232" skillLevel="23" skillName="Heavy Armor Mastery" levelUpSp="15000" getLevel="46" />
+		<skill skillId="232" skillLevel="24" skillName="Heavy Armor Mastery" levelUpSp="15000" getLevel="46" />
+		<skill skillId="18" skillLevel="10" skillName="Aura of Hate" levelUpSp="23000" getLevel="49" />
+		<skill skillId="18" skillLevel="11" skillName="Aura of Hate" levelUpSp="23000" getLevel="49" />
+		<skill skillId="18" skillLevel="12" skillName="Aura of Hate" levelUpSp="23000" getLevel="49" />
+		<skill skillId="28" skillLevel="22" skillName="Aggression" levelUpSp="23000" getLevel="49" />
+		<skill skillId="28" skillLevel="23" skillName="Aggression" levelUpSp="23000" getLevel="49" />
+		<skill skillId="28" skillLevel="24" skillName="Aggression" levelUpSp="23000" getLevel="49" />
+		<skill skillId="46" skillLevel="4" skillName="Life Scavenge" levelUpSp="70000" getLevel="49" />
+		<skill skillId="65" skillLevel="2" skillName="Horror" levelUpSp="70000" getLevel="49" />
+		<skill skillId="70" skillLevel="26" skillName="Drain Health" levelUpSp="23000" getLevel="49" />
+		<skill skillId="70" skillLevel="27" skillName="Drain Health" levelUpSp="23000" getLevel="49" />
+		<skill skillId="70" skillLevel="28" skillName="Drain Health" levelUpSp="23000" getLevel="49" />
+		<skill skillId="72" skillLevel="2" skillName="Iron Will" levelUpSp="70000" getLevel="49" />
+		<skill skillId="92" skillLevel="25" skillName="Shield Stun" levelUpSp="23000" getLevel="49" />
+		<skill skillId="92" skillLevel="26" skillName="Shield Stun" levelUpSp="23000" getLevel="49" />
+		<skill skillId="92" skillLevel="27" skillName="Shield Stun" levelUpSp="23000" getLevel="49" />
+		<skill skillId="112" skillLevel="4" skillName="Deflect Arrow" levelUpSp="70000" getLevel="49" />
+		<skill skillId="127" skillLevel="3" skillName="Hamstring" levelUpSp="70000" getLevel="49" />
+		<skill skillId="147" skillLevel="24" skillName="Magic Resistance" levelUpSp="23000" getLevel="49" />
+		<skill skillId="147" skillLevel="25" skillName="Magic Resistance" levelUpSp="23000" getLevel="49" />
+		<skill skillId="147" skillLevel="26" skillName="Magic Resistance" levelUpSp="23000" getLevel="49" />
+		<skill skillId="191" skillLevel="3" skillName="Focus Mind" levelUpSp="70000" getLevel="49" />
+		<skill skillId="217" skillLevel="18" skillName="Sword Blunt Mastery" levelUpSp="23000" getLevel="49" />
+		<skill skillId="217" skillLevel="19" skillName="Sword Blunt Mastery" levelUpSp="23000" getLevel="49" />
+		<skill skillId="217" skillLevel="20" skillName="Sword Blunt Mastery" levelUpSp="23000" getLevel="49" />
+		<skill skillId="232" skillLevel="25" skillName="Heavy Armor Mastery" levelUpSp="23000" getLevel="49" />
+		<skill skillId="232" skillLevel="26" skillName="Heavy Armor Mastery" levelUpSp="23000" getLevel="49" />
+		<skill skillId="232" skillLevel="27" skillName="Heavy Armor Mastery" levelUpSp="23000" getLevel="49" />
+		<skill skillId="283" skillLevel="2" skillName="Summon Dark Panther" levelUpSp="70000" getLevel="49" />
+		<skill skillId="18" skillLevel="13" skillName="Aura of Hate" levelUpSp="38000" getLevel="52" />
+		<skill skillId="18" skillLevel="14" skillName="Aura of Hate" levelUpSp="38000" getLevel="52" />
+		<skill skillId="18" skillLevel="15" skillName="Aura of Hate" levelUpSp="38000" getLevel="52" />
+		<skill skillId="28" skillLevel="25" skillName="Aggression" levelUpSp="38000" getLevel="52" />
+		<skill skillId="28" skillLevel="26" skillName="Aggression" levelUpSp="38000" getLevel="52" />
+		<skill skillId="28" skillLevel="27" skillName="Aggression" levelUpSp="38000" getLevel="52" />
+		<skill skillId="46" skillLevel="5" skillName="Life Scavenge" levelUpSp="115000" getLevel="52" />
+		<skill skillId="65" skillLevel="3" skillName="Horror" levelUpSp="115000" getLevel="52" />
+		<skill skillId="70" skillLevel="29" skillName="Drain Health" levelUpSp="38000" getLevel="52" />
+		<skill skillId="70" skillLevel="30" skillName="Drain Health" levelUpSp="38000" getLevel="52" />
+		<skill skillId="70" skillLevel="31" skillName="Drain Health" levelUpSp="38000" getLevel="52" />
+		<skill skillId="86" skillLevel="3" skillName="Reflect Damage" levelUpSp="115000" getLevel="52" />
+		<skill skillId="92" skillLevel="28" skillName="Shield Stun" levelUpSp="38000" getLevel="52" />
+		<skill skillId="92" skillLevel="29" skillName="Shield Stun" levelUpSp="38000" getLevel="52" />
+		<skill skillId="92" skillLevel="30" skillName="Shield Stun" levelUpSp="38000" getLevel="52" />
+		<skill skillId="127" skillLevel="4" skillName="Hamstring" levelUpSp="115000" getLevel="52" />
+		<skill skillId="147" skillLevel="27" skillName="Magic Resistance" levelUpSp="38000" getLevel="52" />
+		<skill skillId="147" skillLevel="28" skillName="Magic Resistance" levelUpSp="38000" getLevel="52" />
+		<skill skillId="147" skillLevel="29" skillName="Magic Resistance" levelUpSp="38000" getLevel="52" />
+		<skill skillId="153" skillLevel="4" skillName="Shield Mastery" levelUpSp="115000" getLevel="52" />
+		<skill skillId="217" skillLevel="21" skillName="Sword Blunt Mastery" levelUpSp="38000" getLevel="52" />
+		<skill skillId="217" skillLevel="22" skillName="Sword Blunt Mastery" levelUpSp="38000" getLevel="52" />
+		<skill skillId="217" skillLevel="23" skillName="Sword Blunt Mastery" levelUpSp="38000" getLevel="52" />
+		<skill skillId="232" skillLevel="28" skillName="Heavy Armor Mastery" levelUpSp="38000" getLevel="52" />
+		<skill skillId="232" skillLevel="29" skillName="Heavy Armor Mastery" levelUpSp="38000" getLevel="52" />
+		<skill skillId="232" skillLevel="30" skillName="Heavy Armor Mastery" levelUpSp="38000" getLevel="52" />
+		<skill skillId="291" skillLevel="1" skillName="Final Fortress" levelUpSp="115000" getLevel="52" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="1" getLevel="52" levelUpSp="230000">			<item id="8618" count="1" /> <!-- Ancient Book: Divine Inspiration (Modern Language Version) -->		</skill>
+		<skill skillId="18" skillLevel="16" skillName="Aura of Hate" levelUpSp="49000" getLevel="55" />
+		<skill skillId="18" skillLevel="17" skillName="Aura of Hate" levelUpSp="49000" getLevel="55" />
+		<skill skillId="18" skillLevel="18" skillName="Aura of Hate" levelUpSp="49000" getLevel="55" />
+		<skill skillId="28" skillLevel="28" skillName="Aggression" levelUpSp="49000" getLevel="55" />
+		<skill skillId="28" skillLevel="29" skillName="Aggression" levelUpSp="49000" getLevel="55" />
+		<skill skillId="28" skillLevel="30" skillName="Aggression" levelUpSp="49000" getLevel="55" />
+		<skill skillId="46" skillLevel="6" skillName="Life Scavenge" levelUpSp="147000" getLevel="55" />
+		<skill skillId="65" skillLevel="4" skillName="Horror" levelUpSp="147000" getLevel="55" />
+		<skill skillId="70" skillLevel="32" skillName="Drain Health" levelUpSp="49000" getLevel="55" />
+		<skill skillId="70" skillLevel="33" skillName="Drain Health" levelUpSp="49000" getLevel="55" />
+		<skill skillId="70" skillLevel="34" skillName="Drain Health" levelUpSp="49000" getLevel="55" />
+		<skill skillId="72" skillLevel="3" skillName="Iron Will" levelUpSp="147000" getLevel="55" />
+		<skill skillId="92" skillLevel="31" skillName="Shield Stun" levelUpSp="49000" getLevel="55" />
+		<skill skillId="92" skillLevel="32" skillName="Shield Stun" levelUpSp="49000" getLevel="55" />
+		<skill skillId="92" skillLevel="33" skillName="Shield Stun" levelUpSp="49000" getLevel="55" />
+		<skill skillId="127" skillLevel="5" skillName="Hamstring" levelUpSp="147000" getLevel="55" />
+		<skill skillId="147" skillLevel="30" skillName="Magic Resistance" levelUpSp="49000" getLevel="55" />
+		<skill skillId="147" skillLevel="31" skillName="Magic Resistance" levelUpSp="49000" getLevel="55" />
+		<skill skillId="147" skillLevel="32" skillName="Magic Resistance" levelUpSp="49000" getLevel="55" />
+		<skill skillId="191" skillLevel="4" skillName="Focus Mind" levelUpSp="147000" getLevel="55" />
+		<skill skillId="217" skillLevel="24" skillName="Sword Blunt Mastery" levelUpSp="49000" getLevel="55" />
+		<skill skillId="217" skillLevel="25" skillName="Sword Blunt Mastery" levelUpSp="49000" getLevel="55" />
+		<skill skillId="217" skillLevel="26" skillName="Sword Blunt Mastery" levelUpSp="49000" getLevel="55" />
+		<skill skillId="232" skillLevel="31" skillName="Heavy Armor Mastery" levelUpSp="49000" getLevel="55" />
+		<skill skillId="232" skillLevel="32" skillName="Heavy Armor Mastery" levelUpSp="49000" getLevel="55" />
+		<skill skillId="232" skillLevel="33" skillName="Heavy Armor Mastery" levelUpSp="49000" getLevel="55" />
+		<skill skillId="291" skillLevel="2" skillName="Final Fortress" levelUpSp="147000" getLevel="55" />
+		<skill skillId="401" skillLevel="1" skillName="Judgment" levelUpSp="147000" getLevel="55" />
+		<skill skillId="403" skillLevel="1" skillName="Shackle" levelUpSp="147000" getLevel="55" />
+		<skill skillId="450" skillLevel="1" skillName="Banish Seraph" levelUpSp="138000" getLevel="55" />
+		<skill skillId="18" skillLevel="19" skillName="Aura of Hate" levelUpSp="50000" getLevel="58" />
+		<skill skillId="18" skillLevel="20" skillName="Aura of Hate" levelUpSp="50000" getLevel="58" />
+		<skill skillId="18" skillLevel="21" skillName="Aura of Hate" levelUpSp="50000" getLevel="58" />
+		<skill skillId="28" skillLevel="31" skillName="Aggression" levelUpSp="50000" getLevel="58" />
+		<skill skillId="28" skillLevel="32" skillName="Aggression" levelUpSp="50000" getLevel="58" />
+		<skill skillId="28" skillLevel="33" skillName="Aggression" levelUpSp="50000" getLevel="58" />
+		<skill skillId="46" skillLevel="7" skillName="Life Scavenge" levelUpSp="150000" getLevel="58" />
+		<skill skillId="65" skillLevel="5" skillName="Horror" levelUpSp="150000" getLevel="58" />
+		<skill skillId="70" skillLevel="35" skillName="Drain Health" levelUpSp="50000" getLevel="58" />
+		<skill skillId="70" skillLevel="36" skillName="Drain Health" levelUpSp="50000" getLevel="58" />
+		<skill skillId="70" skillLevel="37" skillName="Drain Health" levelUpSp="50000" getLevel="58" />
+		<skill skillId="82" skillLevel="3" skillName="Majesty" levelUpSp="150000" getLevel="58" />
+		<skill skillId="92" skillLevel="34" skillName="Shield Stun" levelUpSp="50000" getLevel="58" />
+		<skill skillId="92" skillLevel="35" skillName="Shield Stun" levelUpSp="50000" getLevel="58" />
+		<skill skillId="92" skillLevel="36" skillName="Shield Stun" levelUpSp="50000" getLevel="58" />
+		<skill skillId="103" skillLevel="2" skillName="Corpse Plague" levelUpSp="150000" getLevel="58" />
+		<skill skillId="127" skillLevel="6" skillName="Hamstring" levelUpSp="150000" getLevel="58" />
+		<skill skillId="147" skillLevel="33" skillName="Magic Resistance" levelUpSp="50000" getLevel="58" />
+		<skill skillId="147" skillLevel="34" skillName="Magic Resistance" levelUpSp="50000" getLevel="58" />
+		<skill skillId="147" skillLevel="35" skillName="Magic Resistance" levelUpSp="50000" getLevel="58" />
+		<skill skillId="217" skillLevel="27" skillName="Sword Blunt Mastery" levelUpSp="50000" getLevel="58" />
+		<skill skillId="217" skillLevel="28" skillName="Sword Blunt Mastery" levelUpSp="50000" getLevel="58" />
+		<skill skillId="217" skillLevel="29" skillName="Sword Blunt Mastery" levelUpSp="50000" getLevel="58" />
+		<skill skillId="232" skillLevel="34" skillName="Heavy Armor Mastery" levelUpSp="50000" getLevel="58" />
+		<skill skillId="232" skillLevel="35" skillName="Heavy Armor Mastery" levelUpSp="50000" getLevel="58" />
+		<skill skillId="232" skillLevel="36" skillName="Heavy Armor Mastery" levelUpSp="50000" getLevel="58" />
+		<skill skillId="283" skillLevel="3" skillName="Summon Dark Panther" levelUpSp="150000" getLevel="58" />
+		<skill skillId="291" skillLevel="3" skillName="Final Fortress" levelUpSp="150000" getLevel="58" />
+		<skill skillId="401" skillLevel="2" skillName="Judgment" levelUpSp="150000" getLevel="58" />
+		<skill skillId="403" skillLevel="2" skillName="Shackle" levelUpSp="150000" getLevel="58" />
+		<skill skillId="450" skillLevel="2" skillName="Banish Seraph" levelUpSp="141000" getLevel="58" />
+		<skill skillId="18" skillLevel="22" skillName="Aura of Hate" levelUpSp="112000" getLevel="60" />
+		<skill skillId="18" skillLevel="23" skillName="Aura of Hate" levelUpSp="112000" getLevel="60" />
+		<skill skillId="28" skillLevel="34" skillName="Aggression" levelUpSp="112000" getLevel="60" />
+		<skill skillId="28" skillLevel="35" skillName="Aggression" levelUpSp="112000" getLevel="60" />
+		<skill skillId="46" skillLevel="8" skillName="Life Scavenge" levelUpSp="223000" getLevel="60" />
+		<skill skillId="65" skillLevel="6" skillName="Horror" levelUpSp="223000" getLevel="60" />
+		<skill skillId="70" skillLevel="38" skillName="Drain Health" levelUpSp="112000" getLevel="60" />
+		<skill skillId="70" skillLevel="39" skillName="Drain Health" levelUpSp="112000" getLevel="60" />
+		<skill skillId="92" skillLevel="37" skillName="Shield Stun" levelUpSp="112000" getLevel="60" />
+		<skill skillId="92" skillLevel="38" skillName="Shield Stun" levelUpSp="112000" getLevel="60" />
+		<skill skillId="127" skillLevel="7" skillName="Hamstring" levelUpSp="223000" getLevel="60" />
+		<skill skillId="147" skillLevel="36" skillName="Magic Resistance" levelUpSp="112000" getLevel="60" />
+		<skill skillId="147" skillLevel="37" skillName="Magic Resistance" levelUpSp="112000" getLevel="60" />
+		<skill skillId="217" skillLevel="30" skillName="Sword Blunt Mastery" levelUpSp="112000" getLevel="60" />
+		<skill skillId="217" skillLevel="31" skillName="Sword Blunt Mastery" levelUpSp="112000" getLevel="60" />
+		<skill skillId="232" skillLevel="37" skillName="Heavy Armor Mastery" levelUpSp="112000" getLevel="60" />
+		<skill skillId="232" skillLevel="38" skillName="Heavy Armor Mastery" levelUpSp="112000" getLevel="60" />
+		<skill skillId="291" skillLevel="4" skillName="Final Fortress" levelUpSp="223000" getLevel="60" />
+		<skill skillId="401" skillLevel="3" skillName="Judgment" levelUpSp="223000" getLevel="60" />
+		<skill skillId="403" skillLevel="3" skillName="Shackle" levelUpSp="223000" getLevel="60" />
+		<skill skillId="450" skillLevel="3" skillName="Banish Seraph" levelUpSp="208000" getLevel="60" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="2" getLevel="61" levelUpSp="640000">			<item id="8619" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Language Version) -->		</skill>
+		<skill skillId="18" skillLevel="24" skillName="Aura of Hate" levelUpSp="130000" getLevel="62" />
+		<skill skillId="18" skillLevel="25" skillName="Aura of Hate" levelUpSp="130000" getLevel="62" />
+		<skill skillId="28" skillLevel="36" skillName="Aggression" levelUpSp="130000" getLevel="62" />
+		<skill skillId="28" skillLevel="37" skillName="Aggression" levelUpSp="130000" getLevel="62" />
+		<skill skillId="46" skillLevel="9" skillName="Life Scavenge" levelUpSp="270000" getLevel="62" />
+		<skill skillId="65" skillLevel="7" skillName="Horror" levelUpSp="270000" getLevel="62" />
+		<skill skillId="70" skillLevel="40" skillName="Drain Health" levelUpSp="130000" getLevel="62" />
+		<skill skillId="70" skillLevel="41" skillName="Drain Health" levelUpSp="130000" getLevel="62" />
+		<skill skillId="92" skillLevel="39" skillName="Shield Stun" levelUpSp="130000" getLevel="62" />
+		<skill skillId="92" skillLevel="40" skillName="Shield Stun" levelUpSp="130000" getLevel="62" />
+		<skill skillId="103" skillLevel="3" skillName="Corpse Plague" levelUpSp="270000" getLevel="62" />
+		<skill skillId="127" skillLevel="8" skillName="Hamstring" levelUpSp="270000" getLevel="62" />
+		<skill skillId="147" skillLevel="38" skillName="Magic Resistance" levelUpSp="130000" getLevel="62" />
+		<skill skillId="147" skillLevel="39" skillName="Magic Resistance" levelUpSp="130000" getLevel="62" />
+		<skill skillId="217" skillLevel="32" skillName="Sword Blunt Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="217" skillLevel="33" skillName="Sword Blunt Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="232" skillLevel="39" skillName="Heavy Armor Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="232" skillLevel="40" skillName="Heavy Armor Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="283" skillLevel="4" skillName="Summon Dark Panther" levelUpSp="270000" getLevel="62" />
+		<skill skillId="291" skillLevel="5" skillName="Final Fortress" levelUpSp="270000" getLevel="62" />
+		<skill skillId="401" skillLevel="4" skillName="Judgment" levelUpSp="270000" getLevel="62" />
+		<skill skillId="403" skillLevel="4" skillName="Shackle" levelUpSp="270000" getLevel="62" />
+		<skill skillId="450" skillLevel="4" skillName="Banish Seraph" levelUpSp="250000" getLevel="62" />
+		<skill skillId="18" skillLevel="26" skillName="Aura of Hate" levelUpSp="160000" getLevel="64" />
+		<skill skillId="18" skillLevel="27" skillName="Aura of Hate" levelUpSp="160000" getLevel="64" />
+		<skill skillId="28" skillLevel="38" skillName="Aggression" levelUpSp="160000" getLevel="64" />
+		<skill skillId="28" skillLevel="39" skillName="Aggression" levelUpSp="160000" getLevel="64" />
+		<skill skillId="46" skillLevel="10" skillName="Life Scavenge" levelUpSp="320000" getLevel="64" />
+		<skill skillId="65" skillLevel="8" skillName="Horror" levelUpSp="320000" getLevel="64" />
+		<skill skillId="70" skillLevel="42" skillName="Drain Health" levelUpSp="160000" getLevel="64" />
+		<skill skillId="70" skillLevel="43" skillName="Drain Health" levelUpSp="160000" getLevel="64" />
+		<skill skillId="92" skillLevel="41" skillName="Shield Stun" levelUpSp="160000" getLevel="64" />
+		<skill skillId="92" skillLevel="42" skillName="Shield Stun" levelUpSp="160000" getLevel="64" />
+		<skill skillId="127" skillLevel="9" skillName="Hamstring" levelUpSp="320000" getLevel="64" />
+		<skill skillId="147" skillLevel="40" skillName="Magic Resistance" levelUpSp="160000" getLevel="64" />
+		<skill skillId="147" skillLevel="41" skillName="Magic Resistance" levelUpSp="160000" getLevel="64" />
+		<skill skillId="191" skillLevel="5" skillName="Focus Mind" levelUpSp="320000" getLevel="64" />
+		<skill skillId="217" skillLevel="34" skillName="Sword Blunt Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="217" skillLevel="35" skillName="Sword Blunt Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="232" skillLevel="41" skillName="Heavy Armor Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="232" skillLevel="42" skillName="Heavy Armor Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="291" skillLevel="6" skillName="Final Fortress" levelUpSp="320000" getLevel="64" />
+		<skill skillId="322" skillLevel="1" skillName="Shield Fortress" levelUpSp="320000" getLevel="64" />
+		<skill skillId="401" skillLevel="5" skillName="Judgment" levelUpSp="320000" getLevel="64" />
+		<skill skillId="403" skillLevel="5" skillName="Shackle" levelUpSp="320000" getLevel="64" />
+		<skill skillId="450" skillLevel="5" skillName="Banish Seraph" levelUpSp="300000" getLevel="64" />
+		<skill skillId="18" skillLevel="28" skillName="Aura of Hate" levelUpSp="230000" getLevel="66" />
+		<skill skillId="18" skillLevel="29" skillName="Aura of Hate" levelUpSp="230000" getLevel="66" />
+		<skill skillId="28" skillLevel="40" skillName="Aggression" levelUpSp="230000" getLevel="66" />
+		<skill skillId="28" skillLevel="41" skillName="Aggression" levelUpSp="230000" getLevel="66" />
+		<skill skillId="46" skillLevel="11" skillName="Life Scavenge" levelUpSp="470000" getLevel="66" />
+		<skill skillId="65" skillLevel="9" skillName="Horror" levelUpSp="470000" getLevel="66" />
+		<skill skillId="70" skillLevel="44" skillName="Drain Health" levelUpSp="230000" getLevel="66" />
+		<skill skillId="70" skillLevel="45" skillName="Drain Health" levelUpSp="230000" getLevel="66" />
+		<skill skillId="92" skillLevel="43" skillName="Shield Stun" levelUpSp="230000" getLevel="66" />
+		<skill skillId="92" skillLevel="44" skillName="Shield Stun" levelUpSp="230000" getLevel="66" />
+		<skill skillId="127" skillLevel="10" skillName="Hamstring" levelUpSp="470000" getLevel="66" />
+		<skill skillId="147" skillLevel="42" skillName="Magic Resistance" levelUpSp="230000" getLevel="66" />
+		<skill skillId="147" skillLevel="43" skillName="Magic Resistance" levelUpSp="230000" getLevel="66" />
+		<skill skillId="217" skillLevel="36" skillName="Sword Blunt Mastery" levelUpSp="230000" getLevel="66" />
+		<skill skillId="217" skillLevel="37" skillName="Sword Blunt Mastery" levelUpSp="230000" getLevel="66" />
+		<skill skillId="232" skillLevel="43" skillName="Heavy Armor Mastery" levelUpSp="230000" getLevel="66" />
+		<skill skillId="232" skillLevel="44" skillName="Heavy Armor Mastery" levelUpSp="230000" getLevel="66" />
+		<skill skillId="283" skillLevel="5" skillName="Summon Dark Panther" levelUpSp="470000" getLevel="66" />
+		<skill skillId="291" skillLevel="7" skillName="Final Fortress" levelUpSp="470000" getLevel="66" />
+		<skill skillId="322" skillLevel="2" skillName="Shield Fortress" levelUpSp="470000" getLevel="66" />
+		<skill skillId="401" skillLevel="6" skillName="Judgment" levelUpSp="470000" getLevel="66" />
+		<skill skillId="403" skillLevel="6" skillName="Shackle" levelUpSp="470000" getLevel="66" />
+		<skill skillId="450" skillLevel="6" skillName="Banish Seraph" levelUpSp="440000" getLevel="66" />
+		<skill skillId="18" skillLevel="30" skillName="Aura of Hate" levelUpSp="280000" getLevel="68" />
+		<skill skillId="18" skillLevel="31" skillName="Aura of Hate" levelUpSp="280000" getLevel="68" />
+		<skill skillId="28" skillLevel="42" skillName="Aggression" levelUpSp="280000" getLevel="68" />
+		<skill skillId="28" skillLevel="43" skillName="Aggression" levelUpSp="280000" getLevel="68" />
+		<skill skillId="46" skillLevel="12" skillName="Life Scavenge" levelUpSp="560000" getLevel="68" />
+		<skill skillId="65" skillLevel="10" skillName="Horror" levelUpSp="560000" getLevel="68" />
+		<skill skillId="70" skillLevel="46" skillName="Drain Health" levelUpSp="280000" getLevel="68" />
+		<skill skillId="70" skillLevel="47" skillName="Drain Health" levelUpSp="280000" getLevel="68" />
+		<skill skillId="92" skillLevel="45" skillName="Shield Stun" levelUpSp="280000" getLevel="68" />
+		<skill skillId="92" skillLevel="46" skillName="Shield Stun" levelUpSp="280000" getLevel="68" />
+		<skill skillId="127" skillLevel="11" skillName="Hamstring" levelUpSp="560000" getLevel="68" />
+		<skill skillId="147" skillLevel="44" skillName="Magic Resistance" levelUpSp="280000" getLevel="68" />
+		<skill skillId="147" skillLevel="45" skillName="Magic Resistance" levelUpSp="280000" getLevel="68" />
+		<skill skillId="217" skillLevel="38" skillName="Sword Blunt Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="217" skillLevel="39" skillName="Sword Blunt Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="232" skillLevel="45" skillName="Heavy Armor Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="232" skillLevel="46" skillName="Heavy Armor Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="291" skillLevel="8" skillName="Final Fortress" levelUpSp="560000" getLevel="68" />
+		<skill skillId="322" skillLevel="3" skillName="Shield Fortress" levelUpSp="560000" getLevel="68" />
+		<skill skillId="401" skillLevel="7" skillName="Judgment" levelUpSp="560000" getLevel="68" />
+		<skill skillId="403" skillLevel="7" skillName="Shackle" levelUpSp="560000" getLevel="68" />
+		<skill skillId="450" skillLevel="7" skillName="Banish Seraph" levelUpSp="520000" getLevel="68" />
+		<skill skillId="18" skillLevel="32" skillName="Aura of Hate" levelUpSp="290000" getLevel="70" />
+		<skill skillId="18" skillLevel="33" skillName="Aura of Hate" levelUpSp="290000" getLevel="70" />
+		<skill skillId="28" skillLevel="44" skillName="Aggression" levelUpSp="290000" getLevel="70" />
+		<skill skillId="28" skillLevel="45" skillName="Aggression" levelUpSp="290000" getLevel="70" />
+		<skill skillId="46" skillLevel="13" skillName="Life Scavenge" levelUpSp="580000" getLevel="70" />
+		<skill skillId="65" skillLevel="11" skillName="Horror" levelUpSp="580000" getLevel="70" />
+		<skill skillId="70" skillLevel="48" skillName="Drain Health" levelUpSp="290000" getLevel="70" />
+		<skill skillId="70" skillLevel="49" skillName="Drain Health" levelUpSp="290000" getLevel="70" />
+		<skill skillId="92" skillLevel="47" skillName="Shield Stun" levelUpSp="290000" getLevel="70" />
+		<skill skillId="92" skillLevel="48" skillName="Shield Stun" levelUpSp="290000" getLevel="70" />
+		<skill skillId="103" skillLevel="4" skillName="Corpse Plague" levelUpSp="580000" getLevel="70" />
+		<skill skillId="127" skillLevel="12" skillName="Hamstring" levelUpSp="580000" getLevel="70" />
+		<skill skillId="147" skillLevel="46" skillName="Magic Resistance" levelUpSp="290000" getLevel="70" />
+		<skill skillId="147" skillLevel="47" skillName="Magic Resistance" levelUpSp="290000" getLevel="70" />
+		<skill skillId="217" skillLevel="40" skillName="Sword Blunt Mastery" levelUpSp="290000" getLevel="70" />
+		<skill skillId="217" skillLevel="41" skillName="Sword Blunt Mastery" levelUpSp="290000" getLevel="70" />
+		<skill skillId="232" skillLevel="47" skillName="Heavy Armor Mastery" levelUpSp="290000" getLevel="70" />
+		<skill skillId="232" skillLevel="48" skillName="Heavy Armor Mastery" levelUpSp="290000" getLevel="70" />
+		<skill skillId="283" skillLevel="6" skillName="Summon Dark Panther" levelUpSp="580000" getLevel="70" />
+		<skill skillId="291" skillLevel="9" skillName="Final Fortress" levelUpSp="580000" getLevel="70" />
+		<skill skillId="322" skillLevel="4" skillName="Shield Fortress" levelUpSp="580000" getLevel="70" />
+		<skill skillId="401" skillLevel="8" skillName="Judgment" levelUpSp="580000" getLevel="70" />
+		<skill skillId="403" skillLevel="8" skillName="Shackle" levelUpSp="580000" getLevel="70" />
+		<skill skillId="450" skillLevel="8" skillName="Banish Seraph" levelUpSp="550000" getLevel="70" />
+		<skill skillId="18" skillLevel="34" skillName="Aura of Hate" levelUpSp="400000" getLevel="72" />
+		<skill skillId="18" skillLevel="35" skillName="Aura of Hate" levelUpSp="400000" getLevel="72" />
+		<skill skillId="28" skillLevel="46" skillName="Aggression" levelUpSp="400000" getLevel="72" />
+		<skill skillId="28" skillLevel="47" skillName="Aggression" levelUpSp="400000" getLevel="72" />
+		<skill skillId="46" skillLevel="14" skillName="Life Scavenge" levelUpSp="800000" getLevel="72" />
+		<skill skillId="65" skillLevel="12" skillName="Horror" levelUpSp="800000" getLevel="72" />
+		<skill skillId="70" skillLevel="50" skillName="Drain Health" levelUpSp="400000" getLevel="72" />
+		<skill skillId="70" skillLevel="51" skillName="Drain Health" levelUpSp="400000" getLevel="72" />
+		<skill skillId="92" skillLevel="49" skillName="Shield Stun" levelUpSp="400000" getLevel="72" />
+		<skill skillId="92" skillLevel="50" skillName="Shield Stun" levelUpSp="400000" getLevel="72" />
+		<skill skillId="127" skillLevel="13" skillName="Hamstring" levelUpSp="800000" getLevel="72" />
+		<skill skillId="147" skillLevel="48" skillName="Magic Resistance" levelUpSp="400000" getLevel="72" />
+		<skill skillId="147" skillLevel="49" skillName="Magic Resistance" levelUpSp="400000" getLevel="72" />
+		<skill skillId="191" skillLevel="6" skillName="Focus Mind" levelUpSp="800000" getLevel="72" />
+		<skill skillId="217" skillLevel="42" skillName="Sword Blunt Mastery" levelUpSp="400000" getLevel="72" />
+		<skill skillId="217" skillLevel="43" skillName="Sword Blunt Mastery" levelUpSp="400000" getLevel="72" />
+		<skill skillId="232" skillLevel="49" skillName="Heavy Armor Mastery" levelUpSp="400000" getLevel="72" />
+		<skill skillId="232" skillLevel="50" skillName="Heavy Armor Mastery" levelUpSp="400000" getLevel="72" />
+		<skill skillId="291" skillLevel="10" skillName="Final Fortress" levelUpSp="800000" getLevel="72" />
+		<skill skillId="322" skillLevel="5" skillName="Shield Fortress" levelUpSp="800000" getLevel="72" />
+		<skill skillId="401" skillLevel="9" skillName="Judgment" levelUpSp="800000" getLevel="72" />
+		<skill skillId="403" skillLevel="9" skillName="Shackle" levelUpSp="800000" getLevel="72" />
+		<skill skillId="450" skillLevel="9" skillName="Banish Seraph" levelUpSp="750000" getLevel="72" />
+		<skill skillId="18" skillLevel="36" skillName="Aura of Hate" levelUpSp="870000" getLevel="74" />
+		<skill skillId="18" skillLevel="37" skillName="Aura of Hate" levelUpSp="870000" getLevel="74" />
+		<skill skillId="28" skillLevel="48" skillName="Aggression" levelUpSp="870000" getLevel="74" />
+		<skill skillId="28" skillLevel="49" skillName="Aggression" levelUpSp="870000" getLevel="74" />
+		<skill skillId="46" skillLevel="15" skillName="Life Scavenge" levelUpSp="1730000" getLevel="74" />
+		<skill skillId="65" skillLevel="13" skillName="Horror" levelUpSp="1730000" getLevel="74" />
+		<skill skillId="70" skillLevel="52" skillName="Drain Health" levelUpSp="870000" getLevel="74" />
+		<skill skillId="70" skillLevel="53" skillName="Drain Health" levelUpSp="870000" getLevel="74" />
+		<skill skillId="92" skillLevel="51" skillName="Shield Stun" levelUpSp="870000" getLevel="74" />
+		<skill skillId="92" skillLevel="52" skillName="Shield Stun" levelUpSp="870000" getLevel="74" />
+		<skill skillId="127" skillLevel="14" skillName="Hamstring" levelUpSp="1730000" getLevel="74" />
+		<skill skillId="147" skillLevel="50" skillName="Magic Resistance" levelUpSp="870000" getLevel="74" />
+		<skill skillId="147" skillLevel="51" skillName="Magic Resistance" levelUpSp="870000" getLevel="74" />
+		<skill skillId="217" skillLevel="44" skillName="Sword Blunt Mastery" levelUpSp="870000" getLevel="74" />
+		<skill skillId="217" skillLevel="45" skillName="Sword Blunt Mastery" levelUpSp="870000" getLevel="74" />
+		<skill skillId="232" skillLevel="51" skillName="Heavy Armor Mastery" levelUpSp="870000" getLevel="74" />
+		<skill skillId="232" skillLevel="52" skillName="Heavy Armor Mastery" levelUpSp="870000" getLevel="74" />
+		<skill skillId="283" skillLevel="7" skillName="Summon Dark Panther" levelUpSp="1730000" getLevel="74" />
+		<skill skillId="291" skillLevel="11" skillName="Final Fortress" levelUpSp="1730000" getLevel="74" />
+		<skill skillId="322" skillLevel="6" skillName="Shield Fortress" levelUpSp="1730000" getLevel="74" />
+		<skill skillId="401" skillLevel="10" skillName="Judgment" levelUpSp="1730000" getLevel="74" />
+		<skill skillId="403" skillLevel="10" skillName="Shackle" levelUpSp="1730000" getLevel="74" />
+		<skill skillId="450" skillLevel="10" skillName="Banish Seraph" levelUpSp="1630000" getLevel="74" />
+	</skillTree>
+</list>

@@ -1,0 +1,1816 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
+	<npc id="23700" level="85" type="Folk" name="Altar Guardian">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="240" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="9" />
+			<height normal="23" />
+		</collision>
+	</npc>
+	<npc id="23701" level="85" type="Folk" name="Knight Guard" title="Dragonclaw Clan">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="53771" hpRegen="7.5" mp="23928" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="9" />
+			<height normal="18" />
+		</collision>
+	</npc>
+	<npc id="23702" level="85" type="Folk" name="Duran" title="Dragonclaw Royal Guard">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="9" />
+			<height normal="23" />
+		</collision>
+	</npc>
+	<npc id="23703" level="85" type="Folk" name="Ice Knight" title="Winter Omen">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="403282" hpRegen="7.5" mp="23928" mpRegen="2.7" />
+			<speed>
+				<walk ground="20" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="15" />
+			<height normal="31" />
+		</collision>
+	</npc>
+	<npc id="23704" level="85" type="Folk" name="Ifrit" title="Master of Flames">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="418660" hpRegen="7.5" mp="47856" mpRegen="2.7" />
+			<speed>
+				<walk ground="38" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4416" level="7" /> <!-- Spirits -->
+		</skillList>
+		<collision>
+			<radius normal="13" />
+			<height normal="55" />
+		</collision>
+	</npc>
+	<npc id="23705" level="85" type="Folk" name="Arimanes" title="Master of Flames">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="418660" hpRegen="7.5" mp="47856" mpRegen="2.7" />
+			<speed>
+				<walk ground="35" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="14" grown="17" />
+			<height normal="57.75" grown="69" />
+		</collision>
+	</npc>
+	<npc id="23706" level="85" type="Folk" name="Kelbim's Follower">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="7.5" mp="2355" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23707" level="85" type="Folk" name="Kelbim's Follower">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="7.5" mp="2355" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="27" />
+		</collision>
+	</npc>
+	<npc id="23708" level="85" type="Folk" name="Kelbim's Follower">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="9" />
+			<height normal="18" />
+		</collision>
+	</npc>
+	<npc id="23709" level="85" type="Folk" name="Flame Scarab">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="215084" hpRegen="7.5" mp="23928" mpRegen="2.7" />
+			<speed>
+				<walk ground="45" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4416" level="12" /> <!-- Bugs -->
+		</skillList>
+		<collision>
+			<radius normal="14" />
+			<height normal="22" />
+		</collision>
+	</npc>
+	<npc id="23710" level="85" type="Folk" name="Knight Guardian">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23711" level="85" type="Folk" name="Altar Guardian Soldier">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7" />
+			<height normal="27" />
+		</collision>
+	</npc>
+	<npc id="23712" level="85" type="Folk" name="Altar Guardian Archer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="53771" hpRegen="7.5" mp="23928" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="7.5" />
+			<height normal="24" />
+		</collision>
+	</npc>
+	<npc id="23713" level="85" type="Folk" name="Altar Guardian Wizard">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="6.5" />
+			<height normal="22.5" />
+		</collision>
+	</npc>
+	<npc id="23714" level="85" type="Folk" name="Cyclone" title="Typhoon's Guardian">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="30" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="18" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23715" level="85" type="Folk" name="Hurricane" title="Typhoon's Guardian">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="30" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="18" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23716" level="85" type="Folk" name="Wild Hog Cannon">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="10" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="46.5" />
+			<height normal="43.5" />
+		</collision>
+	</npc>
+	<npc id="23717" level="85" type="Folk" name="Siege Golem">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="436754" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="70" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="50" />
+			<height normal="68" />
+		</collision>
+	</npc>
+	<npc id="23718" level="85" type="Monster" name="Glacier Golem">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="268854" hpRegen="7.5" mp="23928" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="4416" level="7" /> <!-- Spirits -->
+		</skillList>
+		<collision>
+			<radius normal="40" />
+			<height normal="37.4" />
+		</collision>
+	</npc>
+	<npc id="23719" level="85" type="Folk" name="Frozen Knight">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="53771" hpRegen="7.5" mp="23928" mpRegen="2.7" />
+			<speed>
+				<walk ground="36" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="12" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23720" level="85" type="Folk" name="Panthera">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="7.5" mp="2355" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="34" />
+			<height normal="28" />
+		</collision>
+	</npc>
+	<npc id="23721" level="85" type="Folk" name="Maze Buffalo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="7.5" mp="2355" mpRegen="2.7" />
+			<speed>
+				<walk ground="20" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="22" grown="27" />
+			<height normal="31" grown="38" />
+		</collision>
+	</npc>
+	<npc id="23722" level="85" type="Folk" name="Frost Buffalo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="7.5" mp="2355" mpRegen="2.7" />
+			<speed>
+				<walk ground="20" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="24" />
+			<height normal="34.7" />
+		</collision>
+	</npc>
+	<npc id="23723" level="85" type="Folk" name="Frost Ursus">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="7.5" mp="2355" mpRegen="2.7" />
+			<speed>
+				<walk ground="40" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="4416" level="4" /> <!-- Animals -->
+		</skillList>
+		<collision>
+			<radius normal="21" />
+			<height normal="40" />
+		</collision>
+	</npc>
+	<npc id="23724" level="85" type="Folk" name="Buffalo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="7.5" mp="2355" mpRegen="2.7" />
+			<speed>
+				<walk ground="80" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="22" grown="27" />
+			<height normal="31" grown="38" />
+		</collision>
+	</npc>
+	<npc id="23725" level="85" type="Folk" name="Ursus">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="7.5" mp="2355" mpRegen="2.7" />
+			<speed>
+				<walk ground="40" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="4416" level="4" /> <!-- Animals -->
+		</skillList>
+		<collision>
+			<radius normal="21" />
+			<height normal="40" />
+		</collision>
+	</npc>
+	<npc id="23726" level="85" type="Folk" name="Frost Glacier Golem">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="524266" hpRegen="7.5" mp="23928" mpRegen="2.7" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="4416" level="7" /> <!-- Spirits -->
+		</skillList>
+		<collision>
+			<radius normal="50" />
+			<height normal="47.5" />
+		</collision>
+	</npc>
+	<npc id="23727" level="100" type="Monster" name="Shaqrima Bathus">
+		<race>GIANT</race>
+		<acquire exp="401600520" sp="963841" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="1130239" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4435" level="5" /> <!-- Greater Stun Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23728" level="100" type="Monster" name="Shaqrima Carcass">
+		<race>GIANT</race>
+		<acquire exp="401600520" sp="963841" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="1130239" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23729" level="100" type="Monster" name="Shaqrima Kshana">
+		<race>GIANT</race>
+		<acquire exp="401600520" sp="963841" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="1130239" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23730" level="101" type="Monster" name="Om Bathus">
+		<race>GIANT</race>
+		<acquire exp="357545773" sp="858109" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="816032" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4435" level="5" /> <!-- Greater Stun Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23731" level="101" type="Monster" name="Om Carcass">
+		<race>GIANT</race>
+		<acquire exp="357545773" sp="858109" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="816032" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23732" level="101" type="Monster" name="Om Kshana">
+		<race>GIANT</race>
+		<acquire exp="357545773" sp="858109" />
+		<stats>
+			<vitals hp="816032" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23733" level="100" type="Monster" name="Lesser Giant Warrior">
+		<race>GIANT</race>
+		<acquire exp="82101112" sp="197042" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="200932" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23734" level="77" type="Monster" name="Lesser Giant Wizard">
+		<parameters>
+			<param name="MoveAroundSocial" value="110" />
+			<param name="MoveAroundSocial1" value="110" />
+			<param name="MoveAroundSocial2" value="110" />
+			<param name="SoulShot" value="100" />
+			<param name="SoulShotRate" value="10" />
+			<param name="SpiritShot" value="100" />
+			<param name="SpiritShotRate" value="5" />
+			<skill name="W_LongRangeDDMagic" id="4156" level="6" /> <!-- NPC Curve Beam Cannon - Magic -->
+			<skill name="W_ShortRangeDDMagic" id="4160" level="6" /> <!-- NPC Aura Burn - Magic -->
+			<skill name="MagicHeal" id="4065" level="6" /> <!-- NPC Heal -->
+		</parameters>
+		<race>GIANT</race>
+		<sex>MALE</sex>
+		<equipment rhand="3938" /> <!-- rhand: Giant Rod -->
+		<acquire exp="257609" sp="7728" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="34828.64254" hpRegen="10" mp="2110" mpRegen="2.7" />
+			<attack physical="807.66491" magical="317.2599" random="50" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="262.7678909" magical="217.41171" />
+			<speed>
+				<walk ground="15" />
+				<run ground="180" />
+			</speed>
+			<hitTime>560</hitTime>
+		</stats>
+		<status undying="false" canBeSown="true" />
+		<skillList>
+			<skill id="4065" level="6" /> <!-- NPC Heal -->
+			<skill id="4156" level="6" /> <!-- NPC Curve Beam Cannon - Magic -->
+			<skill id="4160" level="6" /> <!-- NPC Aura Burn - Magic -->
+			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="10" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4416" level="11" /> <!-- Giants -->
+		</skillList>
+		<shots shotChance="30" spiritChance="30" />
+		<exCrtEffect>false</exCrtEffect>
+		<sNpcPropHpRate>2</sNpcPropHpRate>
+		<ai type="MAGE" aggroRange="500" clanHelpRange="300" isAggressive="false">
+			<clanList>
+				<clan>GIANT</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="21" />
+			<height normal="44" />
+		</collision>
+		<dropLists>
+			<drop>
+				<item id="5319" min="1" max="1" chance="0.03" /> <!-- Sealed Majestic Boots -->
+				<item id="57" min="5301" max="12380" chance="70" /> <!-- Adena -->
+				<item id="1865" min="7" max="21" chance="21.4" /> <!-- Varnish -->
+				<item id="1869" min="24" max="72" chance="6.408" /> <!-- Iron Ore -->
+				<item id="1880" min="3" max="9" chance="4.309" /> <!-- Steel -->
+				<item id="5515" min="1" max="1" chance="3.73" /> <!-- Sealed Majestic Gauntlet Design -->
+				<item id="5502" min="1" max="1" chance="3.605" /> <!-- Sealed Boots of Nightmare Lining -->
+				<item id="5514" min="1" max="1" chance="3.601" /> <!-- Sealed Gauntlets of Nightmare Design -->
+				<item id="5503" min="1" max="1" chance="3.593" /> <!-- Sealed Majestic Boot Lining -->
+			</drop>
+			<spoil>
+				<item id="1865" min="1" max="31" chance="92.99" /> <!-- Varnish -->
+				<item id="5404" min="1" max="1" chance="4.281" /> <!-- Recipe: Sealed Gauntlets of Nightmare (60%) -->
+				<item id="5380" min="1" max="1" chance="4.226" /> <!-- Recipe: Sealed Boots of Nightmare (60%) -->
+				<item id="5382" min="1" max="1" chance="4.221" /> <!-- Recipe: Sealed Majestic Boots (60%) -->
+				<item id="5406" min="1" max="1" chance="4.221" /> <!-- Recipe: Sealed Majestic Gauntlets (60%) -->
+			</spoil>
+		</dropLists>
+	</npc>
+	<npc id="23735" level="100" type="Monster" name="Captive Familiar Spirit">
+		<race>DEMONIC</race>
+		<acquire exp="32126522" sp="77103" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="100466" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23736" level="100" type="Monster" name="Captive Hell Demon">
+		<race>DEMONIC</race>
+		<acquire exp="32126522" sp="77103" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="100466" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23737" level="100" type="Monster" name="Captive Succubus">
+		<race>DEMONIC</race>
+		<acquire exp="32126522" sp="77103" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="100466" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23738" level="100" type="Monster" name="Captive Phantom">
+		<race>DEMONIC</race>
+		<acquire exp="32126522" sp="77103" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="100466" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23739" level="101" type="Monster" name="Marka">
+		<race>DEMONIC</race>
+		<acquire exp="238364881" sp="572075" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="3264077" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23740" level="101" type="Monster" name="Schlien">
+		<race>DEMONIC</race>
+		<acquire exp="238364881" sp="572075" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="3264077" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23741" level="101" type="Monster" name="Berimah">
+		<race>DEMONIC</race>
+		<acquire exp="238364881" sp="572075" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="3264077" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23742" level="101" type="Monster" name="Naia Bathus">
+		<race>GIANT</race>
+		<acquire exp="148978051" sp="357547" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="293767" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23743" level="101" type="Monster" name="Naia Karkus">
+		<!-- TODO FIX IT -->
+		<race>GIANT</race>
+		<acquire exp="148978051" sp="357547" />
+		<stats> <!-- TODO FIX IT -->
+			<vitals hp="293767" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23744" level="101" type="Monster" name="Naia Kshana">
+		<race>GIANT</race>
+		<acquire exp="148978051" sp="357547" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="293767" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23745" level="101" type="Monster" name="Naia Lucas">
+		<race>GIANT</race>
+		<acquire exp="148978051" sp="357547" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="293767" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23746" level="101" type="Monster" name="Recovering Lesser Giant Warrior">
+		<race>GIANT</race>
+		<acquire exp="148978051" sp="357547" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="293767" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23747" level="101" type="Monster" name="Recovering Lesser Giant Wizard">
+		<race>GIANT</race>
+		<acquire exp="148978051" sp="357547" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="293767" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23748" level="100" type="Monster" name="Lesser Giant Soldier">
+		<race>GIANT</race>
+		<acquire exp="82101112" sp="197042" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="200932" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23749" level="100" type="Monster" name="Root of the Lesser Giant">
+		<race>ETC</race> <!-- TODO: Magic Creatures -->
+		<acquire exp="39265749" sp="94237" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="100466" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23750" level="100" type="Monster" name="Shaqrima Lucas">
+		<race>GIANT</race>
+		<acquire exp="401600520" sp="963841" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="1130239" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23751" level="101" type="Monster" name="Om Lucas">
+		<race>GIANT</race>
+		<acquire exp="357545773" sp="858109" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="816032" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23752" level="100" type="Monster" name="Lesser Giant Archer">
+		<race>GIANT</race>
+		<acquire exp="82101112" sp="197042" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="200932" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23753" level="100" type="Monster" name="Lesser Giant Support Troop">
+		<race>GIANT</race>
+		<acquire exp="82101112" sp="197042" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="200932" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23754" level="100" type="Monster" name="Essence of the Lesser Giant">
+		<race>ETC</race> <!-- TODO: Magic Creatures -->
+		<acquire exp="39265749" sp="94237" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
+			<vitals hp="100466" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" /> <!-- TODO FIX IT -->
+			<defence physical="3839.95121517957" magical="2066.69244923556" /> <!-- TODO FIX IT -->
+		</stats>
+		<skillList>
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23755" level="97" type="Monster" name="Wandering Dead of the Dimension">
+		<race>UNDEAD</race>
+		<acquire exp="27916503" sp="66999" />
+		<stats>
+			<vitals hp="162815" hpRegen="10.5" mp="2280" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23757" level="97" type="Monster" name="Lost Soul of the Dimension">
+		<race>UNDEAD</race>
+		<acquire exp="27916503" sp="66999" />
+		<stats>
+			<vitals hp="162815" hpRegen="10.5" mp="2280" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23759" level="97" type="Monster" name="Roaming Vengeance of the Dimension">
+		<race>HUMANOID</race>
+		<acquire exp="27916503" sp="66999" />
+		<stats>
+			<vitals hp="162815" hpRegen="10.5" mp="2280" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23760" level="98" type="Monster" name="Dimensional Vagabond">
+		<race>UNDEAD</race>
+		<acquire exp="119675444" sp="287221" />
+		<stats>
+			<vitals hp="493312" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23761" level="98" type="Monster" name="Dimension Dissolver">
+		<race>HUMANOID</race>
+		<acquire exp="1196792856" sp="2872302" />
+		<stats>
+			<vitals hp="3288743" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23774" level="102" type="Monster" name="Delta Bathus">
+		<race>GIANT</race>
+		<acquire exp="547017485" sp="1312842" />
+		<stats>
+			<vitals hp="1325641" hpRegen="11.5" mp="23928" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4435" level="5" /> <!-- Greater Stun Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23775" level="102" type="Monster" name="Delta Carcass">
+		<race>GIANT</race>
+		<acquire exp="547017485" sp="1312842" />
+		<stats>
+			<vitals hp="1325641" hpRegen="11.5" mp="23928" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23776" level="102" type="Monster" name="Delta Kshana">
+		<race>GIANT</race>
+		<acquire exp="547017485" sp="1312842" />
+		<stats>
+			<vitals hp="1325641" hpRegen="11.5" mp="23928" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23777" level="103" type="Monster" name="Royal Templar">
+		<race>GIANT</race>
+		<acquire exp="669367163" sp="1606481" />
+		<stats>
+			<vitals hp="1435669" hpRegen="11.5" mp="23928" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4435" level="5" /> <!-- Greater Stun Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23778" level="103" type="Monster" name="Royal Shooter">
+		<race>GIANT</race>
+		<acquire exp="669367163" sp="1606481" />
+		<stats>
+			<vitals hp="1435669" hpRegen="11.5" mp="23928" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23779" level="103" type="Monster" name="Royal Wizard">
+		<race>GIANT</race>
+		<acquire exp="669367163" sp="1606481" />
+		<stats>
+			<vitals hp="1435669" hpRegen="11.5" mp="23928" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23780" level="103" type="Monster" name="Royal Templar Colonel">
+		<race>GIANT</race>
+		<acquire exp="669367163" sp="1606481" />
+		<stats>
+			<vitals hp="1435669" hpRegen="11.5" mp="23928" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4435" level="5" /> <!-- Greater Stun Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23781" level="103" type="Monster" name="Royal Sharpshooter">
+		<race>GIANT</race>
+		<acquire exp="669367163" sp="1606481" />
+		<stats>
+			<vitals hp="1435669" hpRegen="11.5" mp="23928" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23782" level="103" type="Monster" name="Royal Archmage">
+		<race>GIANT</race>
+		<acquire exp="669367163" sp="1606481" />
+		<stats>
+			<vitals hp="1435669" hpRegen="11.5" mp="23928" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23783" level="103" type="Monster" name="Royal Gatekeeper">
+		<race>GIANT</race>
+		<acquire exp="2231223878" sp="5354937" />
+		<stats>
+			<vitals hp="23927806" hpRegen="11.5" mp="23928" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4435" level="5" /> <!-- Greater Stun Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23784" level="100" type="Monster" name="Dark Wizard of the Magic Circle">
+		<race>DEMONIC</race>
+		<acquire exp="27418833" sp="65805" />
+		<stats>
+			<vitals hp="78141" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23785" level="100" type="Monster" name="Scorpion King">
+		<race>DEMONIC</race>
+		<acquire exp="231310406" sp="555145" />
+		<stats>
+			<vitals hp="657748" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23786" level="100" type="Monster" name="Nymph Rose">
+		<race>PLANT</race>
+		<acquire exp="24987295" sp="59969" />
+		<stats>
+			<vitals hp="55815" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23787" level="100" type="Monster" name="Nymph Lily">
+		<race>PLANT</race>
+		<acquire exp="24987295" sp="59969" />
+		<stats>
+			<vitals hp="55815" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23788" level="100" type="Monster" name="Nymph Tulip">
+		<race>PLANT</race>
+		<acquire exp="24987295" sp="59969" />
+		<stats>
+			<vitals hp="55815" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23789" level="100" type="Monster" name="Nymph Cosmos">
+		<race>PLANT</race>
+		<acquire exp="24987295" sp="59969" />
+		<stats>
+			<vitals hp="55815" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23790" level="102" type="Monster" name="Kimerian">
+		<race>FAIRY</race>
+		<acquire exp="82709042" sp="198501" />
+		<stats>
+			<vitals hp="196389" hpRegen="11.5" mp="24690" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="13" /> <!-- Fairies -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23790" level="85" type="Folk" name="">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="58233" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="1" />
+				<run ground="1" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="0.1" />
+			<height normal="0.1" />
+		</collision>
+	</npc>
+	<npc id="23791" level="85" type="Folk" name="">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="58233" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="1" />
+				<run ground="1" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="0.1" />
+			<height normal="0.1" />
+		</collision>
+	</npc>
+	<npc id="23792" level="85" type="Folk" name="">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="58233" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="1" />
+				<run ground="1" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="0.1" />
+			<height normal="0.1" />
+		</collision>
+	</npc>
+	<npc id="23793" level="85" type="Folk" name="">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="58233" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="1" />
+				<run ground="1" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="0.1" />
+			<height normal="0.1" />
+		</collision>
+	</npc>
+	<npc id="23794" level="85" type="Folk" name="">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="58233" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="1" />
+				<run ground="1" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="0.1" />
+			<height normal="0.1" />
+		</collision>
+	</npc>
+	<npc id="23795" level="85" type="Folk" name="">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="58233" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="1" />
+				<run ground="1" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="0.1" />
+			<height normal="0.1" />
+		</collision>
+	</npc>
+	<npc id="23796" level="85" type="Folk" name="">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="58233" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="1" />
+				<run ground="1" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="0.1" />
+			<height normal="0.1" />
+		</collision>
+	</npc>
+	<npc id="23797" level="85" type="Folk" name="">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="70" int="28" dex="40" wit="65" con="74" men="20">
+			<vitals hp="58233" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<speed>
+				<walk ground="1" />
+				<run ground="1" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="0.1" />
+			<height normal="0.1" />
+		</collision>
+	</npc>
+	<npc id="23798" level="102" type="Monster" name="Delta Bathus" title="Superion Scout">
+		<race>GIANT</race>
+		<acquire exp="547017485" sp="1312842" />
+		<stats>
+			<vitals hp="1325641" hpRegen="11.5" mp="23928" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4435" level="5" /> <!-- Greater Stun Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23799" level="102" type="Monster" name="Delta Carcass" title="Superion Scout">
+		<race>GIANT</race>
+		<acquire exp="547017485" sp="1312842" />
+		<stats>
+			<vitals hp="1325641" hpRegen="11.5" mp="23928" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<skillList>
+			<skill id="4416" level="11" /> <!-- Giants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
+			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+</list>

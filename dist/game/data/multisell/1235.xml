@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/multisell.xsd">
+	<npcs>
+		<npc>32024</npc> <!-- Mulia (Clan Trader) -->
+		<npc>32025</npc> <!-- Ilia (Clan Trader) -->
+	</npcs>
+	<!-- Sealed Apella Helm -->
+	<item>
+		<ingredient id="-200" count="3480" />
+		<ingredient id="57" count="1740000" />
+		<production id="7870" count="1" />
+	</item>
+	<!-- Sealed Apella Plate Armor -->
+	<item>
+		<ingredient id="-200" count="13540" />
+		<ingredient id="57" count="6670000" />
+		<production id="7871" count="1" />
+	</item>
+	<!-- Sealed Apella Gauntlet -->
+	<item>
+		<ingredient id="-200" count="2320" />
+		<ingredient id="57" count="1160000" />
+		<production id="7872" count="1" />
+	</item>
+	<!-- Sealed Apella Solleret -->
+	<item>
+		<ingredient id="-200" count="2320" />
+		<ingredient id="57" count="1160000" />
+		<production id="7873" count="1" />
+	</item>
+	<!-- Sealed Apella Brigandine -->
+	<item>
+		<ingredient id="-200" count="10160" />
+		<ingredient id="57" count="5080000" />
+		<production id="7874" count="1" />
+	</item>
+	<!-- Sealed Apella Leather Gloves -->
+	<item>
+		<ingredient id="-200" count="2320" />
+		<ingredient id="57" count="1160000" />
+		<production id="7875" count="1" />
+	</item>
+	<!-- Sealed Apella Boots -->
+	<item>
+		<ingredient id="-200" count="2320" />
+		<ingredient id="57" count="1160000" />
+		<production id="7876" count="1" />
+	</item>
+	<!-- Sealed Apella Doublet -->
+	<item>
+		<ingredient id="-200" count="10160" />
+		<ingredient id="57" count="5080000" />
+		<production id="7877" count="1" />
+	</item>
+	<!-- Sealed Apella Silk Gloves -->
+	<item>
+		<ingredient id="-200" count="2320" />
+		<ingredient id="57" count="1160000" />
+		<production id="7878" count="1" />
+	</item>
+	<!-- Sealed Apella Sandals -->
+	<item>
+		<ingredient id="-200" count="2320" />
+		<ingredient id="57" count="1160000" />
+		<production id="7879" count="1" />
+	</item>
+</list>

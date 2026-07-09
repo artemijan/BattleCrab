@@ -1,0 +1,882 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
+	<skill id="19300" toLevel="1" name="Reverse Mana Drain">
+		<icon>icon.skill19299</icon>
+		<operateType>A1</operateType>
+		<effectPoint>-709</effectPoint>
+		<isTriggeredSkill>true</isTriggeredSkill>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<effects>
+			<effect name="ManaHealPercent">
+				<power>3</power>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="19301" toLevel="9" name="Istina Acid Swarm">
+		<!-- Creates Danger Zone which sprays poison onto nearby targets for 15 seconds. Decreases P. Atk., Speed, Shield Defense, P. Def., and M. Def. Inflicts Poison that blocks the use of magic skills. -->
+		<icon>icon.skill19301</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<mpConsume>107</mpConsume>
+		<castRange>900</castRange>
+		<abnormalLevel>
+			<value level="1">1</value>
+			<value level="2">2</value>
+			<value level="3">3</value>
+			<value level="4">4</value>
+			<value level="5">5</value>
+			<value level="6">6</value>
+			<value level="7">7</value>
+			<value level="8">8</value>
+			<value level="9">9</value>
+		</abnormalLevel>
+		<reuseDelay>15000</reuseDelay>
+		<abnormalTime>15</abnormalTime>
+		<abnormalType>POISON</abnormalType>
+		<abnormalVisualEffect>DOT_POISON</abnormalVisualEffect>
+		<activateRate>130</activateRate>
+		<affectLimit>5-12</affectLimit>
+		<affectRange>300</affectRange>
+		<operateType>A2</operateType>
+		<coolTime>500</coolTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>
+			<value level="1">85</value>
+			<value level="2">87</value>
+			<value level="3">90</value>
+			<value level="4">93</value>
+			<value level="5">96</value>
+			<value level="6">99</value>
+			<value level="7">101</value>
+			<value level="8">103</value>
+			<value level="9">105</value>
+		</magicLevel>
+		<lvlBonusRate>20</lvlBonusRate>
+		<mpConsume>1</mpConsume>
+		<effectPoint>-711</effectPoint>
+		<effectRange>900</effectRange>
+		<isDebuff>true</isDebuff>
+		<basicProperty>NONE</basicProperty>
+		<hitTime>2000</hitTime>
+		<hitCancelTime>0</hitCancelTime>
+		<trait>ZONE</trait>
+		<targetType>GROUND</targetType>
+		<affectScope>POINT_BLANK</affectScope>
+		<affectObject>NOT_FRIEND</affectObject>
+		<channelingStart>1</channelingStart>
+		<effects>
+			<effect name="SummonNpc">
+				<npcId>
+					<value level="1">13541</value>
+					<value level="2">13542</value>
+					<value level="3">13543</value>
+					<value level="4">13544</value>
+					<value level="5">13545</value>
+					<value level="6">13546</value>
+					<value level="7">13547</value>
+					<value level="8">13548</value>
+					<value level="9">13549</value>
+				</npcId>
+				<npcCount>1</npcCount>
+				<despawnDelay>15000</despawnDelay>
+				<singleInstance>true</singleInstance>
+			</effect>
+			<effect name="MagicalDefence">
+				<amount>-30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalDefence">
+				<amount>-30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="Speed">
+				<amount>-50</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="ShieldDefence">
+				<amount>-50</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="BlockSkill">
+				<magicTypes>1</magicTypes>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="19302" toLevel="9" name="Thrown Acid Swarm">
+		<!-- Poisoned. Decreases Speed/P. Atk/P. Def/M. Def/Shield Defense, blocks magic skills and drains HP by 780 every second. -->
+		<icon>icon.skill19301</icon>
+		<abnormalLevel>
+			<value level="1">1</value>
+			<value level="2">2</value>
+			<value level="3">3</value>
+			<value level="4">4</value>
+			<value level="5">5</value>
+			<value level="6">6</value>
+			<value level="7">7</value>
+			<value level="8">8</value>
+			<value level="9">9</value>
+		</abnormalLevel>
+		<abnormalTime>2</abnormalTime>
+		<abnormalType>POISON</abnormalType>
+		<abnormalVisualEffect>DOT_POISON</abnormalVisualEffect>
+		<activateRate>130</activateRate>
+		<affectLimit>5-12</affectLimit>
+		<affectRange>300</affectRange>
+		<operateType>A2</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>
+			<value level="1">85</value>
+			<value level="2">87</value>
+			<value level="3">90</value>
+			<value level="4">93</value>
+			<value level="5">96</value>
+			<value level="6">99</value>
+			<value level="7">101</value>
+			<value level="8">103</value>
+			<value level="9">105</value>
+		</magicLevel>
+		<lvlBonusRate>20</lvlBonusRate>
+		<effectPoint>-709</effectPoint>
+		<isDebuff>true</isDebuff>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<trait>POISON</trait>
+		<targetType>SELF</targetType>
+		<affectScope>POINT_BLANK</affectScope>
+		<affectObject>NOT_FRIEND</affectObject>
+		<effects>
+			<effect name="Heal">
+				<power>
+					<value level="1">-780</value>
+					<value level="2">-930</value>
+					<value level="3">-1180</value>
+					<value level="4">-1330</value>
+					<value level="5">-1480</value>
+					<value level="6">-1630</value>
+					<value level="7">-1780</value>
+					<value level="8">-1930</value>
+					<value level="9">-2080</value>
+				</power>
+				<ticks>1</ticks>
+			</effect>
+			<effect name="Mute" />
+			<effect name="BlockSkill">
+				<magicTypes>1</magicTypes>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>-30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="Speed">
+				<amount>-50</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="ShieldDefence">
+				<amount>-50</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalDefence">
+				<amount>-30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalDefence">
+				<amount>-30</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+		<selfEffects>
+			<effect name="DispelBySlot">
+				<dispel>HIDE,-1</dispel>
+			</effect>
+		</selfEffects>
+	</skill>
+	<skill id="19303" toLevel="7" name="Right Angle Reverse">
+		<!-- Moves to the right side of the target to attempt Deadly Attack with 35530 power added to P. Atk.. Causes Bleed on the target for 15 seconds. Half-kill is possible. Requires dagger/dual dagger. -->
+		<icon>icon.skill19303</icon>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>1</abnormalTime>
+		<abnormalType>STUN</abnormalType>
+		<operateType>DA5</operateType>
+		<castRange>80</castRange>
+		<magicLevel>
+			<value level="1">85</value>
+			<value level="2">90</value>
+			<value level="3">95</value>
+			<value level="4">99</value>
+			<value level="5">101</value>
+			<value level="6">103</value>
+			<value level="7">105</value>
+		</magicLevel>
+		<mpConsume>
+			<value level="1">80</value>
+			<value level="2">85</value>
+			<value level="3">90</value>
+			<value level="4">95</value>
+			<value level="5">100</value>
+			<value level="6">105</value>
+			<value level="7">110</value>
+		</mpConsume>
+		<activateRate>0</activateRate>
+		<hitTime>1500</hitTime>
+		<coolTime>500</coolTime>
+		<reuseDelay>6000</reuseDelay>
+		<staticReuse>true</staticReuse>
+		<effectPoint>-709</effectPoint>
+		<nextAction>ATTACK</nextAction>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="EquipWeapon">
+				<weaponType>
+					<item>DAGGER</item>
+					<item>DUALDAGGER</item>
+				</weaponType>
+			</condition>
+		</conditions>
+		<selfEffects>
+			<effect name="CallSkill">
+				<skillId>19304</skillId> <!-- Easterly Wind Strike -->
+				<skillLevel>1</skillLevel>
+			</effect>
+		</selfEffects>
+		<effects>
+			<effect name="FatalBlow">
+				<power>
+					<value level="1">35530</value>
+					<value level="2">41630</value>
+					<value level="3">47730</value>
+					<value level="4">52610</value>
+					<value level="5">56030</value>
+					<value level="6">58530</value>
+					<value level="7">61030</value>
+				</power>
+				<criticalChance>15</criticalChance>
+				<chanceBoost>300</chanceBoost>
+			</effect>
+			<effect name="Lethal">
+				<fullLethal>0</fullLethal>
+				<halfLethal>15</halfLethal>
+			</effect>
+			<effect name="CallSkill">
+				<skillId>19528</skillId> <!-- Right Angle Reverse - Stun -->
+				<skillLevel>1</skillLevel>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="19304" toLevel="1" name="Easterly Wind Strike">
+		<!-- Increases critical rate/critical damage inflicted from the side by 20% and critical rate/critical damage inflicted from behind by 10%. -->
+		<icon>icon.skill10705</icon>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>10</abnormalTime>
+		<abnormalType>EASTERLY_WIND_STRIKE</abnormalType>
+		<effectPoint>80</effectPoint>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<isTriggeredSkill>true</isTriggeredSkill>
+		<reuseDelayGroup>10705</reuseDelayGroup>
+		<effects>
+			<effect name="CriticalDamagePosition">
+				<amount>20</amount>
+				<mode>PER</mode>
+				<position>SIDE</position>
+			</effect>
+			<effect name="CriticalRatePositionBonus">
+				<amount>20</amount>
+				<mode>PER</mode>
+				<position>SIDE</position>
+			</effect>
+			<effect name="CriticalDamagePosition">
+				<amount>10</amount>
+				<mode>PER</mode>
+				<position>BACK</position>
+			</effect>
+			<effect name="CriticalRatePositionBonus">
+				<amount>10</amount>
+				<mode>PER</mode>
+				<position>BACK</position>
+			</effect>
+			<effect name="ReuseSkillById">
+				<skillId>19303</skillId> <!-- Right Angle Reverse -->
+			</effect>
+			<effect name="ReuseSkillById">
+				<skillId>10705</skillId> <!-- Easterly Wind Strike -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="19305" toLevel="7" name="Shadow Reverse">
+		<!-- Teleports to the back of the target and attempts Deadly Attack with 38160 power added to P. Atk. Additionally, decreases target Accuracy by 5 for 3 seconds. Half-kill is possible. Requires dagger/dual dagger. -->
+		<icon>icon.skill19305</icon>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3</abnormalTime>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>120</castRange>
+		<magicLevel>
+			<value level="1">85</value>
+			<value level="2">90</value>
+			<value level="3">95</value>
+			<value level="4">99</value>
+			<value level="5">101</value>
+			<value level="6">103</value>
+			<value level="7">105</value>
+		</magicLevel>
+		<mpConsume>
+			<value level="1">90</value>
+			<value level="2">98</value>
+			<value level="3">106</value>
+			<value level="4">112</value>
+			<value level="5">118</value>
+			<value level="6">124</value>
+			<value level="7">130</value>
+		</mpConsume>
+		<hitTime>2030</hitTime>
+		<coolTime>500</coolTime>
+		<reuseDelay>8000</reuseDelay>
+		<effectPoint>
+			<value level="1">-709</value>
+			<value level="2">-711</value>
+			<value level="3">-713</value>
+			<value level="4">-715</value>
+			<value level="5">-715</value>
+			<value level="6">-715</value>
+			<value level="7">-715</value>
+		</effectPoint>
+		<isDebuff>true</isDebuff>
+		<nextAction>ATTACK</nextAction>
+		<conditions>
+			<condition name="EquipWeapon">
+				<weaponType>
+					<item>DAGGER</item>
+					<item>DUALDAGGER</item>
+				</weaponType>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="TeleportToTarget" />
+			<effect name="TargetCancel">
+				<chance>100</chance>
+			</effect>
+			<effect name="FatalBlow">
+				<power>
+					<value level="1">38160</value>
+					<value level="2">44710</value>
+					<value level="3">51270</value>
+					<value level="4">56510</value>
+					<value level="5">60180</value>
+					<value level="6">62870</value>
+					<value level="7">65560</value>
+				</power>
+				<criticalChance>15</criticalChance>
+				<chanceBoost>300</chanceBoost>
+			</effect>
+			<effect name="Lethal">
+				<fullLethal>0</fullLethal>
+				<halfLethal>15</halfLethal>
+			</effect>
+			<effect name="Accuracy">
+				<amount>-5</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="19306" toLevel="1" name="Coin of Maphr">
+		<!-- Leave your luck to the thumb -->
+		<icon>icon.skill19306</icon>
+		<operateType>A1</operateType>
+		<itemConsumeCount>7777</itemConsumeCount>
+		<itemConsumeId>57</itemConsumeId> <!-- Adena -->
+		<mpConsume>36</mpConsume>
+		<hitTime>2000</hitTime>
+		<coolTime>500</coolTime>
+		<reuseDelay>300000</reuseDelay>
+		<affectRange>600</affectRange>
+		<effectRange>600</effectRange>
+		<effectPoint>669</effectPoint>
+		<targetType>SELF</targetType>
+		<affectScope>PARTY</affectScope>
+		<affectObject>FRIEND_PC</affectObject>
+		<conditions>
+			<condition name="TargetMyParty">
+				<includeMe>true</includeMe>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="CallRandomSkill">
+				<skills>19307,1;19308,1</skills>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="19307" toLevel="2" name="Lucky Heads">
+		<!-- Maphr Blessing increases P. Atk. by 7%, M. Atk. by 14%, and P./M. Skill Power by 5% for 1 minute. -->
+		<icon>icon.skill19307</icon>
+		<effectPoint>669</effectPoint>
+		<operateType>A2</operateType>
+		<abnormalType>DWARF_BUFF</abnormalType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>60</abnormalTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<effects>
+			<effect name="PAtk">
+				<amount>7</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MAtk">
+				<amount>14</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalSkillPower">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalSkillPower">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="19308" toLevel="1" name="Lucky Tails">
+		<!-- Energy of Luck increases party members P. Def./M. Def. by 10% and enlarges their head size for 1 minute. -->
+		<icon>icon.skill19308</icon>
+		<effectPoint>669</effectPoint>
+		<operateType>A2</operateType>
+		<abnormalType>DWARF_BUFF</abnormalType>
+		<abnormalVisualEffect>BIG_HEAD</abnormalVisualEffect>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>60</abnormalTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<effects>
+			<effect name="PhysicalDefence">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalDefence">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="19309" toLevel="7" name="Reverse Plunder">
+		<!-- Attempts Deadly Attack with 36840 power added to P. Atk. and steals an item. Requires dagger/dual dagger. -->
+		<icon>icon.skill19309</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
+		<mpConsume>
+			<value level="1">90</value>
+			<value level="2">98</value>
+			<value level="3">106</value>
+			<value level="4">112</value>
+			<value level="5">118</value>
+			<value level="6">124</value>
+			<value level="7">130</value>
+		</mpConsume>
+		<magicLevel>
+			<value level="1">85</value>
+			<value level="2">90</value>
+			<value level="3">95</value>
+			<value level="4">99</value>
+			<value level="5">101</value>
+			<value level="6">103</value>
+			<value level="7">105</value>
+		</magicLevel>
+		<hitTime>2030</hitTime>
+		<coolTime>500</coolTime>
+		<reuseDelay>7000</reuseDelay>
+		<effectPoint>-709</effectPoint>
+		<nextAction>ATTACK</nextAction>
+		<conditions>
+			<condition name="EquipWeapon">
+				<weaponType>
+					<item>DAGGER</item>
+					<item>DUALDAGGER</item>
+				</weaponType>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="FatalBlow">
+				<power>
+					<value level="1">36840</value>
+					<value level="2">43170</value>
+					<value level="3">49500</value>
+					<value level="4">54560</value>
+					<value level="5">58100</value>
+					<value level="6">60700</value>
+					<value level="7">63290</value>
+				</power>
+				<criticalChance>15</criticalChance>
+				<chanceBoost>300</chanceBoost>
+			</effect>
+			<effect name="Plunder" />
+		</effects>
+	</skill>
+	<skill id="19311" toLevel="3" name="Dwarven Special Bang">
+		<!-- Fires Special Flare to inflict Bluff on enemies in front for 3 seconds. Requires dagger/dual dagger. Consumes 2 Soulstones. -->
+		<icon>icon.skill0537</icon>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3</abnormalTime>
+		<abnormalType>POWER_BLUFF</abnormalType>
+		<abnormalVisualEffect>STUN</abnormalVisualEffect>
+		<activateRate>120</activateRate>
+		<basicProperty>MAGIC</basicProperty>
+		<trait>DERANGEMENT</trait>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
+		<affectScope>FAN</affectScope>
+		<affectObject>NOT_FRIEND</affectObject>
+		<fanRange>0;0;200;150</fanRange>
+		<affectLimit>5-12</affectLimit>
+		<affectRange>200</affectRange>
+		<castRange>40</castRange>
+		<magicLevel>
+			<value level="1">101</value>
+			<value level="2">103</value>
+			<value level="3">105</value>
+		</magicLevel>
+		<mpConsume>155</mpConsume>
+		<hitTime>1000</hitTime>
+		<reuseDelay>30000</reuseDelay>
+		<effectPoint>-1</effectPoint>
+		<isDebuff>true</isDebuff>
+		<itemConsumeCount>2</itemConsumeCount>
+		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
+		<conditions>
+			<condition name="EquipWeapon">
+				<weaponType>
+					<item>DAGGER</item>
+					<item>DUALDAGGER</item>
+				</weaponType>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="TargetCancel">
+				<chance>100</chance>
+			</effect>
+			<effect name="DeleteHate">
+				<chance>80</chance>
+			</effect>
+			<effect name="BlockActions">
+				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912;30516</allowedSkills>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="19312" toLevel="1" name="Holy Stance">
+		<!-- Decreases damage received by 5% and increases Divinity Defense by 100, and applies Divinity to attribute magic. -->
+		<icon>icon.skill19312</icon>
+		<toggleGroupId>1</toggleGroupId>
+		<isNecessaryToggle>true</isNecessaryToggle>
+		<magicLevel>85</magicLevel>
+		<operateType>TG</operateType>
+		<reuseDelay>5000</reuseDelay>
+		<magicCriticalRate>5</magicCriticalRate>
+		<isMagic>1</isMagic>
+		<effects>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PveMagicalSkillDamageBonus">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDefenceBonus">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpMagicalSkillDefenceBonus">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDefenceBonus">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalAttackDefenceBonus">
+				<amount>5</amount>
+				<type>ENEMY_ALL</type>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PveMagicalSkillDefenceBonus">
+				<amount>5</amount>
+				<type>ENEMY_ALL</type>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDefenceBonus">
+				<amount>5</amount>
+				<type>ENEMY_ALL</type>
+				<mode>PER</mode>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>100</amount>
+				<attribute>HOLY</attribute>
+			</effect>
+			<effect name="CallSkill">
+				<skillId>19404</skillId> <!-- Fire Attribute -->
+				<skillLevel>5</skillLevel> <!-- Holy Attribute -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="19313" toLevel="1" name="Dark Stance">
+		<!-- Increases Magical Skill Power by 5% and Dark defense by 100, and applies Dark to attribute magic. -->
+		<icon>icon.skill19313</icon>
+		<toggleGroupId>1</toggleGroupId>
+		<isNecessaryToggle>true</isNecessaryToggle>
+		<magicLevel>85</magicLevel>
+		<operateType>TG</operateType>
+		<reuseDelay>5000</reuseDelay>
+		<magicCriticalRate>5</magicCriticalRate>
+		<isMagic>1</isMagic>
+		<effects>
+			<effect name="MagicalSkillPower">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>100</amount>
+				<attribute>DARK</attribute>
+			</effect>
+			<effect name="CallSkill">
+				<skillId>19404</skillId> <!-- Fire Attribute -->
+				<skillLevel>6</skillLevel> <!-- Dark Attribute -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="19314" toLevel="11" name="Elemental Spike (Dark)">
+		<!-- Deals M. Atk. of 133 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<icon>icon.skill11011</icon>
+		<operateType>A1</operateType>
+		<reuseDelayGroup>11011</reuseDelayGroup>
+		<magicLevel>
+			<value level="1">85</value>
+			<value level="2">86</value>
+			<value level="3">88</value>
+			<value level="4">90</value>
+			<value level="5">92</value>
+			<value level="6">94</value>
+			<value level="7">96</value>
+			<value level="8">98</value>
+			<value level="9">101</value>
+			<value level="10">103</value>
+			<value level="11">105</value>
+		</magicLevel>
+		<mpConsume>
+			<value level="1">37</value>
+			<value level="2">38</value>
+			<value level="3">39</value>
+			<value level="4">42</value>
+			<value level="5">43</value>
+			<value level="6">45</value>
+			<value level="7">48</value>
+			<value level="8">50</value>
+			<value level="9">52</value>
+			<value level="10">54</value>
+			<value level="11">56</value>
+		</mpConsume>
+		<castRange>1100</castRange>
+		<effectRange>1400</effectRange>
+		<hitTime>2280</hitTime>
+		<coolTime>300</coolTime>
+		<effectPoint>
+			<value level="1">-687</value>
+			<value level="2">-694</value>
+			<value level="3">-700</value>
+			<value level="4">-705</value>
+			<value level="5">-709</value>
+			<value level="6">-712</value>
+			<value level="7">-712</value>
+			<value level="8">-712</value>
+			<value level="9">-712</value>
+			<value level="10">-712</value>
+			<value level="11">-712</value>
+		</effectPoint>
+		<nextAction>CAST</nextAction>
+		<magicCriticalRate>
+			<value fromLevel="1" toLevel="11">6</value>
+			<value fromLevel="7" toLevel="11" fromSubLevel="2001" toSubLevel="2020">{base + base / 100 * subIndex}</value>
+		</magicCriticalRate>
+		<isMagic>1</isMagic>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<attributeType>DARK</attributeType>
+		<attributeValue>100</attributeValue>
+		<effects>
+			<effect name="MagicalAttack">
+				<power>
+					<value level="1">133</value>
+					<value level="2">134</value>
+					<value level="3">139</value>
+					<value level="4">142</value>
+					<value level="5">146</value>
+					<value level="6">150</value>
+					<value level="7">154</value>
+					<value level="8">157</value>
+					<value level="9">164</value>
+					<value level="10">168</value>
+					<value level="11">172</value>
+					<value fromLevel="7" toLevel="11" fromSubLevel="1001" toSubLevel="1005">{base + base / 100 * (1 + 0.4 * (subIndex - 1))}</value>
+					<value fromLevel="7" toLevel="11" fromSubLevel="1006" toSubLevel="1006">{base + base / 100 * (2 + 0.8 * (subIndex - 5))}</value>
+					<value fromLevel="7" toLevel="11" fromSubLevel="1007" toSubLevel="1007">{base + base / 100 * (3 + 0.3 * (subIndex - 6))}</value>
+					<value fromLevel="7" toLevel="11" fromSubLevel="1008" toSubLevel="1008">{base + base / 100 * (3 + 0.3 * (subIndex - 7))}</value>
+					<value fromLevel="7" toLevel="11" fromSubLevel="1009" toSubLevel="1011">{base + base / 100 * (4 + 0.4 * (subIndex - 8))}</value>
+					<value fromLevel="7" toLevel="11" fromSubLevel="1012" toSubLevel="1012">{base + base / 100 * (5 + 0.1 * (subIndex - 11))}</value>
+					<value fromLevel="7" toLevel="11" fromSubLevel="1013" toSubLevel="1013">{base + base / 100 * (5 + 0.5 * (subIndex - 12))}</value>
+					<value fromLevel="7" toLevel="11" fromSubLevel="1014" toSubLevel="1014">{base + base / 100 * (5 + 0.9 * (subIndex - 13))}</value>
+					<value fromLevel="7" toLevel="11" fromSubLevel="1015" toSubLevel="1015">{base + base / 100 * (6 + 0.2 * (subIndex - 14))}</value>
+					<value fromLevel="7" toLevel="11" fromSubLevel="1016" toSubLevel="1016">{base + base / 100 * (6 + 0.6 * (subIndex - 15))}</value>
+					<value fromLevel="7" toLevel="11" fromSubLevel="1017" toSubLevel="1017">{base + base / 100 * (7 + 0.2 * (subIndex - 16))}</value>
+					<value fromLevel="7" toLevel="11" fromSubLevel="1018" toSubLevel="1018">{base + base / 100 * (7 + 0.4 * (subIndex - 17))}</value>
+					<value fromLevel="7" toLevel="11" fromSubLevel="1019" toSubLevel="1019">{base + base / 100 * (7 + 0.7 * (subIndex - 18))}</value>
+					<value fromLevel="7" toLevel="11" fromSubLevel="1020" toSubLevel="1020">{base + base / 100 * (8 + 0.1 * (subIndex - 19))}</value>
+				</power>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="19315" toLevel="4" name="Mana Burst">
+		<!-- For 5 seconds, increases M. Atk. by 50%. Able to cast Quadruple Elemental Blast if reached level 4. -->
+		<icon>icon.skill11046</icon>
+		<abnormalLevel>
+			<value level="1">1</value>
+			<value level="2">2</value>
+			<value level="3">3</value>
+			<value level="4">4</value>
+		</abnormalLevel>
+		<abnormalTime>
+			<value level="1">5</value>
+			<value level="2">5</value>
+			<value level="3">5</value>
+			<value level="4">15</value>
+		</abnormalTime>
+		<abnormalType>MANA_BURST</abnormalType>
+		<activateRate>100</activateRate>
+		<operateType>A2</operateType>
+		<isMagic>22</isMagic>
+		<mpConsume>70</mpConsume>
+		<effectPoint>696</effectPoint>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<reuseDelay>1800</reuseDelay>
+		<effects>
+			<effect name="MAtk">
+				<amount>
+					<value level="1">50</value>
+					<value level="2">60</value>
+					<value level="3">70</value>
+					<value level="4">100</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>
+					<value level="2">100</value>
+					<value level="3">200</value>
+					<value level="4">300</value>
+				</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+		<endEffects>
+			<effect name="ReuseSkillById">
+				<skillId>11066</skillId> <!-- Arcane Comet Strike -->
+			</effect>
+			<effect name="CallSkill" fromLevel="1" toLevel="1">
+				<skillId>19315</skillId> <!-- Mana Burst -->
+				<skillLevel>2</skillLevel>
+			</effect>
+			<effect name="CallSkill" fromLevel="2" toLevel="2">
+				<skillId>19315</skillId> <!-- Mana Burst -->
+				<skillLevel>3</skillLevel>
+			</effect>
+			<effect name="CallSkill" fromLevel="3" toLevel="3">
+				<skillId>19315</skillId> <!-- Mana Burst -->
+				<skillLevel>4</skillLevel>
+			</effect>
+		</endEffects>
+	</skill>
+	<skill id="19316" toLevel="8" name="Elemental Final Storm (Dark)">
+		<!-- Deals M. Atk. of 262 power added with attribute damage on the target and the enemies near it. -->
+		<icon>icon.skill11040</icon>
+		<affectLimit>5-12</affectLimit>
+		<affectRange>150</affectRange>
+		<attributeType>DARK</attributeType>
+		<attributeValue>100</attributeValue>
+		<operateType>A1</operateType>
+		<targetType>ENEMY_ONLY</targetType>
+		<affectScope>RANGE</affectScope>
+		<affectObject>NOT_FRIEND</affectObject>
+		<reuseDelayGroup>11040</reuseDelayGroup>
+		<magicLevel>
+			<value level="1">85</value>
+			<value level="2">87</value>
+			<value level="3">89</value>
+			<value level="4">91</value>
+			<value level="5">93</value>
+			<value level="6">95</value>
+			<value level="7">97</value>
+			<value level="8">99</value>
+		</magicLevel>
+		<mpConsume>
+			<value level="1">264</value>
+			<value level="2">276</value>
+			<value level="3">288</value>
+			<value level="4">300</value>
+			<value level="5">315</value>
+			<value level="6">324</value>
+			<value level="7">336</value>
+			<value level="8">351</value>
+		</mpConsume>
+		<castRange>1100</castRange>
+		<effectRange>1100</effectRange>
+		<hitTime>4780</hitTime>
+		<coolTime>300</coolTime>
+		<reuseDelay>6700</reuseDelay>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>
+			<value fromLevel="1" toLevel="8">11</value>
+			<value fromLevel="7" toLevel="8" fromSubLevel="2001" toSubLevel="2020">{base + base / 100 * subIndex}</value>
+		</magicCriticalRate>
+		<effectPoint>
+			<value level="1">-687</value>
+			<value level="2">-696</value>
+			<value level="3">-704</value>
+			<value level="4">-709</value>
+			<value level="5">-712</value>
+			<value level="6">-712</value>
+			<value level="7">-712</value>
+			<value level="8">-712</value>
+		</effectPoint>
+		<isDebuff>true</isDebuff>
+		<effects>
+			<effect name="MagicalAttack">
+				<power>
+					<value level="1">262</value>
+					<value level="2">270</value>
+					<value level="3">277</value>
+					<value level="4">285</value>
+					<value level="5">292</value>
+					<value level="6">299</value>
+					<value level="7">307</value>
+					<value level="8">315</value>
+					<value fromLevel="7" toLevel="8" fromSubLevel="1001" toSubLevel="1005">{base + base / 100 * (1 + 0.4 * (subIndex - 1))}</value>
+					<value fromLevel="7" toLevel="8" fromSubLevel="1006" toSubLevel="1006">{base + base / 100 * (2 + 0.8 * (subIndex - 5))}</value>
+					<value fromLevel="7" toLevel="8" fromSubLevel="1007" toSubLevel="1007">{base + base / 100 * (3 + 0.3 * (subIndex - 6))}</value>
+					<value fromLevel="7" toLevel="8" fromSubLevel="1008" toSubLevel="1008">{base + base / 100 * (3 + 0.3 * (subIndex - 7))}</value>
+					<value fromLevel="7" toLevel="8" fromSubLevel="1009" toSubLevel="1011">{base + base / 100 * (4 + 0.4 * (subIndex - 8))}</value>
+					<value fromLevel="7" toLevel="8" fromSubLevel="1012" toSubLevel="1012">{base + base / 100 * (5 + 0.1 * (subIndex - 11))}</value>
+					<value fromLevel="7" toLevel="8" fromSubLevel="1013" toSubLevel="1013">{base + base / 100 * (5 + 0.5 * (subIndex - 12))}</value>
+					<value fromLevel="7" toLevel="8" fromSubLevel="1014" toSubLevel="1014">{base + base / 100 * (5 + 0.9 * (subIndex - 13))}</value>
+					<value fromLevel="7" toLevel="8" fromSubLevel="1015" toSubLevel="1015">{base + base / 100 * (6 + 0.2 * (subIndex - 14))}</value>
+					<value fromLevel="7" toLevel="8" fromSubLevel="1016" toSubLevel="1016">{base + base / 100 * (6 + 0.6 * (subIndex - 15))}</value>
+					<value fromLevel="7" toLevel="8" fromSubLevel="1017" toSubLevel="1017">{base + base / 100 * (7 + 0.2 * (subIndex - 16))}</value>
+					<value fromLevel="7" toLevel="8" fromSubLevel="1018" toSubLevel="1018">{base + base / 100 * (7 + 0.4 * (subIndex - 17))}</value>
+					<value fromLevel="7" toLevel="8" fromSubLevel="1019" toSubLevel="1019">{base + base / 100 * (7 + 0.7 * (subIndex - 18))}</value>
+					<value fromLevel="7" toLevel="8" fromSubLevel="1020" toSubLevel="1020">{base + base / 100 * (8 + 0.1 * (subIndex - 19))}</value>
+				</power>
+			</effect>
+		</effects>
+	</skill>
+</list>

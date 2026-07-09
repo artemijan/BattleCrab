@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="24" parentClassId="22">
+		<skill skillId="15" skillLevel="16" skillName="Charm" levelUpSp="12000" getLevel="40" />
+		<skill skillId="15" skillLevel="17" skillName="Charm" levelUpSp="12000" getLevel="40" />
+		<skill skillId="15" skillLevel="18" skillName="Charm" levelUpSp="12000" getLevel="40" />
+		<skill skillId="19" skillLevel="1" skillName="Double Shot" levelUpSp="12000" getLevel="40" />
+		<skill skillId="19" skillLevel="2" skillName="Double Shot" levelUpSp="12000" getLevel="40" />
+		<skill skillId="19" skillLevel="3" skillName="Double Shot" levelUpSp="12000" getLevel="40" />
+		<skill skillId="21" skillLevel="2" skillName="Poison Recovery" levelUpSp="35000" getLevel="40" />
+		<skill skillId="58" skillLevel="19" skillName="Elemental Heal" levelUpSp="12000" getLevel="40" />
+		<skill skillId="58" skillLevel="20" skillName="Elemental Heal" levelUpSp="12000" getLevel="40" />
+		<skill skillId="58" skillLevel="21" skillName="Elemental Heal" levelUpSp="12000" getLevel="40" />
+		<skill skillId="101" skillLevel="4" skillName="Stun Shot" levelUpSp="12000" getLevel="40" />
+		<skill skillId="101" skillLevel="5" skillName="Stun Shot" levelUpSp="12000" getLevel="40" />
+		<skill skillId="101" skillLevel="6" skillName="Stun Shot" levelUpSp="12000" getLevel="40" />
+		<skill skillId="102" skillLevel="2" skillName="Entangle" levelUpSp="35000" getLevel="40" />
+		<skill skillId="113" skillLevel="2" skillName="Long Shot" levelUpSp="35000" getLevel="40" />
+		<skill skillId="123" skillLevel="1" skillName="Spirit Barrier" levelUpSp="35000" getLevel="40" />
+		<skill skillId="208" skillLevel="16" skillName="Bow Mastery" levelUpSp="12000" getLevel="40" />
+		<skill skillId="208" skillLevel="17" skillName="Bow Mastery" levelUpSp="12000" getLevel="40" />
+		<skill skillId="208" skillLevel="18" skillName="Bow Mastery" levelUpSp="12000" getLevel="40" />
+		<skill skillId="233" skillLevel="11" skillName="Light Armor Mastery" levelUpSp="12000" getLevel="40" />
+		<skill skillId="233" skillLevel="12" skillName="Light Armor Mastery" levelUpSp="12000" getLevel="40" />
+		<skill skillId="233" skillLevel="13" skillName="Light Armor Mastery" levelUpSp="12000" getLevel="40" />
+		<skill skillId="312" skillLevel="6" skillName="Vicious Stance" levelUpSp="35000" getLevel="40" />
+		<skill skillId="15" skillLevel="19" skillName="Charm" levelUpSp="14000" getLevel="43" />
+		<skill skillId="15" skillLevel="20" skillName="Charm" levelUpSp="14000" getLevel="43" />
+		<skill skillId="15" skillLevel="21" skillName="Charm" levelUpSp="14000" getLevel="43" />
+		<skill skillId="19" skillLevel="4" skillName="Double Shot" levelUpSp="14000" getLevel="43" />
+		<skill skillId="19" skillLevel="5" skillName="Double Shot" levelUpSp="14000" getLevel="43" />
+		<skill skillId="19" skillLevel="6" skillName="Double Shot" levelUpSp="14000" getLevel="43" />
+		<skill skillId="58" skillLevel="22" skillName="Elemental Heal" levelUpSp="14000" getLevel="43" />
+		<skill skillId="58" skillLevel="23" skillName="Elemental Heal" levelUpSp="14000" getLevel="43" />
+		<skill skillId="58" skillLevel="24" skillName="Elemental Heal" levelUpSp="14000" getLevel="43" />
+		<skill skillId="101" skillLevel="7" skillName="Stun Shot" levelUpSp="14000" getLevel="43" />
+		<skill skillId="101" skillLevel="8" skillName="Stun Shot" levelUpSp="14000" getLevel="43" />
+		<skill skillId="101" skillLevel="9" skillName="Stun Shot" levelUpSp="14000" getLevel="43" />
+		<skill skillId="102" skillLevel="3" skillName="Entangle" levelUpSp="42000" getLevel="43" />
+		<skill skillId="169" skillLevel="2" skillName="Quick Step" levelUpSp="42000" getLevel="43" />
+		<skill skillId="171" skillLevel="2" skillName="Esprit" levelUpSp="42000" getLevel="43" />
+		<skill skillId="208" skillLevel="19" skillName="Bow Mastery" levelUpSp="14000" getLevel="43" />
+		<skill skillId="208" skillLevel="20" skillName="Bow Mastery" levelUpSp="14000" getLevel="43" />
+		<skill skillId="208" skillLevel="21" skillName="Bow Mastery" levelUpSp="14000" getLevel="43" />
+		<skill skillId="225" skillLevel="2" skillName="Acrobatic Move" levelUpSp="42000" getLevel="43" />
+		<skill skillId="233" skillLevel="14" skillName="Light Armor Mastery" levelUpSp="14000" getLevel="43" />
+		<skill skillId="233" skillLevel="15" skillName="Light Armor Mastery" levelUpSp="14000" getLevel="43" />
+		<skill skillId="233" skillLevel="16" skillName="Light Armor Mastery" levelUpSp="14000" getLevel="43" />
+		<skill skillId="312" skillLevel="7" skillName="Vicious Stance" levelUpSp="42000" getLevel="43" />
+		<skill skillId="15" skillLevel="22" skillName="Charm" levelUpSp="17000" getLevel="46" />
+		<skill skillId="15" skillLevel="23" skillName="Charm" levelUpSp="17000" getLevel="46" />
+		<skill skillId="15" skillLevel="24" skillName="Charm" levelUpSp="17000" getLevel="46" />
+		<skill skillId="19" skillLevel="7" skillName="Double Shot" levelUpSp="17000" getLevel="46" />
+		<skill skillId="19" skillLevel="8" skillName="Double Shot" levelUpSp="17000" getLevel="46" />
+		<skill skillId="19" skillLevel="9" skillName="Double Shot" levelUpSp="17000" getLevel="46" />
+		<skill skillId="24" skillLevel="1" skillName="Burst Shot" levelUpSp="17000" getLevel="46" />
+		<skill skillId="24" skillLevel="2" skillName="Burst Shot" levelUpSp="17000" getLevel="46" />
+		<skill skillId="24" skillLevel="3" skillName="Burst Shot" levelUpSp="17000" getLevel="46" />
+		<skill skillId="58" skillLevel="25" skillName="Elemental Heal" levelUpSp="17000" getLevel="46" />
+		<skill skillId="58" skillLevel="26" skillName="Elemental Heal" levelUpSp="17000" getLevel="46" />
+		<skill skillId="58" skillLevel="27" skillName="Elemental Heal" levelUpSp="17000" getLevel="46" />
+		<skill skillId="61" skillLevel="2" skillName="Cure Bleeding" levelUpSp="50000" getLevel="46" />
+		<skill skillId="101" skillLevel="10" skillName="Stun Shot" levelUpSp="17000" getLevel="46" />
+		<skill skillId="101" skillLevel="11" skillName="Stun Shot" levelUpSp="17000" getLevel="46" />
+		<skill skillId="101" skillLevel="12" skillName="Stun Shot" levelUpSp="17000" getLevel="46" />
+		<skill skillId="102" skillLevel="4" skillName="Entangle" levelUpSp="50000" getLevel="46" />
+		<skill skillId="171" skillLevel="3" skillName="Esprit" levelUpSp="50000" getLevel="46" />
+		<skill skillId="208" skillLevel="22" skillName="Bow Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="208" skillLevel="23" skillName="Bow Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="208" skillLevel="24" skillName="Bow Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="233" skillLevel="17" skillName="Light Armor Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="233" skillLevel="18" skillName="Light Armor Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="233" skillLevel="19" skillName="Light Armor Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="303" skillLevel="1" skillName="Soul of Sagittarius" levelUpSp="50000" getLevel="46" />
+		<skill skillId="312" skillLevel="8" skillName="Vicious Stance" levelUpSp="50000" getLevel="46" />
+		<skill skillId="15" skillLevel="25" skillName="Charm" levelUpSp="30000" getLevel="49" />
+		<skill skillId="15" skillLevel="26" skillName="Charm" levelUpSp="30000" getLevel="49" />
+		<skill skillId="15" skillLevel="27" skillName="Charm" levelUpSp="30000" getLevel="49" />
+		<skill skillId="19" skillLevel="10" skillName="Double Shot" levelUpSp="30000" getLevel="49" />
+		<skill skillId="19" skillLevel="11" skillName="Double Shot" levelUpSp="30000" getLevel="49" />
+		<skill skillId="19" skillLevel="12" skillName="Double Shot" levelUpSp="30000" getLevel="49" />
+		<skill skillId="24" skillLevel="4" skillName="Burst Shot" levelUpSp="30000" getLevel="49" />
+		<skill skillId="24" skillLevel="5" skillName="Burst Shot" levelUpSp="30000" getLevel="49" />
+		<skill skillId="24" skillLevel="6" skillName="Burst Shot" levelUpSp="30000" getLevel="49" />
+		<skill skillId="58" skillLevel="28" skillName="Elemental Heal" levelUpSp="30000" getLevel="49" />
+		<skill skillId="58" skillLevel="29" skillName="Elemental Heal" levelUpSp="30000" getLevel="49" />
+		<skill skillId="58" skillLevel="30" skillName="Elemental Heal" levelUpSp="30000" getLevel="49" />
+		<skill skillId="101" skillLevel="13" skillName="Stun Shot" levelUpSp="30000" getLevel="49" />
+		<skill skillId="101" skillLevel="14" skillName="Stun Shot" levelUpSp="30000" getLevel="49" />
+		<skill skillId="101" skillLevel="15" skillName="Stun Shot" levelUpSp="30000" getLevel="49" />
+		<skill skillId="102" skillLevel="5" skillName="Entangle" levelUpSp="89000" getLevel="49" />
+		<skill skillId="123" skillLevel="2" skillName="Spirit Barrier" levelUpSp="89000" getLevel="49" />
+		<skill skillId="171" skillLevel="4" skillName="Esprit" levelUpSp="89000" getLevel="49" />
+		<skill skillId="208" skillLevel="25" skillName="Bow Mastery" levelUpSp="30000" getLevel="49" />
+		<skill skillId="208" skillLevel="26" skillName="Bow Mastery" levelUpSp="30000" getLevel="49" />
+		<skill skillId="208" skillLevel="27" skillName="Bow Mastery" levelUpSp="30000" getLevel="49" />
+		<skill skillId="233" skillLevel="20" skillName="Light Armor Mastery" levelUpSp="30000" getLevel="49" />
+		<skill skillId="233" skillLevel="21" skillName="Light Armor Mastery" levelUpSp="30000" getLevel="49" />
+		<skill skillId="233" skillLevel="22" skillName="Light Armor Mastery" levelUpSp="30000" getLevel="49" />
+		<skill skillId="312" skillLevel="9" skillName="Vicious Stance" levelUpSp="89000" getLevel="49" />
+		<skill skillId="15" skillLevel="28" skillName="Charm" levelUpSp="45000" getLevel="52" />
+		<skill skillId="15" skillLevel="29" skillName="Charm" levelUpSp="45000" getLevel="52" />
+		<skill skillId="15" skillLevel="30" skillName="Charm" levelUpSp="45000" getLevel="52" />
+		<skill skillId="19" skillLevel="13" skillName="Double Shot" levelUpSp="45000" getLevel="52" />
+		<skill skillId="19" skillLevel="14" skillName="Double Shot" levelUpSp="45000" getLevel="52" />
+		<skill skillId="19" skillLevel="15" skillName="Double Shot" levelUpSp="45000" getLevel="52" />
+		<skill skillId="24" skillLevel="7" skillName="Burst Shot" levelUpSp="45000" getLevel="52" />
+		<skill skillId="24" skillLevel="8" skillName="Burst Shot" levelUpSp="45000" getLevel="52" />
+		<skill skillId="24" skillLevel="9" skillName="Burst Shot" levelUpSp="45000" getLevel="52" />
+		<skill skillId="58" skillLevel="31" skillName="Elemental Heal" levelUpSp="45000" getLevel="52" />
+		<skill skillId="58" skillLevel="32" skillName="Elemental Heal" levelUpSp="45000" getLevel="52" />
+		<skill skillId="58" skillLevel="33" skillName="Elemental Heal" levelUpSp="45000" getLevel="52" />
+		<skill skillId="101" skillLevel="16" skillName="Stun Shot" levelUpSp="45000" getLevel="52" />
+		<skill skillId="101" skillLevel="17" skillName="Stun Shot" levelUpSp="45000" getLevel="52" />
+		<skill skillId="101" skillLevel="18" skillName="Stun Shot" levelUpSp="45000" getLevel="52" />
+		<skill skillId="102" skillLevel="6" skillName="Entangle" levelUpSp="136000" getLevel="52" />
+		<skill skillId="171" skillLevel="5" skillName="Esprit" levelUpSp="136000" getLevel="52" />
+		<skill skillId="208" skillLevel="28" skillName="Bow Mastery" levelUpSp="45000" getLevel="52" />
+		<skill skillId="208" skillLevel="29" skillName="Bow Mastery" levelUpSp="45000" getLevel="52" />
+		<skill skillId="208" skillLevel="30" skillName="Bow Mastery" levelUpSp="45000" getLevel="52" />
+		<skill skillId="230" skillLevel="2" skillName="Sprint" levelUpSp="136000" getLevel="52" />
+		<skill skillId="233" skillLevel="23" skillName="Light Armor Mastery" levelUpSp="45000" getLevel="52" />
+		<skill skillId="233" skillLevel="24" skillName="Light Armor Mastery" levelUpSp="45000" getLevel="52" />
+		<skill skillId="233" skillLevel="25" skillName="Light Armor Mastery" levelUpSp="45000" getLevel="52" />
+		<skill skillId="312" skillLevel="10" skillName="Vicious Stance" levelUpSp="136000" getLevel="52" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="1" getLevel="52" levelUpSp="230000">			<item id="8618" count="1" /> <!-- Ancient Book: Divine Inspiration (Modern Language Version) -->		</skill>
+		<skill skillId="15" skillLevel="31" skillName="Charm" levelUpSp="61000" getLevel="55" />
+		<skill skillId="15" skillLevel="32" skillName="Charm" levelUpSp="61000" getLevel="55" />
+		<skill skillId="15" skillLevel="33" skillName="Charm" levelUpSp="61000" getLevel="55" />
+		<skill skillId="19" skillLevel="16" skillName="Double Shot" levelUpSp="61000" getLevel="55" />
+		<skill skillId="19" skillLevel="17" skillName="Double Shot" levelUpSp="61000" getLevel="55" />
+		<skill skillId="19" skillLevel="18" skillName="Double Shot" levelUpSp="61000" getLevel="55" />
+		<skill skillId="24" skillLevel="10" skillName="Burst Shot" levelUpSp="61000" getLevel="55" />
+		<skill skillId="24" skillLevel="11" skillName="Burst Shot" levelUpSp="61000" getLevel="55" />
+		<skill skillId="24" skillLevel="12" skillName="Burst Shot" levelUpSp="61000" getLevel="55" />
+		<skill skillId="58" skillLevel="34" skillName="Elemental Heal" levelUpSp="61000" getLevel="55" />
+		<skill skillId="58" skillLevel="35" skillName="Elemental Heal" levelUpSp="61000" getLevel="55" />
+		<skill skillId="58" skillLevel="36" skillName="Elemental Heal" levelUpSp="61000" getLevel="55" />
+		<skill skillId="99" skillLevel="2" skillName="Rapid Shot" levelUpSp="182000" getLevel="55" />
+		<skill skillId="101" skillLevel="19" skillName="Stun Shot" levelUpSp="61000" getLevel="55" />
+		<skill skillId="101" skillLevel="20" skillName="Stun Shot" levelUpSp="61000" getLevel="55" />
+		<skill skillId="101" skillLevel="21" skillName="Stun Shot" levelUpSp="61000" getLevel="55" />
+		<skill skillId="102" skillLevel="7" skillName="Entangle" levelUpSp="182000" getLevel="55" />
+		<skill skillId="208" skillLevel="31" skillName="Bow Mastery" levelUpSp="61000" getLevel="55" />
+		<skill skillId="208" skillLevel="32" skillName="Bow Mastery" levelUpSp="61000" getLevel="55" />
+		<skill skillId="208" skillLevel="33" skillName="Bow Mastery" levelUpSp="61000" getLevel="55" />
+		<skill skillId="225" skillLevel="3" skillName="Acrobatic Move" levelUpSp="182000" getLevel="55" />
+		<skill skillId="233" skillLevel="26" skillName="Light Armor Mastery" levelUpSp="61000" getLevel="55" />
+		<skill skillId="233" skillLevel="27" skillName="Light Armor Mastery" levelUpSp="61000" getLevel="55" />
+		<skill skillId="233" skillLevel="28" skillName="Light Armor Mastery" levelUpSp="61000" getLevel="55" />
+		<skill skillId="312" skillLevel="11" skillName="Vicious Stance" levelUpSp="182000" getLevel="55" />
+		<skill skillId="15" skillLevel="34" skillName="Charm" levelUpSp="67000" getLevel="58" />
+		<skill skillId="15" skillLevel="35" skillName="Charm" levelUpSp="67000" getLevel="58" />
+		<skill skillId="15" skillLevel="36" skillName="Charm" levelUpSp="67000" getLevel="58" />
+		<skill skillId="19" skillLevel="19" skillName="Double Shot" levelUpSp="67000" getLevel="58" />
+		<skill skillId="19" skillLevel="20" skillName="Double Shot" levelUpSp="67000" getLevel="58" />
+		<skill skillId="19" skillLevel="21" skillName="Double Shot" levelUpSp="67000" getLevel="58" />
+		<skill skillId="24" skillLevel="13" skillName="Burst Shot" levelUpSp="67000" getLevel="58" />
+		<skill skillId="24" skillLevel="14" skillName="Burst Shot" levelUpSp="67000" getLevel="58" />
+		<skill skillId="24" skillLevel="15" skillName="Burst Shot" levelUpSp="67000" getLevel="58" />
+		<skill skillId="58" skillLevel="37" skillName="Elemental Heal" levelUpSp="67000" getLevel="58" />
+		<skill skillId="58" skillLevel="38" skillName="Elemental Heal" levelUpSp="67000" getLevel="58" />
+		<skill skillId="58" skillLevel="39" skillName="Elemental Heal" levelUpSp="67000" getLevel="58" />
+		<skill skillId="101" skillLevel="22" skillName="Stun Shot" levelUpSp="67000" getLevel="58" />
+		<skill skillId="101" skillLevel="23" skillName="Stun Shot" levelUpSp="67000" getLevel="58" />
+		<skill skillId="101" skillLevel="24" skillName="Stun Shot" levelUpSp="67000" getLevel="58" />
+		<skill skillId="102" skillLevel="8" skillName="Entangle" levelUpSp="200000" getLevel="58" />
+		<skill skillId="123" skillLevel="3" skillName="Spirit Barrier" levelUpSp="200000" getLevel="58" />
+		<skill skillId="208" skillLevel="34" skillName="Bow Mastery" levelUpSp="67000" getLevel="58" />
+		<skill skillId="208" skillLevel="35" skillName="Bow Mastery" levelUpSp="67000" getLevel="58" />
+		<skill skillId="208" skillLevel="36" skillName="Bow Mastery" levelUpSp="67000" getLevel="58" />
+		<skill skillId="233" skillLevel="29" skillName="Light Armor Mastery" levelUpSp="67000" getLevel="58" />
+		<skill skillId="233" skillLevel="30" skillName="Light Armor Mastery" levelUpSp="67000" getLevel="58" />
+		<skill skillId="233" skillLevel="31" skillName="Light Armor Mastery" levelUpSp="67000" getLevel="58" />
+		<skill skillId="303" skillLevel="2" skillName="Soul of Sagittarius" levelUpSp="200000" getLevel="58" />
+		<skill skillId="312" skillLevel="12" skillName="Vicious Stance" levelUpSp="200000" getLevel="58" />
+		<skill skillId="415" skillLevel="1" skillName="Spirit of Sagittarius" levelUpSp="200000" getLevel="58" />
+		<skill skillId="416" skillLevel="1" skillName="Blessing of Sagittarius" levelUpSp="200000" getLevel="58" />
+		<skill skillId="15" skillLevel="37" skillName="Charm" levelUpSp="132000" getLevel="60" />
+		<skill skillId="15" skillLevel="38" skillName="Charm" levelUpSp="132000" getLevel="60" />
+		<skill skillId="19" skillLevel="22" skillName="Double Shot" levelUpSp="132000" getLevel="60" />
+		<skill skillId="19" skillLevel="23" skillName="Double Shot" levelUpSp="132000" getLevel="60" />
+		<skill skillId="21" skillLevel="3" skillName="Poison Recovery" levelUpSp="264000" getLevel="60" />
+		<skill skillId="24" skillLevel="16" skillName="Burst Shot" levelUpSp="132000" getLevel="60" />
+		<skill skillId="24" skillLevel="17" skillName="Burst Shot" levelUpSp="132000" getLevel="60" />
+		<skill skillId="58" skillLevel="40" skillName="Elemental Heal" levelUpSp="132000" getLevel="60" />
+		<skill skillId="58" skillLevel="41" skillName="Elemental Heal" levelUpSp="132000" getLevel="60" />
+		<skill skillId="101" skillLevel="25" skillName="Stun Shot" levelUpSp="132000" getLevel="60" />
+		<skill skillId="101" skillLevel="26" skillName="Stun Shot" levelUpSp="132000" getLevel="60" />
+		<skill skillId="102" skillLevel="9" skillName="Entangle" levelUpSp="264000" getLevel="60" />
+		<skill skillId="208" skillLevel="37" skillName="Bow Mastery" levelUpSp="132000" getLevel="60" />
+		<skill skillId="208" skillLevel="38" skillName="Bow Mastery" levelUpSp="132000" getLevel="60" />
+		<skill skillId="233" skillLevel="32" skillName="Light Armor Mastery" levelUpSp="132000" getLevel="60" />
+		<skill skillId="233" skillLevel="33" skillName="Light Armor Mastery" levelUpSp="132000" getLevel="60" />
+		<skill skillId="312" skillLevel="13" skillName="Vicious Stance" levelUpSp="264000" getLevel="60" />
+		<skill skillId="413" skillLevel="1" skillName="Rapid Fire" levelUpSp="264000" getLevel="60" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="2" getLevel="61" levelUpSp="640000">			<item id="8619" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Language Version) -->		</skill>
+		<skill skillId="15" skillLevel="39" skillName="Charm" levelUpSp="170000" getLevel="62" />
+		<skill skillId="15" skillLevel="40" skillName="Charm" levelUpSp="170000" getLevel="62" />
+		<skill skillId="19" skillLevel="24" skillName="Double Shot" levelUpSp="170000" getLevel="62" />
+		<skill skillId="19" skillLevel="25" skillName="Double Shot" levelUpSp="170000" getLevel="62" />
+		<skill skillId="24" skillLevel="18" skillName="Burst Shot" levelUpSp="170000" getLevel="62" />
+		<skill skillId="24" skillLevel="19" skillName="Burst Shot" levelUpSp="170000" getLevel="62" />
+		<skill skillId="58" skillLevel="42" skillName="Elemental Heal" levelUpSp="170000" getLevel="62" />
+		<skill skillId="58" skillLevel="43" skillName="Elemental Heal" levelUpSp="170000" getLevel="62" />
+		<skill skillId="61" skillLevel="3" skillName="Cure Bleeding" levelUpSp="330000" getLevel="62" />
+		<skill skillId="101" skillLevel="27" skillName="Stun Shot" levelUpSp="170000" getLevel="62" />
+		<skill skillId="101" skillLevel="28" skillName="Stun Shot" levelUpSp="170000" getLevel="62" />
+		<skill skillId="102" skillLevel="10" skillName="Entangle" levelUpSp="330000" getLevel="62" />
+		<skill skillId="171" skillLevel="6" skillName="Esprit" levelUpSp="330000" getLevel="62" />
+		<skill skillId="208" skillLevel="39" skillName="Bow Mastery" levelUpSp="170000" getLevel="62" />
+		<skill skillId="208" skillLevel="40" skillName="Bow Mastery" levelUpSp="170000" getLevel="62" />
+		<skill skillId="233" skillLevel="34" skillName="Light Armor Mastery" levelUpSp="170000" getLevel="62" />
+		<skill skillId="233" skillLevel="35" skillName="Light Armor Mastery" levelUpSp="170000" getLevel="62" />
+		<skill skillId="312" skillLevel="14" skillName="Vicious Stance" levelUpSp="330000" getLevel="62" />
+		<skill skillId="413" skillLevel="2" skillName="Rapid Fire" levelUpSp="330000" getLevel="62" />
+		<skill skillId="15" skillLevel="41" skillName="Charm" levelUpSp="220000" getLevel="64" />
+		<skill skillId="15" skillLevel="42" skillName="Charm" levelUpSp="220000" getLevel="64" />
+		<skill skillId="19" skillLevel="26" skillName="Double Shot" levelUpSp="220000" getLevel="64" />
+		<skill skillId="19" skillLevel="27" skillName="Double Shot" levelUpSp="220000" getLevel="64" />
+		<skill skillId="24" skillLevel="20" skillName="Burst Shot" levelUpSp="220000" getLevel="64" />
+		<skill skillId="24" skillLevel="21" skillName="Burst Shot" levelUpSp="220000" getLevel="64" />
+		<skill skillId="58" skillLevel="44" skillName="Elemental Heal" levelUpSp="220000" getLevel="64" />
+		<skill skillId="58" skillLevel="45" skillName="Elemental Heal" levelUpSp="220000" getLevel="64" />
+		<skill skillId="101" skillLevel="29" skillName="Stun Shot" levelUpSp="220000" getLevel="64" />
+		<skill skillId="101" skillLevel="30" skillName="Stun Shot" levelUpSp="220000" getLevel="64" />
+		<skill skillId="102" skillLevel="11" skillName="Entangle" levelUpSp="440000" getLevel="64" />
+		<skill skillId="208" skillLevel="41" skillName="Bow Mastery" levelUpSp="220000" getLevel="64" />
+		<skill skillId="208" skillLevel="42" skillName="Bow Mastery" levelUpSp="220000" getLevel="64" />
+		<skill skillId="233" skillLevel="36" skillName="Light Armor Mastery" levelUpSp="220000" getLevel="64" />
+		<skill skillId="233" skillLevel="37" skillName="Light Armor Mastery" levelUpSp="220000" getLevel="64" />
+		<skill skillId="303" skillLevel="3" skillName="Soul of Sagittarius" levelUpSp="440000" getLevel="64" />
+		<skill skillId="312" skillLevel="15" skillName="Vicious Stance" levelUpSp="440000" getLevel="64" />
+		<skill skillId="413" skillLevel="3" skillName="Rapid Fire" levelUpSp="440000" getLevel="64" />
+		<skill skillId="15" skillLevel="43" skillName="Charm" levelUpSp="270000" getLevel="66" />
+		<skill skillId="15" skillLevel="44" skillName="Charm" levelUpSp="270000" getLevel="66" />
+		<skill skillId="19" skillLevel="28" skillName="Double Shot" levelUpSp="270000" getLevel="66" />
+		<skill skillId="19" skillLevel="29" skillName="Double Shot" levelUpSp="270000" getLevel="66" />
+		<skill skillId="24" skillLevel="22" skillName="Burst Shot" levelUpSp="270000" getLevel="66" />
+		<skill skillId="24" skillLevel="23" skillName="Burst Shot" levelUpSp="270000" getLevel="66" />
+		<skill skillId="58" skillLevel="46" skillName="Elemental Heal" levelUpSp="270000" getLevel="66" />
+		<skill skillId="58" skillLevel="47" skillName="Elemental Heal" levelUpSp="270000" getLevel="66" />
+		<skill skillId="101" skillLevel="31" skillName="Stun Shot" levelUpSp="270000" getLevel="66" />
+		<skill skillId="101" skillLevel="32" skillName="Stun Shot" levelUpSp="270000" getLevel="66" />
+		<skill skillId="102" skillLevel="12" skillName="Entangle" levelUpSp="540000" getLevel="66" />
+		<skill skillId="208" skillLevel="43" skillName="Bow Mastery" levelUpSp="270000" getLevel="66" />
+		<skill skillId="208" skillLevel="44" skillName="Bow Mastery" levelUpSp="270000" getLevel="66" />
+		<skill skillId="233" skillLevel="38" skillName="Light Armor Mastery" levelUpSp="270000" getLevel="66" />
+		<skill skillId="233" skillLevel="39" skillName="Light Armor Mastery" levelUpSp="270000" getLevel="66" />
+		<skill skillId="312" skillLevel="16" skillName="Vicious Stance" levelUpSp="540000" getLevel="66" />
+		<skill skillId="323" skillLevel="1" skillName="Quiver of Arrow: Grade A" levelUpSp="540000" getLevel="66" />
+		<skill skillId="413" skillLevel="4" skillName="Rapid Fire" levelUpSp="540000" getLevel="66" />
+		<skill skillId="415" skillLevel="2" skillName="Spirit of Sagittarius" levelUpSp="540000" getLevel="66" />
+		<skill skillId="416" skillLevel="2" skillName="Blessing of Sagittarius" levelUpSp="540000" getLevel="66" />
+		<skill skillId="15" skillLevel="45" skillName="Charm" levelUpSp="350000" getLevel="68" />
+		<skill skillId="15" skillLevel="46" skillName="Charm" levelUpSp="350000" getLevel="68" />
+		<skill skillId="19" skillLevel="30" skillName="Double Shot" levelUpSp="350000" getLevel="68" />
+		<skill skillId="19" skillLevel="31" skillName="Double Shot" levelUpSp="350000" getLevel="68" />
+		<skill skillId="24" skillLevel="24" skillName="Burst Shot" levelUpSp="350000" getLevel="68" />
+		<skill skillId="24" skillLevel="25" skillName="Burst Shot" levelUpSp="350000" getLevel="68" />
+		<skill skillId="58" skillLevel="48" skillName="Elemental Heal" levelUpSp="350000" getLevel="68" />
+		<skill skillId="58" skillLevel="49" skillName="Elemental Heal" levelUpSp="350000" getLevel="68" />
+		<skill skillId="101" skillLevel="33" skillName="Stun Shot" levelUpSp="350000" getLevel="68" />
+		<skill skillId="101" skillLevel="34" skillName="Stun Shot" levelUpSp="350000" getLevel="68" />
+		<skill skillId="102" skillLevel="13" skillName="Entangle" levelUpSp="710000" getLevel="68" />
+		<skill skillId="171" skillLevel="7" skillName="Esprit" levelUpSp="710000" getLevel="68" />
+		<skill skillId="208" skillLevel="45" skillName="Bow Mastery" levelUpSp="350000" getLevel="68" />
+		<skill skillId="208" skillLevel="46" skillName="Bow Mastery" levelUpSp="350000" getLevel="68" />
+		<skill skillId="233" skillLevel="40" skillName="Light Armor Mastery" levelUpSp="350000" getLevel="68" />
+		<skill skillId="233" skillLevel="41" skillName="Light Armor Mastery" levelUpSp="350000" getLevel="68" />
+		<skill skillId="312" skillLevel="17" skillName="Vicious Stance" levelUpSp="710000" getLevel="68" />
+		<skill skillId="413" skillLevel="5" skillName="Rapid Fire" levelUpSp="710000" getLevel="68" />
+		<skill skillId="15" skillLevel="47" skillName="Charm" levelUpSp="420000" getLevel="70" />
+		<skill skillId="15" skillLevel="48" skillName="Charm" levelUpSp="420000" getLevel="70" />
+		<skill skillId="19" skillLevel="32" skillName="Double Shot" levelUpSp="420000" getLevel="70" />
+		<skill skillId="19" skillLevel="33" skillName="Double Shot" levelUpSp="420000" getLevel="70" />
+		<skill skillId="24" skillLevel="26" skillName="Burst Shot" levelUpSp="420000" getLevel="70" />
+		<skill skillId="24" skillLevel="27" skillName="Burst Shot" levelUpSp="420000" getLevel="70" />
+		<skill skillId="58" skillLevel="50" skillName="Elemental Heal" levelUpSp="420000" getLevel="70" />
+		<skill skillId="58" skillLevel="51" skillName="Elemental Heal" levelUpSp="420000" getLevel="70" />
+		<skill skillId="101" skillLevel="35" skillName="Stun Shot" levelUpSp="420000" getLevel="70" />
+		<skill skillId="101" skillLevel="36" skillName="Stun Shot" levelUpSp="420000" getLevel="70" />
+		<skill skillId="102" skillLevel="14" skillName="Entangle" levelUpSp="850000" getLevel="70" />
+		<skill skillId="208" skillLevel="47" skillName="Bow Mastery" levelUpSp="420000" getLevel="70" />
+		<skill skillId="208" skillLevel="48" skillName="Bow Mastery" levelUpSp="420000" getLevel="70" />
+		<skill skillId="233" skillLevel="42" skillName="Light Armor Mastery" levelUpSp="420000" getLevel="70" />
+		<skill skillId="233" skillLevel="43" skillName="Light Armor Mastery" levelUpSp="420000" getLevel="70" />
+		<skill skillId="303" skillLevel="4" skillName="Soul of Sagittarius" levelUpSp="850000" getLevel="70" />
+		<skill skillId="312" skillLevel="18" skillName="Vicious Stance" levelUpSp="850000" getLevel="70" />
+		<skill skillId="413" skillLevel="6" skillName="Rapid Fire" levelUpSp="850000" getLevel="70" />
+		<skill skillId="15" skillLevel="49" skillName="Charm" levelUpSp="550000" getLevel="72" />
+		<skill skillId="15" skillLevel="50" skillName="Charm" levelUpSp="550000" getLevel="72" />
+		<skill skillId="19" skillLevel="34" skillName="Double Shot" levelUpSp="550000" getLevel="72" />
+		<skill skillId="19" skillLevel="35" skillName="Double Shot" levelUpSp="550000" getLevel="72" />
+		<skill skillId="24" skillLevel="28" skillName="Burst Shot" levelUpSp="550000" getLevel="72" />
+		<skill skillId="24" skillLevel="29" skillName="Burst Shot" levelUpSp="550000" getLevel="72" />
+		<skill skillId="58" skillLevel="52" skillName="Elemental Heal" levelUpSp="550000" getLevel="72" />
+		<skill skillId="58" skillLevel="53" skillName="Elemental Heal" levelUpSp="550000" getLevel="72" />
+		<skill skillId="101" skillLevel="37" skillName="Stun Shot" levelUpSp="550000" getLevel="72" />
+		<skill skillId="101" skillLevel="38" skillName="Stun Shot" levelUpSp="550000" getLevel="72" />
+		<skill skillId="102" skillLevel="15" skillName="Entangle" levelUpSp="1090000" getLevel="72" />
+		<skill skillId="208" skillLevel="49" skillName="Bow Mastery" levelUpSp="550000" getLevel="72" />
+		<skill skillId="208" skillLevel="50" skillName="Bow Mastery" levelUpSp="550000" getLevel="72" />
+		<skill skillId="233" skillLevel="44" skillName="Light Armor Mastery" levelUpSp="550000" getLevel="72" />
+		<skill skillId="233" skillLevel="45" skillName="Light Armor Mastery" levelUpSp="550000" getLevel="72" />
+		<skill skillId="312" skillLevel="19" skillName="Vicious Stance" levelUpSp="1090000" getLevel="72" />
+		<skill skillId="324" skillLevel="1" skillName="Quiver of Arrow: Grade S" levelUpSp="1090000" getLevel="72" />
+		<skill skillId="413" skillLevel="7" skillName="Rapid Fire" levelUpSp="1090000" getLevel="72" />
+		<skill skillId="15" skillLevel="51" skillName="Charm" levelUpSp="1000000" getLevel="74" />
+		<skill skillId="15" skillLevel="52" skillName="Charm" levelUpSp="1000000" getLevel="74" />
+		<skill skillId="19" skillLevel="36" skillName="Double Shot" levelUpSp="1000000" getLevel="74" />
+		<skill skillId="19" skillLevel="37" skillName="Double Shot" levelUpSp="1000000" getLevel="74" />
+		<skill skillId="24" skillLevel="30" skillName="Burst Shot" levelUpSp="1000000" getLevel="74" />
+		<skill skillId="24" skillLevel="31" skillName="Burst Shot" levelUpSp="1000000" getLevel="74" />
+		<skill skillId="58" skillLevel="54" skillName="Elemental Heal" levelUpSp="1000000" getLevel="74" />
+		<skill skillId="58" skillLevel="55" skillName="Elemental Heal" levelUpSp="1000000" getLevel="74" />
+		<skill skillId="101" skillLevel="39" skillName="Stun Shot" levelUpSp="1000000" getLevel="74" />
+		<skill skillId="101" skillLevel="40" skillName="Stun Shot" levelUpSp="1000000" getLevel="74" />
+		<skill skillId="102" skillLevel="16" skillName="Entangle" levelUpSp="2000000" getLevel="74" />
+		<skill skillId="171" skillLevel="8" skillName="Esprit" levelUpSp="2000000" getLevel="74" />
+		<skill skillId="208" skillLevel="51" skillName="Bow Mastery" levelUpSp="1000000" getLevel="74" />
+		<skill skillId="208" skillLevel="52" skillName="Bow Mastery" levelUpSp="1000000" getLevel="74" />
+		<skill skillId="233" skillLevel="46" skillName="Light Armor Mastery" levelUpSp="1000000" getLevel="74" />
+		<skill skillId="233" skillLevel="47" skillName="Light Armor Mastery" levelUpSp="1000000" getLevel="74" />
+		<skill skillId="312" skillLevel="20" skillName="Vicious Stance" levelUpSp="2000000" getLevel="74" />
+		<skill skillId="413" skillLevel="8" skillName="Rapid Fire" levelUpSp="2000000" getLevel="74" />
+		<skill skillId="415" skillLevel="3" skillName="Spirit of Sagittarius" levelUpSp="2000000" getLevel="74" />
+		<skill skillId="416" skillLevel="3" skillName="Blessing of Sagittarius" levelUpSp="2000000" getLevel="74" />
+	</skillTree>
+</list>

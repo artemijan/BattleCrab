@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="22" parentClassId="18">
+		<skill skillId="15" skillLevel="1" skillName="Charm" levelUpSp="950" getLevel="20" />
+		<skill skillId="15" skillLevel="2" skillName="Charm" levelUpSp="950" getLevel="20" />
+		<skill skillId="15" skillLevel="3" skillName="Charm" levelUpSp="950" getLevel="20" />
+		<skill skillId="16" skillLevel="10" skillName="Mortal Blow" levelUpSp="1200" getLevel="20" />
+		<skill skillId="16" skillLevel="11" skillName="Mortal Blow" levelUpSp="1200" getLevel="20" />
+		<skill skillId="16" skillLevel="12" skillName="Mortal Blow" levelUpSp="1200" getLevel="20" />
+		<skill skillId="27" skillLevel="1" skillName="Unlock" levelUpSp="2800" getLevel="20" />
+		<skill skillId="56" skillLevel="10" skillName="Power Shot" levelUpSp="1200" getLevel="20" />
+		<skill skillId="56" skillLevel="11" skillName="Power Shot" levelUpSp="1200" getLevel="20" />
+		<skill skillId="56" skillLevel="12" skillName="Power Shot" levelUpSp="1200" getLevel="20" />
+		<skill skillId="58" skillLevel="4" skillName="Elemental Heal" levelUpSp="1200" getLevel="20" />
+		<skill skillId="58" skillLevel="5" skillName="Elemental Heal" levelUpSp="1200" getLevel="20" />
+		<skill skillId="58" skillLevel="6" skillName="Elemental Heal" levelUpSp="1200" getLevel="20" />
+		<skill skillId="91" skillLevel="2" skillName="Defense Aura" levelUpSp="2800" getLevel="20" />
+		<skill skillId="113" skillLevel="1" skillName="Long Shot" levelUpSp="2800" getLevel="20" />
+		<skill skillId="173" skillLevel="1" skillName="Acrobatics" levelUpSp="2800" getLevel="20" />
+		<skill skillId="195" skillLevel="1" skillName="Breath Boost" levelUpSp="2800" getLevel="20" />
+		<skill skillId="208" skillLevel="1" skillName="Bow Mastery" levelUpSp="950" getLevel="20" />
+		<skill skillId="208" skillLevel="2" skillName="Bow Mastery" levelUpSp="950" getLevel="20" />
+		<skill skillId="208" skillLevel="3" skillName="Bow Mastery" levelUpSp="950" getLevel="20" />
+		<skill skillId="209" skillLevel="1" skillName="Dagger Mastery" levelUpSp="2800" getLevel="20" />
+		<skill skillId="233" skillLevel="1" skillName="Light Armor Mastery" levelUpSp="1400" getLevel="20" />
+		<skill skillId="233" skillLevel="2" skillName="Light Armor Mastery" levelUpSp="1400" getLevel="20" />
+		<skill skillId="312" skillLevel="1" skillName="Vicious Stance" levelUpSp="2800" getLevel="20" />
+		<skill skillId="15" skillLevel="4" skillName="Charm" levelUpSp="1700" getLevel="24" />
+		<skill skillId="15" skillLevel="5" skillName="Charm" levelUpSp="1700" getLevel="24" />
+		<skill skillId="15" skillLevel="6" skillName="Charm" levelUpSp="1700" getLevel="24" />
+		<skill skillId="16" skillLevel="13" skillName="Mortal Blow" levelUpSp="1700" getLevel="24" />
+		<skill skillId="16" skillLevel="14" skillName="Mortal Blow" levelUpSp="1700" getLevel="24" />
+		<skill skillId="16" skillLevel="15" skillName="Mortal Blow" levelUpSp="1700" getLevel="24" />
+		<skill skillId="21" skillLevel="1" skillName="Poison Recovery" levelUpSp="5000" getLevel="24" />
+		<skill skillId="27" skillLevel="2" skillName="Unlock" levelUpSp="5000" getLevel="24" />
+		<skill skillId="56" skillLevel="13" skillName="Power Shot" levelUpSp="1700" getLevel="24" />
+		<skill skillId="56" skillLevel="14" skillName="Power Shot" levelUpSp="1700" getLevel="24" />
+		<skill skillId="56" skillLevel="15" skillName="Power Shot" levelUpSp="1700" getLevel="24" />
+		<skill skillId="58" skillLevel="7" skillName="Elemental Heal" levelUpSp="1700" getLevel="24" />
+		<skill skillId="58" skillLevel="8" skillName="Elemental Heal" levelUpSp="1700" getLevel="24" />
+		<skill skillId="58" skillLevel="9" skillName="Elemental Heal" levelUpSp="1700" getLevel="24" />
+		<skill skillId="61" skillLevel="1" skillName="Cure Bleeding" levelUpSp="5000" getLevel="24" />
+		<skill skillId="96" skillLevel="1" skillName="Bleed" levelUpSp="5000" getLevel="24" />
+		<skill skillId="198" skillLevel="1" skillName="Boost Evasion" levelUpSp="5000" getLevel="24" />
+		<skill skillId="208" skillLevel="4" skillName="Bow Mastery" levelUpSp="1700" getLevel="24" />
+		<skill skillId="208" skillLevel="5" skillName="Bow Mastery" levelUpSp="1700" getLevel="24" />
+		<skill skillId="208" skillLevel="6" skillName="Bow Mastery" levelUpSp="1700" getLevel="24" />
+		<skill skillId="209" skillLevel="2" skillName="Dagger Mastery" levelUpSp="5000" getLevel="24" />
+		<skill skillId="233" skillLevel="3" skillName="Light Armor Mastery" levelUpSp="2500" getLevel="24" />
+		<skill skillId="233" skillLevel="4" skillName="Light Armor Mastery" levelUpSp="2500" getLevel="24" />
+		<skill skillId="256" skillLevel="1" skillName="Accuracy" levelUpSp="5000" getLevel="24" />
+		<skill skillId="312" skillLevel="2" skillName="Vicious Stance" levelUpSp="5000" getLevel="24" />
+		<skill skillId="15" skillLevel="7" skillName="Charm" levelUpSp="3100" getLevel="28" />
+		<skill skillId="15" skillLevel="8" skillName="Charm" levelUpSp="3100" getLevel="28" />
+		<skill skillId="15" skillLevel="9" skillName="Charm" levelUpSp="3100" getLevel="28" />
+		<skill skillId="16" skillLevel="16" skillName="Mortal Blow" levelUpSp="3100" getLevel="28" />
+		<skill skillId="16" skillLevel="17" skillName="Mortal Blow" levelUpSp="3100" getLevel="28" />
+		<skill skillId="16" skillLevel="18" skillName="Mortal Blow" levelUpSp="3100" getLevel="28" />
+		<skill skillId="27" skillLevel="3" skillName="Unlock" levelUpSp="9200" getLevel="28" />
+		<skill skillId="56" skillLevel="16" skillName="Power Shot" levelUpSp="3100" getLevel="28" />
+		<skill skillId="56" skillLevel="17" skillName="Power Shot" levelUpSp="3100" getLevel="28" />
+		<skill skillId="56" skillLevel="18" skillName="Power Shot" levelUpSp="3100" getLevel="28" />
+		<skill skillId="58" skillLevel="10" skillName="Elemental Heal" levelUpSp="3100" getLevel="28" />
+		<skill skillId="58" skillLevel="11" skillName="Elemental Heal" levelUpSp="3100" getLevel="28" />
+		<skill skillId="58" skillLevel="12" skillName="Elemental Heal" levelUpSp="3100" getLevel="28" />
+		<skill skillId="77" skillLevel="2" skillName="Attack Aura" levelUpSp="9200" getLevel="28" />
+		<skill skillId="111" skillLevel="1" skillName="Ultimate Evasion" levelUpSp="9200" getLevel="28" />
+		<skill skillId="169" skillLevel="1" skillName="Quick Step" levelUpSp="9200" getLevel="28" />
+		<skill skillId="208" skillLevel="7" skillName="Bow Mastery" levelUpSp="3100" getLevel="28" />
+		<skill skillId="208" skillLevel="8" skillName="Bow Mastery" levelUpSp="3100" getLevel="28" />
+		<skill skillId="208" skillLevel="9" skillName="Bow Mastery" levelUpSp="3100" getLevel="28" />
+		<skill skillId="209" skillLevel="3" skillName="Dagger Mastery" levelUpSp="4600" getLevel="28" />
+		<skill skillId="209" skillLevel="4" skillName="Dagger Mastery" levelUpSp="4600" getLevel="28" />
+		<skill skillId="225" skillLevel="1" skillName="Acrobatic Move" levelUpSp="9200" getLevel="28" />
+		<skill skillId="233" skillLevel="5" skillName="Light Armor Mastery" levelUpSp="4600" getLevel="28" />
+		<skill skillId="233" skillLevel="6" skillName="Light Armor Mastery" levelUpSp="4600" getLevel="28" />
+		<skill skillId="312" skillLevel="3" skillName="Vicious Stance" levelUpSp="9200" getLevel="28" />
+		<skill skillId="15" skillLevel="10" skillName="Charm" levelUpSp="5100" getLevel="32" />
+		<skill skillId="15" skillLevel="11" skillName="Charm" levelUpSp="5100" getLevel="32" />
+		<skill skillId="15" skillLevel="12" skillName="Charm" levelUpSp="5100" getLevel="32" />
+		<skill skillId="16" skillLevel="19" skillName="Mortal Blow" levelUpSp="5100" getLevel="32" />
+		<skill skillId="16" skillLevel="20" skillName="Mortal Blow" levelUpSp="5100" getLevel="32" />
+		<skill skillId="16" skillLevel="21" skillName="Mortal Blow" levelUpSp="5100" getLevel="32" />
+		<skill skillId="27" skillLevel="4" skillName="Unlock" levelUpSp="15000" getLevel="32" />
+		<skill skillId="56" skillLevel="19" skillName="Power Shot" levelUpSp="5100" getLevel="32" />
+		<skill skillId="56" skillLevel="20" skillName="Power Shot" levelUpSp="5100" getLevel="32" />
+		<skill skillId="56" skillLevel="21" skillName="Power Shot" levelUpSp="5100" getLevel="32" />
+		<skill skillId="58" skillLevel="13" skillName="Elemental Heal" levelUpSp="5100" getLevel="32" />
+		<skill skillId="58" skillLevel="14" skillName="Elemental Heal" levelUpSp="5100" getLevel="32" />
+		<skill skillId="58" skillLevel="15" skillName="Elemental Heal" levelUpSp="5100" getLevel="32" />
+		<skill skillId="96" skillLevel="2" skillName="Bleed" levelUpSp="15000" getLevel="32" />
+		<skill skillId="99" skillLevel="1" skillName="Rapid Shot" levelUpSp="15000" getLevel="32" />
+		<skill skillId="137" skillLevel="1" skillName="Critical Chance" levelUpSp="15000" getLevel="32" />
+		<skill skillId="208" skillLevel="10" skillName="Bow Mastery" levelUpSp="5100" getLevel="32" />
+		<skill skillId="208" skillLevel="11" skillName="Bow Mastery" levelUpSp="5100" getLevel="32" />
+		<skill skillId="208" skillLevel="12" skillName="Bow Mastery" levelUpSp="5100" getLevel="32" />
+		<skill skillId="209" skillLevel="5" skillName="Dagger Mastery" levelUpSp="7700" getLevel="32" />
+		<skill skillId="209" skillLevel="6" skillName="Dagger Mastery" levelUpSp="7700" getLevel="32" />
+		<skill skillId="230" skillLevel="1" skillName="Sprint" levelUpSp="15000" getLevel="32" />
+		<skill skillId="233" skillLevel="7" skillName="Light Armor Mastery" levelUpSp="7700" getLevel="32" />
+		<skill skillId="233" skillLevel="8" skillName="Light Armor Mastery" levelUpSp="7700" getLevel="32" />
+		<skill skillId="312" skillLevel="4" skillName="Vicious Stance" levelUpSp="15000" getLevel="32" />
+		<skill skillId="15" skillLevel="13" skillName="Charm" levelUpSp="8600" getLevel="36" />
+		<skill skillId="15" skillLevel="14" skillName="Charm" levelUpSp="8600" getLevel="36" />
+		<skill skillId="15" skillLevel="15" skillName="Charm" levelUpSp="8600" getLevel="36" />
+		<skill skillId="16" skillLevel="22" skillName="Mortal Blow" levelUpSp="8600" getLevel="36" />
+		<skill skillId="16" skillLevel="23" skillName="Mortal Blow" levelUpSp="8600" getLevel="36" />
+		<skill skillId="16" skillLevel="24" skillName="Mortal Blow" levelUpSp="8600" getLevel="36" />
+		<skill skillId="27" skillLevel="5" skillName="Unlock" levelUpSp="26000" getLevel="36" />
+		<skill skillId="56" skillLevel="22" skillName="Power Shot" levelUpSp="8600" getLevel="36" />
+		<skill skillId="56" skillLevel="23" skillName="Power Shot" levelUpSp="8600" getLevel="36" />
+		<skill skillId="56" skillLevel="24" skillName="Power Shot" levelUpSp="8600" getLevel="36" />
+		<skill skillId="58" skillLevel="16" skillName="Elemental Heal" levelUpSp="8600" getLevel="36" />
+		<skill skillId="58" skillLevel="17" skillName="Elemental Heal" levelUpSp="8600" getLevel="36" />
+		<skill skillId="58" skillLevel="18" skillName="Elemental Heal" levelUpSp="8600" getLevel="36" />
+		<skill skillId="101" skillLevel="1" skillName="Stun Shot" levelUpSp="8600" getLevel="36" />
+		<skill skillId="101" skillLevel="2" skillName="Stun Shot" levelUpSp="8600" getLevel="36" />
+		<skill skillId="101" skillLevel="3" skillName="Stun Shot" levelUpSp="8600" getLevel="36" />
+		<skill skillId="102" skillLevel="1" skillName="Entangle" levelUpSp="26000" getLevel="36" />
+		<skill skillId="171" skillLevel="1" skillName="Esprit" levelUpSp="26000" getLevel="36" />
+		<skill skillId="208" skillLevel="13" skillName="Bow Mastery" levelUpSp="8600" getLevel="36" />
+		<skill skillId="208" skillLevel="14" skillName="Bow Mastery" levelUpSp="8600" getLevel="36" />
+		<skill skillId="208" skillLevel="15" skillName="Bow Mastery" levelUpSp="8600" getLevel="36" />
+		<skill skillId="209" skillLevel="7" skillName="Dagger Mastery" levelUpSp="13000" getLevel="36" />
+		<skill skillId="209" skillLevel="8" skillName="Dagger Mastery" levelUpSp="13000" getLevel="36" />
+		<skill skillId="233" skillLevel="9" skillName="Light Armor Mastery" levelUpSp="13000" getLevel="36" />
+		<skill skillId="233" skillLevel="10" skillName="Light Armor Mastery" levelUpSp="13000" getLevel="36" />
+		<skill skillId="312" skillLevel="5" skillName="Vicious Stance" levelUpSp="26000" getLevel="36" />
+	</skillTree>
+</list>

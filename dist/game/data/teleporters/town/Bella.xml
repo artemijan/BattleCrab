@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/teleporterData.xsd">
+	<npc id="30256"> <!-- Bella -->
+		<teleport type="NORMAL">
+			<!-- Interlude - C6 -->
+			<location npcStringId="1010574" x="87145" y="-143372" z="-1288" feeCount="85000" /> <!-- Town of Schuttgart -->
+			<location npcStringId="1010049" x="111455" y="219400" z="-3544" feeCount="47000" /> <!-- Heine -->
+			<location npcStringId="1010023" x="146783" y="25808" z="-2008" feeCount="56000" /> <!-- Town of Aden -->
+			<location npcStringId="1010013" x="82971" y="53207" z="-1488" feeCount="35000" /> <!-- Town of Oren -->
+			<location npcStringId="1010006" x="15472" y="142880" z="-2688" feeCount="3400" /> <!-- Town of Dion -->
+			<location npcStringId="1010199" x="147850" y="-55300" z="-2728" feeCount="71000" /> <!-- Town of Goddard -->
+			<location npcStringId="1010007" x="83463" y="148045" z="-3400" feeCount="29000" /> <!-- Town of Giran -->
+			<location npcStringId="1010200" x="43835" y="-47749" z="-792" feeCount="53000" /> <!-- Town of Rune -->
+			<location npcStringId="1010004" x="-80684" y="149770" z="-3040" feeCount="7300" /> <!-- The Village of Gludin -->
+			<location npcStringId="1010155" x="46951" y="51550" z="-2976" feeCount="9200" /> <!-- Elven Village -->
+			<location npcStringId="1010156" x="9744" y="15645" z="-4568" feeCount="10000" /> <!-- Dark Elf Village -->
+			<location npcStringId="1010158" x="115120" y="-178224" z="-880" feeCount="32000" /> <!-- Dwarven Village -->
+			<location npcStringId="1010157" x="-45158" y="-112583" z="-240" feeCount="23000" /> <!-- Orc Village -->
+			<location npcStringId="1010097" x="-41248" y="122848" z="-2904" feeCount="790" /> <!-- Ruins of Agony (Lv. 15) -->
+			<location npcStringId="1010101" x="-19120" y="136816" z="-3752" feeCount="610" /> <!-- Ruins of Despair (Lv. 15) -->
+			<location npcStringId="1010566" x="-9959" y="176184" z="-4160" feeCount="2100" /> <!-- Ant Nest (Lv. 29) -->
+			<location npcStringId="1010102" x="-28327" y="155125" z="-3496" feeCount="1400" /> <!-- Windawood Manor (Lv. 22) -->
+		</teleport>
+	</npc>
+</list>

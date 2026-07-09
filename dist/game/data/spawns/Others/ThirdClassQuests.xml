@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="ThirdClassQuests">
+		<group>
+			<!-- NPCS -->
+			<npc id="31277" x="119796" y="77459" z="-2240" heading="37605" respawnTime="360sec" /> <!-- Felix -->
+			<npc id="34268" x="147674" y="29591" z="-2264" heading="26634" respawnTime="360sec" /> <!-- Rifken -->
+			<npc id="31622" x="148791" y="35414" z="-3072" heading="0" respawnTime="360sec" /> <!-- Keats -->
+			<npc id="31608" x="145856" y="23511" z="-2112" heading="0" respawnTime="360sec" /> <!-- Belinda -->
+			<npc id="31646" x="121992" y="29400" z="-3648" heading="49000" respawnTime="360sec" /> <!-- Tablet Of Vision -->
+			<npc id="31647" x="139424" y="8160" z="-4216" heading="50228" respawnTime="360sec" /> <!-- Tablet Of Vision -->
+			<npc id="31650" x="123953" y="65396" z="-3583" heading="0" respawnTime="360sec" /> <!-- Tablet Of Vision -->
+			<npc id="31653" x="188293" y="16580" z="-3744" heading="0" respawnTime="360sec" /> <!-- Tablet Of Vision -->
+			<npc id="31655" x="15093" y="42830" z="-3672" heading="0" respawnTime="360sec" /> <!-- Tablet Of Vision -->
+			<npc id="31656" x="-23859" y="21325" z="-3712" heading="0" respawnTime="360sec" /> <!-- Tablet Of Vision -->
+			<npc id="31657" x="-10107" y="-90150" z="-2264" heading="0" respawnTime="360sec" /> <!-- Tablet Of Vision -->
+
+			<!-- Ice Monster -->
+			<npc id="27316" x="159317" y="35635" z="-3312" heading="43738" respawnTime="60sec" />
+			<npc id="27316" x="159829" y="36590" z="-3360" heading="56416" respawnTime="60sec" />
+			<npc id="27316" x="158337" y="36225" z="-3248" heading="28750" respawnTime="60sec" />
+			<npc id="27316" x="159183" y="35500" z="-3320" heading="53057" respawnTime="60sec" />
+			<npc id="27316" x="158700" y="35335" z="-3336" heading="61794" respawnTime="60sec" />
+			<npc id="27316" x="159461" y="36762" z="-3376" heading="44791" respawnTime="60sec" />
+			<npc id="27316" x="159448" y="35175" z="-3336" heading="48632" respawnTime="60sec" />
+			<npc id="27316" x="159591" y="35751" z="-3288" heading="47984" respawnTime="60sec" />
+			
+			<!-- Spirit of a Drowned -->
+			<npc id="27317" x="158007" y="35762" z="-3304" heading="29698" respawnTime="60sec" />
+			<npc id="27317" x="159293" y="35621" z="-3312" heading="57115" respawnTime="60sec" />
+			<npc id="27317" x="159194" y="36184" z="-3304" heading="50106" respawnTime="60sec" />
+			<npc id="27317" x="159738" y="35299" z="-3320" heading="59042" respawnTime="60sec" />
+			<npc id="27317" x="159178" y="35727" z="-3312" heading="27368" respawnTime="60sec" />
+			<npc id="27317" x="159668" y="36585" z="-3376" heading="38950" respawnTime="60sec" />
+			<npc id="27317" x="159512" y="36680" z="-3376" heading="14830" respawnTime="60sec" />
+			<npc id="27317" x="159461" y="36519" z="-3328" heading="13998" respawnTime="60sec" />
+			
+			<!-- Soul of Cold -->
+			<npc id="27318" x="157869" y="36721" z="-3320" heading="25007" respawnTime="60sec" />
+			<npc id="27318" x="159722" y="35855" z="-3272" heading="14804" respawnTime="60sec" />
+			<npc id="27318" x="159696" y="36248" z="-3296" heading="37412" respawnTime="60sec" />
+			<npc id="27318" x="159749" y="36200" z="-3272" heading="29411" respawnTime="60sec" />
+			<npc id="27318" x="158550" y="35702" z="-3304" heading="56750" respawnTime="60sec" />
+			<npc id="27318" x="158106" y="35969" z="-3288" heading="21264" respawnTime="60sec" />
+			<npc id="27318" x="159705" y="35496" z="-3296" heading="20675" respawnTime="60sec" />
+			<npc id="27318" x="159601" y="36108" z="-3296" heading="16734" respawnTime="60sec" />
+			
+			<!-- Ghost of Solitude -->
+			<npc id="27319" x="161464" y="38213" z="-3712" heading="38282" respawnTime="60sec" />
+			<npc id="27319" x="160882" y="38990" z="-3712" heading="3102" respawnTime="60sec" />
+			<npc id="27319" x="160241" y="37933" z="-3648" heading="63193" respawnTime="60sec" />
+			<npc id="27319" x="160532" y="38724" z="-3704" heading="23081" respawnTime="60sec" />
+			<npc id="27319" x="160575" y="37792" z="-3320" heading="21378" respawnTime="60sec" />
+			<npc id="27319" x="160701" y="39060" z="-3704" heading="59664" respawnTime="60sec" />
+			<npc id="27319" x="162371" y="38610" z="-3720" heading="6537" respawnTime="60sec" />
+			<npc id="27319" x="162079" y="39069" z="-3720" heading="34350" respawnTime="60sec" />
+			
+			<!-- Fiend of Cold -->
+			<npc id="27320" x="161550" y="37880" z="-3712" heading="13998" respawnTime="60sec" />
+			<npc id="27320" x="161054" y="39005" z="-3712" heading="3638" respawnTime="60sec" />
+			<npc id="27320" x="161417" y="37663" z="-3704" heading="6894" respawnTime="60sec" />
+			<npc id="27320" x="161091" y="38568" z="-3720" heading="62622" respawnTime="60sec" />
+			<npc id="27320" x="160702" y="38390" z="-3696" heading="55642" respawnTime="60sec" />
+			<npc id="27320" x="161750" y="38561" z="-3720" heading="42129" respawnTime="60sec" />
+			<npc id="27320" x="160705" y="38986" z="-3712" heading="2650" respawnTime="60sec" />
+			<npc id="27320" x="160641" y="38959" z="-3712" heading="12587" respawnTime="60sec" />
+			
+			<!-- Spirit of Cold -->
+			<npc id="27321" x="161561" y="37969" z="-3712" heading="61988" respawnTime="60sec" />
+			<npc id="27321" x="160681" y="38719" z="-3704" heading="33923" respawnTime="60sec" />
+			<npc id="27321" x="160232" y="38666" z="-3688" heading="54611" respawnTime="60sec" />
+			<npc id="27321" x="161573" y="37482" z="-3696" heading="62682" respawnTime="60sec" />
+			<npc id="27321" x="160725" y="38341" z="-3696" heading="28087" respawnTime="60sec" />
+			<npc id="27321" x="160271" y="38458" z="-3672" heading="47525" respawnTime="60sec" />
+			<npc id="27321" x="161546" y="37790" z="-3712" heading="18664" respawnTime="60sec" />
+			<npc id="27321" x="161617" y="37701" z="-3704" heading="45614" respawnTime="60sec" />
+
+
+			<!-- Guardian of Forbidden Knowledge -->
+			<npc id="27214" x="138833" y="8745" z="-4288" heading="62181" respawnTime="60sec" />
+			<npc id="27214" x="139138" y="8890" z="-4264" heading="16736" respawnTime="60sec" />
+			<npc id="27214" x="140313" y="8364" z="-4072" heading="48010" respawnTime="60sec" />
+			<npc id="27214" x="139627" y="8121" z="-4192" heading="26996" respawnTime="60sec" />
+			<npc id="27214" x="140140" y="8018" z="-4056" heading="21540" respawnTime="60sec" />
+			<npc id="27214" x="140522" y="8858" z="-4112" heading="12298" respawnTime="60sec" />
+			<npc id="27214" x="138997" y="8054" z="-4288" heading="29593" respawnTime="60sec" />
+			<npc id="27214" x="140238" y="7092" z="-4160" heading="16873" respawnTime="60sec" />
+			<npc id="27214" x="140346" y="7458" z="-4096" heading="56386" respawnTime="60sec" />
+			<npc id="27214" x="139357" y="7593" z="-4256" heading="55581" respawnTime="60sec" />
+			
+			<!-- Keeper of the Holy Edict -->
+			<npc id="27215" x="139684" y="10296" z="-4290" heading="0" respawnTime="60sec" />
+			<npc id="27215" x="139816" y="10104" z="-4293" heading="0" respawnTime="60sec" />
+			<npc id="27215" x="139272" y="9928" z="-4296" heading="0" respawnTime="60sec" />
+			<npc id="27215" x="139176" y="10232" z="-4281" heading="0" respawnTime="60sec" />
+			<npc id="27215" x="139400" y="10456" z="-4276" heading="0" respawnTime="60sec" />
+			<npc id="27215" x="139528" y="10680" z="-4265" heading="0" respawnTime="60sec" />
+			<npc id="27215" x="139944" y="10632" z="-4273" heading="0" respawnTime="60sec" />
+			<npc id="27215" x="139976" y="10312" z="-4289" heading="0" respawnTime="60sec" />
+			<npc id="27215" x="140152" y="10088" z="-4258" heading="0" respawnTime="60sec" />
+			<npc id="27215" x="139496" y="9688" z="-4293" heading="0" respawnTime="60sec" />
+		</group>
+	</spawn>
+</list>

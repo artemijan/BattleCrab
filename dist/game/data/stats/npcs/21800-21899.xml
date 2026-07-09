@@ -1,0 +1,356 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
+	<npc id="21800" level="77" type="Monster" name="Vassal Ghost">
+		<!-- Interlude - C6 -->
+		<parameters>
+			<param name="MoveAroundSocial" value="120" />
+			<param name="MoveAroundSocial1" value="120" />
+			<param name="MoveAroundSocial2" value="120" />
+			<skill name="DDMagicSlow" id="4567" level="8" /> <!-- NPC Eruption - Slow -->
+		</parameters>
+		<race>UNDEAD</race>
+		<sex>MALE</sex>
+		<acquire exp="13232" sp="1432" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
+			<vitals hp="2762.08447" hpRegen="8.5" mp="1574.0" mpRegen="3" />
+			<attack physical="835.75573" magical="570.71283" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="328.27073" magical="218.566351305224" />
+			<speed>
+				<walk ground="15" />
+				<run ground="15" />
+			</speed>
+			<hitTime>430</hitTime>
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status undying="false" canBeSown="true" />
+		<skillList>
+			<skill id="4274" level="1" /> <!-- Blunt Attack Weak Point -->
+			<skill id="4275" level="2" /> <!-- Sacred Attack Weak Point -->
+			<skill id="4278" level="1" /> <!-- Dark Attack -->
+			<skill id="4408" level="10" /> <!-- HP Modifiers -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+			<skill id="4567" level="8" /> <!-- NPC Eruption - Slow -->
+		</skillList>
+		<shots shotChance="30" spiritChance="30" />
+		<exCrtEffect>false</exCrtEffect>
+		<sNpcPropHpRate>2</sNpcPropHpRate>
+		<ai aggroRange="300" clanHelpRange="300" isAggressive="false" />
+		<collision>
+			<radius normal="13" />
+			<height normal="21" />
+		</collision>
+		<dropLists>
+			<drop>
+				<item id="57" min="1853" max="3785" chance="70" /> <!-- Adena -->
+				<item id="212" min="1" max="1" chance="0.0004" /> <!-- Dasparion's Staff -->
+				<item id="2504" min="1" max="1" chance="0.0004" /> <!-- Meteor Shower -->
+				<item id="1344" min="10" max="30" chance="16.6667" /> <!-- Mithril Arrow -->
+				<item id="1867" min="1" max="3" chance="9.0909" /> <!-- Animal Skin -->
+				<item id="1872" min="1" max="1" chance="20" /> <!-- Animal Bone -->
+				<item id="1882" min="1" max="1" chance="2.8571" /> <!-- Leather -->
+				<item id="1894" min="1" max="1" chance="0.4405" /> <!-- Crafted Leather -->
+				<item id="4042" min="1" max="1" chance="1.7060" /> <!-- Enria -->
+				<item id="5272" min="1" max="1" chance="0.0114" /> <!-- Recipe: Greater Soulshot (S) Compressed Package(100%) -->
+				<item id="5532" min="1" max="1" chance="0.1147" /> <!-- Meteor Shower Head -->
+				<item id="5543" min="1" max="1" chance="0.1158" /> <!-- Dasparion's Staff Edge -->
+				<item id="8341" min="1" max="1" chance="0.0436" /> <!-- Spiritual Eye Piece -->
+				<item id="8346" min="1" max="1" chance="0.0374" /> <!-- Hammer Piece of Destroyer -->
+				<item id="8732" min="1" max="1" chance="0.1062" /> <!-- EtcItem" name="Life Stone: level 76 -->
+				<item id="8742" min="1" max="1" chance="0.0228" /> <!-- Mid-Grade Life Stone: level 76 -->
+			</drop>
+			<spoil>
+				<item id="4042" min="1" max="1" chance="7.6772" /> <!-- Enria -->
+				<item id="5167" min="1" max="1" chance="0.2047" /> <!-- Recipe: Blessed Spiritshot (S) Compressed Package (100%) -->
+				<item id="5529" min="1" max="1" chance="1.2637" /> <!-- Dragon Slayer Edge -->
+			</spoil>
+		</dropLists>
+	</npc>
+	<npc id="21824" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+		<!-- Interlude - C6 -->
+		<parameters>
+			<param name="MoveAroundSocial" value="72" />
+			<param name="MoveAroundSocial1" value="30" />
+			<param name="MoveAroundSocial2" value="72" />
+			<param name="TakeSocial" value="30" />
+			<param name="SoulShot" value="100" />
+			<param name="SoulShotRate" value="10" />
+			<param name="SpiritShot" value="100" />
+			<param name="SpiritShotRate" value="5" />
+		</parameters>
+		<race>BEAST</race>
+		<sex>MALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
+			<vitals hp="2193.43142" hpRegen="7.5" mp="1188.8" mpRegen="2.7" />
+			<attack physical="582.81759" magical="397.98887" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="271.89033" magical="181.027644954078" />
+			<speed>
+				<walk ground="23" />
+				<run ground="210" />
+			</speed>
+			<hitTime>540</hitTime>
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status undying="false" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="12" /> <!-- HP Modifiers -->
+			<skill id="4410" level="14" /> <!-- P. Atk. Modifiers -->
+			<skill id="4411" level="14" /> <!-- M. Atk. Modifiers -->
+			<skill id="4412" level="8" /> <!-- P. Def. Modifiers -->
+			<skill id="4413" level="8" /> <!-- M. Def. Modifiers -->
+			<skill id="4416" level="3" /> <!-- Beasts -->
+			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
+		</skillList>
+		<shots shotChance="30" spiritChance="30" />
+		<exCrtEffect>false</exCrtEffect>
+		<sNpcPropHpRate>4</sNpcPropHpRate>
+		<ai aggroRange="300" clanHelpRange="300" isAggressive="false">
+			<clanList>
+				<clan>PET</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="10" grown="13" />
+			<height normal="33" grown="40" />
+		</collision>
+	</npc>
+	<npc id="21825" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+		<!-- Interlude - C6 -->
+		<parameters>
+			<param name="MoveAroundSocial" value="72" />
+			<param name="MoveAroundSocial1" value="30" />
+			<param name="MoveAroundSocial2" value="72" />
+			<param name="TakeSocial" value="30" />
+			<param name="SoulShot" value="100" />
+			<param name="SoulShotRate" value="10" />
+			<param name="SpiritShot" value="100" />
+			<param name="SpiritShotRate" value="5" />
+		</parameters>
+		<race>BEAST</race>
+		<sex>MALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
+			<vitals hp="2193.43142" hpRegen="7.5" mp="1188.8" mpRegen="2.7" />
+			<attack physical="582.81759" magical="397.98887" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="271.89033" magical="181.027644954078" />
+			<speed>
+				<walk ground="23" />
+				<run ground="210" />
+			</speed>
+			<hitTime>540</hitTime>
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status undying="false" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="12" /> <!-- HP Modifiers -->
+			<skill id="4410" level="14" /> <!-- P. Atk. Modifiers -->
+			<skill id="4411" level="14" /> <!-- M. Atk. Modifiers -->
+			<skill id="4412" level="8" /> <!-- P. Def. Modifiers -->
+			<skill id="4413" level="8" /> <!-- M. Def. Modifiers -->
+			<skill id="4416" level="3" /> <!-- Beasts -->
+			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
+		</skillList>
+		<shots shotChance="30" spiritChance="30" />
+		<exCrtEffect>false</exCrtEffect>
+		<sNpcPropHpRate>4</sNpcPropHpRate>
+		<ai aggroRange="300" clanHelpRange="300" isAggressive="false">
+			<clanList>
+				<clan>PET</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="10" grown="13" />
+			<height normal="33" grown="40" />
+		</collision>
+	</npc>
+	<npc id="21826" level="67" type="FeedableBeast" name="Alpine Buffalo">
+		<!-- Interlude - C6 -->
+		<parameters>
+			<param name="MoveAroundSocial" value="120" />
+			<param name="MoveAroundSocial1" value="30" />
+			<param name="MoveAroundSocial2" value="120" />
+			<param name="TakeSocial" value="30" />
+			<param name="SoulShot" value="100" />
+			<param name="SoulShotRate" value="10" />
+			<param name="SpiritShot" value="100" />
+			<param name="SpiritShotRate" value="5" />
+		</parameters>
+		<race>BEAST</race>
+		<sex>MALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
+			<vitals hp="2295.48154" hpRegen="7.5" mp="1251.0" mpRegen="2.7" />
+			<attack physical="624.93199" magical="426.74754" random="50" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="281.55251" magical="187.460838840844" />
+			<speed>
+				<walk ground="20" />
+				<run ground="170" />
+			</speed>
+			<hitTime>460</hitTime>
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status undying="false" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="12" /> <!-- HP Modifiers -->
+			<skill id="4410" level="14" /> <!-- P. Atk. Modifiers -->
+			<skill id="4411" level="14" /> <!-- M. Atk. Modifiers -->
+			<skill id="4412" level="8" /> <!-- P. Def. Modifiers -->
+			<skill id="4413" level="8" /> <!-- M. Def. Modifiers -->
+			<skill id="4416" level="3" /> <!-- Beasts -->
+			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
+		</skillList>
+		<shots shotChance="30" spiritChance="30" />
+		<exCrtEffect>false</exCrtEffect>
+		<sNpcPropHpRate>4</sNpcPropHpRate>
+		<ai aggroRange="300" clanHelpRange="300" isAggressive="false">
+			<clanList>
+				<clan>PET</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="22" grown="27" />
+			<height normal="31" grown="38" />
+		</collision>
+	</npc>
+	<npc id="21827" level="67" type="FeedableBeast" name="Alpine Buffalo">
+		<!-- Interlude - C6 -->
+		<parameters>
+			<param name="MoveAroundSocial" value="120" />
+			<param name="MoveAroundSocial1" value="30" />
+			<param name="MoveAroundSocial2" value="120" />
+			<param name="TakeSocial" value="30" />
+			<param name="SoulShot" value="100" />
+			<param name="SoulShotRate" value="10" />
+			<param name="SpiritShot" value="100" />
+			<param name="SpiritShotRate" value="5" />
+		</parameters>
+		<race>BEAST</race>
+		<sex>MALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
+			<vitals hp="2295.48154" hpRegen="7.5" mp="1251.0" mpRegen="2.7" />
+			<attack physical="624.93199" magical="426.74754" random="50" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="281.55251" magical="187.460838840844" />
+			<speed>
+				<walk ground="20" />
+				<run ground="170" />
+			</speed>
+			<hitTime>460</hitTime>
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status undying="false" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="12" /> <!-- HP Modifiers -->
+			<skill id="4410" level="14" /> <!-- P. Atk. Modifiers -->
+			<skill id="4411" level="14" /> <!-- M. Atk. Modifiers -->
+			<skill id="4412" level="8" /> <!-- P. Def. Modifiers -->
+			<skill id="4413" level="8" /> <!-- M. Def. Modifiers -->
+			<skill id="4416" level="3" /> <!-- Beasts -->
+			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
+		</skillList>
+		<shots shotChance="30" spiritChance="30" />
+		<exCrtEffect>false</exCrtEffect>
+		<sNpcPropHpRate>4</sNpcPropHpRate>
+		<ai aggroRange="300" clanHelpRange="300" isAggressive="false">
+			<clanList>
+				<clan>PET</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="22" grown="27" />
+			<height normal="31" grown="38" />
+		</collision>
+	</npc>
+	<npc id="21828" level="69" type="FeedableBeast" name="Alpine Cougar">
+		<!-- Interlude - C6 -->
+		<parameters>
+			<param name="MoveAroundSocial" value="90" />
+			<param name="MoveAroundSocial1" value="30" />
+			<param name="MoveAroundSocial2" value="90" />
+			<param name="TakeSocial" value="30" />
+			<param name="SoulShot" value="100" />
+			<param name="SoulShotRate" value="10" />
+			<param name="SpiritShot" value="100" />
+			<param name="SpiritShotRate" value="5" />
+		</parameters>
+		<race>BEAST</race>
+		<sex>MALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
+			<vitals hp="2395.45533" hpRegen="7.5" mp="1314.0" mpRegen="2.7" />
+			<attack physical="667.50361" magical="455.81844" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="291.15063" magical="193.851368417065" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+			<hitTime>450</hitTime>
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status undying="false" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="12" /> <!-- HP Modifiers -->
+			<skill id="4410" level="14" /> <!-- P. Atk. Modifiers -->
+			<skill id="4411" level="14" /> <!-- M. Atk. Modifiers -->
+			<skill id="4412" level="8" /> <!-- P. Def. Modifiers -->
+			<skill id="4413" level="8" /> <!-- M. Def. Modifiers -->
+			<skill id="4416" level="3" /> <!-- Beasts -->
+			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
+		</skillList>
+		<shots shotChance="30" spiritChance="30" />
+		<exCrtEffect>false</exCrtEffect>
+		<sNpcPropHpRate>4</sNpcPropHpRate>
+		<ai aggroRange="300" clanHelpRange="300" isAggressive="false">
+			<clanList>
+				<clan>PET</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="34" />
+			<height normal="28" grown="34" />
+		</collision>
+	</npc>
+	<npc id="21829" level="69" type="FeedableBeast" name="Alpine Cougar">
+		<!-- Interlude - C6 -->
+		<parameters>
+			<param name="MoveAroundSocial" value="90" />
+			<param name="MoveAroundSocial1" value="30" />
+			<param name="MoveAroundSocial2" value="90" />
+			<param name="TakeSocial" value="30" />
+			<param name="SoulShot" value="100" />
+			<param name="SoulShotRate" value="10" />
+			<param name="SpiritShot" value="100" />
+			<param name="SpiritShotRate" value="5" />
+		</parameters>
+		<race>BEAST</race>
+		<sex>MALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
+			<vitals hp="2395.45533" hpRegen="7.5" mp="1314.0" mpRegen="2.7" />
+			<attack physical="667.50361" magical="455.81844" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="291.15063" magical="193.851368417065" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+			<hitTime>450</hitTime>
+			<abnormalResist physical="10" magical="10" />
+		</stats>
+		<status undying="false" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="12" /> <!-- HP Modifiers -->
+			<skill id="4410" level="14" /> <!-- P. Atk. Modifiers -->
+			<skill id="4411" level="14" /> <!-- M. Atk. Modifiers -->
+			<skill id="4412" level="8" /> <!-- P. Def. Modifiers -->
+			<skill id="4413" level="8" /> <!-- M. Def. Modifiers -->
+			<skill id="4416" level="3" /> <!-- Beasts -->
+			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
+		</skillList>
+		<shots shotChance="30" spiritChance="30" />
+		<exCrtEffect>false</exCrtEffect>
+		<sNpcPropHpRate>4</sNpcPropHpRate>
+		<ai aggroRange="300" clanHelpRange="300" isAggressive="false">
+			<clanList>
+				<clan>PET</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="34" />
+			<height normal="28" grown="34" />
+		</collision>
+	</npc>
+</list>

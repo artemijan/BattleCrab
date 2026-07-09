@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="19" parentClassId="18">
+		<skill skillId="15" skillLevel="1" skillName="Charm" levelUpSp="1400" getLevel="20" />
+		<skill skillId="15" skillLevel="2" skillName="Charm" levelUpSp="1400" getLevel="20" />
+		<skill skillId="15" skillLevel="3" skillName="Charm" levelUpSp="1400" getLevel="20" />
+		<skill skillId="21" skillLevel="1" skillName="Poison Recovery" levelUpSp="4100" getLevel="20" />
+		<skill skillId="58" skillLevel="4" skillName="Elemental Heal" levelUpSp="1400" getLevel="20" />
+		<skill skillId="58" skillLevel="5" skillName="Elemental Heal" levelUpSp="1400" getLevel="20" />
+		<skill skillId="58" skillLevel="6" skillName="Elemental Heal" levelUpSp="1400" getLevel="20" />
+		<skill skillId="91" skillLevel="2" skillName="Defense Aura" levelUpSp="4100" getLevel="20" />
+		<skill skillId="110" skillLevel="1" skillName="Ultimate Defense" levelUpSp="4100" getLevel="20" />
+		<skill skillId="147" skillLevel="1" skillName="Magic Resistance" levelUpSp="2100" getLevel="20" />
+		<skill skillId="147" skillLevel="2" skillName="Magic Resistance" levelUpSp="2100" getLevel="20" />
+		<skill skillId="153" skillLevel="1" skillName="Shield Mastery" levelUpSp="4100" getLevel="20" />
+		<skill skillId="217" skillLevel="1" skillName="Sword Blunt Mastery" levelUpSp="4100" getLevel="20" />
+		<skill skillId="232" skillLevel="1" skillName="Heavy Armor Mastery" levelUpSp="1400" getLevel="20" />
+		<skill skillId="232" skillLevel="2" skillName="Heavy Armor Mastery" levelUpSp="1400" getLevel="20" />
+		<skill skillId="232" skillLevel="3" skillName="Heavy Armor Mastery" levelUpSp="1400" getLevel="20" />
+		<skill skillId="15" skillLevel="4" skillName="Charm" levelUpSp="2900" getLevel="24" />
+		<skill skillId="15" skillLevel="5" skillName="Charm" levelUpSp="2900" getLevel="24" />
+		<skill skillId="15" skillLevel="6" skillName="Charm" levelUpSp="2900" getLevel="24" />
+		<skill skillId="28" skillLevel="1" skillName="Aggression" levelUpSp="2900" getLevel="24" />
+		<skill skillId="28" skillLevel="2" skillName="Aggression" levelUpSp="2900" getLevel="24" />
+		<skill skillId="28" skillLevel="3" skillName="Aggression" levelUpSp="2900" getLevel="24" />
+		<skill skillId="58" skillLevel="7" skillName="Elemental Heal" levelUpSp="2900" getLevel="24" />
+		<skill skillId="58" skillLevel="8" skillName="Elemental Heal" levelUpSp="2900" getLevel="24" />
+		<skill skillId="58" skillLevel="9" skillName="Elemental Heal" levelUpSp="2900" getLevel="24" />
+		<skill skillId="61" skillLevel="1" skillName="Cure Bleeding" levelUpSp="8800" getLevel="24" />
+		<skill skillId="112" skillLevel="1" skillName="Deflect Arrow" levelUpSp="8800" getLevel="24" />
+		<skill skillId="147" skillLevel="3" skillName="Magic Resistance" levelUpSp="2900" getLevel="24" />
+		<skill skillId="147" skillLevel="4" skillName="Magic Resistance" levelUpSp="2900" getLevel="24" />
+		<skill skillId="147" skillLevel="5" skillName="Magic Resistance" levelUpSp="2900" getLevel="24" />
+		<skill skillId="217" skillLevel="2" skillName="Sword Blunt Mastery" levelUpSp="8800" getLevel="24" />
+		<skill skillId="232" skillLevel="4" skillName="Heavy Armor Mastery" levelUpSp="2900" getLevel="24" />
+		<skill skillId="232" skillLevel="5" skillName="Heavy Armor Mastery" levelUpSp="2900" getLevel="24" />
+		<skill skillId="232" skillLevel="6" skillName="Heavy Armor Mastery" levelUpSp="2900" getLevel="24" />
+		<skill skillId="15" skillLevel="7" skillName="Charm" levelUpSp="5000" getLevel="28" />
+		<skill skillId="15" skillLevel="8" skillName="Charm" levelUpSp="5000" getLevel="28" />
+		<skill skillId="15" skillLevel="9" skillName="Charm" levelUpSp="5000" getLevel="28" />
+		<skill skillId="28" skillLevel="4" skillName="Aggression" levelUpSp="5000" getLevel="28" />
+		<skill skillId="28" skillLevel="5" skillName="Aggression" levelUpSp="5000" getLevel="28" />
+		<skill skillId="28" skillLevel="6" skillName="Aggression" levelUpSp="5000" getLevel="28" />
+		<skill skillId="58" skillLevel="10" skillName="Elemental Heal" levelUpSp="5000" getLevel="28" />
+		<skill skillId="58" skillLevel="11" skillName="Elemental Heal" levelUpSp="5000" getLevel="28" />
+		<skill skillId="58" skillLevel="12" skillName="Elemental Heal" levelUpSp="5000" getLevel="28" />
+		<skill skillId="77" skillLevel="2" skillName="Attack Aura" levelUpSp="15000" getLevel="28" />
+		<skill skillId="147" skillLevel="6" skillName="Magic Resistance" levelUpSp="5000" getLevel="28" />
+		<skill skillId="147" skillLevel="7" skillName="Magic Resistance" levelUpSp="5000" getLevel="28" />
+		<skill skillId="147" skillLevel="8" skillName="Magic Resistance" levelUpSp="5000" getLevel="28" />
+		<skill skillId="153" skillLevel="2" skillName="Shield Mastery" levelUpSp="15000" getLevel="28" />
+		<skill skillId="217" skillLevel="3" skillName="Sword Blunt Mastery" levelUpSp="7500" getLevel="28" />
+		<skill skillId="217" skillLevel="4" skillName="Sword Blunt Mastery" levelUpSp="7500" getLevel="28" />
+		<skill skillId="232" skillLevel="7" skillName="Heavy Armor Mastery" levelUpSp="5000" getLevel="28" />
+		<skill skillId="232" skillLevel="8" skillName="Heavy Armor Mastery" levelUpSp="5000" getLevel="28" />
+		<skill skillId="232" skillLevel="9" skillName="Heavy Armor Mastery" levelUpSp="5000" getLevel="28" />
+		<skill skillId="15" skillLevel="10" skillName="Charm" levelUpSp="8300" getLevel="32" />
+		<skill skillId="15" skillLevel="11" skillName="Charm" levelUpSp="8300" getLevel="32" />
+		<skill skillId="15" skillLevel="12" skillName="Charm" levelUpSp="8300" getLevel="32" />
+		<skill skillId="28" skillLevel="7" skillName="Aggression" levelUpSp="8300" getLevel="32" />
+		<skill skillId="28" skillLevel="8" skillName="Aggression" levelUpSp="8300" getLevel="32" />
+		<skill skillId="28" skillLevel="9" skillName="Aggression" levelUpSp="8300" getLevel="32" />
+		<skill skillId="58" skillLevel="13" skillName="Elemental Heal" levelUpSp="8300" getLevel="32" />
+		<skill skillId="58" skillLevel="14" skillName="Elemental Heal" levelUpSp="8300" getLevel="32" />
+		<skill skillId="58" skillLevel="15" skillName="Elemental Heal" levelUpSp="8300" getLevel="32" />
+		<skill skillId="112" skillLevel="2" skillName="Deflect Arrow" levelUpSp="25000" getLevel="32" />
+		<skill skillId="147" skillLevel="9" skillName="Magic Resistance" levelUpSp="8300" getLevel="32" />
+		<skill skillId="147" skillLevel="10" skillName="Magic Resistance" levelUpSp="8300" getLevel="32" />
+		<skill skillId="147" skillLevel="11" skillName="Magic Resistance" levelUpSp="8300" getLevel="32" />
+		<skill skillId="217" skillLevel="5" skillName="Sword Blunt Mastery" levelUpSp="13000" getLevel="32" />
+		<skill skillId="217" skillLevel="6" skillName="Sword Blunt Mastery" levelUpSp="13000" getLevel="32" />
+		<skill skillId="230" skillLevel="1" skillName="Sprint" levelUpSp="25000" getLevel="32" />
+		<skill skillId="232" skillLevel="10" skillName="Heavy Armor Mastery" levelUpSp="8300" getLevel="32" />
+		<skill skillId="232" skillLevel="11" skillName="Heavy Armor Mastery" levelUpSp="8300" getLevel="32" />
+		<skill skillId="232" skillLevel="12" skillName="Heavy Armor Mastery" levelUpSp="8300" getLevel="32" />
+		<skill skillId="15" skillLevel="13" skillName="Charm" levelUpSp="13000" getLevel="36" />
+		<skill skillId="15" skillLevel="14" skillName="Charm" levelUpSp="13000" getLevel="36" />
+		<skill skillId="15" skillLevel="15" skillName="Charm" levelUpSp="13000" getLevel="36" />
+		<skill skillId="28" skillLevel="10" skillName="Aggression" levelUpSp="13000" getLevel="36" />
+		<skill skillId="28" skillLevel="11" skillName="Aggression" levelUpSp="13000" getLevel="36" />
+		<skill skillId="28" skillLevel="12" skillName="Aggression" levelUpSp="13000" getLevel="36" />
+		<skill skillId="58" skillLevel="16" skillName="Elemental Heal" levelUpSp="13000" getLevel="36" />
+		<skill skillId="58" skillLevel="17" skillName="Elemental Heal" levelUpSp="13000" getLevel="36" />
+		<skill skillId="58" skillLevel="18" skillName="Elemental Heal" levelUpSp="13000" getLevel="36" />
+		<skill skillId="102" skillLevel="1" skillName="Entangle" levelUpSp="39000" getLevel="36" />
+		<skill skillId="147" skillLevel="12" skillName="Magic Resistance" levelUpSp="13000" getLevel="36" />
+		<skill skillId="147" skillLevel="13" skillName="Magic Resistance" levelUpSp="13000" getLevel="36" />
+		<skill skillId="147" skillLevel="14" skillName="Magic Resistance" levelUpSp="13000" getLevel="36" />
+		<skill skillId="191" skillLevel="1" skillName="Focus Mind" levelUpSp="39000" getLevel="36" />
+		<skill skillId="217" skillLevel="7" skillName="Sword Blunt Mastery" levelUpSp="19000" getLevel="36" />
+		<skill skillId="217" skillLevel="8" skillName="Sword Blunt Mastery" levelUpSp="19000" getLevel="36" />
+		<skill skillId="232" skillLevel="13" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="36" />
+		<skill skillId="232" skillLevel="14" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="36" />
+		<skill skillId="232" skillLevel="15" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="36" />
+	</skillTree>
+</list>

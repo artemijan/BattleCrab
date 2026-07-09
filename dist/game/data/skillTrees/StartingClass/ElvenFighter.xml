@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="18">
+		<skill skillId="3" skillLevel="1" skillName="Power Strike" levelUpSp="50" getLevel="5" />
+		<skill skillId="3" skillLevel="2" skillName="Power Strike" levelUpSp="50" getLevel="5" />
+		<skill skillId="3" skillLevel="3" skillName="Power Strike" levelUpSp="50" getLevel="5" />
+		<skill skillId="16" skillLevel="1" skillName="Mortal Blow" levelUpSp="50" getLevel="5" />
+		<skill skillId="16" skillLevel="2" skillName="Mortal Blow" levelUpSp="50" getLevel="5" />
+		<skill skillId="16" skillLevel="3" skillName="Mortal Blow" levelUpSp="50" getLevel="5" />
+		<skill skillId="56" skillLevel="1" skillName="Power Shot" levelUpSp="50" getLevel="5" />
+		<skill skillId="56" skillLevel="2" skillName="Power Shot" levelUpSp="50" getLevel="5" />
+		<skill skillId="56" skillLevel="3" skillName="Power Shot" levelUpSp="50" getLevel="5" />
+		<skill skillId="91" skillLevel="1" skillName="Defense Aura" levelUpSp="160" getLevel="5" />
+		<skill skillId="141" skillLevel="1" skillName="Weapon Mastery" levelUpSp="160" getLevel="5" />
+		<skill skillId="142" skillLevel="1" skillName="Armor Mastery" levelUpSp="160" getLevel="5" />
+		<skill skillId="3" skillLevel="4" skillName="Power Strike" levelUpSp="310" getLevel="10" />
+		<skill skillId="3" skillLevel="5" skillName="Power Strike" levelUpSp="310" getLevel="10" />
+		<skill skillId="3" skillLevel="6" skillName="Power Strike" levelUpSp="310" getLevel="10" />
+		<skill skillId="16" skillLevel="4" skillName="Mortal Blow" levelUpSp="310" getLevel="10" />
+		<skill skillId="16" skillLevel="5" skillName="Mortal Blow" levelUpSp="310" getLevel="10" />
+		<skill skillId="16" skillLevel="6" skillName="Mortal Blow" levelUpSp="310" getLevel="10" />
+		<skill skillId="56" skillLevel="4" skillName="Power Shot" levelUpSp="310" getLevel="10" />
+		<skill skillId="56" skillLevel="5" skillName="Power Shot" levelUpSp="310" getLevel="10" />
+		<skill skillId="56" skillLevel="6" skillName="Power Shot" levelUpSp="310" getLevel="10" />
+		<skill skillId="77" skillLevel="1" skillName="Attack Aura" levelUpSp="910" getLevel="10" />
+		<skill skillId="141" skillLevel="2" skillName="Weapon Mastery" levelUpSp="910" getLevel="10" />
+		<skill skillId="142" skillLevel="2" skillName="Armor Mastery" levelUpSp="460" getLevel="10" />
+		<skill skillId="142" skillLevel="3" skillName="Armor Mastery" levelUpSp="460" getLevel="10" />
+		<skill skillId="3" skillLevel="7" skillName="Power Strike" levelUpSp="1100" getLevel="15" />
+		<skill skillId="3" skillLevel="8" skillName="Power Strike" levelUpSp="1100" getLevel="15" />
+		<skill skillId="3" skillLevel="9" skillName="Power Strike" levelUpSp="1100" getLevel="15" />
+		<skill skillId="16" skillLevel="7" skillName="Mortal Blow" levelUpSp="1100" getLevel="15" />
+		<skill skillId="16" skillLevel="8" skillName="Mortal Blow" levelUpSp="1100" getLevel="15" />
+		<skill skillId="16" skillLevel="9" skillName="Mortal Blow" levelUpSp="1100" getLevel="15" />
+		<skill skillId="56" skillLevel="7" skillName="Power Shot" levelUpSp="1100" getLevel="15" />
+		<skill skillId="56" skillLevel="8" skillName="Power Shot" levelUpSp="1100" getLevel="15" />
+		<skill skillId="56" skillLevel="9" skillName="Power Shot" levelUpSp="1100" getLevel="15" />
+		<skill skillId="58" skillLevel="1" skillName="Elemental Heal" levelUpSp="1100" getLevel="15" />
+		<skill skillId="58" skillLevel="2" skillName="Elemental Heal" levelUpSp="1100" getLevel="15" />
+		<skill skillId="58" skillLevel="3" skillName="Elemental Heal" levelUpSp="1100" getLevel="15" />
+		<skill skillId="141" skillLevel="3" skillName="Weapon Mastery" levelUpSp="3300" getLevel="15" />
+		<skill skillId="142" skillLevel="4" skillName="Armor Mastery" levelUpSp="1700" getLevel="15" />
+		<skill skillId="142" skillLevel="5" skillName="Armor Mastery" levelUpSp="1700" getLevel="15" />
+	</skillTree>
+</list>

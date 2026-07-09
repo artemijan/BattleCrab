@@ -6,8 +6,9 @@ use tracing::{info, warn};
 use crate::controller::ControllerHandle;
 
 pub async fn load(controller: &ControllerHandle) {
-    let Ok(content) = std::fs::read_to_string("banned_ip.cfg") else {
-        warn!("IP Bans file (banned_ip.cfg) is missing or is a directory, skipped.");
+    let path = crate::config::BANNED_IP_FILE;
+    let Ok(content) = std::fs::read_to_string(path) else {
+        warn!("IP Bans file ({path}) is missing or is a directory, skipped.");
         return;
     };
 

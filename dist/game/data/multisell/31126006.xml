@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/multisell.xsd">
+	<npcs>
+		<npc>31126</npc> <!-- Blacksmith of Mammon -->
+	</npcs>
+	
+	<!-- Unseal S-Grade Armors -->
+	
+	<item>
+		<ingredient id="6674" count="1" /> <!-- Sealed Imperial Crusader Breastplate -->
+		<ingredient id="5575" count="1072500" /> <!-- Ancient Adena -->
+		<production id="6373" count="1" /> <!-- Imperial Crusader Breastplate -->
+	</item>
+	<item>
+		<ingredient id="6675" count="1" /> <!-- Sealed Imperial Crusader Gaiters -->
+		<ingredient id="5575" count="672000" /> <!-- Ancient Adena -->
+		<production id="6374" count="1" /> <!-- Imperial Crusader Gaiters -->
+	</item>
+	<item>
+		<ingredient id="6676" count="1" /> <!-- Sealed Imperial Crusader Gauntlet -->
+		<ingredient id="5575" count="268500" /> <!-- Ancient Adena -->
+		<production id="6375" count="1" /> <!-- Imperial Crusader Gauntlet -->
+	</item>
+	<item>
+		<ingredient id="6677" count="1" /> <!-- Sealed Imperial Crusader Boots -->
+		<ingredient id="5575" count="268500" /> <!-- Ancient Adena -->
+		<production id="6376" count="1" /> <!-- Imperial Crusader Boots -->
+	</item>
+	<item>
+		<ingredient id="6678" count="1" /> <!-- Sealed Imperial Crusader Shield -->
+		<ingredient id="5575" count="282000" /> <!-- Ancient Adena -->
+		<production id="6377" count="1" /> <!-- Imperial Crusader Shield -->
+	</item>
+	<item>
+		<ingredient id="6679" count="1" /> <!-- Sealed Imperial Crusader Helmet -->
+		<ingredient id="5575" count="402750" /> <!-- Ancient Adena -->
+		<production id="6378" count="1" /> <!-- Imperial Crusader Helmet -->
+	</item>
+	<item>
+		<ingredient id="6680" count="1" /> <!-- Sealed Draconic Leather Armor -->
+		<ingredient id="5575" count="1305000" /> <!-- Ancient Adena -->
+		<production id="6379" count="1" /> <!-- Draconic Leather Armor -->
+	</item>
+	<item>
+		<ingredient id="6681" count="1" /> <!-- Sealed Draconic Leather Glove -->
+		<ingredient id="5575" count="268500" /> <!-- Ancient Adena -->
+		<production id="6380" count="1" /> <!-- Draconic Leather Glove -->
+	</item>
+	<item>
+		<ingredient id="6682" count="1" /> <!-- Sealed Draconic Leather Boots -->
+		<ingredient id="5575" count="268500" /> <!-- Ancient Adena -->
+		<production id="6381" count="1" /> <!-- Draconic Leather Boots -->
+	</item>
+	<item>
+		<ingredient id="6683" count="1" /> <!-- Sealed Draconic Leather Helmet -->
+		<ingredient id="5575" count="402750" /> <!-- Ancient Adena -->
+		<production id="6382" count="1" /> <!-- Draconic Leather Helmet -->
+	</item>
+	<item>
+		<ingredient id="6684" count="1" /> <!-- Sealed Major Arcana Robe -->
+		<ingredient id="5575" count="1305000" /> <!-- Ancient Adena -->
+		<production id="6383" count="1" /> <!-- Major Arcana Robe -->
+	</item>
+	<item>
+		<ingredient id="6685" count="1" /> <!-- Sealed Major Arcana Glove -->
+		<ingredient id="5575" count="268500" /> <!-- Ancient Adena -->
+		<production id="6384" count="1" /> <!-- Major Arcana Glove -->
+	</item>
+	<item>
+		<ingredient id="6686" count="1" /> <!-- Sealed Major Arcana Boots -->
+		<ingredient id="5575" count="268500" /> <!-- Ancient Adena -->
+		<production id="6385" count="1" /> <!-- Major Arcana Boots -->
+	</item>
+	<item>
+		<ingredient id="6687" count="1" /> <!-- Sealed Major Arcana Circlet -->
+		<ingredient id="5575" count="402750" /> <!-- Ancient Adena -->
+		<production id="6386" count="1" /> <!-- Major Arcana Circlet -->
+	</item>
+</list>

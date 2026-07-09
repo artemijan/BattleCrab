@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="14" parentClassId="11">
+		<skill skillId="10" skillLevel="1" skillName="Summon Storm Cubic" levelUpSp="32000" getLevel="40" />
+		<skill skillId="146" skillLevel="13" skillName="Anti Magic" levelUpSp="11000" getLevel="40" />
+		<skill skillId="146" skillLevel="14" skillName="Anti Magic" levelUpSp="11000" getLevel="40" />
+		<skill skillId="146" skillLevel="15" skillName="Anti Magic" levelUpSp="11000" getLevel="40" />
+		<skill skillId="213" skillLevel="3" skillName="Boost Mana" levelUpSp="32000" getLevel="40" />
+		<skill skillId="228" skillLevel="2" skillName="Fast Spell Casting" levelUpSp="32000" getLevel="40" />
+		<skill skillId="234" skillLevel="9" skillName="Robe Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="234" skillLevel="10" skillName="Robe Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="234" skillLevel="11" skillName="Robe Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="249" skillLevel="10" skillName="Weapon Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="249" skillLevel="11" skillName="Weapon Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="249" skillLevel="12" skillName="Weapon Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="258" skillLevel="1" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="258" skillLevel="2" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="258" skillLevel="3" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="1111" skillLevel="5" skillName="Summon Kat the Cat" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1126" skillLevel="7" skillName="Servitor Recharge" levelUpSp="16000" getLevel="40" />
+		<skill skillId="1126" skillLevel="8" skillName="Servitor Recharge" levelUpSp="16000" getLevel="40" />
+		<skill skillId="1127" skillLevel="13" skillName="Servitor Heal" levelUpSp="11000" getLevel="40" />
+		<skill skillId="1127" skillLevel="14" skillName="Servitor Heal" levelUpSp="11000" getLevel="40" />
+		<skill skillId="1127" skillLevel="15" skillName="Servitor Heal" levelUpSp="11000" getLevel="40" />
+		<skill skillId="1140" skillLevel="1" skillName="Servitor Physical Shield" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1225" skillLevel="5" skillName="Summon Mew the Cat" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1262" skillLevel="1" skillName="Transfer Pain" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1276" skillLevel="1" skillName="Summon Kai the Cat" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1279" skillLevel="1" skillName="Summon Binding Cubic" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1300" skillLevel="1" skillName="Servitor Cure" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1328" skillLevel="1" skillName="Mass Summon Storm Cubic" levelUpSp="32000" getLevel="40" />
+		<skill skillId="10" skillLevel="2" skillName="Summon Storm Cubic" levelUpSp="41000" getLevel="44" />
+		<skill skillId="143" skillLevel="1" skillName="Cubic Mastery" levelUpSp="41000" getLevel="44" />
+		<skill skillId="146" skillLevel="16" skillName="Anti Magic" levelUpSp="14000" getLevel="44" />
+		<skill skillId="146" skillLevel="17" skillName="Anti Magic" levelUpSp="14000" getLevel="44" />
+		<skill skillId="146" skillLevel="18" skillName="Anti Magic" levelUpSp="14000" getLevel="44" />
+		<skill skillId="212" skillLevel="2" skillName="Fast HP Recovery" levelUpSp="41000" getLevel="44" />
+		<skill skillId="229" skillLevel="3" skillName="Fast Mana Recovery" levelUpSp="41000" getLevel="44" />
+		<skill skillId="234" skillLevel="12" skillName="Robe Mastery" levelUpSp="14000" getLevel="44" />
+		<skill skillId="234" skillLevel="13" skillName="Robe Mastery" levelUpSp="14000" getLevel="44" />
+		<skill skillId="234" skillLevel="14" skillName="Robe Mastery" levelUpSp="14000" getLevel="44" />
+		<skill skillId="249" skillLevel="13" skillName="Weapon Mastery" levelUpSp="14000" getLevel="44" />
+		<skill skillId="249" skillLevel="14" skillName="Weapon Mastery" levelUpSp="14000" getLevel="44" />
+		<skill skillId="249" skillLevel="15" skillName="Weapon Mastery" levelUpSp="14000" getLevel="44" />
+		<skill skillId="258" skillLevel="4" skillName="Light Armor Mastery" levelUpSp="14000" getLevel="44" />
+		<skill skillId="258" skillLevel="5" skillName="Light Armor Mastery" levelUpSp="14000" getLevel="44" />
+		<skill skillId="258" skillLevel="6" skillName="Light Armor Mastery" levelUpSp="14000" getLevel="44" />
+		<skill skillId="1111" skillLevel="6" skillName="Summon Kat the Cat" levelUpSp="41000" getLevel="44" />
+		<skill skillId="1126" skillLevel="9" skillName="Servitor Recharge" levelUpSp="21000" getLevel="44" />
+		<skill skillId="1126" skillLevel="10" skillName="Servitor Recharge" levelUpSp="21000" getLevel="44" />
+		<skill skillId="1127" skillLevel="16" skillName="Servitor Heal" levelUpSp="14000" getLevel="44" />
+		<skill skillId="1127" skillLevel="17" skillName="Servitor Heal" levelUpSp="14000" getLevel="44" />
+		<skill skillId="1127" skillLevel="18" skillName="Servitor Heal" levelUpSp="14000" getLevel="44" />
+		<skill skillId="1139" skillLevel="1" skillName="Servitor Magic Shield" levelUpSp="41000" getLevel="44" />
+		<skill skillId="1141" skillLevel="1" skillName="Servitor Haste" levelUpSp="41000" getLevel="44" />
+		<skill skillId="1225" skillLevel="6" skillName="Summon Mew the Cat" levelUpSp="41000" getLevel="44" />
+		<skill skillId="1276" skillLevel="2" skillName="Summon Kai the Cat" levelUpSp="41000" getLevel="44" />
+		<skill skillId="1279" skillLevel="2" skillName="Summon Binding Cubic" levelUpSp="41000" getLevel="44" />
+		<skill skillId="1328" skillLevel="2" skillName="Mass Summon Storm Cubic" levelUpSp="41000" getLevel="44" />
+		<skill skillId="146" skillLevel="19" skillName="Anti Magic" levelUpSp="25000" getLevel="48" />
+		<skill skillId="146" skillLevel="20" skillName="Anti Magic" levelUpSp="25000" getLevel="48" />
+		<skill skillId="146" skillLevel="21" skillName="Anti Magic" levelUpSp="25000" getLevel="48" />
+		<skill skillId="164" skillLevel="3" skillName="Quick Recovery" levelUpSp="75000" getLevel="48" />
+		<skill skillId="213" skillLevel="4" skillName="Boost Mana" levelUpSp="75000" getLevel="48" />
+		<skill skillId="234" skillLevel="15" skillName="Robe Mastery" levelUpSp="25000" getLevel="48" />
+		<skill skillId="234" skillLevel="16" skillName="Robe Mastery" levelUpSp="25000" getLevel="48" />
+		<skill skillId="234" skillLevel="17" skillName="Robe Mastery" levelUpSp="25000" getLevel="48" />
+		<skill skillId="249" skillLevel="16" skillName="Weapon Mastery" levelUpSp="25000" getLevel="48" />
+		<skill skillId="249" skillLevel="17" skillName="Weapon Mastery" levelUpSp="25000" getLevel="48" />
+		<skill skillId="249" skillLevel="18" skillName="Weapon Mastery" levelUpSp="25000" getLevel="48" />
+		<skill skillId="258" skillLevel="7" skillName="Light Armor Mastery" levelUpSp="25000" getLevel="48" />
+		<skill skillId="258" skillLevel="8" skillName="Light Armor Mastery" levelUpSp="25000" getLevel="48" />
+		<skill skillId="258" skillLevel="9" skillName="Light Armor Mastery" levelUpSp="25000" getLevel="48" />
+		<skill skillId="1111" skillLevel="7" skillName="Summon Kat the Cat" levelUpSp="75000" getLevel="48" />
+		<skill skillId="1126" skillLevel="11" skillName="Servitor Recharge" levelUpSp="38000" getLevel="48" />
+		<skill skillId="1126" skillLevel="12" skillName="Servitor Recharge" levelUpSp="38000" getLevel="48" />
+		<skill skillId="1127" skillLevel="19" skillName="Servitor Heal" levelUpSp="25000" getLevel="48" />
+		<skill skillId="1127" skillLevel="20" skillName="Servitor Heal" levelUpSp="25000" getLevel="48" />
+		<skill skillId="1127" skillLevel="21" skillName="Servitor Heal" levelUpSp="25000" getLevel="48" />
+		<skill skillId="1140" skillLevel="2" skillName="Servitor Physical Shield" levelUpSp="75000" getLevel="48" />
+		<skill skillId="1144" skillLevel="2" skillName="Servitor Wind Walk" levelUpSp="75000" getLevel="48" />
+		<skill skillId="1225" skillLevel="7" skillName="Summon Mew the Cat" levelUpSp="75000" getLevel="48" />
+		<skill skillId="1262" skillLevel="2" skillName="Transfer Pain" levelUpSp="75000" getLevel="48" />
+		<skill skillId="1276" skillLevel="3" skillName="Summon Kai the Cat" levelUpSp="75000" getLevel="48" />
+		<skill skillId="1279" skillLevel="3" skillName="Summon Binding Cubic" levelUpSp="75000" getLevel="48" />
+		<skill skillId="1300" skillLevel="2" skillName="Servitor Cure" levelUpSp="75000" getLevel="48" />
+		<skill skillId="10" skillLevel="3" skillName="Summon Storm Cubic" levelUpSp="106000" getLevel="52" />
+		<skill skillId="146" skillLevel="22" skillName="Anti Magic" levelUpSp="35000" getLevel="52" />
+		<skill skillId="146" skillLevel="23" skillName="Anti Magic" levelUpSp="35000" getLevel="52" />
+		<skill skillId="146" skillLevel="24" skillName="Anti Magic" levelUpSp="35000" getLevel="52" />
+		<skill skillId="212" skillLevel="3" skillName="Fast HP Recovery" levelUpSp="106000" getLevel="52" />
+		<skill skillId="229" skillLevel="4" skillName="Fast Mana Recovery" levelUpSp="106000" getLevel="52" />
+		<skill skillId="234" skillLevel="18" skillName="Robe Mastery" levelUpSp="35000" getLevel="52" />
+		<skill skillId="234" skillLevel="19" skillName="Robe Mastery" levelUpSp="35000" getLevel="52" />
+		<skill skillId="234" skillLevel="20" skillName="Robe Mastery" levelUpSp="35000" getLevel="52" />
+		<skill skillId="249" skillLevel="19" skillName="Weapon Mastery" levelUpSp="35000" getLevel="52" />
+		<skill skillId="249" skillLevel="20" skillName="Weapon Mastery" levelUpSp="35000" getLevel="52" />
+		<skill skillId="249" skillLevel="21" skillName="Weapon Mastery" levelUpSp="35000" getLevel="52" />
+		<skill skillId="258" skillLevel="10" skillName="Light Armor Mastery" levelUpSp="35000" getLevel="52" />
+		<skill skillId="258" skillLevel="11" skillName="Light Armor Mastery" levelUpSp="35000" getLevel="52" />
+		<skill skillId="258" skillLevel="12" skillName="Light Armor Mastery" levelUpSp="35000" getLevel="52" />
+		<skill skillId="1111" skillLevel="8" skillName="Summon Kat the Cat" levelUpSp="106000" getLevel="52" />
+		<skill skillId="1126" skillLevel="13" skillName="Servitor Recharge" levelUpSp="53000" getLevel="52" />
+		<skill skillId="1126" skillLevel="14" skillName="Servitor Recharge" levelUpSp="53000" getLevel="52" />
+		<skill skillId="1127" skillLevel="22" skillName="Servitor Heal" levelUpSp="35000" getLevel="52" />
+		<skill skillId="1127" skillLevel="23" skillName="Servitor Heal" levelUpSp="35000" getLevel="52" />
+		<skill skillId="1127" skillLevel="24" skillName="Servitor Heal" levelUpSp="35000" getLevel="52" />
+		<skill skillId="1139" skillLevel="2" skillName="Servitor Magic Shield" levelUpSp="106000" getLevel="52" />
+		<skill skillId="1141" skillLevel="2" skillName="Servitor Haste" levelUpSp="106000" getLevel="52" />
+		<skill skillId="1225" skillLevel="8" skillName="Summon Mew the Cat" levelUpSp="106000" getLevel="52" />
+		<skill skillId="1276" skillLevel="4" skillName="Summon Kai the Cat" levelUpSp="106000" getLevel="52" />
+		<skill skillId="1279" skillLevel="4" skillName="Summon Binding Cubic" levelUpSp="106000" getLevel="52" />
+		<skill skillId="1299" skillLevel="1" skillName="Servitor Empowerment" levelUpSp="106000" getLevel="52" />
+		<skill skillId="1328" skillLevel="3" skillName="Mass Summon Storm Cubic" levelUpSp="106000" getLevel="52" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="1" getLevel="52" levelUpSp="230000">			<item id="8618" count="1" /> <!-- Ancient Book: Divine Inspiration (Modern Language Version) -->		</skill>
+		<skill skillId="1405" skillLevel="2" skillName="Divine Inspiration" autoGet="true" getLevel="52" />
+		<skill skillId="143" skillLevel="2" skillName="Cubic Mastery" levelUpSp="111000" getLevel="56" />
+		<skill skillId="146" skillLevel="25" skillName="Anti Magic" levelUpSp="37000" getLevel="56" />
+		<skill skillId="146" skillLevel="26" skillName="Anti Magic" levelUpSp="37000" getLevel="56" />
+		<skill skillId="146" skillLevel="27" skillName="Anti Magic" levelUpSp="37000" getLevel="56" />
+		<skill skillId="213" skillLevel="5" skillName="Boost Mana" levelUpSp="111000" getLevel="56" />
+		<skill skillId="228" skillLevel="3" skillName="Fast Spell Casting" levelUpSp="111000" getLevel="56" />
+		<skill skillId="234" skillLevel="21" skillName="Robe Mastery" levelUpSp="37000" getLevel="56" />
+		<skill skillId="234" skillLevel="22" skillName="Robe Mastery" levelUpSp="37000" getLevel="56" />
+		<skill skillId="234" skillLevel="23" skillName="Robe Mastery" levelUpSp="37000" getLevel="56" />
+		<skill skillId="249" skillLevel="22" skillName="Weapon Mastery" levelUpSp="37000" getLevel="56" />
+		<skill skillId="249" skillLevel="23" skillName="Weapon Mastery" levelUpSp="37000" getLevel="56" />
+		<skill skillId="249" skillLevel="24" skillName="Weapon Mastery" levelUpSp="37000" getLevel="56" />
+		<skill skillId="258" skillLevel="13" skillName="Light Armor Mastery" levelUpSp="37000" getLevel="56" />
+		<skill skillId="258" skillLevel="14" skillName="Light Armor Mastery" levelUpSp="37000" getLevel="56" />
+		<skill skillId="258" skillLevel="15" skillName="Light Armor Mastery" levelUpSp="37000" getLevel="56" />
+		<skill skillId="1111" skillLevel="9" skillName="Summon Kat the Cat" levelUpSp="111000" getLevel="56" />
+		<skill skillId="1126" skillLevel="15" skillName="Servitor Recharge" levelUpSp="56000" getLevel="56" />
+		<skill skillId="1126" skillLevel="16" skillName="Servitor Recharge" levelUpSp="56000" getLevel="56" />
+		<skill skillId="1127" skillLevel="25" skillName="Servitor Heal" levelUpSp="37000" getLevel="56" />
+		<skill skillId="1127" skillLevel="26" skillName="Servitor Heal" levelUpSp="37000" getLevel="56" />
+		<skill skillId="1127" skillLevel="27" skillName="Servitor Heal" levelUpSp="37000" getLevel="56" />
+		<skill skillId="1140" skillLevel="3" skillName="Servitor Physical Shield" levelUpSp="111000" getLevel="56" />
+		<skill skillId="1225" skillLevel="9" skillName="Summon Mew the Cat" levelUpSp="111000" getLevel="56" />
+		<skill skillId="1262" skillLevel="3" skillName="Transfer Pain" levelUpSp="111000" getLevel="56" />
+		<skill skillId="1276" skillLevel="5" skillName="Summon Kai the Cat" levelUpSp="111000" getLevel="56" />
+		<skill skillId="1279" skillLevel="5" skillName="Summon Binding Cubic" levelUpSp="111000" getLevel="56" />
+		<skill skillId="1331" skillLevel="1" skillName="Summon Queen of Cat" levelUpSp="111000" getLevel="56" />
+		<skill skillId="1380" skillLevel="1" skillName="Betray" levelUpSp="111000" getLevel="56" />
+		<skill skillId="1386" skillLevel="1" skillName="Arcane Disruption" levelUpSp="111000" getLevel="56" />
+		<skill skillId="1403" skillLevel="1" skillName="Summon Friend" levelUpSp="105000" getLevel="56" />
+		<skill skillId="10" skillLevel="4" skillName="Summon Storm Cubic" levelUpSp="129000" getLevel="58" />
+		<skill skillId="146" skillLevel="28" skillName="Anti Magic" levelUpSp="65000" getLevel="58" />
+		<skill skillId="146" skillLevel="29" skillName="Anti Magic" levelUpSp="65000" getLevel="58" />
+		<skill skillId="212" skillLevel="4" skillName="Fast HP Recovery" levelUpSp="129000" getLevel="58" />
+		<skill skillId="234" skillLevel="24" skillName="Robe Mastery" levelUpSp="65000" getLevel="58" />
+		<skill skillId="234" skillLevel="25" skillName="Robe Mastery" levelUpSp="65000" getLevel="58" />
+		<skill skillId="249" skillLevel="25" skillName="Weapon Mastery" levelUpSp="65000" getLevel="58" />
+		<skill skillId="249" skillLevel="26" skillName="Weapon Mastery" levelUpSp="65000" getLevel="58" />
+		<skill skillId="258" skillLevel="16" skillName="Light Armor Mastery" levelUpSp="65000" getLevel="58" />
+		<skill skillId="258" skillLevel="17" skillName="Light Armor Mastery" levelUpSp="65000" getLevel="58" />
+		<skill skillId="1111" skillLevel="10" skillName="Summon Kat the Cat" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1126" skillLevel="17" skillName="Servitor Recharge" levelUpSp="65000" getLevel="58" />
+		<skill skillId="1126" skillLevel="18" skillName="Servitor Recharge" levelUpSp="65000" getLevel="58" />
+		<skill skillId="1127" skillLevel="28" skillName="Servitor Heal" levelUpSp="65000" getLevel="58" />
+		<skill skillId="1127" skillLevel="29" skillName="Servitor Heal" levelUpSp="65000" getLevel="58" />
+		<skill skillId="1225" skillLevel="10" skillName="Summon Mew the Cat" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1262" skillLevel="4" skillName="Transfer Pain" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1276" skillLevel="6" skillName="Summon Kai the Cat" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1328" skillLevel="4" skillName="Mass Summon Storm Cubic" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1331" skillLevel="2" skillName="Summon Queen of Cat" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1380" skillLevel="2" skillName="Betray" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1383" skillLevel="1" skillName="Mass Surrender to Fire" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1386" skillLevel="2" skillName="Arcane Disruption" levelUpSp="129000" getLevel="58" />
+		<skill skillId="146" skillLevel="30" skillName="Anti Magic" levelUpSp="94000" getLevel="60" />
+		<skill skillId="146" skillLevel="31" skillName="Anti Magic" levelUpSp="94000" getLevel="60" />
+		<skill skillId="213" skillLevel="6" skillName="Boost Mana" levelUpSp="188000" getLevel="60" />
+		<skill skillId="229" skillLevel="5" skillName="Fast Mana Recovery" levelUpSp="188000" getLevel="60" />
+		<skill skillId="234" skillLevel="26" skillName="Robe Mastery" levelUpSp="94000" getLevel="60" />
+		<skill skillId="234" skillLevel="27" skillName="Robe Mastery" levelUpSp="94000" getLevel="60" />
+		<skill skillId="249" skillLevel="27" skillName="Weapon Mastery" levelUpSp="94000" getLevel="60" />
+		<skill skillId="249" skillLevel="28" skillName="Weapon Mastery" levelUpSp="94000" getLevel="60" />
+		<skill skillId="258" skillLevel="18" skillName="Light Armor Mastery" levelUpSp="94000" getLevel="60" />
+		<skill skillId="258" skillLevel="19" skillName="Light Armor Mastery" levelUpSp="94000" getLevel="60" />
+		<skill skillId="1111" skillLevel="11" skillName="Summon Kat the Cat" levelUpSp="188000" getLevel="60" />
+		<skill skillId="1126" skillLevel="19" skillName="Servitor Recharge" levelUpSp="94000" getLevel="60" />
+		<skill skillId="1126" skillLevel="20" skillName="Servitor Recharge" levelUpSp="94000" getLevel="60" />
+		<skill skillId="1127" skillLevel="30" skillName="Servitor Heal" levelUpSp="94000" getLevel="60" />
+		<skill skillId="1127" skillLevel="31" skillName="Servitor Heal" levelUpSp="94000" getLevel="60" />
+		<skill skillId="1225" skillLevel="11" skillName="Summon Mew the Cat" levelUpSp="188000" getLevel="60" />
+		<skill skillId="1276" skillLevel="7" skillName="Summon Kai the Cat" levelUpSp="188000" getLevel="60" />
+		<skill skillId="1279" skillLevel="6" skillName="Summon Binding Cubic" levelUpSp="188000" getLevel="60" />
+		<skill skillId="1300" skillLevel="3" skillName="Servitor Cure" levelUpSp="188000" getLevel="60" />
+		<skill skillId="1331" skillLevel="3" skillName="Summon Queen of Cat" levelUpSp="188000" getLevel="60" />
+		<skill skillId="1380" skillLevel="3" skillName="Betray" levelUpSp="188000" getLevel="60" />
+		<skill skillId="1386" skillLevel="3" skillName="Arcane Disruption" levelUpSp="188000" getLevel="60" />
+		<skill skillId="10" skillLevel="5" skillName="Summon Storm Cubic" levelUpSp="250000" getLevel="62" />
+		<skill skillId="146" skillLevel="32" skillName="Anti Magic" levelUpSp="130000" getLevel="62" />
+		<skill skillId="146" skillLevel="33" skillName="Anti Magic" levelUpSp="130000" getLevel="62" />
+		<skill skillId="234" skillLevel="28" skillName="Robe Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="234" skillLevel="29" skillName="Robe Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="249" skillLevel="29" skillName="Weapon Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="249" skillLevel="30" skillName="Weapon Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="258" skillLevel="20" skillName="Light Armor Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="258" skillLevel="21" skillName="Light Armor Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="1111" skillLevel="12" skillName="Summon Kat the Cat" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1126" skillLevel="21" skillName="Servitor Recharge" levelUpSp="130000" getLevel="62" />
+		<skill skillId="1126" skillLevel="22" skillName="Servitor Recharge" levelUpSp="130000" getLevel="62" />
+		<skill skillId="1127" skillLevel="32" skillName="Servitor Heal" levelUpSp="130000" getLevel="62" />
+		<skill skillId="1127" skillLevel="33" skillName="Servitor Heal" levelUpSp="130000" getLevel="62" />
+		<skill skillId="1225" skillLevel="12" skillName="Summon Mew the Cat" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1276" skillLevel="8" skillName="Summon Kai the Cat" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1301" skillLevel="1" skillName="Servitor Blessing" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1328" skillLevel="5" skillName="Mass Summon Storm Cubic" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1331" skillLevel="4" skillName="Summon Queen of Cat" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1380" skillLevel="4" skillName="Betray" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1383" skillLevel="2" skillName="Mass Surrender to Fire" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1386" skillLevel="4" skillName="Arcane Disruption" levelUpSp="250000" getLevel="62" />
+		<skill skillId="146" skillLevel="34" skillName="Anti Magic" levelUpSp="170000" getLevel="64" />
+		<skill skillId="146" skillLevel="35" skillName="Anti Magic" levelUpSp="170000" getLevel="64" />
+		<skill skillId="212" skillLevel="5" skillName="Fast HP Recovery" levelUpSp="340000" getLevel="64" />
+		<skill skillId="234" skillLevel="30" skillName="Robe Mastery" levelUpSp="170000" getLevel="64" />
+		<skill skillId="234" skillLevel="31" skillName="Robe Mastery" levelUpSp="170000" getLevel="64" />
+		<skill skillId="249" skillLevel="31" skillName="Weapon Mastery" levelUpSp="170000" getLevel="64" />
+		<skill skillId="249" skillLevel="32" skillName="Weapon Mastery" levelUpSp="170000" getLevel="64" />
+		<skill skillId="258" skillLevel="22" skillName="Light Armor Mastery" levelUpSp="170000" getLevel="64" />
+		<skill skillId="258" skillLevel="23" skillName="Light Armor Mastery" levelUpSp="170000" getLevel="64" />
+		<skill skillId="1111" skillLevel="13" skillName="Summon Kat the Cat" levelUpSp="340000" getLevel="64" />
+		<skill skillId="1126" skillLevel="23" skillName="Servitor Recharge" levelUpSp="170000" getLevel="64" />
+		<skill skillId="1126" skillLevel="24" skillName="Servitor Recharge" levelUpSp="170000" getLevel="64" />
+		<skill skillId="1127" skillLevel="34" skillName="Servitor Heal" levelUpSp="170000" getLevel="64" />
+		<skill skillId="1127" skillLevel="35" skillName="Servitor Heal" levelUpSp="170000" getLevel="64" />
+		<skill skillId="1225" skillLevel="13" skillName="Summon Mew the Cat" levelUpSp="340000" getLevel="64" />
+		<skill skillId="1276" skillLevel="9" skillName="Summon Kai the Cat" levelUpSp="340000" getLevel="64" />
+		<skill skillId="1279" skillLevel="7" skillName="Summon Binding Cubic" levelUpSp="340000" getLevel="64" />
+		<skill skillId="1331" skillLevel="5" skillName="Summon Queen of Cat" levelUpSp="340000" getLevel="64" />
+		<skill skillId="1380" skillLevel="5" skillName="Betray" levelUpSp="340000" getLevel="64" />
+		<skill skillId="1386" skillLevel="5" skillName="Arcane Disruption" levelUpSp="340000" getLevel="64" />
+		<skill skillId="10" skillLevel="6" skillName="Summon Storm Cubic" levelUpSp="440000" getLevel="66" />
+		<skill skillId="146" skillLevel="36" skillName="Anti Magic" levelUpSp="220000" getLevel="66" />
+		<skill skillId="146" skillLevel="37" skillName="Anti Magic" levelUpSp="220000" getLevel="66" />
+		<skill skillId="213" skillLevel="7" skillName="Boost Mana" levelUpSp="440000" getLevel="66" />
+		<skill skillId="234" skillLevel="32" skillName="Robe Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="234" skillLevel="33" skillName="Robe Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="249" skillLevel="33" skillName="Weapon Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="249" skillLevel="34" skillName="Weapon Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="258" skillLevel="24" skillName="Light Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="258" skillLevel="25" skillName="Light Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="1111" skillLevel="14" skillName="Summon Kat the Cat" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1126" skillLevel="25" skillName="Servitor Recharge" levelUpSp="220000" getLevel="66" />
+		<skill skillId="1126" skillLevel="26" skillName="Servitor Recharge" levelUpSp="220000" getLevel="66" />
+		<skill skillId="1127" skillLevel="36" skillName="Servitor Heal" levelUpSp="220000" getLevel="66" />
+		<skill skillId="1127" skillLevel="37" skillName="Servitor Heal" levelUpSp="220000" getLevel="66" />
+		<skill skillId="1225" skillLevel="14" skillName="Summon Mew the Cat" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1276" skillLevel="10" skillName="Summon Kai the Cat" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1328" skillLevel="6" skillName="Mass Summon Storm Cubic" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1331" skillLevel="6" skillName="Summon Queen of Cat" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1380" skillLevel="6" skillName="Betray" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1383" skillLevel="3" skillName="Mass Surrender to Fire" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1386" skillLevel="6" skillName="Arcane Disruption" levelUpSp="440000" getLevel="66" />
+		<skill skillId="146" skillLevel="38" skillName="Anti Magic" levelUpSp="280000" getLevel="68" />
+		<skill skillId="146" skillLevel="39" skillName="Anti Magic" levelUpSp="280000" getLevel="68" />
+		<skill skillId="229" skillLevel="6" skillName="Fast Mana Recovery" levelUpSp="550000" getLevel="68" />
+		<skill skillId="234" skillLevel="34" skillName="Robe Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="234" skillLevel="35" skillName="Robe Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="249" skillLevel="35" skillName="Weapon Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="249" skillLevel="36" skillName="Weapon Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="258" skillLevel="26" skillName="Light Armor Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="258" skillLevel="27" skillName="Light Armor Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="1111" skillLevel="15" skillName="Summon Kat the Cat" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1126" skillLevel="27" skillName="Servitor Recharge" levelUpSp="280000" getLevel="68" />
+		<skill skillId="1126" skillLevel="28" skillName="Servitor Recharge" levelUpSp="280000" getLevel="68" />
+		<skill skillId="1127" skillLevel="38" skillName="Servitor Heal" levelUpSp="280000" getLevel="68" />
+		<skill skillId="1127" skillLevel="39" skillName="Servitor Heal" levelUpSp="280000" getLevel="68" />
+		<skill skillId="1225" skillLevel="15" skillName="Summon Mew the Cat" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1276" skillLevel="11" skillName="Summon Kai the Cat" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1279" skillLevel="8" skillName="Summon Binding Cubic" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1331" skillLevel="7" skillName="Summon Queen of Cat" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1380" skillLevel="7" skillName="Betray" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1386" skillLevel="7" skillName="Arcane Disruption" levelUpSp="550000" getLevel="68" />
+		<skill skillId="10" skillLevel="7" skillName="Summon Storm Cubic" levelUpSp="550000" getLevel="70" />
+		<skill skillId="146" skillLevel="40" skillName="Anti Magic" levelUpSp="280000" getLevel="70" />
+		<skill skillId="146" skillLevel="41" skillName="Anti Magic" levelUpSp="280000" getLevel="70" />
+		<skill skillId="234" skillLevel="36" skillName="Robe Mastery" levelUpSp="280000" getLevel="70" />
+		<skill skillId="234" skillLevel="37" skillName="Robe Mastery" levelUpSp="280000" getLevel="70" />
+		<skill skillId="249" skillLevel="37" skillName="Weapon Mastery" levelUpSp="280000" getLevel="70" />
+		<skill skillId="249" skillLevel="38" skillName="Weapon Mastery" levelUpSp="280000" getLevel="70" />
+		<skill skillId="258" skillLevel="28" skillName="Light Armor Mastery" levelUpSp="280000" getLevel="70" />
+		<skill skillId="258" skillLevel="29" skillName="Light Armor Mastery" levelUpSp="280000" getLevel="70" />
+		<skill skillId="1111" skillLevel="16" skillName="Summon Kat the Cat" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1126" skillLevel="29" skillName="Servitor Recharge" levelUpSp="280000" getLevel="70" />
+		<skill skillId="1126" skillLevel="30" skillName="Servitor Recharge" levelUpSp="280000" getLevel="70" />
+		<skill skillId="1127" skillLevel="40" skillName="Servitor Heal" levelUpSp="280000" getLevel="70" />
+		<skill skillId="1127" skillLevel="41" skillName="Servitor Heal" levelUpSp="280000" getLevel="70" />
+		<skill skillId="1225" skillLevel="16" skillName="Summon Mew the Cat" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1262" skillLevel="5" skillName="Transfer Pain" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1276" skillLevel="12" skillName="Summon Kai the Cat" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1299" skillLevel="2" skillName="Servitor Empowerment" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1328" skillLevel="7" skillName="Mass Summon Storm Cubic" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1331" skillLevel="8" skillName="Summon Queen of Cat" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1380" skillLevel="8" skillName="Betray" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1383" skillLevel="4" skillName="Mass Surrender to Fire" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1386" skillLevel="8" skillName="Arcane Disruption" levelUpSp="550000" getLevel="70" />
+		<skill skillId="146" skillLevel="42" skillName="Anti Magic" levelUpSp="540000" getLevel="72" />
+		<skill skillId="146" skillLevel="43" skillName="Anti Magic" levelUpSp="540000" getLevel="72" />
+		<skill skillId="213" skillLevel="8" skillName="Boost Mana" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="234" skillLevel="38" skillName="Robe Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="234" skillLevel="39" skillName="Robe Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="249" skillLevel="39" skillName="Weapon Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="249" skillLevel="40" skillName="Weapon Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="258" skillLevel="30" skillName="Light Armor Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="258" skillLevel="31" skillName="Light Armor Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="1111" skillLevel="17" skillName="Summon Kat the Cat" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1126" skillLevel="31" skillName="Servitor Recharge" levelUpSp="540000" getLevel="72" />
+		<skill skillId="1126" skillLevel="32" skillName="Servitor Recharge" levelUpSp="540000" getLevel="72" />
+		<skill skillId="1127" skillLevel="42" skillName="Servitor Heal" levelUpSp="540000" getLevel="72" />
+		<skill skillId="1127" skillLevel="43" skillName="Servitor Heal" levelUpSp="540000" getLevel="72" />
+		<skill skillId="1225" skillLevel="17" skillName="Summon Mew the Cat" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1276" skillLevel="13" skillName="Summon Kai the Cat" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1279" skillLevel="9" skillName="Summon Binding Cubic" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1331" skillLevel="9" skillName="Summon Queen of Cat" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1380" skillLevel="9" skillName="Betray" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1386" skillLevel="9" skillName="Arcane Disruption" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="10" skillLevel="8" skillName="Summon Storm Cubic" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="146" skillLevel="44" skillName="Anti Magic" levelUpSp="680000" getLevel="74" />
+		<skill skillId="146" skillLevel="45" skillName="Anti Magic" levelUpSp="680000" getLevel="74" />
+		<skill skillId="212" skillLevel="6" skillName="Fast HP Recovery" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="229" skillLevel="7" skillName="Fast Mana Recovery" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="234" skillLevel="40" skillName="Robe Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="234" skillLevel="41" skillName="Robe Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="249" skillLevel="41" skillName="Weapon Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="249" skillLevel="42" skillName="Weapon Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="258" skillLevel="32" skillName="Light Armor Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="258" skillLevel="33" skillName="Light Armor Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="1111" skillLevel="18" skillName="Summon Kat the Cat" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1126" skillLevel="33" skillName="Servitor Recharge" levelUpSp="680000" getLevel="74" />
+		<skill skillId="1126" skillLevel="34" skillName="Servitor Recharge" levelUpSp="680000" getLevel="74" />
+		<skill skillId="1127" skillLevel="44" skillName="Servitor Heal" levelUpSp="680000" getLevel="74" />
+		<skill skillId="1127" skillLevel="45" skillName="Servitor Heal" levelUpSp="680000" getLevel="74" />
+		<skill skillId="1225" skillLevel="18" skillName="Summon Mew the Cat" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1276" skillLevel="14" skillName="Summon Kai the Cat" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1328" skillLevel="8" skillName="Mass Summon Storm Cubic" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1331" skillLevel="10" skillName="Summon Queen of Cat" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1380" skillLevel="10" skillName="Betray" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1383" skillLevel="5" skillName="Mass Surrender to Fire" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1386" skillLevel="10" skillName="Arcane Disruption" levelUpSp="1350000" getLevel="74" />
+	</skillTree>
+</list>

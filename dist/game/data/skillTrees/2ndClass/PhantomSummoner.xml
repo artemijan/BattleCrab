@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="41" parentClassId="39">
+		<skill skillId="33" skillLevel="1" skillName="Summon Phantom Cubic" levelUpSp="30000" getLevel="40" />
+		<skill skillId="146" skillLevel="13" skillName="Anti Magic" levelUpSp="10000" getLevel="40" />
+		<skill skillId="146" skillLevel="14" skillName="Anti Magic" levelUpSp="10000" getLevel="40" />
+		<skill skillId="146" skillLevel="15" skillName="Anti Magic" levelUpSp="10000" getLevel="40" />
+		<skill skillId="213" skillLevel="3" skillName="Boost Mana" levelUpSp="30000" getLevel="40" />
+		<skill skillId="228" skillLevel="2" skillName="Fast Spell Casting" levelUpSp="30000" getLevel="40" />
+		<skill skillId="234" skillLevel="9" skillName="Robe Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="234" skillLevel="10" skillName="Robe Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="234" skillLevel="11" skillName="Robe Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="249" skillLevel="10" skillName="Weapon Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="249" skillLevel="11" skillName="Weapon Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="249" skillLevel="12" skillName="Weapon Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="258" skillLevel="1" skillName="Light Armor Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="258" skillLevel="2" skillName="Light Armor Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="258" skillLevel="3" skillName="Light Armor Mastery" levelUpSp="10000" getLevel="40" />
+		<skill skillId="1126" skillLevel="7" skillName="Servitor Recharge" levelUpSp="15000" getLevel="40" />
+		<skill skillId="1126" skillLevel="8" skillName="Servitor Recharge" levelUpSp="15000" getLevel="40" />
+		<skill skillId="1127" skillLevel="13" skillName="Servitor Heal" levelUpSp="10000" getLevel="40" />
+		<skill skillId="1127" skillLevel="14" skillName="Servitor Heal" levelUpSp="10000" getLevel="40" />
+		<skill skillId="1127" skillLevel="15" skillName="Servitor Heal" levelUpSp="10000" getLevel="40" />
+		<skill skillId="1128" skillLevel="5" skillName="Summon Shadow" levelUpSp="30000" getLevel="40" />
+		<skill skillId="1140" skillLevel="1" skillName="Servitor Physical Shield" levelUpSp="30000" getLevel="40" />
+		<skill skillId="1206" skillLevel="6" skillName="Wind Shackle" levelUpSp="30000" getLevel="40" />
+		<skill skillId="1228" skillLevel="5" skillName="Summon Silhouette" levelUpSp="30000" getLevel="40" />
+		<skill skillId="1262" skillLevel="1" skillName="Transfer Pain" levelUpSp="30000" getLevel="40" />
+		<skill skillId="1278" skillLevel="1" skillName="Summon Soulless" levelUpSp="30000" getLevel="40" />
+		<skill skillId="1281" skillLevel="1" skillName="Summon Spark Cubic" levelUpSp="30000" getLevel="40" />
+		<skill skillId="1300" skillLevel="1" skillName="Servitor Cure" levelUpSp="30000" getLevel="40" />
+		<skill skillId="1330" skillLevel="1" skillName="Mass Summon Phantom Cubic" levelUpSp="30000" getLevel="40" />
+		<skill skillId="33" skillLevel="2" skillName="Summon Phantom Cubic" levelUpSp="39000" getLevel="44" />
+		<skill skillId="143" skillLevel="1" skillName="Cubic Mastery" levelUpSp="39000" getLevel="44" />
+		<skill skillId="146" skillLevel="16" skillName="Anti Magic" levelUpSp="13000" getLevel="44" />
+		<skill skillId="146" skillLevel="17" skillName="Anti Magic" levelUpSp="13000" getLevel="44" />
+		<skill skillId="146" skillLevel="18" skillName="Anti Magic" levelUpSp="13000" getLevel="44" />
+		<skill skillId="212" skillLevel="2" skillName="Fast HP Recovery" levelUpSp="39000" getLevel="44" />
+		<skill skillId="229" skillLevel="3" skillName="Fast Mana Recovery" levelUpSp="39000" getLevel="44" />
+		<skill skillId="234" skillLevel="12" skillName="Robe Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="234" skillLevel="13" skillName="Robe Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="234" skillLevel="14" skillName="Robe Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="249" skillLevel="13" skillName="Weapon Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="249" skillLevel="14" skillName="Weapon Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="249" skillLevel="15" skillName="Weapon Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="258" skillLevel="4" skillName="Light Armor Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="258" skillLevel="5" skillName="Light Armor Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="258" skillLevel="6" skillName="Light Armor Mastery" levelUpSp="13000" getLevel="44" />
+		<skill skillId="1126" skillLevel="9" skillName="Servitor Recharge" levelUpSp="19000" getLevel="44" />
+		<skill skillId="1126" skillLevel="10" skillName="Servitor Recharge" levelUpSp="19000" getLevel="44" />
+		<skill skillId="1127" skillLevel="16" skillName="Servitor Heal" levelUpSp="13000" getLevel="44" />
+		<skill skillId="1127" skillLevel="17" skillName="Servitor Heal" levelUpSp="13000" getLevel="44" />
+		<skill skillId="1127" skillLevel="18" skillName="Servitor Heal" levelUpSp="13000" getLevel="44" />
+		<skill skillId="1128" skillLevel="6" skillName="Summon Shadow" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1139" skillLevel="1" skillName="Servitor Magic Shield" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1141" skillLevel="1" skillName="Servitor Haste" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1206" skillLevel="7" skillName="Wind Shackle" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1228" skillLevel="6" skillName="Summon Silhouette" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1278" skillLevel="2" skillName="Summon Soulless" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1281" skillLevel="2" skillName="Summon Spark Cubic" levelUpSp="39000" getLevel="44" />
+		<skill skillId="1330" skillLevel="2" skillName="Mass Summon Phantom Cubic" levelUpSp="39000" getLevel="44" />
+		<skill skillId="146" skillLevel="19" skillName="Anti Magic" levelUpSp="24000" getLevel="48" />
+		<skill skillId="146" skillLevel="20" skillName="Anti Magic" levelUpSp="24000" getLevel="48" />
+		<skill skillId="146" skillLevel="21" skillName="Anti Magic" levelUpSp="24000" getLevel="48" />
+		<skill skillId="164" skillLevel="3" skillName="Quick Recovery" levelUpSp="71000" getLevel="48" />
+		<skill skillId="213" skillLevel="4" skillName="Boost Mana" levelUpSp="71000" getLevel="48" />
+		<skill skillId="234" skillLevel="15" skillName="Robe Mastery" levelUpSp="24000" getLevel="48" />
+		<skill skillId="234" skillLevel="16" skillName="Robe Mastery" levelUpSp="24000" getLevel="48" />
+		<skill skillId="234" skillLevel="17" skillName="Robe Mastery" levelUpSp="24000" getLevel="48" />
+		<skill skillId="249" skillLevel="16" skillName="Weapon Mastery" levelUpSp="24000" getLevel="48" />
+		<skill skillId="249" skillLevel="17" skillName="Weapon Mastery" levelUpSp="24000" getLevel="48" />
+		<skill skillId="249" skillLevel="18" skillName="Weapon Mastery" levelUpSp="24000" getLevel="48" />
+		<skill skillId="258" skillLevel="7" skillName="Light Armor Mastery" levelUpSp="24000" getLevel="48" />
+		<skill skillId="258" skillLevel="8" skillName="Light Armor Mastery" levelUpSp="24000" getLevel="48" />
+		<skill skillId="258" skillLevel="9" skillName="Light Armor Mastery" levelUpSp="24000" getLevel="48" />
+		<skill skillId="1126" skillLevel="11" skillName="Servitor Recharge" levelUpSp="35000" getLevel="48" />
+		<skill skillId="1126" skillLevel="12" skillName="Servitor Recharge" levelUpSp="35000" getLevel="48" />
+		<skill skillId="1127" skillLevel="19" skillName="Servitor Heal" levelUpSp="24000" getLevel="48" />
+		<skill skillId="1127" skillLevel="20" skillName="Servitor Heal" levelUpSp="24000" getLevel="48" />
+		<skill skillId="1127" skillLevel="21" skillName="Servitor Heal" levelUpSp="24000" getLevel="48" />
+		<skill skillId="1128" skillLevel="7" skillName="Summon Shadow" levelUpSp="71000" getLevel="48" />
+		<skill skillId="1140" skillLevel="2" skillName="Servitor Physical Shield" levelUpSp="71000" getLevel="48" />
+		<skill skillId="1146" skillLevel="2" skillName="Mighty Servitor" levelUpSp="71000" getLevel="48" />
+		<skill skillId="1206" skillLevel="8" skillName="Wind Shackle" levelUpSp="71000" getLevel="48" />
+		<skill skillId="1228" skillLevel="7" skillName="Summon Silhouette" levelUpSp="71000" getLevel="48" />
+		<skill skillId="1262" skillLevel="2" skillName="Transfer Pain" levelUpSp="71000" getLevel="48" />
+		<skill skillId="1278" skillLevel="3" skillName="Summon Soulless" levelUpSp="71000" getLevel="48" />
+		<skill skillId="1281" skillLevel="3" skillName="Summon Spark Cubic" levelUpSp="71000" getLevel="48" />
+		<skill skillId="1300" skillLevel="2" skillName="Servitor Cure" levelUpSp="71000" getLevel="48" />
+		<skill skillId="33" skillLevel="3" skillName="Summon Phantom Cubic" levelUpSp="100000" getLevel="52" />
+		<skill skillId="146" skillLevel="22" skillName="Anti Magic" levelUpSp="33000" getLevel="52" />
+		<skill skillId="146" skillLevel="23" skillName="Anti Magic" levelUpSp="33000" getLevel="52" />
+		<skill skillId="146" skillLevel="24" skillName="Anti Magic" levelUpSp="33000" getLevel="52" />
+		<skill skillId="212" skillLevel="3" skillName="Fast HP Recovery" levelUpSp="100000" getLevel="52" />
+		<skill skillId="229" skillLevel="4" skillName="Fast Mana Recovery" levelUpSp="100000" getLevel="52" />
+		<skill skillId="234" skillLevel="18" skillName="Robe Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="234" skillLevel="19" skillName="Robe Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="234" skillLevel="20" skillName="Robe Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="249" skillLevel="19" skillName="Weapon Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="249" skillLevel="20" skillName="Weapon Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="249" skillLevel="21" skillName="Weapon Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="258" skillLevel="10" skillName="Light Armor Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="258" skillLevel="11" skillName="Light Armor Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="258" skillLevel="12" skillName="Light Armor Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="1126" skillLevel="13" skillName="Servitor Recharge" levelUpSp="50000" getLevel="52" />
+		<skill skillId="1126" skillLevel="14" skillName="Servitor Recharge" levelUpSp="50000" getLevel="52" />
+		<skill skillId="1127" skillLevel="22" skillName="Servitor Heal" levelUpSp="33000" getLevel="52" />
+		<skill skillId="1127" skillLevel="23" skillName="Servitor Heal" levelUpSp="33000" getLevel="52" />
+		<skill skillId="1127" skillLevel="24" skillName="Servitor Heal" levelUpSp="33000" getLevel="52" />
+		<skill skillId="1128" skillLevel="8" skillName="Summon Shadow" levelUpSp="100000" getLevel="52" />
+		<skill skillId="1139" skillLevel="2" skillName="Servitor Magic Shield" levelUpSp="100000" getLevel="52" />
+		<skill skillId="1141" skillLevel="2" skillName="Servitor Haste" levelUpSp="100000" getLevel="52" />
+		<skill skillId="1206" skillLevel="9" skillName="Wind Shackle" levelUpSp="100000" getLevel="52" />
+		<skill skillId="1228" skillLevel="8" skillName="Summon Silhouette" levelUpSp="100000" getLevel="52" />
+		<skill skillId="1278" skillLevel="4" skillName="Summon Soulless" levelUpSp="100000" getLevel="52" />
+		<skill skillId="1281" skillLevel="4" skillName="Summon Spark Cubic" levelUpSp="100000" getLevel="52" />
+		<skill skillId="1299" skillLevel="1" skillName="Servitor Empowerment" levelUpSp="100000" getLevel="52" />
+		<skill skillId="1330" skillLevel="3" skillName="Mass Summon Phantom Cubic" levelUpSp="100000" getLevel="52" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="1" getLevel="52" levelUpSp="230000">			<item id="8618" count="1" /> <!-- Ancient Book: Divine Inspiration (Modern Language Version) -->		</skill>
+		<skill skillId="143" skillLevel="2" skillName="Cubic Mastery" levelUpSp="105000" getLevel="56" />
+		<skill skillId="146" skillLevel="25" skillName="Anti Magic" levelUpSp="35000" getLevel="56" />
+		<skill skillId="146" skillLevel="26" skillName="Anti Magic" levelUpSp="35000" getLevel="56" />
+		<skill skillId="146" skillLevel="27" skillName="Anti Magic" levelUpSp="35000" getLevel="56" />
+		<skill skillId="213" skillLevel="5" skillName="Boost Mana" levelUpSp="105000" getLevel="56" />
+		<skill skillId="228" skillLevel="3" skillName="Fast Spell Casting" levelUpSp="105000" getLevel="56" />
+		<skill skillId="234" skillLevel="21" skillName="Robe Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="234" skillLevel="22" skillName="Robe Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="234" skillLevel="23" skillName="Robe Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="249" skillLevel="22" skillName="Weapon Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="249" skillLevel="23" skillName="Weapon Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="249" skillLevel="24" skillName="Weapon Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="258" skillLevel="13" skillName="Light Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="258" skillLevel="14" skillName="Light Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="258" skillLevel="15" skillName="Light Armor Mastery" levelUpSp="35000" getLevel="56" />
+		<skill skillId="1126" skillLevel="15" skillName="Servitor Recharge" levelUpSp="53000" getLevel="56" />
+		<skill skillId="1126" skillLevel="16" skillName="Servitor Recharge" levelUpSp="53000" getLevel="56" />
+		<skill skillId="1127" skillLevel="25" skillName="Servitor Heal" levelUpSp="35000" getLevel="56" />
+		<skill skillId="1127" skillLevel="26" skillName="Servitor Heal" levelUpSp="35000" getLevel="56" />
+		<skill skillId="1127" skillLevel="27" skillName="Servitor Heal" levelUpSp="35000" getLevel="56" />
+		<skill skillId="1128" skillLevel="9" skillName="Summon Shadow" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1140" skillLevel="3" skillName="Servitor Physical Shield" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1146" skillLevel="3" skillName="Mighty Servitor" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1206" skillLevel="10" skillName="Wind Shackle" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1228" skillLevel="9" skillName="Summon Silhouette" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1262" skillLevel="3" skillName="Transfer Pain" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1278" skillLevel="5" skillName="Summon Soulless" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1281" skillLevel="5" skillName="Summon Spark Cubic" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1333" skillLevel="1" skillName="Summon Nightshade" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1380" skillLevel="1" skillName="Betray" levelUpSp="105000" getLevel="56" />
+		<skill skillId="1403" skillLevel="1" skillName="Summon Friend" levelUpSp="105000" getLevel="56" />
+		<skill skillId="33" skillLevel="4" skillName="Summon Phantom Cubic" levelUpSp="129000" getLevel="58" />
+		<skill skillId="146" skillLevel="28" skillName="Anti Magic" levelUpSp="65000" getLevel="58" />
+		<skill skillId="146" skillLevel="29" skillName="Anti Magic" levelUpSp="65000" getLevel="58" />
+		<skill skillId="212" skillLevel="4" skillName="Fast HP Recovery" levelUpSp="129000" getLevel="58" />
+		<skill skillId="234" skillLevel="24" skillName="Robe Mastery" levelUpSp="65000" getLevel="58" />
+		<skill skillId="234" skillLevel="25" skillName="Robe Mastery" levelUpSp="65000" getLevel="58" />
+		<skill skillId="249" skillLevel="25" skillName="Weapon Mastery" levelUpSp="65000" getLevel="58" />
+		<skill skillId="249" skillLevel="26" skillName="Weapon Mastery" levelUpSp="65000" getLevel="58" />
+		<skill skillId="258" skillLevel="16" skillName="Light Armor Mastery" levelUpSp="65000" getLevel="58" />
+		<skill skillId="258" skillLevel="17" skillName="Light Armor Mastery" levelUpSp="65000" getLevel="58" />
+		<skill skillId="1126" skillLevel="17" skillName="Servitor Recharge" levelUpSp="65000" getLevel="58" />
+		<skill skillId="1126" skillLevel="18" skillName="Servitor Recharge" levelUpSp="65000" getLevel="58" />
+		<skill skillId="1127" skillLevel="28" skillName="Servitor Heal" levelUpSp="65000" getLevel="58" />
+		<skill skillId="1127" skillLevel="29" skillName="Servitor Heal" levelUpSp="65000" getLevel="58" />
+		<skill skillId="1128" skillLevel="10" skillName="Summon Shadow" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1206" skillLevel="11" skillName="Wind Shackle" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1228" skillLevel="10" skillName="Summon Silhouette" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1262" skillLevel="4" skillName="Transfer Pain" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1278" skillLevel="6" skillName="Summon Soulless" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1330" skillLevel="4" skillName="Mass Summon Phantom Cubic" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1333" skillLevel="2" skillName="Summon Nightshade" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1380" skillLevel="2" skillName="Betray" levelUpSp="129000" getLevel="58" />
+		<skill skillId="1385" skillLevel="1" skillName="Mass Surrender to Wind" levelUpSp="129000" getLevel="58" />
+		<skill skillId="146" skillLevel="30" skillName="Anti Magic" levelUpSp="94000" getLevel="60" />
+		<skill skillId="146" skillLevel="31" skillName="Anti Magic" levelUpSp="94000" getLevel="60" />
+		<skill skillId="213" skillLevel="6" skillName="Boost Mana" levelUpSp="188000" getLevel="60" />
+		<skill skillId="229" skillLevel="5" skillName="Fast Mana Recovery" levelUpSp="188000" getLevel="60" />
+		<skill skillId="234" skillLevel="26" skillName="Robe Mastery" levelUpSp="94000" getLevel="60" />
+		<skill skillId="234" skillLevel="27" skillName="Robe Mastery" levelUpSp="94000" getLevel="60" />
+		<skill skillId="249" skillLevel="27" skillName="Weapon Mastery" levelUpSp="94000" getLevel="60" />
+		<skill skillId="249" skillLevel="28" skillName="Weapon Mastery" levelUpSp="94000" getLevel="60" />
+		<skill skillId="258" skillLevel="18" skillName="Light Armor Mastery" levelUpSp="94000" getLevel="60" />
+		<skill skillId="258" skillLevel="19" skillName="Light Armor Mastery" levelUpSp="94000" getLevel="60" />
+		<skill skillId="1126" skillLevel="19" skillName="Servitor Recharge" levelUpSp="94000" getLevel="60" />
+		<skill skillId="1126" skillLevel="20" skillName="Servitor Recharge" levelUpSp="94000" getLevel="60" />
+		<skill skillId="1127" skillLevel="30" skillName="Servitor Heal" levelUpSp="94000" getLevel="60" />
+		<skill skillId="1127" skillLevel="31" skillName="Servitor Heal" levelUpSp="94000" getLevel="60" />
+		<skill skillId="1128" skillLevel="11" skillName="Summon Shadow" levelUpSp="188000" getLevel="60" />
+		<skill skillId="1206" skillLevel="12" skillName="Wind Shackle" levelUpSp="188000" getLevel="60" />
+		<skill skillId="1228" skillLevel="11" skillName="Summon Silhouette" levelUpSp="188000" getLevel="60" />
+		<skill skillId="1278" skillLevel="7" skillName="Summon Soulless" levelUpSp="188000" getLevel="60" />
+		<skill skillId="1281" skillLevel="6" skillName="Summon Spark Cubic" levelUpSp="188000" getLevel="60" />
+		<skill skillId="1300" skillLevel="3" skillName="Servitor Cure" levelUpSp="188000" getLevel="60" />
+		<skill skillId="1333" skillLevel="3" skillName="Summon Nightshade" levelUpSp="188000" getLevel="60" />
+		<skill skillId="1380" skillLevel="3" skillName="Betray" levelUpSp="188000" getLevel="60" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="2" getLevel="61" levelUpSp="640000">			<item id="8619" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Language Version) -->		</skill>
+		<skill skillId="33" skillLevel="5" skillName="Summon Phantom Cubic" levelUpSp="250000" getLevel="62" />
+		<skill skillId="146" skillLevel="32" skillName="Anti Magic" levelUpSp="130000" getLevel="62" />
+		<skill skillId="146" skillLevel="33" skillName="Anti Magic" levelUpSp="130000" getLevel="62" />
+		<skill skillId="234" skillLevel="28" skillName="Robe Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="234" skillLevel="29" skillName="Robe Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="249" skillLevel="29" skillName="Weapon Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="249" skillLevel="30" skillName="Weapon Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="258" skillLevel="20" skillName="Light Armor Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="258" skillLevel="21" skillName="Light Armor Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="1126" skillLevel="21" skillName="Servitor Recharge" levelUpSp="130000" getLevel="62" />
+		<skill skillId="1126" skillLevel="22" skillName="Servitor Recharge" levelUpSp="130000" getLevel="62" />
+		<skill skillId="1127" skillLevel="32" skillName="Servitor Heal" levelUpSp="130000" getLevel="62" />
+		<skill skillId="1127" skillLevel="33" skillName="Servitor Heal" levelUpSp="130000" getLevel="62" />
+		<skill skillId="1128" skillLevel="12" skillName="Summon Shadow" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1206" skillLevel="13" skillName="Wind Shackle" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1228" skillLevel="12" skillName="Summon Silhouette" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1278" skillLevel="8" skillName="Summon Soulless" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1301" skillLevel="1" skillName="Servitor Blessing" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1330" skillLevel="5" skillName="Mass Summon Phantom Cubic" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1333" skillLevel="4" skillName="Summon Nightshade" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1380" skillLevel="4" skillName="Betray" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1385" skillLevel="2" skillName="Mass Surrender to Wind" levelUpSp="250000" getLevel="62" />
+		<skill skillId="146" skillLevel="34" skillName="Anti Magic" levelUpSp="170000" getLevel="64" />
+		<skill skillId="146" skillLevel="35" skillName="Anti Magic" levelUpSp="170000" getLevel="64" />
+		<skill skillId="212" skillLevel="5" skillName="Fast HP Recovery" levelUpSp="340000" getLevel="64" />
+		<skill skillId="234" skillLevel="30" skillName="Robe Mastery" levelUpSp="170000" getLevel="64" />
+		<skill skillId="234" skillLevel="31" skillName="Robe Mastery" levelUpSp="170000" getLevel="64" />
+		<skill skillId="249" skillLevel="31" skillName="Weapon Mastery" levelUpSp="170000" getLevel="64" />
+		<skill skillId="249" skillLevel="32" skillName="Weapon Mastery" levelUpSp="170000" getLevel="64" />
+		<skill skillId="258" skillLevel="22" skillName="Light Armor Mastery" levelUpSp="170000" getLevel="64" />
+		<skill skillId="258" skillLevel="23" skillName="Light Armor Mastery" levelUpSp="170000" getLevel="64" />
+		<skill skillId="1126" skillLevel="23" skillName="Servitor Recharge" levelUpSp="170000" getLevel="64" />
+		<skill skillId="1126" skillLevel="24" skillName="Servitor Recharge" levelUpSp="170000" getLevel="64" />
+		<skill skillId="1127" skillLevel="34" skillName="Servitor Heal" levelUpSp="170000" getLevel="64" />
+		<skill skillId="1127" skillLevel="35" skillName="Servitor Heal" levelUpSp="170000" getLevel="64" />
+		<skill skillId="1128" skillLevel="13" skillName="Summon Shadow" levelUpSp="340000" getLevel="64" />
+		<skill skillId="1206" skillLevel="14" skillName="Wind Shackle" levelUpSp="340000" getLevel="64" />
+		<skill skillId="1228" skillLevel="13" skillName="Summon Silhouette" levelUpSp="340000" getLevel="64" />
+		<skill skillId="1278" skillLevel="9" skillName="Summon Soulless" levelUpSp="340000" getLevel="64" />
+		<skill skillId="1281" skillLevel="7" skillName="Summon Spark Cubic" levelUpSp="340000" getLevel="64" />
+		<skill skillId="1333" skillLevel="5" skillName="Summon Nightshade" levelUpSp="340000" getLevel="64" />
+		<skill skillId="1380" skillLevel="5" skillName="Betray" levelUpSp="340000" getLevel="64" />
+		<skill skillId="33" skillLevel="6" skillName="Summon Phantom Cubic" levelUpSp="440000" getLevel="66" />
+		<skill skillId="146" skillLevel="36" skillName="Anti Magic" levelUpSp="220000" getLevel="66" />
+		<skill skillId="146" skillLevel="37" skillName="Anti Magic" levelUpSp="220000" getLevel="66" />
+		<skill skillId="213" skillLevel="7" skillName="Boost Mana" levelUpSp="440000" getLevel="66" />
+		<skill skillId="234" skillLevel="32" skillName="Robe Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="234" skillLevel="33" skillName="Robe Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="249" skillLevel="33" skillName="Weapon Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="249" skillLevel="34" skillName="Weapon Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="258" skillLevel="24" skillName="Light Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="258" skillLevel="25" skillName="Light Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="1126" skillLevel="25" skillName="Servitor Recharge" levelUpSp="220000" getLevel="66" />
+		<skill skillId="1126" skillLevel="26" skillName="Servitor Recharge" levelUpSp="220000" getLevel="66" />
+		<skill skillId="1127" skillLevel="36" skillName="Servitor Heal" levelUpSp="220000" getLevel="66" />
+		<skill skillId="1127" skillLevel="37" skillName="Servitor Heal" levelUpSp="220000" getLevel="66" />
+		<skill skillId="1128" skillLevel="14" skillName="Summon Shadow" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1206" skillLevel="15" skillName="Wind Shackle" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1228" skillLevel="14" skillName="Summon Silhouette" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1278" skillLevel="10" skillName="Summon Soulless" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1330" skillLevel="6" skillName="Mass Summon Phantom Cubic" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1333" skillLevel="6" skillName="Summon Nightshade" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1380" skillLevel="6" skillName="Betray" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1385" skillLevel="3" skillName="Mass Surrender to Wind" levelUpSp="440000" getLevel="66" />
+		<skill skillId="146" skillLevel="38" skillName="Anti Magic" levelUpSp="280000" getLevel="68" />
+		<skill skillId="146" skillLevel="39" skillName="Anti Magic" levelUpSp="280000" getLevel="68" />
+		<skill skillId="229" skillLevel="6" skillName="Fast Mana Recovery" levelUpSp="550000" getLevel="68" />
+		<skill skillId="234" skillLevel="34" skillName="Robe Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="234" skillLevel="35" skillName="Robe Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="249" skillLevel="35" skillName="Weapon Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="249" skillLevel="36" skillName="Weapon Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="258" skillLevel="26" skillName="Light Armor Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="258" skillLevel="27" skillName="Light Armor Mastery" levelUpSp="280000" getLevel="68" />
+		<skill skillId="1126" skillLevel="27" skillName="Servitor Recharge" levelUpSp="280000" getLevel="68" />
+		<skill skillId="1126" skillLevel="28" skillName="Servitor Recharge" levelUpSp="280000" getLevel="68" />
+		<skill skillId="1127" skillLevel="38" skillName="Servitor Heal" levelUpSp="280000" getLevel="68" />
+		<skill skillId="1127" skillLevel="39" skillName="Servitor Heal" levelUpSp="280000" getLevel="68" />
+		<skill skillId="1128" skillLevel="15" skillName="Summon Shadow" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1206" skillLevel="16" skillName="Wind Shackle" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1228" skillLevel="15" skillName="Summon Silhouette" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1278" skillLevel="11" skillName="Summon Soulless" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1281" skillLevel="8" skillName="Summon Spark Cubic" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1333" skillLevel="7" skillName="Summon Nightshade" levelUpSp="550000" getLevel="68" />
+		<skill skillId="1380" skillLevel="7" skillName="Betray" levelUpSp="550000" getLevel="68" />
+		<skill skillId="33" skillLevel="7" skillName="Summon Phantom Cubic" levelUpSp="550000" getLevel="70" />
+		<skill skillId="146" skillLevel="40" skillName="Anti Magic" levelUpSp="280000" getLevel="70" />
+		<skill skillId="146" skillLevel="41" skillName="Anti Magic" levelUpSp="280000" getLevel="70" />
+		<skill skillId="234" skillLevel="36" skillName="Robe Mastery" levelUpSp="280000" getLevel="70" />
+		<skill skillId="234" skillLevel="37" skillName="Robe Mastery" levelUpSp="280000" getLevel="70" />
+		<skill skillId="249" skillLevel="37" skillName="Weapon Mastery" levelUpSp="280000" getLevel="70" />
+		<skill skillId="249" skillLevel="38" skillName="Weapon Mastery" levelUpSp="280000" getLevel="70" />
+		<skill skillId="258" skillLevel="28" skillName="Light Armor Mastery" levelUpSp="280000" getLevel="70" />
+		<skill skillId="258" skillLevel="29" skillName="Light Armor Mastery" levelUpSp="280000" getLevel="70" />
+		<skill skillId="1126" skillLevel="29" skillName="Servitor Recharge" levelUpSp="280000" getLevel="70" />
+		<skill skillId="1126" skillLevel="30" skillName="Servitor Recharge" levelUpSp="280000" getLevel="70" />
+		<skill skillId="1127" skillLevel="40" skillName="Servitor Heal" levelUpSp="280000" getLevel="70" />
+		<skill skillId="1127" skillLevel="41" skillName="Servitor Heal" levelUpSp="280000" getLevel="70" />
+		<skill skillId="1128" skillLevel="16" skillName="Summon Shadow" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1206" skillLevel="17" skillName="Wind Shackle" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1228" skillLevel="16" skillName="Summon Silhouette" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1262" skillLevel="5" skillName="Transfer Pain" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1278" skillLevel="12" skillName="Summon Soulless" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1299" skillLevel="2" skillName="Servitor Empowerment" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1330" skillLevel="7" skillName="Mass Summon Phantom Cubic" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1333" skillLevel="8" skillName="Summon Nightshade" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1380" skillLevel="8" skillName="Betray" levelUpSp="550000" getLevel="70" />
+		<skill skillId="1385" skillLevel="4" skillName="Mass Surrender to Wind" levelUpSp="550000" getLevel="70" />
+		<skill skillId="146" skillLevel="42" skillName="Anti Magic" levelUpSp="540000" getLevel="72" />
+		<skill skillId="146" skillLevel="43" skillName="Anti Magic" levelUpSp="540000" getLevel="72" />
+		<skill skillId="213" skillLevel="8" skillName="Boost Mana" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="234" skillLevel="38" skillName="Robe Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="234" skillLevel="39" skillName="Robe Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="249" skillLevel="39" skillName="Weapon Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="249" skillLevel="40" skillName="Weapon Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="258" skillLevel="30" skillName="Light Armor Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="258" skillLevel="31" skillName="Light Armor Mastery" levelUpSp="540000" getLevel="72" />
+		<skill skillId="1126" skillLevel="31" skillName="Servitor Recharge" levelUpSp="540000" getLevel="72" />
+		<skill skillId="1126" skillLevel="32" skillName="Servitor Recharge" levelUpSp="540000" getLevel="72" />
+		<skill skillId="1127" skillLevel="42" skillName="Servitor Heal" levelUpSp="540000" getLevel="72" />
+		<skill skillId="1127" skillLevel="43" skillName="Servitor Heal" levelUpSp="540000" getLevel="72" />
+		<skill skillId="1128" skillLevel="17" skillName="Summon Shadow" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1206" skillLevel="18" skillName="Wind Shackle" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1228" skillLevel="17" skillName="Summon Silhouette" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1278" skillLevel="13" skillName="Summon Soulless" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1281" skillLevel="9" skillName="Summon Spark Cubic" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1333" skillLevel="9" skillName="Summon Nightshade" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="1380" skillLevel="9" skillName="Betray" levelUpSp="1070000" getLevel="72" />
+		<skill skillId="33" skillLevel="8" skillName="Summon Phantom Cubic" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="146" skillLevel="44" skillName="Anti Magic" levelUpSp="680000" getLevel="74" />
+		<skill skillId="146" skillLevel="45" skillName="Anti Magic" levelUpSp="680000" getLevel="74" />
+		<skill skillId="212" skillLevel="6" skillName="Fast HP Recovery" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="229" skillLevel="7" skillName="Fast Mana Recovery" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="234" skillLevel="40" skillName="Robe Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="234" skillLevel="41" skillName="Robe Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="249" skillLevel="41" skillName="Weapon Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="249" skillLevel="42" skillName="Weapon Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="258" skillLevel="32" skillName="Light Armor Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="258" skillLevel="33" skillName="Light Armor Mastery" levelUpSp="680000" getLevel="74" />
+		<skill skillId="1126" skillLevel="33" skillName="Servitor Recharge" levelUpSp="680000" getLevel="74" />
+		<skill skillId="1126" skillLevel="34" skillName="Servitor Recharge" levelUpSp="680000" getLevel="74" />
+		<skill skillId="1127" skillLevel="44" skillName="Servitor Heal" levelUpSp="680000" getLevel="74" />
+		<skill skillId="1127" skillLevel="45" skillName="Servitor Heal" levelUpSp="680000" getLevel="74" />
+		<skill skillId="1128" skillLevel="18" skillName="Summon Shadow" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1206" skillLevel="19" skillName="Wind Shackle" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1228" skillLevel="18" skillName="Summon Silhouette" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1278" skillLevel="14" skillName="Summon Soulless" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1330" skillLevel="8" skillName="Mass Summon Phantom Cubic" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1333" skillLevel="10" skillName="Summon Nightshade" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1380" skillLevel="10" skillName="Betray" levelUpSp="1350000" getLevel="74" />
+		<skill skillId="1385" skillLevel="5" skillName="Mass Surrender to Wind" levelUpSp="1350000" getLevel="74" />
+	</skillTree>
+</list>

@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="NecropolisOfSacrifice">
+		<!-- Monsters -->
+		<group name="ssq01_1824_02">
+			<territories>
+				<territory name="ssq01_1824_02" minZ="-5121" maxZ="-4971">
+					<node x="-43330" y="209922" />
+					<node x="-42679" y="209921" />
+					<node x="-42678" y="211805" />
+					<node x="-43330" y="211802" />
+				</territory>
+			</territories>
+			<npc id="21208" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Watchman -->
+			<npc id="21209" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Seer -->
+			<npc id="21166" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Scout -->
+			<npc id="21187" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Slave -->
+		</group>
+		<group name="ssq01_1824_03">
+			<territories>
+				<territory name="ssq01_1824_03" minZ="-5123" maxZ="-4973">
+					<node x="-42551" y="213167" />
+					<node x="-41176" y="213162" />
+					<node x="-41175" y="213832" />
+					<node x="-42546" y="213815" />
+				</territory>
+			</territories>
+			<npc id="21208" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Watchman -->
+			<npc id="21209" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Seer -->
+			<npc id="21166" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Scout -->
+			<npc id="21187" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Slave -->
+		</group>
+		<group name="ssq01_1824_04">
+			<territories>
+				<territory name="ssq01_1824_04" minZ="-5122" maxZ="-4922">
+					<node x="-41900" y="214432" />
+					<node x="-41245" y="214436" />
+					<node x="-41248" y="215036" />
+					<node x="-41902" y="215039" />
+				</territory>
+			</territories>
+			<npc id="21208" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Watchman -->
+			<npc id="21209" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Seer -->
+			<npc id="21166" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Scout -->
+			<npc id="21187" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Slave -->
+		</group>
+		<group name="ssq01_1824_05">
+			<territories>
+				<territory name="ssq01_1824_05" minZ="-5130" maxZ="-4980">
+					<node x="-44341" y="213439" />
+					<node x="-43722" y="213439" />
+					<node x="-43719" y="214816" />
+					<node x="-44347" y="214805" />
+				</territory>
+			</territories>
+			<npc id="21208" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Watchman -->
+			<npc id="21209" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Seer -->
+			<npc id="21166" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Scout -->
+			<npc id="21187" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Slave -->
+		</group>
+		<group name="ssq01_1824_06">
+			<territories>
+				<territory name="ssq01_1824_06" minZ="-5115" maxZ="-4965">
+					<node x="-44683" y="209918" />
+					<node x="-44020" y="209918" />
+					<node x="-44030" y="211793" />
+					<node x="-44683" y="211795" />
+				</territory>
+			</territories>
+			<npc id="21208" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Watchman -->
+			<npc id="21209" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Seer -->
+			<npc id="21166" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Scout -->
+			<npc id="21187" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Slave -->
+		</group>
+		<group name="ssq01_1824_07">
+			<territories>
+				<territory name="ssq01_1824_07" minZ="-5120" maxZ="-4970">
+					<node x="-46504" y="209828" />
+					<node x="-45850" y="209831" />
+					<node x="-45848" y="210435" />
+					<node x="-46506" y="210436" />
+				</territory>
+			</territories>
+			<npc id="21208" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Watchman -->
+			<npc id="21209" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Seer -->
+			<npc id="21166" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Scout -->
+			<npc id="21187" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Slave -->
+		</group>
+		<group name="ssq01_1824_08">
+			<territories>
+				<territory name="ssq01_1824_08" minZ="-5120" maxZ="-4970">
+					<node x="-46234" y="212833" />
+					<node x="-44847" y="212827" />
+					<node x="-44851" y="213440" />
+					<node x="-46230" y="213458" />
+				</territory>
+			</territories>
+			<npc id="21208" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Watchman -->
+			<npc id="21209" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Seer -->
+			<npc id="21166" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Scout -->
+			<npc id="21187" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Slave -->
+		</group>
+		<group name="ssq01_1824_09">
+			<territories>
+				<territory name="ssq01_1824_09" minZ="-5118" maxZ="-4968">
+					<node x="-46494" y="214431" />
+					<node x="-45856" y="214431" />
+					<node x="-45849" y="215037" />
+					<node x="-46494" y="215031" />
+				</territory>
+			</territories>
+			<npc id="21208" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Watchman -->
+			<npc id="21209" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Hallowed Seer -->
+			<npc id="21166" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Scout -->
+			<npc id="21187" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Slave -->
+		</group>
+		<group name="ssq01_1824_10">
+			<territories>
+				<territory name="ssq01_1824_10" minZ="-5122" maxZ="-4972">
+					<node x="-46486" y="215524" />
+					<node x="-45854" y="215517" />
+					<node x="-45858" y="216128" />
+					<node x="-46488" y="216126" />
+				</territory>
+			</territories>
+			<npc id="21210" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Guardian -->
+			<npc id="21211" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Seer -->
+			<npc id="21167" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Witch -->
+			<npc id="21188" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Acolyte -->
+		</group>
+		<group name="ssq01_1824_11">
+			<territories>
+				<territory name="ssq01_1824_11" minZ="-5119" maxZ="-4969">
+					<node x="-46487" y="216906" />
+					<node x="-45115" y="216892" />
+					<node x="-45109" y="217549" />
+					<node x="-46483" y="217578" />
+				</territory>
+			</territories>
+			<npc id="21210" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Guardian -->
+			<npc id="21211" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Seer -->
+			<npc id="21167" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Witch -->
+			<npc id="21188" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Acolyte -->
+		</group>
+		<group name="ssq01_1824_12">
+			<territories>
+				<territory name="ssq01_1824_12" minZ="-5120" maxZ="-4970">
+					<node x="-44658" y="215480" />
+					<node x="-43282" y="215499" />
+					<node x="-43282" y="216153" />
+					<node x="-44645" y="216148" />
+				</territory>
+			</territories>
+			<npc id="21210" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Guardian -->
+			<npc id="21211" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Seer -->
+			<npc id="21167" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Witch -->
+			<npc id="21188" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Acolyte -->
+		</group>
+		<group name="ssq01_1824_13">
+			<territories>
+				<territory name="ssq01_1824_13" minZ="-5119" maxZ="-4969">
+					<node x="-42844" y="215541" />
+					<node x="-42225" y="215543" />
+					<node x="-42199" y="216889" />
+					<node x="-42850" y="216889" />
+				</territory>
+			</territories>
+			<npc id="21210" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Guardian -->
+			<npc id="21211" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Seer -->
+			<npc id="21167" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Witch -->
+			<npc id="21188" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Acolyte -->
+		</group>
+		<group name="ssq01_1824_14">
+			<territories>
+				<territory name="ssq01_1824_14" minZ="-5123" maxZ="-4973">
+					<node x="-41895" y="215524" />
+					<node x="-41251" y="215529" />
+					<node x="-41248" y="216125" />
+					<node x="-41897" y="216128" />
+				</territory>
+			</territories>
+			<npc id="21210" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Guardian -->
+			<npc id="21211" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Seer -->
+			<npc id="21167" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Witch -->
+			<npc id="21188" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Acolyte -->
+		</group>
+		<group name="ssq01_1824_15">
+			<territories>
+				<territory name="ssq01_1824_15" minZ="-5121" maxZ="-4971">
+					<node x="-42645" y="218212" />
+					<node x="-41261" y="218207" />
+					<node x="-41257" y="218868" />
+					<node x="-42640" y="218880" />
+				</territory>
+			</territories>
+			<npc id="21210" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Guardian -->
+			<npc id="21211" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Seer -->
+			<npc id="21167" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Witch -->
+			<npc id="21188" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Acolyte -->
+		</group>
+		<group name="ssq01_1824_16">
+			<territories>
+				<territory name="ssq01_1824_16" minZ="-5122" maxZ="-4972">
+					<node x="-41880" y="220131" />
+					<node x="-41250" y="220127" />
+					<node x="-41252" y="220717" />
+					<node x="-41878" y="220719" />
+				</territory>
+			</territories>
+			<npc id="21210" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Guardian -->
+			<npc id="21211" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Seer -->
+			<npc id="21167" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Witch -->
+			<npc id="21188" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Acolyte -->
+		</group>
+		<group name="ssq01_1824_17">
+			<territories>
+				<territory name="ssq01_1824_17" minZ="-5122" maxZ="-4972">
+					<node x="-44012" y="218008" />
+					<node x="-43345" y="218011" />
+					<node x="-43356" y="219814" />
+					<node x="-44013" y="219791" />
+				</territory>
+			</territories>
+			<npc id="21210" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Guardian -->
+			<npc id="21211" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Seer -->
+			<npc id="21167" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Witch -->
+			<npc id="21188" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Acolyte -->
+		</group>
+		<group name="ssq01_1824_18">
+			<territories>
+				<territory name="ssq01_1824_18" minZ="-5120" maxZ="-4970">
+					<node x="-46487" y="220127" />
+					<node x="-45855" y="220133" />
+					<node x="-45849" y="220736" />
+					<node x="-46496" y="220732" />
+				</territory>
+			</territories>
+			<npc id="21210" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Guardian -->
+			<npc id="21211" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Vault Seer -->
+			<npc id="21167" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Witch -->
+			<npc id="21188" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Acolyte -->
+		</group>
+		<group name="ssq01_1824_19">
+			<territories>
+				<territory name="ssq01_1824_19" minZ="-5115" maxZ="-4965">
+					<node x="-47589" y="220129" />
+					<node x="-46950" y="220133" />
+					<node x="-46952" y="220727" />
+					<node x="-47587" y="220732" />
+				</territory>
+			</territories>
+			<npc id="21141" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Serpent -->
+			<npc id="21142" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Grave Keeper Spartoi -->
+			<npc id="21169" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Guard -->
+			<npc id="21190" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Footman -->
+		</group>
+		<group name="ssq01_1824_20">
+			<territories>
+				<territory name="ssq01_1824_20" minZ="-5121" maxZ="-4971">
+					<node x="-50904" y="218854" />
+					<node x="-50256" y="218854" />
+					<node x="-50265" y="220703" />
+					<node x="-50910" y="220709" />
+				</territory>
+			</territories>
+			<npc id="21141" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Serpent -->
+			<npc id="21142" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Grave Keeper Spartoi -->
+			<npc id="21169" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Guard -->
+			<npc id="21190" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Footman -->
+		</group>
+		<group name="ssq01_1824_21">
+			<territories>
+				<territory name="ssq01_1824_21" minZ="-5120" maxZ="-4970">
+					<node x="-52189" y="220137" />
+					<node x="-51553" y="220135" />
+					<node x="-51546" y="220724" />
+					<node x="-52192" y="220725" />
+				</territory>
+			</territories>
+			<npc id="21141" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Serpent -->
+			<npc id="21142" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Grave Keeper Spartoi -->
+			<npc id="21169" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Guard -->
+			<npc id="21190" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Footman -->
+		</group>
+		<group name="ssq01_1824_22">
+			<territories>
+				<territory name="ssq01_1824_22" minZ="-5116" maxZ="-4966">
+					<node x="-52200" y="216878" />
+					<node x="-51528" y="216882" />
+					<node x="-51541" y="218202" />
+					<node x="-52219" y="218203" />
+				</territory>
+			</territories>
+			<npc id="21141" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Serpent -->
+			<npc id="21142" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Grave Keeper Spartoi -->
+			<npc id="21169" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Guard -->
+			<npc id="21190" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Footman -->
+		</group>
+		<group name="ssq01_1824_23">
+			<territories>
+				<territory name="ssq01_1824_23" minZ="-5118" maxZ="-4968">
+					<node x="-50929" y="217734" />
+					<node x="-50283" y="217737" />
+					<node x="-50280" y="218333" />
+					<node x="-50923" y="218334" />
+				</territory>
+			</territories>
+			<npc id="21141" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Serpent -->
+			<npc id="21142" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Grave Keeper Spartoi -->
+			<npc id="21169" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Guard -->
+			<npc id="21190" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Footman -->
+		</group>
+		<group name="ssq01_1824_24">
+			<territories>
+				<territory name="ssq01_1824_24" minZ="-5122" maxZ="-4972">
+					<node x="-49430" y="218216" />
+					<node x="-48109" y="218222" />
+					<node x="-48116" y="218884" />
+					<node x="-49433" y="218892" />
+				</territory>
+			</territories>
+			<npc id="21141" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Serpent -->
+			<npc id="21142" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Grave Keeper Spartoi -->
+			<npc id="21169" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Guard -->
+			<npc id="21190" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Footman -->
+		</group>
+		<group name="ssq01_1824_25">
+			<territories>
+				<territory name="ssq01_1824_25" minZ="-5120" maxZ="-4970">
+					<node x="-48883" y="216939" />
+					<node x="-47023" y="216942" />
+					<node x="-47028" y="217590" />
+					<node x="-48864" y="217596" />
+				</territory>
+			</territories>
+			<npc id="21141" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Serpent -->
+			<npc id="21142" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Grave Keeper Spartoi -->
+			<npc id="21169" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Guard -->
+			<npc id="21190" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Footman -->
+		</group>
+		<group name="ssq01_1824_26">
+			<territories>
+				<territory name="ssq01_1824_26" minZ="-5127" maxZ="-4977">
+					<node x="-50194" y="215802" />
+					<node x="-48820" y="215835" />
+					<node x="-48822" y="216474" />
+					<node x="-50194" y="216467" />
+				</territory>
+			</territories>
+			<npc id="21141" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Serpent -->
+			<npc id="21142" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Grave Keeper Spartoi -->
+			<npc id="21169" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Guard -->
+			<npc id="21190" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Footman -->
+		</group>
+		<group name="ssq01_1824_27">
+			<territories>
+				<territory name="ssq01_1824_27" minZ="-5128" maxZ="-4978">
+					<node x="-51029" y="216645" />
+					<node x="-50387" y="216637" />
+					<node x="-50395" y="217240" />
+					<node x="-51029" y="217233" />
+				</territory>
+			</territories>
+			<npc id="21141" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Serpent -->
+			<npc id="21142" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Grave Keeper Spartoi -->
+			<npc id="21169" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Guard -->
+			<npc id="21190" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Footman -->
+		</group>
+		<group name="ssq01_1824_28">
+			<territories>
+				<territory name="ssq01_1824_28" minZ="-5120" maxZ="-4970">
+					<node x="-52179" y="215532" />
+					<node x="-51556" y="215532" />
+					<node x="-51560" y="216123" />
+					<node x="-52179" y="216123" />
+				</territory>
+			</territories>
+			<npc id="21141" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Serpent -->
+			<npc id="21142" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Grave Keeper Spartoi -->
+			<npc id="21169" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Guard -->
+			<npc id="21190" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Footman -->
+		</group>
+		<group name="ssq01_1824_29">
+			<territories>
+				<territory name="ssq01_1824_29" minZ="-5115" maxZ="-4965">
+					<node x="-47580" y="215523" />
+					<node x="-46946" y="215521" />
+					<node x="-46950" y="216119" />
+					<node x="-47577" y="216123" />
+				</territory>
+			</territories>
+			<npc id="21141" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Serpent -->
+			<npc id="21142" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Grave Keeper Spartoi -->
+			<npc id="21169" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Guard -->
+			<npc id="21190" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Footman -->
+		</group>
+		<group name="ssq01_1824_30">
+			<territories>
+				<territory name="ssq01_1824_30" minZ="-5119" maxZ="-4969">
+					<node x="-47577" y="214434" />
+					<node x="-46950" y="214432" />
+					<node x="-46955" y="215033" />
+					<node x="-47576" y="215038" />
+				</territory>
+			</territories>
+			<npc id="21139" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Barbed Bat -->
+			<npc id="21140" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Wisp -->
+			<npc id="21168" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Warrior -->
+			<npc id="21189" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Overseer -->
+		</group>
+		<group name="ssq01_1824_31">
+			<territories>
+				<territory name="ssq01_1824_31" minZ="-5132" maxZ="-4982">
+					<node x="-50187" y="214392" />
+					<node x="-48832" y="214403" />
+					<node x="-48832" y="215072" />
+					<node x="-50181" y="215051" />
+				</territory>
+			</territories>
+			<npc id="21139" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Barbed Bat -->
+			<npc id="21140" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Wisp -->
+			<npc id="21168" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Warrior -->
+			<npc id="21189" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Overseer -->
+		</group>
+		<group name="ssq01_1824_32">
+			<territories>
+				<territory name="ssq01_1824_32" minZ="-5120" maxZ="-4970">
+					<node x="-52187" y="214440" />
+					<node x="-51556" y="214442" />
+					<node x="-51555" y="215047" />
+					<node x="-52188" y="215043" />
+				</territory>
+			</territories>
+			<npc id="21139" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Barbed Bat -->
+			<npc id="21140" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Wisp -->
+			<npc id="21168" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Warrior -->
+			<npc id="21189" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Overseer -->
+		</group>
+		<group name="ssq01_1824_33">
+			<territories>
+				<territory name="ssq01_1824_33" minZ="-5123" maxZ="-4973">
+					<node x="-52190" y="211900" />
+					<node x="-51556" y="211910" />
+					<node x="-51525" y="213282" />
+					<node x="-52220" y="213285" />
+				</territory>
+			</territories>
+			<npc id="21139" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Barbed Bat -->
+			<npc id="21140" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Wisp -->
+			<npc id="21168" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Warrior -->
+			<npc id="21189" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Overseer -->
+		</group>
+		<group name="ssq01_1824_34">
+			<territories>
+				<territory name="ssq01_1824_34" minZ="-5123" maxZ="-4973">
+					<node x="-52197" y="209822" />
+					<node x="-51554" y="209826" />
+					<node x="-51554" y="210435" />
+					<node x="-52210" y="210440" />
+				</territory>
+			</territories>
+			<npc id="21139" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Barbed Bat -->
+			<npc id="21140" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Wisp -->
+			<npc id="21168" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Warrior -->
+			<npc id="21189" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Overseer -->
+		</group>
+		<group name="ssq01_1824_35">
+			<territories>
+				<territory name="ssq01_1824_35" minZ="-5119" maxZ="-4969">
+					<node x="-49970" y="209793" />
+					<node x="-48619" y="209811" />
+					<node x="-48623" y="210453" />
+					<node x="-49974" y="210453" />
+				</territory>
+			</territories>
+			<npc id="21139" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Barbed Bat -->
+			<npc id="21140" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Wisp -->
+			<npc id="21168" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Warrior -->
+			<npc id="21189" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Overseer -->
+		</group>
+		<group name="ssq01_1824_36">
+			<territories>
+				<territory name="ssq01_1824_36" minZ="-5121" maxZ="-4971">
+					<node x="-47595" y="209823" />
+					<node x="-46951" y="209825" />
+					<node x="-46955" y="210420" />
+					<node x="-47597" y="210429" />
+				</territory>
+			</territories>
+			<npc id="21139" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Barbed Bat -->
+			<npc id="21140" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Wisp -->
+			<npc id="21168" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Warrior -->
+			<npc id="21189" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Overseer -->
+		</group>
+		<group name="ssq01_1824_37">
+			<territories>
+				<territory name="ssq01_1824_37" minZ="-5125" maxZ="-4975">
+					<node x="-47588" y="210923" />
+					<node x="-46949" y="210923" />
+					<node x="-46947" y="211508" />
+					<node x="-47574" y="211509" />
+				</territory>
+			</territories>
+			<npc id="21139" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Barbed Bat -->
+			<npc id="21140" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Wisp -->
+			<npc id="21168" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Warrior -->
+			<npc id="21189" count="1" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Overseer -->
+		</group>
+		<group name="ssq01_1824_38">
+			<territories>
+				<territory name="ssq01_1824_38" minZ="-5118" maxZ="-4968">
+					<node x="-50907" y="211899" />
+					<node x="-49050" y="211884" />
+					<node x="-49060" y="212536" />
+					<node x="-50908" y="212530" />
+				</territory>
+			</territories>
+			<npc id="21139" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Barbed Bat -->
+			<npc id="21140" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Wisp -->
+			<npc id="21168" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Warrior -->
+			<npc id="21189" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Overseer -->
+		</group>
+		<group name="ssq01_1824_39">
+			<territories>
+				<territory name="ssq01_1824_39" minZ="-5126" maxZ="-4976">
+					<node x="-47556" y="212263" />
+					<node x="-46894" y="212262" />
+					<node x="-46906" y="213615" />
+					<node x="-47565" y="213619" />
+				</territory>
+			</territories>
+			<npc id="21139" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Barbed Bat -->
+			<npc id="21140" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Catacomb Wisp -->
+			<npc id="21168" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Lith Warrior -->
+			<npc id="21189" count="2" respawnTime="139sec" respawnRandom="40sec" /> <!-- Gigant Overseer -->
+		</group>
+		
+		<!-- NPCs -->
+		<group name="ssq01_npc1824_01">
+			<npc id="31103" x="-41568" y="210128" z="-5088" heading="16500" respawnTime="60sec" /> <!-- Gatekeeper Ziggurat -->
+		</group>
+		<group name="ssq01_npc1824_02">
+			<npc id="31095" x="-41568" y="209344" z="-5085" heading="49000" respawnTime="60sec" /> <!-- Gatekeeper Ziggurat -->
+		</group>
+	</spawn>
+</list>

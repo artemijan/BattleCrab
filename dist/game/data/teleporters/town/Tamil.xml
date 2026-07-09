@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/teleporterData.xsd">
+	<npc id="30576"> <!-- Tamil -->
+		<teleport type="NORMAL">
+			<!-- Interlude - C6 -->
+			<location npcStringId="1010005" x="-14455" y="123986" z="-3120" feeCount="23000" /> <!-- Town of Gludio -->
+			<location npcStringId="1010574" x="87170" y="-143355" z="-1288" feeCount="13000" /> <!-- Town of Schuttgart -->
+			<location npcStringId="1010156" x="9744" y="15645" z="-4568" feeCount="13000" /> <!-- Dark Elf Village -->
+			<location npcStringId="1010158" x="115120" y="-178224" z="-880" feeCount="17000" /> <!-- Dwarven Village -->
+			<location npcStringId="1010001" x="-84141" y="244623" z="-3728" feeCount="35000" /> <!-- Talking Island Village -->
+			<location npcStringId="1010155" x="46951" y="51550" z="-2976" feeCount="18000" /> <!-- Elven Village -->
+			<location npcStringId="1010046" x="-4190" y="-80040" z="-2696" feeCount="2000" /> <!-- Immortal Plateau, Southern Region (Lv. 18) -->
+			<location npcStringId="1010647" x="-10983" y="-117484" z="-2464" feeCount="960" /> <!-- Immortal Plateau (Lv. 8) -->
+			<location npcStringId="1010603" x="9340" y="-112509" z="-2536" feeCount="1500" /> <!-- Entrance to the Cave of Trials -->
+			<location npcStringId="1010048" x="8652" y="-139941" z="-1144" feeCount="1600" /> <!-- Frozen Waterfalls (Lv. 15) -->
+		</teleport>
+	</npc>
+</list>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/teleporterData.xsd">
+	<npc id="30540"> <!-- Wirphy -->
+		<teleport type="NORMAL">
+			<!-- Interlude - C6 -->
+			<location npcStringId="1010005" x="-14455" y="123986" z="-3120" feeCount="32000" /> <!-- Town of Gludio -->
+			<location npcStringId="1010574" x="87145" y="-143372" z="-1288" feeCount="4400" /> <!-- Town of Schuttgart -->
+			<location npcStringId="1010156" x="9744" y="15645" z="-4568" feeCount="22000" /> <!-- Dark Elf Village -->
+			<location npcStringId="1010001" x="-84141" y="244623" z="-3728" feeCount="46000" /> <!-- Talking Island Village -->
+			<location npcStringId="1010155" x="46951" y="51550" z="-2976" feeCount="23000" /> <!-- Elven Village -->
+			<location npcStringId="1010157" x="-45158" y="-112583" z="-240" feeCount="17000" /> <!-- Orc Village -->
+			<location npcStringId="1010594" x="171946" y="-173352" z="3440" feeCount="2200" /> <!-- Mithril Mines (Lv. 23) -->
+			<location npcStringId="1010596" x="139714" y="-177456" z="-1536" feeCount="690" /> <!-- Abandoned Coal Mines (Lv. 10) -->
+			<location npcStringId="1010189" x="169008" y="-208272" z="-3496" feeCount="2400" /> <!-- Eastern Mining Zone (Northeastern Shore) (Lv. 18) -->
+			<location npcStringId="1010188" x="136910" y="-205082" z="-3664" feeCount="970" /> <!-- Western Mining Zone (Central Shore) (Lv. 8) -->
+		</teleport>
+	</npc>
+</list>

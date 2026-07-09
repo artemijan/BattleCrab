@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="ImperialTomb">
+		<group name="godard32_npc2515_02">
+			<npc id="32011" x="181376" y="-81008" z="-2736" heading="16500" respawnTime="60sec" /> <!-- Imperial Tomb Guide -->
+		</group>
+	</spawn>
+</list>

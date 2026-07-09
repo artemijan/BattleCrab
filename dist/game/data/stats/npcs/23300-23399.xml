@@ -1,0 +1,2351 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
+	<npc id="23300" level="98" type="Monster" name="Commander of Operations">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DIVINE</race>
+		<sex>FEMALE</sex>
+		<acquire exp="2799199" sp="1791" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15761" hpRegen="10.5" mp="2317" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="200" />
+			</speed>
+			<attack physical="17045.702302755" magical="5736.0042671637" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1103.7928684988" magical="613.99328787368" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5466" level="1" /> <!-- Holy Attack -->
+			<skill id="4410" level="19" /> <!-- Extremely Strong P. Atk. -->
+			<skill id="4411" level="19" /> <!-- Extremely Strong M. Atk. -->
+			<skill id="4412" level="21" /> <!-- Extremely Strong P. Def. -->
+			<skill id="4413" level="8" /> <!-- Weak M. Def. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<collision>
+			<radius normal="30" />
+			<height normal="33" />
+		</collision>
+	</npc>
+	<npc id="23301" level="95" type="Monster" name="Laido Destruction Golem">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>CONSTRUCT</race>
+		<sex>FEMALE</sex>
+		<acquire exp="4120132" sp="988" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="14806" hpRegen="10.5" mp="2205" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="190" />
+			</speed>
+			<attack physical="6043.123730944" magical="5511.2118000069" critical="4" attackSpeed="553" range="40" />
+			<defence physical="1500" magical="807.1459319845" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" />
+		<collision>
+			<radius normal="30" />
+			<height normal="36" />
+		</collision>
+	</npc>
+	<npc id="23302" level="94" type="Monster" name="Laido Golem of Repairs">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>CONSTRUCT</race>
+		<sex>FEMALE</sex>
+		<acquire exp="4365175" sp="1047" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="14547" hpRegen="10.5" mp="2169" mpRegen="3.6" />
+			<speed>
+				<walk ground="18" />
+				<run ground="190" />
+			</speed>
+			<attack physical="8911.6811886562" magical="5571.60819078" critical="4" attackSpeed="553" range="40" />
+			<defence physical="1442.6229508197" magical="775.48738480405" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<collision>
+			<radius normal="20" />
+			<height normal="19" />
+		</collision>
+	</npc>
+	<npc id="23303" level="94" type="Monster" name="Spicula Elite Guard">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMANOID</race>
+		<sex>FEMALE</sex>
+		<acquire exp="1583690" sp="380" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="14547" hpRegen="10.5" mp="2169" mpRegen="3.6" />
+			<speed>
+				<walk ground="40" />
+				<run ground="180" />
+			</speed>
+			<attack physical="6126.7808172012" magical="3041.1694708008" critical="4" attackSpeed="253" range="40" />
+			<defence physical="655.73770491803" magical="559.07230067269" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4414" level="3" /> <!-- Light Armor Type -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="1000" isAggressive="true" />
+		<collision>
+			<radius normal="12" />
+			<height normal="26" />
+		</collision>
+	</npc>
+	<npc id="23304" level="96" type="Monster" name="Spicula Larva">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMANOID</race>
+		<sex>FEMALE</sex>
+		<acquire exp="6985683" sp="1676" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="14890" hpRegen="10.5" mp="2242" mpRegen="3.6" />
+			<speed>
+				<walk ground="50" />
+				<run ground="160" />
+			</speed>
+			<attack physical="16428.585739186" magical="5588.0869647497" critical="4" attackSpeed="253" range="40" />
+			<defence physical="709.20544604755" magical="599.30398648481" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4414" level="3" /> <!-- Light Armor Type -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="18" grown="12" />
+			<height normal="35" grown="42" />
+		</collision>
+	</npc>
+	<npc id="23305" level="55" type="Monster" name="Skeleton">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>UNDEAD</race>
+		<sex>FEMALE</sex>
+		<acquire exp="31989" sp="7" />
+		<equipment rhand="78" /> <!-- Great Sword -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
+			<speed>
+				<walk ground="40" />
+				<run ground="128" />
+			</speed>
+			<attack physical="345.42047607281" magical="108.27886895427" critical="4" attackSpeed="253" range="40" />
+			<defence physical="269.44444444444" magical="120.09534286762" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<collision>
+			<radius normal="10" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23306" level="57" type="Monster" name="Rotten Corpse">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>UNDEAD</race>
+		<sex>FEMALE</sex>
+		<acquire exp="34010" sp="8" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1776" hpRegen="6.5" mp="948" mpRegen="2.4" />
+			<speed>
+				<walk ground="15" />
+				<run ground="128" />
+			</speed>
+			<attack physical="323.42577454634" magical="99.205259708436" critical="4" attackSpeed="253" range="40" />
+			<defence physical="258.21917808219" magical="115.28550115286" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<collision>
+			<radius normal="30" grown="15.5" />
+			<height normal="40" grown="48.5" />
+		</collision>
+	</npc>
+	<npc id="23307" level="54" type="Monster" name="Corpse Spider">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<acquire exp="30999" sp="7" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1621" hpRegen="6.5" mp="861" mpRegen="2.4" />
+			<speed>
+				<walk ground="72" />
+				<run ground="128" />
+			</speed>
+			<attack physical="330.2109306557" magical="103.41138030931" critical="4" attackSpeed="253" range="40" />
+			<defence physical="263.63636363636" magical="117.70407810012" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="12" /> <!-- Bugs -->
+		</skillList>
+		<collision>
+			<radius normal="26" />
+			<height normal="25.5" />
+		</collision>
+	</npc>
+	<npc id="23308" level="57" type="Monster" name="Explosive Spider">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<acquire exp="34010" sp="8" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1776" hpRegen="6.5" mp="948" mpRegen="2.4" />
+			<speed>
+				<walk ground="60" />
+				<run ground="128" />
+			</speed>
+			<attack physical="323.42577454634" magical="99.205259708436" critical="4" attackSpeed="253" range="40" />
+			<defence physical="258.21917808219" magical="115.28550115286" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="12" /> <!-- Bugs -->
+		</skillList>
+		<collision>
+			<radius normal="27" />
+			<height normal="25.5" />
+		</collision>
+	</npc>
+	<npc id="23309" level="57" type="Monster" name="Corpse Looter Stakato">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMANOID</race>
+		<sex>FEMALE</sex>
+		<acquire exp="34010" sp="8" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1776" hpRegen="6.5" mp="948" mpRegen="2.4" />
+			<speed>
+				<walk ground="25" />
+				<run ground="128" />
+			</speed>
+			<attack physical="323.42577454634" magical="99.205259708436" critical="4" attackSpeed="253" range="40" />
+			<defence physical="258.21917808219" magical="115.28550115286" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="15" />
+			<height normal="36" />
+		</collision>
+	</npc>
+	<npc id="23310" level="58" type="Monster" name="Lesser Laikel">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<acquire exp="41698" sp="10" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1828" hpRegen="6.5" mp="977" mpRegen="2.4" />
+			<speed>
+				<walk ground="60" />
+				<run ground="128" />
+			</speed>
+			<attack physical="394.34602603087" magical="123.47644452889" critical="4" attackSpeed="253" range="40" />
+			<defence physical="285.71428571429" magical="127.97198087156" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="12" /> <!-- Bugs -->
+		</skillList>
+		<collision>
+			<radius normal="37" />
+			<height normal="64" />
+		</collision>
+	</npc>
+	<npc id="23311" level="72" type="Monster" name="Valley Buffalo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="61889" sp="14" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2540" hpRegen="8.5" mp="1410" mpRegen="3" />
+			<speed>
+				<walk ground="80" />
+				<run ground="128" />
+			</speed>
+			<attack physical="46.042847473859" magical="23.994391510234" critical="4" attackSpeed="253" range="40" />
+			<defence physical="74.833495472574" magical="40.997888608737" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4412" level="9" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="4032" level="1" /> <!-- Power Strike -->
+		</skillList>
+		<collision>
+			<radius normal="22" grown="27" />
+			<height normal="31" grown="38" />
+		</collision>
+	</npc>
+	<npc id="23312" level="73" type="Monster" name="Valley Grendel">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ANIMAL</race>
+		<sex>FEMALE</sex>
+		<acquire exp="89707" sp="21" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2586" hpRegen="8.5" mp="1442" mpRegen="3" />
+			<speed>
+				<walk ground="36" />
+				<run ground="128" />
+			</speed>
+			<attack physical="45.758632365996" magical="23.699078735588" critical="4" attackSpeed="253" range="40" />
+			<defence physical="74.371560315335" magical="40.744815222263" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4412" level="9" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
+			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
+			<skill id="4416" level="4" /> <!-- Animals -->
+			<skill id="4032" level="1" /> <!-- Power Strike -->
+		</skillList>
+		<collision>
+			<radius normal="15" grown="18" />
+			<height normal="39" grown="47.5" />
+		</collision>
+	</npc>
+	<npc id="23313" level="76" type="Monster" name="Disciple of Protection">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DIVINE</race>
+		<sex>FEMALE</sex>
+		<acquire exp="173094" sp="41" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="2758" hpRegen="8.5" mp="1540" mpRegen="3" />
+			<speed>
+				<walk ground="50" />
+				<run ground="128" />
+			</speed>
+			<attack physical="44.926657232069" magical="22.845128460488" critical="4" attackSpeed="253" range="40" />
+			<defence physical="60.606060606061" magical="40.00400040004" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4410" level="8" /> <!-- Weak P. Atk. -->
+			<skill id="4411" level="8" /> <!-- Weak M. Atk. -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4085" level="1" /> <!-- Critical Damage -->
+			<skill id="4086" level="1" /> <!-- Critical Chance -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+		</skillList>
+		<collision>
+			<radius normal="8" grown="9" />
+			<height normal="30" grown="36.5" />
+		</collision>
+	</npc>
+	<npc id="23314" level="99" type="Monster" name="Nerva Orc Raider">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="95996432" sp="153594" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="985757.77171427" magical="175972.90129492" critical="4" attackSpeed="698" range="40" />
+			<defence physical="4920.2127659574" magical="3159.8904571308" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="14" />
+			<height normal="38" />
+		</collision>
+	</npc>
+	<npc id="23315" level="99" type="Monster" name="Nerva Orc Archer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="103650867" sp="165841" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="1048846.269104" magical="175972.90129492" critical="8" attackSpeed="398" range="900" />
+			<defence physical="4787.2340425532" magical="3054.5607752265" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="14" />
+			<height normal="34" />
+		</collision>
+	</npc>
+	<npc id="23316" level="99" type="Monster" name="Nerva Orc Priest">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="124437219" sp="199099" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="906897.14997713" magical="175972.90129492" critical="4" attackSpeed="698" range="40" />
+			<defence physical="4840.4255319149" magical="3159.8904571308" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+			<skill id="15629" level="1" /> <!-- Nerva's Mental Blow -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="10" />
+			<height normal="32" />
+		</collision>
+	</npc>
+	<npc id="23317" level="99" type="Monster" name="Nerva Orc Wizard">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="111937319" sp="179099" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="875352.90128227" magical="87986.450647461" critical="4" attackSpeed="698" range="40" />
+			<defence physical="4787.2340425532" magical="3124.7805631627" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+			<skill id="15629" level="1" /> <!-- Nerva's Mental Blow -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="14" />
+			<height normal="36" />
+		</collision>
+	</npc>
+	<npc id="23318" level="99" type="Monster" name="Nerva Orc Assassin">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="104493556" sp="167189" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="946327.4608457" magical="87986.450647461" critical="8" attackSpeed="698" range="40" />
+			<defence physical="5319.1489361702" magical="3510.989396812" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="13" />
+			<height normal="32" />
+		</collision>
+	</npc>
+	<npc id="23319" level="99" type="Monster" name="Nerva Orc Ambusher">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="88903791" sp="142246" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="946327.4608457" magical="175972.90129492" critical="4" attackSpeed="698" range="40" />
+			<defence physical="4787.2340425532" magical="3124.7805631627" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="14" />
+			<height normal="34" />
+		</collision>
+	</npc>
+	<npc id="23320" level="99" type="Monster" name="Nerva Orc Merchant">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="120926011" sp="193481" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="985757.77171427" magical="175972.90129492" critical="4" attackSpeed="698" range="40" />
+			<defence physical="4787.2340425532" magical="3124.7805631627" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="20" />
+			<height normal="42" />
+		</collision>
+	</npc>
+	<npc id="23321" level="99" type="Monster" name="Nerva Orc Warrior">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="215798859" sp="345278" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="985757.77171427" magical="175972.90129492" critical="4" attackSpeed="698" range="40" />
+			<defence physical="5319.1489361702" magical="3159.8904571308" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="20" />
+			<height normal="42" />
+		</collision>
+	</npc>
+	<npc id="23322" level="99" type="Monster" name="Nerva Orc Prefect">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="272259087" sp="435614" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="985757.77171427" magical="175972.90129492" critical="4" attackSpeed="698" range="40" />
+			<defence physical="5319.1489361702" magical="3159.8904571308" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+			<skill id="15629" level="1" /> <!-- Nerva's Mental Blow -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="18" />
+			<height normal="38" />
+		</collision>
+	</npc>
+	<npc id="23323" level="99" type="Monster" name="Nerva Orc Elite">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="95996432" sp="153594" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="906897.14997713" magical="175972.90129492" critical="4" attackSpeed="698" range="40" />
+			<defence physical="4787.2340425532" magical="2808.7915174496" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="13" />
+			<height normal="32" />
+		</collision>
+	</npc>
+	<npc id="23324" level="99" type="Monster" name="Captain" title="Nerva Bloodlust">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="171101177" sp="273761" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="788606.21737142" magical="175972.90129492" critical="4" attackSpeed="698" range="40" />
+			<defence physical="4787.2340425532" magical="3159.8904571308" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="20" />
+			<height normal="42" />
+		</collision>
+	</npc>
+	<npc id="23325" level="99" type="Monster" name="Archer" title="Nerva Bloodlust">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="30863520" sp="49381" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="828036.52823999" magical="175972.90129492" critical="8" attackSpeed="398" range="900" />
+			<defence physical="4787.2340425532" magical="3159.8904571308" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="8" /> <!-- Weak P. Atk. -->
+			<skill id="4411" level="8" /> <!-- Weak M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4413" level="7" /> <!-- Weak M. Def. -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="14" />
+			<height normal="34" />
+		</collision>
+	</npc>
+	<npc id="23326" level="99" type="Monster" name="Wizard" title="Nerva Bloodlust">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="30863520" sp="49381" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="788606.21737142" magical="175972.90129492" critical="4" attackSpeed="698" range="40" />
+			<defence physical="4787.2340425532" magical="3159.8904571308" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="8" /> <!-- Weak P. Atk. -->
+			<skill id="4411" level="8" /> <!-- Weak M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4413" level="7" /> <!-- Weak M. Def. -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+			<skill id="15629" level="1" /> <!-- Nerva's Mental Blow -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="14" />
+			<height normal="36" />
+		</collision>
+	</npc>
+	<npc id="23327" level="99" type="Monster" name="Soldier" title="Nerva Bloodlust">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="30863520" sp="49381" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="788606.21737142" magical="175972.90129492" critical="4" attackSpeed="698" range="40" />
+			<defence physical="4787.2340425532" magical="3159.8904571308" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="8" /> <!-- Weak P. Atk. -->
+			<skill id="4411" level="8" /> <!-- Weak M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4413" level="7" /> <!-- Weak M. Def. -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="14" />
+			<height normal="38" />
+		</collision>
+	</npc>
+	<npc id="23328" level="99" type="Monster" name="Assassin" title="Nerva Bloodlust">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ORC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="30863520" sp="49381" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="788606.21737142" magical="175972.90129492" critical="8" attackSpeed="698" range="40" />
+			<defence physical="4787.2340425532" magical="3159.8904571308" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="8" /> <!-- Weak P. Atk. -->
+			<skill id="4411" level="8" /> <!-- Weak M. Atk. -->
+			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
+			<skill id="4413" level="7" /> <!-- Weak M. Def. -->
+			<skill id="4416" level="17" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="13" />
+			<height normal="32" />
+		</collision>
+	</npc>
+	<npc id="23329" level="99" type="Monster" name="Nerva Kaiser">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>CONSTRUCT</race>
+		<sex>FEMALE</sex>
+		<acquire exp="959958945" sp="1535934" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="788606.21737142" magical="175972.90129492" critical="4" attackSpeed="698" range="40" />
+			<defence physical="21276.595744681" magical="12288.462888842" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<ai aggroRange="600" isAggressive="true" />
+		<collision>
+			<radius normal="20" />
+			<height normal="36.5" />
+		</collision>
+	</npc>
+	<npc id="23330" level="99" type="Monster" name="Rubble">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>UNDEAD</race>
+		<sex>FEMALE</sex>
+		<acquire exp="17315719" sp="27705" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="285150" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="52573.616390392" magical="5807.1057427324" critical="4" attackSpeed="753" range="40" />
+			<defence physical="23380.874444704" magical="13236.430025981" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4412" level="10" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4458" level="4" /> <!-- Spear Vulnerability -->
+			<skill id="4450" level="2" /> <!-- Stun Vulnerability -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" />
+		<collision>
+			<radius normal="18" />
+			<height normal="29" />
+		</collision>
+	</npc>
+	<npc id="23332" level="99" type="Monster" name="One-armed Zombie">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>UNDEAD</race>
+		<sex>FEMALE</sex>
+		<acquire exp="17315719" sp="27705" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="285150" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="78860.621737142" magical="5807.1057427324" critical="4" attackSpeed="553" range="40" />
+			<defence physical="8767.8279167641" magical="6214.4512323573" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4412" level="10" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4458" level="4" /> <!-- Spear Vulnerability -->
+			<skill id="4450" level="2" /> <!-- Stun Vulnerability -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" />
+		<collision>
+			<radius normal="20" />
+			<height normal="34" />
+		</collision>
+	</npc>
+	<npc id="23333" level="99" type="Monster" name="Putrefied Zombie">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>UNDEAD</race>
+		<sex>FEMALE</sex>
+		<acquire exp="17315719" sp="27705" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="285150" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="52573.616390392" magical="5807.1057427324" critical="4" attackSpeed="753" range="40" />
+			<defence physical="23380.874444704" magical="13236.430025981" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4412" level="10" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4458" level="4" /> <!-- Spear Vulnerability -->
+			<skill id="4450" level="2" /> <!-- Stun Vulnerability -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" />
+		<collision>
+			<radius normal="20" />
+			<height normal="32" />
+		</collision>
+	</npc>
+	<npc id="23334" level="99" type="Monster" name="Shelop">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>UNDEAD</race>
+		<sex>FEMALE</sex>
+		<acquire exp="17315719" sp="27705" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="285150" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="52573.616390392" magical="5807.1057427324" critical="4" attackSpeed="753" range="40" />
+			<defence physical="23380.874444704" magical="13236.430025981" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4412" level="10" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4458" level="4" /> <!-- Spear Vulnerability -->
+			<skill id="4450" level="2" /> <!-- Stun Vulnerability -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" />
+		<collision>
+			<radius normal="30" />
+			<height normal="27" />
+		</collision>
+	</npc>
+	<npc id="23335" level="99" type="Monster" name="Poras">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>UNDEAD</race>
+		<sex>FEMALE</sex>
+		<acquire exp="17315719" sp="27705" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="285150" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="52573.616390392" magical="5807.1057427324" critical="4" attackSpeed="753" range="40" />
+			<defence physical="23380.874444704" magical="13236.430025981" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4412" level="10" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4458" level="4" /> <!-- Spear Vulnerability -->
+			<skill id="4450" level="2" /> <!-- Stun Vulnerability -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" />
+		<collision>
+			<radius normal="20" />
+			<height normal="53" />
+		</collision>
+	</npc>
+	<npc id="23336" level="99" type="Monster" name="Death Worm">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>UNDEAD</race>
+		<sex>FEMALE</sex>
+		<acquire exp="17315719" sp="27705" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="285150" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="52573.616390392" magical="5807.1057427324" critical="4" attackSpeed="753" range="40" />
+			<defence physical="23380.874444704" magical="13236.430025981" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4412" level="10" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4458" level="4" /> <!-- Spear Vulnerability -->
+			<skill id="4450" level="2" /> <!-- Stun Vulnerability -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" />
+		<collision>
+			<radius normal="70" />
+			<height normal="41" />
+		</collision>
+	</npc>
+	<npc id="23337" level="99" type="Monster" name="Large Rubble">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>UNDEAD</race>
+		<sex>FEMALE</sex>
+		<acquire exp="17315719" sp="27705" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="285150" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="52573.616390392" magical="5807.1057427324" critical="4" attackSpeed="753" range="40" />
+			<defence physical="23380.874444704" magical="13236.430025981" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4412" level="10" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4458" level="4" /> <!-- Spear Vulnerability -->
+			<skill id="4450" level="2" /> <!-- Stun Vulnerability -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<ai aggroRange="300" isAggressive="true" />
+		<collision>
+			<radius normal="23" />
+			<height normal="40" />
+		</collision>
+	</npc>
+	<npc id="23348" level="99" type="Monster" name="Chaos Horn">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>UNDEAD</race>
+		<sex>FEMALE</sex>
+		<acquire exp="17315719" sp="27705" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="128" />
+			</speed>
+			<attack physical="709745.59563428" magical="5807.1057427324" critical="4" attackSpeed="753" range="40" />
+			<defence physical="10638.29787234" magical="6214.4512323573" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Strong against the dark elemental. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<collision>
+			<radius normal="16" />
+			<height normal="27" />
+		</collision>
+	</npc>
+	<npc id="23349" level="87" type="Monster" name="Noctum" title="Gravekeeper">
+		<parameters>
+			<minions name="Privates">
+				<npc id="22932" count="1" respawnTime="0" weightPoint="0" /> <!-- Krakia Carcass -->
+				<npc id="22938" count="2" respawnTime="0" weightPoint="0" /> <!-- Seknus -->
+			</minions>
+		</parameters>
+		<race>HUMANOID</race>
+		<sex>FEMALE</sex>
+		<acquire exp="2042250" sp="490" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13497" hpRegen="9.5" mp="1917" mpRegen="3.3" />
+			<speed>
+				<walk ground="50" />
+				<run ground="180" />
+			</speed>
+			<attack physical="31589.055866298" magical="15059.044639482" critical="4" attackSpeed="253" range="40" />
+			<defence physical="3409.0909090909" magical="1687.6687668767" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="50" />
+			<height normal="60.5" />
+		</collision>
+	</npc>
+	<npc id="23350" level="87" type="Monster" name="Demonic Noctum" title="Gravekeeper">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMANOID</race>
+		<sex>FEMALE</sex>
+		<acquire exp="3123732" sp="749" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="13497" hpRegen="9.5" mp="1917" mpRegen="3.3" />
+			<speed>
+				<walk ground="50" />
+				<run ground="180" />
+			</speed>
+			<attack physical="31589.055866298" magical="15059.044639482" critical="4" attackSpeed="253" range="40" />
+			<defence physical="3409.0909090909" magical="1687.6687668767" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="50" />
+			<height normal="60.5" />
+		</collision>
+	</npc>
+	<npc id="23351" level="99" type="Monster" name="Wild Guardian Tree">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>PLANT</race>
+		<sex>FEMALE</sex>
+		<acquire exp="1464542" sp="2343" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="34698.673564342" magical="11614.211485465" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1404.0794795147" magical="932.16768485359" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4416" level="5" /> <!-- Plants -->
+		</skillList>
+		<collision>
+			<radius normal="60" />
+			<height normal="47" />
+		</collision>
+	</npc>
+	<npc id="23352" level="98" type="Monster" name="Wild Protector Tree">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="1435018" sp="344" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15761" hpRegen="10.5" mp="2317" mpRegen="3.6" />
+			<speed>
+				<walk ground="36" />
+				<run ground="180" />
+			</speed>
+			<attack physical="34884.22796843" magical="11738.75977987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1411.5879259292" magical="937.15253878329" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="44" />
+			<height normal="35" />
+		</collision>
+	</npc>
+	<npc id="23353" level="99" type="Monster" name="Wilderness Protector">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMANOID</race>
+		<sex>FEMALE</sex>
+		<acquire exp="1464542" sp="2343" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="57" />
+				<run ground="180" />
+			</speed>
+			<attack physical="34698.673564342" magical="11614.211485465" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1404.0794795147" magical="932.16768485359" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="35" />
+			<height normal="46.5" />
+		</collision>
+	</npc>
+	<npc id="23354" level="99" type="Monster" name="Decay Hannibal">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>CONSTRUCT</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="38" />
+				<run ground="180" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<collision>
+			<radius normal="23" />
+			<height normal="44" />
+		</collision>
+	</npc>
+	<npc id="23355" level="99" type="Monster" name="Armor Beast">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DIVINE</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="40" />
+				<run ground="160" />
+			</speed>
+			<attack physical="47220.317247387" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+		</skillList>
+		<collision>
+			<radius normal="31" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23356" level="99" type="Monster" name="Klein Soldier">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="47220.317247387" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="25" />
+			<height normal="43" />
+		</collision>
+	</npc>
+	<npc id="23357" level="99" type="Monster" name="Disorder Warrior">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.14714175852" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4412" level="9" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="25" />
+			<height normal="42" />
+		</collision>
+	</npc>
+	<npc id="23358" level="99" type="Monster" name="Blow Archer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DEMONIC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="43" />
+				<run ground="170" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="1100" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="30" />
+			<height normal="47" />
+		</collision>
+	</npc>
+	<npc id="23359" level="99" type="Monster" name="Blow Soldier">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="2162357" sp="5189" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="35" />
+				<run ground="120" />
+			</speed>
+			<attack physical="47220.61371589" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.14714175852" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="10" /> <!-- Slightly Weak P. Atk. -->
+			<skill id="4412" level="9" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="21" />
+			<height normal="27" />
+		</collision>
+	</npc>
+	<npc id="23360" level="99" type="Monster" name="Bizuard">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="304.80017840456" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4413" level="10" /> <!-- Slightly Weak M. Def. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="38" />
+			<height normal="32" />
+		</collision>
+	</npc>
+	<npc id="23361" level="99" type="Monster" name="Mutated Fly">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="47220.61371589" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="304.80017840456" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="10" /> <!-- Slightly Weak P. Atk. -->
+			<skill id="4413" level="10" /> <!-- Slightly Weak M. Def. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="35" />
+			<height normal="33" />
+		</collision>
+	</npc>
+	<npc id="23362" level="99" type="Monster" name="Amos Soldier">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>GIANT</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="35" />
+				<run ground="110" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="11" /> <!-- Giants -->
+		</skillList>
+		<collision>
+			<radius normal="30" />
+			<height normal="35" />
+		</collision>
+	</npc>
+	<npc id="23363" level="99" type="Monster" name="Amos Officer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>GIANT</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="30" />
+				<run ground="160" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="11" /> <!-- Giants -->
+		</skillList>
+		<collision>
+			<radius normal="35" />
+			<height normal="71.5" />
+		</collision>
+	</npc>
+	<npc id="23364" level="99" type="Monster" name="Amos Master">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMANOID</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="160" />
+			</speed>
+			<attack physical="47220.241292647" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="30" />
+			<height normal="42" />
+		</collision>
+	</npc>
+	<npc id="23365" level="99" type="Monster" name="Ailith Hunter">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DEMONIC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="210" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4276" level="2" /> <!-- Bow/Crossbow Vulnerability -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="36" />
+			<height normal="43.5" />
+		</collision>
+	</npc>
+	<npc id="23366" level="99" type="Monster" name="Durable Charger">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="13" />
+				<run ground="160" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="18" />
+			<height normal="38" />
+		</collision>
+	</npc>
+	<npc id="23367" level="99" type="Monster" name="Armor Beast">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DIVINE</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="40" />
+				<run ground="160" />
+			</speed>
+			<attack physical="47220.317247387" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
+		</skillList>
+		<collision>
+			<radius normal="31" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23368" level="99" type="Monster" name="Klein Soldier">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="47220.317247387" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="25" />
+			<height normal="43" />
+		</collision>
+	</npc>
+	<npc id="23369" level="99" type="Monster" name="Disorder Warrior">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.14714175852" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4412" level="9" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="25" />
+			<height normal="42" />
+		</collision>
+	</npc>
+	<npc id="23370" level="99" type="Monster" name="Blow Archer">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DEMONIC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="43" />
+				<run ground="170" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="1100" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="30" />
+			<height normal="47" />
+		</collision>
+	</npc>
+	<npc id="23371" level="99" type="Monster" name="Blow Soldier">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="2162357" sp="5189" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="35" />
+				<run ground="120" />
+			</speed>
+			<attack physical="47220.61371589" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.14714175852" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="10" /> <!-- Slightly Weak P. Atk. -->
+			<skill id="4412" level="9" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="21" />
+			<height normal="27" />
+		</collision>
+	</npc>
+	<npc id="23372" level="99" type="Monster" name="Bizuard">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="304.80017840456" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4413" level="10" /> <!-- Slightly Weak M. Def. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="38" />
+			<height normal="32" />
+		</collision>
+	</npc>
+	<npc id="23373" level="99" type="Monster" name="Mutated Fly">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="8649429" sp="20758" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="47220.61371589" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="304.80017840456" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="10" /> <!-- Slightly Weak P. Atk. -->
+			<skill id="4413" level="10" /> <!-- Slightly Weak M. Def. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="35" />
+			<height normal="33" />
+		</collision>
+	</npc>
+	<npc id="23374" level="99" type="Monster" name="Lavi" title="Disciplined">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="4079150" sp="9789" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="104555" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="300" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4458" level="3" /> <!-- Spear Vulnerability -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="10" />
+			<height normal="30" />
+		</collision>
+	</npc>
+	<npc id="23375" level="99" type="Monster" name="Lavi" title="Magical">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="4079150" sp="9789" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="104555" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="300" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="10" />
+			<height normal="30" />
+		</collision>
+	</npc>
+	<npc id="23376" level="99" type="Monster" name="Lavisys" title="Disciplined">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="4894979" sp="11747" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="139406" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="300" />
+			</speed>
+			<attack physical="47220.306466714" magical="8304.9029160715" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4458" level="3" /> <!-- Spear Vulnerability -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="12" />
+			<height normal="30" />
+		</collision>
+	</npc>
+	<npc id="23377" level="99" type="Monster" name="Lavisys" title="Explosive">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="4894979" sp="11747" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="139406" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="300" />
+			</speed>
+			<attack physical="47220.241292647" magical="8304.9029160715" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4458" level="3" /> <!-- Spear Vulnerability -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="12" />
+			<height normal="30" />
+		</collision>
+	</npc>
+	<npc id="23378" level="99" type="Monster" name="Lavisys" title="Soothing">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="4894979" sp="11747" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="139406" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="300" />
+			</speed>
+			<attack physical="47220.306466714" magical="8304.9029160715" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="12" />
+			<height normal="30" />
+		</collision>
+	</npc>
+	<npc id="23379" level="99" type="Monster" name="Tanya" title="Berserk">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DEMONIC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="27194245" sp="65266" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="253467" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="160" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4225" level="2" /> <!-- Stun Resistance -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="20" />
+			<height normal="45" />
+		</collision>
+	</npc>
+	<npc id="23380" level="99" type="Monster" name="Scarlett" title="Berserk">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DEMONIC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="27194245" sp="65266" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="253467" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="170" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4287" level="2" /> <!-- Hold Resistance -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="20" />
+			<height normal="60" />
+		</collision>
+	</npc>
+	<npc id="23381" level="99" type="Monster" name="Tanya" title="Berserk">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DEMONIC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="27194245" sp="65266" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="253467" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="160" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4458" level="3" /> <!-- Spear Vulnerability -->
+			<skill id="4225" level="2" /> <!-- Stun Resistance -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="20" />
+			<height normal="45" />
+		</collision>
+	</npc>
+	<npc id="23382" level="99" type="Monster" name="Scarlett" title="Berserk">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DEMONIC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="27194245" sp="65266" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="253467" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="170" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4458" level="3" /> <!-- Spear Vulnerability -->
+			<skill id="4287" level="2" /> <!-- Hold Resistance -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="20" />
+			<height normal="60" />
+		</collision>
+	</npc>
+	<npc id="23383" level="99" type="Monster" name="Immortal Tanya" title="Immortal">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DEMONIC</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="160" />
+			</speed>
+			<attack physical="46490.165755271" magical="8304.8994625376" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4410" level="18" /> <!-- Extremely Strong P. Atk. -->
+			<skill id="4411" level="18" /> <!-- Extremely Strong M. Atk. -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="15" />
+			<height normal="38" />
+		</collision>
+	</npc>
+	<npc id="23384" level="99" type="Monster" name="Smaug">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DRAGON</race>
+		<sex>FEMALE</sex>
+		<acquire exp="71385190" sp="171324" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="46" />
+				<run ground="200" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.31578947368" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4412" level="8" /> <!-- Weak P. Def. -->
+			<skill id="4457" level="1" /> <!-- Fist Weapon Vulnerability -->
+			<skill id="4459" level="1" /> <!-- Dualsword Vulnerability -->
+			<skill id="4460" level="1" /> <!-- Sword Vulnerability -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="10" /> <!-- Dragons -->
+		</skillList>
+		<collision>
+			<radius normal="48" />
+			<height normal="53.5" />
+		</collision>
+	</npc>
+	<npc id="23385" level="99" type="Monster" name="Lunatikan">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>CONSTRUCT</race>
+		<sex>FEMALE</sex>
+		<acquire exp="71385190" sp="171324" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="36" />
+				<run ground="170" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.31578947368" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4412" level="8" /> <!-- Weak P. Def. -->
+			<skill id="4457" level="1" /> <!-- Fist Weapon Vulnerability -->
+			<skill id="4459" level="1" /> <!-- Dualsword Vulnerability -->
+			<skill id="4460" level="1" /> <!-- Sword Vulnerability -->
+			<skill id="4225" level="3" /> <!-- Stun Resistance -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<collision>
+			<radius normal="40" />
+			<height normal="73" />
+		</collision>
+	</npc>
+	<npc id="23386" level="99" type="Monster" name="Jabberwok">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="71385190" sp="171324" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="56" />
+				<run ground="180" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.31578947368" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4412" level="8" /> <!-- Weak P. Def. -->
+			<skill id="4457" level="1" /> <!-- Fist Weapon Vulnerability -->
+			<skill id="4459" level="1" /> <!-- Dualsword Vulnerability -->
+			<skill id="4460" level="1" /> <!-- Sword Vulnerability -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="26" />
+			<height normal="47" />
+		</collision>
+	</npc>
+	<npc id="23387" level="99" type="Monster" name="Kanzaroth">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="71385190" sp="171324" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="37.5" />
+				<run ground="180" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.31578947368" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4412" level="8" /> <!-- Weak P. Def. -->
+			<skill id="4225" level="3" /> <!-- Stun Resistance -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="40" />
+			<height normal="72" />
+		</collision>
+	</npc>
+	<npc id="23388" level="99" type="Monster" name="Kandiloth">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="71385190" sp="171324" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="40" />
+				<run ground="120" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.31578947368" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4412" level="8" /> <!-- Weak P. Def. -->
+			<skill id="4225" level="3" /> <!-- Stun Resistance -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="38.7" />
+			<height normal="54.5" />
+		</collision>
+	</npc>
+	<npc id="23389" level="99" type="Monster" name="Viper" title="Oasis Mirage">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="142770186" sp="342648" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="47220.241292647" magical="8304.9567060447" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="30" />
+			<height normal="45" />
+		</collision>
+	</npc>
+	<npc id="23390" level="99" type="Monster" name="Viper" title="Oasis Mirage">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="142770186" sp="342648" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="348517" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="47220.241292647" magical="8304.9567060447" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="30" />
+			<height normal="45" />
+		</collision>
+	</npc>
+	<npc id="23391" level="99" type="Monster" name="Kefensis" title="Mirage Watcher">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>PLANT</race>
+		<sex>FEMALE</sex>
+		<acquire exp="142770186" sp="342648" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="316834" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="48" />
+				<run ground="150" />
+			</speed>
+			<attack physical="47220.241292647" magical="8304.9567060447" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="5" /> <!-- Plants -->
+		</skillList>
+		<collision>
+			<radius normal="28" />
+			<height normal="43.5" />
+		</collision>
+	</npc>
+	<npc id="23392" level="99" type="Monster" name="Kefensis" title="Mirage Watcher">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>PLANT</race>
+		<sex>FEMALE</sex>
+		<acquire exp="142770186" sp="342648" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="348517" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="48" />
+				<run ground="150" />
+			</speed>
+			<attack physical="47220.241292647" magical="8304.9567060447" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="5" /> <!-- Plants -->
+		</skillList>
+		<collision>
+			<radius normal="28" />
+			<height normal="43.5" />
+		</collision>
+	</npc>
+	<npc id="23393" level="99" type="Monster" name="Slaver">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMANOID</race>
+		<sex>FEMALE</sex>
+		<acquire exp="47590086" sp="114216" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="158417" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="56" />
+				<run ground="160" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4457" level="1" /> <!-- Fist Weapon Vulnerability -->
+			<skill id="4459" level="1" /> <!-- Dualsword Vulnerability -->
+			<skill id="4460" level="1" /> <!-- Sword Vulnerability -->
+			<skill id="4287" level="3" /> <!-- Hold Resistance -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="33" />
+			<height normal="58.5" />
+		</collision>
+	</npc>
+	<npc id="23394" level="99" type="Monster" name="Slaver">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMANOID</race>
+		<sex>FEMALE</sex>
+		<acquire exp="47590086" sp="114216" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="174258" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="56" />
+				<run ground="160" />
+			</speed>
+			<attack physical="47220.557386874" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4457" level="1" /> <!-- Fist Weapon Vulnerability -->
+			<skill id="4459" level="1" /> <!-- Dualsword Vulnerability -->
+			<skill id="4460" level="1" /> <!-- Sword Vulnerability -->
+			<skill id="4287" level="3" /> <!-- Hold Resistance -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="33" />
+			<height normal="58.5" />
+		</collision>
+	</npc>
+	<npc id="23395" level="99" type="Monster" name="Garion">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="90421084" sp="217010" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="348517" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="35" />
+				<run ground="160" />
+			</speed>
+			<attack physical="47220.306466714" magical="8304.9029160715" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.14714175852" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="9" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4457" level="1" /> <!-- Fist Weapon Vulnerability -->
+			<skill id="4459" level="1" /> <!-- Dualsword Vulnerability -->
+			<skill id="4460" level="1" /> <!-- Sword Vulnerability -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="30" />
+			<height normal="55" />
+		</collision>
+	</npc>
+	<npc id="23396" level="99" type="Monster" name="Garion Neti">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="90421084" sp="217010" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="348517" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="15" />
+				<run ground="160" />
+			</speed>
+			<attack physical="47220.306466714" magical="8304.9029160715" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.14714175852" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="9" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4457" level="1" /> <!-- Fist Weapon Vulnerability -->
+			<skill id="4459" level="1" /> <!-- Dualsword Vulnerability -->
+			<skill id="4460" level="1" /> <!-- Sword Vulnerability -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="30" />
+			<height normal="55" />
+		</collision>
+	</npc>
+	<npc id="23397" level="99" type="Monster" name="Desert Wendigo">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="90421084" sp="217010" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="348517" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+			<attack physical="47220.306466714" magical="8304.9029160715" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.14714175852" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="9" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="40" />
+			<height normal="45" />
+		</collision>
+	</npc>
+	<npc id="23398" level="99" type="Monster" name="Koraza">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="90421084" sp="217010" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="348517" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="29" />
+				<run ground="93" />
+			</speed>
+			<attack physical="47220.306466714" magical="8304.9029160715" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.14714175852" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="9" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="40" />
+			<height normal="55" />
+		</collision>
+	</npc>
+	<npc id="23399" level="99" type="Monster" name="Bend Beetle">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<acquire exp="90421084" sp="217010" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="348517" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+			<speed>
+				<walk ground="45" />
+				<run ground="170" />
+			</speed>
+			<attack physical="47220.306466714" magical="8304.9029160715" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.14714175852" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="9" /> <!-- Slightly Weak P. Def. -->
+			<skill id="4457" level="1" /> <!-- Fist Weapon Vulnerability -->
+			<skill id="4459" level="1" /> <!-- Dualsword Vulnerability -->
+			<skill id="4460" level="1" /> <!-- Sword Vulnerability -->
+			<skill id="4225" level="3" /> <!-- Stun Resistance -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
+			<skill id="4416" level="12" /> <!-- Bugs -->
+		</skillList>
+		<collision>
+			<radius normal="40" />
+			<height normal="67" />
+		</collision>
+	</npc>
+</list>

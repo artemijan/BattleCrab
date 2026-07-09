@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Interlude_24_15">
+		<group>
+			<npc id="31558" x="142368" y="-82512" z="-6487" heading="58000" respawnTime="129600sec" /> <!-- Ketra's Holy Altar -->
+			<npc id="31615" x="145904" y="-70880" z="-4098" heading="18000" respawnTime="60sec" /> <!-- Hermit -->
+			<npc id="31652" x="161728" y="-92880" z="-1840" heading="16500" respawnTime="60sec" /> <!-- Tablet Of Vision -->
+			<npc id="31376" x="149824" y="-79840" z="-5579" heading="48000" respawnTime="60sec" /> <!-- Kurfa -->
+			<npc id="31370" x="149980" y="-82204" z="-5579" heading="24000" respawnTime="60sec" /> <!-- Kadun Zu Ketra -->
+			<npc id="31374" x="149104" y="-80544" z="-5635" heading="48000" respawnTime="60sec" /> <!-- Jaff -->
+			<npc id="31375" x="150416" y="-80752" z="-5603" heading="48000" respawnTime="60sec" /> <!-- Jumara -->
+			<npc id="31373" x="150368" y="-81216" z="-5603" heading="15000" respawnTime="60sec" /> <!-- Atan -->
+			<npc id="31372" x="149052" y="-80996" z="-5648" heading="16000" respawnTime="60sec" /> <!-- Asefa -->
+			<npc id="31371" x="146980" y="-67483" z="-3656" heading="33000" respawnTime="60sec" /> <!-- Wahkan -->
+			<npc id="31559" x="149000" y="-81392" z="-5633" heading="48000" respawnTime="60sec" /> <!-- Box of Asefa -->
+		</group>
+	</spawn>
+</list>

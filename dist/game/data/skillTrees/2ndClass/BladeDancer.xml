@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="34" parentClassId="32">
+		<skill skillId="2" skillLevel="5" skillName="Confusion" levelUpSp="43000" getLevel="40" />
+		<skill skillId="70" skillLevel="17" skillName="Drain Health" levelUpSp="14000" getLevel="40" />
+		<skill skillId="70" skillLevel="18" skillName="Drain Health" levelUpSp="14000" getLevel="40" />
+		<skill skillId="70" skillLevel="19" skillName="Drain Health" levelUpSp="14000" getLevel="40" />
+		<skill skillId="105" skillLevel="3" skillName="Freezing Strike" levelUpSp="22000" getLevel="40" />
+		<skill skillId="105" skillLevel="4" skillName="Freezing Strike" levelUpSp="22000" getLevel="40" />
+		<skill skillId="115" skillLevel="3" skillName="Power Break" levelUpSp="43000" getLevel="40" />
+		<skill skillId="122" skillLevel="1" skillName="Hex" levelUpSp="43000" getLevel="40" />
+		<skill skillId="144" skillLevel="1" skillName="Dual Weapon Mastery" levelUpSp="14000" getLevel="40" />
+		<skill skillId="144" skillLevel="2" skillName="Dual Weapon Mastery" levelUpSp="14000" getLevel="40" />
+		<skill skillId="144" skillLevel="3" skillName="Dual Weapon Mastery" levelUpSp="14000" getLevel="40" />
+		<skill skillId="147" skillLevel="15" skillName="Magic Resistance" levelUpSp="14000" getLevel="40" />
+		<skill skillId="147" skillLevel="16" skillName="Magic Resistance" levelUpSp="14000" getLevel="40" />
+		<skill skillId="147" skillLevel="17" skillName="Magic Resistance" levelUpSp="14000" getLevel="40" />
+		<skill skillId="223" skillLevel="13" skillName="Sting" levelUpSp="14000" getLevel="40" />
+		<skill skillId="223" skillLevel="14" skillName="Sting" levelUpSp="14000" getLevel="40" />
+		<skill skillId="223" skillLevel="15" skillName="Sting" levelUpSp="14000" getLevel="40" />
+		<skill skillId="274" skillLevel="1" skillName="Dance of Fire" levelUpSp="43000" getLevel="40" />
+		<skill skillId="2" skillLevel="6" skillName="Confusion" levelUpSp="46000" getLevel="43" />
+		<skill skillId="70" skillLevel="20" skillName="Drain Health" levelUpSp="15000" getLevel="43" />
+		<skill skillId="70" skillLevel="21" skillName="Drain Health" levelUpSp="15000" getLevel="43" />
+		<skill skillId="70" skillLevel="22" skillName="Drain Health" levelUpSp="15000" getLevel="43" />
+		<skill skillId="105" skillLevel="5" skillName="Freezing Strike" levelUpSp="23000" getLevel="43" />
+		<skill skillId="105" skillLevel="6" skillName="Freezing Strike" levelUpSp="23000" getLevel="43" />
+		<skill skillId="115" skillLevel="4" skillName="Power Break" levelUpSp="46000" getLevel="43" />
+		<skill skillId="122" skillLevel="2" skillName="Hex" levelUpSp="46000" getLevel="43" />
+		<skill skillId="144" skillLevel="4" skillName="Dual Weapon Mastery" levelUpSp="15000" getLevel="43" />
+		<skill skillId="144" skillLevel="5" skillName="Dual Weapon Mastery" levelUpSp="15000" getLevel="43" />
+		<skill skillId="144" skillLevel="6" skillName="Dual Weapon Mastery" levelUpSp="15000" getLevel="43" />
+		<skill skillId="147" skillLevel="18" skillName="Magic Resistance" levelUpSp="15000" getLevel="43" />
+		<skill skillId="147" skillLevel="19" skillName="Magic Resistance" levelUpSp="15000" getLevel="43" />
+		<skill skillId="147" skillLevel="20" skillName="Magic Resistance" levelUpSp="15000" getLevel="43" />
+		<skill skillId="191" skillLevel="2" skillName="Focus Mind" levelUpSp="46000" getLevel="43" />
+		<skill skillId="223" skillLevel="16" skillName="Sting" levelUpSp="15000" getLevel="43" />
+		<skill skillId="223" skillLevel="17" skillName="Sting" levelUpSp="15000" getLevel="43" />
+		<skill skillId="223" skillLevel="18" skillName="Sting" levelUpSp="15000" getLevel="43" />
+		<skill skillId="277" skillLevel="1" skillName="Dance of Light" levelUpSp="46000" getLevel="43" />
+		<skill skillId="2" skillLevel="7" skillName="Confusion" levelUpSp="67000" getLevel="46" />
+		<skill skillId="70" skillLevel="23" skillName="Drain Health" levelUpSp="22000" getLevel="46" />
+		<skill skillId="70" skillLevel="24" skillName="Drain Health" levelUpSp="22000" getLevel="46" />
+		<skill skillId="70" skillLevel="25" skillName="Drain Health" levelUpSp="22000" getLevel="46" />
+		<skill skillId="105" skillLevel="7" skillName="Freezing Strike" levelUpSp="33000" getLevel="46" />
+		<skill skillId="105" skillLevel="8" skillName="Freezing Strike" levelUpSp="33000" getLevel="46" />
+		<skill skillId="115" skillLevel="5" skillName="Power Break" levelUpSp="67000" getLevel="46" />
+		<skill skillId="122" skillLevel="3" skillName="Hex" levelUpSp="67000" getLevel="46" />
+		<skill skillId="144" skillLevel="7" skillName="Dual Weapon Mastery" levelUpSp="22000" getLevel="46" />
+		<skill skillId="144" skillLevel="8" skillName="Dual Weapon Mastery" levelUpSp="22000" getLevel="46" />
+		<skill skillId="144" skillLevel="9" skillName="Dual Weapon Mastery" levelUpSp="22000" getLevel="46" />
+		<skill skillId="147" skillLevel="21" skillName="Magic Resistance" levelUpSp="22000" getLevel="46" />
+		<skill skillId="147" skillLevel="22" skillName="Magic Resistance" levelUpSp="22000" getLevel="46" />
+		<skill skillId="147" skillLevel="23" skillName="Magic Resistance" levelUpSp="22000" getLevel="46" />
+		<skill skillId="223" skillLevel="19" skillName="Sting" levelUpSp="22000" getLevel="46" />
+		<skill skillId="223" skillLevel="20" skillName="Sting" levelUpSp="22000" getLevel="46" />
+		<skill skillId="223" skillLevel="21" skillName="Sting" levelUpSp="22000" getLevel="46" />
+		<skill skillId="272" skillLevel="1" skillName="Dance of Inspiration" levelUpSp="67000" getLevel="46" />
+		<skill skillId="2" skillLevel="8" skillName="Confusion" levelUpSp="89000" getLevel="49" />
+		<skill skillId="70" skillLevel="26" skillName="Drain Health" levelUpSp="30000" getLevel="49" />
+		<skill skillId="70" skillLevel="27" skillName="Drain Health" levelUpSp="30000" getLevel="49" />
+		<skill skillId="70" skillLevel="28" skillName="Drain Health" levelUpSp="30000" getLevel="49" />
+		<skill skillId="105" skillLevel="9" skillName="Freezing Strike" levelUpSp="45000" getLevel="49" />
+		<skill skillId="105" skillLevel="10" skillName="Freezing Strike" levelUpSp="45000" getLevel="49" />
+		<skill skillId="115" skillLevel="6" skillName="Power Break" levelUpSp="89000" getLevel="49" />
+		<skill skillId="122" skillLevel="4" skillName="Hex" levelUpSp="89000" getLevel="49" />
+		<skill skillId="129" skillLevel="2" skillName="Poison" levelUpSp="89000" getLevel="49" />
+		<skill skillId="144" skillLevel="10" skillName="Dual Weapon Mastery" levelUpSp="30000" getLevel="49" />
+		<skill skillId="144" skillLevel="11" skillName="Dual Weapon Mastery" levelUpSp="30000" getLevel="49" />
+		<skill skillId="144" skillLevel="12" skillName="Dual Weapon Mastery" levelUpSp="30000" getLevel="49" />
+		<skill skillId="147" skillLevel="24" skillName="Magic Resistance" levelUpSp="30000" getLevel="49" />
+		<skill skillId="147" skillLevel="25" skillName="Magic Resistance" levelUpSp="30000" getLevel="49" />
+		<skill skillId="147" skillLevel="26" skillName="Magic Resistance" levelUpSp="30000" getLevel="49" />
+		<skill skillId="191" skillLevel="3" skillName="Focus Mind" levelUpSp="89000" getLevel="49" />
+		<skill skillId="223" skillLevel="22" skillName="Sting" levelUpSp="30000" getLevel="49" />
+		<skill skillId="223" skillLevel="23" skillName="Sting" levelUpSp="30000" getLevel="49" />
+		<skill skillId="223" skillLevel="24" skillName="Sting" levelUpSp="30000" getLevel="49" />
+		<skill skillId="273" skillLevel="1" skillName="Dance of Mystic" levelUpSp="89000" getLevel="49" />
+		<skill skillId="2" skillLevel="9" skillName="Confusion" levelUpSp="167000" getLevel="52" />
+		<skill skillId="70" skillLevel="29" skillName="Drain Health" levelUpSp="56000" getLevel="52" />
+		<skill skillId="70" skillLevel="30" skillName="Drain Health" levelUpSp="56000" getLevel="52" />
+		<skill skillId="70" skillLevel="31" skillName="Drain Health" levelUpSp="56000" getLevel="52" />
+		<skill skillId="105" skillLevel="11" skillName="Freezing Strike" levelUpSp="83000" getLevel="52" />
+		<skill skillId="105" skillLevel="12" skillName="Freezing Strike" levelUpSp="83000" getLevel="52" />
+		<skill skillId="115" skillLevel="7" skillName="Power Break" levelUpSp="167000" getLevel="52" />
+		<skill skillId="122" skillLevel="5" skillName="Hex" levelUpSp="167000" getLevel="52" />
+		<skill skillId="144" skillLevel="13" skillName="Dual Weapon Mastery" levelUpSp="56000" getLevel="52" />
+		<skill skillId="144" skillLevel="14" skillName="Dual Weapon Mastery" levelUpSp="56000" getLevel="52" />
+		<skill skillId="144" skillLevel="15" skillName="Dual Weapon Mastery" levelUpSp="56000" getLevel="52" />
+		<skill skillId="147" skillLevel="27" skillName="Magic Resistance" levelUpSp="56000" getLevel="52" />
+		<skill skillId="147" skillLevel="28" skillName="Magic Resistance" levelUpSp="56000" getLevel="52" />
+		<skill skillId="147" skillLevel="29" skillName="Magic Resistance" levelUpSp="56000" getLevel="52" />
+		<skill skillId="223" skillLevel="25" skillName="Sting" levelUpSp="56000" getLevel="52" />
+		<skill skillId="223" skillLevel="26" skillName="Sting" levelUpSp="56000" getLevel="52" />
+		<skill skillId="223" skillLevel="27" skillName="Sting" levelUpSp="56000" getLevel="52" />
+		<skill skillId="276" skillLevel="1" skillName="Dance of Concentration" levelUpSp="167000" getLevel="52" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="1" getLevel="52" levelUpSp="230000">			<item id="8618" count="1" /> <!-- Ancient Book: Divine Inspiration (Modern Language Version) -->		</skill>
+		<skill skillId="2" skillLevel="10" skillName="Confusion" levelUpSp="170000" getLevel="55" />
+		<skill skillId="70" skillLevel="32" skillName="Drain Health" levelUpSp="56000" getLevel="55" />
+		<skill skillId="70" skillLevel="33" skillName="Drain Health" levelUpSp="56000" getLevel="55" />
+		<skill skillId="70" skillLevel="34" skillName="Drain Health" levelUpSp="56000" getLevel="55" />
+		<skill skillId="84" skillLevel="1" skillName="Poison Blade Dance" levelUpSp="170000" getLevel="55" />
+		<skill skillId="105" skillLevel="13" skillName="Freezing Strike" levelUpSp="85000" getLevel="55" />
+		<skill skillId="105" skillLevel="14" skillName="Freezing Strike" levelUpSp="85000" getLevel="55" />
+		<skill skillId="115" skillLevel="8" skillName="Power Break" levelUpSp="170000" getLevel="55" />
+		<skill skillId="122" skillLevel="6" skillName="Hex" levelUpSp="170000" getLevel="55" />
+		<skill skillId="144" skillLevel="16" skillName="Dual Weapon Mastery" levelUpSp="56000" getLevel="55" />
+		<skill skillId="144" skillLevel="17" skillName="Dual Weapon Mastery" levelUpSp="56000" getLevel="55" />
+		<skill skillId="144" skillLevel="18" skillName="Dual Weapon Mastery" levelUpSp="56000" getLevel="55" />
+		<skill skillId="147" skillLevel="30" skillName="Magic Resistance" levelUpSp="56000" getLevel="55" />
+		<skill skillId="147" skillLevel="31" skillName="Magic Resistance" levelUpSp="56000" getLevel="55" />
+		<skill skillId="147" skillLevel="32" skillName="Magic Resistance" levelUpSp="56000" getLevel="55" />
+		<skill skillId="191" skillLevel="4" skillName="Focus Mind" levelUpSp="170000" getLevel="55" />
+		<skill skillId="223" skillLevel="28" skillName="Sting" levelUpSp="56000" getLevel="55" />
+		<skill skillId="223" skillLevel="29" skillName="Sting" levelUpSp="56000" getLevel="55" />
+		<skill skillId="223" skillLevel="30" skillName="Sting" levelUpSp="56000" getLevel="55" />
+		<skill skillId="271" skillLevel="1" skillName="Dance of Warrior" levelUpSp="170000" getLevel="55" />
+		<skill skillId="402" skillLevel="1" skillName="Arrest" levelUpSp="170000" getLevel="55" />
+		<skill skillId="408" skillLevel="1" skillName="Demonic Blade Dance" levelUpSp="170000" getLevel="55" />
+		<skill skillId="2" skillLevel="11" skillName="Confusion" levelUpSp="200000" getLevel="58" />
+		<skill skillId="70" skillLevel="35" skillName="Drain Health" levelUpSp="67000" getLevel="58" />
+		<skill skillId="70" skillLevel="36" skillName="Drain Health" levelUpSp="67000" getLevel="58" />
+		<skill skillId="70" skillLevel="37" skillName="Drain Health" levelUpSp="67000" getLevel="58" />
+		<skill skillId="105" skillLevel="15" skillName="Freezing Strike" levelUpSp="100000" getLevel="58" />
+		<skill skillId="105" skillLevel="16" skillName="Freezing Strike" levelUpSp="100000" getLevel="58" />
+		<skill skillId="115" skillLevel="9" skillName="Power Break" levelUpSp="200000" getLevel="58" />
+		<skill skillId="122" skillLevel="7" skillName="Hex" levelUpSp="200000" getLevel="58" />
+		<skill skillId="129" skillLevel="3" skillName="Poison" levelUpSp="200000" getLevel="58" />
+		<skill skillId="144" skillLevel="19" skillName="Dual Weapon Mastery" levelUpSp="67000" getLevel="58" />
+		<skill skillId="144" skillLevel="20" skillName="Dual Weapon Mastery" levelUpSp="67000" getLevel="58" />
+		<skill skillId="144" skillLevel="21" skillName="Dual Weapon Mastery" levelUpSp="67000" getLevel="58" />
+		<skill skillId="147" skillLevel="33" skillName="Magic Resistance" levelUpSp="67000" getLevel="58" />
+		<skill skillId="147" skillLevel="34" skillName="Magic Resistance" levelUpSp="67000" getLevel="58" />
+		<skill skillId="147" skillLevel="35" skillName="Magic Resistance" levelUpSp="67000" getLevel="58" />
+		<skill skillId="223" skillLevel="31" skillName="Sting" levelUpSp="67000" getLevel="58" />
+		<skill skillId="223" skillLevel="32" skillName="Sting" levelUpSp="67000" getLevel="58" />
+		<skill skillId="223" skillLevel="33" skillName="Sting" levelUpSp="67000" getLevel="58" />
+		<skill skillId="275" skillLevel="1" skillName="Dance of Fury" levelUpSp="200000" getLevel="58" />
+		<skill skillId="402" skillLevel="2" skillName="Arrest" levelUpSp="200000" getLevel="58" />
+		<skill skillId="408" skillLevel="2" skillName="Demonic Blade Dance" levelUpSp="200000" getLevel="58" />
+		<skill skillId="2" skillLevel="12" skillName="Confusion" levelUpSp="264000" getLevel="60" />
+		<skill skillId="70" skillLevel="38" skillName="Drain Health" levelUpSp="132000" getLevel="60" />
+		<skill skillId="70" skillLevel="39" skillName="Drain Health" levelUpSp="132000" getLevel="60" />
+		<skill skillId="84" skillLevel="2" skillName="Poison Blade Dance" levelUpSp="264000" getLevel="60" />
+		<skill skillId="105" skillLevel="17" skillName="Freezing Strike" levelUpSp="264000" getLevel="60" />
+		<skill skillId="115" skillLevel="10" skillName="Power Break" levelUpSp="264000" getLevel="60" />
+		<skill skillId="122" skillLevel="8" skillName="Hex" levelUpSp="264000" getLevel="60" />
+		<skill skillId="144" skillLevel="22" skillName="Dual Weapon Mastery" levelUpSp="132000" getLevel="60" />
+		<skill skillId="144" skillLevel="23" skillName="Dual Weapon Mastery" levelUpSp="132000" getLevel="60" />
+		<skill skillId="147" skillLevel="36" skillName="Magic Resistance" levelUpSp="132000" getLevel="60" />
+		<skill skillId="147" skillLevel="37" skillName="Magic Resistance" levelUpSp="132000" getLevel="60" />
+		<skill skillId="223" skillLevel="34" skillName="Sting" levelUpSp="132000" getLevel="60" />
+		<skill skillId="223" skillLevel="35" skillName="Sting" levelUpSp="132000" getLevel="60" />
+		<skill skillId="402" skillLevel="3" skillName="Arrest" levelUpSp="264000" getLevel="60" />
+		<skill skillId="408" skillLevel="3" skillName="Demonic Blade Dance" levelUpSp="264000" getLevel="60" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="2" getLevel="61" levelUpSp="640000">			<item id="8619" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Language Version) -->		</skill>
+		<skill skillId="2" skillLevel="13" skillName="Confusion" levelUpSp="360000" getLevel="62" />
+		<skill skillId="70" skillLevel="40" skillName="Drain Health" levelUpSp="180000" getLevel="62" />
+		<skill skillId="70" skillLevel="41" skillName="Drain Health" levelUpSp="180000" getLevel="62" />
+		<skill skillId="105" skillLevel="18" skillName="Freezing Strike" levelUpSp="360000" getLevel="62" />
+		<skill skillId="115" skillLevel="11" skillName="Power Break" levelUpSp="360000" getLevel="62" />
+		<skill skillId="122" skillLevel="9" skillName="Hex" levelUpSp="360000" getLevel="62" />
+		<skill skillId="144" skillLevel="24" skillName="Dual Weapon Mastery" levelUpSp="180000" getLevel="62" />
+		<skill skillId="144" skillLevel="25" skillName="Dual Weapon Mastery" levelUpSp="180000" getLevel="62" />
+		<skill skillId="147" skillLevel="38" skillName="Magic Resistance" levelUpSp="180000" getLevel="62" />
+		<skill skillId="147" skillLevel="39" skillName="Magic Resistance" levelUpSp="180000" getLevel="62" />
+		<skill skillId="223" skillLevel="36" skillName="Sting" levelUpSp="180000" getLevel="62" />
+		<skill skillId="223" skillLevel="37" skillName="Sting" levelUpSp="180000" getLevel="62" />
+		<skill skillId="309" skillLevel="1" skillName="Dance of Earth Guard" levelUpSp="360000" getLevel="62" />
+		<skill skillId="402" skillLevel="4" skillName="Arrest" levelUpSp="360000" getLevel="62" />
+		<skill skillId="408" skillLevel="4" skillName="Demonic Blade Dance" levelUpSp="360000" getLevel="62" />
+		<skill skillId="2" skillLevel="14" skillName="Confusion" levelUpSp="440000" getLevel="64" />
+		<skill skillId="70" skillLevel="42" skillName="Drain Health" levelUpSp="220000" getLevel="64" />
+		<skill skillId="70" skillLevel="43" skillName="Drain Health" levelUpSp="220000" getLevel="64" />
+		<skill skillId="105" skillLevel="19" skillName="Freezing Strike" levelUpSp="440000" getLevel="64" />
+		<skill skillId="115" skillLevel="12" skillName="Power Break" levelUpSp="440000" getLevel="64" />
+		<skill skillId="122" skillLevel="10" skillName="Hex" levelUpSp="440000" getLevel="64" />
+		<skill skillId="144" skillLevel="26" skillName="Dual Weapon Mastery" levelUpSp="220000" getLevel="64" />
+		<skill skillId="144" skillLevel="27" skillName="Dual Weapon Mastery" levelUpSp="220000" getLevel="64" />
+		<skill skillId="147" skillLevel="40" skillName="Magic Resistance" levelUpSp="220000" getLevel="64" />
+		<skill skillId="147" skillLevel="41" skillName="Magic Resistance" levelUpSp="220000" getLevel="64" />
+		<skill skillId="191" skillLevel="5" skillName="Focus Mind" levelUpSp="440000" getLevel="64" />
+		<skill skillId="223" skillLevel="38" skillName="Sting" levelUpSp="220000" getLevel="64" />
+		<skill skillId="223" skillLevel="39" skillName="Sting" levelUpSp="220000" getLevel="64" />
+		<skill skillId="402" skillLevel="5" skillName="Arrest" levelUpSp="440000" getLevel="64" />
+		<skill skillId="408" skillLevel="5" skillName="Demonic Blade Dance" levelUpSp="440000" getLevel="64" />
+		<skill skillId="2" skillLevel="15" skillName="Confusion" levelUpSp="580000" getLevel="66" />
+		<skill skillId="70" skillLevel="44" skillName="Drain Health" levelUpSp="290000" getLevel="66" />
+		<skill skillId="70" skillLevel="45" skillName="Drain Health" levelUpSp="290000" getLevel="66" />
+		<skill skillId="105" skillLevel="20" skillName="Freezing Strike" levelUpSp="580000" getLevel="66" />
+		<skill skillId="115" skillLevel="13" skillName="Power Break" levelUpSp="580000" getLevel="66" />
+		<skill skillId="122" skillLevel="11" skillName="Hex" levelUpSp="580000" getLevel="66" />
+		<skill skillId="129" skillLevel="4" skillName="Poison" levelUpSp="580000" getLevel="66" />
+		<skill skillId="144" skillLevel="28" skillName="Dual Weapon Mastery" levelUpSp="290000" getLevel="66" />
+		<skill skillId="144" skillLevel="29" skillName="Dual Weapon Mastery" levelUpSp="290000" getLevel="66" />
+		<skill skillId="147" skillLevel="42" skillName="Magic Resistance" levelUpSp="290000" getLevel="66" />
+		<skill skillId="147" skillLevel="43" skillName="Magic Resistance" levelUpSp="290000" getLevel="66" />
+		<skill skillId="223" skillLevel="40" skillName="Sting" levelUpSp="290000" getLevel="66" />
+		<skill skillId="223" skillLevel="41" skillName="Sting" levelUpSp="290000" getLevel="66" />
+		<skill skillId="311" skillLevel="1" skillName="Dance of Protection" levelUpSp="580000" getLevel="66" />
+		<skill skillId="402" skillLevel="6" skillName="Arrest" levelUpSp="580000" getLevel="66" />
+		<skill skillId="408" skillLevel="6" skillName="Demonic Blade Dance" levelUpSp="580000" getLevel="66" />
+		<skill skillId="2" skillLevel="16" skillName="Confusion" levelUpSp="780000" getLevel="68" />
+		<skill skillId="70" skillLevel="46" skillName="Drain Health" levelUpSp="390000" getLevel="68" />
+		<skill skillId="70" skillLevel="47" skillName="Drain Health" levelUpSp="390000" getLevel="68" />
+		<skill skillId="105" skillLevel="21" skillName="Freezing Strike" levelUpSp="780000" getLevel="68" />
+		<skill skillId="115" skillLevel="14" skillName="Power Break" levelUpSp="780000" getLevel="68" />
+		<skill skillId="122" skillLevel="12" skillName="Hex" levelUpSp="780000" getLevel="68" />
+		<skill skillId="144" skillLevel="30" skillName="Dual Weapon Mastery" levelUpSp="390000" getLevel="68" />
+		<skill skillId="144" skillLevel="31" skillName="Dual Weapon Mastery" levelUpSp="390000" getLevel="68" />
+		<skill skillId="147" skillLevel="44" skillName="Magic Resistance" levelUpSp="390000" getLevel="68" />
+		<skill skillId="147" skillLevel="45" skillName="Magic Resistance" levelUpSp="390000" getLevel="68" />
+		<skill skillId="223" skillLevel="42" skillName="Sting" levelUpSp="390000" getLevel="68" />
+		<skill skillId="223" skillLevel="43" skillName="Sting" levelUpSp="390000" getLevel="68" />
+		<skill skillId="402" skillLevel="7" skillName="Arrest" levelUpSp="780000" getLevel="68" />
+		<skill skillId="408" skillLevel="7" skillName="Demonic Blade Dance" levelUpSp="780000" getLevel="68" />
+		<skill skillId="2" skillLevel="17" skillName="Confusion" levelUpSp="850000" getLevel="70" />
+		<skill skillId="70" skillLevel="48" skillName="Drain Health" levelUpSp="420000" getLevel="70" />
+		<skill skillId="70" skillLevel="49" skillName="Drain Health" levelUpSp="420000" getLevel="70" />
+		<skill skillId="105" skillLevel="22" skillName="Freezing Strike" levelUpSp="850000" getLevel="70" />
+		<skill skillId="115" skillLevel="15" skillName="Power Break" levelUpSp="850000" getLevel="70" />
+		<skill skillId="122" skillLevel="13" skillName="Hex" levelUpSp="850000" getLevel="70" />
+		<skill skillId="144" skillLevel="32" skillName="Dual Weapon Mastery" levelUpSp="420000" getLevel="70" />
+		<skill skillId="144" skillLevel="33" skillName="Dual Weapon Mastery" levelUpSp="420000" getLevel="70" />
+		<skill skillId="147" skillLevel="46" skillName="Magic Resistance" levelUpSp="420000" getLevel="70" />
+		<skill skillId="147" skillLevel="47" skillName="Magic Resistance" levelUpSp="420000" getLevel="70" />
+		<skill skillId="223" skillLevel="44" skillName="Sting" levelUpSp="420000" getLevel="70" />
+		<skill skillId="223" skillLevel="45" skillName="Sting" levelUpSp="420000" getLevel="70" />
+		<skill skillId="307" skillLevel="1" skillName="Dance of Aqua Guard" levelUpSp="850000" getLevel="70" />
+		<skill skillId="402" skillLevel="8" skillName="Arrest" levelUpSp="850000" getLevel="70" />
+		<skill skillId="408" skillLevel="8" skillName="Demonic Blade Dance" levelUpSp="850000" getLevel="70" />
+		<skill skillId="2" skillLevel="18" skillName="Confusion" levelUpSp="1000000" getLevel="72" />
+		<skill skillId="70" skillLevel="50" skillName="Drain Health" levelUpSp="500000" getLevel="72" />
+		<skill skillId="70" skillLevel="51" skillName="Drain Health" levelUpSp="500000" getLevel="72" />
+		<skill skillId="84" skillLevel="3" skillName="Poison Blade Dance" levelUpSp="1000000" getLevel="72" />
+		<skill skillId="105" skillLevel="23" skillName="Freezing Strike" levelUpSp="1000000" getLevel="72" />
+		<skill skillId="115" skillLevel="16" skillName="Power Break" levelUpSp="1000000" getLevel="72" />
+		<skill skillId="122" skillLevel="14" skillName="Hex" levelUpSp="1000000" getLevel="72" />
+		<skill skillId="144" skillLevel="34" skillName="Dual Weapon Mastery" levelUpSp="500000" getLevel="72" />
+		<skill skillId="144" skillLevel="35" skillName="Dual Weapon Mastery" levelUpSp="500000" getLevel="72" />
+		<skill skillId="147" skillLevel="48" skillName="Magic Resistance" levelUpSp="500000" getLevel="72" />
+		<skill skillId="147" skillLevel="49" skillName="Magic Resistance" levelUpSp="500000" getLevel="72" />
+		<skill skillId="191" skillLevel="6" skillName="Focus Mind" levelUpSp="1000000" getLevel="72" />
+		<skill skillId="223" skillLevel="46" skillName="Sting" levelUpSp="500000" getLevel="72" />
+		<skill skillId="223" skillLevel="47" skillName="Sting" levelUpSp="500000" getLevel="72" />
+		<skill skillId="402" skillLevel="9" skillName="Arrest" levelUpSp="1000000" getLevel="72" />
+		<skill skillId="408" skillLevel="9" skillName="Demonic Blade Dance" levelUpSp="1000000" getLevel="72" />
+		<skill skillId="2" skillLevel="19" skillName="Confusion" levelUpSp="2170000" getLevel="74" />
+		<skill skillId="70" skillLevel="52" skillName="Drain Health" levelUpSp="1080000" getLevel="74" />
+		<skill skillId="70" skillLevel="53" skillName="Drain Health" levelUpSp="1080000" getLevel="74" />
+		<skill skillId="105" skillLevel="24" skillName="Freezing Strike" levelUpSp="2170000" getLevel="74" />
+		<skill skillId="115" skillLevel="17" skillName="Power Break" levelUpSp="2170000" getLevel="74" />
+		<skill skillId="122" skillLevel="15" skillName="Hex" levelUpSp="2170000" getLevel="74" />
+		<skill skillId="129" skillLevel="5" skillName="Poison" levelUpSp="2170000" getLevel="74" />
+		<skill skillId="144" skillLevel="36" skillName="Dual Weapon Mastery" levelUpSp="1080000" getLevel="74" />
+		<skill skillId="144" skillLevel="37" skillName="Dual Weapon Mastery" levelUpSp="1080000" getLevel="74" />
+		<skill skillId="147" skillLevel="50" skillName="Magic Resistance" levelUpSp="1080000" getLevel="74" />
+		<skill skillId="147" skillLevel="51" skillName="Magic Resistance" levelUpSp="1080000" getLevel="74" />
+		<skill skillId="223" skillLevel="48" skillName="Sting" levelUpSp="1080000" getLevel="74" />
+		<skill skillId="223" skillLevel="49" skillName="Sting" levelUpSp="1080000" getLevel="74" />
+		<skill skillId="310" skillLevel="1" skillName="Dance of Vampire" levelUpSp="2170000" getLevel="74" />
+		<skill skillId="402" skillLevel="10" skillName="Arrest" levelUpSp="2170000" getLevel="74" />
+		<skill skillId="408" skillLevel="10" skillName="Demonic Blade Dance" levelUpSp="2170000" getLevel="74" />
+	</skillTree>
+</list>

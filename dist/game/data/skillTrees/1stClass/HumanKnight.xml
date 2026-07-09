@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="4" parentClassId="0">
+		<skill skillId="70" skillLevel="1" skillName="Drain Health" levelUpSp="2300" getLevel="20" />
+		<skill skillId="70" skillLevel="2" skillName="Drain Health" levelUpSp="2300" getLevel="20" />
+		<skill skillId="82" skillLevel="1" skillName="Majesty" levelUpSp="4700" getLevel="20" />
+		<skill skillId="92" skillLevel="1" skillName="Shield Stun" levelUpSp="1500" getLevel="20" />
+		<skill skillId="92" skillLevel="2" skillName="Shield Stun" levelUpSp="1500" getLevel="20" />
+		<skill skillId="92" skillLevel="3" skillName="Shield Stun" levelUpSp="1500" getLevel="20" />
+		<skill skillId="110" skillLevel="1" skillName="Ultimate Defense" levelUpSp="4700" getLevel="20" />
+		<skill skillId="147" skillLevel="1" skillName="Magic Resistance" levelUpSp="2300" getLevel="20" />
+		<skill skillId="147" skillLevel="2" skillName="Magic Resistance" levelUpSp="2300" getLevel="20" />
+		<skill skillId="153" skillLevel="1" skillName="Shield Mastery" levelUpSp="4700" getLevel="20" />
+		<skill skillId="217" skillLevel="1" skillName="Sword Blunt Mastery" levelUpSp="4700" getLevel="20" />
+		<skill skillId="232" skillLevel="1" skillName="Heavy Armor Mastery" levelUpSp="1500" getLevel="20" />
+		<skill skillId="232" skillLevel="2" skillName="Heavy Armor Mastery" levelUpSp="1500" getLevel="20" />
+		<skill skillId="232" skillLevel="3" skillName="Heavy Armor Mastery" levelUpSp="1500" getLevel="20" />
+		<skill skillId="28" skillLevel="1" skillName="Aggression" levelUpSp="3300" getLevel="24" />
+		<skill skillId="28" skillLevel="2" skillName="Aggression" levelUpSp="3300" getLevel="24" />
+		<skill skillId="28" skillLevel="3" skillName="Aggression" levelUpSp="3300" getLevel="24" />
+		<skill skillId="70" skillLevel="3" skillName="Drain Health" levelUpSp="5000" getLevel="24" />
+		<skill skillId="70" skillLevel="4" skillName="Drain Health" levelUpSp="5000" getLevel="24" />
+		<skill skillId="92" skillLevel="4" skillName="Shield Stun" levelUpSp="3300" getLevel="24" />
+		<skill skillId="92" skillLevel="5" skillName="Shield Stun" levelUpSp="3300" getLevel="24" />
+		<skill skillId="92" skillLevel="6" skillName="Shield Stun" levelUpSp="3300" getLevel="24" />
+		<skill skillId="112" skillLevel="1" skillName="Deflect Arrow" levelUpSp="10000" getLevel="24" />
+		<skill skillId="147" skillLevel="3" skillName="Magic Resistance" levelUpSp="3300" getLevel="24" />
+		<skill skillId="147" skillLevel="4" skillName="Magic Resistance" levelUpSp="3300" getLevel="24" />
+		<skill skillId="147" skillLevel="5" skillName="Magic Resistance" levelUpSp="3300" getLevel="24" />
+		<skill skillId="217" skillLevel="2" skillName="Sword Blunt Mastery" levelUpSp="10000" getLevel="24" />
+		<skill skillId="232" skillLevel="4" skillName="Heavy Armor Mastery" levelUpSp="3300" getLevel="24" />
+		<skill skillId="232" skillLevel="5" skillName="Heavy Armor Mastery" levelUpSp="3300" getLevel="24" />
+		<skill skillId="232" skillLevel="6" skillName="Heavy Armor Mastery" levelUpSp="3300" getLevel="24" />
+		<skill skillId="28" skillLevel="4" skillName="Aggression" levelUpSp="4000" getLevel="28" />
+		<skill skillId="28" skillLevel="5" skillName="Aggression" levelUpSp="4000" getLevel="28" />
+		<skill skillId="28" skillLevel="6" skillName="Aggression" levelUpSp="4000" getLevel="28" />
+		<skill skillId="45" skillLevel="1" skillName="Divine Heal" levelUpSp="4000" getLevel="28" />
+		<skill skillId="45" skillLevel="2" skillName="Divine Heal" levelUpSp="4000" getLevel="28" />
+		<skill skillId="45" skillLevel="3" skillName="Divine Heal" levelUpSp="4000" getLevel="28" />
+		<skill skillId="70" skillLevel="5" skillName="Drain Health" levelUpSp="4000" getLevel="28" />
+		<skill skillId="70" skillLevel="6" skillName="Drain Health" levelUpSp="4000" getLevel="28" />
+		<skill skillId="70" skillLevel="7" skillName="Drain Health" levelUpSp="4000" getLevel="28" />
+		<skill skillId="92" skillLevel="7" skillName="Shield Stun" levelUpSp="4000" getLevel="28" />
+		<skill skillId="92" skillLevel="8" skillName="Shield Stun" levelUpSp="4000" getLevel="28" />
+		<skill skillId="92" skillLevel="9" skillName="Shield Stun" levelUpSp="4000" getLevel="28" />
+		<skill skillId="147" skillLevel="6" skillName="Magic Resistance" levelUpSp="4000" getLevel="28" />
+		<skill skillId="147" skillLevel="7" skillName="Magic Resistance" levelUpSp="4000" getLevel="28" />
+		<skill skillId="147" skillLevel="8" skillName="Magic Resistance" levelUpSp="4000" getLevel="28" />
+		<skill skillId="153" skillLevel="2" skillName="Shield Mastery" levelUpSp="12000" getLevel="28" />
+		<skill skillId="217" skillLevel="3" skillName="Sword Blunt Mastery" levelUpSp="6000" getLevel="28" />
+		<skill skillId="217" skillLevel="4" skillName="Sword Blunt Mastery" levelUpSp="6000" getLevel="28" />
+		<skill skillId="232" skillLevel="7" skillName="Heavy Armor Mastery" levelUpSp="4000" getLevel="28" />
+		<skill skillId="232" skillLevel="8" skillName="Heavy Armor Mastery" levelUpSp="4000" getLevel="28" />
+		<skill skillId="232" skillLevel="9" skillName="Heavy Armor Mastery" levelUpSp="4000" getLevel="28" />
+		<skill skillId="28" skillLevel="7" skillName="Aggression" levelUpSp="8300" getLevel="32" />
+		<skill skillId="28" skillLevel="8" skillName="Aggression" levelUpSp="8300" getLevel="32" />
+		<skill skillId="28" skillLevel="9" skillName="Aggression" levelUpSp="8300" getLevel="32" />
+		<skill skillId="45" skillLevel="4" skillName="Divine Heal" levelUpSp="8300" getLevel="32" />
+		<skill skillId="45" skillLevel="5" skillName="Divine Heal" levelUpSp="8300" getLevel="32" />
+		<skill skillId="45" skillLevel="6" skillName="Divine Heal" levelUpSp="8300" getLevel="32" />
+		<skill skillId="70" skillLevel="8" skillName="Drain Health" levelUpSp="8300" getLevel="32" />
+		<skill skillId="70" skillLevel="9" skillName="Drain Health" levelUpSp="8300" getLevel="32" />
+		<skill skillId="70" skillLevel="10" skillName="Drain Health" levelUpSp="8300" getLevel="32" />
+		<skill skillId="92" skillLevel="10" skillName="Shield Stun" levelUpSp="8300" getLevel="32" />
+		<skill skillId="92" skillLevel="11" skillName="Shield Stun" levelUpSp="8300" getLevel="32" />
+		<skill skillId="92" skillLevel="12" skillName="Shield Stun" levelUpSp="8300" getLevel="32" />
+		<skill skillId="112" skillLevel="2" skillName="Deflect Arrow" levelUpSp="25000" getLevel="32" />
+		<skill skillId="147" skillLevel="9" skillName="Magic Resistance" levelUpSp="8300" getLevel="32" />
+		<skill skillId="147" skillLevel="10" skillName="Magic Resistance" levelUpSp="8300" getLevel="32" />
+		<skill skillId="147" skillLevel="11" skillName="Magic Resistance" levelUpSp="8300" getLevel="32" />
+		<skill skillId="217" skillLevel="5" skillName="Sword Blunt Mastery" levelUpSp="13000" getLevel="32" />
+		<skill skillId="217" skillLevel="6" skillName="Sword Blunt Mastery" levelUpSp="13000" getLevel="32" />
+		<skill skillId="232" skillLevel="10" skillName="Heavy Armor Mastery" levelUpSp="8300" getLevel="32" />
+		<skill skillId="232" skillLevel="11" skillName="Heavy Armor Mastery" levelUpSp="8300" getLevel="32" />
+		<skill skillId="232" skillLevel="12" skillName="Heavy Armor Mastery" levelUpSp="8300" getLevel="32" />
+		<skill skillId="28" skillLevel="10" skillName="Aggression" levelUpSp="13000" getLevel="36" />
+		<skill skillId="28" skillLevel="11" skillName="Aggression" levelUpSp="13000" getLevel="36" />
+		<skill skillId="28" skillLevel="12" skillName="Aggression" levelUpSp="13000" getLevel="36" />
+		<skill skillId="45" skillLevel="7" skillName="Divine Heal" levelUpSp="13000" getLevel="36" />
+		<skill skillId="45" skillLevel="8" skillName="Divine Heal" levelUpSp="13000" getLevel="36" />
+		<skill skillId="45" skillLevel="9" skillName="Divine Heal" levelUpSp="13000" getLevel="36" />
+		<skill skillId="70" skillLevel="11" skillName="Drain Health" levelUpSp="13000" getLevel="36" />
+		<skill skillId="70" skillLevel="12" skillName="Drain Health" levelUpSp="13000" getLevel="36" />
+		<skill skillId="70" skillLevel="13" skillName="Drain Health" levelUpSp="13000" getLevel="36" />
+		<skill skillId="92" skillLevel="13" skillName="Shield Stun" levelUpSp="13000" getLevel="36" />
+		<skill skillId="92" skillLevel="14" skillName="Shield Stun" levelUpSp="13000" getLevel="36" />
+		<skill skillId="92" skillLevel="15" skillName="Shield Stun" levelUpSp="13000" getLevel="36" />
+		<skill skillId="147" skillLevel="12" skillName="Magic Resistance" levelUpSp="13000" getLevel="36" />
+		<skill skillId="147" skillLevel="13" skillName="Magic Resistance" levelUpSp="13000" getLevel="36" />
+		<skill skillId="147" skillLevel="14" skillName="Magic Resistance" levelUpSp="13000" getLevel="36" />
+		<skill skillId="191" skillLevel="1" skillName="Focus Mind" levelUpSp="39000" getLevel="36" />
+		<skill skillId="217" skillLevel="7" skillName="Sword Blunt Mastery" levelUpSp="19000" getLevel="36" />
+		<skill skillId="217" skillLevel="8" skillName="Sword Blunt Mastery" levelUpSp="19000" getLevel="36" />
+		<skill skillId="232" skillLevel="13" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="36" />
+		<skill skillId="232" skillLevel="14" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="36" />
+		<skill skillId="232" skillLevel="15" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="36" />
+	</skillTree>
+</list>

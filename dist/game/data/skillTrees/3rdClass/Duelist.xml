@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="88" parentClassId="2">
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="3" getLevel="76" levelUpSp="8100000">
+			<item id="8620" count="1" /> <!-- Ancient Book: Divine Inspiration (Manuscript) -->
+		</skill>
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="4" getLevel="76" levelUpSp="8100000">
+			<item id="8621" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Version) -->
+		</skill>
+		<skill skillId="328" skillLevel="1" skillName="Wisdom" levelUpSp="10000000" getLevel="76" />
+		<skill skillId="329" skillLevel="1" skillName="Health" levelUpSp="10000000" getLevel="76" />
+		<skill skillId="330" skillLevel="1" skillName="Skill Mastery" levelUpSp="12250000" getLevel="77" />
+		<skill skillId="340" skillLevel="1" skillName="Riposte Stance" levelUpSp="12250000" getLevel="77" />
+		<skill skillId="359" skillLevel="1" skillName="Eye of Hunter" levelUpSp="12250000" getLevel="77" />
+		<skill skillId="426" skillLevel="1" skillName="Battle Force" levelUpSp="12250000" getLevel="77" />
+		<skill skillId="345" skillLevel="1" skillName="Sonic Rage" levelUpSp="16000000" getLevel="78" />
+		<skill skillId="360" skillLevel="1" skillName="Eye of Slayer" levelUpSp="16000000" getLevel="78" />
+		<skill skillId="430" skillLevel="1" skillName="Master of Combat" levelUpSp="16000000" getLevel="78" />
+		<skill skillId="440" skillLevel="1" skillName="Braveheart" levelUpSp="12800000" getLevel="78" />
+		<skill skillId="442" skillLevel="1" skillName="Sonic Barrier" levelUpSp="80000000" getLevel="79" />
+		<skill skillId="458" skillLevel="1" skillName="Symbol of Energy" levelUpSp="150000000" getLevel="80" />
+	</skillTree>
+</list>

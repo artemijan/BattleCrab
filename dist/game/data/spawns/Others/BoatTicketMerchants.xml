@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="BoatTicketMerchants">
+		<group>
+			<npc id="30047" x="-97131" y="258946" z="-3616" heading="0" respawnTime="60sec" /> <!-- Firon -->
+			<npc id="30387" x="-91792" y="149968" z="-3629" heading="0" respawnTime="60sec" /> <!-- Clancy -->
+			<npc id="30879" x="48564" y="186548" z="-3480" heading="42000" respawnTime="60sec" /> <!-- Felton -->
+			<npc id="31351" x="37762" y="-37946" z="-3668" heading="49000" respawnTime="60sec" /> <!-- Volker -->
+			<npc id="32106" x="10304" y="-25024" z="-3680" heading="0" respawnTime="60sec" /> <!-- Singsing -->
+		</group>
+	</spawn>
+</list>

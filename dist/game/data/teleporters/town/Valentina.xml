@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/teleporterData.xsd">
+	<npc id="30177"> <!-- Valentina -->
+		<teleport type="NORMAL">
+			<!-- Interlude - C6 -->
+			<location npcStringId="1010023" x="146783" y="25808" z="-2008" feeCount="6900" /> <!-- Town of Aden -->
+			<location npcStringId="1010007" x="83463" y="148045" z="-3400" feeCount="9400" /> <!-- Town of Giran -->
+			<location npcStringId="1010200" x="43835" y="-47749" z="-792" feeCount="10000" /> <!-- Town of Rune -->
+			<location npcStringId="1010199" x="147850" y="-55300" z="-2728" feeCount="37000" /> <!-- Town of Goddard -->
+			<location npcStringId="1010049" x="111455" y="219400" z="-3544" feeCount="50000" /> <!-- Heine -->
+			<location npcStringId="1010006" x="15472" y="142880" z="-2688" feeCount="33000" /> <!-- Town of Dion -->
+			<location npcStringId="1010574" x="87145" y="-143372" z="-1288" feeCount="59000" /> <!-- Town of Schuttgart -->
+			<location npcStringId="1010005" x="-14455" y="123986" z="-3120" feeCount="35000" /> <!-- Town of Gludio -->
+			<location npcStringId="1010014" x="85475" y="16087" z="-3672" feeCount="3700" /> <!-- Ivory Tower -->
+			<location npcStringId="1010020" x="117088" y="76931" z="-2688" feeCount="4100" /> <!-- Hunter's Village -->
+			<location npcStringId="1010022" x="105918" y="109759" z="-3192" feeCount="6100" /> <!-- Hardin's Academy -->
+			<location npcStringId="1010743" x="89914" y="46276" z="-3616" feeCount="780" /> <!-- Skyshadow Meadow (Lv. 54) -->
+			<location npcStringId="1010179" x="87252" y="85514" z="-3056" feeCount="1900" /> <!-- Plains of the Lizardmen (Lv. 35) -->
+			<location npcStringId="1010122" x="91539" y="-12204" z="-2440" feeCount="5200" /> <!-- Outlaw Forest (Lv. 50) -->
+			<location npcStringId="1010121" x="64328" y="26803" z="-3768" feeCount="2500" /> <!-- Sea of Spores (Lv. 40) -->
+		</teleport>
+	</npc>
+</list>

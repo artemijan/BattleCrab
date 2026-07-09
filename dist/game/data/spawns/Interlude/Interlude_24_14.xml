@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Interlude_24_14">
+		<group>
+			<npc id="31521" x="149520" y="-112704" z="-2065" heading="10000" respawnTime="60sec" /> <!-- Jeremy -->
+			<npc id="30012" x="149568" y="-112768" z="-2065" heading="8000" respawnTime="60sec" /> <!-- Eindarkner -->
+			<npc id="31542" x="157136" y="-121456" z="-2363" heading="40000" respawnTime="129600sec" /> <!-- Yeti's Table -->
+			<npc id="31543" x="157648" y="-115360" z="-1904" heading="33000" respawnTime="60sec" /> <!-- Pulin -->
+			<npc id="31544" x="155616" y="-105696" z="-2755" heading="49000" respawnTime="60sec" /> <!-- Naff -->
+			<npc id="31545" x="140656" y="-105488" z="-3632" heading="49000" respawnTime="60sec" /> <!-- Crocus -->
+			<npc id="31546" x="141632" y="-109424" z="-3591" respawnTime="60sec" /> <!-- Kuber -->
+			<npc id="31547" x="147504" y="-113296" z="-2113" heading="6000" respawnTime="60sec" /> <!-- Beolin -->
+			<npc id="31623" x="157216" y="-109328" z="-2672" respawnTime="60sec" /> <!-- Bavarin -->
+			<npc id="31602" x="157248" y="-109168" z="-2656" heading="49000" respawnTime="60sec" /> <!-- Sharona Artemia -->
+			<npc id="31624" x="149404" y="-112468" z="-2065" heading="24000" respawnTime="60sec" /> <!-- Donath -->
+			<npc id="31626" x="149312" y="-112484" z="-2065" heading="11000" respawnTime="60sec" /> <!-- Duncan -->
+			<npc id="31622" x="149760" y="-112928" z="-2065" heading="29000" respawnTime="60sec" /> <!-- Keats -->
+			<npc id="31627" x="145232" y="-104736" z="-3681" respawnTime="60sec" /> <!-- Mist -->
+			<npc id="31628" x="145043" y="-104577" z="-3664" heading="58000" respawnTime="60sec" /> <!-- Lilly -->
+		</group>
+	</spawn>
+</list>

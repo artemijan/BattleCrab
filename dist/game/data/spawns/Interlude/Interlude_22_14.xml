@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Interlude_22_14">
+		<group>
+			<npc id="32033" x="96471" y="-111425" z="-3334" heading="8191" respawnTime="60sec" /> <!-- Dr. Chaos -->
+			<npc id="32069" x="91316" y="-116906" z="-3933" heading="50785" respawnTime="60sec" /> <!-- Gutenhagen -->
+			<npc id="32041" x="91373" y="-116872" z="-3933" heading="51133" respawnTime="60sec" /> <!-- Yumi -->
+			<npc id="32044" x="88625" y="-106126" z="-3327" heading="63572" respawnTime="60sec" /> <!-- Weathermaster -->
+			<npc id="32046" x="90086" y="-107272" z="-3332" heading="5948" respawnTime="60sec" /> <!-- Suspicious-looking Pile of Stones -->
+			<npc id="32032" x="96366" y="-110900" z="-3335" heading="59899" respawnTime="60sec" /> <!-- Strange Machine -->
+			<npc id="32050" x="96837" y="-111077" z="-3335" heading="28900" respawnTime="60sec" /> <!-- Box of Parts -->
+			<npc id="32047" x="96987" y="-110579" z="-3289" heading="43325" respawnTime="60sec" /> <!-- Wendy -->
+			<npc id="32016" x="70255" y="-113759" z="-1739" heading="48066" respawnTime="60sec" /> <!-- Torrant -->
+		</group>
+	</spawn>
+</list>

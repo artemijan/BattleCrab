@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/multisell.xsd">
+	<npcs>
+		<npc>-1</npc> <!-- CB -->
+	</npcs>
+	<item>
+		<!-- Adena -->
+		<ingredient count="2000000" id="57" />
+		<production count="1" id="862" /> <!-- Majestic Earring -->
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="1000000" id="57" />
+		<production count="1" id="893" /> <!-- Majestic Ring -->
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="5000000" id="57" />
+		<production count="1" id="924" /><!-- Majestic Necklace -->
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="1500000" id="57" />
+		<production count="1" id="870" /> <!-- Earring of Holly Spirit -->
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="750000" id="57" />
+		<production count="1" id="901" /> <!-- Ring of Holly Spirit -->
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="3000000" id="57" />
+		<production count="1" id="932" /> <!-- Necklace of Holly Spirit-->
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="2000000" id="57" />
+		<production count="1" id="119" /> <!-- Necklace of Seal -->
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="1000000" id="57" />
+		<production count="1" id="854" /> <!-- Earring of Seal -->
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="500000000" id="57" />
+		<production count="1" id="886" /> <!-- Ring of Seal -->
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="750000" id="57" />
+		<production count="1" id="850" /> <!-- Elven Earring -->
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="300000" id="57" />
+		<production count="1" id="881" /> <!-- Elven Ring -->
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="1000000" id="57" />
+		<production count="1" id="913" /> <!-- Elven Necklace -->
+	</item>
+
+
+</list>

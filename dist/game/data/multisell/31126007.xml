@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/multisell.xsd">
+	<npcs>
+		<npc>31126</npc> <!-- Blacksmith of Mammon -->
+	</npcs>
+	
+	<!-- Unseal S-Grade Accesories -->
+	
+	<item>
+		<ingredient id="6726" count="1" /> <!-- Sealed Tateossian Necklace -->
+		<ingredient id="5575" count="975255" /> <!-- Ancient Adena -->
+		<production id="920" count="1" /> <!-- Tateossian Necklace -->
+	</item>
+	<item>
+		<ingredient id="6724" count="1" /> <!-- Sealed Tateossian Earring -->
+		<ingredient id="5575" count="731441" /> <!-- Ancient Adena -->
+		<production id="858" count="1" /> <!-- Tateossian Earring -->
+	</item>
+	<item>
+		<ingredient id="6725" count="1" /> <!-- Sealed Tateossian Ring -->
+		<ingredient id="5575" count="487627" /> <!-- Ancient Adena -->
+		<production id="889" count="1" /> <!-- Tateossian Ring -->
+	</item>
+</list>

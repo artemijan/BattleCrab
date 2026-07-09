@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="50" parentClassId="49">
+		<skill skillId="100" skillLevel="1" skillName="Stun Attack" levelUpSp="960" getLevel="20" />
+		<skill skillId="100" skillLevel="2" skillName="Stun Attack" levelUpSp="960" getLevel="20" />
+		<skill skillId="100" skillLevel="3" skillName="Stun Attack" levelUpSp="960" getLevel="20" />
+		<skill skillId="146" skillLevel="5" skillName="Anti Magic" levelUpSp="1400" getLevel="20" />
+		<skill skillId="146" skillLevel="6" skillName="Anti Magic" levelUpSp="1400" getLevel="20" />
+		<skill skillId="164" skillLevel="1" skillName="Quick Recovery" levelUpSp="2900" getLevel="20" />
+		<skill skillId="213" skillLevel="1" skillName="Boost Mana" levelUpSp="2900" getLevel="20" />
+		<skill skillId="250" skillLevel="3" skillName="Weapon Mastery" levelUpSp="2900" getLevel="20" />
+		<skill skillId="251" skillLevel="5" skillName="Robe Mastery" levelUpSp="1400" getLevel="20" />
+		<skill skillId="251" skillLevel="6" skillName="Robe Mastery" levelUpSp="1400" getLevel="20" />
+		<skill skillId="252" skillLevel="5" skillName="Light Armor Mastery" levelUpSp="1400" getLevel="20" />
+		<skill skillId="252" skillLevel="6" skillName="Light Armor Mastery" levelUpSp="1400" getLevel="20" />
+		<skill skillId="253" skillLevel="3" skillName="Heavy Armor Mastery" levelUpSp="1400" getLevel="20" />
+		<skill skillId="253" skillLevel="4" skillName="Heavy Armor Mastery" levelUpSp="1400" getLevel="20" />
+		<skill skillId="1006" skillLevel="1" skillName="Chant of Fire" levelUpSp="2900" getLevel="20" />
+		<skill skillId="1009" skillLevel="1" skillName="Chant of Shielding" levelUpSp="2900" getLevel="20" />
+		<skill skillId="1090" skillLevel="3" skillName="Life Drain" levelUpSp="2900" getLevel="20" />
+		<skill skillId="1092" skillLevel="2" skillName="Fear" levelUpSp="2900" getLevel="20" />
+		<skill skillId="1095" skillLevel="3" skillName="Venom" levelUpSp="2900" getLevel="20" />
+		<skill skillId="1097" skillLevel="3" skillName="Dreaming Spirit" levelUpSp="2900" getLevel="20" />
+		<skill skillId="1105" skillLevel="1" skillName="Madness" levelUpSp="2900" getLevel="20" />
+		<skill skillId="1107" skillLevel="1" skillName="Frost Flame" levelUpSp="2900" getLevel="20" />
+		<skill skillId="1209" skillLevel="1" skillName="Seal of Poison" levelUpSp="2900" getLevel="20" />
+		<skill skillId="1229" skillLevel="1" skillName="Chant of Life" levelUpSp="2900" getLevel="20" />
+		<skill skillId="100" skillLevel="4" skillName="Stun Attack" levelUpSp="1900" getLevel="25" />
+		<skill skillId="100" skillLevel="5" skillName="Stun Attack" levelUpSp="1900" getLevel="25" />
+		<skill skillId="100" skillLevel="6" skillName="Stun Attack" levelUpSp="1900" getLevel="25" />
+		<skill skillId="146" skillLevel="7" skillName="Anti Magic" levelUpSp="2900" getLevel="25" />
+		<skill skillId="146" skillLevel="8" skillName="Anti Magic" levelUpSp="2900" getLevel="25" />
+		<skill skillId="228" skillLevel="1" skillName="Fast Spell Casting" levelUpSp="5800" getLevel="25" />
+		<skill skillId="229" skillLevel="1" skillName="Fast Mana Recovery" levelUpSp="5800" getLevel="25" />
+		<skill skillId="250" skillLevel="4" skillName="Weapon Mastery" levelUpSp="2900" getLevel="25" />
+		<skill skillId="250" skillLevel="5" skillName="Weapon Mastery" levelUpSp="2900" getLevel="25" />
+		<skill skillId="251" skillLevel="7" skillName="Robe Mastery" levelUpSp="2900" getLevel="25" />
+		<skill skillId="251" skillLevel="8" skillName="Robe Mastery" levelUpSp="2900" getLevel="25" />
+		<skill skillId="252" skillLevel="7" skillName="Light Armor Mastery" levelUpSp="2900" getLevel="25" />
+		<skill skillId="252" skillLevel="8" skillName="Light Armor Mastery" levelUpSp="2900" getLevel="25" />
+		<skill skillId="253" skillLevel="5" skillName="Heavy Armor Mastery" levelUpSp="2900" getLevel="25" />
+		<skill skillId="253" skillLevel="6" skillName="Heavy Armor Mastery" levelUpSp="2900" getLevel="25" />
+		<skill skillId="1001" skillLevel="3" skillName="Soul Cry" levelUpSp="5800" getLevel="25" />
+		<skill skillId="1007" skillLevel="2" skillName="Chant of Battle" levelUpSp="5800" getLevel="25" />
+		<skill skillId="1010" skillLevel="2" skillName="Soul Shield" levelUpSp="5800" getLevel="25" />
+		<skill skillId="1090" skillLevel="4" skillName="Life Drain" levelUpSp="5800" getLevel="25" />
+		<skill skillId="1092" skillLevel="3" skillName="Fear" levelUpSp="5800" getLevel="25" />
+		<skill skillId="1097" skillLevel="4" skillName="Dreaming Spirit" levelUpSp="5800" getLevel="25" />
+		<skill skillId="1101" skillLevel="1" skillName="Blaze Quake" levelUpSp="5800" getLevel="25" />
+		<skill skillId="1102" skillLevel="1" skillName="Aura Sink" levelUpSp="5800" getLevel="25" />
+		<skill skillId="1105" skillLevel="2" skillName="Madness" levelUpSp="5800" getLevel="25" />
+		<skill skillId="1208" skillLevel="1" skillName="Seal of Binding" levelUpSp="5800" getLevel="25" />
+		<skill skillId="1229" skillLevel="2" skillName="Chant of Life" levelUpSp="5800" getLevel="25" />
+		<skill skillId="100" skillLevel="7" skillName="Stun Attack" levelUpSp="3500" getLevel="30" />
+		<skill skillId="100" skillLevel="8" skillName="Stun Attack" levelUpSp="3500" getLevel="30" />
+		<skill skillId="100" skillLevel="9" skillName="Stun Attack" levelUpSp="3500" getLevel="30" />
+		<skill skillId="146" skillLevel="9" skillName="Anti Magic" levelUpSp="5300" getLevel="30" />
+		<skill skillId="146" skillLevel="10" skillName="Anti Magic" levelUpSp="5300" getLevel="30" />
+		<skill skillId="164" skillLevel="2" skillName="Quick Recovery" levelUpSp="11000" getLevel="30" />
+		<skill skillId="213" skillLevel="2" skillName="Boost Mana" levelUpSp="11000" getLevel="30" />
+		<skill skillId="250" skillLevel="6" skillName="Weapon Mastery" levelUpSp="5300" getLevel="30" />
+		<skill skillId="250" skillLevel="7" skillName="Weapon Mastery" levelUpSp="5300" getLevel="30" />
+		<skill skillId="251" skillLevel="9" skillName="Robe Mastery" levelUpSp="5300" getLevel="30" />
+		<skill skillId="251" skillLevel="10" skillName="Robe Mastery" levelUpSp="5300" getLevel="30" />
+		<skill skillId="252" skillLevel="9" skillName="Light Armor Mastery" levelUpSp="5300" getLevel="30" />
+		<skill skillId="252" skillLevel="10" skillName="Light Armor Mastery" levelUpSp="5300" getLevel="30" />
+		<skill skillId="253" skillLevel="7" skillName="Heavy Armor Mastery" levelUpSp="5300" getLevel="30" />
+		<skill skillId="253" skillLevel="8" skillName="Heavy Armor Mastery" levelUpSp="5300" getLevel="30" />
+		<skill skillId="1002" skillLevel="1" skillName="Flame Chant" levelUpSp="11000" getLevel="30" />
+		<skill skillId="1003" skillLevel="1" skillName="Pa'agrian Gift" levelUpSp="11000" getLevel="30" />
+		<skill skillId="1009" skillLevel="2" skillName="Chant of Shielding" levelUpSp="11000" getLevel="30" />
+		<skill skillId="1090" skillLevel="5" skillName="Life Drain" levelUpSp="11000" getLevel="30" />
+		<skill skillId="1092" skillLevel="4" skillName="Fear" levelUpSp="11000" getLevel="30" />
+		<skill skillId="1096" skillLevel="1" skillName="Seal of Chaos" levelUpSp="11000" getLevel="30" />
+		<skill skillId="1097" skillLevel="5" skillName="Dreaming Spirit" levelUpSp="11000" getLevel="30" />
+		<skill skillId="1105" skillLevel="3" skillName="Madness" levelUpSp="11000" getLevel="30" />
+		<skill skillId="1107" skillLevel="2" skillName="Frost Flame" levelUpSp="11000" getLevel="30" />
+		<skill skillId="1208" skillLevel="2" skillName="Seal of Binding" levelUpSp="11000" getLevel="30" />
+		<skill skillId="1209" skillLevel="2" skillName="Seal of Poison" levelUpSp="11000" getLevel="30" />
+		<skill skillId="1229" skillLevel="3" skillName="Chant of Life" levelUpSp="11000" getLevel="30" />
+		<skill skillId="100" skillLevel="10" skillName="Stun Attack" levelUpSp="5900" getLevel="35" />
+		<skill skillId="100" skillLevel="11" skillName="Stun Attack" levelUpSp="5900" getLevel="35" />
+		<skill skillId="100" skillLevel="12" skillName="Stun Attack" levelUpSp="5900" getLevel="35" />
+		<skill skillId="146" skillLevel="11" skillName="Anti Magic" levelUpSp="8800" getLevel="35" />
+		<skill skillId="146" skillLevel="12" skillName="Anti Magic" levelUpSp="8800" getLevel="35" />
+		<skill skillId="212" skillLevel="1" skillName="Fast HP Recovery" levelUpSp="18000" getLevel="35" />
+		<skill skillId="229" skillLevel="2" skillName="Fast Mana Recovery" levelUpSp="18000" getLevel="35" />
+		<skill skillId="250" skillLevel="8" skillName="Weapon Mastery" levelUpSp="8800" getLevel="35" />
+		<skill skillId="250" skillLevel="9" skillName="Weapon Mastery" levelUpSp="8800" getLevel="35" />
+		<skill skillId="251" skillLevel="11" skillName="Robe Mastery" levelUpSp="8800" getLevel="35" />
+		<skill skillId="251" skillLevel="12" skillName="Robe Mastery" levelUpSp="8800" getLevel="35" />
+		<skill skillId="252" skillLevel="11" skillName="Light Armor Mastery" levelUpSp="8800" getLevel="35" />
+		<skill skillId="252" skillLevel="12" skillName="Light Armor Mastery" levelUpSp="8800" getLevel="35" />
+		<skill skillId="253" skillLevel="9" skillName="Heavy Armor Mastery" levelUpSp="8800" getLevel="35" />
+		<skill skillId="253" skillLevel="10" skillName="Heavy Armor Mastery" levelUpSp="8800" getLevel="35" />
+		<skill skillId="1001" skillLevel="4" skillName="Soul Cry" levelUpSp="18000" getLevel="35" />
+		<skill skillId="1005" skillLevel="1" skillName="Blessings of Pa'agrio" levelUpSp="18000" getLevel="35" />
+		<skill skillId="1010" skillLevel="3" skillName="Soul Shield" levelUpSp="18000" getLevel="35" />
+		<skill skillId="1090" skillLevel="6" skillName="Life Drain" levelUpSp="18000" getLevel="35" />
+		<skill skillId="1092" skillLevel="5" skillName="Fear" levelUpSp="18000" getLevel="35" />
+		<skill skillId="1096" skillLevel="2" skillName="Seal of Chaos" levelUpSp="18000" getLevel="35" />
+		<skill skillId="1097" skillLevel="6" skillName="Dreaming Spirit" levelUpSp="18000" getLevel="35" />
+		<skill skillId="1099" skillLevel="1" skillName="Seal of Slow" levelUpSp="18000" getLevel="35" />
+		<skill skillId="1101" skillLevel="2" skillName="Blaze Quake" levelUpSp="18000" getLevel="35" />
+		<skill skillId="1102" skillLevel="2" skillName="Aura Sink" levelUpSp="18000" getLevel="35" />
+		<skill skillId="1105" skillLevel="4" skillName="Madness" levelUpSp="18000" getLevel="35" />
+		<skill skillId="1208" skillLevel="3" skillName="Seal of Binding" levelUpSp="18000" getLevel="35" />
+		<skill skillId="1229" skillLevel="4" skillName="Chant of Life" levelUpSp="18000" getLevel="35" />
+	</skillTree>
+</list>

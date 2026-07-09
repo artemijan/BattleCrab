@@ -35,7 +35,12 @@ impl PropertiesParser {
         match std::fs::read_to_string(path) {
             Ok(content) => parse_properties(&content, &mut properties),
             Err(e) => {
-                warn!("[{file_name}] There was an error loading config reason: {e}");
+                let attempted = std::env::current_dir()
+                    .map(|d| d.join(path).display().to_string())
+                    .unwrap_or_else(|_| path.display().to_string());
+                tracing::error!(
+                    "[{file_name}] Could not load config file {attempted}: {e} — ALL keys will use defaults"
+                );
             }
         }
 

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="xsd/ActionData.xsd">
+  <action id="0" handler="SitStand" /> <!-- Toggle Sit/Stand. (/sit, /stand) -->
+  <action id="1" handler="RunWalk" /> <!-- Toggle Walk/Run. (/walk, /run) -->
+  <action id="2" handler="None" /> <!-- Attacks selected target(s), or takes a general action if the target cannot be attacked. Hold down the Ctrl key and click to attack by force. (/attack, /attackforce) -->
+  <action id="3" handler="None" /> <!-- Request a trade from the selected target. (/trade) -->
+  <action id="4" handler="None" /> <!-- Select the nearest attackable target. (/targetnext) -->
+  <action id="5" handler="None" /> <!-- Pick up items that are scattered nearby. (/pickup) -->
+  <action id="6" handler="None" /> <!-- Change to the target of the currently selected player. (/assist) -->
+  <action id="7" handler="None" /> <!-- Invite the selected person to your party. (/invite) -->
+  <action id="8" handler="None" /> <!-- Leave the party. (/leave) -->
+  <action id="9" handler="None" /> <!-- If you are the leader of the party, dismiss selected members from your party. (/dismiss) -->
+  <action id="10" handler="PrivateStore" option="1" /> <!-- Sets up a private store to sell your items. (/vendor) -->
+  <action id="11" handler="None" /> <!-- Display the party matching window to search for parties or to add members to your party. (/partymatching) -->
+  <action id="12" handler="SocialAction" option="2" /> <!-- Emote: Greet others with a kind "hello." (/socialhello) -->
+  <action id="13" handler="SocialAction" option="3" /> <!-- Emote: Let everyone know that you or someone else is victorious! (/socialvictory) -->
+  <action id="14" handler="SocialAction" option="4" /> <!-- Emote: Rouse your allies and charge! (/socialcharge) -->
+  <action id="15" handler="PetHold" /> <!-- Have your pet follow you or stay and hold its ground. -->
+  <action id="16" handler="PetAttack" /> <!-- Attack target. -->
+  <action id="17" handler="PetStop" /> <!-- Stop current action. -->
+  <action id="18" handler="None" /> <!-- Pick up nearby items. -->
+  <action id="19" handler="UnsummonPet" /> <!-- Returns your pet back to its home. -->
+  <action id="20" handler="None" /> <!-- Use special skill. -->
+  <action id="21" handler="ServitorHold" /> <!-- Have your summons follow you or stay and hold its ground. -->
+  <action id="22" handler="ServitorAttack" /> <!-- Attack target. -->
+  <action id="23" handler="ServitorStop" /> <!-- Stop current action. -->
+  <action id="24" handler="SocialAction" option="6" /> <!-- Emote: Respond positively. (/socialyes) -->
+  <action id="25" handler="SocialAction" option="5" /> <!-- Emote: Respond negatively. (/socialno) -->
+  <action id="26" handler="SocialAction" option="7" /> <!-- Emote: Show your respect and bow. (/socialbow) -->
+  <action id="27" handler="None" /> <!-- Use special skill. -->
+  <action id="28" handler="PrivateStore" option="3" /> <!-- Sets up a private store to purchase items. (/buy) -->
+  <action id="29" handler="SocialAction" option="8" /> <!-- Emote: You have no idea what's going on. (/socialunaware) -->
+  <action id="30" handler="SocialAction" option="9" /> <!-- Emote: I'm waiting... (/socialwaiting) -->
+  <action id="31" handler="SocialAction" option="10" /> <!-- Emote: Have a good laugh. (/sociallaugh) -->
+  <action id="32" handler="ServitorSkillUse" option="4230" /> <!-- Toggle between Attack/Move modes. -->
+  <action id="33" handler="SocialAction" option="11" /> <!-- Emote: Applaud. (/socialapplause) -->
+  <action id="34" handler="SocialAction" option="12" /> <!-- Emote: Serve them up your best dance moves. (/socialdance) -->
+  <action id="35" handler="SocialAction" option="13" /> <!-- Emote: Show grief. (/socialsad) -->
+  <action id="36" handler="ServitorSkillUse" option="4259" /> <!-- Poison gas attack. -->
+  <action id="37" handler="PrivateStore" option="5" /> <!-- Set up a private workshop that creates items by using Dwarven recipes in exchange for a fee. (/dwarvenmanufacture) -->
+  <action id="38" handler="Ride" /> <!-- Toggle mount/dismount when near or on an NPC that can be ridden. (/mount, /dismount, /mountdismount) -->
+  <action id="39" handler="ServitorSkillUse" option="4138" /> <!-- Exploding corpse attack. -->
+  <action id="40" handler="None" /> <!-- Enhances a target's evaluation score. (/evaluate) -->
+  <action id="41" handler="ServitorSkillUse" option="4230" /> <!-- Attacks castle gates, walls, or headquarters by shooting a cannon. -->
+  <action id="42" handler="ServitorSkillUse" option="4378" /> <!-- Reflects damage back to an enemy. -->
+  <action id="43" handler="ServitorSkillUse" option="4137" /> <!-- Attacks target and nearby enemies by creating a whirling surge of water. -->
+  <action id="44" handler="ServitorSkillUse" option="4139" /> <!-- Attacks an enemy with a powerful explosion. -->
+  <action id="45" handler="ServitorSkillUse" option="4025" /> <!-- Restores the summoner's MP. -->
+  <action id="46" handler="ServitorSkillUse" option="4261" /> <!-- Attacks an enemy by summoning up a devastating storm. -->
+  <action id="47" handler="ServitorSkillUse" option="4260" /> <!-- Damages an enemy and heals the servitor at the same time. -->
+  <action id="48" handler="ServitorSkillUse" option="4068" /> <!-- Attacks the enemy by shooting a cannon. -->
+  <action id="49" handler="ServitorSkillUse" option="4032" /> <!-- Attack with a fit of rage. -->
+  <action id="50" handler="None" /> <!-- The selected party member will become the new party leader. (/changepartyleader) -->
+  <action id="52" handler="UnsummonServitor" /> <!-- Removes shackles from the Servitor and sets him free. -->
+  <action id="53" handler="ServitorMove" /> <!-- Move to the target. -->
+  <action id="54" handler="PetMove" /> <!-- Move to the target. -->
+  <action id="55" handler="None" /> <!-- Toggle recording and stop recording of replay files. (/start_replayrecording, /stop_replayrecording, /startstop_replayrecording) -->
+  <action id="56" handler="None" /> <!-- Invite the selected target to a command channel. (/channelinvite) -->
+  <action id="57" handler="None" /> <!-- Highlights private store and private workshop messages that contain the search word. (/findprivatestore) -->
+  <action id="58" handler="None" /> <!-- Challenges another character to a duel. (Command: /duel) -->
+  <action id="59" handler="None" /> <!-- Withdrawing from a duel means losing it. (Command: /withdraw) -->
+  <action id="61" handler="PrivateStore" option="8" /> <!-- Open a personal store for package sale. (/packagesale) -->
+  <action id="62" handler="SocialAction" option="14" /> <!-- Charm Pose (Command: /charm) -->
+  <action id="64" handler="TeleportBookmark" /> <!-- Opens the window of an Unoccupied Teleport Device that enables to move freely from one location with a Teleport Device to another. (Command: /teleportbookmark) -->
+  <action id="65" handler="BotReport" /> <!-- Reports the targeted player as a suspected bot. (Command: /AutoHuntingReport) -->
+  <action id="66" handler="SocialAction" option="15" /> <!-- Allows character to strike shy pose. (command: /shyness) -->
+  <action id="67" handler="AirshipAction" option="1" /> <!-- Allows you to control the Airship. -->
+  <action id="68" handler="AirshipAction" option="2" /> <!-- Relinquishes control of the Airship. -->
+  <action id="69" handler="AirshipAction" option="3" /> <!-- Choose from pre-designated locations. -->
+  <action id="70" handler="AirshipAction" option="4" /> <!-- Disembarks from the Airship. -->
+  <action id="71" handler="SocialAction" option="16" /> <!-- Exchange bows with another person. (command: /two-personbow) -->
+  <action id="72" handler="SocialAction" option="17" /> <!-- High Five another person. (command: /hi-five) -->
+  <action id="73" handler="SocialAction" option="18" /> <!-- Dance with another player. (command: /coupledance) -->
+  <action id="76" handler="None" /> <!-- Invite the selected target as friends. (Commands: /friendinvite, /addfriend, /registerfriend) -->
+  <action id="77" handler="None" /> <!-- Start or end recording videos. (Commands: /startrecording, /stoprecording, /startstoprecording) -->
+  <action id="78" handler="TacticalSignUse" option="1" /> <!-- Applies Token 1 to the target. Can be only used in a group. (Command: /tacticalsign1) -->
+  <action id="79" handler="TacticalSignUse" option="2" /> <!-- Applies Token 2 to the target. Can be only used in a group. (Command: /tacticalsign2) -->
+  <action id="80" handler="TacticalSignUse" option="3" /> <!-- Applies Token 3 to the target. Can be only used in a group. (Command: /tacticalsign3) -->
+  <action id="81" handler="TacticalSignUse" option="4" /> <!-- Applies Token 4 to the target. Can be only used in a group. (Command: /tacticalsign4) -->
+  <action id="82" handler="TacticalSignTarget" option="1" /> <!-- Automatically focuses on the target marked with Token 1. Can be only used in a group. (Command: /targettacticalsign1) -->
+  <action id="83" handler="TacticalSignTarget" option="2" /> <!-- Automatically focuses on the target marked with Token 2. Can be only used in a group. (Command: /targettacticalsign2) -->
+  <action id="84" handler="TacticalSignTarget" option="3" /> <!-- Automatically focuses on the target marked with Token 3. Can be only used in a group. (Command: /targettacticalsign3) -->
+  <action id="85" handler="TacticalSignTarget" option="4" /> <!-- Automatically focuses on the target marked with Token 4. Can be only used in a group. (Command: /targettacticalsign4) -->
+  <action id="87" handler="SocialAction" option="28" /> <!-- Gesture of Proposal (Command: /Socialpropose) -->
+  <action id="88" handler="SocialAction" option="29" /> <!-- Gesture of Provocation (Command: /Socialprovocation) -->
+  <action id="89" handler="SocialAction" option="30" /> <!-- Show Off (Command: /Socialbeauty) -->
+  <action id="92" handler="None" /> <!-- Selects the previous target. (Command: /targetprev) -->
+  <action id="1000" handler="ServitorSkillUse" option="4079" /> <!-- Attacks castle gates, walls, or headquarters with a powerful strike. -->
+  <action id="1001" handler="None" /> <!-- A reckless yet powerful attack that must be used with extreme caution. -->
+  <action id="1002" handler="PetSkillUse" option="4123" /> <!-- Incites those around the summon to attack you. -->
+  <action id="1003" handler="PetSkillUse" option="4710" /> <!-- A surprise attack that inflicts damage and stuns the opponent. -->
+  <action id="1004" handler="PetSkillUse" option="4711" /> <!-- Instantly increases P. Def. and M. Def. significantly. Character is immovable while this skill is in effect. -->
+  <action id="1005" handler="PetSkillUse" option="4712" /> <!-- A magical attack. -->
+  <action id="1006" handler="PetSkillUse" option="4713" /> <!-- Recovers the pet's HP. -->
+  <action id="1007" handler="ServitorSkillUse" option="4699" /> <!-- Temporarily increases your party's chance to land a critical attack and also increases the power of the attack if successful. -->
+  <action id="1008" handler="ServitorSkillUse" option="4700" /> <!-- Temporarily increases your party's P. Atk and accuracy. -->
+  <action id="1009" handler="ServitorSkillUse" option="4701" /> <!-- Has a chance to remove curses from party members. -->
+  <action id="1010" handler="ServitorSkillUse" option="4702" /> <!-- Temporarily increases your party's MP regeneration. -->
+  <action id="1011" handler="ServitorSkillUse" option="4703" /> <!-- Temporarily shortens your party's spell re-use timer. -->
+  <action id="1012" handler="ServitorSkillUse" option="4704" /> <!-- Remove a curse from your party. -->
+  <action id="1013" handler="ServitorSkillUse" option="4705" /> <!-- Provokes an opponent to attack and strikes them with a curse that decreases their P. Def and M. Def. -->
+  <action id="1014" handler="ServitorSkillUse" option="4706" /> <!-- Provokes multiple enemies around the caster to attack and strikes them with a curse that decreases their P. Def and M. Def. -->
+  <action id="1015" handler="ServitorSkillUse" option="4707" /> <!-- Sacrifice HP in order to regenerate the HP of a selected target. -->
+  <action id="1016" handler="ServitorSkillUse" option="4709" /> <!-- A powerful blow on the enemy's vital points -->
+  <action id="1017" handler="ServitorSkillUse" option="4708" /> <!-- A stunning blow that inflicts damage and instantly throws an enemy into a state of stun. -->
+
+  <!-- Actions 1018 to 1030 are present in the Client, but are not used in Classic. -->
+  <action id="1018" handler="ServitorSkillUse" option="0" /> <!-- Inflict a deadly curse on an enemy that absorbs their HP. -->
+  <action id="1019" handler="ServitorSkillUse" option="0" /> <!-- Skill #2 that is used by Kat the Cat -->
+  <action id="1020" handler="ServitorSkillUse" option="0" /> <!-- Skill #2 that is used by Mew the Cat -->
+  <action id="1021" handler="ServitorSkillUse" option="0" /> <!-- Skill #2 that is used by Kai the Cat -->
+  <action id="1022" handler="ServitorSkillUse" option="0" /> <!-- Skill #2 that is used by Boxer the Unicorn -->
+  <action id="1023" handler="ServitorSkillUse" option="0" /> <!-- Skill #2 that is used by Mirage the Unicorn -->
+  <action id="1024" handler="ServitorSkillUse" option="0" /> <!-- Skill #2 that is used by Merrow the Unicorn. -->
+  <action id="1025" handler="ServitorSkillUse" option="0" /> <!-- Skill #2 that is used by Shadow. -->
+  <action id="1026" handler="ServitorSkillUse" option="0" /> <!-- Skill #1 that is used by Shadow. -->
+  <action id="1027" handler="ServitorSkillUse" option="0" /> <!-- Skill #2 that is used by Silhouette -->
+  <action id="1028" handler="ServitorSkillUse" option="0" /> <!-- Skill #1 that is used by reanimated man -->
+  <action id="1029" handler="ServitorSkillUse" option="0" /> <!-- Skill #2 that is used by reanimated man -->
+  <action id="1030" handler="ServitorSkillUse" option="0" /> <!-- Skill #2 that is used by corrupted man -->
+
+  <action id="1031" handler="ServitorSkillUse" option="5135" /> <!-- Feline King: A powerful slashing attack. Over-hit is possible. -->
+  <action id="1032" handler="ServitorSkillUse" option="5136" /> <!-- Feline King: Slashes at surrounding enemies while spinning in the air. Over-hit is possible. -->
+  <action id="1033" handler="ServitorSkillUse" option="5137" /> <!-- Feline King: Immobilizes the surrounding enemies. -->
+  <action id="1034" handler="ServitorSkillUse" option="5138" /> <!-- Magnus the Unicorn: Powerful rear kicks that stun and damage an enemy. Over-hit is possible. -->
+  <action id="1035" handler="ServitorSkillUse" option="5139" /> <!-- Magnus the Unicorn: Pounds the target and surrounding enemies with a tremendous onrush of water. -->
+  <action id="1036" handler="ServitorSkillUse" option="5142" /> <!-- Spectral Lord: Detonates a corpse, inflicting damage to nearby enemies. -->
+  <action id="1037" handler="ServitorSkillUse" option="5141" /> <!-- Spectral Lord: Blades attached to each arm slash out in a devastating attack. Over-hit is possible. -->
+  <action id="1038" handler="ServitorSkillUse" option="5140" /> <!-- Spectral Lord: Curses nearby enemies, poisoning them and reducing their Atk. Spd. -->
+  <action id="1039" handler="ServitorSkillUse" option="5110" /> <!-- Swoop Cannon: Fires a projectile a short distance. Consumes 4 Flash Gunpowder. -->
+  <action id="1040" handler="ServitorSkillUse" option="5111" /> <!-- Swoop Cannon: Fires a projectile a long distance. Consumes 5 Flash Gunpowder. -->
+  <action id="1041" handler="PetSkillUse" option="5442" /> <!-- Viciously bite an enemy. -->
+  <action id="1042" handler="PetSkillUse" option="5444" /> <!-- Scratch an enemy with both paws. Causes bleeding. -->
+  <action id="1043" handler="PetSkillUse" option="5443" /> <!-- Dominate nearby enemies with a mighty roar. -->
+  <action id="1044" handler="PetSkillUse" option="5445" /> <!-- Awaken hidden powers. -->
+  <action id="1045" handler="PetSkillUse" option="5584" /> <!-- Decrease a nearby enemy's P. Atk./M. Atk. with a wolf cry. -->
+  <action id="1046" handler="PetSkillUse" option="5585" /> <!-- Decrease a nearby enemy's attack speed/magic speed with a strider roar. -->
+  <action id="1047" handler="ServitorSkillUse" option="5580" /> <!-- Viciously bite an enemy. -->
+  <action id="1048" handler="ServitorSkillUse" option="5581" /> <!-- Cause both damage and shock at the same time. Instantly stuns an enemy. -->
+  <action id="1049" handler="ServitorSkillUse" option="5582" /> <!-- Breath fire in front of you. -->
+  <action id="1050" handler="ServitorSkillUse" option="5583" /> <!-- Dominate nearby enemies with a mighty roar. -->
+  <action id="1051" handler="ServitorSkillUse" option="5638" /> <!-- Increases maximum HP temporarily. -->
+  <action id="1052" handler="ServitorSkillUse" option="5639" /> <!-- Increases maximum MP temporarily. -->
+  <action id="1053" handler="ServitorSkillUse" option="5640" /> <!-- Increases Atk. Spd. temporarily. -->
+  <action id="1054" handler="ServitorSkillUse" option="5643" /> <!-- Increases Casting Spd. temporarily. -->
+  <action id="1055" handler="ServitorSkillUse" option="5647" /> <!-- Temporarily decreases the target's MP consumption of skills. Consumes Spirit Ore. -->
+  <action id="1056" handler="ServitorSkillUse" option="5648" /> <!-- Increases M. Atk. power temporarily. -->
+  <action id="1057" handler="ServitorSkillUse" option="5646" /> <!-- Temporarily increases the critical rate of damage attack magic. -->
+  <action id="1058" handler="ServitorSkillUse" option="5652" /> <!-- Temporarily increases the critical attack power. -->
+  <action id="1059" handler="ServitorSkillUse" option="5653" /> <!-- Temporarily increases the probability of critical attack. -->
+  <action id="1060" handler="ServitorSkillUse" option="5654" /> <!-- Temporarily increases Accuracy. -->
+  <action id="1061" handler="PetSkillUse" option="5745" /> <!-- Awakens a hidden ability to inflict a powerful attack on the enemy. Requires application of the Awakening skill. -->
+  <action id="1062" handler="PetSkillUse" option="5746" /> <!-- Rapidly attacks the enemy twice. -->
+  <action id="1063" handler="PetSkillUse" option="5747" /> <!-- Inflicts shock and damage to the enemy at the same time with a powerful spin attack. -->
+  <action id="1064" handler="PetSkillUse" option="5748" /> <!-- Attacks nearby enemies with a doll heap attack. -->
+  <action id="1065" handler="PetSkillUse" option="5753" /> <!-- Awakens a hidden ability. -->
+  <action id="1066" handler="PetSkillUse" option="5749" /> <!-- Attacks the enemy with the power of thunder. -->
+  <action id="1067" handler="PetSkillUse" option="5750" /> <!-- Inflicts a swift magic attack on nearby enemies when hit. -->
+  <action id="1068" handler="PetSkillUse" option="5751" /> <!-- Attacks nearby enemies with the power of lightning. -->
+  <action id="1069" handler="PetSkillUse" option="5752" /> <!-- Awakens a hidden ability to inflict a powerful attack on the enemy. Requires application of the Awakening skill. -->
+  <action id="1070" handler="PetSkillUse" option="5771" /> <!-- Control put in place to prevent the use of a buff upon the master. 5-minute duration. -->
+  <action id="1071" handler="ServitorSkillUse" option="5761" /> <!-- Powerfully attacks the target. -->
+  <action id="1072" handler="PetSkillUse" option="6046" /> <!-- A powerful attack that pierces through a target. -->
+  <action id="1073" handler="PetSkillUse" option="6047" /> <!-- Attacks nearby enemies by spinning your own body like a whirlwind. -->
+  <action id="1074" handler="PetSkillUse" option="6048" /> <!-- Attacks a front-line enemy with a powerful lance thrust. -->
+  <action id="1075" handler="PetSkillUse" option="6049" /> <!-- Shouts a victory cry that increases your abilities. -->
+  <action id="1076" handler="PetSkillUse" option="6050" /> <!-- Powerfully attacks the target. -->
+  <action id="1077" handler="PetSkillUse" option="6051" /> <!-- Gathers energy into your body, then releases it in a destructive blast. -->
+  <action id="1078" handler="PetSkillUse" option="6052" /> <!-- Hits enemies with a powerful wave of force. -->
+  <action id="1079" handler="PetSkillUse" option="6053" /> <!-- Emits a loud roar that amplifies your abilities. -->
+  <action id="1080" handler="ServitorSkillUse" option="6041" /> <!-- Charges toward the enemy and inflicts damage. -->
+  <action id="1081" handler="ServitorSkillUse" option="6042" /> <!-- Cancels the target's de-buff. -->
+  <action id="1082" handler="ServitorSkillUse" option="6043" /> <!-- Emits a spread of ring-shaped flames. -->
+  <action id="1083" handler="ServitorSkillUse" option="6044" /> <!-- Attacks the enemy with a powerful flaming beak. -->
+  <action id="1084" handler="PetSkillUse" option="6054" /> <!-- Toggles you between Attack and Support modes. -->
+  <action id="1086" handler="ServitorSkillUse" option="6094" /> <!-- At a certain probability, removes one or several buffs from an enemy. -->
+  <action id="1087" handler="ServitorSkillUse" option="6095" /> <!-- Decreases the enemy's Dark attribute by 25. -->
+  <action id="1088" handler="ServitorSkillUse" option="6096" /> <!-- Aims at the enemy's vital spot. -->
+  <action id="1089" handler="PetSkillUse" option="6199" /> <!-- Strike multiple enemies at the front with the tail. -->
+  <action id="1090" handler="PetSkillUse" option="6205" /> <!-- Viciously bite an enemy. -->
+  <action id="1091" handler="PetSkillUse" option="6206" /> <!-- Causes nearby enemies to flee in fear. -->
+  <action id="1092" handler="PetSkillUse" option="6207" /> <!-- Increases your speed. -->
+  <action id="1093" handler="PetSkillUse" option="6618" /> <!-- Attacks the target with a chance to decrease target's speed. -->
+  <action id="1094" handler="PetSkillUse" option="6681" /> <!-- Greatly increases its master's speed. -->
+  <action id="1095" handler="PetSkillUse" option="6619" /> <!-- Attacks the target with a chance to decrease target's speed. -->
+  <action id="1096" handler="PetSkillUse" option="6682" /> <!-- Increases the speed of its master and their party. -->
+  <action id="1097" handler="PetSkillUse" option="6683" /> <!-- Teleports its master to the Seed of Annihilation. -->
+  <action id="1098" handler="PetSkillUse" option="6684" /> <!-- Teleports its master and their party to the Seed of Annihilation. -->
+  <action id="1099" handler="ServitorAttack" /> <!-- Attack the target. -->
+  <action id="1100" handler="ServitorMove" /> <!-- Move to a designated location. -->
+  <action id="1101" handler="ServitorStop" /> <!-- Stop current action. -->
+  <action id="1102" handler="UnsummonServitor" /> <!-- Make the servitor disappear by cancelling the summoning. -->
+  <action id="1103" handler="ServitorMode" option="1" /> <!-- Do not counter-attack. -->
+  <action id="1104" handler="ServitorMode" option="2" /> <!-- Counter-attack when the master or itself is attacked. -->
+  <action id="1106" handler="ServitorSkillUse" option="11278" /> <!-- Damages and provokes the target. -->
+  <action id="1107" handler="ServitorSkillUse" option="11279" /> <!-- Rolls over and delivers a shock to the ground stunning the surrounding targets. -->
+  <action id="1108" handler="ServitorSkillUse" option="11280" /> <!-- Bites the target to inflict damage. -->
+  <action id="1109" handler="ServitorSkillUse" option="11281" /> <!-- Pounces on the target to inflict damage and decrease their Speed by 100. -->
+  <action id="1110" handler="ServitorSkillUse" option="11282" /> <!-- Damages the target and absorbs some of its HP. -->
+  <action id="1111" handler="ServitorSkillUse" option="11283" /> <!-- Creates a space of death near the enemy to inflict damage. -->
+  <action id="1113" handler="ServitorSkillUse" option="10051" /> <!-- Attacks the surrounding enemies and blocks their physical skills. -->
+  <action id="1114" handler="ServitorSkillUse" option="10052" /> <!-- Flourishes claws and frontally attacks enemies. -->
+  <action id="1115" handler="ServitorSkillUse" option="10053" /> <!-- Dashes toward enemies to inflict damage and Stun them. -->
+  <action id="1116" handler="ServitorSkillUse" option="10054" /> <!-- Inflicts damage onto the enemies with a flame. -->
+  <action id="1117" handler="ServitorSkillUse" option="10794" /> <!-- Flies straight into the enemy. -->
+  <action id="1118" handler="ServitorSkillUse" option="10795" /> <!-- Purifies the master. -->
+  <action id="1120" handler="ServitorSkillUse" option="10797" /> <!-- Attack the enemy by darting a feather. -->
+  <action id="1121" handler="ServitorSkillUse" option="10798" /> <!-- Hurt the enemy by attacking them with sharp claws. -->
+  <action id="1122" handler="ServitorSkillUse" option="11806" /> <!-- Recover the targets near the tree and clear any debuff. -->
+  <action id="1123" handler="ServitorSkillUse" option="14767" /> <!-- Attacks nearby targets with a powerful punch. -->
+  <action id="1124" handler="ServitorSkillUse" option="11323" /> <!-- Provokes nearby enemies. -->
+  <action id="1125" handler="ServitorSkillUse" option="11324" /> <!-- Temporarily Stuns nearby enemies. -->
+  <action id="1126" handler="ServitorSkillUse" option="11325" /> <!-- Bites the enemy. -->
+  <action id="1127" handler="ServitorSkillUse" option="11326" /> <!-- Pounces on the target to inflict damage and decrease their Speed by 100. -->
+  <action id="1128" handler="ServitorSkillUse" option="11327" /> <!-- Attacks the enemy with the touch of death. -->
+  <action id="1129" handler="ServitorSkillUse" option="11328" /> <!-- Creates a space of death near the enemy to inflict damage. -->
+  <action id="1130" handler="ServitorSkillUse" option="11332" /> <!-- Provokes nearby enemies. -->
+  <action id="1131" handler="ServitorSkillUse" option="11333" /> <!-- Temporarily Stuns nearby enemies. -->
+  <action id="1132" handler="ServitorSkillUse" option="11334" /> <!-- Bites the enemy. -->
+  <action id="1133" handler="ServitorSkillUse" option="11335" /> <!-- Pounces on the target to inflict damage and decrease their Speed by 100. -->
+  <action id="1134" handler="ServitorSkillUse" option="11336" /> <!-- Attacks the enemy with the touch of death. -->
+  <action id="1135" handler="ServitorSkillUse" option="11337" /> <!-- Creates a space of death near the enemy to inflict damage. -->
+  <action id="1136" handler="ServitorSkillUse" option="11341" /> <!-- Provokes nearby enemies. -->
+  <action id="1137" handler="ServitorSkillUse" option="11342" /> <!-- Temporarily Stuns nearby enemies. -->
+  <action id="1138" handler="ServitorSkillUse" option="11343" /> <!-- Bites the enemy. -->
+  <action id="1139" handler="ServitorSkillUse" option="11344" /> <!-- Pounces on the target to inflict damage and decrease their Speed by 100. -->
+  <action id="1140" handler="ServitorSkillUse" option="11345" /> <!-- Attacks the enemy with the touch of death. -->
+  <action id="1141" handler="ServitorSkillUse" option="11346" /> <!-- Creates a space of death near the enemy to inflict damage. -->
+  <action id="1142" handler="ServitorSkillUse" option="10087" /> <!-- Attacks nearby enemies and blocks their P. Skills. -->
+  <action id="1143" handler="ServitorSkillUse" option="10088" /> <!-- Rushes to the enemy to inflict damage and Stun. -->
+  <action id="5000" handler="PetSkillUse" option="23155" /> <!-- Can express affection to Rudolph. Affection Level rises by 25%. Warning: Can be used only when a Rudolph requests expression of affection, and cannot be used while transformed! -->
+  <action id="5001" handler="PetSkillUse" option="23167" /> <!-- Increases Max HP by 20%, Max MP by 20%, and the Speed by 20% for 5 minutes. Increases the Debuff Resistance by 10%. Reuse delay 10 minutes. Consumes 3 Rose Essence(s) during skill use. Doesn't overlap with other buffs except Critical Seduction. -->
+  <action id="5002" handler="PetSkillUse" option="23168" /> <!-- For 30 minutes, increases party members' Max HP by 30%, Max MP by 30%, Max CP by 30%, P. Def. by 30%, magic M. Def. by 30%, Speed by 20, P. Atk. by 10%, and magic M. Atk. by 20%. Decreases MP consumption for skill use by 15%. Reuse delay 5 minutes. Consumes 10 Rose Essence(s) during skill use. -->
+  <action id="5003" handler="PetSkillUse" option="5749" /> <!-- Attacks the enemy with the power of lightning. -->
+  <action id="5004" handler="PetSkillUse" option="5750" /> <!-- Inflicts a swift magic attack upon contacted enemies nearby. -->
+  <action id="5005" handler="PetSkillUse" option="5751" /> <!-- Attacks nearby enemies with the power of lightning. -->
+  <action id="5006" handler="PetSkillUse" option="5771" /> <!-- Restricts to prevent the use of a buff upon the master. 5 minute duration. -->
+  <action id="5007" handler="PetSkillUse" option="6046" /> <!-- Inflicts a powerful attack that seems to pierce through the target. -->
+  <action id="5008" handler="PetSkillUse" option="6047" /> <!-- Attacks nearby enemies. -->
+  <action id="5009" handler="PetSkillUse" option="6048" /> <!-- Impales an enemy with a sword. -->
+  <action id="5010" handler="PetSkillUse" option="6049" /> <!-- Raises one's own abilities. -->
+  <action id="5011" handler="PetSkillUse" option="6050" /> <!-- Inflicts a powerful attack on the target. -->
+  <action id="5012" handler="PetSkillUse" option="6051" /> <!-- Gathered energy within ones self can be focused and used to attack an enemy. -->
+  <action id="5013" handler="PetSkillUse" option="6052" /> <!-- Fires a shock wave to attack enemies at the front. -->
+  <action id="5014" handler="PetSkillUse" option="6053" /> <!-- Raises one's own abilities. -->
+  <action id="5015" handler="PetSkillUse" option="6054" /> <!-- Switches between attack mode and support mode. -->
+  <action id="5016" handler="PetSkillUse" option="23318" /> <!-- Instantly restores the master's HP by 10%. Increases the master's Debuff Resistance by 80%, Buff-canceling Attack Resistance by 40%, Speed by 10, P. Def. by 20%, and M. Def. by 20%, and decreases MP consumption for all skills by 50% for 1 minute. -->
+</list>

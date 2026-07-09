@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="CatacombOfTheApostate">
+		<!-- Monsters -->
+		<group name="ssq11_2220_02">
+			<territories>
+				<territory name="ssq11_2220_02" minZ="-8155" maxZ="-8160">
+					<node x="-20553" y="-249731" />
+					<node x="-19923" y="-249730" />
+					<node x="-19926" y="-248382" />
+					<node x="-20553" y="-248380" />
+				</territory>
+			</territories>
+			<npc id="21244" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Archon -->
+			<npc id="21245" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Inquisitor -->
+			<npc id="21176" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq11_2220_03">
+			<territories>
+				<territory name="ssq11_2220_03" minZ="-8156" maxZ="-8160">
+					<node x="-20568" y="-246479" />
+					<node x="-19936" y="-246478" />
+					<node x="-19927" y="-245875" />
+					<node x="-20568" y="-245878" />
+				</territory>
+			</territories>
+			<npc id="21244" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Archon -->
+			<npc id="21245" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Inquisitor -->
+			<npc id="21176" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq11_2220_04">
+			<territories>
+				<territory name="ssq11_2220_04" minZ="-8160" maxZ="-8165">
+					<node x="-19291" y="-247745" />
+					<node x="-18622" y="-247750" />
+					<node x="-18622" y="-245920" />
+					<node x="-19288" y="-245925" />
+				</territory>
+			</territories>
+			<npc id="21244" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Archon -->
+			<npc id="21245" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Inquisitor -->
+			<npc id="21176" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq11_2220_05">
+			<territories>
+				<territory name="ssq11_2220_05" minZ="-8155" maxZ="-8160">
+					<node x="-19288" y="-248885" />
+					<node x="-18628" y="-248887" />
+					<node x="-18629" y="-248277" />
+					<node x="-19284" y="-248280" />
+				</territory>
+			</territories>
+			<npc id="21244" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Archon -->
+			<npc id="21245" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Inquisitor -->
+			<npc id="21176" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq11_2220_06">
+			<territories>
+				<territory name="ssq11_2220_06" minZ="-8148" maxZ="-8155">
+					<node x="-19419" y="-249966" />
+					<node x="-18761" y="-249962" />
+					<node x="-18767" y="-249372" />
+					<node x="-19415" y="-249374" />
+				</territory>
+			</territories>
+			<npc id="21244" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Archon -->
+			<npc id="21245" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Inquisitor -->
+			<npc id="21176" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq11_2220_07">
+			<territories>
+				<territory name="ssq11_2220_07" minZ="-8155" maxZ="-8160">
+					<node x="-18551" y="-250786" />
+					<node x="-17198" y="-250781" />
+					<node x="-17194" y="-250159" />
+					<node x="-18548" y="-250158" />
+				</territory>
+			</territories>
+			<npc id="21244" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Archon -->
+			<npc id="21245" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Inquisitor -->
+			<npc id="21176" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq11_2220_08">
+			<territories>
+				<territory name="ssq11_2220_08" minZ="-8154" maxZ="-8160">
+					<node x="-15950" y="-251087" />
+					<node x="-15312" y="-251091" />
+					<node x="-15311" y="-250487" />
+					<node x="-15951" y="-250495" />
+				</territory>
+			</territories>
+			<npc id="21244" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Archon -->
+			<npc id="21245" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Inquisitor -->
+			<npc id="21176" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq11_2220_09">
+			<territories>
+				<territory name="ssq11_2220_09" minZ="-8156" maxZ="-8160">
+					<node x="-17219" y="-249688" />
+					<node x="-15383" y="-249683" />
+					<node x="-15378" y="-249005" />
+					<node x="-17231" y="-249023" />
+				</territory>
+			</territories>
+			<npc id="21244" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Archon -->
+			<npc id="21245" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Inquisitor -->
+			<npc id="21176" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq11_2220_10">
+			<territories>
+				<territory name="ssq11_2220_10" minZ="-8159" maxZ="-8160">
+					<node x="-17805" y="-248383" />
+					<node x="-16456" y="-248383" />
+					<node x="-16467" y="-247752" />
+					<node x="-17809" y="-247756" />
+				</territory>
+			</territories>
+			<npc id="21244" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Archon -->
+			<npc id="21245" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Inquisitor -->
+			<npc id="21176" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq11_2220_11">
+			<territories>
+				<territory name="ssq11_2220_11" minZ="-8154" maxZ="-8149">
+					<node x="-15950" y="-246486" />
+					<node x="-15303" y="-246483" />
+					<node x="-15304" y="-245880" />
+					<node x="-15951" y="-245880" />
+				</territory>
+			</territories>
+			<npc id="21244" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Archon -->
+			<npc id="21245" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Crypt Inquisitor -->
+			<npc id="21176" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Magus -->
+			<npc id="21197" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Priest -->
+		</group>
+		<group name="ssq11_2220_12">
+			<territories>
+				<territory name="ssq11_2220_12" minZ="-8161" maxZ="-8145">
+					<node x="-15960" y="-245398" />
+					<node x="-15311" y="-245400" />
+					<node x="-15303" y="-244792" />
+					<node x="-15959" y="-244795" />
+				</territory>
+			</territories>
+			<npc id="21246" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Archon -->
+			<npc id="21247" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Inquisitor -->
+			<npc id="21177" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Knight Errant -->
+			<npc id="21198" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Swordsman -->
+		</group>
+		<group name="ssq11_2220_13">
+			<territories>
+				<territory name="ssq11_2220_13" minZ="-8160" maxZ="-8150">
+					<node x="-17402" y="-245270" />
+					<node x="-16735" y="-245260" />
+					<node x="-16735" y="-243430" />
+					<node x="-17411" y="-243441" />
+				</territory>
+			</territories>
+			<npc id="21246" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Archon -->
+			<npc id="21247" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Inquisitor -->
+			<npc id="21177" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Knight Errant -->
+			<npc id="21198" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Swordsman -->
+		</group>
+		<group name="ssq11_2220_14">
+			<territories>
+				<territory name="ssq11_2220_14" minZ="-8159" maxZ="-8149">
+					<node x="-18759" y="-245283" />
+					<node x="-18077" y="-245279" />
+					<node x="-18080" y="-243432" />
+					<node x="-18754" y="-243434" />
+				</territory>
+			</territories>
+			<npc id="21246" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Archon -->
+			<npc id="21247" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Inquisitor -->
+			<npc id="21177" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Knight Errant -->
+			<npc id="21198" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Swordsman -->
+		</group>
+		<group name="ssq11_2220_15">
+			<territories>
+				<territory name="ssq11_2220_15" minZ="-8160" maxZ="-8150">
+					<node x="-20560" y="-245389" />
+					<node x="-19908" y="-245390" />
+					<node x="-19910" y="-244786" />
+					<node x="-20557" y="-244787" />
+				</territory>
+			</territories>
+			<npc id="21246" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Archon -->
+			<npc id="21247" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Inquisitor -->
+			<npc id="21177" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Knight Errant -->
+			<npc id="21198" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Swordsman -->
+		</group>
+		<group name="ssq11_2220_16">
+			<territories>
+				<territory name="ssq11_2220_16" minZ="-8159" maxZ="-8150">
+					<node x="-20283" y="-242395" />
+					<node x="-18921" y="-242392" />
+					<node x="-18926" y="-241777" />
+					<node x="-20284" y="-241775" />
+				</territory>
+			</territories>
+			<npc id="21246" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Archon -->
+			<npc id="21247" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Inquisitor -->
+			<npc id="21177" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Knight Errant -->
+			<npc id="21198" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Swordsman -->
+		</group>
+		<group name="ssq11_2220_17">
+			<territories>
+				<territory name="ssq11_2220_17" minZ="-8157" maxZ="-8147">
+					<node x="-20561" y="-240792" />
+					<node x="-19917" y="-240794" />
+					<node x="-19911" y="-240186" />
+					<node x="-20561" y="-240187" />
+				</territory>
+			</territories>
+			<npc id="21246" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Archon -->
+			<npc id="21247" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Inquisitor -->
+			<npc id="21177" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Knight Errant -->
+			<npc id="21198" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Swordsman -->
+		</group>
+		<group name="ssq11_2220_18">
+			<territories>
+				<territory name="ssq11_2220_18" minZ="-8160" maxZ="-8150">
+					<node x="-18408" y="-241774" />
+					<node x="-17787" y="-241777" />
+					<node x="-17784" y="-240418" />
+					<node x="-18414" y="-240419" />
+				</territory>
+			</territories>
+			<npc id="21246" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Archon -->
+			<npc id="21247" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Inquisitor -->
+			<npc id="21177" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Knight Errant -->
+			<npc id="21198" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Swordsman -->
+		</group>
+		<group name="ssq11_2220_19">
+			<territories>
+				<territory name="ssq11_2220_19" minZ="-8157" maxZ="-8147">
+					<node x="-16600" y="-242044" />
+					<node x="-15249" y="-242043" />
+					<node x="-15243" y="-241422" />
+					<node x="-16609" y="-241425" />
+				</territory>
+			</territories>
+			<npc id="21246" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Archon -->
+			<npc id="21247" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Inquisitor -->
+			<npc id="21177" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Knight Errant -->
+			<npc id="21198" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Swordsman -->
+		</group>
+		<group name="ssq11_2220_20">
+			<territories>
+				<territory name="ssq11_2220_20" minZ="-8158" maxZ="-8148">
+					<node x="-15952" y="-240781" />
+					<node x="-15315" y="-240777" />
+					<node x="-15305" y="-240189" />
+					<node x="-15948" y="-240189" />
+				</territory>
+			</territories>
+			<npc id="21246" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Archon -->
+			<npc id="21247" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Tomb Inquisitor -->
+			<npc id="21177" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Knight Errant -->
+			<npc id="21198" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Swordsman -->
+		</group>
+		<group name="ssq11_2220_21">
+			<territories>
+				<territory name="ssq11_2220_21" minZ="-8159" maxZ="-8149">
+					<node x="-14849" y="-240798" />
+					<node x="-14249" y="-240803" />
+					<node x="-14242" y="-240168" />
+					<node x="-14850" y="-240169" />
+				</territory>
+			</territories>
+			<npc id="21154" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Hell Keeper Medusa -->
+			<npc id="21155" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Conjurer -->
+			<npc id="21179" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Priest -->
+			<npc id="21200" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Bishop -->
+		</group>
+		<group name="ssq11_2220_23">
+			<territories>
+				<territory name="ssq11_2220_23" minZ="-8156" maxZ="-8146">
+					<node x="-11332" y="-240807" />
+					<node x="-10726" y="-240803" />
+					<node x="-10727" y="-240165" />
+					<node x="-11326" y="-240165" />
+				</territory>
+			</territories>
+			<npc id="21154" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Hell Keeper Medusa -->
+			<npc id="21155" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Conjurer -->
+			<npc id="21179" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Priest -->
+			<npc id="21200" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Bishop -->
+		</group>
+		<group name="ssq11_2220_24">
+			<territories>
+				<territory name="ssq11_2220_24" minZ="-8160" maxZ="-8150">
+					<node x="-10234" y="-240802" />
+					<node x="-9639" y="-240812" />
+					<node x="-9639" y="-240167" />
+					<node x="-10236" y="-240164" />
+				</territory>
+			</territories>
+			<npc id="21154" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Hell Keeper Medusa -->
+			<npc id="21155" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Conjurer -->
+			<npc id="21179" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Priest -->
+			<npc id="21200" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Bishop -->
+		</group>
+		<group name="ssq11_2220_25">
+			<territories>
+				<territory name="ssq11_2220_25" minZ="-8159" maxZ="-8149">
+					<node x="-10244" y="-243185" />
+					<node x="-9628" y="-243184" />
+					<node x="-9630" y="-241813" />
+					<node x="-10249" y="-241811" />
+				</territory>
+			</territories>
+			<npc id="21154" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Hell Keeper Medusa -->
+			<npc id="21155" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Conjurer -->
+			<npc id="21179" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Priest -->
+			<npc id="21200" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Bishop -->
+		</group>
+		<group name="ssq11_2220_26">
+			<territories>
+				<territory name="ssq11_2220_26" minZ="-8161" maxZ="-8151">
+					<node x="-12348" y="-244130" />
+					<node x="-11680" y="-244127" />
+					<node x="-11683" y="-242301" />
+					<node x="-12346" y="-242297" />
+				</territory>
+			</territories>
+			<npc id="21154" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Hell Keeper Medusa -->
+			<npc id="21155" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Conjurer -->
+			<npc id="21179" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Priest -->
+			<npc id="21200" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Bishop -->
+		</group>
+		<group name="ssq11_2220_27">
+			<territories>
+				<territory name="ssq11_2220_27" minZ="-8160" maxZ="-8150">
+					<node x="-14857" y="-243413" />
+					<node x="-14229" y="-243405" />
+					<node x="-14231" y="-242043" />
+					<node x="-14853" y="-242035" />
+				</territory>
+			</territories>
+			<npc id="21154" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Hell Keeper Medusa -->
+			<npc id="21155" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Conjurer -->
+			<npc id="21179" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Priest -->
+			<npc id="21200" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Bishop -->
+		</group>
+		<group name="ssq11_2220_28">
+			<territories>
+				<territory name="ssq11_2220_28" minZ="-8161" maxZ="-8151">
+					<node x="-14744" y="-245312" />
+					<node x="-14293" y="-245321" />
+					<node x="-14293" y="-244864" />
+					<node x="-14728" y="-244863" />
+				</territory>
+			</territories>
+			<npc id="21154" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Hell Keeper Medusa -->
+			<npc id="21155" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Conjurer -->
+			<npc id="21179" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Priest -->
+			<npc id="21200" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Bishop -->
+		</group>
+		<group name="ssq11_2220_29">
+			<territories>
+				<territory name="ssq11_2220_29" minZ="-8160" maxZ="-8150">
+					<node x="-13083" y="-245409" />
+					<node x="-11718" y="-245401" />
+					<node x="-11717" y="-244782" />
+					<node x="-13079" y="-244789" />
+				</territory>
+			</territories>
+			<npc id="21154" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Hell Keeper Medusa -->
+			<npc id="21155" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Conjurer -->
+			<npc id="21179" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Priest -->
+			<npc id="21200" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Bishop -->
+		</group>
+		<group name="ssq11_2220_30">
+			<territories>
+				<territory name="ssq11_2220_30" minZ="-8160" maxZ="-8150">
+					<node x="-10225" y="-245418" />
+					<node x="-9632" y="-245417" />
+					<node x="-9633" y="-244764" />
+					<node x="-10223" y="-244635" />
+				</territory>
+			</territories>
+			<npc id="21154" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Hell Keeper Medusa -->
+			<npc id="21155" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Conjurer -->
+			<npc id="21179" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Priest -->
+			<npc id="21200" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Bishop -->
+		</group>
+		<group name="ssq11_2220_31">
+			<territories>
+				<territory name="ssq11_2220_31" minZ="-8157" maxZ="-8148">
+					<node x="-10262" y="-246488" />
+					<node x="-9619" y="-246479" />
+					<node x="-9616" y="-245879" />
+					<node x="-10262" y="-245873" />
+				</territory>
+			</territories>
+			<npc id="21152" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Wisp -->
+			<npc id="21153" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Serpent -->
+			<npc id="21178" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Marauder -->
+			<npc id="21199" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Guard -->
+		</group>
+		<group name="ssq11_2220_32">
+			<territories>
+				<territory name="ssq11_2220_32" minZ="-8156" maxZ="-8146">
+					<node x="-10906" y="-247741" />
+					<node x="-9546" y="-247739" />
+					<node x="-9544" y="-247121" />
+					<node x="-10899" y="-247121" />
+				</territory>
+			</territories>
+			<npc id="21152" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Wisp -->
+			<npc id="21153" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Serpent -->
+			<npc id="21178" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Marauder -->
+			<npc id="21199" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Guard -->
+		</group>
+		<group name="ssq11_2220_33">
+			<territories>
+				<territory name="ssq11_2220_33" minZ="-8154" maxZ="-8144">
+					<node x="-10267" y="-251093" />
+					<node x="-9613" y="-251087" />
+					<node x="-9612" y="-250491" />
+					<node x="-10259" y="-250494" />
+				</territory>
+			</territories>
+			<npc id="21152" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Wisp -->
+			<npc id="21153" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Serpent -->
+			<npc id="21178" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Marauder -->
+			<npc id="21199" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Guard -->
+		</group>
+		<group name="ssq11_2220_34">
+			<territories>
+				<territory name="ssq11_2220_34" minZ="-8161" maxZ="-8151">
+					<node x="-11713" y="-250968" />
+					<node x="-11042" y="-250971" />
+					<node x="-11032" y="-249108" />
+					<node x="-11713" y="-249114" />
+				</territory>
+			</territories>
+			<npc id="21152" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Wisp -->
+			<npc id="21153" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Serpent -->
+			<npc id="21178" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Marauder -->
+			<npc id="21199" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Guard -->
+		</group>
+		<group name="ssq11_2220_35">
+			<territories>
+				<territory name="ssq11_2220_35" minZ="-8161" maxZ="-8151">
+					<node x="-12920" y="-250813" />
+					<node x="-12461" y="-250818" />
+					<node x="-12386" y="-249269" />
+					<node x="-12958" y="-249282" />
+				</territory>
+			</territories>
+			<npc id="21152" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Wisp -->
+			<npc id="21153" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Serpent -->
+			<npc id="21178" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Marauder -->
+			<npc id="21199" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Guard -->
+		</group>
+		<group name="ssq11_2220_36">
+			<territories>
+				<territory name="ssq11_2220_36" minZ="-8158" maxZ="-8148">
+					<node x="-14862" y="-251085" />
+					<node x="-14237" y="-251084" />
+					<node x="-14235" y="-250496" />
+					<node x="-14861" y="-250485" />
+				</territory>
+			</territories>
+			<npc id="21152" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Wisp -->
+			<npc id="21153" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Serpent -->
+			<npc id="21178" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Marauder -->
+			<npc id="21199" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Guard -->
+		</group>
+		<group name="ssq11_2220_37">
+			<territories>
+				<territory name="ssq11_2220_37" minZ="-8155" maxZ="-8145">
+					<node x="-14593" y="-248093" />
+					<node x="-13215" y="-248088" />
+					<node x="-13215" y="-247470" />
+					<node x="-14597" y="-247473" />
+				</territory>
+			</territories>
+			<npc id="21152" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Wisp -->
+			<npc id="21153" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Serpent -->
+			<npc id="21178" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Marauder -->
+			<npc id="21199" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Guard -->
+		</group>
+		<group name="ssq11_2220_38">
+			<territories>
+				<territory name="ssq11_2220_38" minZ="-8163" maxZ="-8153">
+					<node x="-12707" y="-247473" />
+					<node x="-12086" y="-247472" />
+					<node x="-12093" y="-246108" />
+					<node x="-12710" y="-246109" />
+				</territory>
+			</territories>
+			<npc id="21152" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Wisp -->
+			<npc id="21153" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Serpent -->
+			<npc id="21178" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Marauder -->
+			<npc id="21199" count="2" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Guard -->
+		</group>
+		<group name="ssq11_2220_39">
+			<territories>
+				<territory name="ssq11_2220_39" minZ="-8160" maxZ="-8150">
+					<node x="-14732" y="-246395" />
+					<node x="-14297" y="-246404" />
+					<node x="-14297" y="-245957" />
+					<node x="-14740" y="-245971" />
+				</territory>
+			</territories>
+			<npc id="21152" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Wisp -->
+			<npc id="21153" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Purgatory Serpent -->
+			<npc id="21178" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Lilim Marauder -->
+			<npc id="21199" count="1" respawnTime="132sec" respawnRandom="40sec" /> <!-- Nephilim Guard -->
+		</group>
+		
+		<!-- NPCs -->
+		<group name="ssq11_npc2220_01">
+			<npc id="31122" x="-20230" y="-250788" z="-8161" heading="0" respawnTime="60sec" /> <!-- Gatekeeper Ziggurat -->
+		</group>
+		<group name="ssq11_npc2220_02">
+			<npc id="31116" x="77312" y="78400" z="-5123" heading="32500" respawnTime="60sec" /> <!-- Gatekeeper Ziggurat -->
+		</group>
+	</spawn>
+</list>

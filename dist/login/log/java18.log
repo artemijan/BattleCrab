@@ -1,0 +1,19 @@
+2026.07.06 17:58:48,126	INFO	1	org.l2jmobius.commons.database.DatabaseFactory	Database: Initialized.
+2026.07.06 17:58:48,141	INFO	1	org.l2jmobius.commons.threads.ThreadPool	ThreadPool: Initialized
+2026.07.06 17:58:48,144	INFO	1	org.l2jmobius.commons.threads.ThreadPool	...scheduled pool executor with 2 total threads.
+2026.07.06 17:58:48,144	INFO	1	org.l2jmobius.commons.threads.ThreadPool	...instant pool executor with 2 total threads.
+2026.07.06 17:58:48,144	INFO	1	org.l2jmobius.loginserver.LoginController	Loading LoginController...
+2026.07.06 17:58:48,298	INFO	1	org.l2jmobius.loginserver.LoginController	Cached 10 KeyPairs for RSA communication.
+2026.07.06 17:58:48,307	INFO	1	org.l2jmobius.loginserver.LoginController	Stored 20 keys for Blowfish communication.
+2026.07.06 17:58:48,347	INFO	1	org.l2jmobius.loginserver.GameServerTable	Loaded 127 server names.
+2026.07.06 17:58:48,351	INFO	1	org.l2jmobius.loginserver.GameServerTable	Loaded 1 registered Game Servers.
+2026.07.06 17:58:48,377	INFO	1	org.l2jmobius.loginserver.GameServerTable	Cached 10 RSA keys for Game Server communication.
+2026.07.06 17:58:48,378	INFO	1	org.l2jmobius.loginserver.LoginServer	Loaded 2 IP Bans.
+2026.07.06 17:58:48,379	INFO	1	org.l2jmobius.loginserver.LoginServer	Listening for GameServers on *:9014
+2026.07.06 17:58:48,391	INFO	1	org.l2jmobius.loginserver.LoginServer	LoginServer: is now listening on: 0.0.0.0:2106
+2026.07.06 17:59:04,143	INFO	57	org.l2jmobius.loginserver.GameServerThread	Updated Gameserver [1] Bartz IP's:
+2026.07.06 17:59:04,144	INFO	57	org.l2jmobius.loginserver.GameServerThread	10.37.129.2/10.37.129.0/24
+2026.07.06 17:59:04,144	INFO	57	org.l2jmobius.loginserver.GameServerThread	10.211.55.2/10.211.55.0/24
+2026.07.06 17:59:04,144	INFO	57	org.l2jmobius.loginserver.GameServerThread	192.168.1.17/192.168.1.0/24
+2026.07.06 17:59:04,144	INFO	57	org.l2jmobius.loginserver.GameServerThread	127.0.0.1/127.0.0.0/8
+2026.07.06 17:59:04,144	INFO	57	org.l2jmobius.loginserver.GameServerThread	37.133.167.130/0.0.0.0/0

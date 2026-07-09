@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="TowerOfInsolence">
+		<group>
+			<npc id="30952" x="114220" y="13320" z="-5096" heading="228" respawnTime="60sec" />
+			<npc id="30953" x="114048" y="20048" z="928" heading="49444" respawnTime="60sec" />
+			<npc id="30954" x="118600" y="16724" z="5984" heading="42000" respawnTime="60sec" />
+			<npc id="31862" x="112747" y="14163" z="10075" heading="0" respawnTime="60sec" />
+			<npc id="30950" x="114112" y="20042" z="944" heading="50148" respawnTime="60sec" />
+			<npc id="30951" x="118644" y="16680" z="6000" heading="42000" respawnTime="60sec" />
+		</group>
+	</spawn>
+</list>

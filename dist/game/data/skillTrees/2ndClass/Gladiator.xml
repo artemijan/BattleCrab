@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="2" parentClassId="1">
+		<skill skillId="1" skillLevel="1" skillName="Triple Slash" levelUpSp="11000" getLevel="40" />
+		<skill skillId="1" skillLevel="2" skillName="Triple Slash" levelUpSp="11000" getLevel="40" />
+		<skill skillId="1" skillLevel="3" skillName="Triple Slash" levelUpSp="11000" getLevel="40" />
+		<skill skillId="8" skillLevel="1" skillName="Sonic Focus" levelUpSp="33000" getLevel="40" />
+		<skill skillId="87" skillLevel="1" skillName="Detect Animal Weakness" levelUpSp="33000" getLevel="40" />
+		<skill skillId="144" skillLevel="1" skillName="Dual Weapon Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="144" skillLevel="2" skillName="Dual Weapon Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="144" skillLevel="3" skillName="Dual Weapon Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="190" skillLevel="1" skillName="Fatal Strike" levelUpSp="11000" getLevel="40" />
+		<skill skillId="190" skillLevel="2" skillName="Fatal Strike" levelUpSp="11000" getLevel="40" />
+		<skill skillId="190" skillLevel="3" skillName="Fatal Strike" levelUpSp="11000" getLevel="40" />
+		<skill skillId="212" skillLevel="3" skillName="Fast HP Recovery" levelUpSp="33000" getLevel="40" />
+		<skill skillId="227" skillLevel="14" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="227" skillLevel="15" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="227" skillLevel="16" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="231" skillLevel="14" skillName="Heavy Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="231" skillLevel="15" skillName="Heavy Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="231" skillLevel="16" skillName="Heavy Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="257" skillLevel="9" skillName="Sword Blunt Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="257" skillLevel="10" skillName="Sword Blunt Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="257" skillLevel="11" skillName="Sword Blunt Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="260" skillLevel="1" skillName="Hammer Crush" levelUpSp="11000" getLevel="40" />
+		<skill skillId="260" skillLevel="2" skillName="Hammer Crush" levelUpSp="11000" getLevel="40" />
+		<skill skillId="260" skillLevel="3" skillName="Hammer Crush" levelUpSp="11000" getLevel="40" />
+		<skill skillId="312" skillLevel="6" skillName="Vicious Stance" levelUpSp="33000" getLevel="40" />
+		<skill skillId="1" skillLevel="4" skillName="Triple Slash" levelUpSp="12000" getLevel="43" />
+		<skill skillId="1" skillLevel="5" skillName="Triple Slash" levelUpSp="12000" getLevel="43" />
+		<skill skillId="1" skillLevel="6" skillName="Triple Slash" levelUpSp="12000" getLevel="43" />
+		<skill skillId="6" skillLevel="1" skillName="Sonic Blaster" levelUpSp="11000" getLevel="43" />
+		<skill skillId="6" skillLevel="2" skillName="Sonic Blaster" levelUpSp="11000" getLevel="43" />
+		<skill skillId="6" skillLevel="3" skillName="Sonic Blaster" levelUpSp="11000" getLevel="43" />
+		<skill skillId="6" skillLevel="4" skillName="Sonic Blaster" levelUpSp="12000" getLevel="43" />
+		<skill skillId="6" skillLevel="5" skillName="Sonic Blaster" levelUpSp="12000" getLevel="43" />
+		<skill skillId="6" skillLevel="6" skillName="Sonic Blaster" levelUpSp="12000" getLevel="43" />
+		<skill skillId="8" skillLevel="2" skillName="Sonic Focus" levelUpSp="35000" getLevel="43" />
+		<skill skillId="9" skillLevel="1" skillName="Sonic Buster" levelUpSp="12000" getLevel="43" />
+		<skill skillId="9" skillLevel="2" skillName="Sonic Buster" levelUpSp="12000" getLevel="43" />
+		<skill skillId="9" skillLevel="3" skillName="Sonic Buster" levelUpSp="12000" getLevel="43" />
+		<skill skillId="78" skillLevel="2" skillName="War Cry" levelUpSp="35000" getLevel="43" />
+		<skill skillId="144" skillLevel="4" skillName="Dual Weapon Mastery" levelUpSp="12000" getLevel="43" />
+		<skill skillId="144" skillLevel="5" skillName="Dual Weapon Mastery" levelUpSp="12000" getLevel="43" />
+		<skill skillId="144" skillLevel="6" skillName="Dual Weapon Mastery" levelUpSp="12000" getLevel="43" />
+		<skill skillId="190" skillLevel="4" skillName="Fatal Strike" levelUpSp="12000" getLevel="43" />
+		<skill skillId="190" skillLevel="5" skillName="Fatal Strike" levelUpSp="12000" getLevel="43" />
+		<skill skillId="190" skillLevel="6" skillName="Fatal Strike" levelUpSp="12000" getLevel="43" />
+		<skill skillId="227" skillLevel="17" skillName="Light Armor Mastery" levelUpSp="12000" getLevel="43" />
+		<skill skillId="227" skillLevel="18" skillName="Light Armor Mastery" levelUpSp="12000" getLevel="43" />
+		<skill skillId="227" skillLevel="19" skillName="Light Armor Mastery" levelUpSp="12000" getLevel="43" />
+		<skill skillId="231" skillLevel="17" skillName="Heavy Armor Mastery" levelUpSp="12000" getLevel="43" />
+		<skill skillId="231" skillLevel="18" skillName="Heavy Armor Mastery" levelUpSp="12000" getLevel="43" />
+		<skill skillId="231" skillLevel="19" skillName="Heavy Armor Mastery" levelUpSp="12000" getLevel="43" />
+		<skill skillId="257" skillLevel="12" skillName="Sword Blunt Mastery" levelUpSp="12000" getLevel="43" />
+		<skill skillId="257" skillLevel="13" skillName="Sword Blunt Mastery" levelUpSp="12000" getLevel="43" />
+		<skill skillId="257" skillLevel="14" skillName="Sword Blunt Mastery" levelUpSp="12000" getLevel="43" />
+		<skill skillId="260" skillLevel="4" skillName="Hammer Crush" levelUpSp="12000" getLevel="43" />
+		<skill skillId="260" skillLevel="5" skillName="Hammer Crush" levelUpSp="12000" getLevel="43" />
+		<skill skillId="260" skillLevel="6" skillName="Hammer Crush" levelUpSp="12000" getLevel="43" />
+		<skill skillId="290" skillLevel="1" skillName="Final Frenzy" levelUpSp="35000" getLevel="43" />
+		<skill skillId="312" skillLevel="7" skillName="Vicious Stance" levelUpSp="35000" getLevel="43" />
+		<skill skillId="1" skillLevel="7" skillName="Triple Slash" levelUpSp="14000" getLevel="46" />
+		<skill skillId="1" skillLevel="8" skillName="Triple Slash" levelUpSp="14000" getLevel="46" />
+		<skill skillId="1" skillLevel="9" skillName="Triple Slash" levelUpSp="14000" getLevel="46" />
+		<skill skillId="6" skillLevel="7" skillName="Sonic Blaster" levelUpSp="14000" getLevel="46" />
+		<skill skillId="6" skillLevel="8" skillName="Sonic Blaster" levelUpSp="14000" getLevel="46" />
+		<skill skillId="6" skillLevel="9" skillName="Sonic Blaster" levelUpSp="14000" getLevel="46" />
+		<skill skillId="9" skillLevel="4" skillName="Sonic Buster" levelUpSp="14000" getLevel="46" />
+		<skill skillId="9" skillLevel="5" skillName="Sonic Buster" levelUpSp="14000" getLevel="46" />
+		<skill skillId="9" skillLevel="6" skillName="Sonic Buster" levelUpSp="14000" getLevel="46" />
+		<skill skillId="104" skillLevel="1" skillName="Detect Plant Weakness" levelUpSp="43000" getLevel="46" />
+		<skill skillId="144" skillLevel="7" skillName="Dual Weapon Mastery" levelUpSp="14000" getLevel="46" />
+		<skill skillId="144" skillLevel="8" skillName="Dual Weapon Mastery" levelUpSp="14000" getLevel="46" />
+		<skill skillId="144" skillLevel="9" skillName="Dual Weapon Mastery" levelUpSp="14000" getLevel="46" />
+		<skill skillId="190" skillLevel="7" skillName="Fatal Strike" levelUpSp="14000" getLevel="46" />
+		<skill skillId="190" skillLevel="8" skillName="Fatal Strike" levelUpSp="14000" getLevel="46" />
+		<skill skillId="190" skillLevel="9" skillName="Fatal Strike" levelUpSp="14000" getLevel="46" />
+		<skill skillId="212" skillLevel="4" skillName="Fast HP Recovery" levelUpSp="43000" getLevel="46" />
+		<skill skillId="227" skillLevel="20" skillName="Light Armor Mastery" levelUpSp="14000" getLevel="46" />
+		<skill skillId="227" skillLevel="21" skillName="Light Armor Mastery" levelUpSp="14000" getLevel="46" />
+		<skill skillId="227" skillLevel="22" skillName="Light Armor Mastery" levelUpSp="14000" getLevel="46" />
+		<skill skillId="231" skillLevel="20" skillName="Heavy Armor Mastery" levelUpSp="14000" getLevel="46" />
+		<skill skillId="231" skillLevel="21" skillName="Heavy Armor Mastery" levelUpSp="14000" getLevel="46" />
+		<skill skillId="231" skillLevel="22" skillName="Heavy Armor Mastery" levelUpSp="14000" getLevel="46" />
+		<skill skillId="257" skillLevel="15" skillName="Sword Blunt Mastery" levelUpSp="14000" getLevel="46" />
+		<skill skillId="257" skillLevel="16" skillName="Sword Blunt Mastery" levelUpSp="14000" getLevel="46" />
+		<skill skillId="257" skillLevel="17" skillName="Sword Blunt Mastery" levelUpSp="14000" getLevel="46" />
+		<skill skillId="260" skillLevel="7" skillName="Hammer Crush" levelUpSp="14000" getLevel="46" />
+		<skill skillId="260" skillLevel="8" skillName="Hammer Crush" levelUpSp="14000" getLevel="46" />
+		<skill skillId="260" skillLevel="9" skillName="Hammer Crush" levelUpSp="14000" getLevel="46" />
+		<skill skillId="290" skillLevel="2" skillName="Final Frenzy" levelUpSp="43000" getLevel="46" />
+		<skill skillId="312" skillLevel="8" skillName="Vicious Stance" levelUpSp="43000" getLevel="46" />
+		<skill skillId="1" skillLevel="10" skillName="Triple Slash" levelUpSp="22000" getLevel="49" />
+		<skill skillId="1" skillLevel="11" skillName="Triple Slash" levelUpSp="22000" getLevel="49" />
+		<skill skillId="1" skillLevel="12" skillName="Triple Slash" levelUpSp="22000" getLevel="49" />
+		<skill skillId="5" skillLevel="1" skillName="Double Sonic Slash" levelUpSp="14000" getLevel="49" />
+		<skill skillId="5" skillLevel="2" skillName="Double Sonic Slash" levelUpSp="14000" getLevel="49" />
+		<skill skillId="5" skillLevel="3" skillName="Double Sonic Slash" levelUpSp="14000" getLevel="49" />
+		<skill skillId="5" skillLevel="4" skillName="Double Sonic Slash" levelUpSp="22000" getLevel="49" />
+		<skill skillId="5" skillLevel="5" skillName="Double Sonic Slash" levelUpSp="22000" getLevel="49" />
+		<skill skillId="5" skillLevel="6" skillName="Double Sonic Slash" levelUpSp="22000" getLevel="49" />
+		<skill skillId="6" skillLevel="10" skillName="Sonic Blaster" levelUpSp="22000" getLevel="49" />
+		<skill skillId="6" skillLevel="11" skillName="Sonic Blaster" levelUpSp="22000" getLevel="49" />
+		<skill skillId="6" skillLevel="12" skillName="Sonic Blaster" levelUpSp="22000" getLevel="49" />
+		<skill skillId="7" skillLevel="1" skillName="Sonic Storm" levelUpSp="22000" getLevel="49" />
+		<skill skillId="7" skillLevel="2" skillName="Sonic Storm" levelUpSp="22000" getLevel="49" />
+		<skill skillId="7" skillLevel="3" skillName="Sonic Storm" levelUpSp="22000" getLevel="49" />
+		<skill skillId="8" skillLevel="3" skillName="Sonic Focus" levelUpSp="65000" getLevel="49" />
+		<skill skillId="9" skillLevel="7" skillName="Sonic Buster" levelUpSp="22000" getLevel="49" />
+		<skill skillId="9" skillLevel="8" skillName="Sonic Buster" levelUpSp="22000" getLevel="49" />
+		<skill skillId="9" skillLevel="9" skillName="Sonic Buster" levelUpSp="22000" getLevel="49" />
+		<skill skillId="144" skillLevel="10" skillName="Dual Weapon Mastery" levelUpSp="22000" getLevel="49" />
+		<skill skillId="144" skillLevel="11" skillName="Dual Weapon Mastery" levelUpSp="22000" getLevel="49" />
+		<skill skillId="144" skillLevel="12" skillName="Dual Weapon Mastery" levelUpSp="22000" getLevel="49" />
+		<skill skillId="190" skillLevel="10" skillName="Fatal Strike" levelUpSp="22000" getLevel="49" />
+		<skill skillId="190" skillLevel="11" skillName="Fatal Strike" levelUpSp="22000" getLevel="49" />
+		<skill skillId="190" skillLevel="12" skillName="Fatal Strike" levelUpSp="22000" getLevel="49" />
+		<skill skillId="227" skillLevel="23" skillName="Light Armor Mastery" levelUpSp="22000" getLevel="49" />
+		<skill skillId="227" skillLevel="24" skillName="Light Armor Mastery" levelUpSp="22000" getLevel="49" />
+		<skill skillId="227" skillLevel="25" skillName="Light Armor Mastery" levelUpSp="22000" getLevel="49" />
+		<skill skillId="231" skillLevel="23" skillName="Heavy Armor Mastery" levelUpSp="22000" getLevel="49" />
+		<skill skillId="231" skillLevel="24" skillName="Heavy Armor Mastery" levelUpSp="22000" getLevel="49" />
+		<skill skillId="231" skillLevel="25" skillName="Heavy Armor Mastery" levelUpSp="22000" getLevel="49" />
+		<skill skillId="257" skillLevel="18" skillName="Sword Blunt Mastery" levelUpSp="22000" getLevel="49" />
+		<skill skillId="257" skillLevel="19" skillName="Sword Blunt Mastery" levelUpSp="22000" getLevel="49" />
+		<skill skillId="257" skillLevel="20" skillName="Sword Blunt Mastery" levelUpSp="22000" getLevel="49" />
+		<skill skillId="260" skillLevel="10" skillName="Hammer Crush" levelUpSp="22000" getLevel="49" />
+		<skill skillId="260" skillLevel="11" skillName="Hammer Crush" levelUpSp="22000" getLevel="49" />
+		<skill skillId="260" skillLevel="12" skillName="Hammer Crush" levelUpSp="22000" getLevel="49" />
+		<skill skillId="287" skillLevel="2" skillName="Lionheart" levelUpSp="65000" getLevel="49" />
+		<skill skillId="290" skillLevel="3" skillName="Final Frenzy" levelUpSp="65000" getLevel="49" />
+		<skill skillId="312" skillLevel="9" skillName="Vicious Stance" levelUpSp="65000" getLevel="49" />
+		<skill skillId="1" skillLevel="13" skillName="Triple Slash" levelUpSp="33000" getLevel="52" />
+		<skill skillId="1" skillLevel="14" skillName="Triple Slash" levelUpSp="33000" getLevel="52" />
+		<skill skillId="1" skillLevel="15" skillName="Triple Slash" levelUpSp="33000" getLevel="52" />
+		<skill skillId="5" skillLevel="7" skillName="Double Sonic Slash" levelUpSp="33000" getLevel="52" />
+		<skill skillId="5" skillLevel="8" skillName="Double Sonic Slash" levelUpSp="33000" getLevel="52" />
+		<skill skillId="5" skillLevel="9" skillName="Double Sonic Slash" levelUpSp="33000" getLevel="52" />
+		<skill skillId="6" skillLevel="13" skillName="Sonic Blaster" levelUpSp="33000" getLevel="52" />
+		<skill skillId="6" skillLevel="14" skillName="Sonic Blaster" levelUpSp="33000" getLevel="52" />
+		<skill skillId="6" skillLevel="15" skillName="Sonic Blaster" levelUpSp="33000" getLevel="52" />
+		<skill skillId="7" skillLevel="4" skillName="Sonic Storm" levelUpSp="33000" getLevel="52" />
+		<skill skillId="7" skillLevel="5" skillName="Sonic Storm" levelUpSp="33000" getLevel="52" />
+		<skill skillId="7" skillLevel="6" skillName="Sonic Storm" levelUpSp="33000" getLevel="52" />
+		<skill skillId="9" skillLevel="10" skillName="Sonic Buster" levelUpSp="33000" getLevel="52" />
+		<skill skillId="9" skillLevel="11" skillName="Sonic Buster" levelUpSp="33000" getLevel="52" />
+		<skill skillId="9" skillLevel="12" skillName="Sonic Buster" levelUpSp="33000" getLevel="52" />
+		<skill skillId="80" skillLevel="1" skillName="Detect Monster Weakness" levelUpSp="100000" getLevel="52" />
+		<skill skillId="144" skillLevel="13" skillName="Dual Weapon Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="144" skillLevel="14" skillName="Dual Weapon Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="144" skillLevel="15" skillName="Dual Weapon Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="190" skillLevel="13" skillName="Fatal Strike" levelUpSp="33000" getLevel="52" />
+		<skill skillId="190" skillLevel="14" skillName="Fatal Strike" levelUpSp="33000" getLevel="52" />
+		<skill skillId="190" skillLevel="15" skillName="Fatal Strike" levelUpSp="33000" getLevel="52" />
+		<skill skillId="212" skillLevel="5" skillName="Fast HP Recovery" levelUpSp="100000" getLevel="52" />
+		<skill skillId="227" skillLevel="26" skillName="Light Armor Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="227" skillLevel="27" skillName="Light Armor Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="227" skillLevel="28" skillName="Light Armor Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="231" skillLevel="26" skillName="Heavy Armor Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="231" skillLevel="27" skillName="Heavy Armor Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="231" skillLevel="28" skillName="Heavy Armor Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="257" skillLevel="21" skillName="Sword Blunt Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="257" skillLevel="22" skillName="Sword Blunt Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="257" skillLevel="23" skillName="Sword Blunt Mastery" levelUpSp="33000" getLevel="52" />
+		<skill skillId="260" skillLevel="13" skillName="Hammer Crush" levelUpSp="33000" getLevel="52" />
+		<skill skillId="260" skillLevel="14" skillName="Hammer Crush" levelUpSp="33000" getLevel="52" />
+		<skill skillId="260" skillLevel="15" skillName="Hammer Crush" levelUpSp="33000" getLevel="52" />
+		<skill skillId="290" skillLevel="4" skillName="Final Frenzy" levelUpSp="100000" getLevel="52" />
+		<skill skillId="312" skillLevel="10" skillName="Vicious Stance" levelUpSp="100000" getLevel="52" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="1" getLevel="52" levelUpSp="230000">			<item id="8618" count="1" /> <!-- Ancient Book: Divine Inspiration (Modern Language Version) -->		</skill>
+		<skill skillId="1" skillLevel="16" skillName="Triple Slash" levelUpSp="44000" getLevel="55" />
+		<skill skillId="1" skillLevel="17" skillName="Triple Slash" levelUpSp="44000" getLevel="55" />
+		<skill skillId="1" skillLevel="18" skillName="Triple Slash" levelUpSp="44000" getLevel="55" />
+		<skill skillId="5" skillLevel="10" skillName="Double Sonic Slash" levelUpSp="44000" getLevel="55" />
+		<skill skillId="5" skillLevel="11" skillName="Double Sonic Slash" levelUpSp="44000" getLevel="55" />
+		<skill skillId="5" skillLevel="12" skillName="Double Sonic Slash" levelUpSp="44000" getLevel="55" />
+		<skill skillId="6" skillLevel="16" skillName="Sonic Blaster" levelUpSp="44000" getLevel="55" />
+		<skill skillId="6" skillLevel="17" skillName="Sonic Blaster" levelUpSp="44000" getLevel="55" />
+		<skill skillId="6" skillLevel="18" skillName="Sonic Blaster" levelUpSp="44000" getLevel="55" />
+		<skill skillId="7" skillLevel="7" skillName="Sonic Storm" levelUpSp="44000" getLevel="55" />
+		<skill skillId="7" skillLevel="8" skillName="Sonic Storm" levelUpSp="44000" getLevel="55" />
+		<skill skillId="7" skillLevel="9" skillName="Sonic Storm" levelUpSp="44000" getLevel="55" />
+		<skill skillId="8" skillLevel="4" skillName="Sonic Focus" levelUpSp="133000" getLevel="55" />
+		<skill skillId="9" skillLevel="13" skillName="Sonic Buster" levelUpSp="44000" getLevel="55" />
+		<skill skillId="9" skillLevel="14" skillName="Sonic Buster" levelUpSp="44000" getLevel="55" />
+		<skill skillId="9" skillLevel="15" skillName="Sonic Buster" levelUpSp="44000" getLevel="55" />
+		<skill skillId="144" skillLevel="16" skillName="Dual Weapon Mastery" levelUpSp="44000" getLevel="55" />
+		<skill skillId="144" skillLevel="17" skillName="Dual Weapon Mastery" levelUpSp="44000" getLevel="55" />
+		<skill skillId="144" skillLevel="18" skillName="Dual Weapon Mastery" levelUpSp="44000" getLevel="55" />
+		<skill skillId="190" skillLevel="16" skillName="Fatal Strike" levelUpSp="44000" getLevel="55" />
+		<skill skillId="190" skillLevel="17" skillName="Fatal Strike" levelUpSp="44000" getLevel="55" />
+		<skill skillId="190" skillLevel="18" skillName="Fatal Strike" levelUpSp="44000" getLevel="55" />
+		<skill skillId="227" skillLevel="29" skillName="Light Armor Mastery" levelUpSp="44000" getLevel="55" />
+		<skill skillId="227" skillLevel="30" skillName="Light Armor Mastery" levelUpSp="44000" getLevel="55" />
+		<skill skillId="227" skillLevel="31" skillName="Light Armor Mastery" levelUpSp="44000" getLevel="55" />
+		<skill skillId="231" skillLevel="29" skillName="Heavy Armor Mastery" levelUpSp="44000" getLevel="55" />
+		<skill skillId="231" skillLevel="30" skillName="Heavy Armor Mastery" levelUpSp="44000" getLevel="55" />
+		<skill skillId="231" skillLevel="31" skillName="Heavy Armor Mastery" levelUpSp="44000" getLevel="55" />
+		<skill skillId="257" skillLevel="24" skillName="Sword Blunt Mastery" levelUpSp="44000" getLevel="55" />
+		<skill skillId="257" skillLevel="25" skillName="Sword Blunt Mastery" levelUpSp="44000" getLevel="55" />
+		<skill skillId="257" skillLevel="26" skillName="Sword Blunt Mastery" levelUpSp="44000" getLevel="55" />
+		<skill skillId="260" skillLevel="16" skillName="Hammer Crush" levelUpSp="44000" getLevel="55" />
+		<skill skillId="260" skillLevel="17" skillName="Hammer Crush" levelUpSp="44000" getLevel="55" />
+		<skill skillId="260" skillLevel="18" skillName="Hammer Crush" levelUpSp="44000" getLevel="55" />
+		<skill skillId="261" skillLevel="1" skillName="Triple Sonic Slash" levelUpSp="44000" getLevel="55" />
+		<skill skillId="261" skillLevel="2" skillName="Triple Sonic Slash" levelUpSp="44000" getLevel="55" />
+		<skill skillId="261" skillLevel="3" skillName="Triple Sonic Slash" levelUpSp="44000" getLevel="55" />
+		<skill skillId="290" skillLevel="5" skillName="Final Frenzy" levelUpSp="133000" getLevel="55" />
+		<skill skillId="312" skillLevel="11" skillName="Vicious Stance" levelUpSp="133000" getLevel="55" />
+		<skill skillId="1" skillLevel="19" skillName="Triple Slash" levelUpSp="51000" getLevel="58" />
+		<skill skillId="1" skillLevel="20" skillName="Triple Slash" levelUpSp="51000" getLevel="58" />
+		<skill skillId="1" skillLevel="21" skillName="Triple Slash" levelUpSp="51000" getLevel="58" />
+		<skill skillId="5" skillLevel="13" skillName="Double Sonic Slash" levelUpSp="51000" getLevel="58" />
+		<skill skillId="5" skillLevel="14" skillName="Double Sonic Slash" levelUpSp="51000" getLevel="58" />
+		<skill skillId="5" skillLevel="15" skillName="Double Sonic Slash" levelUpSp="51000" getLevel="58" />
+		<skill skillId="6" skillLevel="19" skillName="Sonic Blaster" levelUpSp="51000" getLevel="58" />
+		<skill skillId="6" skillLevel="20" skillName="Sonic Blaster" levelUpSp="51000" getLevel="58" />
+		<skill skillId="6" skillLevel="21" skillName="Sonic Blaster" levelUpSp="51000" getLevel="58" />
+		<skill skillId="7" skillLevel="10" skillName="Sonic Storm" levelUpSp="51000" getLevel="58" />
+		<skill skillId="7" skillLevel="11" skillName="Sonic Storm" levelUpSp="51000" getLevel="58" />
+		<skill skillId="7" skillLevel="12" skillName="Sonic Storm" levelUpSp="51000" getLevel="58" />
+		<skill skillId="9" skillLevel="16" skillName="Sonic Buster" levelUpSp="51000" getLevel="58" />
+		<skill skillId="9" skillLevel="17" skillName="Sonic Buster" levelUpSp="51000" getLevel="58" />
+		<skill skillId="9" skillLevel="18" skillName="Sonic Buster" levelUpSp="51000" getLevel="58" />
+		<skill skillId="88" skillLevel="1" skillName="Detect Dragon Weakness" levelUpSp="153000" getLevel="58" />
+		<skill skillId="144" skillLevel="19" skillName="Dual Weapon Mastery" levelUpSp="51000" getLevel="58" />
+		<skill skillId="144" skillLevel="20" skillName="Dual Weapon Mastery" levelUpSp="51000" getLevel="58" />
+		<skill skillId="144" skillLevel="21" skillName="Dual Weapon Mastery" levelUpSp="51000" getLevel="58" />
+		<skill skillId="190" skillLevel="19" skillName="Fatal Strike" levelUpSp="51000" getLevel="58" />
+		<skill skillId="190" skillLevel="20" skillName="Fatal Strike" levelUpSp="51000" getLevel="58" />
+		<skill skillId="190" skillLevel="21" skillName="Fatal Strike" levelUpSp="51000" getLevel="58" />
+		<skill skillId="212" skillLevel="6" skillName="Fast HP Recovery" levelUpSp="153000" getLevel="58" />
+		<skill skillId="227" skillLevel="32" skillName="Light Armor Mastery" levelUpSp="51000" getLevel="58" />
+		<skill skillId="227" skillLevel="33" skillName="Light Armor Mastery" levelUpSp="51000" getLevel="58" />
+		<skill skillId="227" skillLevel="34" skillName="Light Armor Mastery" levelUpSp="51000" getLevel="58" />
+		<skill skillId="231" skillLevel="32" skillName="Heavy Armor Mastery" levelUpSp="51000" getLevel="58" />
+		<skill skillId="231" skillLevel="33" skillName="Heavy Armor Mastery" levelUpSp="51000" getLevel="58" />
+		<skill skillId="231" skillLevel="34" skillName="Heavy Armor Mastery" levelUpSp="51000" getLevel="58" />
+		<skill skillId="257" skillLevel="27" skillName="Sword Blunt Mastery" levelUpSp="51000" getLevel="58" />
+		<skill skillId="257" skillLevel="28" skillName="Sword Blunt Mastery" levelUpSp="51000" getLevel="58" />
+		<skill skillId="257" skillLevel="29" skillName="Sword Blunt Mastery" levelUpSp="51000" getLevel="58" />
+		<skill skillId="260" skillLevel="19" skillName="Hammer Crush" levelUpSp="51000" getLevel="58" />
+		<skill skillId="260" skillLevel="20" skillName="Hammer Crush" levelUpSp="51000" getLevel="58" />
+		<skill skillId="260" skillLevel="21" skillName="Hammer Crush" levelUpSp="51000" getLevel="58" />
+		<skill skillId="261" skillLevel="4" skillName="Triple Sonic Slash" levelUpSp="51000" getLevel="58" />
+		<skill skillId="261" skillLevel="5" skillName="Triple Sonic Slash" levelUpSp="51000" getLevel="58" />
+		<skill skillId="261" skillLevel="6" skillName="Triple Sonic Slash" levelUpSp="51000" getLevel="58" />
+		<skill skillId="290" skillLevel="6" skillName="Final Frenzy" levelUpSp="153000" getLevel="58" />
+		<skill skillId="312" skillLevel="12" skillName="Vicious Stance" levelUpSp="153000" getLevel="58" />
+		<skill skillId="424" skillLevel="1" skillName="War Frenzy" levelUpSp="153000" getLevel="58" />
+		<skill skillId="1" skillLevel="22" skillName="Triple Slash" levelUpSp="97000" getLevel="60" />
+		<skill skillId="1" skillLevel="23" skillName="Triple Slash" levelUpSp="97000" getLevel="60" />
+		<skill skillId="5" skillLevel="16" skillName="Double Sonic Slash" levelUpSp="97000" getLevel="60" />
+		<skill skillId="5" skillLevel="17" skillName="Double Sonic Slash" levelUpSp="97000" getLevel="60" />
+		<skill skillId="6" skillLevel="22" skillName="Sonic Blaster" levelUpSp="97000" getLevel="60" />
+		<skill skillId="6" skillLevel="23" skillName="Sonic Blaster" levelUpSp="97000" getLevel="60" />
+		<skill skillId="7" skillLevel="13" skillName="Sonic Storm" levelUpSp="97000" getLevel="60" />
+		<skill skillId="7" skillLevel="14" skillName="Sonic Storm" levelUpSp="97000" getLevel="60" />
+		<skill skillId="8" skillLevel="5" skillName="Sonic Focus" levelUpSp="190000" getLevel="60" />
+		<skill skillId="9" skillLevel="19" skillName="Sonic Buster" levelUpSp="97000" getLevel="60" />
+		<skill skillId="9" skillLevel="20" skillName="Sonic Buster" levelUpSp="97000" getLevel="60" />
+		<skill skillId="144" skillLevel="22" skillName="Dual Weapon Mastery" levelUpSp="97000" getLevel="60" />
+		<skill skillId="144" skillLevel="23" skillName="Dual Weapon Mastery" levelUpSp="97000" getLevel="60" />
+		<skill skillId="190" skillLevel="22" skillName="Fatal Strike" levelUpSp="97000" getLevel="60" />
+		<skill skillId="190" skillLevel="23" skillName="Fatal Strike" levelUpSp="97000" getLevel="60" />
+		<skill skillId="227" skillLevel="35" skillName="Light Armor Mastery" levelUpSp="97000" getLevel="60" />
+		<skill skillId="227" skillLevel="36" skillName="Light Armor Mastery" levelUpSp="97000" getLevel="60" />
+		<skill skillId="231" skillLevel="35" skillName="Heavy Armor Mastery" levelUpSp="97000" getLevel="60" />
+		<skill skillId="231" skillLevel="36" skillName="Heavy Armor Mastery" levelUpSp="97000" getLevel="60" />
+		<skill skillId="257" skillLevel="30" skillName="Sword Blunt Mastery" levelUpSp="97000" getLevel="60" />
+		<skill skillId="257" skillLevel="31" skillName="Sword Blunt Mastery" levelUpSp="97000" getLevel="60" />
+		<skill skillId="260" skillLevel="22" skillName="Hammer Crush" levelUpSp="97000" getLevel="60" />
+		<skill skillId="260" skillLevel="23" skillName="Hammer Crush" levelUpSp="97000" getLevel="60" />
+		<skill skillId="261" skillLevel="7" skillName="Triple Sonic Slash" levelUpSp="97000" getLevel="60" />
+		<skill skillId="261" skillLevel="8" skillName="Triple Sonic Slash" levelUpSp="97000" getLevel="60" />
+		<skill skillId="290" skillLevel="7" skillName="Final Frenzy" levelUpSp="190000" getLevel="60" />
+		<skill skillId="312" skillLevel="13" skillName="Vicious Stance" levelUpSp="190000" getLevel="60" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="2" getLevel="61" levelUpSp="640000">			<item id="8619" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Language Version) -->		</skill>
+		<skill skillId="1" skillLevel="24" skillName="Triple Slash" levelUpSp="130000" getLevel="62" />
+		<skill skillId="1" skillLevel="25" skillName="Triple Slash" levelUpSp="130000" getLevel="62" />
+		<skill skillId="5" skillLevel="18" skillName="Double Sonic Slash" levelUpSp="130000" getLevel="62" />
+		<skill skillId="5" skillLevel="19" skillName="Double Sonic Slash" levelUpSp="130000" getLevel="62" />
+		<skill skillId="6" skillLevel="24" skillName="Sonic Blaster" levelUpSp="130000" getLevel="62" />
+		<skill skillId="6" skillLevel="25" skillName="Sonic Blaster" levelUpSp="130000" getLevel="62" />
+		<skill skillId="7" skillLevel="15" skillName="Sonic Storm" levelUpSp="130000" getLevel="62" />
+		<skill skillId="7" skillLevel="16" skillName="Sonic Storm" levelUpSp="130000" getLevel="62" />
+		<skill skillId="9" skillLevel="21" skillName="Sonic Buster" levelUpSp="130000" getLevel="62" />
+		<skill skillId="9" skillLevel="22" skillName="Sonic Buster" levelUpSp="130000" getLevel="62" />
+		<skill skillId="144" skillLevel="24" skillName="Dual Weapon Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="144" skillLevel="25" skillName="Dual Weapon Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="190" skillLevel="24" skillName="Fatal Strike" levelUpSp="130000" getLevel="62" />
+		<skill skillId="190" skillLevel="25" skillName="Fatal Strike" levelUpSp="130000" getLevel="62" />
+		<skill skillId="227" skillLevel="37" skillName="Light Armor Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="227" skillLevel="38" skillName="Light Armor Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="231" skillLevel="37" skillName="Heavy Armor Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="231" skillLevel="38" skillName="Heavy Armor Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="257" skillLevel="32" skillName="Sword Blunt Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="257" skillLevel="33" skillName="Sword Blunt Mastery" levelUpSp="130000" getLevel="62" />
+		<skill skillId="260" skillLevel="24" skillName="Hammer Crush" levelUpSp="130000" getLevel="62" />
+		<skill skillId="260" skillLevel="25" skillName="Hammer Crush" levelUpSp="130000" getLevel="62" />
+		<skill skillId="261" skillLevel="9" skillName="Triple Sonic Slash" levelUpSp="130000" getLevel="62" />
+		<skill skillId="261" skillLevel="10" skillName="Triple Sonic Slash" levelUpSp="130000" getLevel="62" />
+		<skill skillId="287" skillLevel="3" skillName="Lionheart" levelUpSp="270000" getLevel="62" />
+		<skill skillId="290" skillLevel="8" skillName="Final Frenzy" levelUpSp="270000" getLevel="62" />
+		<skill skillId="312" skillLevel="14" skillName="Vicious Stance" levelUpSp="270000" getLevel="62" />
+		<skill skillId="451" skillLevel="1" skillName="Sonic Move" levelUpSp="250000" getLevel="62" />
+		<skill skillId="1" skillLevel="26" skillName="Triple Slash" levelUpSp="160000" getLevel="64" />
+		<skill skillId="1" skillLevel="27" skillName="Triple Slash" levelUpSp="160000" getLevel="64" />
+		<skill skillId="5" skillLevel="20" skillName="Double Sonic Slash" levelUpSp="160000" getLevel="64" />
+		<skill skillId="5" skillLevel="21" skillName="Double Sonic Slash" levelUpSp="160000" getLevel="64" />
+		<skill skillId="6" skillLevel="26" skillName="Sonic Blaster" levelUpSp="160000" getLevel="64" />
+		<skill skillId="6" skillLevel="27" skillName="Sonic Blaster" levelUpSp="160000" getLevel="64" />
+		<skill skillId="7" skillLevel="17" skillName="Sonic Storm" levelUpSp="160000" getLevel="64" />
+		<skill skillId="7" skillLevel="18" skillName="Sonic Storm" levelUpSp="160000" getLevel="64" />
+		<skill skillId="9" skillLevel="23" skillName="Sonic Buster" levelUpSp="160000" getLevel="64" />
+		<skill skillId="9" skillLevel="24" skillName="Sonic Buster" levelUpSp="160000" getLevel="64" />
+		<skill skillId="144" skillLevel="26" skillName="Dual Weapon Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="144" skillLevel="27" skillName="Dual Weapon Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="190" skillLevel="26" skillName="Fatal Strike" levelUpSp="160000" getLevel="64" />
+		<skill skillId="190" skillLevel="27" skillName="Fatal Strike" levelUpSp="160000" getLevel="64" />
+		<skill skillId="227" skillLevel="39" skillName="Light Armor Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="227" skillLevel="40" skillName="Light Armor Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="231" skillLevel="39" skillName="Heavy Armor Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="231" skillLevel="40" skillName="Heavy Armor Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="257" skillLevel="34" skillName="Sword Blunt Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="257" skillLevel="35" skillName="Sword Blunt Mastery" levelUpSp="160000" getLevel="64" />
+		<skill skillId="260" skillLevel="26" skillName="Hammer Crush" levelUpSp="160000" getLevel="64" />
+		<skill skillId="260" skillLevel="27" skillName="Hammer Crush" levelUpSp="160000" getLevel="64" />
+		<skill skillId="261" skillLevel="11" skillName="Triple Sonic Slash" levelUpSp="160000" getLevel="64" />
+		<skill skillId="261" skillLevel="12" skillName="Triple Sonic Slash" levelUpSp="160000" getLevel="64" />
+		<skill skillId="290" skillLevel="9" skillName="Final Frenzy" levelUpSp="320000" getLevel="64" />
+		<skill skillId="297" skillLevel="1" skillName="Duelist Spirit" levelUpSp="320000" getLevel="64" />
+		<skill skillId="312" skillLevel="15" skillName="Vicious Stance" levelUpSp="320000" getLevel="64" />
+		<skill skillId="1" skillLevel="28" skillName="Triple Slash" levelUpSp="220000" getLevel="66" />
+		<skill skillId="1" skillLevel="29" skillName="Triple Slash" levelUpSp="220000" getLevel="66" />
+		<skill skillId="5" skillLevel="22" skillName="Double Sonic Slash" levelUpSp="220000" getLevel="66" />
+		<skill skillId="5" skillLevel="23" skillName="Double Sonic Slash" levelUpSp="220000" getLevel="66" />
+		<skill skillId="6" skillLevel="28" skillName="Sonic Blaster" levelUpSp="220000" getLevel="66" />
+		<skill skillId="6" skillLevel="29" skillName="Sonic Blaster" levelUpSp="220000" getLevel="66" />
+		<skill skillId="7" skillLevel="19" skillName="Sonic Storm" levelUpSp="220000" getLevel="66" />
+		<skill skillId="7" skillLevel="20" skillName="Sonic Storm" levelUpSp="220000" getLevel="66" />
+		<skill skillId="8" skillLevel="6" skillName="Sonic Focus" levelUpSp="440000" getLevel="66" />
+		<skill skillId="9" skillLevel="25" skillName="Sonic Buster" levelUpSp="220000" getLevel="66" />
+		<skill skillId="9" skillLevel="26" skillName="Sonic Buster" levelUpSp="220000" getLevel="66" />
+		<skill skillId="144" skillLevel="28" skillName="Dual Weapon Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="144" skillLevel="29" skillName="Dual Weapon Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="190" skillLevel="28" skillName="Fatal Strike" levelUpSp="220000" getLevel="66" />
+		<skill skillId="190" skillLevel="29" skillName="Fatal Strike" levelUpSp="220000" getLevel="66" />
+		<skill skillId="227" skillLevel="41" skillName="Light Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="227" skillLevel="42" skillName="Light Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="231" skillLevel="41" skillName="Heavy Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="231" skillLevel="42" skillName="Heavy Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="257" skillLevel="36" skillName="Sword Blunt Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="257" skillLevel="37" skillName="Sword Blunt Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="260" skillLevel="28" skillName="Hammer Crush" levelUpSp="220000" getLevel="66" />
+		<skill skillId="260" skillLevel="29" skillName="Hammer Crush" levelUpSp="220000" getLevel="66" />
+		<skill skillId="261" skillLevel="13" skillName="Triple Sonic Slash" levelUpSp="220000" getLevel="66" />
+		<skill skillId="261" skillLevel="14" skillName="Triple Sonic Slash" levelUpSp="220000" getLevel="66" />
+		<skill skillId="290" skillLevel="10" skillName="Final Frenzy" levelUpSp="440000" getLevel="66" />
+		<skill skillId="312" skillLevel="16" skillName="Vicious Stance" levelUpSp="440000" getLevel="66" />
+		<skill skillId="424" skillLevel="2" skillName="War Frenzy" levelUpSp="440000" getLevel="66" />
+		<skill skillId="1" skillLevel="30" skillName="Triple Slash" levelUpSp="260000" getLevel="68" />
+		<skill skillId="1" skillLevel="31" skillName="Triple Slash" levelUpSp="260000" getLevel="68" />
+		<skill skillId="5" skillLevel="24" skillName="Double Sonic Slash" levelUpSp="260000" getLevel="68" />
+		<skill skillId="5" skillLevel="25" skillName="Double Sonic Slash" levelUpSp="260000" getLevel="68" />
+		<skill skillId="6" skillLevel="30" skillName="Sonic Blaster" levelUpSp="260000" getLevel="68" />
+		<skill skillId="6" skillLevel="31" skillName="Sonic Blaster" levelUpSp="260000" getLevel="68" />
+		<skill skillId="7" skillLevel="21" skillName="Sonic Storm" levelUpSp="260000" getLevel="68" />
+		<skill skillId="7" skillLevel="22" skillName="Sonic Storm" levelUpSp="260000" getLevel="68" />
+		<skill skillId="9" skillLevel="27" skillName="Sonic Buster" levelUpSp="260000" getLevel="68" />
+		<skill skillId="9" skillLevel="28" skillName="Sonic Buster" levelUpSp="260000" getLevel="68" />
+		<skill skillId="144" skillLevel="30" skillName="Dual Weapon Mastery" levelUpSp="260000" getLevel="68" />
+		<skill skillId="144" skillLevel="31" skillName="Dual Weapon Mastery" levelUpSp="260000" getLevel="68" />
+		<skill skillId="190" skillLevel="30" skillName="Fatal Strike" levelUpSp="260000" getLevel="68" />
+		<skill skillId="190" skillLevel="31" skillName="Fatal Strike" levelUpSp="260000" getLevel="68" />
+		<skill skillId="212" skillLevel="7" skillName="Fast HP Recovery" levelUpSp="520000" getLevel="68" />
+		<skill skillId="227" skillLevel="43" skillName="Light Armor Mastery" levelUpSp="260000" getLevel="68" />
+		<skill skillId="227" skillLevel="44" skillName="Light Armor Mastery" levelUpSp="260000" getLevel="68" />
+		<skill skillId="231" skillLevel="43" skillName="Heavy Armor Mastery" levelUpSp="260000" getLevel="68" />
+		<skill skillId="231" skillLevel="44" skillName="Heavy Armor Mastery" levelUpSp="260000" getLevel="68" />
+		<skill skillId="257" skillLevel="38" skillName="Sword Blunt Mastery" levelUpSp="260000" getLevel="68" />
+		<skill skillId="257" skillLevel="39" skillName="Sword Blunt Mastery" levelUpSp="260000" getLevel="68" />
+		<skill skillId="260" skillLevel="30" skillName="Hammer Crush" levelUpSp="260000" getLevel="68" />
+		<skill skillId="260" skillLevel="31" skillName="Hammer Crush" levelUpSp="260000" getLevel="68" />
+		<skill skillId="261" skillLevel="15" skillName="Triple Sonic Slash" levelUpSp="260000" getLevel="68" />
+		<skill skillId="261" skillLevel="16" skillName="Triple Sonic Slash" levelUpSp="260000" getLevel="68" />
+		<skill skillId="290" skillLevel="11" skillName="Final Frenzy" levelUpSp="520000" getLevel="68" />
+		<skill skillId="312" skillLevel="17" skillName="Vicious Stance" levelUpSp="520000" getLevel="68" />
+		<skill skillId="451" skillLevel="2" skillName="Sonic Move" levelUpSp="490000" getLevel="68" />
+		<skill skillId="1" skillLevel="32" skillName="Triple Slash" levelUpSp="310000" getLevel="70" />
+		<skill skillId="1" skillLevel="33" skillName="Triple Slash" levelUpSp="310000" getLevel="70" />
+		<skill skillId="5" skillLevel="26" skillName="Double Sonic Slash" levelUpSp="310000" getLevel="70" />
+		<skill skillId="5" skillLevel="27" skillName="Double Sonic Slash" levelUpSp="310000" getLevel="70" />
+		<skill skillId="6" skillLevel="32" skillName="Sonic Blaster" levelUpSp="310000" getLevel="70" />
+		<skill skillId="6" skillLevel="33" skillName="Sonic Blaster" levelUpSp="310000" getLevel="70" />
+		<skill skillId="7" skillLevel="23" skillName="Sonic Storm" levelUpSp="310000" getLevel="70" />
+		<skill skillId="7" skillLevel="24" skillName="Sonic Storm" levelUpSp="310000" getLevel="70" />
+		<skill skillId="8" skillLevel="7" skillName="Sonic Focus" levelUpSp="620000" getLevel="70" />
+		<skill skillId="9" skillLevel="29" skillName="Sonic Buster" levelUpSp="310000" getLevel="70" />
+		<skill skillId="9" skillLevel="30" skillName="Sonic Buster" levelUpSp="310000" getLevel="70" />
+		<skill skillId="144" skillLevel="32" skillName="Dual Weapon Mastery" levelUpSp="310000" getLevel="70" />
+		<skill skillId="144" skillLevel="33" skillName="Dual Weapon Mastery" levelUpSp="310000" getLevel="70" />
+		<skill skillId="190" skillLevel="32" skillName="Fatal Strike" levelUpSp="310000" getLevel="70" />
+		<skill skillId="190" skillLevel="33" skillName="Fatal Strike" levelUpSp="310000" getLevel="70" />
+		<skill skillId="227" skillLevel="45" skillName="Light Armor Mastery" levelUpSp="310000" getLevel="70" />
+		<skill skillId="227" skillLevel="46" skillName="Light Armor Mastery" levelUpSp="310000" getLevel="70" />
+		<skill skillId="231" skillLevel="45" skillName="Heavy Armor Mastery" levelUpSp="310000" getLevel="70" />
+		<skill skillId="231" skillLevel="46" skillName="Heavy Armor Mastery" levelUpSp="310000" getLevel="70" />
+		<skill skillId="257" skillLevel="40" skillName="Sword Blunt Mastery" levelUpSp="310000" getLevel="70" />
+		<skill skillId="257" skillLevel="41" skillName="Sword Blunt Mastery" levelUpSp="310000" getLevel="70" />
+		<skill skillId="260" skillLevel="32" skillName="Hammer Crush" levelUpSp="310000" getLevel="70" />
+		<skill skillId="260" skillLevel="33" skillName="Hammer Crush" levelUpSp="310000" getLevel="70" />
+		<skill skillId="261" skillLevel="17" skillName="Triple Sonic Slash" levelUpSp="310000" getLevel="70" />
+		<skill skillId="261" skillLevel="18" skillName="Triple Sonic Slash" levelUpSp="310000" getLevel="70" />
+		<skill skillId="290" skillLevel="12" skillName="Final Frenzy" levelUpSp="620000" getLevel="70" />
+		<skill skillId="312" skillLevel="18" skillName="Vicious Stance" levelUpSp="620000" getLevel="70" />
+		<skill skillId="1" skillLevel="34" skillName="Triple Slash" levelUpSp="400000" getLevel="72" />
+		<skill skillId="1" skillLevel="35" skillName="Triple Slash" levelUpSp="400000" getLevel="72" />
+		<skill skillId="5" skillLevel="28" skillName="Double Sonic Slash" levelUpSp="400000" getLevel="72" />
+		<skill skillId="5" skillLevel="29" skillName="Double Sonic Slash" levelUpSp="400000" getLevel="72" />
+		<skill skillId="6" skillLevel="34" skillName="Sonic Blaster" levelUpSp="400000" getLevel="72" />
+		<skill skillId="6" skillLevel="35" skillName="Sonic Blaster" levelUpSp="400000" getLevel="72" />
+		<skill skillId="7" skillLevel="25" skillName="Sonic Storm" levelUpSp="400000" getLevel="72" />
+		<skill skillId="7" skillLevel="26" skillName="Sonic Storm" levelUpSp="400000" getLevel="72" />
+		<skill skillId="9" skillLevel="31" skillName="Sonic Buster" levelUpSp="400000" getLevel="72" />
+		<skill skillId="9" skillLevel="32" skillName="Sonic Buster" levelUpSp="400000" getLevel="72" />
+		<skill skillId="144" skillLevel="34" skillName="Dual Weapon Mastery" levelUpSp="400000" getLevel="72" />
+		<skill skillId="144" skillLevel="35" skillName="Dual Weapon Mastery" levelUpSp="400000" getLevel="72" />
+		<skill skillId="190" skillLevel="34" skillName="Fatal Strike" levelUpSp="400000" getLevel="72" />
+		<skill skillId="190" skillLevel="35" skillName="Fatal Strike" levelUpSp="400000" getLevel="72" />
+		<skill skillId="227" skillLevel="47" skillName="Light Armor Mastery" levelUpSp="400000" getLevel="72" />
+		<skill skillId="227" skillLevel="48" skillName="Light Armor Mastery" levelUpSp="400000" getLevel="72" />
+		<skill skillId="231" skillLevel="47" skillName="Heavy Armor Mastery" levelUpSp="400000" getLevel="72" />
+		<skill skillId="231" skillLevel="48" skillName="Heavy Armor Mastery" levelUpSp="400000" getLevel="72" />
+		<skill skillId="257" skillLevel="42" skillName="Sword Blunt Mastery" levelUpSp="400000" getLevel="72" />
+		<skill skillId="257" skillLevel="43" skillName="Sword Blunt Mastery" levelUpSp="400000" getLevel="72" />
+		<skill skillId="260" skillLevel="34" skillName="Hammer Crush" levelUpSp="400000" getLevel="72" />
+		<skill skillId="260" skillLevel="35" skillName="Hammer Crush" levelUpSp="400000" getLevel="72" />
+		<skill skillId="261" skillLevel="19" skillName="Triple Sonic Slash" levelUpSp="400000" getLevel="72" />
+		<skill skillId="261" skillLevel="20" skillName="Triple Sonic Slash" levelUpSp="400000" getLevel="72" />
+		<skill skillId="290" skillLevel="13" skillName="Final Frenzy" levelUpSp="800000" getLevel="72" />
+		<skill skillId="297" skillLevel="2" skillName="Duelist Spirit" levelUpSp="800000" getLevel="72" />
+		<skill skillId="312" skillLevel="19" skillName="Vicious Stance" levelUpSp="800000" getLevel="72" />
+		<skill skillId="1" skillLevel="36" skillName="Triple Slash" levelUpSp="810000" getLevel="74" />
+		<skill skillId="1" skillLevel="37" skillName="Triple Slash" levelUpSp="810000" getLevel="74" />
+		<skill skillId="5" skillLevel="30" skillName="Double Sonic Slash" levelUpSp="810000" getLevel="74" />
+		<skill skillId="5" skillLevel="31" skillName="Double Sonic Slash" levelUpSp="810000" getLevel="74" />
+		<skill skillId="6" skillLevel="36" skillName="Sonic Blaster" levelUpSp="810000" getLevel="74" />
+		<skill skillId="6" skillLevel="37" skillName="Sonic Blaster" levelUpSp="810000" getLevel="74" />
+		<skill skillId="7" skillLevel="27" skillName="Sonic Storm" levelUpSp="810000" getLevel="74" />
+		<skill skillId="7" skillLevel="28" skillName="Sonic Storm" levelUpSp="810000" getLevel="74" />
+		<skill skillId="9" skillLevel="33" skillName="Sonic Buster" levelUpSp="810000" getLevel="74" />
+		<skill skillId="9" skillLevel="34" skillName="Sonic Buster" levelUpSp="810000" getLevel="74" />
+		<skill skillId="144" skillLevel="36" skillName="Dual Weapon Mastery" levelUpSp="810000" getLevel="74" />
+		<skill skillId="144" skillLevel="37" skillName="Dual Weapon Mastery" levelUpSp="810000" getLevel="74" />
+		<skill skillId="190" skillLevel="36" skillName="Fatal Strike" levelUpSp="810000" getLevel="74" />
+		<skill skillId="190" skillLevel="37" skillName="Fatal Strike" levelUpSp="810000" getLevel="74" />
+		<skill skillId="212" skillLevel="8" skillName="Fast HP Recovery" levelUpSp="1630000" getLevel="74" />
+		<skill skillId="227" skillLevel="49" skillName="Light Armor Mastery" levelUpSp="810000" getLevel="74" />
+		<skill skillId="227" skillLevel="50" skillName="Light Armor Mastery" levelUpSp="810000" getLevel="74" />
+		<skill skillId="231" skillLevel="49" skillName="Heavy Armor Mastery" levelUpSp="810000" getLevel="74" />
+		<skill skillId="231" skillLevel="50" skillName="Heavy Armor Mastery" levelUpSp="810000" getLevel="74" />
+		<skill skillId="257" skillLevel="44" skillName="Sword Blunt Mastery" levelUpSp="810000" getLevel="74" />
+		<skill skillId="257" skillLevel="45" skillName="Sword Blunt Mastery" levelUpSp="810000" getLevel="74" />
+		<skill skillId="260" skillLevel="36" skillName="Hammer Crush" levelUpSp="810000" getLevel="74" />
+		<skill skillId="260" skillLevel="37" skillName="Hammer Crush" levelUpSp="810000" getLevel="74" />
+		<skill skillId="261" skillLevel="21" skillName="Triple Sonic Slash" levelUpSp="810000" getLevel="74" />
+		<skill skillId="261" skillLevel="22" skillName="Triple Sonic Slash" levelUpSp="810000" getLevel="74" />
+		<skill skillId="290" skillLevel="14" skillName="Final Frenzy" levelUpSp="1630000" getLevel="74" />
+		<skill skillId="312" skillLevel="20" skillName="Vicious Stance" levelUpSp="1630000" getLevel="74" />
+		<skill skillId="424" skillLevel="3" skillName="War Frenzy" levelUpSp="1630000" getLevel="74" />
+	</skillTree>
+</list>

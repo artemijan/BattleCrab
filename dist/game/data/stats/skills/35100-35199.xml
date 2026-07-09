@@ -1,0 +1,1154 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
+	<skill id="35103" toLevel="1" name="Blessed Circlet Enchant Scroll">
+		<!-- Enchant scroll for Circlets of Authority/Foresight/Grace. Can be enchanted up to +5. If enchantment fails, the circlet's enchantment level is reset. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<isMagic>2</isMagic>
+		<targetType>ITEM</targetType>
+		<affectScope>SINGLE</affectScope>
+	</skill>
+	<skill id="35104" toLevel="3" name="Circlet of Authority">
+		<!-- LUC/CHA + 1. -->
+		<icon>
+			<value level="1">icon.bm_pattack_circlet_01</value>
+			<value level="2">icon.bm_pattack_circlet_02</value>
+			<value level="3">icon.bm_pattack_circlet_03</value>
+		</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="StatUp">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">1</value>
+					<value level="3">1</value>
+				</amount>
+				<stat>LUC</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">1</value>
+					<value level="3">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">5</value>
+					<value level="3">5</value>
+				</amount>
+				<stat>STR</stat>
+			</effect>
+			<effect name="AttackAttributeAdd">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">50</value>
+					<value level="3">50</value>
+				</amount>
+			</effect>
+			<effect name="VitalityExpRate">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">10</value>
+					<value level="3">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PAtk">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">7</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">50</value>
+				</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="ExpModify">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">10</value>
+				</amount>
+			</effect>
+			<effect name="SpModify">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">10</value>
+				</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35105" toLevel="5" name="Circlet of Authority Enchant Effect">
+		<!-- STR + 1. -->
+		<icon>icon.bm_pattack_circlet_01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="StatUp">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">2</value>
+					<value level="3">3</value>
+					<value level="4">4</value>
+					<value level="5">5</value>
+				</amount>
+				<stat>STR</stat>
+			</effect>
+			<effect name="AttackAttributeAdd" fromLevel="3" toLevel="5">
+				<amount>
+					<value level="3">10</value>
+					<value level="4">30</value>
+					<value level="5">50</value>
+				</amount>
+			</effect>
+			<effect name="VitalityExpRate" level="5">
+				<amount>10</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35106" toLevel="5" name="Noble Circlet of Authority Enchant Effect">
+		<!-- P. Atk. + 1%. -->
+		<icon>icon.bm_pattack_circlet_02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PAtk">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">2</value>
+					<value level="3">3</value>
+					<value level="4">5</value>
+					<value level="5">7</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate" fromLevel="3" toLevel="5">
+				<amount>
+					<value level="3">10</value>
+					<value level="4">30</value>
+					<value level="5">50</value>
+				</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="ExpModify" level="5">
+				<amount>10</amount>
+			</effect>
+			<effect name="SpModify" level="5">
+				<amount>10</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35107" toLevel="5" name="Radiant Circlet of Authority Enchant Effect">
+		<!-- P. Critical Damage/P. Skill Critical Damage + 1%. -->
+		<icon>icon.bm_pattack_circlet_03</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PhysicalSkillCriticalDamage">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">3</value>
+					<value level="3">5</value>
+					<value level="4">7</value>
+					<value level="5">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">3</value>
+					<value level="3">5</value>
+					<value level="4">7</value>
+					<value level="5">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalSkillPower">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">1</value>
+					<value level="4">3</value>
+					<value level="5">5</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MaxHp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">0</value>
+					<value level="4">0</value>
+					<value level="5">5</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MaxMp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">0</value>
+					<value level="4">0</value>
+					<value level="5">5</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MaxCp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">0</value>
+					<value level="4">0</value>
+					<value level="5">5</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35108" toLevel="3" name="Circlet of Foresight">
+		<!-- LUC/CHA + 1. -->
+		<icon>
+			<value level="1">icon.bm_mattack_circlet_01</value>
+			<value level="2">icon.bm_mattack_circlet_02</value>
+			<value level="3">icon.bm_mattack_circlet_03</value>
+		</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="StatUp">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">1</value>
+					<value level="3">1</value>
+				</amount>
+				<stat>LUC</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">1</value>
+					<value level="3">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">5</value>
+					<value level="3">5</value>
+				</amount>
+				<stat>INT</stat>
+			</effect>
+			<effect name="AttackAttributeAdd">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">50</value>
+					<value level="3">50</value>
+				</amount>
+			</effect>
+			<effect name="VitalityExpRate">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">10</value>
+					<value level="3">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35109" toLevel="5" name="Circlet of Foresight Enchant Effect">
+		<!-- INT + 1. -->
+		<icon>icon.bm_mattack_circlet_01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="StatUp">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">2</value>
+					<value level="3">3</value>
+					<value level="4">4</value>
+					<value level="5">5</value>
+				</amount>
+				<stat>INT</stat>
+			</effect>
+			<effect name="AttackAttributeAdd" fromLevel="3" toLevel="5">
+				<amount>
+					<value level="3">10</value>
+					<value level="4">30</value>
+					<value level="5">50</value>
+				</amount>
+			</effect>
+			<effect name="VitalityExpRate" level="5">
+				<amount>10</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35110" toLevel="5" name="Noble Circlet of Foresight Enchant Effect">
+		<!-- M. Atk. + 1%. -->
+		<icon>icon.bm_mattack_circlet_02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MAtk">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">4</value>
+					<value level="3">6</value>
+					<value level="4">10</value>
+					<value level="5">14</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicCriticalRate" fromLevel="3" toLevel="5">
+				<amount>
+					<value level="3">10</value>
+					<value level="4">30</value>
+					<value level="5">50</value>
+				</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="ExpModify" level="5">
+				<amount>10</amount>
+			</effect>
+			<effect name="SpModify" level="5">
+				<amount>10</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35111" toLevel="5" name="Radiant Circlet of Foresight Enchant Effect">
+		<!-- M. Critical Damage + 1%. -->
+		<icon>icon.bm_mattack_circlet_03</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MAtk">
+				<amount>14</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicCriticalDamage">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">3</value>
+					<value level="3">5</value>
+					<value level="4">7</value>
+					<value level="5">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalSkillPower">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">1</value>
+					<value level="4">3</value>
+					<value level="5">5</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MaxHp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">0</value>
+					<value level="4">0</value>
+					<value level="5">5</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MaxMp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">0</value>
+					<value level="4">0</value>
+					<value level="5">5</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MaxCp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">0</value>
+					<value level="4">0</value>
+					<value level="5">5</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35112" toLevel="3" name="Circlet of Grace">
+		<!-- LUC/CHA + 1. -->
+		<icon>
+			<value level="1">icon.bm_defense_circlet_01</value>
+			<value level="2">icon.bm_defense_circlet_02</value>
+			<value level="3">icon.bm_defense_circlet_03</value>
+		</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="StatUp">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">1</value>
+					<value level="3">1</value>
+				</amount>
+				<stat>LUC</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">1</value>
+					<value level="3">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">5</value>
+					<value level="3">5</value>
+				</amount>
+				<stat>CON</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">5</value>
+					<value level="3">5</value>
+				</amount>
+				<stat>MEN</stat>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">50</value>
+					<value level="3">50</value>
+				</amount>
+				<attribute>FIRE</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">50</value>
+					<value level="3">50</value>
+				</amount>
+				<attribute>WATER</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">50</value>
+					<value level="3">50</value>
+				</amount>
+				<attribute>WIND</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">50</value>
+					<value level="3">50</value>
+				</amount>
+				<attribute>EARTH</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">50</value>
+					<value level="3">50</value>
+				</amount>
+				<attribute>HOLY</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">50</value>
+					<value level="3">50</value>
+				</amount>
+				<attribute>DARK</attribute>
+			</effect>
+			<effect name="VitalityExpRate">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">10</value>
+					<value level="3">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalDefence">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">7</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalDefence">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">7</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="ResistAbnormalByCategory">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">5</value>
+				</amount>
+				<slot>DEBUFF</slot>
+			</effect>
+			<effect name="ExpModify">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">10</value>
+				</amount>
+			</effect>
+			<effect name="SpModify">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">10</value>
+				</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35113" toLevel="5" name="Circlet of Grace Enchant Effect">
+		<!-- CON/MEN + 1. -->
+		<icon>icon.bm_defense_circlet_01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="StatUp">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">2</value>
+					<value level="3">3</value>
+					<value level="4">4</value>
+					<value level="5">5</value>
+				</amount>
+				<stat>CON</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">2</value>
+					<value level="3">3</value>
+					<value level="4">4</value>
+					<value level="5">5</value>
+				</amount>
+				<stat>MEN</stat>
+			</effect>
+			<effect name="DefenceAttribute" fromLevel="3" toLevel="5">
+				<amount>
+					<value level="3">10</value>
+					<value level="4">30</value>
+					<value level="5">50</value>
+				</amount>
+				<attribute>FIRE</attribute>
+			</effect>
+			<effect name="DefenceAttribute" fromLevel="3" toLevel="5">
+				<amount>
+					<value level="3">10</value>
+					<value level="4">30</value>
+					<value level="5">50</value>
+				</amount>
+				<attribute>WATER</attribute>
+			</effect>
+			<effect name="DefenceAttribute" fromLevel="3" toLevel="5">
+				<amount>
+					<value level="3">10</value>
+					<value level="4">30</value>
+					<value level="5">50</value>
+				</amount>
+				<attribute>WIND</attribute>
+			</effect>
+			<effect name="DefenceAttribute" fromLevel="3" toLevel="5">
+				<amount>
+					<value level="3">10</value>
+					<value level="4">30</value>
+					<value level="5">50</value>
+				</amount>
+				<attribute>EARTH</attribute>
+			</effect>
+			<effect name="DefenceAttribute" fromLevel="3" toLevel="5">
+				<amount>
+					<value level="3">10</value>
+					<value level="4">30</value>
+					<value level="5">50</value>
+				</amount>
+				<attribute>HOLY</attribute>
+			</effect>
+			<effect name="DefenceAttribute" fromLevel="3" toLevel="5">
+				<amount>
+					<value level="3">10</value>
+					<value level="4">30</value>
+					<value level="5">50</value>
+				</amount>
+				<attribute>DARK</attribute>
+			</effect>
+			<effect name="VitalityExpRate" level="5">
+				<amount>10</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35114" toLevel="5" name="Noble Circlet of Grace Enchant Effect">
+		<!-- P./M. Def. + 1%. -->
+		<icon>icon.bm_defense_circlet_02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PhysicalDefence">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">2</value>
+					<value level="3">3</value>
+					<value level="4">5</value>
+					<value level="5">7</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalDefence">
+				<amount>
+					<value level="1">1</value>
+					<value level="2">2</value>
+					<value level="3">4</value>
+					<value level="4">5</value>
+					<value level="5">7</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="ResistAbnormalByCategory" fromLevel="3" toLevel="5">
+				<amount>
+					<value level="3">1</value>
+					<value level="4">3</value>
+					<value level="5">5</value>
+				</amount>
+				<slot>DEBUFF</slot>
+			</effect>
+			<effect name="ExpModify" level="5">
+				<amount>10</amount>
+			</effect>
+			<effect name="SpModify" level="5">
+				<amount>10</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35115" toLevel="5" name="Radiant Circlet of Grace Enchant Effect">
+		<!-- Received Critical Damage + 3%. -->
+		<icon>icon.bm_defense_circlet_03</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="DefenceCriticalDamage">
+				<amount>
+					<value level="1">-3</value>
+					<value level="2">-5</value>
+					<value level="3">-7</value>
+					<value level="4">-10</value>
+					<value level="5">-15</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="DefenceMagicCriticalDamage">
+				<amount>
+					<value level="1">-3</value>
+					<value level="2">-5</value>
+					<value level="3">-7</value>
+					<value level="4">-10</value>
+					<value level="5">-15</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="DamageByAttack">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">-3</value>
+					<value level="4">-7</value>
+					<value level="5">-10</value>
+				</amount>
+				<type>PK</type>
+			</effect>
+			<effect name="DamageByAttack">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">-3</value>
+					<value level="4">-7</value>
+					<value level="5">-10</value>
+				</amount>
+				<type>ENEMY_ALL</type>
+			</effect>
+			<effect name="MaxHp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">5</value>
+					<value level="4">5</value>
+					<value level="5">5</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MaxMp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">5</value>
+					<value level="4">5</value>
+					<value level="5">5</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MaxCp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">5</value>
+					<value level="4">5</value>
+					<value level="5">5</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35116" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- PvP Damage + 5% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PvpPhysicalAttackDamageBonus">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDamageBonus">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35117" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- PvP Received Damage - 5% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PvpMagicalSkillDefenceBonus">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDefenceBonus">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDefenceBonus">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35118" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- PvE Damage + 5% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PvePhysicalAttackDamageBonus">
+				<amount>5</amount>
+				<type>ENEMY_ALL</type>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDamageBonus">
+				<amount>5</amount>
+				<type>ENEMY_ALL</type>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PveMagicalSkillDamageBonus">
+				<amount>5</amount>
+				<type>ENEMY_ALL</type>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35119" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- PvE Received Damage - 5% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PveMagicalSkillDefenceBonus">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalAttackDefenceBonus">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDefenceBonus">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35120" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- Potion/Elixir Effect + 500 -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="AdditionalPotionCp">
+				<amount>500</amount>
+			</effect>
+			<effect name="AdditionalPotionHp">
+				<amount>500</amount>
+			</effect>
+			<effect name="AdditionalPotionMp">
+				<amount>500</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35121" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- Damage to Immobilized Targets + 5% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<passiveConditions>
+			<condition name="OpCheckAbnormal">
+				<type>STUN</type>
+				<level>1</level>
+				<hasAbnormal>true</hasAbnormal>
+				<affectType>TARGET</affectType>
+			</condition>
+			<condition name="OpCheckAbnormal">
+				<type>AIRBIND</type>
+				<level>1</level>
+				<hasAbnormal>true</hasAbnormal>
+				<affectType>TARGET</affectType>
+			</condition>
+		</passiveConditions>
+		<effects>
+			<effect name="MAtk">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PAtk">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35122" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- Received Damage When Immobilized - 5% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<passiveConditions>
+			<condition name="OpCheckAbnormal">
+				<type>STUN</type>
+				<level>1</level>
+				<hasAbnormal>true</hasAbnormal>
+				<affectType>CASTER</affectType>
+			</condition>
+			<condition name="OpCheckAbnormal">
+				<type>AIRBIND</type>
+				<level>1</level>
+				<hasAbnormal>true</hasAbnormal>
+				<affectType>CASTER</affectType>
+			</condition>
+		</passiveConditions>
+		<effects>
+			<effect name="DamageByAttack">
+				<amount>-5</amount>
+				<type>PK</type>
+			</effect>
+			<effect name="DamageByAttack">
+				<amount>-5</amount>
+				<type>ENEMY_ALL</type>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35123" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- P. Atk. + 1% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PAtk">
+				<amount>1</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35124" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- M. Atk. + 1% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MAtk">
+				<amount>1</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35125" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- P. Def. + 2% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PhysicalDefence">
+				<amount>2</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35126" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- M. Def. + 2% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MagicalDefence">
+				<amount>2</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35127" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- P. Atk. + 2% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PhysicalAttackSpeed">
+				<amount>2</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35128" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- Casting Spd. + 2% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MagicalAttackSpeed">
+				<amount>2</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35129" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- Max HP + 2% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>2</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35130" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- Max MP + 2% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxMp">
+				<amount>2</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35131" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- Max CP + 2% -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxCp">
+				<amount>2</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35132" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- P. Accuracy + 1 -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="Accuracy">
+				<amount>1</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35133" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- P. Evasion + 1 -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PhysicalEvasion">
+				<amount>1</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35134" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- M. Accuracy + 1 -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MagicAccuracy">
+				<amount>1</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35135" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- M. Evasion + 1 -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MagicalEvasion">
+				<amount>1</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35136" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- Fire Resistance + 10 -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="DefenceAttribute">
+				<amount>10</amount>
+				<attribute>FIRE</attribute>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35137" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- Water Resistance + 10 -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="DefenceAttribute">
+				<amount>10</amount>
+				<attribute>WATER</attribute>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35138" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- Wind Resistance + 10 -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="DefenceAttribute">
+				<amount>10</amount>
+				<attribute>WIND</attribute>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35139" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- Earth Resistance + 10 -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="DefenceAttribute">
+				<amount>10</amount>
+				<attribute>EARTH</attribute>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35140" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- Holy Resistance + 10 -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="DefenceAttribute">
+				<amount>10</amount>
+				<attribute>HOLY</attribute>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35141" toLevel="1" name="Circlet Spirit Stone Augmentation Effect">
+		<!-- Darkness Resistance + 10 -->
+		<icon>Icon.bm_mineral_circlet_hair_acc</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="DefenceAttribute">
+				<amount>10</amount>
+				<attribute>DARK</attribute>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35142" toLevel="1" name="Reconstruction Society's Enchantment Pack">
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicLevel>1</magicLevel>
+		<itemConsumeId>48214</itemConsumeId> <!-- Reconstruction Society's Enchantment Pack -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>10</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="Restoration">
+				<itemId>48211</itemId>
+				<itemCount>1</itemCount>
+			</effect>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="33.33">
+						<item id="48212" count="1" /> <!-- Noble Upgrade Stone -->
+					</item>
+					<item chance="33.33">
+						<item id="48212" count="1" /> <!-- Noble Upgrade Stone -->
+					</item>
+					<item chance="33.33">
+						<item id="48215" count="1" /> <!-- Circlet Spirit Stone -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35143" toLevel="1" name="Circlet Upgrade Stone Pack">
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicLevel>1</magicLevel>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>48216</itemConsumeId> <!-- Circlet Upgrade Stone Pack -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>10</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="50">
+						<item id="48212" count="1" /> <!-- Noble Upgrade Stone -->
+					</item>
+					<item chance="50">
+						<item id="48212" count="1" /> <!-- Noble Upgrade Stone -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+</list>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/teleporterData.xsd">
+	<npc id="31099"> <!-- Gatekeeper Ziggurat -->
+		<teleport type="OTHER">
+			<location x="-52254" y="79103" z="-4743" /> <!-- Entrance -->
+		</teleport>
+	</npc>
+	<npc id="31107"> <!-- Gatekeeper Ziggurat -->
+		<teleport type="OTHER">
+			<location x="-52716" y="79106" z="-4745" /> <!-- Exit -->
+		</teleport>
+	</npc>
+</list>

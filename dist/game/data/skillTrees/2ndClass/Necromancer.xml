@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="13" parentClassId="11">
+		<skill skillId="146" skillLevel="13" skillName="Anti Magic" levelUpSp="11000" getLevel="40" />
+		<skill skillId="146" skillLevel="14" skillName="Anti Magic" levelUpSp="11000" getLevel="40" />
+		<skill skillId="146" skillLevel="15" skillName="Anti Magic" levelUpSp="11000" getLevel="40" />
+		<skill skillId="213" skillLevel="3" skillName="Boost Mana" levelUpSp="32000" getLevel="40" />
+		<skill skillId="228" skillLevel="2" skillName="Fast Spell Casting" levelUpSp="32000" getLevel="40" />
+		<skill skillId="234" skillLevel="9" skillName="Robe Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="234" skillLevel="10" skillName="Robe Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="234" skillLevel="11" skillName="Robe Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="249" skillLevel="10" skillName="Weapon Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="249" skillLevel="11" skillName="Weapon Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="249" skillLevel="12" skillName="Weapon Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="285" skillLevel="9" skillName="Higher Mana Gain" levelUpSp="16000" getLevel="40" />
+		<skill skillId="285" skillLevel="10" skillName="Higher Mana Gain" levelUpSp="16000" getLevel="40" />
+		<skill skillId="1064" skillLevel="1" skillName="Silence" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1069" skillLevel="10" skillName="Sleep" levelUpSp="11000" getLevel="40" />
+		<skill skillId="1069" skillLevel="11" skillName="Sleep" levelUpSp="11000" getLevel="40" />
+		<skill skillId="1069" skillLevel="12" skillName="Sleep" levelUpSp="11000" getLevel="40" />
+		<skill skillId="1151" skillLevel="3" skillName="Corpse Life Drain" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1154" skillLevel="1" skillName="Summon Corrupted Man" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1157" skillLevel="2" skillName="Body To Mind" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1163" skillLevel="1" skillName="Curse Discord" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1164" skillLevel="6" skillName="Curse: Weakness" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1169" skillLevel="1" skillName="Curse Fear" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1222" skillLevel="2" skillName="Curse Chaos" levelUpSp="32000" getLevel="40" />
+		<skill skillId="1234" skillLevel="1" skillName="Vampiric Claw" levelUpSp="16000" getLevel="40" />
+		<skill skillId="1234" skillLevel="2" skillName="Vampiric Claw" levelUpSp="16000" getLevel="40" />
+		<skill skillId="1262" skillLevel="1" skillName="Transfer Pain" levelUpSp="32000" getLevel="40" />
+		<skill skillId="146" skillLevel="16" skillName="Anti Magic" levelUpSp="12000" getLevel="44" />
+		<skill skillId="146" skillLevel="17" skillName="Anti Magic" levelUpSp="12000" getLevel="44" />
+		<skill skillId="146" skillLevel="18" skillName="Anti Magic" levelUpSp="12000" getLevel="44" />
+		<skill skillId="212" skillLevel="2" skillName="Fast HP Recovery" levelUpSp="35000" getLevel="44" />
+		<skill skillId="229" skillLevel="3" skillName="Fast Mana Recovery" levelUpSp="35000" getLevel="44" />
+		<skill skillId="234" skillLevel="12" skillName="Robe Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="234" skillLevel="13" skillName="Robe Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="234" skillLevel="14" skillName="Robe Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="249" skillLevel="13" skillName="Weapon Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="249" skillLevel="14" skillName="Weapon Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="249" skillLevel="15" skillName="Weapon Mastery" levelUpSp="12000" getLevel="44" />
+		<skill skillId="285" skillLevel="11" skillName="Higher Mana Gain" levelUpSp="18000" getLevel="44" />
+		<skill skillId="285" skillLevel="12" skillName="Higher Mana Gain" levelUpSp="18000" getLevel="44" />
+		<skill skillId="1064" skillLevel="2" skillName="Silence" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1069" skillLevel="13" skillName="Sleep" levelUpSp="12000" getLevel="44" />
+		<skill skillId="1069" skillLevel="14" skillName="Sleep" levelUpSp="12000" getLevel="44" />
+		<skill skillId="1069" skillLevel="15" skillName="Sleep" levelUpSp="12000" getLevel="44" />
+		<skill skillId="1129" skillLevel="1" skillName="Summon Reanimated Man" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1148" skillLevel="1" skillName="Death Spike" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1151" skillLevel="4" skillName="Corpse Life Drain" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1156" skillLevel="1" skillName="Forget" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1163" skillLevel="2" skillName="Curse Discord" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1164" skillLevel="7" skillName="Curse: Weakness" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1168" skillLevel="4" skillName="Curse: Poison" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1169" skillLevel="2" skillName="Curse Fear" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1170" skillLevel="1" skillName="Anchor" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1222" skillLevel="3" skillName="Curse Chaos" levelUpSp="35000" getLevel="44" />
+		<skill skillId="1234" skillLevel="3" skillName="Vampiric Claw" levelUpSp="18000" getLevel="44" />
+		<skill skillId="1234" skillLevel="4" skillName="Vampiric Claw" levelUpSp="18000" getLevel="44" />
+		<skill skillId="1263" skillLevel="1" skillName="Curse Gloom" levelUpSp="35000" getLevel="44" />
+		<skill skillId="146" skillLevel="19" skillName="Anti Magic" levelUpSp="18000" getLevel="48" />
+		<skill skillId="146" skillLevel="20" skillName="Anti Magic" levelUpSp="18000" getLevel="48" />
+		<skill skillId="146" skillLevel="21" skillName="Anti Magic" levelUpSp="18000" getLevel="48" />
+		<skill skillId="164" skillLevel="3" skillName="Quick Recovery" levelUpSp="55000" getLevel="48" />
+		<skill skillId="213" skillLevel="4" skillName="Boost Mana" levelUpSp="55000" getLevel="48" />
+		<skill skillId="234" skillLevel="15" skillName="Robe Mastery" levelUpSp="18000" getLevel="48" />
+		<skill skillId="234" skillLevel="16" skillName="Robe Mastery" levelUpSp="18000" getLevel="48" />
+		<skill skillId="234" skillLevel="17" skillName="Robe Mastery" levelUpSp="18000" getLevel="48" />
+		<skill skillId="249" skillLevel="16" skillName="Weapon Mastery" levelUpSp="18000" getLevel="48" />
+		<skill skillId="249" skillLevel="17" skillName="Weapon Mastery" levelUpSp="18000" getLevel="48" />
+		<skill skillId="249" skillLevel="18" skillName="Weapon Mastery" levelUpSp="18000" getLevel="48" />
+		<skill skillId="285" skillLevel="13" skillName="Higher Mana Gain" levelUpSp="27000" getLevel="48" />
+		<skill skillId="285" skillLevel="14" skillName="Higher Mana Gain" levelUpSp="27000" getLevel="48" />
+		<skill skillId="1064" skillLevel="3" skillName="Silence" levelUpSp="55000" getLevel="48" />
+		<skill skillId="1069" skillLevel="16" skillName="Sleep" levelUpSp="18000" getLevel="48" />
+		<skill skillId="1069" skillLevel="17" skillName="Sleep" levelUpSp="18000" getLevel="48" />
+		<skill skillId="1069" skillLevel="18" skillName="Sleep" levelUpSp="18000" getLevel="48" />
+		<skill skillId="1148" skillLevel="2" skillName="Death Spike" levelUpSp="55000" getLevel="48" />
+		<skill skillId="1151" skillLevel="5" skillName="Corpse Life Drain" levelUpSp="55000" getLevel="48" />
+		<skill skillId="1154" skillLevel="2" skillName="Summon Corrupted Man" levelUpSp="55000" getLevel="48" />
+		<skill skillId="1155" skillLevel="1" skillName="Corpse Burst" levelUpSp="27000" getLevel="48" />
+		<skill skillId="1155" skillLevel="2" skillName="Corpse Burst" levelUpSp="27000" getLevel="48" />
+		<skill skillId="1156" skillLevel="2" skillName="Forget" levelUpSp="55000" getLevel="48" />
+		<skill skillId="1163" skillLevel="3" skillName="Curse Discord" levelUpSp="55000" getLevel="48" />
+		<skill skillId="1164" skillLevel="8" skillName="Curse: Weakness" levelUpSp="55000" getLevel="48" />
+		<skill skillId="1167" skillLevel="3" skillName="Poisonous Cloud" levelUpSp="55000" getLevel="48" />
+		<skill skillId="1169" skillLevel="3" skillName="Curse Fear" levelUpSp="55000" getLevel="48" />
+		<skill skillId="1170" skillLevel="2" skillName="Anchor" levelUpSp="55000" getLevel="48" />
+		<skill skillId="1222" skillLevel="4" skillName="Curse Chaos" levelUpSp="55000" getLevel="48" />
+		<skill skillId="1234" skillLevel="5" skillName="Vampiric Claw" levelUpSp="27000" getLevel="48" />
+		<skill skillId="1234" skillLevel="6" skillName="Vampiric Claw" levelUpSp="27000" getLevel="48" />
+		<skill skillId="1262" skillLevel="2" skillName="Transfer Pain" levelUpSp="55000" getLevel="48" />
+		<skill skillId="1263" skillLevel="2" skillName="Curse Gloom" levelUpSp="55000" getLevel="48" />
+		<skill skillId="146" skillLevel="22" skillName="Anti Magic" levelUpSp="26000" getLevel="52" />
+		<skill skillId="146" skillLevel="23" skillName="Anti Magic" levelUpSp="26000" getLevel="52" />
+		<skill skillId="146" skillLevel="24" skillName="Anti Magic" levelUpSp="26000" getLevel="52" />
+		<skill skillId="212" skillLevel="3" skillName="Fast HP Recovery" levelUpSp="78000" getLevel="52" />
+		<skill skillId="229" skillLevel="4" skillName="Fast Mana Recovery" levelUpSp="78000" getLevel="52" />
+		<skill skillId="234" skillLevel="18" skillName="Robe Mastery" levelUpSp="26000" getLevel="52" />
+		<skill skillId="234" skillLevel="19" skillName="Robe Mastery" levelUpSp="26000" getLevel="52" />
+		<skill skillId="234" skillLevel="20" skillName="Robe Mastery" levelUpSp="26000" getLevel="52" />
+		<skill skillId="249" skillLevel="19" skillName="Weapon Mastery" levelUpSp="26000" getLevel="52" />
+		<skill skillId="249" skillLevel="20" skillName="Weapon Mastery" levelUpSp="26000" getLevel="52" />
+		<skill skillId="249" skillLevel="21" skillName="Weapon Mastery" levelUpSp="26000" getLevel="52" />
+		<skill skillId="285" skillLevel="15" skillName="Higher Mana Gain" levelUpSp="39000" getLevel="52" />
+		<skill skillId="285" skillLevel="16" skillName="Higher Mana Gain" levelUpSp="39000" getLevel="52" />
+		<skill skillId="1064" skillLevel="4" skillName="Silence" levelUpSp="78000" getLevel="52" />
+		<skill skillId="1069" skillLevel="19" skillName="Sleep" levelUpSp="26000" getLevel="52" />
+		<skill skillId="1069" skillLevel="20" skillName="Sleep" levelUpSp="26000" getLevel="52" />
+		<skill skillId="1069" skillLevel="21" skillName="Sleep" levelUpSp="26000" getLevel="52" />
+		<skill skillId="1129" skillLevel="2" skillName="Summon Reanimated Man" levelUpSp="78000" getLevel="52" />
+		<skill skillId="1148" skillLevel="3" skillName="Death Spike" levelUpSp="78000" getLevel="52" />
+		<skill skillId="1151" skillLevel="6" skillName="Corpse Life Drain" levelUpSp="78000" getLevel="52" />
+		<skill skillId="1155" skillLevel="3" skillName="Corpse Burst" levelUpSp="39000" getLevel="52" />
+		<skill skillId="1155" skillLevel="4" skillName="Corpse Burst" levelUpSp="39000" getLevel="52" />
+		<skill skillId="1156" skillLevel="3" skillName="Forget" levelUpSp="78000" getLevel="52" />
+		<skill skillId="1157" skillLevel="3" skillName="Body To Mind" levelUpSp="78000" getLevel="52" />
+		<skill skillId="1159" skillLevel="1" skillName="Curse Death Link" levelUpSp="39000" getLevel="52" />
+		<skill skillId="1159" skillLevel="2" skillName="Curse Death Link" levelUpSp="39000" getLevel="52" />
+		<skill skillId="1163" skillLevel="4" skillName="Curse Discord" levelUpSp="78000" getLevel="52" />
+		<skill skillId="1164" skillLevel="9" skillName="Curse: Weakness" levelUpSp="78000" getLevel="52" />
+		<skill skillId="1168" skillLevel="5" skillName="Curse: Poison" levelUpSp="78000" getLevel="52" />
+		<skill skillId="1169" skillLevel="4" skillName="Curse Fear" levelUpSp="78000" getLevel="52" />
+		<skill skillId="1170" skillLevel="3" skillName="Anchor" levelUpSp="78000" getLevel="52" />
+		<skill skillId="1222" skillLevel="5" skillName="Curse Chaos" levelUpSp="78000" getLevel="52" />
+		<skill skillId="1234" skillLevel="7" skillName="Vampiric Claw" levelUpSp="39000" getLevel="52" />
+		<skill skillId="1234" skillLevel="8" skillName="Vampiric Claw" levelUpSp="39000" getLevel="52" />
+		<skill skillId="1263" skillLevel="3" skillName="Curse Gloom" levelUpSp="78000" getLevel="52" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="1" getLevel="52" levelUpSp="230000">			<item id="8618" count="1" /> <!-- Ancient Book: Divine Inspiration (Modern Language Version) -->		</skill>
+		<skill skillId="1405" skillLevel="2" skillName="Divine Inspiration" autoGet="true" getLevel="52" />
+		<skill skillId="146" skillLevel="25" skillName="Anti Magic" levelUpSp="28000" getLevel="56" />
+		<skill skillId="146" skillLevel="26" skillName="Anti Magic" levelUpSp="28000" getLevel="56" />
+		<skill skillId="146" skillLevel="27" skillName="Anti Magic" levelUpSp="28000" getLevel="56" />
+		<skill skillId="213" skillLevel="5" skillName="Boost Mana" levelUpSp="83000" getLevel="56" />
+		<skill skillId="228" skillLevel="3" skillName="Fast Spell Casting" levelUpSp="83000" getLevel="56" />
+		<skill skillId="234" skillLevel="21" skillName="Robe Mastery" levelUpSp="28000" getLevel="56" />
+		<skill skillId="234" skillLevel="22" skillName="Robe Mastery" levelUpSp="28000" getLevel="56" />
+		<skill skillId="234" skillLevel="23" skillName="Robe Mastery" levelUpSp="28000" getLevel="56" />
+		<skill skillId="249" skillLevel="22" skillName="Weapon Mastery" levelUpSp="28000" getLevel="56" />
+		<skill skillId="249" skillLevel="23" skillName="Weapon Mastery" levelUpSp="28000" getLevel="56" />
+		<skill skillId="249" skillLevel="24" skillName="Weapon Mastery" levelUpSp="28000" getLevel="56" />
+		<skill skillId="285" skillLevel="17" skillName="Higher Mana Gain" levelUpSp="42000" getLevel="56" />
+		<skill skillId="285" skillLevel="18" skillName="Higher Mana Gain" levelUpSp="42000" getLevel="56" />
+		<skill skillId="1064" skillLevel="5" skillName="Silence" levelUpSp="83000" getLevel="56" />
+		<skill skillId="1069" skillLevel="22" skillName="Sleep" levelUpSp="28000" getLevel="56" />
+		<skill skillId="1069" skillLevel="23" skillName="Sleep" levelUpSp="28000" getLevel="56" />
+		<skill skillId="1069" skillLevel="24" skillName="Sleep" levelUpSp="28000" getLevel="56" />
+		<skill skillId="1148" skillLevel="4" skillName="Death Spike" levelUpSp="83000" getLevel="56" />
+		<skill skillId="1151" skillLevel="7" skillName="Corpse Life Drain" levelUpSp="83000" getLevel="56" />
+		<skill skillId="1154" skillLevel="3" skillName="Summon Corrupted Man" levelUpSp="83000" getLevel="56" />
+		<skill skillId="1155" skillLevel="5" skillName="Corpse Burst" levelUpSp="42000" getLevel="56" />
+		<skill skillId="1155" skillLevel="6" skillName="Corpse Burst" levelUpSp="42000" getLevel="56" />
+		<skill skillId="1156" skillLevel="4" skillName="Forget" levelUpSp="83000" getLevel="56" />
+		<skill skillId="1159" skillLevel="3" skillName="Curse Death Link" levelUpSp="42000" getLevel="56" />
+		<skill skillId="1159" skillLevel="4" skillName="Curse Death Link" levelUpSp="42000" getLevel="56" />
+		<skill skillId="1163" skillLevel="5" skillName="Curse Discord" levelUpSp="83000" getLevel="56" />
+		<skill skillId="1164" skillLevel="10" skillName="Curse: Weakness" levelUpSp="83000" getLevel="56" />
+		<skill skillId="1167" skillLevel="4" skillName="Poisonous Cloud" levelUpSp="83000" getLevel="56" />
+		<skill skillId="1169" skillLevel="5" skillName="Curse Fear" levelUpSp="83000" getLevel="56" />
+		<skill skillId="1170" skillLevel="4" skillName="Anchor" levelUpSp="83000" getLevel="56" />
+		<skill skillId="1222" skillLevel="6" skillName="Curse Chaos" levelUpSp="83000" getLevel="56" />
+		<skill skillId="1234" skillLevel="9" skillName="Vampiric Claw" levelUpSp="42000" getLevel="56" />
+		<skill skillId="1234" skillLevel="10" skillName="Vampiric Claw" levelUpSp="42000" getLevel="56" />
+		<skill skillId="1262" skillLevel="3" skillName="Transfer Pain" levelUpSp="83000" getLevel="56" />
+		<skill skillId="1263" skillLevel="4" skillName="Curse Gloom" levelUpSp="83000" getLevel="56" />
+		<skill skillId="1334" skillLevel="1" skillName="Summon Cursed Man" levelUpSp="83000" getLevel="56" />
+		<skill skillId="146" skillLevel="28" skillName="Anti Magic" levelUpSp="44000" getLevel="58" />
+		<skill skillId="146" skillLevel="29" skillName="Anti Magic" levelUpSp="44000" getLevel="58" />
+		<skill skillId="212" skillLevel="4" skillName="Fast HP Recovery" levelUpSp="88000" getLevel="58" />
+		<skill skillId="234" skillLevel="24" skillName="Robe Mastery" levelUpSp="44000" getLevel="58" />
+		<skill skillId="234" skillLevel="25" skillName="Robe Mastery" levelUpSp="44000" getLevel="58" />
+		<skill skillId="249" skillLevel="25" skillName="Weapon Mastery" levelUpSp="44000" getLevel="58" />
+		<skill skillId="249" skillLevel="26" skillName="Weapon Mastery" levelUpSp="44000" getLevel="58" />
+		<skill skillId="285" skillLevel="19" skillName="Higher Mana Gain" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1064" skillLevel="6" skillName="Silence" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1069" skillLevel="25" skillName="Sleep" levelUpSp="44000" getLevel="58" />
+		<skill skillId="1069" skillLevel="26" skillName="Sleep" levelUpSp="44000" getLevel="58" />
+		<skill skillId="1148" skillLevel="5" skillName="Death Spike" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1151" skillLevel="8" skillName="Corpse Life Drain" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1155" skillLevel="7" skillName="Corpse Burst" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1156" skillLevel="5" skillName="Forget" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1157" skillLevel="4" skillName="Body To Mind" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1159" skillLevel="5" skillName="Curse Death Link" levelUpSp="44000" getLevel="58" />
+		<skill skillId="1159" skillLevel="6" skillName="Curse Death Link" levelUpSp="44000" getLevel="58" />
+		<skill skillId="1163" skillLevel="6" skillName="Curse Discord" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1164" skillLevel="11" skillName="Curse: Weakness" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1169" skillLevel="6" skillName="Curse Fear" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1170" skillLevel="5" skillName="Anchor" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1222" skillLevel="7" skillName="Curse Chaos" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1234" skillLevel="11" skillName="Vampiric Claw" levelUpSp="44000" getLevel="58" />
+		<skill skillId="1234" skillLevel="12" skillName="Vampiric Claw" levelUpSp="44000" getLevel="58" />
+		<skill skillId="1262" skillLevel="4" skillName="Transfer Pain" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1263" skillLevel="5" skillName="Curse Gloom" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1269" skillLevel="1" skillName="Curse Disease" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1381" skillLevel="1" skillName="Mass Fear" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1382" skillLevel="1" skillName="Mass Gloom" levelUpSp="88000" getLevel="58" />
+		<skill skillId="1387" skillLevel="1" skillName="Summon Cursed Bones" levelUpSp="88000" getLevel="58" />
+		<skill skillId="146" skillLevel="30" skillName="Anti Magic" levelUpSp="65000" getLevel="60" />
+		<skill skillId="146" skillLevel="31" skillName="Anti Magic" levelUpSp="65000" getLevel="60" />
+		<skill skillId="213" skillLevel="6" skillName="Boost Mana" levelUpSp="130000" getLevel="60" />
+		<skill skillId="229" skillLevel="5" skillName="Fast Mana Recovery" levelUpSp="130000" getLevel="60" />
+		<skill skillId="234" skillLevel="26" skillName="Robe Mastery" levelUpSp="65000" getLevel="60" />
+		<skill skillId="234" skillLevel="27" skillName="Robe Mastery" levelUpSp="65000" getLevel="60" />
+		<skill skillId="249" skillLevel="27" skillName="Weapon Mastery" levelUpSp="65000" getLevel="60" />
+		<skill skillId="249" skillLevel="28" skillName="Weapon Mastery" levelUpSp="65000" getLevel="60" />
+		<skill skillId="285" skillLevel="20" skillName="Higher Mana Gain" levelUpSp="130000" getLevel="60" />
+		<skill skillId="1064" skillLevel="7" skillName="Silence" levelUpSp="130000" getLevel="60" />
+		<skill skillId="1069" skillLevel="27" skillName="Sleep" levelUpSp="65000" getLevel="60" />
+		<skill skillId="1069" skillLevel="28" skillName="Sleep" levelUpSp="65000" getLevel="60" />
+		<skill skillId="1129" skillLevel="3" skillName="Summon Reanimated Man" levelUpSp="130000" getLevel="60" />
+		<skill skillId="1148" skillLevel="6" skillName="Death Spike" levelUpSp="130000" getLevel="60" />
+		<skill skillId="1151" skillLevel="9" skillName="Corpse Life Drain" levelUpSp="130000" getLevel="60" />
+		<skill skillId="1155" skillLevel="8" skillName="Corpse Burst" levelUpSp="130000" getLevel="60" />
+		<skill skillId="1156" skillLevel="6" skillName="Forget" levelUpSp="130000" getLevel="60" />
+		<skill skillId="1159" skillLevel="7" skillName="Curse Death Link" levelUpSp="65000" getLevel="60" />
+		<skill skillId="1159" skillLevel="8" skillName="Curse Death Link" levelUpSp="65000" getLevel="60" />
+		<skill skillId="1163" skillLevel="7" skillName="Curse Discord" levelUpSp="130000" getLevel="60" />
+		<skill skillId="1164" skillLevel="12" skillName="Curse: Weakness" levelUpSp="130000" getLevel="60" />
+		<skill skillId="1169" skillLevel="7" skillName="Curse Fear" levelUpSp="130000" getLevel="60" />
+		<skill skillId="1170" skillLevel="6" skillName="Anchor" levelUpSp="130000" getLevel="60" />
+		<skill skillId="1222" skillLevel="8" skillName="Curse Chaos" levelUpSp="130000" getLevel="60" />
+		<skill skillId="1234" skillLevel="13" skillName="Vampiric Claw" levelUpSp="65000" getLevel="60" />
+		<skill skillId="1234" skillLevel="14" skillName="Vampiric Claw" levelUpSp="65000" getLevel="60" />
+		<skill skillId="1263" skillLevel="6" skillName="Curse Gloom" levelUpSp="130000" getLevel="60" />
+		<skill skillId="1269" skillLevel="2" skillName="Curse Disease" levelUpSp="130000" getLevel="60" />
+		<skill skillId="1334" skillLevel="2" skillName="Summon Cursed Man" levelUpSp="130000" getLevel="60" />
+		<skill skillId="146" skillLevel="32" skillName="Anti Magic" levelUpSp="80000" getLevel="62" />
+		<skill skillId="146" skillLevel="33" skillName="Anti Magic" levelUpSp="80000" getLevel="62" />
+		<skill skillId="234" skillLevel="28" skillName="Robe Mastery" levelUpSp="80000" getLevel="62" />
+		<skill skillId="234" skillLevel="29" skillName="Robe Mastery" levelUpSp="80000" getLevel="62" />
+		<skill skillId="249" skillLevel="29" skillName="Weapon Mastery" levelUpSp="80000" getLevel="62" />
+		<skill skillId="249" skillLevel="30" skillName="Weapon Mastery" levelUpSp="80000" getLevel="62" />
+		<skill skillId="285" skillLevel="21" skillName="Higher Mana Gain" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1064" skillLevel="8" skillName="Silence" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1069" skillLevel="29" skillName="Sleep" levelUpSp="80000" getLevel="62" />
+		<skill skillId="1069" skillLevel="30" skillName="Sleep" levelUpSp="80000" getLevel="62" />
+		<skill skillId="1148" skillLevel="7" skillName="Death Spike" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1151" skillLevel="10" skillName="Corpse Life Drain" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1154" skillLevel="4" skillName="Summon Corrupted Man" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1155" skillLevel="9" skillName="Corpse Burst" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1156" skillLevel="7" skillName="Forget" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1159" skillLevel="9" skillName="Curse Death Link" levelUpSp="80000" getLevel="62" />
+		<skill skillId="1159" skillLevel="10" skillName="Curse Death Link" levelUpSp="80000" getLevel="62" />
+		<skill skillId="1163" skillLevel="8" skillName="Curse Discord" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1164" skillLevel="13" skillName="Curse: Weakness" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1168" skillLevel="6" skillName="Curse: Poison" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1169" skillLevel="8" skillName="Curse Fear" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1170" skillLevel="7" skillName="Anchor" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1222" skillLevel="9" skillName="Curse Chaos" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1234" skillLevel="15" skillName="Vampiric Claw" levelUpSp="80000" getLevel="62" />
+		<skill skillId="1234" skillLevel="16" skillName="Vampiric Claw" levelUpSp="80000" getLevel="62" />
+		<skill skillId="1263" skillLevel="7" skillName="Curse Gloom" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1269" skillLevel="3" skillName="Curse Disease" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1298" skillLevel="1" skillName="Mass Slow" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1298" skillLevel="2" skillName="Mass Slow" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1381" skillLevel="2" skillName="Mass Fear" levelUpSp="170000" getLevel="62" />
+		<skill skillId="1382" skillLevel="2" skillName="Mass Gloom" levelUpSp="170000" getLevel="62" />
+		<skill skillId="146" skillLevel="34" skillName="Anti Magic" levelUpSp="100000" getLevel="64" />
+		<skill skillId="146" skillLevel="35" skillName="Anti Magic" levelUpSp="100000" getLevel="64" />
+		<skill skillId="212" skillLevel="5" skillName="Fast HP Recovery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="234" skillLevel="30" skillName="Robe Mastery" levelUpSp="100000" getLevel="64" />
+		<skill skillId="234" skillLevel="31" skillName="Robe Mastery" levelUpSp="100000" getLevel="64" />
+		<skill skillId="249" skillLevel="31" skillName="Weapon Mastery" levelUpSp="100000" getLevel="64" />
+		<skill skillId="249" skillLevel="32" skillName="Weapon Mastery" levelUpSp="100000" getLevel="64" />
+		<skill skillId="285" skillLevel="22" skillName="Higher Mana Gain" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1064" skillLevel="9" skillName="Silence" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1069" skillLevel="31" skillName="Sleep" levelUpSp="100000" getLevel="64" />
+		<skill skillId="1069" skillLevel="32" skillName="Sleep" levelUpSp="100000" getLevel="64" />
+		<skill skillId="1129" skillLevel="4" skillName="Summon Reanimated Man" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1148" skillLevel="8" skillName="Death Spike" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1151" skillLevel="11" skillName="Corpse Life Drain" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1155" skillLevel="10" skillName="Corpse Burst" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1156" skillLevel="8" skillName="Forget" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1159" skillLevel="11" skillName="Curse Death Link" levelUpSp="100000" getLevel="64" />
+		<skill skillId="1159" skillLevel="12" skillName="Curse Death Link" levelUpSp="100000" getLevel="64" />
+		<skill skillId="1163" skillLevel="9" skillName="Curse Discord" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1164" skillLevel="14" skillName="Curse: Weakness" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1167" skillLevel="5" skillName="Poisonous Cloud" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1169" skillLevel="9" skillName="Curse Fear" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1170" skillLevel="8" skillName="Anchor" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1222" skillLevel="10" skillName="Curse Chaos" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1234" skillLevel="17" skillName="Vampiric Claw" levelUpSp="100000" getLevel="64" />
+		<skill skillId="1234" skillLevel="18" skillName="Vampiric Claw" levelUpSp="100000" getLevel="64" />
+		<skill skillId="1263" skillLevel="8" skillName="Curse Gloom" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1269" skillLevel="4" skillName="Curse Disease" levelUpSp="200000" getLevel="64" />
+		<skill skillId="1298" skillLevel="3" skillName="Mass Slow" levelUpSp="100000" getLevel="64" />
+		<skill skillId="1298" skillLevel="4" skillName="Mass Slow" levelUpSp="100000" getLevel="64" />
+		<skill skillId="1334" skillLevel="3" skillName="Summon Cursed Man" levelUpSp="200000" getLevel="64" />
+		<skill skillId="146" skillLevel="36" skillName="Anti Magic" levelUpSp="130000" getLevel="66" />
+		<skill skillId="146" skillLevel="37" skillName="Anti Magic" levelUpSp="130000" getLevel="66" />
+		<skill skillId="213" skillLevel="7" skillName="Boost Mana" levelUpSp="270000" getLevel="66" />
+		<skill skillId="234" skillLevel="32" skillName="Robe Mastery" levelUpSp="130000" getLevel="66" />
+		<skill skillId="234" skillLevel="33" skillName="Robe Mastery" levelUpSp="130000" getLevel="66" />
+		<skill skillId="249" skillLevel="33" skillName="Weapon Mastery" levelUpSp="130000" getLevel="66" />
+		<skill skillId="249" skillLevel="34" skillName="Weapon Mastery" levelUpSp="130000" getLevel="66" />
+		<skill skillId="285" skillLevel="23" skillName="Higher Mana Gain" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1064" skillLevel="10" skillName="Silence" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1069" skillLevel="33" skillName="Sleep" levelUpSp="130000" getLevel="66" />
+		<skill skillId="1069" skillLevel="34" skillName="Sleep" levelUpSp="130000" getLevel="66" />
+		<skill skillId="1148" skillLevel="9" skillName="Death Spike" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1151" skillLevel="12" skillName="Corpse Life Drain" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1154" skillLevel="5" skillName="Summon Corrupted Man" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1155" skillLevel="11" skillName="Corpse Burst" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1156" skillLevel="9" skillName="Forget" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1157" skillLevel="5" skillName="Body To Mind" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1159" skillLevel="13" skillName="Curse Death Link" levelUpSp="130000" getLevel="66" />
+		<skill skillId="1159" skillLevel="14" skillName="Curse Death Link" levelUpSp="130000" getLevel="66" />
+		<skill skillId="1163" skillLevel="10" skillName="Curse Discord" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1164" skillLevel="15" skillName="Curse: Weakness" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1169" skillLevel="10" skillName="Curse Fear" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1170" skillLevel="9" skillName="Anchor" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1222" skillLevel="11" skillName="Curse Chaos" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1234" skillLevel="19" skillName="Vampiric Claw" levelUpSp="130000" getLevel="66" />
+		<skill skillId="1234" skillLevel="20" skillName="Vampiric Claw" levelUpSp="130000" getLevel="66" />
+		<skill skillId="1263" skillLevel="9" skillName="Curse Gloom" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1269" skillLevel="5" skillName="Curse Disease" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1298" skillLevel="5" skillName="Mass Slow" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1298" skillLevel="6" skillName="Mass Slow" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1381" skillLevel="3" skillName="Mass Fear" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1382" skillLevel="3" skillName="Mass Gloom" levelUpSp="270000" getLevel="66" />
+		<skill skillId="1387" skillLevel="2" skillName="Summon Cursed Bones" levelUpSp="270000" getLevel="66" />
+		<skill skillId="146" skillLevel="38" skillName="Anti Magic" levelUpSp="170000" getLevel="68" />
+		<skill skillId="146" skillLevel="39" skillName="Anti Magic" levelUpSp="170000" getLevel="68" />
+		<skill skillId="229" skillLevel="6" skillName="Fast Mana Recovery" levelUpSp="330000" getLevel="68" />
+		<skill skillId="234" skillLevel="34" skillName="Robe Mastery" levelUpSp="170000" getLevel="68" />
+		<skill skillId="234" skillLevel="35" skillName="Robe Mastery" levelUpSp="170000" getLevel="68" />
+		<skill skillId="249" skillLevel="35" skillName="Weapon Mastery" levelUpSp="170000" getLevel="68" />
+		<skill skillId="249" skillLevel="36" skillName="Weapon Mastery" levelUpSp="170000" getLevel="68" />
+		<skill skillId="285" skillLevel="24" skillName="Higher Mana Gain" levelUpSp="330000" getLevel="68" />
+		<skill skillId="1064" skillLevel="11" skillName="Silence" levelUpSp="330000" getLevel="68" />
+		<skill skillId="1069" skillLevel="35" skillName="Sleep" levelUpSp="170000" getLevel="68" />
+		<skill skillId="1069" skillLevel="36" skillName="Sleep" levelUpSp="170000" getLevel="68" />
+		<skill skillId="1129" skillLevel="5" skillName="Summon Reanimated Man" levelUpSp="330000" getLevel="68" />
+		<skill skillId="1148" skillLevel="10" skillName="Death Spike" levelUpSp="330000" getLevel="68" />
+		<skill skillId="1151" skillLevel="13" skillName="Corpse Life Drain" levelUpSp="330000" getLevel="68" />
+		<skill skillId="1155" skillLevel="12" skillName="Corpse Burst" levelUpSp="330000" getLevel="68" />
+		<skill skillId="1156" skillLevel="10" skillName="Forget" levelUpSp="330000" getLevel="68" />
+		<skill skillId="1159" skillLevel="15" skillName="Curse Death Link" levelUpSp="170000" getLevel="68" />
+		<skill skillId="1159" skillLevel="16" skillName="Curse Death Link" levelUpSp="170000" getLevel="68" />
+		<skill skillId="1163" skillLevel="11" skillName="Curse Discord" levelUpSp="330000" getLevel="68" />
+		<skill skillId="1164" skillLevel="16" skillName="Curse: Weakness" levelUpSp="330000" getLevel="68" />
+		<skill skillId="1169" skillLevel="11" skillName="Curse Fear" levelUpSp="330000" getLevel="68" />
+		<skill skillId="1170" skillLevel="10" skillName="Anchor" levelUpSp="330000" getLevel="68" />
+		<skill skillId="1222" skillLevel="12" skillName="Curse Chaos" levelUpSp="330000" getLevel="68" />
+		<skill skillId="1234" skillLevel="21" skillName="Vampiric Claw" levelUpSp="170000" getLevel="68" />
+		<skill skillId="1234" skillLevel="22" skillName="Vampiric Claw" levelUpSp="170000" getLevel="68" />
+		<skill skillId="1263" skillLevel="10" skillName="Curse Gloom" levelUpSp="330000" getLevel="68" />
+		<skill skillId="1269" skillLevel="6" skillName="Curse Disease" levelUpSp="330000" getLevel="68" />
+		<skill skillId="1298" skillLevel="7" skillName="Mass Slow" levelUpSp="170000" getLevel="68" />
+		<skill skillId="1298" skillLevel="8" skillName="Mass Slow" levelUpSp="170000" getLevel="68" />
+		<skill skillId="1334" skillLevel="4" skillName="Summon Cursed Man" levelUpSp="330000" getLevel="68" />
+		<skill skillId="146" skillLevel="40" skillName="Anti Magic" levelUpSp="190000" getLevel="70" />
+		<skill skillId="146" skillLevel="41" skillName="Anti Magic" levelUpSp="190000" getLevel="70" />
+		<skill skillId="234" skillLevel="36" skillName="Robe Mastery" levelUpSp="190000" getLevel="70" />
+		<skill skillId="234" skillLevel="37" skillName="Robe Mastery" levelUpSp="190000" getLevel="70" />
+		<skill skillId="249" skillLevel="37" skillName="Weapon Mastery" levelUpSp="190000" getLevel="70" />
+		<skill skillId="249" skillLevel="38" skillName="Weapon Mastery" levelUpSp="190000" getLevel="70" />
+		<skill skillId="285" skillLevel="25" skillName="Higher Mana Gain" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1064" skillLevel="12" skillName="Silence" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1069" skillLevel="37" skillName="Sleep" levelUpSp="190000" getLevel="70" />
+		<skill skillId="1069" skillLevel="38" skillName="Sleep" levelUpSp="190000" getLevel="70" />
+		<skill skillId="1148" skillLevel="11" skillName="Death Spike" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1151" skillLevel="14" skillName="Corpse Life Drain" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1154" skillLevel="6" skillName="Summon Corrupted Man" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1155" skillLevel="13" skillName="Corpse Burst" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1156" skillLevel="11" skillName="Forget" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1159" skillLevel="17" skillName="Curse Death Link" levelUpSp="190000" getLevel="70" />
+		<skill skillId="1159" skillLevel="18" skillName="Curse Death Link" levelUpSp="190000" getLevel="70" />
+		<skill skillId="1163" skillLevel="12" skillName="Curse Discord" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1164" skillLevel="17" skillName="Curse: Weakness" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1169" skillLevel="12" skillName="Curse Fear" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1170" skillLevel="11" skillName="Anchor" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1222" skillLevel="13" skillName="Curse Chaos" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1234" skillLevel="23" skillName="Vampiric Claw" levelUpSp="190000" getLevel="70" />
+		<skill skillId="1234" skillLevel="24" skillName="Vampiric Claw" levelUpSp="190000" getLevel="70" />
+		<skill skillId="1262" skillLevel="5" skillName="Transfer Pain" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1263" skillLevel="11" skillName="Curse Gloom" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1269" skillLevel="7" skillName="Curse Disease" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1298" skillLevel="9" skillName="Mass Slow" levelUpSp="190000" getLevel="70" />
+		<skill skillId="1298" skillLevel="10" skillName="Mass Slow" levelUpSp="190000" getLevel="70" />
+		<skill skillId="1334" skillLevel="5" skillName="Summon Cursed Man" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1381" skillLevel="4" skillName="Mass Fear" levelUpSp="380000" getLevel="70" />
+		<skill skillId="1382" skillLevel="4" skillName="Mass Gloom" levelUpSp="380000" getLevel="70" />
+		<skill skillId="146" skillLevel="42" skillName="Anti Magic" levelUpSp="310000" getLevel="72" />
+		<skill skillId="146" skillLevel="43" skillName="Anti Magic" levelUpSp="310000" getLevel="72" />
+		<skill skillId="213" skillLevel="8" skillName="Boost Mana" levelUpSp="630000" getLevel="72" />
+		<skill skillId="234" skillLevel="38" skillName="Robe Mastery" levelUpSp="310000" getLevel="72" />
+		<skill skillId="234" skillLevel="39" skillName="Robe Mastery" levelUpSp="310000" getLevel="72" />
+		<skill skillId="249" skillLevel="39" skillName="Weapon Mastery" levelUpSp="310000" getLevel="72" />
+		<skill skillId="249" skillLevel="40" skillName="Weapon Mastery" levelUpSp="310000" getLevel="72" />
+		<skill skillId="285" skillLevel="26" skillName="Higher Mana Gain" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1064" skillLevel="13" skillName="Silence" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1069" skillLevel="39" skillName="Sleep" levelUpSp="310000" getLevel="72" />
+		<skill skillId="1069" skillLevel="40" skillName="Sleep" levelUpSp="310000" getLevel="72" />
+		<skill skillId="1129" skillLevel="6" skillName="Summon Reanimated Man" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1148" skillLevel="12" skillName="Death Spike" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1151" skillLevel="15" skillName="Corpse Life Drain" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1155" skillLevel="14" skillName="Corpse Burst" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1156" skillLevel="12" skillName="Forget" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1159" skillLevel="19" skillName="Curse Death Link" levelUpSp="310000" getLevel="72" />
+		<skill skillId="1159" skillLevel="20" skillName="Curse Death Link" levelUpSp="310000" getLevel="72" />
+		<skill skillId="1163" skillLevel="13" skillName="Curse Discord" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1164" skillLevel="18" skillName="Curse: Weakness" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1168" skillLevel="7" skillName="Curse: Poison" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1169" skillLevel="13" skillName="Curse Fear" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1170" skillLevel="12" skillName="Anchor" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1222" skillLevel="14" skillName="Curse Chaos" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1234" skillLevel="25" skillName="Vampiric Claw" levelUpSp="310000" getLevel="72" />
+		<skill skillId="1234" skillLevel="26" skillName="Vampiric Claw" levelUpSp="310000" getLevel="72" />
+		<skill skillId="1263" skillLevel="12" skillName="Curse Gloom" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1269" skillLevel="8" skillName="Curse Disease" levelUpSp="630000" getLevel="72" />
+		<skill skillId="1298" skillLevel="11" skillName="Mass Slow" levelUpSp="310000" getLevel="72" />
+		<skill skillId="1298" skillLevel="12" skillName="Mass Slow" levelUpSp="310000" getLevel="72" />
+		<skill skillId="1334" skillLevel="6" skillName="Summon Cursed Man" levelUpSp="630000" getLevel="72" />
+		<skill skillId="146" skillLevel="44" skillName="Anti Magic" levelUpSp="410000" getLevel="74" />
+		<skill skillId="146" skillLevel="45" skillName="Anti Magic" levelUpSp="410000" getLevel="74" />
+		<skill skillId="212" skillLevel="6" skillName="Fast HP Recovery" levelUpSp="820000" getLevel="74" />
+		<skill skillId="229" skillLevel="7" skillName="Fast Mana Recovery" levelUpSp="820000" getLevel="74" />
+		<skill skillId="234" skillLevel="40" skillName="Robe Mastery" levelUpSp="410000" getLevel="74" />
+		<skill skillId="234" skillLevel="41" skillName="Robe Mastery" levelUpSp="410000" getLevel="74" />
+		<skill skillId="249" skillLevel="41" skillName="Weapon Mastery" levelUpSp="410000" getLevel="74" />
+		<skill skillId="249" skillLevel="42" skillName="Weapon Mastery" levelUpSp="410000" getLevel="74" />
+		<skill skillId="285" skillLevel="27" skillName="Higher Mana Gain" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1064" skillLevel="14" skillName="Silence" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1069" skillLevel="41" skillName="Sleep" levelUpSp="410000" getLevel="74" />
+		<skill skillId="1069" skillLevel="42" skillName="Sleep" levelUpSp="410000" getLevel="74" />
+		<skill skillId="1129" skillLevel="7" skillName="Summon Reanimated Man" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1148" skillLevel="13" skillName="Death Spike" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1151" skillLevel="16" skillName="Corpse Life Drain" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1155" skillLevel="15" skillName="Corpse Burst" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1156" skillLevel="13" skillName="Forget" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1159" skillLevel="21" skillName="Curse Death Link" levelUpSp="410000" getLevel="74" />
+		<skill skillId="1159" skillLevel="22" skillName="Curse Death Link" levelUpSp="410000" getLevel="74" />
+		<skill skillId="1163" skillLevel="14" skillName="Curse Discord" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1164" skillLevel="19" skillName="Curse: Weakness" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1167" skillLevel="6" skillName="Poisonous Cloud" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1169" skillLevel="14" skillName="Curse Fear" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1170" skillLevel="13" skillName="Anchor" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1222" skillLevel="15" skillName="Curse Chaos" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1234" skillLevel="27" skillName="Vampiric Claw" levelUpSp="410000" getLevel="74" />
+		<skill skillId="1234" skillLevel="28" skillName="Vampiric Claw" levelUpSp="410000" getLevel="74" />
+		<skill skillId="1263" skillLevel="13" skillName="Curse Gloom" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1269" skillLevel="9" skillName="Curse Disease" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1298" skillLevel="13" skillName="Mass Slow" levelUpSp="410000" getLevel="74" />
+		<skill skillId="1298" skillLevel="14" skillName="Mass Slow" levelUpSp="410000" getLevel="74" />
+		<skill skillId="1334" skillLevel="7" skillName="Summon Cursed Man" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1381" skillLevel="5" skillName="Mass Fear" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1382" skillLevel="5" skillName="Mass Gloom" levelUpSp="820000" getLevel="74" />
+		<skill skillId="1387" skillLevel="3" skillName="Summon Cursed Bones" levelUpSp="820000" getLevel="74" />
+	</skillTree>
+</list>

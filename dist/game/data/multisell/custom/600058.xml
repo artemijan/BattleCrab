@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/multisell.xsd">
+  <npcs>
+    <npc>-1</npc> <!-- CB -->
+  </npcs>
+  <item>
+    <!-- Adena -->
+    <ingredient count="20000" id="57"/>
+    <production count="1" id="728"/> <!-- Mana Potion -->
+  </item>
+  <item>
+    <!-- Adena -->
+    <ingredient count="1138" id="57"/>
+    <production count="1" id="1539"/> <!-- Major Healing potion -->
+  </item>
+  <item>
+    <ingredient id="57" count="1000"/>
+    <production id="2508" count="1"/> <!-- Cursed Bone -->
+  </item>
+  <item>
+    <ingredient id="57" count="126"/>
+    <production id="5589" count="1"/> <!-- Momentum Stone -->
+  </item>
+  <item>
+    <ingredient id="57" count="505"/>
+    <production id="3031" count="1"/> <!-- Spirit Ore -->
+  </item>
+  <item>
+    <ingredient id="57" count="316"/>
+    <production id="1785" count="1"/> <!-- Soulstone -->
+  </item>
+  <item>
+    <ingredient id="57" count="2530"/>
+    <production id="737" count="1"/> <!-- Scroll of Resurrection -->
+  </item>
+  <item>
+    <ingredient id="57" count="505"/>
+    <production id="736" count="1"/> <!-- Scroll of Escape -->
+  </item>
+  <item>
+    <ingredient id="57" count="632"/>
+    <production id="1829" count="1"/> <!-- Scroll of Escape: Clan Hall -->
+  </item>
+  <item>
+    <ingredient id="57" count="632"/>
+    <production id="1830" count="1"/> <!-- Scroll of Escape: Castle -->
+  </item>
+  <item>
+    <ingredient id="57" count="2600"/> <!-- Adena -->
+    <production id="1458" count="1"/> <!-- Crystal (D-grade) -->
+  </item>
+  <item>
+    <ingredient id="57" count="12000"/> <!-- Adena -->
+    <production id="1459" count="1"/> <!-- Crystal (C-grade) -->
+  </item>
+  <item>
+    <ingredient id="57" count="36000"/> <!-- Adena -->
+    <production id="1460" count="1"/> <!-- Crystal (B-grade) -->
+  </item>
+  <item>
+    <ingredient id="57" count="60000"/> <!-- Adena -->
+    <production id="1461" count="1"/> <!-- Crystal (A-grade) -->
+  </item>
+  <item>
+    <ingredient id="57" count="1100"/> <!-- Adena -->
+    <production id="2130" count="1"/> <!-- Gemstone (D-grade) -->
+  </item>
+  <item>
+    <ingredient id="57" count="3300"/> <!-- Adena -->
+    <production id="2131" count="1"/> <!-- Gemstone (C-grade) -->
+  </item>
+  <item>
+    <ingredient id="57" count="11000"/> <!-- Adena -->
+    <production id="2132" count="1"/> <!-- Gemstone (B-grade) -->
+  </item>
+  <item>
+    <ingredient id="57" count="120000"/> <!-- Adena -->
+    <production id="2133" count="1"/> <!-- Gemstone (A-grade) -->
+  </item>
+</list>

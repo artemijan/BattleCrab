@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
+	<skill id="39101" toLevel="1" name="Chase Down">
+		<!-- Speed +66 for 15 seconds. -->
+		<icon>icon.skill0998</icon>
+		<abnormalTime>15</abnormalTime>
+		<operateType>A2</operateType>
+		<hitTime>1000</hitTime>
+		<effectPoint>438</effectPoint>
+		<reuseDelay>30000</reuseDelay>
+		<effects>
+			<effect name="Speed">
+				<amount>66</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="39102" toLevel="1" name="Sneak">
+		<!-- Do not receive preemptive attacks from monsters. -->
+		<icon>icon.skill10518</icon>
+		<operateType>T</operateType>
+		<mpConsume>1</mpConsume>
+		<abnormalType>STEALTH</abnormalType>
+		<abnormalVisualEffect>STEALTH</abnormalVisualEffect>
+		<magicCriticalRate>5</magicCriticalRate>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<effects>
+			<effect name="ChameleonRest">
+				<power>2</power>
+				<ticks>5</ticks>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="39169" toLevel="1" name="Cheer Firecracker">
+		<!-- Large firecracker that explodes in colorful light and fills the sky. -->
+		<icon>BranchSys.icon.br_firecracker_gold_i00</icon>
+		<operateType>A1</operateType>
+		<reuseDelay>10000</reuseDelay>
+	</skill>
+	<skill id="39171" toLevel="1" name="Member of the Balthus Knight">
+		<!-- You have dressed up as a member of the Balthus Knights for 1 hour. Gain opportunities to receive special supplies. -->
+		<icon>icon.ev_balthus_token</icon>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>49784</itemConsumeId>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3600</abnormalTime>
+		<abnormalType>CHANGEBODY</abnormalType>
+		<abnormalVisualEffect>CHANGESHAPE_TRANSFORM</abnormalVisualEffect>
+		<stayAfterDeath>true</stayAfterDeath>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>1</effectPoint>
+		<isMagic>4</isMagic> <!-- Magic Skill -->
+		<magicLevel>56</magicLevel>
+		<operateType>A2</operateType>
+		<reuseDelay>60000</reuseDelay>
+		<stayAfterDeath>true</stayAfterDeath>
+		<hitTime>500</hitTime>
+		<basicProperty>NONE</basicProperty>
+		<magicCriticalRate>5</magicCriticalRate>
+		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<conditions>
+			<condition name="CheckLevel">
+				<minLevel>85</minLevel>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="ExpModify">
+				<amount>10</amount>
+			</effect>
+			<effect name="SpModify">
+				<amount>10</amount>
+			</effect>
+		</effects>
+	</skill>
+</list>

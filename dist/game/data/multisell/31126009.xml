@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/multisell.xsd">
+	<npcs>
+		<npc>31126</npc> <!-- Blacksmith of Mammon -->
+	</npcs>
+	
+	<!-- Special Apability - A-Grade Weapons -->
+	
+	<item>
+		<ingredient id="212" count="1" /> <!-- Dasparion's Staff -->
+		<ingredient id="5577" count="1" /> <!-- Red Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5596" count="1" /> <!-- Dasparion's Staff - Mana Up -->
+	</item>
+	<item>
+		<ingredient id="212" count="1" /> <!-- Dasparion's Staff -->
+		<ingredient id="5578" count="1" /> <!-- Green Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5597" count="1" /> <!-- Dasparion's Staff - Conversion -->
+	</item>
+	<item>
+		<ingredient id="212" count="1" /> <!-- Dasparion's Staff -->
+		<ingredient id="5579" count="1" /> <!-- Blue Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5598" count="1" /> <!-- Dasparion's Staff - Acumen -->
+	</item>
+	<item>
+		<ingredient id="2504" count="1" /> <!-- Meteor Shower -->
+		<ingredient id="5577" count="1" /> <!-- Red Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5599" count="1" /> <!-- Meteor Shower - Focus -->
+	</item>
+	<item>
+		<ingredient id="2504" count="1" /> <!-- Meteor Shower -->
+		<ingredient id="5578" count="1" /> <!-- Green Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5600" count="1" /> <!-- Meteor Shower - Critical Bleed -->
+	</item>
+	<item>
+		<ingredient id="2504" count="1" /> <!-- Meteor Shower -->
+		<ingredient id="5579" count="1" /> <!-- Blue Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5601" count="1" /> <!-- Meteor Shower - Rsk. Haste -->
+	</item>
+	<item>
+		<ingredient id="164" count="1" /> <!-- Elysian -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5602" count="1" /> <!-- Elysian - Health -->
+	</item>
+	<item>
+		<ingredient id="164" count="1" /> <!-- Elysian -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5603" count="1" /> <!-- Elysian - Anger -->
+	</item>
+	<item>
+		<ingredient id="164" count="1" /> <!-- Elysian -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5604" count="1" /> <!-- Elysian - Critical Drain -->
+	</item>
+	<item>
+		<ingredient id="213" count="1" /> <!-- Branch of the Mother Tree -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5605" count="1" /> <!-- Branch of Mother Tree - Conversion -->
+	</item>
+	<item>
+		<ingredient id="213" count="1" /> <!-- Branch of the Mother Tree -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5606" count="1" /> <!-- Branch of Mother Tree - Magic Damage -->
+	</item>
+	<item>
+		<ingredient id="213" count="1" /> <!-- Branch of the Mother Tree -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5607" count="1" /> <!-- Branch of Mother Tree - Acumen -->
+	</item>
+	<item>
+		<ingredient id="288" count="1" /> <!-- Carnage Bow -->
+		<ingredient id="5577" count="1" /> <!-- Red Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5608" count="1" /> <!-- Carnage Bow - Light -->
+	</item>
+	<item>
+		<ingredient id="288" count="1" /> <!-- Carnage Bow -->
+		<ingredient id="5578" count="1" /> <!-- Green Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5609" count="1" /> <!-- Carnage Bow - Critical Bleed -->
+	</item>
+	<item>
+		<ingredient id="288" count="1" /> <!-- Carnage Bow -->
+		<ingredient id="5579" count="1" /> <!-- Blue Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5610" count="1" /> <!-- Carnage Bow - Mana Up -->
+	</item>
+	<item>
+		<ingredient id="289" count="1" /> <!-- Soul Bow -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5611" count="1" /> <!-- Soul Bow - Cheap Shot -->
+	</item>
+	<item>
+		<ingredient id="289" count="1" /> <!-- Soul Bow -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5612" count="1" /> <!-- Soul Bow - Quick Recovery -->
+	</item>
+	<item>
+		<ingredient id="289" count="1" /> <!-- Soul Bow -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5613" count="1" /> <!-- Soul Bow - Critical Poison -->
+	</item>
+	<item>
+		<ingredient id="235" count="1" /> <!-- Bloody Orchid -->
+		<ingredient id="5577" count="1" /> <!-- Red Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5614" count="1" /> <!-- Bloody Orchid - Focus -->
+	</item>
+	<item>
+		<ingredient id="235" count="1" /> <!-- Bloody Orchid -->
+		<ingredient id="5578" count="1" /> <!-- Green Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5615" count="1" /> <!-- Bloody Orchid - Back Blow -->
+	</item>
+	<item>
+		<ingredient id="235" count="1" /> <!-- Bloody Orchid -->
+		<ingredient id="5579" count="1" /> <!-- Blue Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5616" count="1" /> <!-- Bloody Orchid - Critical Bleed -->
+	</item>
+	<item>
+		<ingredient id="236" count="1" /> <!-- Soul Separator -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5617" count="1" /> <!-- Soul Separator - Guidance -->
+	</item>
+	<item>
+		<ingredient id="236" count="1" /> <!-- Soul Separator -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5618" count="1" /> <!-- Soul Separator - Critical Damage -->
+	</item>
+	<item>
+		<ingredient id="236" count="1" /> <!-- Soul Separator -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5619" count="1" /> <!-- Soul Separator - Rsk. Haste -->
+	</item>
+	<item>
+		<ingredient id="269" count="1" /> <!-- Blood Tornado -->
+		<ingredient id="5577" count="1" /> <!-- Red Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5620" count="1" /> <!-- Blood Tornado - Haste -->
+	</item>
+	<item>
+		<ingredient id="269" count="1" /> <!-- Blood Tornado -->
+		<ingredient id="5578" count="1" /> <!-- Green Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5621" count="1" /> <!-- Blood Tornado - Focus -->
+	</item>
+	<item>
+		<ingredient id="269" count="1" /> <!-- Blood Tornado -->
+		<ingredient id="5579" count="1" /> <!-- Blue Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5622" count="1" /> <!-- Blood Tornado - Anger -->
+	</item>
+	<item>
+		<ingredient id="270" count="1" /> <!-- Dragon Grinder -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5623" count="1" /> <!-- Dragon Grinder - Rsk. Evasion -->
+	</item>
+	<item>
+		<ingredient id="270" count="1" /> <!-- Dragon Grinder -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5624" count="1" /> <!-- Dragon Grinder - Guidance -->
+	</item>
+	<item>
+		<ingredient id="270" count="1" /> <!-- Dragon Grinder -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5625" count="1" /> <!-- Dragon Grinder - Health -->
+	</item>
+	<item>
+		<ingredient id="98" count="1" /> <!-- Halberd -->
+		<ingredient id="5577" count="1" /> <!-- Red Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5626" count="1" /> <!-- Halberd - Haste -->
+	</item>
+	<item>
+		<ingredient id="98" count="1" /> <!-- Halberd -->
+		<ingredient id="5578" count="1" /> <!-- Green Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5627" count="1" /> <!-- Halberd - Critical Stun -->
+	</item>
+	<item>
+		<ingredient id="98" count="1" /> <!-- Halberd -->
+		<ingredient id="5579" count="1" /> <!-- Blue Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5628" count="1" /> <!-- Halberd - Wide Blow -->
+	</item>
+	<item>
+		<ingredient id="305" count="1" /> <!-- Tallum Glaive -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5632" count="1" /> <!-- Tallum Glaive - Guidance -->
+	</item>
+	<item>
+		<ingredient id="305" count="1" /> <!-- Tallum Glaive -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5633" count="1" /> <!-- Tallum Glaive - Health -->
+	</item>
+	<item>
+		<ingredient id="305" count="1" /> <!-- Tallum Glaive -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5634" count="1" /> <!-- Tallum Glaive - Wide Blow -->
+	</item>
+	<item>
+		<ingredient id="80" count="1" /> <!-- Tallum Blade -->
+		<ingredient id="5577" count="1" /> <!-- Red Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5635" count="1" /> <!-- Talum Blade - Critical Poison -->
+	</item>
+	<item>
+		<ingredient id="80" count="1" /> <!-- Tallum Blade -->
+		<ingredient id="5578" count="1" /> <!-- Green Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5636" count="1" /> <!-- Talum Blade - Haste -->
+	</item>
+	<item>
+		<ingredient id="80" count="1" /> <!-- Tallum Blade -->
+		<ingredient id="5579" count="1" /> <!-- Blue Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5637" count="1" /> <!-- Talum Blade - Anger -->
+	</item>
+	<item>
+		<ingredient id="150" count="1" /> <!-- Elemental Sword -->
+		<ingredient id="5577" count="1" /> <!-- Red Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5638" count="1" /> <!-- Elemental Sword - Magic Power -->
+	</item>
+	<item>
+		<ingredient id="150" count="1" /> <!-- Elemental Sword -->
+		<ingredient id="5578" count="1" /> <!-- Green Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5639" count="1" /> <!-- Elemental Sword - Magic Paralyze -->
+	</item>
+	<item>
+		<ingredient id="150" count="1" /> <!-- Elemental Sword -->
+		<ingredient id="5579" count="1" /> <!-- Blue Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="5640" count="1" /> <!-- Elemental Sword - Empower -->
+	</item>
+	<item>
+		<ingredient id="151" count="1" /> <!-- Sword of Miracles -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5641" count="1" /> <!-- Sword of Miracles - Magic Power -->
+	</item>
+	<item>
+		<ingredient id="151" count="1" /> <!-- Sword of Miracles -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5642" count="1" /> <!-- Sword of Miracles - Magic Silence -->
+	</item>
+	<item>
+		<ingredient id="151" count="1" /> <!-- Sword of Miracles -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5643" count="1" /> <!-- Sword of Miracles - Acumen -->
+	</item>
+	<item>
+		<ingredient id="81" count="1" /> <!-- Dragon Slayer -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5644" count="1" /> <!-- Dragon Slayer - Health -->
+	</item>
+	<item>
+		<ingredient id="81" count="1" /> <!-- Dragon Slayer -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5645" count="1" /> <!-- Dragon Slayer - Critical Bleed -->
+	</item>
+	<item>
+		<ingredient id="81" count="1" /> <!-- Dragon Slayer -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5646" count="1" /> <!-- Dragon Slayer - Critical Drain -->
+	</item>
+	<item>
+		<ingredient id="2500" count="1" /> <!-- Dark Legion's Edge -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5647" count="1" /> <!-- Dark Legion's Edge - Critical Damage -->
+	</item>
+	<item>
+		<ingredient id="2500" count="1" /> <!-- Dark Legion's Edge -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5648" count="1" /> <!-- Dark Legion's Edge - Health -->
+	</item>
+	<item>
+		<ingredient id="2500" count="1" /> <!-- Dark Legion's Edge -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="5649" count="1" /> <!-- Dark Legion's Edge - Rsk. Focus -->
+	</item>
+	<item>
+		<ingredient id="7884" count="1" /> <!-- Infernal Master -->
+		<ingredient id="5577" count="1" /> <!-- Red Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="8108" count="1" /> <!-- Infernal Master - Haste -->
+	</item>
+	<item>
+		<ingredient id="7884" count="1" /> <!-- Infernal Master -->
+		<ingredient id="5578" count="1" /> <!-- Green Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="8109" count="1" /> <!-- Infernal Master - Critical Damage -->
+	</item>
+	<item>
+		<ingredient id="7884" count="1" /> <!-- Infernal Master -->
+		<ingredient id="5579" count="1" /> <!-- Blue Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="8110" count="1" /> <!-- Infernal Master - Focus -->
+	</item>
+	<item>
+		<ingredient id="7899" count="1" /> <!-- Destroyer Hammer -->
+		<ingredient id="5577" count="1" /> <!-- Red Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="8126" count="1" /> <!-- Destroyer Hammer - Health -->
+	</item>
+	<item>
+		<ingredient id="7899" count="1" /> <!-- Destroyer Hammer -->
+		<ingredient id="5578" count="1" /> <!-- Green Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="8127" count="1" /> <!-- Destroyer Hammer - Haste -->
+	</item>
+	<item>
+		<ingredient id="7899" count="1" /> <!-- Destroyer Hammer -->
+		<ingredient id="5579" count="1" /> <!-- Blue Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="8128" count="1" /> <!-- Destroyer Hammer - Critical Drain -->
+	</item>
+	<item>
+		<ingredient id="7902" count="1" /> <!-- Doom Crusher -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="8135" count="1" /> <!-- Doom Crusher - Health -->
+	</item>
+	<item>
+		<ingredient id="7902" count="1" /> <!-- Doom Crusher -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="8136" count="1" /> <!-- Doom Crusher - Anger -->
+	</item>
+	<item>
+		<ingredient id="7902" count="1" /> <!-- Doom Crusher -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="8137" count="1" /> <!-- Doom Crusher - Rsk. Haste -->
+	</item>
+	<item>
+		<ingredient id="7894" count="1" /> <!-- Spiritual Eye -->
+		<ingredient id="5577" count="1" /> <!-- Red Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="8147" count="1" /> <!-- Spiritual Eye - Mana Up -->
+	</item>
+	<item>
+		<ingredient id="7894" count="1" /> <!-- Spiritual Eye -->
+		<ingredient id="5578" count="1" /> <!-- Green Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="8148" count="1" /> <!-- Spiritual Eye - Magic Poison -->
+	</item>
+	<item>
+		<ingredient id="7894" count="1" /> <!-- Spiritual Eye -->
+		<ingredient id="5579" count="1" /> <!-- Blue Soul Crystal - Stage 11 -->
+		<ingredient id="2133" count="140" /> <!-- Gemstone A -->
+		<production id="8149" count="1" /> <!-- Spiritual Eye - Acumen -->
+	</item>
+	<item>
+		<ingredient id="7895" count="1" /> <!-- Flaming Dragon Skull -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="8150" count="1" /> <!-- Flaming Dragon Skull - Acumen -->
+	</item>
+	<item>
+		<ingredient id="7895" count="1" /> <!-- Flaming Dragon Skull -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="8151" count="1" /> <!-- Flaming Dragon Skull - Magic Power -->
+	</item>
+	<item>
+		<ingredient id="7895" count="1" /> <!-- Flaming Dragon Skull -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="157" /> <!-- Gemstone A -->
+		<production id="8152" count="1" /> <!-- Flaming Dragon Skull - Magic Silence -->
+	</item>
+	<item>
+		<ingredient id="8678" count="1" /> <!-- Sirra's Blade -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8788" count="1" /> <!-- Sirra's Blade - Haste -->
+	</item>
+	<item>
+		<ingredient id="8678" count="1" /> <!-- Sirra's Blade -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8789" count="1" /> <!-- Sirra's Blade - Health -->
+	</item>
+	<item>
+		<ingredient id="8678" count="1" /> <!-- Sirra's Blade -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8790" count="1" /> <!-- Sirra's Blade - Critical Poison -->
+	</item>
+	<item>
+		<ingredient id="8679" count="1" /> <!-- Sword of Ipos -->
+		<ingredient id="5582" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8791" count="1" /> <!-- Sword of Ipos - Focus -->
+	</item>
+	<item>
+		<ingredient id="8679" count="1" /> <!-- Sword of Ipos -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8792" count="1" /> <!-- Sword of Ipos - Haste -->
+	</item>
+	<item>
+		<ingredient id="8679" count="1" /> <!-- Sword of Ipos -->
+		<ingredient id="5580" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8793" count="1" /> <!-- Sword of Ipos - Health -->
+	</item>
+	<item>
+		<ingredient id="8680" count="1" /> <!-- Barakiel's Axe -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8794" count="1" /> <!-- Barakiel's Axe - Health -->
+	</item>
+	<item>
+		<ingredient id="8680" count="1" /> <!-- Barakiel's Axe -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8795" count="1" /> <!-- Barakiel's Axe - Haste -->
+	</item>
+	<item>
+		<ingredient id="8680" count="1" /> <!-- Barakiel's Axe -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8796" count="1" /> <!-- Barakiel's Axe - Focus -->
+	</item>
+	<item>
+		<ingredient id="8681" count="1" /> <!-- Behemoth's Tuning Fork -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8797" count="1" /> <!-- Behemoth's Tuning Fork - Focus -->
+	</item>
+	<item>
+		<ingredient id="8681" count="1" /> <!-- Behemoth's Tuning Fork -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8798" count="1" /> <!-- Behemoth's Tuning Fork - Health -->
+	</item>
+	<item>
+		<ingredient id="8681" count="1" /> <!-- Behemoth's Tuning Fork -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8799" count="1" /> <!-- Behemoth's Tuning Fork - Anger -->
+	</item>
+	<item>
+		<ingredient id="8682" count="1" /> <!-- Naga Storm -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8800" count="1" /> <!-- Naga Storm - Focus -->
+	</item>
+	<item>
+		<ingredient id="8682" count="1" /> <!-- Naga Storm -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8801" count="1" /> <!-- Naga Storm - Critical Damage -->
+	</item>
+	<item>
+		<ingredient id="8682" count="1" /> <!-- Naga Storm -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8802" count="1" /> <!-- Naga Storm - Back Blow -->
+	</item>
+	<item>
+		<ingredient id="8683" count="1" /> <!-- Tiphon's Spear -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8803" count="1" /> <!-- Tiphon's Spear - Critical Stun -->
+	</item>
+	<item>
+		<ingredient id="8683" count="1" /> <!-- Tiphon's Spear -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8804" count="1" /> <!-- Tiphon's Spear - Towering Blow -->
+	</item>
+	<item>
+		<ingredient id="8683" count="1" /> <!-- Tiphon's Spear -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8805" count="1" /> <!-- Tiphon's Spear - Wild Blow -->
+	</item>
+	<item>
+		<ingredient id="8684" count="1" /> <!-- Shyeed's Bow -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8806" count="1" /> <!-- Shyeed's Bow - Cheap Shot -->
+	</item>
+	<item>
+		<ingredient id="8684" count="1" /> <!-- Shyeed's Bow -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8807" count="1" /> <!-- Shyeed's Bow - Focus -->
+	</item>
+	<item>
+		<ingredient id="8684" count="1" /> <!-- Shyeed's Bow -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8808" count="1" /> <!-- Shyeed's Bow - Quick Recovery -->
+	</item>
+	<item>
+		<ingredient id="8685" count="1" /> <!-- Sobekk's Hurricane -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8809" count="1" /> <!-- Sobekk's Hurricane - Rsk. Haste -->
+	</item>
+	<item>
+		<ingredient id="8685" count="1" /> <!-- Sobekk's Hurricane -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8810" count="1" /> <!-- Sobekk's Hurricane - Haste -->
+	</item>
+	<item>
+		<ingredient id="8685" count="1" /> <!-- Sobekk's Hurricane -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8811" count="1" /> <!-- Sobekk's Hurricane - Critical Drain -->
+	</item>
+	<item>
+		<ingredient id="8686" count="1" /> <!-- Themis' Tongue -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8812" count="1" /> <!-- Themis' Tongue - Mana Up -->
+	</item>
+	<item>
+		<ingredient id="8686" count="1" /> <!-- Themis' Tongue -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8813" count="1" /> <!-- Themis' Tongue - Magic Mental Shield -->
+	</item>
+	<item>
+		<ingredient id="8686" count="1" /> <!-- Themis' Tongue -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8814" count="1" /> <!-- Themis' Tongue - Magic Focus -->
+	</item>
+	<item>
+		<ingredient id="8687" count="1" /> <!-- Cabrio's Hand -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8815" count="1" /> <!-- Cabrio's Hand - Conversion -->
+	</item>
+	<item>
+		<ingredient id="8687" count="1" /> <!-- Cabrio's Hand -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8816" count="1" /> <!-- Cabrio's Hand - Mana Up -->
+	</item>
+	<item>
+		<ingredient id="8687" count="1" /> <!-- Cabrio's Hand -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8817" count="1" /> <!-- Cabrio's Hand - Magic Silence -->
+	</item>
+	<item>
+		<ingredient id="8688" count="1" /> <!-- Daimon Crystal -->
+		<ingredient id="5580" count="1" /> <!-- Red Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8818" count="1" /> <!-- Daimon Crystal - Mana Up -->
+	</item>
+	<item>
+		<ingredient id="8688" count="1" /> <!-- Daimon Crystal -->
+		<ingredient id="5581" count="1" /> <!-- Green Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8819" count="1" /> <!-- Daimon Crystal - Acumen -->
+	</item>
+	<item>
+		<ingredient id="8688" count="1" /> <!-- Daimon Crystal -->
+		<ingredient id="5582" count="1" /> <!-- Blue Soul Crystal - Stage 12 -->
+		<ingredient id="2133" count="170" /> <!-- Gemstone A -->
+		<production id="8820" count="1" /> <!-- Daimon Crystal - Magic Mental Shield -->
+	</item>
+</list>

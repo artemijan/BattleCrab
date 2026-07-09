@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="46" parentClassId="45">
+		<skill skillId="36" skillLevel="1" skillName="Whirlwind" levelUpSp="11000" getLevel="40" />
+		<skill skillId="36" skillLevel="2" skillName="Whirlwind" levelUpSp="11000" getLevel="40" />
+		<skill skillId="36" skillLevel="3" skillName="Whirlwind" levelUpSp="11000" getLevel="40" />
+		<skill skillId="121" skillLevel="2" skillName="Battle Roar" levelUpSp="33000" getLevel="40" />
+		<skill skillId="148" skillLevel="3" skillName="Vital Force" levelUpSp="33000" getLevel="40" />
+		<skill skillId="190" skillLevel="1" skillName="Fatal Strike" levelUpSp="11000" getLevel="40" />
+		<skill skillId="190" skillLevel="2" skillName="Fatal Strike" levelUpSp="11000" getLevel="40" />
+		<skill skillId="190" skillLevel="3" skillName="Fatal Strike" levelUpSp="11000" getLevel="40" />
+		<skill skillId="212" skillLevel="3" skillName="Fast HP Recovery" levelUpSp="33000" getLevel="40" />
+		<skill skillId="216" skillLevel="9" skillName="Polearm Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="216" skillLevel="10" skillName="Polearm Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="216" skillLevel="11" skillName="Polearm Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="227" skillLevel="14" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="227" skillLevel="15" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="227" skillLevel="16" skillName="Light Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="231" skillLevel="14" skillName="Heavy Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="231" skillLevel="15" skillName="Heavy Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="231" skillLevel="16" skillName="Heavy Armor Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="257" skillLevel="9" skillName="Sword Blunt Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="257" skillLevel="10" skillName="Sword Blunt Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="257" skillLevel="11" skillName="Sword Blunt Mastery" levelUpSp="11000" getLevel="40" />
+		<skill skillId="260" skillLevel="1" skillName="Hammer Crush" levelUpSp="11000" getLevel="40" />
+		<skill skillId="260" skillLevel="2" skillName="Hammer Crush" levelUpSp="11000" getLevel="40" />
+		<skill skillId="260" skillLevel="3" skillName="Hammer Crush" levelUpSp="11000" getLevel="40" />
+		<skill skillId="293" skillLevel="6" skillName="Two-handed Weapon Mastery" levelUpSp="33000" getLevel="40" />
+		<skill skillId="312" skillLevel="6" skillName="Vicious Stance" levelUpSp="33000" getLevel="40" />
+		<skill skillId="36" skillLevel="4" skillName="Whirlwind" levelUpSp="13000" getLevel="43" />
+		<skill skillId="36" skillLevel="5" skillName="Whirlwind" levelUpSp="13000" getLevel="43" />
+		<skill skillId="36" skillLevel="6" skillName="Whirlwind" levelUpSp="13000" getLevel="43" />
+		<skill skillId="139" skillLevel="2" skillName="Guts" levelUpSp="38000" getLevel="43" />
+		<skill skillId="190" skillLevel="4" skillName="Fatal Strike" levelUpSp="13000" getLevel="43" />
+		<skill skillId="190" skillLevel="5" skillName="Fatal Strike" levelUpSp="13000" getLevel="43" />
+		<skill skillId="190" skillLevel="6" skillName="Fatal Strike" levelUpSp="13000" getLevel="43" />
+		<skill skillId="211" skillLevel="4" skillName="Boost HP" levelUpSp="38000" getLevel="43" />
+		<skill skillId="212" skillLevel="4" skillName="Fast HP Recovery" levelUpSp="38000" getLevel="43" />
+		<skill skillId="216" skillLevel="12" skillName="Polearm Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="216" skillLevel="13" skillName="Polearm Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="216" skillLevel="14" skillName="Polearm Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="227" skillLevel="17" skillName="Light Armor Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="227" skillLevel="18" skillName="Light Armor Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="227" skillLevel="19" skillName="Light Armor Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="231" skillLevel="17" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="231" skillLevel="18" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="231" skillLevel="19" skillName="Heavy Armor Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="257" skillLevel="12" skillName="Sword Blunt Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="257" skillLevel="13" skillName="Sword Blunt Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="257" skillLevel="14" skillName="Sword Blunt Mastery" levelUpSp="13000" getLevel="43" />
+		<skill skillId="260" skillLevel="4" skillName="Hammer Crush" levelUpSp="13000" getLevel="43" />
+		<skill skillId="260" skillLevel="5" skillName="Hammer Crush" levelUpSp="13000" getLevel="43" />
+		<skill skillId="260" skillLevel="6" skillName="Hammer Crush" levelUpSp="13000" getLevel="43" />
+		<skill skillId="293" skillLevel="7" skillName="Two-handed Weapon Mastery" levelUpSp="38000" getLevel="43" />
+		<skill skillId="312" skillLevel="7" skillName="Vicious Stance" levelUpSp="38000" getLevel="43" />
+		<skill skillId="34" skillLevel="2" skillName="Bandage" levelUpSp="50000" getLevel="46" />
+		<skill skillId="36" skillLevel="7" skillName="Whirlwind" levelUpSp="17000" getLevel="46" />
+		<skill skillId="36" skillLevel="8" skillName="Whirlwind" levelUpSp="17000" getLevel="46" />
+		<skill skillId="36" skillLevel="9" skillName="Whirlwind" levelUpSp="17000" getLevel="46" />
+		<skill skillId="148" skillLevel="4" skillName="Vital Force" levelUpSp="50000" getLevel="46" />
+		<skill skillId="176" skillLevel="2" skillName="Frenzy" levelUpSp="50000" getLevel="46" />
+		<skill skillId="190" skillLevel="7" skillName="Fatal Strike" levelUpSp="17000" getLevel="46" />
+		<skill skillId="190" skillLevel="8" skillName="Fatal Strike" levelUpSp="17000" getLevel="46" />
+		<skill skillId="190" skillLevel="9" skillName="Fatal Strike" levelUpSp="17000" getLevel="46" />
+		<skill skillId="216" skillLevel="15" skillName="Polearm Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="216" skillLevel="16" skillName="Polearm Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="216" skillLevel="17" skillName="Polearm Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="227" skillLevel="20" skillName="Light Armor Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="227" skillLevel="21" skillName="Light Armor Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="227" skillLevel="22" skillName="Light Armor Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="231" skillLevel="20" skillName="Heavy Armor Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="231" skillLevel="21" skillName="Heavy Armor Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="231" skillLevel="22" skillName="Heavy Armor Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="257" skillLevel="15" skillName="Sword Blunt Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="257" skillLevel="16" skillName="Sword Blunt Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="257" skillLevel="17" skillName="Sword Blunt Mastery" levelUpSp="17000" getLevel="46" />
+		<skill skillId="260" skillLevel="7" skillName="Hammer Crush" levelUpSp="17000" getLevel="46" />
+		<skill skillId="260" skillLevel="8" skillName="Hammer Crush" levelUpSp="17000" getLevel="46" />
+		<skill skillId="260" skillLevel="9" skillName="Hammer Crush" levelUpSp="17000" getLevel="46" />
+		<skill skillId="293" skillLevel="8" skillName="Two-handed Weapon Mastery" levelUpSp="50000" getLevel="46" />
+		<skill skillId="312" skillLevel="8" skillName="Vicious Stance" levelUpSp="50000" getLevel="46" />
+		<skill skillId="36" skillLevel="10" skillName="Whirlwind" levelUpSp="27000" getLevel="49" />
+		<skill skillId="36" skillLevel="11" skillName="Whirlwind" levelUpSp="27000" getLevel="49" />
+		<skill skillId="36" skillLevel="12" skillName="Whirlwind" levelUpSp="27000" getLevel="49" />
+		<skill skillId="121" skillLevel="3" skillName="Battle Roar" levelUpSp="82000" getLevel="49" />
+		<skill skillId="190" skillLevel="10" skillName="Fatal Strike" levelUpSp="27000" getLevel="49" />
+		<skill skillId="190" skillLevel="11" skillName="Fatal Strike" levelUpSp="27000" getLevel="49" />
+		<skill skillId="190" skillLevel="12" skillName="Fatal Strike" levelUpSp="27000" getLevel="49" />
+		<skill skillId="211" skillLevel="5" skillName="Boost HP" levelUpSp="82000" getLevel="49" />
+		<skill skillId="216" skillLevel="18" skillName="Polearm Mastery" levelUpSp="27000" getLevel="49" />
+		<skill skillId="216" skillLevel="19" skillName="Polearm Mastery" levelUpSp="27000" getLevel="49" />
+		<skill skillId="216" skillLevel="20" skillName="Polearm Mastery" levelUpSp="27000" getLevel="49" />
+		<skill skillId="227" skillLevel="23" skillName="Light Armor Mastery" levelUpSp="27000" getLevel="49" />
+		<skill skillId="227" skillLevel="24" skillName="Light Armor Mastery" levelUpSp="27000" getLevel="49" />
+		<skill skillId="227" skillLevel="25" skillName="Light Armor Mastery" levelUpSp="27000" getLevel="49" />
+		<skill skillId="231" skillLevel="23" skillName="Heavy Armor Mastery" levelUpSp="27000" getLevel="49" />
+		<skill skillId="231" skillLevel="24" skillName="Heavy Armor Mastery" levelUpSp="27000" getLevel="49" />
+		<skill skillId="231" skillLevel="25" skillName="Heavy Armor Mastery" levelUpSp="27000" getLevel="49" />
+		<skill skillId="257" skillLevel="18" skillName="Sword Blunt Mastery" levelUpSp="27000" getLevel="49" />
+		<skill skillId="257" skillLevel="19" skillName="Sword Blunt Mastery" levelUpSp="27000" getLevel="49" />
+		<skill skillId="257" skillLevel="20" skillName="Sword Blunt Mastery" levelUpSp="27000" getLevel="49" />
+		<skill skillId="260" skillLevel="10" skillName="Hammer Crush" levelUpSp="27000" getLevel="49" />
+		<skill skillId="260" skillLevel="11" skillName="Hammer Crush" levelUpSp="27000" getLevel="49" />
+		<skill skillId="260" skillLevel="12" skillName="Hammer Crush" levelUpSp="27000" getLevel="49" />
+		<skill skillId="287" skillLevel="2" skillName="Lionheart" levelUpSp="82000" getLevel="49" />
+		<skill skillId="293" skillLevel="9" skillName="Two-handed Weapon Mastery" levelUpSp="82000" getLevel="49" />
+		<skill skillId="312" skillLevel="9" skillName="Vicious Stance" levelUpSp="82000" getLevel="49" />
+		<skill skillId="36" skillLevel="13" skillName="Whirlwind" levelUpSp="42000" getLevel="52" />
+		<skill skillId="36" skillLevel="14" skillName="Whirlwind" levelUpSp="42000" getLevel="52" />
+		<skill skillId="36" skillLevel="15" skillName="Whirlwind" levelUpSp="42000" getLevel="52" />
+		<skill skillId="139" skillLevel="3" skillName="Guts" levelUpSp="125000" getLevel="52" />
+		<skill skillId="148" skillLevel="5" skillName="Vital Force" levelUpSp="125000" getLevel="52" />
+		<skill skillId="190" skillLevel="13" skillName="Fatal Strike" levelUpSp="42000" getLevel="52" />
+		<skill skillId="190" skillLevel="14" skillName="Fatal Strike" levelUpSp="42000" getLevel="52" />
+		<skill skillId="190" skillLevel="15" skillName="Fatal Strike" levelUpSp="42000" getLevel="52" />
+		<skill skillId="212" skillLevel="5" skillName="Fast HP Recovery" levelUpSp="125000" getLevel="52" />
+		<skill skillId="216" skillLevel="21" skillName="Polearm Mastery" levelUpSp="42000" getLevel="52" />
+		<skill skillId="216" skillLevel="22" skillName="Polearm Mastery" levelUpSp="42000" getLevel="52" />
+		<skill skillId="216" skillLevel="23" skillName="Polearm Mastery" levelUpSp="42000" getLevel="52" />
+		<skill skillId="227" skillLevel="26" skillName="Light Armor Mastery" levelUpSp="42000" getLevel="52" />
+		<skill skillId="227" skillLevel="27" skillName="Light Armor Mastery" levelUpSp="42000" getLevel="52" />
+		<skill skillId="227" skillLevel="28" skillName="Light Armor Mastery" levelUpSp="42000" getLevel="52" />
+		<skill skillId="231" skillLevel="26" skillName="Heavy Armor Mastery" levelUpSp="42000" getLevel="52" />
+		<skill skillId="231" skillLevel="27" skillName="Heavy Armor Mastery" levelUpSp="42000" getLevel="52" />
+		<skill skillId="231" skillLevel="28" skillName="Heavy Armor Mastery" levelUpSp="42000" getLevel="52" />
+		<skill skillId="257" skillLevel="21" skillName="Sword Blunt Mastery" levelUpSp="42000" getLevel="52" />
+		<skill skillId="257" skillLevel="22" skillName="Sword Blunt Mastery" levelUpSp="42000" getLevel="52" />
+		<skill skillId="257" skillLevel="23" skillName="Sword Blunt Mastery" levelUpSp="42000" getLevel="52" />
+		<skill skillId="260" skillLevel="13" skillName="Hammer Crush" levelUpSp="42000" getLevel="52" />
+		<skill skillId="260" skillLevel="14" skillName="Hammer Crush" levelUpSp="42000" getLevel="52" />
+		<skill skillId="260" skillLevel="15" skillName="Hammer Crush" levelUpSp="42000" getLevel="52" />
+		<skill skillId="293" skillLevel="10" skillName="Two-handed Weapon Mastery" levelUpSp="125000" getLevel="52" />
+		<skill skillId="312" skillLevel="10" skillName="Vicious Stance" levelUpSp="125000" getLevel="52" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="1" getLevel="52" levelUpSp="230000">			<item id="8618" count="1" /> <!-- Ancient Book: Divine Inspiration (Modern Language Version) -->		</skill>
+		<skill skillId="36" skillLevel="16" skillName="Whirlwind" levelUpSp="47000" getLevel="55" />
+		<skill skillId="36" skillLevel="17" skillName="Whirlwind" levelUpSp="47000" getLevel="55" />
+		<skill skillId="36" skillLevel="18" skillName="Whirlwind" levelUpSp="47000" getLevel="55" />
+		<skill skillId="94" skillLevel="2" skillName="Rage" levelUpSp="142000" getLevel="55" />
+		<skill skillId="176" skillLevel="3" skillName="Frenzy" levelUpSp="142000" getLevel="55" />
+		<skill skillId="190" skillLevel="16" skillName="Fatal Strike" levelUpSp="47000" getLevel="55" />
+		<skill skillId="190" skillLevel="17" skillName="Fatal Strike" levelUpSp="47000" getLevel="55" />
+		<skill skillId="190" skillLevel="18" skillName="Fatal Strike" levelUpSp="47000" getLevel="55" />
+		<skill skillId="211" skillLevel="6" skillName="Boost HP" levelUpSp="142000" getLevel="55" />
+		<skill skillId="216" skillLevel="24" skillName="Polearm Mastery" levelUpSp="47000" getLevel="55" />
+		<skill skillId="216" skillLevel="25" skillName="Polearm Mastery" levelUpSp="47000" getLevel="55" />
+		<skill skillId="216" skillLevel="26" skillName="Polearm Mastery" levelUpSp="47000" getLevel="55" />
+		<skill skillId="227" skillLevel="29" skillName="Light Armor Mastery" levelUpSp="47000" getLevel="55" />
+		<skill skillId="227" skillLevel="30" skillName="Light Armor Mastery" levelUpSp="47000" getLevel="55" />
+		<skill skillId="227" skillLevel="31" skillName="Light Armor Mastery" levelUpSp="47000" getLevel="55" />
+		<skill skillId="231" skillLevel="29" skillName="Heavy Armor Mastery" levelUpSp="47000" getLevel="55" />
+		<skill skillId="231" skillLevel="30" skillName="Heavy Armor Mastery" levelUpSp="47000" getLevel="55" />
+		<skill skillId="231" skillLevel="31" skillName="Heavy Armor Mastery" levelUpSp="47000" getLevel="55" />
+		<skill skillId="257" skillLevel="24" skillName="Sword Blunt Mastery" levelUpSp="47000" getLevel="55" />
+		<skill skillId="257" skillLevel="25" skillName="Sword Blunt Mastery" levelUpSp="47000" getLevel="55" />
+		<skill skillId="257" skillLevel="26" skillName="Sword Blunt Mastery" levelUpSp="47000" getLevel="55" />
+		<skill skillId="260" skillLevel="16" skillName="Hammer Crush" levelUpSp="47000" getLevel="55" />
+		<skill skillId="260" skillLevel="17" skillName="Hammer Crush" levelUpSp="47000" getLevel="55" />
+		<skill skillId="260" skillLevel="18" skillName="Hammer Crush" levelUpSp="47000" getLevel="55" />
+		<skill skillId="293" skillLevel="11" skillName="Two-handed Weapon Mastery" levelUpSp="142000" getLevel="55" />
+		<skill skillId="312" skillLevel="11" skillName="Vicious Stance" levelUpSp="142000" getLevel="55" />
+		<skill skillId="36" skillLevel="19" skillName="Whirlwind" levelUpSp="60000" getLevel="58" />
+		<skill skillId="36" skillLevel="20" skillName="Whirlwind" levelUpSp="60000" getLevel="58" />
+		<skill skillId="36" skillLevel="21" skillName="Whirlwind" levelUpSp="60000" getLevel="58" />
+		<skill skillId="121" skillLevel="4" skillName="Battle Roar" levelUpSp="181000" getLevel="58" />
+		<skill skillId="148" skillLevel="6" skillName="Vital Force" levelUpSp="181000" getLevel="58" />
+		<skill skillId="190" skillLevel="19" skillName="Fatal Strike" levelUpSp="60000" getLevel="58" />
+		<skill skillId="190" skillLevel="20" skillName="Fatal Strike" levelUpSp="60000" getLevel="58" />
+		<skill skillId="190" skillLevel="21" skillName="Fatal Strike" levelUpSp="60000" getLevel="58" />
+		<skill skillId="212" skillLevel="6" skillName="Fast HP Recovery" levelUpSp="181000" getLevel="58" />
+		<skill skillId="216" skillLevel="27" skillName="Polearm Mastery" levelUpSp="60000" getLevel="58" />
+		<skill skillId="216" skillLevel="28" skillName="Polearm Mastery" levelUpSp="60000" getLevel="58" />
+		<skill skillId="216" skillLevel="29" skillName="Polearm Mastery" levelUpSp="60000" getLevel="58" />
+		<skill skillId="227" skillLevel="32" skillName="Light Armor Mastery" levelUpSp="60000" getLevel="58" />
+		<skill skillId="227" skillLevel="33" skillName="Light Armor Mastery" levelUpSp="60000" getLevel="58" />
+		<skill skillId="227" skillLevel="34" skillName="Light Armor Mastery" levelUpSp="60000" getLevel="58" />
+		<skill skillId="231" skillLevel="32" skillName="Heavy Armor Mastery" levelUpSp="60000" getLevel="58" />
+		<skill skillId="231" skillLevel="33" skillName="Heavy Armor Mastery" levelUpSp="60000" getLevel="58" />
+		<skill skillId="231" skillLevel="34" skillName="Heavy Armor Mastery" levelUpSp="60000" getLevel="58" />
+		<skill skillId="257" skillLevel="27" skillName="Sword Blunt Mastery" levelUpSp="60000" getLevel="58" />
+		<skill skillId="257" skillLevel="28" skillName="Sword Blunt Mastery" levelUpSp="60000" getLevel="58" />
+		<skill skillId="257" skillLevel="29" skillName="Sword Blunt Mastery" levelUpSp="60000" getLevel="58" />
+		<skill skillId="260" skillLevel="19" skillName="Hammer Crush" levelUpSp="60000" getLevel="58" />
+		<skill skillId="260" skillLevel="20" skillName="Hammer Crush" levelUpSp="60000" getLevel="58" />
+		<skill skillId="260" skillLevel="21" skillName="Hammer Crush" levelUpSp="60000" getLevel="58" />
+		<skill skillId="293" skillLevel="12" skillName="Two-handed Weapon Mastery" levelUpSp="181000" getLevel="58" />
+		<skill skillId="312" skillLevel="12" skillName="Vicious Stance" levelUpSp="181000" getLevel="58" />
+		<skill skillId="420" skillLevel="1" skillName="Zealot" levelUpSp="181000" getLevel="58" />
+		<skill skillId="422" skillLevel="1" skillName="Polearm Accuracy" levelUpSp="181000" getLevel="58" />
+		<skill skillId="423" skillLevel="1" skillName="Infernal Form" levelUpSp="181000" getLevel="58" />
+		<skill skillId="424" skillLevel="1" skillName="War Frenzy" levelUpSp="181000" getLevel="58" />
+		<skill skillId="36" skillLevel="22" skillName="Whirlwind" levelUpSp="145000" getLevel="60" />
+		<skill skillId="36" skillLevel="23" skillName="Whirlwind" levelUpSp="145000" getLevel="60" />
+		<skill skillId="190" skillLevel="22" skillName="Fatal Strike" levelUpSp="145000" getLevel="60" />
+		<skill skillId="190" skillLevel="23" skillName="Fatal Strike" levelUpSp="145000" getLevel="60" />
+		<skill skillId="216" skillLevel="30" skillName="Polearm Mastery" levelUpSp="145000" getLevel="60" />
+		<skill skillId="216" skillLevel="31" skillName="Polearm Mastery" levelUpSp="145000" getLevel="60" />
+		<skill skillId="227" skillLevel="35" skillName="Light Armor Mastery" levelUpSp="145000" getLevel="60" />
+		<skill skillId="227" skillLevel="36" skillName="Light Armor Mastery" levelUpSp="145000" getLevel="60" />
+		<skill skillId="231" skillLevel="35" skillName="Heavy Armor Mastery" levelUpSp="145000" getLevel="60" />
+		<skill skillId="231" skillLevel="36" skillName="Heavy Armor Mastery" levelUpSp="145000" getLevel="60" />
+		<skill skillId="257" skillLevel="30" skillName="Sword Blunt Mastery" levelUpSp="145000" getLevel="60" />
+		<skill skillId="257" skillLevel="31" skillName="Sword Blunt Mastery" levelUpSp="145000" getLevel="60" />
+		<skill skillId="260" skillLevel="22" skillName="Hammer Crush" levelUpSp="145000" getLevel="60" />
+		<skill skillId="260" skillLevel="23" skillName="Hammer Crush" levelUpSp="145000" getLevel="60" />
+		<skill skillId="293" skillLevel="13" skillName="Two-handed Weapon Mastery" levelUpSp="290000" getLevel="60" />
+		<skill skillId="312" skillLevel="13" skillName="Vicious Stance" levelUpSp="290000" getLevel="60" />
+		<skill skillId="315" skillLevel="1" skillName="Crush of Doom" levelUpSp="145000" getLevel="60" />
+		<skill skillId="315" skillLevel="2" skillName="Crush of Doom" levelUpSp="145000" getLevel="60" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="2" getLevel="61" levelUpSp="640000">			<item id="8619" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Language Version) -->		</skill>
+		<skill skillId="34" skillLevel="3" skillName="Bandage" levelUpSp="310000" getLevel="62" />
+		<skill skillId="36" skillLevel="24" skillName="Whirlwind" levelUpSp="150000" getLevel="62" />
+		<skill skillId="36" skillLevel="25" skillName="Whirlwind" levelUpSp="150000" getLevel="62" />
+		<skill skillId="190" skillLevel="24" skillName="Fatal Strike" levelUpSp="150000" getLevel="62" />
+		<skill skillId="190" skillLevel="25" skillName="Fatal Strike" levelUpSp="150000" getLevel="62" />
+		<skill skillId="211" skillLevel="7" skillName="Boost HP" levelUpSp="310000" getLevel="62" />
+		<skill skillId="216" skillLevel="32" skillName="Polearm Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="216" skillLevel="33" skillName="Polearm Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="227" skillLevel="37" skillName="Light Armor Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="227" skillLevel="38" skillName="Light Armor Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="231" skillLevel="37" skillName="Heavy Armor Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="231" skillLevel="38" skillName="Heavy Armor Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="257" skillLevel="32" skillName="Sword Blunt Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="257" skillLevel="33" skillName="Sword Blunt Mastery" levelUpSp="150000" getLevel="62" />
+		<skill skillId="260" skillLevel="24" skillName="Hammer Crush" levelUpSp="150000" getLevel="62" />
+		<skill skillId="260" skillLevel="25" skillName="Hammer Crush" levelUpSp="150000" getLevel="62" />
+		<skill skillId="287" skillLevel="3" skillName="Lionheart" levelUpSp="310000" getLevel="62" />
+		<skill skillId="293" skillLevel="14" skillName="Two-handed Weapon Mastery" levelUpSp="310000" getLevel="62" />
+		<skill skillId="312" skillLevel="14" skillName="Vicious Stance" levelUpSp="310000" getLevel="62" />
+		<skill skillId="315" skillLevel="3" skillName="Crush of Doom" levelUpSp="150000" getLevel="62" />
+		<skill skillId="315" skillLevel="4" skillName="Crush of Doom" levelUpSp="150000" getLevel="62" />
+		<skill skillId="36" skillLevel="26" skillName="Whirlwind" levelUpSp="200000" getLevel="64" />
+		<skill skillId="36" skillLevel="27" skillName="Whirlwind" levelUpSp="200000" getLevel="64" />
+		<skill skillId="121" skillLevel="5" skillName="Battle Roar" levelUpSp="400000" getLevel="64" />
+		<skill skillId="148" skillLevel="7" skillName="Vital Force" levelUpSp="400000" getLevel="64" />
+		<skill skillId="190" skillLevel="26" skillName="Fatal Strike" levelUpSp="200000" getLevel="64" />
+		<skill skillId="190" skillLevel="27" skillName="Fatal Strike" levelUpSp="200000" getLevel="64" />
+		<skill skillId="216" skillLevel="34" skillName="Polearm Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="216" skillLevel="35" skillName="Polearm Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="227" skillLevel="39" skillName="Light Armor Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="227" skillLevel="40" skillName="Light Armor Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="231" skillLevel="39" skillName="Heavy Armor Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="231" skillLevel="40" skillName="Heavy Armor Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="257" skillLevel="34" skillName="Sword Blunt Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="257" skillLevel="35" skillName="Sword Blunt Mastery" levelUpSp="200000" getLevel="64" />
+		<skill skillId="260" skillLevel="26" skillName="Hammer Crush" levelUpSp="200000" getLevel="64" />
+		<skill skillId="260" skillLevel="27" skillName="Hammer Crush" levelUpSp="200000" getLevel="64" />
+		<skill skillId="293" skillLevel="15" skillName="Two-handed Weapon Mastery" levelUpSp="400000" getLevel="64" />
+		<skill skillId="312" skillLevel="15" skillName="Vicious Stance" levelUpSp="400000" getLevel="64" />
+		<skill skillId="315" skillLevel="5" skillName="Crush of Doom" levelUpSp="200000" getLevel="64" />
+		<skill skillId="315" skillLevel="6" skillName="Crush of Doom" levelUpSp="200000" getLevel="64" />
+		<skill skillId="36" skillLevel="28" skillName="Whirlwind" levelUpSp="220000" getLevel="66" />
+		<skill skillId="36" skillLevel="29" skillName="Whirlwind" levelUpSp="220000" getLevel="66" />
+		<skill skillId="190" skillLevel="28" skillName="Fatal Strike" levelUpSp="220000" getLevel="66" />
+		<skill skillId="190" skillLevel="29" skillName="Fatal Strike" levelUpSp="220000" getLevel="66" />
+		<skill skillId="211" skillLevel="8" skillName="Boost HP" levelUpSp="440000" getLevel="66" />
+		<skill skillId="216" skillLevel="36" skillName="Polearm Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="216" skillLevel="37" skillName="Polearm Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="227" skillLevel="41" skillName="Light Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="227" skillLevel="42" skillName="Light Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="231" skillLevel="41" skillName="Heavy Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="231" skillLevel="42" skillName="Heavy Armor Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="257" skillLevel="36" skillName="Sword Blunt Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="257" skillLevel="37" skillName="Sword Blunt Mastery" levelUpSp="220000" getLevel="66" />
+		<skill skillId="260" skillLevel="28" skillName="Hammer Crush" levelUpSp="220000" getLevel="66" />
+		<skill skillId="260" skillLevel="29" skillName="Hammer Crush" levelUpSp="220000" getLevel="66" />
+		<skill skillId="293" skillLevel="16" skillName="Two-handed Weapon Mastery" levelUpSp="440000" getLevel="66" />
+		<skill skillId="312" skillLevel="16" skillName="Vicious Stance" levelUpSp="440000" getLevel="66" />
+		<skill skillId="315" skillLevel="7" skillName="Crush of Doom" levelUpSp="220000" getLevel="66" />
+		<skill skillId="315" skillLevel="8" skillName="Crush of Doom" levelUpSp="220000" getLevel="66" />
+		<skill skillId="320" skillLevel="1" skillName="Wrath" levelUpSp="220000" getLevel="66" />
+		<skill skillId="320" skillLevel="2" skillName="Wrath" levelUpSp="220000" getLevel="66" />
+		<skill skillId="420" skillLevel="2" skillName="Zealot" levelUpSp="440000" getLevel="66" />
+		<skill skillId="422" skillLevel="2" skillName="Polearm Accuracy" levelUpSp="440000" getLevel="66" />
+		<skill skillId="423" skillLevel="2" skillName="Infernal Form" levelUpSp="440000" getLevel="66" />
+		<skill skillId="424" skillLevel="2" skillName="War Frenzy" levelUpSp="440000" getLevel="66" />
+		<skill skillId="36" skillLevel="30" skillName="Whirlwind" levelUpSp="330000" getLevel="68" />
+		<skill skillId="36" skillLevel="31" skillName="Whirlwind" levelUpSp="330000" getLevel="68" />
+		<skill skillId="190" skillLevel="30" skillName="Fatal Strike" levelUpSp="330000" getLevel="68" />
+		<skill skillId="190" skillLevel="31" skillName="Fatal Strike" levelUpSp="330000" getLevel="68" />
+		<skill skillId="212" skillLevel="7" skillName="Fast HP Recovery" levelUpSp="650000" getLevel="68" />
+		<skill skillId="216" skillLevel="38" skillName="Polearm Mastery" levelUpSp="330000" getLevel="68" />
+		<skill skillId="216" skillLevel="39" skillName="Polearm Mastery" levelUpSp="330000" getLevel="68" />
+		<skill skillId="227" skillLevel="43" skillName="Light Armor Mastery" levelUpSp="330000" getLevel="68" />
+		<skill skillId="227" skillLevel="44" skillName="Light Armor Mastery" levelUpSp="330000" getLevel="68" />
+		<skill skillId="231" skillLevel="43" skillName="Heavy Armor Mastery" levelUpSp="330000" getLevel="68" />
+		<skill skillId="231" skillLevel="44" skillName="Heavy Armor Mastery" levelUpSp="330000" getLevel="68" />
+		<skill skillId="257" skillLevel="38" skillName="Sword Blunt Mastery" levelUpSp="330000" getLevel="68" />
+		<skill skillId="257" skillLevel="39" skillName="Sword Blunt Mastery" levelUpSp="330000" getLevel="68" />
+		<skill skillId="260" skillLevel="30" skillName="Hammer Crush" levelUpSp="330000" getLevel="68" />
+		<skill skillId="260" skillLevel="31" skillName="Hammer Crush" levelUpSp="330000" getLevel="68" />
+		<skill skillId="293" skillLevel="17" skillName="Two-handed Weapon Mastery" levelUpSp="650000" getLevel="68" />
+		<skill skillId="312" skillLevel="17" skillName="Vicious Stance" levelUpSp="650000" getLevel="68" />
+		<skill skillId="315" skillLevel="9" skillName="Crush of Doom" levelUpSp="330000" getLevel="68" />
+		<skill skillId="315" skillLevel="10" skillName="Crush of Doom" levelUpSp="330000" getLevel="68" />
+		<skill skillId="320" skillLevel="3" skillName="Wrath" levelUpSp="330000" getLevel="68" />
+		<skill skillId="320" skillLevel="4" skillName="Wrath" levelUpSp="330000" getLevel="68" />
+		<skill skillId="36" skillLevel="32" skillName="Whirlwind" levelUpSp="360000" getLevel="70" />
+		<skill skillId="36" skillLevel="33" skillName="Whirlwind" levelUpSp="360000" getLevel="70" />
+		<skill skillId="121" skillLevel="6" skillName="Battle Roar" levelUpSp="720000" getLevel="70" />
+		<skill skillId="190" skillLevel="32" skillName="Fatal Strike" levelUpSp="360000" getLevel="70" />
+		<skill skillId="190" skillLevel="33" skillName="Fatal Strike" levelUpSp="360000" getLevel="70" />
+		<skill skillId="211" skillLevel="9" skillName="Boost HP" levelUpSp="720000" getLevel="70" />
+		<skill skillId="216" skillLevel="40" skillName="Polearm Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="216" skillLevel="41" skillName="Polearm Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="227" skillLevel="45" skillName="Light Armor Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="227" skillLevel="46" skillName="Light Armor Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="231" skillLevel="45" skillName="Heavy Armor Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="231" skillLevel="46" skillName="Heavy Armor Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="257" skillLevel="40" skillName="Sword Blunt Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="257" skillLevel="41" skillName="Sword Blunt Mastery" levelUpSp="360000" getLevel="70" />
+		<skill skillId="260" skillLevel="32" skillName="Hammer Crush" levelUpSp="360000" getLevel="70" />
+		<skill skillId="260" skillLevel="33" skillName="Hammer Crush" levelUpSp="360000" getLevel="70" />
+		<skill skillId="293" skillLevel="18" skillName="Two-handed Weapon Mastery" levelUpSp="720000" getLevel="70" />
+		<skill skillId="312" skillLevel="18" skillName="Vicious Stance" levelUpSp="720000" getLevel="70" />
+		<skill skillId="315" skillLevel="11" skillName="Crush of Doom" levelUpSp="360000" getLevel="70" />
+		<skill skillId="315" skillLevel="12" skillName="Crush of Doom" levelUpSp="360000" getLevel="70" />
+		<skill skillId="320" skillLevel="5" skillName="Wrath" levelUpSp="360000" getLevel="70" />
+		<skill skillId="320" skillLevel="6" skillName="Wrath" levelUpSp="360000" getLevel="70" />
+		<skill skillId="36" skillLevel="34" skillName="Whirlwind" levelUpSp="500000" getLevel="72" />
+		<skill skillId="36" skillLevel="35" skillName="Whirlwind" levelUpSp="500000" getLevel="72" />
+		<skill skillId="148" skillLevel="8" skillName="Vital Force" levelUpSp="1000000" getLevel="72" />
+		<skill skillId="190" skillLevel="34" skillName="Fatal Strike" levelUpSp="500000" getLevel="72" />
+		<skill skillId="190" skillLevel="35" skillName="Fatal Strike" levelUpSp="500000" getLevel="72" />
+		<skill skillId="216" skillLevel="42" skillName="Polearm Mastery" levelUpSp="500000" getLevel="72" />
+		<skill skillId="216" skillLevel="43" skillName="Polearm Mastery" levelUpSp="500000" getLevel="72" />
+		<skill skillId="227" skillLevel="47" skillName="Light Armor Mastery" levelUpSp="500000" getLevel="72" />
+		<skill skillId="227" skillLevel="48" skillName="Light Armor Mastery" levelUpSp="500000" getLevel="72" />
+		<skill skillId="231" skillLevel="47" skillName="Heavy Armor Mastery" levelUpSp="500000" getLevel="72" />
+		<skill skillId="231" skillLevel="48" skillName="Heavy Armor Mastery" levelUpSp="500000" getLevel="72" />
+		<skill skillId="257" skillLevel="42" skillName="Sword Blunt Mastery" levelUpSp="500000" getLevel="72" />
+		<skill skillId="257" skillLevel="43" skillName="Sword Blunt Mastery" levelUpSp="500000" getLevel="72" />
+		<skill skillId="260" skillLevel="34" skillName="Hammer Crush" levelUpSp="500000" getLevel="72" />
+		<skill skillId="260" skillLevel="35" skillName="Hammer Crush" levelUpSp="500000" getLevel="72" />
+		<skill skillId="293" skillLevel="19" skillName="Two-handed Weapon Mastery" levelUpSp="1000000" getLevel="72" />
+		<skill skillId="312" skillLevel="19" skillName="Vicious Stance" levelUpSp="1000000" getLevel="72" />
+		<skill skillId="315" skillLevel="13" skillName="Crush of Doom" levelUpSp="500000" getLevel="72" />
+		<skill skillId="315" skillLevel="14" skillName="Crush of Doom" levelUpSp="500000" getLevel="72" />
+		<skill skillId="320" skillLevel="7" skillName="Wrath" levelUpSp="500000" getLevel="72" />
+		<skill skillId="320" skillLevel="8" skillName="Wrath" levelUpSp="500000" getLevel="72" />
+		<skill skillId="36" skillLevel="36" skillName="Whirlwind" levelUpSp="760000" getLevel="74" />
+		<skill skillId="36" skillLevel="37" skillName="Whirlwind" levelUpSp="760000" getLevel="74" />
+		<skill skillId="190" skillLevel="36" skillName="Fatal Strike" levelUpSp="760000" getLevel="74" />
+		<skill skillId="190" skillLevel="37" skillName="Fatal Strike" levelUpSp="760000" getLevel="74" />
+		<skill skillId="211" skillLevel="10" skillName="Boost HP" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="212" skillLevel="8" skillName="Fast HP Recovery" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="216" skillLevel="44" skillName="Polearm Mastery" levelUpSp="760000" getLevel="74" />
+		<skill skillId="216" skillLevel="45" skillName="Polearm Mastery" levelUpSp="760000" getLevel="74" />
+		<skill skillId="227" skillLevel="49" skillName="Light Armor Mastery" levelUpSp="760000" getLevel="74" />
+		<skill skillId="227" skillLevel="50" skillName="Light Armor Mastery" levelUpSp="760000" getLevel="74" />
+		<skill skillId="231" skillLevel="49" skillName="Heavy Armor Mastery" levelUpSp="760000" getLevel="74" />
+		<skill skillId="231" skillLevel="50" skillName="Heavy Armor Mastery" levelUpSp="760000" getLevel="74" />
+		<skill skillId="257" skillLevel="44" skillName="Sword Blunt Mastery" levelUpSp="760000" getLevel="74" />
+		<skill skillId="257" skillLevel="45" skillName="Sword Blunt Mastery" levelUpSp="760000" getLevel="74" />
+		<skill skillId="260" skillLevel="36" skillName="Hammer Crush" levelUpSp="760000" getLevel="74" />
+		<skill skillId="260" skillLevel="37" skillName="Hammer Crush" levelUpSp="760000" getLevel="74" />
+		<skill skillId="293" skillLevel="20" skillName="Two-handed Weapon Mastery" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="312" skillLevel="20" skillName="Vicious Stance" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="315" skillLevel="15" skillName="Crush of Doom" levelUpSp="760000" getLevel="74" />
+		<skill skillId="315" skillLevel="16" skillName="Crush of Doom" levelUpSp="760000" getLevel="74" />
+		<skill skillId="320" skillLevel="9" skillName="Wrath" levelUpSp="760000" getLevel="74" />
+		<skill skillId="320" skillLevel="10" skillName="Wrath" levelUpSp="760000" getLevel="74" />
+		<skill skillId="420" skillLevel="3" skillName="Zealot" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="422" skillLevel="3" skillName="Polearm Accuracy" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="423" skillLevel="3" skillName="Infernal Form" levelUpSp="1530000" getLevel="74" />
+		<skill skillId="424" skillLevel="3" skillName="War Frenzy" levelUpSp="1530000" getLevel="74" />
+	</skillTree>
+</list>

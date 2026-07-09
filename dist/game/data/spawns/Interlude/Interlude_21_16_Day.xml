@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Interlude_21_16_Day" ai="DayNightSpawns">
+		<group name="dayTime" spawnByDefault="false">
+			<npc id="21547" x="48536" y="-55831" z="-2607" respawnTime="240sec" /> <!-- Corrupted Knight -->
+			<npc id="31389" x="60161" y="-42086" z="-3000" respawnTime="240sec" /> <!-- Dorian -->
+			<npc id="31388" x="59626" y="-41684" z="-3000" respawnTime="240sec" /> <!-- Mina -->
+			<npc id="31387" x="58790" y="-42646" z="-3000" respawnTime="240sec" /> <!-- Kurstin -->
+			<npc id="31386" x="59618" y="-42774" z="-3000" respawnTime="240sec" /> <!-- Violet -->
+			<npc id="21547" x="48027" y="-56062" z="-2532" respawnTime="240sec" /> <!-- Corrupted Knight -->
+			<npc id="21553" x="49084" y="-56652" z="-2625" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21553" x="48665" y="-56346" z="-2672" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21553" x="48325" y="-57700" z="-2636" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21553" x="48127" y="-58500" z="-2669" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21553" x="49286" y="-57626" z="-2692" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21553" x="49833" y="-56757" z="-2586" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21553" x="49876" y="-55365" z="-2683" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21553" x="49209" y="-55832" z="-2669" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21559" x="50902" y="-61550" z="-2621" respawnTime="240sec" /> <!-- Bone Maker -->
+			<npc id="21559" x="51537" y="-61249" z="-2796" respawnTime="240sec" /> <!-- Bone Maker -->
+			<npc id="21559" x="51317" y="-60678" z="-2815" respawnTime="240sec" /> <!-- Bone Maker -->
+			<npc id="21557" x="50675" y="-59203" z="-2765" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="49698" y="-60886" z="-2677" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="50177" y="-61547" z="-2553" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="51021" y="-61847" z="-2584" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="51414" y="-61701" z="-2663" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21553" x="51137" y="-58952" z="-2860" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21553" x="50183" y="-58715" z="-2766" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21553" x="49793" y="-59267" z="-2688" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21553" x="50362" y="-60677" z="-2680" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21553" x="51005" y="-61221" z="-2690" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21559" x="52440" y="-60323" z="-2936" respawnTime="240sec" /> <!-- Bone Maker -->
+			<npc id="21559" x="53477" y="-60199" z="-3052" respawnTime="240sec" /> <!-- Bone Maker -->
+			<npc id="21559" x="52946" y="-59606" z="-3097" respawnTime="240sec" /> <!-- Bone Maker -->
+			<npc id="21553" x="52404" y="-59630" z="-2947" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21553" x="51849" y="-60206" z="-2883" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21553" x="53574" y="-59686" z="-3168" respawnTime="240sec" /> <!-- Trampled Man -->
+			<npc id="21557" x="53130" y="-60575" z="-3069" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="53920" y="-59258" z="-3307" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="53109" y="-59165" z="-3210" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="54564" y="-58884" z="-3428" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="54695" y="-59700" z="-3262" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21563" x="54746" y="-56945" z="-3315" respawnTime="240sec" /> <!-- Bone Collector -->
+			<npc id="21563" x="53826" y="-56627" z="-3356" respawnTime="240sec" /> <!-- Bone Collector -->
+			<npc id="21563" x="53379" y="-55737" z="-3061" respawnTime="240sec" /> <!-- Bone Collector -->
+			<npc id="21565" x="53616" y="-55692" z="-3075" respawnTime="240sec" /> <!-- Bone Animator -->
+			<npc id="21565" x="53915" y="-56593" z="-3362" respawnTime="240sec" /> <!-- Bone Animator -->
+			<npc id="21565" x="54662" y="-57008" z="-3306" respawnTime="240sec" /> <!-- Bone Animator -->
+			<npc id="21561" x="54788" y="-56144" z="-3360" respawnTime="240sec" /> <!-- Sacrificed Man -->
+			<npc id="21561" x="54860" y="-55067" z="-3197" respawnTime="240sec" /> <!-- Sacrificed Man -->
+			<npc id="21561" x="54442" y="-54337" z="-3116" respawnTime="240sec" /> <!-- Sacrificed Man -->
+			<npc id="21596" x="54048" y="-54670" z="-3029" respawnTime="240sec" /> <!-- Requiem Lord -->
+			<npc id="21596" x="54851" y="-56283" z="-3374" respawnTime="240sec" /> <!-- Requiem Lord -->
+			<npc id="21596" x="54175" y="-56646" z="-3387" respawnTime="240sec" /> <!-- Requiem Lord -->
+			<npc id="21570" x="54678" y="-56682" z="-3359" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21570" x="54530" y="-55364" z="-3173" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21570" x="53578" y="-54253" z="-3023" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21565" x="50477" y="-53112" z="-2832" respawnTime="240sec" /> <!-- Bone Animator -->
+			<npc id="21565" x="51135" y="-52651" z="-2878" respawnTime="240sec" /> <!-- Bone Animator -->
+			<npc id="21565" x="52439" y="-51751" z="-3044" respawnTime="240sec" /> <!-- Bone Animator -->
+			<npc id="21565" x="51223" y="-50366" z="-2889" respawnTime="240sec" /> <!-- Bone Animator -->
+			<npc id="21565" x="50661" y="-50988" z="-2818" respawnTime="240sec" /> <!-- Bone Animator -->
+			<npc id="21563" x="50888" y="-51439" z="-2927" respawnTime="240sec" /> <!-- Bone Collector -->
+			<npc id="21563" x="50591" y="-52055" z="-2906" respawnTime="240sec" /> <!-- Bone Collector -->
+			<npc id="21563" x="51408" y="-51807" z="-3062" respawnTime="240sec" /> <!-- Bone Collector -->
+			<npc id="21563" x="52802" y="-51307" z="-3091" respawnTime="240sec" /> <!-- Bone Collector -->
+			<npc id="21563" x="52133" y="-50948" z="-3104" respawnTime="240sec" /> <!-- Bone Collector -->
+			<npc id="21596" x="51388" y="-52773" z="-2854" respawnTime="240sec" /> <!-- Requiem Lord -->
+			<npc id="21596" x="51616" y="-53310" z="-2813" respawnTime="240sec" /> <!-- Requiem Lord -->
+			<npc id="21596" x="53966" y="-51786" z="-3040" respawnTime="240sec" /> <!-- Requiem Lord -->
+			<npc id="21596" x="53162" y="-51515" z="-3079" respawnTime="240sec" /> <!-- Requiem Lord -->
+			<npc id="21596" x="50735" y="-49675" z="-2891" respawnTime="240sec" /> <!-- Requiem Lord -->
+			<npc id="21557" x="50651" y="-50371" z="-2821" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="51158" y="-50845" z="-2781" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="50239" y="-52165" z="-2888" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="50709" y="-52928" z="-2849" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="50942" y="-49222" z="-2947" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21565" x="57651" y="-57366" z="-3321" respawnTime="240sec" /> <!-- Bone Animator -->
+			<npc id="21565" x="57479" y="-56340" z="-3352" respawnTime="240sec" /> <!-- Bone Animator -->
+			<npc id="21565" x="58591" y="-56157" z="-3327" respawnTime="240sec" /> <!-- Bone Animator -->
+			<npc id="21565" x="57921" y="-55653" z="-3332" respawnTime="240sec" /> <!-- Bone Animator -->
+			<npc id="21565" x="58586" y="-55192" z="-3238" respawnTime="240sec" /> <!-- Bone Animator -->
+			<npc id="21567" x="58541" y="-54553" z="-3199" respawnTime="240sec" /> <!-- Bone Slayer -->
+			<npc id="21567" x="57455" y="-55249" z="-3342" respawnTime="240sec" /> <!-- Bone Slayer -->
+			<npc id="21567" x="57795" y="-56317" z="-3356" respawnTime="240sec" /> <!-- Bone Slayer -->
+			<npc id="21567" x="58137" y="-57629" z="-3334" respawnTime="240sec" /> <!-- Bone Slayer -->
+			<npc id="21567" x="58732" y="-56918" z="-3315" respawnTime="240sec" /> <!-- Bone Slayer -->
+			<npc id="21561" x="58138" y="-56992" z="-3324" respawnTime="240sec" /> <!-- Sacrificed Man -->
+			<npc id="21561" x="58320" y="-55917" z="-3328" respawnTime="240sec" /> <!-- Sacrificed Man -->
+			<npc id="21561" x="58197" y="-55189" z="-3326" respawnTime="240sec" /> <!-- Sacrificed Man -->
+			<npc id="21561" x="59375" y="-53820" z="-3234" respawnTime="240sec" /> <!-- Sacrificed Man -->
+			<npc id="21561" x="59583" y="-52914" z="-3089" respawnTime="240sec" /> <!-- Sacrificed Man -->
+			<npc id="21561" x="59599" y="-52087" z="-3114" respawnTime="240sec" /> <!-- Sacrificed Man -->
+			<npc id="21561" x="60271" y="-52020" z="-2989" respawnTime="240sec" /> <!-- Sacrificed Man -->
+			<npc id="21561" x="60098" y="-51343" z="-2908" respawnTime="240sec" /> <!-- Sacrificed Man -->
+			<npc id="21557" x="58877" y="-54473" z="-3201" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="59859" y="-54113" z="-3224" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="59932" y="-53555" z="-3130" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="59558" y="-53238" z="-3129" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21557" x="59382" y="-53801" z="-3230" respawnTime="240sec" /> <!-- Bone Snatcher -->
+			<npc id="21559" x="59230" y="-52339" z="-3216" respawnTime="240sec" /> <!-- Bone Maker -->
+			<npc id="21559" x="60343" y="-52399" z="-3030" respawnTime="240sec" /> <!-- Bone Maker -->
+			<npc id="21559" x="60335" y="-51304" z="-2905" respawnTime="240sec" /> <!-- Bone Maker -->
+			<npc id="21559" x="59889" y="-50734" z="-2842" respawnTime="240sec" /> <!-- Bone Maker -->
+			<npc id="21559" x="60008" y="-53840" z="-3180" respawnTime="240sec" /> <!-- Bone Maker -->
+			<npc id="21596" x="57275" y="-51383" z="-3163" respawnTime="240sec" /> <!-- Requiem Lord -->
+			<npc id="21596" x="57360" y="-52552" z="-3246" respawnTime="240sec" /> <!-- Requiem Lord -->
+			<npc id="21596" x="56573" y="-52246" z="-3190" respawnTime="240sec" /> <!-- Requiem Lord -->
+			<npc id="21567" x="56705" y="-52962" z="-3249" respawnTime="240sec" /> <!-- Bone Slayer -->
+			<npc id="21567" x="58278" y="-53041" z="-3321" respawnTime="240sec" /> <!-- Bone Slayer -->
+			<npc id="21567" x="57959" y="-52212" z="-3188" respawnTime="240sec" /> <!-- Bone Slayer -->
+			<npc id="21561" x="58133" y="-51647" z="-3177" respawnTime="240sec" /> <!-- Sacrificed Man -->
+			<npc id="21561" x="57724" y="-51131" z="-3162" respawnTime="240sec" /> <!-- Sacrificed Man -->
+			<npc id="21561" x="56908" y="-51662" z="-3114" respawnTime="240sec" /> <!-- Sacrificed Man -->
+			<npc id="21570" x="56911" y="-51997" z="-3108" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21570" x="56347" y="-52636" z="-3253" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21570" x="56326" y="-53644" z="-3371" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21570" x="57634" y="-52728" z="-3251" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21572" x="50543" y="-47113" z="-3400" respawnTime="240sec" /> <!-- Bone Sweeper -->
+			<npc id="21572" x="50594" y="-45885" z="-3173" respawnTime="240sec" /> <!-- Bone Sweeper -->
+			<npc id="21572" x="49583" y="-45329" z="-2974" respawnTime="240sec" /> <!-- Bone Sweeper -->
+			<npc id="21572" x="48871" y="-41838" z="-2168" respawnTime="240sec" /> <!-- Bone Sweeper -->
+			<npc id="21570" x="49500" y="-41375" z="-2258" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21570" x="50042" y="-40808" z="-2241" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21570" x="49128" y="-40288" z="-2233" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21580" x="48418" y="-45335" z="-2632" respawnTime="240sec" /> <!-- Bone Caster -->
+			<npc id="21580" x="48096" y="-43849" z="-2518" respawnTime="240sec" /> <!-- Bone Caster -->
+			<npc id="21580" x="47788" y="-44267" z="-2391" respawnTime="240sec" /> <!-- Bone Caster -->
+			<npc id="21574" x="48165" y="-44671" z="-2370" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21574" x="48260" y="-43792" z="-2556" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21574" x="48852" y="-42343" z="-2244" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21567" x="49239" y="-41885" z="-2157" respawnTime="240sec" /> <!-- Bone Slayer -->
+			<npc id="21567" x="48679" y="-41409" z="-2210" respawnTime="240sec" /> <!-- Bone Slayer -->
+			<npc id="21580" x="51288" y="-39548" z="-2040" respawnTime="240sec" /> <!-- Bone Caster -->
+			<npc id="21580" x="51139" y="-38515" z="-1869" respawnTime="240sec" /> <!-- Bone Caster -->
+			<npc id="21567" x="49853" y="-39734" z="-2218" respawnTime="240sec" /> <!-- Bone Slayer -->
+			<npc id="21567" x="50690" y="-40715" z="-2247" respawnTime="240sec" /> <!-- Bone Slayer -->
+			<npc id="21567" x="49579" y="-40567" z="-2250" respawnTime="240sec" /> <!-- Bone Slayer -->
+			<npc id="21574" x="47922" y="-42001" z="-1975" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21574" x="47676" y="-42661" z="-1852" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21574" x="46839" y="-42134" z="-1830" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21574" x="47068" y="-41622" z="-1771" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21574" x="46687" y="-40857" z="-1973" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21580" x="46832" y="-39995" z="-2015" respawnTime="240sec" /> <!-- Bone Caster -->
+			<npc id="21593" x="46819" y="-39146" z="-1833" respawnTime="240sec" /> <!-- Vampire Warlord -->
+			<npc id="21593" x="48104" y="-39472" z="-1735" respawnTime="240sec" /> <!-- Vampire Warlord -->
+			<npc id="21593" x="47554" y="-38683" z="-1746" respawnTime="240sec" /> <!-- Vampire Warlord -->
+			<npc id="21593" x="47097" y="-37901" z="-1749" respawnTime="240sec" /> <!-- Vampire Warlord -->
+			<npc id="21599" x="47194" y="-37474" z="-1738" respawnTime="240sec" /> <!-- Requiem Priest -->
+			<npc id="21599" x="47988" y="-38781" z="-1731" respawnTime="240sec" /> <!-- Requiem Priest -->
+			<npc id="21599" x="46341" y="-39761" z="-1990" respawnTime="240sec" /> <!-- Requiem Priest -->
+			<npc id="21583" x="46281" y="-37205" z="-1678" respawnTime="240sec" /> <!-- Bone Scavenger -->
+			<npc id="21583" x="46591" y="-36695" z="-1645" respawnTime="240sec" /> <!-- Bone Scavenger -->
+			<npc id="21583" x="48353" y="-36680" z="-1338" respawnTime="240sec" /> <!-- Bone Scavenger -->
+			<npc id="21583" x="49108" y="-37431" z="-1696" respawnTime="240sec" /> <!-- Bone Scavenger -->
+			<npc id="21583" x="49953" y="-36330" z="-1641" respawnTime="240sec" /> <!-- Bone Scavenger -->
+			<npc id="21583" x="49937" y="-36622" z="-1662" respawnTime="240sec" /> <!-- Bone Scavenger -->
+			<npc id="21583" x="48064" y="-35987" z="-1521" respawnTime="240sec" /> <!-- Bone Scavenger -->
+			<npc id="21583" x="46220" y="-36387" z="-1657" respawnTime="240sec" /> <!-- Bone Scavenger -->
+			<npc id="21583" x="45907" y="-37365" z="-1657" respawnTime="240sec" /> <!-- Bone Scavenger -->
+			<npc id="21583" x="46953" y="-38272" z="-1652" respawnTime="240sec" /> <!-- Bone Scavenger -->
+			<npc id="21583" x="47638" y="-39222" z="-1752" respawnTime="240sec" /> <!-- Bone Scavenger -->
+			<npc id="21587" x="46406" y="-40009" z="-2014" respawnTime="240sec" /> <!-- Vampire Warrior -->
+			<npc id="21587" x="47566" y="-36619" z="-1568" respawnTime="240sec" /> <!-- Vampire Warrior -->
+			<npc id="21587" x="48921" y="-36541" z="-1428" respawnTime="240sec" /> <!-- Vampire Warrior -->
+			<npc id="21590" x="49681" y="-35721" z="-1503" respawnTime="240sec" /> <!-- Vampire Magister -->
+			<npc id="21578" x="50513" y="-36225" z="-1684" respawnTime="240sec" /> <!-- Behemoth Zombie -->
+			<npc id="21578" x="48763" y="-35805" z="-1514" respawnTime="240sec" /> <!-- Behemoth Zombie -->
+			<npc id="21578" x="49860" y="-35989" z="-1573" respawnTime="240sec" /> <!-- Behemoth Zombie -->
+			<npc id="21578" x="49282" y="-36549" z="-1493" respawnTime="240sec" /> <!-- Behemoth Zombie -->
+			<npc id="21578" x="47292" y="-36405" z="-1583" respawnTime="240sec" /> <!-- Behemoth Zombie -->
+			<npc id="21578" x="47306" y="-37312" z="-1742" respawnTime="240sec" /> <!-- Behemoth Zombie -->
+			<npc id="21578" x="47668" y="-38458" z="-1710" respawnTime="240sec" /> <!-- Behemoth Zombie -->
+			<npc id="21578" x="47900" y="-39171" z="-1747" respawnTime="240sec" /> <!-- Behemoth Zombie -->
+			<npc id="21578" x="46559" y="-39483" z="-1938" respawnTime="240sec" /> <!-- Behemoth Zombie -->
+			<npc id="21581" x="46665" y="-40387" z="-2061" respawnTime="240sec" /> <!-- Bone Puppeteer -->
+			<npc id="21581" x="47337" y="-37731" z="-1783" respawnTime="240sec" /> <!-- Bone Puppeteer -->
+			<npc id="21581" x="46794" y="-36869" z="-1639" respawnTime="240sec" /> <!-- Bone Puppeteer -->
+			<npc id="21581" x="48262" y="-36194" z="-1467" respawnTime="240sec" /> <!-- Bone Puppeteer -->
+			<npc id="21581" x="48786" y="-37466" z="-1681" respawnTime="240sec" /> <!-- Bone Puppeteer -->
+			<npc id="21581" x="50311" y="-36408" z="-1703" respawnTime="240sec" /> <!-- Bone Puppeteer -->
+			<npc id="21574" x="59644" y="-47486" z="-2714" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21574" x="58796" y="-49470" z="-2857" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21574" x="58534" y="-48549" z="-2682" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21570" x="60537" y="-48137" z="-2758" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21570" x="60343" y="-48346" z="-2743" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21570" x="60498" y="-47581" z="-2732" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21570" x="60383" y="-46579" z="-2426" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21581" x="60543" y="-45606" z="-2523" respawnTime="240sec" /> <!-- Bone Puppeteer -->
+			<npc id="21581" x="61564" y="-45859" z="-2537" respawnTime="240sec" /> <!-- Bone Puppeteer -->
+			<npc id="21581" x="59828" y="-46270" z="-2557" respawnTime="240sec" /> <!-- Bone Puppeteer -->
+			<npc id="21578" x="60371" y="-47156" z="-2695" respawnTime="240sec" /> <!-- Behemoth Zombie -->
+			<npc id="21578" x="59604" y="-46657" z="-2583" respawnTime="240sec" /> <!-- Behemoth Zombie -->
+			<npc id="21578" x="60388" y="-46022" z="-2545" respawnTime="240sec" /> <!-- Behemoth Zombie -->
+			<npc id="21578" x="58721" y="-48937" z="-2808" respawnTime="240sec" /> <!-- Behemoth Zombie -->
+			<npc id="18119" x="59338" y="-47119" z="-2553" respawnTime="240sec" /> <!-- Corpse of Deadman -->
+			<npc id="18119" x="60084" y="-46497" z="-2521" respawnTime="240sec" /> <!-- Corpse of Deadman -->
+			<npc id="18119" x="60362" y="-45743" z="-2532" respawnTime="240sec" /> <!-- Corpse of Deadman -->
+			<npc id="18119" x="61124" y="-45712" z="-2563" respawnTime="240sec" /> <!-- Corpse of Deadman -->
+			<npc id="18119" x="61586" y="-46424" z="-2561" respawnTime="240sec" /> <!-- Corpse of Deadman -->
+			<npc id="18119" x="61044" y="-46919" z="-2646" respawnTime="240sec" /> <!-- Corpse of Deadman -->
+			<npc id="21572" x="60271" y="-47841" z="-2738" respawnTime="240sec" /> <!-- Bone Sweeper -->
+			<npc id="21572" x="59560" y="-48114" z="-2721" respawnTime="240sec" /> <!-- Bone Sweeper -->
+			<npc id="21572" x="59270" y="-47594" z="-2621" respawnTime="240sec" /> <!-- Bone Sweeper -->
+			<npc id="21572" x="60078" y="-46796" z="-2500" respawnTime="240sec" /> <!-- Bone Sweeper -->
+			<npc id="21572" x="55748" y="-49097" z="-3082" respawnTime="240sec" /> <!-- Bone Sweeper -->
+			<npc id="21572" x="55648" y="-49845" z="-3110" respawnTime="240sec" /> <!-- Bone Sweeper -->
+			<npc id="21572" x="55092" y="-49068" z="-3105" respawnTime="240sec" /> <!-- Bone Sweeper -->
+			<npc id="21574" x="54226" y="-48559" z="-3323" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21574" x="53752" y="-49038" z="-3265" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21574" x="55168" y="-49364" z="-3085" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21570" x="55557" y="-48001" z="-3171" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21570" x="56254" y="-48938" z="-3036" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21570" x="57232" y="-47528" z="-2827" respawnTime="240sec" /> <!-- Ghost of Betrayer -->
+			<npc id="21599" x="57732" y="-48609" z="-2848" respawnTime="240sec" /> <!-- Requiem Priest -->
+			<npc id="21599" x="57451" y="-49456" z="-3020" respawnTime="240sec" /> <!-- Requiem Priest -->
+			<npc id="18119" x="55995" y="-49507" z="-3121" respawnTime="240sec" /> <!-- Corpse of Deadman -->
+			<npc id="18119" x="54899" y="-49706" z="-2955" respawnTime="240sec" /> <!-- Corpse of Deadman -->
+			<npc id="18119" x="54614" y="-48491" z="-3280" respawnTime="240sec" /> <!-- Corpse of Deadman -->
+			<npc id="21580" x="54520" y="-48223" z="-3335" respawnTime="240sec" /> <!-- Bone Caster -->
+			<npc id="21580" x="53906" y="-48190" z="-3346" respawnTime="240sec" /> <!-- Bone Caster -->
+			<npc id="21580" x="54608" y="-49142" z="-3206" respawnTime="240sec" /> <!-- Bone Caster -->
+			<npc id="21574" x="57471" y="-45126" z="-2615" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21574" x="57483" y="-45984" z="-2739" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21574" x="56851" y="-45610" z="-2866" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21574" x="56018" y="-45147" z="-2961" respawnTime="240sec" /> <!-- Bone Grinder -->
+			<npc id="21583" x="56138" y="-45668" z="-3030" respawnTime="240sec" /> <!-- Bone Scavenger -->
+			<npc id="21583" x="56691" y="-45861" z="-2848" respawnTime="240sec" /> <!-- Bone Scavenger -->
+			<npc id="21583" x="57385" y="-45629" z="-2754" respawnTime="240sec" /> <!-- Bone Scavenger -->
+			<npc id="21580" x="55384" y="-45226" z="-2874" respawnTime="240sec" /> <!-- Bone Caster -->
+			<npc id="21599" x="55112" y="-44053" z="-2931" respawnTime="240sec" /> <!-- Requiem Priest -->
+			<npc id="21599" x="55544" y="-44500" z="-2922" respawnTime="240sec" /> <!-- Requiem Priest -->
+			<npc id="21599" x="57349" y="-46255" z="-2773" respawnTime="240sec" /> <!-- Requiem Priest -->
+			<npc id="21581" x="55602" y="-45389" z="-2894" respawnTime="240sec" /> <!-- Bone Puppeteer -->
+			<npc id="21581" x="56641" y="-45690" z="-2905" respawnTime="240sec" /> <!-- Bone Puppeteer -->
+		</group>
+	</spawn>
+</list>

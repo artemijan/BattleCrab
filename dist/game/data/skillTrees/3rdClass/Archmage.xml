@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="94" parentClassId="12">
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="3" getLevel="76" levelUpSp="8100000">
+			<item id="8620" count="1" /> <!-- Ancient Book: Divine Inspiration (Manuscript) -->
+		</skill>
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="4" getLevel="76" levelUpSp="8100000">
+			<item id="8621" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Version) -->
+		</skill>
+		<skill skillId="328" skillLevel="1" skillName="Wisdom" levelUpSp="15000000" getLevel="76" />
+		<skill skillId="331" skillLevel="1" skillName="Skill Mastery" levelUpSp="18000000" getLevel="77" />
+		<skill skillId="427" skillLevel="1" skillName="Spell Force" levelUpSp="18000000" getLevel="77" />
+		<skill skillId="1339" skillLevel="1" skillName="Fire Vortex" levelUpSp="18000000" getLevel="77" />
+		<skill skillId="337" skillLevel="1" skillName="Arcane Power" levelUpSp="21340000" getLevel="78" />
+		<skill skillId="433" skillLevel="1" skillName="Arcane Roar" levelUpSp="21340000" getLevel="78" />
+		<skill skillId="1338" skillLevel="1" skillName="Arcane Chaos" levelUpSp="21340000" getLevel="78" />
+		<skill skillId="1419" skillLevel="1" skillName="Volcano" levelUpSp="150000000" getLevel="80" />
+	</skillTree>
+</list>

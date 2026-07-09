@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="21" parentClassId="19">
+		<skill skillId="15" skillLevel="16" skillName="Charm" levelUpSp="16000" getLevel="40" />
+		<skill skillId="15" skillLevel="17" skillName="Charm" levelUpSp="16000" getLevel="40" />
+		<skill skillId="15" skillLevel="18" skillName="Charm" levelUpSp="16000" getLevel="40" />
+		<skill skillId="21" skillLevel="2" skillName="Poison Recovery" levelUpSp="49000" getLevel="40" />
+		<skill skillId="58" skillLevel="19" skillName="Elemental Heal" levelUpSp="16000" getLevel="40" />
+		<skill skillId="58" skillLevel="20" skillName="Elemental Heal" levelUpSp="16000" getLevel="40" />
+		<skill skillId="58" skillLevel="21" skillName="Elemental Heal" levelUpSp="16000" getLevel="40" />
+		<skill skillId="102" skillLevel="2" skillName="Entangle" levelUpSp="49000" getLevel="40" />
+		<skill skillId="123" skillLevel="1" skillName="Spirit Barrier" levelUpSp="49000" getLevel="40" />
+		<skill skillId="147" skillLevel="15" skillName="Magic Resistance" levelUpSp="16000" getLevel="40" />
+		<skill skillId="147" skillLevel="16" skillName="Magic Resistance" levelUpSp="16000" getLevel="40" />
+		<skill skillId="147" skillLevel="17" skillName="Magic Resistance" levelUpSp="16000" getLevel="40" />
+		<skill skillId="217" skillLevel="9" skillName="Sword Blunt Mastery" levelUpSp="16000" getLevel="40" />
+		<skill skillId="217" skillLevel="10" skillName="Sword Blunt Mastery" levelUpSp="16000" getLevel="40" />
+		<skill skillId="217" skillLevel="11" skillName="Sword Blunt Mastery" levelUpSp="16000" getLevel="40" />
+		<skill skillId="267" skillLevel="1" skillName="Song of Warding" levelUpSp="49000" getLevel="40" />
+		<skill skillId="15" skillLevel="19" skillName="Charm" levelUpSp="19000" getLevel="43" />
+		<skill skillId="15" skillLevel="20" skillName="Charm" levelUpSp="19000" getLevel="43" />
+		<skill skillId="15" skillLevel="21" skillName="Charm" levelUpSp="19000" getLevel="43" />
+		<skill skillId="58" skillLevel="22" skillName="Elemental Heal" levelUpSp="19000" getLevel="43" />
+		<skill skillId="58" skillLevel="23" skillName="Elemental Heal" levelUpSp="19000" getLevel="43" />
+		<skill skillId="58" skillLevel="24" skillName="Elemental Heal" levelUpSp="19000" getLevel="43" />
+		<skill skillId="102" skillLevel="3" skillName="Entangle" levelUpSp="58000" getLevel="43" />
+		<skill skillId="147" skillLevel="18" skillName="Magic Resistance" levelUpSp="19000" getLevel="43" />
+		<skill skillId="147" skillLevel="19" skillName="Magic Resistance" levelUpSp="19000" getLevel="43" />
+		<skill skillId="147" skillLevel="20" skillName="Magic Resistance" levelUpSp="19000" getLevel="43" />
+		<skill skillId="191" skillLevel="2" skillName="Focus Mind" levelUpSp="58000" getLevel="43" />
+		<skill skillId="196" skillLevel="1" skillName="Holy Blade" levelUpSp="58000" getLevel="43" />
+		<skill skillId="217" skillLevel="12" skillName="Sword Blunt Mastery" levelUpSp="19000" getLevel="43" />
+		<skill skillId="217" skillLevel="13" skillName="Sword Blunt Mastery" levelUpSp="19000" getLevel="43" />
+		<skill skillId="217" skillLevel="14" skillName="Sword Blunt Mastery" levelUpSp="19000" getLevel="43" />
+		<skill skillId="270" skillLevel="1" skillName="Song of Invocation" levelUpSp="58000" getLevel="43" />
+		<skill skillId="15" skillLevel="22" skillName="Charm" levelUpSp="29000" getLevel="46" />
+		<skill skillId="15" skillLevel="23" skillName="Charm" levelUpSp="29000" getLevel="46" />
+		<skill skillId="15" skillLevel="24" skillName="Charm" levelUpSp="29000" getLevel="46" />
+		<skill skillId="58" skillLevel="25" skillName="Elemental Heal" levelUpSp="29000" getLevel="46" />
+		<skill skillId="58" skillLevel="26" skillName="Elemental Heal" levelUpSp="29000" getLevel="46" />
+		<skill skillId="58" skillLevel="27" skillName="Elemental Heal" levelUpSp="29000" getLevel="46" />
+		<skill skillId="61" skillLevel="2" skillName="Cure Bleeding" levelUpSp="86000" getLevel="46" />
+		<skill skillId="102" skillLevel="4" skillName="Entangle" levelUpSp="86000" getLevel="46" />
+		<skill skillId="147" skillLevel="21" skillName="Magic Resistance" levelUpSp="29000" getLevel="46" />
+		<skill skillId="147" skillLevel="22" skillName="Magic Resistance" levelUpSp="29000" getLevel="46" />
+		<skill skillId="147" skillLevel="23" skillName="Magic Resistance" levelUpSp="29000" getLevel="46" />
+		<skill skillId="217" skillLevel="15" skillName="Sword Blunt Mastery" levelUpSp="29000" getLevel="46" />
+		<skill skillId="217" skillLevel="16" skillName="Sword Blunt Mastery" levelUpSp="29000" getLevel="46" />
+		<skill skillId="217" skillLevel="17" skillName="Sword Blunt Mastery" levelUpSp="29000" getLevel="46" />
+		<skill skillId="268" skillLevel="1" skillName="Song of Wind" levelUpSp="86000" getLevel="46" />
+		<skill skillId="15" skillLevel="25" skillName="Charm" levelUpSp="41000" getLevel="49" />
+		<skill skillId="15" skillLevel="26" skillName="Charm" levelUpSp="41000" getLevel="49" />
+		<skill skillId="15" skillLevel="27" skillName="Charm" levelUpSp="41000" getLevel="49" />
+		<skill skillId="58" skillLevel="28" skillName="Elemental Heal" levelUpSp="41000" getLevel="49" />
+		<skill skillId="58" skillLevel="29" skillName="Elemental Heal" levelUpSp="41000" getLevel="49" />
+		<skill skillId="58" skillLevel="30" skillName="Elemental Heal" levelUpSp="41000" getLevel="49" />
+		<skill skillId="102" skillLevel="5" skillName="Entangle" levelUpSp="123000" getLevel="49" />
+		<skill skillId="123" skillLevel="2" skillName="Spirit Barrier" levelUpSp="123000" getLevel="49" />
+		<skill skillId="147" skillLevel="24" skillName="Magic Resistance" levelUpSp="41000" getLevel="49" />
+		<skill skillId="147" skillLevel="25" skillName="Magic Resistance" levelUpSp="41000" getLevel="49" />
+		<skill skillId="147" skillLevel="26" skillName="Magic Resistance" levelUpSp="41000" getLevel="49" />
+		<skill skillId="191" skillLevel="3" skillName="Focus Mind" levelUpSp="123000" getLevel="49" />
+		<skill skillId="217" skillLevel="18" skillName="Sword Blunt Mastery" levelUpSp="41000" getLevel="49" />
+		<skill skillId="217" skillLevel="19" skillName="Sword Blunt Mastery" levelUpSp="41000" getLevel="49" />
+		<skill skillId="217" skillLevel="20" skillName="Sword Blunt Mastery" levelUpSp="41000" getLevel="49" />
+		<skill skillId="269" skillLevel="1" skillName="Song of Hunter" levelUpSp="123000" getLevel="49" />
+		<skill skillId="15" skillLevel="28" skillName="Charm" levelUpSp="71000" getLevel="52" />
+		<skill skillId="15" skillLevel="29" skillName="Charm" levelUpSp="71000" getLevel="52" />
+		<skill skillId="15" skillLevel="30" skillName="Charm" levelUpSp="71000" getLevel="52" />
+		<skill skillId="58" skillLevel="31" skillName="Elemental Heal" levelUpSp="71000" getLevel="52" />
+		<skill skillId="58" skillLevel="32" skillName="Elemental Heal" levelUpSp="71000" getLevel="52" />
+		<skill skillId="58" skillLevel="33" skillName="Elemental Heal" levelUpSp="71000" getLevel="52" />
+		<skill skillId="102" skillLevel="6" skillName="Entangle" levelUpSp="214000" getLevel="52" />
+		<skill skillId="147" skillLevel="27" skillName="Magic Resistance" levelUpSp="71000" getLevel="52" />
+		<skill skillId="147" skillLevel="28" skillName="Magic Resistance" levelUpSp="71000" getLevel="52" />
+		<skill skillId="147" skillLevel="29" skillName="Magic Resistance" levelUpSp="71000" getLevel="52" />
+		<skill skillId="217" skillLevel="21" skillName="Sword Blunt Mastery" levelUpSp="71000" getLevel="52" />
+		<skill skillId="217" skillLevel="22" skillName="Sword Blunt Mastery" levelUpSp="71000" getLevel="52" />
+		<skill skillId="217" skillLevel="23" skillName="Sword Blunt Mastery" levelUpSp="71000" getLevel="52" />
+		<skill skillId="230" skillLevel="2" skillName="Sprint" levelUpSp="214000" getLevel="52" />
+		<skill skillId="265" skillLevel="1" skillName="Song of Life" levelUpSp="214000" getLevel="52" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="1" getLevel="52" levelUpSp="230000">			<item id="8618" count="1" /> <!-- Ancient Book: Divine Inspiration (Modern Language Version) -->		</skill>
+		<skill skillId="15" skillLevel="31" skillName="Charm" levelUpSp="73000" getLevel="55" />
+		<skill skillId="15" skillLevel="32" skillName="Charm" levelUpSp="73000" getLevel="55" />
+		<skill skillId="15" skillLevel="33" skillName="Charm" levelUpSp="73000" getLevel="55" />
+		<skill skillId="58" skillLevel="34" skillName="Elemental Heal" levelUpSp="73000" getLevel="55" />
+		<skill skillId="58" skillLevel="35" skillName="Elemental Heal" levelUpSp="73000" getLevel="55" />
+		<skill skillId="58" skillLevel="36" skillName="Elemental Heal" levelUpSp="73000" getLevel="55" />
+		<skill skillId="98" skillLevel="1" skillName="Sword Symphony" levelUpSp="220000" getLevel="55" />
+		<skill skillId="102" skillLevel="7" skillName="Entangle" levelUpSp="220000" getLevel="55" />
+		<skill skillId="147" skillLevel="30" skillName="Magic Resistance" levelUpSp="73000" getLevel="55" />
+		<skill skillId="147" skillLevel="31" skillName="Magic Resistance" levelUpSp="73000" getLevel="55" />
+		<skill skillId="147" skillLevel="32" skillName="Magic Resistance" levelUpSp="73000" getLevel="55" />
+		<skill skillId="191" skillLevel="4" skillName="Focus Mind" levelUpSp="220000" getLevel="55" />
+		<skill skillId="217" skillLevel="24" skillName="Sword Blunt Mastery" levelUpSp="73000" getLevel="55" />
+		<skill skillId="217" skillLevel="25" skillName="Sword Blunt Mastery" levelUpSp="73000" getLevel="55" />
+		<skill skillId="217" skillLevel="26" skillName="Sword Blunt Mastery" levelUpSp="73000" getLevel="55" />
+		<skill skillId="264" skillLevel="1" skillName="Song of Earth" levelUpSp="220000" getLevel="55" />
+		<skill skillId="402" skillLevel="1" skillName="Arrest" levelUpSp="220000" getLevel="55" />
+		<skill skillId="407" skillLevel="1" skillName="Psycho Symphony" levelUpSp="220000" getLevel="55" />
+		<skill skillId="15" skillLevel="34" skillName="Charm" levelUpSp="89000" getLevel="58" />
+		<skill skillId="15" skillLevel="35" skillName="Charm" levelUpSp="89000" getLevel="58" />
+		<skill skillId="15" skillLevel="36" skillName="Charm" levelUpSp="89000" getLevel="58" />
+		<skill skillId="58" skillLevel="37" skillName="Elemental Heal" levelUpSp="89000" getLevel="58" />
+		<skill skillId="58" skillLevel="38" skillName="Elemental Heal" levelUpSp="89000" getLevel="58" />
+		<skill skillId="58" skillLevel="39" skillName="Elemental Heal" levelUpSp="89000" getLevel="58" />
+		<skill skillId="102" skillLevel="8" skillName="Entangle" levelUpSp="267000" getLevel="58" />
+		<skill skillId="123" skillLevel="3" skillName="Spirit Barrier" levelUpSp="267000" getLevel="58" />
+		<skill skillId="147" skillLevel="33" skillName="Magic Resistance" levelUpSp="89000" getLevel="58" />
+		<skill skillId="147" skillLevel="34" skillName="Magic Resistance" levelUpSp="89000" getLevel="58" />
+		<skill skillId="147" skillLevel="35" skillName="Magic Resistance" levelUpSp="89000" getLevel="58" />
+		<skill skillId="217" skillLevel="27" skillName="Sword Blunt Mastery" levelUpSp="89000" getLevel="58" />
+		<skill skillId="217" skillLevel="28" skillName="Sword Blunt Mastery" levelUpSp="89000" getLevel="58" />
+		<skill skillId="217" skillLevel="29" skillName="Sword Blunt Mastery" levelUpSp="89000" getLevel="58" />
+		<skill skillId="266" skillLevel="1" skillName="Song of Water" levelUpSp="267000" getLevel="58" />
+		<skill skillId="402" skillLevel="2" skillName="Arrest" levelUpSp="267000" getLevel="58" />
+		<skill skillId="407" skillLevel="2" skillName="Psycho Symphony" levelUpSp="267000" getLevel="58" />
+		<skill skillId="15" skillLevel="37" skillName="Charm" levelUpSp="161000" getLevel="60" />
+		<skill skillId="15" skillLevel="38" skillName="Charm" levelUpSp="161000" getLevel="60" />
+		<skill skillId="21" skillLevel="3" skillName="Poison Recovery" levelUpSp="322000" getLevel="60" />
+		<skill skillId="58" skillLevel="40" skillName="Elemental Heal" levelUpSp="161000" getLevel="60" />
+		<skill skillId="58" skillLevel="41" skillName="Elemental Heal" levelUpSp="161000" getLevel="60" />
+		<skill skillId="98" skillLevel="2" skillName="Sword Symphony" levelUpSp="322000" getLevel="60" />
+		<skill skillId="102" skillLevel="9" skillName="Entangle" levelUpSp="322000" getLevel="60" />
+		<skill skillId="147" skillLevel="36" skillName="Magic Resistance" levelUpSp="161000" getLevel="60" />
+		<skill skillId="147" skillLevel="37" skillName="Magic Resistance" levelUpSp="161000" getLevel="60" />
+		<skill skillId="217" skillLevel="30" skillName="Sword Blunt Mastery" levelUpSp="161000" getLevel="60" />
+		<skill skillId="217" skillLevel="31" skillName="Sword Blunt Mastery" levelUpSp="161000" getLevel="60" />
+		<skill skillId="402" skillLevel="3" skillName="Arrest" levelUpSp="322000" getLevel="60" />
+		<skill skillId="407" skillLevel="3" skillName="Psycho Symphony" levelUpSp="322000" getLevel="60" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="2" getLevel="61" levelUpSp="640000">			<item id="8619" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Language Version) -->		</skill>
+		<skill skillId="15" skillLevel="39" skillName="Charm" levelUpSp="220000" getLevel="62" />
+		<skill skillId="15" skillLevel="40" skillName="Charm" levelUpSp="220000" getLevel="62" />
+		<skill skillId="58" skillLevel="42" skillName="Elemental Heal" levelUpSp="220000" getLevel="62" />
+		<skill skillId="58" skillLevel="43" skillName="Elemental Heal" levelUpSp="220000" getLevel="62" />
+		<skill skillId="61" skillLevel="3" skillName="Cure Bleeding" levelUpSp="440000" getLevel="62" />
+		<skill skillId="102" skillLevel="10" skillName="Entangle" levelUpSp="440000" getLevel="62" />
+		<skill skillId="147" skillLevel="38" skillName="Magic Resistance" levelUpSp="220000" getLevel="62" />
+		<skill skillId="147" skillLevel="39" skillName="Magic Resistance" levelUpSp="220000" getLevel="62" />
+		<skill skillId="217" skillLevel="32" skillName="Sword Blunt Mastery" levelUpSp="220000" getLevel="62" />
+		<skill skillId="217" skillLevel="33" skillName="Sword Blunt Mastery" levelUpSp="220000" getLevel="62" />
+		<skill skillId="306" skillLevel="1" skillName="Song of Flame Guard" levelUpSp="440000" getLevel="62" />
+		<skill skillId="402" skillLevel="4" skillName="Arrest" levelUpSp="440000" getLevel="62" />
+		<skill skillId="407" skillLevel="4" skillName="Psycho Symphony" levelUpSp="440000" getLevel="62" />
+		<skill skillId="15" skillLevel="41" skillName="Charm" levelUpSp="270000" getLevel="64" />
+		<skill skillId="15" skillLevel="42" skillName="Charm" levelUpSp="270000" getLevel="64" />
+		<skill skillId="58" skillLevel="44" skillName="Elemental Heal" levelUpSp="270000" getLevel="64" />
+		<skill skillId="58" skillLevel="45" skillName="Elemental Heal" levelUpSp="270000" getLevel="64" />
+		<skill skillId="98" skillLevel="3" skillName="Sword Symphony" levelUpSp="530000" getLevel="64" />
+		<skill skillId="102" skillLevel="11" skillName="Entangle" levelUpSp="530000" getLevel="64" />
+		<skill skillId="147" skillLevel="40" skillName="Magic Resistance" levelUpSp="270000" getLevel="64" />
+		<skill skillId="147" skillLevel="41" skillName="Magic Resistance" levelUpSp="270000" getLevel="64" />
+		<skill skillId="191" skillLevel="5" skillName="Focus Mind" levelUpSp="530000" getLevel="64" />
+		<skill skillId="217" skillLevel="34" skillName="Sword Blunt Mastery" levelUpSp="270000" getLevel="64" />
+		<skill skillId="217" skillLevel="35" skillName="Sword Blunt Mastery" levelUpSp="270000" getLevel="64" />
+		<skill skillId="402" skillLevel="5" skillName="Arrest" levelUpSp="530000" getLevel="64" />
+		<skill skillId="407" skillLevel="5" skillName="Psycho Symphony" levelUpSp="530000" getLevel="64" />
+		<skill skillId="15" skillLevel="43" skillName="Charm" levelUpSp="440000" getLevel="66" />
+		<skill skillId="15" skillLevel="44" skillName="Charm" levelUpSp="440000" getLevel="66" />
+		<skill skillId="58" skillLevel="46" skillName="Elemental Heal" levelUpSp="440000" getLevel="66" />
+		<skill skillId="58" skillLevel="47" skillName="Elemental Heal" levelUpSp="440000" getLevel="66" />
+		<skill skillId="102" skillLevel="12" skillName="Entangle" levelUpSp="880000" getLevel="66" />
+		<skill skillId="147" skillLevel="42" skillName="Magic Resistance" levelUpSp="440000" getLevel="66" />
+		<skill skillId="147" skillLevel="43" skillName="Magic Resistance" levelUpSp="440000" getLevel="66" />
+		<skill skillId="217" skillLevel="36" skillName="Sword Blunt Mastery" levelUpSp="440000" getLevel="66" />
+		<skill skillId="217" skillLevel="37" skillName="Sword Blunt Mastery" levelUpSp="440000" getLevel="66" />
+		<skill skillId="304" skillLevel="1" skillName="Song of Vitality" levelUpSp="880000" getLevel="66" />
+		<skill skillId="402" skillLevel="6" skillName="Arrest" levelUpSp="880000" getLevel="66" />
+		<skill skillId="407" skillLevel="6" skillName="Psycho Symphony" levelUpSp="880000" getLevel="66" />
+		<skill skillId="15" skillLevel="45" skillName="Charm" levelUpSp="490000" getLevel="68" />
+		<skill skillId="15" skillLevel="46" skillName="Charm" levelUpSp="490000" getLevel="68" />
+		<skill skillId="58" skillLevel="48" skillName="Elemental Heal" levelUpSp="490000" getLevel="68" />
+		<skill skillId="58" skillLevel="49" skillName="Elemental Heal" levelUpSp="490000" getLevel="68" />
+		<skill skillId="98" skillLevel="4" skillName="Sword Symphony" levelUpSp="980000" getLevel="68" />
+		<skill skillId="102" skillLevel="13" skillName="Entangle" levelUpSp="980000" getLevel="68" />
+		<skill skillId="147" skillLevel="44" skillName="Magic Resistance" levelUpSp="490000" getLevel="68" />
+		<skill skillId="147" skillLevel="45" skillName="Magic Resistance" levelUpSp="490000" getLevel="68" />
+		<skill skillId="217" skillLevel="38" skillName="Sword Blunt Mastery" levelUpSp="490000" getLevel="68" />
+		<skill skillId="217" skillLevel="39" skillName="Sword Blunt Mastery" levelUpSp="490000" getLevel="68" />
+		<skill skillId="402" skillLevel="7" skillName="Arrest" levelUpSp="980000" getLevel="68" />
+		<skill skillId="407" skillLevel="7" skillName="Psycho Symphony" levelUpSp="980000" getLevel="68" />
+		<skill skillId="15" skillLevel="47" skillName="Charm" levelUpSp="580000" getLevel="70" />
+		<skill skillId="15" skillLevel="48" skillName="Charm" levelUpSp="580000" getLevel="70" />
+		<skill skillId="58" skillLevel="50" skillName="Elemental Heal" levelUpSp="580000" getLevel="70" />
+		<skill skillId="58" skillLevel="51" skillName="Elemental Heal" levelUpSp="580000" getLevel="70" />
+		<skill skillId="102" skillLevel="14" skillName="Entangle" levelUpSp="1160000" getLevel="70" />
+		<skill skillId="147" skillLevel="46" skillName="Magic Resistance" levelUpSp="580000" getLevel="70" />
+		<skill skillId="147" skillLevel="47" skillName="Magic Resistance" levelUpSp="580000" getLevel="70" />
+		<skill skillId="217" skillLevel="40" skillName="Sword Blunt Mastery" levelUpSp="580000" getLevel="70" />
+		<skill skillId="217" skillLevel="41" skillName="Sword Blunt Mastery" levelUpSp="580000" getLevel="70" />
+		<skill skillId="308" skillLevel="1" skillName="Song of Storm Guard" levelUpSp="1160000" getLevel="70" />
+		<skill skillId="402" skillLevel="8" skillName="Arrest" levelUpSp="1160000" getLevel="70" />
+		<skill skillId="407" skillLevel="8" skillName="Psycho Symphony" levelUpSp="1160000" getLevel="70" />
+		<skill skillId="15" skillLevel="49" skillName="Charm" levelUpSp="670000" getLevel="72" />
+		<skill skillId="15" skillLevel="50" skillName="Charm" levelUpSp="670000" getLevel="72" />
+		<skill skillId="58" skillLevel="52" skillName="Elemental Heal" levelUpSp="670000" getLevel="72" />
+		<skill skillId="58" skillLevel="53" skillName="Elemental Heal" levelUpSp="670000" getLevel="72" />
+		<skill skillId="98" skillLevel="5" skillName="Sword Symphony" levelUpSp="1330000" getLevel="72" />
+		<skill skillId="102" skillLevel="15" skillName="Entangle" levelUpSp="1330000" getLevel="72" />
+		<skill skillId="147" skillLevel="48" skillName="Magic Resistance" levelUpSp="670000" getLevel="72" />
+		<skill skillId="147" skillLevel="49" skillName="Magic Resistance" levelUpSp="670000" getLevel="72" />
+		<skill skillId="191" skillLevel="6" skillName="Focus Mind" levelUpSp="1330000" getLevel="72" />
+		<skill skillId="217" skillLevel="42" skillName="Sword Blunt Mastery" levelUpSp="670000" getLevel="72" />
+		<skill skillId="217" skillLevel="43" skillName="Sword Blunt Mastery" levelUpSp="670000" getLevel="72" />
+		<skill skillId="402" skillLevel="9" skillName="Arrest" levelUpSp="1330000" getLevel="72" />
+		<skill skillId="407" skillLevel="9" skillName="Psycho Symphony" levelUpSp="1330000" getLevel="72" />
+		<skill skillId="15" skillLevel="51" skillName="Charm" levelUpSp="1630000" getLevel="74" />
+		<skill skillId="15" skillLevel="52" skillName="Charm" levelUpSp="1630000" getLevel="74" />
+		<skill skillId="58" skillLevel="54" skillName="Elemental Heal" levelUpSp="1630000" getLevel="74" />
+		<skill skillId="58" skillLevel="55" skillName="Elemental Heal" levelUpSp="1630000" getLevel="74" />
+		<skill skillId="102" skillLevel="16" skillName="Entangle" levelUpSp="3250000" getLevel="74" />
+		<skill skillId="147" skillLevel="50" skillName="Magic Resistance" levelUpSp="1630000" getLevel="74" />
+		<skill skillId="147" skillLevel="51" skillName="Magic Resistance" levelUpSp="1630000" getLevel="74" />
+		<skill skillId="217" skillLevel="44" skillName="Sword Blunt Mastery" levelUpSp="1630000" getLevel="74" />
+		<skill skillId="217" skillLevel="45" skillName="Sword Blunt Mastery" levelUpSp="1630000" getLevel="74" />
+		<skill skillId="305" skillLevel="1" skillName="Song of Vengeance" levelUpSp="3250000" getLevel="74" />
+		<skill skillId="402" skillLevel="10" skillName="Arrest" levelUpSp="3250000" getLevel="74" />
+		<skill skillId="407" skillLevel="10" skillName="Psycho Symphony" levelUpSp="3250000" getLevel="74" />
+	</skillTree>
+</list>

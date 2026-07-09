@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="112" parentClassId="43">
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="3" getLevel="76" levelUpSp="8100000">
+			<item id="8620" count="1" /> <!-- Ancient Book: Divine Inspiration (Manuscript) -->
+		</skill>
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="4" getLevel="76" levelUpSp="8100000">
+			<item id="8621" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Version) -->
+		</skill>
+		<skill skillId="328" skillLevel="1" skillName="Wisdom" levelUpSp="10000000" getLevel="76" />
+		<skill skillId="329" skillLevel="1" skillName="Health" levelUpSp="10000000" getLevel="76" />
+		<skill skillId="1354" skillLevel="1" skillName="Arcane Protection" levelUpSp="10000000" getLevel="76" />
+		<skill skillId="331" skillLevel="1" skillName="Skill Mastery" levelUpSp="13000000" getLevel="77" />
+		<skill skillId="427" skillLevel="1" skillName="Spell Force" levelUpSp="13000000" getLevel="77" />
+		<skill skillId="1358" skillLevel="1" skillName="Block Shield" levelUpSp="13000000" getLevel="77" />
+		<skill skillId="336" skillLevel="1" skillName="Arcane Wisdom" levelUpSp="21340000" getLevel="78" />
+		<skill skillId="436" skillLevel="1" skillName="Divine Lore" levelUpSp="21340000" getLevel="78" />
+		<skill skillId="1357" skillLevel="1" skillName="Prophecy of Wind" levelUpSp="21340000" getLevel="78" />
+		<skill skillId="1428" skillLevel="1" skillName="Mass Recharge" levelUpSp="150000000" getLevel="80" />
+	</skillTree>
+</list>

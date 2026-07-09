@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Interlude_25_16">
+		<group>
+			<npc id="21646" x="194247" y="-61337" z="-2878" heading="50996" respawnTime="45sec" /> <!-- Wandering Ghost of Abyss -->
+			<npc id="21646" x="193763" y="-59932" z="-2939" heading="41913" respawnTime="45sec" /> <!-- Wandering Ghost of Abyss -->
+			<npc id="21648" x="194329" y="-59200" z="-2857" heading="63819" respawnTime="45sec" /> <!-- Abyss Warder -->
+			<npc id="21648" x="193252" y="-58903" z="-2882" heading="18094" respawnTime="45sec" /> <!-- Abyss Warder -->
+			<npc id="21650" x="194404" y="-60181" z="-2870" heading="14242" respawnTime="45sec" /> <!-- Swampland Watchman -->
+			<npc id="21650" x="193949" y="-60771" z="-2906" heading="7849" respawnTime="45sec" /> <!-- Swampland Watchman -->
+			<npc id="21646" x="188339" y="-63922" z="-3034" respawnTime="45sec" /> <!-- Wandering Ghost of Abyss -->
+			<npc id="21646" x="187926" y="-63620" z="-2903" heading="47093" respawnTime="45sec" /> <!-- Wandering Ghost of Abyss -->
+			<npc id="21647" x="188540" y="-63922" z="-3034" respawnTime="45sec" /> <!-- Wandering Evil Thoughts of Abyss -->
+			<npc id="21647" x="190035" y="-63235" z="-2847" heading="62607" respawnTime="45sec" /> <!-- Wandering Evil Thoughts of Abyss -->
+			<npc id="21647" x="189144" y="-63566" z="-3034" respawnTime="45sec" /> <!-- Wandering Evil Thoughts of Abyss -->
+			<npc id="21647" x="189308" y="-62996" z="-2795" heading="44862" respawnTime="45sec" /> <!-- Wandering Evil Thoughts of Abyss -->
+			<npc id="21648" x="189856" y="-62833" z="-2847" heading="40642" respawnTime="45sec" /> <!-- Abyss Warder -->
+			<npc id="21649" x="190445" y="-62093" z="-2959" heading="13049" respawnTime="45sec" /> <!-- Condemned of Abyss -->
+			<npc id="21649" x="188530" y="-63615" z="-2769" heading="37966" respawnTime="45sec" /> <!-- Condemned of Abyss -->
+			<npc id="21648" x="186157" y="-64171" z="-3034" respawnTime="45sec" /> <!-- Abyss Warder -->
+			<npc id="21649" x="186212" y="-63603" z="-2821" heading="51398" respawnTime="45sec" /> <!-- Condemned of Abyss -->
+			<npc id="21650" x="186001" y="-62789" z="-2953" heading="19531" respawnTime="45sec" /> <!-- Swampland Watchman -->
+			<npc id="21651" x="187307" y="-63613" z="-2930" heading="62151" respawnTime="45sec" /> <!-- Flame Drake -->
+			<npc id="21648" x="185485" y="-63224" z="-3082" respawnTime="45sec" /> <!-- Abyss Warder -->
+			<npc id="21649" x="186650" y="-62639" z="-2902" heading="57403" respawnTime="45sec" /> <!-- Condemned of Abyss -->
+			<npc id="21649" x="187477" y="-61477" z="-2919" heading="9161" respawnTime="45sec" /> <!-- Condemned of Abyss -->
+			<npc id="21650" x="185735" y="-61843" z="-2975" heading="64545" respawnTime="45sec" /> <!-- Swampland Watchman -->
+			<npc id="21650" x="186928" y="-61814" z="-2909" heading="42140" respawnTime="45sec" /> <!-- Swampland Watchman -->
+			<npc id="21650" x="186199" y="-62315" z="-2962" heading="17899" respawnTime="45sec" /> <!-- Swampland Watchman -->
+			<npc id="21651" x="186388" y="-62956" z="-2923" heading="58912" respawnTime="45sec" /> <!-- Flame Drake -->
+			<npc id="21651" x="185384" y="-62690" z="-3082" respawnTime="45sec" /> <!-- Flame Drake -->
+			<npc id="21651" x="186425" y="-61608" z="-2960" heading="10889" respawnTime="45sec" /> <!-- Flame Drake -->
+			<npc id="21646" x="189830" y="-60984" z="-2890" heading="26997" respawnTime="45sec" /> <!-- Wandering Ghost of Abyss -->
+			<npc id="21648" x="189373" y="-59944" z="-2968" heading="21523" respawnTime="45sec" /> <!-- Abyss Warder -->
+			<npc id="21647" x="190169" y="-59508" z="-2993" heading="6791" respawnTime="45sec" /> <!-- Wandering Evil Thoughts of Abyss -->
+			<npc id="21648" x="189734" y="-58698" z="-2938" heading="18116" respawnTime="45sec" /> <!-- Abyss Warder -->
+			<npc id="21646" x="192551" y="-58897" z="-2868" heading="3645" respawnTime="45sec" /> <!-- Wandering Ghost of Abyss -->
+			<npc id="21647" x="191852" y="-58951" z="-2868" heading="23905" respawnTime="45sec" /> <!-- Wandering Evil Thoughts of Abyss -->
+			<npc id="21647" x="193979" y="-62501" z="-2868" heading="40237" respawnTime="45sec" /> <!-- Wandering Evil Thoughts of Abyss -->
+			<npc id="21648" x="193802" y="-58767" z="-2899" heading="18686" respawnTime="45sec" /> <!-- Abyss Warder -->
+			<npc id="21647" x="193816" y="-63881" z="-2899" heading="52543" respawnTime="45sec" /> <!-- Wandering Evil Thoughts of Abyss -->
+			<npc id="21651" x="193643" y="-63195" z="-2889" heading="45703" respawnTime="45sec" /> <!-- Flame Drake -->
+			<npc id="21650" x="193557" y="-64651" z="-2941" respawnTime="45sec" /> <!-- Swampland Watchman -->
+			<npc id="21651" x="193456" y="-64473" z="-2941" respawnTime="45sec" /> <!-- Flame Drake -->
+			<npc id="21650" x="194089" y="-64218" z="-2886" heading="56120" respawnTime="45sec" /> <!-- Swampland Watchman -->
+			<npc id="31920" x="164304" y="-47600" z="-3507" respawnTime="60sec" /> <!-- Elmoreden Servant's Ghost -->
+			<npc id="31548" x="171072" y="-35408" z="-3343" respawnTime="60sec" /> <!-- Mysterious Ancient Tablet -->
+			<npc id="31549" x="181280" y="-39824" z="-3128" respawnTime="60sec" /> <!-- Mysterious Ancient Tablet -->
+			<npc id="31550" x="173696" y="-46960" z="-3392" respawnTime="60sec" /> <!-- Mysterious Ancient Tablet -->
+			<npc id="31551" x="167888" y="-61376" z="-3866" respawnTime="60sec" /> <!-- Mysterious Ancient Tablet -->
+			<npc id="31552" x="184464" y="-59456" z="-3043" respawnTime="60sec" /> <!-- Mysterious Ancient Tablet -->
+			<npc id="31541" x="186304" y="-43744" z="-3193" heading="57000" respawnTime="129600sec" /> <!-- Daimon's Altar -->
+			<npc id="31616" x="164474" y="-48918" z="-3576" heading="33000" respawnTime="60sec" /> <!-- Hermit -->
+			<npc id="31683" x="183584" y="-53552" z="-1903" heading="25000" respawnTime="60sec" /> <!-- Eye of Argos -->
+			<npc id="31650" x="191056" y="-40576" z="-3024" heading="49000" respawnTime="60sec" /> <!-- Tablet Of Vision -->
+			<npc id="31655" x="168528" y="-61488" z="-3872" heading="16000" respawnTime="60sec" /> <!-- Tablet Of Vision -->
+			<npc id="31705" x="191280" y="-49552" z="-2976" respawnTime="60sec" /> <!-- Daimon the White-eyed -->
+		</group>
+	</spawn>
+</list>

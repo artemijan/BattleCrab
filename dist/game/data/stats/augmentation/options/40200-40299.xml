@@ -1,0 +1,589 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/optionsData.xsd">
+	<option id="40200" name="gc_opt">
+		<!-- Max HP + 189 -->
+		<effects>
+			<effect name="MaxHp">
+				<amount>189</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40201" name="gc_opt">
+		<!-- Max HP + 225 -->
+		<effects>
+			<effect name="MaxHp">
+				<amount>225</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40202" name="gc_opt">
+		<!-- Max HP + 270 -->
+		<effects>
+			<effect name="MaxHp">
+				<amount>270</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40203" name="gc_opt">
+		<!-- Max HP + 315 -->
+		<effects>
+			<effect name="MaxHp">
+				<amount>315</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40204" name="gc_opt">
+		<!-- Max HP + 360 -->
+		<effects>
+			<effect name="MaxHp">
+				<amount>360</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40205" name="gc_opt">
+		<!-- Max HP + 450 -->
+		<effects>
+			<effect name="MaxHp">
+				<amount>450</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40206" name="gc_opt">
+		<!-- Max HP + 900 -->
+		<effects>
+			<effect name="MaxHp">
+				<amount>900</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40207" name="gc_opt">
+		<!-- Max MP + 99 -->
+		<effects>
+			<effect name="MaxMp">
+				<amount>99</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40208" name="gc_opt">
+		<!-- Max MP + 117 -->
+		<effects>
+			<effect name="MaxMp">
+				<amount>117</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40209" name="gc_opt">
+		<!-- Max MP + 153 -->
+		<effects>
+			<effect name="MaxMp">
+				<amount>153</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40210" name="gc_opt">
+		<!-- Max MP + 189 -->
+		<effects>
+			<effect name="MaxMp">
+				<amount>189</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40211" name="gc_opt">
+		<!-- Max MP + 225 -->
+		<effects>
+			<effect name="MaxMp">
+				<amount>225</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40212" name="gc_opt">
+		<!-- Max MP + 270 -->
+		<effects>
+			<effect name="MaxMp">
+				<amount>270</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40213" name="gc_opt">
+		<!-- Max MP + 315 -->
+		<effects>
+			<effect name="MaxMp">
+				<amount>315</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40214" name="gc_opt">
+		<!-- Max MP + 360 -->
+		<effects>
+			<effect name="MaxMp">
+				<amount>360</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40215" name="gc_opt">
+		<!-- Max MP + 450 -->
+		<effects>
+			<effect name="MaxMp">
+				<amount>450</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40216" name="gc_opt">
+		<!-- Max MP + 900 -->
+		<effects>
+			<effect name="MaxMp">
+				<amount>900</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</option>
+	<option id="40217" name="gc_opt">
+		<!-- STR + 1 -->
+		<effects>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>STR</stat>
+			</effect>
+		</effects>
+	</option>
+	<option id="40218" name="gc_opt">
+		<!-- DEX + 1 -->
+		<effects>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>DEX</stat>
+			</effect>
+		</effects>
+	</option>
+	<option id="40219" name="gc_opt">
+		<!-- CON + 1 -->
+		<effects>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>CON</stat>
+			</effect>
+		</effects>
+	</option>
+	<option id="40220" name="gc_opt">
+		<!-- INT + 1 -->
+		<effects>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>INT</stat>
+			</effect>
+		</effects>
+	</option>
+	<option id="40221" name="gc_opt">
+		<!-- WIT + 1 -->
+		<effects>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>WIT</stat>
+			</effect>
+		</effects>
+	</option>
+	<option id="40222" name="gc_opt">
+		<!-- MEN + 1 -->
+		<effects>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>MEN</stat>
+			</effect>
+		</effects>
+	</option>
+	<option id="40223" name="gc_opt">
+		<!-- PvP Damage + 1% when equipping Amethyst Lv. 4 or higher. -->
+		<passive_skill id="27841" level="1" /> <!-- Amethyst Augment -->
+	</option>
+	<option id="40224" name="gc_opt">
+		<!-- PvP Damage + 2% when equipping Amethyst Lv. 4 or higher. -->
+		<passive_skill id="27841" level="2" /> <!-- Amethyst Augment -->
+	</option>
+	<option id="40225" name="gc_opt">
+		<!-- PvP Damage + 5% when equipping Amethyst Lv. 4 or higher. -->
+		<passive_skill id="27841" level="3" /> <!-- Amethyst Augment -->
+	</option>
+	<option id="40226" name="gc_opt">
+		<!-- Damage Reflect +1% when equipping Cat's Eye Lv. 4 or higher. -->
+		<passive_skill id="27842" level="1" /> <!-- Cat's Eye Augment -->
+	</option>
+	<option id="40227" name="gc_opt">
+		<!-- Damage Reflect +2% when equipping Cat's Eye Lv. 4 or higher. -->
+		<passive_skill id="27842" level="2" /> <!-- Cat's Eye Augment -->
+	</option>
+	<option id="40228" name="gc_opt">
+		<!-- Damage Reflect +5% when equipping Cat's Eye Lv. 4 or higher. -->
+		<passive_skill id="27842" level="3" /> <!-- Cat's Eye Augment -->
+	</option>
+	<option id="40229" name="elmoreden_cloak_opt">
+		<!-- Increases PvP Attack Damage when enchanted and bestows various passive and active skills. -->
+		<passive_skill id="27871" level="1" /> <!-- Elmoreden Cloak Basic Effect -->
+	</option>
+	<option id="40230" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +1% -->
+		<passive_skill id="27872" level="1" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40231" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +2% -->
+		<passive_skill id="27872" level="2" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40232" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +3% -->
+		<passive_skill id="27872" level="3" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40233" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +4% -->
+		<passive_skill id="27872" level="4" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40234" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +5% -->
+		<!-- M. Def. +5% -->
+		<passive_skill id="27872" level="5" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40235" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +6% -->
+		<!-- M. Def. +5% -->
+		<passive_skill id="27872" level="6" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40236" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +7%, when using a single attack skill, deals 6500 fixed PvP damage to target at a certain -->
+		<!-- M. Def. +5% -->
+		<passive_skill id="27872" level="7" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40237" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +8%, when using a single attack skill, deals 6500 fixed PvP damage to target at a certain rate -->
+		<!-- M. Def. +5% -->
+		<passive_skill id="27872" level="8" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40238" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +9%, when using a single attack skill, deals 6500 fixed PvP damage to target at a certain rate, Max CP +2800 -->
+		<!-- M. Def. +5% -->
+		<passive_skill id="27872" level="9" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40239" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +10%, when using a single attack skill, deals 6500 fixed PvP damage to target at a certain rate, Max CP +3080 -->
+		<!-- M. Def. +5% -->
+		<passive_skill id="27872" level="10" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40240" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +11%, when using a single attack skill, deals 9000 fixed PvP damage to target at a certain rate, Max CP +3388 -->
+		<!-- M. Def. +5, when using a single attack skill, there's a chance the target's CP will be reduced by 50% -->
+		<passive_skill id="27872" level="11" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40241" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +12%, when using a single attack skill, deals 9000 fixed PvP damage to target at a certain rate, Max CP +3727 -->
+		<!-- M. Def. +5, when using a single attack skill, there's a chance the target's CP will be reduced by 53% -->
+		<passive_skill id="27872" level="12" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40242" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +13%, when using a single attack skill, deals 9000 fixed PvP damage to target at a certain rate, Max CP +4099 -->
+		<!-- M. Def. +5, when using a single attack skill, there's a chance the target's CP will be reduced by 56%, and when you land a hit, you have a chance to recover 50% of CP -->
+		<passive_skill id="27872" level="13" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40243" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +14%, when using a single attack skill, deals 9000 fixed PvP damage to target at a certain rate, Max CP +4509 -->
+		<!-- M. Def. +5, when using a single attack skill, there's a chance the target's CP will be reduced by 58%, and when you land a hit, you have a chance to recover 53% of CP -->
+		<passive_skill id="27872" level="14" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40244" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +15%, when using a single attack skill, deals 11000 fixed PvP damage to target at a certain rate, Max CP +4960 -->
+		<!-- M. Def. +5, when using a single attack skill, there's a chance the target's CP will be reduced by 60%, and when you land a hit, you have a chance to recover 55% of CP -->
+		<passive_skill id="27872" level="15" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40245" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +16%, when using a single attack skill, deals 11000 fixed PvP damage to target at a certain rate, Max CP +5456 -->
+		<!-- M. Def. +5, when using a single attack skill, there's a chance the target's CP will be reduced by 62%, and when you land a hit, you have a chance to recover 58% of CP -->
+		<passive_skill id="27872" level="16" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40246" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +17%, when using a single attack skill, deals 11000 fixed PvP damage to target at a certain rate, Max CP +6002 -->
+		<!-- M. Def. +5, when using a single attack skill, there's a chance the target's CP will be reduced by 64%, and when you land a hit, you have a chance to recover 61% of CP -->
+		<passive_skill id="27872" level="17" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40247" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +18%, when using a single attack skill, deals 11000 fixed PvP damage to target at a certain rate, Max CP +6602 -->
+		<!-- M. Def. +5, when using a single attack skill, there's a chance the target's CP will be reduced by 66%, and when you land a hit, you have a chance to recover 64% of CP -->
+		<!-- Damage to Immobilized Targets +30% -->
+		<passive_skill id="27872" level="18" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40248" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +19%, when using an attack skill, deals 15000 fixed PvP damage to target at a certain rate, Max CP +7262 -->
+		<!-- M. Def. +5, when using a single attack skill, there's a chance the target's CP will be reduced by 68%, and when you land a hit, you have a chance to recover 67% of CP -->
+		<!-- Damage to Immobilized Targets +40% -->
+		<passive_skill id="27872" level="19" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40249" name="elmoreden_cloak_opt">
+		<!-- PvP Attack Damage +20%, when using an attack skill, deals 15000 fixed PvP damage to target at a certain rate, Max CP +7989 -->
+		<!-- M. Def. +5, when using a single attack skill, there's a chance the target's CP will be reduced by 70%, and when you land a hit, you have a chance to recover 70% of CP -->
+		<!-- Damage to Immobilized Targets +50%, and has a chance to inflict damage and knock down enemy who attacked -->
+		<passive_skill id="27872" level="20" /> <!-- Elmoreden Cloak Enchant Effect -->
+	</option>
+	<option id="40250" name="elmoreden_cloak_opt">
+		<!-- Active Skill: Ignore Damage -->
+		<active_skill id="27879" level="1" /> <!-- Ignore Damage -->
+	</option>
+	<option id="40251" name="elmoreden_cloak_opt">
+		<!-- Active Skill: Ignore Damage -->
+		<!-- Active Skill: Blessing of Elmoreden -->
+		<active_skill id="27879" level="1" /> <!-- Ignore Damage -->
+		<active_skill id="27880" level="1" /> <!-- Blessing of Elmoreden -->
+	</option>
+	<option id="40252" name="aden_cloak_opt">
+		<!-- Increases Magic Attack PvE Damage when enchanted and bestows various passive and active skills. -->
+		<passive_skill id="27873" level="1" /> <!-- Aden Cloak Basic Effect -->
+	</option>
+	<option id="40253" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to normal monsters +1% -->
+		<passive_skill id="27874" level="1" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40254" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to normal monsters +2% -->
+		<passive_skill id="27874" level="2" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40255" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to normal monsters +3% -->
+		<passive_skill id="27874" level="3" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40256" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to normal monsters +4% -->
+		<passive_skill id="27874" level="4" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40257" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to normal monsters +5% -->
+		<!-- M. Atk. +7% -->
+		<passive_skill id="27874" level="5" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40258" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to normal monsters +6% -->
+		<!-- M. Atk. +7% -->
+		<passive_skill id="27874" level="6" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40259" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to all monsters +7%, when using an attack skill, Magic PvE Damage +50% at a certain rate -->
+		<!-- M. Atk. +7% -->
+		<active_skill id="27889" level="1" /> <!-- Wrath of Aden -->
+		<passive_skill id="27874" level="7" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40260" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to all monsters +8%, when using an attack skill, Magic PvE Damage +55% at a certain rate -->
+		<!-- M. Atk. +7% -->
+		<active_skill id="27889" level="2" /> <!-- Wrath of Aden -->
+		<passive_skill id="27874" level="8" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40261" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to all monsters +9%, when using an attack skill, Magic PvE Damage +61% at a certain rate -->
+		<!-- M. Atk. +7%, EXP/SP +7% when hunting -->
+		<active_skill id="27889" level="3" /> <!-- Wrath of Aden -->
+		<passive_skill id="27874" level="9" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40262" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to all monsters +10%, when using an attack skill, Magic PvE Damage +67% at a certain rate -->
+		<!-- M. Atk. +7%, EXP/SP +8% when hunting -->
+		<active_skill id="27889" level="4" /> <!-- Wrath of Aden -->
+		<passive_skill id="27874" level="10" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40263" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to all monsters +11%, when using an attack skill, Magic PvE Damage +73% at a certain rate -->
+		<!-- M. Atk. +7%, EXP/SP +9% when hunting, M. Skill Critical Damage +3% -->
+		<active_skill id="27889" level="5" /> <!-- Wrath of Aden -->
+		<passive_skill id="27874" level="11" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40264" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to all monsters +12%, when using an attack skill, Magic PvE Damage +81% at a certain rate -->
+		<!-- M. Atk. +7%, EXP/SP +10% when hunting, M. Skill Critical Damage +4% -->
+		<active_skill id="27889" level="6" /> <!-- Wrath of Aden -->
+		<passive_skill id="27874" level="12" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40265" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to all monsters +13%, when using an attack skill, Magic PvE Damage +89% at a certain rate -->
+		<!-- M. Atk. +7%, EXP/SP +11% when hunting, M. Skill Critical Damage +5% -->
+		<active_skill id="27889" level="7" /> <!-- Wrath of Aden -->
+		<passive_skill id="27874" level="13" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40266" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to all monsters +14%, when using an attack skill, Magic PvE Damage +97% at a certain rate -->
+		<!-- M. Atk. +7%, EXP/SP +12% when hunting, M. Skill Critical Damage +6% -->
+		<active_skill id="27889" level="8" /> <!-- Wrath of Aden -->
+		<passive_skill id="27874" level="14" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40267" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to all monsters +15%, when using an attack skill, Magic PvE Damage +107% at a certain rate -->
+		<!-- M. Atk. +7%, EXP/SP +13% when hunting, M. Skill Critical Damage +7% -->
+		<active_skill id="27889" level="9" /> <!-- Wrath of Aden -->
+		<passive_skill id="27874" level="15" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40268" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to all monsters +16%, when using an attack skill, Magic PvE Damage +118% at a certain rate -->
+		<!-- M. Atk. +7%, EXP/SP +14% when hunting, M. Skill Critical Damage +8% -->
+		<active_skill id="27889" level="10" /> <!-- Wrath of Aden -->
+		<passive_skill id="27874" level="16" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40269" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to all monsters +17%, when using an attack skill, Magic PvE Damage +130% at a certain rate -->
+		<!-- M. Atk. +7%, EXP/SP +15% when hunting, M. Skill Critical Damage +9% -->
+		<active_skill id="27889" level="11" /> <!-- Wrath of Aden -->
+		<passive_skill id="27874" level="17" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40270" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to all monsters +18%, when using an attack skill, Magic PvE Damage +200% at a certain rate -->
+		<!-- M. Atk. +7%, EXP/SP +16% when hunting, M. Skill Critical Damage +10% -->
+		<active_skill id="27889" level="12" /> <!-- Wrath of Aden -->
+		<passive_skill id="27874" level="18" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40271" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to all monsters +19%, when using an attack skill, Magic PvE Damage +200% at a certain rate -->
+		<!-- M. Atk. +7%, EXP/SP +17% when hunting, M. Skill Critical Damage +11% -->
+		<active_skill id="27889" level="13" /> <!-- Wrath of Aden -->
+		<passive_skill id="27874" level="19" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40272" name="aden_cloak_opt">
+		<!-- Magic PvE Damage to all monsters +20%, when using an attack skill, Magic PvE Damage +200% at a certain rate -->
+		<!-- M. Atk. +7%, EXP/SP +20% when hunting, M. Skill Critical Damage +15% -->
+		<active_skill id="27889" level="14" /> <!-- Wrath of Aden -->
+		<passive_skill id="27874" level="20" /> <!-- Aden Cloak Enchant Effect -->
+	</option>
+	<option id="40273" name="aden_cloak_opt">
+		<!-- Active Skill: Blessing of Aden -->
+		<active_skill id="27881" level="1" /> <!-- Blessing of Aden -->
+	</option>
+	<option id="40274" name="aden_cloak_opt">
+		<!-- Active Skill: Blessing of Aden -->
+		<!-- Active Skill: Spirit of Aden -->
+		<active_skill id="27881" level="1" /> <!-- Blessing of Aden -->
+		<active_skill id="27883" level="1" /> <!-- Spirit of Aden -->
+	</option>
+	<option id="40275" name="elmore_cloak_opt">
+		<!-- Increases Physical Attack PvE Damage when enchanted and bestows various passive and active skills. -->
+		<passive_skill id="27875" level="1" /> <!-- Elmore Cloak Basic Effect -->
+	</option>
+	<option id="40276" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to normal monsters +1% -->
+		<passive_skill id="27876" level="1" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40277" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to normal monsters +2% -->
+		<passive_skill id="27876" level="2" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40278" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to normal monsters +3% -->
+		<passive_skill id="27876" level="3" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40279" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to normal monsters +4% -->
+		<passive_skill id="27876" level="4" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40280" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to normal monsters +5% -->
+		<!-- P. Atk. +7% -->
+		<passive_skill id="27876" level="5" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40281" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to normal monsters +6% -->
+		<!-- P. Atk. +7% -->
+		<passive_skill id="27876" level="6" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40282" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to all monsters +7%, when using an attack skill, Physical PvE Damage +50% at a certain rate -->
+		<!-- P. Atk. +7% -->
+		<passive_skill id="27876" level="7" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40283" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to all monsters +8%, when using an attack skill, Physical PvE Damage +55% at a certain rate -->
+		<!-- P. Atk. +7% -->
+		<passive_skill id="27876" level="8" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40284" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to all monsters +9%, when using an attack skill, Physical PvE Damage +61% at a certain rate -->
+		<!-- P. Atk. + 7%, EXP/SP +7% when hunting -->
+		<passive_skill id="27876" level="9" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40285" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to all monsters +10%, when using an attack skill, Physical PvE Damage +67% at a certain rate -->
+		<!-- P. Atk. + 7%, EXP/SP +8% when hunting -->
+		<passive_skill id="27876" level="10" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40286" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to all monsters +11%, when using an attack skill, Physical PvE Damage +73% at a certain rate -->
+		<!-- P. Atk. + 7%, EXP/SP +9% when hunting, M. Skill Critical Damage +3% -->
+		<passive_skill id="27876" level="11" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40287" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to all monsters +12%, when using an attack skill, Physical PvE Damage +81% at a certain rate -->
+		<!-- P. Atk. + 7%, EXP/SP +10% when hunting, M. Skill Critical Damage +4% -->
+		<passive_skill id="27876" level="12" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40288" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to all monsters +13%, when using an attack skill, Physical PvE Damage +89% at a certain rate -->
+		<!-- P. Atk. + 7%, EXP/SP +11% when hunting, M. Skill Critical Damage +5% -->
+		<passive_skill id="27876" level="13" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40289" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to all monsters +14%, when using an attack skill, Physical PvE Damage +97% at a certain rate -->
+		<!-- P. Atk. + 7%, EXP/SP +12% when hunting, M. Skill Critical Damage +6% -->
+		<passive_skill id="27876" level="14" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40290" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to all monsters +15%, when using an attack skill, Physical PvE Damage +107% at a certain rate -->
+		<!-- P. Atk. + 7%, EXP/SP +13% when hunting, M. Skill Critical Damage +7% -->
+		<passive_skill id="27876" level="15" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40291" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to all monsters +16%, when using an attack skill, Physical PvE Damage +118% at a certain rate -->
+		<!-- P. Atk. + 7%, EXP/SP +14% when hunting, M. Skill Critical Damage +8% -->
+		<passive_skill id="27876" level="16" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40292" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to all monsters +17%, when using an attack skill, Physical PvE Damage +130% at a certain rate -->
+		<!-- P. Atk. + 7%, EXP/SP +15% when hunting, M. Skill Critical Damage +9% -->
+		<passive_skill id="27876" level="17" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40293" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to all monsters +18%, when using an attack skill, Physical PvE Damage +200% at a certain rate -->
+		<!-- P. Atk. + 7%, EXP/SP +16% when hunting, M. Skill Critical Damage +10% -->
+		<passive_skill id="27876" level="18" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40294" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to all monsters +19%, when using an attack skill, Physical PvE Damage +200% at a certain rate -->
+		<!-- P. Atk. + 7%, EXP/SP +17% when hunting, M. Skill Critical Damage +11% -->
+		<passive_skill id="27876" level="19" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40295" name="elmore_cloak_opt">
+		<!-- Physical PvE Damage to all monsters +20%, when using an attack skill, Physical PvE Damage +200% at a certain rate -->
+		<!-- P. Atk. + 7%, EXP/SP +20% when hunting, M. Skill Critical Damage +15% -->
+		<passive_skill id="27876" level="20" /> <!-- Elmore Cloak Enchant Effect -->
+	</option>
+	<option id="40296" name="elmore_cloak_opt">
+		<!-- Active Skill: Blessing of Elmore -->
+		<active_skill id="27882" level="1" /> <!-- Blessing of Elmore -->
+	</option>
+	<option id="40297" name="elmore_cloak_opt">
+		<!-- Active Skill: Blessing of Elmore -->
+		<!-- Active Skill: Spirit of Elmore -->
+		<active_skill id="27882" level="1" /> <!-- Blessing of Elmore -->
+		<active_skill id="27884" level="1" /> <!-- Spirit of Elmore -->
+	</option>
+	<option id="40298" name="ferios_cloak_opt">
+		<!-- Increases resistance to all attributes when enchanted and bestows various passive and active skills. -->
+		<passive_skill id="27877" level="1" /> <!-- Ferios Cloak Basic Effect -->
+	</option>
+	<option id="40299" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +10 -->
+		<passive_skill id="27878" level="1" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+</list>

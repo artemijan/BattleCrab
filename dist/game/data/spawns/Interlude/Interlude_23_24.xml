@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Interlude_23_24">
+		<group>
+			<npc id="30971" x="129812" y="219005" z="-3583" heading="24952" respawnTime="60sec" /> <!-- Orpheus -->
+			<npc id="30918" x="103710" y="218030" z="-3584" heading="32852" respawnTime="60sec" /> <!-- Kent -->
+			<npc id="30919" x="103711" y="218289" z="-3584" heading="32852" respawnTime="60sec" /> <!-- Rodic -->
+			<npc id="30916" x="106942" y="218040" z="-3664" respawnTime="60sec" /> <!-- Gosta -->
+			<npc id="30917" x="106938" y="218283" z="-3664" respawnTime="60sec" /> <!-- Dupuis -->
+			<npc id="30921" x="115735" y="219407" z="-3659" heading="32768" respawnTime="60sec" /> <!-- Timos -->
+			<npc id="30920" x="115737" y="219156" z="-3659" heading="32768" respawnTime="60sec" /> <!-- Kraisen -->
+			<npc id="30922" x="118944" y="219120" z="-3568" respawnTime="60sec" /> <!-- Cage -->
+			<npc id="30923" x="118944" y="219437" z="-3568" respawnTime="60sec" /> <!-- Dunst -->
+			<npc id="30890" x="115799" y="217684" z="-3580" heading="16416" respawnTime="60sec" /> <!-- Espen -->
+			<npc id="30891" x="115957" y="217807" z="-3582" respawnTime="60sec" /> <!-- Verona -->
+			<npc id="31050" x="107253" y="217252" z="-3597" heading="39408" respawnTime="60sec" /> <!-- Thora -->
+			<npc id="30892" x="107082" y="216673" z="-3595" heading="13168" respawnTime="60sec" /> <!-- Enverun -->
+			<npc id="30893" x="107141" y="216674" z="-3595" heading="19624" respawnTime="60sec" /> <!-- Payel -->
+			<npc id="31042" x="106955" y="216987" z="-3600" respawnTime="60sec" /> <!-- Kantabilon -->
+			<npc id="30895" x="109623" y="220091" z="-3520" heading="2088" respawnTime="60sec" /> <!-- Kluck -->
+			<npc id="30894" x="109627" y="220168" z="-3520" respawnTime="60sec" /> <!-- Natools -->
+			<npc id="30896" x="109625" y="220238" z="-3520" respawnTime="60sec" /> <!-- Mia -->
+			<npc id="30969" x="109754" y="220030" z="-3524" heading="7656" respawnTime="60sec" /> <!-- Iason Heine -->
+			<npc id="30897" x="108003" y="218963" z="-3656" respawnTime="60sec" /> <!-- Roman -->
+			<npc id="30898" x="107763" y="218725" z="-3659" heading="12192" respawnTime="60sec" /> <!-- Morning -->
+			<npc id="30899" x="111386" y="219413" z="-3536" respawnTime="60sec" /> <!-- Flauen -->
+			<npc id="30900" x="113739" y="218423" z="-3626" respawnTime="60sec" /> <!-- Marcus -->
+			<npc id="30901" x="113967" y="218584" z="-3626" respawnTime="60sec" /> <!-- Arti -->
+			<npc id="30902" x="114373" y="218268" z="-3626" respawnTime="60sec" /> <!-- Karuna -->
+			<npc id="30903" x="114251" y="219489" z="-3626" respawnTime="60sec" /> <!-- Traus -->
+			<npc id="30904" x="114205" y="219156" z="-3626" heading="3208" respawnTime="60sec" /> <!-- Naiel -->
+			<npc id="30905" x="111385" y="216821" z="-3458" heading="16264" respawnTime="60sec" /> <!-- Squillari -->
+			<npc id="30906" x="111226" y="216994" z="-3458" heading="5384" respawnTime="60sec" /> <!-- Ranton -->
+			<npc id="30908" x="111548" y="217133" z="-3458" heading="28808" respawnTime="60sec" /> <!-- Tanios -->
+			<npc id="30907" x="111221" y="217236" z="-3458" heading="5384" respawnTime="60sec" /> <!-- Minevia -->
+			<npc id="30909" x="111549" y="217381" z="-3458" heading="28808" respawnTime="60sec" /> <!-- Anabel -->
+			<npc id="30910" x="115904" y="219919" z="-3627" respawnTime="60sec" /> <!-- Xairakin -->
+			<npc id="30911" x="115618" y="219666" z="-3627" heading="11680" respawnTime="60sec" /> <!-- Brikus -->
+			<npc id="30912" x="115614" y="220280" z="-3627" heading="54096" respawnTime="60sec" /> <!-- Xenovia -->
+			<npc id="30973" x="115531" y="220194" z="-3627" respawnTime="60sec" /> <!-- Medium Jar -->
+			<npc id="30924" x="112050" y="225462" z="-3627" heading="40960" respawnTime="60sec" /> <!-- Nedy -->
+			<npc id="30925" x="111487" y="224587" z="-3549" heading="46320" respawnTime="60sec" /> <!-- Morelyn -->
+			<npc id="30926" x="111053" y="224148" z="-3549" heading="3400" respawnTime="60sec" /> <!-- Restina -->
+			<npc id="30927" x="111657" y="223985" z="-3549" heading="25456" respawnTime="60sec" /> <!-- Alicia -->
+			<npc id="30970" x="114939" y="223293" z="-3736" heading="38248" respawnTime="60sec" /> <!-- Dorothy -->
+			<!-- <npc id="31148" x="106354" y="197181" z="-4200" heading="48000" respawnTime="60sec" /> Pirate's Treasure Chest -->
+			<npc id="30913" x="108683" y="218942" z="-3674" heading="32500" respawnTime="60sec" /> <!-- Tushku -->
+			<npc id="30914" x="108656" y="219056" z="-3676" heading="48500" respawnTime="60sec" /> <!-- Sorbo -->
+			<npc id="30915" x="108652" y="218856" z="-3676" heading="32500" respawnTime="60sec" /> <!-- Takina -->
+			<npc id="30012" x="107025" y="217312" z="-3600" heading="49000" respawnTime="60sec" /> <!-- Litulon -->
+			<npc id="31688" x="112336" y="220128" z="-3599" heading="33000" respawnTime="60sec" /> <!-- Olympiad Manager -->
+			<npc id="31690" x="112336" y="220208" z="-3599" heading="33000" respawnTime="60sec" /> <!-- Monument of Heroes -->
+			<npc id="31031" x="109825" y="219399" z="-3470" heading="16384" respawnTime="10sec" /> <!-- Broadcasting Tower -->
+		</group>
+	</spawn>
+</list>

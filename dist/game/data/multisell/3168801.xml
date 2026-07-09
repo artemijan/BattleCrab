@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/multisell.xsd">
+	<npcs>
+		<npc>31688</npc> <!-- Olympiad Manager -->
+	</npcs>
+	<item>
+		<!-- Adena -->
+		<ingredient id="57" count="12000000" />
+		<!-- Mark of Battle -->
+		<ingredient id="45584" count="2037" />
+		<!-- Ancient Book: Divine Inspiration (Modern Language Version) -->
+		<production id="8618" count="1" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient id="57" count="15000000" />
+		<!-- Mark of Battle -->
+		<ingredient id="45584" count="3961" />
+		<!-- Ancient Book: Divine Inspiration (Original Language Version) -->
+		<production id="8619" count="1" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient id="57" count="600000" />
+		<!-- Mark of Battle -->
+		<ingredient id="45584" count="272" />
+		<!-- Scroll: Enchant Armor (A-grade) -->
+		<production id="730" count="1" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient id="57" count="200000" />
+		<!-- Mark of Battle -->
+		<ingredient id="45584" count="92" />
+		<!-- Scroll: Enchant Armor (B-grade) -->
+		<production id="948" count="1" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient id="57" count="4500000" />
+		<!-- Mark of Battle -->
+		<ingredient id="45584" count="1019" />
+		<!-- Scroll: Enchant Weapon (A-grade) -->
+		<production id="729" count="1" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient id="57" count="1250000" />
+		<!-- Mark of Battle -->
+		<ingredient id="45584" count="283" />
+		<!-- Scroll: Enchant Weapon (B-grade) -->
+		<production id="947" count="1" />
+	</item>
+</list>

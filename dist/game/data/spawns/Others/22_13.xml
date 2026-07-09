@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="22_13">
+		<group>
+			<npc id="33511" x="86816" y="-143163" z="-1336" heading="26056" respawnTime="60sec" /> <!-- Priest of Mammon -->
+		</group>
+	</spawn>
+</list>

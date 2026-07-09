@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/teleporterData.xsd">
+	<npc id="30320"> <!-- Richlin -->
+		<teleport type="NORMAL">
+			<!-- Interlude - C6 -->
+			<location npcStringId="1010005" x="-14455" y="123986" z="-3120" feeCount="7300" /> <!-- Town of Gludio -->
+			<location npcStringId="1010001" x="-84141" y="244623" z="-3728" feeCount="9400" /> <!-- Talking Island Village -->
+			<location npcStringId="1010155" x="46951" y="51550" z="-2976" feeCount="16000" /> <!-- Elven Village -->
+			<location npcStringId="1010156" x="9744" y="15645" z="-4568" feeCount="16000" /> <!-- Dark Elf Village -->
+			<location npcStringId="1010158" x="115120" y="-178224" z="-880" feeCount="38000" /> <!-- Dwarven Village -->
+			<location npcStringId="1010157" x="-45158" y="-112583" z="-240" feeCount="26000" /> <!-- Orc Village -->
+			<location npcStringId="1010100" x="-44763" y="203470" z="-3592" feeCount="1800" /> <!-- Langk Lizardmen Dwellings (Lv. 16) -->
+			<location npcStringId="1010175" x="-75437" y="168800" z="-3632" feeCount="550" /> <!-- Windmill Hill (Lv. 15) -->
+			<location npcStringId="1010096" x="-63736" y="101522" z="-3552" feeCount="1400" /> <!-- Fellmere Harvesting Grounds (Lv. 17) -->
+			<location npcStringId="1010106" x="-53001" y="191425" z="-3568" feeCount="2000" /> <!-- Forgotten Temple (Lv. 27) -->
+			<location npcStringId="1010095" x="-89763" y="105359" z="-3576" feeCount="1800" /> <!-- Orc Barracks (Lv. 24) -->
+			<location npcStringId="1010094" x="-88539" y="83389" z="-2864" feeCount="2600" /> <!-- Windy Hill (Lv. 26) -->
+			<location npcStringId="1010098" x="-49853" y="147089" z="-2784" feeCount="1200" /> <!-- Abandoned Camp (Lv. 21) -->
+			<location npcStringId="1010621" x="-16526" y="208032" z="-3664" feeCount="3400" /> <!-- Wastelands (Lv. 25) -->
+			<location npcStringId="1010099" x="-42256" y="198333" z="-2800" feeCount="3700" /> <!-- Red Rock Ridge (Lv. 30) -->
+		</teleport>
+	</npc>
+</list>

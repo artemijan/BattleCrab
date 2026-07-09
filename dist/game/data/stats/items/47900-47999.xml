@@ -1,0 +1,611 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+	<item id="47900" name="Angel's Fortune Box" type="EtcItem">
+		<!-- Double-click to obtain 30 Shining Magic Baits. Either Archangel's Box of Grace or Nevit's Blessing Box is available to get with a random chance. -->
+		<set name="icon" val="icon.bm_sayha_silver_present" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47901" name="Archangel's Box of Grace" type="EtcItem">
+		<!-- If you double click on the box, you can obtain a rare item. -->
+		<set name="icon" val="icon.bm_nebit_angel_box" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47902" name="Nevit's Blessing Box" type="EtcItem">
+		<!-- Double-click the box to obtain one of the very rare items at random. -->
+		<set name="icon" val="icon.bm_nebit_box" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47903" name="Shining Magic Bait (85)" type="EtcItem">
+		<!-- Fishing Time: 45s. Fishing Waiting Time: 15s. Fishing Bait. Use to catch Ugly, Swift Fish, with a chance to obtain a Coin of light. Can be used only above level 85. -->
+		<set name="icon" val="icon.bm_gold_lure" />
+		<set name="default_action" val="EQUIP" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="LIQUID" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47904" name="Shining Magic Bait (95)" type="EtcItem">
+		<!-- Fishing Time: 45s. Fishing Waiting Time: 15s. Fishing Bait. Use to catch Ugly, Swift Fish, with a chance to obtain a Coin of light. Can be used only above level 95. -->
+		<set name="icon" val="icon.bm_gold_lure" />
+		<set name="default_action" val="EQUIP" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="LIQUID" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47905" name="Shining Magic Bait (99)" type="EtcItem">
+		<!-- Fishing Time: 45s. Fishing Waiting Time: 15s. Fishing Bait. Use to catch Ugly, Swift Fish, with a chance to obtain a Coin of light. Can be used only above level 99. -->
+		<set name="icon" val="icon.bm_gold_lure" />
+		<set name="default_action" val="EQUIP" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="LIQUID" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47906" name="Shining Magic Bait (102)" type="EtcItem">
+		<!-- Fishing Time: 45s. Fishing Waiting Time: 15s. Fishing Bait. Use to catch Ugly, Swift Fish, with a chance to obtain a Coin of light. Can be used only above level 102. -->
+		<set name="icon" val="icon.bm_gold_lure" />
+		<set name="default_action" val="EQUIP" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="LIQUID" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47907" name="Shining Magic Bait (105)" type="EtcItem">
+		<!-- Fishing Time: 45s. Fishing Waiting Time: 15s. Fishing Bait. Use to catch Ugly, Swift Fish, with a chance to obtain a Coin of light. Can be used only above level 105. -->
+		<set name="icon" val="icon.bm_gold_lure" />
+		<set name="default_action" val="EQUIP" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="LIQUID" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47908" name="Shining Magic Bait Exchange Coupon" type="EtcItem">
+		<!-- Fishing Guild Members in each village can exchange this for 1 of your desired Shining Magic Bait. -->
+		<set name="icon" val="icon.etc_bm_lure_ticket2" />
+		<set name="material" val="LEATHER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47909" name="Angel's Gift Package" additionalName="Lv1" type="EtcItem">
+		<!-- Double click to acquire one Stage 5 (30-day fixed period) fishing pole box and one Scroll: Enchant Faint Elemental Shirt. -->
+		<set name="icon" val="icon.bm_nebit_present" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="47618" min="1" max="1" chance="100" /> <!-- Angler's Fishing Rod - Stage 5 Box - 30-day -->
+			<item id="47804" min="1" max="1" chance="100" /> <!-- Scroll: Enchant Faint Elemental Shirt -->
+		</capsuled_items>
+	</item>
+	<item id="47910" name="Angel's Gift Package" additionalName="Lv2" type="EtcItem">
+		<!-- Double click to acquire one Stage 5 (30-day fixed period) fishing pole box and one Scroll: Enchant Faint Elemental Shirt, and one Greater Vital Stone (30-day fixed period). -->
+		<set name="icon" val="icon.bm_nebit_present" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="47618" min="1" max="1" chance="100" /> <!-- Angler's Fishing Rod - Stage 5 Box - 30-day -->
+			<item id="47804" min="1" max="1" chance="100" /> <!-- Scroll: Enchant Faint Elemental Shirt -->
+			<item id="47913" min="1" max="1" chance="100" /> <!-- Greater Transport Box - 30-day -->
+		</capsuled_items>
+	</item>
+	<item id="47911" name="Angel's Gift Package" additionalName="Lv3" type="EtcItem">
+		<!-- Double click to acquire one Stage 5 (30-day fixed period) fishing pole box and two Scrolls: Enchant Faint Elemental Shirt, one Greater Vital Stone (30-day fixed period), and one Advanced Red&Blue Cat's Eye (30-day fixed period). -->
+		<set name="icon" val="icon.bm_nebit_present" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="47618" min="1" max="1" chance="100" /> <!-- Angler's Fishing Rod - Stage 5 Box - 30-day -->
+			<item id="47804" min="2" max="2" chance="100" /> <!-- Scroll: Enchant Faint Elemental Shirt -->
+			<item id="47913" min="1" max="1" chance="100" /> <!-- Greater Transport Box - 30-day -->
+			<item id="47914" min="1" max="1" chance="100" /> <!-- Advanced Red&Blue Cat's Eye Treasure Chest - 30-day -->
+		</capsuled_items>
+	</item>
+	<item id="47912" name="Angel's Gift Package" additionalName="Lv4" type="EtcItem">
+		<!-- Double click to acquire one Stage 5 (30-day fixed period) fishing pole box and three Scrolls: Enchant Faint Elemental Shirt, one Greater Vital Stone (30-day fixed period), one Advanced Red&Blue Cat's Eye (30-day fixed period), one Greater Tanzanite (30-day fixed period) box, and one Nevit's Cloak of Light (30-day fixed period) box. -->
+		<set name="icon" val="icon.bm_nebit_present" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="47618" min="1" max="1" chance="100" /> <!-- Angler's Fishing Rod - Stage 5 Box - 30-day -->
+			<item id="47804" min="3" max="3" chance="100" /> <!-- Scroll: Enchant Faint Elemental Shirt -->
+			<item id="47913" min="1" max="1" chance="100" /> <!-- Greater Transport Box - 30-day -->
+			<item id="47914" min="1" max="1" chance="100" /> <!-- Advanced Red&Blue Cat's Eye Treasure Chest - 30-day -->
+			<item id="47915" min="1" max="1" chance="100" /> <!-- Greater Tanzanite Box - 30-day -->
+			<item id="47916" min="1" max="1" chance="100" /> <!-- Nevit's Cloak of Light Box - 30-day -->
+		</capsuled_items>
+	</item>
+	<item id="47913" name="Greater Transport Box" additionalName="30-day" type="EtcItem">
+		<!-- Double-click to obtain a Greater Vital Stone (30-day fixed term). -->
+		<set name="icon" val="icon.etc_bm_jewelbox_vital" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="time" val="43200" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="47920" min="1" max="1" chance="100" /> <!-- Greater Vital Stone - 30-day -->
+		</capsuled_items>
+	</item>
+	<item id="47914" name="Advanced Red and Blue Cat's Eye Treasure Chest" additionalName="30-day" type="EtcItem">
+		<!-- Double-click to obtain a Greater Vital Stone (30-day fixed term) and a Blue Cat's Eye (30-day fixed term). -->
+		<set name="icon" val="icon.etc_bm_jewelbox_shhadai" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="time" val="43200" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="47921" min="1" max="1" chance="100" /> <!-- Greater Red Cat's Eye - 30-day -->
+			<item id="47922" min="1" max="1" chance="100" /> <!-- Greater Blue Cat's Eye - 30-day -->
+		</capsuled_items>
+	</item>
+	<item id="47915" name="Greater Tanzanite Box" additionalName="30-day" type="EtcItem">
+		<!-- Double-click to obtain a Greater Tanzanite (30-day fixed term). -->
+		<set name="icon" val="icon.etc_bm_jewelbox_tanzanite" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="time" val="43200" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="47923" min="1" max="1" chance="100" /> <!-- Greater Tanzanite - 30-day -->
+		</capsuled_items>
+	</item>
+	<item id="47916" name="Nevit's Cloak of Light Box" additionalName="30-day" type="EtcItem">
+		<!-- Double-click to obtain Nevit's Cloak of Light (30-day fixed term). -->
+		<set name="icon" val="icon.bm_sayha_present" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="47917" min="1" max="1" chance="100" /> <!-- Nevit's Cloak of Light - 30-day -->
+		</capsuled_items>
+	</item>
+	<item id="47917" name="Nevit's Cloak of Light" additionalName="30-day" type="Armor">
+		<!-- By Angel Nevit's strength, when equipped reduces received damage by -10%, and increases all skills by +3. -->
+		<set name="icon" val="BranchSys2.Icon.7anni_cloack_i02" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="back" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="CLOTH" />
+		<set name="weight" val="220" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="43200" />
+		<set name="time" val="43200" />
+		<cond msgId="2453">
+			<player cloakStatus="true" />
+		</cond>
+		<cond>
+			<player level="80" />
+		</cond>
+		<skills>
+			<skill id="13975" level="1" /> <!-- Nevit's Cloak of Light -->
+		</skills>
+		<stats>
+			<stat type="mDef">80</stat>
+			<stat type="pDef">100</stat>
+		</stats>
+	</item>
+	<item id="47918" name="Nevit's Gold Hourglass" type="EtcItem">
+		<!-- When used, increases EXP/SP from hunting by 50%, and every 5 billion EXP, a Stand of Shining Growth is obtained for 30 minutes. Cannot be used with Fall of the Dragon, Dandy's Home Run Ball, and Agathion - EXP Bottle. Cooldown 5 minutes. -->
+		<set name="icon" val="icon.bm_nebit_bonus_time_up" />
+		<set name="etcitem_type" val="SCROLL" />
+		<set name="is_oly_restricted" val="true" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="PAPER" />
+		<set name="handler" val="ItemSkills" />
+		<set name="reuse_delay" val="300000" />
+		<cond addName="1" msgId="113">
+			<player flyMounted="false" />
+		</cond>
+		<skills>
+			<skill id="18797" level="1" /> <!-- Nevit's Gold Hourglass -->
+		</skills>
+	</item>
+	<item id="47919" name="Shining Scroll of Growth" type="EtcItem">
+		<!-- When used, 1 billion EXP obtained, is only 20% effective after Lv 99. Can be used above Lv 85. -->
+		<set name="icon" val="icon.bm_nebit_exp_book" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="etcitem_type" val="SCROLL" />
+		<set name="material" val="PAPER" />
+		<set name="reuse_delay" val="3000" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<cond msgId="113" addName="1">
+			<player level="85" />
+		</cond>
+		<skills>
+			<skill id="18798" level="1" /> <!-- Shining Scroll of Growth -->
+		</skills>
+	</item>
+	<item id="47920" name="Greater Vital Stone" additionalName="30-day" type="Armor">
+		<!-- Increases bonus EXP by 30% and decreases Vitality consumption by 15% when worn using Vitality. Additionally, acquired XP is increased by 10%. When you wear the same type of gemstone, only the effect of the highest level gem is applied. -->
+		<set name="icon" val="icon.bm_jewel_vital_high_lv1_lavianrose" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="brooch_jewel" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="43200" />
+	</item>
+	<item id="47921" name="Greater Red Cat's Eye" additionalName="30-day" type="Armor">
+		<!-- Increases P. Critical Damage by 12%, P. Skill Critical Damage by 12%, and P. Skill Power by 5%. When you wear the same type of gemstone, only the effect of the highest level gem is applied. -->
+		<set name="icon" val="icon.bm_jewel_red_catseye_high_lv1_lavianrose" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="brooch_jewel" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="43200" />
+		<skills>
+			<skill id="18713" level="6" /> <!-- Superior Red Cat's Eye Lv. 10 -->
+		</skills>
+	</item>
+	<item id="47922" name="Greater Blue Cat's Eye" additionalName="30-day" type="Armor">
+		<!-- Increases Magic Critical Damage by 12%, M. Skill Power by 5%. When you wear the same type of gemstone, only the effect of the highest level gem is applied. -->
+		<set name="icon" val="icon.bm_jewel_blue_catseye_high_lv1_lavianrose" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="brooch_jewel" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="43200" />
+		<skills>
+			<skill id="18714" level="5" /> <!-- Superior Blue Cat's Eye Lv. 10 -->
+		</skills>
+	</item>
+	<item id="47923" name="Greater Tanzanite" additionalName="30-day" type="Armor">
+		<!-- When used, it creates a shield that absorbs 50,000 damage for 15 seconds and recovers 15% of maximum HP immediately after use. When you wear the same type of gemstone, only the effect of the highest level gem is applied. -->
+		<set name="icon" val="icon.bm_jewel_tanzanite_high_lv1_lavianrose" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="brooch_jewel" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="43200" />
+		<skills>
+			<skill id="18815" level="6" /> <!-- Superior Tanzanite Lv. 10 -->
+			<skill id="18565" level="6" /> <!-- Superior Tanzanite - Barrier -->
+		</skills>
+	</item>
+	<item id="47924" name="Coin of Light" type="EtcItem">
+		<!-- A special coin obtained using Shiny Magic Bait. Can be used with the Dimensional Merchant. -->
+		<set name="icon" val="icon.bm_nebit_coin" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="is_freightable" val="true" />
+	</item>
+	<item id="47925" name="Red Libra Request - Altar of Shilen" type="EtcItem">
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Altar of Shilen. A character of level 101 or over can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed twice a day. -->
+		<set name="icon" val="icon.red_comminssion_paper" />
+		<set name="default_action" val="START_QUEST" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
+		<set name="weight" val="1" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+	</item>
+	<item id="47926" name="Red Libra Request - Altar of Shilen" type="EtcItem">
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Altar of Shilen. It will be deleted when the Red Libra merchants leave. -->
+		<set name="icon" val="icon.red_comminssion_paper" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+	</item>
+	<item id="47927" name="Magic Fan - Blue" type="Weapon">
+		<!-- Within the swift breezes you can feel a magic energy. This magic fan is given out to commemorate the 13th anniversary of Lineage 2. -->
+		<set name="icon" val="icon.ev_kr_13th_present_blue" />
+		<set name="default_action" val="EQUIP" />
+		<set name="weapon_type" val="BLUNT" />
+		<set name="bodypart" val="rhand" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="WOOD" />
+		<set name="weight" val="150" />
+		<set name="soulshots" val="1" />
+		<set name="spiritshots" val="1" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_magic_weapon" val="true" />
+		<set name="is_freightable" val="true" />
+		<stats>
+			<stat type="pAtk">1</stat>
+			<stat type="mAtk">1</stat>
+			<stat type="rCrit">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">1</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
+	</item>
+	<item id="47928" name="Magic Woodpile" type="EtcItem">
+		<!-- Double-click to use a magic woodpile for one player. If you have the Magic Fan equipped, you can use the skills Breeze and Gust to set fire to the woodpile. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_firewood_seed_solo" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="WOOD" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47929" name="Large Magic Woodpile" type="EtcItem">
+		<!-- Double-click to use a magic woodpile for party use. If you have the Magic Fan equipped, you can use the skills Breeze and Gust to set fire to the woodpile. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_firewood_seed_party" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="WOOD" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47930" name="Elvish Soulstone" type="EtcItem">
+		<!-- Double-click to find out more about the "The Power of Gods, Giants and the almighty Exalted" which is unknown by adventurers in Aden. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_elf_soul_ore" />
+		<set name="default_action" val="SHOW_HTML" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47931" name="Dark Elf Soulstone" type="EtcItem">
+		<!-- Double-click to find out more about the "The Power That Brings Everything Together" which is unknown by adventurers in Aden. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_darkelf_soul_ore" />
+		<set name="default_action" val="SHOW_HTML" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47932" name="Orc Soulstone" type="EtcItem">
+		<!-- Double-click to find out more about the "Rise of the Exiled People, the Ashen Shadow Revolutionaries" which is unknown by adventurers in Aden. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_orc_soul_ore" />
+		<set name="default_action" val="SHOW_HTML" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47933" name="Dwarvish Soulstone" type="EtcItem">
+		<!-- Double-click to find out more about the "Mystic Tavern of the Continent's Hidden Stories" which is known by adventurers in Aden. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_dwarf_soul_ore" />
+		<set name="default_action" val="SHOW_HTML" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47934" name="Human Soulstone" type="EtcItem">
+		<!-- Double-click to find out more about the "Kain Van Halter and Giselle's (Camille) Tragic Love Story" which is unknown by adventurers in Aden. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_human_soul_ore" />
+		<set name="default_action" val="SHOW_HTML" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47935" name="Kamael Soulstone" type="EtcItem">
+		<!-- Double-click to find out more about the "Kamael, the Race Created by Giants" which is unknown by adventurers in Aden. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_kamael_soul_ore" />
+		<set name="default_action" val="SHOW_HTML" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47936" name="Ertheia Soulstone" type="EtcItem">
+		<!-- Double-click to find out more about the "Pureblood Surr and Half-blood Nann, Reconciliation and Harmony" which is unknown by adventurers in Aden. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_ertheia_soul_ore" />
+		<set name="default_action" val="SHOW_HTML" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47937" name="Lineage 2 Soulstone" type="EtcItem">
+		<!-- Double-click to find out more about the "The Seven Signs, Giants and Embryos" which is unknown by adventurers in Aden. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_L2_soul_ore" />
+		<set name="default_action" val="SHOW_HTML" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47938" name="First Gift Box" type="EtcItem">
+		<!-- This first gift was prepared for all that deeply love Lineage 2. Double-click to obtain a reward. Will be deleted after the event. -->
+		<set name="icon" val="icon.etc_jewel_box_i00" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47939" name="Second Gift Box" type="EtcItem">
+		<!-- This second gift was prepared for all that deeply love Lineage 2. Double-click to obtain a reward. Will be deleted after the event. -->
+		<set name="icon" val="icon.etc_jewel_box_i00" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47940" name="Third Gift Box" type="EtcItem">
+		<!-- This third gift was prepared for all that deeply love Lineage 2. Double-click to obtain a reward. Will be deleted after the event. -->
+		<set name="icon" val="icon.etc_jewel_box_i00" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47941" name="Golden Orc Treasure Chest" type="EtcItem">
+		<!-- A shining golden chest. Double-click to obtain one of the items that Frederick the Destroyer tenaciously gathered over a long time. With a premium account, you will receive an even better reward. Will be deleted after the event. -->
+		<set name="icon" val="icon.etc_treasure_box_i08" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47942" name="Old Orc Box" type="EtcItem">
+		<!-- An old, dusty box. Double-click to obtain one of the 13th anniversary items that Frederick the Destroyer haphazardly gathered. Will be deleted after the event. -->
+		<set name="icon" val="icon.etc_jewel_box_i00" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47943" name="Golden Orc Treasure Chest" type="EtcItem">
+		<!-- A shining golden chest. Double-click to obtain one of the items that Frederick the Destroyer tenaciously gathered over a long time. Will be deleted after the event. -->
+		<set name="icon" val="icon.etc_treasure_box_i08" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47944" name="13th Anniversary Item" type="EtcItem">
+		<!-- An event item for the 13th anniversary of Lineage 2. Village event NPC Bliss needs it for the event. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_13th" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47945" name="Magic Fan - Yellow" type="Weapon">
+		<!-- Within the swift breezes you can feel a magic energy. This magic fan is given out to commemorate the 13th anniversary of Lineage 2. -->
+		<set name="icon" val="icon.ev_kr_13th_present_yellow" />
+		<set name="default_action" val="EQUIP" />
+		<set name="weapon_type" val="BLUNT" />
+		<set name="bodypart" val="rhand" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="WOOD" />
+		<set name="weight" val="150" />
+		<set name="soulshots" val="1" />
+		<set name="spiritshots" val="1" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_magic_weapon" val="true" />
+		<set name="is_freightable" val="true" />
+		<stats>
+			<stat type="pAtk">1</stat>
+			<stat type="mAtk">1</stat>
+			<stat type="rCrit">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">1</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
+	</item>
+	<item id="47946" name="Magic Flame" type="EtcItem">
+		<!-- Double-click to send the Magic Flame towards heaven and receive a reward. Many people send their hopes and wishes towards heaven with this flame for luck. It is said that the wishes will come true if the flame reaches the sky without extinguishing. Maybe you will receive a reward if you send it up with a wish. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_firewood_box" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="CRYSTAL" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="47947" name="Request - Instanced Zone Dungeon" type="EtcItem">
+		<!-- Double-click to receive an instanced zone dungeon request. You can complete the mission if you carry out 1 type of daily quest in an instanced zone dungeon of at least level 85. Will be deleted after the event. Can be carried out once a day. -->
+		<set name="icon" val="icon.ev_13th_paper_inzone" />
+		<set name="default_action" val="START_QUEST" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_sellable" val="false" />
+	</item>
+	<item id="47948" name="Request - Fields" type="EtcItem">
+		<!-- Double-click to receive a field request. You can complete the mission if you carry out 1 type of daily quest in a field of at least level 85. Will be deleted after the event. Can be carried out once a day. -->
+		<set name="icon" val="icon.ev_13th_paper_field" />
+		<set name="default_action" val="START_QUEST" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_sellable" val="false" />
+	</item>
+	<item id="47949" name="Request - Instanced Zone Dungeon" type="EtcItem">
+		<!-- You can complete the mission if you carry out 1 type of daily quest in an instanced zone dungeon of at least level 85. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_13th_paper_inzone" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+	</item>
+	<item id="47950" name="Request - Fields" type="EtcItem">
+		<!-- You can complete the mission if you carry out 1 type of daily quest in a field of at least level 85. Will be deleted after the event. -->
+		<set name="icon" val="icon.ev_13th_paper_field" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+	</item>
+</list>

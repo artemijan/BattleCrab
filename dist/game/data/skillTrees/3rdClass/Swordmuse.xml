@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="100" parentClassId="21">
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="3" getLevel="76" levelUpSp="8100000">
+			<item id="8620" count="1" /> <!-- Ancient Book: Divine Inspiration (Manuscript) -->
+		</skill>
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="4" getLevel="76" levelUpSp="8100000">
+			<item id="8621" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Version) -->
+		</skill>
+		<skill skillId="328" skillLevel="1" skillName="Wisdom" levelUpSp="12500000" getLevel="76" />
+		<skill skillId="329" skillLevel="1" skillName="Health" levelUpSp="12500000" getLevel="76" />
+		<skill skillId="349" skillLevel="1" skillName="Song of Renewal" levelUpSp="14670000" getLevel="77" />
+		<skill skillId="363" skillLevel="1" skillName="Song of Meditation" levelUpSp="14670000" getLevel="77" />
+		<skill skillId="426" skillLevel="1" skillName="Battle Force" levelUpSp="14670000" getLevel="77" />
+		<skill skillId="364" skillLevel="1" skillName="Song of Champion" levelUpSp="32000000" getLevel="78" />
+		<skill skillId="428" skillLevel="1" skillName="Inner Rhythm" levelUpSp="32000000" getLevel="78" />
+		<skill skillId="437" skillLevel="1" skillName="Song of Silence" levelUpSp="80000000" getLevel="79" />
+		<skill skillId="455" skillLevel="1" skillName="Symbol of Noise" levelUpSp="150000000" getLevel="80" />
+	</skillTree>
+</list>

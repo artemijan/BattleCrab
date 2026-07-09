@@ -1,0 +1,452 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+	<item id="49800" name="Sibis Coin Box" type="EtcItem">
+		<!-- Double-click to receive 200 Sibi's Coins. The item will be removed after the event is over. -->
+		<set name="icon" val="icon.event_orc_coinbox" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49804" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49805" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49806" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49807" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49808" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49809" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49810" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49811" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49812" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49813" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49814" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49815" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49816" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49817" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49818" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49819" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49820" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49821" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49822" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49823" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49824" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49825" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49826" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49827" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49828" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49829" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49830" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49831" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49832" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49833" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49834" name="Ice Crystal Fragment" type="EtcItem">
+		<!-- A crystal which emits freezing energy. -->
+		<set name="icon" val="icon.event_cubic_piece_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49835" name="Food Sack" type="EtcItem">
+		<!-- Food for the poor. It is well-packed, so that all the contents remain inside. -->
+		<set name="icon" val="icon.etc_oil_pot_white_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49836" name="Food Sack" type="EtcItem">
+		<!-- Food for the poor. It is well-packed, so that all the contents remain inside. -->
+		<set name="icon" val="icon.etc_oil_pot_white_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49837" name="Food Sack" type="EtcItem">
+		<!-- Food for the poor. It is well-packed, so that all the contents remain inside. -->
+		<set name="icon" val="icon.etc_oil_pot_white_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49838" name="Food Sack" type="EtcItem">
+		<!-- Food for the poor. It is well-packed, so that all the contents remain inside. -->
+		<set name="icon" val="icon.etc_oil_pot_white_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49839" name="Rifken's Dish" type="EtcItem">
+		<!-- A dish cooked by Rifken. -->
+		<set name="icon" val="icon.etc_fish_seawater_i02" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49840" name="Rifkens Recipe Book" type="EtcItem">
+		<!-- A book containing secret recipes of Rifken. -->
+		<set name="icon" val="icon.etc_spell_books_hfighter_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49841" name="Bitter Cold Vodka" type="EtcItem">
+		<!-- A legendary beverage produced by combining fire and ice. Cold in the mouth, it gives a burning sensation in your stomach. -->
+		<set name="icon" val="icon.etc_luxury_wine_c_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49842" name="Bitter Cold Vodka" type="EtcItem">
+		<!-- A legendary beverage produced by combining fire and ice. Cold in the mouth, it gives a burning sensation in your stomach. -->
+		<set name="icon" val="icon.etc_luxury_wine_c_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="49843" name="Bitter Cold Vodka" type="EtcItem">
+		<!-- A legendary beverage produced by combining fire and ice. Cold in the mouth, it gives a burning sensation in your stomach. -->
+		<set name="icon" val="icon.etc_luxury_wine_c_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+</list>

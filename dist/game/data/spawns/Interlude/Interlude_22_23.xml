@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Interlude_22_23">
+		<group>
+			<npc id="20781" x="68742" y="165652" z="-3560" respawnTime="30sec" /> <!-- Delu Lizardman Shaman -->
+			<npc id="20781" x="68943" y="166008" z="-3560" respawnTime="30sec" /> <!-- Delu Lizardman Shaman -->
+			<npc id="20781" x="68440" y="165830" z="-3560" respawnTime="30sec" /> <!-- Delu Lizardman Shaman -->
+			<npc id="27097" x="75152" y="165688" z="-3684" respawnTime="180sec" /> <!-- Singing Flower of Darkness -->
+			<npc id="27097" x="75655" y="165866" z="-3684" respawnTime="180sec" /> <!-- Singing Flower of Darkness -->
+			<npc id="27097" x="75555" y="166044" z="-3684" respawnTime="180sec" /> <!-- Singing Flower of Darkness -->
+		</group>
+	</spawn>
+</list>

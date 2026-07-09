@@ -1,0 +1,403 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/optionsData.xsd">
+	<option id="40800" name="cloak_opt">
+		<!-- M. Critical Damage +7% -->
+		<passive_skill id="27972" level="10" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40801" name="cloak_opt">
+		<!-- Attack Attribute Bonus +5 -->
+		<passive_skill id="27973" level="1" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40802" name="cloak_opt">
+		<!-- Attack Attribute Bonus +6 -->
+		<passive_skill id="27973" level="2" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40803" name="cloak_opt">
+		<!-- Attack Attribute Bonus +7 -->
+		<passive_skill id="27973" level="3" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40804" name="cloak_opt">
+		<!-- Attack Attribute Bonus +8 -->
+		<passive_skill id="27973" level="4" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40805" name="cloak_opt">
+		<!-- Attack Attribute Bonus +9 -->
+		<passive_skill id="27973" level="5" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40806" name="cloak_opt">
+		<!-- Attack Attribute Bonus +10 -->
+		<passive_skill id="27973" level="6" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40807" name="cloak_opt">
+		<!-- Attack Attribute Bonus +13 -->
+		<passive_skill id="27973" level="7" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40808" name="cloak_opt">
+		<!-- Attack Attribute Bonus +15 -->
+		<passive_skill id="27973" level="8" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40809" name="cloak_opt">
+		<!-- Attack Attribute Bonus +18 -->
+		<passive_skill id="27973" level="9" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40810" name="cloak_opt">
+		<!-- Attack Attribute Bonus +35 -->
+		<passive_skill id="27973" level="10" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40811" name="cloak_opt">
+		<!-- Stun Attack Success Rate +1.5% -->
+		<passive_skill id="27974" level="1" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40812" name="cloak_opt">
+		<!-- Stun Attack Success Rate +2.5% -->
+		<passive_skill id="27974" level="2" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40813" name="cloak_opt">
+		<!-- Stun Attack Success Rate +3% -->
+		<passive_skill id="27974" level="3" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40814" name="cloak_opt">
+		<!-- Stun Attack Success Rate +3.5% -->
+		<passive_skill id="27974" level="4" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40815" name="cloak_opt">
+		<!-- Stun Attack Success Rate +4.5% -->
+		<passive_skill id="27974" level="5" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40816" name="cloak_opt">
+		<!-- Stun Attack Success Rate +5% -->
+		<passive_skill id="27974" level="6" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40817" name="cloak_opt">
+		<!-- Stun Attack Success Rate +6% -->
+		<passive_skill id="27974" level="7" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40818" name="cloak_opt">
+		<!-- Stun Attack Success Rate +7.5% -->
+		<passive_skill id="27974" level="8" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40819" name="cloak_opt">
+		<!-- Stun Attack Success Rate +15% -->
+		<passive_skill id="27974" level="9" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40820" name="cloak_opt">
+		<!-- Hold Attack Success Rate +1.5% -->
+		<passive_skill id="27975" level="1" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40821" name="cloak_opt">
+		<!-- Hold Attack Success Rate +2.5% -->
+		<passive_skill id="27975" level="2" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40822" name="cloak_opt">
+		<!-- Hold Attack Success Rate +3% -->
+		<passive_skill id="27975" level="3" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40823" name="cloak_opt">
+		<!-- Hold Attack Success Rate +3.5% -->
+		<passive_skill id="27975" level="4" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40824" name="cloak_opt">
+		<!-- Hold Attack Success Rate +4.5% -->
+		<passive_skill id="27975" level="5" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40825" name="cloak_opt">
+		<!-- Hold Attack Success Rate +5% -->
+		<passive_skill id="27975" level="6" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40826" name="cloak_opt">
+		<!-- Hold Attack Success Rate +6% -->
+		<passive_skill id="27975" level="7" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40827" name="cloak_opt">
+		<!-- Hold Attack Success Rate +7.5% -->
+		<passive_skill id="27975" level="8" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40828" name="cloak_opt">
+		<!-- Hold Attack Success Rate +15% -->
+		<passive_skill id="27975" level="9" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40829" name="cloak_opt">
+		<!-- Bleeding Attack Success Rate +1.5% -->
+		<passive_skill id="27976" level="1" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40830" name="cloak_opt">
+		<!-- Bleeding Attack Success Rate +2.5% -->
+		<passive_skill id="27976" level="2" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40831" name="cloak_opt">
+		<!-- Bleeding Attack Success Rate +3% -->
+		<passive_skill id="27976" level="3" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40832" name="cloak_opt">
+		<!-- Bleeding Attack Success Rate +3.5% -->
+		<passive_skill id="27976" level="4" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40833" name="cloak_opt">
+		<!-- Bleeding Attack Success Rate +4.5% -->
+		<passive_skill id="27976" level="5" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40834" name="cloak_opt">
+		<!-- Bleeding Attack Success Rate +5% -->
+		<passive_skill id="27976" level="6" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40835" name="cloak_opt">
+		<!-- Bleeding Attack Success Rate +6% -->
+		<passive_skill id="27976" level="7" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40836" name="cloak_opt">
+		<!-- Bleeding Attack Success Rate +7.5% -->
+		<passive_skill id="27976" level="8" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40837" name="cloak_opt">
+		<!-- Bleeding Attack Success Rate +15% -->
+		<passive_skill id="27976" level="9" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40838" name="cloak_opt">
+		<!-- Paralysis Attack Success Rate +1.5% -->
+		<passive_skill id="27977" level="1" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40839" name="cloak_opt">
+		<!-- Paralysis Attack Success Rate +2.5% -->
+		<passive_skill id="27977" level="2" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40840" name="cloak_opt">
+		<!-- Paralysis Attack Success Rate +3% -->
+		<passive_skill id="27977" level="3" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40841" name="cloak_opt">
+		<!-- Paralysis Attack Success Rate +3.5% -->
+		<passive_skill id="27977" level="4" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40842" name="cloak_opt">
+		<!-- Paralysis Attack Success Rate +4.5% -->
+		<passive_skill id="27977" level="5" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40843" name="cloak_opt">
+		<!-- Paralysis Attack Success Rate +5% -->
+		<passive_skill id="27977" level="6" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40844" name="cloak_opt">
+		<!-- Paralysis Attack Success Rate +6% -->
+		<passive_skill id="27977" level="7" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40845" name="cloak_opt">
+		<!-- Paralysis Attack Success Rate +7.5% -->
+		<passive_skill id="27977" level="8" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40846" name="cloak_opt">
+		<!-- Paralysis Attack Success Rate +15% -->
+		<passive_skill id="27977" level="9" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40847" name="cloak_opt">
+		<!-- Mind Attack Success Rate +1.5% -->
+		<passive_skill id="27978" level="1" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40848" name="cloak_opt">
+		<!-- Mind Attack Success Rate +2.5% -->
+		<passive_skill id="27978" level="2" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40849" name="cloak_opt">
+		<!-- Mind Attack Success Rate +3% -->
+		<passive_skill id="27978" level="3" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40850" name="cloak_opt">
+		<!-- Mind Attack Success Rate +3.5% -->
+		<passive_skill id="27978" level="4" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40851" name="cloak_opt">
+		<!-- Mind Attack Success Rate +4.5% -->
+		<passive_skill id="27978" level="5" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40852" name="cloak_opt">
+		<!-- Mind Attack Success Rate +5% -->
+		<passive_skill id="27978" level="6" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40853" name="cloak_opt">
+		<!-- Mind Attack Success Rate +6% -->
+		<passive_skill id="27978" level="7" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40854" name="cloak_opt">
+		<!-- Mind Attack Success Rate +7.5% -->
+		<passive_skill id="27978" level="8" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40855" name="cloak_opt">
+		<!-- Mind Attack Success Rate +15% -->
+		<passive_skill id="27978" level="9" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40856" name="cloak_opt">
+		<!-- Sleep Attack Success Rate +1.5% -->
+		<passive_skill id="27979" level="1" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40857" name="cloak_opt">
+		<!-- Sleep Attack Success Rate +2.5% -->
+		<passive_skill id="27979" level="2" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40858" name="cloak_opt">
+		<!-- Sleep Attack Success Rate +3% -->
+		<passive_skill id="27979" level="3" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40859" name="cloak_opt">
+		<!-- Sleep Attack Success Rate +3.5% -->
+		<passive_skill id="27979" level="4" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40860" name="cloak_opt">
+		<!-- Sleep Attack Success Rate +4.5% -->
+		<passive_skill id="27979" level="5" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40861" name="cloak_opt">
+		<!-- Sleep Attack Success Rate +5% -->
+		<passive_skill id="27979" level="6" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40862" name="cloak_opt">
+		<!-- Sleep Attack Success Rate +6% -->
+		<passive_skill id="27979" level="7" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40863" name="cloak_opt">
+		<!-- Sleep Attack Success Rate +7.5% -->
+		<passive_skill id="27979" level="8" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40864" name="cloak_opt">
+		<!-- Sleep Attack Success Rate +15% -->
+		<passive_skill id="27979" level="9" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40865" name="cloak_opt">
+		<!-- Poison Attack Success Rate +1.5% -->
+		<passive_skill id="27980" level="1" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40866" name="cloak_opt">
+		<!-- Poison Attack Success Rate +2.5% -->
+		<passive_skill id="27980" level="2" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40867" name="cloak_opt">
+		<!-- Poison Attack Success Rate +3% -->
+		<passive_skill id="27980" level="3" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40868" name="cloak_opt">
+		<!-- Poison Attack Success Rate +3.5% -->
+		<passive_skill id="27980" level="4" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40869" name="cloak_opt">
+		<!-- Poison Attack Success Rate +4.5% -->
+		<passive_skill id="27980" level="5" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40870" name="cloak_opt">
+		<!-- Poison Attack Success Rate +5% -->
+		<passive_skill id="27980" level="6" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40871" name="cloak_opt">
+		<!-- Poison Attack Success Rate +6% -->
+		<passive_skill id="27980" level="7" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40872" name="cloak_opt">
+		<!-- Poison Attack Success Rate +7.5% -->
+		<passive_skill id="27980" level="8" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40873" name="cloak_opt">
+		<!-- Poison Attack Success Rate +15% -->
+		<passive_skill id="27980" level="9" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40874" name="cloak_opt">
+		<!-- Knock Back/Knock Down Attack Success Rate +1.5% -->
+		<passive_skill id="27981" level="1" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40875" name="cloak_opt">
+		<!-- Knock Back/Knock Down Attack Success Rate +2.5% -->
+		<passive_skill id="27981" level="2" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40876" name="cloak_opt">
+		<!-- Knock Back/Knock Down Attack Success Rate +3% -->
+		<passive_skill id="27981" level="3" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40877" name="cloak_opt">
+		<!-- Knock Back/Knock Down Attack Success Rate +3.5% -->
+		<passive_skill id="27981" level="4" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40878" name="cloak_opt">
+		<!-- Knock Back/Knock Down Attack Success Rate +4.5% -->
+		<passive_skill id="27981" level="5" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40879" name="cloak_opt">
+		<!-- Knock Back/Knock Down Attack Success Rate +5% -->
+		<passive_skill id="27981" level="6" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40880" name="cloak_opt">
+		<!-- Knock Back/Knock Down Attack Success Rate +6% -->
+		<passive_skill id="27981" level="7" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40881" name="cloak_opt">
+		<!-- Knock Back/Knock Down Attack Success Rate +7.5% -->
+		<passive_skill id="27981" level="8" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40882" name="cloak_opt">
+		<!-- Knock Back/Knock Down Attack Success Rate +15% -->
+		<passive_skill id="27981" level="9" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40883" name="cloak_opt">
+		<!-- Aerial Yoke Attack Success Rate +1.5% -->
+		<passive_skill id="27982" level="1" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40884" name="cloak_opt">
+		<!-- Aerial Yoke Attack Success Rate +2.5% -->
+		<passive_skill id="27982" level="2" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40885" name="cloak_opt">
+		<!-- Aerial Yoke Attack Success Rate +3% -->
+		<passive_skill id="27982" level="3" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40886" name="cloak_opt">
+		<!-- Aerial Yoke Attack Success Rate +3.5% -->
+		<passive_skill id="27982" level="4" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40887" name="cloak_opt">
+		<!-- Aerial Yoke Attack Success Rate +4.5% -->
+		<passive_skill id="27982" level="5" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40888" name="cloak_opt">
+		<!-- Aerial Yoke Attack Success Rate +5% -->
+		<passive_skill id="27982" level="6" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40889" name="cloak_opt">
+		<!-- Aerial Yoke Attack Success Rate +6% -->
+		<passive_skill id="27982" level="7" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40890" name="cloak_opt">
+		<!-- Aerial Yoke Attack Success Rate +7.5% -->
+		<passive_skill id="27982" level="8" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40891" name="cloak_opt">
+		<!-- Aerial Yoke Attack Success Rate +15% -->
+		<passive_skill id="27982" level="9" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40892" name="cloak_opt">
+		<!-- Pull Attack Success Rate +1.5% -->
+		<passive_skill id="27983" level="1" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40893" name="cloak_opt">
+		<!-- Pull Attack Success Rate +2.5% -->
+		<passive_skill id="27983" level="2" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40894" name="cloak_opt">
+		<!-- Pull Attack Success Rate +3% -->
+		<passive_skill id="27983" level="3" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40895" name="cloak_opt">
+		<!-- Pull Attack Success Rate +3.5% -->
+		<passive_skill id="27983" level="4" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40896" name="cloak_opt">
+		<!-- Pull Attack Success Rate +4.5% -->
+		<passive_skill id="27983" level="5" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40897" name="cloak_opt">
+		<!-- Pull Attack Success Rate +5% -->
+		<passive_skill id="27983" level="6" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40898" name="cloak_opt">
+		<!-- Pull Attack Success Rate +6% -->
+		<passive_skill id="27983" level="7" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+	<option id="40899" name="cloak_opt">
+		<!-- Pull Attack Success Rate +7.5% -->
+		<passive_skill id="27983" level="8" /> <!-- Empire Legendary Cloak Augmentation -->
+	</option>
+</list>

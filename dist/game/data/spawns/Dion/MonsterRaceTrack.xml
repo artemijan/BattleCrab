@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="MonsterRaceTrack">
+		<group>
+			<npc id="31225" x="11877" y="183574" z="-3560" heading="50346" /> <!-- Arena Manager -->
+		</group>
+	</spawn>
+</list>

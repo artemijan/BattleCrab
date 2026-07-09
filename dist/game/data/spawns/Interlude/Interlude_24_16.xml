@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Interlude_24_16">
+		<group>
+			<npc id="21274" x="158921" y="-43655" z="-3560" heading="41421" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21275" x="159592" y="-42876" z="-3541" heading="11149" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21276" x="156415" y="-43514" z="-3820" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21278" x="156415" y="-43158" z="-3820" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21276" x="154511" y="-44925" z="-3832" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21280" x="160561" y="-44742" z="-3454" heading="61706" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21279" x="157137" y="-44516" z="-3764" heading="64788" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21274" x="154189" y="-45862" z="-3748" heading="39228" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21279" x="154527" y="-43527" z="-3748" heading="15114" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21275" x="154379" y="-46582" z="-3901" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21279" x="155342" y="-46092" z="-3782" heading="113" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21275" x="153988" y="-48256" z="-3874" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21274" x="154189" y="-47544" z="-3874" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21279" x="155180" y="-46999" z="-3785" heading="62583" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21274" x="155583" y="-46449" z="-3785" heading="11702" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21276" x="155653" y="-47528" z="-3871" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21279" x="155552" y="-47706" z="-3871" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21274" x="156042" y="-47107" z="-3846" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21275" x="156244" y="-46395" z="-3846" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21276" x="155821" y="-44898" z="-3760" heading="17377" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21275" x="155873" y="-45892" z="-3839" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21275" x="158064" y="-47705" z="-3530" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21274" x="159287" y="-50624" z="-3550" heading="53441" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21279" x="158165" y="-47171" z="-3530" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21276" x="157393" y="-49554" z="-3155" heading="55184" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21274" x="157536" y="-50652" z="-2962" heading="53619" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21280" x="157796" y="-46305" z="-3283" heading="40960" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21278" x="157323" y="-48738" z="-3374" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21276" x="156225" y="-50291" z="-3153" heading="42114" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21278" x="156977" y="-50016" z="-3241" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21279" x="154880" y="-48776" z="-3877" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21274" x="155740" y="-49696" z="-3279" heading="52102" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21276" x="155946" y="-50832" z="-3051" heading="49067" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21275" x="155036" y="-47802" z="-3820" heading="20039" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21274" x="155357" y="-48737" z="-3589" heading="52622" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21280" x="155980" y="-51666" z="-3258" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21278" x="155772" y="-52545" z="-2841" heading="48299" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21274" x="158968" y="-53562" z="-3159" heading="62613" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21279" x="157180" y="-51606" z="-2778" heading="44789" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21274" x="154559" y="-52024" z="-2987" heading="55942" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21276" x="156246" y="-53046" z="-2999" respawnTime="40sec" /> <!-- Kookaburra -->
+			<npc id="21280" x="155029" y="-52863" z="-2923" heading="54514" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21282" x="154933" y="-57109" z="-3306" heading="9013" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21280" x="154699" y="-55354" z="-3072" heading="49870" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21279" x="154667" y="-54395" z="-3028" heading="24788" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21283" x="156201" y="-56491" z="-3254" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21278" x="155296" y="-55642" z="-3113" heading="23422" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21279" x="157918" y="-55904" z="-3153" heading="56725" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21284" x="157392" y="-57046" z="-3147" heading="54140" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21279" x="157348" y="-58086" z="-3290" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21278" x="158739" y="-56082" z="-3177" heading="10830" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21280" x="159210" y="-57860" z="-3162" heading="58331" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21283" x="155300" y="-57543" z="-3206" heading="38531" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21278" x="156160" y="-58252" z="-2927" heading="53715" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21279" x="156568" y="-57535" z="-3141" heading="36280" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21282" x="153011" y="-58437" z="-3479" heading="31187" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21278" x="156636" y="-54863" z="-3055" heading="10790" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21280" x="151285" y="-59288" z="-3550" heading="3547" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21278" x="150445" y="-60507" z="-3617" heading="64352" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21283" x="151386" y="-62022" z="-3258" heading="28240" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21279" x="152444" y="-60920" z="-2991" heading="3952" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21282" x="151460" y="-62681" z="-3318" heading="62092" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21280" x="148996" y="-61280" z="-3568" heading="11789" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21283" x="150561" y="-62076" z="-3143" heading="48333" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21280" x="150380" y="-63576" z="-3490" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21282" x="150257" y="-62438" z="-3204" heading="5058" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21279" x="148921" y="-62992" z="-3286" heading="54636" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21284" x="147906" y="-64948" z="-3397" heading="47276" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21278" x="149000" y="-64612" z="-3302" heading="2924" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21284" x="145697" y="-64190" z="-3526" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21280" x="147617" y="-62762" z="-3461" heading="9688" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21279" x="146765" y="-62672" z="-3312" heading="39884" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21284" x="146669" y="-64632" z="-3397" heading="1804" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21282" x="145271" y="-62822" z="-3304" heading="7797" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21284" x="143054" y="-63813" z="-3495" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21282" x="143256" y="-63101" z="-3495" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21279" x="143356" y="-63635" z="-3495" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21283" x="142874" y="-62353" z="-3400" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21284" x="144641" y="-63214" z="-3312" heading="54983" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21282" x="144041" y="-62034" z="-3410" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21278" x="143632" y="-62337" z="-3363" heading="27910" respawnTime="40sec" /> <!-- Antelope -->
+			<npc id="21283" x="142465" y="-61503" z="-3290" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21284" x="141308" y="-59705" z="-3347" heading="21148" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21282" x="141682" y="-60754" z="-3390" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21286" x="141581" y="-60576" z="-3390" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21287" x="142090" y="-59965" z="-3359" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21284" x="140822" y="-59747" z="-3345" heading="63712" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21282" x="142595" y="-60429" z="-3208" heading="64929" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21283" x="141170" y="-58323" z="-3219" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21286" x="141371" y="-58323" z="-3219" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21284" x="140464" y="-58090" z="-3214" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21288" x="139939" y="-57487" z="-3101" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21282" x="140141" y="-57131" z="-3101" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21287" x="140226" y="-59054" z="-3320" heading="36405" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21283" x="139964" y="-58503" z="-3435" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21286" x="139484" y="-58795" z="-3404" heading="22056" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21282" x="141208" y="-58782" z="-3207" heading="3482" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21284" x="139706" y="-55968" z="-3291" heading="25175" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21288" x="139106" y="-57547" z="-3542" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21286" x="138855" y="-55695" z="-3169" heading="18082" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21287" x="137548" y="-57093" z="-3478" heading="34518" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21288" x="139029" y="-56604" z="-3434" heading="57790" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21290" x="138262" y="-55695" z="-3198" heading="50453" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21286" x="137600" y="-55167" z="-3313" heading="4664" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21288" x="140227" y="-54130" z="-2952" heading="2899" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21291" x="138066" y="-54279" z="-3156" heading="56486" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21286" x="138839" y="-53606" z="-2989" heading="30075" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21292" x="137691" y="-53380" z="-3065" heading="31479" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21287" x="138145" y="-51960" z="-2868" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21290" x="137495" y="-51989" z="-3018" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21287" x="137696" y="-51633" z="-3018" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21286" x="136604" y="-53319" z="-3167" heading="1876" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21291" x="135600" y="-52667" z="-3240" heading="28210" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21288" x="135910" y="-54712" z="-3367" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21287" x="135708" y="-54000" z="-3367" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21290" x="136212" y="-54178" z="-3367" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21292" x="136111" y="-54712" z="-3367" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21286" x="134690" y="-53805" z="-3600" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21291" x="134145" y="-53531" z="-3300" heading="32768" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21292" x="134891" y="-53093" z="-3600" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21286" x="134829" y="-52118" z="-3302" heading="52275" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21287" x="134253" y="-49818" z="-3485" heading="18027" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21290" x="133702" y="-49317" z="-3545" heading="11085" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21287" x="135374" y="-47690" z="-3071" heading="52859" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21291" x="132869" y="-48345" z="-3576" heading="61377" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21292" x="135183" y="-46880" z="-3011" heading="34328" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21291" x="133657" y="-47454" z="-3163" heading="58462" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21288" x="134388" y="-45916" z="-2940" heading="8781" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21292" x="134415" y="-46428" z="-3148" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21286" x="133342" y="-44320" z="-3060" heading="21055" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21286" x="134870" y="-41214" z="-2444" heading="18708" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21290" x="135098" y="-44436" z="-2748" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21286" x="140263" y="-59687" z="-3347" heading="10087" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21287" x="139041" y="-59505" z="-3370" heading="57916" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21284" x="138915" y="-60742" z="-3078" heading="55448" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21287" x="138184" y="-58999" z="-3395" heading="16773" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21282" x="138039" y="-57714" z="-3503" heading="16665" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21288" x="137273" y="-59652" z="-3306" heading="1605" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21286" x="134865" y="-59805" z="-3382" heading="34788" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21287" x="137262" y="-56239" z="-3461" heading="22021" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21286" x="135978" y="-60737" z="-3358" heading="42657" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21288" x="134768" y="-62541" z="-3324" heading="45566" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21287" x="133972" y="-62261" z="-3306" heading="5501" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21284" x="134556" y="-61122" z="-3515" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21283" x="135365" y="-62660" z="-3301" heading="50672" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21288" x="134056" y="-59758" z="-3365" heading="7767" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21287" x="134457" y="-60401" z="-3402" heading="58192" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21282" x="135385" y="-59150" z="-3197" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21286" x="136283" y="-58243" z="-2910" heading="14296" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21288" x="136486" y="-58827" z="-3053" heading="64213" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21287" x="134475" y="-58535" z="-3113" heading="33713" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21286" x="134758" y="-57579" z="-3295" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21288" x="135292" y="-56730" z="-3104" heading="45204" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21282" x="136459" y="-55344" z="-3438" heading="7550" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21286" x="135932" y="-56295" z="-3359" heading="19035" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21288" x="135468" y="-55483" z="-3439" heading="59959" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21283" x="133707" y="-54918" z="-3489" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21287" x="133629" y="-54005" z="-3403" heading="15194" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21284" x="134469" y="-54686" z="-3381" heading="55455" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21288" x="131348" y="-52069" z="-3551" heading="13094" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21286" x="131991" y="-52963" z="-3756" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21288" x="132091" y="-53141" z="-3756" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21282" x="133011" y="-52452" z="-3657" heading="43285" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21288" x="132508" y="-51179" z="-3718" heading="20276" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21283" x="131600" y="-53532" z="-3738" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21287" x="131499" y="-52998" z="-3738" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21287" x="132508" y="-54786" z="-3616" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21288" x="132793" y="-51518" z="-3707" heading="64851" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21284" x="132402" y="-55618" z="-3187" heading="41916" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21288" x="133151" y="-55132" z="-3311" heading="6878" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21286" x="132761" y="-55603" z="-3492" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21287" x="132559" y="-56435" z="-3027" heading="2903" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21282" x="132104" y="-57271" z="-2985" heading="45688" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21288" x="132197" y="-57823" z="-2995" heading="24093" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21283" x="132703" y="-58662" z="-3047" heading="55489" respawnTime="40sec" /> <!-- Bandersnatch -->
+			<npc id="21287" x="133367" y="-55775" z="-3395" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21286" x="138127" y="-55405" z="-3183" heading="63454" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21287" x="133896" y="-56024" z="-3118" heading="19604" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21286" x="134593" y="-56808" z="-3129" heading="20844" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21290" x="135910" y="-45635" z="-2655" heading="16588" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21291" x="135888" y="-46954" z="-3006" heading="43917" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21292" x="136767" y="-46312" z="-3097" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21291" x="134679" y="-48712" z="-3188" heading="52705" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21292" x="133616" y="-45619" z="-2999" heading="20949" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21287" x="135838" y="-49353" z="-3306" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21286" x="136144" y="-50783" z="-3385" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21290" x="135540" y="-50427" z="-3385" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21291" x="135798" y="-50315" z="-3208" heading="9756" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21292" x="134592" y="-50687" z="-3489" heading="11333" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21288" x="137365" y="-49636" z="-3319" heading="58564" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21290" x="135530" y="-48474" z="-3159" heading="5487" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21291" x="138690" y="-49289" z="-3220" heading="844" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21287" x="138091" y="-49024" z="-3237" heading="49296" respawnTime="40sec" /> <!-- Buffalo -->
+			<npc id="21290" x="138325" y="-47953" z="-3043" heading="12685" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21291" x="136806" y="-47448" z="-3074" heading="58121" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="21292" x="137104" y="-48061" z="-3209" respawnTime="40sec" /> <!-- Grendel -->
+			<npc id="31640" x="160082" y="-47862" z="-3678" heading="5000" respawnTime="60sec" /> <!-- Pilgrim of Darkness -->
+			<npc id="31641" x="147408" y="-64016" z="-3430" heading="49000" respawnTime="60sec" /> <!-- Pilgrim of Darkness -->
+			<npc id="31257" x="148975" y="-58919" z="-2965" heading="22000" respawnTime="60sec" /> <!-- Veronica -->
+			<npc id="31258" x="149012" y="-58894" z="-2965" heading="22000" respawnTime="60sec" /> <!-- Helmut -->
+			<npc id="31267" x="146440" y="-57500" z="-2965" heading="43000" respawnTime="60sec" /> <!-- Lietta -->
+			<npc id="31268" x="146412" y="-57484" z="-2965" heading="43000" respawnTime="60sec" /> <!-- Hakon -->
+			<npc id="31269" x="146528" y="-57936" z="-2965" heading="22000" respawnTime="60sec" /> <!-- Mona -->
+			<npc id="31270" x="146172" y="-57380" z="-2965" heading="54000" respawnTime="60sec" /> <!-- Stefano -->
+			<npc id="31600" x="146228" y="-57400" z="-2965" heading="44000" respawnTime="60sec" /> <!-- Pamela Aprodia -->
+			<npc id="31287" x="145168" y="-54880" z="-2965" heading="28000" respawnTime="60sec" /> <!-- Kamilen -->
+			<npc id="31285" x="145080" y="-54592" z="-2965" heading="45000" respawnTime="60sec" /> <!-- Samael -->
+			<npc id="31286" x="144808" y="-54732" z="-2965" heading="62000" respawnTime="60sec" /> <!-- Drakon -->
+			<npc id="31271" x="146396" y="-58696" z="-2976" heading="60000" respawnTime="60sec" /> <!-- Hilda -->
+			<npc id="31272" x="146432" y="-58784" z="-2976" respawnTime="60sec" /> <!-- Noel -->
+			<npc id="31583" x="146428" y="-58880" z="-2976" heading="28000" respawnTime="60sec" /> <!-- Feynn -->
+			<npc id="31587" x="146628" y="-58776" z="-2972" heading="45000" respawnTime="60sec" /> <!-- Gedrik -->
+			<npc id="31597" x="146624" y="-58976" z="-2972" heading="12000" respawnTime="60sec" /> <!-- Tobald -->
+			<npc id="31275" x="147966" y="-55228" z="-2728" heading="48000" respawnTime="60sec" /> <!-- Tatiana -->
+			<npc id="31292" x="149216" y="-56544" z="-2779" heading="27000" respawnTime="60sec" /> <!-- Andrei -->
+			<npc id="31293" x="149360" y="-56336" z="-2779" heading="27000" respawnTime="60sec" /> <!-- Gunter -->
+			<npc id="31294" x="144584" y="-57904" z="-2982" heading="32000" respawnTime="60sec" /> <!-- Sven -->
+			<npc id="31295" x="144364" y="-57580" z="-2982" heading="44000" respawnTime="60sec" /> <!-- Henrik -->
+			<npc id="31296" x="147920" y="-59424" z="-2982" heading="45000" respawnTime="60sec" /> <!-- Cadmon -->
+			<npc id="31297" x="147504" y="-59424" z="-2982" heading="53000" respawnTime="60sec" /> <!-- Bayard -->
+			<npc id="31298" x="151060" y="-57576" z="-2982" heading="53000" respawnTime="60sec" /> <!-- Ulrich -->
+			<npc id="31299" x="150832" y="-57904" z="-2982" respawnTime="60sec" /> <!-- Eugen -->
+			<npc id="31260" x="149380" y="-57590" z="-2966" heading="32000" respawnTime="60sec" /> <!-- Judith -->
+			<npc id="31262" x="149372" y="-57552" z="-2966" heading="32000" respawnTime="60sec" /> <!-- Rupert -->
+			<npc id="30012" x="149278" y="-57653" z="-2968" heading="22000" respawnTime="60sec" /> <!-- Klaus -->
+			<npc id="31263" x="149312" y="-57360" z="-2966" heading="40000" respawnTime="60sec" /> <!-- Liesel -->
+			<npc id="31584" x="149352" y="-57452" z="-2966" heading="6000" respawnTime="60sec" /> <!-- Valentine -->
+			<npc id="31264" x="149008" y="-57696" z="-2966" heading="5000" respawnTime="60sec" /> <!-- Olsun -->
+			<npc id="35468" x="148912" y="-55568" z="-2779" heading="32000" respawnTime="60sec" /> <!-- Lambert -->
+			<npc id="35467" x="149024" y="-55456" z="-2765" respawnTime="60sec" /> <!-- Branhillde -->
+			<npc id="35466" x="148224" y="-56496" z="-2779" heading="21000" respawnTime="60sec" /> <!-- Gerard -->
+			<npc id="35465" x="148381" y="-56525" z="-2760" heading="54000" respawnTime="60sec" /> <!-- Millicent -->
+			<npc id="35464" x="147072" y="-56416" z="-2779" heading="11500" respawnTime="60sec" /> <!-- Volfrem -->
+			<npc id="35463" x="147134" y="-56576" z="-2760" heading="44000" respawnTime="60sec" /> <!-- Helga -->
+			<npc id="35462" x="146488" y="-55432" z="-2779" heading="1000" respawnTime="60sec" /> <!-- Kalmer -->
+			<npc id="35461" x="146416" y="-55568" z="-2765" heading="32000" respawnTime="60sec" /> <!-- Aida -->
+			<npc id="31608" x="146560" y="-53632" z="-2736" heading="16000" respawnTime="60sec" /> <!-- Belinda -->
+			<npc id="31588" x="149488" y="-57152" z="-2979" heading="57000" respawnTime="60sec" /> <!-- Agnes -->
+			<npc id="31700" x="149536" y="-57136" z="-2979" heading="35000" respawnTime="60sec" /> <!-- Saintess' Follower -->
+			<npc id="31701" x="149528" y="-57180" z="-2979" heading="27000" respawnTime="60sec" /> <!-- Saintess' Follower -->
+			<npc id="31702" x="149492" y="-57200" z="-2979" heading="18000" respawnTime="60sec" /> <!-- Saintess' Follower -->
+			<npc id="31288" x="144204" y="-55780" z="-2965" heading="2000" respawnTime="60sec" /> <!-- Aklan -->
+			<npc id="31289" x="144228" y="-55720" z="-2965" heading="60000" respawnTime="60sec" /> <!-- Lakan -->
+			<npc id="31290" x="144256" y="-55824" z="-2965" heading="8000" respawnTime="60sec" /> <!-- Skahi -->
+			<npc id="31589" x="144340" y="-55752" z="-2965" heading="35000" respawnTime="60sec" /> <!-- Duda-Mara Totem Spirit -->
+			<npc id="31674" x="150012" y="-56808" z="-2979" heading="59000" respawnTime="60sec" /> <!-- Patrol -->
+			<npc id="31674" x="149864" y="-57020" z="-2979" heading="59000" respawnTime="60sec" /> <!-- Patrol -->
+			<npc id="31674" x="147824" y="-58016" z="-2979" heading="49000" respawnTime="60sec" /> <!-- Patrol -->
+			<npc id="31674" x="147600" y="-58012" z="-2979" heading="49000" respawnTime="60sec" /> <!-- Patrol -->
+			<npc id="31674" x="145464" y="-56776" z="-2979" heading="39000" respawnTime="60sec" /> <!-- Patrol -->
+			<npc id="31674" x="145616" y="-56976" z="-2979" heading="39000" respawnTime="60sec" /> <!-- Patrol -->
+			<npc id="31673" x="143280" y="-58800" z="-3462" heading="39000" respawnTime="60sec" /> <!-- Patrol -->
+			<npc id="31673" x="143072" y="-58496" z="-3446" heading="39000" respawnTime="60sec" /> <!-- Patrol -->
+			<npc id="31673" x="147900" y="-61196" z="-3513" heading="49000" respawnTime="60sec" /> <!-- Patrol -->
+			<npc id="31673" x="147492" y="-61188" z="-3504" heading="49000" respawnTime="60sec" /> <!-- Patrol -->
+			<npc id="31673" x="152432" y="-58576" z="-3487" heading="59000" respawnTime="60sec" /> <!-- Patrol -->
+			<npc id="31673" x="152192" y="-58864" z="-3484" heading="59000" respawnTime="60sec" /> <!-- Patrol -->
+			<npc id="31691" x="148784" y="-53264" z="-2736" respawnTime="60sec" /> <!-- Training Dummy -->
+			<npc id="31691" x="148976" y="-53264" z="-2736" respawnTime="60sec" /> <!-- Training Dummy -->
+			<npc id="31691" x="148976" y="-53456" z="-2736" respawnTime="60sec" /> <!-- Training Dummy -->
+			<npc id="31691" x="148784" y="-53456" z="-2736" respawnTime="60sec" /> <!-- Training Dummy -->
+			<npc id="31740" x="150144" y="-57920" z="-2979" heading="24000" respawnTime="60sec" /> <!-- Caradine -->
+			<npc id="31741" x="150208" y="-57872" z="-2979" heading="26000" respawnTime="60sec" /> <!-- Ossian -->
+			<npc id="31688" x="147472" y="-55232" z="-2736" heading="49000" respawnTime="60sec" /> <!-- Olympiad Manager -->
+			<npc id="31690" x="147408" y="-55232" z="-2736" heading="49000" respawnTime="60sec" /> <!-- Monument of Heroes -->
+			<npc id="30767" x="149272" y="-55888" z="-2779" heading="48000" respawnTime="60sec"> <!-- Auctioneer -->
+				<parameters>
+					<param name="fnAgitMap" value="godard" />
+				</parameters>
+			</npc>
+			<npc id="31031" x="145319" y="-56567" z="-2976" heading="16384" respawnTime="10sec" /> <!-- Broadcasting Tower -->
+		</group>
+	</spawn>
+</list>

@@ -1,0 +1,2192 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
+	<npc id="23500" level="99" type="Monster" name="Flame Crow">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DEMONIC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="6488346" sp="10381" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="80" />
+				<run ground="70" />
+			</speed>
+			<attack physical="47220.368807127" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4410" level="16" /> <!-- Very Strong P. Atk. -->
+			<skill id="4379" level="4" /> <!-- Spear Resistance -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="20" />
+			<height normal="39.5" />
+		</collision>
+	</npc>
+	<npc id="23501" level="99" type="Monster" name="Flame Rael">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>HUMANOID</race>
+		<sex>FEMALE</sex>
+		<acquire exp="6030482" sp="9648" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="31" />
+				<run ground="170" />
+			</speed>
+			<attack physical="47220.557386874" magical="8304.9567060447" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4379" level="4" /> <!-- Spear Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="23" />
+			<height normal="40" />
+		</collision>
+	</npc>
+	<npc id="23502" level="99" type="Monster" name="Flame Salamander">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ELEMENTAL</race>
+		<sex>FEMALE</sex>
+		<acquire exp="6488346" sp="10381" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="39" />
+				<run ground="70" />
+			</speed>
+			<attack physical="47220.368807127" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="16" /> <!-- Very Strong P. Atk. -->
+			<skill id="4379" level="4" /> <!-- Spear Resistance -->
+			<skill id="4416" level="7" /> <!-- Spirits -->
+		</skillList>
+		<collision>
+			<radius normal="20" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23503" level="99" type="Monster" name="Flame Drake">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>DEMONIC</race>
+		<sex>FEMALE</sex>
+		<acquire exp="6488346" sp="10381" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="70" />
+				<run ground="70" />
+			</speed>
+			<attack physical="47220.557386874" magical="8304.9017930433" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="4411" level="16" /> <!-- Very Strong M. Atk. -->
+			<skill id="4379" level="4" /> <!-- Spear Resistance -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="17" />
+			<height normal="37" />
+		</collision>
+	</npc>
+	<npc id="23504" level="99" type="Monster" name="Flame Votis">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>BEAST</race>
+		<sex>FEMALE</sex>
+		<acquire exp="6488346" sp="10381" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="35" />
+				<run ground="70" />
+			</speed>
+			<attack physical="47220.368807127" magical="8305.0410766139" critical="4" attackSpeed="253" range="40" />
+			<defence physical="526.06382978723" magical="305.10497858296" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="16" /> <!-- Very Strong P. Atk. -->
+			<skill id="4379" level="4" /> <!-- Spear Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="20" />
+			<height normal="36" />
+		</collision>
+	</npc>
+	<npc id="23505" level="101" type="Monster" name="Fortress Raider">
+		<!-- TODO: font https://l2wiki.com/Fortress_Raider -->
+		<race>HUMAN</race>
+		<sex>MALE</sex>
+		<equipment rhand="17421" />
+		<acquire exp="148977405" sp="357545" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="42356" magical="31566" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3777" magical="3955" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="300" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="29" />
+			<height normal="36" />
+		</collision>
+	</npc>
+	<npc id="23506" level="101" type="Monster" name="Fortress Guardian Captain">
+		<!-- TODO: font https://l2wiki.com/Fortress_Raider -->
+		<race>HUMAN</race>
+		<sex>MALE</sex>
+		<equipment rhand="17417" lhand="17435" />
+		<acquire exp="187575027" sp="450180" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="47356" magical="36566" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4718" magical="4955" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4440" level="5" /> <!-- Greater Paralysis Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="29" />
+			<height normal="36" />
+		</collision>
+	</npc>
+	<npc id="23507" level="101" type="Monster" name="Atelia Passionate Soldier">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<equipment rhand="17329" />
+		<acquire exp="148977405" sp="357545" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="42356" magical="31566" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3777" magical="3955" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23508" level="101" type="Monster" name="Atelia Elite Captain">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<equipment rhand="17325" lhand="17401" />
+		<acquire exp="187575027" sp="450180" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="47356" magical="36566" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4718" magical="4955" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4440" level="5" /> <!-- Greater Paralysis Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23509" level="102" type="Monster" name="Fortress Dark Wizard">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<equipment rhand="17391" />
+		<sex>MALE</sex>
+		<acquire exp="229580271" sp="550992" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="490979" hpRegen="11.5" mp="24690" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="51396" magical="43516" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="5080" magical="5650" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23510" level="102" type="Monster" name="Atelia Flame Master">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<equipment rhand="17425" />
+		<sex>MALE</sex>
+		<acquire exp="229580271" sp="550992" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="490979" hpRegen="11.5" mp="24690" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="51396" magical="43516" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="5080" magical="5650" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23511" level="102" type="Monster" name="Fortress Archon">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<equipment rhand="17392" />
+		<sex>MALE</sex>
+		<acquire exp="267891659" sp="642940" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="490979" hpRegen="11.5" mp="24690" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="58229" magical="48516" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="5975" magical="6244" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="16" /> <!-- Very Strong P. Def. -->
+			<skill id="4413" level="16" /> <!-- Very Strong M. Def. -->
+			<skill id="4440" level="5" /> <!-- Greater Paralysis Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23512" level="102" type="Monster" name="Atelia High Priest">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<equipment rhand="17426" />
+		<sex>MALE</sex>
+		<acquire exp="267891659" sp="642940" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="490979" hpRegen="11.5" mp="24690" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="58229" magical="48516" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="5975" magical="6244" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="16" /> <!-- Very Strong P. Def. -->
+			<skill id="4413" level="16" /> <!-- Very Strong M. Def. -->
+			<skill id="4440" level="5" /> <!-- Greater Paralysis Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23530" level="101" type="Monster" name="Fortress Guardian Captain" title="Kelbim's Call">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<acquire exp="187575027" sp="450180" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="47356" magical="36566" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4718" magical="4955" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4440" level="5" /> <!-- Greater Paralysis Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23532" level="101" type="Monster" name="Atelia Elite Captain" title="Kelbim's Call">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<acquire exp="187575027" sp="450180" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="47356" magical="36566" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4718" magical="4955" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4440" level="5" /> <!-- Greater Paralysis Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23535" level="102" type="Monster" name="Atelia Archon" title="Kelbim's Call">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<acquire exp="267891659" sp="642940" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="490979" hpRegen="11.5" mp="24690" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="58229" magical="48516" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="5975" magical="6244" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="16" /> <!-- Very Strong P. Def. -->
+			<skill id="4413" level="16" /> <!-- Very Strong M. Def. -->
+			<skill id="4440" level="5" /> <!-- Greater Paralysis Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23536" level="102" type="Monster" name="Atelia High Priest" title="Kelbim's Call">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<acquire exp="267891659" sp="642940" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="490979" hpRegen="11.5" mp="24690" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="58229" magical="48516" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="5975" magical="6244" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="16" /> <!-- Very Strong P. Def. -->
+			<skill id="4413" level="16" /> <!-- Very Strong M. Def. -->
+			<skill id="4440" level="5" /> <!-- Greater Paralysis Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23537" level="101" type="Monster" name="Atelia Elite Captain" title="Atelia Infuser">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<equipment rhand="17325" lhand="17401" />
+		<acquire exp="187575027" sp="450180" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="47356" magical="36566" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4718" magical="4955" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4440" level="5" /> <!-- Greater Paralysis Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23538" level="102" type="Monster" name="Atelia High Priest" title="Atelia Infuser">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<acquire exp="267891659" sp="642940" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="490979" hpRegen="11.5" mp="24690" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="58229" magical="48516" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="5975" magical="6244" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="16" /> <!-- Very Strong P. Def. -->
+			<skill id="4413" level="16" /> <!-- Very Strong M. Def. -->
+			<skill id="4440" level="5" /> <!-- Greater Paralysis Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23539" level="104" type="Monster" name="Atelia Trial Guardian Captain" title="Trial Guardian">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<sex>MALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1328146" hpRegen="11.5" mp="50920" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23541" level="100" type="Monster" name="Kerberos Liger">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>BEAST</race>
+		<acquire exp="144017880" sp="345643" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="418608" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="38999" magical="27961" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3421" magical="3605" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23542" level="101" type="Monster" name="Kerberos Fort">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>BEAST</race>
+		<acquire exp="160274270" sp="384658" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="32000" magical="44115" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4431" magical="4000" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23543" level="100" type="Monster" name="Kerberos Nero">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>BEAST</race>
+		<acquire exp="144017880" sp="345643" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="418608" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="38999" magical="27961" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3421" magical="3605" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="5464" level="1" /> <!-- Wind Attack -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23544" level="101" type="Monster" name="Fury Sylph Barrena">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<acquire exp="160274270" sp="384658" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="32000" magical="44115" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4431" magical="4000" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5464" level="1" /> <!-- Wind Attack -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23545" level="100" type="Monster" name="Fury Kiku">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>ANIMAL</race>
+		<acquire exp="17848068" sp="42835" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="55815" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="10561" magical="4115" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="2431" magical="2000" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="4" /> <!-- Animals -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23546" level="101" type="Monster" name="Fury Sylph Temptress">
+		<!-- FIX ME NO INFO ABOUT THIS NPC -->
+		<race>HUMANOID</race>
+		<acquire exp="160274270" sp="384658" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="32000" magical="44115" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4431" magical="4000" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5464" level="1" /> <!-- Wind Attack -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23547" level="101" type="Monster" name="Fury Sylph Purka">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<sex>FEMALE</sex>
+		<acquire exp="160274270" sp="384658" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="32000" magical="44115" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4431" magical="4000" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5464" level="1" /> <!-- Wind Attack -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23548" level="100" type="Monster" name="Fury Kerberos Liger">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>BEAST</race>
+		<acquire exp="133866840" sp="321280" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="418608" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="33999" magical="22961" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3021" magical="3105" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23549" level="100" type="Monster" name="Fury Kerberos Nero">
+		<!-- Source: www.l2wiki.com -->
+		<race>BEAST</race>
+		<acquire exp="133866840" sp="321280" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="418608" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="33999" magical="22961" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3021" magical="3105" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="5464" level="1" /> <!-- Wind Attacks -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23550" level="100" type="Monster" name="Kerberos Liger" title="Spirit of the Night">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>BEAST</race>
+		<acquire exp="144017880" sp="345643" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="418608" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="38999" magical="27961" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3421" magical="3605" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23551" level="101" type="Monster" name="Kerberos Fort" title="Spirit of the Night">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>BEAST</race>
+		<acquire exp="160274270" sp="384658" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="32000" magical="44115" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4431" magical="4000" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23552" level="100" type="Monster" name="Kerberos Nero" title="Spirit of the Night">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>BEAST</race>
+		<acquire exp="144017880" sp="345643" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="418608" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="38999" magical="27961" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3421" magical="3605" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23553" level="101" type="Monster" name="Fury Sylph Barrena" title="Spirit of the Night">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<acquire exp="160274270" sp="384658" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="32000" magical="44115" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4431" magical="4000" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23554" level="100" type="Monster" name="Fury Kiku">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>ANIMAL</race>
+		<acquire exp="17848068" sp="42835" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="55815" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="10561" magical="4115" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="2431" magical="2000" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="4" /> <!-- Animals -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23555" level="101" type="Monster" name="Fury Sylph Temptress" title="Spirit of the Night">
+		<!-- FIX ME NO INFO ABOUT THIS NPC -->
+		<race>HUMANOID</race>
+		<acquire exp="160274270" sp="384658" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="32000" magical="44115" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4431" magical="4000" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5464" level="1" /> <!-- Wind Attack -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23556" level="101" type="Monster" name="Fury Sylph Purka" title="Spirit of the Night">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<acquire exp="160274270" sp="384658" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="32000" magical="44115" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4431" magical="4000" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23557" level="100" type="Monster" name="Fury Kerberos Liger">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>BEAST</race>
+		<acquire exp="133866840" sp="321280" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="418608" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="33999" magical="22961" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3021" magical="3105" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23558" level="100" type="Monster" name="Fury Kerberos Nero">
+		<!-- Source: www.l2wiki.com -->
+		<race>BEAST</race>
+		<acquire exp="133866840" sp="321280" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="418608" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="33999" magical="22961" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3021" magical="3105" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="5465" level="1" /> <!-- Earth Attacks -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23559" level="100" type="Monster" name="El Floato">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>ELEMENTAL</race>
+		<acquire exp="27915360" sp="66996" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="209304" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="9578" magical="5465" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3131" magical="2680" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="7" /> <!-- Spirits -->
+			<skill id="5464" level="1" /> <!-- Wind Attack -->
+			<skill id="4410" level="7" /> <!-- Weak P. Atk. -->
+			<skill id="4411" level="7" /> <!-- Weak M. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23560" level="100" type="Monster" name="El Floato">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>ELEMENTAL</race>
+		<acquire exp="27915360" sp="66996" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="209304" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="9578" magical="5465" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3131" magical="2680" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="7" /> <!-- Spirits -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="7" /> <!-- Weak P. Atk. -->
+			<skill id="4411" level="7" /> <!-- Weak M. Atk. -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>GARDEN_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23561" level="100" type="Monster" name="Harpe">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>BEAST</race>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="418608" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="5464" level="1" /> <!-- Wind Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23562" level="101" type="Monster" name="Harpe" title="Separated Evil Thoughts">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>BEAST</race>
+		<acquire exp="5177752173" sp="12426574" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1360308" hpRegen="11.5" mp="48616" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="56121" magical="62961" random="50" critical="4" accuracy="91" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3021" magical="3105" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="5464" level="1" /> <!-- Wind Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23563" level="101" type="Monster" name="Croamis" title="Gatekeeper">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>ELEMENTAL</race>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="4080923" hpRegen="11.5" mp="48616" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="7" /> <!-- Spirits -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23564" level="100" type="Monster" name="Croa">
+		<!-- Source: www.l2wiki.com -->
+		<race>ELEMENTAL</race>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1507176" hpRegen="10.5" mp="47856" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="7" /> <!-- Spirits -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23565" level="100" type="Monster" name="Amis">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>ELEMENTAL</race>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1507176" hpRegen="10.5" mp="47856" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="7" /> <!-- Spirits -->
+			<skill id="5464" level="1" /> <!-- Wind Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23566" level="100" type="Monster" name="Nymph Rose">
+		<!-- Source: www.l2wiki.com -->
+		<race>PLANT</race>
+		<acquire exp="24981655" sp="59955" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="55815" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plant -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23567" level="100" type="Monster" name="Nymph Rose">
+		<!-- Source: www.l2wiki.com -->
+		<race>PLANT</race>
+		<acquire exp="24981655" sp="59955" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="55815" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plant -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23568" level="100" type="Monster" name="Nymph Lily">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>PLANT</race>
+		<acquire exp="24981655" sp="59955" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="55815" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23569" level="103" type="Monster" name="Nymph Lily">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>PLANT</race>
+		<acquire exp="69350056" sp="166440" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="77986" hpRegen="11.5" mp="25074" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="12" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="12" /> <!-- Slightly Strong M. Def. -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23570" level="100" type="Monster" name="Nymph Tulip">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>PLANT</race>
+		<acquire exp="24981655" sp="59955" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="55815" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23571" level="103" type="Monster" name="Nymph Tulip">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>PLANT</race>
+		<acquire exp="69350056" sp="166440" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="77986" hpRegen="11.5" mp="25074" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="12" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="12" /> <!-- Slightly Strong M. Def. -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23572" level="100" type="Monster" name="Nymph Cosmos">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>PLANT</race>
+		<acquire exp="24981655" sp="59955" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="55815" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23573" level="103" type="Monster" name="Nymph Cosmos">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>PLANT</race>
+		<acquire exp="69350056" sp="166440" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="77986" hpRegen="11.5" mp="25074" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4412" level="12" /> <!-- Slightly Strong P. Def. -->
+			<skill id="4413" level="12" /> <!-- Slightly Strong M. Def. -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23574" level="103" type="Monster" name="Nymph Rose" title="Fancy">
+		<!-- Source: www.l2wiki.com -->
+		<race>PLANT</race>
+		<acquire exp="69350056" sp="166440" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="77986" hpRegen="10.5" mp="25074" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plant -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+			<skill id="4410" level="12" /> <!-- Extremely Weak P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Extremely Weak M. Atk. -->
+			<skill id="4412" level="12" /> <!-- Extremely Weak P. Def. -->
+			<skill id="4413" level="12" /> <!-- Extremely Weak M. Def. -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23575" level="101" type="Monster" name="Nymph Lily" title="Fancy">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>PLANT</race>
+		<acquire exp="37812025" sp="90748" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="60447" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23576" level="101" type="Monster" name="Nymph Tulip" title="Fancy">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>PLANT</race>
+		<acquire exp="37812025" sp="90748" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="60447" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23577" level="101" type="Monster" name="Nymph Cosmos" title="Fancy">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>PLANT</race>
+		<acquire exp="37812025" sp="90748" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="60447" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23578" level="102" type="Monster" name="Nymph Guardian" title="Guardian of the Flower">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>PLANT</race>
+		<acquire exp="112355490" sp="269653" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="196391" hpRegen="11.5" mp="24690" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23579" level="100" type="Monster" name="Buoyant Seed">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>ELEMENTAL</race>
+		<acquire exp="24981655" sp="59955" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="55815" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="7" /> <!-- Spirits -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23580" level="100" type="Monster" name="Fluttering Seed">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>ELEMENTAL</race>
+		<acquire exp="24981655" sp="59955" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="55815" hpRegen="10.5" mp="23928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="7" /> <!-- Spirits -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23581" level="100" type="Monster" name="Apherus" title="Instilled with life">
+		<!-- Source: www.l2on.net -->
+		<race>PLANT</race>
+		<acquire exp="32981655" sp="71155" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="93023" hpRegen="10.5" mp="30928" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23582" level="101" type="Monster" name="Nymph Rose" title="Elegant">
+		<!-- Source: www.l2wiki.com -->
+		<race>PLANT</race>
+		<acquire exp="37812025" sp="90748" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="60447" hpRegen="10.5" mp="24308" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plant -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23583" level="101" type="Monster" name="Nymph Lily" title="Elegant">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>PLANT</race>
+		<acquire exp="37812025" sp="90748" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="60447" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23584" level="101" type="Monster" name="Nymph Tulip" title="Elegant">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>PLANT</race>
+		<acquire exp="37812025" sp="90748" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="60447" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23585" level="101" type="Monster" name="Nymph Cosmos" title="Elegant">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>PLANT</race>
+		<acquire exp="37812025" sp="90748" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="60447" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="5" /> <!-- Plants -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23586" level="103" type="Monster" name="Geork" title="Embryo Master Artisan">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<acquire exp="5639744400" sp="13535386" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1360094" hpRegen="11.5" mp="50148" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="59121" magical="64961" random="50" critical="4" accuracy="91" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4321" magical="4105" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23587" level="104" type="Monster" name="Burnstein" title="Embryo Commander">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<acquire exp="18973578624" sp="45536588" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="3320431" hpRegen="11.5" mp="50920" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="63121" magical="68961" random="50" critical="4" accuracy="91" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="5921" magical="5405" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23588" level="102" type="Monster" name="Hummel" title="Embryo Quartermaster">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<acquire exp="3456666576" sp="8295999" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="638515" hpRegen="11.5" mp="49380" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="59229" magical="49516" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="5975" magical="6244" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23589" level="102" type="Monster" name="Fortress Spy">
+		<!-- FIXME: HAS NO INFO -->
+		<race>HUMANOID</race>
+		<equipment rhand="17421" />
+		<acquire exp="3456666576" sp="8295999" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="638515" hpRegen="11.5" mp="49380" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="59229" magical="49516" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="5975" magical="6244" />
+			<speed>
+				<walk ground="50" /> <!-- Need retail value -->
+				<run ground="200" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23590" level="103" type="Folk" name="Adolph" title="Brainwashed Aden Vanguard">
+		<!-- FIXME: HAS NO INFO -->
+		<race>HUMAN</race>
+		<sex>MALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1426806" hpRegen="7.5" mp="78950" mpRegen="2.7" />
+			<attack physical="4422" magical="2492" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="1802" magical="1651" />
+			<speed>
+				<walk ground="50" />
+				<run ground="186" />
+			</speed>
+			<hitTime>500</hitTime>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="14" /> <!-- Undead -->
+			<skill id="6748" level="1" /> <!-- Shock Attack -->
+		</skillList>
+		<collision>
+			<radius normal="12" />
+			<height normal="24.5" />
+		</collision>
+	</npc>
+	<npc id="23591" level="103" type="Folk" name="Barton" title="Brainwashed Aden Vanguard">
+		<!-- FIXME: HAS NO INFO -->
+		<sex>MALE</sex>
+		<race>HUMAN</race>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1426806" hpRegen="7.5" mp="78950" mpRegen="2.7" />
+			<attack physical="4422" magical="2492" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="1802" magical="1651" />
+			<speed>
+				<walk ground="50" />
+				<run ground="186" />
+			</speed>
+			<hitTime>500</hitTime>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="14" /> <!-- Undead -->
+			<skill id="6748" level="1" /> <!-- Shock Attack -->
+		</skillList>
+		<collision>
+			<radius normal="12" />
+			<height normal="24.5" />
+		</collision>
+	</npc>
+	<npc id="23592" level="103" type="Folk" name="Hayuk" title="Brainwashed Aden Vanguard">
+		<!-- FIXME: HAS NO INFO -->
+		<sex>MALE</sex>
+		<race>HUMAN</race>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1426806" hpRegen="7.5" mp="78950" mpRegen="2.7" />
+			<attack physical="4422" magical="2492" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="1802" magical="1651" />
+			<speed>
+				<walk ground="50" />
+				<run ground="186" />
+			</speed>
+			<hitTime>500</hitTime>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="14" /> <!-- Undead -->
+			<skill id="6748" level="1" /> <!-- Shock Attack -->
+		</skillList>
+		<collision>
+			<radius normal="12" />
+			<height normal="24.5" />
+		</collision>
+	</npc>
+	<npc id="23593" level="103" type="Folk" name="Elise" title="Brainwashed Aden Vanguard">
+		<!-- FIXME: HAS NO INFO -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1426806" hpRegen="7.5" mp="78950" mpRegen="2.7" />
+			<attack physical="4422" magical="2492" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="1802" magical="1651" />
+			<speed>
+				<walk ground="50" />
+				<run ground="186" />
+			</speed>
+			<hitTime>500</hitTime>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="14" /> <!-- Undead -->
+			<skill id="6748" level="1" /> <!-- Shock Attack -->
+		</skillList>
+		<collision>
+			<radius normal="12" />
+			<height normal="24.5" />
+		</collision>
+	</npc>
+	<npc id="23594" level="103" type="Folk" name="Eliyah" title="Brainwashed Aden Vanguard">
+		<!-- FIXME: HAS NO INFO -->
+		<race>HUMAN</race>
+		<sex>FEMALE</sex>
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="1426806" hpRegen="7.5" mp="78950" mpRegen="2.7" />
+			<attack physical="4422" magical="2492" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="1802" magical="1651" />
+			<speed>
+				<walk ground="50" />
+				<run ground="186" />
+			</speed>
+			<hitTime>500</hitTime>
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="14" /> <!-- Undead -->
+			<skill id="6748" level="1" /> <!-- Shock Attack -->
+		</skillList>
+		<collision>
+			<radius normal="12" />
+			<height normal="24.5" />
+		</collision>
+	</npc>
+	<npc id="23595" level="101" type="Monster" name="Fortress Raider" usingServerSideTitle="true">
+		<!-- TODO: font https://l2wiki.com/Fortress_Raider -->
+		<race>HUMAN</race>
+		<sex>MALE</sex>
+		<equipment rhand="17421" />
+		<acquire exp="148977405" sp="357545" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="42356" magical="31566" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3777" magical="3955" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Undead -->
+			<skill id="5467" level="1" /> <!-- Darkness Protection -->
+		</skillList>
+		<ai aggroRange="500" clanHelpRange="300" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="29" />
+			<height normal="36" />
+		</collision>
+	</npc>
+	<npc id="23596" level="101" type="Monster" name="Fortress Guardian Captain" usingServerSideTitle="true">
+		<!-- TODO: font https://l2wiki.com/Fortress_Raider -->
+		<race>HUMAN</race>
+		<sex>MALE</sex>
+		<equipment rhand="17417" lhand="17435" />
+		<acquire exp="187575027" sp="450180" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="47356" magical="36566" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4718" magical="4955" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Undead -->
+			<skill id="5467" level="1" /> <!-- Darkness Protection -->
+			<skill id="4412" level="14" /> <!-- Extremely Weak P. Def. -->
+			<skill id="4413" level="14" /> <!-- Extremely Weak M. Def. -->
+			<skill id="4440" level="5" /> <!-- Greater Paralysis Resistance -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="29" />
+			<height normal="36" />
+		</collision>
+	</npc>
+	<npc id="23597" level="101" type="Monster" name="Atelia Passionate Soldier" usingServerSideTitle="true">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<equipment rhand="17329" />
+		<acquire exp="148977405" sp="357545" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="42356" magical="31566" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="3777" magical="3955" />
+			<speed>
+				<walk ground="60" /> <!-- Need retail value -->
+				<run ground="120" /> <!-- Need retail value -->
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23598" level="102" type="Monster" name="Atelia Elite Captain" usingServerSideTitle="true">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<equipment rhand="17325" lhand="17401" />
+		<acquire exp="187575027" sp="450180" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="453352" hpRegen="7.5" mp="24308" mpRegen="2.7" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="47356" magical="36566" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="4718" magical="4955" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+			<skill id="4440" level="5" /> <!-- Greater Paralysis Resistance -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+	<npc id="23599" level="102" type="Monster" name="Fortress Dark Wizard" usingServerSideTitle="true">
+		<!-- Source: www.l2wiki.com (2015-04-08) -->
+		<race>HUMANOID</race>
+		<equipment rhand="17391" />
+		<sex>MALE</sex>
+		<acquire exp="229580271" sp="550992" />
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+			<vitals hp="490979" hpRegen="11.5" mp="24690" mpRegen="3.9" />
+			<!-- "Guessed" - Based on xp and sp reward -->
+			<attack physical="51396" magical="43516" random="30" critical="4" accuracy="95.25" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<!-- "Guessed" - Based on level -->
+			<defence physical="5080" magical="5650" />
+			<speed>
+				<walk ground="50" />
+				<run ground="200" />
+			</speed>
+		</stats>
+		<status attackable="true" />
+		<skillList>
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
+			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
+		</skillList>
+		<ai aggroRange="700" clanHelpRange="500" isAggressive="true">
+			<clanList>
+				<clan>ATELIA_CLAN</clan>
+			</clanList>
+		</ai>
+		<collision>
+			<radius normal="16" /> <!-- Need retail value -->
+			<height normal="13.25" /> <!-- Need retail value -->
+		</collision>
+	</npc>
+</list>

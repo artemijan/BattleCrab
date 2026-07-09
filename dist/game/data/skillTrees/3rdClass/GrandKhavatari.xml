@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="114" parentClassId="48">
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="3" getLevel="76" levelUpSp="8100000">
+			<item id="8620" count="1" /> <!-- Ancient Book: Divine Inspiration (Manuscript) -->
+		</skill>
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="4" getLevel="76" levelUpSp="8100000">
+			<item id="8621" count="1" /> <!-- Ancient Book: Divine Inspiration (Original Version) -->
+		</skill>
+		<skill skillId="328" skillLevel="1" skillName="Wisdom" levelUpSp="10000000" getLevel="76" />
+		<skill skillId="329" skillLevel="1" skillName="Health" levelUpSp="10000000" getLevel="76" />
+		<skill skillId="335" skillLevel="1" skillName="Fortitude" levelUpSp="10000000" getLevel="76" />
+		<skill skillId="330" skillLevel="1" skillName="Skill Mastery" levelUpSp="13000000" getLevel="77" />
+		<skill skillId="340" skillLevel="1" skillName="Riposte Stance" levelUpSp="13000000" getLevel="77" />
+		<skill skillId="426" skillLevel="1" skillName="Battle Force" levelUpSp="13000000" getLevel="77" />
+		<skill skillId="346" skillLevel="1" skillName="Raging Force" levelUpSp="21340000" getLevel="78" />
+		<skill skillId="430" skillLevel="1" skillName="Master of Combat" levelUpSp="21340000" getLevel="78" />
+		<skill skillId="441" skillLevel="1" skillName="Force Meditation" levelUpSp="21340000" getLevel="78" />
+		<skill skillId="443" skillLevel="1" skillName="Force Barrier" levelUpSp="80000000" getLevel="79" />
+		<skill skillId="458" skillLevel="1" skillName="Symbol of Energy" levelUpSp="150000000" getLevel="80" />
+	</skillTree>
+</list>

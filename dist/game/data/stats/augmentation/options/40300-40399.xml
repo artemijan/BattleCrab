@@ -1,0 +1,425 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/optionsData.xsd">
+	<option id="40300" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +12 -->
+		<passive_skill id="27878" level="2" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40301" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +14 -->
+		<passive_skill id="27878" level="3" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40302" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +16 -->
+		<passive_skill id="27878" level="4" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40303" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +18 -->
+		<!-- P. Def. + 5% -->
+		<passive_skill id="27878" level="5" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40304" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +20 -->
+		<!-- P. Def. + 5% -->
+		<passive_skill id="27878" level="6" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40305" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +22, Fixed Damage Resistance +5%, creates a shield that absorbs 30000 damage at a certain rate -->
+		<!-- P. Def. + 5% -->
+		<passive_skill id="27878" level="7" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40306" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +24, Fixed Damage Resistance +6%, creates a shield that absorbs 31500 damage at a certain rate -->
+		<!-- P. Def. + 5% -->
+		<passive_skill id="27878" level="8" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40307" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +26, Fixed Damage Resistance +7%, creates a shield that absorbs 33075 damage at a certain rate -->
+		<!-- P. Def. + 5%, Max HP +2800 -->
+		<passive_skill id="27878" level="9" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40308" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +28, Fixed Damage Resistance +8%, creates a shield that absorbs 34729 damage at a certain rate -->
+		<!-- P. Def. + 5%, Max HP +3080 -->
+		<passive_skill id="27878" level="10" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40309" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +30, Fixed Damage Resistance +9%, creates a shield that absorbs 36465 damage at a certain rate -->
+		<!-- P. Def. + 5%, Max HP +3388, Damage Received when Immobilized -30% -->
+		<passive_skill id="27878" level="11" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40310" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +32, Fixed Damage Resistance +10%, creates a shield that absorbs 38288 damage at a certain rate -->
+		<!-- P. Def. + 5%, Max HP +3727, Damage Received when Immobilized -32% -->
+		<passive_skill id="27878" level="12" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40311" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +34, Fixed Damage Resistance +11%, creates a shield that absorbs 40203 damage at a certain rate -->
+		<!-- P. Def. + 5%, Max HP +4099, Damage Received when Immobilized -33%, P./M. Def. +16000 at a certain rate when hit -->
+		<passive_skill id="27878" level="13" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40312" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +36, Fixed Damage Resistance +13%, creates a shield that absorbs 42213 damage at a certain rate -->
+		<!-- P. Def. + 5%, Max HP +4509, Damage Received when Immobilized -35%, P./M. Def. +16000 at a certain rate when hit -->
+		<passive_skill id="27878" level="14" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40313" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +38, Fixed Damage Resistance +15%, creates a shield that absorbs 44324 damage at a certain rate -->
+		<!-- P. Def. + 5%, Max HP +4960, Damage Received when Immobilized -36%, P./M. Def. +17000 at a certain rate when hit -->
+		<passive_skill id="27878" level="15" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40314" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +40, Fixed Damage Resistance +16%, creates a shield that absorbs 46540 damage at a certain rate -->
+		<!-- P. Def. + 5%, Max HP +5456, Damage Received when Immobilized -38%, P./M. Def. +17000 at a certain rate when hit -->
+		<passive_skill id="27878" level="16" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40315" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +42, Fixed Damage Resistance +17%, creates a shield that absorbs 48867 damage at a certain rate -->
+		<!-- P. Def. + 5%, Max HP +6002, Damage Received when Immobilized -40%, P./M. Def. +17000 at a certain rate when hit -->
+		<passive_skill id="27878" level="17" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40316" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +44, Fixed Damage Resistance +18%, creates a shield that absorbs 51310 damage at a certain rate -->
+		<!-- P. Def. + 5%, Max HP +6602, Damage Received when Immobilized -42%, P./M. Def. +18000 at a certain rate when hit -->
+		<!-- When hit, P./M. Attack +50% for party members at a certain rate -->
+		<active_skill id="27893" level="1" /> <!-- Spirit of Ferios -->
+		<passive_skill id="27878" level="18" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40317" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +46, Fixed Damage Resistance +19%, creates a shield that absorbs 53876 damage at a certain rate -->
+		<!-- P. Def. + 5%, Max HP +7262, Damage Received when Immobilized -44%, P./M. Def. +18000 at a certain rate when hit -->
+		<!-- When hit, P./M. Attack +55% for party members at a certain rate -->
+		<active_skill id="27893" level="2" /> <!-- Spirit of Ferios -->
+		<passive_skill id="27878" level="19" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40318" name="ferios_cloak_opt">
+		<!-- All Attribute Resistance +50, Fixed Damage Resistance +20%, creates a shield that absorbs 56569 damage at a certain rate -->
+		<!-- P. Def. + 5%, Max HP +7989, Damage Received when Immobilized -50%, P./M. Def. +18000 at a certain rate when hit -->
+		<!-- When hit, P./M. Attack +60% for party members at a certain rate -->
+		<active_skill id="27893" level="3" /> <!-- Spirit of Ferios -->
+		<passive_skill id="27878" level="20" /> <!-- Ferios Cloak Enchant Effect -->
+	</option>
+	<option id="40319" name="ferios_cloak_opt">
+		<!-- Active Skill: Blessing of Ferios -->
+		<active_skill id="27885" level="1" /> <!-- Blessing of Ferios -->
+	</option>
+	<option id="40320" name="cloak_opt">
+		<!-- P. Atk. +69 -->
+		<passive_skill id="27895" level="1" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40321" name="cloak_opt">
+		<!-- P. Atk. +82 -->
+		<passive_skill id="27895" level="2" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40322" name="cloak_opt">
+		<!-- P. Atk. +107 -->
+		<passive_skill id="27895" level="3" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40323" name="cloak_opt">
+		<!-- P. Atk. +132 -->
+		<passive_skill id="27895" level="4" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40324" name="cloak_opt">
+		<!-- P. Atk. +157 -->
+		<passive_skill id="27895" level="5" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40325" name="cloak_opt">
+		<!-- P. Atk. +188 -->
+		<passive_skill id="27895" level="6" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40326" name="cloak_opt">
+		<!-- P. Atk. +220 -->
+		<passive_skill id="27895" level="7" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40327" name="cloak_opt">
+		<!-- P. Atk. +251 -->
+		<passive_skill id="27895" level="8" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40328" name="cloak_opt">
+		<!-- P. Atk. +314 -->
+		<passive_skill id="27895" level="9" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40329" name="cloak_opt">
+		<!-- P. Atk. +628 -->
+		<passive_skill id="27895" level="10" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40330" name="cloak_opt">
+		<!-- M. Atk. +74 -->
+		<passive_skill id="27896" level="1" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40331" name="cloak_opt">
+		<!-- M. Atk. +87 -->
+		<passive_skill id="27896" level="2" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40332" name="cloak_opt">
+		<!-- M. Atk. +114 -->
+		<passive_skill id="27896" level="3" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40333" name="cloak_opt">
+		<!-- M. Atk. +141 -->
+		<passive_skill id="27896" level="4" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40334" name="cloak_opt">
+		<!-- M. Atk. +168 -->
+		<passive_skill id="27896" level="5" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40335" name="cloak_opt">
+		<!-- M. Atk. +201 -->
+		<passive_skill id="27896" level="6" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40336" name="cloak_opt">
+		<!-- M. Atk. +235 -->
+		<passive_skill id="27896" level="7" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40337" name="cloak_opt">
+		<!-- M. Atk. +269 -->
+		<passive_skill id="27896" level="8" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40338" name="cloak_opt">
+		<!-- M. Atk. +336 -->
+		<passive_skill id="27896" level="9" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40339" name="cloak_opt">
+		<!-- M. Atk. +672 -->
+		<passive_skill id="27896" level="10" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40340" name="cloak_opt">
+		<!-- Atk. Spd. +10 -->
+		<passive_skill id="27897" level="1" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40341" name="cloak_opt">
+		<!-- Atk. Spd. +12 -->
+		<passive_skill id="27897" level="2" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40342" name="cloak_opt">
+		<!-- Atk. Spd. +15 -->
+		<passive_skill id="27897" level="3" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40343" name="cloak_opt">
+		<!-- Atk. Spd. +19 -->
+		<passive_skill id="27897" level="4" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40344" name="cloak_opt">
+		<!-- Atk. Spd. +23 -->
+		<passive_skill id="27897" level="5" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40345" name="cloak_opt">
+		<!-- Atk. Spd. +27 -->
+		<passive_skill id="27897" level="6" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40346" name="cloak_opt">
+		<!-- Atk. Spd. +32 -->
+		<passive_skill id="27897" level="7" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40347" name="cloak_opt">
+		<!-- Atk. Spd. +36 -->
+		<passive_skill id="27897" level="8" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40348" name="cloak_opt">
+		<!-- Atk. Spd. +45 -->
+		<passive_skill id="27897" level="9" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40349" name="cloak_opt">
+		<!-- Atk. Spd. +90 -->
+		<passive_skill id="27897" level="10" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40350" name="cloak_opt">
+		<!-- Casting Spd. +10 -->
+		<passive_skill id="27898" level="1" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40351" name="cloak_opt">
+		<!-- Casting Spd. +12 -->
+		<passive_skill id="27898" level="2" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40352" name="cloak_opt">
+		<!-- Casting Spd. +15 -->
+		<passive_skill id="27898" level="3" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40353" name="cloak_opt">
+		<!-- Casting Spd. +19 -->
+		<passive_skill id="27898" level="4" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40354" name="cloak_opt">
+		<!-- Casting Spd. +23 -->
+		<passive_skill id="27898" level="5" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40355" name="cloak_opt">
+		<!-- Casting Spd. +27 -->
+		<passive_skill id="27898" level="6" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40356" name="cloak_opt">
+		<!-- Casting Spd. +32 -->
+		<passive_skill id="27898" level="7" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40357" name="cloak_opt">
+		<!-- Casting Spd. +36 -->
+		<passive_skill id="27898" level="8" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40358" name="cloak_opt">
+		<!-- Casting Spd. +45 -->
+		<passive_skill id="27898" level="9" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40359" name="cloak_opt">
+		<!-- Casting Spd. +90 -->
+		<passive_skill id="27898" level="10" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40360" name="cloak_opt">
+		<!-- P. Accuracy +1 -->
+		<passive_skill id="27899" level="1" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40361" name="cloak_opt">
+		<!-- P. Accuracy +2 -->
+		<passive_skill id="27899" level="2" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40362" name="cloak_opt">
+		<!-- P. Accuracy +3 -->
+		<passive_skill id="27899" level="3" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40363" name="cloak_opt">
+		<!-- P. Accuracy +4 -->
+		<passive_skill id="27899" level="4" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40364" name="cloak_opt">
+		<!-- P. Accuracy +5 -->
+		<passive_skill id="27899" level="5" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40365" name="cloak_opt">
+		<!-- M. Accuracy +1 -->
+		<passive_skill id="27900" level="1" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40366" name="cloak_opt">
+		<!-- M. Accuracy +2 -->
+		<passive_skill id="27900" level="2" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40367" name="cloak_opt">
+		<!-- M. Accuracy +3 -->
+		<passive_skill id="27900" level="3" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40368" name="cloak_opt">
+		<!-- M. Accuracy +4 -->
+		<passive_skill id="27900" level="4" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40369" name="cloak_opt">
+		<!-- M. Accuracy +5 -->
+		<passive_skill id="27900" level="5" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40370" name="cloak_opt">
+		<!-- Max HP +99 -->
+		<passive_skill id="27901" level="1" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40371" name="cloak_opt">
+		<!-- Max HP +117 -->
+		<passive_skill id="27901" level="2" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40372" name="cloak_opt">
+		<!-- Max HP +153 -->
+		<passive_skill id="27901" level="3" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40373" name="cloak_opt">
+		<!-- Max HP +189 -->
+		<passive_skill id="27901" level="4" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40374" name="cloak_opt">
+		<!-- Max HP +225 -->
+		<passive_skill id="27901" level="5" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40375" name="cloak_opt">
+		<!-- Max HP +270 -->
+		<passive_skill id="27901" level="6" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40376" name="cloak_opt">
+		<!-- Max HP +315 -->
+		<passive_skill id="27901" level="7" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40377" name="cloak_opt">
+		<!-- Max HP +360 -->
+		<passive_skill id="27901" level="8" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40378" name="cloak_opt">
+		<!-- Max HP +450 -->
+		<passive_skill id="27901" level="9" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40379" name="cloak_opt">
+		<!-- Max HP +900 -->
+		<passive_skill id="27901" level="10" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40380" name="cloak_opt">
+		<!-- Max MP +99 -->
+		<passive_skill id="27902" level="1" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40381" name="cloak_opt">
+		<!-- Max MP +117 -->
+		<passive_skill id="27902" level="2" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40382" name="cloak_opt">
+		<!-- Max MP +153 -->
+		<passive_skill id="27902" level="3" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40383" name="cloak_opt">
+		<!-- Max MP +189 -->
+		<passive_skill id="27902" level="4" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40384" name="cloak_opt">
+		<!-- Max MP +225 -->
+		<passive_skill id="27902" level="5" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40385" name="cloak_opt">
+		<!-- Max MP +270 -->
+		<passive_skill id="27902" level="6" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40386" name="cloak_opt">
+		<!-- Max MP +315 -->
+		<passive_skill id="27902" level="7" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40387" name="cloak_opt">
+		<!-- Max MP +360 -->
+		<passive_skill id="27902" level="8" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40388" name="cloak_opt">
+		<!-- Max MP +450 -->
+		<passive_skill id="27902" level="9" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40389" name="cloak_opt">
+		<!-- Max MP +900 -->
+		<passive_skill id="27902" level="10" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40390" name="cloak_opt">
+		<!-- Max CP +99 -->
+		<passive_skill id="27903" level="1" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40391" name="cloak_opt">
+		<!-- Max CP +117 -->
+		<passive_skill id="27903" level="2" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40392" name="cloak_opt">
+		<!-- Max CP +153 -->
+		<passive_skill id="27903" level="3" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40393" name="cloak_opt">
+		<!-- Max CP +189 -->
+		<passive_skill id="27903" level="4" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40394" name="cloak_opt">
+		<!-- Max CP +225 -->
+		<passive_skill id="27903" level="5" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40395" name="cloak_opt">
+		<!-- Max CP +270 -->
+		<passive_skill id="27903" level="6" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40396" name="cloak_opt">
+		<!-- Max CP +315 -->
+		<passive_skill id="27903" level="7" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40397" name="cloak_opt">
+		<!-- Max CP +360 -->
+		<passive_skill id="27903" level="8" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40398" name="cloak_opt">
+		<!-- Max CP +450 -->
+		<passive_skill id="27903" level="9" /> <!-- Empire Cloak Augmentation -->
+	</option>
+	<option id="40399" name="cloak_opt">
+		<!-- Max CP +900 -->
+		<passive_skill id="27903" level="10" /> <!-- Empire Cloak Augmentation -->
+	</option>
+</list>
