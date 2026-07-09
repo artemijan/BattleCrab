@@ -62,7 +62,7 @@ client connects to GS → GS asks LS `PlayerAuthRequest` → `PlayerAuthResponse
 ## 3. Workspace layout
 
 ```
-lineage2_rust/
+l2r_interlude/
 ├── Cargo.toml            # workspace
 ├── docs/                 # (this file, model docs)
 ├── crates/

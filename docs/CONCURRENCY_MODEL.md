@@ -1,4 +1,4 @@
-# Concurrency Model — lineage2_rust
+# Concurrency Model — l2r_interlude
 
 **Status: DECIDED (pending review).** This document defines the threading and
 ownership model for the Rust rewrite and records the analysis of the Java
