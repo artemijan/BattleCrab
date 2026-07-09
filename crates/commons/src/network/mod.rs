@@ -1,0 +1,8 @@
+//! Reusable network core (replaces Async-mmocore): L2 framing and packet
+//! buffer helpers. Shared by the login server and, later, the game server.
+
+mod framing;
+mod packet;
+
+pub use framing::{read_frame, write_frame, HEADER_SIZE};
+pub use packet::{PacketReader, PacketWriter};
