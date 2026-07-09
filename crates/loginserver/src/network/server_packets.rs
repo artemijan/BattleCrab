@@ -112,6 +112,24 @@ pub fn play_ok(key: &SessionKey) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// `PIAgreementCheck.java`.
+pub fn pi_agreement_check(account_id: i32, status: u8) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(0x11);
+    w.write_i32(account_id);
+    w.write_u8(status);
+    w.into_bytes()
+}
+
+/// `PIAgreementAck.java`.
+pub fn pi_agreement_ack(account_id: i32, status: u8) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(0x12);
+    w.write_i32(account_id);
+    w.write_u8(status);
+    w.into_bytes()
+}
+
 /// `PlayFail.java`.
 pub fn play_fail(reason: PlayFailReason) -> Vec<u8> {
     let mut w = PacketWriter::new();

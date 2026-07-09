@@ -79,6 +79,15 @@ pub fn request_characters(account: &str) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// `ChangePasswordResponse`.
+pub fn change_password_response(character_name: &str, message: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(0x06);
+    w.write_string(character_name);
+    w.write_string(message);
+    w.into_bytes()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

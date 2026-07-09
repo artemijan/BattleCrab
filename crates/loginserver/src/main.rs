@@ -52,9 +52,51 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let listener = tokio::net::TcpListener::bind(&bind).await?;
     info!("LoginServer: is now listening on: {bind}");
-    tokio::spawn(network::client_connection::accept_loop(ctx, listener));
+    tokio::spawn(network::client_connection::accept_loop(ctx.clone(), listener));
 
-    tokio::signal::ctrl_c().await?;
+    // Scheduled LS restart (Java: ThreadPool.schedule(() -> shutdown(true))).
+    // Exit code 2 = restart request, honored by a wrapper/orchestrator.
+    let restart = async {
+        if ctx.config.login_server_schedule_restart {
+            let hours = ctx.config.login_server_schedule_restart_time;
+            info!("Scheduled LS restart after {hours} hours.");
+            tokio::time::sleep(std::time::Duration::from_secs(hours as u64 * 3600)).await;
+            true
+        } else {
+            std::future::pending().await
+        }
+    };
+
+    let restart_requested = tokio::select! {
+        _ = tokio::signal::ctrl_c() => false,
+        r = restart => r,
+    };
+
     info!("LoginServer: shutting down.");
+    if ctx.config.backup_database {
+        backup_database(&ctx.config.database_url, &ctx.config.backup_path);
+    }
+    ctx.pool.close().await;
+    if restart_requested {
+        std::process::exit(2);
+    }
     Ok(())
+}
+
+/// `DatabaseBackup.performBackup` for SQLite: timestamped file copy.
+fn backup_database(jdbc_url: &str, backup_path: &str) {
+    let path = jdbc_url.strip_prefix("jdbc:sqlite:").unwrap_or(jdbc_url);
+    let path = path.split('?').next().unwrap_or(path);
+    let timestamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let file_name = std::path::Path::new(path).file_name().map(|n| n.to_string_lossy()).unwrap_or_default();
+    let target_dir = std::path::Path::new(backup_path);
+    let target = target_dir.join(format!("{file_name}.{timestamp}.bak"));
+    if let Err(e) = std::fs::create_dir_all(target_dir).and_then(|_| std::fs::copy(path, &target).map(|_| ())) {
+        tracing::warn!("Database backup failed ({}): {e}", target.display());
+    } else {
+        info!("Database backed up to {}", target.display());
+    }
 }

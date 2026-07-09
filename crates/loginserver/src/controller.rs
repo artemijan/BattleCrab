@@ -35,6 +35,9 @@ pub enum AuthOutcome {
 struct AuthedEntry {
     key: SessionKey,
     kick: mpsc::Sender<LoginFailReason>,
+    /// server_id → character count, filled by ReplyCharacters
+    /// (`LoginClient._charsOnServers`). None until the first reply arrives.
+    chars_on_servers: Option<HashMap<i32, i32>>,
 }
 
 /// One row of the client `ServerList` packet, fully resolved.
@@ -88,6 +91,14 @@ pub enum Msg {
     PlayerAuthRequest { account: String, key: SessionKey, reply: oneshot::Sender<bool> },
     ServerListData { client_ip: String, access_level: i32, reply: oneshot::Sender<Vec<ServerListEntry>> },
     IsLoginPossible { server_id: i32, access_level: i32, account: String, last_server: i32, reply: oneshot::Sender<bool> },
+    /// ReplyCharacters (0x08) — `setCharactersOnServer`.
+    SetCharactersOnServer { server_id: i32, account: String, chars: i32 },
+    /// `LoginClient.getCharsOnServ` — None until any GS replied.
+    GetCharsOnServers { account: String, reply: oneshot::Sender<Option<HashMap<i32, i32>>> },
+    /// RequestTempBan (0x0A).
+    TempBan { account: String, ip: String, ban_time: i64 },
+    /// ChangePassword (0x0B) — full flow incl. the response to the right GS.
+    ChangePassword { account: String, character_name: String, current_password: String, new_password: String },
 }
 
 pub struct ControllerSettings {
@@ -218,6 +229,27 @@ impl ControllerHandle {
         let _ = self.tx.send(Msg::IsLoginPossible { server_id, access_level, account, last_server, reply }).await;
         rx.await.unwrap_or(false)
     }
+
+    pub async fn set_characters_on_server(&self, server_id: i32, account: String, chars: i32) {
+        let _ = self.tx.send(Msg::SetCharactersOnServer { server_id, account, chars }).await;
+    }
+
+    pub async fn chars_on_servers(&self, account: &str) -> Option<HashMap<i32, i32>> {
+        let (reply, rx) = oneshot::channel();
+        let _ = self.tx.send(Msg::GetCharsOnServers { account: account.to_string(), reply }).await;
+        rx.await.ok().flatten()
+    }
+
+    pub async fn temp_ban(&self, account: String, ip: String, ban_time: i64) {
+        let _ = self.tx.send(Msg::TempBan { account, ip, ban_time }).await;
+    }
+
+    pub async fn change_password(&self, account: String, character_name: String, current: String, new: String) {
+        let _ = self
+            .tx
+            .send(Msg::ChangePassword { account, character_name, current_password: current, new_password: new })
+            .await;
+    }
 }
 
 /// `InetAddress.getByName(host).getAddress()` — accepts an IP literal or a
@@ -313,6 +345,34 @@ impl Controller {
             Msg::ServerListData { client_ip, access_level, reply } => {
                 let _ = reply.send(self.server_list_data(&client_ip, access_level));
             }
+            Msg::SetCharactersOnServer { server_id, account, chars } => {
+                if let Some(entry) = self.authed_clients.get_mut(&account) {
+                    let map = entry.chars_on_servers.get_or_insert_with(HashMap::new);
+                    if chars > 0 {
+                        map.insert(server_id, chars);
+                    }
+                }
+            }
+            Msg::GetCharsOnServers { account, reply } => {
+                let _ = reply.send(self.authed_clients.get(&account).and_then(|e| e.chars_on_servers.clone()));
+            }
+            Msg::TempBan { account, ip, ban_time } => {
+                // insert_or_update_account_data (SQLite dialect).
+                let _ = sqlx::query(
+                    "INSERT INTO account_data VALUES (?, 'ban_temp', ?) ON CONFLICT(account_name, var) DO UPDATE SET value=?",
+                )
+                .bind(&account)
+                .bind(ban_time.to_string())
+                .bind(ban_time.to_string())
+                .execute(&self.pool)
+                .await;
+                // Java quirk kept 1:1: the *absolute* ban-end timestamp is
+                // passed as a duration to addBanForAddress.
+                self.add_ban_for_address(ip, ban_time);
+            }
+            Msg::ChangePassword { account, character_name, current_password, new_password } => {
+                self.change_password(account, character_name, current_password, new_password).await;
+            }
             Msg::IsLoginPossible { server_id, access_level, account, last_server, reply } => {
                 let possible = match self.gs.servers.get(&server_id) {
                     Some(entry) if entry.authed => entry.can_login(access_level),
@@ -391,6 +451,51 @@ impl Controller {
             info!("{host}");
         }
         Ok(GsRegistration { server_id: assigned_id, server_name })
+    }
+
+    /// `ChangePassword.java`: verify against the stored hash, update, and
+    /// report the result to the GS hosting the account.
+    async fn change_password(&mut self, account: String, character_name: String, current: String, new: String) {
+        let Some(link) = self
+            .gs
+            .servers
+            .values()
+            .find(|e| e.accounts.contains(&account))
+            .and_then(|e| e.link.clone())
+        else {
+            return; // Java: no GS has the account → silently drop.
+        };
+        let respond = |message: &str| GsCommand::ChangePasswordResponse {
+            character_name: character_name.clone(),
+            message: message.to_string(),
+        };
+
+        let stored: Option<(Option<String>,)> = sqlx::query_as("SELECT password FROM accounts WHERE login=?")
+            .bind(&account)
+            .fetch_optional(&self.pool)
+            .await
+            .ok()
+            .flatten();
+        let stored = stored.and_then(|(p,)| p).unwrap_or_default();
+
+        if hash_password(&current) != stored {
+            let _ = link.try_send(respond("The typed current password doesn't match with your current one."));
+            return;
+        }
+
+        let updated = sqlx::query("UPDATE accounts SET password=? WHERE login=?")
+            .bind(hash_password(&new))
+            .bind(&account)
+            .execute(&self.pool)
+            .await
+            .map(|r| r.rows_affected())
+            .unwrap_or(0);
+        info!("The password for account {account} has been changed.");
+        if updated > 0 {
+            let _ = link.try_send(respond("You have successfully changed your password!"));
+        } else {
+            let _ = link.try_send(respond("The password change was unsuccessful!"));
+        }
     }
 
     async fn register_server_on_db(&self, id: i32, hex_id: &[u8], hosts: &[(String, String)]) {
@@ -533,7 +638,18 @@ impl Controller {
         }
 
         let key = SessionKey::random();
-        self.authed_clients.insert(info.login.clone(), AuthedEntry { key, kick });
+        self.authed_clients
+            .insert(info.login.clone(), AuthedEntry { key, kick, chars_on_servers: None });
+
+        // getCharactersOnAccount: ask every authed GS for character counts.
+        for entry in self.gs.servers.values() {
+            if entry.authed {
+                if let Some(link) = &entry.link {
+                    let _ = link.try_send(GsCommand::RequestCharacters { account: info.login.clone() });
+                }
+            }
+        }
+
         AuthOutcome::Success { key, access_level: info.access_level, last_server: info.last_server }
     }
 

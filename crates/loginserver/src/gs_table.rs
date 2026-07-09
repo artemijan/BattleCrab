@@ -38,6 +38,7 @@ pub mod login_server_fail {
 pub enum GsCommand {
     KickPlayer { account: String },
     RequestCharacters { account: String },
+    ChangePasswordResponse { character_name: String, message: String },
 }
 
 /// IPv4 subnet ("a.b.c.d/n" or bare address), port of `IPSubnet`.

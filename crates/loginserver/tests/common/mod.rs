@@ -42,6 +42,8 @@ pub fn test_config() -> LoginConfig {
         datapack_root: ".".into(),
         login_server_schedule_restart: false,
         login_server_schedule_restart_time: 24,
+        backup_database: false,
+        backup_path: "../backup/".into(),
     }
 }
 

@@ -141,8 +141,67 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
                         }
                         ctx.controller.set_server_status(server_id.unwrap_or(-1), attributes).await;
                     }
-                    // PlayerTracert / ReplyCharacters / RequestTempBan / ChangePassword → M5.
-                    (GameServerState::Authed, 0x07 | 0x08 | 0x0A | 0x0B) => {}
+                    // PlayerTracert
+                    (GameServerState::Authed, 0x07) => {
+                        let (Some(account), Some(pc_ip), Some(hop1), Some(hop2), Some(hop3), Some(hop4)) = (
+                            r.read_string(),
+                            r.read_string(),
+                            r.read_string(),
+                            r.read_string(),
+                            r.read_string(),
+                            r.read_string(),
+                        ) else {
+                            break;
+                        };
+                        let _ = sqlx::query(
+                            "UPDATE accounts SET pcIp = ?, hop1 = ?, hop2 = ?, hop3 = ?, hop4 = ? WHERE login = ?",
+                        )
+                        .bind(pc_ip)
+                        .bind(hop1)
+                        .bind(hop2)
+                        .bind(hop3)
+                        .bind(hop4)
+                        .bind(account)
+                        .execute(&ctx.pool)
+                        .await;
+                    }
+                    // ReplyCharacters
+                    (GameServerState::Authed, 0x08) => {
+                        let (Some(account), Some(chars), Some(chars_to_del)) =
+                            (r.read_string(), r.read_u8(), r.read_u8())
+                        else {
+                            break;
+                        };
+                        for _ in 0..chars_to_del {
+                            let _ = r.read_i64(); // deletion timestamps — unused by Interlude ServerList
+                        }
+                        ctx.controller
+                            .set_characters_on_server(server_id.unwrap_or(-1), account, chars as i32)
+                            .await;
+                    }
+                    // RequestTempBan
+                    (GameServerState::Authed, 0x0A) => {
+                        let (Some(account), Some(ban_ip), Some(ban_time), Some(have_reason)) =
+                            (r.read_string(), r.read_string(), r.read_i64(), r.read_u8())
+                        else {
+                            break;
+                        };
+                        if have_reason != 0 {
+                            let _ = r.read_string(); // _banReason (unused in Java too)
+                        }
+                        ctx.controller.temp_ban(account, ban_ip, ban_time).await;
+                    }
+                    // ChangePassword
+                    (GameServerState::Authed, 0x0B) => {
+                        let (Some(account), Some(character), Some(current), Some(new)) =
+                            (r.read_string(), r.read_string(), r.read_string(), r.read_string())
+                        else {
+                            break;
+                        };
+                        ctx.controller.change_password(account, character, current, new).await;
+                    }
+                    // RequestSendMail (0x09) — commented out in Java as well.
+                    (GameServerState::Authed, 0x09) => {}
                     _ => {
                         warn!("Unknown Opcode (0x{opcode:02X}) in state {state:?} from GameServer, closing connection.");
                         let _ = send(&mut write, &crypt, packets::login_server_fail(login_server_fail::NOT_AUTHED)).await;
@@ -154,6 +213,9 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
                 let body = match cmd {
                     GsCommand::KickPlayer { account } => packets::kick_player(&account),
                     GsCommand::RequestCharacters { account } => packets::request_characters(&account),
+                    GsCommand::ChangePasswordResponse { character_name, message } => {
+                        packets::change_password_response(&character_name, &message)
+                    }
                 };
                 if send(&mut write, &crypt, body).await.is_err() {
                     break;

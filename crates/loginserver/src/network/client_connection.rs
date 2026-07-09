@@ -54,6 +54,9 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
         joined_gs: false,
     };
     let mut encryption = LoginEncryption::new(&session.blowfish_key);
+    // LoginController.purge: the whole login session may last at most
+    // LOGIN_TIMEOUT before the client is dropped.
+    let session_deadline = tokio::time::Instant::now() + LOGIN_TIMEOUT;
 
     // LoginClient constructor: banned address → LoginFail(REASON_NOT_AUTHED),
     // no Init.
@@ -73,7 +76,7 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
 
     loop {
         let mut payload = tokio::select! {
-            frame = tokio::time::timeout(LOGIN_TIMEOUT, read_frame(&mut read, MAX_PAYLOAD)) => {
+            frame = tokio::time::timeout_at(session_deadline, read_frame(&mut read, MAX_PAYLOAD)) => {
                 match frame {
                     Ok(Ok(Some(payload))) => payload,
                     _ => break, // EOF, IO error, or login timeout
@@ -151,11 +154,58 @@ async fn dispatch(
             let key = session.session_key.expect("authed implies session key");
             if key.login_ok1 == skey1 && key.login_ok2 == skey2 {
                 let servers = ctx.controller.server_list_data(session.ip.clone(), session.access_level).await;
-                send(write, encryption, server_packets::server_list(&servers, session.last_server, None)).await?;
+                // ServerList constructor: wait up to 500 ms (10 × 50 ms) for
+                // the ReplyCharacters data before sending without it.
+                let account = session.account.clone().unwrap_or_default();
+                let mut chars = ctx.controller.chars_on_servers(&account).await;
+                let mut tries = 0;
+                while chars.is_none() && tries < 10 {
+                    tokio::time::sleep(Duration::from_millis(50)).await;
+                    chars = ctx.controller.chars_on_servers(&account).await;
+                    tries += 1;
+                }
+                send(
+                    write,
+                    encryption,
+                    server_packets::server_list(&servers, session.last_server, chars.as_ref()),
+                )
+                .await?;
                 Ok(true)
             } else {
                 close(write, encryption, LoginFailReason::ReasonAccessFailed).await
             }
+        }
+        // REQUEST_LOGIN / RequestCmdLogin (0x0B, ConnectionState.AUTHED_GG)
+        (ConnectionState::AuthedGg, 0x0B) => {
+            if !ctx.config.enable_cmd_line_login {
+                return Ok(true);
+            }
+            if r.remaining() < 132 {
+                return Ok(false); // readImpl: int + 128-byte block
+            }
+            let _ = r.read_i32();
+            let raw: [u8; 0x80] = r.read_bytes(0x80).unwrap().try_into().unwrap();
+            let decrypted = session.keypair.decrypt_raw(&raw);
+            let user = java_trim(&decrypted[0x40..0x40 + 14]);
+            let password = java_trim(&decrypted[0x60..0x60 + 16]);
+            finish_auth(ctx, session, user, password, write, encryption, kick_tx).await
+        }
+        // REQUEST_PI_AGREEMENT_CHECK(0x0E, ConnectionState.AUTHED_LOGIN)
+        (ConnectionState::AuthedLogin, 0x0E) => {
+            let Some(account_id) = r.read_i32() else {
+                return Ok(false);
+            };
+            let status = if ctx.config.show_pi_agreement { 0x01 } else { 0x00 };
+            send(write, encryption, server_packets::pi_agreement_check(account_id, status)).await?;
+            Ok(true)
+        }
+        // REQUEST_PI_AGREEMENT(0x0F, ConnectionState.AUTHED_LOGIN)
+        (ConnectionState::AuthedLogin, 0x0F) => {
+            let (Some(account_id), Some(status)) = (r.read_i32(), r.read_u8()) else {
+                return Ok(false);
+            };
+            send(write, encryption, server_packets::pi_agreement_ack(account_id, status)).await?;
+            Ok(true)
         }
         // REQUEST_SERVER_LOGIN(0x02, ConnectionState.AUTHED_LOGIN)
         (ConnectionState::AuthedLogin, 0x02) => {
@@ -231,6 +281,20 @@ async fn request_auth_login(
         (java_trim(&decrypted[0x5E..0x5E + 14]), java_trim(&decrypted[0x6C..0x6C + 16]))
     };
 
+    finish_auth(ctx, session, user, password, write, encryption, kick_tx).await
+}
+
+/// Shared tail of `RequestAuthLogin`/`RequestCmdLogin`: controller check-in
+/// and the outcome packet.
+async fn finish_auth(
+    ctx: &LoginContext,
+    session: &mut ClientSession,
+    user: String,
+    password: String,
+    write: &mut OwnedWriteHalf,
+    encryption: &mut LoginEncryption,
+    kick_tx: &mpsc::Sender<LoginFailReason>,
+) -> std::io::Result<bool> {
     let outcome = ctx
         .controller
         .try_auth_login(user.clone(), password, session.ip.clone(), kick_tx.clone())
@@ -238,7 +302,7 @@ async fn request_auth_login(
 
     match outcome {
         AuthOutcome::Success { key, access_level, last_server } => {
-            session.account = Some(user);
+            session.account = Some(user.clone());
             session.session_key = Some(key);
             session.access_level = access_level;
             session.last_server = last_server;
@@ -246,9 +310,14 @@ async fn request_auth_login(
             if ctx.config.show_licence {
                 send(write, encryption, server_packets::login_ok(&key)).await?;
             } else {
-                // ServerList arrives with M4 (GameServerTable); LoginOk keeps
-                // the flow alive until then.
-                send(write, encryption, server_packets::login_ok(&key)).await?;
+                let servers = ctx.controller.server_list_data(session.ip.clone(), session.access_level).await;
+                let chars = ctx.controller.chars_on_servers(&user).await;
+                send(
+                    write,
+                    encryption,
+                    server_packets::server_list(&servers, session.last_server, chars.as_ref()),
+                )
+                .await?;
             }
             Ok(true)
         }

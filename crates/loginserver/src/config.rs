@@ -32,6 +32,9 @@ pub struct LoginConfig {
 
     pub login_server_schedule_restart: bool,
     pub login_server_schedule_restart_time: i64,
+
+    pub backup_database: bool,
+    pub backup_path: String,
 }
 
 pub const LOGIN_CONFIG_FILE: &str = "dist/login/config/LoginServer.ini";
@@ -69,6 +72,9 @@ impl LoginConfig {
 
             login_server_schedule_restart: p.get_bool("LoginRestartSchedule", false),
             login_server_schedule_restart_time: p.get_long("LoginRestartTime", 24),
+
+            backup_database: p.get_bool("BackupDatabase", false),
+            backup_path: p.get_string("BackupPath", "../backup/"),
         }
     }
 }

@@ -118,6 +118,10 @@ async fn full_end_to_end_login_through_gs() {
     let login_ok1 = i32::from_le_bytes(reply[1..5].try_into().unwrap());
     let login_ok2 = i32::from_le_bytes(reply[5..9].try_into().unwrap());
 
+    // The LS asks the GS for character counts on login — drain it.
+    let req = gs.recv().await.expect("no RequestCharacters");
+    assert_eq!(req[0], 0x05, "RequestCharacters opcode");
+
     let mut w = PacketWriter::new();
     w.write_u8(0x05);
     w.write_i32(login_ok1);
@@ -174,6 +178,10 @@ async fn wrong_session_key_rejected_by_player_auth() {
 
     let (_client, reply) = login(server.addr, "player2", "pw").await;
     assert_eq!(reply[0], 0x03);
+
+    // Drain the RequestCharacters triggered by the login.
+    let req = gs.recv().await.expect("no RequestCharacters");
+    assert_eq!(req[0], 0x05, "RequestCharacters opcode");
 
     let mut w = PacketWriter::new();
     w.write_u8(0x05);
