@@ -81,6 +81,100 @@ UTF-16LE strings), config `PropertiesParser`, SQLite layer, `Rnd`/hex/util. The
 **only new network pieces** are the game XOR cipher, the game packet enums, and
 the game-thread executor wiring.
 
+### 3.1 Player & session lifecycle — the type-state pattern
+
+A connected client moves through a fixed lifecycle, and the set of *valid*
+actions is different in each stage. Java models this with the `ConnectionState`
+enum (`CONNECTED → AUTHENTICATED → ENTERING → IN_GAME`) and gates every
+`ClientPacket` by the states it's allowed in, checked **at runtime**. In Rust we
+encode the same lifecycle with the **type-state pattern** so that "which methods
+exist" follows from "which state you're in", checked **at compile time**: you
+*cannot* call `broadcast_move` on a client that is still choosing a character,
+because that method doesn't exist on that type.
+
+**The states** (game-thread view of a client; carry only the data valid then):
+
+| Type-state | Java `ConnectionState` | Meaning / data it holds |
+|---|---|---|
+| `Session<Connecting>` | CONNECTED | TCP up, protocol OK; no account yet |
+| `Session<Authenticated>` | AUTHENTICATED | `AuthLogin` session key validated; holds account + `SessionKey` |
+| `Session<InLobby>` | AUTHENTICATED | character list loaded; choosing/creating/deleting |
+| `Session<Entering>` | ENTERING | a character is selected, being loaded from DB |
+| `Session<InGame>` | IN_GAME | in the world; links to the live `Player` entity |
+
+`CLOSING`/`DISCONNECTED` aren't states you *hold* — they're the session being
+dropped from the registry.
+
+**Shape** — a generic wrapper parameterised by a state struct; transitions
+consume `self` and return the next type, so a stale earlier-state value can't be
+used after a transition:
+
+```rust
+struct Session<S> {
+    client_id: u32,
+    out: OutboundTx,          // queue packets back to the connection task
+    state: S,
+}
+
+struct Connecting;
+struct Authenticated { account: String, session_key: SessionKey }
+struct InLobby       { account: String, session_key: SessionKey, chars: Vec<CharSelectInfo> }
+struct Entering      { account: String, char_object_id: i32 }
+struct InGame        { account: String, player_object_id: i32 }   // links to the entity
+
+impl Session<Authenticated> {
+    fn into_lobby(self, chars: Vec<CharSelectInfo>) -> Session<InLobby> { /* … */ }
+}
+impl Session<InLobby> {
+    fn send_char_selection(&self) { /* only exists in the lobby */ }
+    fn select_character(self, idx: usize) -> Session<Entering> { /* … */ }
+}
+impl Session<InGame> {
+    fn player_id(&self) -> i32 { self.state.player_object_id }
+    fn broadcast_move(&mut self, world: &mut World, /* … */) { /* only exists in game */ }
+}
+```
+
+**Reconciling type-state with the single-owner ID registry.** The registry
+(`World.clients: HashMap<u32, _>`) needs one concrete type, so at the *storage
+and dispatch boundary* the typed sessions are wrapped in a plain enum that acts
+as the runtime tag — the standard way to combine type-state with a container:
+
+```rust
+enum ClientSession {
+    Connecting(Session<Connecting>),
+    Authenticated(Session<Authenticated>),
+    InLobby(Session<InLobby>),
+    Entering(Session<Entering>),
+    InGame(Session<InGame>),
+}
+```
+
+Packet dispatch matches `(state, packet)` — which *is* Java's per-state gating,
+now exhaustive: an unmatched combination is an out-of-state packet and is
+logged/ignored exactly as Java rejects it. **Inside** a matched arm you hold a
+statically-typed `Session<InGame>`, so only in-game methods are callable — that's
+where the compile-time guarantee pays off. A state transition takes the session
+out of the map (`remove`/`mem::replace`), consumes it through the typed
+transition, and reinserts the new variant.
+
+**How the `Player` entity fits (composition, not type-state).** `Player` itself
+is a plain **composed** struct (identity, position, stats, inventory… — challenge
+#1), and it lives in the `World` object registry keyed by `objectId`, because
+visibility/broadcast need every spatial object in one place (challenge #2).
+`Session<InGame>` therefore stores the **`player_object_id`**, not the `Player`
+by value — this keeps a single owner for the entity and sidesteps the
+double-borrow problem when an in-game action must touch both the actor and the
+rest of the world (handled by the established "take the actor out, act on the
+world, put it back" / id-lookup pattern). So: **type-state governs the session
+lifecycle and which actions are legal; composition + the id registry govern the
+entity.**
+
+**Where it lives.** This machine is on the **game thread**. The connection task
+keeps only the transport-level `ConnectionState` it needs for the handshake
+(G1); the richer lifecycle above is the game-thread's model of the client and is
+built out in G2 (`Authenticated`), G3 (`InLobby`/`Entering`), and G4 (`InGame`).
+
 ## 4. The critical path (why the milestone order is what it is)
 
 `GameServer.java` initialises ~90 subsystems in a fixed order, but a client only
@@ -119,9 +213,10 @@ l2r_interlude/
 │       │   ├── item/, skill/, stats/, zone/, clan/ …  (mirror Java model/)
 │       │   └── holders/, conditions/ …
 │       ├── data/               # 57 XML loaders + sql tables (added per milestone)
+│       ├── session.rs          # client lifecycle: Session<S> type-state (§3.1)
 │       ├── network/
 │       │   ├── cipher.rs        # Encryption (XOR) port  ← golden-vector tested
-│       │   ├── client.rs        # GameClient + ConnectionState
+│       │   ├── client.rs        # GameClient + ConnectionState (transport)
 │       │   ├── client_packets/  # inbound, same names as Java
 │       │   └── server_packets/  # outbound, same names as Java
 │       ├── loginlink.rs        # LoginServerThread (game side of GS link)
@@ -165,26 +260,29 @@ server. G0–G4 are the **vertical slice** (architecture proof); G5+ are breadth
   already implemented on the login server): register the GS, receive the session
   keys, `PlayerAuthRequest`/`PlayerInGame`/`PlayerLogout`, kick. `AuthLogin`
   client packet validates the client's `SessionKey` against the login server.
-  **✔** = the Rust GS registers with the Rust login server (cross-checked against
-  the Java login server); a client that authenticated at login reaches the
-  character-list state (list may be empty).
+  Introduces the session type-state (§3.1): `Session<Connecting>` →
+  `Session<Authenticated>`. **✔** = the Rust GS registers with the Rust login
+  server (cross-checked against the Java login server); a client that
+  authenticated at login reaches the character-list state (list may be empty).
 
 - **G3 — Character selection & persistence.** Minimal `World`/`Player` skeleton;
   DB thread (`DbCommand`/`DbRequest`); `CharInfoTable`; loaders needed to build a
   character: `PlayerTemplateData`, `ClassListData`, `ExperienceData`,
   `InitialEquipmentData`, `InitialShortcutData`; packets `CharSelectInfo`,
   `NewCharacter`/`CharacterCreate`, `CharacterDelete`/`Restore`,
-  `RequestCharacterSelect` → `CharSelected`. **✔** = create a character, see it
-  on the selection screen, it persists across a server restart, delete works.
+  `RequestCharacterSelect` → `CharSelected`. Adds the `Session<InLobby>` and
+  `Session<Entering>` states (§3.1). **✔** = create a character, see it on the
+  selection screen, it persists across a server restart, delete works.
 
 - **G4 — Enter world (VERTICAL-SLICE GATE).** `EnterWorld`; `World` registration +
   region grid + known-list (visibility); `UserInfo`; `CharInfo` broadcast to
   nearby players; movement (`MoveToLocation` → validate → `MovementTaskManager`
   tick system → `MoveToLocation`/`StopMove` broadcast); chat (`Say2`);
-  `Logout`/`RequestRestart`/`RestartResponse`. **✔** = **two real clients enter
-  the world on the Rust server, see each other, walk around, and chat.** This is
-  the phase gate — it exercises network, cipher, login-link, DB, World, regions,
-  a tick system, and broadcast together.
+  `Logout`/`RequestRestart`/`RestartResponse`. Reaches `Session<InGame>` linking
+  the client to the `Player` entity in the object registry (§3.1). **✔** = **two
+  real clients enter the world on the Rust server, see each other, walk around,
+  and chat.** This is the phase gate — it exercises network, cipher, login-link,
+  DB, World, regions, a tick system, and broadcast together.
 
 ### Breadth (each verifiable against the live Java server on the same DB/client)
 
