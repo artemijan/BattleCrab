@@ -17,7 +17,10 @@ pub struct StatBonus {
 
 impl StatBonus {
     pub fn load() -> Self {
-        let content = std::fs::read_to_string(STAT_BONUS_FILE)
+        Self::load_from("")
+    }
+    pub fn load_from(file_path: &str) -> Self {
+        let content = std::fs::read_to_string(format!("{file_path}{STAT_BONUS_FILE}"))
             .unwrap_or_else(|e| panic!("StatBonus: cannot read {STAT_BONUS_FILE}: {e}"));
         let mut reader = Reader::from_str(&content);
         let mut bonus: HashMap<String, Vec<f64>> = HashMap::new();
@@ -37,8 +40,12 @@ impl StatBonus {
                         let mut b = 1.0f64;
                         for a in e.attributes().flatten() {
                             match a.key.as_ref() {
-                                b"value" => value = String::from_utf8_lossy(&a.value).parse().unwrap_or(0),
-                                b"bonus" => b = String::from_utf8_lossy(&a.value).parse().unwrap_or(1.0),
+                                b"value" => {
+                                    value = String::from_utf8_lossy(&a.value).parse().unwrap_or(0)
+                                }
+                                b"bonus" => {
+                                    b = String::from_utf8_lossy(&a.value).parse().unwrap_or(1.0)
+                                }
                                 _ => {}
                             }
                         }
@@ -68,7 +75,11 @@ impl StatBonus {
         if value < 1 {
             return 1.0;
         }
-        self.bonus.get(stat).and_then(|a| a.get(value as usize)).copied().unwrap_or(1.0)
+        self.bonus
+            .get(stat)
+            .and_then(|a| a.get(value as usize))
+            .copied()
+            .unwrap_or(1.0)
     }
 
     pub fn con_bonus(&self, con: i32) -> f64 {
@@ -80,6 +91,8 @@ impl StatBonus {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { bonus: HashMap::new() }
+        Self {
+            bonus: HashMap::new(),
+        }
     }
 }

@@ -25,6 +25,15 @@ pub struct GameData {
 }
 
 impl GameData {
+    pub fn load_from(file_path: &str) -> Self {
+        Self {
+            experience: ExperienceData::load_from(file_path),
+            player_templates: PlayerTemplateData::load_from(file_path),
+            skill_trees: SkillTreeData::load_from(file_path),
+            stat_bonus: StatBonus::load_from(file_path),
+            action_data: ActionData::load_from(file_path),
+        }
+    }
     pub fn load() -> Self {
         Self {
             experience: ExperienceData::load(),
@@ -37,6 +46,7 @@ impl GameData {
 
     /// Empty data bundle for tests that don't exercise the loaders.
     #[doc(hidden)]
+    #[cfg(test)]
     pub fn for_test() -> Self {
         Self {
             experience: ExperienceData::empty(),

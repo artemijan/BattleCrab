@@ -24,7 +24,7 @@ pub fn user_info(p: &Player, data: &GameData) -> Vec<u8> {
     w.write_i32(p.object_id);
     w.write_i32(init_size);
     w.write_i16(23); // number of mask bits
-    w.write_bytes(&[0xFF, 0xFF, 0x7F]); // all 23 blocks present
+    w.write_bytes(&[0xFF, 0xFF, 0xFE]); // all 23 blocks present
 
     // RELATION (4) — TODO(G9): party/clan relation.
     w.write_i32(0);

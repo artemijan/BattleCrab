@@ -26,8 +26,11 @@ pub struct SkillTreeData {
 
 impl SkillTreeData {
     pub fn load() -> Self {
+        Self::load_from("")
+    }
+    pub fn load_from(file_path: &str) -> Self {
         let mut initial: HashMap<i32, Vec<Skill>> = HashMap::new();
-        if let Ok(dir) = std::fs::read_dir(STARTING_CLASS_DIR) {
+        if let Ok(dir) = std::fs::read_dir(format!("{file_path}{STARTING_CLASS_DIR}")) {
             for entry in dir.flatten() {
                 let path = entry.path();
                 if path.extension().and_then(|e| e.to_str()) != Some("xml") {
@@ -37,7 +40,10 @@ impl SkillTreeData {
             }
         }
         let total: usize = initial.values().map(|v| v.len()).sum();
-        info!("SkillTreeData: Loaded initial skills for {} classes ({total} skills).", initial.len());
+        info!(
+            "SkillTreeData: Loaded initial skills for {} classes ({total} skills).",
+            initial.len()
+        );
         Self { initial }
     }
 
@@ -48,12 +54,16 @@ impl SkillTreeData {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { initial: HashMap::new() }
+        Self {
+            initial: HashMap::new(),
+        }
     }
 }
 
 fn parse_tree(path: &std::path::Path, out: &mut HashMap<i32, Vec<Skill>>) {
-    let Ok(content) = std::fs::read_to_string(path) else { return };
+    let Ok(content) = std::fs::read_to_string(path) else {
+        return;
+    };
     let mut reader = Reader::from_str(&content);
     let mut current_class: Option<i32> = None;
     loop {
@@ -63,13 +73,17 @@ fn parse_tree(path: &std::path::Path, out: &mut HashMap<i32, Vec<Skill>>) {
                     current_class = attr_i32(&e, b"classId");
                 }
                 b"skill" => {
-                    let Some(class_id) = current_class else { continue };
+                    let Some(class_id) = current_class else {
+                        continue;
+                    };
                     let skill_id = attr_i32(&e, b"skillId").unwrap_or(-1);
                     let skill_level = attr_i32(&e, b"skillLevel").unwrap_or(0);
                     let get_level = attr_i32(&e, b"getLevel").unwrap_or(99);
                     // Level-1 first-rank skills only (all such entries are autoGet).
                     if get_level <= 1 && skill_level == 1 && skill_id > 0 {
-                        out.entry(class_id).or_default().push((skill_id, skill_level));
+                        out.entry(class_id)
+                            .or_default()
+                            .push((skill_id, skill_level));
                     }
                 }
                 _ => {}

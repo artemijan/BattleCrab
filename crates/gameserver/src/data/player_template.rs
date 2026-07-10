@@ -15,23 +15,26 @@ pub const BASE_STATS_DIR: &str = "data/stats/chars/baseStats";
 /// The creatable base classes and their race / mage flag (from `ClassId`).
 /// Only these can be created; `NewCharacter` offers exactly this set.
 pub const CREATABLE_CLASSES: &[(i32, Race, bool)] = &[
-    (0, Race::Human, false),   // Human Fighter
-    (10, Race::Human, true),   // Human Mystic
-    (18, Race::Elf, false),    // Elven Fighter
-    (25, Race::Elf, true),     // Elven Mystic
-    (31, Race::DarkElf, false), // Dark Fighter
-    (38, Race::DarkElf, true),  // Dark Mystic
-    (44, Race::Orc, false),    // Orc Fighter
-    (49, Race::Orc, true),     // Orc Mystic
-    (53, Race::Dwarf, false),  // Dwarven Fighter
-    (123, Race::Kamael, false), // Male Soldier
-    (124, Race::Kamael, false), // Female Soldier
+    (0, Race::Human, false),     // Human Fighter
+    (10, Race::Human, true),     // Human Mystic
+    (18, Race::Elf, false),      // Elven Fighter
+    (25, Race::Elf, true),       // Elven Mystic
+    (31, Race::DarkElf, false),  // Dark Fighter
+    (38, Race::DarkElf, true),   // Dark Mystic
+    (44, Race::Orc, false),      // Orc Fighter
+    (49, Race::Orc, true),       // Orc Mystic
+    (53, Race::Dwarf, false),    // Dwarven Fighter
+    (123, Race::Kamael, false),  // Male Soldier
+    (124, Race::Kamael, false),  // Female Soldier
     (182, Race::Ertheia, false), // Ertheia Fighter
-    (183, Race::Ertheia, true), // Ertheia Wizard
+    (183, Race::Ertheia, true),  // Ertheia Wizard
 ];
 
 pub fn creatable_race(class_id: i32) -> Option<Race> {
-    CREATABLE_CLASSES.iter().find(|(id, _, _)| *id == class_id).map(|(_, r, _)| *r)
+    CREATABLE_CLASSES
+        .iter()
+        .find(|(id, _, _)| *id == class_id)
+        .map(|(_, r, _)| *r)
 }
 
 #[derive(Debug, Clone, Default)]
@@ -109,9 +112,14 @@ pub struct PlayerTemplateData {
 
 impl PlayerTemplateData {
     pub fn load() -> Self {
+        Self::load_from("")
+    }
+    pub fn load_from(file_path: &str) -> Self {
         let mut templates = HashMap::new();
-        let dir = std::fs::read_dir(BASE_STATS_DIR)
-            .unwrap_or_else(|e| panic!("PlayerTemplateData: cannot read {BASE_STATS_DIR}: {e}"));
+        let dir = std::fs::read_dir(format!("{file_path}{BASE_STATS_DIR}")).unwrap_or_else(|e| {
+            let cwd = std::env::current_dir().unwrap();
+            panic!("PlayerTemplateData: cannot read {BASE_STATS_DIR}: {e}, CWD: {cwd:?}")
+        });
         for entry in dir.flatten() {
             let path = entry.path();
             if path.extension().and_then(|e| e.to_str()) != Some("xml") {
@@ -121,7 +129,10 @@ impl PlayerTemplateData {
                 templates.insert(t.class_id, t);
             }
         }
-        info!("PlayerTemplateData: Loaded {} character templates.", templates.len());
+        info!(
+            "PlayerTemplateData: Loaded {} character templates.",
+            templates.len()
+        );
         Self { templates }
     }
 
@@ -131,12 +142,16 @@ impl PlayerTemplateData {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { templates: HashMap::new() }
+        Self {
+            templates: HashMap::new(),
+        }
     }
 
     #[doc(hidden)]
     pub fn from_vec(templates: Vec<PlayerTemplate>) -> Self {
-        Self { templates: templates.into_iter().map(|t| (t.class_id, t)).collect() }
+        Self {
+            templates: templates.into_iter().map(|t| (t.class_id, t)).collect(),
+        }
     }
 }
 
@@ -144,7 +159,10 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
     let content = std::fs::read_to_string(path).ok()?;
     let mut reader = Reader::from_str(&content);
 
-    let mut t = PlayerTemplate { class_id: -1, ..Default::default() };
+    let mut t = PlayerTemplate {
+        class_id: -1,
+        ..Default::default()
+    };
     // Level tables sized to the classic max (85, +buffer); index by level.
     t.hp_table = vec![0.0; 90];
     t.mp_table = vec![0.0; 90];
@@ -153,7 +171,7 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
     let mut cur_tag: Vec<u8> = Vec::new();
     let mut in_creation_points = false;
     let mut cur_level: i32 = 0; // 0 = not inside a <level>
-    // Nested section we're inside, if any (for summed / grouped values).
+                                // Nested section we're inside, if any (for summed / grouped values).
     let mut section: Option<Vec<u8>> = None;
 
     loop {
@@ -162,7 +180,9 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
                 let name = e.name().as_ref().to_vec();
                 match name.as_slice() {
                     b"creationPoints" => in_creation_points = true,
-                    b"basePDef" | b"baseMDef" | b"baseMoveSpd" | b"collisionMale" => section = Some(name.clone()),
+                    b"basePDef" | b"baseMDef" | b"baseMoveSpd" | b"collisionMale" => {
+                        section = Some(name.clone())
+                    }
                     b"level" => {
                         cur_level = e
                             .attributes()
@@ -179,7 +199,9 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
                 if in_creation_points && e.name().as_ref() == b"node" {
                     let (mut x, mut y, mut z) = (0, 0, 0);
                     for a in e.attributes().flatten() {
-                        let v = String::from_utf8_lossy(&a.value).parse::<i32>().unwrap_or(0);
+                        let v = String::from_utf8_lossy(&a.value)
+                            .parse::<i32>()
+                            .unwrap_or(0);
                         match a.key.as_ref() {
                             b"x" => x = v,
                             b"y" => y = v,

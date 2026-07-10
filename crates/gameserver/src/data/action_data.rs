@@ -13,27 +13,34 @@ pub struct ActionData {
 
 impl ActionData {
     pub fn load() -> Self {
+        Self::load_from("")
+    }
+    pub fn load_from(file_path: &str) -> Self {
         let mut action_ids = Vec::new();
-        if let Ok(content) = std::fs::read_to_string(ACTION_DATA_FILE) {
-            let mut reader = Reader::from_str(&content);
-            loop {
-                match reader.read_event() {
-                    Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == b"action" => {
-                        if let Some(id) = e
-                            .attributes()
-                            .flatten()
-                            .find(|a| a.key.as_ref() == b"id")
-                            .and_then(|a| String::from_utf8_lossy(&a.value).parse::<i32>().ok())
-                        {
-                            action_ids.push(id);
-                        }
+        let full_path = format!("{file_path}{ACTION_DATA_FILE}");
+        let content = std::fs::read_to_string(&full_path).unwrap_or_else(|e| {
+            let cwd = std::env::current_dir().unwrap();
+            panic!("ActionData: cannot read {full_path}: {e}, CWD: {cwd:?}")
+        });
+        let mut reader = Reader::from_str(&content);
+        loop {
+            match reader.read_event() {
+                Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == b"action" => {
+                    if let Some(id) = e
+                        .attributes()
+                        .flatten()
+                        .find(|a| a.key.as_ref() == b"id")
+                        .and_then(|a| String::from_utf8_lossy(&a.value).parse::<i32>().ok())
+                    {
+                        action_ids.push(id);
                     }
-                    Ok(Event::Eof) => break,
-                    Err(_) => break,
-                    _ => {}
                 }
+                Ok(Event::Eof) => break,
+                Err(_) => break,
+                _ => {}
             }
         }
+
         info!("ActionData: Loaded {} action ids.", action_ids.len());
         Self { action_ids }
     }
@@ -44,6 +51,8 @@ impl ActionData {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { action_ids: Vec::new() }
+        Self {
+            action_ids: Vec::new(),
+        }
     }
 }

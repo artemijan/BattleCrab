@@ -15,8 +15,14 @@ pub struct ExperienceData {
 
 impl ExperienceData {
     pub fn load() -> Self {
-        let content = std::fs::read_to_string(EXPERIENCE_FILE)
-            .unwrap_or_else(|e| panic!("ExperienceData: cannot read {EXPERIENCE_FILE}: {e}"));
+        Self::load_from("")
+    }
+    pub fn load_from(file_path: &str) -> Self {
+        let full_path = format!("{file_path}{EXPERIENCE_FILE}");
+        let content = std::fs::read_to_string(&full_path).unwrap_or_else(|e| {
+            let cwd = std::env::current_dir().unwrap();
+            panic!("ExperienceData: cannot read {full_path}: {e}, CWD: {cwd:?}")
+        });
         let mut reader = Reader::from_str(&content);
         let mut max_level = 0u8;
         let mut entries: Vec<(u8, i64)> = Vec::new();
@@ -57,12 +63,18 @@ impl ExperienceData {
             exp_for_level[level as usize] = tolevel;
         }
         info!("ExperienceData: Loaded {} levels.", top);
-        Self { exp_for_level, max_level }
+        Self {
+            exp_for_level,
+            max_level,
+        }
     }
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { exp_for_level: vec![0, 0], max_level: 0 }
+        Self {
+            exp_for_level: vec![0, 0],
+            max_level: 0,
+        }
     }
 
     /// `getExpForLevel(level)`; out-of-range clamps to the ends (as Java does).
