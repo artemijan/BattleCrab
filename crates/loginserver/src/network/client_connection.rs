@@ -295,6 +295,10 @@ async fn finish_auth(
     encryption: &mut LoginEncryption,
     kick_tx: &mpsc::Sender<LoginFailReason>,
 ) -> std::io::Result<bool> {
+    // Case-insensitive accounts: work in lowercase from here on so `session.account`
+    // (used for the session-key lookup at server-select) matches the controller's
+    // lowercase `authed_clients` and the game server's lowercase `PlayerAuthRequest`.
+    let user = user.to_lowercase();
     let outcome = ctx
         .controller
         .try_auth_login(user.clone(), password, session.ip.clone(), kick_tx.clone())

@@ -172,6 +172,59 @@ async fn full_end_to_end_login_through_gs() {
 }
 
 #[tokio::test]
+async fn mixed_case_account_authenticates_at_game_server() {
+    // Regression: the game server lowercases the account in AuthLogin, so the
+    // login server must key authed sessions by the lowercase name — otherwise a
+    // mixed-case login never reaches character selection.
+    let server = start_server(test_config()).await;
+    let mut gs = register_game_server(server.gs_addr, 1, 7777).await;
+    set_status_normal(&mut gs).await;
+    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+
+    // Log in with a mixed-case username.
+    let (mut client, reply) = login(server.addr, "TestUser", "pw").await;
+    assert_eq!(reply[0], 0x03, "LoginOk");
+    let login_ok1 = i32::from_le_bytes(reply[1..5].try_into().unwrap());
+    let login_ok2 = i32::from_le_bytes(reply[5..9].try_into().unwrap());
+    let _ = gs.recv().await; // drain RequestCharacters
+
+    // Server list, then select the server → PlayOk.
+    let mut w = PacketWriter::new();
+    w.write_u8(0x05);
+    w.write_i32(login_ok1);
+    w.write_i32(login_ok2);
+    client.send(&w.into_bytes()).await;
+    let _ = client.recv().await.expect("no ServerList");
+
+    let mut w = PacketWriter::new();
+    w.write_u8(0x02);
+    w.write_i32(login_ok1);
+    w.write_i32(login_ok2);
+    w.write_u8(1);
+    client.send(&w.into_bytes()).await;
+    let play = client.recv().await.expect("no PlayOk");
+    assert_eq!(play[0], 0x07, "PlayOk");
+    let play_ok1 = i32::from_le_bytes(play[1..5].try_into().unwrap());
+    let play_ok2 = i32::from_le_bytes(play[5..9].try_into().unwrap());
+
+    // The game server sends the account LOWERCASE (as it lowercases AuthLogin).
+    let mut w = PacketWriter::new();
+    w.write_u8(0x05);
+    w.write_string("testuser");
+    w.write_i32(play_ok1);
+    w.write_i32(play_ok2);
+    w.write_i32(login_ok1);
+    w.write_i32(login_ok2);
+    gs.send(w.into_bytes()).await;
+
+    let auth = gs.recv().await.expect("no PlayerAuthResponse");
+    let mut r = PacketReader::new(&auth);
+    assert_eq!(r.read_u8().unwrap(), 0x03, "PlayerAuthResponse opcode");
+    assert_eq!(r.read_string().unwrap(), "testuser");
+    assert_eq!(r.read_u8().unwrap(), 1, "session accepted despite mixed-case login");
+}
+
+#[tokio::test]
 async fn wrong_session_key_rejected_by_player_auth() {
     let server = start_server(test_config()).await;
     let mut gs = register_game_server(server.gs_addr, 1, 7777).await;

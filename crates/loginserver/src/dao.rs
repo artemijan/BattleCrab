@@ -25,7 +25,11 @@ pub async fn select_account_info(pool: &SqlitePool, login: &str, now_millis: i64
         .await
         .ok()?;
     row.map(|(login, password, access_level, last_server)| AccountInfo {
-        login,
+        // Java `AccountInfo` constructor lowercases the login (case-insensitive
+        // accounts). Everything keyed by `info.login` — including the login
+        // server's `authed_clients` matched against the game's lowercase
+        // `PlayerAuthRequest` — must be lowercase.
+        login: login.to_lowercase(),
         pass_hash: password.unwrap_or_default(),
         access_level,
         last_server,

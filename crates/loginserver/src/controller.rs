@@ -842,6 +842,12 @@ impl Controller {
         ip: String,
         kick: mpsc::Sender<LoginFailReason>,
     ) -> AuthOutcome {
+        // Accounts are case-insensitive: the login server works entirely in
+        // lowercase (Java `AccountInfo._login = login.toLowerCase()`). This must
+        // match the game server, which lowercases the account in `AuthLogin`;
+        // otherwise the `PlayerAuthRequest` handoff misses `authed_clients` and
+        // the player never reaches character selection.
+        let login = login.to_lowercase();
         let hash = hash_password(&password);
         let now = util::now_millis();
 
