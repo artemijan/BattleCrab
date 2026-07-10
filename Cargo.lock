@@ -378,6 +378,7 @@ dependencies = [
  "commons",
  "quick-xml",
  "rand",
+ "serde_json",
  "sqlx",
  "thiserror",
  "tokio",

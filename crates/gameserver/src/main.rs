@@ -4,10 +4,14 @@
 //! network/login-link/data subsystems slot into the same order in later
 //! milestones.
 
+use std::sync::Arc;
 use std::time::Instant;
 
 use gameserver::config::Config;
 use gameserver::game_loop::{self, Shutdown};
+use gameserver::network::connection::{self, NetworkConfig};
+use gameserver::network::NetEvent;
+use tokio::net::TcpListener;
 use tracing::info;
 
 #[tokio::main]
@@ -38,17 +42,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // The game thread owns World; it runs until shutdown is requested.
+    let (net_tx, net_rx) = std::sync::mpsc::channel::<NetEvent>();
     let shutdown = Shutdown::new();
-    let game_thread = game_loop::spawn(shutdown.clone());
+    let game_thread = game_loop::spawn(shutdown.clone(), net_rx);
+
+    // Client connection handler (Java: ConnectionBuilder(...).build().start()).
+    let net_cfg = Arc::new(NetworkConfig {
+        packet_encryption: config.server.packet_encryption,
+        protocol_list: config.server.protocol_list.clone(),
+        server_id: config.server.request_id,
+        is_classic: (config.server.server_list_type & 0x400) == 0x400,
+    });
+    let bind = format!("{}:{}", config.server.gameserver_hostname, config.server.port_game);
+    let listener = TcpListener::bind(&bind).await?;
+    tokio::spawn(connection::accept_loop(listener, net_tx, net_cfg));
 
     info!(
-        "GameServer: started in {} seconds. Max online users: {}.",
+        "GameServer: started in {} seconds. Listening on {bind}. Max online users: {}.",
         server_load_start.elapsed().as_secs(),
         config.server.maximum_online_users
     );
 
-    // Network acceptor + login-link land in G1/G2; for now the loop runs idle
-    // until ctrl-c (Java: JVM shutdown hook -> Shutdown).
+    // Login-link lands in G2; for now the loop runs idle until ctrl-c
+    // (Java: JVM shutdown hook -> Shutdown).
     tokio::signal::ctrl_c().await?;
 
     info!("GameServer: shutting down.");

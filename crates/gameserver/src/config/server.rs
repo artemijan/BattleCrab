@@ -41,7 +41,9 @@ pub struct ServerConfig {
 
     // Protocol.
     pub protocol_list: Vec<i32>,
-    pub server_list_type: String,
+    /// Bitmask from `getServerTypeId` (Classic = 0x400). `KeyPacket` sends the
+    /// `isClassic` flag as `(server_list_type & 0x400) == 0x400`.
+    pub server_list_type: i32,
     pub server_list_age: i32,
     pub server_list_bracket: bool,
 
@@ -105,7 +107,7 @@ impl ServerConfig {
             maximum_online_users: p.get_int("MaximumOnlineUsers", 100),
 
             protocol_list,
-            server_list_type: p.get_string("ServerListType", "Free"),
+            server_list_type: parse_server_type(&p.get_string("ServerListType", "Free")),
             server_list_age: p.get_int("ServerListAge", 0),
             server_list_bracket: p.get_bool("ServerListBrackets", false),
 
@@ -134,4 +136,25 @@ impl ServerConfig {
 /// entries (mirrors Java's per-token `NumberFormatException`/`isDigit` skip).
 fn split_ints(s: &str, sep: char) -> Vec<i32> {
     s.split(sep).filter_map(|tok| tok.trim().parse::<i32>().ok()).collect()
+}
+
+/// Port of `Config.getServerTypeId` — comma-separated type names → bitmask.
+fn parse_server_type(types: &str) -> i32 {
+    let mut server_type = 0;
+    for c_type in types.split(',') {
+        server_type |= match c_type.trim().to_lowercase().as_str() {
+            "normal" => 0x01,
+            "relax" => 0x02,
+            "test" => 0x04,
+            "broad" => 0x08,
+            "restricted" => 0x10,
+            "event" => 0x20,
+            "free" => 0x40,
+            "world" => 0x100,
+            "new" => 0x200,
+            "classic" => 0x400,
+            _ => 0,
+        };
+    }
+    server_type
 }

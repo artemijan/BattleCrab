@@ -6,5 +6,6 @@
 
 pub mod config;
 pub mod game_loop;
+pub mod network;
 pub mod scheduler;
 pub mod world;
