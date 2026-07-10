@@ -50,6 +50,11 @@ pub struct PlayerTemplate {
     pub hp_table: Vec<f64>,
     pub mp_table: Vec<f64>,
     pub cp_table: Vec<f64>,
+    /// Per-level passive HP/MP/CP regen (`lvlUpgainData`'s `hpRegen`/`mpRegen`/
+    /// `cpRegen`), indexed by level.
+    pub hp_regen_table: Vec<f64>,
+    pub mp_regen_table: Vec<f64>,
+    pub cp_regen_table: Vec<f64>,
     // Base combat stats (TODO(G7): full stat calc with modifiers/items).
     pub base_p_atk: i32,
     pub base_p_atk_spd: i32,
@@ -95,6 +100,15 @@ impl PlayerTemplate {
     }
     pub fn base_cp_max(&self, level: i32) -> f64 {
         table_get(&self.cp_table, level)
+    }
+    pub fn base_hp_regen(&self, level: i32) -> f64 {
+        table_get(&self.hp_regen_table, level)
+    }
+    pub fn base_mp_regen(&self, level: i32) -> f64 {
+        table_get(&self.mp_regen_table, level)
+    }
+    pub fn base_cp_regen(&self, level: i32) -> f64 {
+        table_get(&self.cp_regen_table, level)
     }
 }
 
@@ -167,6 +181,9 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
     t.hp_table = vec![0.0; 90];
     t.mp_table = vec![0.0; 90];
     t.cp_table = vec![0.0; 90];
+    t.hp_regen_table = vec![0.0; 90];
+    t.mp_regen_table = vec![0.0; 90];
+    t.cp_regen_table = vec![0.0; 90];
 
     let mut cur_tag: Vec<u8> = Vec::new();
     let mut in_creation_points = false;
@@ -226,6 +243,9 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
                         b"hp" => t.hp_table[cur_level as usize] = flt(),
                         b"mp" => t.mp_table[cur_level as usize] = flt(),
                         b"cp" => t.cp_table[cur_level as usize] = flt(),
+                        b"hpRegen" => t.hp_regen_table[cur_level as usize] = flt(),
+                        b"mpRegen" => t.mp_regen_table[cur_level as usize] = flt(),
+                        b"cpRegen" => t.cp_regen_table[cur_level as usize] = flt(),
                         _ => {}
                     }
                     continue;

@@ -16,6 +16,10 @@ use tracing::{debug, error, info, warn};
 use crate::data::GameData;
 use crate::db::{self, DbEvent, DbEventRx, NewCharacter};
 use crate::loginlink::{CommandTx, LoginLinkCommand, LoginLinkEvent, LoginLinkEventRx};
+use crate::model::skill::{abnormal_type_client_id, ActiveBuff, OperateType, Skill, TargetType};
+use crate::model::stats::BaseStat;
+use crate::model::Player;
+use crate::scheduler::ScheduledTask;
 use crate::network::client_packets::{
     self as cp, ex_opcodes as exop, opcodes as cop, AuthLogin, CharacterCreate,
 };
@@ -30,6 +34,10 @@ pub const TICK: Duration = Duration::from_millis(100);
 /// A tick that runs longer than this is the failure mode of the single-thread
 /// design, so it must be visible from day one (CONCURRENCY_MODEL §2.6 rule 4).
 const TICK_OVERRUN_WARN: Duration = Duration::from_millis(50);
+
+/// `Formulas.getRegeneratePeriod`: 3000 ms for player characters (30 × the
+/// 100 ms base tick), matching Java's `CreatureStatus.startHpMpRegeneration`.
+const REGEN_TICK_PERIOD: u64 = 30;
 
 /// Signal shared with the async side (ctrl-c / scheduled restart) to stop the
 /// loop after the current tick finishes.
@@ -104,9 +112,12 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         drain_db(&mut world, &db_rx);
 
         // 3. One-shot timers due this tick.
-        world.run_due_tasks();
+        apply_due_tasks(&mut world);
 
         // 4. Fixed-rate tick systems (movement, AI, attack…) — added in G4+.
+        if world.tick.is_multiple_of(REGEN_TICK_PERIOD) {
+            run_regen_tick(&mut world);
+        }
         // 5. Flush outbound packets / DB commands — added in G3+.
 
         let elapsed = tick_start.elapsed();
@@ -179,6 +190,8 @@ fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         }
         cop::USE_ITEM => handle_use_item(world, client_id, body),
         cop::REQUEST_UN_EQUIP_ITEM => handle_request_un_equip_item(world, client_id, body),
+        cop::REQUEST_MAGIC_SKILL_USE => handle_request_magic_skill_use(world, client_id, body),
+        cop::REQUEST_ACQUIRE_SKILL => handle_request_acquire_skill(world, client_id, body),
         cop::EX_PACKET => on_ex_packet(world, client_id, body),
         _ => error!("GameLoop: client {client_id} sent opcode 0x{opcode:02x}, unhandled."),
     }
@@ -504,8 +517,8 @@ fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(ew::shortcut_init());
     session.send(ew::ex_basic_action_list(data));
     session.send(ew::henna_info());
-    session.send(ew::skill_list());
-    session.send(ew::acquire_skill_list());
+    session.send(ew::skill_list(&player, data));
+    session.send(ew::acquire_skill_list(&player, data));
     session.send(ew::etc_status_update());
     session.send(ew::ex_pledge_waiting_list_alarm());
     session.send(ew::ex_subjob_info(&player));
@@ -524,7 +537,7 @@ fn handle_enter_world(world: &mut World, client_id: u32) {
     for kind in 0..4 {
         session.send(ew::ex_auto_soul_shot(0, true, kind));
     }
-    session.send(ew::abnormal_status_update());
+    session.send(ew::abnormal_status_update(&player, world.tick));
     session.send(ew::system_message(ew::SM_WELCOME));
 
     world.players.insert(player.object_id, player);
@@ -587,6 +600,290 @@ fn finish_equip_change(world: &mut World, client_id: u32, object_id: i32, change
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(crate::network::enter_world::inventory_update(player, &world.data, changed));
         cs.send(crate::network::user_info::user_info(player, &world.data));
+    }
+}
+
+/// Dispatch every `Scheduler`-due task for this tick. Split from
+/// `World::drain_due_tasks` because task handlers need to send packets to
+/// `world.clients` — the same reason packet dispatch lives here too.
+fn apply_due_tasks(world: &mut World) {
+    for task in world.drain_due_tasks() {
+        match task {
+            ScheduledTask::Noop { .. } => {}
+            ScheduledTask::SkillLaunch { player_object_id, skill_id, skill_level } => {
+                handle_skill_launch(world, player_object_id, skill_id, skill_level);
+            }
+            ScheduledTask::BuffExpire { player_object_id, skill_id } => {
+                handle_buff_expire(world, player_object_id, skill_id);
+            }
+        }
+    }
+}
+
+/// The client id of the in-game session linked to a `Player`, or `None` if
+/// they've disconnected since the task was scheduled (dead-id ⇒ no-op, per
+/// the scheduler's contract).
+fn client_for_player(world: &World, player_object_id: i32) -> Option<u32> {
+    world.clients.iter().find_map(|(&cid, cs)| match cs {
+        ClientSession::InGame(s) if s.player_object_id() == player_object_id => Some(cid),
+        _ => None,
+    })
+}
+
+/// Round a millisecond duration up to whole 100 ms ticks.
+fn ms_to_ticks(ms: i32) -> u64 {
+    (ms.max(0) as u64).div_ceil(100)
+}
+
+/// Port of `clientpackets/RequestMagicSkillUse.runImpl` + `SkillCaster`'s
+/// phase 0 (`startCasting`). Scoped to `TargetType::Self_`, `OperateType::Active`
+/// skills the player already knows — everything else (other targeting,
+/// passive/toggle skills, damage effects) is out of scope for G6 (see the
+/// plan's cast-pipeline scope notes) and is silently ignored, same as Java
+/// ignores an out-of-state request.
+fn handle_request_magic_skill_use(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = cp::RequestMagicSkillUse::read(body) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+
+    let Some(player) = world.players.get(&object_id) else { return };
+    let Some(&skill_level) = player.skills.get(&pkt.magic_id) else { return };
+    let Some(skill) = world.data.skill_data.get(pkt.magic_id, skill_level).cloned() else { return };
+    if skill.operate_type != OperateType::Active || skill.target_type != TargetType::Self_ {
+        return;
+    }
+    if player.casting {
+        return;
+    }
+    if player.cur_mp < (skill.mp_initial_consume + skill.mp_consume) as f64 {
+        return; // TODO: SystemMessage NOT_ENOUGH_MP
+    }
+    if player.cur_hp <= skill.hp_consume as f64 {
+        return; // TODO: SystemMessage NOT_ENOUGH_HP
+    }
+
+    let mut mp_update = None;
+    if let Some(player) = world.players.get_mut(&object_id) {
+        player.casting = true;
+        if skill.mp_initial_consume > 0 {
+            player.cur_mp = (player.cur_mp - skill.mp_initial_consume as f64).max(0.0);
+            mp_update = Some(player.cur_mp as i32);
+        }
+    }
+
+    if let Some(player) = world.players.get(&object_id) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            if let Some(mp) = mp_update {
+                cs.send(server_packets::status_update(object_id, &[(server_packets::status_update_type::CUR_MP, mp)]));
+            }
+            cs.send(server_packets::magic_skill_use(player, skill.id, skill.level, skill.hit_time, skill.reuse_delay));
+            cs.send(server_packets::setup_gauge(object_id, 0, skill.hit_time));
+        }
+    }
+
+    world.scheduler.schedule(
+        world.tick + ms_to_ticks(skill.hit_time),
+        ScheduledTask::SkillLaunch { player_object_id: object_id, skill_id: skill.id, skill_level: skill.level },
+    );
+}
+
+/// `SkillCaster.launchSkill` (`ScheduledTask::SkillLaunch`, fired `hit_time`
+/// ms after the cast started): broadcast `MagicSkillLaunched`, then run
+/// `finishSkill` inline (no separate cancel-time wait — see the scheduler's
+/// doc comment on this variant).
+fn handle_skill_launch(world: &mut World, player_object_id: i32, skill_id: i32, skill_level: i32) {
+    let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else { return };
+    if let Some(player) = world.players.get(&player_object_id) {
+        if let Some(client_id) = client_for_player(world, player_object_id) {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::magic_skill_launched(player, skill_id, skill_level));
+            }
+        }
+    }
+    finish_skill_cast(world, player_object_id, &skill);
+}
+
+/// `SkillCaster.finishSkill`: final MP/HP consumption (abort + clear
+/// `casting` if insufficient, mirroring Java's re-check at landing — no
+/// refund of the initial consume, matching Java) then effect application —
+/// a new `ActiveBuff` scheduled to expire via `ScheduledTask::BuffExpire`.
+fn finish_skill_cast(world: &mut World, player_object_id: i32, skill: &Skill) {
+    let Some(player) = world.players.get(&player_object_id) else { return };
+    let insufficient = player.cur_mp < skill.mp_consume as f64 || player.cur_hp <= skill.hp_consume as f64;
+    if insufficient {
+        if let Some(player) = world.players.get_mut(&player_object_id) {
+            player.casting = false;
+        }
+        return; // TODO: SystemMessage (NOT_ENOUGH_MP/NOT_ENOUGH_HP)
+    }
+
+    let now = world.tick;
+    let mut updates = Vec::new();
+    if let Some(player) = world.players.get_mut(&player_object_id) {
+        player.casting = false;
+        if skill.mp_consume > 0 {
+            player.cur_mp = (player.cur_mp - skill.mp_consume as f64).max(0.0);
+            updates.push((server_packets::status_update_type::CUR_MP, player.cur_mp as i32));
+        }
+        if skill.hp_consume > 0 {
+            player.cur_hp = (player.cur_hp - skill.hp_consume as f64).max(0.0);
+            updates.push((server_packets::status_update_type::CUR_HP, player.cur_hp as i32));
+        }
+    }
+
+    let has_effects = !skill.effects.is_empty();
+    if has_effects {
+        let expires_at_tick = now + (skill.abnormal_time.max(0) as u64) * 10;
+        let buff = ActiveBuff {
+            skill_id: skill.id,
+            skill_level: skill.level,
+            abnormal_type_client_id: abnormal_type_client_id(&skill.abnormal_type),
+            expires_at_tick,
+            effects: skill.effects.clone(),
+        };
+        if let Some(player) = world.players.get_mut(&player_object_id) {
+            player.apply_buff(&world.data, buff);
+        }
+        world.scheduler.schedule(
+            expires_at_tick,
+            ScheduledTask::BuffExpire { player_object_id, skill_id: skill.id },
+        );
+    }
+
+    let Some(client_id) = client_for_player(world, player_object_id) else { return };
+    if let Some(player) = world.players.get(&player_object_id) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            if !updates.is_empty() {
+                cs.send(server_packets::status_update(player_object_id, &updates));
+            }
+            if has_effects {
+                cs.send(crate::network::enter_world::abnormal_status_update(player, now));
+            }
+        }
+    }
+}
+
+/// `BuffFinishTask`, fired when a buff's `abnormalTime` elapses
+/// (`ScheduledTask::BuffExpire`). A buff already gone (re-cast/replaced) is a
+/// no-op, matching the scheduler's dead-id contract.
+fn handle_buff_expire(world: &mut World, player_object_id: i32, skill_id: i32) {
+    let still_active = world
+        .players
+        .get(&player_object_id)
+        .is_some_and(|p| p.buffs.iter().any(|b| b.skill_id == skill_id));
+    if !still_active {
+        return;
+    }
+    if let Some(player) = world.players.get_mut(&player_object_id) {
+        player.remove_buff(&world.data, skill_id);
+    }
+    let now = world.tick;
+    let Some(client_id) = client_for_player(world, player_object_id) else { return };
+    if let Some(player) = world.players.get(&player_object_id) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(crate::network::enter_world::abnormal_status_update(player, now));
+        }
+    }
+}
+
+/// Port of `clientpackets/RequestAcquireSkill.runImpl`, `AcquireSkillType::CLASS`
+/// only (see the G6 plan's scope notes — every other type is silently
+/// ignored, same as Java ignores an out-of-state/unsupported request).
+fn handle_request_acquire_skill(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = cp::RequestAcquireSkill::read(body) else { return };
+    if pkt.acquire_type != cp::RequestAcquireSkill::CLASS {
+        return;
+    }
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+
+    let Some(player) = world.players.get(&object_id) else { return };
+    let Some(learn) = world.data.skill_trees.skill_learn(player.class_id, pkt.skill_id, pkt.skill_level) else { return };
+    if learn.get_level > player.level || learn.level_up_sp > player.sp {
+        return; // TODO: SystemMessage (level/SP gate)
+    }
+    let (skill_id, skill_level, level_up_sp) = (learn.skill_id, learn.skill_level, learn.level_up_sp);
+
+    if let Some(player) = world.players.get_mut(&object_id) {
+        player.sp -= level_up_sp;
+        player.skills.insert(skill_id, skill_level);
+    }
+    let _ = world.db.send(db::DbCommand::UpsertSkill { char_id: object_id, skill_id, skill_level });
+
+    if let Some(player) = world.players.get(&object_id) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::acquire_skill_done());
+            cs.send(crate::network::enter_world::skill_list(player, &world.data));
+            cs.send(crate::network::enter_world::acquire_skill_list(player, &world.data));
+            cs.send(crate::network::user_info::user_info(player, &world.data));
+        }
+    }
+}
+
+/// `CreatureStatus.doRegeneration`, run every `REGEN_TICK_PERIOD` ticks for
+/// every in-game player. Iterates connected clients (not `world.players`
+/// directly) so each player's `StatusUpdate` reaches its own connection.
+fn run_regen_tick(world: &mut World) {
+    let targets: Vec<(u32, i32)> = world
+        .clients
+        .iter()
+        .filter_map(|(&client_id, cs)| match cs {
+            ClientSession::InGame(s) => Some((client_id, s.player_object_id())),
+            _ => None,
+        })
+        .collect();
+    for (client_id, object_id) in targets {
+        let Some(player) = world.players.get_mut(&object_id) else { continue };
+        let Some(updates) = regen_player(player, &world.data) else { continue };
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::status_update(object_id, &updates));
+        }
+    }
+}
+
+/// `Formulas.getRegeneratePeriod`'s standing-still multiplier (1.1×) — the
+/// only movement state a player can be in until G7 adds sitting/moving.
+/// TODO(G7): sitting (×1.5) / running (×0.7) once those states exist.
+const STANDING_STILL_REGEN_MULTIPLIER: f64 = 1.1;
+
+/// `RegenHPFinalizer`/`RegenMPFinalizer`/`RegenCPFinalizer`, config-multiplier
+/// terms omitted (`HpRegenMultiplier`/… default to 1.0 — see the `MAX_*`
+/// stat-cap TODO in `model/mod.rs`). Returns the `StatusUpdate` entries for
+/// whichever of HP/MP/CP actually changed, or `None` if all are already full.
+fn regen_player(p: &mut Player, data: &GameData) -> Option<Vec<(u8, i32)>> {
+    if p.cur_hp >= p.max_hp as f64 && p.cur_mp >= p.max_mp as f64 && p.cur_cp >= p.max_cp as f64 {
+        return None;
+    }
+    let t = data
+        .player_templates
+        .get(p.class_id)
+        .or_else(|| data.player_templates.get(p.base_class_id))
+        .cloned()
+        .unwrap_or_default();
+    let level_mod = (p.level as f64 + 89.0) / 100.0;
+    let con_bonus = data.stat_bonus.bonus(BaseStat::Con, p.con);
+    let men_bonus = data.stat_bonus.bonus(BaseStat::Men, p.men);
+
+    let mut updates = Vec::new();
+    if p.cur_hp < p.max_hp as f64 {
+        let regen = t.base_hp_regen(p.level) * level_mod * con_bonus * STANDING_STILL_REGEN_MULTIPLIER;
+        p.cur_hp = (p.cur_hp + regen).min(p.max_hp as f64);
+        updates.push((server_packets::status_update_type::CUR_HP, p.cur_hp as i32));
+    }
+    if p.cur_mp < p.max_mp as f64 {
+        let regen = t.base_mp_regen(p.level) * level_mod * men_bonus * STANDING_STILL_REGEN_MULTIPLIER;
+        p.cur_mp = (p.cur_mp + regen).min(p.max_mp as f64);
+        updates.push((server_packets::status_update_type::CUR_MP, p.cur_mp as i32));
+    }
+    if p.cur_cp < p.max_cp as f64 {
+        let regen = t.base_cp_regen(p.level) * level_mod * con_bonus * STANDING_STILL_REGEN_MULTIPLIER;
+        p.cur_cp = (p.cur_cp + regen).min(p.max_cp as f64);
+        updates.push((server_packets::status_update_type::CUR_CP, p.cur_cp as i32));
+    }
+    if updates.is_empty() {
+        None
+    } else {
+        Some(updates)
     }
 }
 
@@ -893,6 +1190,7 @@ mod tests {
             noble: false,
             char_slot: 0,
             items: vec![],
+            skills: vec![],
         }
     }
 
@@ -959,6 +1257,7 @@ mod tests {
             action_data: crate::data::ActionData::empty(),
             item_data: crate::data::ItemData::empty(),
             initial_equipment: crate::data::InitialEquipmentData::empty(),
+            skill_data: crate::data::SkillData::empty(),
         };
         let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
@@ -1125,5 +1424,150 @@ mod tests {
         );
         assert!(world.clients.get(&1).is_none());
         assert_eq!(world.login.accounts_in_gameserver.get("bob"), Some(&99));
+    }
+
+    /// G6 cast-pipeline gate: learn a class skill (SP spend + level gate),
+    /// cast it, watch the buff land (P.Def +8%) and the right packet sequence
+    /// go out, then fast-forward the scheduler past `abnormalTime` and watch
+    /// it expire and P.Def come back down. Runs entirely against a synthetic
+    /// `World` (no sockets) driven by manually advancing `world.tick` — real
+    /// time would mean actually waiting out the buff's 20 in-game seconds,
+    /// which a unit test shouldn't do (PLAN_GAME_SERVER.md §8.5: tick systems
+    /// are tested against synthetic `World` state, not real time).
+    #[test]
+    fn learn_and_cast_buff_skill_applies_and_expires() {
+        use crate::model::skill::{Skill, StatModifierEffect};
+        use crate::model::stats::{Stat, StatModifierType};
+
+        let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
+        let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
+
+        let mut hp_table = vec![0.0; 90];
+        let mut mp_table = vec![0.0; 90];
+        let mut cp_table = vec![0.0; 90];
+        hp_table[5] = 100.0;
+        mp_table[5] = 50.0;
+        cp_table[5] = 20.0;
+        let template = crate::data::player_template::PlayerTemplate {
+            class_id: 0,
+            base_str: 40,
+            base_dex: 30,
+            base_con: 43,
+            base_int: 21,
+            base_wit: 11,
+            base_men: 25,
+            hp_table,
+            mp_table,
+            cp_table,
+            base_p_def: 80, // naked P.Def, matches the real HumanFighter.xml sum
+            ..Default::default()
+        };
+
+        let mut data = GameData::for_test();
+        data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![template]);
+        data.skill_trees.insert_for_test(
+            0,
+            crate::data::skill_tree::SkillLearn {
+                skill_id: 91,
+                skill_level: 1,
+                name: "Defense Aura".into(),
+                get_level: 5,
+                level_up_sp: 100,
+                auto_get: false,
+            },
+        );
+        data.skill_data.insert_for_test(Skill {
+            id: 91,
+            level: 1,
+            name: "Defense Aura".into(),
+            operate_type: OperateType::Active,
+            target_type: TargetType::Self_,
+            cast_range: 0,
+            effect_range: 0,
+            hit_time: 400,
+            cool_time: 0,
+            reuse_delay: 2000,
+            mp_consume: 4,
+            mp_initial_consume: 1,
+            hp_consume: 0,
+            abnormal_time: 20,
+            abnormal_level: 1,
+            abnormal_type: "PD_UP".into(),
+            effects: vec![StatModifierEffect { stat: Stat::PhysicalDefence, mode: StatModifierType::Per, amount: 8.0 }],
+        });
+
+        let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
+
+        // A level-5 character with 200 SP, walked straight to `InGame` (same
+        // `Session` transition chain `handle_enter_world` uses in production).
+        let mut chr = dummy_char(2001, "Def");
+        chr.level = 5;
+        chr.sp = 200;
+        chr.cur_mp = 50.0;
+        let player = Player::from_char(&world.data, &chr);
+        assert_eq!(player.p_def, 80, "naked P.Def before any buff");
+
+        let (out_tx, mut out_rx) = tokio::sync::mpsc::unbounded_channel();
+        let s = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
+            .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+            .into_lobby(vec![])
+            .into_entering(player);
+        let (session, player) = s.into_ingame();
+        world.players.insert(player.object_id, player);
+        world.clients.insert(1, ClientSession::InGame(session));
+
+        // --- Learn: RequestAcquireSkill(id=91, level=1, type=CLASS). ---
+        let mut w = PacketWriter::new();
+        w.write_i32(91);
+        w.write_i32(1);
+        w.write_i32(cp::RequestAcquireSkill::CLASS);
+        handle_request_acquire_skill(&mut world, 1, &w.into_bytes());
+
+        assert_eq!(world.players[&2001].skills.get(&91), Some(&1));
+        assert_eq!(world.players[&2001].sp, 100, "200 SP - levelUpSp(100)");
+        assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::ACQUIRE_SKILL_DONE);
+        assert_eq!(out_rx.try_recv().unwrap()[0], 0x5F); // SkillList
+        let _ = out_rx.try_recv().unwrap(); // AcquireSkillList
+        let _ = out_rx.try_recv().unwrap(); // UserInfo
+
+        // --- Cast: RequestMagicSkillUse(91). ---
+        let mut w = PacketWriter::new();
+        w.write_i32(91);
+        w.write_i32(0); // ctrlPressed
+        handle_request_magic_skill_use(&mut world, 1, &w.into_bytes());
+
+        assert!(world.players[&2001].casting);
+        assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE); // initial MP consume
+        assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_USE);
+        assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::SETUP_GAUGE);
+        assert_eq!(world.players[&2001].cur_mp, 49.0, "50 - mpInitialConsume(1)");
+
+        // --- Advance to hit_time (400 ms = 4 ticks) and let it land. ---
+        world.tick += 4;
+        apply_due_tasks(&mut world);
+
+        assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_LAUNCHED);
+        assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE); // final MP consume
+        assert_eq!(out_rx.try_recv().unwrap()[0], 0x85); // AbnormalStatusUpdate
+
+        {
+            let p = &world.players[&2001];
+            assert!(!p.casting);
+            assert_eq!(p.cur_mp, 45.0, "49 - mpConsume(4)");
+            assert_eq!(p.buffs.len(), 1);
+            assert_eq!(p.p_def, 86, "80 * 1.08 (PhysicalDefence +8%), rounded");
+        }
+
+        // --- Advance past expiry (abnormalTime 20 s = 200 ticks) and drain again. ---
+        world.tick += 200;
+        apply_due_tasks(&mut world);
+
+        let expired = out_rx.try_recv().unwrap();
+        assert_eq!(expired[0], 0x85);
+        assert_eq!(&expired[1..3], &[0, 0], "AbnormalStatusUpdate count = 0 once expired");
+
+        let p = &world.players[&2001];
+        assert!(p.buffs.is_empty());
+        assert_eq!(p.p_def, 80, "P.Def restored after the buff expired");
     }
 }

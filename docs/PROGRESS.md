@@ -21,7 +21,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G3 Character selection & persistence                        | ✅ |
 | Game  | G4 Enter world (Player, HP/MP, UserInfo, enter-world burst) | ✅ (incl. paperdoll/mask enums) |
 | Game  | G5 Items & inventory                                        | ✅ vertical slice (items, equip/unequip, initial gear) |
-| Game  | G6 Stats, skills & effects                                  | ⏳ |
+| Game  | G6 Stats, skills & effects                                  | ✅ vertical slice (stat engine, skill learn/cast, buffs) |
 | Game  | G7 Geodata, zones, movement, path finding                   | ⏳ |
 | Game  | G8 Static world content (NPCs/spawns)                       | ⏳ |
 | Game  | G9 Combat & AI                                              | ⏳ |
@@ -166,11 +166,75 @@ same way G0–G4 got a vertical slice through "enter world":
   insert (only some starting items would show up). Fixed to take the max of
   both tables, matching Java's single shared `IdManager` pool.
 
-### G6–G12 — ⏳ not started
+### G6 — Stats, skills & effects ✅ vertical slice
+Real combat-stat calc, persisted/learnable skills, and a working buff cast
+pipeline — scoped to self-targeted skills (see below); damage-dealing effects
+and combat proper wait for G9, which is where there's finally something to
+hit. Full writeup + scope rationale in the design research behind this
+milestone; summary:
+
+- **`model/stats.rs`** (new): `Stat` enum (scoped subset: p/m atk+def,
+  atk/cast speed, crit, evasion, accuracy, regen rates, speed — grows as later
+  milestones need more, same pattern as `UserInfoType`/`InventorySlot`) and
+  `BaseStat` (STR/DEX/CON/INT/WIT/MEN). `data/stat_bonus.rs` extended from
+  CON/MEN-only to all six, still one `statBonus.xml` table.
+- **`Player::recalculate_stats`**: real `p_atk`/`p_def`/`m_atk`/`m_def`/
+  `p_atk_spd`/`m_atk_spd`/`crit_hit`/`m_crit_hit`/`evasion`/`accuracy`/
+  `magic_evasion`/`magic_accuracy`/speed, ported from the Java `Stat`
+  finalizers (`PAttackFinalizer`, `PDefenseFinalizer`, …): template base ×
+  `BaseStat` bonus × level mod (`(level+89)/100`), then `Player.stats_add`/
+  `stats_mul` (Java `CreatureStat`'s two modifier maps) folded in — this is
+  what buffs push into. Replaces the G4-era placeholder (template value or 0).
+  TODO(G8+): weapon/armor `<stats>` contributions — item stat bonuses aren't
+  parsed yet, so this is the unarmed/naked value (same simplification G5 made
+  for item stats generally).
+- **Passive regen**: a 3 s fixed-rate tick (`REGEN_TICK_PERIOD`, Java
+  `Formulas.getRegeneratePeriod`) over in-game players, porting
+  `RegenHPFinalizer`/`MPFinalizer`/`CPFinalizer` (× a flat "standing still"
+  1.1 multiplier — TODO(G7): sit/run states). New `StatusUpdate` server
+  packet.
+- **Skills**: `character_skills` now loads on select/enter-world and persists
+  via a new fire-and-forget `DbCommand::UpsertSkill`; `Player.skills` (skill_id
+  → level); real `SkillList`. `data/skill_tree.rs` extended from "level-1
+  autoGet only" to the full base-class progression (`SkillLearn`:
+  `get_level`/`level_up_sp`), driving a real `AcquireSkillList` and
+  `RequestAcquireSkill` (`AcquireSkillType::CLASS` only — confirmed Java skips
+  the trainer-NPC check for `CLASS`, so learning needs no village-master NPC).
+- **Effects**: `model/skill.rs`'s `StatModifierEffect{stat, mode, amount}` is
+  the Rust counterpart of Java's `AbstractStatAddEffect`/
+  `AbstractStatPercentEffect` — one generic type instead of the 63 one-line
+  subclasses Java has. `data/skill_data.rs`: a generic per-level-value XML
+  loader for `data/stats/skills/*.xml`, with a curated `<effect name>` → `Stat`
+  registry (18 names — `PAtk`, `PhysicalDefence`, `HpRegen`, …; unregistered
+  names, e.g. the damage effects, are dropped and the skill still loads).
+  Buffs live in `Player.buffs`, expire via a new `ScheduledTask::BuffExpire`.
+  Real `AbnormalStatusUpdate` (self-only — no known-list yet for
+  `ExAbnormalStatusUpdateFromTarget`).
+- **Cast pipeline**: `RequestMagicSkillUse` → a 2-phase scheduled flow
+  (`ScheduledTask::SkillLaunch` at `hit_time`, then `finishSkill` inline — no
+  separate cancel-time wait, since G6 only handles instant `SELF`-targeting)
+  porting `SkillCaster`: MP/HP checks at both start and landing,
+  `MagicSkillUse`/`SetupGauge` → `MagicSkillLaunched` → `StatusUpdate` +
+  `AbnormalStatusUpdate`. Scoped to `TargetType::SELF`, `OperateType::Active`
+  known skills — other targeting, passive/toggle skills, and damage effects
+  are out of scope (no NPCs/combat/visibility to aim at yet; see G9).
+- **Tests**: `data::skill_tree::tests` (learn-list gating by level/known-skill);
+  a synthetic-`World` test (`game_loop::tests::
+  learn_and_cast_buff_skill_applies_and_expires`, no sockets, per the tick-
+  system testing strategy) drives the real handlers end-to-end — learn
+  "Defense Aura" (SP spend + level gate) → cast it → land (P.Def +8%, right
+  packet sequence) → fast-forward `world.tick` past `abnormalTime` → expire
+  (P.Def back to naked) — since real-time-waiting out a 20+ minute retail buff
+  isn't a reasonable thing for a unit test to do.
+- **`e2e_create.rs` fix**: the new regen tick can push an unsolicited
+  `StatusUpdate` mid-test once a character is in-game (e.g. CP regenerating
+  from its post-creation 0); added `GameClient::recv_skip_status_update` so
+  reply-then-assert exchanges after enter-world aren't thrown off by it.
+
+### G7–G12 — ⏳ not started
 See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gate: finish the
 G4 vertical-slice gate proper — **movement + visibility/known-list + `Say2`
-chat** (two clients see each other, walk, chat) — then G6 stats/skills or G7
-static content.
+chat** (two clients see each other, walk, chat) — then G8 static content.
 
 ---
 
@@ -183,8 +247,15 @@ Empty/placeholder now, to be filled in the owning milestone:
   crystallization, enchanting, augmentation, elemental attributes, item
   skills, `ExQuestItemList` (no quest items exist yet), real `maxLoad` calc +
   encumbrance enforcement, `ItemList`/`ExUserInfoEquipSlot` visual-id block.
-- **Skills (G7):** `SkillList`/`AcquireSkillList` (sent empty), full combat-stat
-  calc (evasion/accuracy/etc. are base template values or 0), cast pipeline.
+  Also blocks full P.Def/P.Atk/M.Def/M.Atk accuracy (see G6: naked-value only
+  until item `<stats>` are parsed).
+- **Skills/combat (post-G6, G9):** damage-dealing effects (`PhysicalAttack`,
+  `MagicalAttack`, …) and `Formulas.calcAutoAttackDamage`/`calcMagicDam`; non-
+  `SELF` targeting + range/LOS; the other 8 `AcquireSkillType`s (PLEDGE,
+  TRANSFORM, TRANSFER, SUBCLASS, …); toggle-type skills; skill reuse-delay
+  persistence across relog; `ExAbnormalStatusUpdateFromTarget` (broadcast to
+  other players — needs known-list, G7); most of the 230-entry `Stat` enum and
+  369 effect classes (grow `EFFECT_REGISTRY`/`Stat` as needed).
 - **Quests (G10):** `QuestList` empty, `ExQuestItemList` empty.
 - **Social (G9):** clan/ally blocks in `UserInfo`, `FriendList` empty, mail.
 - **Misc:** macros, `HennaInfo` empty, `ExUserBanInfo`, `ExVitalityEffectInfo`

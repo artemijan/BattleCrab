@@ -8,6 +8,8 @@ use quick_xml::events::Event;
 use quick_xml::Reader;
 use tracing::info;
 
+use crate::model::stats::BaseStat;
+
 pub const STAT_BONUS_FILE: &str = "data/stats/statBonus.xml";
 
 pub struct StatBonus {
@@ -87,6 +89,23 @@ impl StatBonus {
     }
     pub fn men_bonus(&self, men: i32) -> f64 {
         self.get("MEN", men)
+    }
+    pub fn str_bonus(&self, str_: i32) -> f64 {
+        self.get("STR", str_)
+    }
+    pub fn dex_bonus(&self, dex: i32) -> f64 {
+        self.get("DEX", dex)
+    }
+    pub fn int_bonus(&self, int_: i32) -> f64 {
+        self.get("INT", int_)
+    }
+    pub fn wit_bonus(&self, wit: i32) -> f64 {
+        self.get("WIT", wit)
+    }
+
+    /// Generic lookup by `BaseStat` (Java `BaseStat.calcBonus`).
+    pub fn bonus(&self, stat: BaseStat, value: i32) -> f64 {
+        self.get(stat.xml_tag(), value)
     }
 
     #[doc(hidden)]

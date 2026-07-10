@@ -7,6 +7,7 @@ pub mod experience;
 pub mod initial_equipment;
 pub mod item_data;
 pub mod player_template;
+pub mod skill_data;
 pub mod skill_tree;
 pub mod stat_bonus;
 
@@ -15,6 +16,7 @@ pub use experience::ExperienceData;
 pub use initial_equipment::InitialEquipmentData;
 pub use item_data::ItemData;
 pub use player_template::PlayerTemplateData;
+pub use skill_data::SkillData;
 pub use skill_tree::SkillTreeData;
 pub use stat_bonus::StatBonus;
 
@@ -28,6 +30,7 @@ pub struct GameData {
     pub action_data: ActionData,
     pub item_data: ItemData,
     pub initial_equipment: InitialEquipmentData,
+    pub skill_data: SkillData,
 }
 
 impl GameData {
@@ -40,6 +43,7 @@ impl GameData {
             action_data: ActionData::load_from(file_path),
             item_data: ItemData::load_from(file_path),
             initial_equipment: InitialEquipmentData::load_from(file_path),
+            skill_data: SkillData::load_from(file_path),
         }
     }
     pub fn load() -> Self {
@@ -51,6 +55,7 @@ impl GameData {
             action_data: ActionData::load(),
             item_data: ItemData::load(),
             initial_equipment: InitialEquipmentData::load(),
+            skill_data: SkillData::load(),
         }
     }
 
@@ -66,6 +71,7 @@ impl GameData {
             action_data: ActionData::empty(),
             item_data: ItemData::empty(),
             initial_equipment: InitialEquipmentData::empty(),
+            skill_data: SkillData::empty(),
         }
     }
 }

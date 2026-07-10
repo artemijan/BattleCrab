@@ -316,6 +316,19 @@ impl GameClient {
         self.crypt.decrypt(&mut d);
         d
     }
+    /// Like `recv`, but skips unsolicited `StatusUpdate` (0x18) packets —
+    /// since G6, the 3 s passive HP/MP/CP regen tick can push one at any time
+    /// (e.g. while this character's CP regens from its post-creation 0), so a
+    /// reply-then-assert exchange after enter-world isn't guaranteed to be the
+    /// very next frame on the wire.
+    async fn recv_skip_status_update(&mut self) -> Vec<u8> {
+        loop {
+            let pkt = self.recv().await;
+            if pkt[0] != 0x18 {
+                return pkt;
+            }
+        }
+    }
 }
 
 /// Walk the UserInfo mask blocks to MAX_HPCPMP and return (maxHp, maxMp).
@@ -508,7 +521,7 @@ async fn full_login_to_character_create() {
 
     // In-game, the client requests the manor list (0xD0 / 0x01) → ExSendManorList.
     g2.send(&[0xD0, 0x01, 0x00]).await;
-    let manor = g2.recv().await;
+    let manor = g2.recv_skip_status_update().await;
     assert_eq!(manor[0], 0xFE, "ExSendManorList EX opcode");
     assert_eq!(i16::from_le_bytes([manor[1], manor[2]]), 0x22, "EX_SEND_MANOR_LIST");
 
@@ -517,7 +530,7 @@ async fn full_login_to_character_create() {
     // (the stream stays aligned) and the cooltime request is answered.
     g2.send(&[0xD0, 0x38, 0x01]).await;
     g2.send(&[0xA6]).await;
-    let cool = g2.recv().await;
+    let cool = g2.recv_skip_status_update().await;
     assert_eq!(cool[0], 0xC7, "SkillCoolTime reply to RequestSkillCoolTime");
 
     // The Mystic's 5 initial skills were written to character_skills.

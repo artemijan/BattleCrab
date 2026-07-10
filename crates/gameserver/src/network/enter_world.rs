@@ -94,20 +94,50 @@ pub fn shortcut_init() -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `SkillList` (0x5F) — empty (skills deferred by request). TODO(G7).
-pub fn skill_list() -> Vec<u8> {
+/// `SkillList` (0x5F), one entry per known skill (Java `Player.sendSkillList`
+/// via `SkillList.addSkill`): passive flag, level, sub-level, id, reuse-delay
+/// group (always 0 — shared-cooldown groups aren't modeled), disabled (clan
+/// reputation gate — always false, no clans yet), enchanted (always false).
+pub fn skill_list(p: &Player, data: &GameData) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0x5F);
-    w.write_i32(0); // skill count
-    w.write_i32(-1); // last learned skill id (none)
+    w.write_i32(p.skills.len() as i32);
+    for (&skill_id, &level) in &p.skills {
+        let passive = data
+            .skill_data
+            .get(skill_id, level)
+            .is_some_and(|s| s.operate_type == crate::model::skill::OperateType::Passive);
+        w.write_i32(passive as i32);
+        w.write_i16(level as i16);
+        w.write_i16(0); // sub-level
+        w.write_i32(skill_id);
+        w.write_i32(0); // reuse delay group
+        w.write_u8(0); // disabled
+        w.write_u8(0); // enchanted
+    }
+    w.write_i32(-1); // last learned skill id (none new this burst)
     w.into_bytes()
 }
 
-/// `AcquireSkillList` (0x90) — nothing learnable yet. TODO(G7).
-pub fn acquire_skill_list() -> Vec<u8> {
+/// `AcquireSkillList` (0x90) — the class skills the player can currently
+/// learn (Java `SkillTreeData.getAvailableSkills`, `CLASS` type only — see
+/// `data/skill_tree.rs::available_skills`). Base-class skills never carry
+/// required items/remove-skills/dual-class gates (confirmed empty in
+/// `StartingClass/*.xml`), so those lists are always written empty.
+pub fn acquire_skill_list(p: &Player, data: &GameData) -> Vec<u8> {
+    let learnable = data.skill_trees.available_skills(p.class_id, p.level, &p.skills);
     let mut w = PacketWriter::new();
     w.write_u8(0x90);
-    w.write_i16(0);
+    w.write_i16(learnable.len() as i16);
+    for s in &learnable {
+        w.write_i32(s.skill_id);
+        w.write_i16(s.skill_level as i16);
+        w.write_i64(s.level_up_sp);
+        w.write_u8(s.get_level as u8);
+        w.write_u8(0); // dual class level
+        w.write_u8(0); // required item count
+        w.write_u8(0); // remove-skill count
+    }
     w.into_bytes()
 }
 
@@ -157,11 +187,22 @@ pub fn skill_cool_time() -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `AbnormalStatusUpdate` (0x85) — no active effects.
-pub fn abnormal_status_update() -> Vec<u8> {
+/// `AbnormalStatusUpdate` (0x85): one entry per active buff (Java
+/// `BuffInfo` list) — display id/level/sub-level, `AbnormalType` client id,
+/// remaining seconds. `now_tick` is `world.tick` (10 ticks/s) so the
+/// remaining time can be derived from each buff's `expires_at_tick`.
+pub fn abnormal_status_update(p: &Player, now_tick: u64) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0x85);
-    w.write_i16(0);
+    w.write_i16(p.buffs.len() as i16);
+    for buff in &p.buffs {
+        let remaining_secs = buff.expires_at_tick.saturating_sub(now_tick) / 10;
+        w.write_i32(buff.skill_id);
+        w.write_i16(buff.skill_level as i16);
+        w.write_i16(0); // sub-level
+        w.write_i32(buff.abnormal_type_client_id);
+        w.write_i16(remaining_secs as i16);
+    }
     w.into_bytes()
 }
 

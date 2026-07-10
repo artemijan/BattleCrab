@@ -7,6 +7,7 @@
 use commons::network::PacketWriter;
 
 use crate::model::inventory::PaperdollSlot;
+use crate::model::Player;
 
 /// `ServerPackets` opcodes (the single-byte `_id1`).
 pub mod opcodes {
@@ -19,6 +20,11 @@ pub mod opcodes {
     pub const CHAR_DELETE_SUCCESS: u8 = 0x1D;
     pub const CHAR_DELETE_FAIL: u8 = 0x1E;
     pub const VERSION_CHECK: u8 = 0x2E;
+    pub const STATUS_UPDATE: u8 = 0x18;
+    pub const MAGIC_SKILL_USE: u8 = 0x48;
+    pub const MAGIC_SKILL_LAUNCHED: u8 = 0x54;
+    pub const SETUP_GAUGE: u8 = 0x6B;
+    pub const ACQUIRE_SKILL_DONE: u8 = 0x94;
 
     /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
     pub const EX: u8 = 0xFE;
@@ -363,5 +369,95 @@ pub fn char_selected(p: &crate::model::Player, session_id: i32, game_time: i32) 
     }
     w.write_bytes(&[0u8; 28]);
     w.write_i32(0);
+    w.into_bytes()
+}
+
+/// Java `StatusUpdateType` client ids used so far (grow as more stats need to
+/// be pushed — regen, level-up, gear/buff changes, …).
+pub mod status_update_type {
+    pub const CUR_HP: u8 = 0x09;
+    pub const MAX_HP: u8 = 0x0A;
+    pub const CUR_MP: u8 = 0x0B;
+    pub const MAX_MP: u8 = 0x0C;
+    pub const CUR_CP: u8 = 0x21;
+    pub const MAX_CP: u8 = 0x22;
+}
+
+/// Port of `serverpackets/StatusUpdate`. `updates` is a list of
+/// `(StatusUpdateType client id, value)` pairs, in the order Java's
+/// `LinkedHashMap` would iterate (insertion order). `isVisible`/caster id
+/// (used to tell nearby players who's responsible for the change) are scoped
+/// to "not visible" — self-only updates, no known-list broadcast yet (G7).
+pub fn status_update(object_id: i32, updates: &[(u8, i32)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::STATUS_UPDATE);
+    w.write_i32(object_id);
+    w.write_i32(0); // caster id
+    w.write_u8(0); // isVisible
+    w.write_u8(updates.len() as u8);
+    for &(kind, value) in updates {
+        w.write_u8(kind);
+        w.write_i32(value);
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/MagicSkillUse`, self-cast only (`_target == _creature`,
+/// no ground-targeted skills, no `RequestActionUse` action id — see the G6
+/// cast-pipeline scope notes). `casting_bar_id` is `SkillCastingType.NORMAL`'s
+/// client bar id (0).
+pub fn magic_skill_use(p: &Player, skill_id: i32, skill_level: i32, hit_time: i32, reuse_delay: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::MAGIC_SKILL_USE);
+    w.write_i32(0); // casting bar: NORMAL
+    w.write_i32(p.object_id); // caster
+    w.write_i32(p.object_id); // target (self)
+    w.write_i32(skill_id);
+    w.write_i32(skill_level);
+    w.write_i32(hit_time);
+    w.write_i32(0); // reuse group
+    w.write_i32(reuse_delay);
+    w.write_i32(p.x);
+    w.write_i32(p.y);
+    w.write_i32(p.z);
+    w.write_i16(0); // isGroundTargetSkill
+    w.write_i16(0); // no ground location
+    w.write_i32(p.x); // target x/y/z (self)
+    w.write_i32(p.y);
+    w.write_i32(p.z);
+    w.write_i32(0); // actionId used
+    w.write_i32(0); // actionId
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/MagicSkillLaunched`, self-cast only (single target =
+/// the caster).
+pub fn magic_skill_launched(p: &Player, skill_id: i32, skill_level: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::MAGIC_SKILL_LAUNCHED);
+    w.write_i32(0); // casting bar: NORMAL
+    w.write_i32(p.object_id);
+    w.write_i32(skill_id);
+    w.write_i32(skill_level);
+    w.write_i32(1); // target count
+    w.write_i32(p.object_id);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/SetupGauge` (the cast-bar packet). `color`: 0 = blue.
+pub fn setup_gauge(object_id: i32, color: i32, time_ms: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::SETUP_GAUGE);
+    w.write_i32(object_id);
+    w.write_i32(color);
+    w.write_i32(time_ms);
+    w.write_i32(time_ms);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/AcquireSkillDone` — no body.
+pub fn acquire_skill_done() -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::ACQUIRE_SKILL_DONE);
     w.into_bytes()
 }

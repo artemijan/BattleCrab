@@ -87,13 +87,11 @@ impl World {
         }
     }
 
-    /// Run every task the scheduler says is due this tick. Dead-id tasks are
-    /// no-ops (handled per-variant as real tasks are added).
-    pub fn run_due_tasks(&mut self) {
-        for task in self.scheduler.drain_due(self.tick) {
-            match task {
-                ScheduledTask::Noop { .. } => {}
-            }
-        }
+    /// Every task the scheduler says is due this tick, drained for the caller
+    /// to dispatch (`game_loop::apply_due_tasks`) — task handlers need to send
+    /// packets to `self.clients`, so dispatch lives on the game-loop side
+    /// rather than here (mirrors how packet handlers already work).
+    pub fn drain_due_tasks(&mut self) -> Vec<ScheduledTask> {
+        self.scheduler.drain_due(self.tick)
     }
 }

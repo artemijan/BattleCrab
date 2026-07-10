@@ -4,11 +4,17 @@
 //! full stat pipeline arrive in later milestones.
 
 pub mod inventory;
+pub mod skill;
+pub mod stats;
+
+use std::collections::HashMap;
 
 use crate::character::CharData;
 use crate::data::player_template::PlayerTemplate;
 use crate::data::GameData;
 use inventory::Inventory;
+use skill::{ActiveBuff, StatModifierEffect};
+use stats::{BaseStat, Stat, StatModifierType};
 
 /// A player character in (or entering) the world. Owned by the `World` object
 /// registry once in game; the `InGame` session links to it by `object_id`.
@@ -83,6 +89,20 @@ pub struct Player {
     pub running: bool,
 
     pub inventory: Inventory,
+
+    /// Known skills (skill_id → level), loaded from `character_skills` (or the
+    /// class's autoGet initial set at creation — see `character.rs`/`db.rs`).
+    pub skills: HashMap<i32, i32>,
+    /// Active buffs/debuffs (Java `EffectList`). Expiry is driven by the
+    /// `Scheduler` (`ScheduledTask::BuffExpire`), not by anything here.
+    pub buffs: Vec<ActiveBuff>,
+    /// Java `CreatureStat`'s two modifier maps — buffs/gear push entries here;
+    /// `recalculate_stats` folds them into the displayed combat stats.
+    pub stats_add: HashMap<Stat, f64>,
+    pub stats_mul: HashMap<Stat, f64>,
+    /// `true` while a cast is in flight (Phase 0–2 of `RequestMagicSkillUse`) —
+    /// a minimal stand-in for Java's `SkillCaster` re-entrancy guard.
+    pub casting: bool,
 }
 
 impl Player {
@@ -102,7 +122,7 @@ impl Player {
         let max_mp = calc_max_mp(data, &t, c.level);
         let max_cp = calc_max_cp(data, &t, c.level);
 
-        Player {
+        let mut p = Player {
             object_id: c.object_id,
             name: c.name.clone(),
             account: c.account_name.clone(),
@@ -138,15 +158,15 @@ impl Player {
             face: c.face,
             hair_style: c.hair_style,
             hair_color: c.hair_color,
-            // TODO(G7): full combat-stat calc (STR/DEX bonuses, weapon, items).
-            p_atk: t.base_p_atk,
-            p_atk_spd: t.base_p_atk_spd,
-            p_def: t.base_p_def,
-            m_atk: t.base_m_atk,
-            m_atk_spd: t.base_m_atk_spd,
-            m_def: t.base_m_def,
-            crit_hit: t.base_crit_rate,
-            m_crit_hit: t.base_m_crit_rate,
+            // Filled in by `recalculate_stats` below.
+            p_atk: 0,
+            p_atk_spd: 0,
+            p_def: 0,
+            m_atk: 0,
+            m_atk_spd: 0,
+            m_def: 0,
+            crit_hit: 0,
+            m_crit_hit: 0,
             evasion: 0,
             accuracy: 0,
             magic_evasion: 0,
@@ -161,7 +181,138 @@ impl Player {
             collision_height: t.collision_height,
             running: true,
             inventory: Inventory::from_rows(&c.items),
+            skills: c.skills.iter().copied().collect(),
+            buffs: Vec::new(),
+            stats_add: HashMap::new(),
+            stats_mul: HashMap::new(),
+            casting: false,
+        };
+        p.recalculate_stats(data);
+        p
+    }
+
+    /// Java `CreatureStat.recalculateStats` narrowed to the combat stats G6
+    /// computes. Re-derives from the class template's base values (not from
+    /// `self`, so it's idempotent) × `BaseStat` bonus × level mod, then folds
+    /// in `stats_add`/`stats_mul` (buffs). Call after level/buff/gear changes.
+    /// TODO(G8+): weapon/armor `<stats>` contributions — item stat bonuses
+    /// aren't parsed yet (`data/item_data.rs`), so this is the unarmed/naked
+    /// value, same simplification G5 already made for item stats.
+    pub fn recalculate_stats(&mut self, data: &GameData) {
+        let t = data
+            .player_templates
+            .get(self.class_id)
+            .or_else(|| data.player_templates.get(self.base_class_id))
+            .cloned()
+            .unwrap_or_default();
+        let level_mod = (self.level as f64 + 89.0) / 100.0;
+        let sb = &data.stat_bonus;
+        let str_bonus = sb.bonus(BaseStat::Str, self.str_);
+        let dex_bonus = sb.bonus(BaseStat::Dex, self.dex);
+        let int_bonus = sb.bonus(BaseStat::Int, self.int_);
+        let wit_bonus = sb.bonus(BaseStat::Wit, self.wit);
+
+        // PAttackFinalizer / MAttackFinalizer.
+        self.p_atk = self
+            .finalize(Stat::PhysicalAttack, t.base_p_atk as f64 * str_bonus * level_mod)
+            .round()
+            .clamp(0.0, MAX_PATK) as i32;
+        self.m_atk = self
+            .finalize(Stat::MagicalAttack, t.base_m_atk as f64 * (int_bonus * level_mod).powf(2.2072))
+            .round()
+            .clamp(0.0, MAX_MATK) as i32;
+
+        // P/MDefenseFinalizer, naked value only (see TODO above).
+        self.p_def = self.finalize(Stat::PhysicalDefence, t.base_p_def as f64).round().max(0.0) as i32;
+        self.m_def = self.finalize(Stat::MagicalDefence, t.base_m_def as f64).round().max(0.0) as i32;
+
+        // P/MAttackSpeedFinalizer: `mul` floors at 0.7, not the usual 1.0.
+        self.p_atk_spd = self
+            .finalize_speed(Stat::PhysicalAttackSpeed, t.base_p_atk_spd as f64 * dex_bonus)
+            .round()
+            .clamp(1.0, MAX_PATK_SPEED) as i32;
+        self.m_atk_spd = self
+            .finalize_speed(Stat::MagicAttackSpeed, t.base_m_atk_spd as f64 * wit_bonus)
+            .round()
+            .clamp(1.0, MAX_MATK_SPEED) as i32;
+
+        // P/MCritRateFinalizer (in per-mille, ×10).
+        self.crit_hit = self
+            .finalize(Stat::CriticalRate, t.base_crit_rate as f64 * dex_bonus * 10.0)
+            .round()
+            .clamp(0.0, MAX_PCRIT_RATE) as i32;
+        self.m_crit_hit = self
+            .finalize(Stat::MagicCriticalRate, t.base_m_crit_rate as f64 * wit_bonus * 10.0)
+            .round()
+            .clamp(0.0, MAX_MCRIT_RATE) as i32;
+
+        // P/MAccuracyFinalizer, P/MEvasionRateFinalizer (high-level +N steps
+        // above level 69 skipped — base classes here don't reach that high).
+        let level = self.level as f64;
+        self.accuracy = self
+            .finalize(Stat::AccuracyCombat, (self.dex as f64).sqrt() * 5.0 + level)
+            .round() as i32;
+        self.magic_accuracy = self
+            .finalize(Stat::AccuracyMagic, (self.wit as f64).sqrt() * 3.0 + level * 2.0)
+            .round() as i32;
+        self.evasion = self
+            .finalize(Stat::EvasionRate, (self.dex as f64).sqrt() * 5.0 + level)
+            .round()
+            .clamp(0.0, MAX_EVASION) as i32;
+        self.magic_evasion = self
+            .finalize(Stat::MagicEvasionRate, (self.wit as f64).sqrt() * 3.0 + level * 2.0)
+            .round() as i32;
+
+        // Speed: base template value, buffs (Speed effect) apply through the
+        // add/mul maps exactly like the combat stats above.
+        self.run_spd = self.finalize(Stat::RunSpeed, t.base_run_spd as f64).round() as i32;
+        self.walk_spd = self.finalize(Stat::WalkSpeed, t.base_walk_spd as f64).round() as i32;
+        self.swim_run_spd = self.finalize(Stat::SwimRunSpeed, t.base_swim_run_spd as f64).round() as i32;
+        self.swim_walk_spd = self.finalize(Stat::SwimWalkSpeed, t.base_swim_walk_spd as f64).round() as i32;
+    }
+
+    /// `Stat.defaultValue`: `base * mul + add` from the accumulated modifier
+    /// maps (1.0/0.0 when nothing has touched this stat).
+    fn finalize(&self, stat: Stat, base: f64) -> f64 {
+        let mul = self.stats_mul.get(&stat).copied().unwrap_or(1.0);
+        let add = self.stats_add.get(&stat).copied().unwrap_or(0.0);
+        base * mul + add
+    }
+
+    /// `P/MAttackSpeedFinalizer.defaultValue`: same shape, but `mul` floors at
+    /// 0.7 instead of applying whatever's in the map directly (so an absent or
+    /// tiny buff doesn't produce a slower-than-0.7x cast/attack speed).
+    fn finalize_speed(&self, stat: Stat, base: f64) -> f64 {
+        let mul = self.stats_mul.get(&stat).copied().unwrap_or(1.0).max(0.7);
+        let add = self.stats_add.get(&stat).copied().unwrap_or(0.0);
+        base * mul + add
+    }
+
+    /// Fold a landed buff's effects into the modifier maps and recompute.
+    /// Java `BuffInfo.initializeEffects` → `AbstractEffect.pump`.
+    pub fn apply_buff(&mut self, data: &GameData, buff: ActiveBuff) {
+        for effect in &buff.effects {
+            apply_modifier(&mut self.stats_add, &mut self.stats_mul, effect);
         }
+        self.buffs.push(buff);
+        self.recalculate_stats(data);
+    }
+
+    /// Remove an expired/replaced buff and recompute from scratch (Java just
+    /// removes the `BuffInfo` and calls `resetStats()`, which rebuilds the
+    /// maps from the remaining active buffs — do the same here rather than
+    /// trying to subtract in place, which would drift under rounding).
+    pub fn remove_buff(&mut self, data: &GameData, skill_id: i32) {
+        self.buffs.retain(|b| b.skill_id != skill_id);
+        self.stats_add.clear();
+        self.stats_mul.clear();
+        let buffs = self.buffs.clone();
+        for buff in &buffs {
+            for effect in &buff.effects {
+                apply_modifier(&mut self.stats_add, &mut self.stats_mul, effect);
+            }
+        }
+        self.recalculate_stats(data);
     }
 
     /// Fraction of the way through the current level (for XP-bar display).
@@ -172,6 +323,32 @@ impl Player {
             0.0
         } else {
             (self.exp - base) as f64 / (next - base) as f64
+        }
+    }
+}
+
+/// `Character.ini` stat-cap defaults (`MaxPAtk`/`MaxPCritRate`/…). These are
+/// effectively always left at their defaults in practice; TODO: thread real
+/// `CharacterConfig` values through `World`/`GameData` if a deployment ever
+/// needs to override them (no subsystem currently plumbs that far).
+const MAX_PATK: f64 = 999_999.0;
+const MAX_MATK: f64 = 999_999.0;
+const MAX_PCRIT_RATE: f64 = 500.0;
+const MAX_MCRIT_RATE: f64 = 200.0;
+const MAX_PATK_SPEED: f64 = 1500.0;
+const MAX_MATK_SPEED: f64 = 1999.0;
+const MAX_EVASION: f64 = 250.0;
+
+/// Java `CreatureStat.mergeAdd`/`mergeMul` — accumulate one effect's
+/// contribution into the add/mul maps (multiple buffs on the same stat stack).
+fn apply_modifier(add: &mut HashMap<Stat, f64>, mul: &mut HashMap<Stat, f64>, effect: &StatModifierEffect) {
+    match effect.mode {
+        StatModifierType::Diff => {
+            *add.entry(effect.stat).or_insert(0.0) += effect.amount;
+        }
+        StatModifierType::Per => {
+            let entry = mul.entry(effect.stat).or_insert(1.0);
+            *entry *= (effect.amount / 100.0) + 1.0;
         }
     }
 }

@@ -16,6 +16,14 @@ use std::collections::BinaryHeap;
 pub enum ScheduledTask {
     /// Placeholder used by tests and as the template for real tasks.
     Noop { object_id: i32 },
+    /// `SkillCaster.launchSkill`, fires `hit_time` ms after
+    /// `RequestMagicSkillUse` started the cast. Sends `MagicSkillLaunched`
+    /// then runs `finishSkill` (MP/HP consume + apply effects) inline — G6's
+    /// self-only cast pipeline has no separate travel/cancel-time phase to
+    /// wait out between launch and landing (see the G6 plan's scope notes).
+    SkillLaunch { player_object_id: i32, skill_id: i32, skill_level: i32 },
+    /// `BuffFinishTask`: an active buff's `abnormalTime` has elapsed.
+    BuffExpire { player_object_id: i32, skill_id: i32 },
 }
 
 struct Entry {

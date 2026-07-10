@@ -18,6 +18,8 @@ pub mod opcodes {
     pub const CHARACTER_RESTORE: u8 = 0x7B;
     pub const REQUEST_UN_EQUIP_ITEM: u8 = 0x16;
     pub const USE_ITEM: u8 = 0x19;
+    pub const REQUEST_MAGIC_SKILL_USE: u8 = 0x39;
+    pub const REQUEST_ACQUIRE_SKILL: u8 = 0x7C;
     /// Extended packets: opcode 0xD0 + a 2-byte little-endian sub-opcode.
     pub const EX_PACKET: u8 = 0xD0;
 }
@@ -132,5 +134,48 @@ impl UseItem {
         let object_id = r.read_i32()?;
         let ctrl_pressed = r.read_i32()? != 0;
         Some(Self { object_id, ctrl_pressed })
+    }
+}
+
+/// Port of `clientpackets/RequestMagicSkillUse` (`cdc`). `shift_pressed` (used
+/// for ground-targeted skills) isn't read for anything yet — no ground
+/// targeting until later milestones.
+pub struct RequestMagicSkillUse {
+    pub magic_id: i32,
+    pub ctrl_pressed: bool,
+}
+
+impl RequestMagicSkillUse {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let magic_id = r.read_i32()?;
+        let ctrl_pressed = r.read_i32()? != 0;
+        Some(Self { magic_id, ctrl_pressed })
+    }
+}
+
+/// Port of `clientpackets/RequestAcquireSkill`. `sub_type` is only meaningful
+/// for `AcquireSkillType::Subpledge` (id `3`) — out of scope here (see the G6
+/// plan's "only `CLASS`" note), read anyway to keep the reader positioned
+/// correctly if the client ever sends it.
+pub struct RequestAcquireSkill {
+    pub skill_id: i32,
+    pub skill_level: i32,
+    pub acquire_type: i32,
+}
+
+impl RequestAcquireSkill {
+    pub const CLASS: i32 = 0;
+    pub const SUBPLEDGE: i32 = 3;
+
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let skill_id = r.read_i32()?;
+        let skill_level = r.read_i32()?;
+        let acquire_type = r.read_i32()?;
+        if acquire_type == Self::SUBPLEDGE {
+            r.read_i32()?; // sub_type — unused (see doc comment)
+        }
+        Some(Self { skill_id, skill_level, acquire_type })
     }
 }

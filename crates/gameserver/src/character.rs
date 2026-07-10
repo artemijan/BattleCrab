@@ -55,4 +55,6 @@ pub struct CharData {
     pub noble: bool,
     pub char_slot: i32,
     pub items: Vec<ItemRow>,
+    /// `character_skills` rows: (skill_id, skill_level).
+    pub skills: Vec<(i32, i32)>,
 }

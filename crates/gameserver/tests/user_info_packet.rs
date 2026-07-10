@@ -79,6 +79,11 @@ async fn user_info_test() {
         running: true,
 
         inventory: Default::default(),
+        skills: Default::default(),
+        buffs: Default::default(),
+        stats_add: Default::default(),
+        stats_mul: Default::default(),
+        casting: false,
     };
     let gd = GameData::load_from("../../dist/game/");
     let packet = user_info(&player, &gd);

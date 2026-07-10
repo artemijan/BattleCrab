@@ -71,6 +71,9 @@ pub enum DbCommand {
     CheckNameCreatable { client_id: u32, name: String },
     /// Fire-and-forget equip/unequip persistence (`items.loc`/`loc_data`).
     UpdateItemLocation { object_id: i32, loc: &'static str, loc_data: i32 },
+    /// Fire-and-forget skill-learn persistence (`RequestAcquireSkill`), same
+    /// upsert query used for creation-time initial skills.
+    UpsertSkill { char_id: i32, skill_id: i32, skill_level: i32 },
     Shutdown,
 }
 
@@ -166,6 +169,20 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
+            DbCommand::UpsertSkill { char_id, skill_id, skill_level } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT INTO character_skills (charId, skill_id, skill_level, skill_sub_level, class_index) \
+                         VALUES (?, ?, ?, 0, 0) \
+                         ON CONFLICT(charId, skill_id, class_index) DO UPDATE SET skill_level=excluded.skill_level",
+                    )
+                    .bind(char_id)
+                    .bind(skill_id)
+                    .bind(skill_level),
+                )
+                .await;
+            }
             DbCommand::Shutdown => break,
         }
     }
@@ -219,6 +236,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             continue;
         }
         let items = load_items(pool, object_id).await;
+        let skills = load_skills(pool, object_id).await;
         out.push(CharData {
             object_id,
             name: gets(row, "char_name"),
@@ -251,9 +269,22 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             noble: geti(row, "nobless") == 1,
             char_slot: slot as i32,
             items,
+            skills,
         });
     }
     out
+}
+
+/// A character's `character_skills` rows (Java: `Player.restoreSkills`,
+/// called for every row shown in `CharSelectionInfo` — same treatment as
+/// `load_items`).
+async fn load_skills(pool: &SqlitePool, owner_id: i32) -> Vec<(i32, i32)> {
+    let rows = sqlx::query("SELECT skill_id, skill_level FROM character_skills WHERE charId=? AND class_index=0")
+        .bind(owner_id)
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
+    rows.iter().map(|r| (geti(r, "skill_id") as i32, geti(r, "skill_level") as i32)).collect()
 }
 
 /// A character's `items` rows (Java: `PlayerInventory.restore`, called for
