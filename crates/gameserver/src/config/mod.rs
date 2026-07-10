@@ -6,10 +6,12 @@
 
 pub mod character;
 pub mod hexid;
+pub mod ipconfig;
 pub mod server;
 
 pub use character::CharacterConfig;
 pub use hexid::HexId;
+pub use ipconfig::IpConfig;
 pub use server::ServerConfig;
 
 /// Aggregate of every loaded config section, owned for the process lifetime
@@ -18,6 +20,9 @@ pub use server::ServerConfig;
 pub struct Config {
     pub server: ServerConfig,
     pub character: CharacterConfig,
+
+    /// Network (subnet, host) pairs advertised to the login server.
+    pub ip_config: IpConfig,
 
     /// Game-server identity on the login server (`hexid.txt` / generated).
     pub hex_id: Vec<u8>,
@@ -35,10 +40,12 @@ impl Config {
     pub fn load() -> Self {
         let server = ServerConfig::load();
         let character = CharacterConfig::load();
+        let ip_config = IpConfig::load();
         let hex = HexId::load(server.request_id);
         Self {
             server,
             character,
+            ip_config,
             hex_id: hex.hex_id,
             server_id: hex.server_id,
             reserve_host_on_login: false,

@@ -86,8 +86,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         accept_alternate: config.server.accept_alternate_id,
         reserve_host: config.reserve_host_on_login,
         max_players: config.server.maximum_online_users,
-        // TODO(G5): parse ipconfig.xml. Localhost default advertises 127.0.0.1.
-        hosts: vec![("0.0.0.0/0".to_string(), "127.0.0.1".to_string())],
+        // Subnet→host pairs from ipconfig.xml (or auto-detected), so the login
+        // server hands each client the game address for its own network.
+        hosts: config.ip_config.pairs(),
         server_list_type: config.server.server_list_type,
         server_list_bracket: config.server.server_list_bracket,
         server_list_age: config.server.server_list_age,
