@@ -10,6 +10,7 @@ use commons::network::PacketWriter;
 pub mod opcodes {
     pub const CHARACTER_SELECTION_INFO: u8 = 0x09;
     pub const LOGIN_FAIL: u8 = 0x0A;
+    pub const CHAR_SELECTED: u8 = 0x0B;
     pub const NEW_CHARACTER_SUCCESS: u8 = 0x0D;
     pub const CHAR_CREATE_SUCCESS: u8 = 0x0F;
     pub const CHAR_CREATE_FAIL: u8 = 0x10;
@@ -240,5 +241,43 @@ pub fn char_delete_fail(reason: i32) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::CHAR_DELETE_FAIL);
     w.write_i32(reason);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/CharSelected` — the reply to `CharacterSelect` that
+/// starts the enter-world loading screen. `game_time` is minutes of the in-game
+/// day (TODO(G4): real GameTimeTaskManager clock; 0 = midnight for now).
+pub fn char_selected(p: &crate::model::Player, session_id: i32, game_time: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::CHAR_SELECTED);
+    w.write_string(&p.name);
+    w.write_i32(p.object_id);
+    w.write_string(&p.title);
+    w.write_i32(session_id);
+    w.write_i32(0); // clan id
+    w.write_i32(0);
+    w.write_i32(p.is_female as i32);
+    w.write_i32(p.race);
+    w.write_i32(p.class_id);
+    w.write_i32(1); // active
+    w.write_i32(p.x);
+    w.write_i32(p.y);
+    w.write_i32(p.z);
+    w.write_f64(p.cur_hp);
+    w.write_f64(p.cur_mp);
+    w.write_i64(p.sp);
+    w.write_i64(p.exp);
+    w.write_i32(p.level);
+    w.write_i32(p.reputation);
+    w.write_i32(p.pk_kills);
+    w.write_i32(game_time % (24 * 60));
+    w.write_i32(0);
+    w.write_i32(p.class_id);
+    w.write_bytes(&[0u8; 16]);
+    for _ in 0..9 {
+        w.write_i32(0);
+    }
+    w.write_bytes(&[0u8; 28]);
+    w.write_i32(0);
     w.into_bytes()
 }

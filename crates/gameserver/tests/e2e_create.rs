@@ -317,6 +317,20 @@ impl GameClient {
     }
 }
 
+/// Walk the UserInfo mask blocks to MAX_HPCPMP and return (maxHp, maxMp).
+fn parse_userinfo_hpmp(ui: &[u8]) -> (i32, i32) {
+    // opcode(1) + objectId(4) + initSize(4) + maskCount(2) + mask(3) = 14.
+    let mut pos = 14;
+    pos += 4; // RELATION block: a bare int, no length prefix.
+    let block_len = |b: &[u8], p: usize| u16::from_le_bytes([b[p], b[p + 1]]) as usize;
+    pos += block_len(ui, pos); // BASIC_INFO
+    pos += block_len(ui, pos); // BASE_STATS
+    // MAX_HPCPMP: short(len) then maxHp, maxMp, maxCp.
+    let hp = i32::from_le_bytes(ui[pos + 2..pos + 6].try_into().unwrap());
+    let mp = i32::from_le_bytes(ui[pos + 6..pos + 10].try_into().unwrap());
+    (hp, mp)
+}
+
 fn u16str(s: &str) -> Vec<u8> {
     let mut v: Vec<u8> = s.encode_utf16().flat_map(|c| c.to_le_bytes()).collect();
     v.extend_from_slice(&[0, 0]);
@@ -416,6 +430,32 @@ async fn full_login_to_character_create() {
     let sel2 = g2.recv().await;
     assert_eq!(sel2[0], 0x09, "CharSelectionInfo on relogin");
     assert_eq!(i32::from_le_bytes(sel2[1..5].try_into().unwrap()), 1, "the created character persisted");
+
+    // Select the character (slot 0) → CharSelected → enter the world → UserInfo.
+    let mut w = PacketWriter::new();
+    w.write_u8(0x12); // CharacterSelect
+    w.write_i32(0); // slot
+    w.write_i16(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    g2.send(&w.into_bytes()).await;
+    let selected = g2.recv().await;
+    assert_eq!(selected[0], 0x0B, "CharSelected");
+
+    g2.send(&[0x11]).await; // EnterWorld
+    let ui = g2.recv().await;
+    assert_eq!(ui[0], 0x32, "UserInfo");
+    // Walk the masked blocks to MAX_HPCPMP and check the computed HP/MP match the
+    // model (base level-table HP/MP × CON/MEN bonus, truncated like Java).
+    let (max_hp, max_mp) = parse_userinfo_hpmp(&ui);
+    let data = gameserver::data::GameData::load(); // cwd is dist/game
+    let mystic = data.player_templates.get(10).unwrap();
+    let expected_hp = gameserver::model::calc_max_hp(&data, mystic, 1) as i32;
+    let expected_mp = gameserver::model::calc_max_mp(&data, mystic, 1) as i32;
+    assert_eq!(max_hp, expected_hp, "UserInfo max HP matches the calc ({expected_hp})");
+    assert_eq!(max_mp, expected_mp, "UserInfo max MP matches the calc ({expected_mp})");
+    assert!(max_hp > 90 && max_hp < 110, "Human Mystic level 1 HP is ~99");
 
     // The Mystic's 5 initial skills were written to character_skills.
     let check = commons::db::init(&db_url, 1).await.unwrap();

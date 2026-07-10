@@ -5,10 +5,12 @@
 pub mod experience;
 pub mod player_template;
 pub mod skill_tree;
+pub mod stat_bonus;
 
 pub use experience::ExperienceData;
 pub use player_template::PlayerTemplateData;
 pub use skill_tree::SkillTreeData;
+pub use stat_bonus::StatBonus;
 
 /// The static game data bundle owned by the game thread (Java: the swarm of
 /// `*Data.getInstance()` singletons, here a plain struct — decision #4).
@@ -16,6 +18,7 @@ pub struct GameData {
     pub experience: ExperienceData,
     pub player_templates: PlayerTemplateData,
     pub skill_trees: SkillTreeData,
+    pub stat_bonus: StatBonus,
 }
 
 impl GameData {
@@ -24,6 +27,7 @@ impl GameData {
             experience: ExperienceData::load(),
             player_templates: PlayerTemplateData::load(),
             skill_trees: SkillTreeData::load(),
+            stat_bonus: StatBonus::load(),
         }
     }
 
@@ -34,6 +38,7 @@ impl GameData {
             experience: ExperienceData::empty(),
             player_templates: PlayerTemplateData::empty(),
             skill_trees: SkillTreeData::empty(),
+            stat_bonus: StatBonus::empty(),
         }
     }
 }

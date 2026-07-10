@@ -11,6 +11,7 @@ pub mod opcodes {
     pub const AUTH_LOGIN: u8 = 0x2B;
     pub const CHARACTER_CREATE: u8 = 0x0C;
     pub const CHARACTER_DELETE: u8 = 0x0D;
+    pub const ENTER_WORLD: u8 = 0x11;
     pub const CHARACTER_SELECT: u8 = 0x12;
     pub const NEW_CHARACTER: u8 = 0x13;
     pub const CHARACTER_RESTORE: u8 = 0x7B;

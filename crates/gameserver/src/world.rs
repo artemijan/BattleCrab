@@ -55,6 +55,9 @@ pub struct World {
     pub scheduler: Scheduler,
     /// Connected clients keyed by network id, as type-state sessions (§3.1).
     pub clients: HashMap<u32, ClientSession>,
+    /// In-world player entities keyed by object id (the `InGame` session links
+    /// here). Object registries for NPCs/items/regions arrive in G5+.
+    pub players: HashMap<i32, crate::model::Player>,
     pub login: LoginState,
     /// `Config.MAX_CHARACTERS_NUMBER_PER_ACCOUNT`, needed by `CharSelectionInfo`.
     pub max_characters_per_account: i32,
@@ -72,6 +75,7 @@ impl World {
             tick: 0,
             scheduler: Scheduler::new(),
             clients: HashMap::new(),
+            players: HashMap::new(),
             login: LoginState::new(link),
             max_characters_per_account,
             delete_days,

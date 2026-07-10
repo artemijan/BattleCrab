@@ -11,6 +11,7 @@ pub mod db;
 pub mod enums;
 pub mod game_loop;
 pub mod loginlink;
+pub mod model;
 pub mod network;
 pub mod scheduler;
 pub mod session;

@@ -115,6 +115,65 @@ impl Session<InLobby> {
     pub fn set_chars(&mut self, chars: Vec<CharData>) {
         self.state.chars = chars;
     }
+
+    /// `CharacterSelect`: a character is chosen and its `Player` built; move to
+    /// the loading screen (Java `ConnectionState.ENTERING`).
+    pub fn into_entering(self, player: crate::model::Player) -> Session<Entering> {
+        Session {
+            client_id: self.client_id,
+            out: self.out,
+            addr: self.addr,
+            state: Entering { account: self.state.account, session_key: self.state.session_key, player },
+        }
+    }
+}
+
+/// State: character selected, entering the world (Java `ENTERING`). Holds the
+/// built `Player` until `EnterWorld` moves it into the `World` registry.
+pub struct Entering {
+    pub account: String,
+    pub session_key: SessionKey,
+    pub player: crate::model::Player,
+}
+
+/// State: in the world. The `Player` lives in the `World` object registry; this
+/// links to it by id (plan §3.1).
+pub struct InGame {
+    pub account: String,
+    pub player_object_id: i32,
+}
+
+impl Session<Entering> {
+    pub fn account(&self) -> &str {
+        &self.state.account
+    }
+    pub fn play_ok1(&self) -> i32 {
+        self.state.session_key.play_ok1
+    }
+    pub fn player(&self) -> &crate::model::Player {
+        &self.state.player
+    }
+
+    /// `EnterWorld`: hand the `Player` to the world and move to `InGame`.
+    pub fn into_ingame(self) -> (Session<InGame>, crate::model::Player) {
+        let object_id = self.state.player.object_id;
+        let session = Session {
+            client_id: self.client_id,
+            out: self.out,
+            addr: self.addr,
+            state: InGame { account: self.state.account, player_object_id: object_id },
+        };
+        (session, self.state.player)
+    }
+}
+
+impl Session<InGame> {
+    pub fn account(&self) -> &str {
+        &self.state.account
+    }
+    pub fn player_object_id(&self) -> i32 {
+        self.state.player_object_id
+    }
 }
 
 /// Runtime-tagged wrapper stored in the client registry.
@@ -122,6 +181,8 @@ pub enum ClientSession {
     Connecting(Session<Connecting>),
     Authenticated(Session<Authenticated>),
     InLobby(Session<InLobby>),
+    Entering(Session<Entering>),
+    InGame(Session<InGame>),
 }
 
 impl ClientSession {
@@ -130,6 +191,8 @@ impl ClientSession {
             ClientSession::Connecting(s) => s.client_id,
             ClientSession::Authenticated(s) => s.client_id,
             ClientSession::InLobby(s) => s.client_id,
+            ClientSession::Entering(s) => s.client_id,
+            ClientSession::InGame(s) => s.client_id,
         }
     }
 
@@ -138,6 +201,8 @@ impl ClientSession {
             ClientSession::Connecting(s) => s.addr,
             ClientSession::Authenticated(s) => s.addr,
             ClientSession::InLobby(s) => s.addr,
+            ClientSession::Entering(s) => s.addr,
+            ClientSession::InGame(s) => s.addr,
         }
     }
 
@@ -147,6 +212,8 @@ impl ClientSession {
             ClientSession::Connecting(s) => s.send(body),
             ClientSession::Authenticated(s) => s.send(body),
             ClientSession::InLobby(s) => s.send(body),
+            ClientSession::Entering(s) => s.send(body),
+            ClientSession::InGame(s) => s.send(body),
         }
     }
 }

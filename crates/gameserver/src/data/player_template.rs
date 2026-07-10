@@ -34,7 +34,7 @@ pub fn creatable_race(class_id: i32) -> Option<Race> {
     CREATABLE_CLASSES.iter().find(|(id, _, _)| *id == class_id).map(|(_, r, _)| *r)
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct PlayerTemplate {
     pub class_id: i32,
     pub base_str: i32,
@@ -43,9 +43,29 @@ pub struct PlayerTemplate {
     pub base_int: i32,
     pub base_wit: i32,
     pub base_men: i32,
-    /// Level-1 HP/MP (max at creation).
-    pub base_hp: f64,
-    pub base_mp: f64,
+    /// Per-level max HP/MP/CP (`lvlUpgainData`), indexed by level.
+    pub hp_table: Vec<f64>,
+    pub mp_table: Vec<f64>,
+    pub cp_table: Vec<f64>,
+    // Base combat stats (TODO(G7): full stat calc with modifiers/items).
+    pub base_p_atk: i32,
+    pub base_p_atk_spd: i32,
+    pub base_m_atk: i32,
+    pub base_m_atk_spd: i32,
+    pub base_crit_rate: i32,
+    pub base_m_crit_rate: i32,
+    pub base_atk_range: i32,
+    /// Sum of the base armor-slot defenses / jewel defenses.
+    pub base_p_def: i32,
+    pub base_m_def: i32,
+    // Movement (before the run-speed multiplier).
+    pub base_run_spd: i32,
+    pub base_walk_spd: i32,
+    pub base_swim_run_spd: i32,
+    pub base_swim_walk_spd: i32,
+    /// Collision (male; TODO: female variant).
+    pub collision_radius: f64,
+    pub collision_height: f64,
     /// Random spawn points offered at creation.
     pub creation_points: Vec<(i32, i32, i32)>,
 }
@@ -54,6 +74,33 @@ impl PlayerTemplate {
     pub fn race(&self) -> Option<Race> {
         creatable_race(self.class_id)
     }
+
+    /// Level-1 max HP (used at creation).
+    pub fn base_hp(&self) -> f64 {
+        self.base_hp_max(1)
+    }
+    pub fn base_mp(&self) -> f64 {
+        self.base_mp_max(1)
+    }
+
+    /// `getBaseHpMax(level)` — clamps out-of-range levels to the table ends.
+    pub fn base_hp_max(&self, level: i32) -> f64 {
+        table_get(&self.hp_table, level)
+    }
+    pub fn base_mp_max(&self, level: i32) -> f64 {
+        table_get(&self.mp_table, level)
+    }
+    pub fn base_cp_max(&self, level: i32) -> f64 {
+        table_get(&self.cp_table, level)
+    }
+}
+
+fn table_get(table: &[f64], level: i32) -> f64 {
+    if table.is_empty() {
+        return 0.0;
+    }
+    let idx = (level.max(1) as usize).min(table.len() - 1);
+    table[idx]
 }
 
 pub struct PlayerTemplateData {
@@ -97,22 +144,17 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
     let content = std::fs::read_to_string(path).ok()?;
     let mut reader = Reader::from_str(&content);
 
-    let mut t = PlayerTemplate {
-        class_id: -1,
-        base_str: 0,
-        base_dex: 0,
-        base_con: 0,
-        base_int: 0,
-        base_wit: 0,
-        base_men: 0,
-        base_hp: 0.0,
-        base_mp: 0.0,
-        creation_points: Vec::new(),
-    };
+    let mut t = PlayerTemplate { class_id: -1, ..Default::default() };
+    // Level tables sized to the classic max (85, +buffer); index by level.
+    t.hp_table = vec![0.0; 90];
+    t.mp_table = vec![0.0; 90];
+    t.cp_table = vec![0.0; 90];
 
     let mut cur_tag: Vec<u8> = Vec::new();
     let mut in_creation_points = false;
-    let mut in_level_1 = false;
+    let mut cur_level: i32 = 0; // 0 = not inside a <level>
+    // Nested section we're inside, if any (for summed / grouped values).
+    let mut section: Option<Vec<u8>> = None;
 
     loop {
         match reader.read_event() {
@@ -120,14 +162,14 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
                 let name = e.name().as_ref().to_vec();
                 match name.as_slice() {
                     b"creationPoints" => in_creation_points = true,
+                    b"basePDef" | b"baseMDef" | b"baseMoveSpd" | b"collisionMale" => section = Some(name.clone()),
                     b"level" => {
-                        let val = e
+                        cur_level = e
                             .attributes()
                             .flatten()
                             .find(|a| a.key.as_ref() == b"val")
                             .and_then(|a| String::from_utf8_lossy(&a.value).parse::<i32>().ok())
                             .unwrap_or(0);
-                        in_level_1 = val == 1;
                     }
                     _ => {}
                 }
@@ -150,12 +192,52 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
             }
             Ok(Event::Text(txt)) => {
                 let text = txt.unescape().unwrap_or_default();
-                let text = text.trim();
+                let text = text.trim().to_string();
                 if text.is_empty() {
                     continue;
                 }
                 let int = || text.parse::<i32>().unwrap_or(0);
                 let flt = || text.parse::<f64>().unwrap_or(0.0);
+                // Per-level HP/MP/CP tables.
+                if cur_level > 0 && (cur_level as usize) < t.hp_table.len() {
+                    match cur_tag.as_slice() {
+                        b"hp" => t.hp_table[cur_level as usize] = flt(),
+                        b"mp" => t.mp_table[cur_level as usize] = flt(),
+                        b"cp" => t.cp_table[cur_level as usize] = flt(),
+                        _ => {}
+                    }
+                    continue;
+                }
+                // Summed / grouped sections.
+                match section.as_deref() {
+                    Some(b"basePDef") => {
+                        t.base_p_def += int();
+                        continue;
+                    }
+                    Some(b"baseMDef") => {
+                        t.base_m_def += int();
+                        continue;
+                    }
+                    Some(b"baseMoveSpd") => {
+                        match cur_tag.as_slice() {
+                            b"walk" => t.base_walk_spd = int(),
+                            b"run" => t.base_run_spd = int(),
+                            b"slowSwim" => t.base_swim_walk_spd = int(),
+                            b"fastSwim" => t.base_swim_run_spd = int(),
+                            _ => {}
+                        }
+                        continue;
+                    }
+                    Some(b"collisionMale") => {
+                        match cur_tag.as_slice() {
+                            b"radius" => t.collision_radius = flt(),
+                            b"height" => t.collision_height = flt(),
+                            _ => {}
+                        }
+                        continue;
+                    }
+                    _ => {}
+                }
                 match cur_tag.as_slice() {
                     b"classId" => t.class_id = int(),
                     b"baseSTR" => t.base_str = int(),
@@ -164,14 +246,20 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
                     b"baseINT" => t.base_int = int(),
                     b"baseWIT" => t.base_wit = int(),
                     b"baseMEN" => t.base_men = int(),
-                    b"hp" if in_level_1 => t.base_hp = flt(),
-                    b"mp" if in_level_1 => t.base_mp = flt(),
+                    b"basePAtk" => t.base_p_atk = int(),
+                    b"basePAtkSpd" => t.base_p_atk_spd = int(),
+                    b"baseMAtk" => t.base_m_atk = int(),
+                    b"baseMAtkSpd" => t.base_m_atk_spd = int(),
+                    b"baseCritRate" => t.base_crit_rate = int(),
+                    b"baseMCritRate" => t.base_m_crit_rate = int(),
+                    b"baseAtkRange" => t.base_atk_range = int(),
                     _ => {}
                 }
             }
             Ok(Event::End(e)) => match e.name().as_ref() {
                 b"creationPoints" => in_creation_points = false,
-                b"level" => in_level_1 = false,
+                b"level" => cur_level = 0,
+                b"basePDef" | b"baseMDef" | b"baseMoveSpd" | b"collisionMale" => section = None,
                 _ => {}
             },
             Ok(Event::Eof) => break,

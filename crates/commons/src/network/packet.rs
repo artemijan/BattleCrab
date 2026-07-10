@@ -105,6 +105,16 @@ impl PacketWriter {
         self.data.extend_from_slice(&0u16.to_le_bytes());
     }
 
+    /// `writeSizedString`: a 2-byte char-count prefix + UTF-16LE, no null
+    /// terminator (used in `UserInfo` blocks).
+    pub fn write_sized_string(&mut self, s: &str) {
+        let units: Vec<u16> = s.encode_utf16().collect();
+        self.write_i16(units.len() as i16);
+        for unit in units {
+            self.data.extend_from_slice(&unit.to_le_bytes());
+        }
+    }
+
     pub fn into_bytes(self) -> Vec<u8> {
         self.data
     }

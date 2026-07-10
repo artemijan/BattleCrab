@@ -166,6 +166,8 @@ fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::CHARACTER_CREATE => handle_character_create(world, client_id, body),
         cop::CHARACTER_DELETE => handle_character_delete(world, client_id, body),
         cop::CHARACTER_RESTORE => handle_character_restore(world, client_id, body),
+        cop::CHARACTER_SELECT => handle_character_select(world, client_id, body),
+        cop::ENTER_WORLD => handle_enter_world(world, client_id),
         cop::EX_PACKET => on_ex_packet(world, client_id, body),
         _ => error!("GameLoop: client {client_id} sent opcode 0x{opcode:02x}, unhandled."),
     }
@@ -300,8 +302,9 @@ fn handle_character_create(world: &mut World, client_id: u32, body: &[u8]) {
         Some(ClientSession::InLobby(s)) => s.account().to_string(),
         _ => return,
     };
-    let max_hp = template.base_hp as i32;
-    let max_mp = template.base_mp as i32;
+    // Created character starts at full HP/MP (Java: setCurrentHp(getMaxHp())).
+    let max_hp = crate::model::calc_max_hp(&world.data, template, 1) as i32;
+    let max_mp = crate::model::calc_max_mp(&world.data, template, 1) as i32;
     // Initial skills for the class (Java: getAvailableSkills at level 1).
     let skills = world.data.skill_trees.initial_skills(pkt.class_id);
     let data = NewCharacter {
@@ -378,6 +381,54 @@ fn handle_character_restore(world: &mut World, client_id: u32, body: &[u8]) {
     });
 }
 
+/// Port of `CharacterSelect.runImpl`: build the chosen character's `Player`,
+/// move to the entering state, and send `CharSelected` (starts the loading
+/// screen; the client then sends `EnterWorld`).
+fn handle_character_select(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(slot) = cp::read_char_slot(body) else { return };
+    let ClientSession::InLobby(s) = (match world.clients.get(&client_id) {
+        Some(cs) => cs,
+        None => return,
+    }) else {
+        return;
+    };
+    let Some(chr) = s.char_at(slot).cloned() else { return };
+    let player = crate::model::Player::from_char(&world.data, &chr);
+    let selected = server_packets::char_selected(&player, s.play_ok1(), 0);
+
+    // Transition InLobby → Entering, holding the built Player.
+    if let Some(ClientSession::InLobby(s)) = world.clients.remove(&client_id) {
+        let s = s.into_entering(player);
+        s.send(selected);
+        info!("GameLoop: client {client_id} selected character '{}'.", s.player().name);
+        world.clients.insert(client_id, ClientSession::Entering(s));
+    }
+}
+
+/// Port of `EnterWorld.runImpl` (minimal): register the player in the world and
+/// send `UserInfo` so the character appears with correct stats. The long tail of
+/// enter-world packets (inventory, skills, shortcuts, quests, …) is deferred.
+fn handle_enter_world(world: &mut World, client_id: u32) {
+    let Some(ClientSession::Entering(s)) = world.clients.remove(&client_id) else {
+        // Not in the entering state; ignore (Java gates by ENTERING).
+        if let Some(cs) = world.clients.remove(&client_id) {
+            world.clients.insert(client_id, cs);
+        }
+        return;
+    };
+    let (session, player) = s.into_ingame();
+    let user_info = crate::network::user_info::user_info(&player, &world.data);
+    let name = player.name.clone();
+
+    world.players.insert(player.object_id, player);
+    session.send(user_info);
+    // TODO(G4+): ItemList, SkillList, ShortCutInit, QuestList, macros, HennaInfo,
+    // EtcStatusUpdate, friend/clan packets, ExUserInfo*, welcome SystemMessage —
+    // all empty/omitted for now (skills/inventory/macros deferred by request).
+    info!("GameLoop: '{name}' entered the world ({} online).", world.players.len());
+    world.clients.insert(client_id, ClientSession::InGame(session));
+}
+
 /// Port of `clientpackets/AuthLogin.runImpl`: register the account on this game
 /// server and ask the login server to validate the session key.
 fn handle_auth_login(world: &mut World, client_id: u32, body: &[u8]) {
@@ -421,6 +472,10 @@ fn handle_auth_login(world: &mut World, client_id: u32, body: &[u8]) {
 
 /// Clean up a disconnected client and inform the login server.
 fn on_disconnect(world: &mut World, client_id: u32) {
+    // TODO(G3+): persist the player (store HP/MP/position/etc.) before removing.
+    if let Some(ClientSession::InGame(s)) = world.clients.get(&client_id) {
+        world.players.remove(&s.player_object_id());
+    }
     world.clients.remove(&client_id);
     let account = world
         .login
@@ -680,6 +735,10 @@ mod tests {
     }
 
     fn human_fighter_template() -> crate::data::player_template::PlayerTemplate {
+        let mut hp_table = vec![0.0; 90];
+        let mut mp_table = vec![0.0; 90];
+        hp_table[1] = 80.0;
+        mp_table[1] = 30.0;
         crate::data::player_template::PlayerTemplate {
             class_id: 0,
             base_str: 40,
@@ -688,9 +747,10 @@ mod tests {
             base_int: 21,
             base_wit: 11,
             base_men: 25,
-            base_hp: 80.0,
-            base_mp: 30.0,
+            hp_table,
+            mp_table,
             creation_points: vec![(-71338, 258271, -3104)],
+            ..Default::default()
         }
     }
 
@@ -733,6 +793,7 @@ mod tests {
                 human_fighter_template(),
             ]),
             skill_trees: crate::data::SkillTreeData::empty(),
+            stat_bonus: crate::data::StatBonus::empty(),
         };
         let mut world = World::new(link_tx, 7, 3, data, db_tx);
 
