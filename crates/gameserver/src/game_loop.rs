@@ -182,6 +182,21 @@ fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_CHARACTER_NAME_CREATABLE => {
             handle_request_character_name_creatable(world, client_id, ex_body)
         }
+        // RequestKeyMapping (ENTERING + IN_GAME): STORE_UI_SETTINGS is on, so
+        // reply with the (empty) stored UI key mapping.
+        exop::REQUEST_KEY_MAPPING => {
+            if let Some(cs) = world.clients.get(&client_id) {
+                if matches!(cs, ClientSession::Entering(_) | ClientSession::InGame(_)) {
+                    cs.send(server_packets::ex_ui_setting());
+                }
+            }
+        }
+        // RequestManorList (IN_GAME): the castles that offer a manor.
+        exop::REQUEST_MANOR_LIST => {
+            if let Some(cs @ ClientSession::InGame(_)) = world.clients.get(&client_id) {
+                cs.send(server_packets::ex_send_manor_list());
+            }
+        }
         exop::REQUEST_GOTO_LOBBY => {
             let maybe_session = world.clients.get(&client_id);
             if let Some(ClientSession::InLobby(session)) = maybe_session {

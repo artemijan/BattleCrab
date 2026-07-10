@@ -443,6 +443,12 @@ async fn full_login_to_character_create() {
     let selected = g2.recv().await;
     assert_eq!(selected[0], 0x0B, "CharSelected");
 
+    // The client requests its key mapping while entering (0xD0 / 0x21) → ExUISetting.
+    g2.send(&[0xD0, 0x21, 0x00]).await;
+    let ui_setting = g2.recv().await;
+    assert_eq!(ui_setting[0], 0xFE, "ExUISetting EX opcode");
+    assert_eq!(i16::from_le_bytes([ui_setting[1], ui_setting[2]]), 0x71, "EX_UI_SETTING");
+
     g2.send(&[0x11]).await; // EnterWorld
     let ui = g2.recv().await;
     assert_eq!(ui[0], 0x32, "UserInfo");
@@ -456,6 +462,12 @@ async fn full_login_to_character_create() {
     assert_eq!(max_hp, expected_hp, "UserInfo max HP matches the calc ({expected_hp})");
     assert_eq!(max_mp, expected_mp, "UserInfo max MP matches the calc ({expected_mp})");
     assert!(max_hp > 90 && max_hp < 110, "Human Mystic level 1 HP is ~99");
+
+    // In-game, the client requests the manor list (0xD0 / 0x01) → ExSendManorList.
+    g2.send(&[0xD0, 0x01, 0x00]).await;
+    let manor = g2.recv().await;
+    assert_eq!(manor[0], 0xFE, "ExSendManorList EX opcode");
+    assert_eq!(i16::from_le_bytes([manor[1], manor[2]]), 0x22, "EX_SEND_MANOR_LIST");
 
     // The Mystic's 5 initial skills were written to character_skills.
     let check = commons::db::init(&db_url, 1).await.unwrap();

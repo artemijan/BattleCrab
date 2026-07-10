@@ -21,6 +21,8 @@ pub mod opcodes {
 
 /// Extended (`0xD0`) client sub-opcodes.
 pub mod ex_opcodes {
+    pub const REQUEST_MANOR_LIST: u16 = 0x01;
+    pub const REQUEST_KEY_MAPPING: u16 = 0x21;
     pub const REQUEST_CHARACTER_NAME_CREATABLE: u16 = 0xA9;
     pub const REQUEST_GOTO_LOBBY: u16 = 0x33;
 }

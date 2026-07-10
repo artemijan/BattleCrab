@@ -21,6 +21,28 @@ pub mod opcodes {
     /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
     pub const EX: u8 = 0xFE;
     pub const EX_IS_CHAR_NAME_CREATABLE: i16 = 0x10B;
+    pub const EX_SEND_MANOR_LIST: i16 = 0x22;
+    pub const EX_UI_SETTING: i16 = 0x71;
+}
+
+/// Port of `serverpackets/ExSendManorList` — the castles that have a manor.
+/// TODO(G12): the real castle list from `CastleManager` (empty for now).
+pub fn ex_send_manor_list() -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SEND_MANOR_LIST);
+    w.write_i32(0); // castle count
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/settings/ExUISetting` — the player's stored UI key
+/// mapping. TODO(G-later): load the stored mapping; null → length 0 for now.
+pub fn ex_ui_setting() -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_UI_SETTING);
+    w.write_i32(0); // no stored key-mapping
+    w.into_bytes()
 }
 
 /// Port of `serverpackets/ExIsCharNameCreatable`. `allowed` = -1 when the name
