@@ -10,6 +10,7 @@ pub mod cipher;
 pub mod client_packets;
 pub mod connection;
 pub mod connection_state;
+pub mod enter_world;
 pub mod game_client;
 pub mod server_packets;
 pub mod user_info;

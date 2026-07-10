@@ -432,14 +432,49 @@ fn handle_enter_world(world: &mut World, client_id: u32) {
         return;
     };
     let (session, player) = s.into_ingame();
-    let user_info = crate::network::user_info::user_info(&player, &world.data);
     let name = player.name.clone();
+    let data = &world.data;
+    use crate::network::enter_world as ew;
+    use crate::network::user_info::user_info;
+
+    // The enter-world packet burst (EnterWorld.runImpl). Lists that need systems
+    // not yet built are empty (TODOs in `enter_world`); stats/position are real.
+    // TODO(G6/G7): populate ItemList/SkillList/HennaInfo/shortcuts/quests once
+    // inventory, skills, and quests exist. TODO(G9): clan/friend/mail packets.
+    session.send(user_info(&player, data));
+    session.send(ew::ex_vitality_effect_info(&player));
+    session.send(server_packets::ex_ui_setting());
+    // TODO: macros (SendMacroList) — empty for now.
+    session.send(ew::ex_get_bookmark_info());
+    session.send(ew::item_list());
+    session.send(ew::ex_quest_item_list());
+    session.send(ew::shortcut_init());
+    session.send(ew::ex_basic_action_list(data));
+    session.send(ew::henna_info());
+    session.send(ew::skill_list());
+    session.send(ew::acquire_skill_list());
+    session.send(ew::etc_status_update());
+    session.send(ew::ex_pledge_waiting_list_alarm());
+    session.send(ew::ex_subjob_info(&player));
+    session.send(ew::ex_user_info_inven_weight(&player));
+    session.send(ew::ex_adena_inven_count());
+    session.send(ew::ex_user_info_equip_slot(&player));
+    session.send(ew::quest_list());
+    session.send(ew::ex_rotation(&player));
+    session.send(ew::friend_list());
+    session.send(ew::skill_cool_time());
+
+    // Register the player in the world and re-send UserInfo (Java does both).
+    session.send(user_info(&player, data));
+    session.send(ew::ex_set_compass_zone_code(0));
+    session.send(ew::move_to_location(&player));
+    for kind in 0..4 {
+        session.send(ew::ex_auto_soul_shot(0, true, kind));
+    }
+    session.send(ew::abnormal_status_update());
+    session.send(ew::system_message(ew::SM_WELCOME));
 
     world.players.insert(player.object_id, player);
-    session.send(user_info);
-    // TODO(G4+): ItemList, SkillList, ShortCutInit, QuestList, macros, HennaInfo,
-    // EtcStatusUpdate, friend/clan packets, ExUserInfo*, welcome SystemMessage —
-    // all empty/omitted for now (skills/inventory/macros deferred by request).
     info!("GameLoop: '{name}' entered the world ({} online).", world.players.len());
     world.clients.insert(client_id, ClientSession::InGame(session));
 }
@@ -809,6 +844,7 @@ mod tests {
             ]),
             skill_trees: crate::data::SkillTreeData::empty(),
             stat_bonus: crate::data::StatBonus::empty(),
+            action_data: crate::data::ActionData::empty(),
         };
         let mut world = World::new(link_tx, 7, 3, data, db_tx);
 

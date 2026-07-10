@@ -2,11 +2,13 @@
 //! `dist/game/data` XML. Added per milestone; G3 covers the character-creation
 //! set (experience table + player templates).
 
+pub mod action_data;
 pub mod experience;
 pub mod player_template;
 pub mod skill_tree;
 pub mod stat_bonus;
 
+pub use action_data::ActionData;
 pub use experience::ExperienceData;
 pub use player_template::PlayerTemplateData;
 pub use skill_tree::SkillTreeData;
@@ -19,6 +21,7 @@ pub struct GameData {
     pub player_templates: PlayerTemplateData,
     pub skill_trees: SkillTreeData,
     pub stat_bonus: StatBonus,
+    pub action_data: ActionData,
 }
 
 impl GameData {
@@ -28,6 +31,7 @@ impl GameData {
             player_templates: PlayerTemplateData::load(),
             skill_trees: SkillTreeData::load(),
             stat_bonus: StatBonus::load(),
+            action_data: ActionData::load(),
         }
     }
 
@@ -39,6 +43,7 @@ impl GameData {
             player_templates: PlayerTemplateData::empty(),
             skill_trees: SkillTreeData::empty(),
             stat_bonus: StatBonus::empty(),
+            action_data: ActionData::empty(),
         }
     }
 }

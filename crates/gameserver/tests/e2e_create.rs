@@ -463,6 +463,25 @@ async fn full_login_to_character_create() {
     assert_eq!(max_mp, expected_mp, "UserInfo max MP matches the calc ({expected_mp})");
     assert!(max_hp > 90 && max_hp < 110, "Human Mystic level 1 HP is ~99");
 
+    // Drain the rest of the enter-world burst, collecting opcodes, until the
+    // welcome SystemMessage (0x62) — the last packet Java sends on enter.
+    let mut opcodes = vec![ui[0]];
+    loop {
+        let pkt = g2.recv().await;
+        opcodes.push(pkt[0]);
+        if pkt[0] == 0x62 {
+            break; // welcome SystemMessage
+        }
+        assert!(opcodes.len() < 60, "enter-world burst did not terminate");
+    }
+    // Key packets the client needs must be present.
+    assert!(opcodes.contains(&0x11), "ItemList");
+    assert!(opcodes.contains(&0x45), "ShortCutInit");
+    assert!(opcodes.contains(&0x86), "QuestList");
+    assert!(opcodes.contains(&0x5F), "SkillList");
+    assert!(opcodes.contains(&0x58), "FriendList");
+    assert!(opcodes.iter().filter(|&&o| o == 0x32).count() >= 2, "UserInfo sent twice");
+
     // In-game, the client requests the manor list (0xD0 / 0x01) → ExSendManorList.
     g2.send(&[0xD0, 0x01, 0x00]).await;
     let manor = g2.recv().await;
