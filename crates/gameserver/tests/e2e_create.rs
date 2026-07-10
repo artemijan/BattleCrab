@@ -488,6 +488,14 @@ async fn full_login_to_character_create() {
     assert_eq!(manor[0], 0xFE, "ExSendManorList EX opcode");
     assert_eq!(i16::from_le_bytes([manor[1], manor[2]]), 0x22, "EX_SEND_MANOR_LIST");
 
+    // RequestUserBanInfo (0xD0 / 0x138) is consumed with no reply; RequestSkillCoolTime
+    // (0xA6) → SkillCoolTime. Sending both proves the ban-info was swallowed cleanly
+    // (the stream stays aligned) and the cooltime request is answered.
+    g2.send(&[0xD0, 0x38, 0x01]).await;
+    g2.send(&[0xA6]).await;
+    let cool = g2.recv().await;
+    assert_eq!(cool[0], 0xC7, "SkillCoolTime reply to RequestSkillCoolTime");
+
     // The Mystic's 5 initial skills were written to character_skills.
     let check = commons::db::init(&db_url, 1).await.unwrap();
     let skill_count: i64 = sqlx::query_scalar(

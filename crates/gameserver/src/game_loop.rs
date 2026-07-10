@@ -168,6 +168,12 @@ fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::CHARACTER_RESTORE => handle_character_restore(world, client_id, body),
         cop::CHARACTER_SELECT => handle_character_select(world, client_id, body),
         cop::ENTER_WORLD => handle_enter_world(world, client_id),
+        // RequestSkillCoolTime (IN_GAME): resend the reuse timers.
+        cop::REQUEST_SKILL_COOL_TIME => {
+            if let Some(cs @ ClientSession::InGame(_)) = world.clients.get(&client_id) {
+                cs.send(crate::network::enter_world::skill_cool_time());
+            }
+        }
         cop::EX_PACKET => on_ex_packet(world, client_id, body),
         _ => error!("GameLoop: client {client_id} sent opcode 0x{opcode:02x}, unhandled."),
     }
@@ -197,6 +203,9 @@ fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
                 cs.send(server_packets::ex_send_manor_list());
             }
         }
+        // RequestUserBanInfo (IN_GAME): Mobius has a null handler — the client
+        // tolerates no reply, so consume it silently. TODO: ExUserBanInfo.
+        exop::REQUEST_USER_BAN_INFO => {}
         exop::REQUEST_GOTO_LOBBY => {
             let maybe_session = world.clients.get(&client_id);
             if let Some(ClientSession::InLobby(session)) = maybe_session {

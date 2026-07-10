@@ -14,6 +14,7 @@ pub mod opcodes {
     pub const ENTER_WORLD: u8 = 0x11;
     pub const CHARACTER_SELECT: u8 = 0x12;
     pub const NEW_CHARACTER: u8 = 0x13;
+    pub const REQUEST_SKILL_COOL_TIME: u8 = 0xA6;
     pub const CHARACTER_RESTORE: u8 = 0x7B;
     /// Extended packets: opcode 0xD0 + a 2-byte little-endian sub-opcode.
     pub const EX_PACKET: u8 = 0xD0;
@@ -24,6 +25,7 @@ pub mod ex_opcodes {
     pub const REQUEST_MANOR_LIST: u16 = 0x01;
     pub const REQUEST_KEY_MAPPING: u16 = 0x21;
     pub const REQUEST_CHARACTER_NAME_CREATABLE: u16 = 0xA9;
+    pub const REQUEST_USER_BAN_INFO: u16 = 0x138;
     pub const REQUEST_GOTO_LOBBY: u16 = 0x33;
 }
 
