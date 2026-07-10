@@ -335,7 +335,7 @@ async fn full_login_to_character_create() {
     let db_url = format!("jdbc:sqlite:{}", db_path.display());
 
     let (login_addr, gs_addr) = start_login().await;
-    let game_addr = start_game(gs_addr, db_url).await;
+    let game_addr = start_game(gs_addr, db_url.clone()).await;
     // Give the game server time to register with the login server.
     tokio::time::sleep(Duration::from_millis(600)).await;
 
@@ -366,14 +366,14 @@ async fn full_login_to_character_create() {
     assert_eq!(templates[0], 0x0D, "expected NewCharacterSuccess");
     assert!(i32::from_le_bytes(templates[1..5].try_into().unwrap()) >= 9, "creatable templates offered");
 
-    // CharacterCreate: Human Fighter.
+    // CharacterCreate: Human Mystic (class 10) — has 5 level-1 skills.
     let name = format!("Hero{}", std::process::id() % 10000);
     let mut w = PacketWriter::new();
     w.write_u8(0x0C);
     w.write_bytes(&u16str(&name));
-    w.write_i32(0); // race
+    w.write_i32(1); // race (Human)
     w.write_i32(0); // isFemale
-    w.write_i32(0); // classId Human Fighter
+    w.write_i32(10); // classId Human Mystic
     for _ in 0..6 {
         w.write_i32(0);
     }
@@ -405,6 +405,18 @@ async fn full_login_to_character_create() {
     let sel2 = g2.recv().await;
     assert_eq!(sel2[0], 0x09, "CharSelectionInfo on relogin");
     assert_eq!(i32::from_le_bytes(sel2[1..5].try_into().unwrap()), 1, "the created character persisted");
+
+    // The Mystic's 5 initial skills were written to character_skills.
+    let check = commons::db::init(&db_url, 1).await.unwrap();
+    let skill_count: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM character_skills WHERE charId = (SELECT charId FROM characters WHERE char_name = ?)",
+    )
+    .bind(&name)
+    .fetch_one(&check)
+    .await
+    .unwrap();
+    assert_eq!(skill_count, 5, "Human Mystic should start with 5 skills");
+    check.close().await;
 
     let _ = std::fs::remove_dir_all(&dir);
 }

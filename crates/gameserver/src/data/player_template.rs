@@ -86,6 +86,11 @@ impl PlayerTemplateData {
     pub fn empty() -> Self {
         Self { templates: HashMap::new() }
     }
+
+    #[doc(hidden)]
+    pub fn from_vec(templates: Vec<PlayerTemplate>) -> Self {
+        Self { templates: templates.into_iter().map(|t| (t.class_id, t)).collect() }
+    }
 }
 
 fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {

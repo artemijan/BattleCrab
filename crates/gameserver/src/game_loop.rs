@@ -196,6 +196,10 @@ fn handle_character_create(world: &mut World, client_id: u32, body: &[u8]) {
         Some(ClientSession::InLobby(s)) => s.account().to_string(),
         _ => return,
     };
+    let max_hp = template.base_hp as i32;
+    let max_mp = template.base_mp as i32;
+    // Initial skills for the class (Java: getAvailableSkills at level 1).
+    let skills = world.data.skill_trees.initial_skills(pkt.class_id);
     let data = NewCharacter {
         account,
         name: pkt.name,
@@ -208,8 +212,9 @@ fn handle_character_create(world: &mut World, client_id: u32, body: &[u8]) {
         x: spawn.0,
         y: spawn.1,
         z: spawn.2,
-        max_hp: template.base_hp as i32,
-        max_mp: template.base_mp as i32,
+        max_hp,
+        max_mp,
+        skills,
     };
     let _ = world.db.send(db::DbCommand::CreateCharacter { client_id, data });
 }
@@ -534,6 +539,7 @@ mod tests {
         let data = GameData {
             experience: crate::data::ExperienceData::empty(),
             player_templates: crate::data::PlayerTemplateData::from_vec(vec![human_fighter_template()]),
+            skill_trees: crate::data::SkillTreeData::empty(),
         };
         let mut world = World::new(link_tx, 7, 3, data, db_tx);
 

@@ -30,6 +30,8 @@ pub struct NewCharacter {
     pub z: i32,
     pub max_hp: i32,
     pub max_mp: i32,
+    /// Initial `(skill_id, skill_level)` from the class skill tree.
+    pub skills: Vec<(i32, i32)>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -252,7 +254,27 @@ async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: 
 
     match res {
         Ok(_) => {
-            info!("Created character '{}' ({}) for account {}.", data.name, char_id, data.account);
+            // Initial skills (character_skills). TODO(G6): initial items/shortcuts.
+            for (skill_id, skill_level) in &data.skills {
+                exec(
+                    pool,
+                    sqlx::query(
+                        "INSERT INTO character_skills (charId, skill_id, skill_level, skill_sub_level, class_index) \
+                         VALUES (?, ?, ?, 0, 0)",
+                    )
+                    .bind(char_id)
+                    .bind(skill_id)
+                    .bind(skill_level),
+                )
+                .await;
+            }
+            info!(
+                "Created character '{}' ({}) for account {} with {} initial skill(s).",
+                data.name,
+                char_id,
+                data.account,
+                data.skills.len()
+            );
             CreateResult::Ok
         }
         Err(e) => {

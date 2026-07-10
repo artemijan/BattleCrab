@@ -4,25 +4,36 @@
 
 pub mod experience;
 pub mod player_template;
+pub mod skill_tree;
 
 pub use experience::ExperienceData;
 pub use player_template::PlayerTemplateData;
+pub use skill_tree::SkillTreeData;
 
 /// The static game data bundle owned by the game thread (Java: the swarm of
 /// `*Data.getInstance()` singletons, here a plain struct — decision #4).
 pub struct GameData {
     pub experience: ExperienceData,
     pub player_templates: PlayerTemplateData,
+    pub skill_trees: SkillTreeData,
 }
 
 impl GameData {
     pub fn load() -> Self {
-        Self { experience: ExperienceData::load(), player_templates: PlayerTemplateData::load() }
+        Self {
+            experience: ExperienceData::load(),
+            player_templates: PlayerTemplateData::load(),
+            skill_trees: SkillTreeData::load(),
+        }
     }
 
     /// Empty data bundle for tests that don't exercise the loaders.
     #[doc(hidden)]
     pub fn for_test() -> Self {
-        Self { experience: ExperienceData::empty(), player_templates: PlayerTemplateData::empty() }
+        Self {
+            experience: ExperienceData::empty(),
+            player_templates: PlayerTemplateData::empty(),
+            skill_trees: SkillTreeData::empty(),
+        }
     }
 }
