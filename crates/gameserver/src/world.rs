@@ -8,6 +8,8 @@
 
 use std::collections::HashMap;
 
+use crate::data::GameData;
+use crate::db;
 use crate::loginlink::CommandTx;
 use crate::scheduler::{ScheduledTask, Scheduler};
 use crate::session::{ClientSession, SessionKey};
@@ -56,16 +58,25 @@ pub struct World {
     pub login: LoginState,
     /// `Config.MAX_CHARACTERS_NUMBER_PER_ACCOUNT`, needed by `CharSelectionInfo`.
     pub max_characters_per_account: i32,
+    /// `Config.DELETE_DAYS`: 0 = delete immediately, else mark with a timer.
+    pub delete_days: i32,
+    /// Static game data (templates, experience table, …).
+    pub data: GameData,
+    /// Command channel to the DB thread.
+    pub db: db::CmdTx,
 }
 
 impl World {
-    pub fn new(link: CommandTx, max_characters_per_account: i32) -> Self {
+    pub fn new(link: CommandTx, max_characters_per_account: i32, delete_days: i32, data: GameData, db: db::CmdTx) -> Self {
         Self {
             tick: 0,
             scheduler: Scheduler::new(),
             clients: HashMap::new(),
             login: LoginState::new(link),
             max_characters_per_account,
+            delete_days,
+            data,
+            db,
         }
     }
 

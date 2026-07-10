@@ -9,6 +9,11 @@ use commons::network::PacketReader;
 pub mod opcodes {
     pub const PROTOCOL_VERSION: u8 = 0x0E;
     pub const AUTH_LOGIN: u8 = 0x2B;
+    pub const CHARACTER_CREATE: u8 = 0x0C;
+    pub const CHARACTER_DELETE: u8 = 0x0D;
+    pub const CHARACTER_SELECT: u8 = 0x12;
+    pub const NEW_CHARACTER: u8 = 0x13;
+    pub const CHARACTER_RESTORE: u8 = 0x7B;
 }
 
 /// Port of `clientpackets/ProtocolVersion`. Never encrypted (first packet).
@@ -46,4 +51,36 @@ impl AuthLogin {
         let login_key2 = r.read_i32()?;
         Some(Self { login_name, play_key1, play_key2, login_key1, login_key2 })
     }
+}
+
+/// Port of `clientpackets/CharacterCreate` (`cSdddddddddddd`).
+pub struct CharacterCreate {
+    pub name: String,
+    pub is_female: bool,
+    pub class_id: i32,
+    pub hair_style: i32,
+    pub hair_color: i32,
+    pub face: i32,
+}
+
+impl CharacterCreate {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let name = r.read_string()?;
+        r.read_i32()?; // race (ignored; derived from class)
+        let is_female = r.read_i32()? != 0;
+        let class_id = r.read_i32()?;
+        for _ in 0..6 {
+            r.read_i32()?; // int/str/con/men/dex/wit (ignored)
+        }
+        let hair_style = r.read_i32()? & 0xff;
+        let hair_color = r.read_i32()? & 0xff;
+        let face = r.read_i32()? & 0xff;
+        Some(Self { name, is_female, class_id, hair_style, hair_color, face })
+    }
+}
+
+/// `clientpackets/CharacterDelete` / `CharacterRestore` — both carry a char slot.
+pub fn read_char_slot(body_after_opcode: &[u8]) -> Option<i32> {
+    PacketReader::new(body_after_opcode).read_i32()
 }

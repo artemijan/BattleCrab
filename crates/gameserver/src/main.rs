@@ -8,6 +8,8 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use gameserver::config::Config;
+use gameserver::data::GameData;
+use gameserver::db::{self, DbCommand, DbEvent};
 use gameserver::game_loop::{self, GameThreadChannels, Shutdown};
 use gameserver::loginlink::{self, LoginLinkConfig, LoginLinkEvent};
 use gameserver::network::connection::{self, NetworkConfig};
@@ -33,19 +35,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Java: Config.load(ServerMode.GAME).
     let config = Config::load();
 
-    print_section("Database");
-    let pool = commons::db::init(&config.server.database_url, config.server.database_max_connections).await?;
+    print_section("Data");
+    let data = GameData::load();
 
-    print_section("ThreadPool");
-    info!(
-        "ThreadPool: game thread + tokio runtime (config sizes scheduled={}, instant={} kept for parity).",
-        config.server.scheduled_thread_pool_size, config.server.instant_thread_pool_size
-    );
-
-    // Channels between the network / login-link tasks and the game thread.
+    // Channels between the network / login-link / DB tasks and the game thread.
     let (net_tx, net_rx) = std::sync::mpsc::channel::<NetEvent>();
     let (login_tx, login_rx) = std::sync::mpsc::channel::<LoginLinkEvent>();
     let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (db_tx, db_cmd_rx) = tokio::sync::mpsc::unbounded_channel::<DbCommand>();
+    let (db_event_tx, db_rx) = std::sync::mpsc::channel::<DbEvent>();
+
+    print_section("Database");
+    let db_thread = db::spawn(
+        config.server.database_url.clone(),
+        config.server.database_max_connections,
+        config.server.max_characters_number_per_account,
+        db_cmd_rx,
+        db_event_tx,
+    );
+
+    print_section("ThreadPool");
+    info!(
+        "ThreadPool: game thread + DB thread + tokio runtime (config sizes scheduled={}, instant={} kept for parity).",
+        config.server.scheduled_thread_pool_size, config.server.instant_thread_pool_size
+    );
 
     // The game thread owns World; it runs until shutdown is requested.
     let shutdown = Shutdown::new();
@@ -55,7 +68,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             net_rx,
             login_rx,
             link_tx: link_tx.clone(),
+            db_rx,
+            db_tx: db_tx.clone(),
+            data,
             max_characters_per_account: config.server.max_characters_number_per_account,
+            delete_days: config.character.delete_days,
         },
     );
 
@@ -100,9 +117,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     info!("GameServer: shutting down.");
     shutdown.request();
-    // Join the game thread so its final tick (drain + save) completes.
+    // Join the game thread so its final tick (drain + save) completes, then
+    // stop the DB thread (which flushes and closes the pool).
     tokio::task::spawn_blocking(move || game_thread.join()).await?.ok();
-    pool.close().await;
+    let _ = db_tx.send(DbCommand::Shutdown);
+    tokio::task::spawn_blocking(move || db_thread.join()).await?.ok();
     info!("GameServer: shutdown complete.");
     Ok(())
 }

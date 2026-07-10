@@ -4,9 +4,11 @@
 //! shared [`PropertiesParser`](commons::config::PropertiesParser). Ported
 //! incrementally: each milestone adds the ini files / keys its subsystem needs.
 
+pub mod character;
 pub mod hexid;
 pub mod server;
 
+pub use character::CharacterConfig;
 pub use hexid::HexId;
 pub use server::ServerConfig;
 
@@ -15,6 +17,7 @@ pub use server::ServerConfig;
 /// around rather than global mutable state — decision #4).
 pub struct Config {
     pub server: ServerConfig,
+    pub character: CharacterConfig,
 
     /// Game-server identity on the login server (`hexid.txt` / generated).
     pub hex_id: Vec<u8>,
@@ -31,9 +34,11 @@ impl Config {
     /// Java: `Config.load(ServerMode.GAME)`.
     pub fn load() -> Self {
         let server = ServerConfig::load();
+        let character = CharacterConfig::load();
         let hex = HexId::load(server.request_id);
         Self {
             server,
+            character,
             hex_id: hex.hex_id,
             server_id: hex.server_id,
             reserve_host_on_login: false,

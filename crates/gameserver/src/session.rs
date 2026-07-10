@@ -11,6 +11,7 @@
 
 use std::net::SocketAddr;
 
+use crate::character::CharData;
 use crate::network::OutboundTx;
 
 /// Java `LoginServerThread.SessionKey`: the two 2×int keys agreed with the login
@@ -48,10 +49,19 @@ impl<S> Session<S> {
 /// State: just connected (post-`ProtocolVersion`); no account yet.
 pub struct Connecting;
 
-/// State: `AuthLogin` session key validated by the login server.
+/// State: `AuthLogin` session key validated; character list not yet loaded.
 pub struct Authenticated {
     pub account: String,
     pub session_key: SessionKey,
+}
+
+/// State: character-selection screen — the character list is loaded and the
+/// player may create/delete/restore/select (Java `AUTHENTICATED`).
+pub struct InLobby {
+    pub account: String,
+    pub session_key: SessionKey,
+    /// The characters as last sent in `CharSelectionInfo`; slot = list index.
+    pub chars: Vec<CharData>,
 }
 
 impl Session<Connecting> {
@@ -74,12 +84,44 @@ impl Session<Authenticated> {
     pub fn account(&self) -> &str {
         &self.state.account
     }
+
+    /// Character list loaded → move to the selection screen.
+    pub fn into_lobby(self, chars: Vec<CharData>) -> Session<InLobby> {
+        Session {
+            client_id: self.client_id,
+            out: self.out,
+            addr: self.addr,
+            state: InLobby { account: self.state.account, session_key: self.state.session_key, chars },
+        }
+    }
+}
+
+impl Session<InLobby> {
+    pub fn account(&self) -> &str {
+        &self.state.account
+    }
+
+    /// `getSessionId().playOkID1` — the session id sent in `CharSelectionInfo`.
+    pub fn play_ok1(&self) -> i32 {
+        self.state.session_key.play_ok1
+    }
+
+    /// The character at a client-supplied slot (list index).
+    pub fn char_at(&self, slot: i32) -> Option<&CharData> {
+        usize::try_from(slot).ok().and_then(|i| self.state.chars.get(i))
+    }
+
+    /// Replace the cached character list after a reload.
+    pub fn set_chars(&mut self, chars: Vec<CharData>) {
+        self.state.chars = chars;
+    }
 }
 
 /// Runtime-tagged wrapper stored in the client registry.
 pub enum ClientSession {
     Connecting(Session<Connecting>),
     Authenticated(Session<Authenticated>),
+    InLobby(Session<InLobby>),
 }
 
 impl ClientSession {
@@ -87,6 +129,7 @@ impl ClientSession {
         match self {
             ClientSession::Connecting(s) => s.client_id,
             ClientSession::Authenticated(s) => s.client_id,
+            ClientSession::InLobby(s) => s.client_id,
         }
     }
 
@@ -94,6 +137,7 @@ impl ClientSession {
         match self {
             ClientSession::Connecting(s) => s.addr,
             ClientSession::Authenticated(s) => s.addr,
+            ClientSession::InLobby(s) => s.addr,
         }
     }
 
@@ -102,6 +146,7 @@ impl ClientSession {
         match self {
             ClientSession::Connecting(s) => s.send(body),
             ClientSession::Authenticated(s) => s.send(body),
+            ClientSession::InLobby(s) => s.send(body),
         }
     }
 }

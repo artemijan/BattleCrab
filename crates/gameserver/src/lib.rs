@@ -4,7 +4,11 @@
 //! services run on their own threads and talk to it through channels. See
 //! `docs/CONCURRENCY_MODEL.md` and `docs/PLAN_GAME_SERVER.md`.
 
+pub mod character;
 pub mod config;
+pub mod data;
+pub mod db;
+pub mod enums;
 pub mod game_loop;
 pub mod loginlink;
 pub mod network;
