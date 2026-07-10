@@ -161,8 +161,10 @@ fn handle_character_create(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = CharacterCreate::read(body) else { return };
     use crate::network::server_packets::char_create_fail as fail;
     // Fail reasons: 16-chars=3, incorrect-name=4, creation-failed=0.
+    // Java `Util.isAlphaNumeric` uses `Character.isLetterOrDigit` (Unicode).
     let name_ok = (1..=16).contains(&pkt.name.chars().count())
-        && pkt.name.chars().all(|c| c.is_ascii_alphanumeric());
+        && !pkt.name.is_empty()
+        && pkt.name.chars().all(|c| c.is_alphanumeric());
     let send = |world: &World, body: Vec<u8>| {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(body);
@@ -344,8 +346,8 @@ fn handle_player_auth_response(world: &mut World, account: String, authed: bool)
 fn drain_db(world: &mut World, db_rx: &DbEventRx) {
     while let Ok(event) = db_rx.try_recv() {
         match event {
-            DbEvent::CharactersLoaded { client_id, account, chars } => {
-                on_characters_loaded(world, client_id, account, chars);
+            DbEvent::CharactersLoaded { client_id, account, chars, send_list } => {
+                on_characters_loaded(world, client_id, account, chars, send_list);
             }
             DbEvent::CharacterCreated { client_id, result } => {
                 use crate::db::CreateResult::*;
@@ -367,37 +369,43 @@ fn drain_db(world: &mut World, db_rx: &DbEventRx) {
     }
 }
 
-/// A character list came back from the DB: cache it and (re)send the selection
-/// screen. Transitions `Authenticated` → `InLobby` on the first load.
-fn on_characters_loaded(world: &mut World, client_id: u32, account: String, chars: Vec<crate::character::CharData>) {
-    let session_id;
-    let body;
-    match world.clients.remove(&client_id) {
-        Some(ClientSession::Authenticated(s)) => {
-            let s = s.into_lobby(chars);
-            session_id = s.play_ok1();
-            body = server_packets::char_selection_info(
-                &account, session_id, &s.state.chars, -1, world.max_characters_per_account, &world.data.experience,
-            );
-            s.send(body);
-            world.clients.insert(client_id, ClientSession::InLobby(s));
-        }
+/// A character list came back from the DB. Always cache it on the session (for
+/// slot → object-id mapping); send `CharSelectionInfo` only when `send_list`
+/// (login/delete/restore) — after creation Java caches without re-sending.
+/// Transitions `Authenticated` → `InLobby` on the first load.
+fn on_characters_loaded(
+    world: &mut World,
+    client_id: u32,
+    account: String,
+    chars: Vec<crate::character::CharData>,
+    send_list: bool,
+) {
+    let s = match world.clients.remove(&client_id) {
+        Some(ClientSession::Authenticated(s)) => s.into_lobby(chars),
         Some(ClientSession::InLobby(mut s)) => {
             s.set_chars(chars);
-            session_id = s.play_ok1();
-            body = server_packets::char_selection_info(
-                &account, session_id, &s.state.chars, -1, world.max_characters_per_account, &world.data.experience,
-            );
-            s.send(body);
-            world.clients.insert(client_id, ClientSession::InLobby(s));
+            s
         }
         other => {
             // Client vanished mid-load; put back whatever was there.
             if let Some(cs) = other {
                 world.clients.insert(client_id, cs);
             }
+            return;
         }
+    };
+    if send_list {
+        let body = server_packets::char_selection_info(
+            &account,
+            s.play_ok1(),
+            &s.state.chars,
+            -1,
+            world.max_characters_per_account,
+            &world.data.experience,
+        );
+        s.send(body);
     }
+    world.clients.insert(client_id, ClientSession::InLobby(s));
 }
 
 /// Port of `doKickPlayer`: disconnect the account's client and notify login.
@@ -475,6 +483,93 @@ mod tests {
         }
     }
 
+    fn human_fighter_template() -> crate::data::player_template::PlayerTemplate {
+        crate::data::player_template::PlayerTemplate {
+            class_id: 0,
+            base_str: 40,
+            base_dex: 30,
+            base_con: 43,
+            base_int: 21,
+            base_wit: 11,
+            base_men: 25,
+            base_hp: 80.0,
+            base_mp: 30.0,
+            creation_points: vec![(-71338, 258271, -3104)],
+        }
+    }
+
+    fn character_create_body(name: &str, class_id: i32) -> Vec<u8> {
+        // readImpl: name, race, isFemale, classId, 6 stat ints, hairStyle, hairColor, face.
+        let mut w = commons::network::PacketWriter::new();
+        w.write_string(name);
+        w.write_i32(0); // race
+        w.write_i32(0); // isFemale
+        w.write_i32(class_id);
+        for _ in 0..6 {
+            w.write_i32(0);
+        }
+        w.write_i32(0); // hairStyle
+        w.write_i32(0); // hairColor
+        w.write_i32(0); // face
+        w.into_bytes()
+    }
+
+    /// Reproduction: character creation must actually insert against the real
+    /// characters schema and report success (the "can't create" report).
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn character_create_inserts_into_real_schema() {
+        // Copy of the real database so we exercise its exact schema.
+        let src = concat!(env!("CARGO_MANIFEST_DIR"), "/../../interlude_classic.db");
+        let dir = std::env::temp_dir().join(format!("l2r_create_{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let db_path = dir.join("c.db");
+        std::fs::copy(src, &db_path).expect("copy real db");
+        let url = format!("jdbc:sqlite:{}", db_path.display());
+
+        let (db_tx, db_cmd_rx) = tokio::sync::mpsc::unbounded_channel();
+        let (db_event_tx, db_event_rx) = std::sync::mpsc::channel();
+        let db_handle = db::spawn(url, 1, 7, db_cmd_rx, db_event_tx);
+
+        let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
+        let data = GameData {
+            experience: crate::data::ExperienceData::empty(),
+            player_templates: crate::data::PlayerTemplateData::from_vec(vec![human_fighter_template()]),
+        };
+        let mut world = World::new(link_tx, 7, 3, data, db_tx);
+
+        let (out_tx, _out_rx) = tokio::sync::mpsc::unbounded_channel();
+        let account = format!("acct{}", std::process::id());
+        let s = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
+            .into_authenticated(account.clone(), SessionKey::new(1, 2, 3, 4))
+            .into_lobby(vec![]);
+        world.clients.insert(1, ClientSession::InLobby(s));
+
+        let name = format!("Tc{}", std::process::id() % 100000);
+        handle_character_create(&mut world, 1, &character_create_body(&name, 0));
+
+        // The DB thread must report a successful insert, then the reloaded list.
+        match db_event_rx.recv_timeout(std::time::Duration::from_secs(5)).unwrap() {
+            DbEvent::CharacterCreated { result, .. } => {
+                assert_eq!(result, crate::db::CreateResult::Ok, "character insert failed against real schema");
+            }
+            _ => panic!("expected CharacterCreated"),
+        }
+        match db_event_rx.recv_timeout(std::time::Duration::from_secs(5)).unwrap() {
+            DbEvent::CharactersLoaded { chars, .. } => {
+                assert_eq!(chars.len(), 1);
+                assert_eq!(chars[0].name, name);
+                assert_eq!(chars[0].class_id, 0);
+                assert_eq!(chars[0].x, -71338);
+            }
+            _ => panic!("expected CharactersLoaded"),
+        }
+
+        // Clean up the copied database.
+        world.db.send(crate::db::DbCommand::Shutdown).ok();
+        tokio::task::spawn_blocking(move || db_handle.join()).await.unwrap().ok();
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
     #[test]
     fn auth_then_load_reaches_lobby_with_char_list() {
         let (mut world, _db_tx, mut db_rx, mut link_rx) = test_world();
@@ -494,7 +589,7 @@ mod tests {
         assert!(matches!(db_rx.try_recv().unwrap(), db::DbCommand::LoadCharacters { client_id: 1, .. }));
 
         // DB returns the list → InLobby + CharSelectionInfo (opcode 0x09).
-        on_characters_loaded(&mut world, 1, "bob".to_string(), vec![dummy_char(0x10000000, "Hero")]);
+        on_characters_loaded(&mut world, 1, "bob".to_string(), vec![dummy_char(0x10000000, "Hero")], true);
         assert!(matches!(world.clients.get(&1), Some(ClientSession::InLobby(_))));
         let sel = out_rx.try_recv().unwrap();
         assert_eq!(sel[0], server_packets::opcodes::CHARACTER_SELECTION_INFO);

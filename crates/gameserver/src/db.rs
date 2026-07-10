@@ -55,7 +55,10 @@ pub enum DbCommand {
 
 /// DB thread → game thread (drained in tick step 2).
 pub enum DbEvent {
-    CharactersLoaded { client_id: u32, account: String, chars: Vec<CharData> },
+    /// `send_list` = push a fresh `CharSelectionInfo` to the client (login,
+    /// delete, restore). After character creation it is false — Java only caches
+    /// the list (`setCharSelection`) and does not re-send it.
+    CharactersLoaded { client_id: u32, account: String, chars: Vec<CharData>, send_list: bool },
     CharacterCreated { client_id: u32, result: CreateResult },
     CharCount { account: String, count: u8, del_times: Vec<i64> },
 }
@@ -92,24 +95,23 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
     while let Some(cmd) = cmd_rx.recv().await {
         match cmd {
             DbCommand::LoadCharacters { client_id, account } => {
-                let chars = load_characters(&pool, &account).await;
-                let _ = event_tx.send(DbEvent::CharactersLoaded { client_id, account, chars });
+                reload(&pool, &event_tx, client_id, account, true).await;
             }
             DbCommand::CreateCharacter { client_id, data } => {
                 let result = create_character(&pool, &mut next_id, max_characters, &data).await;
                 let _ = event_tx.send(DbEvent::CharacterCreated { client_id, result });
                 if result == CreateResult::Ok {
-                    let chars = load_characters(&pool, &data.account).await;
-                    let _ = event_tx.send(DbEvent::CharactersLoaded { client_id, account: data.account, chars });
+                    // Java caches the list after creation but does not re-send it.
+                    reload(&pool, &event_tx, client_id, data.account, false).await;
                 }
             }
             DbCommand::MarkDelete { client_id, account, char_id, delete_time } => {
                 exec(&pool, sqlx::query("UPDATE characters SET deletetime=? WHERE charId=?").bind(delete_time).bind(char_id)).await;
-                reload(&pool, &event_tx, client_id, account).await;
+                reload(&pool, &event_tx, client_id, account, true).await;
             }
             DbCommand::RestoreCharacter { client_id, account, char_id } => {
                 exec(&pool, sqlx::query("UPDATE characters SET deletetime=0 WHERE charId=?").bind(char_id)).await;
-                reload(&pool, &event_tx, client_id, account).await;
+                reload(&pool, &event_tx, client_id, account, true).await;
             }
             DbCommand::DeleteCharacter { char_id } => {
                 delete_char(&pool, char_id).await;
@@ -126,9 +128,9 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
     info!("DB thread: stopped.");
 }
 
-async fn reload(pool: &SqlitePool, event_tx: &EventTx, client_id: u32, account: String) {
+async fn reload(pool: &SqlitePool, event_tx: &EventTx, client_id: u32, account: String, send_list: bool) {
     let chars = load_characters(pool, &account).await;
-    let _ = event_tx.send(DbEvent::CharactersLoaded { client_id, account, chars });
+    let _ = event_tx.send(DbEvent::CharactersLoaded { client_id, account, chars, send_list });
 }
 
 async fn load_next_id(pool: &SqlitePool) -> i64 {

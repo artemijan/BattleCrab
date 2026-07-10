@@ -378,6 +378,7 @@ dependencies = [
  "commons",
  "if-addrs",
  "loginserver",
+ "num-bigint-dig",
  "quick-xml",
  "rand",
  "serde_json",
