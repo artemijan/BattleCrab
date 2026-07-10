@@ -11,12 +11,14 @@ use std::sync::Arc;
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
-use tracing::{debug, info, warn};
+use tracing::{debug, error, info, warn};
 
 use crate::data::GameData;
 use crate::db::{self, DbEvent, DbEventRx, NewCharacter};
 use crate::loginlink::{CommandTx, LoginLinkCommand, LoginLinkEvent, LoginLinkEventRx};
-use crate::network::client_packets::{self as cp, opcodes as cop, AuthLogin, CharacterCreate};
+use crate::network::client_packets::{
+    self as cp, ex_opcodes as exop, opcodes as cop, AuthLogin, CharacterCreate,
+};
 use crate::network::{server_packets, NetEvent, NetEventRx};
 use crate::session::{ClientSession, Session, SessionKey};
 use crate::world::{WaitingClient, World};
@@ -70,8 +72,23 @@ pub fn spawn(shutdown: Shutdown, ch: GameThreadChannels) -> JoinHandle<()> {
 }
 
 fn run(shutdown: Shutdown, ch: GameThreadChannels) {
-    let GameThreadChannels { net_rx, login_rx, link_tx, db_rx, db_tx, data, max_characters_per_account, delete_days } = ch;
-    let mut world = World::new(link_tx, max_characters_per_account, delete_days, data, db_tx);
+    let GameThreadChannels {
+        net_rx,
+        login_rx,
+        link_tx,
+        db_rx,
+        db_tx,
+        data,
+        max_characters_per_account,
+        delete_days,
+    } = ch;
+    let mut world = World::new(
+        link_tx,
+        max_characters_per_account,
+        delete_days,
+        data,
+        db_tx,
+    );
     info!("GameLoop: started ({} ms tick).", TICK.as_millis());
 
     while !shutdown.is_requested() {
@@ -91,7 +108,12 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
 
         let elapsed = tick_start.elapsed();
         if elapsed > TICK_OVERRUN_WARN {
-            warn!("GameLoop: tick {} ran {} ms (budget {} ms).", world.tick, elapsed.as_millis(), TICK.as_millis());
+            warn!(
+                "GameLoop: tick {} ran {} ms (budget {} ms).",
+                world.tick,
+                elapsed.as_millis(),
+                TICK.as_millis()
+            );
         }
         if let Some(remaining) = TICK.checked_sub(elapsed) {
             std::thread::sleep(remaining);
@@ -108,9 +130,19 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
 fn drain_network(world: &mut World, net_rx: &NetEventRx) {
     while let Ok(event) = net_rx.try_recv() {
         match event {
-            NetEvent::Connected { client_id, out, addr } => {
-                world.clients.insert(client_id, ClientSession::Connecting(Session::new(client_id, out, addr)));
-                debug!("GameLoop: client {client_id} connected from {addr} ({} online).", world.clients.len());
+            NetEvent::Connected {
+                client_id,
+                out,
+                addr,
+            } => {
+                world.clients.insert(
+                    client_id,
+                    ClientSession::Connecting(Session::new(client_id, out, addr)),
+                );
+                debug!(
+                    "GameLoop: client {client_id} connected from {addr} ({} online).",
+                    world.clients.len()
+                );
             }
             NetEvent::Received { client_id, data } => {
                 on_packet(world, client_id, data);
@@ -134,18 +166,81 @@ fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::CHARACTER_CREATE => handle_character_create(world, client_id, body),
         cop::CHARACTER_DELETE => handle_character_delete(world, client_id, body),
         cop::CHARACTER_RESTORE => handle_character_restore(world, client_id, body),
-        _ => debug!("GameLoop: client {client_id} sent opcode 0x{opcode:02x}, unhandled."),
+        cop::EX_PACKET => on_ex_packet(world, client_id, body),
+        _ => error!("GameLoop: client {client_id} sent opcode 0x{opcode:02x}, unhandled."),
     }
+}
+
+/// Dispatch an extended (`0xD0`) client packet by its 2-byte sub-opcode.
+fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some((sub, ex_body)) = cp::read_ex_opcode(body) else {
+        return;
+    };
+    match sub {
+        exop::REQUEST_CHARACTER_NAME_CREATABLE => {
+            handle_request_character_name_creatable(world, client_id, ex_body)
+        }
+        exop::REQUEST_GOTO_LOBBY => {
+            let maybe_session = world.clients.get(&client_id);
+            if let Some(ClientSession::InLobby(session)) = maybe_session {
+                let body = server_packets::char_selection_info(
+                    &session.state.account,
+                    session.play_ok1(),
+                    &session.state.chars,
+                    -1,
+                    world.max_characters_per_account,
+                    &world.data.experience,
+                );
+                session.send(body);
+            }
+        }
+        _ => error!("GameLoop: client {client_id} sent ex-opcode 0x{sub:04x}, unhandled."),
+    }
+}
+
+/// Port of `RequestCharacterNameCreatable.runImpl`: validate the name, then ask
+/// the DB whether it already exists; the reply is `ExIsCharNameCreatable`.
+fn handle_request_character_name_creatable(world: &mut World, client_id: u32, ex_body: &[u8]) {
+    if !matches!(
+        world.clients.get(&client_id),
+        Some(ClientSession::InLobby(_))
+    ) {
+        return;
+    }
+    let Some(name) = cp::read_name_creatable(ex_body) else {
+        return;
+    };
+    // INVALID_NAME=4 (Java `isAlphaNumeric` + template) is decided here; the
+    // name-exists / length checks need the DB.
+    let valid = !name.is_empty() && name.chars().all(|c| c.is_alphanumeric());
+    if !valid {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::ex_is_char_name_creatable(4));
+        }
+        return;
+    }
+    let _ = world
+        .db
+        .send(db::DbCommand::CheckNameCreatable { client_id, name });
 }
 
 /// Port of `NewCharacter.runImpl`: offer the creatable templates that exist.
 fn handle_new_character(world: &mut World, client_id: u32) {
-    if !matches!(world.clients.get(&client_id), Some(ClientSession::InLobby(_))) {
+    if !matches!(
+        world.clients.get(&client_id),
+        Some(ClientSession::InLobby(_))
+    ) {
         return;
     }
     let templates: Vec<_> = crate::data::player_template::CREATABLE_CLASSES
         .iter()
-        .filter_map(|(class_id, race, _)| world.data.player_templates.get(*class_id).map(|t| (*class_id, *race, t)))
+        .filter_map(|(class_id, race, _)| {
+            world
+                .data
+                .player_templates
+                .get(*class_id)
+                .map(|t| (*class_id, *race, t))
+        })
         .collect();
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::new_character_success(&templates));
@@ -155,10 +250,15 @@ fn handle_new_character(world: &mut World, client_id: u32) {
 /// Port of `CharacterCreate.runImpl`: cheap validation on the game thread, then
 /// hand the insert (name-uniqueness + count) to the DB thread.
 fn handle_character_create(world: &mut World, client_id: u32, body: &[u8]) {
-    if !matches!(world.clients.get(&client_id), Some(ClientSession::InLobby(_))) {
+    if !matches!(
+        world.clients.get(&client_id),
+        Some(ClientSession::InLobby(_))
+    ) {
         return;
     }
-    let Some(pkt) = CharacterCreate::read(body) else { return };
+    let Some(pkt) = CharacterCreate::read(body) else {
+        return;
+    };
     use crate::network::server_packets::char_create_fail as fail;
     // Fail reasons: 16-chars=3, incorrect-name=4, creation-failed=0.
     // Java `Util.isAlphaNumeric` uses `Character.isLetterOrDigit` (Unicode).
@@ -191,7 +291,11 @@ fn handle_character_create(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(template) = world.data.player_templates.get(pkt.class_id) else {
         return send(world, fail(0));
     };
-    let spawn = template.creation_points.get(0).copied().unwrap_or((0, 0, 0));
+    let spawn = template
+        .creation_points
+        .get(0)
+        .copied()
+        .unwrap_or((0, 0, 0));
     let account = match world.clients.get(&client_id) {
         Some(ClientSession::InLobby(s)) => s.account().to_string(),
         _ => return,
@@ -216,12 +320,16 @@ fn handle_character_create(world: &mut World, client_id: u32, body: &[u8]) {
         max_mp,
         skills,
     };
-    let _ = world.db.send(db::DbCommand::CreateCharacter { client_id, data });
+    let _ = world
+        .db
+        .send(db::DbCommand::CreateCharacter { client_id, data });
 }
 
 /// Port of `CharacterDelete.runImpl`: mark the slot's character for deletion.
 fn handle_character_delete(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(slot) = cp::read_char_slot(body) else { return };
+    let Some(slot) = cp::read_char_slot(body) else {
+        return;
+    };
     let ClientSession::InLobby(s) = (match world.clients.get(&client_id) {
         Some(cs) => cs,
         None => return,
@@ -236,16 +344,25 @@ fn handle_character_delete(world: &mut World, client_id: u32, body: &[u8]) {
     s.send(server_packets::char_delete_success());
     if world.delete_days == 0 {
         let _ = world.db.send(db::DbCommand::DeleteCharacter { char_id });
-        let _ = world.db.send(db::DbCommand::LoadCharacters { client_id, account });
+        let _ = world
+            .db
+            .send(db::DbCommand::LoadCharacters { client_id, account });
     } else {
         let delete_time = commons::util::now_millis() + world.delete_days as i64 * 86_400_000;
-        let _ = world.db.send(db::DbCommand::MarkDelete { client_id, account, char_id, delete_time });
+        let _ = world.db.send(db::DbCommand::MarkDelete {
+            client_id,
+            account,
+            char_id,
+            delete_time,
+        });
     }
 }
 
 /// Port of `CharacterRestore.runImpl`: clear the deletion timer.
 fn handle_character_restore(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(slot) = cp::read_char_slot(body) else { return };
+    let Some(slot) = cp::read_char_slot(body) else {
+        return;
+    };
     let ClientSession::InLobby(s) = (match world.clients.get(&client_id) {
         Some(cs) => cs,
         None => return,
@@ -254,19 +371,28 @@ fn handle_character_restore(world: &mut World, client_id: u32, body: &[u8]) {
     };
     let Some(chr) = s.char_at(slot) else { return };
     let (char_id, account) = (chr.object_id, s.account().to_string());
-    let _ = world.db.send(db::DbCommand::RestoreCharacter { client_id, account, char_id });
+    let _ = world.db.send(db::DbCommand::RestoreCharacter {
+        client_id,
+        account,
+        char_id,
+    });
 }
 
 /// Port of `clientpackets/AuthLogin.runImpl`: register the account on this game
 /// server and ask the login server to validate the session key.
 fn handle_auth_login(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = AuthLogin::read(body) else { return };
+    let Some(pkt) = AuthLogin::read(body) else {
+        return;
+    };
     if pkt.login_name.is_empty() {
         world.clients.remove(&client_id); // closeNow
         return;
     }
     // Only valid once, from a still-connecting client (Java: accountName == null).
-    if !matches!(world.clients.get(&client_id), Some(ClientSession::Connecting(_))) {
+    if !matches!(
+        world.clients.get(&client_id),
+        Some(ClientSession::Connecting(_))
+    ) {
         return;
     }
     let account = pkt.login_name;
@@ -275,10 +401,22 @@ fn handle_auth_login(world: &mut World, client_id: u32, body: &[u8]) {
         world.clients.remove(&client_id); // close(null)
         return;
     }
-    world.login.accounts_in_gameserver.insert(account.clone(), client_id);
+    world
+        .login
+        .accounts_in_gameserver
+        .insert(account.clone(), client_id);
     let key = SessionKey::new(pkt.login_key1, pkt.login_key2, pkt.play_key1, pkt.play_key2);
-    world.login.waiting.insert(account.clone(), WaitingClient { client_id, session_key: key });
-    let _ = world.login.link.send(LoginLinkCommand::PlayerAuthRequest { account, key });
+    world.login.waiting.insert(
+        account.clone(),
+        WaitingClient {
+            client_id,
+            session_key: key,
+        },
+    );
+    let _ = world
+        .login
+        .link
+        .send(LoginLinkCommand::PlayerAuthRequest { account, key });
 }
 
 /// Clean up a disconnected client and inform the login server.
@@ -293,16 +431,25 @@ fn on_disconnect(world: &mut World, client_id: u32) {
     if let Some(account) = account {
         world.login.accounts_in_gameserver.remove(&account);
         world.login.waiting.remove(&account);
-        let _ = world.login.link.send(LoginLinkCommand::PlayerLogout { account });
+        let _ = world
+            .login
+            .link
+            .send(LoginLinkCommand::PlayerLogout { account });
     }
-    debug!("GameLoop: client {client_id} disconnected ({} online).", world.clients.len());
+    debug!(
+        "GameLoop: client {client_id} disconnected ({} online).",
+        world.clients.len()
+    );
 }
 
 /// Bounded, non-blocking drain of the login-link→game channel (step 2).
 fn drain_login_link(world: &mut World, login_rx: &LoginLinkEventRx) {
     while let Ok(event) = login_rx.try_recv() {
         match event {
-            LoginLinkEvent::Registered { server_id, server_name } => {
+            LoginLinkEvent::Registered {
+                server_id,
+                server_name,
+            } => {
                 info!("GameLoop: registered as Server {server_id}: {server_name}.");
                 world.login.server_id = Some(server_id);
                 world.login.server_name = Some(server_name);
@@ -324,17 +471,29 @@ fn drain_login_link(world: &mut World, login_rx: &LoginLinkEventRx) {
 
 /// Port of the `PlayerAuthResponse` (0x03) branch of `LoginServerThread.run`.
 fn handle_player_auth_response(world: &mut World, account: String, authed: bool) {
-    let Some(waiting) = world.login.waiting.remove(&account) else { return };
+    let Some(waiting) = world.login.waiting.remove(&account) else {
+        return;
+    };
     let client_id = waiting.client_id;
     if authed {
-        let _ = world.login.link.send(LoginLinkCommand::PlayerInGame { accounts: vec![account.clone()] });
+        let _ = world.login.link.send(LoginLinkCommand::PlayerInGame {
+            accounts: vec![account.clone()],
+        });
         if let Some(ClientSession::Connecting(s)) = world.clients.remove(&client_id) {
             let s = s.into_authenticated(account.clone(), waiting.session_key);
             s.send(server_packets::login_success());
-            info!("GameLoop: client {} authenticated as '{}'.", s.client_id, s.account());
-            world.clients.insert(client_id, ClientSession::Authenticated(s));
+            info!(
+                "GameLoop: client {} authenticated as '{}'.",
+                s.client_id,
+                s.account()
+            );
+            world
+                .clients
+                .insert(client_id, ClientSession::Authenticated(s));
             // Load the character list; CharSelectionInfo is sent on the result.
-            let _ = world.db.send(db::DbCommand::LoadCharacters { client_id, account });
+            let _ = world
+                .db
+                .send(db::DbCommand::LoadCharacters { client_id, account });
         }
     } else {
         warn!("GameLoop: session key incorrect, closing connection for account {account}.");
@@ -343,7 +502,10 @@ fn handle_player_auth_response(world: &mut World, account: String, authed: bool)
         }
         world.login.accounts_in_gameserver.remove(&account);
         world.clients.remove(&client_id); // disconnect after the queued packet
-        let _ = world.login.link.send(LoginLinkCommand::PlayerLogout { account });
+        let _ = world
+            .login
+            .link
+            .send(LoginLinkCommand::PlayerLogout { account });
     }
 }
 
@@ -351,7 +513,12 @@ fn handle_player_auth_response(world: &mut World, account: String, authed: bool)
 fn drain_db(world: &mut World, db_rx: &DbEventRx) {
     while let Ok(event) = db_rx.try_recv() {
         match event {
-            DbEvent::CharactersLoaded { client_id, account, chars, send_list } => {
+            DbEvent::CharactersLoaded {
+                client_id,
+                account,
+                chars,
+                send_list,
+            } => {
                 on_characters_loaded(world, client_id, account, chars, send_list);
             }
             DbEvent::CharacterCreated { client_id, result } => {
@@ -367,8 +534,21 @@ fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                     cs.send(body);
                 }
             }
-            DbEvent::CharCount { account, count, del_times } => {
-                let _ = world.login.link.send(LoginLinkCommand::ReplyCharacters { account, chars: count, del_times });
+            DbEvent::CharCount {
+                account,
+                count,
+                del_times,
+            } => {
+                let _ = world.login.link.send(LoginLinkCommand::ReplyCharacters {
+                    account,
+                    chars: count,
+                    del_times,
+                });
+            }
+            DbEvent::NameCreatable { client_id, result } => {
+                if let Some(cs) = world.clients.get(&client_id) {
+                    cs.send(server_packets::ex_is_char_name_creatable(result));
+                }
             }
         }
     }
@@ -420,7 +600,10 @@ fn handle_kick(world: &mut World, account: String) {
     }
     world.login.accounts_in_gameserver.remove(&account);
     world.login.waiting.remove(&account);
-    let _ = world.login.link.send(LoginLinkCommand::PlayerLogout { account });
+    let _ = world
+        .login
+        .link
+        .send(LoginLinkCommand::PlayerLogout { account });
 }
 
 #[cfg(test)]
@@ -429,7 +612,12 @@ mod tests {
     use crate::character::CharData;
     use commons::network::PacketWriter;
 
-    fn test_world() -> (World, db::CmdTx, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+    fn test_world() -> (
+        World,
+        db::CmdTx,
+        db::CmdRx,
+        tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+    ) {
         let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
         let (db_tx, db_rx) = tokio::sync::mpsc::unbounded_channel();
         let world = World::new(link_tx, 7, 3, GameData::for_test(), db_tx.clone());
@@ -438,7 +626,10 @@ mod tests {
 
     fn connect(world: &mut World, id: u32) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>> {
         let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
-        world.clients.insert(id, ClientSession::Connecting(Session::new(id, out_tx, "127.0.0.1:1".parse().unwrap())));
+        world.clients.insert(
+            id,
+            ClientSession::Connecting(Session::new(id, out_tx, "127.0.0.1:1".parse().unwrap())),
+        );
         out_rx
     }
 
@@ -538,7 +729,9 @@ mod tests {
         let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
         let data = GameData {
             experience: crate::data::ExperienceData::empty(),
-            player_templates: crate::data::PlayerTemplateData::from_vec(vec![human_fighter_template()]),
+            player_templates: crate::data::PlayerTemplateData::from_vec(vec![
+                human_fighter_template(),
+            ]),
             skill_trees: crate::data::SkillTreeData::empty(),
         };
         let mut world = World::new(link_tx, 7, 3, data, db_tx);
@@ -554,13 +747,23 @@ mod tests {
         handle_character_create(&mut world, 1, &character_create_body(&name, 0));
 
         // The DB thread must report a successful insert, then the reloaded list.
-        match db_event_rx.recv_timeout(std::time::Duration::from_secs(5)).unwrap() {
+        match db_event_rx
+            .recv_timeout(std::time::Duration::from_secs(5))
+            .unwrap()
+        {
             DbEvent::CharacterCreated { result, .. } => {
-                assert_eq!(result, crate::db::CreateResult::Ok, "character insert failed against real schema");
+                assert_eq!(
+                    result,
+                    crate::db::CreateResult::Ok,
+                    "character insert failed against real schema"
+                );
             }
             _ => panic!("expected CharacterCreated"),
         }
-        match db_event_rx.recv_timeout(std::time::Duration::from_secs(5)).unwrap() {
+        match db_event_rx
+            .recv_timeout(std::time::Duration::from_secs(5))
+            .unwrap()
+        {
             DbEvent::CharactersLoaded { chars, .. } => {
                 assert_eq!(chars.len(), 1);
                 assert_eq!(chars[0].name, name);
@@ -572,7 +775,10 @@ mod tests {
 
         // Clean up the copied database.
         world.db.send(crate::db::DbCommand::Shutdown).ok();
-        tokio::task::spawn_blocking(move || db_handle.join()).await.unwrap().ok();
+        tokio::task::spawn_blocking(move || db_handle.join())
+            .await
+            .unwrap()
+            .ok();
         let _ = std::fs::remove_dir_all(&dir);
     }
 
@@ -585,18 +791,39 @@ mod tests {
         let key = SessionKey::new(11, 12, 21, 22);
         handle_auth_login(&mut world, 1, &auth_login_body("Bob", key));
         assert_eq!(world.login.accounts_in_gameserver.get("bob"), Some(&1));
-        assert!(matches!(link_rx.try_recv().unwrap(), LoginLinkCommand::PlayerAuthRequest { .. }));
+        assert!(matches!(
+            link_rx.try_recv().unwrap(),
+            LoginLinkCommand::PlayerAuthRequest { .. }
+        ));
 
         // PlayerAuthResponse(authed) → Authenticated + LOGIN_SUCCESS + LoadCharacters.
         handle_player_auth_response(&mut world, "bob".to_string(), true);
-        assert!(matches!(world.clients.get(&1), Some(ClientSession::Authenticated(_))));
-        assert!(matches!(link_rx.try_recv().unwrap(), LoginLinkCommand::PlayerInGame { .. }));
+        assert!(matches!(
+            world.clients.get(&1),
+            Some(ClientSession::Authenticated(_))
+        ));
+        assert!(matches!(
+            link_rx.try_recv().unwrap(),
+            LoginLinkCommand::PlayerInGame { .. }
+        ));
         assert_eq!(out_rx.try_recv().unwrap(), server_packets::login_success());
-        assert!(matches!(db_rx.try_recv().unwrap(), db::DbCommand::LoadCharacters { client_id: 1, .. }));
+        assert!(matches!(
+            db_rx.try_recv().unwrap(),
+            db::DbCommand::LoadCharacters { client_id: 1, .. }
+        ));
 
         // DB returns the list → InLobby + CharSelectionInfo (opcode 0x09).
-        on_characters_loaded(&mut world, 1, "bob".to_string(), vec![dummy_char(0x10000000, "Hero")], true);
-        assert!(matches!(world.clients.get(&1), Some(ClientSession::InLobby(_))));
+        on_characters_loaded(
+            &mut world,
+            1,
+            "bob".to_string(),
+            vec![dummy_char(0x10000000, "Hero")],
+            true,
+        );
+        assert!(matches!(
+            world.clients.get(&1),
+            Some(ClientSession::InLobby(_))
+        ));
         let sel = out_rx.try_recv().unwrap();
         assert_eq!(sel[0], server_packets::opcodes::CHARACTER_SELECTION_INFO);
     }
@@ -606,17 +833,28 @@ mod tests {
         let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
         let mut out_rx = connect(&mut world, 1);
         // Fast-forward to InLobby with one character.
-        let ClientSession::Connecting(s) = world.clients.remove(&1).unwrap() else { unreachable!() };
-        let s = s.into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4)).into_lobby(vec![dummy_char(555, "Hero")]);
+        let ClientSession::Connecting(s) = world.clients.remove(&1).unwrap() else {
+            unreachable!()
+        };
+        let s = s
+            .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+            .into_lobby(vec![dummy_char(555, "Hero")]);
         world.clients.insert(1, ClientSession::InLobby(s));
 
         let mut body = PacketWriter::new();
         body.write_i32(0); // slot 0
         handle_character_delete(&mut world, 1, &body.into_bytes());
 
-        assert_eq!(out_rx.try_recv().unwrap(), server_packets::char_delete_success());
+        assert_eq!(
+            out_rx.try_recv().unwrap(),
+            server_packets::char_delete_success()
+        );
         match db_rx.try_recv().unwrap() {
-            db::DbCommand::MarkDelete { char_id, delete_time, .. } => {
+            db::DbCommand::MarkDelete {
+                char_id,
+                delete_time,
+                ..
+            } => {
                 assert_eq!(char_id, 555);
                 assert!(delete_time > commons::util::now_millis());
             }
@@ -629,22 +867,36 @@ mod tests {
         let (mut world, _db_tx, _db_rx, mut link_rx) = test_world();
         let mut out_rx = connect(&mut world, 1);
 
-        handle_auth_login(&mut world, 1, &auth_login_body("bob", SessionKey::new(1, 2, 3, 4)));
+        handle_auth_login(
+            &mut world,
+            1,
+            &auth_login_body("bob", SessionKey::new(1, 2, 3, 4)),
+        );
         let _ = link_rx.try_recv(); // PlayerAuthRequest
 
         handle_player_auth_response(&mut world, "bob".to_string(), false);
         assert_eq!(out_rx.try_recv().unwrap(), server_packets::login_fail(0, 1));
         assert!(world.clients.get(&1).is_none());
         assert!(!world.login.accounts_in_gameserver.contains_key("bob"));
-        assert!(matches!(link_rx.try_recv().unwrap(), LoginLinkCommand::PlayerLogout { .. }));
+        assert!(matches!(
+            link_rx.try_recv().unwrap(),
+            LoginLinkCommand::PlayerLogout { .. }
+        ));
     }
 
     #[test]
     fn duplicate_account_login_is_rejected() {
         let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
-        world.login.accounts_in_gameserver.insert("bob".to_string(), 99); // already on
+        world
+            .login
+            .accounts_in_gameserver
+            .insert("bob".to_string(), 99); // already on
         connect(&mut world, 1);
-        handle_auth_login(&mut world, 1, &auth_login_body("bob", SessionKey::new(1, 2, 3, 4)));
+        handle_auth_login(
+            &mut world,
+            1,
+            &auth_login_body("bob", SessionKey::new(1, 2, 3, 4)),
+        );
         assert!(world.clients.get(&1).is_none());
         assert_eq!(world.login.accounts_in_gameserver.get("bob"), Some(&99));
     }

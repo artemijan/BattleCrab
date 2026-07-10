@@ -16,6 +16,20 @@ pub mod opcodes {
     pub const CHAR_DELETE_SUCCESS: u8 = 0x1D;
     pub const CHAR_DELETE_FAIL: u8 = 0x1E;
     pub const VERSION_CHECK: u8 = 0x2E;
+
+    /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
+    pub const EX: u8 = 0xFE;
+    pub const EX_IS_CHAR_NAME_CREATABLE: i16 = 0x10B;
+}
+
+/// Port of `serverpackets/ExIsCharNameCreatable`. `allowed` = -1 when the name
+/// may be used; 1..5 is a `RequestCharacterNameCreatable` failure reason.
+pub fn ex_is_char_name_creatable(allowed: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_IS_CHAR_NAME_CREATABLE);
+    w.write_i32(allowed);
+    w.into_bytes()
 }
 
 /// Port of `serverpackets/KeyPacket` — the reply to `ProtocolVersion`. Hands the

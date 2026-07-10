@@ -14,6 +14,29 @@ pub mod opcodes {
     pub const CHARACTER_SELECT: u8 = 0x12;
     pub const NEW_CHARACTER: u8 = 0x13;
     pub const CHARACTER_RESTORE: u8 = 0x7B;
+    /// Extended packets: opcode 0xD0 + a 2-byte little-endian sub-opcode.
+    pub const EX_PACKET: u8 = 0xD0;
+}
+
+/// Extended (`0xD0`) client sub-opcodes.
+pub mod ex_opcodes {
+    pub const REQUEST_CHARACTER_NAME_CREATABLE: u16 = 0xA9;
+    pub const REQUEST_GOTO_LOBBY: u16 = 0x33;
+}
+
+/// Split an extended-packet body (after the `0xD0` opcode) into its 2-byte LE
+/// sub-opcode and the remaining payload.
+pub fn read_ex_opcode(body_after_opcode: &[u8]) -> Option<(u16, &[u8])> {
+    if body_after_opcode.len() < 2 {
+        return None;
+    }
+    let sub = u16::from_le_bytes([body_after_opcode[0], body_after_opcode[1]]);
+    Some((sub, &body_after_opcode[2..]))
+}
+
+/// The name field of `RequestCharacterNameCreatable` (after the sub-opcode).
+pub fn read_name_creatable(ex_body: &[u8]) -> Option<String> {
+    PacketReader::new(ex_body).read_string()
 }
 
 /// Port of `clientpackets/ProtocolVersion`. Never encrypted (first packet).

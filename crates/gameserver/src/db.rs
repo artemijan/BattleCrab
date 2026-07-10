@@ -52,6 +52,9 @@ pub enum DbCommand {
     DeleteCharacter { char_id: i32 },
     /// Char count + deletion times for the login server's `ReplyCharacters`.
     CountCharacters { account: String },
+    /// Name availability check for `RequestCharacterNameCreatable` (name already
+    /// passed the game thread's validity checks).
+    CheckNameCreatable { client_id: u32, name: String },
     Shutdown,
 }
 
@@ -63,6 +66,8 @@ pub enum DbEvent {
     CharactersLoaded { client_id: u32, account: String, chars: Vec<CharData>, send_list: bool },
     CharacterCreated { client_id: u32, result: CreateResult },
     CharCount { account: String, count: u8, del_times: Vec<i64> },
+    /// `ExIsCharNameCreatable` result: -1 = creatable, else a failure code.
+    NameCreatable { client_id: u32, result: i32 },
 }
 
 pub type CmdTx = tokio::sync::mpsc::UnboundedSender<DbCommand>;
@@ -100,6 +105,7 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 reload(&pool, &event_tx, client_id, account, true).await;
             }
             DbCommand::CreateCharacter { client_id, data } => {
+                println!("create char");
                 let result = create_character(&pool, &mut next_id, max_characters, &data).await;
                 let _ = event_tx.send(DbEvent::CharacterCreated { client_id, result });
                 if result == CreateResult::Ok {
@@ -121,6 +127,18 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
             DbCommand::CountCharacters { account } => {
                 let (count, del_times) = count_characters(&pool, &account).await;
                 let _ = event_tx.send(DbEvent::CharCount { account, count, del_times });
+            }
+            DbCommand::CheckNameCreatable { client_id, name } => {
+                // RequestCharacterNameCreatable: NAME_ALREADY_EXISTS=2,
+                // INVALID_LENGTH=3, creatable=-1 (validity was checked already).
+                let result = if name_exists(&pool, &name).await {
+                    2
+                } else if name.chars().count() > 16 {
+                    3
+                } else {
+                    -1
+                };
+                let _ = event_tx.send(DbEvent::NameCreatable { client_id, result });
             }
             DbCommand::Shutdown => break,
         }
@@ -202,14 +220,18 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
     out
 }
 
-async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: i32, data: &NewCharacter) -> CreateResult {
-    // Name uniqueness (case-insensitive, like the client enforces).
-    let exists: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM characters WHERE char_name=? COLLATE NOCASE")
-        .bind(&data.name)
+/// Case-insensitive character-name existence check (`getIdByName`).
+async fn name_exists(pool: &SqlitePool, name: &str) -> bool {
+    let n: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM characters WHERE char_name=? COLLATE NOCASE")
+        .bind(name)
         .fetch_one(pool)
         .await
         .unwrap_or(0);
-    if exists > 0 {
+    n > 0
+}
+
+async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: i32, data: &NewCharacter) -> CreateResult {
+    if name_exists(pool, &data.name).await {
         return CreateResult::NameExists;
     }
     let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM characters WHERE account_name=?")

@@ -366,8 +366,19 @@ async fn full_login_to_character_create() {
     assert_eq!(templates[0], 0x0D, "expected NewCharacterSuccess");
     assert!(i32::from_le_bytes(templates[1..5].try_into().unwrap()) >= 9, "creatable templates offered");
 
-    // CharacterCreate: Human Mystic (class 10) — has 5 level-1 skills.
+    // The client checks name availability first (extended 0xD0/0xA9 packet).
     let name = format!("Hero{}", std::process::id() % 10000);
+    let mut w = PacketWriter::new();
+    w.write_u8(0xD0);
+    w.write_i16(0xA9); // REQUEST_CHARACTER_NAME_CREATABLE
+    w.write_bytes(&u16str(&name));
+    g.send(&w.into_bytes()).await;
+    let creatable = g.recv().await;
+    assert_eq!(creatable[0], 0xFE, "ExIsCharNameCreatable (EX opcode)");
+    assert_eq!(i16::from_le_bytes([creatable[1], creatable[2]]), 0x10B, "EX_IS_CHAR_NAME_CREATABLE");
+    assert_eq!(i32::from_le_bytes(creatable[3..7].try_into().unwrap()), -1, "name should be creatable");
+
+    // CharacterCreate: Human Mystic (class 10) — has 5 level-1 skills.
     let mut w = PacketWriter::new();
     w.write_u8(0x0C);
     w.write_bytes(&u16str(&name));

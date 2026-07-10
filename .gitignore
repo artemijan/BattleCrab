@@ -5,3 +5,5 @@ tools/vector-dump/out/
 *.db
 *.db-shm
 *.db-wal
+dist/game/log/*
+dist/login/log/*
