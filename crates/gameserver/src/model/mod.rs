@@ -82,7 +82,6 @@ pub struct Player {
     pub collision_height: f64,
     pub running: bool,
 
-    /// Equipment paperdoll — empty until G6 loads real items.
     pub inventory: Inventory,
 }
 
@@ -161,7 +160,7 @@ impl Player {
             collision_radius: t.collision_radius,
             collision_height: t.collision_height,
             running: true,
-            inventory: Inventory::new(),
+            inventory: Inventory::from_rows(&c.items),
         }
     }
 

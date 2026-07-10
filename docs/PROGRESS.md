@@ -20,14 +20,15 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G2 Login-link + auth                                        | ✅ |
 | Game  | G3 Character selection & persistence                        | ✅ |
 | Game  | G4 Enter world (Player, HP/MP, UserInfo, enter-world burst) | ✅ (incl. paperdoll/mask enums) |
-| Game  | G5 Items & inventory                                        | ⏳ (done early: paperdoll slot/mask enums, empty `Inventory`) |
+| Game  | G5 Items & inventory                                        | ✅ vertical slice (items, equip/unequip, initial gear) |
 | Game  | G6 Stats, skills & effects                                  | ⏳ |
-| Game  | G7 Static world content (NPCs/spawns/zones/geodata)         | ⏳ |
-| Game  | G8 Combat & AI                                              | ⏳ |
-| Game  | G9 Social systems                                           | ⏳ |
-| Game  | G10 Scripting engine + quests                               | ⏳ |
-| Game  | G11 Script/content breadth                                  | ⏳ |
-| Game  | G12 Long tail & parity sweep                                | ⏳ |
+| Game  | G7 Geodata, zones, movement, path finding                   | ⏳ |
+| Game  | G8 Static world content (NPCs/spawns)                       | ⏳ |
+| Game  | G9 Combat & AI                                              | ⏳ |
+| Game  | G10 Social systems                                          | ⏳ |
+| Game  | G11 Scripting engine + quests                               | ⏳ |
+| Game  | G12 Script/content breadth                                  | ⏳ |
+| Game  | G13 Long tail & parity sweep                                | ⏳ |
 
 **Verified end-to-end:** a scripted client does the real login crypto → server
 select → game `AuthLogin` → char list → **create** (with initial skills) →
@@ -104,12 +105,12 @@ the right game address.
   `RequestKeyMapping`→`ExUISetting`, `RequestSkillCoolTime`→`SkillCoolTime`,
   `RequestUserBanInfo` (consumed, no reply — matches Mobius null handler).
 
-### ✅ Paperdoll & inventory bitmasks (part of G4/G6)
+### ✅ Paperdoll & inventory bitmasks (part of G4, items landed in G5)
 Replaced hardcoded paperdoll/mask values with Java-faithful enums/bitmasks:
 - **`model/inventory.rs`**: `PaperdollSlot` (32 `Inventory.PAPERDOLL_*` ids) +
   `Inventory` with paperdoll getters (`object_id`/`item_id`/`visual_id`/
   `augmentation`, zero-for-empty like Java); `Player.inventory` field. Items
-  themselves still land in G6.
+  themselves landed in G5.
 - **`network/masks.rs`**: `AbstractMaskPacket` port — reversed
   `DEFAULT_FLAG_ARRAY = [0x80,0x40,…,0x01]` (mask 0 → 0x80), `add_mask` /
   `contains_mask` / `build_mask`, unit-tested against the known-good UserInfo
@@ -125,10 +126,51 @@ Replaced hardcoded paperdoll/mask values with Java-faithful enums/bitmasks:
 - **Bug fixed**: `ex_user_info_equip_slot` mask byte 5 was `0x01`; slot 32 in
   reversed flag order is `0x80` — now produced by `build_mask`.
 
-### G5–G12 — ⏳ not started
+### G5 — Items & inventory ✅ vertical slice
+Full itemcontainer parity (warehouse/trade/pickup/enchant/crystallization/
+augmentation) is deferred; this milestone gets items flowing end-to-end the
+same way G0–G4 got a vertical slice through "enter world":
+- **`data/item_data.rs`**: generic StatSet-style parse of all 441
+  `dist/game/data/stats/items/*.xml` files → `ItemTemplate` (id, name,
+  kind, body part, weight, stackable, `type1`/`type2` computed the same way as
+  the Java `Weapon`/`Armor`/`EtcItem` constructors). Combat-stat bonuses under
+  `<stats>` stay unparsed (later milestone).
+- **`data/initial_equipment.rs`**: `initialEquipment.xml` → starting gear per
+  class.
+- **`model/inventory.rs`** rewritten: real `ItemInstance`s + a paperdoll that
+  stores `object_id`s into that list (mirrors Java's `PlayerInventory`
+  referencing the same `Item` objects). `equip_item`/`unequip_slot` port
+  `PlayerInventory.equipItem`'s slot-conflict resolution for the cases
+  ordinary gear hits (two-handed weapons, full-armor vs chest+legs, dual ear/
+  finger/bracelet slots) — formalwear, pet items, and arrow/bolt auto-swap are
+  explicitly out of scope.
+- **DB**: `items` rows load alongside every character (not just the one
+  entered — `CharSelectionInfo` needs paperdoll icons for the whole select
+  list too); `CreateCharacter` persists resolved starting gear; new
+  fire-and-forget `DbCommand::UpdateItemLocation` for runtime equip/unequip.
+- **Character creation**: replays `initialEquipment.xml` through a scratch
+  `Inventory` (`add_item`/`equip_item` in XML order, exactly like Java's
+  `initNewChar` loop) so slot-conflict resolution matches Java by
+  construction; starting adena from `Character.ini` `StartingAdena`.
+- **Packets**: `ItemList`, `InventoryUpdate`, `ExAdenaInvenCount`,
+  `ExUserInfoInvenWeight` now carry real data; `ExUserInfoEquipSlot` and
+  `CharSelectionInfo`'s paperdoll block needed no format changes, just real
+  data behind them.
+- **Runtime**: `UseItem` (0x19, gear only — potions/shots stay a no-op) and
+  `RequestUnEquipItem` (0x16) toggle equip state, send `InventoryUpdate` +
+  `UserInfo`, persist via `UpdateItemLocation`.
+- **Bug fixed**: `IdManager`'s next-id counter only checked
+  `MAX(characters.charId)`, not `MAX(items.object_id)` — on the real dev DB
+  (which has items with higher object ids than any character), freshly
+  allocated item ids collided with existing rows and silently failed to
+  insert (only some starting items would show up). Fixed to take the max of
+  both tables, matching Java's single shared `IdManager` pool.
+
+### G6–G12 — ⏳ not started
 See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gate: finish the
 G4 vertical-slice gate proper — **movement + visibility/known-list + `Say2`
-chat** (two clients see each other, walk, chat) — then G5 static content.
+chat** (two clients see each other, walk, chat) — then G6 stats/skills or G7
+static content.
 
 ---
 
@@ -136,15 +178,18 @@ chat** (two clients see each other, walk, chat) — then G5 static content.
 
 Empty/placeholder now, to be filled in the owning milestone:
 
-- **Inventory/items (G6):** `ItemList`, `ExQuestItemList`, `ExUserInfoEquipSlot`
-  paperdoll, adena/weight, enchant/elemental blocks, initial equipment on create.
+- **Inventory/items (post-G5):** warehouse/clan warehouse/freight/mail,
+  trade, pickup/drop, item actions (`RequestActionUse` beyond equip),
+  crystallization, enchanting, augmentation, elemental attributes, item
+  skills, `ExQuestItemList` (no quest items exist yet), real `maxLoad` calc +
+  encumbrance enforcement, `ItemList`/`ExUserInfoEquipSlot` visual-id block.
 - **Skills (G7):** `SkillList`/`AcquireSkillList` (sent empty), full combat-stat
   calc (evasion/accuracy/etc. are base template values or 0), cast pipeline.
 - **Quests (G10):** `QuestList` empty, `ExQuestItemList` empty.
 - **Social (G9):** clan/ally blocks in `UserInfo`, `FriendList` empty, mail.
-- **Misc:** macros, `HennaInfo` empty, real inventory limit, `maxLoad` calc,
-  `ExUserBanInfo`, `ExVitalityEffectInfo` bonuses, real castle list for manor,
-  game-time clock (CharSelected/UserInfo use 0), player persistence on logout.
+- **Misc:** macros, `HennaInfo` empty, `ExUserBanInfo`, `ExVitalityEffectInfo`
+  bonuses, real castle list for manor, game-time clock (CharSelected/UserInfo
+  use 0), player persistence on logout.
 
 ---
 
@@ -156,8 +201,13 @@ Empty/placeholder now, to be filled in the owning milestone:
 - **DB:** `char_persistence.rs` — create/load/delete/restore against the stock
   schema.
 - **Full E2E:** `e2e_create.rs` — real two-server login→create→enter-world with a
-  scripted client; drains the enter-world burst; checks computed HP/MP.
+  scripted client; drains the enter-world burst; checks computed HP/MP and
+  (G5) that the Human Mystic's starting wand shows up equipped in `ItemList`/
+  `ExUserInfoEquipSlot`.
 - **UserInfo bytes:** unit test against a real client capture.
+- **Inventory:** `model::inventory::tests` — item/equipment loaders load real
+  `dist/game` data; `equip_item` slot-conflict cases (full armor vs
+  chest+legs, two-handed vs dual single-hand, ear/finger fill order).
 
 Run: `cargo test` (all green). Boot a pair on alt ports:
 `cargo run -p loginserver` + `CONFIG_SERVER_GAMESERVERPORT=… cargo run -p gameserver`.

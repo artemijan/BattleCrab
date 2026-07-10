@@ -154,8 +154,8 @@ const CHAR_SELECT_ENCHANT_ORDER: [PaperdollSlot; 5] = [
     PaperdollSlot::Feet,
 ];
 
-/// Port of `serverpackets/CharSelectionInfo`. Writes the real character rows;
-/// paperdoll/augmentation are zero until the inventory system (G6).
+/// Port of `serverpackets/CharSelectionInfo`. Writes the real character rows
+/// and paperdoll; augmentation/visual id are zero (later milestones).
 pub fn char_selection_info(
     login_name: &str,
     session_id: i32,
@@ -214,16 +214,17 @@ pub fn char_selection_info(
         for _ in 0..9 {
             w.write_i32(0); // 7 reserved + 2 Ertheia
         }
-        // TODO(G6): read the per-character paperdoll from the items table
-        // (Java `CharSelectInfoPackage`); every slot is empty until then.
-        for _slot in PAPERDOLL_ORDER {
-            w.write_i32(0); // paperdoll item id
+        // Per-character paperdoll (Java `CharSelectInfoPackage`), read from the
+        // `items` rows loaded alongside the character.
+        let inv = crate::model::inventory::Inventory::from_rows(&c.items);
+        for slot in PAPERDOLL_ORDER {
+            w.write_i32(inv.paperdoll_item_id(slot));
         }
-        for _slot in CHAR_SELECT_PAPERDOLL_VISUAL_ORDER {
-            w.write_i32(0); // paperdoll visual id
+        for slot in CHAR_SELECT_PAPERDOLL_VISUAL_ORDER {
+            w.write_i32(inv.paperdoll_visual_id(slot)); // always 0 (appearance: later milestone)
         }
-        for _slot in CHAR_SELECT_ENCHANT_ORDER {
-            w.write_i16(0); // enchant effect
+        for slot in CHAR_SELECT_ENCHANT_ORDER {
+            w.write_i16(inv.paperdoll_enchant_level(slot) as i16);
         }
         w.write_i32(c.hair_style);
         w.write_i32(c.hair_color);
@@ -233,7 +234,7 @@ pub fn char_selection_info(
         w.write_i32(if c.delete_time > 0 { ((c.delete_time - now) / 1000) as i32 } else { 0 });
         w.write_i32(c.class_id);
         w.write_i32((i as i32 == active_id) as i32);
-        w.write_u8(0); // rhand weapon enchant (capped 127)
+        w.write_u8(inv.paperdoll_enchant_level(PaperdollSlot::RHand).min(127) as u8); // rhand weapon enchant (capped 127)
         w.write_i32(0); // augmentation option 1
         w.write_i32(0); // augmentation option 2
         w.write_i32(0); // transform

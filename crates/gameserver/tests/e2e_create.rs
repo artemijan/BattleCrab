@@ -248,6 +248,7 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
             data,
             max_characters_per_account: 7,
             delete_days: 3,
+            starting_adena: 100,
         },
     );
 
@@ -466,9 +467,17 @@ async fn full_login_to_character_create() {
     // Drain the rest of the enter-world burst, collecting opcodes, until the
     // welcome SystemMessage (0x62) — the last packet Java sends on enter.
     let mut opcodes = vec![ui[0]];
+    let mut item_list_pkt = None;
+    let mut equip_slot_pkt = None;
     loop {
         let pkt = g2.recv().await;
         opcodes.push(pkt[0]);
+        if pkt[0] == 0x11 {
+            item_list_pkt = Some(pkt.clone());
+        }
+        if pkt[0] == 0xFE && pkt.len() >= 3 && i16::from_le_bytes([pkt[1], pkt[2]]) == 0x156 {
+            equip_slot_pkt = Some(pkt.clone());
+        }
         if pkt[0] == 0x62 {
             break; // welcome SystemMessage
         }
@@ -481,6 +490,21 @@ async fn full_login_to_character_create() {
     assert!(opcodes.contains(&0x5F), "SkillList");
     assert!(opcodes.contains(&0x58), "FriendList");
     assert!(opcodes.iter().filter(|&&o| o == 0x32).count() >= 2, "UserInfo sent twice");
+
+    // The Human Mystic's starting gear (initialEquipment.xml classId=10: wand,
+    // tunic, stockings, all equipped) shows up in ItemList and the paperdoll.
+    let item_list = item_list_pkt.expect("ItemList packet");
+    let item_count = i16::from_le_bytes([item_list[3], item_list[4]]);
+    assert!(item_count >= 3, "Human Mystic should start with at least 3 items, got {item_count}");
+
+    let equip_slot = equip_slot_pkt.expect("ExUserInfoEquipSlot packet");
+    let rhand_wire_index = gameserver::enums::InventorySlot::VALUES
+        .iter()
+        .position(|s| matches!(s, gameserver::enums::InventorySlot::RHand))
+        .unwrap();
+    let block_start = 14 + rhand_wire_index * 22; // marker+sub+objectId+count+mask(5) header
+    let rhand_item_id = i32::from_le_bytes(equip_slot[block_start + 6..block_start + 10].try_into().unwrap());
+    assert_eq!(rhand_item_id, 6, "Apprentice's Wand equipped in RHand");
 
     // In-game, the client requests the manor list (0xD0 / 0x01) → ExSendManorList.
     g2.send(&[0xD0, 0x01, 0x00]).await;

@@ -23,6 +23,7 @@ fn new_char(name: &str) -> NewCharacter {
         max_hp: 80,
         max_mp: 30,
         skills: vec![(1177, 1)],
+        items: vec![],
     }
 }
 

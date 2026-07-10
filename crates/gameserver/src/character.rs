@@ -1,7 +1,25 @@
 //! A stored character row, as loaded for the selection screen
 //! (`CharSelectInfoPackage`) and cached by the `InLobby` session for slot →
-//! object-id mapping. Paperdoll/augmentation are added with the inventory system
-//! (G6); for now equipment shows empty on the selection screen.
+//! object-id mapping.
+
+/// One row of the `items` table (`Item`/`ItemInfo` as stored). Owner-scoped —
+/// `owner_id` isn't kept here since rows always arrive already grouped by
+/// character.
+#[derive(Debug, Clone)]
+pub struct ItemRow {
+    pub object_id: i32,
+    pub item_id: i32,
+    pub count: i64,
+    pub enchant_level: i32,
+    /// `ItemLocation` name (`"INVENTORY"`, `"PAPERDOLL"`, …) as stored.
+    pub loc: String,
+    /// Paperdoll slot index when `loc == "PAPERDOLL"`; unused otherwise.
+    pub loc_data: i32,
+    pub custom_type1: i32,
+    pub custom_type2: i32,
+    pub mana_left: i32,
+    pub time: i32,
+}
 
 /// One row of the `characters` table, restored for character selection.
 #[derive(Debug, Clone)]
@@ -36,4 +54,5 @@ pub struct CharData {
     pub access_level: i32,
     pub noble: bool,
     pub char_slot: i32,
+    pub items: Vec<ItemRow>,
 }

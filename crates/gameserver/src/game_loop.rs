@@ -60,6 +60,7 @@ pub struct GameThreadChannels {
     pub data: GameData,
     pub max_characters_per_account: i32,
     pub delete_days: i32,
+    pub starting_adena: i64,
 }
 
 /// Spawn the game thread. Returns its join handle so `main` can wait for the
@@ -81,11 +82,13 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         data,
         max_characters_per_account,
         delete_days,
+        starting_adena,
     } = ch;
     let mut world = World::new(
         link_tx,
         max_characters_per_account,
         delete_days,
+        starting_adena,
         data,
         db_tx,
     );
@@ -174,6 +177,8 @@ fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
                 cs.send(crate::network::enter_world::skill_cool_time());
             }
         }
+        cop::USE_ITEM => handle_use_item(world, client_id, body),
+        cop::REQUEST_UN_EQUIP_ITEM => handle_request_un_equip_item(world, client_id, body),
         cop::EX_PACKET => on_ex_packet(world, client_id, body),
         _ => error!("GameLoop: client {client_id} sent opcode 0x{opcode:02x}, unhandled."),
     }
@@ -331,6 +336,7 @@ fn handle_character_create(world: &mut World, client_id: u32, body: &[u8]) {
     let max_mp = crate::model::calc_max_mp(&world.data, template, 1) as i32;
     // Initial skills for the class (Java: getAvailableSkills at level 1).
     let skills = world.data.skill_trees.initial_skills(pkt.class_id);
+    let items = resolve_initial_items(world, pkt.class_id);
     let data = NewCharacter {
         account,
         name: pkt.name,
@@ -346,10 +352,49 @@ fn handle_character_create(world: &mut World, client_id: u32, body: &[u8]) {
         max_hp,
         max_mp,
         skills,
+        items,
     };
     let _ = world
         .db
         .send(db::DbCommand::CreateCharacter { client_id, data });
+}
+
+/// Port of `CharacterCreate.initNewChar`'s equipment loop: replay
+/// `initialEquipment.xml` for `class_id` through a scratch `Inventory` (adding
+/// starting adena too), so slot-conflict resolution matches
+/// `Inventory::equip_item` by construction, then read the final state back out
+/// as DB-ready rows.
+fn resolve_initial_items(world: &World, class_id: i32) -> Vec<db::NewItem> {
+    use crate::data::item_data;
+    use crate::model::inventory::Inventory;
+
+    let catalog = &world.data.item_data;
+    let mut inv = Inventory::new();
+    let mut next_temp_id = -1;
+    let mut alloc = || {
+        let id = next_temp_id;
+        next_temp_id -= 1;
+        id
+    };
+
+    for entry in world.data.initial_equipment.get(class_id) {
+        let object_id = inv.add_item(catalog, alloc(), entry.item_id, entry.count);
+        if entry.equipped {
+            inv.equip_item(catalog, object_id);
+        }
+    }
+    if world.starting_adena > 0 {
+        inv.add_item(catalog, alloc(), item_data::ADENA_ID, world.starting_adena);
+    }
+
+    inv.items()
+        .iter()
+        .map(|item| db::NewItem {
+            item_id: item.item_id,
+            count: item.count,
+            paperdoll_index: inv.paperdoll_slot_of(item.object_id),
+        })
+        .collect()
 }
 
 /// Port of `CharacterDelete.runImpl`: mark the slot's character for deletion.
@@ -446,16 +491,15 @@ fn handle_enter_world(world: &mut World, client_id: u32) {
     use crate::network::enter_world as ew;
     use crate::network::user_info::user_info;
 
-    // The enter-world packet burst (EnterWorld.runImpl). Lists that need systems
-    // not yet built are empty (TODOs in `enter_world`); stats/position are real.
-    // TODO(G6/G7): populate ItemList/SkillList/HennaInfo/shortcuts/quests once
-    // inventory, skills, and quests exist. TODO(G9): clan/friend/mail packets.
+    // The enter-world packet burst (EnterWorld.runImpl). Inventory is real as of
+    // G5; lists that need systems not yet built are still empty (TODOs in
+    // `enter_world`): SkillList/HennaInfo/shortcuts/quests, clan/friend/mail.
     session.send(user_info(&player, data));
     session.send(ew::ex_vitality_effect_info(&player));
     session.send(server_packets::ex_ui_setting());
     // TODO: macros (SendMacroList) — empty for now.
     session.send(ew::ex_get_bookmark_info());
-    session.send(ew::item_list());
+    session.send(ew::item_list(&player, data));
     session.send(ew::ex_quest_item_list());
     session.send(ew::shortcut_init());
     session.send(ew::ex_basic_action_list(data));
@@ -465,8 +509,8 @@ fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(ew::etc_status_update());
     session.send(ew::ex_pledge_waiting_list_alarm());
     session.send(ew::ex_subjob_info(&player));
-    session.send(ew::ex_user_info_inven_weight(&player));
-    session.send(ew::ex_adena_inven_count());
+    session.send(ew::ex_user_info_inven_weight(&player, data));
+    session.send(ew::ex_adena_inven_count(&player));
     session.send(ew::ex_user_info_equip_slot(&player));
     session.send(ew::quest_list());
     session.send(ew::ex_rotation(&player));
@@ -486,6 +530,64 @@ fn handle_enter_world(world: &mut World, client_id: u32) {
     world.players.insert(player.object_id, player);
     info!("GameLoop: '{name}' entered the world ({} online).", world.players.len());
     world.clients.insert(client_id, ClientSession::InGame(session));
+}
+
+/// Port of `clientpackets/UseItem.runImpl`, scoped to gear: right-clicking a
+/// `Weapon`/`Armor` toggles equip/unequip (Java routes both through this same
+/// packet). `EtcItem` "use" (potions, soulshots, …) is a later milestone — the
+/// packet is consumed silently for those.
+fn handle_use_item(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = cp::UseItem::read(body) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+    let catalog = &world.data.item_data;
+    let Some(player) = world.players.get_mut(&object_id) else { return };
+
+    let Some(item) = player.inventory.items().iter().find(|i| i.object_id == pkt.object_id) else { return };
+    let Some(template) = catalog.get(item.item_id) else { return };
+    if !template.is_equipable() {
+        return; // EtcItem "use" (potions, shots, …): later milestone.
+    }
+    let body_part = template.body_part;
+
+    let changed = if player.inventory.paperdoll_slot_of(pkt.object_id).is_some() {
+        player.inventory.unequip_body_part(body_part)
+    } else {
+        player.inventory.equip_item(catalog, pkt.object_id)
+    };
+    finish_equip_change(world, client_id, object_id, &changed);
+}
+
+/// Port of `clientpackets/RequestUnEquipItem.runImpl` (combat/cursed-weapon
+/// guards are skipped — there's no combat system yet).
+fn handle_request_un_equip_item(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(body_part) = cp::read_char_slot(body) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+    let Some(player) = world.players.get_mut(&object_id) else { return };
+    let changed = player.inventory.unequip_slot(body_part);
+    finish_equip_change(world, client_id, object_id, &changed);
+}
+
+/// Shared tail of the equip/unequip handlers: persist each changed slot
+/// (`items.loc`/`loc_data`), then resend `InventoryUpdate` + `UserInfo` (Java:
+/// `sendInventoryUpdate` + `broadcastUserInfo`).
+fn finish_equip_change(world: &mut World, client_id: u32, object_id: i32, changed: &[i32]) {
+    if changed.is_empty() {
+        return;
+    }
+    let Some(player) = world.players.get(&object_id) else { return };
+    for &oid in changed {
+        let (loc, loc_data) = match player.inventory.paperdoll_slot_of(oid) {
+            Some(slot) => ("PAPERDOLL", slot as i32),
+            None => ("INVENTORY", 0),
+        };
+        let _ = world.db.send(db::DbCommand::UpdateItemLocation { object_id: oid, loc, loc_data });
+    }
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(crate::network::enter_world::inventory_update(player, &world.data, changed));
+        cs.send(crate::network::user_info::user_info(player, &world.data));
+    }
 }
 
 /// Port of `clientpackets/AuthLogin.runImpl`: register the account on this game
@@ -734,7 +836,7 @@ mod tests {
     ) {
         let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
         let (db_tx, db_rx) = tokio::sync::mpsc::unbounded_channel();
-        let world = World::new(link_tx, 7, 3, GameData::for_test(), db_tx.clone());
+        let world = World::new(link_tx, 7, 3, 0, GameData::for_test(), db_tx.clone());
         (world, db_tx, db_rx, link_rx)
     }
 
@@ -790,6 +892,7 @@ mod tests {
             access_level: 0,
             noble: false,
             char_slot: 0,
+            items: vec![],
         }
     }
 
@@ -854,8 +957,10 @@ mod tests {
             skill_trees: crate::data::SkillTreeData::empty(),
             stat_bonus: crate::data::StatBonus::empty(),
             action_data: crate::data::ActionData::empty(),
+            item_data: crate::data::ItemData::empty(),
+            initial_equipment: crate::data::InitialEquipmentData::empty(),
         };
-        let mut world = World::new(link_tx, 7, 3, data, db_tx);
+        let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
         let (out_tx, _out_rx) = tokio::sync::mpsc::unbounded_channel();
         let account = format!("acct{}", std::process::id());

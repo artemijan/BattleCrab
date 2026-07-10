@@ -16,6 +16,8 @@ pub mod opcodes {
     pub const NEW_CHARACTER: u8 = 0x13;
     pub const REQUEST_SKILL_COOL_TIME: u8 = 0xA6;
     pub const CHARACTER_RESTORE: u8 = 0x7B;
+    pub const REQUEST_UN_EQUIP_ITEM: u8 = 0x16;
+    pub const USE_ITEM: u8 = 0x19;
     /// Extended packets: opcode 0xD0 + a 2-byte little-endian sub-opcode.
     pub const EX_PACKET: u8 = 0xD0;
 }
@@ -108,7 +110,27 @@ impl CharacterCreate {
     }
 }
 
-/// `clientpackets/CharacterDelete` / `CharacterRestore` — both carry a char slot.
+/// `clientpackets/CharacterDelete` / `CharacterRestore` — both carry a char
+/// slot. `RequestUnEquipItem`'s single `int` field (a body-part bitmask, not a
+/// slot index — see `Inventory::unequip_slot`) has the same shape, so it
+/// reuses this reader too.
 pub fn read_char_slot(body_after_opcode: &[u8]) -> Option<i32> {
     PacketReader::new(body_after_opcode).read_i32()
+}
+
+/// Port of `clientpackets/UseItem` (`cdc`): the target item's object id, plus
+/// a ctrl-pressed flag (used for split-stack prompts — not needed while gear
+/// is the only thing `UseItem` acts on).
+pub struct UseItem {
+    pub object_id: i32,
+    pub ctrl_pressed: bool,
+}
+
+impl UseItem {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let object_id = r.read_i32()?;
+        let ctrl_pressed = r.read_i32()? != 0;
+        Some(Self { object_id, ctrl_pressed })
+    }
 }

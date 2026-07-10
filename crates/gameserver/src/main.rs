@@ -73,6 +73,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             data,
             max_characters_per_account: config.server.max_characters_number_per_account,
             delete_days: config.character.delete_days,
+            starting_adena: config.character.starting_adena,
         },
     );
 

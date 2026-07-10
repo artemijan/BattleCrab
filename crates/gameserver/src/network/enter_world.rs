@@ -1,16 +1,17 @@
-//! The enter-world packet burst (`EnterWorld.runImpl`). Ported to the extent G4
-//! needs: the character renders and the loading screen completes. Lists that
-//! depend on systems not yet built (inventory, skills, quests, macros, henna,
-//! friends, clan, mail) are sent **empty** with TODOs; stat/position/action
-//! packets carry real values.
+//! The enter-world packet burst (`EnterWorld.runImpl`). Inventory is real as of
+//! G5; lists that depend on systems not yet built (skills, quests, macros,
+//! henna, friends, clan, mail) are still sent **empty** with TODOs;
+//! stat/position/action/item packets carry real values.
 //!
 //! Opcodes: plain packets use a single-byte id; extended packets use `0xFE` +
 //! a 2-byte little-endian sub-opcode.
 
 use commons::network::PacketWriter;
 
+use crate::data::item_data::ItemTemplate;
 use crate::data::GameData;
 use crate::enums::InventorySlot;
+use crate::model::inventory::ItemInstance;
 use crate::model::Player;
 use crate::network::masks;
 
@@ -23,15 +24,65 @@ fn ex(sub: i16) -> PacketWriter {
     w
 }
 
+/// `AbstractItemPacket.writeItem`, shared by `ItemList` and `InventoryUpdate`:
+/// mask (always 0 — augmentation/elemental/enchant-effect/visual-id are later
+/// milestones), object id, item id, T1, count, type2, customType1, equipped,
+/// body part, enchant level, customType2, mana, time, available.
+fn write_item_entry(w: &mut PacketWriter, item: &ItemInstance, template: &ItemTemplate, equipped: bool) {
+    w.write_u8(0); // mask
+    w.write_i32(item.object_id);
+    w.write_i32(item.item_id);
+    w.write_u8(if equipped { 0xFF } else { 0 }); // T1
+    w.write_i64(item.count);
+    w.write_u8(template.type2 as u8);
+    w.write_u8(item.custom_type1 as u8);
+    w.write_i16(equipped as i16);
+    w.write_i64(template.body_part as i64);
+    w.write_u8(item.enchant_level as u8);
+    w.write_u8(item.custom_type2 as u8);
+    w.write_i32(item.mana_left);
+    w.write_i32(item.time);
+    w.write_u8(1); // available
+}
+
 // ---- plain packets ----
 
-/// `ItemList` (0x11) — empty inventory. TODO(G6).
-pub fn item_list() -> Vec<u8> {
+/// `ItemList` (0x11). Quest items are filtered out (none exist yet).
+pub fn item_list(p: &Player, data: &GameData) -> Vec<u8> {
+    let entries: Vec<_> = p
+        .inventory
+        .items()
+        .iter()
+        .filter_map(|item| data.item_data.get(item.item_id).map(|t| (item, t)))
+        .filter(|(_, t)| !t.is_quest_item)
+        .collect();
+
     let mut w = PacketWriter::new();
     w.write_u8(0x11);
     w.write_i16(0); // show window (false)
-    w.write_i16(0); // item count
+    w.write_i16(entries.len() as i16);
+    for (item, template) in &entries {
+        let equipped = p.inventory.paperdoll_slot_of(item.object_id).is_some();
+        write_item_entry(&mut w, item, template, equipped);
+    }
     w.write_i16(0); // inventory block (none)
+    w.into_bytes()
+}
+
+/// `InventoryUpdate` (0x21). `change=2` (modify) for every entry: equip/unequip
+/// only moves an existing `Item` between `INVENTORY`/`PAPERDOLL`, it never
+/// creates or destroys the object (matches Java's `addItems`/plain `ItemInfo`).
+pub fn inventory_update(p: &Player, data: &GameData, changed_object_ids: &[i32]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(0x21);
+    w.write_i16(changed_object_ids.len() as i16);
+    for &object_id in changed_object_ids {
+        let Some(item) = p.inventory.items().iter().find(|i| i.object_id == object_id) else { continue };
+        let Some(template) = data.item_data.get(item.item_id) else { continue };
+        let equipped = p.inventory.paperdoll_slot_of(object_id).is_some();
+        w.write_i16(2); // change type: modify
+        write_item_entry(&mut w, item, template, equipped);
+    }
     w.into_bytes()
 }
 
@@ -171,7 +222,7 @@ pub fn ex_get_bookmark_info() -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `ExQuestItemList` (0xC7) — no quest items. TODO(G6/G10).
+/// `ExQuestItemList` (0xC7) — no quest items exist yet (quests: later milestone).
 pub fn ex_quest_item_list() -> Vec<u8> {
     let mut w = ex(0xC7);
     w.write_i16(0); // item count
@@ -200,25 +251,32 @@ pub fn ex_subjob_info(p: &Player) -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `ExUserInfoInvenWeight` (0x166). TODO(G6): real current/max load.
-pub fn ex_user_info_inven_weight(p: &Player) -> Vec<u8> {
+/// `ExUserInfoInvenWeight` (0x166). Max load stays a placeholder — encumbrance
+/// enforcement is out of scope.
+pub fn ex_user_info_inven_weight(p: &Player, data: &GameData) -> Vec<u8> {
+    let load: i64 = p
+        .inventory
+        .items()
+        .iter()
+        .map(|item| data.item_data.get(item.item_id).map_or(0, |t| t.weight as i64 * item.count))
+        .sum();
     let mut w = ex(0x166);
     w.write_i32(p.object_id);
-    w.write_i32(0); // current load
+    w.write_i32(load as i32);
     w.write_i32(80_000); // max load (placeholder)
     w.into_bytes()
 }
 
-/// `ExAdenaInvenCount` (0x13E). TODO(G6): real adena / inventory size.
-pub fn ex_adena_inven_count() -> Vec<u8> {
+/// `ExAdenaInvenCount` (0x13E).
+pub fn ex_adena_inven_count(p: &Player) -> Vec<u8> {
     let mut w = ex(0x13E);
-    w.write_i64(0); // adena
-    w.write_i16(0); // inventory size
+    w.write_i64(p.inventory.adena());
+    w.write_i16(p.inventory.items().len() as i16);
     w.into_bytes()
 }
 
 /// `ExUserInfoEquipSlot` (0x156) — masked, all 33 `InventorySlot` components,
-/// values read from the (still empty until G6) paperdoll.
+/// values read from the real paperdoll.
 pub fn ex_user_info_equip_slot(p: &Player) -> Vec<u8> {
     let mut w = ex(0x156);
     w.write_i32(p.object_id);

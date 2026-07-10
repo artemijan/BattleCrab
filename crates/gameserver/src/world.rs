@@ -63,6 +63,8 @@ pub struct World {
     pub max_characters_per_account: i32,
     /// `Config.DELETE_DAYS`: 0 = delete immediately, else mark with a timer.
     pub delete_days: i32,
+    /// `Config.STARTING_ADENA`, applied at character creation.
+    pub starting_adena: i64,
     /// Static game data (templates, experience table, …).
     pub data: GameData,
     /// Command channel to the DB thread.
@@ -70,7 +72,7 @@ pub struct World {
 }
 
 impl World {
-    pub fn new(link: CommandTx, max_characters_per_account: i32, delete_days: i32, data: GameData, db: db::CmdTx) -> Self {
+    pub fn new(link: CommandTx, max_characters_per_account: i32, delete_days: i32, starting_adena: i64, data: GameData, db: db::CmdTx) -> Self {
         Self {
             tick: 0,
             scheduler: Scheduler::new(),
@@ -79,6 +81,7 @@ impl World {
             login: LoginState::new(link),
             max_characters_per_account,
             delete_days,
+            starting_adena,
             data,
             db,
         }

@@ -8,11 +8,23 @@ use std::thread::JoinHandle;
 use sqlx::{Row, SqlitePool};
 use tracing::{error, info, warn};
 
-use crate::character::CharData;
+use crate::character::{CharData, ItemRow};
 use commons::util::now_millis;
 
-/// First object id handed out by `IdManager` (Java `FIRST_OID`).
+/// First object id handed out by `IdManager` (Java `FIRST_OID`). Shared by
+/// every world-object type (characters, items, …) — Java's `IdManager` is a
+/// single pool, not one per type.
 const FIRST_OID: i64 = 0x10000000;
+
+/// A starting item, already slot-resolved by the game thread (see
+/// `game_loop::handle_character_create`) so the DB thread just persists rows.
+#[derive(Debug, Clone)]
+pub struct NewItem {
+    pub item_id: i32,
+    pub count: i64,
+    /// `Some(paperdoll_index)` if equipped, `None` for a plain inventory item.
+    pub paperdoll_index: Option<usize>,
+}
 
 /// A validated character to insert (built by the game thread from the template).
 #[derive(Debug, Clone)]
@@ -32,6 +44,8 @@ pub struct NewCharacter {
     pub max_mp: i32,
     /// Initial `(skill_id, skill_level)` from the class skill tree.
     pub skills: Vec<(i32, i32)>,
+    /// Initial equipment + starting adena, pre-resolved by the game thread.
+    pub items: Vec<NewItem>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -55,6 +69,8 @@ pub enum DbCommand {
     /// Name availability check for `RequestCharacterNameCreatable` (name already
     /// passed the game thread's validity checks).
     CheckNameCreatable { client_id: u32, name: String },
+    /// Fire-and-forget equip/unequip persistence (`items.loc`/`loc_data`).
+    UpdateItemLocation { object_id: i32, loc: &'static str, loc_data: i32 },
     Shutdown,
 }
 
@@ -140,6 +156,16 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 };
                 let _ = event_tx.send(DbEvent::NameCreatable { client_id, result });
             }
+            DbCommand::UpdateItemLocation { object_id, loc, loc_data } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE items SET loc=?, loc_data=? WHERE object_id=?")
+                        .bind(loc)
+                        .bind(loc_data)
+                        .bind(object_id),
+                )
+                .await;
+            }
             DbCommand::Shutdown => break,
         }
     }
@@ -153,12 +179,20 @@ async fn reload(pool: &SqlitePool, event_tx: &EventTx, client_id: u32, account: 
     let _ = event_tx.send(DbEvent::CharactersLoaded { client_id, account, chars, send_list });
 }
 
+/// Java's `IdManager` hands out ids from a single pool shared by every
+/// world-object type, so the next free id must clear the high-water mark of
+/// every table that stores one — not just `characters` (a fresh id here that
+/// collides with an existing `items.object_id` fails its INSERT silently).
 async fn load_next_id(pool: &SqlitePool) -> i64 {
-    let max: i64 = sqlx::query_scalar("SELECT COALESCE(MAX(charId), 0) FROM characters")
+    let max_char: i64 = sqlx::query_scalar("SELECT COALESCE(MAX(charId), 0) FROM characters")
         .fetch_one(pool)
         .await
         .unwrap_or(0);
-    (max + 1).max(FIRST_OID)
+    let max_item: i64 = sqlx::query_scalar("SELECT COALESCE(MAX(object_id), 0) FROM items")
+        .fetch_one(pool)
+        .await
+        .unwrap_or(0);
+    (max_char.max(max_item) + 1).max(FIRST_OID)
 }
 
 /// `loadCharacterSelectInfo`: rows for an account, expired deletions purged.
@@ -184,6 +218,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             delete_char(pool, object_id).await; // restoreChar: purge expired
             continue;
         }
+        let items = load_items(pool, object_id).await;
         out.push(CharData {
             object_id,
             name: gets(row, "char_name"),
@@ -215,9 +250,34 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             access_level: geti(row, "accesslevel") as i32,
             noble: geti(row, "nobless") == 1,
             char_slot: slot as i32,
+            items,
         });
     }
     out
+}
+
+/// A character's `items` rows (Java: `PlayerInventory.restore`, called for
+/// every row shown in `CharSelectionInfo`, not just the entered character).
+async fn load_items(pool: &SqlitePool, owner_id: i32) -> Vec<ItemRow> {
+    let rows = sqlx::query("SELECT * FROM items WHERE owner_id=? ORDER BY object_id")
+        .bind(owner_id)
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
+    rows.iter()
+        .map(|r| ItemRow {
+            object_id: geti(r, "object_id") as i32,
+            item_id: geti(r, "item_id") as i32,
+            count: geti(r, "count"),
+            enchant_level: geti(r, "enchant_level") as i32,
+            loc: gets(r, "loc"),
+            loc_data: geti(r, "loc_data") as i32,
+            custom_type1: geti(r, "custom_type1") as i32,
+            custom_type2: geti(r, "custom_type2") as i32,
+            mana_left: geti(r, "mana_left") as i32,
+            time: geti(r, "time") as i32,
+        })
+        .collect()
 }
 
 /// Case-insensitive character-name existence check (`getIdByName`).
@@ -276,7 +336,7 @@ async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: 
 
     match res {
         Ok(_) => {
-            // Initial skills (character_skills). TODO(G6): initial items/shortcuts.
+            // Initial skills (character_skills). TODO(G-later): shortcuts.
             for (skill_id, skill_level) in &data.skills {
                 exec(
                     pool,
@@ -290,12 +350,38 @@ async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: 
                 )
                 .await;
             }
+            // Initial equipment + starting adena.
+            for item in &data.items {
+                let item_object_id = *next_id;
+                *next_id += 1;
+                let (loc, loc_data) = match item.paperdoll_index {
+                    Some(slot) => ("PAPERDOLL", slot as i32),
+                    None => ("INVENTORY", 0),
+                };
+                exec(
+                    pool,
+                    sqlx::query(
+                        "INSERT INTO items \
+                         (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, \
+                          custom_type1, custom_type2, mana_left, time) \
+                         VALUES (?, ?, ?, ?, 0, ?, ?, 0, 0, -1, 0)",
+                    )
+                    .bind(char_id)
+                    .bind(item_object_id)
+                    .bind(item.item_id)
+                    .bind(item.count)
+                    .bind(loc)
+                    .bind(loc_data),
+                )
+                .await;
+            }
             info!(
-                "Created character '{}' ({}) for account {} with {} initial skill(s).",
+                "Created character '{}' ({}) for account {} with {} initial skill(s), {} item(s).",
                 data.name,
                 char_id,
                 data.account,
-                data.skills.len()
+                data.skills.len(),
+                data.items.len()
             );
             CreateResult::Ok
         }
