@@ -1,31 +1,10 @@
-//! LS→GS packets (`loginserverpackets/*`) and the GS-link payload
-//! encryption: [data + 4-byte checksum + pad-to-8], Blowfish ECB — no XOR
-//! pass and no static/session switch (`GameServerThread.sendPacket`).
+//! LS→GS packets (`loginserverpackets/*`). The GS-link payload encryption lives
+//! in `commons::crypt::gs_link` (shared with the game server); re-exported here
+//! so existing call sites keep working.
 
-use commons::crypt::NewCrypt;
 use commons::network::PacketWriter;
 
-/// Initial GS-link Blowfish key (`_;v.]05-31!|+-%xT!^[$` + NUL).
-pub const GS_STATIC_BLOWFISH_KEY: &[u8] = b"_;v.]05-31!|+-%xT!^[$\x00";
-
-pub fn gs_encrypt(crypt: &NewCrypt, mut body: Vec<u8>) -> Vec<u8> {
-    body.extend_from_slice(&[0u8; 4]); // reserved for checksum
-    while body.len() % 8 != 0 {
-        body.push(0);
-    }
-    NewCrypt::append_checksum(&mut body);
-    crypt.crypt(&mut body);
-    body
-}
-
-/// Decrypt + checksum-verify an inbound GS payload in place.
-pub fn gs_decrypt(crypt: &NewCrypt, data: &mut [u8]) -> bool {
-    if data.len() % 8 != 0 {
-        return false;
-    }
-    crypt.decrypt(data);
-    NewCrypt::verify_checksum(data)
-}
+pub use commons::crypt::gs_link::{gs_decrypt, gs_encrypt, GS_STATIC_BLOWFISH_KEY};
 
 /// `InitLS`: protocol revision + RSA modulus (Java `BigInteger.toByteArray()`).
 pub fn init_ls(protocol_rev: i32, modulus_java_bytes: &[u8]) -> Vec<u8> {
@@ -86,19 +65,4 @@ pub fn change_password_response(character_name: &str, message: &str) -> Vec<u8> 
     w.write_string(character_name);
     w.write_string(message);
     w.into_bytes()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn gs_roundtrip() {
-        let crypt = NewCrypt::new(GS_STATIC_BLOWFISH_KEY);
-        let body = init_ls(0x0106, &[1, 2, 3]);
-        let mut encrypted = gs_encrypt(&crypt, body.clone());
-        assert_eq!(encrypted.len() % 8, 0);
-        assert!(gs_decrypt(&crypt, &mut encrypted));
-        assert_eq!(&encrypted[..body.len()], &body[..]);
-    }
 }

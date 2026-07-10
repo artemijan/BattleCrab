@@ -17,3 +17,5 @@ quick-xml.workspace = true
 
 [dev-dependencies]
 serde_json = "1"
+commons = { path = "../commons" }
+loginserver = { path = "../loginserver" }

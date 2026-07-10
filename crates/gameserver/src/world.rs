@@ -2,29 +2,47 @@
 //! game state. Exactly one thread (the game thread) ever touches it, so it holds
 //! no locks (CONCURRENCY_MODEL §2, challenge #2).
 //!
-//! G0/G1 are a placeholder: it carries the tick counter, the scheduler, and the
-//! connected-client registry. Object registries, the region grid, and managers
-//! land in the world/enter-world milestones (G3–G5).
+//! Through G2 it carries the tick counter, the scheduler, the connected-client
+//! sessions, and the login-link bookkeeping. Object registries, the region grid,
+//! and managers land in the world/enter-world milestones (G3–G5).
 
 use std::collections::HashMap;
-use std::net::SocketAddr;
 
-use crate::network::OutboundTx;
+use crate::loginlink::CommandTx;
 use crate::scheduler::{ScheduledTask, Scheduler};
+use crate::session::{ClientSession, SessionKey};
 
-/// The game thread's handle to a connected client: the outbound queue (send a
-/// serialized packet body; the connection task encrypts + frames it) and its
-/// address. The gameplay-facing binding (which `Player`/account) is added in G2.
-pub struct ClientHandle {
-    pub out: OutboundTx,
-    pub addr: SocketAddr,
+/// A client that finished `AuthLogin` and is awaiting the login server's
+/// `PlayerAuthResponse` (Java `LoginServerThread.WaitingClient`).
+pub struct WaitingClient {
+    pub client_id: u32,
+    pub session_key: SessionKey,
 }
 
-impl ClientHandle {
-    /// Queue a serialized packet body for this client. Fails silently if the
-    /// connection task is gone (it will be reaped via `Disconnected`).
-    pub fn send(&self, body: Vec<u8>) {
-        let _ = self.out.send(body);
+/// Login-link bookkeeping owned by the game thread (Java `LoginServerThread`'s
+/// `_waitingClients` / `_accountsInGameServer`, moved here per the single-owner
+/// model). The link task itself is just the encrypted pipe.
+pub struct LoginState {
+    /// Command channel to the login-link task.
+    pub link: CommandTx,
+    /// Accounts awaiting `PlayerAuthResponse`, keyed by account name.
+    pub waiting: HashMap<String, WaitingClient>,
+    /// Accounts currently logged into this game server → their client id.
+    pub accounts_in_gameserver: HashMap<String, u32>,
+    /// Assigned once the login server registers us.
+    pub server_id: Option<i32>,
+    pub server_name: Option<String>,
+}
+
+impl LoginState {
+    fn new(link: CommandTx) -> Self {
+        Self {
+            link,
+            waiting: HashMap::new(),
+            accounts_in_gameserver: HashMap::new(),
+            server_id: None,
+            server_name: None,
+        }
     }
 }
 
@@ -33,13 +51,22 @@ pub struct World {
     /// no dedicated game-time thread (CONCURRENCY_MODEL §2.4).
     pub tick: u64,
     pub scheduler: Scheduler,
-    /// Connected clients keyed by network id.
-    pub clients: HashMap<u32, ClientHandle>,
+    /// Connected clients keyed by network id, as type-state sessions (§3.1).
+    pub clients: HashMap<u32, ClientSession>,
+    pub login: LoginState,
+    /// `Config.MAX_CHARACTERS_NUMBER_PER_ACCOUNT`, needed by `CharSelectionInfo`.
+    pub max_characters_per_account: i32,
 }
 
 impl World {
-    pub fn new() -> Self {
-        Self { tick: 0, scheduler: Scheduler::new(), clients: HashMap::new() }
+    pub fn new(link: CommandTx, max_characters_per_account: i32) -> Self {
+        Self {
+            tick: 0,
+            scheduler: Scheduler::new(),
+            clients: HashMap::new(),
+            login: LoginState::new(link),
+            max_characters_per_account,
+        }
     }
 
     /// Run every task the scheduler says is due this tick. Dead-id tasks are
@@ -50,11 +77,5 @@ impl World {
                 ScheduledTask::Noop { .. } => {}
             }
         }
-    }
-}
-
-impl Default for World {
-    fn default() -> Self {
-        Self::new()
     }
 }

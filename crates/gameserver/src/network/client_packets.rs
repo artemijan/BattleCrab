@@ -24,3 +24,26 @@ impl ProtocolVersion {
         Self { version: r.read_i32().unwrap_or(0) }
     }
 }
+
+/// Port of `clientpackets/AuthLogin`. The account name and the two session-key
+/// halves the client echoes from the login handoff. Field order matches
+/// `readImpl`: name, playKey2, playKey1, loginKey1, loginKey2.
+pub struct AuthLogin {
+    pub login_name: String,
+    pub play_key1: i32,
+    pub play_key2: i32,
+    pub login_key1: i32,
+    pub login_key2: i32,
+}
+
+impl AuthLogin {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let login_name = r.read_string()?.to_lowercase();
+        let play_key2 = r.read_i32()?;
+        let play_key1 = r.read_i32()?;
+        let login_key1 = r.read_i32()?;
+        let login_key2 = r.read_i32()?;
+        Some(Self { login_name, play_key1, play_key2, login_key1, login_key2 })
+    }
+}

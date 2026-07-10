@@ -5,7 +5,6 @@
 
 use std::collections::{HashMap, HashSet};
 
-use num_bigint_dig::BigInt;
 use sqlx::SqlitePool;
 use tokio::sync::mpsc;
 use tracing::{info, warn};
@@ -125,16 +124,8 @@ impl GameServerEntry {
     }
 }
 
-/// `stringToHex`: signed BigInteger hex string → two's-complement bytes.
-pub fn hexid_from_string(s: &str) -> Option<Vec<u8>> {
-    let big = BigInt::parse_bytes(s.trim().as_bytes(), 16)?;
-    Some(big.to_signed_bytes_be())
-}
-
-/// `hexToString`: two's-complement bytes → signed BigInteger hex string.
-pub fn hexid_to_string(bytes: &[u8]) -> String {
-    BigInt::from_signed_bytes_be(bytes).to_str_radix(16)
-}
+// hexid parse/format now live in `commons::util` (shared with the game server).
+pub use commons::util::{hexid_from_string, hexid_to_string};
 
 pub struct GameServerTable {
     pub server_names: HashMap<i32, String>,

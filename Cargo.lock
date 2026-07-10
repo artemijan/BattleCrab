@@ -376,6 +376,7 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "commons",
+ "loginserver",
  "quick-xml",
  "rand",
  "serde_json",

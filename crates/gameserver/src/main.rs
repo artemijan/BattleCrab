@@ -8,7 +8,8 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use gameserver::config::Config;
-use gameserver::game_loop::{self, Shutdown};
+use gameserver::game_loop::{self, GameThreadChannels, Shutdown};
+use gameserver::loginlink::{self, LoginLinkConfig, LoginLinkEvent};
 use gameserver::network::connection::{self, NetworkConfig};
 use gameserver::network::NetEvent;
 use tokio::net::TcpListener;
@@ -41,16 +42,47 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         config.server.scheduled_thread_pool_size, config.server.instant_thread_pool_size
     );
 
-    // The game thread owns World; it runs until shutdown is requested.
+    // Channels between the network / login-link tasks and the game thread.
     let (net_tx, net_rx) = std::sync::mpsc::channel::<NetEvent>();
+    let (login_tx, login_rx) = std::sync::mpsc::channel::<LoginLinkEvent>();
+    let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
+
+    // The game thread owns World; it runs until shutdown is requested.
     let shutdown = Shutdown::new();
-    let game_thread = game_loop::spawn(shutdown.clone(), net_rx);
+    let game_thread = game_loop::spawn(
+        shutdown.clone(),
+        GameThreadChannels {
+            net_rx,
+            login_rx,
+            link_tx: link_tx.clone(),
+            max_characters_per_account: config.server.max_characters_number_per_account,
+        },
+    );
+
+    // Login-link (Java: LoginServerThread.start()).
+    let link_cfg = LoginLinkConfig {
+        host: config.server.game_server_login_host.clone(),
+        port: config.server.game_server_login_port,
+        game_port: config.server.port_game,
+        hex_id: config.hex_id.clone(),
+        request_id: config.server_id,
+        accept_alternate: config.server.accept_alternate_id,
+        reserve_host: config.reserve_host_on_login,
+        max_players: config.server.maximum_online_users,
+        // TODO(G5): parse ipconfig.xml. Localhost default advertises 127.0.0.1.
+        hosts: vec![("0.0.0.0/0".to_string(), "127.0.0.1".to_string())],
+        server_list_type: config.server.server_list_type,
+        server_list_bracket: config.server.server_list_bracket,
+        server_list_age: config.server.server_list_age,
+        gmonly: config.server_gmonly,
+    };
+    tokio::spawn(loginlink::run(link_cfg, link_rx, login_tx));
 
     // Client connection handler (Java: ConnectionBuilder(...).build().start()).
     let net_cfg = Arc::new(NetworkConfig {
         packet_encryption: config.server.packet_encryption,
         protocol_list: config.server.protocol_list.clone(),
-        server_id: config.server.request_id,
+        server_id: config.server_id,
         is_classic: (config.server.server_list_type & 0x400) == 0x400,
     });
     let bind = format!("{}:{}", config.server.gameserver_hostname, config.server.port_game);
@@ -63,8 +95,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         config.server.maximum_online_users
     );
 
-    // Login-link lands in G2; for now the loop runs idle until ctrl-c
-    // (Java: JVM shutdown hook -> Shutdown).
+    // Java: JVM shutdown hook -> Shutdown.
     tokio::signal::ctrl_c().await?;
 
     info!("GameServer: shutting down.");
