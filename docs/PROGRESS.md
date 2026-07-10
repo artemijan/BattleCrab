@@ -12,22 +12,22 @@ Living status tracker for the Java→Rust rewrite. Plans:
 
 ## Snapshot
 
-| Phase | Milestone | Status |
-|---|---|---|
-| Login | M0–M5 | ✅ feature-complete, interop-verified with Java GS |
-| Game | G0 Scaffold & boot | ✅ |
-| Game | G1 Client link & cipher parity | ✅ |
-| Game | G2 Login-link + auth | ✅ |
-| Game | G3 Character selection & persistence | ✅ |
-| Game | G4 Enter world (Player, HP/MP, UserInfo, enter-world burst) | ✅ core; 🚧 paperdoll/inventory |
-| Game | G5 Static world content (NPCs/spawns/zones/geodata) | ⏳ |
-| Game | G6 Items & inventory | ⏳ (started early: paperdoll bitmasks) |
-| Game | G7 Stats, skills & effects | ⏳ |
-| Game | G8 Combat & AI | ⏳ |
-| Game | G9 Social systems | ⏳ |
-| Game | G10 Scripting engine + quests | ⏳ |
-| Game | G11 Script/content breadth | ⏳ |
-| Game | G12 Long tail & parity sweep | ⏳ |
+| Phase | Milestone                                                   | Status |
+|-------|-------------------------------------------------------------|---|
+| Login | M0–M5                                                       | ✅ feature-complete, interop-verified with Java GS |
+| Game  | G0 Scaffold & boot                                          | ✅ |
+| Game  | G1 Client link & cipher parity                              | ✅ |
+| Game  | G2 Login-link + auth                                        | ✅ |
+| Game  | G3 Character selection & persistence                        | ✅ |
+| Game  | G4 Enter world (Player, HP/MP, UserInfo, enter-world burst) | ✅ (incl. paperdoll/mask enums) |
+| Game  | G5 Items & inventory                                        | ⏳ (done early: paperdoll slot/mask enums, empty `Inventory`) |
+| Game  | G6 Stats, skills & effects                                  | ⏳ |
+| Game  | G7 Static world content (NPCs/spawns/zones/geodata)         | ⏳ |
+| Game  | G8 Combat & AI                                              | ⏳ |
+| Game  | G9 Social systems                                           | ⏳ |
+| Game  | G10 Scripting engine + quests                               | ⏳ |
+| Game  | G11 Script/content breadth                                  | ⏳ |
+| Game  | G12 Long tail & parity sweep                                | ⏳ |
 
 **Verified end-to-end:** a scripted client does the real login crypto → server
 select → game `AuthLogin` → char list → **create** (with initial skills) →
@@ -104,17 +104,26 @@ the right game address.
   `RequestKeyMapping`→`ExUISetting`, `RequestSkillCoolTime`→`SkillCoolTime`,
   `RequestUserBanInfo` (consumed, no reply — matches Mobius null handler).
 
-### 🚧 In progress — paperdoll & inventory bitmasks (part of G4/G6)
-Goal: replace hardcoded paperdoll/mask values with Java-faithful enums/bitmasks.
-- Java: 32 `Inventory.PAPERDOLL_*` slots; `InventorySlot` enum (`getMask()` =
-  ordinal, 33 entries incl. `LRHAND`); masks use `AbstractMaskPacket` with the
-  **reversed** `DEFAULT_FLAG_ARRAY = {0x80,0x40,…,0x01}` (mask 0 → 0x80).
-- Known bug to fix in this pass: `enter_world::ex_user_info_equip_slot` mask is
-  hardcoded `[0xFF,0xFF,0xFF,0xFF,0x01]` — should be `[…,0x80]` (slot 32 → 0x80).
-- Plan: `model/inventory.rs` (`PaperdollSlot` enum + `Inventory` struct, empty
-  for now), a mask helper (`DEFAULT_FLAG_ARRAY` + `build_mask`), an
-  `InventorySlot` enum, and drive `ExUserInfoEquipSlot` +
-  `CharSelectionInfo` paperdoll + `UserInfo` slots through them.
+### ✅ Paperdoll & inventory bitmasks (part of G4/G6)
+Replaced hardcoded paperdoll/mask values with Java-faithful enums/bitmasks:
+- **`model/inventory.rs`**: `PaperdollSlot` (32 `Inventory.PAPERDOLL_*` ids) +
+  `Inventory` with paperdoll getters (`object_id`/`item_id`/`visual_id`/
+  `augmentation`, zero-for-empty like Java); `Player.inventory` field. Items
+  themselves still land in G6.
+- **`network/masks.rs`**: `AbstractMaskPacket` port — reversed
+  `DEFAULT_FLAG_ARRAY = [0x80,0x40,…,0x01]` (mask 0 → 0x80), `add_mask` /
+  `contains_mask` / `build_mask`, unit-tested against the known-good UserInfo
+  mask bytes.
+- **`enums.rs`**: `InventorySlot` (33 wire-order components incl. `LRHand`,
+  mask = ordinal, `slot()` → `PaperdollSlot`) and `UserInfoType` (23 blocks,
+  mask = ordinal + `block_length()`).
+- **Packets driven through the enums**: `UserInfo` (mask bytes, block count,
+  `init_size`, per-block lengths all derived from `UserInfoType`; byte test
+  unchanged), `ExUserInfoEquipSlot` (mask built from `InventorySlot::VALUES`,
+  paperdoll values read via `Player.inventory`), `CharSelectionInfo`
+  (`ServerPacket.PAPERDOLL_ORDER` + its own visual/enchant slot orders).
+- **Bug fixed**: `ex_user_info_equip_slot` mask byte 5 was `0x01`; slot 32 in
+  reversed flag order is `0x80` — now produced by `build_mask`.
 
 ### G5–G12 — ⏳ not started
 See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gate: finish the

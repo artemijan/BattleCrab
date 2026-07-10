@@ -77,6 +77,8 @@ async fn user_info_test() {
         collision_radius: 0.0,
         collision_height: 0.0,
         running: true,
+
+        inventory: Default::default(),
     };
     let gd = GameData::load_from("../../dist/game/");
     let packet = user_info(&player, &gd);

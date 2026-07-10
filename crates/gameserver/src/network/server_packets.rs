@@ -6,6 +6,8 @@
 
 use commons::network::PacketWriter;
 
+use crate::model::inventory::PaperdollSlot;
+
 /// `ServerPackets` opcodes (the single-byte `_id1`).
 pub mod opcodes {
     pub const CHARACTER_SELECTION_INFO: u8 = 0x09;
@@ -90,10 +92,67 @@ pub fn login_success() -> Vec<u8> {
     login_fail(-1, 0)
 }
 
-/// `PAPERDOLL_ORDER` (33 slots) and `PAPERDOLL_ORDER_VISUAL_ID` (9 slots) lengths
-/// — the number of item-id ints written per character. Empty until inventory (G6).
-const PAPERDOLL_ORDER_LEN: usize = 33;
-const PAPERDOLL_VISUAL_LEN: usize = 9;
+/// Java `ServerPacket.PAPERDOLL_ORDER` — the 33-int equipment write order the
+/// client expects (the `InventorySlot` wire order mapped to paperdoll slots;
+/// `RHand` repeats where the LRHAND display component sits).
+pub const PAPERDOLL_ORDER: [PaperdollSlot; 33] = [
+    PaperdollSlot::Under,
+    PaperdollSlot::REar,
+    PaperdollSlot::LEar,
+    PaperdollSlot::Neck,
+    PaperdollSlot::RFinger,
+    PaperdollSlot::LFinger,
+    PaperdollSlot::Head,
+    PaperdollSlot::RHand,
+    PaperdollSlot::LHand,
+    PaperdollSlot::Gloves,
+    PaperdollSlot::Chest,
+    PaperdollSlot::Legs,
+    PaperdollSlot::Feet,
+    PaperdollSlot::Cloak,
+    PaperdollSlot::RHand,
+    PaperdollSlot::Hair,
+    PaperdollSlot::Hair2,
+    PaperdollSlot::RBracelet,
+    PaperdollSlot::LBracelet,
+    PaperdollSlot::Deco1,
+    PaperdollSlot::Deco2,
+    PaperdollSlot::Deco3,
+    PaperdollSlot::Deco4,
+    PaperdollSlot::Deco5,
+    PaperdollSlot::Deco6,
+    PaperdollSlot::Belt,
+    PaperdollSlot::Brooch,
+    PaperdollSlot::BroochJewel1,
+    PaperdollSlot::BroochJewel2,
+    PaperdollSlot::BroochJewel3,
+    PaperdollSlot::BroochJewel4,
+    PaperdollSlot::BroochJewel5,
+    PaperdollSlot::BroochJewel6,
+];
+
+/// `CharSelectionInfo.PAPERDOLL_ORDER_VISUAL_ID` — this packet overrides the
+/// `ServerPacket` default with its own 9-slot visual-id order.
+const CHAR_SELECT_PAPERDOLL_VISUAL_ORDER: [PaperdollSlot; 9] = [
+    PaperdollSlot::RHand,
+    PaperdollSlot::LHand,
+    PaperdollSlot::Gloves,
+    PaperdollSlot::Chest,
+    PaperdollSlot::Legs,
+    PaperdollSlot::Feet,
+    PaperdollSlot::RHand,
+    PaperdollSlot::Hair,
+    PaperdollSlot::Hair2,
+];
+
+/// The five armor slots whose enchant effect the lobby shows, in write order.
+const CHAR_SELECT_ENCHANT_ORDER: [PaperdollSlot; 5] = [
+    PaperdollSlot::Chest,
+    PaperdollSlot::Legs,
+    PaperdollSlot::Head,
+    PaperdollSlot::Gloves,
+    PaperdollSlot::Feet,
+];
 
 /// Port of `serverpackets/CharSelectionInfo`. Writes the real character rows;
 /// paperdoll/augmentation are zero until the inventory system (G6).
@@ -155,14 +214,16 @@ pub fn char_selection_info(
         for _ in 0..9 {
             w.write_i32(0); // 7 reserved + 2 Ertheia
         }
-        for _ in 0..PAPERDOLL_ORDER_LEN {
-            w.write_i32(0); // paperdoll item ids (empty)
+        // TODO(G6): read the per-character paperdoll from the items table
+        // (Java `CharSelectInfoPackage`); every slot is empty until then.
+        for _slot in PAPERDOLL_ORDER {
+            w.write_i32(0); // paperdoll item id
         }
-        for _ in 0..PAPERDOLL_VISUAL_LEN {
-            w.write_i32(0); // paperdoll visual ids (empty)
+        for _slot in CHAR_SELECT_PAPERDOLL_VISUAL_ORDER {
+            w.write_i32(0); // paperdoll visual id
         }
-        for _ in 0..5 {
-            w.write_i16(0); // chest/legs/head/gloves/feet enchant
+        for _slot in CHAR_SELECT_ENCHANT_ORDER {
+            w.write_i16(0); // enchant effect
         }
         w.write_i32(c.hair_style);
         w.write_i32(c.hair_color);

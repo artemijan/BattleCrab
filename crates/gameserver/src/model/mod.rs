@@ -3,9 +3,12 @@
 //! to enter the world and display correctly. Inventory, skills, effects, and the
 //! full stat pipeline arrive in later milestones.
 
+pub mod inventory;
+
 use crate::character::CharData;
 use crate::data::player_template::PlayerTemplate;
 use crate::data::GameData;
+use inventory::Inventory;
 
 /// A player character in (or entering) the world. Owned by the `World` object
 /// registry once in game; the `InGame` session links to it by `object_id`.
@@ -78,6 +81,9 @@ pub struct Player {
     pub collision_radius: f64,
     pub collision_height: f64,
     pub running: bool,
+
+    /// Equipment paperdoll — empty until G6 loads real items.
+    pub inventory: Inventory,
 }
 
 impl Player {
@@ -155,6 +161,7 @@ impl Player {
             collision_radius: t.collision_radius,
             collision_height: t.collision_height,
             running: true,
+            inventory: Inventory::new(),
         }
     }
 

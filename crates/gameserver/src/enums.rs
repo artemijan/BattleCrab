@@ -1,5 +1,7 @@
 //! Small ports of `gameserver/enums` needed so far.
 
+use crate::model::inventory::PaperdollSlot;
+
 /// Port of `enums/Race` (ordinals matter — sent on the wire).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
@@ -16,5 +18,221 @@ pub enum Race {
 impl Race {
     pub fn ordinal(self) -> i32 {
         self as i32
+    }
+}
+
+/// Port of `enums/InventorySlot` — the client's 33 equip-slot components, in
+/// wire order (`LRHand` is a display slot backed by the `RHand` paperdoll
+/// entry). The declaration order **is** the mask: `getMask()` = ordinal.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum InventorySlot {
+    Under,
+    REar,
+    LEar,
+    Neck,
+    RFinger,
+    LFinger,
+    Head,
+    RHand,
+    LHand,
+    Gloves,
+    Chest,
+    Legs,
+    Feet,
+    Cloak,
+    LRHand,
+    Hair,
+    Hair2,
+    RBracelet,
+    LBracelet,
+    Deco1,
+    Deco2,
+    Deco3,
+    Deco4,
+    Deco5,
+    Deco6,
+    Belt,
+    Brooch,
+    BroochJewel1,
+    BroochJewel2,
+    BroochJewel3,
+    BroochJewel4,
+    BroochJewel5,
+    BroochJewel6,
+}
+
+impl InventorySlot {
+    /// Java `InventorySlot.values()`.
+    pub const VALUES: [InventorySlot; 33] = [
+        Self::Under,
+        Self::REar,
+        Self::LEar,
+        Self::Neck,
+        Self::RFinger,
+        Self::LFinger,
+        Self::Head,
+        Self::RHand,
+        Self::LHand,
+        Self::Gloves,
+        Self::Chest,
+        Self::Legs,
+        Self::Feet,
+        Self::Cloak,
+        Self::LRHand,
+        Self::Hair,
+        Self::Hair2,
+        Self::RBracelet,
+        Self::LBracelet,
+        Self::Deco1,
+        Self::Deco2,
+        Self::Deco3,
+        Self::Deco4,
+        Self::Deco5,
+        Self::Deco6,
+        Self::Belt,
+        Self::Brooch,
+        Self::BroochJewel1,
+        Self::BroochJewel2,
+        Self::BroochJewel3,
+        Self::BroochJewel4,
+        Self::BroochJewel5,
+        Self::BroochJewel6,
+    ];
+
+    /// Java `getMask()` — the component bit for `AbstractMaskPacket` masks.
+    pub fn mask(self) -> usize {
+        self as usize
+    }
+
+    /// Java `getSlot()` — the backing paperdoll slot.
+    pub fn slot(self) -> PaperdollSlot {
+        match self {
+            Self::Under => PaperdollSlot::Under,
+            Self::REar => PaperdollSlot::REar,
+            Self::LEar => PaperdollSlot::LEar,
+            Self::Neck => PaperdollSlot::Neck,
+            Self::RFinger => PaperdollSlot::RFinger,
+            Self::LFinger => PaperdollSlot::LFinger,
+            Self::Head => PaperdollSlot::Head,
+            Self::RHand | Self::LRHand => PaperdollSlot::RHand,
+            Self::LHand => PaperdollSlot::LHand,
+            Self::Gloves => PaperdollSlot::Gloves,
+            Self::Chest => PaperdollSlot::Chest,
+            Self::Legs => PaperdollSlot::Legs,
+            Self::Feet => PaperdollSlot::Feet,
+            Self::Cloak => PaperdollSlot::Cloak,
+            Self::Hair => PaperdollSlot::Hair,
+            Self::Hair2 => PaperdollSlot::Hair2,
+            Self::RBracelet => PaperdollSlot::RBracelet,
+            Self::LBracelet => PaperdollSlot::LBracelet,
+            Self::Deco1 => PaperdollSlot::Deco1,
+            Self::Deco2 => PaperdollSlot::Deco2,
+            Self::Deco3 => PaperdollSlot::Deco3,
+            Self::Deco4 => PaperdollSlot::Deco4,
+            Self::Deco5 => PaperdollSlot::Deco5,
+            Self::Deco6 => PaperdollSlot::Deco6,
+            Self::Belt => PaperdollSlot::Belt,
+            Self::Brooch => PaperdollSlot::Brooch,
+            Self::BroochJewel1 => PaperdollSlot::BroochJewel1,
+            Self::BroochJewel2 => PaperdollSlot::BroochJewel2,
+            Self::BroochJewel3 => PaperdollSlot::BroochJewel3,
+            Self::BroochJewel4 => PaperdollSlot::BroochJewel4,
+            Self::BroochJewel5 => PaperdollSlot::BroochJewel5,
+            Self::BroochJewel6 => PaperdollSlot::BroochJewel6,
+        }
+    }
+}
+
+/// Port of `enums/UserInfoType` — the 23 `UserInfo` blocks: component bit
+/// (declaration order = `getMask()`) and fixed block length. `BasicInfo` and
+/// `Clan` additionally carry `name.len()*2` / `title.len()*2` bytes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum UserInfoType {
+    Relation,
+    BasicInfo,
+    BaseStats,
+    MaxHpCpMp,
+    CurrentHpMpCpExpSp,
+    EnchantLevel,
+    Appearance,
+    Status,
+    Stats,
+    Elementals,
+    Position,
+    Speed,
+    Multiplier,
+    ColRadiusHeight,
+    AtkElemental,
+    Clan,
+    Social,
+    VitaFame,
+    Slots,
+    Movements,
+    Color,
+    InventoryLimit,
+    TrueHero,
+}
+
+impl UserInfoType {
+    /// Java `UserInfoType.values()`.
+    pub const VALUES: [UserInfoType; 23] = [
+        Self::Relation,
+        Self::BasicInfo,
+        Self::BaseStats,
+        Self::MaxHpCpMp,
+        Self::CurrentHpMpCpExpSp,
+        Self::EnchantLevel,
+        Self::Appearance,
+        Self::Status,
+        Self::Stats,
+        Self::Elementals,
+        Self::Position,
+        Self::Speed,
+        Self::Multiplier,
+        Self::ColRadiusHeight,
+        Self::AtkElemental,
+        Self::Clan,
+        Self::Social,
+        Self::VitaFame,
+        Self::Slots,
+        Self::Movements,
+        Self::Color,
+        Self::InventoryLimit,
+        Self::TrueHero,
+    ];
+
+    /// Java `getMask()` — the component bit for `AbstractMaskPacket` masks.
+    pub fn mask(self) -> usize {
+        self as usize
+    }
+
+    /// Java `getBlockLength()` — the fixed byte size of this block (including
+    /// its own 2-byte length prefix where the packet writes one).
+    pub fn block_length(self) -> i32 {
+        match self {
+            Self::Relation => 4,
+            Self::BasicInfo => 16,
+            Self::BaseStats => 18,
+            Self::MaxHpCpMp => 14,
+            Self::CurrentHpMpCpExpSp => 38,
+            Self::EnchantLevel => 4,
+            Self::Appearance => 15,
+            Self::Status => 6,
+            Self::Stats => 56,
+            Self::Elementals => 14,
+            Self::Position => 18,
+            Self::Speed => 18,
+            Self::Multiplier => 18,
+            Self::ColRadiusHeight => 18,
+            Self::AtkElemental => 5,
+            Self::Clan => 32,
+            Self::Social => 22,
+            Self::VitaFame => 15,
+            Self::Slots => 9,
+            Self::Movements => 4,
+            Self::Color => 10,
+            Self::InventoryLimit => 9,
+            Self::TrueHero => 9,
+        }
     }
 }

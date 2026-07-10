@@ -10,7 +10,9 @@
 use commons::network::PacketWriter;
 
 use crate::data::GameData;
+use crate::enums::InventorySlot;
 use crate::model::Player;
+use crate::network::masks;
 
 const EX: u8 = 0xFE;
 
@@ -215,20 +217,22 @@ pub fn ex_adena_inven_count() -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `ExUserInfoEquipSlot` (0x156) — masked, all 33 paperdoll slots empty. TODO(G6).
+/// `ExUserInfoEquipSlot` (0x156) — masked, all 33 `InventorySlot` components,
+/// values read from the (still empty until G6) paperdoll.
 pub fn ex_user_info_equip_slot(p: &Player) -> Vec<u8> {
-    const SLOTS: i16 = 33;
     let mut w = ex(0x156);
     w.write_i32(p.object_id);
-    w.write_i16(SLOTS);
-    w.write_bytes(&[0xFF, 0xFF, 0xFF, 0xFF, 0x01]); // all slots present
-    for _ in 0..SLOTS {
-        w.write_i16(22); // block length
-        w.write_i32(0); // paperdoll object id
-        w.write_i32(0); // paperdoll item id
-        w.write_i32(0); // augment 1
-        w.write_i32(0); // augment 2
-        w.write_i32(0); // visual id
+    w.write_i16(InventorySlot::VALUES.len() as i16);
+    w.write_bytes(&masks::build_mask::<5>(InventorySlot::VALUES.iter().map(|s| s.mask())));
+    for slot in InventorySlot::VALUES {
+        let pd = slot.slot();
+        let augment = p.inventory.paperdoll_augmentation(pd);
+        w.write_i16(22); // block length: 10 + 4 * 3
+        w.write_i32(p.inventory.paperdoll_object_id(pd));
+        w.write_i32(p.inventory.paperdoll_item_id(pd));
+        w.write_i32(augment.map_or(0, |(opt1, _)| opt1));
+        w.write_i32(augment.map_or(0, |(_, opt2)| opt2));
+        w.write_i32(p.inventory.paperdoll_visual_id(pd));
     }
     w.into_bytes()
 }
