@@ -1,0 +1,137 @@
+//! `Server.ini` — port of the `SERVER_CONFIG_FILE` block of `Config.java`.
+
+use commons::config::PropertiesParser;
+
+/// Matches Java's constant. The game server runs with `dist/game` as its working
+/// directory (as the Java start scripts do), so every path in the ini files —
+/// `URL = ../../interlude_classic.db`, `ScriptRoot = ./data/scripts`, geodata,
+/// `log.cfg` — resolves unedited. `main` chdir's into `dist/game` at startup.
+pub const SERVER_CONFIG_FILE: &str = "config/Server.ini";
+
+pub struct ServerConfig {
+    // Network binding.
+    pub gameserver_hostname: String,
+    pub port_game: u16,
+    pub game_server_login_host: String,
+    pub game_server_login_port: u16,
+    pub packet_encryption: bool,
+    pub request_id: i32,
+    pub accept_alternate_id: bool,
+
+    // Database.
+    pub database_url: String,
+    pub database_login: String,
+    pub database_password: String,
+    pub database_max_connections: u32,
+    pub database_test_connections: bool,
+    pub backup_database: bool,
+    pub backup_path: String,
+    pub backup_days: i32,
+
+    // Data roots.
+    pub datapack_root: String,
+    pub script_root: String,
+
+    // Player / world limits.
+    pub pet_name_template: String,
+    pub clan_name_template: String,
+    pub char_name_template: String,
+    pub max_characters_number_per_account: i32,
+    pub maximum_online_users: i32,
+
+    // Protocol.
+    pub protocol_list: Vec<i32>,
+    pub server_list_type: String,
+    pub server_list_age: i32,
+    pub server_list_bracket: bool,
+
+    // Thread pools (kept for parity/logging; the Rust runtime sizes itself).
+    pub scheduled_thread_pool_size: i32,
+    pub instant_thread_pool_size: i32,
+    pub threads_for_loading: bool,
+
+    // Stability.
+    pub deadlock_detector: bool,
+    pub deadlock_check_interval: i32,
+    pub restart_on_deadlock: bool,
+
+    // Scheduled restart.
+    pub server_restart_schedule_enabled: bool,
+    pub server_restart_schedule_message: bool,
+    pub server_restart_schedule_countdown: i32,
+    pub server_restart_schedule: Vec<String>,
+    pub server_restart_days: Vec<i32>,
+
+    // Precautionary restart.
+    pub precautionary_restart_enabled: bool,
+    pub precautionary_restart_percentage: i32,
+    pub precautionary_restart_delay: i32,
+}
+
+impl ServerConfig {
+    pub fn load() -> Self {
+        let p = PropertiesParser::load(SERVER_CONFIG_FILE);
+
+        let protocol_list = split_ints(&p.get_string("AllowedProtocolRevisions", "603;606;607"), ';');
+        let server_restart_schedule =
+            p.get_string("ServerRestartSchedule", "08:00").split(',').map(|s| s.trim().to_string()).collect();
+        let server_restart_days = split_ints(p.get_string("ServerRestartDays", "").trim(), ',');
+
+        Self {
+            gameserver_hostname: p.get_string("GameserverHostname", "0.0.0.0"),
+            port_game: p.get_int("GameserverPort", 7777) as u16,
+            game_server_login_port: p.get_int("LoginPort", 9014) as u16,
+            game_server_login_host: p.get_string("LoginHost", "127.0.0.1"),
+            packet_encryption: p.get_bool("PacketEncryption", false),
+            request_id: p.get_int("RequestServerID", 0),
+            accept_alternate_id: p.get_bool("AcceptAlternateID", true),
+
+            database_url: p.get_string("URL", "jdbc:sqlite:./data/l2jmobius.db"),
+            database_login: p.get_string("Login", "root"),
+            database_password: p.get_string("Password", ""),
+            database_max_connections: p.get_int("MaximumDatabaseConnections", 10).max(1) as u32,
+            database_test_connections: p.get_bool("TestDatabaseConnections", false),
+            backup_database: p.get_bool("BackupDatabase", false),
+            backup_path: p.get_string("BackupPath", "../backup/"),
+            backup_days: p.get_int("BackupDays", 30),
+
+            datapack_root: p.get_string("DatapackRoot", "."),
+            script_root: p.get_string("ScriptRoot", "./data/scripts"),
+
+            pet_name_template: p.get_string("PetNameTemplate", ".*"),
+            clan_name_template: p.get_string("ClanNameTemplate", ".*"),
+            char_name_template: p.get_string("CnameTemplate", ".*"),
+            max_characters_number_per_account: p.get_int("CharMaxNumber", 7),
+            maximum_online_users: p.get_int("MaximumOnlineUsers", 100),
+
+            protocol_list,
+            server_list_type: p.get_string("ServerListType", "Free"),
+            server_list_age: p.get_int("ServerListAge", 0),
+            server_list_bracket: p.get_bool("ServerListBrackets", false),
+
+            scheduled_thread_pool_size: p.get_int("ScheduledThreadPoolSize", -1),
+            instant_thread_pool_size: p.get_int("InstantThreadPoolSize", -1),
+            threads_for_loading: p.get_bool("ThreadsForLoading", false),
+
+            deadlock_detector: p.get_bool("DeadLockDetector", true),
+            deadlock_check_interval: p.get_int("DeadLockCheckInterval", 20),
+            restart_on_deadlock: p.get_bool("RestartOnDeadlock", false),
+
+            server_restart_schedule_enabled: p.get_bool("ServerRestartScheduleEnabled", false),
+            server_restart_schedule_message: p.get_bool("ServerRestartScheduleMessage", false),
+            server_restart_schedule_countdown: p.get_int("ServerRestartScheduleCountdown", 600),
+            server_restart_schedule,
+            server_restart_days,
+
+            precautionary_restart_enabled: p.get_bool("PrecautionaryRestartEnabled", false),
+            precautionary_restart_percentage: p.get_int("PrecautionaryRestartPercentage", 95),
+            precautionary_restart_delay: p.get_int("PrecautionaryRestartDelay", 60) * 1000,
+        }
+    }
+}
+
+/// Split on `sep` and parse the trimmed pieces as ints, skipping non-numeric
+/// entries (mirrors Java's per-token `NumberFormatException`/`isDigit` skip).
+fn split_ints(s: &str, sep: char) -> Vec<i32> {
+    s.split(sep).filter_map(|tok| tok.trim().parse::<i32>().ok()).collect()
+}

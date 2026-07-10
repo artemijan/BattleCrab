@@ -35,4 +35,5 @@ Config values can be overridden by environment variables using the Java
 - [`docs/JAVA_TO_RUST_CHALLENGES.md`](docs/JAVA_TO_RUST_CHALLENGES.md) — concept differences and the architectural decisions
 - [`docs/CONCURRENCY_MODEL.md`](docs/CONCURRENCY_MODEL.md) — threading/ownership model
 - [`docs/PLAN_LOGIN_SERVER.md`](docs/PLAN_LOGIN_SERVER.md) — login server implementation plan
+- [`docs/PLAN_GAME_SERVER.md`](docs/PLAN_GAME_SERVER.md) — game server implementation plan (milestones G0–G12)
 - [`docs/LOGIN_SERVER_PARITY.md`](docs/LOGIN_SERVER_PARITY.md) — file-by-file Java→Rust parity checklist
