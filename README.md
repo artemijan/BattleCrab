@@ -32,6 +32,7 @@ Config values can be overridden by environment variables using the Java
 
 ## Docs
 
+- [`docs/PROGRESS.md`](docs/PROGRESS.md) — **milestone progress & current state** (start here)
 - [`docs/JAVA_TO_RUST_CHALLENGES.md`](docs/JAVA_TO_RUST_CHALLENGES.md) — concept differences and the architectural decisions
 - [`docs/CONCURRENCY_MODEL.md`](docs/CONCURRENCY_MODEL.md) — threading/ownership model
 - [`docs/PLAN_LOGIN_SERVER.md`](docs/PLAN_LOGIN_SERVER.md) — login server implementation plan
