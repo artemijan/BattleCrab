@@ -144,6 +144,13 @@ pub struct Player {
     /// `Some` while moving (Java's nullable `Creature._move`); cleared on
     /// arrival by `movement::tick`.
     pub move_data: Option<MoveData>,
+
+    /// Last position/heading the client reported via `ValidatePosition`
+    /// (Java `Player._clientX/_clientY/_clientZ/_clientHeading`).
+    pub client_x: i32,
+    pub client_y: i32,
+    pub client_z: i32,
+    pub client_heading: i32,
 }
 
 impl Player {
@@ -231,6 +238,10 @@ impl Player {
             reuses: HashMap::new(),
             target: None,
             move_data: None,
+            client_x: 0,
+            client_y: 0,
+            client_z: 0,
+            client_heading: 0,
         };
         p.recalculate_stats(data);
         p

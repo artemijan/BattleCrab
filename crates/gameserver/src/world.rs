@@ -13,6 +13,7 @@ use rand::{Rng, SeedableRng};
 
 use crate::data::GameData;
 use crate::db;
+use crate::geo::GeoEngine;
 use crate::loginlink::CommandTx;
 use crate::scheduler::{ScheduledTask, Scheduler};
 use crate::session::{ClientSession, SessionKey};
@@ -70,6 +71,13 @@ pub struct World {
     pub starting_adena: i64,
     /// Static game data (templates, experience table, …).
     pub data: GameData,
+    /// Geodata queries (LOS, walkability, heights). Constructed empty
+    /// (`NullRegion` behaviour everywhere) and replaced with the loaded
+    /// engine at boot — tests install synthetic regions instead.
+    pub geo: GeoEngine,
+    /// `Config.PATHFINDING` (`GeoEngine.ini`): non-zero = geodata movement
+    /// checks are enforced (the pathfinder itself is not ported yet).
+    pub path_finding: i32,
     /// Command channel to the DB thread.
     pub db: db::CmdTx,
     /// Game RNG (Java `Rnd`) — owned here so handlers roll through `roll()`,
@@ -93,6 +101,8 @@ impl World {
             delete_days,
             starting_adena,
             data,
+            geo: GeoEngine::empty(),
+            path_finding: 2,
             db,
             rng: StdRng::from_entropy(),
             #[cfg(test)]

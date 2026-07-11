@@ -67,6 +67,8 @@ pub struct GameThreadChannels {
     pub db_rx: DbEventRx,
     pub db_tx: db::CmdTx,
     pub data: GameData,
+    pub geo: crate::geo::GeoEngine,
+    pub path_finding: i32,
     pub max_characters_per_account: i32,
     pub delete_days: i32,
     pub starting_adena: i64,
@@ -89,6 +91,8 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         db_rx,
         db_tx,
         data,
+        geo,
+        path_finding,
         max_characters_per_account,
         delete_days,
         starting_adena,
@@ -101,6 +105,8 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         data,
         db_tx,
     );
+    world.geo = geo;
+    world.path_finding = path_finding;
     info!("GameLoop: started ({} ms tick).", TICK.as_millis());
 
     while !shutdown.is_requested() {
@@ -202,6 +208,7 @@ fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::ACTION => handle_action(world, client_id, body),
         cop::REQUEST_TARGET_CANCELD => handle_request_target_canceld(world, client_id, body),
         cop::MOVE_BACKWARD_TO_LOCATION => handle_move_backward_to_location(world, client_id, body),
+        cop::VALIDATE_POSITION => handle_validate_position(world, client_id, body),
         cop::EX_PACKET => on_ex_packet(world, client_id, body),
         _ => error!("GameLoop: client {client_id} sent opcode 0x{opcode:02x}, unhandled."),
     }
@@ -689,29 +696,43 @@ fn broadcast_including_self(world: &World, object_id: i32, packet: &[u8]) {
 }
 
 /// Port of `Skill.getTarget` + the `targethandlers/{Self,Target,Enemy,
-/// EnemyOnly}.java` scripts as a static match, players-only (no NPCs, geodata
-/// LOS, peace zones, or party checks yet). `None` means "invalid target" —
-/// the caller sends SM 109 + `ActionFailed`.
-fn resolve_cast_target(world: &World, caster: &Player, skill: &Skill, ctrl: bool) -> Option<i32> {
-    match skill.target_type {
-        TargetType::Self_ => Some(caster.object_id),
-        // `Target.java`: the selected target, friend or foe; self allowed.
+/// EnemyOnly}.java` scripts as a static match, players-only (no NPCs, peace
+/// zones, or party checks yet). `Err(sm_id)` is the system message the caller
+/// sends alongside `ActionFailed` (Java: the handlers' `sendMessage` path) —
+/// SM 109 for an invalid target, SM 181 when geodata blocks line of sight.
+fn resolve_cast_target(world: &World, caster: &Player, skill: &Skill, ctrl: bool) -> Result<i32, i16> {
+    use server_packets::sm_ids;
+
+    let resolved = match skill.target_type {
+        TargetType::Self_ => return Ok(caster.object_id),
+        // `Target.java`: the selected target, friend or foe; self allowed
+        // (and self skips the LOS check — "you can always target yourself").
         TargetType::Target => {
-            let t = caster.target?;
-            world.players.contains_key(&t).then_some(t)
+            let t = caster.target.ok_or(sm_ids::INVALID_TARGET)?;
+            if t == caster.object_id {
+                return Ok(t);
+            }
+            t
         }
         // `Enemy.java`/`EnemyOnly.java`: not self, and `isAutoAttackable ||
         // forceUse` — players carry no PvP flag/karma yet, so nothing is
         // auto-attackable and ctrl (force-use) is always required.
         TargetType::Enemy | TargetType::EnemyOnly => {
-            let t = caster.target?;
+            let t = caster.target.ok_or(sm_ids::INVALID_TARGET)?;
             if t == caster.object_id || !ctrl {
-                return None;
+                return Err(sm_ids::INVALID_TARGET);
             }
-            world.players.contains_key(&t).then_some(t)
+            t
         }
-        TargetType::Other => None,
+        TargetType::Other => return Err(sm_ids::INVALID_TARGET),
+    };
+    let target = world.players.get(&resolved).ok_or(sm_ids::INVALID_TARGET)?;
+    // "Geodata check when character is within range" — every non-self
+    // handler ends with `GeoEngine.canSeeTarget` → CANNOT_SEE_TARGET.
+    if !world.geo.can_see_target(caster.x, caster.y, caster.z, target.x, target.y, target.z) {
+        return Err(sm_ids::CANNOT_SEE_TARGET);
     }
+    Ok(resolved)
 }
 
 /// `Util.checkIfInRange`: 2D (or 3D) distance vs `range` + both collision
@@ -814,9 +835,12 @@ fn handle_request_magic_skill_use(world: &mut World, client_id: u32, body: &[u8]
         return;
     }
 
-    let Some(target_oid) = resolve_cast_target(world, player, &skill, pkt.ctrl_pressed) else {
-        send_sm_and_action_failed(world, client_id, sm_ids::INVALID_TARGET, &[]);
-        return;
+    let target_oid = match resolve_cast_target(world, player, &skill, pkt.ctrl_pressed) {
+        Ok(oid) => oid,
+        Err(sm_id) => {
+            send_sm_and_action_failed(world, client_id, sm_id, &[]);
+            return;
+        }
     };
 
     // Cast-range gate (`SkillCaster.castSkill`). Java returns null and lets
@@ -1402,11 +1426,15 @@ fn set_target(world: &mut World, client_id: u32, object_id: i32, new_target: Opt
     }
 }
 
-/// Port of `clientpackets/MoveBackwardToLocation.runImpl`, geodata/pathfinding
-/// stripped (see `docs/PROGRESS.md` G7's deferred-TODO note — the client's
-/// reported destination is trusted outright). Door-crossing, teleport-mode
-/// switches, and queued-skill clearing are all skipped as out of scope (no
-/// doors/admin-teleport/queued-skills yet).
+/// Port of `clientpackets/MoveBackwardToLocation.runImpl` +
+/// `Creature.moveToLocation`'s geodata movement checks: the requested
+/// destination is clamped to the last walkable cell via
+/// `GeoEngine.getValidLocation`. The pathfinding fallback (Java runs
+/// `CellPathFinding` when the clamp shortens the path by > 30 units) is not
+/// ported yet — where Java would walk around an obstacle, the player walks up
+/// to it and stops. Door-crossing, teleport-mode switches, and queued-skill
+/// clearing are all skipped as out of scope (no doors/admin-teleport/
+/// queued-skills yet).
 fn handle_move_backward_to_location(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::MoveBackwardToLocation::read(body) else { return };
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
@@ -1431,8 +1459,11 @@ fn handle_move_backward_to_location(world: &mut World, client_id: u32, body: &[u
         return;
     }
 
-    let dx = (pkt.target_x - player.x) as f64;
-    let dy = (pkt.target_y - player.y) as f64;
+    let mut target_x = pkt.target_x;
+    let mut target_y = pkt.target_y;
+    let target_z = pkt.target_z;
+    let mut dx = (target_x - player.x) as f64;
+    let mut dy = (target_y - player.y) as f64;
     if dx * dx + dy * dy > 98_010_000.0 {
         // 9900² — Java's max single-click move distance.
         if let Some(cs) = world.clients.get(&client_id) {
@@ -1440,9 +1471,36 @@ fn handle_move_backward_to_location(world: &mut World, client_id: u32, body: &[u
         }
         return;
     }
+    let mut distance = (dx * dx + dy * dy).sqrt();
+
+    // GEODATA MOVEMENT CHECKS (`Creature.moveToLocation`). Java skips the
+    // destination correction for far clicks (> 3000: "should be able to
+    // click far away and move" — pathfinding would take over) and for
+    // intentional falls ((curZ - z) > 300 with distance < 300).
+    if world.path_finding > 0
+        && distance <= 3000.0
+        && !(player.z - target_z > 300 && distance < 300.0)
+    {
+        let (vx, vy, _vz) =
+            world.geo.get_valid_location(player.x, player.y, player.z, target_x, target_y, target_z);
+        // Players keep the client-requested z (Java: `if (!isPlayer()) z = destiny.getZ()`).
+        target_x = vx;
+        target_y = vy;
+        dx = (target_x - player.x) as f64;
+        dy = (target_y - player.y) as f64;
+        distance = (dx * dx + dy * dy).sqrt();
+    }
+
+    // Java: `(distance < 1) && (Config.PATHFINDING > 0 || isPlayable())` —
+    // a fully clamped-away (or degenerate) move is canceled.
+    if distance < 1.0 {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
 
     let (start_x, start_y, start_z) = (player.x, player.y, player.z);
-    let distance = (dx * dx + dy * dy).sqrt();
     let heading = crate::model::movement::calculate_heading(dx, dy);
     let speed = (if player.running { player.run_spd } else { player.walk_spd } as f64) * player.move_multiplier;
     let total_ticks = if speed > 0.0 { ((10.0 * distance / speed).round() as u64).max(1) } else { 1 };
@@ -1454,9 +1512,9 @@ fn handle_move_backward_to_location(world: &mut World, client_id: u32, body: &[u
             start_x,
             start_y,
             start_z,
-            dest_x: pkt.target_x,
-            dest_y: pkt.target_y,
-            dest_z: pkt.target_z,
+            dest_x: target_x,
+            dest_y: target_y,
+            dest_z: target_z,
             start_tick,
             total_ticks,
         });
@@ -1467,11 +1525,75 @@ fn handle_move_backward_to_location(world: &mut World, client_id: u32, body: &[u
     // `MoveToLocation` (Java: `Creature.moveToLocation` → `broadcastPacket`,
     // which `Player` overrides with `includeSelf == true`).
     let move_pkt =
-        server_packets::move_to_location(object_id, pkt.target_x, pkt.target_y, pkt.target_z, start_x, start_y, start_z);
+        server_packets::move_to_location(object_id, target_x, target_y, target_z, start_x, start_y, start_z);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(move_pkt.clone());
     }
     broadcast_to_others(world, object_id, &move_pkt);
+}
+
+/// Port of `clientpackets/ValidatePosition.runImpl` — reconcile the client's
+/// periodic position report with the server's authoritative position.
+/// Narrowing: no vehicles, falling state, flying/water zones, observer mode,
+/// or Blink, and the trailing door-exploit check is skipped (no doors) —
+/// those branches simply can't trigger yet.
+fn handle_validate_position(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = cp::ValidatePosition::read(body) else { return };
+    // Field-level split borrow: `player` (mut) + `geo`/`clients` (shared).
+    let World { clients, players, geo, .. } = world;
+    let Some(ClientSession::InGame(session)) = clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+    let Some(player) = players.get_mut(&object_id) else { return };
+    // Java: also bails while teleporting / in observer mode (states we lack).
+    if player.cast.is_some() {
+        return;
+    }
+
+    if pkt.x == 0 && pkt.y == 0 && player.x != 0 {
+        return;
+    }
+
+    let dx = (pkt.x - player.x) as f64;
+    let dy = (pkt.y - player.y) as f64;
+    let dz = (pkt.z - player.z) as f64;
+    let diff_sq = dx * dx + dy * dy;
+
+    // "If too large, messes observation" — moderate drift only.
+    let mut correction: Option<Vec<u8>> = None;
+    if diff_sq < 360_000.0 && (diff_sq > 250_000.0 || dz.abs() > 200.0) {
+        if dz.abs() > 200.0 && dz.abs() < 1500.0 && (pkt.z - player.client_z).abs() < 800 {
+            // Plausible stairs/slope climb: trust the client's z.
+            player.z = pkt.z;
+        } else {
+            // Push the server position back to the client (built pre-snap,
+            // exactly where Java builds the packet).
+            correction =
+                Some(server_packets::validate_location(object_id, player.x, player.y, player.z, player.heading));
+        }
+    }
+
+    // Out-of-sync check: a jump larger than one second of movement snaps the
+    // server to the client position, geodata-correcting z when the server
+    // was above the client (falling through a floor edge).
+    let sdx = (pkt.x - player.x) as f64;
+    let sdy = (pkt.y - player.y) as f64;
+    let sdz = (pkt.z - player.z) as f64;
+    let move_speed = (if player.running { player.run_spd } else { player.walk_spd } as f64) * player.move_multiplier;
+    if (sdx * sdx + sdy * sdy + sdz * sdz).sqrt() > move_speed {
+        let z = if player.z > pkt.z { geo.get_height(pkt.x, pkt.y, player.z) } else { pkt.z };
+        player.x = pkt.x;
+        player.y = pkt.y;
+        player.z = z;
+    }
+
+    player.client_x = pkt.x;
+    player.client_y = pkt.y;
+    player.client_z = pkt.z;
+    player.client_heading = pkt.heading;
+
+    if let (Some(pkt_bytes), Some(cs)) = (correction, clients.get(&client_id)) {
+        cs.send(pkt_bytes);
+    }
 }
 
 /// `CreatureStatus.doRegeneration`, run every `REGEN_TICK_PERIOD` ticks for
@@ -1933,7 +2055,7 @@ mod tests {
             DbEvent::CharacterCreated { result, .. } => {
                 assert_eq!(
                     result,
-                    crate::db::CreateResult::Ok,
+                    db::CreateResult::Ok,
                     "character insert failed against real schema"
                 );
             }
@@ -2893,5 +3015,135 @@ mod tests {
         assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::STOP_MOVE);
         assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
         assert!(world.players[&5001].move_data.is_none());
+    }
+
+    /// Region 20_18 covers world x,y ∈ [0, 32768): flat ground at z = 0 with
+    /// a north-south wall at local cell x == 10 (world x 160..176) — 200
+    /// units tall, not enterable, and the approach cells block their east
+    /// exit (how real geodata encodes walls).
+    fn install_wall_region(world: &mut World) {
+        use crate::geo::{synthetic_region, NSWE_ALL, NSWE_EAST};
+        world.geo.set_region(
+            20,
+            18,
+            synthetic_region(|x, _y| {
+                if x == 10 {
+                    (200, 0)
+                } else if x == 9 {
+                    (0, NSWE_ALL & !NSWE_EAST)
+                } else {
+                    (0, NSWE_ALL)
+                }
+            }),
+        );
+    }
+
+    fn validate_position_body(x: i32, y: i32, z: i32, heading: i32) -> Vec<u8> {
+        let mut w = PacketWriter::new();
+        w.write_i32(x);
+        w.write_i32(y);
+        w.write_i32(z);
+        w.write_i32(heading);
+        w.write_i32(0); // vehicle id
+        w.into_bytes()
+    }
+
+    /// A click past a geodata wall is clamped to the last walkable cell
+    /// (`GeoEngine.getValidLocation` in `Creature.moveToLocation`): the
+    /// stored move and the broadcast `MoveToLocation` both carry the clamped
+    /// destination, not the client's.
+    #[test]
+    fn move_destination_is_clamped_by_geodata() {
+        let (mut world, ..) = test_world();
+        install_wall_region(&mut world);
+        let mut mover_rx = ingame_player(&mut world, 1, 4001, 8, 8, 0); // cell 0
+        world.players.get_mut(&4001).unwrap().run_spd = 100;
+
+        // Click to cell 20 (x = 328), on the far side of the wall at cell 10.
+        handle_move_backward_to_location(&mut world, 1, &move_body((328, 8, 0), (8, 8, 0), 1));
+
+        let md = world.players[&4001].move_data.clone().expect("move must start");
+        assert_eq!((md.dest_x, md.dest_y), (152, 8), "clamped to cell 9, before the wall");
+        let pkt = mover_rx.try_recv().unwrap();
+        assert_eq!(pkt[0], server_packets::opcodes::MOVE_TO_LOCATION);
+        let dest_x = i32::from_le_bytes(pkt[5..9].try_into().unwrap());
+        assert_eq!(dest_x, 152, "MoveToLocation carries the clamped destination");
+    }
+
+    /// Standing right at the wall, a click into it clamps the whole path away
+    /// (distance < 1) — Java cancels the movement with `ActionFailed`.
+    #[test]
+    fn move_into_wall_from_adjacent_cell_is_cancelled() {
+        let (mut world, ..) = test_world();
+        install_wall_region(&mut world);
+        let mut mover_rx = ingame_player(&mut world, 1, 4001, 152, 8, 0); // cell 9
+        world.players.get_mut(&4001).unwrap().run_spd = 100;
+
+        handle_move_backward_to_location(&mut world, 1, &move_body((168, 8, 0), (152, 8, 0), 1));
+
+        assert!(world.players[&4001].move_data.is_none(), "no movement into the wall");
+        assert_eq!(mover_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+        assert!(mover_rx.try_recv().is_err());
+    }
+
+    /// The target-handler geodata check: a wall between caster and target
+    /// fails the cast with SM 181 (`CANNOT_SEE_TARGET`); with the target on
+    /// the caster's side the same cast starts normally.
+    #[test]
+    fn cast_blocked_by_wall_sends_cannot_see_target() {
+        let (mut world, ..) = cast_test_world();
+        install_wall_region(&mut world);
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 8, 8);
+        let _b_rx = ingame_caster(&mut world, 2, 3002, 328, 8); // across the wall
+
+        handle_action(&mut world, 1, &action_body(3002, 0));
+        drain(&mut a_rx);
+
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+        assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::CANNOT_SEE_TARGET);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+        assert!(world.players[&3001].cast.is_none());
+
+        // Same side of the wall: the cast starts.
+        world.players.get_mut(&3002).unwrap().x = 72; // cell 4
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+        assert!(world.players[&3001].cast.is_some());
+    }
+
+    /// `ValidatePosition` reconciliation, one branch at a time: a plausible
+    /// climb (|dz| 200..1500, near the last reported client z) adopts the
+    /// client z; moderate 2D drift is answered with `ValidateLocation` and
+    /// the server keeps its position; a desync beyond one second of movement
+    /// snaps the server to the client, geodata-correcting z downwards.
+    #[test]
+    fn validate_position_reconciles_client_and_server() {
+        let (mut world, ..) = test_world();
+        install_wall_region(&mut world);
+        let mut rx = ingame_player(&mut world, 1, 4001, 1000, 1000, 0);
+        {
+            let p = world.players.get_mut(&4001).unwrap();
+            p.run_spd = 600;
+            p.running = true;
+        }
+
+        // Climb: z 0 → 300 with matching client-z history — trusted, silent.
+        handle_validate_position(&mut world, 1, &validate_position_body(1000, 1000, 300, 0));
+        assert_eq!(world.players[&4001].z, 300);
+        assert!(rx.try_recv().is_err(), "no correction for a trusted climb");
+
+        // Drift: diffSq 270400 ∈ (250000, 360000), within move speed (600) —
+        // server answers ValidateLocation and stays put.
+        handle_validate_position(&mut world, 1, &validate_position_body(1520, 1000, 300, 0));
+        assert_eq!(world.players[&4001].x, 1000, "server position kept on drift");
+        let pkt = rx.try_recv().unwrap();
+        assert_eq!(pkt[0], server_packets::opcodes::VALIDATE_LOCATION);
+        assert!(rx.try_recv().is_err());
+
+        // Desync: 2000 units in one report — snap to the client, with z
+        // pulled onto the geodata ground (server was above the client).
+        handle_validate_position(&mut world, 1, &validate_position_body(3000, 1000, 0, 0));
+        let p = &world.players[&4001];
+        assert_eq!((p.x, p.y, p.z), (3000, 1000, 0), "snapped, z on the geodata floor");
+        assert_eq!((p.client_x, p.client_y, p.client_z), (3000, 1000, 0));
     }
 }

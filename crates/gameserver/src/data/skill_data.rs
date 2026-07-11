@@ -333,7 +333,7 @@ mod tests {
     /// loaded 0 skills). Wind Strike 1177 is the canonical probe.
     #[test]
     fn loads_real_dist_files() {
-        let sd = SkillData::load_from("../../dist/game/");
+        let sd = SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
         assert!(sd.skills.len() > 10_000, "expected thousands of skill levels, got {}", sd.skills.len());
         let ws = sd.get(1177, 1).expect("Wind Strike lvl 1");
         assert_eq!(ws.target_type, TargetType::EnemyOnly);

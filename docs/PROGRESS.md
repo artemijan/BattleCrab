@@ -24,6 +24,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G6 Stats, skills & effects                                  | ✅ vertical slice (stat engine, skill learn/cast, buffs) |
 | Game  | G7 Movement & targeting (no geodata)                        | ✅ |
 | Game  | G7.5 Full single-target skill casting                       | ✅ (real cast timing/formulas, reuse, abort, nukes/heals/buffs on others) |
+| Game  | G7.8 Geodata & position validation                          | ✅ (`.l2j` loading, LOS, move clamping, ValidatePosition — pathfinding/zones still ⏳) |
 | Game  | G8 Static world content (NPCs/spawns)                       | ⏳ |
 | Game  | G9 Combat & AI                                              | ⏳ |
 | Game  | G10 Social systems                                          | ⏳ |
@@ -347,11 +348,58 @@ damage math, server-side reuse enforcement, and cast interruption.
   finish-phase MP failure, `SkillCoolTime` contents, and damage breaking a
   victim's pre-launch cast.
 
+### G7.8 — Geodata & position validation ✅
+Closes G7's "trust the client outright" gap: the stock `.l2j` geodata files
+now load and back server-side LOS + walkability checks.
+
+- **`geo/` module** (`mod.rs`, `region.rs`, `line.rs`): port of
+  `geoengine/GeoEngine` + `geodata/GeoData`/`regions/Region`/`blocks/*` and
+  the `LinePointIterator`/`3D` cell walkers. Unlike Java's eager
+  multi-GB block-object parse, each region file is **mmap'd read-only**
+  (`memmap2`) and queried in place; the only parsed state is a 64K-entry
+  block-offset index built in one validation pass (plan §risks: "mmap +
+  read-only shared geodata"). Flat/complex/multilayer blocks, NSWE checks
+  (incl. `checkNearestNsweAntiCornerCut`, Java's NW quirk kept for parity),
+  `getNearestZ`/`getNextLowerZ`/`getNextHigherZ`, `getSpawnHeight`,
+  `canSeeTarget` (48-unit see-over, elevated-origin allowance),
+  `canMoveToTarget`, `getValidLocation`. Not ported: `CellPathFinding`
+  (planned as a path-worker service), door/fence LOS carve-outs (no
+  doors/fences yet), runtime NSWE editing.
+- **Boot**: new `config/geoengine.rs` reads `GeoEngine.ini` (`GeoDataPath`,
+  `PathFinding`); `main.rs` prints the Geodata section and loads all 227
+  dist regions (~2.5 s, debug) into `World.geo` (`GeoEngine::empty()` =
+  Java `NullRegion` everywhere for tests).
+- **Movement** (`handle_move_backward_to_location`): ports
+  `Creature.moveToLocation`'s geodata block — destination clamped via
+  `getValidLocation` (players keep client z, far-click > 3000 and
+  fall-intent guards honored), fully-clamped moves canceled with
+  `ActionFailed`. **Pathfinding fallback not ported**: where Java walks
+  around an obstacle (clamp shortened path > 30), the player now walks up
+  to it and stops.
+- **`ValidatePosition` (0x59)** — previously unhandled: full
+  `runImpl` reconciliation (trust-the-climb z adoption, moderate-drift
+  `ValidateLocation` correction (new packet, 0x79), out-of-sync snap with
+  geodata z pull-down), storing `Player.client_x/y/z/heading`. Vehicle/
+  falling/flying/water/observer/Blink branches skipped (states don't exist).
+- **Casting LOS**: `resolve_cast_target` now returns `Result` and ends with
+  the target handlers' "Geodata check when character is within range" —
+  `canSeeTarget` failure → SM 181 (`CANNOT_SEE_TARGET`) + `ActionFailed`
+  (self-target bypasses, per `Target.java`).
+- **Tests**: region cell-encoding/block-type/corruption units; line-walker
+  units; synthetic-region wall & low-fence LOS/movement/`getValidLocation`
+  behavior; real-dist load smoke test (Giran ground z, open-square LOS,
+  spawn snap); game-loop tests for move clamping, blocked-move cancel,
+  SM 181 on cast through a wall, and the three `ValidatePosition` branches.
+  Also fixed a test-suite race: dist-loading tests now use absolute
+  `CARGO_MANIFEST_DIR` paths (the ipconfig test chdirs the process
+  mid-run and could starve relative-path loaders).
+
 ### G8–G13 — ⏳ not started
 See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gate: **static
 world content** — NPCs/spawns, so there's something besides another player to
-target/path around — which is also the natural point to revisit the
-geodata/known-list gaps G7 left open (see Deferred TODOs).
+target/path around — which is also the natural point to add zones and the
+known-list/region grid, and to port `CellPathFinding` for mob pathing (see
+Deferred TODOs).
 
 ---
 
@@ -377,14 +425,18 @@ Empty/placeholder now, to be filled in the owning milestone:
   other players — needs a real known-list, see the G7 entry below); most of
   the 230-entry `Stat` enum and 369 effect classes (grow `EFFECT_REGISTRY`/
   `SkillEffect` as needed).
-- **Movement/targeting (post-G7):** geodata/LOS/pathfinding validation (G7
-  trusted the client's reported position outright — no `GeoEngine`, no
-  collision/door checks); a real known-list/visibility region-grid (`G7`'s
-  `broadcast_to_others` is a flat "every connected player" pass, not filtered
-  by distance/visibility); NPCs as targetable objects (`Action` only resolves
-  other players today); the rest of `isMovementDisabled()` (rooted/overloaded/
-  immobilized/dead/teleporting — none of that state exists yet). Natural to
-  revisit once G8 spawns NPCs and zones need real geodata for mob pathing/LOS.
+- **Movement/targeting (post-G7.8):** pathfinding (`CellPathFinding` — the
+  clamp stops players at obstacles where Java walks around them; planned as
+  a path-worker service per the plan); zones (`ZoneManager` — peace/water/
+  siege/town zones, none exist; `isInsideZone` is the missing gate for
+  several Java checks G7.8 skipped); door/fence LOS + `DoorData` checks
+  (`ValidatePosition`'s door-exploit tail, LOS occlusion); a real
+  known-list/visibility region-grid (`broadcast_to_others` is still a flat
+  "every connected player" pass); NPCs as targetable objects (`Action` only
+  resolves other players today); the rest of `isMovementDisabled()`
+  (rooted/overloaded/immobilized/dead/teleporting); cursor-key movement
+  (`_cursorKeyMovement` path incl. `canMoveToTarget` front-cell check and
+  `getLastServerPosition` stop); falling damage/state (`isFalling`).
 - **Quests (G10):** `QuestList` empty, `ExQuestItemList` empty.
 - **Social (G9):** clan/ally blocks in `UserInfo`, `FriendList` empty, mail.
 - **Misc:** macros, `HennaInfo` empty, `ExUserBanInfo`, `ExVitalityEffectInfo`

@@ -29,3 +29,4 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 thiserror = "2"
 quick-xml = "0.37"
 if-addrs = "0.13"
+memmap2 = "0.9"

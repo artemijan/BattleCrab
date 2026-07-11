@@ -10,6 +10,7 @@ pub mod data;
 pub mod db;
 pub mod enums;
 pub mod game_loop;
+pub mod geo;
 pub mod loginlink;
 pub mod model;
 pub mod network;

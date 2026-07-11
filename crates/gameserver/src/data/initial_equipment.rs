@@ -84,7 +84,7 @@ mod tests {
 
     #[test]
     fn loads_human_fighter_starting_gear() {
-        let data = InitialEquipmentData::load_from("../../dist/game/");
+        let data = InitialEquipmentData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
         let items = data.get(0); // Human Fighter
         assert!(!items.is_empty());
         let sword = items.iter().find(|i| i.item_id == 2369).expect("Squire's Sword");

@@ -88,8 +88,12 @@ async fn user_info_test() {
         reuses: Default::default(),
         target: None,
         move_data: None,
+        client_x: 0,
+        client_y: 0,
+        client_z: 0,
+        client_heading: 0,
     };
-    let gd = GameData::load_from("../../dist/game/");
+    let gd = GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
     let packet = user_info(&player, &gd);
     assert_eq!(
         vec![

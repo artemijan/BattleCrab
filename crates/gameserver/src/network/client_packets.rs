@@ -22,6 +22,7 @@ pub mod opcodes {
     pub const ACTION: u8 = 0x1F;
     pub const REQUEST_MAGIC_SKILL_USE: u8 = 0x39;
     pub const REQUEST_TARGET_CANCELD: u8 = 0x48;
+    pub const VALIDATE_POSITION: u8 = 0x59;
     pub const REQUEST_ACQUIRE_SKILL: u8 = 0x7C;
     /// Extended packets: opcode 0xD0 + a 2-byte little-endian sub-opcode.
     pub const EX_PACKET: u8 = 0xD0;
@@ -246,5 +247,26 @@ impl MoveBackwardToLocation {
         let origin_z = r.read_i32()?;
         let movement_mode = r.read_i32()?;
         Some(Self { target_x, target_y, target_z, origin_x, origin_y, origin_z, movement_mode })
+    }
+}
+
+/// Port of `clientpackets/ValidatePosition` — the client's periodic position
+/// report. The trailing vehicle id is read and discarded (no boats).
+pub struct ValidatePosition {
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+    pub heading: i32,
+}
+
+impl ValidatePosition {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let x = r.read_i32()?;
+        let y = r.read_i32()?;
+        let z = r.read_i32()?;
+        let heading = r.read_i32()?;
+        let _vehicle_id = r.read_i32()?;
+        Some(Self { x, y, z, heading })
     }
 }

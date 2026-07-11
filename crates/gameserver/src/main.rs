@@ -38,6 +38,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     print_section("Data");
     let data = GameData::load();
 
+    // Java: print_section("Geodata") → GeoEngine.getInstance() (scans
+    // GeoDataPath for `{x}_{y}.l2j` regions; missing files just stay null).
+    print_section("Geodata");
+    let geo = gameserver::geo::GeoEngine::load(std::path::Path::new(&config.geoengine.geodata_path));
+
     // Channels between the network / login-link / DB tasks and the game thread.
     let (net_tx, net_rx) = std::sync::mpsc::channel::<NetEvent>();
     let (login_tx, login_rx) = std::sync::mpsc::channel::<LoginLinkEvent>();
@@ -71,6 +76,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             db_rx,
             db_tx: db_tx.clone(),
             data,
+            geo,
+            path_finding: config.geoengine.path_finding,
             max_characters_per_account: config.server.max_characters_number_per_account,
             delete_days: config.character.delete_days,
             starting_adena: config.character.starting_adena,

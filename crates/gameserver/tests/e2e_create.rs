@@ -246,6 +246,8 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
             db_rx,
             db_tx,
             data,
+            geo: gameserver::geo::GeoEngine::empty(),
+            path_finding: 2,
             max_characters_per_account: 7,
             delete_days: 3,
             starting_adena: 100,

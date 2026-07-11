@@ -5,11 +5,13 @@
 //! incrementally: each milestone adds the ini files / keys its subsystem needs.
 
 pub mod character;
+pub mod geoengine;
 pub mod hexid;
 pub mod ipconfig;
 pub mod server;
 
 pub use character::CharacterConfig;
+pub use geoengine::GeoEngineConfig;
 pub use hexid::HexId;
 pub use ipconfig::IpConfig;
 pub use server::ServerConfig;
@@ -20,6 +22,7 @@ pub use server::ServerConfig;
 pub struct Config {
     pub server: ServerConfig,
     pub character: CharacterConfig,
+    pub geoengine: GeoEngineConfig,
 
     /// Network (subnet, host) pairs advertised to the login server.
     pub ip_config: IpConfig,
@@ -40,11 +43,13 @@ impl Config {
     pub fn load() -> Self {
         let server = ServerConfig::load();
         let character = CharacterConfig::load();
+        let geoengine = GeoEngineConfig::load();
         let ip_config = IpConfig::load();
         let hex = HexId::load(server.request_id);
         Self {
             server,
             character,
+            geoengine,
             ip_config,
             hex_id: hex.hex_id,
             server_id: hex.server_id,

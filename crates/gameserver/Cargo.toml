@@ -15,6 +15,7 @@ tracing-subscriber.workspace = true
 thiserror.workspace = true
 quick-xml.workspace = true
 if-addrs.workspace = true
+memmap2.workspace = true
 
 [dev-dependencies]
 serde_json = "1"

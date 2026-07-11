@@ -274,7 +274,7 @@ mod tests {
 
     #[test]
     fn loads_short_sword_and_adena() {
-        let data = ItemData::load_from("../../dist/game/");
+        let data = ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
         let sword = data.get(1).expect("item 1 (Short Sword)");
         assert_eq!(sword.name, "Short Sword");
         assert_eq!(sword.kind, ItemKind::Weapon);

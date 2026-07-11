@@ -25,6 +25,7 @@ pub mod opcodes {
     pub const TARGET_UNSELECTED: u8 = 0x24;
     pub const MOVE_TO_LOCATION: u8 = 0x2F;
     pub const STOP_MOVE: u8 = 0x47;
+    pub const VALIDATE_LOCATION: u8 = 0x79;
     pub const STATUS_UPDATE: u8 = 0x18;
     pub const MAGIC_SKILL_USE: u8 = 0x48;
     pub const MAGIC_SKILL_CANCELED: u8 = 0x49;
@@ -463,6 +464,20 @@ pub fn target_unselected(object_id: i32, x: i32, y: i32, z: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Port of `serverpackets/ValidateLocation` — the server's "you are actually
+/// here" correction to a drifted client (`ValidatePosition` reply).
+pub fn validate_location(object_id: i32, x: i32, y: i32, z: i32, heading: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::VALIDATE_LOCATION);
+    w.write_i32(object_id);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.write_i32(heading);
+    w.write_u8(0xff); // Java: trailing byte, "TODO: Find me!"
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/StopMove`.
 pub fn stop_move(object_id: i32, x: i32, y: i32, z: i32, heading: i32) -> Vec<u8> {
     let mut w = PacketWriter::new();
@@ -577,6 +592,7 @@ pub mod sm_ids {
     pub const YOU_USE_S1: i16 = 46;
     pub const S1_IS_NOT_AVAILABLE_REUSE: i16 = 48;
     pub const INVALID_TARGET: i16 = 109;
+    pub const CANNOT_SEE_TARGET: i16 = 181;
     pub const DISTANCE_TOO_FAR_CASTING_CANCELLED: i16 = 748;
     pub const S1_HP_HAS_BEEN_RESTORED: i16 = 1066;
     pub const S2_HP_HAS_BEEN_RESTORED_BY_C1: i16 = 1067;
