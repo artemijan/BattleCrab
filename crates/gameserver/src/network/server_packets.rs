@@ -27,8 +27,11 @@ pub mod opcodes {
     pub const STOP_MOVE: u8 = 0x47;
     pub const STATUS_UPDATE: u8 = 0x18;
     pub const MAGIC_SKILL_USE: u8 = 0x48;
+    pub const MAGIC_SKILL_CANCELED: u8 = 0x49;
     pub const MAGIC_SKILL_LAUNCHED: u8 = 0x54;
+    pub const SYSTEM_MESSAGE: u8 = 0x62;
     pub const SETUP_GAUGE: u8 = 0x6B;
+    pub const SKILL_COOL_TIME: u8 = 0xC7;
     pub const ACQUIRE_SKILL_DONE: u8 = 0x94;
     pub const MY_TARGET_SELECTED: u8 = 0xB9;
 
@@ -491,45 +494,65 @@ pub fn move_to_location(object_id: i32, dest_x: i32, dest_y: i32, dest_z: i32, x
     w.into_bytes()
 }
 
-/// Port of `serverpackets/MagicSkillUse`, self-cast only (`_target == _creature`,
-/// no ground-targeted skills, no `RequestActionUse` action id — see the G6
-/// cast-pipeline scope notes). `casting_bar_id` is `SkillCastingType.NORMAL`'s
-/// client bar id (0).
-pub fn magic_skill_use(p: &Player, skill_id: i32, skill_level: i32, hit_time: i32, reuse_delay: i32) -> Vec<u8> {
+/// Port of `serverpackets/MagicSkillUse` (no ground-targeted skills, no
+/// `RequestActionUse` action id yet). `casting_bar_id` is
+/// `SkillCastingType.NORMAL`'s client bar id (0). `hit_time` is the
+/// client-displayed cast time (`_hitTime + _cancelTime`). Self-casts pass the
+/// caster as `target`.
+pub fn magic_skill_use(
+    caster: &Player,
+    target: &Player,
+    skill_id: i32,
+    skill_level: i32,
+    hit_time: i32,
+    reuse_delay: i32,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::MAGIC_SKILL_USE);
     w.write_i32(0); // casting bar: NORMAL
-    w.write_i32(p.object_id); // caster
-    w.write_i32(p.object_id); // target (self)
+    w.write_i32(caster.object_id);
+    w.write_i32(target.object_id);
     w.write_i32(skill_id);
     w.write_i32(skill_level);
     w.write_i32(hit_time);
     w.write_i32(0); // reuse group
     w.write_i32(reuse_delay);
-    w.write_i32(p.x);
-    w.write_i32(p.y);
-    w.write_i32(p.z);
+    w.write_i32(caster.x);
+    w.write_i32(caster.y);
+    w.write_i32(caster.z);
     w.write_i16(0); // isGroundTargetSkill
     w.write_i16(0); // no ground location
-    w.write_i32(p.x); // target x/y/z (self)
-    w.write_i32(p.y);
-    w.write_i32(p.z);
+    w.write_i32(target.x);
+    w.write_i32(target.y);
+    w.write_i32(target.z);
     w.write_i32(0); // actionId used
     w.write_i32(0); // actionId
     w.into_bytes()
 }
 
-/// Port of `serverpackets/MagicSkillLaunched`, self-cast only (single target =
-/// the caster).
-pub fn magic_skill_launched(p: &Player, skill_id: i32, skill_level: i32) -> Vec<u8> {
+/// Port of `serverpackets/MagicSkillLaunched`: the launch flourish, broadcast
+/// with the resolved target list (`SkillCaster._targets`).
+pub fn magic_skill_launched(caster_object_id: i32, skill_id: i32, skill_level: i32, targets: &[i32]) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::MAGIC_SKILL_LAUNCHED);
     w.write_i32(0); // casting bar: NORMAL
-    w.write_i32(p.object_id);
+    w.write_i32(caster_object_id);
     w.write_i32(skill_id);
     w.write_i32(skill_level);
-    w.write_i32(1); // target count
-    w.write_i32(p.object_id);
+    w.write_i32(targets.len() as i32);
+    for &t in targets {
+        w.write_i32(t);
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/MagicSkillCanceled` — stops the cast animation
+/// client-side. Broadcast (self included) by `stopCasting(aborted == true)`;
+/// never sent on a quiet stop (finish-phase failures, natural end).
+pub fn magic_skill_canceld(object_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::MAGIC_SKILL_CANCELED);
+    w.write_i32(object_id);
     w.into_bytes()
 }
 
@@ -541,6 +564,101 @@ pub fn setup_gauge(object_id: i32, color: i32, time_ms: i32) -> Vec<u8> {
     w.write_i32(color);
     w.write_i32(time_ms);
     w.write_i32(time_ms);
+    w.into_bytes()
+}
+
+/// The `SystemMessageId` constants the cast pipeline sends (Java's enum has
+/// ~6800 — added as handlers need them; the zero-parameter welcome message
+/// keeps using `enter_world::system_message`).
+pub mod sm_ids {
+    pub const NOT_ENOUGH_HP: i16 = 23;
+    pub const NOT_ENOUGH_MP: i16 = 24;
+    pub const YOUR_CASTING_HAS_BEEN_INTERRUPTED: i16 = 27;
+    pub const YOU_USE_S1: i16 = 46;
+    pub const S1_IS_NOT_AVAILABLE_REUSE: i16 = 48;
+    pub const INVALID_TARGET: i16 = 109;
+    pub const DISTANCE_TOO_FAR_CASTING_CANCELLED: i16 = 748;
+    pub const S1_HP_HAS_BEEN_RESTORED: i16 = 1066;
+    pub const S2_HP_HAS_BEEN_RESTORED_BY_C1: i16 = 1067;
+    pub const M_CRITICAL: i16 = 1280;
+    pub const C1_HAS_INFLICTED_S3_DAMAGE_ON_C2: i16 = 2261;
+    pub const C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2: i16 = 2262;
+    pub const S2_SECONDS_REMAINING_FOR_REUSE: i16 = 2303;
+    pub const S2_MINUTES_S3_SECONDS_REMAINING_FOR_REUSE: i16 = 2304;
+    pub const S2_HOURS_S3_MINUTES_S4_SECONDS_REMAINING_FOR_REUSE: i16 = 2305;
+}
+
+/// One `SystemMessage` parameter (Java `SystemMessage.SMParam`), scoped to the
+/// types the cast pipeline emits.
+pub enum SmParam {
+    /// `TYPE_TEXT` (0) — `addString`.
+    Text(String),
+    /// `TYPE_INT_NUMBER` (1) — `addInt`.
+    Int(i32),
+    /// `TYPE_SKILL_NAME` (4) — `addSkillName` (id, level, sub-level 0).
+    SkillName { id: i32, level: i32 },
+    /// `TYPE_PLAYER_NAME` (12) — `addPcName`.
+    PlayerName(String),
+}
+
+/// Port of `serverpackets/SystemMessage.writeImpl` (localisation branch
+/// skipped — `MULTILANG_ENABLE` is off by default): message id, parameter
+/// count, then each parameter as a type byte + payload.
+pub fn system_message_with(message_id: i16, params: &[SmParam]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::SYSTEM_MESSAGE);
+    w.write_i16(message_id);
+    w.write_u8(params.len() as u8);
+    for param in params {
+        match param {
+            SmParam::Text(s) => {
+                w.write_u8(0);
+                w.write_string(s);
+            }
+            SmParam::Int(v) => {
+                w.write_u8(1);
+                w.write_i32(*v);
+            }
+            SmParam::SkillName { id, level } => {
+                w.write_u8(4);
+                w.write_i32(*id);
+                w.write_i16(*level as i16);
+                w.write_i16(0); // sub-level
+            }
+            SmParam::PlayerName(s) => {
+                w.write_u8(12);
+                w.write_string(s);
+            }
+        }
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/SkillCoolTime`: every skill still on reuse
+/// (`Player.reuses` entries with time remaining), total and remaining in
+/// whole seconds. Sent on enter-world and on `RequestSkillCoolTime`.
+pub fn skill_cool_time(p: &Player, now_tick: u64) -> Vec<u8> {
+    let entries: Vec<(i32, i32, i32, i32)> = p
+        .reuses
+        .iter()
+        .filter_map(|(&skill_id, &(until_tick, total_ms))| {
+            let remaining_ticks = until_tick.checked_sub(now_tick)?;
+            if remaining_ticks == 0 {
+                return None;
+            }
+            let level = p.skills.get(&skill_id).copied().unwrap_or(1);
+            Some((skill_id, level, total_ms / 1000, (remaining_ticks / 10) as i32))
+        })
+        .collect();
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::SKILL_COOL_TIME);
+    w.write_i32(entries.len() as i32);
+    for (skill_id, level, total_secs, remaining_secs) in entries {
+        w.write_i32(skill_id);
+        w.write_i32(level);
+        w.write_i32(total_secs);
+        w.write_i32(remaining_secs);
+    }
     w.into_bytes()
 }
 

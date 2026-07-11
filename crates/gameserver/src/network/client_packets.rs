@@ -140,12 +140,14 @@ impl UseItem {
     }
 }
 
-/// Port of `clientpackets/RequestMagicSkillUse` (`cdc`). `shift_pressed` (used
-/// for ground-targeted skills) isn't read for anything yet — no ground
-/// targeting until later milestones.
+/// Port of `clientpackets/RequestMagicSkillUse` (`cdc`). `shift_pressed`
+/// (Java `dontMove`, used for don't-move casting and ground targeting) is
+/// read for stream correctness but drives nothing yet — no follow-into-range
+/// or ground targeting until later milestones.
 pub struct RequestMagicSkillUse {
     pub magic_id: i32,
     pub ctrl_pressed: bool,
+    pub shift_pressed: bool,
 }
 
 impl RequestMagicSkillUse {
@@ -153,7 +155,8 @@ impl RequestMagicSkillUse {
         let mut r = PacketReader::new(body_after_opcode);
         let magic_id = r.read_i32()?;
         let ctrl_pressed = r.read_i32()? != 0;
-        Some(Self { magic_id, ctrl_pressed })
+        let shift_pressed = r.read_u8().is_some_and(|b| b != 0);
+        Some(Self { magic_id, ctrl_pressed, shift_pressed })
     }
 }
 

@@ -83,7 +83,9 @@ async fn user_info_test() {
         buffs: Default::default(),
         stats_add: Default::default(),
         stats_mul: Default::default(),
-        casting: false,
+        cast: None,
+        cast_seq: 0,
+        reuses: Default::default(),
         target: None,
         move_data: None,
     };

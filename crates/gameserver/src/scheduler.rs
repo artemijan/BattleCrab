@@ -16,12 +16,18 @@ use std::collections::BinaryHeap;
 pub enum ScheduledTask {
     /// Placeholder used by tests and as the template for real tasks.
     Noop { object_id: i32 },
-    /// `SkillCaster.launchSkill`, fires `hit_time` ms after
-    /// `RequestMagicSkillUse` started the cast. Sends `MagicSkillLaunched`
-    /// then runs `finishSkill` (MP/HP consume + apply effects) inline — G6's
-    /// self-only cast pipeline has no separate travel/cancel-time phase to
-    /// wait out between launch and landing (see the G6 plan's scope notes).
-    SkillLaunch { player_object_id: i32, skill_id: i32, skill_level: i32 },
+    /// `SkillCaster.run` phase 1 (`launchSkill`), fires `_hitTime` ms after
+    /// `startCasting`. The skill/target live in the player's `CastState`;
+    /// `cast_seq` must match it or the task is stale (aborted/replaced cast)
+    /// and no-ops — the heap-free abort mechanism, same dead-id contract as
+    /// everything else here.
+    SkillLaunch { player_object_id: i32, cast_seq: u64 },
+    /// `SkillCaster.run` phase 2 (`finishSkill`), fires `_cancelTime` ms
+    /// after the launch: consume MP/HP, apply effects.
+    SkillFinish { player_object_id: i32, cast_seq: u64 },
+    /// `SkillCaster.run` end (`stopCasting(false)`), fires `_coolTime` ms
+    /// after the finish: the cast slot frees up.
+    CastEnd { player_object_id: i32, cast_seq: u64 },
     /// `BuffFinishTask`: an active buff's `abnormalTime` has elapsed.
     BuffExpire { player_object_id: i32, skill_id: i32 },
 }

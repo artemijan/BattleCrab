@@ -18,7 +18,7 @@ use quick_xml::events::Event;
 use quick_xml::Reader;
 use tracing::info;
 
-use crate::model::skill::{OperateType, Skill, StatModifierEffect, TargetType};
+use crate::model::skill::{OperateType, Skill, SkillEffect, StatModifierEffect, TargetType};
 use crate::model::stats::{Stat, StatModifierType};
 
 pub const SKILLS_DIR: &str = "data/stats/skills";
@@ -103,7 +103,11 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<(i32, i32), Skill>) {
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
     };
-    let mut reader = Reader::from_str(&content);
+    parse_str(&content, out);
+}
+
+fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
+    let mut reader = Reader::from_str(content);
 
     // Current `<skill>` being built (id/name/toLevel + the generic field map).
     let mut skill_id = -1;
@@ -113,12 +117,14 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<(i32, i32), Skill>) {
     let mut cur_field = String::new();
     let mut pending_level: i32 = 0;
 
-    // Effects collected for the current skill: (xml name, per-level amount, mode).
-    let mut effects: Vec<(String, HashMap<i32, String>, String)> = Vec::new();
+    // Effects collected for the current skill: (xml name, per-level params
+    // keyed by param name — `amount` for stat modifiers, `power` for the
+    // instant damage/heal handlers —, mode).
+    let mut effects: Vec<(String, LeveledValues, String)> = Vec::new();
     let mut in_effects = false;
     let mut in_conditions = false;
     let mut cur_effect_name: Option<String> = None;
-    let mut cur_effect_amount: HashMap<i32, String> = HashMap::new();
+    let mut cur_effect_params: LeveledValues = HashMap::new();
     let mut cur_effect_mode = String::from("DIFF");
     let mut cur_effect_field = String::new();
 
@@ -137,15 +143,19 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<(i32, i32), Skill>) {
                 let name = String::from_utf8_lossy(e.name().as_ref()).into_owned();
 
                 if path.is_empty() {
-                    if name == "skill" {
-                        skill_id = attr_i32(&e, b"id").unwrap_or(-1);
-                        skill_name = attr_str(&e, b"name").unwrap_or_default();
-                        to_level = attr_i32(&e, b"toLevel").unwrap_or(1).max(1);
-                        values.clear();
-                        effects.clear();
-                        in_effects = false;
-                        in_conditions = false;
+                    if name != "skill" {
+                        // The `<list>` document root (or anything else outside
+                        // a `<skill>`) is not tracked — the stack is relative
+                        // to `<skill>`, see its matching End guard below.
+                        continue;
                     }
+                    skill_id = attr_i32(&e, b"id").unwrap_or(-1);
+                    skill_name = attr_str(&e, b"name").unwrap_or_default();
+                    to_level = attr_i32(&e, b"toLevel").unwrap_or(1).max(1);
+                    values.clear();
+                    effects.clear();
+                    in_effects = false;
+                    in_conditions = false;
                 } else if path.len() == 1 {
                     cur_field = name.clone();
                     if name == "effects" {
@@ -157,11 +167,11 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<(i32, i32), Skill>) {
                     pending_level = attr_i32(&e, b"level").unwrap_or(0);
                 } else if path.len() == 2 && in_effects && name == "effect" {
                     cur_effect_name = attr_str(&e, b"name");
-                    cur_effect_amount = HashMap::new();
+                    cur_effect_params = HashMap::new();
                     cur_effect_mode = String::from("DIFF");
                 } else if path.len() == 3 && in_effects {
                     cur_effect_field = name.clone();
-                } else if path.len() == 4 && in_effects && cur_effect_field == "amount" && name == "value" {
+                } else if path.len() == 4 && in_effects && name == "value" {
                     pending_level = attr_i32(&e, b"level").unwrap_or(0);
                 }
                 path.push(name);
@@ -176,16 +186,19 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<(i32, i32), Skill>) {
                     // Not parsed (see module docs) — nothing to record.
                 } else if in_effects {
                     match path.len() {
-                        // Directly under `<effect><amount>SCALAR</amount>`.
-                        4 if cur_effect_field == "amount" => {
-                            cur_effect_amount.insert(0, text.to_string());
-                        }
                         4 if cur_effect_field == "mode" => {
                             cur_effect_mode = text.to_string();
                         }
-                        // `<effect><amount><value level="N">...`
-                        5 if cur_effect_field == "amount" => {
-                            cur_effect_amount.insert(pending_level, text.to_string());
+                        // Directly under `<effect><param>SCALAR</param>`.
+                        4 => {
+                            cur_effect_params.entry(cur_effect_field.clone()).or_default().insert(0, text.to_string());
+                        }
+                        // `<effect><param><value level="N">...`
+                        5 => {
+                            cur_effect_params
+                                .entry(cur_effect_field.clone())
+                                .or_default()
+                                .insert(pending_level, text.to_string());
                         }
                         _ => {}
                     }
@@ -214,7 +227,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<(i32, i32), Skill>) {
                     in_conditions = false;
                 } else if closed == "effect" && in_effects {
                     if let Some(name) = cur_effect_name.take() {
-                        effects.push((name, cur_effect_amount.clone(), cur_effect_mode.clone()));
+                        effects.push((name, cur_effect_params.clone(), cur_effect_mode.clone()));
                     }
                 }
             }
@@ -230,7 +243,7 @@ fn finalize_skill(
     name: &str,
     to_level: i32,
     values: &LeveledValues,
-    effects: &[(String, HashMap<i32, String>, String)],
+    effects: &[(String, LeveledValues, String)],
     out: &mut HashMap<(i32, i32), Skill>,
 ) {
     if id < 0 {
@@ -238,6 +251,7 @@ fn finalize_skill(
     }
     for level in 1..=to_level {
         let get_i = |field: &str, default: i32| value_at(values, field, level).and_then(|v| v.parse().ok()).unwrap_or(default);
+        let get_f = |field: &str, default: f64| value_at(values, field, level).and_then(|v| v.parse().ok()).unwrap_or(default);
         let operate_type = match value_at(values, "operateType", level) {
             Some("A1") | Some("A2") => OperateType::Active,
             Some("P") => OperateType::Passive,
@@ -246,17 +260,25 @@ fn finalize_skill(
         };
         let target_type = match value_at(values, "targetType", level) {
             Some("SELF") => TargetType::Self_,
+            Some("TARGET") => TargetType::Target,
+            Some("ENEMY") => TargetType::Enemy,
+            Some("ENEMY_ONLY") => TargetType::EnemyOnly,
             _ => TargetType::Other,
         };
 
         let skill_effects = effects
             .iter()
-            .filter_map(|(xml_name, amount, mode)| {
-                let stat = EFFECT_REGISTRY.iter().find(|(n, _)| n == xml_name).map(|(_, s)| *s)?;
-                let amount_str = amount.get(&level).or_else(|| amount.get(&0))?;
-                let amount: f64 = amount_str.parse().ok()?;
-                let mode = if mode == "PER" { StatModifierType::Per } else { StatModifierType::Diff };
-                Some(StatModifierEffect { stat, mode, amount })
+            .filter_map(|(xml_name, params, mode)| {
+                let param = |key: &str| -> Option<f64> { value_at(params, key, level).and_then(|v| v.parse().ok()) };
+                match xml_name.as_str() {
+                    "MagicalAttack" => Some(SkillEffect::MagicalAttack { power: param("power")? }),
+                    "Heal" => Some(SkillEffect::Heal { power: param("power")? }),
+                    _ => {
+                        let stat = EFFECT_REGISTRY.iter().find(|(n, _)| n == xml_name).map(|(_, s)| *s)?;
+                        let mode = if mode == "PER" { StatModifierType::Per } else { StatModifierType::Diff };
+                        Some(SkillEffect::StatModifier(StatModifierEffect { stat, mode, amount: param("amount")? }))
+                    }
+                }
             })
             .collect::<Vec<_>>();
 
@@ -271,9 +293,12 @@ fn finalize_skill(
                 name: name.to_string(),
                 operate_type,
                 target_type,
+                magic_type: get_i("isMagic", 0),
+                effect_point: get_i("effectPoint", 0),
                 cast_range: get_i("castRange", 0),
                 effect_range: get_i("effectRange", 0),
                 hit_time: get_i("hitTime", 0),
+                hit_cancel_time: get_f("hitCancelTime", 0.0),
                 cool_time: get_i("coolTime", 0),
                 reuse_delay: get_i("reuseDelay", 0),
                 mp_consume: get_i("mpConsume", 0),
@@ -297,4 +322,120 @@ fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
 
 fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
     attr_str(e, key).and_then(|s| s.parse().ok())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Regression guard: the real dist XMLs are `<list>`-rooted, which the
+    /// original parser mis-indexed (it tracked the root on the tag stack and
+    /// loaded 0 skills). Wind Strike 1177 is the canonical probe.
+    #[test]
+    fn loads_real_dist_files() {
+        let sd = SkillData::load_from("../../dist/game/");
+        assert!(sd.skills.len() > 10_000, "expected thousands of skill levels, got {}", sd.skills.len());
+        let ws = sd.get(1177, 1).expect("Wind Strike lvl 1");
+        assert_eq!(ws.target_type, TargetType::EnemyOnly);
+        assert_eq!(ws.cast_range, 600);
+        assert!(matches!(ws.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 12.0));
+    }
+
+    /// A trimmed Wind Strike (1177): per-level `targetType` and
+    /// `MagicalAttack` power, scalar `isMagic`/`castRange`, per-level
+    /// `effectPoint` — the exact shapes in `01100-01199.xml`.
+    #[test]
+    fn parses_wind_strike_shaped_skill() {
+        let xml = r#"
+        <list>
+            <skill id="1177" toLevel="2" name="Wind Strike">
+                <castRange>600</castRange>
+                <effectPoint>
+                    <value level="1">-92</value>
+                    <value level="2">-106</value>
+                </effectPoint>
+                <effectRange>1100</effectRange>
+                <hitTime>4000</hitTime>
+                <isMagic>1</isMagic>
+                <mpConsume>
+                    <value level="1">7</value>
+                    <value level="2">7</value>
+                </mpConsume>
+                <mpInitialConsume>
+                    <value level="1">2</value>
+                    <value level="2">2</value>
+                </mpInitialConsume>
+                <operateType>A1</operateType>
+                <reuseDelay>1200</reuseDelay>
+                <targetType>
+                    <value level="1">ENEMY_ONLY</value>
+                    <value level="2">ENEMY</value>
+                </targetType>
+                <effects>
+                    <effect name="MagicalAttack">
+                        <power>
+                            <value level="1">12</value>
+                            <value level="2">13</value>
+                        </power>
+                    </effect>
+                </effects>
+            </skill>
+        </list>"#;
+        let mut out = HashMap::new();
+        parse_str(xml, &mut out);
+
+        let l1 = out.get(&(1177, 1)).expect("level 1 parsed");
+        assert_eq!(l1.target_type, TargetType::EnemyOnly);
+        assert_eq!(l1.magic_type, 1);
+        assert_eq!(l1.effect_point, -92);
+        assert!(l1.is_bad());
+        assert_eq!(l1.cast_range, 600);
+        assert_eq!(l1.effect_range, 1100);
+        assert_eq!(l1.hit_time, 4000);
+        assert_eq!(l1.reuse_delay, 1200);
+        assert_eq!(l1.mp_consume, 7);
+        assert_eq!(l1.mp_initial_consume, 2);
+        assert!(matches!(l1.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 12.0));
+
+        let l2 = out.get(&(1177, 2)).expect("level 2 parsed");
+        assert_eq!(l2.target_type, TargetType::Enemy);
+        assert!(matches!(l2.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 13.0));
+    }
+
+    /// A Heal-shaped effect parses to `SkillEffect::Heal`; a stat-modifier
+    /// effect still lands in `StatModifier` with `<amount>`; an unregistered
+    /// effect name is dropped without dropping the skill.
+    #[test]
+    fn parses_heal_stat_and_unknown_effects() {
+        let xml = r#"
+        <list>
+            <skill id="1015" toLevel="1" name="Battle Heal">
+                <operateType>A1</operateType>
+                <targetType>TARGET</targetType>
+                <effects>
+                    <effect name="Heal">
+                        <power>83</power>
+                    </effect>
+                    <effect name="PAtk">
+                        <amount>10</amount>
+                        <mode>PER</mode>
+                    </effect>
+                    <effect name="SomeUnportedEffect">
+                        <power>5</power>
+                    </effect>
+                </effects>
+            </skill>
+        </list>"#;
+        let mut out = HashMap::new();
+        parse_str(xml, &mut out);
+
+        let s = out.get(&(1015, 1)).expect("skill parsed");
+        assert_eq!(s.target_type, TargetType::Target);
+        assert_eq!(s.effects.len(), 2, "unknown effect dropped");
+        assert!(matches!(s.effects[0], SkillEffect::Heal { power } if power == 83.0));
+        assert!(matches!(
+            s.effects[1],
+            SkillEffect::StatModifier(StatModifierEffect { stat: Stat::PhysicalAttack, mode: StatModifierType::Per, amount }) if amount == 10.0
+        ));
+    }
 }

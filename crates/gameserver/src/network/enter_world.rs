@@ -179,14 +179,6 @@ pub fn quest_list() -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `SkillCoolTime` (0xC7) — no reuse timers.
-pub fn skill_cool_time() -> Vec<u8> {
-    let mut w = PacketWriter::new();
-    w.write_u8(0xC7);
-    w.write_i32(0);
-    w.into_bytes()
-}
-
 /// `AbnormalStatusUpdate` (0x85): one entry per active buff (Java
 /// `BuffInfo` list) — display id/level/sub-level, `AbnormalType` client id,
 /// remaining seconds. `now_tick` is `world.tick` (10 ticks/s) so the

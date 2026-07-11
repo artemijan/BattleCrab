@@ -23,6 +23,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G5 Items & inventory                                        | ✅ vertical slice (items, equip/unequip, initial gear) |
 | Game  | G6 Stats, skills & effects                                  | ✅ vertical slice (stat engine, skill learn/cast, buffs) |
 | Game  | G7 Movement & targeting (no geodata)                        | ✅ |
+| Game  | G7.5 Full single-target skill casting                       | ✅ (real cast timing/formulas, reuse, abort, nukes/heals/buffs on others) |
 | Game  | G8 Static world content (NPCs/spawns)                       | ⏳ |
 | Game  | G9 Combat & AI                                              | ⏳ |
 | Game  | G10 Social systems                                          | ⏳ |
@@ -210,7 +211,8 @@ milestone; summary:
   Buffs live in `Player.buffs`, expire via a new `ScheduledTask::BuffExpire`.
   Real `AbnormalStatusUpdate` (self-only — no known-list yet for
   `ExAbnormalStatusUpdateFromTarget`).
-- **Cast pipeline**: `RequestMagicSkillUse` → a 2-phase scheduled flow
+- **Cast pipeline** *(superseded by G7.5 below — real 3-phase timing,
+  targeting, reuse, abort)*: `RequestMagicSkillUse` → a 2-phase scheduled flow
   (`ScheduledTask::SkillLaunch` at `hit_time`, then `finishSkill` inline — no
   separate cancel-time wait, since G6 only handles instant `SELF`-targeting)
   porting `SkillCaster`: MP/HP checks at both start and landing,
@@ -274,6 +276,77 @@ deferred-TODO note below).
   interpolation + exact arrival snap, verifying the bystander gets
   `MoveToLocation` but the mover doesn't) plus the same-origin `StopMove` case.
 
+### G7.5 — Full single-target skill casting ✅
+Supersedes G6's self-only 2-phase cast slice with a faithful port of the
+`RequestMagicSkillUse` → `Player.useMagic` → `SkillCaster` pipeline: casting
+on the current target (players only — still no NPCs), Java's real timing and
+damage math, server-side reuse enforcement, and cast interruption.
+
+- **`model/formulas.rs`** (new): ports of `Formulas.calcMagicDam`
+  (`77·power·√mAtk/mDef`, ×2 on magic crit), `calcCrit`'s magic branch
+  (per-mille rate, 320/200 caps), `calcSkillTimeFactor`/`calcSkillCancelTime`/
+  `calcAtkSpd` (casting-speed-scaled `hitTime`, 500 ms launch floor, cool
+  phase), `Heal.java`'s `power + √(2·mAtk)` (×3 crit), and `calcAtkBreak`
+  (cast break on hit). Each fn doc-comments the dropped terms — all identity
+  for unarmed/shotless players (shots, traits, attribute, pvp/pve config
+  multipliers). The `ALT_GAME_MAGICFAILURES` resist branch is deferred
+  (equivalent to `MagicFailures = False`).
+- **3-phase cast state machine**: `Player.cast: Option<CastState>` (replaces
+  `casting: bool`; snapshots skill/target/timings) + `cast_seq` generation
+  counter. `startCasting` (reuse registration, stop-move, `ExRotation` target
+  facing, initial MP, broadcast `MagicSkillUse`, SM 46 + `SetupGauge`) →
+  `SkillLaunch` at `hit` (effect-range re-check → SM 748 quiet stop;
+  broadcast `MagicSkillLaunched`; marks the cast unabortable) → `SkillFinish`
+  at `+cancel` (MP/HP consume with SM 23/24 on shortfall, effect application)
+  → `CastEnd` at `+cool`. Scheduled tasks carry `cast_seq` and no-op on
+  mismatch — aborting is just clearing `Player.cast`, no heap surgery.
+- **Abort/interrupt**: `abort_cast` (port of `Creature.abortCast` →
+  `stopCasting(true)`, pre-launch only): broadcast `MagicSkillCanceled`
+  (new packet, 0x49) + `ActionFailed`. Wired to Esc
+  (`RequestTargetCanceld`, which Java aborts on regardless of the
+  `targetLost` flag) and to incoming magic damage via `calcAtkBreak`
+  (SM 27). Movement during a cast stays blocked with `ActionFailed`
+  (`PlayerAI.onIntentionMoveTo` semantics — it does *not* abort).
+- **Reuse**: `Player.reuses` (skill_id → until_tick + total, one map for
+  Java's `_reuseTimeStampsSkills`/`_disabledSkills` split), registered at
+  cast start, checked lazily in the `useMagic` gate — SM 48 for short
+  reuses, SM 2303/2304/2305 with the h/m/s breakdown for >3 s ones. Real
+  `SkillCoolTime` packet (enter-world + `RequestSkillCoolTime`).
+  Persistence across relog still deferred.
+- **Targeting**: `resolve_cast_target` — static match port of the
+  `Self`/`Target`/`Enemy`/`EnemyOnly` target-handler scripts (players only,
+  no geodata LOS/peace zones; with no PvP flags an `ENEMY` cast always needs
+  ctrl/force-use). Cast-range gate ports `Util.checkIfInRange` with collision
+  radii (out-of-range = `ActionFailed`; Java's walk-into-range AI is not
+  ported).
+- **Effects**: `SkillEffect` enum (`StatModifier` | `MagicalAttack` |
+  `Heal`) replaces the stat-modifier-only effect list; buffs now land on the
+  *resolved target* (buff-a-friend works). Magic damage drains **CP first**
+  then HP (`PlayerStatus.reduceHp`), clamped at 1.0 HP — no death system
+  yet (TODO G9 `doDie`) — with SM 2261/2262 damage messages + `M_CRITICAL`.
+  Heals overheal-clamp and send SM 1066/1067.
+- **Packets**: parameterized `SystemMessage` builder
+  (`system_message_with` + `SmParam` Text/Int/SkillName/PlayerName, `sm_ids`
+  constants), `MagicSkillUse` with real target fields, multi-target
+  `MagicSkillLaunched`, `MagicSkillCanceled`, real `SkillCoolTime`;
+  `RequestMagicSkillUse` now reads `shiftPressed`. `World.rng` + `roll()`
+  (test hook: `forced_rolls`) for the crit/break dice.
+- **Skill-XML loader fix**: the `<list>` document root was being pushed onto
+  the parser's tag stack, shifting every depth check by one — **the loader
+  parsed 0 skills from the real dist XMLs** (G6's tests bypassed it with
+  `insert_for_test`, hiding it). Now guarded + regression-tested against the
+  real files (`loads_real_dist_files`, >10 000 skill levels). Parser also
+  reads per-level `targetType`, `isMagic`, `effectPoint`, `hitCancelTime`,
+  and `<power>` effect params.
+- **Tests**: `formulas` unit tests with exact Java values; parser tests
+  (Wind-Strike/Heal-shaped XML); synthetic-`World` integration tests for the
+  full nuke-on-player flow (exact damage, CP-first, both packet streams,
+  reuse gate), no-ctrl/out-of-range rejections, HP clamp, Esc abort +
+  stale-task no-op + reuse surviving the abort, effect-range re-check,
+  heal-with-formula + overheal clamp, buff-on-other + expiry, quiet
+  finish-phase MP failure, `SkillCoolTime` contents, and damage breaking a
+  victim's pre-launch cast.
+
 ### G8–G13 — ⏳ not started
 See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gate: **static
 world content** — NPCs/spawns, so there's something besides another player to
@@ -293,14 +366,17 @@ Empty/placeholder now, to be filled in the owning milestone:
   encumbrance enforcement, `ItemList`/`ExUserInfoEquipSlot` visual-id block.
   Also blocks full P.Def/P.Atk/M.Def/M.Atk accuracy (see G6: naked-value only
   until item `<stats>` are parsed).
-- **Skills/combat (post-G6, G9):** damage-dealing effects (`PhysicalAttack`,
-  `MagicalAttack`, …) and `Formulas.calcAutoAttackDamage`/`calcMagicDam`; non-
-  `SELF` targeting + range/LOS; the other 8 `AcquireSkillType`s (PLEDGE,
-  TRANSFORM, TRANSFER, SUBCLASS, …); toggle-type skills; skill reuse-delay
+- **Skills/combat (post-G7.5, G9):** physical damage (`PhysicalAttack` effect,
+  auto-attack, `Formulas.calcAutoAttackDamage`); AoE affect scopes (only
+  `SINGLE` resolves); `ALT_GAME_MAGICFAILURES` magic-resist rolls
+  (`calcMagicSuccess`); death (`doDie` — magic damage currently clamps HP at
+  1.0); queued skills + walk-into-cast-range AI; geodata LOS for targeting;
+  the other 8 `AcquireSkillType`s (PLEDGE, TRANSFORM, TRANSFER, SUBCLASS, …);
+  toggle-type skills; skill mastery + `MAGIC_REUSE_RATE`; skill reuse-delay
   persistence across relog; `ExAbnormalStatusUpdateFromTarget` (broadcast to
   other players — needs a real known-list, see the G7 entry below); most of
   the 230-entry `Stat` enum and 369 effect classes (grow `EFFECT_REGISTRY`/
-  `Stat` as needed).
+  `SkillEffect` as needed).
 - **Movement/targeting (post-G7):** geodata/LOS/pathfinding validation (G7
   trusted the client's reported position outright — no `GeoEngine`, no
   collision/door checks); a real known-list/visibility region-grid (`G7`'s

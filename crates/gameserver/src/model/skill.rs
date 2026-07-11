@@ -18,12 +18,21 @@ pub enum OperateType {
     Other,
 }
 
-/// Java `TargetType`, scoped to `SELF` (the only targeting G6's cast pipeline
-/// handles) plus a catch-all for everything else so unhandled skills still
-/// load instead of failing to parse.
+/// Java `TargetType`, scoped to the single-target types the cast pipeline
+/// resolves (see `resolve_cast_target`) plus a catch-all so unhandled skills
+/// still load instead of failing to parse.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TargetType {
+    /// `SELF`: always the caster.
     Self_,
+    /// `TARGET`: the current target, friendly or not (self allowed).
+    Target,
+    /// `ENEMY`: an attackable target (force-use required against unflagged
+    /// players — see `targethandlers/Enemy.java`).
+    Enemy,
+    /// `ENEMY_ONLY`: like `ENEMY` minus the "attack anything with ctrl"
+    /// leniencies; identical to `Enemy` in a world with only players.
+    EnemyOnly,
     Other,
 }
 
@@ -37,6 +46,21 @@ pub struct StatModifierEffect {
     pub amount: f64,
 }
 
+/// A skill effect the pipeline knows how to apply. Java registers ~380 effect
+/// handler scripts by name; here each supported kind is a variant —
+/// `StatModifier` covers the whole `AbstractStatAddEffect`/
+/// `AbstractStatPercentEffect` family, the instant kinds get one variant per
+/// ported handler. Unregistered effect names are still dropped at load.
+#[derive(Debug, Clone, Copy)]
+pub enum SkillEffect {
+    /// Continuous stat pump (goes into an `ActiveBuff` for `abnormal_time`).
+    StatModifier(StatModifierEffect),
+    /// `handlers/effecthandlers/MagicalAttack.java` — instant magic damage.
+    MagicalAttack { power: f64 },
+    /// `handlers/effecthandlers/Heal.java` — instant HP restore.
+    Heal { power: f64 },
+}
+
 /// `dist/game/data/stats/skills/*.xml` → `Skill.java`, scoped to G6.
 #[derive(Debug, Clone)]
 pub struct Skill {
@@ -45,13 +69,23 @@ pub struct Skill {
     pub name: String,
     pub operate_type: OperateType,
     pub target_type: TargetType,
+    /// Java `isMagic`: 0 physical, 1 magic, 2 static, 3 dance/song, 4 trigger.
+    /// Drives cast-time scaling (`calc_skill_time_factor`) and crit rolls.
+    pub magic_type: i32,
+    /// Java `effectPoint` — negative marks an offensive ("bad") skill.
+    pub effect_point: i32,
     pub cast_range: i32,
     pub effect_range: i32,
-    /// Milliseconds from cast start to the skill "landing" (Java `hitTime`).
+    /// Milliseconds from cast start to the skill "landing" (Java `hitTime`),
+    /// before casting-speed scaling.
     pub hit_time: i32,
+    /// Java `hitCancelTime` (seconds) — the launch→finish phase length input;
+    /// almost always 0, floored to 500 ms by `calc_skill_cancel_time`.
+    pub hit_cancel_time: f64,
     /// Extra server-side cooldown after `finishSkill` (Java `coolTime`).
     pub cool_time: i32,
-    /// Client-visible reuse delay (Java `reuseDelay`).
+    /// Reuse delay in ms (Java `reuseDelay`) — enforced server-side via
+    /// `Player.reuses` and shown client-side via the `MagicSkillUse` fields.
     pub reuse_delay: i32,
     pub mp_consume: i32,
     pub mp_initial_consume: i32,
@@ -64,7 +98,26 @@ pub struct Skill {
     /// only resolved to a client id, via `abnormal_type_client_id`, for the
     /// handful `AbnormalStatusUpdate` actually needs so far).
     pub abnormal_type: String,
-    pub effects: Vec<StatModifierEffect>,
+    pub effects: Vec<SkillEffect>,
+}
+
+impl Skill {
+    /// Java `Skill.isBad()`: `effectPoint < 0` (aggro/debuff/damage skills).
+    pub fn is_bad(&self) -> bool {
+        self.effect_point < 0
+    }
+
+    /// The continuous stat-pump subset of `effects` — what lands as an
+    /// `ActiveBuff` (instant effects never enter a buff).
+    pub fn stat_modifier_effects(&self) -> Vec<StatModifierEffect> {
+        self.effects
+            .iter()
+            .filter_map(|e| match e {
+                SkillEffect::StatModifier(m) => Some(*m),
+                _ => None,
+            })
+            .collect()
+    }
 }
 
 /// `AbnormalType.getClientId()`, scoped to the types skills registered in
@@ -72,6 +125,7 @@ pub struct Skill {
 /// (`-1`), same as Java's default. TODO: grow alongside `EFFECT_REGISTRY`.
 pub fn abnormal_type_client_id(name: &str) -> i32 {
     match name {
+        "PA_UP" => 94,
         "PD_UP" => 98,
         _ => -1,
     }

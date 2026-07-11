@@ -3,6 +3,7 @@
 //! to enter the world and display correctly. Inventory, skills, effects, and the
 //! full stat pipeline arrive in later milestones.
 
+pub mod formulas;
 pub mod inventory;
 pub mod movement;
 pub mod skill;
@@ -17,6 +18,28 @@ use inventory::Inventory;
 use movement::MoveData;
 use skill::{ActiveBuff, StatModifierEffect};
 use stats::{BaseStat, Stat, StatModifierType};
+
+/// Java `SkillCaster`'s per-cast state, one NORMAL casting slot (no dual
+/// casting in Interlude). Owned by the casting `Player`; the scheduler's
+/// phase tasks carry `seq` and no-op when it no longer matches (see
+/// `Scheduler`'s dead-id contract) — that mismatch is how an aborted cast
+/// "cancels" its already-queued tasks without touching the heap.
+#[derive(Debug, Clone)]
+pub struct CastState {
+    pub skill_id: i32,
+    pub skill_level: i32,
+    /// Aiming target snapshotted at cast start (Java `SkillCaster._target`).
+    pub target_object_id: i32,
+    /// Generation counter from `Player.cast_seq`.
+    pub seq: u64,
+    /// Java `canAbortCast()`: a cast can only be aborted before `launchSkill`
+    /// resolves its targets.
+    pub launched: bool,
+    /// `SkillCaster._cancelTime`/`_coolTime` (ms), fixed at cast start so a
+    /// mid-cast stat change can't shift the already-announced timing.
+    pub cancel_ms: i32,
+    pub cool_ms: i32,
+}
 
 /// A player character in (or entering) the world. Owned by the `World` object
 /// registry once in game; the `InGame` session links to it by `object_id`.
@@ -102,9 +125,18 @@ pub struct Player {
     /// `recalculate_stats` folds them into the displayed combat stats.
     pub stats_add: HashMap<Stat, f64>,
     pub stats_mul: HashMap<Stat, f64>,
-    /// `true` while a cast is in flight (Phase 0–2 of `RequestMagicSkillUse`) —
-    /// a minimal stand-in for Java's `SkillCaster` re-entrancy guard.
-    pub casting: bool,
+    /// `Some` while a cast is in flight (Java `Creature._skillCasters`, single
+    /// NORMAL slot). Replaces + extends the old `casting: bool` re-entrancy
+    /// guard: also carries the target snapshot and the task generation.
+    pub cast: Option<CastState>,
+    /// Monotonic cast-generation counter, bumped every `startCasting`.
+    pub cast_seq: u64,
+    /// Java `Creature._reuseTimeStampsSkills` + `_disabledSkills`, unified:
+    /// `skill_id → (until_tick, total_reuse_ms)`. Java splits short reuses
+    /// from >3000 ms timestamps only for DB persistence and packet filtering,
+    /// both derivable from one map. Checked lazily — no expiry tasks.
+    /// TODO: persist across relog like Java's `character_skills_save`.
+    pub reuses: HashMap<i32, (u64, i32)>,
 
     /// Currently targeted object id (Java `Creature._target`). Player-only for
     /// now — no NPCs/items exist as targetable `WorldObject`s yet.
@@ -194,7 +226,9 @@ impl Player {
             buffs: Vec::new(),
             stats_add: HashMap::new(),
             stats_mul: HashMap::new(),
-            casting: false,
+            cast: None,
+            cast_seq: 0,
+            reuses: HashMap::new(),
             target: None,
             move_data: None,
         };

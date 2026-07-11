@@ -16,7 +16,8 @@ use tracing::{debug, error, info, warn};
 use crate::data::GameData;
 use crate::db::{self, DbEvent, DbEventRx, NewCharacter};
 use crate::loginlink::{CommandTx, LoginLinkCommand, LoginLinkEvent, LoginLinkEventRx};
-use crate::model::skill::{abnormal_type_client_id, ActiveBuff, OperateType, Skill, TargetType};
+use crate::model::formulas;
+use crate::model::skill::{abnormal_type_client_id, ActiveBuff, OperateType, Skill, SkillEffect, TargetType};
 use crate::model::stats::BaseStat;
 use crate::model::Player;
 use crate::scheduler::ScheduledTask;
@@ -188,8 +189,10 @@ fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::ENTER_WORLD => handle_enter_world(world, client_id),
         // RequestSkillCoolTime (IN_GAME): resend the reuse timers.
         cop::REQUEST_SKILL_COOL_TIME => {
-            if let Some(cs @ ClientSession::InGame(_)) = world.clients.get(&client_id) {
-                cs.send(crate::network::enter_world::skill_cool_time());
+            if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id) {
+                if let Some(player) = world.players.get(&session.player_object_id()) {
+                    cs.send(server_packets::skill_cool_time(player, world.tick));
+                }
             }
         }
         cop::USE_ITEM => handle_use_item(world, client_id, body),
@@ -535,7 +538,7 @@ fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(ew::quest_list());
     session.send(ew::ex_rotation(&player));
     session.send(ew::friend_list());
-    session.send(ew::skill_cool_time());
+    session.send(server_packets::skill_cool_time(&player, world.tick));
 
     // Register the player in the world and re-send UserInfo (Java does both).
     session.send(user_info(&player, data));
@@ -617,8 +620,14 @@ fn apply_due_tasks(world: &mut World) {
     for task in world.drain_due_tasks() {
         match task {
             ScheduledTask::Noop { .. } => {}
-            ScheduledTask::SkillLaunch { player_object_id, skill_id, skill_level } => {
-                handle_skill_launch(world, player_object_id, skill_id, skill_level);
+            ScheduledTask::SkillLaunch { player_object_id, cast_seq } => {
+                handle_skill_launch(world, player_object_id, cast_seq);
+            }
+            ScheduledTask::SkillFinish { player_object_id, cast_seq } => {
+                handle_skill_finish(world, player_object_id, cast_seq);
+            }
+            ScheduledTask::CastEnd { player_object_id, cast_seq } => {
+                handle_cast_end(world, player_object_id, cast_seq);
             }
             ScheduledTask::BuffExpire { player_object_id, skill_id } => {
                 handle_buff_expire(world, player_object_id, skill_id);
@@ -658,92 +667,363 @@ fn ms_to_ticks(ms: i32) -> u64 {
     (ms.max(0) as u64).div_ceil(100)
 }
 
-/// Port of `clientpackets/RequestMagicSkillUse.runImpl` + `SkillCaster`'s
-/// phase 0 (`startCasting`). Scoped to `TargetType::Self_`, `OperateType::Active`
-/// skills the player already knows — everything else (other targeting,
-/// passive/toggle skills, damage effects) is out of scope for G6 (see the
-/// plan's cast-pipeline scope notes) and is silently ignored, same as Java
-/// ignores an out-of-state request.
+/// Send a `SystemMessage` + `ActionFailed` to one client — the standard
+/// "request rejected" reply shape all over `Player.useMagic` /
+/// `SkillCaster.checkUseConditions`.
+fn send_sm_and_action_failed(world: &World, client_id: u32, message_id: i16, params: &[server_packets::SmParam]) {
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::system_message_with(message_id, params));
+        cs.send(server_packets::action_failed());
+    }
+}
+
+/// Send `packet` to a player's own client (if still connected) and everyone
+/// else — Java `Creature.broadcastPacket(packet)` with `includeSelf == true`.
+fn broadcast_including_self(world: &World, object_id: i32, packet: &[u8]) {
+    if let Some(client_id) = client_for_player(world, object_id) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(packet.to_vec());
+        }
+    }
+    broadcast_to_others(world, object_id, packet);
+}
+
+/// Port of `Skill.getTarget` + the `targethandlers/{Self,Target,Enemy,
+/// EnemyOnly}.java` scripts as a static match, players-only (no NPCs, geodata
+/// LOS, peace zones, or party checks yet). `None` means "invalid target" —
+/// the caller sends SM 109 + `ActionFailed`.
+fn resolve_cast_target(world: &World, caster: &Player, skill: &Skill, ctrl: bool) -> Option<i32> {
+    match skill.target_type {
+        TargetType::Self_ => Some(caster.object_id),
+        // `Target.java`: the selected target, friend or foe; self allowed.
+        TargetType::Target => {
+            let t = caster.target?;
+            world.players.contains_key(&t).then_some(t)
+        }
+        // `Enemy.java`/`EnemyOnly.java`: not self, and `isAutoAttackable ||
+        // forceUse` — players carry no PvP flag/karma yet, so nothing is
+        // auto-attackable and ctrl (force-use) is always required.
+        TargetType::Enemy | TargetType::EnemyOnly => {
+            let t = caster.target?;
+            if t == caster.object_id || !ctrl {
+                return None;
+            }
+            world.players.contains_key(&t).then_some(t)
+        }
+        TargetType::Other => None,
+    }
+}
+
+/// `Util.checkIfInRange`: 2D (or 3D) distance vs `range` + both collision
+/// radii.
+fn in_range(a: &Player, b: &Player, range: i32, include_z: bool) -> bool {
+    let (dx, dy, dz) = ((b.x - a.x) as f64, (b.y - a.y) as f64, (b.z - a.z) as f64);
+    let d2 = dx * dx + dy * dy + if include_z { dz * dz } else { 0.0 };
+    let reach = range as f64 + a.collision_radius + b.collision_radius;
+    d2 <= reach * reach
+}
+
+/// Port of `clientpackets/RequestMagicSkillUse.runImpl` + `Player.useMagic`'s
+/// guards + `SkillCaster.castSkill`/`checkUseConditions`. Narrowing: no
+/// queued skills, no follow-into-range (an out-of-range cast just fails), no
+/// mute/sit/fake-death states (none exist), toggles and non-single targeting
+/// still silently ignored.
 fn handle_request_magic_skill_use(world: &mut World, client_id: u32, body: &[u8]) {
+    use server_packets::{sm_ids, SmParam};
+
     let Some(pkt) = cp::RequestMagicSkillUse::read(body) else { return };
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
 
     let Some(player) = world.players.get(&object_id) else { return };
-    let Some(&skill_level) = player.skills.get(&pkt.magic_id) else { return };
+    // Unknown skill → ActionFailed (RequestMagicSkillUse.runImpl).
+    let Some(&skill_level) = player.skills.get(&pkt.magic_id) else {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    };
     let Some(skill) = world.data.skill_data.get(pkt.magic_id, skill_level).cloned() else { return };
-    if skill.operate_type != OperateType::Active || skill.target_type != TargetType::Self_ {
+
+    // Passive → ActionFailed (useMagic); toggles/unsupported targeting are
+    // not castable yet and are consumed silently, same as before.
+    if skill.operate_type == OperateType::Passive {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
         return;
     }
-    if player.casting {
+    if skill.operate_type != OperateType::Active || skill.target_type == TargetType::Other {
         return;
-    }
-    if player.cur_mp < (skill.mp_initial_consume + skill.mp_consume) as f64 {
-        return; // TODO: SystemMessage NOT_ENOUGH_MP
-    }
-    if player.cur_hp <= skill.hp_consume as f64 {
-        return; // TODO: SystemMessage NOT_ENOUGH_HP
     }
 
+    // Reuse gate (`Player.useMagic`'s `isSkillDisabled` branch): timestamp
+    // reuses (> 3000 ms) get the remaining h/m/s breakdown, short ones SM 48.
+    if let Some(&(until_tick, total_ms)) = player.reuses.get(&skill.id) {
+        if until_tick > world.tick {
+            let name_param = SmParam::SkillName { id: skill.id, level: skill.level };
+            if total_ms > 3000 {
+                let remaining_ms = (until_tick - world.tick) * 100;
+                let hours = (remaining_ms / 3_600_000) as i32;
+                let minutes = ((remaining_ms % 3_600_000) / 60_000) as i32;
+                let seconds = ((remaining_ms / 1000) % 60) as i32;
+                if hours > 0 {
+                    send_sm_and_action_failed(
+                        world,
+                        client_id,
+                        sm_ids::S2_HOURS_S3_MINUTES_S4_SECONDS_REMAINING_FOR_REUSE,
+                        &[name_param, SmParam::Int(hours), SmParam::Int(minutes), SmParam::Int(seconds)],
+                    );
+                } else if minutes > 0 {
+                    send_sm_and_action_failed(
+                        world,
+                        client_id,
+                        sm_ids::S2_MINUTES_S3_SECONDS_REMAINING_FOR_REUSE,
+                        &[name_param, SmParam::Int(minutes), SmParam::Int(seconds)],
+                    );
+                } else {
+                    send_sm_and_action_failed(
+                        world,
+                        client_id,
+                        sm_ids::S2_SECONDS_REMAINING_FOR_REUSE,
+                        &[name_param, SmParam::Int(seconds)],
+                    );
+                }
+            } else {
+                send_sm_and_action_failed(world, client_id, sm_ids::S1_IS_NOT_AVAILABLE_REUSE, &[name_param]);
+            }
+            return;
+        }
+    }
+
+    // Single NORMAL casting slot busy (`checkUseConditions`).
+    if player.cast.is_some() {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
+
+    // MP/HP prechecks (`checkUseConditions`).
+    if player.cur_mp < (skill.mp_initial_consume + skill.mp_consume) as f64 {
+        send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_MP, &[]);
+        return;
+    }
+    if player.cur_hp <= skill.hp_consume as f64 {
+        send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_HP, &[]);
+        return;
+    }
+
+    let Some(target_oid) = resolve_cast_target(world, player, &skill, pkt.ctrl_pressed) else {
+        send_sm_and_action_failed(world, client_id, sm_ids::INVALID_TARGET, &[]);
+        return;
+    };
+
+    // Cast-range gate (`SkillCaster.castSkill`). Java returns null and lets
+    // the AI walk into range; there's no follow-to-cast yet, so just unstick
+    // the client (narrowing note).
+    if skill.cast_range > 0 && target_oid != object_id {
+        let target = &world.players[&target_oid];
+        if !in_range(player, target, skill.cast_range, false) {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
+            return;
+        }
+    }
+
+    start_casting(world, client_id, object_id, &skill, target_oid);
+}
+
+/// Port of `SkillCaster.startCasting` (phase 0). Narrowing: no skill mastery,
+/// no `MAGIC_REUSE_RATE` stat (reuse = the skill's `reuseDelay`), no item/
+/// fame/clan-rep consumes, no `stopEffectsOnAction`, no `MoveToPawn`
+/// cosmetic (only `ExRotation` for target facing).
+fn start_casting(world: &mut World, client_id: u32, object_id: i32, skill: &Skill, target_oid: i32) {
+    use server_packets::{sm_ids, SmParam};
+
+    let Some(player) = world.players.get(&object_id) else { return };
+    let (hit_ms, cancel_ms, cool_ms) = formulas::calc_cast_times(player, &world.data, skill);
+    let displayed_cast_time = hit_ms + cancel_ms;
+
+    // Register the reuse (skipped when trivially short, like Java's `> 10`).
+    if skill.reuse_delay > 10 {
+        let until_tick = world.tick + ms_to_ticks(skill.reuse_delay);
+        if let Some(player) = world.players.get_mut(&object_id) {
+            player.reuses.insert(skill.id, (until_tick, skill.reuse_delay));
+        }
+    }
+
+    // Stop movement (`clientStopMoving`) — the client freezes on its own; the
+    // broadcast pins the position for everyone else.
+    let was_moving = world.players.get(&object_id).is_some_and(|p| p.move_data.is_some());
+    if was_moving {
+        if let Some(player) = world.players.get_mut(&object_id) {
+            player.move_data = None;
+        }
+        let p = &world.players[&object_id];
+        broadcast_including_self(world, object_id, &server_packets::stop_move(object_id, p.x, p.y, p.z, p.heading));
+    }
+
+    // Face the target (Java: `setHeading` + broadcast `ExRotation`).
+    if target_oid != object_id {
+        let (dx, dy) = {
+            let p = &world.players[&object_id];
+            let t = &world.players[&target_oid];
+            ((t.x - p.x) as f64, (t.y - p.y) as f64)
+        };
+        let heading = crate::model::movement::calculate_heading(dx, dy);
+        if let Some(player) = world.players.get_mut(&object_id) {
+            player.heading = heading;
+        }
+        let p = &world.players[&object_id];
+        broadcast_including_self(world, object_id, &crate::network::enter_world::ex_rotation(p));
+    }
+
+    // Initial MP consume + StatusUpdate (re-checked here in Java too).
     let mut mp_update = None;
     if let Some(player) = world.players.get_mut(&object_id) {
-        player.casting = true;
         if skill.mp_initial_consume > 0 {
-            player.cur_mp = (player.cur_mp - skill.mp_initial_consume as f64).max(0.0);
+            if player.cur_mp < skill.mp_initial_consume as f64 {
+                send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_MP, &[]);
+                return;
+            }
+            player.cur_mp -= skill.mp_initial_consume as f64;
             mp_update = Some(player.cur_mp as i32);
         }
     }
-
-    if let Some(player) = world.players.get(&object_id) {
+    if let Some(mp) = mp_update {
         if let Some(cs) = world.clients.get(&client_id) {
-            if let Some(mp) = mp_update {
-                cs.send(server_packets::status_update(object_id, &[(server_packets::status_update_type::CUR_MP, mp)]));
-            }
-            cs.send(server_packets::magic_skill_use(player, skill.id, skill.level, skill.hit_time, skill.reuse_delay));
-            cs.send(server_packets::setup_gauge(object_id, 0, skill.hit_time));
+            cs.send(server_packets::status_update(object_id, &[(server_packets::status_update_type::CUR_MP, mp)]));
         }
     }
 
+    // Broadcast the cast start, then the caster-only YOU_USE_S1 + cast bar.
+    {
+        let caster = &world.players[&object_id];
+        let target = &world.players[&target_oid];
+        broadcast_including_self(
+            world,
+            object_id,
+            &server_packets::magic_skill_use(caster, target, skill.id, skill.level, displayed_cast_time, skill.reuse_delay),
+        );
+    }
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::system_message_with(
+            sm_ids::YOU_USE_S1,
+            &[SmParam::SkillName { id: skill.id, level: skill.level }],
+        ));
+        cs.send(server_packets::setup_gauge(object_id, 0, displayed_cast_time));
+    }
+
+    let cast_seq = {
+        let Some(player) = world.players.get_mut(&object_id) else { return };
+        player.cast_seq += 1;
+        player.cast = Some(crate::model::CastState {
+            skill_id: skill.id,
+            skill_level: skill.level,
+            target_object_id: target_oid,
+            seq: player.cast_seq,
+            launched: false,
+            cancel_ms,
+            cool_ms,
+        });
+        player.cast_seq
+    };
+    world
+        .scheduler
+        .schedule(world.tick + ms_to_ticks(hit_ms), ScheduledTask::SkillLaunch { player_object_id: object_id, cast_seq });
+}
+
+/// A cast task's `CastState` if it's still the live one (seq matches);
+/// stale/aborted tasks resolve to `None` and no-op.
+fn live_cast(world: &World, player_object_id: i32, cast_seq: u64) -> Option<crate::model::CastState> {
+    world
+        .players
+        .get(&player_object_id)?
+        .cast
+        .clone()
+        .filter(|c| c.seq == cast_seq)
+}
+
+/// Port of `SkillCaster.launchSkill` (phase 1): re-check `effectRange`
+/// (failure → SM 748 + a *quiet* stop, `stopCasting(false)` — Java only
+/// sends `MagicSkillCanceled` on explicit aborts), broadcast
+/// `MagicSkillLaunched`, mark the cast unabortable, schedule the finish.
+fn handle_skill_launch(world: &mut World, player_object_id: i32, cast_seq: u64) {
+    use server_packets::sm_ids;
+
+    let Some(cast) = live_cast(world, player_object_id, cast_seq) else { return };
+    let Some(skill) = world.data.skill_data.get(cast.skill_id, cast.skill_level).cloned() else { return };
+
+    // Target gone (logged off) → quiet stop, like Java's dead-ref return.
+    if !world.players.contains_key(&cast.target_object_id) {
+        if let Some(player) = world.players.get_mut(&player_object_id) {
+            player.cast = None;
+        }
+        return;
+    }
+
+    if skill.effect_range > 0 && cast.target_object_id != player_object_id {
+        let caster = &world.players[&player_object_id];
+        let target = &world.players[&cast.target_object_id];
+        if !in_range(caster, target, skill.effect_range, true) {
+            if let Some(client_id) = client_for_player(world, player_object_id) {
+                if let Some(cs) = world.clients.get(&client_id) {
+                    cs.send(server_packets::system_message_with(sm_ids::DISTANCE_TOO_FAR_CASTING_CANCELLED, &[]));
+                }
+            }
+            if let Some(player) = world.players.get_mut(&player_object_id) {
+                player.cast = None;
+            }
+            return;
+        }
+    }
+
+    broadcast_including_self(
+        world,
+        player_object_id,
+        &server_packets::magic_skill_launched(player_object_id, skill.id, skill.level, &[cast.target_object_id]),
+    );
+
+    if let Some(player) = world.players.get_mut(&player_object_id) {
+        if let Some(c) = player.cast.as_mut() {
+            c.launched = true;
+        }
+    }
     world.scheduler.schedule(
-        world.tick + ms_to_ticks(skill.hit_time),
-        ScheduledTask::SkillLaunch { player_object_id: object_id, skill_id: skill.id, skill_level: skill.level },
+        world.tick + ms_to_ticks(cast.cancel_ms),
+        ScheduledTask::SkillFinish { player_object_id, cast_seq },
     );
 }
 
-/// `SkillCaster.launchSkill` (`ScheduledTask::SkillLaunch`, fired `hit_time`
-/// ms after the cast started): broadcast `MagicSkillLaunched`, then run
-/// `finishSkill` inline (no separate cancel-time wait — see the scheduler's
-/// doc comment on this variant).
-fn handle_skill_launch(world: &mut World, player_object_id: i32, skill_id: i32, skill_level: i32) {
-    let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else { return };
-    if let Some(player) = world.players.get(&player_object_id) {
-        if let Some(client_id) = client_for_player(world, player_object_id) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::magic_skill_launched(player, skill_id, skill_level));
-            }
-        }
-    }
-    finish_skill_cast(world, player_object_id, &skill);
-}
+/// Port of `SkillCaster.finishSkill` + `callSkill` (phase 2): re-check and
+/// consume MP/HP (failure → SM + quiet stop, no cancel packet), apply the
+/// skill's effects, then either free the cast slot or hold it for
+/// `_coolTime`.
+fn handle_skill_finish(world: &mut World, player_object_id: i32, cast_seq: u64) {
+    use server_packets::sm_ids;
 
-/// `SkillCaster.finishSkill`: final MP/HP consumption (abort + clear
-/// `casting` if insufficient, mirroring Java's re-check at landing — no
-/// refund of the initial consume, matching Java) then effect application —
-/// a new `ActiveBuff` scheduled to expire via `ScheduledTask::BuffExpire`.
-fn finish_skill_cast(world: &mut World, player_object_id: i32, skill: &Skill) {
-    let Some(player) = world.players.get(&player_object_id) else { return };
-    let insufficient = player.cur_mp < skill.mp_consume as f64 || player.cur_hp <= skill.hp_consume as f64;
-    if insufficient {
+    let Some(cast) = live_cast(world, player_object_id, cast_seq) else { return };
+    let Some(skill) = world.data.skill_data.get(cast.skill_id, cast.skill_level).cloned() else { return };
+    let client_id = client_for_player(world, player_object_id);
+
+    // MP/HP re-check at landing (no refund of the initial consume).
+    let insufficient_mp = world.players[&player_object_id].cur_mp < skill.mp_consume as f64;
+    let insufficient_hp = world.players[&player_object_id].cur_hp <= skill.hp_consume as f64;
+    if insufficient_mp || insufficient_hp {
+        if let Some(client_id) = client_id {
+            let sm = if insufficient_mp { sm_ids::NOT_ENOUGH_MP } else { sm_ids::NOT_ENOUGH_HP };
+            send_sm_and_action_failed(world, client_id, sm, &[]);
+        }
         if let Some(player) = world.players.get_mut(&player_object_id) {
-            player.casting = false;
+            player.cast = None;
         }
-        return; // TODO: SystemMessage (NOT_ENOUGH_MP/NOT_ENOUGH_HP)
+        return;
     }
 
-    let now = world.tick;
     let mut updates = Vec::new();
     if let Some(player) = world.players.get_mut(&player_object_id) {
-        player.casting = false;
         if skill.mp_consume > 0 {
             player.cur_mp = (player.cur_mp - skill.mp_consume as f64).max(0.0);
             updates.push((server_packets::status_update_type::CUR_MP, player.cur_mp as i32));
@@ -753,34 +1033,225 @@ fn finish_skill_cast(world: &mut World, player_object_id: i32, skill: &Skill) {
             updates.push((server_packets::status_update_type::CUR_HP, player.cur_hp as i32));
         }
     }
+    if !updates.is_empty() {
+        if let Some(client_id) = client_id {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::status_update(player_object_id, &updates));
+            }
+        }
+    }
 
-    let has_effects = !skill.effects.is_empty();
-    if has_effects {
-        let expires_at_tick = now + (skill.abnormal_time.max(0) as u64) * 10;
+    // `callSkill` → effect application, if the target is still around.
+    if world.players.contains_key(&cast.target_object_id) {
+        apply_skill_effects(world, player_object_id, cast.target_object_id, &skill);
+    }
+
+    // Hold the cast slot for the cool phase (`stopCasting(false)` after
+    // `_coolTime`), freeing inline when there's nothing to wait out.
+    let cool_ticks = ms_to_ticks(cast.cool_ms);
+    if cool_ticks == 0 {
+        if let Some(player) = world.players.get_mut(&player_object_id) {
+            player.cast = None;
+        }
+    } else {
+        world
+            .scheduler
+            .schedule(world.tick + cool_ticks, ScheduledTask::CastEnd { player_object_id, cast_seq });
+    }
+}
+
+/// `SkillCaster.run`'s terminal `stopCasting(false)` — the cool phase ended.
+fn handle_cast_end(world: &mut World, player_object_id: i32, cast_seq: u64) {
+    if live_cast(world, player_object_id, cast_seq).is_none() {
+        return;
+    }
+    if let Some(player) = world.players.get_mut(&player_object_id) {
+        player.cast = None;
+    }
+}
+
+/// Port of `Creature.abortCast` → `stopCasting(aborted == true)`: only casts
+/// that haven't launched can be aborted; broadcast `MagicSkillCanceled` (self
+/// included, to stop the animation) + `ActionFailed` to the caster. The
+/// already-scheduled phase tasks go stale via the seq mismatch.
+fn abort_cast(world: &mut World, object_id: i32) {
+    let abortable = world.players.get(&object_id).is_some_and(|p| p.cast.as_ref().is_some_and(|c| !c.launched));
+    if !abortable {
+        return;
+    }
+    if let Some(player) = world.players.get_mut(&object_id) {
+        player.cast = None;
+    }
+    broadcast_including_self(world, object_id, &server_packets::magic_skill_canceld(object_id));
+    if let Some(client_id) = client_for_player(world, object_id) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+    }
+}
+
+/// The `callSkill` → `activateSkill` → effect-handler chain for the effect
+/// kinds ported so far. Continuous stat modifiers land as an `ActiveBuff` on
+/// the target; `MagicalAttack`/`Heal` are instant.
+fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
+    use server_packets::{sm_ids, SmParam};
+
+    // Magic crit is rolled once per cast (Java rolls in each instant effect's
+    // `instant()`; one roll covers the single instant effect skills have).
+    let m_crit_rate = world.players[&caster_oid].m_crit_hit as f64;
+    let crit_roll = world.roll(1000);
+    let mcrit = skill.magic_type == 1 && formulas::calc_magic_crit(m_crit_rate, skill.is_bad(), crit_roll);
+
+    for effect in &skill.effects {
+        match *effect {
+            SkillEffect::MagicalAttack { power } => {
+                let (m_atk, caster_name) = {
+                    let c = &world.players[&caster_oid];
+                    (c.m_atk as f64, c.name.clone())
+                };
+                let m_def = world.players[&target_oid].m_def as f64;
+                let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit);
+                apply_magic_damage(world, caster_oid, target_oid, damage, mcrit, &caster_name);
+            }
+            SkillEffect::Heal { power } => {
+                let m_atk = world.players[&caster_oid].m_atk as f64;
+                let amount = formulas::calc_heal(power, m_atk, mcrit);
+                let healed = {
+                    let Some(target) = world.players.get_mut(&target_oid) else { continue };
+                    // Overheal clamp (`Heal.java`).
+                    let amount = amount.min((target.max_hp as f64 - target.cur_hp).max(0.0));
+                    target.cur_hp += amount;
+                    amount
+                };
+                let caster_name = world.players[&caster_oid].name.clone();
+                if let Some(client_id) = client_for_player(world, target_oid) {
+                    if let Some(cs) = world.clients.get(&client_id) {
+                        if target_oid != caster_oid {
+                            cs.send(server_packets::system_message_with(
+                                sm_ids::S2_HP_HAS_BEEN_RESTORED_BY_C1,
+                                &[SmParam::PlayerName(caster_name), SmParam::Int(healed as i32)],
+                            ));
+                        } else {
+                            cs.send(server_packets::system_message_with(
+                                sm_ids::S1_HP_HAS_BEEN_RESTORED,
+                                &[SmParam::Int(healed as i32)],
+                            ));
+                        }
+                        let cur_hp = world.players[&target_oid].cur_hp as i32;
+                        cs.send(server_packets::status_update(
+                            target_oid,
+                            &[(server_packets::status_update_type::CUR_HP, cur_hp)],
+                        ));
+                    }
+                }
+            }
+            SkillEffect::StatModifier(_) => {} // collected below
+        }
+    }
+
+    // Continuous effects → one ActiveBuff on the target (`applyEffects`).
+    let buff_effects = skill.stat_modifier_effects();
+    if !buff_effects.is_empty() {
+        let expires_at_tick = world.tick + (skill.abnormal_time.max(0) as u64) * 10;
         let buff = ActiveBuff {
             skill_id: skill.id,
             skill_level: skill.level,
             abnormal_type_client_id: abnormal_type_client_id(&skill.abnormal_type),
             expires_at_tick,
-            effects: skill.effects.clone(),
+            effects: buff_effects,
         };
-        if let Some(player) = world.players.get_mut(&player_object_id) {
-            player.apply_buff(&world.data, buff);
+        if let Some(target) = world.players.get_mut(&target_oid) {
+            target.apply_buff(&world.data, buff);
         }
-        world.scheduler.schedule(
-            expires_at_tick,
-            ScheduledTask::BuffExpire { player_object_id, skill_id: skill.id },
-        );
+        world
+            .scheduler
+            .schedule(expires_at_tick, ScheduledTask::BuffExpire { player_object_id: target_oid, skill_id: skill.id });
+        let now = world.tick;
+        if let Some(client_id) = client_for_player(world, target_oid) {
+            if let Some(target) = world.players.get(&target_oid) {
+                if let Some(cs) = world.clients.get(&client_id) {
+                    cs.send(crate::network::enter_world::abnormal_status_update(target, now));
+                }
+            }
+        }
+    }
+}
+
+/// Port of `Creature.doAttack` → `PlayerStatus.reduceHp` for magic skill
+/// damage between players: CP absorbs first, then HP — clamped at 1.0
+/// because there's no death system yet (TODO(G9 death): `doDie`). Also rolls
+/// Java's `Formulas.calcAtkBreak` cast-break against a pre-launch cast on
+/// the victim (SM 27 + `MagicSkillCanceled`).
+fn apply_magic_damage(world: &mut World, caster_oid: i32, target_oid: i32, damage: f64, mcrit: bool, caster_name: &str) {
+    use server_packets::{sm_ids, SmParam};
+
+    let (target_name, cp_after, hp_after) = {
+        let Some(target) = world.players.get_mut(&target_oid) else { return };
+        let cp_absorb = damage.min(target.cur_cp);
+        target.cur_cp -= cp_absorb;
+        target.cur_hp = (target.cur_hp - (damage - cp_absorb)).max(1.0);
+        (target.name.clone(), target.cur_cp as i32, target.cur_hp as i32)
+    };
+    let dmg_int = damage as i32;
+
+    if let Some(client_id) = client_for_player(world, caster_oid) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            if mcrit {
+                cs.send(server_packets::system_message_with(sm_ids::M_CRITICAL, &[]));
+            }
+            cs.send(server_packets::system_message_with(
+                sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
+                &[
+                    SmParam::PlayerName(caster_name.to_string()),
+                    SmParam::PlayerName(target_name.clone()),
+                    SmParam::Int(dmg_int),
+                ],
+            ));
+        }
+    }
+    if let Some(client_id) = client_for_player(world, target_oid) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                sm_ids::C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2,
+                &[
+                    SmParam::PlayerName(target_name.clone()),
+                    SmParam::PlayerName(caster_name.to_string()),
+                    SmParam::Int(dmg_int),
+                ],
+            ));
+        }
     }
 
-    let Some(client_id) = client_for_player(world, player_object_id) else { return };
-    if let Some(player) = world.players.get(&player_object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            if !updates.is_empty() {
-                cs.send(server_packets::status_update(player_object_id, &updates));
-            }
-            if has_effects {
-                cs.send(crate::network::enter_world::abnormal_status_update(player, now));
+    // Both sides see the victim's new CP/HP (`broadcastStatusUpdate`).
+    broadcast_including_self(
+        world,
+        target_oid,
+        &server_packets::status_update(
+            target_oid,
+            &[
+                (server_packets::status_update_type::CUR_CP, cp_after),
+                (server_packets::status_update_type::CUR_HP, hp_after),
+            ],
+        ),
+    );
+
+    // Cast break (`Formulas.calcAtkBreak`, `AltGameCancelByHit = cast`).
+    let breakable = world
+        .players
+        .get(&target_oid)
+        .is_some_and(|p| p.cast.as_ref().is_some_and(|c| !c.launched));
+    if breakable {
+        let men_bonus = {
+            let t = &world.players[&target_oid];
+            world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Men, t.men)
+        };
+        let break_roll = world.roll(100);
+        if formulas::calc_atk_break(damage, men_bonus, break_roll) {
+            abort_cast(world, target_oid);
+            if let Some(client_id) = client_for_player(world, target_oid) {
+                if let Some(cs) = world.clients.get(&client_id) {
+                    cs.send(server_packets::system_message_with(sm_ids::YOUR_CASTING_HAS_BEEN_INTERRUPTED, &[]));
+                }
             }
         }
     }
@@ -865,16 +1336,19 @@ fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
     }
 }
 
-/// Port of `clientpackets/RequestTargetCanceld.runImpl`, narrowed to the
-/// `targetLost` branch (the locked-target/queued-skill/cast-abort/air-ship
-/// guards are all combat/vehicle features that don't exist yet).
+/// Port of `clientpackets/RequestTargetCanceld.runImpl`: Esc aborts an
+/// in-flight cast (Java `abortAllSkillCasters`, regardless of the
+/// `targetLost` flag), then clears the target if `targetLost`. The
+/// locked-target/queued-skill/air-ship guards are features that don't exist
+/// yet.
 fn handle_request_target_canceld(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::RequestTargetCanceld::read(body) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+    abort_cast(world, object_id);
     if !pkt.target_lost {
         return;
     }
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
-    let object_id = session.player_object_id();
     set_target(world, client_id, object_id, None);
 }
 
@@ -947,7 +1421,10 @@ fn handle_move_backward_to_location(world: &mut World, client_id: u32, body: &[u
         return;
     }
 
-    if player.casting {
+    // Java `PlayerAI.onIntentionMoveTo`: a move request during a cast is
+    // rejected with ActionFailed (the cast is NOT aborted); the queued
+    // next-intention move is not ported.
+    if player.cast.is_some() {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -1613,7 +2090,7 @@ mod tests {
     /// are tested against synthetic `World` state, not real time).
     #[test]
     fn learn_and_cast_buff_skill_applies_and_expires() {
-        use crate::model::skill::{Skill, StatModifierEffect};
+        use crate::model::skill::{Skill, SkillEffect, StatModifierEffect};
         use crate::model::stats::{Stat, StatModifierType};
 
         let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
@@ -1659,9 +2136,12 @@ mod tests {
             name: "Defense Aura".into(),
             operate_type: OperateType::Active,
             target_type: TargetType::Self_,
+            magic_type: 1,
+            effect_point: 0,
             cast_range: 0,
             effect_range: 0,
             hit_time: 400,
+            hit_cancel_time: 0.0,
             cool_time: 0,
             reuse_delay: 2000,
             mp_consume: 4,
@@ -1670,7 +2150,11 @@ mod tests {
             abnormal_time: 20,
             abnormal_level: 1,
             abnormal_type: "PD_UP".into(),
-            effects: vec![StatModifierEffect { stat: Stat::PhysicalDefence, mode: StatModifierType::Per, amount: 8.0 }],
+            effects: vec![SkillEffect::StatModifier(StatModifierEffect {
+                stat: Stat::PhysicalDefence,
+                mode: StatModifierType::Per,
+                amount: 8.0,
+            })],
         });
 
         let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
@@ -1708,28 +2192,29 @@ mod tests {
         let _ = out_rx.try_recv().unwrap(); // UserInfo
 
         // --- Cast: RequestMagicSkillUse(91). ---
-        let mut w = PacketWriter::new();
-        w.write_i32(91);
-        w.write_i32(0); // ctrlPressed
-        handle_request_magic_skill_use(&mut world, 1, &w.into_bytes());
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(91, false));
 
-        assert!(world.players[&2001].casting);
+        assert!(world.players[&2001].cast.is_some());
         assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE); // initial MP consume
         assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_USE);
+        assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::SYSTEM_MESSAGE); // YOU_USE_S1
         assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::SETUP_GAUGE);
         assert_eq!(world.players[&2001].cur_mp, 49.0, "50 - mpInitialConsume(1)");
 
-        // --- Advance to hit_time (400 ms = 4 ticks) and let it land. ---
-        world.tick += 4;
+        // --- Launch: hit = max(400/factor(1.0) − cancel(500), 0) = 0 ms, so
+        // the launch task is already due; the finish follows 500 ms later.
         apply_due_tasks(&mut world);
-
         assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_LAUNCHED);
+        assert!(world.players[&2001].cast.as_ref().is_some_and(|c| c.launched));
+
+        world.tick += 5;
+        apply_due_tasks(&mut world);
         assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE); // final MP consume
         assert_eq!(out_rx.try_recv().unwrap()[0], 0x85); // AbnormalStatusUpdate
 
         {
             let p = &world.players[&2001];
-            assert!(!p.casting);
+            assert!(p.cast.is_none(), "coolTime 0 frees the cast slot inline");
             assert_eq!(p.cur_mp, 45.0, "49 - mpConsume(4)");
             assert_eq!(p.buffs.len(), 1);
             assert_eq!(p.p_def, 86, "80 * 1.08 (PhysicalDefence +8%), rounded");
@@ -1746,6 +2231,509 @@ mod tests {
         let p = &world.players[&2001];
         assert!(p.buffs.is_empty());
         assert_eq!(p.p_def, 80, "P.Def restored after the buff expired");
+    }
+
+    fn magic_skill_use_body(magic_id: i32, ctrl: bool) -> Vec<u8> {
+        let mut w = PacketWriter::new();
+        w.write_i32(magic_id);
+        w.write_i32(if ctrl { 1 } else { 0 });
+        w.write_u8(0); // shiftPressed
+        w.into_bytes()
+    }
+
+    /// The `SystemMessage` id of a packet (opcode 0x62 + LE i16 id).
+    fn sm_id(pkt: &[u8]) -> i16 {
+        assert_eq!(pkt[0], server_packets::opcodes::SYSTEM_MESSAGE, "not a SystemMessage: 0x{:02x}", pkt[0]);
+        i16::from_le_bytes([pkt[1], pkt[2]])
+    }
+
+    /// A world with a mage-ish class-0 template (m.atk/m.def/cast speed set,
+    /// level-5 HP/MP/CP tables) and three castable skills: a Wind-Strike-like
+    /// nuke (1177, `EnemyOnly`, `MagicalAttack` power 12, 10 s reuse), a
+    /// Battle-Heal-like heal (1015, `Target`, power 83), and a Might-like
+    /// buff-on-other (1068, `Target`, P.Atk +8%).
+    fn cast_test_world() -> (
+        World,
+        db::CmdRx,
+        tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+    ) {
+        use crate::model::skill::{Skill, SkillEffect, StatModifierEffect};
+        use crate::model::stats::{Stat, StatModifierType};
+
+        let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
+        let (db_tx, db_rx) = tokio::sync::mpsc::unbounded_channel();
+
+        let mut hp_table = vec![0.0; 90];
+        let mut mp_table = vec![0.0; 90];
+        let mut cp_table = vec![0.0; 90];
+        hp_table[5] = 100.0;
+        mp_table[5] = 50.0;
+        cp_table[5] = 100.0;
+        let template = crate::data::player_template::PlayerTemplate {
+            class_id: 0,
+            base_str: 40,
+            base_dex: 30,
+            base_con: 43,
+            base_int: 21,
+            base_wit: 11,
+            base_men: 25,
+            base_p_atk: 100,
+            base_m_atk: 100,
+            base_m_def: 60,
+            base_p_atk_spd: 300,
+            base_m_atk_spd: 333,
+            // base_m_crit_rate stays 0 → magic crits can never roll, keeping
+            // damage/heal numbers deterministic.
+            hp_table,
+            mp_table,
+            cp_table,
+            ..Default::default()
+        };
+        let mut data = GameData::for_test();
+        data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![template]);
+
+        let base = Skill {
+            id: 0,
+            level: 1,
+            name: String::new(),
+            operate_type: OperateType::Active,
+            target_type: TargetType::Other,
+            magic_type: 1,
+            effect_point: 0,
+            cast_range: 600,
+            effect_range: 1100,
+            hit_time: 4000,
+            hit_cancel_time: 0.0,
+            cool_time: 0,
+            reuse_delay: 0,
+            mp_consume: 7,
+            mp_initial_consume: 2,
+            hp_consume: 0,
+            abnormal_time: 0,
+            abnormal_level: 0,
+            abnormal_type: "NONE".into(),
+            effects: vec![],
+        };
+        data.skill_data.insert_for_test(Skill {
+            id: 1177,
+            name: "Wind Strike".into(),
+            target_type: TargetType::EnemyOnly,
+            effect_point: -92,
+            reuse_delay: 10_000,
+            effects: vec![SkillEffect::MagicalAttack { power: 12.0 }],
+            ..base.clone()
+        });
+        data.skill_data.insert_for_test(Skill {
+            id: 1015,
+            name: "Battle Heal".into(),
+            target_type: TargetType::Target,
+            effect_point: 100,
+            hit_time: 1000,
+            effects: vec![SkillEffect::Heal { power: 83.0 }],
+            ..base.clone()
+        });
+        data.skill_data.insert_for_test(Skill {
+            id: 1068,
+            name: "Might".into(),
+            target_type: TargetType::Target,
+            effect_point: 100,
+            hit_time: 1000,
+            abnormal_time: 20,
+            abnormal_level: 1,
+            abnormal_type: "PA_UP".into(),
+            effects: vec![SkillEffect::StatModifier(StatModifierEffect {
+                stat: Stat::PhysicalAttack,
+                mode: StatModifierType::Per,
+                amount: 8.0,
+            })],
+            ..base.clone()
+        });
+        // A slow self-buff (10 s cast) used as the interruptible victim cast.
+        data.skill_data.insert_for_test(Skill {
+            id: 91,
+            name: "Slow Aura".into(),
+            target_type: TargetType::Self_,
+            cast_range: 0,
+            effect_range: 0,
+            hit_time: 10_000,
+            abnormal_time: 20,
+            abnormal_type: "PD_UP".into(),
+            effects: vec![SkillEffect::StatModifier(StatModifierEffect {
+                stat: Stat::PhysicalDefence,
+                mode: StatModifierType::Per,
+                amount: 8.0,
+            })],
+            ..base
+        });
+
+        (World::new(link_tx, 7, 3, 0, data, db_tx.clone()), db_rx, link_rx)
+    }
+
+    /// An `InGame` level-5 player knowing every `cast_test_world` skill, with
+    /// full MP/CP.
+    fn ingame_caster(
+        world: &mut World,
+        client_id: u32,
+        object_id: i32,
+        x: i32,
+        y: i32,
+    ) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>> {
+        let mut chr = dummy_char(object_id, &format!("P{object_id}"));
+        chr.level = 5;
+        chr.cur_mp = 50.0;
+        chr.cur_hp = 100.0;
+        chr.x = x;
+        chr.y = y;
+        chr.z = 0;
+        chr.skills = vec![(1177, 1), (1015, 1), (1068, 1), (91, 1)];
+        let player = Player::from_char(&world.data, &chr);
+        let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
+        let s = Session::new(client_id, out_tx, "127.0.0.1:1".parse().unwrap())
+            .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+            .into_lobby(vec![])
+            .into_entering(player);
+        let (session, player) = s.into_ingame();
+        world.players.insert(player.object_id, player);
+        world.clients.insert(client_id, ClientSession::InGame(session));
+        world.players.get_mut(&object_id).unwrap().cur_cp = 100.0;
+        out_rx
+    }
+
+    fn drain(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) -> Vec<Vec<u8>> {
+        let mut out = Vec::new();
+        while let Ok(p) = rx.try_recv() {
+            out.push(p);
+        }
+        out
+    }
+
+    /// Advance the world one tick at a time, firing due tasks each tick like
+    /// the real loop — a task scheduled by another task (launch → finish)
+    /// would never fire under a single big jump + one drain.
+    fn advance_ticks(world: &mut World, n: u64) {
+        for _ in 0..n {
+            world.tick += 1;
+            apply_due_tasks(world);
+        }
+    }
+
+    /// The full happy path of an offensive cast on another player, phase by
+    /// phase, plus the reuse gate on an immediate re-cast: exact
+    /// Formulas.calcMagicDam damage, CP absorbed before HP, the SM
+    /// 2261/2262 damage messages, and every broadcast reaching the target.
+    #[test]
+    fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
+        let (mut world, ..) = cast_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+
+        handle_action(&mut world, 1, &action_body(3002, 0));
+        drain(&mut a_rx);
+        drain(&mut b_rx);
+
+        // Without ctrl an unflagged player is not a valid enemy target.
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+        assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::INVALID_TARGET);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+        assert!(world.players[&3001].cast.is_none());
+
+        // With ctrl: ExRotation (face target) + initial-MP StatusUpdate +
+        // MagicSkillUse to everyone, YOU_USE_S1 + SetupGauge to the caster.
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::EX);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_USE);
+        assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::YOU_USE_S1);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::SETUP_GAUGE);
+        assert!(a_rx.try_recv().is_err());
+        assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::EX);
+        assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_USE);
+        assert!(b_rx.try_recv().is_err());
+        assert_eq!(world.players[&3001].cur_mp, 48.0, "50 - mpInitialConsume(2)");
+
+        // Launch at hit = 4000/1.0 − 500 = 3500 ms = 35 ticks.
+        world.tick += 35;
+        apply_due_tasks(&mut world);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_LAUNCHED);
+        assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_LAUNCHED);
+
+        // Finish 500 ms later: MP consume, damage, messages, status updates.
+        world.tick += 5;
+        apply_due_tasks(&mut world);
+
+        let m_atk = world.players[&3001].m_atk as f64;
+        let m_def = world.players[&3002].m_def as f64;
+        let damage = formulas::calc_magic_dam(m_atk, m_def, 12.0, false);
+        assert!(damage > 100.0, "sanity: the nuke must overflow B's CP ({damage})");
+        {
+            let b = &world.players[&3002];
+            assert_eq!(b.cur_cp, 0.0, "CP absorbs first");
+            assert!((b.cur_hp - (100.0 - (damage - 100.0))).abs() < 1e-9, "HP takes the rest");
+        }
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE); // MP consume
+        assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE); // B's CP/HP
+        assert!(a_rx.try_recv().is_err());
+        assert_eq!(sm_id(&b_rx.try_recv().unwrap()), server_packets::sm_ids::C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2);
+        assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
+        assert!(b_rx.try_recv().is_err());
+        assert!(world.players[&3001].cast.is_none(), "coolTime 0 frees the slot");
+
+        // Immediate re-cast: 10 s reuse still has 6 s left → SM 2303 + fail.
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+        assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::S2_SECONDS_REMAINING_FOR_REUSE);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+        assert!(world.players[&3001].cast.is_none());
+        assert!(b_rx.try_recv().is_err(), "rejected cast must not broadcast");
+    }
+
+    /// Out-of-cast-range requests are rejected before anything is announced.
+    #[test]
+    fn cast_out_of_range_rejected() {
+        let (mut world, ..) = cast_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let mut b_rx = ingame_caster(&mut world, 2, 3002, 700, 0); // castRange 600
+        handle_action(&mut world, 1, &action_body(3002, 0));
+        drain(&mut a_rx);
+        drain(&mut b_rx);
+
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+        assert!(a_rx.try_recv().is_err());
+        assert!(b_rx.try_recv().is_err());
+        assert!(world.players[&3001].cast.is_none());
+    }
+
+    /// A nuke can never kill while there's no death system: HP floors at 1.
+    #[test]
+    fn nuke_never_kills_hp_clamped_at_1() {
+        let (mut world, ..) = cast_test_world();
+        let mut _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let mut _b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+        {
+            let b = world.players.get_mut(&3002).unwrap();
+            b.cur_cp = 0.0;
+            b.cur_hp = 5.0;
+        }
+        handle_action(&mut world, 1, &action_body(3002, 0));
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+        advance_ticks(&mut world, 45);
+        assert_eq!(world.players[&3002].cur_hp, 1.0);
+    }
+
+    /// Esc aborts a pre-launch cast: `MagicSkillCanceled` broadcast (self
+    /// included) + `ActionFailed`, the stale phase tasks no-op, the reuse
+    /// registered at cast start still stands (Java semantics), and once it
+    /// runs out the caster can cast again.
+    #[test]
+    fn esc_aborts_cast_and_stale_tasks_noop() {
+        let (mut world, ..) = cast_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+        handle_action(&mut world, 1, &action_body(3002, 0));
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+        drain(&mut a_rx);
+        drain(&mut b_rx);
+        let mp_after_start = world.players[&3001].cur_mp;
+
+        // Esc (targetLost=false: abort only, keep the target).
+        handle_request_target_canceld(&mut world, 1, &target_canceld_body(false));
+        assert!(world.players[&3001].cast.is_none());
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_CANCELED);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+        assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_CANCELED);
+
+        // The scheduled launch is stale: nothing fires, nothing lands.
+        world.tick += 40;
+        apply_due_tasks(&mut world);
+        assert!(a_rx.try_recv().is_err());
+        assert!(b_rx.try_recv().is_err());
+        assert_eq!(world.players[&3001].cur_mp, mp_after_start, "no finish consume after abort");
+        assert_eq!(world.players[&3002].cur_hp, 100.0);
+
+        // Reuse (registered at cast start) still blocks, then expires.
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+        assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::S2_SECONDS_REMAINING_FOR_REUSE);
+        drain(&mut a_rx);
+        world.tick += 60;
+        apply_due_tasks(&mut world);
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+        assert!(world.players[&3001].cast.is_some(), "castable again after reuse expiry");
+    }
+
+    /// The launch-phase `effectRange` re-check: a target who got away between
+    /// start and launch cancels the cast quietly (SM 748, no cancel packet —
+    /// Java `stopCasting(false)`).
+    #[test]
+    fn effect_range_recheck_cancels_when_target_moves_away() {
+        let (mut world, ..) = cast_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+        handle_action(&mut world, 1, &action_body(3002, 0));
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+        drain(&mut a_rx);
+        drain(&mut b_rx);
+
+        world.players.get_mut(&3002).unwrap().x = 5000; // > effectRange 1100
+
+        world.tick += 40;
+        apply_due_tasks(&mut world);
+        assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::DISTANCE_TOO_FAR_CASTING_CANCELLED);
+        assert!(a_rx.try_recv().is_err(), "no MagicSkillLaunched, no cancel packet");
+        assert!(b_rx.try_recv().is_err());
+        assert!(world.players[&3001].cast.is_none());
+        assert_eq!(world.players[&3002].cur_hp, 100.0);
+    }
+
+    /// A heal on another player: Heal.java's `power + sqrt(2·mAtk)` amount,
+    /// overheal-clamped, SM 1067 to the healed target.
+    #[test]
+    fn heal_on_other_restores_hp_with_formula() {
+        let (mut world, ..) = cast_test_world();
+        let mut _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+        world.players.get_mut(&3002).unwrap().cur_hp = 50.0;
+        handle_action(&mut world, 1, &action_body(3002, 0));
+        drain(&mut b_rx);
+
+        // TARGET-type skills need no ctrl.
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1015, false));
+        assert!(world.players[&3001].cast.is_some());
+        drain(&mut b_rx); // ExRotation + MagicSkillUse
+
+        advance_ticks(&mut world, 10); // hit 500 ms + cancel 500 ms
+
+        let heal = formulas::calc_heal(83.0, world.players[&3001].m_atk as f64, false);
+        assert!(heal > 50.0, "sanity: heal ({heal}) overflows the missing 50 HP");
+        assert_eq!(world.players[&3002].cur_hp, 100.0, "overheal clamped at max HP");
+        assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_LAUNCHED);
+        assert_eq!(sm_id(&b_rx.try_recv().unwrap()), server_packets::sm_ids::S2_HP_HAS_BEEN_RESTORED_BY_C1);
+        assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
+    }
+
+    /// A buff cast on another player lands on the *target*: their stats pump,
+    /// their client gets the AbnormalStatusUpdate, and the expiry restores.
+    #[test]
+    fn buff_on_other_player_lands_on_target() {
+        let (mut world, ..) = cast_test_world();
+        let mut _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+        handle_action(&mut world, 1, &action_body(3002, 0));
+        drain(&mut b_rx);
+        let base_p_atk = world.players[&3002].p_atk;
+
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1068, false));
+        advance_ticks(&mut world, 10);
+
+        {
+            let b = &world.players[&3002];
+            assert_eq!(b.buffs.len(), 1);
+            assert!(b.p_atk > base_p_atk, "P.Atk pumped by Might (+8%)");
+        }
+        let b_packets = drain(&mut b_rx);
+        assert!(
+            b_packets.iter().any(|p| p[0] == 0x85),
+            "target's client gets the AbnormalStatusUpdate"
+        );
+        assert!(world.players[&3001].buffs.is_empty(), "nothing lands on the caster");
+
+        advance_ticks(&mut world, 200);
+        let b = &world.players[&3002];
+        assert!(b.buffs.is_empty());
+        assert_eq!(b.p_atk, base_p_atk, "restored after expiry");
+    }
+
+    /// Finish-phase MP shortfall stops the cast quietly: SM 24 +
+    /// ActionFailed to the caster, but no `MagicSkillCanceled` (Java
+    /// `stopCasting(false)`), and no effects land.
+    #[test]
+    fn finish_phase_mp_shortfall_aborts_quietly() {
+        let (mut world, ..) = cast_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+        handle_action(&mut world, 1, &action_body(3002, 0));
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+        drain(&mut a_rx);
+        drain(&mut b_rx);
+
+        world.players.get_mut(&3001).unwrap().cur_mp = 0.0;
+
+        advance_ticks(&mut world, 45);
+        // Launch fires normally (range fine), then the finish fails on MP.
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_LAUNCHED);
+        assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::NOT_ENOUGH_MP);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+        assert!(a_rx.try_recv().is_err());
+        assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_LAUNCHED);
+        assert!(b_rx.try_recv().is_err(), "no cancel packet on a quiet stop");
+        assert!(world.players[&3001].cast.is_none());
+        assert_eq!(world.players[&3002].cur_hp, 100.0, "no damage landed");
+    }
+
+    /// `RequestSkillCoolTime` reports the remaining reuse of a just-cast
+    /// skill.
+    #[test]
+    fn skill_cool_time_lists_remaining_reuse() {
+        let (mut world, ..) = cast_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(91, false));
+        drain(&mut a_rx);
+
+        on_packet(&mut world, 1, vec![cop::REQUEST_SKILL_COOL_TIME]);
+        let pkt = a_rx.try_recv().unwrap();
+        assert_eq!(pkt[0], server_packets::opcodes::SKILL_COOL_TIME);
+        assert_eq!(i32::from_le_bytes(pkt[1..5].try_into().unwrap()), 0, "Slow Aura has no reuse delay");
+
+        // A reuse with 6 s left is reported with its total and remainder.
+        world.players.get_mut(&3001).unwrap().reuses.insert(1177, (world.tick + 60, 10_000));
+        on_packet(&mut world, 1, vec![cop::REQUEST_SKILL_COOL_TIME]);
+        let pkt = a_rx.try_recv().unwrap();
+        assert_eq!(pkt[0], server_packets::opcodes::SKILL_COOL_TIME);
+        assert_eq!(i32::from_le_bytes(pkt[1..5].try_into().unwrap()), 1);
+        assert_eq!(i32::from_le_bytes(pkt[5..9].try_into().unwrap()), 1177);
+        assert_eq!(i32::from_le_bytes(pkt[9..13].try_into().unwrap()), 1, "known level");
+        assert_eq!(i32::from_le_bytes(pkt[13..17].try_into().unwrap()), 10, "total seconds");
+        assert_eq!(i32::from_le_bytes(pkt[17..21].try_into().unwrap()), 6, "remaining seconds");
+    }
+
+    /// Incoming magic damage can break a victim's pre-launch cast
+    /// (`Formulas.calcAtkBreak`): `MagicSkillCanceled` broadcast + SM 27 to
+    /// the victim, and their stale launch task no-ops.
+    #[test]
+    fn incoming_magic_damage_can_break_precast() {
+        let (mut world, ..) = cast_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+
+        // B starts a slow self-cast (hit = 9500 ms = 95 ticks).
+        handle_request_magic_skill_use(&mut world, 2, &magic_skill_use_body(91, false));
+        assert!(world.players[&3002].cast.is_some());
+
+        // A nukes B; the nuke lands at 40 ticks, well before B's launch.
+        handle_action(&mut world, 1, &action_body(3002, 0));
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+        drain(&mut a_rx);
+        drain(&mut b_rx);
+
+        // Force the rolls: crit d1000 (rate 0 → miss regardless), then the
+        // atk-break d100 → 0 always breaks (rate ≥ 1).
+        world.forced_rolls.extend([999, 0]);
+
+        advance_ticks(&mut world, 45);
+
+        assert!(world.players[&3002].cast.is_none(), "victim's cast broken");
+        let b_packets = drain(&mut b_rx);
+        assert!(b_packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED));
+        assert!(b_packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+                && sm_id(p) == server_packets::sm_ids::YOUR_CASTING_HAS_BEEN_INTERRUPTED));
+        let a_packets = drain(&mut a_rx);
+        assert!(a_packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED));
+
+        // B's stale launch task fires and no-ops: no buff ever lands.
+        advance_ticks(&mut world, 60);
+        assert!(world.players[&3002].buffs.is_empty());
     }
 
     /// Puts a bare `Player` (built from `dummy_char`) straight into `InGame`,

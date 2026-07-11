@@ -8,6 +8,9 @@
 
 use std::collections::HashMap;
 
+use rand::rngs::StdRng;
+use rand::{Rng, SeedableRng};
+
 use crate::data::GameData;
 use crate::db;
 use crate::loginlink::CommandTx;
@@ -69,6 +72,13 @@ pub struct World {
     pub data: GameData,
     /// Command channel to the DB thread.
     pub db: db::CmdTx,
+    /// Game RNG (Java `Rnd`) — owned here so handlers roll through `roll()`,
+    /// which tests can force (`forced_rolls`) for deterministic combat.
+    pub rng: StdRng,
+    /// Test hook: pre-queued values returned by `roll()` before touching the
+    /// RNG. Cheaper and more explicit than seed archaeology in tests.
+    #[cfg(test)]
+    pub forced_rolls: std::collections::VecDeque<i32>,
 }
 
 impl World {
@@ -84,7 +94,20 @@ impl World {
             starting_adena,
             data,
             db,
+            rng: StdRng::from_entropy(),
+            #[cfg(test)]
+            forced_rolls: std::collections::VecDeque::new(),
         }
+    }
+
+    /// Java `Rnd.get(bound)`: uniform in `[0, bound)`. Tests can pre-queue
+    /// outcomes via `forced_rolls`.
+    pub fn roll(&mut self, bound: i32) -> i32 {
+        #[cfg(test)]
+        if let Some(v) = self.forced_rolls.pop_front() {
+            return v;
+        }
+        self.rng.gen_range(0..bound.max(1))
     }
 
     /// Every task the scheduler says is due this tick, drained for the caller
