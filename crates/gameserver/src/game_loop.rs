@@ -780,9 +780,10 @@ fn handle_request_magic_skill_use(world: &mut World, client_id: u32, body: &[u8]
         return;
     }
 
-    // Reuse gate (`Player.useMagic`'s `isSkillDisabled` branch): timestamp
-    // reuses (> 3000 ms) get the remaining h/m/s breakdown, short ones SM 48.
-    if let Some(&(until_tick, total_ms)) = player.reuses.get(&skill.id) {
+    // Reuse gate (`Player.useMagic`'s `isSkillDisabled` branch), keyed by the
+    // shared reuse group when the skill has one: timestamp reuses (> 3000 ms)
+    // get the remaining h/m/s breakdown, short ones SM 48.
+    if let Some(&crate::model::SkillReuse { until_tick, total_ms, .. }) = player.reuses.get(&skill.reuse_key()) {
         if until_tick > world.tick {
             let name_param = SmParam::SkillName { id: skill.id, level: skill.level };
             if total_ms > 3000 {
@@ -872,11 +873,15 @@ fn start_casting(world: &mut World, client_id: u32, object_id: i32, skill: &Skil
     let (hit_ms, cancel_ms, cool_ms) = formulas::calc_cast_times(player, &world.data, skill);
     let displayed_cast_time = hit_ms + cancel_ms;
 
-    // Register the reuse (skipped when trivially short, like Java's `> 10`).
+    // Register the reuse (skipped when trivially short, like Java's `> 10`),
+    // under the shared group id when the skill has one.
     if skill.reuse_delay > 10 {
         let until_tick = world.tick + ms_to_ticks(skill.reuse_delay);
         if let Some(player) = world.players.get_mut(&object_id) {
-            player.reuses.insert(skill.id, (until_tick, skill.reuse_delay));
+            player.reuses.insert(
+                skill.reuse_key(),
+                crate::model::SkillReuse { skill_level: skill.level, until_tick, total_ms: skill.reuse_delay },
+            );
         }
     }
 
@@ -931,7 +936,15 @@ fn start_casting(world: &mut World, client_id: u32, object_id: i32, skill: &Skil
         broadcast_including_self(
             world,
             object_id,
-            &server_packets::magic_skill_use(caster, target, skill.id, skill.level, displayed_cast_time, skill.reuse_delay),
+            &server_packets::magic_skill_use(
+                caster,
+                target,
+                skill.id,
+                skill.level,
+                displayed_cast_time,
+                skill.reuse_delay_group,
+                skill.reuse_delay,
+            ),
         );
     }
     if let Some(cs) = world.clients.get(&client_id) {
@@ -2340,6 +2353,7 @@ mod tests {
             hit_cancel_time: 0.0,
             cool_time: 0,
             reuse_delay: 2000,
+            reuse_delay_group: -1,
             mp_consume: 4,
             mp_initial_consume: 1,
             hp_consume: 0,
@@ -2502,6 +2516,7 @@ mod tests {
             hit_cancel_time: 0.0,
             cool_time: 0,
             reuse_delay: 0,
+            reuse_delay_group: -1,
             mp_consume: 7,
             mp_initial_consume: 2,
             hp_consume: 0,
@@ -2638,7 +2653,13 @@ mod tests {
         handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
         assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::EX);
         assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
-        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_USE);
+        let msu = a_rx.try_recv().unwrap();
+        assert_eq!(msu[0], server_packets::opcodes::MAGIC_SKILL_USE);
+        assert_eq!(
+            i32::from_le_bytes(msu[25..29].try_into().unwrap()),
+            -1,
+            "ungrouped skill must send reuse group -1 (0 greys every icon client-side)"
+        );
         assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::YOU_USE_S1);
         assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::SETUP_GAUGE);
         assert!(a_rx.try_recv().is_err());
@@ -2881,7 +2902,10 @@ mod tests {
         assert_eq!(i32::from_le_bytes(pkt[1..5].try_into().unwrap()), 0, "Slow Aura has no reuse delay");
 
         // A reuse with 6 s left is reported with its total and remainder.
-        world.players.get_mut(&3001).unwrap().reuses.insert(1177, (world.tick + 60, 10_000));
+        world.players.get_mut(&3001).unwrap().reuses.insert(
+            1177,
+            crate::model::SkillReuse { skill_level: 1, until_tick: world.tick + 60, total_ms: 10_000 },
+        );
         on_packet(&mut world, 1, vec![cop::REQUEST_SKILL_COOL_TIME]);
         let pkt = a_rx.try_recv().unwrap();
         assert_eq!(pkt[0], server_packets::opcodes::SKILL_COOL_TIME);
@@ -2890,6 +2914,61 @@ mod tests {
         assert_eq!(i32::from_le_bytes(pkt[9..13].try_into().unwrap()), 1, "known level");
         assert_eq!(i32::from_le_bytes(pkt[13..17].try_into().unwrap()), 10, "total seconds");
         assert_eq!(i32::from_le_bytes(pkt[17..21].try_into().unwrap()), 6, "remaining seconds");
+    }
+
+    /// Skills sharing a positive `reuseDelayGroup` share one cooldown entry
+    /// keyed by the group id: the `MagicSkillUse` broadcast carries the group,
+    /// casting one blocks the sibling (SM 48 — short reuse), and
+    /// `SkillCoolTime` reports the group id with the cast level.
+    #[test]
+    fn shared_reuse_group_blocks_sibling_skill() {
+        let (mut world, ..) = cast_test_world();
+
+        // Two quick self-skills in shared group 9000 (potion-style), cloned
+        // off Slow Aura (91) so only the reuse fields differ.
+        let base = world.data.skill_data.get(91, 1).unwrap().clone();
+        for id in [7001, 7002] {
+            world.data.skill_data.insert_for_test(Skill {
+                id,
+                hit_time: 400,
+                reuse_delay: 2000,
+                reuse_delay_group: 9000,
+                ..base.clone()
+            });
+        }
+
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let skills = &mut world.players.get_mut(&3001).unwrap().skills;
+        skills.insert(7001, 1);
+        skills.insert(7002, 1);
+
+        // Cast the first: MagicSkillUse carries group 9000 + the 2000 ms
+        // delay, and the reuse lands under the group key, not the skill id.
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(7001, false));
+        let msu = drain(&mut a_rx)
+            .into_iter()
+            .find(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE)
+            .expect("MagicSkillUse broadcast");
+        assert_eq!(i32::from_le_bytes(msu[25..29].try_into().unwrap()), 9000, "reuse group");
+        assert_eq!(i32::from_le_bytes(msu[29..33].try_into().unwrap()), 2000, "reuse delay");
+        let reuses = &world.players[&3001].reuses;
+        assert!(reuses.contains_key(&9000) && !reuses.contains_key(&7001));
+
+        // The sibling is blocked by the shared cooldown (reuse gate fires
+        // before the busy-casting-slot check, same as Java's useMagic order).
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(7002, false));
+        assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::S1_IS_NOT_AVAILABLE_REUSE);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+
+        // SkillCoolTime reports the group id, cast level, 2 s total/remaining.
+        on_packet(&mut world, 1, vec![cop::REQUEST_SKILL_COOL_TIME]);
+        let pkt = a_rx.try_recv().unwrap();
+        assert_eq!(pkt[0], server_packets::opcodes::SKILL_COOL_TIME);
+        assert_eq!(i32::from_le_bytes(pkt[1..5].try_into().unwrap()), 1);
+        assert_eq!(i32::from_le_bytes(pkt[5..9].try_into().unwrap()), 9000, "group id, not skill id");
+        assert_eq!(i32::from_le_bytes(pkt[9..13].try_into().unwrap()), 1, "cast level");
+        assert_eq!(i32::from_le_bytes(pkt[13..17].try_into().unwrap()), 2, "total seconds");
+        assert_eq!(i32::from_le_bytes(pkt[17..21].try_into().unwrap()), 2, "remaining seconds");
     }
 
     /// Incoming magic damage can break a victim's pre-launch cast

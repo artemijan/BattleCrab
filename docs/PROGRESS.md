@@ -308,7 +308,8 @@ damage math, server-side reuse enforcement, and cast interruption.
   `targetLost` flag) and to incoming magic damage via `calcAtkBreak`
   (SM 27). Movement during a cast stays blocked with `ActionFailed`
   (`PlayerAI.onIntentionMoveTo` semantics — it does *not* abort).
-- **Reuse**: `Player.reuses` (skill_id → until_tick + total, one map for
+- **Reuse**: `Player.reuses` (`Skill::reuse_key()` — the shared
+  `reuseDelayGroup` when set, else skill id — → `SkillReuse`, one map for
   Java's `_reuseTimeStampsSkills`/`_disabledSkills` split), registered at
   cast start, checked lazily in the `useMagic` gate — SM 48 for short
   reuses, SM 2303/2304/2305 with the h/m/s breakdown for >3 s ones. Real
@@ -417,6 +418,22 @@ killing the client.
   buff restore on login).
 - **Tests**: restart store+lobby round trip, restart → re-enter world (the
   original bug), logout store+`LeaveWorld`, disconnect store.
+
+### Post-G7.8 — Skill reuse groups ✅
+Fixed "every skill icon refreshes on any cast": `MagicSkillUse` (and
+`SkillList`) hardcoded the reuse-group field to 0, which the client treats as
+a shared everything-group; Java sends `Skill.reuseDelayGroup` (default **-1**
+= ungrouped).
+
+- **`Skill.reuse_delay_group`**: parsed from `<reuseDelayGroup>` (default -1)
+  and written raw into `MagicSkillUse` and `SkillList`.
+- **Shared cooldowns**: `Player.reuses` is now keyed by `Skill::reuse_key()`
+  (group id when positive, else skill id — Java's `_reuseHashCode` minus the
+  per-level dimension), value is a `SkillReuse` carrying the cast level so
+  `SkillCoolTime` can report `group-or-id + level` like Java.
+- **Tests**: ungrouped casts assert the -1 group byte in `MagicSkillUse`;
+  grouped siblings share one cooldown (gate + `SkillCoolTime` group id);
+  `loads_real_dist_files` probes a real grouped skill (10248 → group 10008).
 
 ### G8–G13 — ⏳ not started
 See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gate: **static

@@ -537,13 +537,16 @@ pub fn move_to_location(object_id: i32, dest_x: i32, dest_y: i32, dest_z: i32, x
 /// `RequestActionUse` action id yet). `casting_bar_id` is
 /// `SkillCastingType.NORMAL`'s client bar id (0). `hit_time` is the
 /// client-displayed cast time (`_hitTime + _cancelTime`). Self-casts pass the
-/// caster as `target`.
+/// caster as `target`. `reuse_group` is the skill's `reuseDelayGroup` — -1
+/// when ungrouped (the client greys *every* icon on 0, Java's constructor
+/// default is -1).
 pub fn magic_skill_use(
     caster: &Player,
     target: &Player,
     skill_id: i32,
     skill_level: i32,
     hit_time: i32,
+    reuse_group: i32,
     reuse_delay: i32,
 ) -> Vec<u8> {
     let mut w = PacketWriter::new();
@@ -554,7 +557,7 @@ pub fn magic_skill_use(
     w.write_i32(skill_id);
     w.write_i32(skill_level);
     w.write_i32(hit_time);
-    w.write_i32(0); // reuse group
+    w.write_i32(reuse_group);
     w.write_i32(reuse_delay);
     w.write_i32(caster.x);
     w.write_i32(caster.y);
@@ -676,18 +679,20 @@ pub fn system_message_with(message_id: i16, params: &[SmParam]) -> Vec<u8> {
 
 /// Port of `serverpackets/SkillCoolTime`: every skill still on reuse
 /// (`Player.reuses` entries with time remaining), total and remaining in
-/// whole seconds. Sent on enter-world and on `RequestSkillCoolTime`.
+/// whole seconds. The id written is the map key — the shared reuse group when
+/// the skill has one, else the skill id (Java writes
+/// `sharedReuseGroup > 0 ? group : skillId`). Sent on enter-world and on
+/// `RequestSkillCoolTime`.
 pub fn skill_cool_time(p: &Player, now_tick: u64) -> Vec<u8> {
     let entries: Vec<(i32, i32, i32, i32)> = p
         .reuses
         .iter()
-        .filter_map(|(&skill_id, &(until_tick, total_ms))| {
-            let remaining_ticks = until_tick.checked_sub(now_tick)?;
+        .filter_map(|(&reuse_key, r)| {
+            let remaining_ticks = r.until_tick.checked_sub(now_tick)?;
             if remaining_ticks == 0 {
                 return None;
             }
-            let level = p.skills.get(&skill_id).copied().unwrap_or(1);
-            Some((skill_id, level, total_ms / 1000, (remaining_ticks / 10) as i32))
+            Some((reuse_key, r.skill_level, r.total_ms / 1000, (remaining_ticks / 10) as i32))
         })
         .collect();
     let mut w = PacketWriter::new();

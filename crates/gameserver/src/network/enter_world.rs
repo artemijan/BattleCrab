@@ -96,22 +96,20 @@ pub fn shortcut_init() -> Vec<u8> {
 
 /// `SkillList` (0x5F), one entry per known skill (Java `Player.sendSkillList`
 /// via `SkillList.addSkill`): passive flag, level, sub-level, id, reuse-delay
-/// group (always 0 — shared-cooldown groups aren't modeled), disabled (clan
+/// group (`Skill.reuseDelayGroup`, -1 when ungrouped), disabled (clan
 /// reputation gate — always false, no clans yet), enchanted (always false).
 pub fn skill_list(p: &Player, data: &GameData) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0x5F);
     w.write_i32(p.skills.len() as i32);
     for (&skill_id, &level) in &p.skills {
-        let passive = data
-            .skill_data
-            .get(skill_id, level)
-            .is_some_and(|s| s.operate_type == crate::model::skill::OperateType::Passive);
+        let skill = data.skill_data.get(skill_id, level);
+        let passive = skill.is_some_and(|s| s.operate_type == crate::model::skill::OperateType::Passive);
         w.write_i32(passive as i32);
         w.write_i16(level as i16);
         w.write_i16(0); // sub-level
         w.write_i32(skill_id);
-        w.write_i32(0); // reuse delay group
+        w.write_i32(skill.map_or(-1, |s| s.reuse_delay_group));
         w.write_u8(0); // disabled
         w.write_u8(0); // enchanted
     }

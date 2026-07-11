@@ -41,6 +41,18 @@ pub struct CastState {
     pub cool_ms: i32,
 }
 
+/// One live cooldown (Java `TimeStamp`, trimmed): `SkillCoolTime` reports the
+/// map key (reuse group or skill id) plus the level it was cast at, so the
+/// level rides along here instead of being re-looked-up from `skills`.
+#[derive(Debug, Clone, Copy)]
+pub struct SkillReuse {
+    pub skill_level: i32,
+    /// Absolute tick the cooldown ends at.
+    pub until_tick: u64,
+    /// Full reuse duration in ms (Java `TimeStamp.getReuse()`).
+    pub total_ms: i32,
+}
+
 /// A player character in (or entering) the world. Owned by the `World` object
 /// registry once in game; the `InGame` session links to it by `object_id`.
 #[derive(Debug, Clone)]
@@ -131,12 +143,14 @@ pub struct Player {
     pub cast: Option<CastState>,
     /// Monotonic cast-generation counter, bumped every `startCasting`.
     pub cast_seq: u64,
-    /// Java `Creature._reuseTimeStampsSkills` + `_disabledSkills`, unified:
-    /// `skill_id → (until_tick, total_reuse_ms)`. Java splits short reuses
-    /// from >3000 ms timestamps only for DB persistence and packet filtering,
-    /// both derivable from one map. Checked lazily — no expiry tasks.
+    /// Java `Creature._reuseTimeStampsSkills` + `_disabledSkills`, unified,
+    /// keyed by `Skill::reuse_key()` (the shared `reuseDelayGroup` when one is
+    /// set, else the skill id — so grouped skills share one entry). Java
+    /// splits short reuses from >3000 ms timestamps only for DB persistence
+    /// and packet filtering, both derivable from one map. Checked lazily — no
+    /// expiry tasks.
     /// TODO: persist across relog like Java's `character_skills_save`.
-    pub reuses: HashMap<i32, (u64, i32)>,
+    pub reuses: HashMap<i32, SkillReuse>,
 
     /// Currently targeted object id (Java `Creature._target`). Player-only for
     /// now — no NPCs/items exist as targetable `WorldObject`s yet.

@@ -301,6 +301,7 @@ fn finalize_skill(
                 hit_cancel_time: get_f("hitCancelTime", 0.0),
                 cool_time: get_i("coolTime", 0),
                 reuse_delay: get_i("reuseDelay", 0),
+                reuse_delay_group: get_i("reuseDelayGroup", -1),
                 mp_consume: get_i("mpConsume", 0),
                 mp_initial_consume: get_i("mpInitialConsume", 0),
                 hp_consume: get_i("hpConsume", 0),
@@ -339,6 +340,13 @@ mod tests {
         assert_eq!(ws.target_type, TargetType::EnemyOnly);
         assert_eq!(ws.cast_range, 600);
         assert!(matches!(ws.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 12.0));
+        assert_eq!(ws.reuse_delay_group, -1, "no <reuseDelayGroup> must stay -1, never 0");
+        assert_eq!(ws.reuse_key(), 1177);
+
+        // "Knight - Individual" shares reuse group 10008 with its siblings.
+        let ki = sd.get(10248, 1).expect("Knight - Individual lvl 1");
+        assert_eq!(ki.reuse_delay_group, 10008);
+        assert_eq!(ki.reuse_key(), 10008);
     }
 
     /// A trimmed Wind Strike (1177): per-level `targetType` and

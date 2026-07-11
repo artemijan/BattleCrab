@@ -87,6 +87,10 @@ pub struct Skill {
     /// Reuse delay in ms (Java `reuseDelay`) — enforced server-side via
     /// `Player.reuses` and shown client-side via the `MagicSkillUse` fields.
     pub reuse_delay: i32,
+    /// Java `reuseDelayGroup` (default -1): skills sharing a positive group id
+    /// share one cooldown. Sent raw in `MagicSkillUse`/`SkillList` — the
+    /// client treats 0 as "every skill", so ungrouped must stay -1.
+    pub reuse_delay_group: i32,
     pub mp_consume: i32,
     pub mp_initial_consume: i32,
     pub hp_consume: i32,
@@ -105,6 +109,18 @@ impl Skill {
     /// Java `Skill.isBad()`: `effectPoint < 0` (aggro/debuff/damage skills).
     pub fn is_bad(&self) -> bool {
         self.effect_point < 0
+    }
+
+    /// The id a reuse is tracked and broadcast under: the shared
+    /// `reuseDelayGroup` when one is set, else the skill's own id. Java's
+    /// `Skill._reuseHashCode` minus the level/sub-level dimensions —
+    /// `Player.reuses` is keyed per skill, not per level.
+    pub fn reuse_key(&self) -> i32 {
+        if self.reuse_delay_group > 0 {
+            self.reuse_delay_group
+        } else {
+            self.id
+        }
     }
 
     /// The continuous stat-pump subset of `effects` — what lands as an
