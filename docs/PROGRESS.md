@@ -22,7 +22,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G4 Enter world (Player, HP/MP, UserInfo, enter-world burst) | ✅ (incl. paperdoll/mask enums) |
 | Game  | G5 Items & inventory                                        | ✅ vertical slice (items, equip/unequip, initial gear) |
 | Game  | G6 Stats, skills & effects                                  | ✅ vertical slice (stat engine, skill learn/cast, buffs) |
-| Game  | G7 Geodata, zones, movement, path finding                   | ⏳ |
+| Game  | G7 Movement & targeting (no geodata)                        | ✅ |
 | Game  | G8 Static world content (NPCs/spawns)                       | ⏳ |
 | Game  | G9 Combat & AI                                              | ⏳ |
 | Game  | G10 Social systems                                          | ⏳ |
@@ -191,8 +191,8 @@ milestone; summary:
 - **Passive regen**: a 3 s fixed-rate tick (`REGEN_TICK_PERIOD`, Java
   `Formulas.getRegeneratePeriod`) over in-game players, porting
   `RegenHPFinalizer`/`MPFinalizer`/`CPFinalizer` (× a flat "standing still"
-  1.1 multiplier — TODO(G7): sit/run states). New `StatusUpdate` server
-  packet.
+  1.1 multiplier — TODO: sit/run states, out of G7's move-only scope). New
+  `StatusUpdate` server packet.
 - **Skills**: `character_skills` now loads on select/enter-world and persists
   via a new fire-and-forget `DbCommand::UpsertSkill`; `Player.skills` (skill_id
   → level); real `SkillList`. `data/skill_tree.rs` extended from "level-1
@@ -231,10 +231,54 @@ milestone; summary:
   from its post-creation 0); added `GameClient::recv_skip_status_update` so
   reply-then-assert exchanges after enter-world aren't thrown off by it.
 
-### G7–G12 — ⏳ not started
-See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gate: finish the
-G4 vertical-slice gate proper — **movement + visibility/known-list + `Say2`
-chat** (two clients see each other, walk, chat) — then G8 static content.
+### G7 — Movement & targeting (no geodata) ✅
+Scoped-down slice of the vertical-slice gate's original "movement +
+known-list" gap: player-to-player targeting and click-to-move, both trusting
+the client outright (no geodata/pathfinding validation yet — see the
+deferred-TODO note below).
+
+- **`Player` fields**: `target: Option<i32>` (targeted object id — Player-only,
+  no NPCs/items exist as `WorldObject`s yet) and `move_data: Option<MoveData>`
+  (`model/movement.rs`, a geodata-free port of Java's nullable `Creature._move`
+  — start/dest x/y/z, `start_tick`, `total_ticks`).
+- **Targeting**: `Action` (0x1F) resolves a click to another in-world player
+  and calls `set_target`, a narrowed port of `Player.setTarget` (skips the
+  party/vehicle/GM checks — neither exist yet): same-target re-click is a
+  no-op; a real change sends `MyTargetSelected` + a `StatusUpdate`(HP) to the
+  selector and broadcasts `TargetSelected` to everyone else; clearing
+  broadcasts `TargetUnselected`. `RequestTargetCanceld` (0x48) reads the
+  `targetLost` flag and clears the target the same way. Every `Action` ends
+  with the `ActionFailed` terminator, matching `WorldObject.onAction`'s
+  convention (**`ActionFailed`/opcode `0x1F` server packet added** — didn't
+  exist before this milestone).
+- **Movement**: `MoveBackwardToLocation` (0x0F) ports the
+  `Creature.moveToLocation` math minus the entire geodata/pathfinding block
+  (`Creature.java` ~3651-3816) — same-origin/target → `StopMove`; max
+  click-distance (9900²) and `player.casting` are the only guards kept (the
+  rest of Java's `isMovementDisabled()` — rooted/overloaded/immobilized/dead/
+  teleporting — has no state to check yet); otherwise computes heading
+  (`Util.calculateHeadingFrom` port) and `total_ticks` from distance/speed,
+  sets `move_data`, and broadcasts one `MoveToLocation` to other players (the
+  mover self-predicts, per Java — no packet sent back to itself). A new
+  per-tick system (`movement::tick`, called unconditionally every 100 ms
+  iteration, unlike the gated `REGEN_TICK_PERIOD` systems) interpolates
+  position each tick and snaps to the destination on arrival — no `StopMove`
+  broadcast needed then, since the client already predicted it.
+- **Broadcast stopgap**: `broadcast_to_others` (`game_loop.rs`) sends to every
+  connected in-game player except the actor — a flat pass, not a real
+  known-list/region-grid (see Deferred TODOs below).
+- **Tests**: synthetic-`World` unit tests (`game_loop::tests`) —
+  `action_selects_switches_and_cancels_target` (select/re-click no-op/cancel,
+  checking both the selector's and the target's packet streams) and
+  `move_backward_to_location_interpolates_and_arrives` (mid-flight
+  interpolation + exact arrival snap, verifying the bystander gets
+  `MoveToLocation` but the mover doesn't) plus the same-origin `StopMove` case.
+
+### G8–G13 — ⏳ not started
+See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gate: **static
+world content** — NPCs/spawns, so there's something besides another player to
+target/path around — which is also the natural point to revisit the
+geodata/known-list gaps G7 left open (see Deferred TODOs).
 
 ---
 
@@ -254,8 +298,17 @@ Empty/placeholder now, to be filled in the owning milestone:
   `SELF` targeting + range/LOS; the other 8 `AcquireSkillType`s (PLEDGE,
   TRANSFORM, TRANSFER, SUBCLASS, …); toggle-type skills; skill reuse-delay
   persistence across relog; `ExAbnormalStatusUpdateFromTarget` (broadcast to
-  other players — needs known-list, G7); most of the 230-entry `Stat` enum and
-  369 effect classes (grow `EFFECT_REGISTRY`/`Stat` as needed).
+  other players — needs a real known-list, see the G7 entry below); most of
+  the 230-entry `Stat` enum and 369 effect classes (grow `EFFECT_REGISTRY`/
+  `Stat` as needed).
+- **Movement/targeting (post-G7):** geodata/LOS/pathfinding validation (G7
+  trusted the client's reported position outright — no `GeoEngine`, no
+  collision/door checks); a real known-list/visibility region-grid (`G7`'s
+  `broadcast_to_others` is a flat "every connected player" pass, not filtered
+  by distance/visibility); NPCs as targetable objects (`Action` only resolves
+  other players today); the rest of `isMovementDisabled()` (rooted/overloaded/
+  immobilized/dead/teleporting — none of that state exists yet). Natural to
+  revisit once G8 spawns NPCs and zones need real geodata for mob pathing/LOS.
 - **Quests (G10):** `QuestList` empty, `ExQuestItemList` empty.
 - **Social (G9):** clan/ally blocks in `UserInfo`, `FriendList` empty, mail.
 - **Misc:** macros, `HennaInfo` empty, `ExUserBanInfo`, `ExVitalityEffectInfo`

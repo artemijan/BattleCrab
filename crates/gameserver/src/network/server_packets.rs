@@ -20,11 +20,17 @@ pub mod opcodes {
     pub const CHAR_DELETE_SUCCESS: u8 = 0x1D;
     pub const CHAR_DELETE_FAIL: u8 = 0x1E;
     pub const VERSION_CHECK: u8 = 0x2E;
+    pub const ACTION_FAIL: u8 = 0x1F;
+    pub const TARGET_SELECTED: u8 = 0x23;
+    pub const TARGET_UNSELECTED: u8 = 0x24;
+    pub const MOVE_TO_LOCATION: u8 = 0x2F;
+    pub const STOP_MOVE: u8 = 0x47;
     pub const STATUS_UPDATE: u8 = 0x18;
     pub const MAGIC_SKILL_USE: u8 = 0x48;
     pub const MAGIC_SKILL_LAUNCHED: u8 = 0x54;
     pub const SETUP_GAUGE: u8 = 0x6B;
     pub const ACQUIRE_SKILL_DONE: u8 = 0x94;
+    pub const MY_TARGET_SELECTED: u8 = 0xB9;
 
     /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
     pub const EX: u8 = 0xFE;
@@ -399,6 +405,89 @@ pub fn status_update(object_id: i32, updates: &[(u8, i32)]) -> Vec<u8> {
         w.write_u8(kind);
         w.write_i32(value);
     }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ActionFailed.STATIC_PACKET` — the "request consumed"
+/// terminator Java sends after (almost) every `Action`/movement request,
+/// success or not. `castingType` is always 0 (no `SkillCastingType` bar
+/// tracking yet).
+pub fn action_failed() -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::ACTION_FAIL);
+    w.write_i32(0);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/MyTargetSelected`, sent only to the selecting
+/// player. `color` (level-diff, shown for attackable targets) is always 0 —
+/// no monsters/attackable creatures exist yet.
+pub fn my_target_selected(target_object_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::MY_TARGET_SELECTED);
+    w.write_i32(1); // Grand Crusade
+    w.write_i32(target_object_id);
+    w.write_i16(0); // color
+    w.write_i32(0);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/TargetSelected` — broadcast to other known players,
+/// never to the selecting player themselves (they get `MyTargetSelected`).
+pub fn target_selected(object_id: i32, target_object_id: i32, x: i32, y: i32, z: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::TARGET_SELECTED);
+    w.write_i32(object_id);
+    w.write_i32(target_object_id);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.write_i32(0);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/TargetUnselected` — unlike `target_selected`,
+/// Java broadcasts this with includeSelf=true, so the deselecting player
+/// receives it too (the client needs it to drop its target UI).
+pub fn target_unselected(object_id: i32, x: i32, y: i32, z: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::TARGET_UNSELECTED);
+    w.write_i32(object_id);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.write_i32(0);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/StopMove`.
+pub fn stop_move(object_id: i32, x: i32, y: i32, z: i32, heading: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::STOP_MOVE);
+    w.write_i32(object_id);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.write_i32(heading);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/MoveToLocation` with an explicit destination —
+/// unlike `enter_world::move_to_location` (which always sends dest==current
+/// for the enter-world burst), this is the real move-start packet, broadcast
+/// once to the mover *and* other known players (the client only starts
+/// walking on the server's confirmation; Java's `Player.broadcastPacket`
+/// includes self).
+pub fn move_to_location(object_id: i32, dest_x: i32, dest_y: i32, dest_z: i32, x: i32, y: i32, z: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::MOVE_TO_LOCATION);
+    w.write_i32(object_id);
+    w.write_i32(dest_x);
+    w.write_i32(dest_y);
+    w.write_i32(dest_z);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
     w.into_bytes()
 }
 

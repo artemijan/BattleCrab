@@ -4,6 +4,7 @@
 //! full stat pipeline arrive in later milestones.
 
 pub mod inventory;
+pub mod movement;
 pub mod skill;
 pub mod stats;
 
@@ -13,6 +14,7 @@ use crate::character::CharData;
 use crate::data::player_template::PlayerTemplate;
 use crate::data::GameData;
 use inventory::Inventory;
+use movement::MoveData;
 use skill::{ActiveBuff, StatModifierEffect};
 use stats::{BaseStat, Stat, StatModifierType};
 
@@ -103,6 +105,13 @@ pub struct Player {
     /// `true` while a cast is in flight (Phase 0–2 of `RequestMagicSkillUse`) —
     /// a minimal stand-in for Java's `SkillCaster` re-entrancy guard.
     pub casting: bool,
+
+    /// Currently targeted object id (Java `Creature._target`). Player-only for
+    /// now — no NPCs/items exist as targetable `WorldObject`s yet.
+    pub target: Option<i32>,
+    /// `Some` while moving (Java's nullable `Creature._move`); cleared on
+    /// arrival by `movement::tick`.
+    pub move_data: Option<MoveData>,
 }
 
 impl Player {
@@ -186,6 +195,8 @@ impl Player {
             stats_add: HashMap::new(),
             stats_mul: HashMap::new(),
             casting: false,
+            target: None,
+            move_data: None,
         };
         p.recalculate_stats(data);
         p

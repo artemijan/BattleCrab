@@ -115,6 +115,10 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         apply_due_tasks(&mut world);
 
         // 4. Fixed-rate tick systems (movement, AI, attack…) — added in G4+.
+        // Movement runs every tick (unlike the gated systems below) — it
+        // needs to recompute the authoritative server-side position each
+        // 100 ms, same as Java's `MovementTaskManager`.
+        crate::model::movement::tick(&mut world);
         if world.tick.is_multiple_of(REGEN_TICK_PERIOD) {
             run_regen_tick(&mut world);
         }
@@ -192,6 +196,9 @@ fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_UN_EQUIP_ITEM => handle_request_un_equip_item(world, client_id, body),
         cop::REQUEST_MAGIC_SKILL_USE => handle_request_magic_skill_use(world, client_id, body),
         cop::REQUEST_ACQUIRE_SKILL => handle_request_acquire_skill(world, client_id, body),
+        cop::ACTION => handle_action(world, client_id, body),
+        cop::REQUEST_TARGET_CANCELD => handle_request_target_canceld(world, client_id, body),
+        cop::MOVE_BACKWARD_TO_LOCATION => handle_move_backward_to_location(world, client_id, body),
         cop::EX_PACKET => on_ex_packet(world, client_id, body),
         _ => error!("GameLoop: client {client_id} sent opcode 0x{opcode:02x}, unhandled."),
     }
@@ -630,6 +637,22 @@ fn client_for_player(world: &World, player_object_id: i32) -> Option<u32> {
     })
 }
 
+/// Send `packet` to every in-game player except `exclude_object_id`. Java's
+/// equivalent (`Creature.broadcastPacket`/`Broadcast.toKnownPlayers`) scopes
+/// this to the known-list (visibility grid); there's no region grid yet (see
+/// `docs/PROGRESS.md` G7's deferred-TODO note), so this is a flat "everyone
+/// else connected" pass — correct for target/movement broadcast semantics,
+/// just not filtered by distance/visibility yet.
+fn broadcast_to_others(world: &World, exclude_object_id: i32, packet: &[u8]) {
+    for cs in world.clients.values() {
+        if let ClientSession::InGame(s) = cs {
+            if s.player_object_id() != exclude_object_id {
+                cs.send(packet.to_vec());
+            }
+        }
+    }
+}
+
 /// Round a millisecond duration up to whole 100 ms ticks.
 fn ms_to_ticks(ms: i32) -> u64 {
     (ms.max(0) as u64).div_ceil(100)
@@ -818,6 +841,160 @@ fn handle_request_acquire_skill(world: &mut World, client_id: u32, body: &[u8]) 
             cs.send(crate::network::user_info::user_info(player, &world.data));
         }
     }
+}
+
+/// Port of `clientpackets/Action.runImpl`, narrowed to the single-click
+/// (`action_id == 0`) select-a-player case — the only targetable `WorldObject`
+/// kind that exists yet (no NPCs/items until G8+). Clicking yourself goes
+/// through the same path (Java routes self-clicks through `PlayerAction`
+/// like any other player target). Shift-click (`action_id == 1`, examine
+/// window) and the flood-protector/bot-penalty/trade/instance guards Java
+/// has are all skipped as out of scope (no trade/instances/bot-detection in
+/// the Rust port yet). Always terminates with `ActionFailed`, matching
+/// `WorldObject.onAction`'s convention.
+fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = cp::Action::read(body) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+
+    if world.players.contains_key(&pkt.object_id) {
+        set_target(world, client_id, object_id, Some(pkt.object_id));
+    }
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::action_failed());
+    }
+}
+
+/// Port of `clientpackets/RequestTargetCanceld.runImpl`, narrowed to the
+/// `targetLost` branch (the locked-target/queued-skill/cast-abort/air-ship
+/// guards are all combat/vehicle features that don't exist yet).
+fn handle_request_target_canceld(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = cp::RequestTargetCanceld::read(body) else { return };
+    if !pkt.target_lost {
+        return;
+    }
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+    set_target(world, client_id, object_id, None);
+}
+
+/// Port of `Player.setTarget`'s core, narrowed to Player targets (no
+/// NPCs/vehicles/party checks yet — see the handlers above). Same-target
+/// re-click is a no-op (Java only re-sends `ValidateLocation`, a cosmetic
+/// target-position correction we skip).
+fn set_target(world: &mut World, client_id: u32, object_id: i32, new_target: Option<i32>) {
+    let Some(player) = world.players.get(&object_id) else { return };
+    if player.target == new_target {
+        return;
+    }
+
+    // Prevents /target exploiting: reject targets too far away in Z.
+    let new_target = new_target.filter(|&t| {
+        let Some(target_player) = world.players.get(&t) else { return false };
+        (target_player.z - player.z).abs() <= 1000
+    });
+    if player.target == new_target {
+        return;
+    }
+
+    let (px, py, pz) = (player.x, player.y, player.z);
+    if let Some(t) = new_target {
+        let Some(target_player) = world.players.get(&t) else { return };
+        let (max_hp, cur_hp) = (target_player.max_hp, target_player.cur_hp as i32);
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::my_target_selected(t));
+            cs.send(server_packets::status_update(
+                t,
+                &[
+                    (server_packets::status_update_type::MAX_HP, max_hp),
+                    (server_packets::status_update_type::CUR_HP, cur_hp),
+                ],
+            ));
+        }
+        broadcast_to_others(world, object_id, &server_packets::target_selected(object_id, t, px, py, pz));
+    } else {
+        // Java's clear path uses broadcastPacket(includeSelf=true): the
+        // deselecting client must get TargetUnselected too, or its UI keeps
+        // the target locked.
+        let pkt = server_packets::target_unselected(object_id, px, py, pz);
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(pkt.clone());
+        }
+        broadcast_to_others(world, object_id, &pkt);
+    }
+
+    if let Some(player) = world.players.get_mut(&object_id) {
+        player.target = new_target;
+    }
+}
+
+/// Port of `clientpackets/MoveBackwardToLocation.runImpl`, geodata/pathfinding
+/// stripped (see `docs/PROGRESS.md` G7's deferred-TODO note — the client's
+/// reported destination is trusted outright). Door-crossing, teleport-mode
+/// switches, and queued-skill clearing are all skipped as out of scope (no
+/// doors/admin-teleport/queued-skills yet).
+fn handle_move_backward_to_location(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = cp::MoveBackwardToLocation::read(body) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+    let Some(player) = world.players.get(&object_id) else { return };
+
+    if pkt.target_x == pkt.origin_x && pkt.target_y == pkt.origin_y && pkt.target_z == pkt.origin_z {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::stop_move(object_id, player.x, player.y, player.z, player.heading));
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
+
+    if player.casting {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
+
+    let dx = (pkt.target_x - player.x) as f64;
+    let dy = (pkt.target_y - player.y) as f64;
+    if dx * dx + dy * dy > 98_010_000.0 {
+        // 9900² — Java's max single-click move distance.
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
+
+    let (start_x, start_y, start_z) = (player.x, player.y, player.z);
+    let distance = (dx * dx + dy * dy).sqrt();
+    let heading = crate::model::movement::calculate_heading(dx, dy);
+    let speed = (if player.running { player.run_spd } else { player.walk_spd } as f64) * player.move_multiplier;
+    let total_ticks = if speed > 0.0 { ((10.0 * distance / speed).round() as u64).max(1) } else { 1 };
+    let start_tick = world.tick;
+
+    if let Some(player) = world.players.get_mut(&object_id) {
+        player.heading = heading;
+        player.move_data = Some(crate::model::movement::MoveData {
+            start_x,
+            start_y,
+            start_z,
+            dest_x: pkt.target_x,
+            dest_y: pkt.target_y,
+            dest_z: pkt.target_z,
+            start_tick,
+            total_ticks,
+        });
+    }
+
+    // Broadcast once at move start, including the mover — the client does
+    // not self-predict; it only starts walking once the server confirms with
+    // `MoveToLocation` (Java: `Creature.moveToLocation` → `broadcastPacket`,
+    // which `Player` overrides with `includeSelf == true`).
+    let move_pkt =
+        server_packets::move_to_location(object_id, pkt.target_x, pkt.target_y, pkt.target_z, start_x, start_y, start_z);
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(move_pkt.clone());
+    }
+    broadcast_to_others(world, object_id, &move_pkt);
 }
 
 /// `CreatureStatus.doRegeneration`, run every `REGEN_TICK_PERIOD` ticks for
@@ -1569,5 +1746,164 @@ mod tests {
         let p = &world.players[&2001];
         assert!(p.buffs.is_empty());
         assert_eq!(p.p_def, 80, "P.Def restored after the buff expired");
+    }
+
+    /// Puts a bare `Player` (built from `dummy_char`) straight into `InGame`,
+    /// the same session-transition chain the other tests use, and returns its
+    /// outbound packet receiver.
+    fn ingame_player(
+        world: &mut World,
+        client_id: u32,
+        object_id: i32,
+        x: i32,
+        y: i32,
+        z: i32,
+    ) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>> {
+        let mut chr = dummy_char(object_id, &format!("P{object_id}"));
+        chr.x = x;
+        chr.y = y;
+        chr.z = z;
+        let player = Player::from_char(&world.data, &chr);
+        let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
+        let s = Session::new(client_id, out_tx, "127.0.0.1:1".parse().unwrap())
+            .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+            .into_lobby(vec![])
+            .into_entering(player);
+        let (session, player) = s.into_ingame();
+        world.players.insert(player.object_id, player);
+        world.clients.insert(client_id, ClientSession::InGame(session));
+        out_rx
+    }
+
+    fn action_body(object_id: i32, action_id: u8) -> Vec<u8> {
+        let mut w = PacketWriter::new();
+        w.write_i32(object_id);
+        w.write_i32(0); // origin_x — unused
+        w.write_i32(0); // origin_y — unused
+        w.write_i32(0); // origin_z — unused
+        w.write_u8(action_id);
+        w.into_bytes()
+    }
+
+    fn target_canceld_body(target_lost: bool) -> Vec<u8> {
+        let mut w = PacketWriter::new();
+        w.write_i16(if target_lost { 1 } else { 0 });
+        w.into_bytes()
+    }
+
+    fn move_body(target: (i32, i32, i32), origin: (i32, i32, i32), movement_mode: i32) -> Vec<u8> {
+        let mut w = PacketWriter::new();
+        w.write_i32(target.0);
+        w.write_i32(target.1);
+        w.write_i32(target.2);
+        w.write_i32(origin.0);
+        w.write_i32(origin.1);
+        w.write_i32(origin.2);
+        w.write_i32(movement_mode);
+        w.into_bytes()
+    }
+
+    /// `Action` selects a player target: the selector gets `MyTargetSelected`
+    /// + a `StatusUpdate` (target's HP) + the `ActionFailed` terminator; the
+    /// target itself gets `TargetSelected` (never `MyTargetSelected`). A
+    /// repeat click on the same target is a no-op (only `ActionFailed`).
+    /// `RequestTargetCanceld{target_lost:true}` clears it and broadcasts
+    /// `TargetUnselected` to everyone including the canceller (Java uses
+    /// includeSelf=true there; without it the client keeps its target).
+    #[test]
+    fn action_selects_switches_and_cancels_target() {
+        let (mut world, ..) = test_world();
+        let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+        let mut b_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+
+        handle_action(&mut world, 1, &action_body(3002, 0));
+
+        assert_eq!(world.players[&3001].target, Some(3002));
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::MY_TARGET_SELECTED);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+        assert!(a_rx.try_recv().is_err(), "no extra packets to the selector");
+
+        assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::TARGET_SELECTED);
+        assert!(b_rx.try_recv().is_err(), "target never gets MyTargetSelected");
+
+        // Re-click the same target: no-op besides the ActionFailed terminator.
+        handle_action(&mut world, 1, &action_body(3002, 0));
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+        assert!(a_rx.try_recv().is_err());
+        assert!(b_rx.try_recv().is_err(), "no TargetSelected rebroadcast on re-click");
+
+        // Cancel.
+        handle_request_target_canceld(&mut world, 1, &target_canceld_body(true));
+        assert_eq!(world.players[&3001].target, None);
+        assert_eq!(
+            a_rx.try_recv().unwrap()[0],
+            server_packets::opcodes::TARGET_UNSELECTED,
+            "canceller must receive TargetUnselected too"
+        );
+        assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::TARGET_UNSELECTED);
+
+        // Self-click: same select path as any other player target (Java
+        // routes self-clicks through `PlayerAction` too).
+        handle_action(&mut world, 1, &action_body(3001, 0));
+        assert_eq!(world.players[&3001].target, Some(3001));
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::MY_TARGET_SELECTED);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
+        assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+        assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::TARGET_SELECTED);
+    }
+
+    /// `MoveBackwardToLocation` starts a move: `move_data` is set, a
+    /// `MoveToLocation` is sent to the mover (the client only starts walking
+    /// on the server's confirmation) and broadcast to other players, and
+    /// `movement::tick` interpolates the position over the precomputed tick
+    /// count before snapping to the destination and clearing `move_data` on
+    /// arrival.
+    #[test]
+    fn move_backward_to_location_interpolates_and_arrives() {
+        let (mut world, ..) = test_world();
+        let mut mover_rx = ingame_player(&mut world, 1, 4001, 0, 0, 0);
+        let mut bystander_rx = ingame_player(&mut world, 2, 4002, 500, 500, 0);
+        world.players.get_mut(&4001).unwrap().run_spd = 100;
+        world.players.get_mut(&4001).unwrap().running = true;
+
+        handle_move_backward_to_location(&mut world, 1, &move_body((1000, 0, 0), (0, 0, 0), 1));
+
+        assert_eq!(mover_rx.try_recv().unwrap()[0], server_packets::opcodes::MOVE_TO_LOCATION);
+        assert!(mover_rx.try_recv().is_err(), "exactly one packet to the mover");
+        assert_eq!(bystander_rx.try_recv().unwrap()[0], server_packets::opcodes::MOVE_TO_LOCATION);
+
+        let total_ticks = world.players[&4001].move_data.as_ref().unwrap().total_ticks;
+        assert_eq!(total_ticks, 100, "distance 1000 / speed 100 * 10 ticks-per-sec");
+
+        // Half way: linear interpolation.
+        world.tick += total_ticks / 2;
+        crate::model::movement::tick(&mut world);
+        let p = &world.players[&4001];
+        assert_eq!((p.x, p.y, p.z), (500, 0, 0));
+        assert!(p.move_data.is_some());
+
+        // Arrival: snapped exactly, move_data cleared, no StopMove needed.
+        world.tick += total_ticks / 2;
+        crate::model::movement::tick(&mut world);
+        let p = &world.players[&4001];
+        assert_eq!((p.x, p.y, p.z), (1000, 0, 0));
+        assert!(p.move_data.is_none());
+    }
+
+    /// Java's `MoveBackwardToLocation` early-returns with `StopMove` +
+    /// `ActionFailed` when the client's echoed origin equals its target
+    /// (used by the client as an explicit "stop" signal) — no movement state
+    /// is set.
+    #[test]
+    fn move_backward_to_location_same_origin_and_target_sends_stop_move() {
+        let (mut world, ..) = test_world();
+        let mut rx = ingame_player(&mut world, 1, 5001, 10, 20, 30);
+
+        handle_move_backward_to_location(&mut world, 1, &move_body((100, 100, 100), (100, 100, 100), 1));
+
+        assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::STOP_MOVE);
+        assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+        assert!(world.players[&5001].move_data.is_none());
     }
 }

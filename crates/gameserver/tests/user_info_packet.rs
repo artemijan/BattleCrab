@@ -84,6 +84,8 @@ async fn user_info_test() {
         stats_add: Default::default(),
         stats_mul: Default::default(),
         casting: false,
+        target: None,
+        move_data: None,
     };
     let gd = GameData::load_from("../../dist/game/");
     let packet = user_info(&player, &gd);

@@ -7,6 +7,7 @@ use commons::network::PacketReader;
 
 /// `ClientPackets` opcodes (single-byte `_id`).
 pub mod opcodes {
+    pub const MOVE_BACKWARD_TO_LOCATION: u8 = 0x0F;
     pub const PROTOCOL_VERSION: u8 = 0x0E;
     pub const AUTH_LOGIN: u8 = 0x2B;
     pub const CHARACTER_CREATE: u8 = 0x0C;
@@ -18,7 +19,9 @@ pub mod opcodes {
     pub const CHARACTER_RESTORE: u8 = 0x7B;
     pub const REQUEST_UN_EQUIP_ITEM: u8 = 0x16;
     pub const USE_ITEM: u8 = 0x19;
+    pub const ACTION: u8 = 0x1F;
     pub const REQUEST_MAGIC_SKILL_USE: u8 = 0x39;
+    pub const REQUEST_TARGET_CANCELD: u8 = 0x48;
     pub const REQUEST_ACQUIRE_SKILL: u8 = 0x7C;
     /// Extended packets: opcode 0xD0 + a 2-byte little-endian sub-opcode.
     pub const EX_PACKET: u8 = 0xD0;
@@ -177,5 +180,68 @@ impl RequestAcquireSkill {
             r.read_i32()?; // sub_type — unused (see doc comment)
         }
         Some(Self { skill_id, skill_level, acquire_type })
+    }
+}
+
+/// Port of `clientpackets/Action` (`cdddc`). Origin x/y/z are the client's own
+/// echoed position — Java reads them but never uses them (`@SuppressWarnings
+/// ("unused")` on all three), so they're dropped here too.
+pub struct Action {
+    pub object_id: i32,
+    pub action_id: u8,
+}
+
+impl Action {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let object_id = r.read_i32()?;
+        r.read_i32()?; // origin_x — unused
+        r.read_i32()?; // origin_y — unused
+        r.read_i32()?; // origin_z — unused
+        let action_id = r.read_u8()?;
+        Some(Self { object_id, action_id })
+    }
+}
+
+/// Port of `clientpackets/RequestTargetCanceld` (`ch`): a single flag, nonzero
+/// meaning "the client wants its target cleared".
+pub struct RequestTargetCanceld {
+    pub target_lost: bool,
+}
+
+impl RequestTargetCanceld {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let target_lost = r.read_i16()? != 0;
+        Some(Self { target_lost })
+    }
+}
+
+/// Port of `clientpackets/MoveBackwardToLocation` (`cddddddd`). `origin_x/y/z`
+/// is only used for the same-origin/target "stop" check — not stored as
+/// server-trusted state, per the no-geodata scope (client position is trusted
+/// only insofar as it drives where we start interpolating from; the server's
+/// own `player.x/y/z` is the authoritative start point).
+pub struct MoveBackwardToLocation {
+    pub target_x: i32,
+    pub target_y: i32,
+    pub target_z: i32,
+    pub origin_x: i32,
+    pub origin_y: i32,
+    pub origin_z: i32,
+    pub movement_mode: i32,
+}
+
+impl MoveBackwardToLocation {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let target_x = r.read_i32()?;
+        let target_y = r.read_i32()?;
+        let target_z = r.read_i32()?;
+        let origin_x = r.read_i32()?;
+        let origin_y = r.read_i32()?;
+        let origin_z = r.read_i32()?;
+        let movement_mode = r.read_i32()?;
+        Some(Self { target_x, target_y, target_z, origin_x, origin_y, origin_z, movement_mode })
     }
 }
