@@ -236,3 +236,93 @@ impl UserInfoType {
         }
     }
 }
+
+/// Port of `enums/NpcInfoType` — the `NpcInfo` component blocks. Unlike
+/// `UserInfoType` the component bits are *not* contiguous (0x0C/0x0D and
+/// 0x14/0x15 are unnamed always-on gaps, pre-set in the packet's initial mask
+/// bytes), so the discriminants are explicit.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NpcInfoType {
+    Id = 0x00,
+    Attackable = 0x01,
+    Relations = 0x02,
+    Name = 0x03,
+    Position = 0x04,
+    Heading = 0x05,
+    VehicleId = 0x06,
+    AtkCastSpeed = 0x07,
+    SpeedMultiplier = 0x08,
+    Equipped = 0x09,
+    StopMode = 0x0A,
+    MoveMode = 0x0B,
+    SwimOrFly = 0x0E,
+    Team = 0x0F,
+    Enchant = 0x10,
+    Flying = 0x11,
+    CloneObj = 0x12,
+    PetEvolutionId = 0x13,
+    DisplayEffect = 0x16,
+    Transformation = 0x17,
+    CurrentHp = 0x18,
+    CurrentMp = 0x19,
+    MaxHp = 0x1A,
+    MaxMp = 0x1B,
+    Summoned = 0x1C,
+    FollowInfo = 0x1D,
+    Title = 0x1E,
+    NameNpcStringId = 0x1F,
+    TitleNpcStringId = 0x20,
+    PvpFlag = 0x21,
+    Reputation = 0x22,
+    Clan = 0x23,
+    Abnormals = 0x24,
+    VisualState = 0x25,
+}
+
+impl NpcInfoType {
+    /// Java `getMask()`.
+    pub fn mask(self) -> usize {
+        self as usize
+    }
+
+    /// Java `getBlockLength()` (strings add `chars * 2` on top — see
+    /// `NpcInfo.calcBlockSize`).
+    pub fn block_length(self) -> i32 {
+        match self {
+            Self::Id => 4,
+            Self::Attackable => 1,
+            Self::Relations => 4,
+            Self::Name => 2,
+            Self::Position => 12,
+            Self::Heading => 4,
+            Self::VehicleId => 4,
+            Self::AtkCastSpeed => 8,
+            Self::SpeedMultiplier => 8,
+            Self::Equipped => 12,
+            Self::StopMode => 1,
+            Self::MoveMode => 1,
+            Self::SwimOrFly => 1,
+            Self::Team => 1,
+            Self::Enchant => 4,
+            Self::Flying => 4,
+            Self::CloneObj => 4,
+            Self::PetEvolutionId => 4,
+            Self::DisplayEffect => 4,
+            Self::Transformation => 4,
+            Self::CurrentHp => 4,
+            Self::CurrentMp => 4,
+            Self::MaxHp => 4,
+            Self::MaxMp => 4,
+            Self::Summoned => 1,
+            Self::FollowInfo => 8,
+            Self::Title => 2,
+            Self::NameNpcStringId => 4,
+            Self::TitleNpcStringId => 4,
+            Self::PvpFlag => 1,
+            Self::Reputation => 4,
+            Self::Clan => 20,
+            Self::Abnormals => 0,
+            Self::VisualState => 1,
+        }
+    }
+}

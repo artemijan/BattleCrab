@@ -25,10 +25,18 @@ fn describe_state(observer: &ClientSession, p: &Player) {
     }
 }
 
+/// Send one NPC's `NpcInfo` to a session (skipping NPCs whose template went
+/// missing — can't happen with a consistent datapack).
+fn send_npc_info(world: &World, session: &ClientSession, npc_id: i32) {
+    let Some(npc) = world.npcs.get(&npc_id) else { return };
+    let Some(t) = npc.template(world) else { return };
+    session.send(server_packets::npc_info(npc, t));
+}
+
 /// Java `World.addVisibleObject` for a player spawning in (`EnterWorld` →
 /// `spawnMe`): mutual `CharInfo` with every player already visible from the
-/// spawn region. Call after the player and their `InGame` session are
-/// registered in the world.
+/// spawn region, plus `NpcInfo` for every NPC in the 3×3 block (NPCs are
+/// told nothing — they get aggro/AI eyes in G9).
 pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
     let Some(me) = world.players.get(&object_id) else { return };
     let Some(my_session) = world.clients.get(&client_id) else { return };
@@ -45,6 +53,9 @@ pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
                 describe_state(my_session, other);
             }
         }
+    }
+    for npc_id in world.npcs_visible_from(me.region) {
+        send_npc_info(world, my_session, npc_id);
     }
 }
 
@@ -81,11 +92,34 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             }
         }
     }
-    if deltas.is_empty() {
-        return;
+    // NPC deltas: NpcInfo for NPCs entering the 3×3 block, DeleteObject (and
+    // a dangling-target drop) for NPCs leaving it. The npc_regions index makes
+    // this a walk over the (at most) 12 cells whose adjacency changed.
+    let my_client = client_for_player(world, object_id);
+    if let Some(cs) = my_client.and_then(|cid| world.clients.get(&cid)) {
+        for npc_id in world.npcs_visible_from(new) {
+            let npc_region = world.npcs[&npc_id].region;
+            if !regions_adjacent(old, npc_region) {
+                send_npc_info(world, cs, npc_id);
+            }
+        }
+        for npc_id in world.npcs_visible_from(old) {
+            let npc_region = world.npcs[&npc_id].region;
+            if !regions_adjacent(new, npc_region) {
+                cs.send(server_packets::delete_object(npc_id));
+            }
+        }
+    }
+    if let Some(me) = world.players.get(&object_id) {
+        if let Some(target) = me.target {
+            if let Some(npc) = world.npcs.get(&target) {
+                if !regions_adjacent(new, npc.region) {
+                    world.players.get_mut(&object_id).expect("checked above").target = None;
+                }
+            }
+        }
     }
 
-    let my_client = client_for_player(world, object_id);
     for (other_id, other_client, appeared) in deltas {
         if appeared {
             if let (Some(me), Some(other)) = (world.players.get(&object_id), world.players.get(&other_id)) {

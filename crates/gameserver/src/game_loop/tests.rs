@@ -140,6 +140,7 @@ async fn character_create_inserts_into_real_schema() {
 
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let data = GameData {
+        root: String::new(),
         experience: crate::data::ExperienceData::empty(),
         player_templates: crate::data::PlayerTemplateData::from_vec(vec![
             human_fighter_template(),
@@ -150,6 +151,8 @@ async fn character_create_inserts_into_real_schema() {
         item_data: crate::data::ItemData::empty(),
         initial_equipment: crate::data::InitialEquipmentData::empty(),
         skill_data: crate::data::SkillData::empty(),
+        npc_data: crate::data::NpcData::empty(),
+        spawn_data: crate::data::SpawnData::empty(),
     };
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
@@ -1143,6 +1146,137 @@ fn action_selects_switches_and_cancels_target() {
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::TARGET_SELECTED);
+}
+
+/// Register a synthetic NPC template and place one instance in the world +
+/// region index (the test-side mirror of `model::npc::spawn_one`).
+fn add_test_npc(world: &mut World, object_id: i32, npc_id: i32, type_name: &str, level: i32, x: i32, y: i32, z: i32) {
+    if world.data.npc_data.get(npc_id).is_none() {
+        let mut t = crate::data::npc_data::default_template(npc_id);
+        t.type_name = type_name.into();
+        t.level = level;
+        t.base_hp_max = 100.0;
+        t.base_mp_max = 50.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let npc = crate::model::npc::Npc {
+        object_id,
+        npc_id,
+        x,
+        y,
+        z,
+        heading: 0,
+        region: crate::world::region_of(x, y),
+        max_hp: 100,
+        max_mp: 50,
+        cur_hp: 100.0,
+        cur_mp: 50.0,
+        running: false,
+        respawn_secs: 0,
+        respawn_random_secs: 0,
+    };
+    world.npc_regions.entry(npc.region).or_default().push(object_id);
+    world.npcs.insert(object_id, npc);
+}
+
+const NPC_OID: i32 = crate::model::npc::FIRST_NPC_OBJECT_ID;
+
+/// Entering the world sends `NpcInfo` for NPCs in the 3×3 region block and
+/// nothing for NPCs beyond it (Java `addVisibleObject` over the region grid).
+#[test]
+fn enter_world_sends_npc_info_for_nearby_npcs_only() {
+    let (mut world, ..) = test_world();
+    add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 500, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 1, 30002, "Folk", 5, 5 * 2048, 0, 0); // 5 regions east
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    visibility::on_enter_world(&world, 1, 3001);
+
+    let packets = drain(&mut rx);
+    let npc_infos: Vec<_> = packets.iter().filter(|p| p[0] == server_packets::opcodes::NPC_INFO).collect();
+    assert_eq!(npc_infos.len(), 1, "only the nearby NPC is described");
+    let described = i32::from_le_bytes(npc_infos[0][1..5].try_into().unwrap());
+    assert_eq!(described, NPC_OID);
+}
+
+/// Crossing a region boundary introduces NPCs entering the 3×3 block
+/// (`NpcInfo`) and removes NPCs leaving it (`DeleteObject`), dropping a
+/// dangling NPC target like Java's forget event does.
+#[test]
+fn region_cross_sends_npc_deltas_and_drops_npc_target() {
+    let (mut world, ..) = test_world();
+    // NPC in region (3, 0): visible from region (2, 0) but not (0, 0).
+    add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 3 * 2048 + 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    // Step into region (2, 0): the NPC appears.
+    world.players.get_mut(&3001).unwrap().x = 2 * 2048 + 10;
+    visibility::update_region(&mut world, 3001);
+    let packets = drain(&mut rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::NPC_INFO),
+        "NpcInfo on entering visibility range"
+    );
+
+    // Target it, then step back to region (0, 0): DeleteObject + target drop.
+    world.players.get_mut(&3001).unwrap().target = Some(NPC_OID);
+    world.players.get_mut(&3001).unwrap().x = 10;
+    visibility::update_region(&mut world, 3001);
+    let packets = drain(&mut rx);
+    let del: Vec<_> = packets.iter().filter(|p| p[0] == server_packets::opcodes::DELETE_OBJECT).collect();
+    assert_eq!(del.len(), 1, "DeleteObject for the NPC leaving range");
+    assert_eq!(i32::from_le_bytes(del[0][1..5].try_into().unwrap()), NPC_OID);
+    assert_eq!(world.players[&3001].target, None, "dangling NPC target dropped");
+}
+
+/// `Action` on an NPC: first click selects (`ValidateLocation` +
+/// `MyTargetSelected` + HP `StatusUpdate` + `ActionFailed`); a second click
+/// on a talkable non-monster in interaction range opens the chat window
+/// (`NpcHtmlMessage`).
+#[test]
+fn action_on_npc_selects_then_second_click_opens_chat_window() {
+    let (mut world, ..) = test_world();
+    add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    assert_eq!(world.players[&3001].target, Some(NPC_OID));
+    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::VALIDATE_LOCATION);
+    let mts = rx.try_recv().unwrap();
+    assert_eq!(mts[0], server_packets::opcodes::MY_TARGET_SELECTED);
+    assert_eq!(i16::from_le_bytes(mts[9..11].try_into().unwrap()), 0, "no level color on a Folk");
+    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
+    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert!(rx.try_recv().is_err());
+
+    // Second click within INTERACTION_DISTANCE: the dialog opens (the html
+    // file itself is absent in the synthetic world, so the "text is missing"
+    // stub is served — the packet flow is what's under test).
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::NPC_HTML_MESSAGE);
+    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert!(rx.try_recv().is_err());
+}
+
+/// `Action` on a monster tints `MyTargetSelected` with the level gap and the
+/// second click does nothing yet (attack intent is G9) — no chat window.
+#[test]
+fn action_on_monster_colors_target_and_never_talks() {
+    let (mut world, ..) = test_world();
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 3, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.players.get_mut(&3001).unwrap().level = 8;
+
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::VALIDATE_LOCATION);
+    let mts = rx.try_recv().unwrap();
+    assert_eq!(mts[0], server_packets::opcodes::MY_TARGET_SELECTED);
+    assert_eq!(i16::from_le_bytes(mts[9..11].try_into().unwrap()), 5, "player 8 vs monster 3");
+    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
+    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert!(rx.try_recv().is_err(), "no chat window from a monster");
 }
 
 /// `MoveBackwardToLocation` starts a move: `move_data` is set, a

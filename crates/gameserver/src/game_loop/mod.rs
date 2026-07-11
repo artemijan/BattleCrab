@@ -114,6 +114,11 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     );
     world.geo = geo;
     world.path_finding = path_finding;
+
+    // Java `GameServer`: SpawnData.getInstance().init() — place the static
+    // world content before accepting anyone in.
+    crate::model::npc::spawn_all(&mut world);
+
     info!("GameLoop: started ({} ms tick).", TICK.as_millis());
 
     while !shutdown.is_requested() {

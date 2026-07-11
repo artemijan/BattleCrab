@@ -26,7 +26,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G7.5 Full single-target skill casting                       | ✅ (real cast timing/formulas, reuse, abort, nukes/heals/buffs on others) |
 | Game  | G7.8 Geodata & position validation                          | ✅ (`.l2j` loading, LOS, move clamping, ValidatePosition — pathfinding/zones still ⏳) |
 | Game  | G7.9 Region-grid visibility & scoped broadcasting           | ✅ (CharInfo/DeleteObject, 3×3 region knownlist, region-scoped broadcasts) |
-| Game  | G8 Static world content (NPCs/spawns)                       | ⏳ |
+| Game  | G8 Static world content (NPCs/spawns)                       | ✅ vertical slice (34.9k NPCs spawned, visible, targetable, talkable — zones/doors/respawn still ⏳) |
 | Game  | G9 Combat & AI                                              | ⏳ |
 | Game  | G10 Social systems                                          | ⏳ |
 | Game  | G11 Scripting engine + quests                               | ⏳ |
@@ -471,12 +471,78 @@ first time two clients actually see each other's characters.
   `DeleteObject`/`CharInfo` + mid-move introduction, and leave-world
   `DeleteObject` + target drop.
 
-### G8–G13 — ⏳ not started
-See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gate: **static
-world content** — NPCs/spawns, so there's something besides another player to
-target/path around — which is also the natural point to add zones and the
-known-list/region grid, and to port `CellPathFinding` for mob pathing (see
-Deferred TODOs).
+### G8 — Static world content (NPCs/spawns) ✅ vertical slice
+The world is no longer empty: every static spawn line places a live NPC that
+players can see, target, and talk to. Scoped to what makes NPCs *exist* —
+zones, doors, static objects, respawn, and any NPC behaviour (AI, random walk,
+combat) are deferred (respawn is unreachable anyway until G9's `doDie` gives
+NPCs a way to die).
+
+- **`data/npc_data.rs`**: port of `NpcData` — all 191 `data/stats/npcs/*.xml`
+  files → 14 407 `NpcTemplate`s (identity/display fields, base stats/vitals/
+  speeds, collision, equipment rhand/lhand, status flags, aggro ranges;
+  skill/drop/attribute lists wait for G9). Type classification
+  (`is_monster`/`is_attackable_class`) mirrors Java's `instanceof
+  Monster`/`Attackable` subtree checks — there's no class hierarchy to lean
+  on, so the `type` attribute is matched against the instance-class sets.
+- **`data/spawn_data.rs`**: port of `SpawnData`/`model/spawns/*` — all 154
+  `data/spawns/**` files → 27 154 spawn lines (fixed locations, `count`,
+  `respawnTime`/`respawnRandom` durations, spawn- and group-level
+  `<territories>` with the NPoly/Cuboid/Cylinder `ZoneForm`s). Features with
+  zero usages in this dist are not ported (`zone=`, `banned_territory`,
+  `<locations>`, `<minions>`, `respawnPattern`); `dbSave` raid persistence
+  (`DBSpawnManager`, 225 lines) spawns statically for now.
+- **`model/npc.rs`**: the composed `Npc` world object (position/region/
+  HP/MP; everything else reads through the template) + `spawn_all`, the
+  `Spawn.doSpawn`/`initializeNpc` port: territory spawns get a random point
+  (bounding-box rejection sampling, Java's 1000-try cap) at
+  `GeoEngine.getHeight`, monsters snap to the geodata surface (<300 units),
+  `heading == -1` randomizes with Java's odd `Rnd.get(61794)` bound.
+  Boot places **34 869 NPCs** in ~1 s (891 lines skipped: Servitor/Pet/
+  Defender/Decoy/Trap plus types with no instance class — those fail
+  reflection on the Java server too). NPC object ids come from a dedicated
+  transient base (`0x4000_0000`) instead of Java's shared `IdManager` pool
+  (the pool lives on the DB thread; NPCs never persist).
+- **`World`**: `npcs` registry + `npc_regions` — the first materialized
+  region-grid collection (players still use the per-player adjacency compare;
+  NPCs are static and 34.9k strong, so the index is built once at spawn).
+- **`NpcInfo` (0x0C)** (`server_packets.rs`): the masked packet (5 mask
+  bytes, "mask_bits_37", pre-set gap components) via the shared `masks.rs`
+  helpers + a new `NpcInfoType` enum (explicit non-contiguous discriminants).
+  Component selection ports the Java constructor with absent systems at their
+  defaults. Unit-tested against hand-computed bytes (no NPC client capture
+  yet — the mask math is shared with the byte-verified `UserInfo` path).
+  `write_f32` added to `commons::PacketWriter` for the speed multipliers.
+- **Visibility** (`visibility.rs`): enter-world sends `NpcInfo` for the 3×3
+  region block; region crossings send `NpcInfo`/`DeleteObject` deltas both
+  ways and drop dangling NPC targets (players get nothing new from NPCs —
+  aggro/AI eyes are G9).
+- **Targeting/interaction** (`target.rs`): `Action` resolves NPCs —
+  `Player.setTarget` generalized over players and NPCs (`ValidateLocation` +
+  `MyTargetSelected` with the level-diff color for auto-attackable targets +
+  HP `StatusUpdate` + `TargetSelected` broadcast; z-diff and `targetable`
+  guards). Second click = the `NpcAction` interact branch: monsters no-op
+  (attack intent is G9), others within `INTERACTION_DISTANCE` (250) get
+  `Npc.showChatWindow` — `NpcHtmlMessage` (0x19) from
+  `data/html/<type-dir>/{id}.htm` with the Folk `npcdefault.htm` fallback and
+  `%objectId%`/`%npcname%` replacement (read per interaction; no `HtmCache`).
+  Walk-into-range AI intent not ported (same gap as the G7.5 cast-range gate).
+- **Tests**: loader tests against the real dist (counts + hand-checked
+  templates/spawn lines, elemental `<attribute>` vs base `<defence>`
+  disambiguation, duration parsing, NPoly containment); `spawn_all` smoke
+  test over the real datapack (placement count, retail coordinates, region-
+  index consistency); `NpcInfo` byte test; synthetic-world tests for
+  enter-world NPC burst scoping, region-cross deltas + NPC-target drop, and
+  the two-click select→chat-window / monster-no-chat flows. `e2e_create`'s
+  skip-unsolicited helper now also skips `NpcInfo` (the starting village's
+  NPCs arrive in the enter-world burst).
+
+### G9–G13 — ⏳ not started
+See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gate:
+**combat & AI** (G9) — auto-attack, `doDie`/decay/respawn, `AttackableAI`
+think tick, aggro, drops, XP/SP — now that there are monsters to hit. Zones/
+doors/`MapRegionManager`/`StaticObjectData` (the rest of the plan's static-
+world scope) can ride along where needed (see Deferred TODOs).
 
 ---
 
@@ -507,14 +573,24 @@ Empty/placeholder now, to be filled in the owning milestone:
   a path-worker service per the plan); zones (`ZoneManager` — peace/water/
   siege/town zones, none exist; `isInsideZone` is the missing gate for
   several Java checks G7.8 skipped); door/fence LOS + `DoorData` checks
-  (`ValidatePosition`'s door-exploit tail, LOS occlusion); materialized
-  per-region object lists once G8 NPCs make the per-player adjacency scan
-  expensive (player↔player region visibility itself landed in G7.9); NPCs as
-  targetable objects (`Action` only
-  resolves other players today); the rest of `isMovementDisabled()`
+  (`ValidatePosition`'s door-exploit tail, LOS occlusion); the rest of
+  `isMovementDisabled()`
   (rooted/overloaded/immobilized/dead/teleporting); cursor-key movement
   (`_cursorKeyMovement` path incl. `canMoveToTarget` front-cell check and
   `getLastServerPosition` stop); falling damage/state (`isFalling`).
+- **NPCs/world content (post-G8):** NPC death/decay/respawn (the respawn
+  delays are parsed and carried on each `Npc`, unused until G9 `doDie`);
+  NPC AI (`AttackableAI` think tick, aggro via the parsed `aggroRange`,
+  random walk / `randomAnimation`, walking `MoveToPawn` turn on interact);
+  casting on NPCs (`resolve_cast_target` is still player-only); NPC regen;
+  NPC skill lists / drop lists / elemental attributes (template parse
+  skips them); `dbSave` raid persistence (`DBSpawnManager` — currently
+  spawned statically at full HP); walk-into-interaction-range AI intent;
+  `HtmCache` (dialog `.htm`s are read per interaction) + bypass handling
+  (`RequestBypassToServer` — dialog buttons do nothing yet); server-side
+  `Say2` chat around NPCs; zones/doors/`StaticObjectData`/
+  `MapRegionManager` (the plan's remaining static-world scope);
+  `NpcNameLocalisationData`/multilang.
 - **Quests (G10):** `QuestList` empty, `ExQuestItemList` empty.
 - **Social (G9):** clan/ally blocks in `UserInfo`, `FriendList` empty, mail.
 - **Misc:** macros, `HennaInfo` empty, `ExUserBanInfo`, `ExVitalityEffectInfo`
@@ -539,6 +615,10 @@ Empty/placeholder now, to be filled in the owning milestone:
 - **Inventory:** `model::inventory::tests` — item/equipment loaders load real
   `dist/game` data; `equip_item` slot-conflict cases (full armor vs
   chest+legs, two-handed vs dual single-hand, ear/finger fill order).
+- **NPCs (G8):** loader counts + hand-checked templates against the real
+  dist; `spawn_all` placement/coordinate/region-index smoke test; `NpcInfo`
+  hand-computed byte test; synthetic-world visibility & two-click
+  interaction tests.
 
 Run: `cargo test` (all green). Boot a pair on alt ports:
 `cargo run -p loginserver` + `CONFIG_SERVER_GAMESERVERPORT=… cargo run -p gameserver`.

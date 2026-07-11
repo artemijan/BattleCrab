@@ -33,9 +33,10 @@ pub fn region_of(x: i32, y: i32) -> (i32, i32) {
 /// query and broadcast is scoped by. Symmetric.
 ///
 /// Java additionally materializes per-region object lists so a query never
-/// scans the whole world; with players as the only world objects (until G8
-/// NPCs) we get identical semantics from each player's stored region
-/// coordinate + this adjacency test, with no grid to keep in sync.
+/// scans the whole world; player↔player checks get identical semantics from
+/// each player's stored region coordinate + this adjacency test (few
+/// players, no grid to keep in sync), while the 34.9k static NPCs *are*
+/// indexed per region (`World::npc_regions`, built once at spawn).
 pub fn regions_adjacent(a: (i32, i32), b: (i32, i32)) -> bool {
     (a.0 - b.0).abs() <= 1 && (a.1 - b.1).abs() <= 1
 }
@@ -82,8 +83,17 @@ pub struct World {
     /// Connected clients keyed by network id, as type-state sessions (§3.1).
     pub clients: HashMap<u32, ClientSession>,
     /// In-world player entities keyed by object id (the `InGame` session links
-    /// here). Object registries for NPCs/items/regions arrive in G5+.
+    /// here).
     pub players: HashMap<i32, crate::model::Player>,
+    /// Spawned NPCs keyed by object id (G8).
+    pub npcs: HashMap<i32, crate::model::npc::Npc>,
+    /// Region cell → NPC object ids in it — the materialized side of Java's
+    /// per-region object lists. NPCs are static (no AI movement yet), so this
+    /// is built once at spawn; players keep using the cheap per-player
+    /// adjacency compare instead (see `regions_adjacent`).
+    pub npc_regions: HashMap<(i32, i32), Vec<i32>>,
+    /// Next transient NPC object id (see `model::npc::FIRST_NPC_OBJECT_ID`).
+    pub next_npc_object_id: i32,
     pub login: LoginState,
     /// `Config.MAX_CHARACTERS_NUMBER_PER_ACCOUNT`, needed by `CharSelectionInfo`.
     pub max_characters_per_account: i32,
@@ -118,6 +128,9 @@ impl World {
             scheduler: Scheduler::new(),
             clients: HashMap::new(),
             players: HashMap::new(),
+            npcs: HashMap::new(),
+            npc_regions: HashMap::new(),
+            next_npc_object_id: crate::model::npc::FIRST_NPC_OBJECT_ID,
             login: LoginState::new(link),
             max_characters_per_account,
             delete_days,
@@ -130,6 +143,21 @@ impl World {
             #[cfg(test)]
             forced_rolls: std::collections::VecDeque::new(),
         }
+    }
+
+    /// Object ids of every NPC whose region cell lies in `region`'s 3×3
+    /// surrounding block (the NPC half of Java's
+    /// `World.forEachVisibleObject`), via the `npc_regions` index.
+    pub fn npcs_visible_from(&self, region: (i32, i32)) -> Vec<i32> {
+        let mut out = Vec::new();
+        for dx in -1..=1 {
+            for dy in -1..=1 {
+                if let Some(ids) = self.npc_regions.get(&(region.0 + dx, region.1 + dy)) {
+                    out.extend_from_slice(ids);
+                }
+            }
+        }
+        out
     }
 
     /// Java `Rnd.get(bound)`: uniform in `[0, bound)`. Tests can pre-queue

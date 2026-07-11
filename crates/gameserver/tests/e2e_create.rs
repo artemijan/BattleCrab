@@ -318,15 +318,16 @@ impl GameClient {
         self.crypt.decrypt(&mut d);
         d
     }
-    /// Like `recv`, but skips unsolicited `StatusUpdate` (0x18) packets —
-    /// since G6, the 3 s passive HP/MP/CP regen tick can push one at any time
-    /// (e.g. while this character's CP regens from its post-creation 0), so a
-    /// reply-then-assert exchange after enter-world isn't guaranteed to be the
-    /// very next frame on the wire.
+    /// Like `recv`, but skips unsolicited packets a live world can push at
+    /// any time: `StatusUpdate` (0x18, the 3 s passive-regen tick since G6 —
+    /// e.g. this character's CP regenerating from its post-creation 0) and
+    /// `NpcInfo` (0x0C, since G8 the starting village's NPCs are described
+    /// on/after enter-world). A reply-then-assert exchange isn't guaranteed
+    /// to be the very next frame on the wire.
     async fn recv_skip_status_update(&mut self) -> Vec<u8> {
         loop {
             let pkt = self.recv().await;
-            if pkt[0] != 0x18 {
+            if pkt[0] != 0x18 && pkt[0] != 0x0C {
                 return pkt;
             }
         }
@@ -486,6 +487,9 @@ async fn full_login_to_character_create() {
     let mut equip_slot_pkt = None;
     loop {
         let pkt = g2.recv().await;
+        if pkt[0] == 0x0C {
+            continue; // NpcInfo for the starting village's NPCs (G8) — unbounded, uncounted
+        }
         opcodes.push(pkt[0]);
         if pkt[0] == 0x11 {
             item_list_pkt = Some(pkt.clone());
@@ -560,8 +564,12 @@ async fn full_login_to_character_create() {
     let mut n = 0;
     loop {
         // Drain the second enter-world burst up to the welcome SystemMessage.
-        if g2.recv().await[0] == 0x62 {
+        let op = g2.recv().await[0];
+        if op == 0x62 {
             break;
+        }
+        if op == 0x0C {
+            continue; // NpcInfo burst, uncounted (see above)
         }
         n += 1;
         assert!(n < 60, "re-enter burst did not terminate");

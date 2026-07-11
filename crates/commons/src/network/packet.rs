@@ -89,6 +89,10 @@ impl PacketWriter {
         self.data.extend_from_slice(&v.to_le_bytes());
     }
 
+    pub fn write_f32(&mut self, v: f32) {
+        self.data.extend_from_slice(&v.to_le_bytes());
+    }
+
     pub fn write_f64(&mut self, v: f64) {
         self.data.extend_from_slice(&v.to_le_bytes());
     }

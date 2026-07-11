@@ -6,6 +6,7 @@
 pub mod formulas;
 pub mod inventory;
 pub mod movement;
+pub mod npc;
 pub mod skill;
 pub mod stats;
 

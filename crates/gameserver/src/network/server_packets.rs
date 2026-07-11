@@ -6,12 +6,18 @@
 
 use commons::network::PacketWriter;
 
+use crate::data::npc_data::NpcTemplate;
+use crate::enums::NpcInfoType;
 use crate::model::inventory::PaperdollSlot;
+use crate::model::npc::Npc;
 use crate::model::Player;
+use crate::network::masks;
 
 /// `ServerPackets` opcodes (the single-byte `_id1`).
 pub mod opcodes {
     pub const DELETE_OBJECT: u8 = 0x08;
+    pub const NPC_INFO: u8 = 0x0C;
+    pub const NPC_HTML_MESSAGE: u8 = 0x19;
     pub const CHARACTER_SELECTION_INFO: u8 = 0x09;
     pub const LOGIN_FAIL: u8 = 0x0A;
     pub const CHAR_SELECTED: u8 = 0x0B;
@@ -450,14 +456,14 @@ pub fn action_failed() -> Vec<u8> {
 }
 
 /// Port of `serverpackets/MyTargetSelected`, sent only to the selecting
-/// player. `color` (level-diff, shown for attackable targets) is always 0 —
-/// no monsters/attackable creatures exist yet.
-pub fn my_target_selected(target_object_id: i32) -> Vec<u8> {
+/// player. `color` is `player.level - target.level` for auto-attackable
+/// targets (tints the target bar by level gap), 0 otherwise.
+pub fn my_target_selected(target_object_id: i32, color: i16) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::MY_TARGET_SELECTED);
     w.write_i32(1); // Grand Crusade
     w.write_i32(target_object_id);
-    w.write_i16(0); // color
+    w.write_i16(color);
     w.write_i32(0);
     w.into_bytes()
 }
@@ -862,10 +868,228 @@ pub fn char_info(p: &Player) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Port of `serverpackets/NpcInfo` (masked, 5 mask bytes / "mask_bits_37").
+/// Component selection follows the Java constructor with the not-yet-modeled
+/// state at its defaults: no summon animation, no water/fly/team/enchant/
+/// clone/transform/abnormals, no clan, reputation 0, pvp flag 0. The
+/// localisation pass (`MULTILANG_ENABLE`) is skipped.
+pub fn npc_info(npc: &Npc, t: &NpcTemplate) -> Vec<u8> {
+    use NpcInfoType as T;
+
+    // Java `NpcInfo._masks` starts with the two unnamed always-on component
+    // pairs (0x0C/0x0D and 0x14/0x15) pre-set.
+    let mut mask_bytes: [u8; 5] = [0x00, 0x0C, 0x0C, 0x00, 0x00];
+    let mut init_size: i32 = 0;
+    let mut block_size: i32 = 0;
+    let mut add = |mask_bytes: &mut [u8; 5], ty: T| {
+        masks::add_mask(mask_bytes, ty.mask());
+        // `calcBlockSize`: ATTACKABLE/RELATIONS/TITLE go in block 1, the rest
+        // in block 2; the string components add their chars on top.
+        match ty {
+            T::Attackable | T::Relations => init_size += ty.block_length(),
+            T::Title => init_size += ty.block_length() + t.title.len() as i32 * 2,
+            T::Name => block_size += ty.block_length() + t.name.len() as i32 * 2,
+            _ => block_size += ty.block_length(),
+        }
+    };
+
+    add(&mut mask_bytes, T::Attackable);
+    add(&mut mask_bytes, T::Relations);
+    add(&mut mask_bytes, T::Id);
+    add(&mut mask_bytes, T::Position);
+    add(&mut mask_bytes, T::StopMode);
+    add(&mut mask_bytes, T::MoveMode);
+    if npc.heading > 0 {
+        add(&mut mask_bytes, T::Heading);
+    }
+    if t.base_p_atk_spd > 0 || t.base_m_atk_spd > 0 {
+        add(&mut mask_bytes, T::AtkCastSpeed);
+    }
+    if t.base_run_spd > 0.0 {
+        add(&mut mask_bytes, T::SpeedMultiplier);
+    }
+    if t.rhand > 0 || t.lhand > 0 {
+        add(&mut mask_bytes, T::Equipped);
+    }
+    if npc.max_hp > 0 {
+        add(&mut mask_bytes, T::MaxHp);
+    }
+    if npc.max_mp > 0 {
+        add(&mut mask_bytes, T::MaxMp);
+    }
+    if npc.cur_hp <= npc.max_hp as f64 {
+        add(&mut mask_bytes, T::CurrentHp);
+    }
+    if npc.cur_mp <= npc.max_mp as f64 {
+        add(&mut mask_bytes, T::CurrentMp);
+    }
+    if t.server_side_name {
+        add(&mut mask_bytes, T::Name);
+    }
+    if t.server_side_title {
+        add(&mut mask_bytes, T::Title);
+    }
+    add(&mut mask_bytes, T::PetEvolutionId);
+    // Status mask: 0x01 in combat, 0x02 dead, 0x04 targetable, 0x08 show name.
+    let mut status_mask = 0u8;
+    if t.targetable {
+        status_mask |= 0x04;
+    }
+    if t.show_name {
+        status_mask |= 0x08;
+    }
+    if status_mask != 0 {
+        add(&mut mask_bytes, T::VisualState);
+    }
+
+    let contains = |ty: T| masks::contains_mask(&mask_bytes, ty.mask());
+
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::NPC_INFO);
+    w.write_i32(npc.object_id);
+    w.write_u8(0); // 0=teleported 1=default 2=summoned
+    w.write_i16(37); // mask_bits_37
+    w.write_bytes(&mask_bytes);
+
+    // Block 1.
+    w.write_u8(init_size as u8);
+    w.write_u8(u8::from(t.is_attackable_class() && t.type_name != "Guard"));
+    w.write_i32(0); // relations
+    if contains(T::Title) {
+        w.write_string(&t.title);
+    }
+
+    // Block 2.
+    w.write_i16(block_size as i16);
+    w.write_i32(t.display_id + 1_000_000);
+    w.write_i32(npc.x);
+    w.write_i32(npc.y);
+    w.write_i32(npc.z);
+    if contains(T::Heading) {
+        w.write_i32(npc.heading);
+    }
+    if contains(T::AtkCastSpeed) {
+        w.write_i32(t.base_p_atk_spd);
+        w.write_i32(t.base_m_atk_spd);
+    }
+    if contains(T::SpeedMultiplier) {
+        // Current speed / template base speed — 1.0 until buffs/AI exist.
+        w.write_f32(1.0); // movement speed multiplier
+        w.write_f32(1.0); // attack speed multiplier
+    }
+    if contains(T::Equipped) {
+        w.write_i32(t.rhand);
+        w.write_i32(0); // armor id (Java writes 0)
+        w.write_i32(t.lhand);
+    }
+    w.write_u8(1); // STOP_MODE: !isDead
+    w.write_u8(npc.running as u8); // MOVE_MODE
+    w.write_i32(0); // PET_EVOLUTION_ID
+    if contains(T::CurrentHp) {
+        w.write_i32(npc.cur_hp as i32);
+    }
+    if contains(T::CurrentMp) {
+        w.write_i32(npc.cur_mp as i32);
+    }
+    if contains(T::MaxHp) {
+        w.write_i32(npc.max_hp);
+    }
+    if contains(T::MaxMp) {
+        w.write_i32(npc.max_mp);
+    }
+    if contains(T::Name) {
+        w.write_string(&t.name);
+    }
+    if contains(T::VisualState) {
+        w.write_u8(status_mask);
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/NpcHtmlMessage` — the NPC dialog window. `item_id`
+/// stays 0 (item-triggered dialogs aren't a thing yet).
+pub fn npc_html_message(npc_object_id: i32, html: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::NPC_HTML_MESSAGE);
+    w.write_i32(npc_object_id);
+    w.write_string(html);
+    w.write_i32(0); // item id
+    w.write_i32(0); // show common board
+    w.into_bytes()
+}
+
 #[cfg(test)]
 mod tests {
     use super::lobby_active_id;
     use crate::character::CharData;
+    use commons::network::PacketWriter;
+
+    /// `NpcInfo` byte layout, hand-computed against the Java constructor +
+    /// `writeImpl` (no client capture available for NPCs yet, unlike the
+    /// UserInfo test — the mask math is shared with that byte-verified path).
+    #[test]
+    fn npc_info_layout_matches_java() {
+        let mut t = crate::data::npc_data::default_template(30001);
+        t.name = "Gina".into();
+        t.server_side_name = true;
+        t.level = 5;
+        t.base_hp_max = 100.0;
+        t.base_mp_max = 50.0;
+        // Defaults keep: p_atk_spd 300, m_atk_spd 333, run 120, rhand/lhand 0,
+        // targetable + show_name true (→ status mask 0x0C), type Folk.
+        let npc = crate::model::npc::Npc {
+            object_id: 0x4000_0001,
+            npc_id: 30001,
+            x: 100,
+            y: 200,
+            z: -300,
+            heading: 4000,
+            region: (0, 0),
+            max_hp: 100,
+            max_mp: 50,
+            cur_hp: 100.0,
+            cur_mp: 50.0,
+            running: false,
+            respawn_secs: 0,
+            respawn_random_secs: 0,
+        };
+
+        let mut w = PacketWriter::new();
+        w.write_u8(0x0C); // NPC_INFO
+        w.write_i32(0x4000_0001);
+        w.write_u8(0); // no summon animation
+        w.write_i16(37);
+        // Components: Id, Attackable, Relations, Name, Position, Heading,
+        // AtkCastSpeed | SpeedMultiplier, StopMode, MoveMode (+ pre-set
+        // 0x0C/0x0D) | PetEvolutionId (+ pre-set 0x14/0x15) | CurrentHp,
+        // CurrentMp, MaxHp, MaxMp | VisualState(37).
+        w.write_bytes(&[0xFD, 0xBC, 0x1C, 0xF0, 0x04]);
+        w.write_u8(5); // init size: attackable(1) + relations(4)
+        w.write_u8(0); // Folk is not in the Attackable subtree
+        w.write_i32(0); // relations
+        w.write_i16(69); // block 2 size
+        w.write_i32(1_030_001); // display id + 1000000
+        w.write_i32(100);
+        w.write_i32(200);
+        w.write_i32(-300);
+        w.write_i32(4000); // heading
+        w.write_i32(300); // p atk spd
+        w.write_i32(333); // m atk spd
+        w.write_f32(1.0); // movement multiplier
+        w.write_f32(1.0); // attack speed multiplier
+        w.write_u8(1); // stop mode: alive
+        w.write_u8(0); // move mode: walking
+        w.write_i32(0); // pet evolution id
+        w.write_i32(100); // cur hp
+        w.write_i32(50); // cur mp
+        w.write_i32(100); // max hp
+        w.write_i32(50); // max mp
+        w.write_string("Gina");
+        w.write_u8(0x0C); // visual state: targetable | show name
+        let expected = w.into_bytes();
+
+        assert_eq!(super::npc_info(&npc, &t), expected);
+    }
 
     fn chr(last_access: i64, delete_time: i64) -> CharData {
         CharData { last_access, delete_time, ..Default::default() }
