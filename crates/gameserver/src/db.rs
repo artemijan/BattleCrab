@@ -48,6 +48,75 @@ pub struct NewCharacter {
     pub items: Vec<NewItem>,
 }
 
+/// The persistable slice of a `Player`, snapshotted on the game thread when the
+/// character leaves the world (restart / logout / disconnect) — Java
+/// `Disconnection.storeMe().deleteMe()`. Covers the `storeCharBase` columns the
+/// Rust `Player` actually tracks; the rest (clan, title, online time, faction,
+/// …) keep their stored values. Java's companion stores — `storeCharSub`,
+/// `storeEffect` (`character_skills_save`), item reuse — need systems that
+/// don't exist yet (subclasses, buff restore on login) and are TODO(G-later).
+/// Items and learned skills are already persisted at mutation time.
+#[derive(Debug, Clone)]
+pub struct PlayerSnapshot {
+    pub object_id: i32,
+    pub level: i32,
+    pub max_hp: i32,
+    pub cur_hp: f64,
+    pub max_cp: i32,
+    pub cur_cp: f64,
+    pub max_mp: i32,
+    pub cur_mp: f64,
+    pub face: i32,
+    pub hair_style: i32,
+    pub hair_color: i32,
+    pub sex: i32,
+    pub heading: i32,
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+    pub exp: i64,
+    pub sp: i64,
+    pub reputation: i32,
+    pub pvp_kills: i32,
+    pub pk_kills: i32,
+    pub race: i32,
+    pub class_id: i32,
+    pub base_class_id: i32,
+    pub vitality_points: i32,
+}
+
+impl PlayerSnapshot {
+    pub fn of(p: &crate::model::Player) -> Self {
+        Self {
+            object_id: p.object_id,
+            level: p.level,
+            max_hp: p.max_hp,
+            cur_hp: p.cur_hp,
+            max_cp: p.max_cp,
+            cur_cp: p.cur_cp,
+            max_mp: p.max_mp,
+            cur_mp: p.cur_mp,
+            face: p.face,
+            hair_style: p.hair_style,
+            hair_color: p.hair_color,
+            sex: p.is_female as i32,
+            heading: p.heading,
+            x: p.x,
+            y: p.y,
+            z: p.z,
+            exp: p.exp,
+            sp: p.sp,
+            reputation: p.reputation,
+            pvp_kills: p.pvp_kills,
+            pk_kills: p.pk_kills,
+            race: p.race,
+            class_id: p.class_id,
+            base_class_id: p.base_class_id,
+            vitality_points: p.vitality_points,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CreateResult {
     Ok,
@@ -74,6 +143,11 @@ pub enum DbCommand {
     /// Fire-and-forget skill-learn persistence (`RequestAcquireSkill`), same
     /// upsert query used for creation-time initial skills.
     UpsertSkill { char_id: i32, skill_id: i32, skill_level: i32 },
+    /// Fire-and-forget `Disconnection.storeMe().deleteMe()`: persist the
+    /// character row and mark it offline. Ordered before any following
+    /// `LoadCharacters` on this channel, so a restart's re-sent list already
+    /// reflects the save.
+    StorePlayer { snap: PlayerSnapshot },
     Shutdown,
 }
 
@@ -183,6 +257,9 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
+            DbCommand::StorePlayer { snap } => {
+                store_player(&pool, &snap).await;
+            }
             DbCommand::Shutdown => break,
         }
     }
@@ -271,6 +348,13 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             items,
             skills,
         });
+    }
+    // Characters marked for deletion are listed last in the lobby; the stable
+    // sort keeps createDate order within each group. Slots are the list
+    // positions the client will send back, so renumber after sorting.
+    out.sort_by_key(|c| c.delete_time > 0);
+    for (slot, c) in out.iter_mut().enumerate() {
+        c.char_slot = slot as i32;
     }
     out
 }
@@ -421,6 +505,48 @@ async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: 
             CreateResult::Fail
         }
     }
+}
+
+/// Java `Player.storeCharBase` (narrowed to the tracked columns, see
+/// [`PlayerSnapshot`]) + `updateOnlineStatus` — the character leaves the world,
+/// so `online=0` and `lastAccess=now` in the same write.
+async fn store_player(pool: &SqlitePool, s: &PlayerSnapshot) {
+    exec(
+        pool,
+        sqlx::query(
+            "UPDATE characters SET level=?, maxHp=?, curHp=?, maxCp=?, curCp=?, maxMp=?, curMp=?, \
+             face=?, hairStyle=?, hairColor=?, sex=?, heading=?, x=?, y=?, z=?, exp=?, sp=?, \
+             reputation=?, pvpkills=?, pkkills=?, race=?, classid=?, base_class=?, \
+             vitality_points=?, online=0, lastAccess=? WHERE charId=?",
+        )
+        .bind(s.level)
+        .bind(s.max_hp)
+        .bind(s.cur_hp)
+        .bind(s.max_cp)
+        .bind(s.cur_cp)
+        .bind(s.max_mp)
+        .bind(s.cur_mp)
+        .bind(s.face)
+        .bind(s.hair_style)
+        .bind(s.hair_color)
+        .bind(s.sex)
+        .bind(s.heading)
+        .bind(s.x)
+        .bind(s.y)
+        .bind(s.z)
+        .bind(s.exp)
+        .bind(s.sp)
+        .bind(s.reputation)
+        .bind(s.pvp_kills)
+        .bind(s.pk_kills)
+        .bind(s.race)
+        .bind(s.class_id)
+        .bind(s.base_class_id)
+        .bind(s.vitality_points)
+        .bind(now_millis())
+        .bind(s.object_id),
+    )
+    .await;
 }
 
 async fn count_characters(pool: &SqlitePool, account: &str) -> (u8, Vec<i64>) {

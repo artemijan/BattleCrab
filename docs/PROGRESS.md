@@ -394,6 +394,30 @@ now load and back server-side LOS + walkability checks.
   `CARGO_MANIFEST_DIR` paths (the ipconfig test chdirs the process
   mid-run and could starve relative-path loaders).
 
+### Post-G7.8 — Restart/Logout + player persistence ✅
+Fixed "relogin ignored": the client's `RequestRestart` (0x57) and `Logout`
+(0x00) opcodes were unhandled, so leaving the world was impossible without
+killing the client.
+
+- **`RequestRestart`**: Java `storeMe().deleteMe()` + `RestartResponse.TRUE`,
+  session `InGame → Authenticated` (new type-state transition; `InGame` now
+  carries the `SessionKey` for it), then the character list reloads through
+  the normal `Authenticated → InLobby` path. `canLogout` guards (attack
+  stance, NO_RESTART zones) are TODO with combat (G9).
+- **`Logout`**: store + remove player, send `LeaveWorld` (0x84), drop the
+  session (socket closes after the flush; `on_disconnect` does the login-
+  server notify). From the lobby it just disconnects, like Java.
+- **Persistence** (`DbCommand::StorePlayer` + `PlayerSnapshot`): port of
+  `Player.storeCharBase` narrowed to tracked columns (level, HP/MP/CP,
+  position/heading, exp/sp, reputation, PvP/PK, class ids, vitality) +
+  `updateOnlineStatus` (`online=0`, `lastAccess=now`) in one UPDATE. Runs on
+  restart, logout, **and unexpected disconnect** (incl. the `Entering`
+  state, where the `Player` still lives on the session). `storeCharSub`/
+  `storeEffect`/item-reuse persistence deferred (need subclasses and
+  buff restore on login).
+- **Tests**: restart store+lobby round trip, restart → re-enter world (the
+  original bug), logout store+`LeaveWorld`, disconnect store.
+
 ### G8–G13 — ⏳ not started
 See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gate: **static
 world content** — NPCs/spawns, so there's something besides another player to
@@ -441,7 +465,8 @@ Empty/placeholder now, to be filled in the owning milestone:
 - **Social (G9):** clan/ally blocks in `UserInfo`, `FriendList` empty, mail.
 - **Misc:** macros, `HennaInfo` empty, `ExUserBanInfo`, `ExVitalityEffectInfo`
   bonuses, real castle list for manor, game-time clock (CharSelected/UserInfo
-  use 0), player persistence on logout.
+  use 0), periodic auto-save while in game (`AutoSaveManager`; persistence on
+  restart/logout/disconnect is done).
 
 ---
 

@@ -31,6 +31,8 @@ pub mod opcodes {
     pub const MAGIC_SKILL_CANCELED: u8 = 0x49;
     pub const MAGIC_SKILL_LAUNCHED: u8 = 0x54;
     pub const SYSTEM_MESSAGE: u8 = 0x62;
+    pub const RESTART_RESPONSE: u8 = 0x71;
+    pub const LOG_OUT_OK: u8 = 0x84;
     pub const SETUP_GAUGE: u8 = 0x6B;
     pub const SKILL_COOL_TIME: u8 = 0xC7;
     pub const ACQUIRE_SKILL_DONE: u8 = 0x94;
@@ -170,6 +172,19 @@ const CHAR_SELECT_ENCHANT_ORDER: [PaperdollSlot; 5] = [
     PaperdollSlot::Feet,
 ];
 
+/// The lobby slot to highlight: the most-recently-accessed character.
+/// Characters marked for deletion never become active; if every character is
+/// marked (or the list is empty), none is highlighted (-1).
+fn lobby_active_id(chars: &[crate::character::CharData]) -> i32 {
+    chars
+        .iter()
+        .enumerate()
+        .filter(|(_, c)| c.delete_time == 0)
+        .max_by_key(|(_, c)| c.last_access)
+        .map(|(i, _)| i as i32)
+        .unwrap_or(-1)
+}
+
 /// Port of `serverpackets/CharSelectionInfo`. Writes the real character rows
 /// and paperdoll; augmentation/visual id are zero (later milestones).
 pub fn char_selection_info(
@@ -192,17 +207,7 @@ pub fn char_selection_info(
     w.write_u8(0); // Balthus Knights / premium suggestion
 
     // If no active id was given, the most-recently-accessed character is active.
-    let active_id = if active_id == -1 {
-        chars
-            .iter()
-            .enumerate()
-            .max_by_key(|(_, c)| c.last_access)
-            .filter(|_| !chars.is_empty())
-            .map(|(i, _)| i as i32)
-            .unwrap_or(-1)
-    } else {
-        active_id
-    };
+    let active_id = if active_id == -1 { lobby_active_id(chars) } else { active_id };
 
     for (i, c) in chars.iter().enumerate() {
         w.write_string(&c.name);
@@ -379,6 +384,25 @@ pub fn char_selected(p: &crate::model::Player, session_id: i32, game_time: i32) 
     }
     w.write_bytes(&[0u8; 28]);
     w.write_i32(0);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/RestartResponse` (`TRUE`/`FALSE` statics): whether
+/// the `RequestRestart` was accepted — `true` sends the client back to the
+/// character-selection screen (a `CharSelectionInfo` must follow).
+pub fn restart_response(result: bool) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::RESTART_RESPONSE);
+    w.write_i32(result as i32);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/LeaveWorld` (`LOG_OUT_OK`): the "safe to quit"
+/// acknowledgement for the client's `Logout`; the server closes the connection
+/// right after it.
+pub fn leave_world() -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::LOG_OUT_OK);
     w.into_bytes()
 }
 
@@ -683,4 +707,32 @@ pub fn acquire_skill_done() -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::ACQUIRE_SKILL_DONE);
     w.into_bytes()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::lobby_active_id;
+    use crate::character::CharData;
+
+    fn chr(last_access: i64, delete_time: i64) -> CharData {
+        CharData { last_access, delete_time, ..Default::default() }
+    }
+
+    #[test]
+    fn active_id_is_most_recently_accessed_non_deleted() {
+        let chars = [chr(100, 0), chr(300, commons::util::now_millis()), chr(200, 0)];
+        assert_eq!(lobby_active_id(&chars), 2);
+    }
+
+    #[test]
+    fn active_id_is_none_when_all_marked_for_deletion() {
+        let now = commons::util::now_millis();
+        let chars = [chr(100, now), chr(300, now)];
+        assert_eq!(lobby_active_id(&chars), -1);
+    }
+
+    #[test]
+    fn active_id_is_none_for_empty_list() {
+        assert_eq!(lobby_active_id(&[]), -1);
+    }
 }

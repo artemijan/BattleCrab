@@ -22,7 +22,7 @@ pub struct ItemRow {
 }
 
 /// One row of the `characters` table, restored for character selection.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct CharData {
     pub object_id: i32,
     pub name: String,

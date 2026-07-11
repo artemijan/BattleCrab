@@ -203,9 +203,28 @@ impl Inventory {
                 changed.extend(self.clear(PaperdollSlot::RHand));
                 changed.push(self.set(PaperdollSlot::RHand, object_id));
             }
-            item_data::SLOT_CHEST | item_data::SLOT_FULL_ARMOR | item_data::SLOT_ALLDRESS => {
+            item_data::SLOT_CHEST => {
+                changed.extend(self.clear(PaperdollSlot::Chest));
+                changed.push(self.set(PaperdollSlot::Chest, object_id));
+            }
+            item_data::SLOT_FULL_ARMOR => {
                 changed.extend(self.clear(PaperdollSlot::Legs));
                 changed.extend(self.clear(PaperdollSlot::Chest));
+                changed.push(self.set(PaperdollSlot::Chest, object_id));
+            }
+            item_data::SLOT_ALLDRESS => {
+                // Formal dress covers the whole body.
+                for slot in [
+                    PaperdollSlot::Legs,
+                    PaperdollSlot::LHand,
+                    PaperdollSlot::RHand,
+                    PaperdollSlot::Head,
+                    PaperdollSlot::Feet,
+                    PaperdollSlot::Gloves,
+                    PaperdollSlot::Chest,
+                ] {
+                    changed.extend(self.clear(slot));
+                }
                 changed.push(self.set(PaperdollSlot::Chest, object_id));
             }
             item_data::SLOT_LEGS => {
@@ -346,6 +365,21 @@ mod tests {
 
     fn weapon(id: i32, body_part: i32) -> ItemTemplate {
         ItemTemplate { item_id: id, name: format!("weapon{id}"), kind: ItemKind::Weapon, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false }
+    }
+
+    #[test]
+    fn plain_chest_keeps_legs_equipped() {
+        let catalog = ItemData::from_templates(vec![
+            armor(1, item_data::SLOT_CHEST),
+            armor(2, item_data::SLOT_LEGS),
+        ]);
+        let mut inv = Inventory::new();
+        inv.add_item(&catalog, 1, 1, 1);
+        inv.add_item(&catalog, 2, 2, 1);
+        inv.equip_item(&catalog, 2);
+        inv.equip_item(&catalog, 1);
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Chest), 1);
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Legs), 2, "plain chest must not unequip Legs");
     }
 
     #[test]

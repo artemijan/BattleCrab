@@ -535,6 +535,43 @@ async fn full_login_to_character_create() {
     let cool = g2.recv_skip_status_update().await;
     assert_eq!(cool[0], 0xC7, "SkillCoolTime reply to RequestSkillCoolTime");
 
+    // --- RequestRestart (0x57): back to character selection on the SAME
+    // connection — RestartResponse.TRUE, then a fresh CharSelectionInfo.
+    g2.send(&[0x57]).await;
+    let restart = g2.recv_skip_status_update().await;
+    assert_eq!(restart[0], 0x71, "RestartResponse");
+    assert_eq!(i32::from_le_bytes(restart[1..5].try_into().unwrap()), 1, "RestartResponse.TRUE");
+    let sel3 = g2.recv_skip_status_update().await;
+    assert_eq!(sel3[0], 0x09, "CharSelectionInfo re-sent after restart");
+    assert_eq!(i32::from_le_bytes(sel3[1..5].try_into().unwrap()), 1, "character still listed");
+
+    // Relogin without reconnecting (the original bug): select → enter again.
+    let mut w = PacketWriter::new();
+    w.write_u8(0x12); // CharacterSelect
+    w.write_i32(0); // slot
+    w.write_i16(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    g2.send(&w.into_bytes()).await;
+    assert_eq!(g2.recv_skip_status_update().await[0], 0x0B, "CharSelected after restart");
+    g2.send(&[0x11]).await; // EnterWorld
+    assert_eq!(g2.recv_skip_status_update().await[0], 0x32, "UserInfo after re-enter");
+    let mut n = 0;
+    loop {
+        // Drain the second enter-world burst up to the welcome SystemMessage.
+        if g2.recv().await[0] == 0x62 {
+            break;
+        }
+        n += 1;
+        assert!(n < 60, "re-enter burst did not terminate");
+    }
+
+    // --- Logout (0x00): LeaveWorld, then the server closes the connection.
+    g2.send(&[0x00]).await;
+    assert_eq!(g2.recv_skip_status_update().await[0], 0x84, "LeaveWorld");
+    tokio::time::sleep(Duration::from_millis(300)).await; // let the store land
+
     // The Mystic's 5 initial skills were written to character_skills.
     let check = commons::db::init(&db_url, 1).await.unwrap();
     let skill_count: i64 = sqlx::query_scalar(
@@ -545,6 +582,17 @@ async fn full_login_to_character_create() {
     .await
     .unwrap();
     assert_eq!(skill_count, 5, "Human Mystic should start with 5 skills");
+
+    // The logout stored the character (storeCharBase + updateOnlineStatus):
+    // marked offline with a fresh lastAccess.
+    let (online, last_access): (i64, i64) =
+        sqlx::query_as("SELECT online, lastAccess FROM characters WHERE char_name = ?")
+            .bind(&name)
+            .fetch_one(&check)
+            .await
+            .unwrap();
+    assert_eq!(online, 0, "character marked offline after logout");
+    assert!(last_access > 0, "lastAccess written on logout");
     check.close().await;
 
     let _ = std::fs::remove_dir_all(&dir);

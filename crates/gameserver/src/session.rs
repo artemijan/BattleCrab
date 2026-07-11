@@ -140,6 +140,7 @@ pub struct Entering {
 /// links to it by id (plan §3.1).
 pub struct InGame {
     pub account: String,
+    pub session_key: SessionKey,
     pub player_object_id: i32,
 }
 
@@ -161,7 +162,11 @@ impl Session<Entering> {
             client_id: self.client_id,
             out: self.out,
             addr: self.addr,
-            state: InGame { account: self.state.account, player_object_id: object_id },
+            state: InGame {
+                account: self.state.account,
+                session_key: self.state.session_key,
+                player_object_id: object_id,
+            },
         };
         (session, self.state.player)
     }
@@ -173,6 +178,19 @@ impl Session<InGame> {
     }
     pub fn player_object_id(&self) -> i32 {
         self.state.player_object_id
+    }
+
+    /// `RequestRestart`: back to the character-selection lifecycle (Java
+    /// `client.setConnectionState(ConnectionState.AUTHENTICATED)`); the
+    /// character list is re-loaded through the normal `Authenticated → InLobby`
+    /// path, same as after login.
+    pub fn into_authenticated(self) -> Session<Authenticated> {
+        Session {
+            client_id: self.client_id,
+            out: self.out,
+            addr: self.addr,
+            state: Authenticated { account: self.state.account, session_key: self.state.session_key },
+        }
     }
 }
 

@@ -7,6 +7,7 @@ use commons::network::PacketReader;
 
 /// `ClientPackets` opcodes (single-byte `_id`).
 pub mod opcodes {
+    pub const LOGOUT: u8 = 0x00;
     pub const MOVE_BACKWARD_TO_LOCATION: u8 = 0x0F;
     pub const PROTOCOL_VERSION: u8 = 0x0E;
     pub const AUTH_LOGIN: u8 = 0x2B;
@@ -22,6 +23,7 @@ pub mod opcodes {
     pub const ACTION: u8 = 0x1F;
     pub const REQUEST_MAGIC_SKILL_USE: u8 = 0x39;
     pub const REQUEST_TARGET_CANCELD: u8 = 0x48;
+    pub const REQUEST_RESTART: u8 = 0x57;
     pub const VALIDATE_POSITION: u8 = 0x59;
     pub const REQUEST_ACQUIRE_SKILL: u8 = 0x7C;
     /// Extended packets: opcode 0xD0 + a 2-byte little-endian sub-opcode.

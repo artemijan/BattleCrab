@@ -209,6 +209,8 @@ fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_TARGET_CANCELD => handle_request_target_canceld(world, client_id, body),
         cop::MOVE_BACKWARD_TO_LOCATION => handle_move_backward_to_location(world, client_id, body),
         cop::VALIDATE_POSITION => handle_validate_position(world, client_id, body),
+        cop::LOGOUT => handle_logout(world, client_id),
+        cop::REQUEST_RESTART => handle_request_restart(world, client_id),
         cop::EX_PACKET => on_ex_packet(world, client_id, body),
         _ => error!("GameLoop: client {client_id} sent opcode 0x{opcode:02x}, unhandled."),
     }
@@ -1704,11 +1706,83 @@ fn handle_auth_login(world: &mut World, client_id: u32, body: &[u8]) {
         .send(LoginLinkCommand::PlayerAuthRequest { account, key });
 }
 
+/// Take the player out of the world and persist them — Java
+/// `Disconnection.storeMe().deleteMe()`. Shared by restart, logout, and
+/// unexpected disconnects. Scheduled tasks holding the dead object id no-op.
+/// TODO(G8+): broadcast `DeleteObject` once other players receive `CharInfo`.
+fn store_and_remove_player(world: &mut World, player_object_id: i32) {
+    if let Some(p) = world.players.remove(&player_object_id) {
+        let _ = world.db.send(db::DbCommand::StorePlayer {
+            snap: db::PlayerSnapshot::of(&p),
+        });
+    }
+}
+
+/// Port of `clientpackets/RequestRestart.runImpl`: save + leave the world, drop
+/// the session back to the character-selection lifecycle, and re-send the
+/// character list. Olympiad/instance handling doesn't apply yet; `canLogout`
+/// guards (attack stance, NO_RESTART zones, events) are TODO with combat (G9).
+fn handle_request_restart(world: &mut World, client_id: u32) {
+    let Some(ClientSession::InGame(_)) = world.clients.get(&client_id) else {
+        return; // Java gates by IN_GAME
+    };
+    let Some(ClientSession::InGame(s)) = world.clients.remove(&client_id) else {
+        unreachable!("checked above");
+    };
+    store_and_remove_player(world, s.player_object_id());
+    info!("GameLoop: '{}' logged out to character selection.", s.account());
+
+    // Java: setConnectionState(AUTHENTICATED) + RestartResponse.TRUE, then a
+    // freshly restored CharSelectionInfo. The reload arrives through the normal
+    // Authenticated → InLobby path (`on_characters_loaded`, send_list=true) and
+    // is ordered after the StorePlayer above on the DB channel.
+    let s = s.into_authenticated();
+    s.send(server_packets::restart_response(true));
+    let account = s.account().to_string();
+    world.clients.insert(client_id, ClientSession::Authenticated(s));
+    let _ = world.db.send(db::DbCommand::LoadCharacters { client_id, account });
+}
+
+/// Port of `clientpackets/Logout.runImpl`: save + leave the world, acknowledge
+/// with `LeaveWorld`, and close. Valid from the lobby too (Java gates by
+/// AUTHENTICATED + IN_GAME), where it just disconnects. `canLogout` guards are
+/// TODO with combat (G9), same as `handle_request_restart`.
+fn handle_logout(world: &mut World, client_id: u32) {
+    match world.clients.get(&client_id) {
+        Some(ClientSession::InGame(_)) => {
+            let Some(ClientSession::InGame(s)) = world.clients.remove(&client_id) else {
+                unreachable!("checked above");
+            };
+            store_and_remove_player(world, s.player_object_id());
+            info!("GameLoop: '{}' logged out.", s.account());
+            // Dropping the session closes the socket after the queued packet
+            // is flushed; the resulting `Disconnected` event runs the login
+            // notify in `on_disconnect`.
+            s.send(server_packets::leave_world());
+        }
+        Some(_) => {
+            // No player: Java `client.disconnect()`.
+            world.clients.remove(&client_id);
+        }
+        None => {}
+    }
+}
+
 /// Clean up a disconnected client and inform the login server.
 fn on_disconnect(world: &mut World, client_id: u32) {
-    // TODO(G3+): persist the player (store HP/MP/position/etc.) before removing.
-    if let Some(ClientSession::InGame(s)) = world.clients.get(&client_id) {
-        world.players.remove(&s.player_object_id());
+    // Unexpected disconnect while a character is loaded: persist it (Java
+    // `GameClient.onDisconnection` → `Disconnection.storeMe().deleteMe()`).
+    // In `Entering` the Player is still held by the session, not the world.
+    match world.clients.get(&client_id) {
+        Some(ClientSession::InGame(s)) => {
+            store_and_remove_player(world, s.player_object_id());
+        }
+        Some(ClientSession::Entering(s)) => {
+            let _ = world.db.send(db::DbCommand::StorePlayer {
+                snap: db::PlayerSnapshot::of(s.player()),
+            });
+        }
+        _ => {}
     }
     world.clients.remove(&client_id);
     let account = world
@@ -3145,5 +3219,102 @@ mod tests {
         let p = &world.players[&4001];
         assert_eq!((p.x, p.y, p.z), (3000, 1000, 0), "snapped, z on the geodata floor");
         assert_eq!((p.client_x, p.client_y, p.client_z), (3000, 1000, 0));
+    }
+
+    /// The next queued DB command, which must be a `StorePlayer`; returns its
+    /// snapshot.
+    fn expect_store_player(db_rx: &mut db::CmdRx) -> db::PlayerSnapshot {
+        match db_rx.try_recv() {
+            Ok(db::DbCommand::StorePlayer { snap }) => snap,
+            _ => panic!("expected a StorePlayer DB command"),
+        }
+    }
+
+    /// RequestRestart: the player is stored + removed, the client gets
+    /// `RestartResponse(true)`, drops back to `Authenticated`, and the reloaded
+    /// character list flows through the normal lobby path.
+    #[test]
+    fn restart_stores_player_and_returns_to_lobby() {
+        let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
+        let mut out_rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
+        {
+            let p = world.players.get_mut(&5001).unwrap();
+            p.exp = 1234;
+            p.x = 777;
+        }
+
+        handle_request_restart(&mut world, 1);
+
+        // storeMe: the snapshot carries the live (not the loaded) state, and
+        // is queued before the character-list reload.
+        let snap = expect_store_player(&mut db_rx);
+        assert_eq!((snap.object_id, snap.exp, snap.x), (5001, 1234, 777));
+        match db_rx.try_recv() {
+            Ok(db::DbCommand::LoadCharacters { client_id, account }) => {
+                assert_eq!((client_id, account.as_str()), (1, "bob"));
+            }
+            _ => panic!("expected a LoadCharacters DB command after the store"),
+        }
+
+        // deleteMe + setConnectionState(AUTHENTICATED) + RestartResponse.TRUE.
+        assert!(world.players.is_empty());
+        assert!(matches!(world.clients.get(&1), Some(ClientSession::Authenticated(_))));
+        let pkt = out_rx.try_recv().unwrap();
+        assert_eq!(pkt[0], server_packets::opcodes::RESTART_RESPONSE);
+        assert_eq!(pkt[1], 1, "RestartResponse.TRUE");
+
+        // The reload result lands like any character-list load: InLobby +
+        // CharSelectionInfo.
+        on_characters_loaded(&mut world, 1, "bob".into(), vec![dummy_char(5001, "P5001")], true);
+        assert!(matches!(world.clients.get(&1), Some(ClientSession::InLobby(_))));
+        assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::CHARACTER_SELECTION_INFO);
+    }
+
+    /// A second select → enter-world round trip works on the restarted session
+    /// (the original relogin bug: the restart packet was ignored entirely).
+    #[test]
+    fn restart_then_reenter_world() {
+        let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+        let mut out_rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
+        handle_request_restart(&mut world, 1);
+        on_characters_loaded(&mut world, 1, "bob".into(), vec![dummy_char(5001, "P5001")], true);
+        while out_rx.try_recv().is_ok() {} // RestartResponse + CharSelectionInfo
+
+        let mut w = PacketWriter::new();
+        w.write_i32(0); // slot
+        handle_character_select(&mut world, 1, &w.into_bytes());
+        assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::CHAR_SELECTED);
+        handle_enter_world(&mut world, 1);
+        assert!(world.players.contains_key(&5001), "player re-entered the world");
+        assert!(matches!(world.clients.get(&1), Some(ClientSession::InGame(_))));
+    }
+
+    /// Logout: the player is stored + removed and the client gets `LeaveWorld`;
+    /// dropping the session is what closes the socket.
+    #[test]
+    fn logout_stores_player_and_sends_leave_world() {
+        let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
+        let mut out_rx = ingame_player(&mut world, 1, 5002, 100, 200, 0);
+
+        handle_logout(&mut world, 1);
+
+        assert_eq!(expect_store_player(&mut db_rx).object_id, 5002);
+        assert!(world.players.is_empty());
+        assert!(world.clients.is_empty(), "session dropped → socket closes");
+        assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::LOG_OUT_OK);
+    }
+
+    /// An unexpected disconnect while in game persists the player too (Java
+    /// `GameClient.onDisconnection` → `Disconnection.storeMe().deleteMe()`).
+    #[test]
+    fn disconnect_stores_ingame_player() {
+        let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
+        let _out_rx = ingame_player(&mut world, 1, 5003, 100, 200, 0);
+
+        on_disconnect(&mut world, 1);
+
+        assert_eq!(expect_store_player(&mut db_rx).object_id, 5003);
+        assert!(world.players.is_empty());
+        assert!(world.clients.is_empty());
     }
 }
