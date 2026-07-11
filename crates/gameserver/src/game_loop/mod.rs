@@ -1,0 +1,183 @@
+//! The game thread and its 100 ms tick loop (CONCURRENCY_MODEL §2.2).
+//!
+//! Runs on one dedicated OS thread that owns [`World`]. The base tick is 100 ms,
+//! matching Java's `GameTimeTaskManager` and high-priority task-manager rate.
+//! Steps: drain network events → drain login-link events → fire timers → run
+//! tick systems (G4+) → flush. Packet dispatch and login handoff land here on
+//! the game thread, keeping handler code sequential and 1:1 with Java `run()`.
+
+mod dispatch;
+mod helpers;
+mod items;
+mod lobby;
+mod net;
+mod position;
+mod regen;
+mod skills;
+mod target;
+#[cfg(test)]
+mod tests;
+
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use std::thread::JoinHandle;
+use std::time::{Duration, Instant};
+
+use tracing::{info, warn};
+
+use crate::data::GameData;
+use crate::db::{self, DbEventRx};
+use crate::loginlink::{CommandTx, LoginLinkEventRx};
+use crate::network::NetEventRx;
+use crate::scheduler::ScheduledTask;
+use crate::world::World;
+
+use net::{drain_db, drain_login_link, drain_network};
+use regen::{run_regen_tick, REGEN_TICK_PERIOD};
+use skills::cast::{handle_cast_end, handle_skill_finish, handle_skill_launch};
+use skills::effects::handle_buff_expire;
+
+/// Base tick period. Slower Java rates (1 s, 5 s…) become `world.tick % N == 0`
+/// systems on top of this.
+pub const TICK: Duration = Duration::from_millis(100);
+
+/// A tick that runs longer than this is the failure mode of the single-thread
+/// design, so it must be visible from day one (CONCURRENCY_MODEL §2.6 rule 4).
+const TICK_OVERRUN_WARN: Duration = Duration::from_millis(50);
+
+
+/// Signal shared with the async side (ctrl-c / scheduled restart) to stop the
+/// loop after the current tick finishes.
+#[derive(Clone, Default)]
+pub struct Shutdown(Arc<AtomicBool>);
+
+impl Shutdown {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn request(&self) {
+        self.0.store(true, Ordering::SeqCst);
+    }
+
+    pub fn is_requested(&self) -> bool {
+        self.0.load(Ordering::SeqCst)
+    }
+}
+
+/// Everything the game thread needs to start.
+pub struct GameThreadChannels {
+    pub net_rx: NetEventRx,
+    pub login_rx: LoginLinkEventRx,
+    pub link_tx: CommandTx,
+    pub db_rx: DbEventRx,
+    pub db_tx: db::CmdTx,
+    pub data: GameData,
+    pub geo: crate::geo::GeoEngine,
+    pub path_finding: i32,
+    pub max_characters_per_account: i32,
+    pub delete_days: i32,
+    pub starting_adena: i64,
+}
+
+/// Spawn the game thread. Returns its join handle so `main` can wait for the
+/// final tick (drain + save) before exiting.
+pub fn spawn(shutdown: Shutdown, ch: GameThreadChannels) -> JoinHandle<()> {
+    std::thread::Builder::new()
+        .name("game-thread".to_string())
+        .spawn(move || run(shutdown, ch))
+        .expect("failed to spawn game thread")
+}
+
+fn run(shutdown: Shutdown, ch: GameThreadChannels) {
+    let GameThreadChannels {
+        net_rx,
+        login_rx,
+        link_tx,
+        db_rx,
+        db_tx,
+        data,
+        geo,
+        path_finding,
+        max_characters_per_account,
+        delete_days,
+        starting_adena,
+    } = ch;
+    let mut world = World::new(
+        link_tx,
+        max_characters_per_account,
+        delete_days,
+        starting_adena,
+        data,
+        db_tx,
+    );
+    world.geo = geo;
+    world.path_finding = path_finding;
+    info!("GameLoop: started ({} ms tick).", TICK.as_millis());
+
+    while !shutdown.is_requested() {
+        let tick_start = Instant::now();
+
+        // 1. Network events: connects, disconnects, and inbound packets.
+        drain_network(&mut world, &net_rx);
+        // 2. Service results: login-link + DB (path added G5+).
+        drain_login_link(&mut world, &login_rx);
+        drain_db(&mut world, &db_rx);
+
+        // 3. One-shot timers due this tick.
+        apply_due_tasks(&mut world);
+
+        // 4. Fixed-rate tick systems (movement, AI, attack…) — added in G4+.
+        // Movement runs every tick (unlike the gated systems below) — it
+        // needs to recompute the authoritative server-side position each
+        // 100 ms, same as Java's `MovementTaskManager`.
+        crate::model::movement::tick(&mut world);
+        if world.tick.is_multiple_of(REGEN_TICK_PERIOD) {
+            run_regen_tick(&mut world);
+        }
+        // 5. Flush outbound packets / DB commands — added in G3+.
+
+        let elapsed = tick_start.elapsed();
+        if elapsed > TICK_OVERRUN_WARN {
+            warn!(
+                "GameLoop: tick {} ran {} ms (budget {} ms).",
+                world.tick,
+                elapsed.as_millis(),
+                TICK.as_millis()
+            );
+        }
+        if let Some(remaining) = TICK.checked_sub(elapsed) {
+            std::thread::sleep(remaining);
+        }
+
+        world.tick += 1;
+    }
+
+    info!("GameLoop: stopped after {} ticks.", world.tick);
+    // Final drain + save-all lands with the DB thread (G3).
+}
+
+
+/// Dispatch every `Scheduler`-due task for this tick. Split from
+/// `World::drain_due_tasks` because task handlers need to send packets to
+/// `world.clients` — the same reason packet dispatch lives here too.
+fn apply_due_tasks(world: &mut World) {
+    for task in world.drain_due_tasks() {
+        match task {
+            ScheduledTask::Noop { .. } => {}
+            ScheduledTask::SkillLaunch { player_object_id, cast_seq } => {
+                handle_skill_launch(world, player_object_id, cast_seq);
+            }
+            ScheduledTask::SkillFinish { player_object_id, cast_seq } => {
+                handle_skill_finish(world, player_object_id, cast_seq);
+            }
+            ScheduledTask::CastEnd { player_object_id, cast_seq } => {
+                handle_cast_end(world, player_object_id, cast_seq);
+            }
+            ScheduledTask::BuffExpire { player_object_id, skill_id } => {
+                handle_buff_expire(world, player_object_id, skill_id);
+            }
+        }
+    }
+}
+
