@@ -55,6 +55,10 @@ pub(crate) fn handle_request_target_canceld(world: &mut World, client_id: u32, b
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
     abort_cast(world, object_id);
+    // Esc also ends an attack loop (Java: ATTACK intention → ACTIVE).
+    if let Some(p) = world.players.get_mut(&object_id) {
+        p.intent = None;
+    }
     if !pkt.target_lost {
         return;
     }
@@ -158,16 +162,19 @@ pub(crate) fn set_target(world: &mut World, client_id: u32, object_id: i32, new_
 }
 
 /// The `NpcAction` interact branch (second click on the current NPC target):
-/// monsters would start an attack (G9 — no-op for now); everything else in
-/// interaction range opens its chat window (`Npc.showChatWindow`). Out of
-/// range does nothing — Java's walk-into-range AI intent is not ported (same
-/// gap as the cast-range gate, see G7.5 notes).
+/// monsters start the auto-attack loop (G9); everything else in interaction
+/// range opens its chat window (`Npc.showChatWindow`). Out of range does
+/// nothing for dialogs — Java's walk-into-range AI intent is only ported for
+/// the attack path.
 fn interact_with_npc(world: &mut World, client_id: u32, object_id: i32, npc_object_id: i32) {
     let Some(player) = world.players.get(&object_id) else { return };
     let Some(npc) = world.npcs.get(&npc_object_id) else { return };
     let Some(t) = npc.template(world) else { return };
     if t.is_auto_attackable() {
-        return; // AI_INTENTION_ATTACK lands with G9 combat.
+        if !player.dead {
+            super::combat::start_attack_intent(world, client_id, object_id, npc_object_id);
+        }
+        return;
     }
     // `Npc.canInteract`: plain 3D distance vs INTERACTION_DISTANCE.
     let (dx, dy, dz) = ((npc.x - player.x) as f64, (npc.y - player.y) as f64, (npc.z - player.z) as f64);

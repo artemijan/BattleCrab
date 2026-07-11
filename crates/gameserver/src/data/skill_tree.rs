@@ -85,6 +85,14 @@ impl SkillTreeData {
             .collect()
     }
 
+    /// Java `Player.rewardSkills` → `getAvailableAutoGetSkills`: every autoGet
+    /// entry reachable at `level`. The caller keeps only levels above what the
+    /// player already knows.
+    pub fn auto_get_skills(&self, class_id: i32, level: i32) -> Vec<&SkillLearn> {
+        let Some(entries) = self.trees.get(&class_id) else { return Vec::new() };
+        entries.iter().filter(|s| s.auto_get && s.get_level <= level).collect()
+    }
+
     /// The `SkillLearn` for a specific `(class_id, skill_id, skill_level)`,
     /// used by `RequestAcquireSkill` to re-validate the client's request.
     pub fn skill_learn(&self, class_id: i32, skill_id: i32, skill_level: i32) -> Option<&SkillLearn> {

@@ -93,6 +93,12 @@ async fn user_info_test() {
         client_y: 0,
         client_z: 0,
         client_heading: 0,
+        dead: false,
+        intent: None,
+        attack_end_tick: 0,
+        stance_until_tick: 0,
+        pending_revive: false,
+        teleporting: false,
     };
     let gd = GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
     let packet = user_info(&player, &gd);

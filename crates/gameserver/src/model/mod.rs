@@ -42,6 +42,16 @@ pub struct CastState {
     pub cool_ms: i32,
 }
 
+/// The player's current AI intention beyond standing/moving (Java
+/// `CtrlIntention` narrowed to what exists). `Attack` keeps auto-attacking
+/// (and walking into range of) the target until it dies, the player cancels
+/// (Esc / move click), or the player dies — `PlayerAI.thinkAttack`'s loop,
+/// driven from the combat tick system.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PlayerIntent {
+    Attack { target_object_id: i32 },
+}
+
 /// One live cooldown (Java `TimeStamp`, trimmed): `SkillCoolTime` reports the
 /// map key (reuse group or skill id) plus the level it was cast at, so the
 /// level rides along here instead of being re-looked-up from `skills`.
@@ -158,12 +168,29 @@ pub struct Player {
     /// TODO: persist across relog like Java's `character_skills_save`.
     pub reuses: HashMap<i32, SkillReuse>,
 
-    /// Currently targeted object id (Java `Creature._target`). Player-only for
-    /// now — no NPCs/items exist as targetable `WorldObject`s yet.
+    /// Currently targeted object id (Java `Creature._target`).
     pub target: Option<i32>,
     /// `Some` while moving (Java's nullable `Creature._move`); cleared on
     /// arrival by `movement::tick`.
     pub move_data: Option<MoveData>,
+
+    // --- Combat state (G9) ---
+    /// Java `Creature._isDead`.
+    pub dead: bool,
+    /// Persistent AI intention (attack loop) — see `PlayerIntent`.
+    pub intent: Option<PlayerIntent>,
+    /// Busy-swinging until this tick (Java `_attackEndTime`); the next swing
+    /// may start once it passes.
+    pub attack_end_tick: u64,
+    /// In combat stance (client sword-drawn state) until this tick — 15 s
+    /// past the last swing/hit (`AttackStanceTaskManager`); 0 = not in stance.
+    pub stance_until_tick: u64,
+    /// `Player._reviveRequested`-ish: die → "to village" → teleport →
+    /// revive on `Appearing` (Java `setPendingRevive` → `onTeleported`).
+    pub pending_revive: bool,
+    /// Java `Creature._isTeleporting`: position pushed server-side, waiting
+    /// for the client's `Appearing`.
+    pub teleporting: bool,
 
     /// Last position/heading the client reported via `ValidatePosition`
     /// (Java `Player._clientX/_clientY/_clientZ/_clientHeading`).
@@ -259,6 +286,12 @@ impl Player {
             reuses: HashMap::new(),
             target: None,
             move_data: None,
+            dead: c.cur_hp < 0.5,
+            intent: None,
+            attack_end_tick: 0,
+            stance_until_tick: 0,
+            pending_revive: false,
+            teleporting: false,
             client_x: 0,
             client_y: 0,
             client_z: 0,

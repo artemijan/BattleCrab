@@ -3,7 +3,7 @@
 //! end), plus cast aborts.
 
 use crate::game_loop::helpers::{
-    broadcast_including_self, client_for_player, in_range, ms_to_ticks, send_sm_and_action_failed,
+    broadcast_including_self, client_for_player, ms_to_ticks, send_sm_and_action_failed,
 };
 use crate::model::formulas;
 use crate::model::skill::{OperateType, Skill, TargetType};
@@ -17,10 +17,10 @@ use crate::world::World;
 use super::effects::apply_skill_effects;
 
 /// Port of `Skill.getTarget` + the `targethandlers/{Self,Target,Enemy,
-/// EnemyOnly}.java` scripts as a static match, players-only (no NPCs, peace
-/// zones, or party checks yet). `Err(sm_id)` is the system message the caller
-/// sends alongside `ActionFailed` (Java: the handlers' `sendMessage` path) —
-/// SM 109 for an invalid target, SM 181 when geodata blocks line of sight.
+/// EnemyOnly}.java` scripts as a static match over players *and* NPCs (G9).
+/// `Err(sm_id)` is the system message the caller sends alongside
+/// `ActionFailed` (Java: the handlers' `sendMessage` path) — SM 109 for an
+/// invalid target, SM 181 when geodata blocks line of sight.
 pub(crate) fn resolve_cast_target(world: &World, caster: &Player, skill: &Skill, ctrl: bool) -> Result<i32, i16> {
     use server_packets::sm_ids;
 
@@ -36,24 +36,61 @@ pub(crate) fn resolve_cast_target(world: &World, caster: &Player, skill: &Skill,
             t
         }
         // `Enemy.java`/`EnemyOnly.java`: not self, and `isAutoAttackable ||
-        // forceUse` — players carry no PvP flag/karma yet, so nothing is
-        // auto-attackable and ctrl (force-use) is always required.
+        // forceUse` — monsters are auto-attackable; players carry no PvP
+        // flag/karma yet, so hitting one still needs ctrl (force-use).
         TargetType::Enemy | TargetType::EnemyOnly => {
             let t = caster.target.ok_or(sm_ids::INVALID_TARGET)?;
-            if t == caster.object_id || !ctrl {
+            if t == caster.object_id {
+                return Err(sm_ids::INVALID_TARGET);
+            }
+            let auto_attackable = world
+                .npcs
+                .get(&t)
+                .and_then(|n| n.template(world))
+                .is_some_and(|tm| tm.is_auto_attackable());
+            if !auto_attackable && !ctrl {
                 return Err(sm_ids::INVALID_TARGET);
             }
             t
         }
         TargetType::Other => return Err(sm_ids::INVALID_TARGET),
     };
-    let target = world.players.get(&resolved).ok_or(sm_ids::INVALID_TARGET)?;
+    let (tx, ty, tz, target_dead) = target_state(world, resolved).ok_or(sm_ids::INVALID_TARGET)?;
+    if target_dead {
+        return Err(sm_ids::INVALID_TARGET);
+    }
     // "Geodata check when character is within range" — every non-self
     // handler ends with `GeoEngine.canSeeTarget` → CANNOT_SEE_TARGET.
-    if !world.geo.can_see_target(caster.x, caster.y, caster.z, target.x, target.y, target.z) {
+    if !world.geo.can_see_target(caster.x, caster.y, caster.z, tx, ty, tz) {
         return Err(sm_ids::CANNOT_SEE_TARGET);
     }
     Ok(resolved)
+}
+
+/// Position + liveness of a castable target, whichever registry it lives in
+/// (plus its collision radius for the range gates).
+pub(crate) fn target_state(world: &World, object_id: i32) -> Option<(i32, i32, i32, bool)> {
+    if let Some(p) = world.players.get(&object_id) {
+        return Some((p.x, p.y, p.z, p.dead));
+    }
+    let n = world.npcs.get(&object_id)?;
+    Some((n.x, n.y, n.z, n.dead))
+}
+
+/// `Util.checkIfInRange` over any two castable actors.
+fn in_cast_range(world: &World, caster: &Player, target_oid: i32, range: i32, include_z: bool) -> bool {
+    let Some((tx, ty, tz, _)) = target_state(world, target_oid) else { return false };
+    let target_radius = world
+        .npcs
+        .get(&target_oid)
+        .and_then(|n| n.template(world))
+        .map(|t| t.collision_radius)
+        .or_else(|| world.players.get(&target_oid).map(|p| p.collision_radius))
+        .unwrap_or(0.0);
+    let (dx, dy, dz) = ((tx - caster.x) as f64, (ty - caster.y) as f64, (tz - caster.z) as f64);
+    let d2 = dx * dx + dy * dy + if include_z { dz * dz } else { 0.0 };
+    let reach = range as f64 + caster.collision_radius + target_radius;
+    d2 <= reach * reach
 }
 
 
@@ -70,6 +107,13 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
     let object_id = session.player_object_id();
 
     let Some(player) = world.players.get(&object_id) else { return };
+    // The dead can't cast (`checkUseConditions` → `isDead`).
+    if player.dead {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
     // Unknown skill → ActionFailed (RequestMagicSkillUse.runImpl).
     let Some(&skill_level) = player.skills.get(&pkt.magic_id) else {
         if let Some(cs) = world.clients.get(&client_id) {
@@ -160,14 +204,12 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
     // Cast-range gate (`SkillCaster.castSkill`). Java returns null and lets
     // the AI walk into range; there's no follow-to-cast yet, so just unstick
     // the client (narrowing note).
-    if skill.cast_range > 0 && target_oid != object_id {
-        let target = &world.players[&target_oid];
-        if !in_range(player, target, skill.cast_range, false) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
-            return;
+    if skill.cast_range > 0 && target_oid != object_id && !in_cast_range(world, player, target_oid, skill.cast_range, false)
+    {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
         }
+        return;
     }
 
     start_casting(world, client_id, object_id, &skill, target_oid);
@@ -209,10 +251,10 @@ pub(crate) fn start_casting(world: &mut World, client_id: u32, object_id: i32, s
 
     // Face the target (Java: `setHeading` + broadcast `ExRotation`).
     if target_oid != object_id {
+        let Some((tx, ty, _, _)) = target_state(world, target_oid) else { return };
         let (dx, dy) = {
             let p = &world.players[&object_id];
-            let t = &world.players[&target_oid];
-            ((t.x - p.x) as f64, (t.y - p.y) as f64)
+            ((tx - p.x) as f64, (ty - p.y) as f64)
         };
         let heading = crate::model::movement::calculate_heading(dx, dy);
         if let Some(player) = world.players.get_mut(&object_id) {
@@ -242,14 +284,14 @@ pub(crate) fn start_casting(world: &mut World, client_id: u32, object_id: i32, s
 
     // Broadcast the cast start, then the caster-only YOU_USE_S1 + cast bar.
     {
+        let Some((tx, ty, tz, _)) = target_state(world, target_oid) else { return };
         let caster = &world.players[&object_id];
-        let target = &world.players[&target_oid];
         broadcast_including_self(
             world,
             object_id,
             &server_packets::magic_skill_use(
                 caster,
-                target,
+                (target_oid, tx, ty, tz),
                 skill.id,
                 skill.level,
                 displayed_cast_time,
@@ -306,8 +348,9 @@ pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast
     let Some(cast) = live_cast(world, player_object_id, cast_seq) else { return };
     let Some(skill) = world.data.skill_data.get(cast.skill_id, cast.skill_level).cloned() else { return };
 
-    // Target gone (logged off) → quiet stop, like Java's dead-ref return.
-    if !world.players.contains_key(&cast.target_object_id) {
+    // Target gone (logged off / decayed) → quiet stop, like Java's dead-ref
+    // return.
+    if target_state(world, cast.target_object_id).is_none() {
         if let Some(player) = world.players.get_mut(&player_object_id) {
             player.cast = None;
         }
@@ -316,8 +359,7 @@ pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast
 
     if skill.effect_range > 0 && cast.target_object_id != player_object_id {
         let caster = &world.players[&player_object_id];
-        let target = &world.players[&cast.target_object_id];
-        if !in_range(caster, target, skill.effect_range, true) {
+        if !in_cast_range(world, caster, cast.target_object_id, skill.effect_range, true) {
             if let Some(client_id) = client_for_player(world, player_object_id) {
                 if let Some(cs) = world.clients.get(&client_id) {
                     cs.send(server_packets::system_message_with(sm_ids::DISTANCE_TOO_FAR_CASTING_CANCELLED, &[]));
@@ -392,7 +434,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     }
 
     // `callSkill` → effect application, if the target is still around.
-    if world.players.contains_key(&cast.target_object_id) {
+    if target_state(world, cast.target_object_id).is_some() {
         apply_skill_effects(world, player_object_id, cast.target_object_id, &skill);
     }
 

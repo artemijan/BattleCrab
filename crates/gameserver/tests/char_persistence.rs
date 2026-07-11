@@ -28,7 +28,13 @@ fn new_char(name: &str) -> NewCharacter {
 }
 
 fn recv(rx: &std::sync::mpsc::Receiver<DbEvent>) -> DbEvent {
-    rx.recv_timeout(Duration::from_secs(5)).expect("db event")
+    loop {
+        match rx.recv_timeout(Duration::from_secs(5)).expect("db event") {
+            // Boot-time runtime-id reservation, not part of any exchange.
+            DbEvent::IdBlock { .. } => continue,
+            other => return other,
+        }
+    }
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

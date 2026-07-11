@@ -44,6 +44,10 @@ pub(crate) const STANDING_STILL_REGEN_MULTIPLIER: f64 = 1.1;
 /// stat-cap TODO in `model/mod.rs`). Returns the `StatusUpdate` entries for
 /// whichever of HP/MP/CP actually changed, or `None` if all are already full.
 pub(crate) fn regen_player(p: &mut Player, data: &GameData) -> Option<Vec<(u8, i32)>> {
+    // The dead don't regenerate (`CreatureStatus.stopHpMpRegeneration` on death).
+    if p.dead {
+        return None;
+    }
     if p.cur_hp >= p.max_hp as f64 && p.cur_mp >= p.max_mp as f64 && p.cur_cp >= p.max_cp as f64 {
         return None;
     }

@@ -30,6 +30,17 @@ pub enum ScheduledTask {
     CastEnd { player_object_id: i32, cast_seq: u64 },
     /// `BuffFinishTask`: an active buff's `abnormalTime` has elapsed.
     BuffExpire { player_object_id: i32, skill_id: i32 },
+    /// `CreatureAttackTaskManager.onHitTimeNotDual` — one auto-attack swing
+    /// landing. The hit was rolled at swing start (Java
+    /// `generateAttackTargetData`) and rides along; attacker/target death or
+    /// disappearance before it fires makes it a no-op (Java's `isDead` /
+    /// dead-ref checks inside the task).
+    AttackHit { attacker: i32, target: i32, damage: i32, miss: bool, crit: bool },
+    /// `DecayTaskManager` firing for a dead NPC: the corpse disappears.
+    NpcDecay { npc_object_id: i32 },
+    /// `RespawnTaskManager` → `Spawn.respawnNpc`: re-run the spawn line the
+    /// dead NPC came from (indices into `GameData.spawn_data`).
+    NpcRespawn { spawn_idx: usize, group_idx: usize, npc_idx: usize },
 }
 
 struct Entry {

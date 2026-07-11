@@ -26,6 +26,9 @@ pub mod opcodes {
     pub const REQUEST_RESTART: u8 = 0x57;
     pub const VALIDATE_POSITION: u8 = 0x59;
     pub const REQUEST_ACQUIRE_SKILL: u8 = 0x7C;
+    pub const ATTACK_REQUEST: u8 = 0x32;
+    pub const APPEARING: u8 = 0x3A;
+    pub const REQUEST_RESTART_POINT: u8 = 0x7D;
     /// Extended packets: opcode 0xD0 + a 2-byte little-endian sub-opcode.
     pub const EX_PACKET: u8 = 0xD0;
 }
@@ -206,6 +209,36 @@ impl Action {
         r.read_i32()?; // origin_z — unused
         let action_id = r.read_u8()?;
         Some(Self { object_id, action_id })
+    }
+}
+
+/// Port of `clientpackets/AttackRequest` (`cddddc`) — the client clicking an
+/// already-targeted attackable creature. The origin coordinates and the
+/// shift-click byte are read and discarded, like Java's unused fields.
+pub struct AttackRequest {
+    pub object_id: i32,
+}
+
+impl AttackRequest {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let object_id = r.read_i32()?;
+        Some(Self { object_id })
+    }
+}
+
+/// Port of `clientpackets/RequestRestartPoint` (`cd`) — the death dialog's
+/// revive choice (0 = to village; the clan-hall/castle/fixed variants need
+/// systems that don't exist yet).
+pub struct RequestRestartPoint {
+    pub point_type: i32,
+}
+
+impl RequestRestartPoint {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let point_type = r.read_i32()?;
+        Some(Self { point_type })
     }
 }
 

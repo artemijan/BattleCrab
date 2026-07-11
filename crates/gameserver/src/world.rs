@@ -94,6 +94,10 @@ pub struct World {
     pub npc_regions: HashMap<(i32, i32), Vec<i32>>,
     /// Next transient NPC object id (see `model::npc::FIRST_NPC_OBJECT_ID`).
     pub next_npc_object_id: i32,
+    /// Persistent object-id block `[start, end)` reserved from the DB
+    /// thread's `IdManager` counter (`DbEvent::IdBlock`) — runtime item
+    /// creation (loot) allocates from here synchronously.
+    pub id_pool: std::ops::Range<i64>,
     pub login: LoginState,
     /// `Config.MAX_CHARACTERS_NUMBER_PER_ACCOUNT`, needed by `CharSelectionInfo`.
     pub max_characters_per_account: i32,
@@ -110,6 +114,10 @@ pub struct World {
     /// `Config.PATHFINDING` (`GeoEngine.ini`): non-zero = geodata movement
     /// checks are enforced (the pathfinder itself is not ported yet).
     pub path_finding: i32,
+    /// Combat/AI/reward config keys (`Character.ini`/`NPC.ini`/`Rates.ini`).
+    /// Defaults (Java's, rates ×1) unless boot replaces it — same pattern as
+    /// `geo`/`path_finding`.
+    pub cfg: crate::config::CombatConfig,
     /// Command channel to the DB thread.
     pub db: db::CmdTx,
     /// Game RNG (Java `Rnd`) — owned here so handlers roll through `roll()`,
@@ -131,6 +139,7 @@ impl World {
             npcs: HashMap::new(),
             npc_regions: HashMap::new(),
             next_npc_object_id: crate::model::npc::FIRST_NPC_OBJECT_ID,
+            id_pool: 0..0,
             login: LoginState::new(link),
             max_characters_per_account,
             delete_days,
@@ -138,6 +147,7 @@ impl World {
             data,
             geo: GeoEngine::empty(),
             path_finding: 2,
+            cfg: crate::config::CombatConfig::default(),
             db,
             rng: StdRng::from_entropy(),
             #[cfg(test)]
@@ -160,6 +170,20 @@ impl World {
         out
     }
 
+    /// Allocate one persistent object id from the reserved block, topping the
+    /// block up (`DbCommand::ReserveIds`) when it runs low. `None` only when
+    /// the pool is exhausted before the DB thread's refill lands — callers
+    /// (loot) skip the item and log; Java can't hit this because `IdManager`
+    /// is a shared in-process bitmap.
+    pub fn alloc_object_id(&mut self) -> Option<i32> {
+        const LOW_WATER: i64 = 200;
+        let remaining = self.id_pool.end - self.id_pool.start;
+        if remaining == LOW_WATER {
+            let _ = self.db.send(crate::db::DbCommand::ReserveIds { count: crate::db::ID_BLOCK_SIZE });
+        }
+        self.id_pool.next().map(|id| id as i32)
+    }
+
     /// Java `Rnd.get(bound)`: uniform in `[0, bound)`. Tests can pre-queue
     /// outcomes via `forced_rolls`.
     pub fn roll(&mut self, bound: i32) -> i32 {
@@ -168,6 +192,13 @@ impl World {
             return v;
         }
         self.rng.gen_range(0..bound.max(1))
+    }
+
+    /// Java `Rnd.nextDouble()` in `[0, 1)`, quantized through `roll()` so
+    /// tests can force it with the same `forced_rolls` queue (a forced value
+    /// `v` reads as `v / 1_000_000`).
+    pub fn roll_f64(&mut self) -> f64 {
+        self.roll(1_000_000) as f64 / 1_000_000.0
     }
 
     /// Every task the scheduler says is due this tick, drained for the caller

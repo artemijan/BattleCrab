@@ -6,11 +6,14 @@
 //! tick systems (G4+) → flush. Packet dispatch and login handoff land here on
 //! the game thread, keeping handler code sequential and 1:1 with Java `run()`.
 
+mod combat;
+mod death;
 mod dispatch;
 mod helpers;
 mod items;
 mod lobby;
 mod net;
+mod npc_ai;
 mod position;
 mod regen;
 mod skills;
@@ -79,6 +82,7 @@ pub struct GameThreadChannels {
     pub max_characters_per_account: i32,
     pub delete_days: i32,
     pub starting_adena: i64,
+    pub cfg: crate::config::CombatConfig,
 }
 
 /// Spawn the game thread. Returns its join handle so `main` can wait for the
@@ -103,6 +107,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         max_characters_per_account,
         delete_days,
         starting_adena,
+        cfg,
     } = ch;
     let mut world = World::new(
         link_tx,
@@ -114,6 +119,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     );
     world.geo = geo;
     world.path_finding = path_finding;
+    world.cfg = cfg;
 
     // Java `GameServer`: SpawnData.getInstance().init() — place the static
     // world content before accepting anyone in.
@@ -139,6 +145,15 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         // 100 ms, same as Java's `MovementTaskManager`. Region-switch
         // visibility events (CharInfo/DeleteObject) ride along.
         visibility::movement_tick(&mut world);
+        // Player attack intents (chase + swing) every tick, like Java's
+        // event-driven PlayerAI reacting as soon as it's ready to act.
+        combat::player_combat_tick(&mut world);
+        if world.tick.is_multiple_of(npc_ai::NPC_THINK_PERIOD) {
+            // AttackableAI think (1 s) + the combat-stance sweep (15 s
+            // timeouts, checked at the same 1 s cadence as Java).
+            npc_ai::npc_ai_tick(&mut world);
+            combat::stance_tick(&mut world);
+        }
         if world.tick.is_multiple_of(REGEN_TICK_PERIOD) {
             run_regen_tick(&mut world);
         }
@@ -183,6 +198,15 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::BuffExpire { player_object_id, skill_id } => {
                 handle_buff_expire(world, player_object_id, skill_id);
+            }
+            ScheduledTask::AttackHit { attacker, target, damage, miss, crit } => {
+                combat::handle_attack_hit(world, attacker, target, damage, miss, crit);
+            }
+            ScheduledTask::NpcDecay { npc_object_id } => {
+                death::handle_npc_decay(world, npc_object_id);
+            }
+            ScheduledTask::NpcRespawn { spawn_idx, group_idx, npc_idx } => {
+                death::handle_npc_respawn(world, spawn_idx, group_idx, npc_idx);
             }
         }
     }

@@ -16,6 +16,9 @@ use commons::util::now_millis;
 /// single pool, not one per type.
 const FIRST_OID: i64 = 0x10000000;
 
+/// How many object ids each `IdBlock` reservation hands the game thread.
+pub const ID_BLOCK_SIZE: i64 = 5000;
+
 /// A starting item, already slot-resolved by the game thread (see
 /// `game_loop::handle_character_create`) so the DB thread just persists rows.
 #[derive(Debug, Clone)]
@@ -148,6 +151,16 @@ pub enum DbCommand {
     /// `LoadCharacters` on this channel, so a restart's re-sent list already
     /// reflects the save.
     StorePlayer { snap: PlayerSnapshot },
+    /// Reserve a block of object ids for the game thread (Java `IdManager`
+    /// semantics without a cross-thread round trip per item — the DB thread
+    /// owns the counter, the game thread allocates out of its block and asks
+    /// for another when it runs low). Replied with `DbEvent::IdBlock`.
+    ReserveIds { count: i64 },
+    /// Fire-and-forget insert of a runtime-created inventory item (loot). The
+    /// object id comes from the game thread's reserved block.
+    InsertItem { owner_id: i32, object_id: i32, item_id: i32, count: i64 },
+    /// Fire-and-forget count update on an existing stack.
+    UpdateItemCount { object_id: i32, count: i64 },
     Shutdown,
 }
 
@@ -161,6 +174,9 @@ pub enum DbEvent {
     CharCount { account: String, count: u8, del_times: Vec<i64> },
     /// `ExIsCharNameCreatable` result: -1 = creatable, else a failure code.
     NameCreatable { client_id: u32, result: i32 },
+    /// A reserved object-id block `[start, end)` for the game thread's
+    /// runtime allocations (loot items). One is pushed unprompted at boot.
+    IdBlock { start: i64, end: i64 },
 }
 
 pub type CmdTx = tokio::sync::mpsc::UnboundedSender<DbCommand>;
@@ -191,6 +207,11 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
         }
     };
     let mut next_id = load_next_id(&pool).await;
+
+    // Hand the game thread its initial runtime-id block unprompted (it can't
+    // ask before it knows the DB thread is up; see `DbCommand::ReserveIds`).
+    let _ = event_tx.send(DbEvent::IdBlock { start: next_id, end: next_id + ID_BLOCK_SIZE });
+    next_id += ID_BLOCK_SIZE;
 
     while let Some(cmd) = cmd_rx.recv().await {
         match cmd {
@@ -259,6 +280,33 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
             }
             DbCommand::StorePlayer { snap } => {
                 store_player(&pool, &snap).await;
+            }
+            DbCommand::ReserveIds { count } => {
+                let _ = event_tx.send(DbEvent::IdBlock { start: next_id, end: next_id + count });
+                next_id += count;
+            }
+            DbCommand::InsertItem { owner_id, object_id, item_id, count } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT INTO items \
+                         (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, \
+                          custom_type1, custom_type2, mana_left, time) \
+                         VALUES (?, ?, ?, ?, 0, 'INVENTORY', 0, 0, 0, -1, 0)",
+                    )
+                    .bind(owner_id)
+                    .bind(object_id)
+                    .bind(item_id)
+                    .bind(count),
+                )
+                .await;
+            }
+            DbCommand::UpdateItemCount { object_id, count } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE items SET count=? WHERE object_id=?").bind(count).bind(object_id),
+                )
+                .await;
             }
             DbCommand::Shutdown => break,
         }

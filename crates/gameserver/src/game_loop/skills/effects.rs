@@ -1,14 +1,13 @@
 //! Effect application: instant damage/heal effects, continuous (buff)
 //! effects, and buff expiry.
 
-use crate::game_loop::helpers::{broadcast_including_self, client_for_player};
+use crate::game_loop::helpers::client_for_player;
 use crate::model::formulas;
 use crate::model::skill::{abnormal_type_client_id, ActiveBuff, Skill, SkillEffect};
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-use super::cast::abort_cast;
 
 /// The `callSkill` → `activateSkill` → effect-handler chain for the effect
 /// kinds ported so far. Continuous stat modifiers land as an `ActiveBuff` on
@@ -29,13 +28,23 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     let c = &world.players[&caster_oid];
                     (c.m_atk as f64, c.name.clone())
                 };
-                let m_def = world.players[&target_oid].m_def as f64;
+                let m_def = target_m_def(world, target_oid);
                 let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit);
                 apply_magic_damage(world, caster_oid, target_oid, damage, mcrit, &caster_name);
             }
             SkillEffect::Heal { power } => {
                 let m_atk = world.players[&caster_oid].m_atk as f64;
                 let amount = formulas::calc_heal(power, m_atk, mcrit);
+                if crate::game_loop::combat::is_npc_oid(target_oid) {
+                    // Healing an NPC: clamp and update, no system messages
+                    // (nobody to send them to).
+                    if let Some(npc) = world.npcs.get_mut(&target_oid) {
+                        if !npc.dead {
+                            npc.cur_hp = (npc.cur_hp + amount).min(npc.max_hp as f64);
+                        }
+                    }
+                    continue;
+                }
                 let healed = {
                     let Some(target) = world.players.get_mut(&target_oid) else { continue };
                     // Overheal clamp (`Heal.java`).
@@ -70,6 +79,11 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     }
 
     // Continuous effects → one ActiveBuff on the target (`applyEffects`).
+    // NPCs have no effect list yet (their stats are template-derived), so
+    // buffs on NPC targets are dropped — G9 monsters cast nothing anyway.
+    if crate::game_loop::combat::is_npc_oid(target_oid) {
+        return;
+    }
     let buff_effects = skill.stat_modifier_effects();
     if !buff_effects.is_empty() {
         let expires_at_tick = world.tick + (skill.abnormal_time.max(0) as u64) * 10;
@@ -97,20 +111,31 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     }
 }
 
-/// Port of `Creature.doAttack` → `PlayerStatus.reduceHp` for magic skill
-/// damage between players: CP absorbs first, then HP — clamped at 1.0
-/// because there's no death system yet (TODO(G9 death): `doDie`). Also rolls
-/// Java's `Formulas.calcAtkBreak` cast-break against a pre-launch cast on
-/// the victim (SM 27 + `MagicSkillCanceled`).
+/// The target-side `mDef` for the magic damage formula — players through
+/// their stat pipeline, NPCs through the `MDefenseFinalizer` shape
+/// (base × MEN bonus × level mod).
+fn target_m_def(world: &World, target_oid: i32) -> f64 {
+    if let Some(p) = world.players.get(&target_oid) {
+        return p.m_def as f64;
+    }
+    let Some(t) = world.npcs.get(&target_oid).and_then(|n| n.template(world)) else { return 1.0 };
+    let men_bonus = world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Men, t.base_men);
+    t.base_m_def * men_bonus * (t.level as f64 + 89.0) / 100.0
+}
+
+/// Port of `Creature.doAttack` → `reduceCurrentHp` for magic skill damage:
+/// the caster-side messages here, the victim-side application (CP soak,
+/// death, NPC hate/AI wake) shared with the auto-attack path in
+/// `combat::apply_physical_damage`'s per-kind receivers.
 pub(crate) fn apply_magic_damage(world: &mut World, caster_oid: i32, target_oid: i32, damage: f64, mcrit: bool, caster_name: &str) {
     use server_packets::{sm_ids, SmParam};
 
-    let (target_name, cp_after, hp_after) = {
-        let Some(target) = world.players.get_mut(&target_oid) else { return };
-        let cp_absorb = damage.min(target.cur_cp);
-        target.cur_cp -= cp_absorb;
-        target.cur_hp = (target.cur_hp - (damage - cp_absorb)).max(1.0);
-        (target.name.clone(), target.cur_cp as i32, target.cur_hp as i32)
+    let target_param = if let Some(p) = world.players.get(&target_oid) {
+        SmParam::PlayerName(p.name.clone())
+    } else if let Some(t) = world.npcs.get(&target_oid).and_then(|n| n.template(world)) {
+        SmParam::NpcName(t.id)
+    } else {
+        return;
     };
     let dmg_int = damage as i32;
 
@@ -121,60 +146,15 @@ pub(crate) fn apply_magic_damage(world: &mut World, caster_oid: i32, target_oid:
             }
             cs.send(server_packets::system_message_with(
                 sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
-                &[
-                    SmParam::PlayerName(caster_name.to_string()),
-                    SmParam::PlayerName(target_name.clone()),
-                    SmParam::Int(dmg_int),
-                ],
-            ));
-        }
-    }
-    if let Some(client_id) = client_for_player(world, target_oid) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
-                sm_ids::C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2,
-                &[
-                    SmParam::PlayerName(target_name.clone()),
-                    SmParam::PlayerName(caster_name.to_string()),
-                    SmParam::Int(dmg_int),
-                ],
+                &[SmParam::PlayerName(caster_name.to_string()), target_param, SmParam::Int(dmg_int)],
             ));
         }
     }
 
-    // Both sides see the victim's new CP/HP (`broadcastStatusUpdate`).
-    broadcast_including_self(
-        world,
-        target_oid,
-        &server_packets::status_update(
-            target_oid,
-            &[
-                (server_packets::status_update_type::CUR_CP, cp_after),
-                (server_packets::status_update_type::CUR_HP, hp_after),
-            ],
-        ),
-    );
-
-    // Cast break (`Formulas.calcAtkBreak`, `AltGameCancelByHit = cast`).
-    let breakable = world
-        .players
-        .get(&target_oid)
-        .is_some_and(|p| p.cast.as_ref().is_some_and(|c| !c.launched));
-    if breakable {
-        let men_bonus = {
-            let t = &world.players[&target_oid];
-            world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Men, t.men)
-        };
-        let break_roll = world.roll(100);
-        if formulas::calc_atk_break(damage, men_bonus, break_roll) {
-            abort_cast(world, target_oid);
-            if let Some(client_id) = client_for_player(world, target_oid) {
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(server_packets::system_message_with(sm_ids::YOUR_CASTING_HAS_BEEN_INTERRUPTED, &[]));
-                }
-            }
-        }
-    }
+    // Victim-side application: CP soak/HP/death/cast-break for players
+    // (including the C1_HAS_RECEIVED message), hate + AI wake + death for
+    // NPCs — the same receivers the auto-attack hits go through.
+    crate::game_loop::combat::apply_physical_damage(world, caster_oid, target_oid, damage);
 }
 
 /// `BuffFinishTask`, fired when a buff's `abnormalTime` elapses

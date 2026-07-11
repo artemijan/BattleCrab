@@ -8,13 +8,27 @@ pub mod character;
 pub mod geoengine;
 pub mod hexid;
 pub mod ipconfig;
+pub mod npc;
+pub mod rates;
 pub mod server;
 
 pub use character::CharacterConfig;
 pub use geoengine::GeoEngineConfig;
 pub use hexid::HexId;
 pub use ipconfig::IpConfig;
+pub use npc::NpcConfig;
+pub use rates::RatesConfig;
 pub use server::ServerConfig;
+
+/// The config keys the combat/AI/reward systems read at runtime, bundled so
+/// they travel to the game thread as one value (`World.cfg`). Tests get Java
+/// defaults via `Default` (notably ×1 rates).
+#[derive(Debug, Clone, Default)]
+pub struct CombatConfig {
+    pub character: CharacterConfig,
+    pub npc: NpcConfig,
+    pub rates: RatesConfig,
+}
 
 /// Aggregate of every loaded config section, owned for the process lifetime
 /// (mirrors the giant static `Config` class, but as an owned value we pass
@@ -23,6 +37,8 @@ pub struct Config {
     pub server: ServerConfig,
     pub character: CharacterConfig,
     pub geoengine: GeoEngineConfig,
+    pub npc: NpcConfig,
+    pub rates: RatesConfig,
 
     /// Network (subnet, host) pairs advertised to the login server.
     pub ip_config: IpConfig,
@@ -44,17 +60,26 @@ impl Config {
         let server = ServerConfig::load();
         let character = CharacterConfig::load();
         let geoengine = GeoEngineConfig::load();
+        let npc = NpcConfig::load();
+        let rates = RatesConfig::load();
         let ip_config = IpConfig::load();
         let hex = HexId::load(server.request_id);
         Self {
             server,
             character,
             geoengine,
+            npc,
+            rates,
             ip_config,
             hex_id: hex.hex_id,
             server_id: hex.server_id,
             reserve_host_on_login: false,
             server_gmonly: false,
         }
+    }
+
+    /// The runtime bundle the game thread keeps on `World`.
+    pub fn combat(&self) -> CombatConfig {
+        CombatConfig { character: self.character.clone(), npc: self.npc.clone(), rates: self.rates.clone() }
     }
 }

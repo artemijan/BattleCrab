@@ -1,6 +1,5 @@
 //! Small send/broadcast/range helpers shared by the packet handlers.
 
-use crate::model::Player;
 use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -35,6 +34,21 @@ pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[
     }
 }
 
+/// Send `packet` to every in-game player whose region cell is adjacent to
+/// `region` — the broadcast shape for NPC-originated packets (Java
+/// `Npc.broadcastPacket`; NPCs never hold a session, so there is no
+/// self/others split).
+pub(crate) fn broadcast_near_region(world: &World, region: (i32, i32), packet: &[u8]) {
+    for cs in world.clients.values() {
+        if let ClientSession::InGame(s) = cs {
+            let Some(p) = world.players.get(&s.player_object_id()) else { continue };
+            if crate::world::regions_adjacent(region, p.region) {
+                cs.send(packet.to_vec());
+            }
+        }
+    }
+}
+
 /// Round a millisecond duration up to whole 100 ms ticks.
 pub(crate) fn ms_to_ticks(ms: i32) -> u64 {
     (ms.max(0) as u64).div_ceil(100)
@@ -62,13 +76,4 @@ pub(crate) fn broadcast_including_self(world: &World, object_id: i32, packet: &[
     broadcast_to_others(world, object_id, packet);
 }
 
-
-/// `Util.checkIfInRange`: 2D (or 3D) distance vs `range` + both collision
-/// radii.
-pub(crate) fn in_range(a: &Player, b: &Player, range: i32, include_z: bool) -> bool {
-    let (dx, dy, dz) = ((b.x - a.x) as f64, (b.y - a.y) as f64, (b.z - a.z) as f64);
-    let d2 = dx * dx + dy * dy + if include_z { dz * dz } else { 0.0 };
-    let reach = range as f64 + a.collision_radius + b.collision_radius;
-    d2 <= reach * reach
-}
 

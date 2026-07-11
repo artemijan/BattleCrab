@@ -251,6 +251,7 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
             max_characters_per_account: 7,
             delete_days: 3,
             starting_adena: 100,
+            cfg: gameserver::config::CombatConfig::default(),
         },
     );
 

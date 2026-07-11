@@ -12,6 +12,24 @@ use tracing::info;
 
 pub const NPCS_DIR: &str = "data/stats/npcs";
 
+/// One `<item id min max chance>` drop line (Java `DropHolder`, spoil lists
+/// not carried — spoiling isn't ported).
+#[derive(Debug, Clone, Copy)]
+pub struct DropHolder {
+    pub item_id: i32,
+    pub min: i64,
+    pub max: i64,
+    /// Percent (0–100, fractional).
+    pub chance: f64,
+}
+
+/// `<group chance>` around drop lines (Java `DropGroupHolder`).
+#[derive(Debug, Clone)]
+pub struct DropGroup {
+    pub chance: f64,
+    pub items: Vec<DropHolder>,
+}
+
 /// Java models NPC behaviour as a class per `type` attribute
 /// (`model/actor/instance/*`, instantiated by reflection in `Spawn`). The Rust
 /// port keeps the type name and derives the two subtree memberships the G8
@@ -56,9 +74,23 @@ pub struct NpcTemplate {
     pub collision_radius: f64,
     pub collision_height: f64,
 
+    // <attack> extras consumed by G9 combat.
+    /// `random` attribute → Java `baseRndDam` (`RANDOM_DAMAGE` stat base).
+    pub base_rnd_dam: i32,
+    /// `critical` attribute → Java `baseCritRate` (pre-DEX/×10 base).
+    pub base_crit_rate: f64,
+
     // <acquire> (consumed in G9, trivially cheap to carry now).
     pub exp: f64,
     pub sp: f64,
+
+    /// `<corpseTime>` (seconds); `None` = `Config.DEFAULT_CORPSE_TIME`.
+    pub corpse_time: Option<i32>,
+
+    /// `<dropLists><drop>` — ungrouped death drops (`_dropListDeath`).
+    pub drop_list_death: Vec<DropHolder>,
+    /// `<dropLists><group chance>` — grouped death drops (`_dropGroups`).
+    pub drop_groups: Vec<DropGroup>,
 
     // <equipment>
     pub rhand: i32,
@@ -196,8 +228,13 @@ pub fn default_template(id: i32) -> NpcTemplate {
         base_run_spd: 120.0,
         collision_radius: 0.0,
         collision_height: 0.0,
+        base_rnd_dam: 0,
+        base_crit_rate: 4.0,
         exp: 0.0,
         sp: 0.0,
+        corpse_time: None,
+        drop_list_death: Vec::new(),
+        drop_groups: Vec::new(),
         rhand: 0,
         lhand: 0,
         attackable: true,
@@ -222,11 +259,32 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
     // under `<stats><attribute>` (elemental values, skipped) — track the
     // `<attribute>` scope to tell them apart.
     let mut in_attribute = false;
+    // `<dropLists>` scope: which list `<item>` lines belong to.
+    #[derive(PartialEq)]
+    enum DropScope {
+        None,
+        Death,
+        Spoil,
+    }
+    let mut drop_scope = DropScope::None;
+    let mut cur_group: Option<DropGroup> = None;
+    // `<corpseTime>` carries its value as element text.
+    let mut in_corpse_time = false;
 
     while let Ok(event) = reader.read_event() {
         let (e, self_closing) = match event {
             Event::Start(e) => (e, false),
             Event::Empty(e) => (e, true),
+            Event::Text(text) => {
+                if in_corpse_time {
+                    if let Some(t) = cur.as_mut() {
+                        if let Ok(v) = String::from_utf8_lossy(&text).trim().parse() {
+                            t.corpse_time = Some(v);
+                        }
+                    }
+                }
+                continue;
+            }
             Event::End(e) => {
                 match e.name().as_ref().to_ascii_lowercase().as_slice() {
                     b"npc" => {
@@ -235,6 +293,13 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                         }
                     }
                     b"attribute" => in_attribute = false,
+                    b"corpsetime" => in_corpse_time = false,
+                    b"drop" | b"spoil" => drop_scope = DropScope::None,
+                    b"group" => {
+                        if let (Some(t), Some(g)) = (cur.as_mut(), cur_group.take()) {
+                            t.drop_groups.push(g);
+                        }
+                    }
                     _ => {}
                 }
                 continue;
@@ -291,6 +356,8 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                                 t.base_p_atk_spd = v as i32;
                             }
                             set_i32(&e, b"range", &mut t.base_atk_range);
+                            set_i32(&e, b"random", &mut t.base_rnd_dam);
+                            set_f64(&e, b"critical", &mut t.base_crit_rate);
                         }
                     }
                     b"defence" if !in_attribute => {
@@ -343,6 +410,28 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                             set_i32(&e, b"aggroRange", &mut t.aggro_range);
                             set_i32(&e, b"clanHelpRange", &mut t.clan_help_range);
                         }
+                    }
+                    b"corpsetime" => in_corpse_time = !self_closing,
+                    b"drop" => drop_scope = DropScope::Death,
+                    b"spoil" => drop_scope = DropScope::Spoil,
+                    b"group" => {
+                        cur_group = Some(DropGroup { chance: attr_f64(&e, b"chance").unwrap_or(0.0), items: Vec::new() });
+                    }
+                    b"item" if drop_scope != DropScope::None || cur_group.is_some() => {
+                        let holder = DropHolder {
+                            item_id: attr_i32(&e, b"id").unwrap_or(0),
+                            min: attr_i32(&e, b"min").unwrap_or(1) as i64,
+                            max: attr_i32(&e, b"max").unwrap_or(1) as i64,
+                            chance: attr_f64(&e, b"chance").unwrap_or(0.0),
+                        };
+                        if let Some(g) = cur_group.as_mut() {
+                            g.items.push(holder);
+                        } else if drop_scope == DropScope::Death {
+                            if let Some(t) = cur.as_mut() {
+                                t.drop_list_death.push(holder);
+                            }
+                        }
+                        // Spoil lists are dropped — spoiling isn't ported.
                     }
                     b"radius" => {
                         if let Some(t) = cur.as_mut() {
@@ -439,6 +528,35 @@ mod tests {
         let g = data.get(20001).expect("npc 20001");
         assert!(g.is_monster());
         assert!(g.is_attackable_class());
+        // <attack random critical> feed the G9 combat formulas.
+        assert_eq!(g.base_rnd_dam, 30);
+        assert_eq!(g.base_crit_rate, 4.75);
+
+        // Goblin (20003): drop list + aggro range, hand-checked from the XML.
+        let goblin = data.get(20003).expect("npc 20003");
+        assert_eq!(goblin.aggro_range, 450);
+        assert_eq!(goblin.drop_list_death.len(), 9);
+        let adena = goblin.drop_list_death.iter().find(|d| d.item_id == 57).expect("adena line");
+        assert_eq!((adena.min, adena.max), (13, 30));
+        assert_eq!(adena.chance, 70.0);
+        // Spoil lines are not carried.
+        assert!(goblin.drop_groups.is_empty());
+
+        // <corpseTime> element text (npc 103, Holiday Santa); absent = None.
+        assert_eq!(data.get(103).unwrap().corpse_time, Some(3));
+        assert_eq!(g.corpse_time, None);
+    }
+
+    /// The one dist file with `<group chance>` drops (Primeval Isle mobs).
+    #[test]
+    fn grouped_drops_parse() {
+        let data = NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let t = data.get(22119).or_else(|| data.get(22100)).expect("a 221xx monster");
+        // Every monster in that file carries grouped drops.
+        assert!(!t.drop_groups.is_empty(), "npc {} should have drop groups", t.id);
+        let group = &t.drop_groups[0];
+        assert!(group.chance > 0.0);
+        assert!(!group.items.is_empty());
     }
 
     #[test]

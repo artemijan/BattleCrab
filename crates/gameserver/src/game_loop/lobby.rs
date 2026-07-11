@@ -315,6 +315,14 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // Java `spawnMe` → `World.addVisibleObject`: mutual CharInfo with every
     // player visible from the spawn region.
     super::visibility::on_enter_world(world, client_id, object_id);
+
+    // Java `EnterWorld`: a character that logged out dead comes back dead —
+    // re-open the death dialog.
+    if world.players.get(&object_id).is_some_and(|p| p.dead) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(crate::network::server_packets::die(object_id, true));
+        }
+    }
 }
 
 

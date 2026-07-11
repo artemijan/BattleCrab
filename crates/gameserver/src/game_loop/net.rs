@@ -248,6 +248,9 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                     cs.send(server_packets::ex_is_char_name_creatable(result));
                 }
             }
+            DbEvent::IdBlock { start, end } => {
+                world.id_pool = start..end;
+            }
         }
     }
 }

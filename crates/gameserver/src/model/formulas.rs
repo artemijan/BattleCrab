@@ -111,6 +111,108 @@ pub fn calc_heal(power: f64, m_atk: f64, mcrit: bool) -> f64 {
     (power + (2.0 * m_atk).sqrt()) * if mcrit { 3.0 } else { 1.0 }
 }
 
+// ---------------------------------------------------------------------------
+// Physical auto-attack formulas (G9). Dropped terms, all identity for the
+// actors that exist (unarmed/starting-gear players without parsed item
+// `<stats>`, plain monsters): soulshots (`ss = false`, `SHOTS_BONUS`),
+// shield defence (`calcShldUse` needs the un-parsed shield `sDef` stat —
+// always 0/no-block), ranged/dual weapon branches, `ATTACK_COUNT_MAX`
+// polearm sweeps, trait/attribute/pvp-pve multipliers, `CRITICAL_DAMAGE`/
+// `CRITICAL_DAMAGE_ADD` stats (base 1/0), `HitConditionBonus`'s night/rain
+// terms (no game clock/weather).
+// ---------------------------------------------------------------------------
+
+use crate::model::movement::Position;
+
+/// `Formulas.calculateTimeBetweenAttacks`: full swing period in ms.
+pub fn calculate_time_between_attacks(p_atk_spd: i32) -> i32 {
+    (500_000 / p_atk_spd.max(1)).max(50)
+}
+
+/// `Formulas.calculateTimeToHit` for the melee branches (bows/duals are out
+/// of scope): when the damage lands within the swing.
+pub fn calculate_time_to_hit(total_attack_time: i32, two_handed: bool) -> i32 {
+    (total_attack_time as f64 * if two_handed { 0.735 } else { 0.644 }) as i32
+}
+
+/// `Formulas.calcHitMiss`: chance-in-1000 =
+/// `(80 + 2·(accuracy − evasion)) · 10 × conditionBonus`, clamped to
+/// [200, 980]; the hit misses when `roll` (`Rnd.get(1000)`) lands above it.
+pub fn calc_hit_miss(accuracy: i32, evasion: i32, condition_bonus: f64, roll: i32) -> bool {
+    let chance = ((80 + (2 * (accuracy - evasion))) * 10) as f64 * condition_bonus;
+    let chance = chance.clamp(200.0, 980.0);
+    chance < roll as f64
+}
+
+/// `Formulas.calcCriticalPositionBonus` with the positional `CRITICAL_RATE`
+/// stat values at their default 1.0: 10% from the side, 30% from the back.
+pub fn calc_critical_position_bonus(position: Position) -> f64 {
+    match position {
+        Position::Side => 1.1,
+        Position::Back => 1.3,
+        Position::Front => 1.0,
+    }
+}
+
+/// `Formulas.calcCriticalHeightBonus`: ±10% band from the z difference.
+pub fn calc_critical_height_bonus(from_z: i32, to_z: i32) -> f64 {
+    ((((from_z - to_z).clamp(-25, 25) * 4 / 5) + 10) as f64 / 100.0) + 1.0
+}
+
+/// `Formulas.calcCrit`'s auto-attack branch for sub-78 actors
+/// (`DEFENCE_CRITICAL_RATE` defaults to the attacker's rate, balance
+/// multipliers 1.0): `rate = posBonus · (critStat / 10) · heightBonus`,
+/// clamped to [3, 97] percent; crit when `rate > roll` (`Rnd.get(100)`).
+pub fn calc_auto_attack_crit(crit_stat: f64, position: Position, from_z: i32, to_z: i32, roll: i32) -> bool {
+    let rate = calc_critical_position_bonus(position) * (crit_stat / 10.0) * calc_critical_height_bonus(from_z, to_z);
+    rate.clamp(3.0, 97.0) > roll as f64
+}
+
+/// `Creature.getRandomDamageMultiplier`: `1 + Rnd.get(-r, r)/100` — the
+/// caller rolls `Rnd.get(-r, r)` (test-forceable) and passes it in.
+pub fn random_damage_multiplier(roll_neg_r_to_r: i32) -> f64 {
+    1.0 + roll_neg_r_to_r as f64 / 100.0
+}
+
+/// `Formulas.calcAutoAttackDamage`, melee/shotless narrowing (see the module
+/// note): `attack = pAtk·randomMul + proxBonus`, ×77, doubled by a crit
+/// (`calcCritDamage` = 2 with default crit-damage stats), over the target's
+/// `pDef`. `position` is the attacker's position relative to the target
+/// (front 0, side +5%, back +20% of pAtk).
+pub fn calc_auto_attack_damage(p_atk: f64, random_mul: f64, position: Position, p_def: f64, crit: bool) -> f64 {
+    let prox_bonus = match position {
+        Position::Front => 0.0,
+        Position::Side => 0.05,
+        Position::Back => 0.2,
+    } * p_atk;
+    let attack = (p_atk * random_mul + prox_bonus) * if crit { 2.0 } else { 1.0 } * 77.0;
+    (attack / p_def.max(1.0)).max(0.0)
+}
+
+/// `Attackable.calculateExpAndSp`'s level-gap multiplier (the
+/// "4gameforum" table): full reward through +2 levels above the mob,
+/// tapering to 5% at +10 and beyond.
+pub fn exp_sp_level_gap_multiplier(attacker_level: i32, npc_level: i32) -> f64 {
+    match attacker_level - npc_level {
+        i32::MIN..=2 => 1.0,
+        3 => 0.97,
+        4 => 0.80,
+        5 => 0.61,
+        6 => 0.37,
+        7 => 0.22,
+        8 => 0.13,
+        9 => 0.08,
+        _ => 0.05,
+    }
+}
+
+/// `Util.map(value, min, max, targetMin, targetMax)` with the clamping Java's
+/// `constrain` performs first — used by the drop level-gap chances.
+pub fn map_range(value: f64, from_min: f64, from_max: f64, to_min: f64, to_max: f64) -> f64 {
+    let value = value.clamp(from_min.min(from_max), from_min.max(from_max));
+    (value - from_min) * (to_max - to_min) / (from_max - from_min) + to_min
+}
+
 /// `Formulas.calcAtkBreak`, `ALT_GAME_CANCEL_CAST` branch (default config
 /// `AltGameCancelByHit = cast`): the caller must already have checked that
 /// the target is casting and still abortable (pre-launch) — that check is
@@ -159,6 +261,79 @@ mod tests {
     fn heal_matches_java_formula() {
         assert!((calc_heal(83.0, 50.0, false) - 93.0).abs() < 1e-9);
         assert!((calc_heal(83.0, 50.0, true) - 279.0).abs() < 1e-9);
+    }
+
+    use crate::model::movement::Position;
+
+    /// `500000 / atkSpd`, floored at 50 ms.
+    #[test]
+    fn time_between_attacks_matches_java() {
+        assert_eq!(calculate_time_between_attacks(300), 1666);
+        assert_eq!(calculate_time_between_attacks(1_000_000), 50);
+    }
+
+    /// Melee time-to-hit fractions (0.644 / 0.735 two-handed).
+    #[test]
+    fn time_to_hit_fractions() {
+        assert_eq!(calculate_time_to_hit(1666, false), 1072);
+        assert_eq!(calculate_time_to_hit(1666, true), 1224);
+    }
+
+    /// Equal accuracy/evasion → 800‰ hit chance: roll 800 hits (strict `<`),
+    /// 801 misses. Extreme gaps clamp to [200, 980].
+    #[test]
+    fn hit_miss_thresholds_and_clamps() {
+        assert!(!calc_hit_miss(50, 50, 1.0, 800));
+        assert!(calc_hit_miss(50, 50, 1.0, 801));
+        // Hopeless accuracy still hits on a roll below the 200 floor.
+        assert!(!calc_hit_miss(0, 500, 1.0, 199));
+        assert!(calc_hit_miss(0, 500, 1.0, 201));
+        // Overwhelming accuracy still misses above the 980 cap.
+        assert!(calc_hit_miss(500, 0, 1.0, 981));
+    }
+
+    /// Auto-attack crit: rate = position · stat/10 · height, clamped [3, 97].
+    #[test]
+    fn auto_attack_crit_rate() {
+        // stat 44 (displayed), front, level ground: 4.4 × 1.1 (height base
+        // +10%) = 4.84 → roll 4 crits, roll 5 doesn't.
+        assert!(calc_auto_attack_crit(44.0, Position::Front, 0, 0, 4));
+        assert!(!calc_auto_attack_crit(44.0, Position::Front, 0, 0, 5));
+        // Floor: even 0 stat crits below 3%.
+        assert!(calc_auto_attack_crit(0.0, Position::Front, 0, 0, 2));
+        // Cap: 97% — a 97 roll never crits.
+        assert!(!calc_auto_attack_crit(10_000.0, Position::Back, 25, 0, 97));
+    }
+
+    /// `calcAutoAttackDamage`, melee/shotless: pAtk 100 vs pDef 50 → 154;
+    /// crit doubles; back position adds 20% of pAtk before the ×77.
+    #[test]
+    fn auto_attack_damage_matches_java() {
+        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false) - 154.0).abs() < 1e-9);
+        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, true) - 308.0).abs() < 1e-9);
+        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Back, 50.0, false) - 184.8).abs() < 1e-9);
+        // pDef floors at 1.
+        assert!(calc_auto_attack_damage(100.0, 1.0, Position::Front, 0.0, false).is_finite());
+    }
+
+    /// The level-gap XP table: full through +2, tapering to 5%.
+    #[test]
+    fn exp_gap_table() {
+        assert_eq!(exp_sp_level_gap_multiplier(10, 20), 1.0);
+        assert_eq!(exp_sp_level_gap_multiplier(12, 10), 1.0);
+        assert_eq!(exp_sp_level_gap_multiplier(13, 10), 0.97);
+        assert_eq!(exp_sp_level_gap_multiplier(19, 10), 0.08);
+        assert_eq!(exp_sp_level_gap_multiplier(40, 10), 0.05);
+    }
+
+    /// `Util.map` with constrain: the drop level-gap scaling from 100% at
+    /// −min to the floor at −max, clamped outside.
+    #[test]
+    fn map_range_matches_util_map() {
+        assert!((map_range(-8.0, -15.0, -8.0, 10.0, 100.0) - 100.0).abs() < 1e-9);
+        assert!((map_range(-15.0, -15.0, -8.0, 10.0, 100.0) - 10.0).abs() < 1e-9);
+        assert!((map_range(-20.0, -15.0, -8.0, 10.0, 100.0) - 10.0).abs() < 1e-9, "clamped below");
+        assert!((map_range(3.0, -15.0, -8.0, 10.0, 100.0) - 100.0).abs() < 1e-9, "clamped above");
     }
 
     /// Neutral MEN (bonus 1.0): rate = 15 + √(13·dmg), clamped to [1, 99].

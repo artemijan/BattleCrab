@@ -186,6 +186,47 @@ pub(crate) fn on_leave_world(world: &mut World, object_id: i32) {
     }
 }
 
+/// Java `updateWorldRegion`/`switchRegion` for a *moving NPC* (G9): re-derive
+/// its region cell, re-index `World.npc_regions`, and send `NpcInfo` /
+/// `DeleteObject` deltas to players whose 3×3 adjacency changed (dropping
+/// dangling targets, as the player-side path does).
+pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
+    let Some(npc) = world.npcs.get(&npc_object_id) else { return };
+    let new = region_of(npc.x, npc.y);
+    let old = npc.region;
+    if new == old {
+        return;
+    }
+    world.npcs.get_mut(&npc_object_id).expect("checked above").region = new;
+    if let Some(ids) = world.npc_regions.get_mut(&old) {
+        ids.retain(|&id| id != npc_object_id);
+    }
+    world.npc_regions.entry(new).or_default().push(npc_object_id);
+
+    let mut lost_watchers: Vec<i32> = Vec::new();
+    for cs in world.clients.values() {
+        if let ClientSession::InGame(s) = cs {
+            let player_id = s.player_object_id();
+            let Some(player) = world.players.get(&player_id) else { continue };
+            let was = regions_adjacent(old, player.region);
+            let now = regions_adjacent(new, player.region);
+            if !was && now {
+                send_npc_info(world, cs, npc_object_id);
+            } else if was && !now {
+                cs.send(server_packets::delete_object(npc_object_id));
+                lost_watchers.push(player_id);
+            }
+        }
+    }
+    for player_id in lost_watchers {
+        if let Some(p) = world.players.get_mut(&player_id) {
+            if p.target == Some(npc_object_id) {
+                p.target = None;
+            }
+        }
+    }
+}
+
 /// The per-tick movement system plus Java's `setXYZ` → `updateWorldRegion`
 /// coupling: advance every mover (`movement::tick`), then fire region switches
 /// for anyone whose cell changed. `update_region` early-outs on an unchanged
@@ -195,5 +236,8 @@ pub(crate) fn movement_tick(world: &mut World) {
     let ids: Vec<i32> = world.players.keys().copied().collect();
     for id in ids {
         update_region(world, id);
+    }
+    for id in crate::model::movement::tick_npcs(world) {
+        update_npc_region(world, id);
     }
 }

@@ -4,25 +4,31 @@
 
 pub mod action_data;
 pub mod experience;
+pub mod hit_condition_bonus;
 pub mod initial_equipment;
 pub mod item_data;
+pub mod map_region;
 pub mod npc_data;
 pub mod player_template;
 pub mod skill_data;
 pub mod skill_tree;
 pub mod spawn_data;
 pub mod stat_bonus;
+pub mod xp_lost;
 
 pub use action_data::ActionData;
 pub use experience::ExperienceData;
+pub use hit_condition_bonus::HitConditionBonusData;
 pub use initial_equipment::InitialEquipmentData;
 pub use item_data::ItemData;
+pub use map_region::MapRegionData;
 pub use npc_data::NpcData;
 pub use player_template::PlayerTemplateData;
 pub use skill_data::SkillData;
 pub use skill_tree::SkillTreeData;
 pub use spawn_data::SpawnData;
 pub use stat_bonus::StatBonus;
+pub use xp_lost::PlayerXpPercentLostData;
 
 /// The static game data bundle owned by the game thread (Java: the swarm of
 /// `*Data.getInstance()` singletons, here a plain struct — decision #4).
@@ -37,6 +43,9 @@ pub struct GameData {
     pub skill_data: SkillData,
     pub npc_data: NpcData,
     pub spawn_data: SpawnData,
+    pub hit_condition_bonus: HitConditionBonusData,
+    pub xp_lost: PlayerXpPercentLostData,
+    pub map_region: MapRegionData,
     /// Datapack root prefix (`""` when running from `dist/game`) — for the
     /// odd loose file read at runtime (NPC dialog `.htm`s, which Java streams
     /// through `HtmCache` rather than a boot-time loader).
@@ -57,6 +66,9 @@ impl GameData {
             skill_data: SkillData::load_from(file_path),
             npc_data: NpcData::load_from(file_path),
             spawn_data: SpawnData::load_from(file_path),
+            hit_condition_bonus: HitConditionBonusData::load_from(file_path),
+            xp_lost: PlayerXpPercentLostData::load_from(file_path),
+            map_region: MapRegionData::load_from(file_path),
         }
     }
     pub fn load() -> Self {
@@ -72,6 +84,9 @@ impl GameData {
             skill_data: SkillData::load(),
             npc_data: NpcData::load(),
             spawn_data: SpawnData::load(),
+            hit_condition_bonus: HitConditionBonusData::load(),
+            xp_lost: PlayerXpPercentLostData::load(),
+            map_region: MapRegionData::load(),
         }
     }
 
@@ -91,6 +106,9 @@ impl GameData {
             skill_data: SkillData::empty(),
             npc_data: NpcData::empty(),
             spawn_data: SpawnData::empty(),
+            hit_condition_bonus: HitConditionBonusData::default(),
+            xp_lost: PlayerXpPercentLostData::empty(),
+            map_region: MapRegionData::empty(),
         }
     }
 }

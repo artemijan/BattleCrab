@@ -45,6 +45,15 @@ pub mod opcodes {
     pub const SKILL_COOL_TIME: u8 = 0xC7;
     pub const ACQUIRE_SKILL_DONE: u8 = 0x94;
     pub const MY_TARGET_SELECTED: u8 = 0xB9;
+    pub const DIE: u8 = 0x00;
+    pub const REVIVE: u8 = 0x01;
+    pub const TELEPORT_TO_LOCATION: u8 = 0x22;
+    pub const AUTO_ATTACK_START: u8 = 0x25;
+    pub const AUTO_ATTACK_STOP: u8 = 0x26;
+    pub const SOCIAL_ACTION: u8 = 0x27;
+    pub const CHANGE_MOVE_TYPE: u8 = 0x28;
+    pub const ATTACK: u8 = 0x33;
+    pub const MOVE_TO_PAWN: u8 = 0x72;
 
     /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
     pub const EX: u8 = 0xFE;
@@ -522,6 +531,154 @@ pub fn stop_move(object_id: i32, x: i32, y: i32, z: i32, heading: i32) -> Vec<u8
     w.into_bytes()
 }
 
+/// One rolled hit inside an `Attack` packet (Java `model/Hit`): flag bits
+/// from `enums/AttackType` (miss 0x01 within flags... see `hit_flags`).
+#[derive(Debug, Clone, Copy)]
+pub struct AttackHit {
+    pub target_object_id: i32,
+    pub damage: i32,
+    pub miss: bool,
+    pub crit: bool,
+}
+
+/// Java `enums/AttackType` masks folded by `Hit`'s constructor: `MISSED` =
+/// 0x01, `BLOCKED` = 0x02 (never set — no shield defence), `CRITICAL` = 0x04,
+/// `SHOT_USED` = 0x08 (never — no soulshots).
+fn hit_flags(hit: &AttackHit) -> i32 {
+    if hit.miss {
+        return 0x01;
+    }
+    if hit.crit {
+        0x04
+    } else {
+        0
+    }
+}
+
+/// Port of `serverpackets/Attack` (single-hit melee shape — the trailing
+/// extra-hit list is empty, matching non-dual weapons).
+pub fn attack(attacker_object_id: i32, hit: &AttackHit, ax: i32, ay: i32, az: i32, tx: i32, ty: i32, tz: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::ATTACK);
+    w.write_i32(attacker_object_id);
+    w.write_i32(hit.target_object_id);
+    w.write_i32(0); // soulshot visual substitute (brooch jewels)
+    w.write_i32(hit.damage);
+    w.write_i32(hit_flags(hit));
+    w.write_i32(0); // ss grade
+    w.write_i32(ax);
+    w.write_i32(ay);
+    w.write_i32(az);
+    w.write_i16(0); // no additional hits
+    w.write_i32(tx);
+    w.write_i32(ty);
+    w.write_i32(tz);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/Die` — broadcast on any creature's death. Every
+/// revive-destination flag is written explicitly; for NPCs they are all
+/// false. `to_village` = `canRevive() && !isPendingRevive()` for players.
+pub fn die(object_id: i32, to_village: bool) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::DIE);
+    w.write_i32(object_id);
+    w.write_i32(to_village as i32); // to village
+    w.write_i32(0); // to clan hall
+    w.write_i32(0); // to castle
+    w.write_i32(0); // to outpost / siege HQ
+    w.write_i32(0); // sweepable
+    w.write_i32(0); // use feather
+    w.write_i32(0); // to fortress
+    w.write_i32(0); // disables feather button timer
+    w.write_i32(0); // adventure's song
+    w.write_u8(0); // hide die animation
+    w.write_i32(0); // items enabled
+    w.write_i32(0); // item count
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/Revive`.
+pub fn revive(object_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::REVIVE);
+    w.write_i32(object_id);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/AutoAttackStart` — combat stance begins.
+pub fn auto_attack_start(object_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::AUTO_ATTACK_START);
+    w.write_i32(object_id);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/AutoAttackStop` — combat stance ends (15 s after
+/// the last swing, `AttackStanceTaskManager.COMBAT_TIME`).
+pub fn auto_attack_stop(object_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::AUTO_ATTACK_STOP);
+    w.write_i32(object_id);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/SocialAction` (also carries the level-up effect,
+/// `SocialAction.LEVEL_UP` = 2122).
+pub const SOCIAL_ACTION_LEVEL_UP: i32 = 2122;
+pub fn social_action(object_id: i32, action_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::SOCIAL_ACTION);
+    w.write_i32(object_id);
+    w.write_i32(action_id);
+    w.write_i32(0);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ChangeMoveType` — walk/run toggle broadcast (Java
+/// `Creature.setRunning`/`setWalking`).
+pub fn change_move_type(object_id: i32, running: bool) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::CHANGE_MOVE_TYPE);
+    w.write_i32(object_id);
+    w.write_i32(if running { 1 } else { 0 });
+    w.write_i32(0); // c2
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/MoveToPawn` — "walk toward that creature, stopping
+/// at `distance`" (chasing/follow movement; plain destination moves use
+/// `MoveToLocation`).
+pub fn move_to_pawn(object_id: i32, target_object_id: i32, distance: i32, x: i32, y: i32, z: i32, tx: i32, ty: i32, tz: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::MOVE_TO_PAWN);
+    w.write_i32(object_id);
+    w.write_i32(target_object_id);
+    w.write_i32(distance);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.write_i32(tx);
+    w.write_i32(ty);
+    w.write_i32(tz);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/TeleportToLocation` (fade-style, like Java's
+/// constant 0).
+pub fn teleport_to_location(object_id: i32, x: i32, y: i32, z: i32, heading: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::TELEPORT_TO_LOCATION);
+    w.write_i32(object_id);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.write_i32(0); // fade 0, instant 1
+    w.write_i32(heading);
+    w.write_i32(0); // unknown
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/MoveToLocation` with an explicit destination —
 /// unlike `enter_world::move_to_location` (which always sends dest==current
 /// for the enter-world burst), this is the real move-start packet, broadcast
@@ -550,7 +707,7 @@ pub fn move_to_location(object_id: i32, dest_x: i32, dest_y: i32, dest_z: i32, x
 /// default is -1).
 pub fn magic_skill_use(
     caster: &Player,
-    target: &Player,
+    target: (i32, i32, i32, i32), // (object_id, x, y, z) — player or NPC
     skill_id: i32,
     skill_level: i32,
     hit_time: i32,
@@ -561,7 +718,7 @@ pub fn magic_skill_use(
     w.write_u8(opcodes::MAGIC_SKILL_USE);
     w.write_i32(0); // casting bar: NORMAL
     w.write_i32(caster.object_id);
-    w.write_i32(target.object_id);
+    w.write_i32(target.0);
     w.write_i32(skill_id);
     w.write_i32(skill_level);
     w.write_i32(hit_time);
@@ -572,9 +729,9 @@ pub fn magic_skill_use(
     w.write_i32(caster.z);
     w.write_i16(0); // isGroundTargetSkill
     w.write_i16(0); // no ground location
-    w.write_i32(target.x);
-    w.write_i32(target.y);
-    w.write_i32(target.z);
+    w.write_i32(target.1);
+    w.write_i32(target.2);
+    w.write_i32(target.3);
     w.write_i32(0); // actionId used
     w.write_i32(0); // actionId
     w.into_bytes()
@@ -621,6 +778,20 @@ pub fn setup_gauge(object_id: i32, color: i32, time_ms: i32) -> Vec<u8> {
 /// ~6800 — added as handlers need them; the zero-parameter welcome message
 /// keeps using `enter_world::system_message`).
 pub mod sm_ids {
+    pub const YOU_HAVE_OBTAINED_S1_ADENA: i16 = 28;
+    pub const YOU_HAVE_OBTAINED_S2_S1: i16 = 29;
+    pub const YOU_HAVE_OBTAINED_S1: i16 = 30;
+    pub const YOU_HAVE_AVOIDED_C1_S_ATTACK: i16 = 42;
+    pub const YOU_HAVE_MISSED: i16 = 43;
+    pub const CRITICAL_HIT: i16 = 44;
+    pub const YOUR_LEVEL_HAS_INCREASED: i16 = 96;
+    pub const YOU_HAVE_ACQUIRED_S1_SP: i16 = 331;
+    pub const YOUR_SP_HAS_DECREASED_BY_S1: i16 = 538;
+    pub const YOUR_XP_HAS_DECREASED_BY_S1: i16 = 539;
+    pub const C1_HAS_EVADED_C2_S_ATTACK: i16 = 2264;
+    pub const C1_S_ATTACK_WENT_ASTRAY: i16 = 2265;
+    pub const C1_LANDED_A_CRITICAL_HIT: i16 = 2266;
+    pub const YOU_HAVE_ACQUIRED_S1_XP_BONUS_S2_AND_S3_SP_BONUS_S4: i16 = 3259;
     pub const NOT_ENOUGH_HP: i16 = 23;
     pub const NOT_ENOUGH_MP: i16 = 24;
     pub const YOUR_CASTING_HAS_BEEN_INTERRUPTED: i16 = 27;
@@ -648,6 +819,12 @@ pub enum SmParam {
     Int(i32),
     /// `TYPE_SKILL_NAME` (4) — `addSkillName` (id, level, sub-level 0).
     SkillName { id: i32, level: i32 },
+    /// `TYPE_NPC_NAME` (2) — `addNpcName` (template id + 1000000).
+    NpcName(i32),
+    /// `TYPE_ITEM_NAME` (3) — `addItemName`.
+    ItemName(i32),
+    /// `TYPE_LONG_NUMBER` (6) — `addLong`.
+    Long(i64),
     /// `TYPE_PLAYER_NAME` (12) — `addPcName`.
     PlayerName(String),
 }
@@ -675,6 +852,18 @@ pub fn system_message_with(message_id: i16, params: &[SmParam]) -> Vec<u8> {
                 w.write_i32(*id);
                 w.write_i16(*level as i16);
                 w.write_i16(0); // sub-level
+            }
+            SmParam::NpcName(template_id) => {
+                w.write_u8(2);
+                w.write_i32(1_000_000 + *template_id);
+            }
+            SmParam::ItemName(item_id) => {
+                w.write_u8(3);
+                w.write_i32(*item_id);
+            }
+            SmParam::Long(v) => {
+                w.write_u8(6);
+                w.write_i64(*v);
             }
             SmParam::PlayerName(s) => {
                 w.write_u8(12);
@@ -1037,22 +1226,9 @@ mod tests {
         t.base_mp_max = 50.0;
         // Defaults keep: p_atk_spd 300, m_atk_spd 333, run 120, rhand/lhand 0,
         // targetable + show_name true (→ status mask 0x0C), type Folk.
-        let npc = crate::model::npc::Npc {
-            object_id: 0x4000_0001,
-            npc_id: 30001,
-            x: 100,
-            y: 200,
-            z: -300,
-            heading: 4000,
-            region: (0, 0),
-            max_hp: 100,
-            max_mp: 50,
-            cur_hp: 100.0,
-            cur_mp: 50.0,
-            running: false,
-            respawn_secs: 0,
-            respawn_random_secs: 0,
-        };
+        let mut npc = crate::model::npc::Npc::for_test(0x4000_0001, 30001, 100, 200, -300, 100, 50);
+        npc.heading = 4000;
+        npc.region = (0, 0);
 
         let mut w = PacketWriter::new();
         w.write_u8(0x0C); // NPC_INFO

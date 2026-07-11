@@ -172,6 +172,12 @@ impl ItemData {
     pub fn from_templates(templates: Vec<ItemTemplate>) -> Self {
         Self { by_id: templates.into_iter().map(|t| (t.item_id, t)).collect() }
     }
+
+    /// Register one synthetic template (same hook as `NpcData`'s).
+    #[doc(hidden)]
+    pub fn insert_for_test(&mut self, t: ItemTemplate) {
+        self.by_id.insert(t.item_id, t);
+    }
 }
 
 fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, ItemTemplate>) {

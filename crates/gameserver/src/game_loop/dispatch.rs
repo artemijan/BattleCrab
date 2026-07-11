@@ -10,6 +10,8 @@ use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::World;
 
+use super::combat::handle_attack_request;
+use super::death::{handle_appearing, handle_request_restart_point};
 use super::items::{handle_request_un_equip_item, handle_use_item};
 use super::lobby::{
     handle_auth_login, handle_character_create, handle_character_delete,
@@ -49,6 +51,9 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_MAGIC_SKILL_USE => handle_request_magic_skill_use(world, client_id, body),
         cop::REQUEST_ACQUIRE_SKILL => handle_request_acquire_skill(world, client_id, body),
         cop::ACTION => handle_action(world, client_id, body),
+        cop::ATTACK_REQUEST => handle_attack_request(world, client_id, body),
+        cop::APPEARING => handle_appearing(world, client_id),
+        cop::REQUEST_RESTART_POINT => handle_request_restart_point(world, client_id, body),
         cop::REQUEST_TARGET_CANCELD => handle_request_target_canceld(world, client_id, body),
         cop::MOVE_BACKWARD_TO_LOCATION => handle_move_backward_to_location(world, client_id, body),
         cop::VALIDATE_POSITION => handle_validate_position(world, client_id, body),

@@ -32,13 +32,21 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
 
     // Java `PlayerAI.onIntentionMoveTo`: a move request during a cast is
     // rejected with ActionFailed (the cast is NOT aborted); the queued
-    // next-intention move is not ported.
-    if player.cast.is_some() {
+    // next-intention move is not ported. Dead players can't move at all
+    // (`isMovementDisabled`).
+    if player.cast.is_some() || player.dead {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
         return;
     }
+    // A manual move click replaces an attack loop (MOVE_TO intention).
+    if world.players.get(&object_id).is_some_and(|p| p.intent.is_some()) {
+        if let Some(p) = world.players.get_mut(&object_id) {
+            p.intent = None;
+        }
+    }
+    let Some(player) = world.players.get(&object_id) else { return };
 
     let mut target_x = pkt.target_x;
     let mut target_y = pkt.target_y;

@@ -3,6 +3,8 @@ use super::dispatch::*;
 use super::lobby::*;
 use super::net::*;
 use super::position::*;
+use super::combat::handle_attack_request;
+use super::death::handle_request_restart_point;
 use super::skills::cast::*;
 use super::skills::*;
 use super::target::*;
@@ -153,6 +155,9 @@ async fn character_create_inserts_into_real_schema() {
         skill_data: crate::data::SkillData::empty(),
         npc_data: crate::data::NpcData::empty(),
         spawn_data: crate::data::SpawnData::empty(),
+        hit_condition_bonus: crate::data::HitConditionBonusData::default(),
+        xp_lost: crate::data::PlayerXpPercentLostData::empty(),
+        map_region: crate::data::MapRegionData::empty(),
     };
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
@@ -166,11 +171,15 @@ async fn character_create_inserts_into_real_schema() {
     let name = format!("Tc{}", std::process::id() % 100000);
     handle_character_create(&mut world, 1, &character_create_body(&name, 0));
 
+    // The DB thread pushes its boot-time id block first; skip it.
+    let mut next_event = || loop {
+        match db_event_rx.recv_timeout(std::time::Duration::from_secs(5)).unwrap() {
+            DbEvent::IdBlock { .. } => continue,
+            other => return other,
+        }
+    };
     // The DB thread must report a successful insert, then the reloaded list.
-    match db_event_rx
-        .recv_timeout(std::time::Duration::from_secs(5))
-        .unwrap()
-    {
+    match next_event() {
         DbEvent::CharacterCreated { result, .. } => {
             assert_eq!(
                 result,
@@ -180,10 +189,7 @@ async fn character_create_inserts_into_real_schema() {
         }
         _ => panic!("expected CharacterCreated"),
     }
-    match db_event_rx
-        .recv_timeout(std::time::Duration::from_secs(5))
-        .unwrap()
-    {
+    match next_event() {
         DbEvent::CharactersLoaded { chars, .. } => {
             assert_eq!(chars.len(), 1);
             assert_eq!(chars[0].name, name);
@@ -721,9 +727,13 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
     }
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE); // MP consume
     assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2);
+    // Being hit puts B in combat stance (CreatureAI.onEvtAttacked ->
+    // clientStartAutoAttack broadcast), then B's CP/HP status.
+    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::AUTO_ATTACK_START);
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE); // B's CP/HP
     assert!(a_rx.try_recv().is_err());
     assert_eq!(sm_id(&b_rx.try_recv().unwrap()), server_packets::sm_ids::C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2);
+    assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::AUTO_ATTACK_START);
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
     assert!(b_rx.try_recv().is_err());
     assert!(world.players[&3001].cast.is_none(), "coolTime 0 frees the slot");
@@ -753,12 +763,13 @@ fn cast_out_of_range_rejected() {
     assert!(world.players[&3001].cast.is_none());
 }
 
-/// A nuke can never kill while there's no death system: HP floors at 1.
+/// A lethal nuke kills (G9): HP hits 0, the victim is dead, and `Die` with
+/// the to-village flag reaches both sides.
 #[test]
-fn nuke_never_kills_hp_clamped_at_1() {
+fn nuke_kills_at_zero_hp() {
     let (mut world, ..) = cast_test_world();
-    let mut _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
-    let mut _b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
     {
         let b = world.players.get_mut(&3002).unwrap();
         b.cur_cp = 0.0;
@@ -767,7 +778,18 @@ fn nuke_never_kills_hp_clamped_at_1() {
     handle_action(&mut world, 1, &action_body(3002, 0));
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
     advance_ticks(&mut world, 45);
-    assert_eq!(world.players[&3002].cur_hp, 1.0);
+    let b = &world.players[&3002];
+    assert_eq!(b.cur_hp, 0.0);
+    assert!(b.dead);
+    let a_packets = drain(&mut a_rx);
+    let b_packets = drain(&mut b_rx);
+    for packets in [&a_packets, &b_packets] {
+        let die = packets
+            .iter()
+            .find(|p| p[0] == server_packets::opcodes::DIE && i32::from_le_bytes(p[1..5].try_into().unwrap()) == 3002)
+            .expect("Die packet for B");
+        assert_eq!(i32::from_le_bytes(die[5..9].try_into().unwrap()), 1, "to-village flag");
+    }
 }
 
 /// Esc aborts a pre-launch cast: `MagicSkillCanceled` broadcast (self
@@ -1159,22 +1181,7 @@ fn add_test_npc(world: &mut World, object_id: i32, npc_id: i32, type_name: &str,
         t.base_mp_max = 50.0;
         world.data.npc_data.insert_for_test(t);
     }
-    let npc = crate::model::npc::Npc {
-        object_id,
-        npc_id,
-        x,
-        y,
-        z,
-        heading: 0,
-        region: crate::world::region_of(x, y),
-        max_hp: 100,
-        max_mp: 50,
-        cur_hp: 100.0,
-        cur_mp: 50.0,
-        running: false,
-        respawn_secs: 0,
-        respawn_random_secs: 0,
-    };
+    let npc = crate::model::npc::Npc::for_test(object_id, npc_id, x, y, z, 100, 50);
     world.npc_regions.entry(npc.region).or_default().push(object_id);
     world.npcs.insert(object_id, npc);
 }
@@ -1704,4 +1711,456 @@ fn leave_world_sends_delete_object_to_watchers() {
     assert_eq!(delete_object_id(&near_rx.try_recv().unwrap()), 6301);
     assert_eq!(world.players[&6302].target, None, "dangling target dropped");
     assert!(far_rx.try_recv().is_err());
+}
+
+// ===========================================================================
+// G9 — combat & AI
+// ===========================================================================
+
+/// A world tuned for melee combat: the fighter-ish class-0 template from
+/// `cast_test_world` plus a synthetic exp table (level N needs (N−1)·1000)
+/// and a Monster template 40001 (level 5, pDef 40, exp 2000/sp 100, a 70%
+/// 5-adena drop line, 2 s corpse time).
+fn combat_test_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
+    let (mut world, db_rx, link_rx) = cast_test_world();
+    world.data.experience =
+        crate::data::ExperienceData::from_table(vec![0, 0, 1000, 2000, 3000, 4000, 5000, 50000, 100_000], 8);
+    // The caster template lacks the melee-side fields — give it reach, run
+    // speed, defence, and level tables past 5 so level-ups stay sane.
+    {
+        let mut t = world.data.player_templates.get(0).unwrap().clone();
+        t.base_atk_range = 20;
+        t.base_run_spd = 115;
+        t.base_p_def = 80;
+        t.collision_radius = 9.0;
+        for lvl in 1..=8usize {
+            t.hp_table[lvl] = 100.0;
+            t.mp_table[lvl] = 50.0;
+            t.cp_table[lvl] = 100.0;
+        }
+        world.data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![t]);
+    }
+    // Adena template so auto-loot stacks it.
+    world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+        item_id: 57,
+        name: "Adena".into(),
+        kind: crate::data::item_data::ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: true,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+    });
+    let mut t = crate::data::npc_data::default_template(40001);
+    t.type_name = "Monster".into();
+    t.name = "Test Gremlin".into();
+    t.level = 5;
+    t.base_hp_max = 100.0;
+    t.base_mp_max = 30.0;
+    t.base_p_atk = 50.0;
+    t.base_p_def = 40.0;
+    t.base_m_def = 40.0;
+    t.base_atk_range = 60;
+    t.base_rnd_dam = 10;
+    t.collision_radius = 10.0;
+    t.exp = 2000.0;
+    t.sp = 100.0;
+    t.corpse_time = Some(2);
+    t.drop_list_death.push(crate::data::npc_data::DropHolder { item_id: 57, min: 5, max: 5, chance: 70.0 });
+    world.data.npc_data.insert_for_test(t);
+    // Loot needs a runtime id block (normally pushed by the DB thread at boot).
+    world.id_pool = 0x2000_0000..0x2000_1000;
+    // AutoLoot=True is the dist configuration this slice targets.
+    world.cfg.character.auto_loot = true;
+    (world, db_rx, link_rx)
+}
+
+/// Run the real per-tick systems (movement + player combat + the 1 s AI /
+/// stance sweeps) alongside the scheduler, like `game_loop::run` does —
+/// `advance_ticks` only fires timers.
+fn advance_world(world: &mut World, n: u64) {
+    for _ in 0..n {
+        world.tick += 1;
+        apply_due_tasks(world);
+        visibility::movement_tick(world);
+        combat::player_combat_tick(world);
+        if world.tick.is_multiple_of(npc_ai::NPC_THINK_PERIOD) {
+            npc_ai::npc_ai_tick(world);
+            combat::stance_tick(world);
+        }
+    }
+}
+
+fn attack_request_body(object_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(object_id);
+    w.write_i32(0); // origin x
+    w.write_i32(0); // origin y
+    w.write_i32(0); // origin z
+    w.write_u8(0); // simple click
+    w.into_bytes()
+}
+
+/// The full melee kill: AttackRequest → Attack packet + combat stance, the
+/// scheduled hit lands with `Formulas` damage, the monster dies (Die), the
+/// killer gets XP/SP (level-up: SocialAction 2122 + SM 96), auto-loot adena
+/// (SM 28 + InventoryUpdate + DB insert), and the corpse decays
+/// (DeleteObject) with no respawn for a respawn-less spawn line.
+#[test]
+fn melee_kill_rewards_and_decay() {
+    let (mut world, mut db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    {
+        // Level 5 exactly at its threshold +500 (table: L5 = 4000, L6 = 5000).
+        let p = world.players.get_mut(&3001).unwrap();
+        p.exp = 4500;
+    }
+    let npc_oid = NPC_OID + 7;
+    let npc = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100, 30);
+    world.npc_regions.entry(npc.region).or_default().push(npc_oid);
+    world.npcs.insert(npc_oid, npc);
+
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    drain(&mut a_rx);
+
+    // Swing rolls: hit (miss roll 0), no crit (99), random-damage delta 0
+    // (roll(21) == 10 → ±0 on rndDam 10).
+    world.forced_rolls.extend([0, 99, 10]);
+    handle_attack_request(&mut world, 1, &attack_request_body(npc_oid));
+
+    let packets = drain(&mut a_rx);
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::ATTACK), "Attack broadcast");
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::AUTO_ATTACK_START), "combat stance");
+
+    // Expected damage: pAtk × rand(1.0) [+ position bonus] ×77 / pDef.
+    // Attacker at (0,0), target heading 0 at (30,0) → attacker is BEHIND.
+    let p_atk = world.players[&3001].p_atk as f64;
+    let p_def = 40.0 * (5.0 + 89.0) / 100.0;
+    let expected = formulas::calc_auto_attack_damage(
+        p_atk,
+        1.0,
+        crate::model::movement::Position::Back,
+        p_def,
+        false,
+    );
+    assert!(expected > 100.0, "sanity: one swing must kill the 100 HP monster ({expected})");
+
+    // Hit lands at timeToHit = 1666 × 0.644 ≈ 1073 ms ⇒ 11 ticks. Queue the
+    // drop rolls it will consume on death: level-gap pass (0), chance pass
+    // (0 < 70%).
+    world.forced_rolls.extend([0, 0]);
+    advance_world(&mut world, 12);
+
+    // Monster died: Die broadcast, rewards granted.
+    assert!(world.npcs[&npc_oid].dead);
+    let packets = drain(&mut a_rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::DIE
+            && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid),
+        "Die broadcast for the monster"
+    );
+    // XP: 2000 × share 1.0 × gap 1.0 (same level) → 4500 + 2000 = 6500 ⇒ level 6.
+    let p = &world.players[&3001];
+    assert_eq!(p.exp, 6500);
+    assert_eq!(p.level, 6);
+    assert_eq!(p.cur_cp, p.max_cp as f64, "level-up refills CP");
+    assert_eq!(p.sp, 100);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+            && sm_id(p) == server_packets::sm_ids::YOU_HAVE_ACQUIRED_S1_XP_BONUS_S2_AND_S3_SP_BONUS_S4),
+        "XP/SP system message"
+    );
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION
+            && i32::from_le_bytes(p[5..9].try_into().unwrap()) == server_packets::SOCIAL_ACTION_LEVEL_UP),
+        "level-up flourish"
+    );
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+            && sm_id(p) == server_packets::sm_ids::YOUR_LEVEL_HAS_INCREASED),
+        "level-up message"
+    );
+    // Auto-loot: 5 adena in the inventory, SM 28, persisted via InsertItem.
+    let adena = world.players[&3001].inventory.items().iter().find(|i| i.item_id == 57).expect("looted adena");
+    assert_eq!(adena.count, 5);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+            && sm_id(p) == server_packets::sm_ids::YOU_HAVE_OBTAINED_S1_ADENA),
+        "obtained-adena message"
+    );
+    let mut saw_insert = false;
+    while let Ok(cmd) = db_rx.try_recv() {
+        if let db::DbCommand::InsertItem { owner_id, item_id, count, .. } = cmd {
+            assert_eq!((owner_id, item_id, count), (3001, 57, 5));
+            saw_insert = true;
+        }
+    }
+    assert!(saw_insert, "loot persisted");
+
+    // The attack intent drops on the next combat tick (dead target).
+    advance_world(&mut world, 1);
+    assert!(world.players[&3001].intent.is_none());
+
+    // Decay after the 2 s corpse time: DeleteObject, corpse gone, no respawn
+    // scheduled (respawn_secs == 0).
+    advance_world(&mut world, 20);
+    assert!(!world.npcs.contains_key(&npc_oid));
+    let packets = drain(&mut a_rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::DELETE_OBJECT),
+        "corpse DeleteObject"
+    );
+    assert!(world.scheduler.is_empty(), "no respawn for a respawn-less spawn line");
+}
+
+/// Chasing: an `AttackRequest` from out of melee reach walks the player
+/// toward the monster (`MoveToPawn`) and only swings once in reach; the hurt
+/// monster retaliates through its AI think (run mode + `Attack` back), and
+/// its damage bites the player's HP directly (no CP soak from NPCs).
+#[test]
+fn attack_out_of_reach_chases_and_monster_retaliates() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 8;
+    // 200 units away — beyond reach 20 + 0 + 10 = 30; big HP pool so the
+    // monster survives and hits back.
+    let npc = crate::model::npc::Npc::for_test(npc_oid, 40001, 200, 0, 0, 5000, 30);
+    world.npc_regions.entry(npc.region).or_default().push(npc_oid);
+    world.npcs.insert(npc_oid, npc);
+
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    drain(&mut a_rx);
+
+    handle_attack_request(&mut world, 1, &attack_request_body(npc_oid));
+    let packets = drain(&mut a_rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::MOVE_TO_PAWN),
+        "out of reach: chase starts, no swing yet"
+    );
+    assert!(!packets.iter().any(|p| p[0] == server_packets::opcodes::ATTACK));
+
+    // Player run speed 115 u/s over ~170 units ⇒ in reach in ~1.5 s. Force
+    // every swing in the window (player ×2, monster ×1) to a plain hit.
+    world.forced_rolls.extend([0, 99, 10, 0, 99, 10, 0, 99, 10]);
+    let hp_before = world.players[&3001].cur_hp;
+    let cp_before = world.players[&3001].cur_cp;
+    advance_world(&mut world, 45);
+
+    let packets = drain(&mut a_rx);
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::ATTACK
+        && i32::from_le_bytes(p[1..5].try_into().unwrap()) == 3001), "player swung after closing in");
+    assert!(world.npcs[&npc_oid].cur_hp < 5000.0, "monster took damage");
+    assert_eq!(world.npcs[&npc_oid].intention, crate::model::npc::NpcIntention::Attack);
+    assert!(world.npcs[&npc_oid].running, "aggroed monsters run");
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::CHANGE_MOVE_TYPE),
+        "run-mode broadcast"
+    );
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::ATTACK
+            && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid),
+        "monster swung back"
+    );
+    assert!(world.players[&3001].cur_hp < hp_before, "player HP bitten");
+    assert_eq!(world.players[&3001].cur_cp, cp_before, "no CP soak from NPC hits");
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+            && sm_id(p) == server_packets::sm_ids::C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2),
+        "victim damage message"
+    );
+}
+
+/// An aggressive monster acquires a player who just stands inside its aggro
+/// range: after the spawn-calm `_globalAggro` ticks up to 0, the scan seeds
+/// hate and the AI attacks unprovoked.
+#[test]
+fn aggressive_monster_aggros_idle_player() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    {
+        // Make 40001 aggressive for this test.
+        let mut t = world.data.npc_data.get(40001).unwrap().clone();
+        t.aggro_range = 300;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 9;
+    let npc = crate::model::npc::Npc::for_test(npc_oid, 40001, 150, 0, 0, 5000, 30);
+    world.npc_regions.entry(npc.region).or_default().push(npc_oid);
+    world.npcs.insert(npc_oid, npc);
+    drain(&mut a_rx);
+
+    // 10 think seconds of calm (globalAggro −10 → 0), then the scan seeds
+    // hate and the AI locks on, chases in, and swings (both swings within
+    // 140 ticks forced to plain hits).
+    world.forced_rolls.extend([0, 99, 10, 0, 99, 10]);
+    advance_world(&mut world, 140);
+    assert_eq!(world.npcs[&npc_oid].intention, crate::model::npc::NpcIntention::Attack);
+    let packets = drain(&mut a_rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::ATTACK
+            && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid),
+        "unprovoked attack on the idle player"
+    );
+    assert!(world.players[&3001].cur_hp < 100.0, "the swing landed");
+}
+
+/// Death and the to-village loop: a killing blow sends `Die` with the
+/// to-village flag and applies the XP penalty; `RequestRestartPoint` ports
+/// the corpse to the map-region town respawn (`TeleportToLocation`), and
+/// `Appearing` revives at the configured 65% HP (`Revive` broadcast).
+#[test]
+fn player_death_penalty_and_revive_to_village() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    // One town region covering the fight location, respawn at (1000, 1000).
+    world.data.map_region = crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
+        name: "test_town".into(),
+        respawn_points: vec![(1000, 1000, 7)],
+        tiles: vec![(20, 18)],
+    }]);
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    {
+        let p = world.players.get_mut(&3001).unwrap();
+        p.exp = 4500; // level 5 (threshold 4000) + 500 into the level
+        p.level = 5;
+        p.cur_hp = 1.0;
+        p.cur_cp = 0.0;
+    }
+    let npc_oid = NPC_OID + 10;
+    let npc = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 5000, 30);
+    world.npc_regions.entry(npc.region).or_default().push(npc_oid);
+    world.npcs.insert(npc_oid, npc);
+    // Wake the monster by damage (as if the player had hit it).
+    combat::npc_receive_damage(&mut world, npc_oid, 3001, 10.0);
+    drain(&mut a_rx);
+
+    // Its swing kills the 1-HP player: force a clean hit.
+    world.forced_rolls.extend([0, 99, 10]);
+    advance_world(&mut world, 30);
+
+    let p = &world.players[&3001];
+    assert!(p.dead);
+    assert_eq!(p.cur_hp, 0.0);
+    // Death penalty: 1% (empty table default) of the 1000-XP level = 10.
+    assert_eq!(p.exp, 4490);
+    let packets = drain(&mut a_rx);
+    let die = packets
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::DIE && i32::from_le_bytes(p[1..5].try_into().unwrap()) == 3001)
+        .expect("player Die packet");
+    assert_eq!(i32::from_le_bytes(die[5..9].try_into().unwrap()), 1, "to-village enabled");
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+            && sm_id(p) == server_packets::sm_ids::YOUR_XP_HAS_DECREASED_BY_S1),
+        "XP-loss message"
+    );
+
+    // To village: teleport to the region respawn point.
+    world.forced_rolls.push_back(0); // random respawn-point pick
+    handle_request_restart_point(&mut world, 1, &{
+        let mut w = PacketWriter::new();
+        w.write_i32(0); // TO_VILLAGE
+        w.into_bytes()
+    });
+    let p = &world.players[&3001];
+    assert_eq!((p.x, p.y, p.z), (1000, 1000, 7));
+    assert!(p.teleporting && p.pending_revive && p.dead);
+    let packets = drain(&mut a_rx);
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
+
+    // Client finished loading: Appearing → revive at 65% HP.
+    on_packet(&mut world, 1, vec![cp::opcodes::APPEARING]);
+    let p = &world.players[&3001];
+    assert!(!p.dead && !p.teleporting && !p.pending_revive);
+    assert_eq!(p.cur_hp, p.max_hp as f64 * 0.65);
+    let packets = drain(&mut a_rx);
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::REVIVE));
+}
+
+/// Nuking a monster with a skill wakes its AI exactly like a melee hit and
+/// kills through the same death path (the "kill a monster with a skill"
+/// half of the G9 gate).
+#[test]
+fn nuke_kills_monster_and_rewards() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 11;
+    let npc = crate::model::npc::Npc::for_test(npc_oid, 40001, 100, 0, 0, 100, 30);
+    world.npc_regions.entry(npc.region).or_default().push(npc_oid);
+    world.npcs.insert(npc_oid, npc);
+
+    world.players.get_mut(&3001).unwrap().exp = 4000; // level 5 on the test table
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    drain(&mut a_rx);
+
+    // Monsters are valid Enemy targets without ctrl.
+    let exp_before = world.players[&3001].exp;
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    assert!(world.players[&3001].cast.is_some(), "cast accepted without force-use");
+    // Drop rolls at death: gap fails (droppable but let it fail → no loot
+    // noise in this test).
+    world.forced_rolls.extend([999_999, 999_999]);
+    advance_world(&mut world, 45);
+
+    assert!(world.npcs[&npc_oid].dead, "the nuke killed it");
+    assert!(world.players[&3001].exp > exp_before, "XP rewarded through the same death path");
+    let packets = drain(&mut a_rx);
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::DIE));
+}
+
+/// The decay → respawn loop over a real spawn line: the corpse decays
+/// (`DeleteObject`), `Spawn.decreaseCount` schedules the respawn, and the
+/// respawned NPC (fresh object id) is announced with `NpcInfo`.
+#[test]
+fn dead_monster_decays_and_respawns() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    world.data.spawn_data = crate::data::SpawnData {
+        spawns: vec![crate::data::spawn_data::SpawnTemplate {
+            name: None,
+            territories: vec![],
+            groups: vec![crate::data::spawn_data::SpawnGroup {
+                territories: vec![],
+                npcs: vec![crate::data::spawn_data::NpcSpawnDef {
+                    npc_id: 40001,
+                    count: 1,
+                    loc: Some(crate::data::spawn_data::FixedLoc { x: 30, y: 0, z: 0, heading: 0 }),
+                    respawn_secs: 3,
+                    respawn_random_secs: 0,
+                }],
+            }],
+        }],
+    };
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = crate::model::npc::spawn_one(&mut world, 0, 0, 0).expect("spawned");
+    world.players.get_mut(&3001).unwrap().target = Some(npc_oid);
+    drain(&mut a_rx);
+
+    // Kill it outright (drop level-gap roll forced to fail: no loot noise).
+    world.forced_rolls.push_back(999_999);
+    combat::npc_receive_damage(&mut world, npc_oid, 3001, 1_000_000.0);
+    assert!(world.npcs[&npc_oid].dead);
+
+    // Decay at +2 s: corpse gone, DeleteObject seen, dangling target dropped,
+    // respawn pending.
+    advance_world(&mut world, 21);
+    assert!(!world.npcs.contains_key(&npc_oid));
+    assert_eq!(world.players[&3001].target, None);
+    let packets = drain(&mut a_rx);
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::DELETE_OBJECT));
+
+    // Respawn at +3 s more: a fresh NPC on the same spawn line, announced.
+    advance_world(&mut world, 31);
+    let respawned = world.npcs.values().find(|n| n.npc_id == 40001).expect("respawned");
+    assert_ne!(respawned.object_id, npc_oid, "transient ids are not reused");
+    assert_eq!((respawned.x, respawned.y, respawned.z), (30, 0, 0));
+    assert!(!respawned.dead);
+    let packets = drain(&mut a_rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::NPC_INFO),
+        "respawn announced with NpcInfo"
+    );
 }

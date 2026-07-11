@@ -26,8 +26,8 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G7.5 Full single-target skill casting                       | ✅ (real cast timing/formulas, reuse, abort, nukes/heals/buffs on others) |
 | Game  | G7.8 Geodata & position validation                          | ✅ (`.l2j` loading, LOS, move clamping, ValidatePosition — pathfinding/zones still ⏳) |
 | Game  | G7.9 Region-grid visibility & scoped broadcasting           | ✅ (CharInfo/DeleteObject, 3×3 region knownlist, region-scoped broadcasts) |
-| Game  | G8 Static world content (NPCs/spawns)                       | ✅ vertical slice (34.9k NPCs spawned, visible, targetable, talkable — zones/doors/respawn still ⏳) |
-| Game  | G9 Combat & AI                                              | ⏳ |
+| Game  | G8 Static world content (NPCs/spawns)                       | ✅ vertical slice (34.9k NPCs spawned, visible, targetable, talkable — zones/doors still ⏳) |
+| Game  | G9 Combat & AI                                              | ✅ vertical slice (auto-attack, monster AI, death/decay/respawn, XP/SP/level-ups, auto-loot drops, die→revive) |
 | Game  | G10 Social systems                                          | ⏳ |
 | Game  | G11 Scripting engine + quests                               | ⏳ |
 | Game  | G12 Script/content breadth                                  | ⏳ |
@@ -537,12 +537,106 @@ NPCs a way to die).
   skip-unsolicited helper now also skips `NpcInfo` (the starting village's
   NPCs arrive in the enter-world burst).
 
-### G9–G13 — ⏳ not started
-See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gate:
-**combat & AI** (G9) — auto-attack, `doDie`/decay/respawn, `AttackableAI`
-think tick, aggro, drops, XP/SP — now that there are monsters to hit. Zones/
-doors/`MapRegionManager`/`StaticObjectData` (the rest of the plan's static-
-world scope) can ride along where needed (see Deferred TODOs).
+### G9 — Combat & AI ✅ vertical slice
+The G9 gate end-to-end: kill a monster (melee and skill), take damage back,
+receive XP/SP/loot, level up, die, and revive in town. Scoped to melee
+single-hit combat and plain monsters — see the deferred list for what
+consciously stayed out.
+
+- **Config** (`config/rates.rs`, `config/npc.rs`, `character.rs` grown):
+  `Rates.ini` (XP/SP ×50 on this dist!, drop chance/amount multipliers incl.
+  the per-item `57,50;…` lists, `DropMaxOccurrences*`, the drop level-gap
+  window keys), `NPC.ini` (`DefaultCorpseTime`, `MaxDriftRange`),
+  `Character.ini` (`AutoLoot` — **True** on this dist, `RespawnRestoreHP` 65,
+  `AltPartyRange`, `Delevel`/`DelevelMinimum`, `RandomRespawnInTownEnabled`).
+  Bundled as `CombatConfig` on `World.cfg` (tests get Java defaults, ×1
+  rates).
+- **Data loaders**: `hit_condition_bonus.rs` (front/side/back/high/low —
+  night/rain need a game clock/weather), `xp_lost.rs`
+  (`playerXpPercentLost.xml`), `map_region.rs` (`data/mapregion/*` tiles +
+  town respawn points, `talking_island_town` fallback); `npc_data.rs` grown:
+  `<attack random critical>`, `<corpseTime>`, `<dropLists>` (`<drop>` lines
+  + the `<group chance>` shape the Primeval Isle file uses; spoil dropped).
+- **Physical formulas** (`model/formulas.rs`): `calculateTimeBetweenAttacks`
+  (`500000/atkSpd`, 50 ms floor), melee `calculateTimeToHit` (0.644/0.735),
+  `calcHitMiss` (`(80+2(acc−evasion))·10` × HitConditionBonus, clamp
+  [200,980]), auto-attack `calcCrit` (position 1.1/1.3 + height bonus, clamp
+  [3,97]), `calcAutoAttackDamage` (`(pAtk·rnd + proxBonus)·77/pDef`, crit ×2
+  — soulshot/shield/ranged/trait terms identity and documented), the
+  level-gap XP table, `Util.map` for the drop level gates. `Position`
+  (front/side/back from headings) in `movement.rs`.
+- **Auto-attack pipeline** (`game_loop/combat.rs`): `AttackRequest` (0x32) /
+  second `Action` click on a monster → `PlayerIntent::Attack` — a per-tick
+  think (`PlayerAI.thinkAttack` + the 500 ms follow cadence) that chases via
+  `MoveToPawn` and swings with `Creature.doAutoAttack`'s shape: hit rolled at
+  swing start (`generateHit`), `Attack` (0x33) broadcast, damage landing on a
+  scheduled `AttackHit` at `timeToHit` (in-flight swings die with either
+  side). Shared `Combatant` view derives NPC stats from templates through
+  the same finalizer math (STR/DEX bonuses × level mod). Combat stance
+  tracker (`AutoAttackStart/Stop` 0x25/0x26, 15 s), damage messages
+  (SM 2261/2262/2264/2265/2266 + miss/crit), CP soak only from playable
+  attackers, cast-break on hit. Magic damage now routes through the same
+  receivers — the G7.5 "clamp at 1.0 HP" is gone.
+- **Monster AI** (`game_loop/npc_ai.rs`): 1 s think over monsters in active
+  regions (player-adjacent cells only, Java's region-activation gate).
+  `thinkActive`: `_globalAggro` −10→0 spawn calm, aggro-range scan (alive +
+  region-adjacent + LOS) seeding 1 hate, most-hated pick → run mode
+  (`ChangeMoveType` 0x28) + Attack intention; drift-home walk past
+  `MaxDriftRange`. `thinkAttack`: 120 s attack timeout (walks home — Java
+  teleports), hate pruning on dead targets, chase (`MoveToPawn` re-pathed per
+  think) and swing through the shared pipeline. NPC movement rides the
+  interpolation tick with `npc_regions` re-indexing + `NpcInfo`/
+  `DeleteObject` visibility deltas on cell crossings.
+- **Death/decay/respawn** (`game_loop/death.rs`): `doDie` both kinds (`Die`
+  0x00 broadcast; players get the to-village flag + XP penalty via
+  `playerXpPercentLost` with the `Delevel` clamp; dead players are barred
+  from move/cast/attack and regen). NPC corpse decays after
+  `<corpseTime>`/`DefaultCorpseTime` (`DeleteObject`, dangling targets
+  dropped), `Spawn.decreaseCount` schedules the respawn (min/max random
+  spread) and the spawn line re-runs — fresh transient object id, a
+  documented deviation from Java's id-reusing `respawnNpc`.
+- **Rewards**: `calculateRewards` from the aggro damage shares (solo-only —
+  parties don't exist), `ALT_PARTY_RANGE`/surrounding-region gates,
+  level-gap multiplier, ×`RateXp/RateSp`; `addExpAndSp` (SM 3259) with the
+  `PlayableStat.addExp` level scan → `addLevel`: vitals re-derived, CP
+  refill, autoGet skill grants (`rewardSkills`), `SocialAction` 2122 + SM 96
+  + StatusUpdate/UserInfo/SkillList. Drops: `calculateDrops` port (level-gap
+  gates, per-item chance/amount multipliers, occurrence cap — the cap's
+  mid-list reshuffle simplified to a hard stop) **auto-looted** into the
+  killer's inventory (SM 28/29/30 + InventoryUpdate) — the dist runs
+  `AutoLoot = True`; ground drops wait for item-on-ground world objects.
+  Runtime item ids come from DB-thread-reserved blocks
+  (`DbEvent::IdBlock`/`DbCommand::ReserveIds` — Java `IdManager` semantics
+  without a per-item round trip); new `InsertItem`/`UpdateItemCount`
+  persistence.
+- **Die → revive loop**: `RequestRestartPoint` (0x7D, TO_VILLAGE) → map
+  region town respawn → `teleport_player` (`TeleportToLocation` 0x22 +
+  `decayMe`-style DeleteObject) → client `Appearing` (0x3A) → `doRevive`
+  (65% HP restore, `Revive` 0x01) + `spawnMe` visibility exchange + fresh
+  UserInfo. Dead-on-login characters get their death dialog back
+  (`EnterWorld` → `Die`).
+- **Casting on NPCs**: `resolve_cast_target` resolves both registries
+  (monsters are valid `Enemy` targets without ctrl), `MagicSkillUse` carries
+  NPC target coords, NPC `mDef` through the `MDefenseFinalizer` shape; buffs
+  on NPC targets are dropped (no NPC effect list — nothing casts on them
+  yet).
+- **Tests**: formula units with exact Java values; loader tests against the
+  real dist (Gremlin `random`/`critical`, Goblin's 9 drop lines + 450 aggro
+  range, Santa's `<corpseTime>3`, grouped drops, xp-lost + hit-condition
+  tables, Giran map-region respawn); synthetic-world integration tests
+  driving the real tick systems — the full melee kill
+  (Attack/stance/Die/XP/level-up/adena auto-loot + DB insert/decay),
+  out-of-reach chase + monster retaliation (run mode, `MoveToPawn`, HP bite
+  with no CP soak), unprovoked aggro on an idle player, kill-by-nuke through
+  the same death path, player death (penalty + to-village `Die`) →
+  restart-point teleport → `Appearing` revive at 65%, and decay → respawn
+  with a fresh id announced by `NpcInfo`.
+
+### G10–G13 — ⏳ not started
+See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gates:
+**social systems** (G10 — clans/parties/friends/mail) or the remaining
+static-world scope (zones/doors/`StaticObjectData`), then the scripting
+engine + quests (G11+).
 
 ---
 
@@ -557,17 +651,20 @@ Empty/placeholder now, to be filled in the owning milestone:
   encumbrance enforcement, `ItemList`/`ExUserInfoEquipSlot` visual-id block.
   Also blocks full P.Def/P.Atk/M.Def/M.Atk accuracy (see G6: naked-value only
   until item `<stats>` are parsed).
-- **Skills/combat (post-G7.5, G9):** physical damage (`PhysicalAttack` effect,
-  auto-attack, `Formulas.calcAutoAttackDamage`); AoE affect scopes (only
-  `SINGLE` resolves); `ALT_GAME_MAGICFAILURES` magic-resist rolls
-  (`calcMagicSuccess`); death (`doDie` — magic damage currently clamps HP at
-  1.0); queued skills + walk-into-cast-range AI; geodata LOS for targeting;
-  the other 8 `AcquireSkillType`s (PLEDGE, TRANSFORM, TRANSFER, SUBCLASS, …);
-  toggle-type skills; skill mastery + `MAGIC_REUSE_RATE`; skill reuse-delay
-  persistence across relog; `ExAbnormalStatusUpdateFromTarget` (broadcast to
-  other players — needs a real known-list, see the G7 entry below); most of
+- **Skills/combat (post-G9):** `PhysicalAttack`-type *skills* (auto-attack
+  damage is done; skill-based physical hits reuse `apply_physical_damage`);
+  bows/crossbows (reuse gauge, arrows), dual-weapon split hits, polearm
+  sweeps, soulshots (`SHOTS_BONUS`), shield defence (`calcShldUse` — needs
+  item `<stats>` parsing), PvP auto-attack (needs PvP flags/karma); AoE
+  affect scopes (only `SINGLE` resolves); `ALT_GAME_MAGICFAILURES`
+  magic-resist rolls (`calcMagicSuccess`); queued skills +
+  walk-into-cast-range AI; the other 8 `AcquireSkillType`s (PLEDGE,
+  TRANSFORM, TRANSFER, SUBCLASS, …); toggle-type skills; skill mastery +
+  `MAGIC_REUSE_RATE`; skill reuse-delay persistence across relog;
+  `ExAbnormalStatusUpdateFromTarget` (broadcast to other players); most of
   the 230-entry `Stat` enum and 369 effect classes (grow `EFFECT_REGISTRY`/
-  `SkillEffect` as needed).
+  `SkillEffect` as needed); overhit XP bonus; buffs/effects on NPC targets
+  (no NPC effect list).
 - **Movement/targeting (post-G7.8):** pathfinding (`CellPathFinding` — the
   clamp stops players at obstacles where Java walks around them; planned as
   a path-worker service per the plan); zones (`ZoneManager` — peace/water/
@@ -578,21 +675,24 @@ Empty/placeholder now, to be filled in the owning milestone:
   (rooted/overloaded/immobilized/dead/teleporting); cursor-key movement
   (`_cursorKeyMovement` path incl. `canMoveToTarget` front-cell check and
   `getLastServerPosition` stop); falling damage/state (`isFalling`).
-- **NPCs/world content (post-G8):** NPC death/decay/respawn (the respawn
-  delays are parsed and carried on each `Npc`, unused until G9 `doDie`);
-  NPC AI (`AttackableAI` think tick, aggro via the parsed `aggroRange`,
-  random walk / `randomAnimation`, walking `MoveToPawn` turn on interact);
-  casting on NPCs (`resolve_cast_target` is still player-only); NPC regen;
-  NPC skill lists / drop lists / elemental attributes (template parse
-  skips them); `dbSave` raid persistence (`DBSpawnManager` — currently
-  spawned statically at full HP); walk-into-interaction-range AI intent;
-  `HtmCache` (dialog `.htm`s are read per interaction) + bypass handling
+- **NPCs/world content (post-G9):** random walk / `randomAnimation`; guard
+  aggro (needs karma), clan/faction help calls (`<clanList>` unparsed),
+  minions, raid/grand-boss behaviours (chaos target swaps, raid curse,
+  raid points); NPC skill casting (`AISkillScope` lists unparsed) + NPC
+  buffs/effect list; NPC regen; ground drops + pickup (`AutoLoot = False`
+  path — needs item world objects; herbs likewise), spoil/sweep; party XP
+  split + overhit; Java's teleport-home on attack timeout (we walk);
+  elemental attributes (template parse skips them); `dbSave` raid
+  persistence (`DBSpawnManager` — spawned statically at full HP);
+  walk-into-interaction-range AI intent for dialogs; `HtmCache` (dialog
+  `.htm`s are read per interaction) + bypass handling
   (`RequestBypassToServer` — dialog buttons do nothing yet); server-side
-  `Say2` chat around NPCs; zones/doors/`StaticObjectData`/
-  `MapRegionManager` (the plan's remaining static-world scope);
-  `NpcNameLocalisationData`/multilang.
-- **Quests (G10):** `QuestList` empty, `ExQuestItemList` empty.
-- **Social (G9):** clan/ally blocks in `UserInfo`, `FriendList` empty, mail.
+  `Say2` chat around NPCs; zones/doors/`StaticObjectData`
+  (the plan's remaining static-world scope; `MapRegionManager` now exists
+  for town respawns); `NpcNameLocalisationData`/multilang; the death
+  dialog's non-village restart points (clan hall/castle/fixed-feather).
+- **Quests (G11):** `QuestList` empty, `ExQuestItemList` empty.
+- **Social (G10):** clan/ally blocks in `UserInfo`, `FriendList` empty, mail.
 - **Misc:** macros, `HennaInfo` empty, `ExUserBanInfo`, `ExVitalityEffectInfo`
   bonuses, real castle list for manor, game-time clock (CharSelected/UserInfo
   use 0), periodic auto-save while in game (`AutoSaveManager`; persistence on
@@ -619,6 +719,11 @@ Empty/placeholder now, to be filled in the owning milestone:
   dist; `spawn_all` placement/coordinate/region-index smoke test; `NpcInfo`
   hand-computed byte test; synthetic-world visibility & two-click
   interaction tests.
+- **Combat (G9):** physical-formula units with exact Java values; drop/
+  corpse/aggro template assertions against the real dist; synthetic-world
+  integration tests over the real tick systems — melee kill (rewards,
+  level-up, auto-loot, decay), chase + retaliation, unprovoked aggro,
+  kill-by-nuke, player death → to-village revive, decay → respawn.
 
 Run: `cargo test` (all green). Boot a pair on alt ports:
 `cargo run -p loginserver` + `CONFIG_SERVER_GAMESERVERPORT=… cargo run -p gameserver`.

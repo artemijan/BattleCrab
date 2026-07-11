@@ -21,8 +21,27 @@ pub const FIRST_NPC_OBJECT_ID: i32 = 0x4000_0000;
 /// (not 65536; kept as-is for parity).
 const RANDOM_HEADING_BOUND: i32 = 61794;
 
-/// A spawned NPC. Stats-wise this carries only what displaying and targeting
-/// need — everything else reads through the template (`world.data.npc_data`).
+/// `AttackableAI`'s intention, narrowed to the two states the G9 slice
+/// drives (IDLE folds into `Active` — there is no think-task registry to
+/// drop out of; inactive-region NPCs are simply skipped by the AI tick).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum NpcIntention {
+    #[default]
+    Active,
+    Attack,
+}
+
+/// One `Attackable._aggroList` entry (Java `AggroInfo`, minus the
+/// hate-suspension bookkeeping).
+#[derive(Debug, Clone, Copy, Default)]
+pub struct AggroInfo {
+    pub hate: f64,
+    pub damage: f64,
+}
+
+/// A spawned NPC. Stats-wise this carries only what displaying, targeting and
+/// the combat formulas need — everything else reads through the template
+/// (`world.data.npc_data`).
 #[derive(Debug, Clone)]
 pub struct Npc {
     pub object_id: i32,
@@ -32,23 +51,91 @@ pub struct Npc {
     pub y: i32,
     pub z: i32,
     pub heading: i32,
-    /// Region cell, fixed at spawn (static NPCs never cross regions).
+    /// Region cell, kept in sync by the movement tick (AI chase movement can
+    /// cross cells; `World.npc_regions` is re-indexed on change).
     pub region: (i32, i32),
     /// Unbuffed NPC max HP/MP = template base values (`NpcStat` finalizers).
     pub max_hp: i32,
     pub max_mp: i32,
     pub cur_hp: f64,
     pub cur_mp: f64,
-    /// `Creature._isRunning` — NPCs spawn walking; AI flips this in G9.
+    /// `Creature._isRunning` — NPCs spawn walking; AI flips to run on aggro.
     pub running: bool,
-    /// Respawn bookkeeping for G9's death/respawn scheduler.
+    /// Respawn bookkeeping for the death/respawn scheduler.
     pub respawn_secs: i32,
     pub respawn_random_secs: i32,
+
+    // --- Combat/AI state (G9) ---
+    /// Java `Creature._isDead` — corpse until the decay task removes it.
+    pub dead: bool,
+    /// `AttackableAI`'s intention (active scan vs. attack loop).
+    pub intention: NpcIntention,
+    /// `Attackable._aggroList`, keyed by player object id.
+    pub aggro: std::collections::HashMap<i32, AggroInfo>,
+    /// `AttackableAI._globalAggro`: starts at -10 (calm for ~10 think ticks
+    /// after spawn), climbs to 0, must be ≥ 0 for aggro-range scans to act.
+    pub global_aggro: i32,
+    /// `AttackableAI._attackTimeout` (absolute world tick): give up chasing
+    /// when it passes without landing/receiving a hit.
+    pub attack_timeout_tick: u64,
+    /// Busy-swinging until this tick (Java `_attackEndTime`).
+    pub attack_end_tick: u64,
+    /// `Some` while moving (chase/return-home), same tick interpolation as
+    /// players.
+    pub move_data: Option<crate::model::movement::MoveData>,
+    /// Where this NPC spawned (Java `Npc.getSpawn()` location) — the drift
+    /// anchor AI walks back to.
+    pub spawn_loc: (i32, i32, i32),
+    /// Indices into `GameData.spawn_data` (spawn/group/npc) so death can
+    /// schedule a respawn of the same spawn line.
+    pub spawn_ref: (usize, usize, usize),
 }
 
 impl Npc {
     pub fn template<'a>(&self, world: &'a World) -> Option<&'a NpcTemplate> {
         world.data.npc_data.get(self.npc_id)
+    }
+
+    /// A synthetic instance for unit tests (spawn-fresh AI/combat state).
+    #[doc(hidden)]
+    pub fn for_test(object_id: i32, npc_id: i32, x: i32, y: i32, z: i32, max_hp: i32, max_mp: i32) -> Self {
+        Self {
+            object_id,
+            npc_id,
+            x,
+            y,
+            z,
+            heading: 0,
+            region: region_of(x, y),
+            max_hp,
+            max_mp,
+            cur_hp: max_hp as f64,
+            cur_mp: max_mp as f64,
+            running: false,
+            respawn_secs: 0,
+            respawn_random_secs: 0,
+            dead: false,
+            intention: NpcIntention::Active,
+            aggro: std::collections::HashMap::new(),
+            global_aggro: -10,
+            attack_timeout_tick: 0,
+            attack_end_tick: 0,
+            move_data: None,
+            spawn_loc: (x, y, z),
+            spawn_ref: (0, 0, 0),
+        }
+    }
+
+    /// `Attackable.getMostHated()`: highest-hate living entry.
+    pub fn most_hated(&self) -> Option<i32> {
+        if self.dead {
+            return None;
+        }
+        self.aggro
+            .iter()
+            .filter(|(_, info)| info.hate > 0.0)
+            .max_by(|a, b| a.1.hate.partial_cmp(&b.1.hate).unwrap_or(std::cmp::Ordering::Equal))
+            .map(|(&id, _)| id)
     }
 }
 
@@ -119,7 +206,7 @@ pub fn spawn_all(world: &mut World) -> usize {
                     continue;
                 }
                 for _ in 0..count {
-                    if spawn_one(world, spawn_idx, group_idx, npc_idx) {
+                    if spawn_one(world, spawn_idx, group_idx, npc_idx).is_some() {
                         placed += 1;
                     }
                 }
@@ -141,15 +228,21 @@ fn spawnable(world: &World, def: &NpcSpawnDef) -> bool {
     SPAWNABLE_TYPES.contains(&t.type_name.as_str())
 }
 
-/// `Spawn.doSpawn` → `initializeNpc` for one placement.
-fn spawn_one(world: &mut World, spawn_idx: usize, group_idx: usize, npc_idx: usize) -> bool {
+/// `Spawn.doSpawn` → `initializeNpc` for one placement. Returns the placed
+/// NPC's object id (respawns need it to broadcast `NpcInfo`).
+///
+/// Deviation from Java: `Spawn.respawnNpc` reuses the dead `Npc` object (and
+/// its object id); here a respawn runs this same function and gets a fresh
+/// transient id — clients saw the corpse `DeleteObject`d at decay, so the new
+/// id is indistinguishable from the old one on the wire.
+pub(crate) fn spawn_one(world: &mut World, spawn_idx: usize, group_idx: usize, npc_idx: usize) -> Option<i32> {
     let (npc_id, loc, respawn_secs, respawn_random_secs) = {
-        let template = &world.data.spawn_data.spawns[spawn_idx];
-        let def = &template.groups[group_idx].npcs[npc_idx];
+        let template = world.data.spawn_data.spawns.get(spawn_idx)?;
+        let def = template.groups.get(group_idx)?.npcs.get(npc_idx)?;
         let loc = resolve_location(&mut world.rng, &world.geo, template, &template.groups[group_idx], def);
         (def.npc_id, loc, def.respawn_secs, def.respawn_random_secs)
     };
-    let Some((x, y, mut z, heading)) = loc else { return false };
+    let Some((x, y, mut z, heading)) = loc else { return None };
 
     let t = world.data.npc_data.get(npc_id).expect("checked in spawnable");
     // `initializeNpc`: monsters snap to the geodata surface unless it's more
@@ -177,11 +270,22 @@ fn spawn_one(world: &mut World, spawn_idx: usize, group_idx: usize, npc_idx: usi
         running: false,
         respawn_secs,
         respawn_random_secs,
+        dead: false,
+        intention: NpcIntention::Active,
+        aggro: std::collections::HashMap::new(),
+        // Java seeds _globalAggro = -10: no aggro for ~10 think seconds.
+        global_aggro: -10,
+        attack_timeout_tick: 0,
+        attack_end_tick: 0,
+        move_data: None,
+        spawn_loc: (x, y, z),
+        spawn_ref: (spawn_idx, group_idx, npc_idx),
     };
+    let object_id = npc.object_id;
     world.next_npc_object_id += 1;
     world.npc_regions.entry(npc.region).or_default().push(npc.object_id);
     world.npcs.insert(npc.object_id, npc);
-    true
+    Some(object_id)
 }
 
 /// `NpcSpawnTemplate.getSpawnLocation`, minus the unused zone/banned-territory
