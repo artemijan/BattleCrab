@@ -42,7 +42,9 @@ pub struct AggroInfo {
 /// A spawned NPC. Stats-wise this carries only what displaying, targeting and
 /// the combat formulas need — everything else reads through the template
 /// (`world.data.npc_data`).
-#[derive(Debug, Clone)]
+/// An ECS component (one fat component per NPC entity for now — see
+/// `store::EntityStore`).
+#[derive(Debug, Clone, bevy_ecs::component::Component)]
 pub struct Npc {
     pub object_id: i32,
     /// Template id (`world.data.npc_data.get(npc_id)`).

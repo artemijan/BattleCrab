@@ -11,12 +11,24 @@ and SQLite schema so it drops into the existing setup unchanged.
 | Component | Status |
 |---|---|
 | Login server | ✅ Feature-complete — verified interoperating with the unmodified Java game server |
-| Game server | ⏳ Not started |
+| Game server | 🚧 Playable vertical slice through G9 — login → character create → enter world, items/skills, movement + geodata, 34.9k NPC spawns, melee/magic combat, monster AI, XP/loot, death & revive. Social systems, quests, and scripting still ahead (see [PROGRESS.md](docs/PROGRESS.md)) |
+
+## Architecture in one paragraph
+
+One dedicated **game thread** owns all mutable world state; tokio handles the
+sockets, a dedicated thread owns SQLite, and everything talks to the game
+thread over channels — no locks in game logic. Game objects are stored in an
+**ECS** (Entity–Component–System, via the standalone `bevy_ecs` crate): an
+object is an entity whose data lives in components packed into contiguous
+archetype tables, and the per-tick systems (regen, movement, AI) sweep them
+as dense, cache-friendly linear scans instead of pointer-chasing a map. See
+[CONCURRENCY_MODEL.md](docs/CONCURRENCY_MODEL.md) (ECS: §2.8).
 
 ## Workspace
 
 - `crates/commons` — shared infrastructure (network core, L2 crypto, config, SQLite), reused by both servers
 - `crates/loginserver` — the login server binary
+- `crates/gameserver` — the game server binary
 
 ## Build & run
 
@@ -24,6 +36,8 @@ and SQLite schema so it drops into the existing setup unchanged.
 cargo build --release
 # run from the repo root; reads dist/login/config/LoginServer.ini
 ./target/release/loginserver
+# run with dist/game as the working directory (auto-chdir handles the repo root)
+./target/release/gameserver
 ```
 
 Config values can be overridden by environment variables using the Java

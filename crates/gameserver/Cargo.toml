@@ -10,6 +10,7 @@ tokio.workspace = true
 bytes.workspace = true
 sqlx.workspace = true
 rand.workspace = true
+bevy_ecs.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
 thiserror.workspace = true

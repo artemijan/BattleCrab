@@ -112,6 +112,15 @@ be answered with a deliberate choice.
 > references are `objectId` lookups (the game already has globally unique IDs —
 > `IUniqueId`). No `Arc<RwLock>` in game logic. Full design:
 > [CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md).
+>
+> **Amendment (post-G9): the registries' storage engine is an ECS** — a
+> deliberately narrow slice of option D. `World.players`/`npcs` are
+> `bevy_ecs`-backed (`store::EntityStore`: entity per object, the object as
+> one fat component, `object_id → Entity` index), which buys archetype-table
+> (dense, cache-friendly) iteration for the per-tick systems *without*
+> abandoning 1:1 — references are still ids, handlers still see the same
+> HashMap-shaped API, and the single-owner rule is untouched. See
+> [CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md) §2.8.
 
 ---
 
@@ -366,7 +375,7 @@ a 1:1 port if ignored:
 | # | Challenge | Severity | Must decide in phase 2 |
 |---|---|---|---|
 | 1 | Implementation inheritance (WorldObject tree, 1,350 extends) | 🔴 Architectural | composition+enum vs traits vs ECS |
-| 2 | GC'd cyclic shared mutable graph | ✅ Decided | ID-based registry, single-owner `World` — [CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md) |
+| 2 | GC'd cyclic shared mutable graph | ✅ Decided | ID-based registry, single-owner `World`, ECS-backed storage (`bevy_ecs`) — [CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md) |
 | 3 | Runtime-compiled scripts (1,131 files) | ✅ Decided | compile into the binary as normal Rust source (own workspace crate) |
 | 5 | Reentrant locks, scheduled closures | ✅ Decided | single game thread + tokio network + service threads — [CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md) |
 | 4 | 176 mutable singletons | 🟠 High | OnceLock statics vs context struct |

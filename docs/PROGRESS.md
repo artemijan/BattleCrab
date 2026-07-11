@@ -632,6 +632,27 @@ consciously stayed out.
   restart-point teleport → `Appearing` revive at 65%, and decay → respawn
   with a fresh id announced by `NpcInfo`.
 
+### Post-G9 — ECS object storage (`bevy_ecs`) ✅
+The world's object registries were refactored onto an **ECS
+(Entity–Component–System)** backbone using the standalone `bevy_ecs` crate —
+see [CONCURRENCY_MODEL.md §2.8](CONCURRENCY_MODEL.md) for the pattern
+rationale (dense archetype-table iteration for the per-tick sweeps instead of
+HashMap bucket walks).
+
+- **`store.rs`** (new): `EntityStore<T>` — a `bevy_ecs::World` whose entities
+  carry the game object as a component, an `object_id → Entity` index for
+  O(1) id lookups, and a cached `QueryState` so `values_mut()` (the
+  regen/movement/AI tick sweeps) is dense table iteration. Exposes the
+  HashMap-shaped API the handlers were written against (`get`/`get_mut`/
+  `insert`/`remove`/`values`/`values_mut`/`Index`/…), so call sites and the
+  single-owner model are unchanged.
+- **`World.players` / `World.npcs`**: `HashMap<i32, T>` → `EntityStore<T>`;
+  `Player` and `Npc` derive `Component` (one fat component per entity —
+  stage 1; component splitting + one merged world + `Schedule`-driven systems
+  are the documented stage 2).
+- **Tests**: `store::tests` (roundtrip + iteration); the whole existing suite
+  runs against the ECS-backed stores unchanged.
+
 ### G10–G13 — ⏳ not started
 See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gates:
 **social systems** (G10 — clans/parties/friends/mail) or the remaining
@@ -737,5 +758,8 @@ Run: `cargo test` (all green). Boot a pair on alt ports:
 - Session lifecycle is a **type-state** machine (plan §3.1):
   `Connecting → Authenticated → InLobby → Entering → InGame`; the `Player` lives
   in `World.players` keyed by object id, `InGame` links by id.
+- Object registries (`World.players`/`npcs`) are **ECS-backed** (`bevy_ecs`
+  via `store::EntityStore` — fat-component stage; CONCURRENCY_MODEL §2.8).
+  The game thread remains the sole owner; no parallel scheduling.
 - Masked packets use the reversed `DEFAULT_FLAG_ARRAY` bit order — get this right
   or the client desyncs (root cause of the earlier UserInfo mask fix).

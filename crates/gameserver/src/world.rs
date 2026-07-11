@@ -17,6 +17,7 @@ use crate::geo::GeoEngine;
 use crate::loginlink::CommandTx;
 use crate::scheduler::{ScheduledTask, Scheduler};
 use crate::session::{ClientSession, SessionKey};
+use crate::store::EntityStore;
 
 /// Java `World.SHIFT_BY`: world coordinates >> 11 ⇒ 2048-unit region cells
 /// (16×16 regions per 32768-unit map tile).
@@ -83,10 +84,10 @@ pub struct World {
     /// Connected clients keyed by network id, as type-state sessions (§3.1).
     pub clients: HashMap<u32, ClientSession>,
     /// In-world player entities keyed by object id (the `InGame` session links
-    /// here).
-    pub players: HashMap<i32, crate::model::Player>,
-    /// Spawned NPCs keyed by object id (G8).
-    pub npcs: HashMap<i32, crate::model::npc::Npc>,
+    /// here). ECS-backed since the bevy_ecs refactor (`store::EntityStore`).
+    pub players: EntityStore<crate::model::Player>,
+    /// Spawned NPCs keyed by object id (G8). ECS-backed like `players`.
+    pub npcs: EntityStore<crate::model::npc::Npc>,
     /// Region cell → NPC object ids in it — the materialized side of Java's
     /// per-region object lists. NPCs are static (no AI movement yet), so this
     /// is built once at spawn; players keep using the cheap per-player
@@ -135,8 +136,8 @@ impl World {
             tick: 0,
             scheduler: Scheduler::new(),
             clients: HashMap::new(),
-            players: HashMap::new(),
-            npcs: HashMap::new(),
+            players: EntityStore::new(),
+            npcs: EntityStore::new(),
             npc_regions: HashMap::new(),
             next_npc_object_id: crate::model::npc::FIRST_NPC_OBJECT_ID,
             id_pool: 0..0,

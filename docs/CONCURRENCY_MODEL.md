@@ -304,7 +304,46 @@ byte work is parallel per connection.
   client interpolates; this matches how retail-era servers behaved. If it ever
   matters, the drain step can be woken early by the channel instead of sleeping.
 
-### 2.8 Scaling path (explicitly out of scope for v1)
+### 2.8 Object storage: ECS via `bevy_ecs`
+
+The world's object registries are stored in an **ECS (Entity–Component–System)**,
+using the standalone [`bevy_ecs`](https://crates.io/crates/bevy_ecs) crate
+(no other part of Bevy is used).
+
+**The ECS pattern in a few words:** instead of each game object being one big
+struct in a map, an object is an *entity* — just an id — and its data lives in
+*components* attached to that entity. Components of the same shape are stored
+together in contiguous archetype tables (struct-of-arrays), and *systems* are
+functions that iterate all entities with a given component set. The win is
+performance and composition: per-tick sweeps (regen, movement interpolation,
+AI think) become dense, cache-friendly linear scans over packed tables instead
+of pointer-chasing through a `HashMap`, and new behaviors are added by
+attaching components rather than growing an inheritance tree — the same
+problem Java solves with its `WorldObject → Creature → Playable → Player`
+hierarchy and challenge #1 solves with composition.
+
+**How it maps here** (`gameserver/src/store.rs`):
+
+- `World.players` and `World.npcs` are each an `EntityStore<T>`: a
+  `bevy_ecs::World` whose entities carry the game object as a component, plus
+  an `object_id → Entity` index, so id-based lookups (decision 2.B) stay O(1)
+  and the game-facing API stays HashMap-shaped (`get`/`get_mut`/`insert`/
+  `values_mut`/…).
+- **Nothing about the concurrency model changes.** The ECS worlds live inside
+  `World`, owned and mutated by the game thread alone; systems are still the
+  plain functions called in the §2.2 loop order. `bevy_ecs`'s parallel
+  scheduler is deliberately unused — single-owner `&mut World` remains the
+  rule.
+- **Staging:** stage 1 (current) keeps `Player`/`Npc` as one fat component
+  each, preserving the disjoint-field borrows handlers rely on (`&mut` a
+  player while reading `world.npcs`). Stage 2 splits shared data into real
+  components (`Position`, `Vitals`, `MoveData`, …) and merges players/NPCs
+  into one ECS world, so cross-type sweeps (movement, combat's `Combatant`
+  view) become single queries; tick systems can then migrate to a `bevy_ecs`
+  `Schedule` with `World`'s services (clients, scheduler, geo, DB channel) as
+  ECS resources.
+
+### 2.9 Scaling path (explicitly out of scope for v1)
 
 If one core for logic proves insufficient: shard `World` by region/instance
 into N tick loops with cross-shard messages (towns, hunting zones, and

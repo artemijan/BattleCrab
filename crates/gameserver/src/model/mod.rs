@@ -66,7 +66,9 @@ pub struct SkillReuse {
 
 /// A player character in (or entering) the world. Owned by the `World` object
 /// registry once in game; the `InGame` session links to it by `object_id`.
-#[derive(Debug, Clone)]
+/// An ECS component (one fat component per player entity for now — see
+/// `store::EntityStore`).
+#[derive(Debug, Clone, bevy_ecs::component::Component)]
 pub struct Player {
     pub object_id: i32,
     pub name: String,

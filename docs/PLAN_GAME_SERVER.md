@@ -398,13 +398,13 @@ No game framework — keep the stack thin and auditable, as in login.
 | Inheritance-heavy model (`Player` 14k lines) resists literal translation | Composition + actor enum decided (challenge #1); split by concern, keep method names; land the skeleton in G3–G4 and grow it |
 | Mid-handler synchronous DB reads (Java pattern) don't fit the no-block game thread | Inventory the request/continue split points up front (CONCURRENCY_MODEL open-Q #4): login/enter-world, char create/delete, name/clan checks |
 | Geodata memory blow-up (Java needed multi-GB heap) | mmap + read-only shared geodata; pathfinding off the game thread |
-| Single-core game logic insufficient under load | Out of scope for v1; region/instance sharding path already documented (CONCURRENCY_MODEL §2.8) — evolution, not rewrite |
+| Single-core game logic insufficient under load | Out of scope for v1; region/instance sharding path already documented (CONCURRENCY_MODEL §2.9) — evolution, not rewrite |
 | Behavioural drift from Java's concurrent/unordered handling | Intentional differences already catalogued (CONCURRENCY_MODEL §2.7); freeze tick-internal system order once (open-Q #1) |
 
 ## 11. Explicitly out of scope (this phase)
 
 - Swing GUI / `gameserver/ui` (decision #10); MariaDB/Postgres (decision #9);
   `tools/` ports.
-- Horizontal sharding of `World` (CONCURRENCY_MODEL §2.8) — only if a profiler
+- Horizontal sharding of `World` (CONCURRENCY_MODEL §2.9) — only if a profiler
   demands it.
 - Any change to `dist/` — config and data are consumed as-is.
