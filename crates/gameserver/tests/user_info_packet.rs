@@ -24,6 +24,7 @@ async fn user_info_test() {
         y: 248_138,
         z: -3563,
         heading: 0,
+        region: gameserver::world::region_of(-90939, 248_138),
 
         // Base primary stats (Placeholders until template lookup is hooked up)
         str_: 22,

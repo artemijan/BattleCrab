@@ -17,6 +17,7 @@ mod skills;
 mod target;
 #[cfg(test)]
 mod tests;
+mod visibility;
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -130,8 +131,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         // 4. Fixed-rate tick systems (movement, AI, attack…) — added in G4+.
         // Movement runs every tick (unlike the gated systems below) — it
         // needs to recompute the authoritative server-side position each
-        // 100 ms, same as Java's `MovementTaskManager`.
-        crate::model::movement::tick(&mut world);
+        // 100 ms, same as Java's `MovementTaskManager`. Region-switch
+        // visibility events (CharInfo/DeleteObject) ride along.
+        visibility::movement_tick(&mut world);
         if world.tick.is_multiple_of(REGEN_TICK_PERIOD) {
             run_regen_tick(&mut world);
         }

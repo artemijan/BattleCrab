@@ -43,8 +43,9 @@ pub(crate) fn drain_network(world: &mut World, net_rx: &NetEventRx) {
 /// Take the player out of the world and persist them — Java
 /// `Disconnection.storeMe().deleteMe()`. Shared by restart, logout, and
 /// unexpected disconnects. Scheduled tasks holding the dead object id no-op.
-/// TODO(G8+): broadcast `DeleteObject` once other players receive `CharInfo`.
 pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) {
+    // deleteMe → World.removeVisibleObject: DeleteObject to everyone watching.
+    super::visibility::on_leave_world(world, player_object_id);
     if let Some(p) = world.players.remove(&player_object_id) {
         let _ = world.db.send(db::DbCommand::StorePlayer {
             snap: db::PlayerSnapshot::of(&p),

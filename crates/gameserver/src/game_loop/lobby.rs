@@ -308,9 +308,13 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(ew::abnormal_status_update(&player, world.tick));
     session.send(ew::system_message(ew::SM_WELCOME));
 
-    world.players.insert(player.object_id, player);
+    let object_id = player.object_id;
+    world.players.insert(object_id, player);
     info!("GameLoop: '{name}' entered the world ({} online).", world.players.len());
     world.clients.insert(client_id, ClientSession::InGame(session));
+    // Java `spawnMe` → `World.addVisibleObject`: mutual CharInfo with every
+    // player visible from the spawn region.
+    super::visibility::on_enter_world(world, client_id, object_id);
 }
 
 

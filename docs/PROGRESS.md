@@ -25,6 +25,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G7 Movement & targeting (no geodata)                        | ✅ |
 | Game  | G7.5 Full single-target skill casting                       | ✅ (real cast timing/formulas, reuse, abort, nukes/heals/buffs on others) |
 | Game  | G7.8 Geodata & position validation                          | ✅ (`.l2j` loading, LOS, move clamping, ValidatePosition — pathfinding/zones still ⏳) |
+| Game  | G7.9 Region-grid visibility & scoped broadcasting           | ✅ (CharInfo/DeleteObject, 3×3 region knownlist, region-scoped broadcasts) |
 | Game  | G8 Static world content (NPCs/spawns)                       | ⏳ |
 | Game  | G9 Combat & AI                                              | ⏳ |
 | Game  | G10 Social systems                                          | ⏳ |
@@ -269,7 +270,7 @@ deferred-TODO note below).
   broadcast needed then, since the client already predicted it.
 - **Broadcast stopgap**: `broadcast_to_others` (`game_loop.rs`) sends to every
   connected in-game player except the actor — a flat pass, not a real
-  known-list/region-grid (see Deferred TODOs below).
+  known-list/region-grid (superseded by G7.9's region-scoped visibility).
 - **Tests**: synthetic-`World` unit tests (`game_loop::tests`) —
   `action_selects_switches_and_cancels_target` (select/re-click no-op/cancel,
   checking both the selector's and the target's packet streams) and
@@ -435,6 +436,41 @@ a shared everything-group; Java sends `Skill.reuseDelayGroup` (default **-1**
   grouped siblings share one cooldown (gate + `SkillCoolTime` group id);
   `loads_real_dist_files` probes a real grouped skill (10248 → group 10008).
 
+### G7.9 — Region-grid visibility & scoped broadcasting ✅
+
+Port of Java's world-region knownlist for player↔player visibility — the
+first time two clients actually see each other's characters.
+
+- **Region math** (`world.rs`): `REGION_SHIFT` (Java `World.SHIFT_BY` = 11 ⇒
+  2048-unit cells), `region_of(x, y)`, and `regions_adjacent` (the 3×3
+  surrounding-region rule, Java `WorldRegion.isSurroundingRegion`). Java's
+  per-region object lists are *not* materialized: with players as the only
+  world objects, each `Player` carries its current region cell
+  (`Player.region`, kept in sync by `game_loop/visibility.rs`) and every
+  query is an adjacency compare — identical semantics, no grid to keep
+  consistent. The real grid collections can arrive with G8 NPC counts.
+- **`CharInfo` (0x31) + `DeleteObject` (0x08)** (`server_packets.rs`): the
+  full Interlude-Classic `CharInfo` layout (paperdoll/augment/visual orders
+  included; clan/mount/store/cubic/fishing fields as empty Java defaults).
+- **Scoped broadcasting** (`game_loop/helpers.rs`): `broadcast_to_others` /
+  `broadcast_including_self` now send only to players whose region is
+  adjacent to the broadcaster's (Java `broadcastPacket` via
+  `World.forEachVisibleObject`), replacing the flat all-clients pass.
+- **Visibility lifecycle** (`game_loop/visibility.rs`): `on_enter_world`
+  (Java `spawnMe` → `addVisibleObject`: mutual `CharInfo`), `update_region`
+  (Java `updateWorldRegion` → `switchRegion`: `DeleteObject`/`CharInfo`
+  deltas both ways, dangling-target clearing, and
+  `describeStateToPlayer`-style `MoveToLocation` for movers entering view),
+  `on_leave_world` (Java `removeVisibleObject`: `DeleteObject` to watchers on
+  logout/restart/disconnect). Hooked into the movement tick
+  (`visibility::movement_tick` wraps `movement::tick`), the
+  `ValidatePosition` out-of-sync snap, `handle_enter_world`, and
+  `store_and_remove_player`.
+- **Tests** (`game_loop::tests`): enter-world CharInfo exchange scoped by
+  region, broadcast scoping (near vs far bystander), region-crossing
+  `DeleteObject`/`CharInfo` + mid-move introduction, and leave-world
+  `DeleteObject` + target drop.
+
 ### G8–G13 — ⏳ not started
 See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gate: **static
 world content** — NPCs/spawns, so there's something besides another player to
@@ -471,9 +507,10 @@ Empty/placeholder now, to be filled in the owning milestone:
   a path-worker service per the plan); zones (`ZoneManager` — peace/water/
   siege/town zones, none exist; `isInsideZone` is the missing gate for
   several Java checks G7.8 skipped); door/fence LOS + `DoorData` checks
-  (`ValidatePosition`'s door-exploit tail, LOS occlusion); a real
-  known-list/visibility region-grid (`broadcast_to_others` is still a flat
-  "every connected player" pass); NPCs as targetable objects (`Action` only
+  (`ValidatePosition`'s door-exploit tail, LOS occlusion); materialized
+  per-region object lists once G8 NPCs make the per-player adjacency scan
+  expensive (player↔player region visibility itself landed in G7.9); NPCs as
+  targetable objects (`Action` only
   resolves other players today); the rest of `isMovementDisabled()`
   (rooted/overloaded/immobilized/dead/teleporting); cursor-key movement
   (`_cursorKeyMovement` path incl. `canMoveToTarget` front-cell check and

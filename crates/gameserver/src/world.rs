@@ -18,6 +18,28 @@ use crate::loginlink::CommandTx;
 use crate::scheduler::{ScheduledTask, Scheduler};
 use crate::session::{ClientSession, SessionKey};
 
+/// Java `World.SHIFT_BY`: world coordinates >> 11 ⇒ 2048-unit region cells
+/// (16×16 regions per 32768-unit map tile).
+pub const REGION_SHIFT: i32 = 11;
+
+/// The region cell a world position falls in (Java `World.getRegion`, minus
+/// the `OFFSET_X/Y` re-basing that only exists to index Java's fixed array).
+pub fn region_of(x: i32, y: i32) -> (i32, i32) {
+    (x >> REGION_SHIFT, y >> REGION_SHIFT)
+}
+
+/// Whether `b` lies in `a`'s 3×3 surrounding-region block (Java
+/// `WorldRegion.isSurroundingRegion`) — the visibility rule every knownlist
+/// query and broadcast is scoped by. Symmetric.
+///
+/// Java additionally materializes per-region object lists so a query never
+/// scans the whole world; with players as the only world objects (until G8
+/// NPCs) we get identical semantics from each player's stored region
+/// coordinate + this adjacency test, with no grid to keep in sync.
+pub fn regions_adjacent(a: (i32, i32), b: (i32, i32)) -> bool {
+    (a.0 - b.0).abs() <= 1 && (a.1 - b.1).abs() <= 1
+}
+
 /// A client that finished `AuthLogin` and is awaiting the login server's
 /// `PlayerAuthResponse` (Java `LoginServerThread.WaitingClient`).
 pub struct WaitingClient {

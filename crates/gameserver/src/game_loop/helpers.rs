@@ -15,16 +15,20 @@ pub(crate) fn client_for_player(world: &World, player_object_id: i32) -> Option<
     })
 }
 
-/// Send `packet` to every in-game player except `exclude_object_id`. Java's
-/// equivalent (`Creature.broadcastPacket`/`Broadcast.toKnownPlayers`) scopes
-/// this to the known-list (visibility grid); there's no region grid yet (see
-/// `docs/PROGRESS.md` G7's deferred-TODO note), so this is a flat "everyone
-/// else connected" pass — correct for target/movement broadcast semantics,
-/// just not filtered by distance/visibility yet.
-pub(crate) fn broadcast_to_others(world: &World, exclude_object_id: i32, packet: &[u8]) {
+/// Send `packet` to every in-game player that can see `from_object_id`,
+/// excluding the broadcaster — Java `Creature.broadcastPacket(packet)` via
+/// `World.forEachVisibleObject`: only players whose world region is in the
+/// broadcaster's 3×3 surrounding-region block receive it.
+pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[u8]) {
+    let Some(from) = world.players.get(&from_object_id) else { return };
     for cs in world.clients.values() {
         if let ClientSession::InGame(s) = cs {
-            if s.player_object_id() != exclude_object_id {
+            let other_id = s.player_object_id();
+            if other_id == from_object_id {
+                continue;
+            }
+            let Some(other) = world.players.get(&other_id) else { continue };
+            if crate::world::regions_adjacent(from.region, other.region) {
                 cs.send(packet.to_vec());
             }
         }
@@ -46,8 +50,9 @@ pub(crate) fn send_sm_and_action_failed(world: &World, client_id: u32, message_i
     }
 }
 
-/// Send `packet` to a player's own client (if still connected) and everyone
-/// else — Java `Creature.broadcastPacket(packet)` with `includeSelf == true`.
+/// Send `packet` to a player's own client (if still connected) and every
+/// player that can see them — Java `Creature.broadcastPacket(packet)` with
+/// `includeSelf == true`.
 pub(crate) fn broadcast_including_self(world: &World, object_id: i32, packet: &[u8]) {
     if let Some(client_id) = client_for_player(world, object_id) {
         if let Some(cs) = world.clients.get(&client_id) {

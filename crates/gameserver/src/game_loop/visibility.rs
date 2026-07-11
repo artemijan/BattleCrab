@@ -1,0 +1,165 @@
+//! Player↔player visibility, driven by the world-region grid — the port of
+//! Java `World.addVisibleObject` / `switchRegion` / `removeVisibleObject` plus
+//! `WorldObject.updateWorldRegion`. Two players see each other exactly while
+//! their region cells are within each other's 3×3 surrounding block
+//! (`world::regions_adjacent`); entering that block exchanges `CharInfo`,
+//! leaving it exchanges `DeleteObject`, and every broadcast helper is scoped
+//! by the same rule (`helpers::broadcast_to_others`).
+
+use crate::model::Player;
+use crate::network::server_packets;
+use crate::session::ClientSession;
+use crate::world::{region_of, regions_adjacent, World};
+
+use super::helpers::client_for_player;
+
+/// `CreatureAI.describeStateToPlayer`, players-only: right after a `CharInfo`
+/// introduces `p`, tell the observer about in-flight state — currently just an
+/// ongoing move (without it, a mover entering visibility stands still on the
+/// observer's screen until the next `MoveToLocation` broadcast).
+fn describe_state(observer: &ClientSession, p: &Player) {
+    if let Some(m) = &p.move_data {
+        observer.send(server_packets::move_to_location(
+            p.object_id, m.dest_x, m.dest_y, m.dest_z, p.x, p.y, p.z,
+        ));
+    }
+}
+
+/// Java `World.addVisibleObject` for a player spawning in (`EnterWorld` →
+/// `spawnMe`): mutual `CharInfo` with every player already visible from the
+/// spawn region. Call after the player and their `InGame` session are
+/// registered in the world.
+pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
+    let Some(me) = world.players.get(&object_id) else { return };
+    let Some(my_session) = world.clients.get(&client_id) else { return };
+    for cs in world.clients.values() {
+        if let ClientSession::InGame(s) = cs {
+            let other_id = s.player_object_id();
+            if other_id == object_id {
+                continue;
+            }
+            let Some(other) = world.players.get(&other_id) else { continue };
+            if regions_adjacent(me.region, other.region) {
+                cs.send(server_packets::char_info(me));
+                my_session.send(server_packets::char_info(other));
+                describe_state(my_session, other);
+            }
+        }
+    }
+}
+
+/// Java `updateWorldRegion` → `World.switchRegion`: re-derive the region cell
+/// from the current position and, when it changed, fire the visibility deltas
+/// against every other in-game player — `DeleteObject` both ways for players
+/// dropping out of the 3×3 block (clearing dangling targets, as Java's forget
+/// event does), `CharInfo` both ways for players entering it. Call after any
+/// position mutation (movement tick, `ValidatePosition` snap, future
+/// teleports).
+pub(crate) fn update_region(world: &mut World, object_id: i32) {
+    let Some(p) = world.players.get(&object_id) else { return };
+    let new = region_of(p.x, p.y);
+    let old = p.region;
+    if new == old {
+        return;
+    }
+    world.players.get_mut(&object_id).expect("checked above").region = new;
+
+    // Visibility deltas vs every other in-game player (client id included so
+    // the send phase needs no per-player session scan).
+    let mut deltas: Vec<(i32, u32, bool)> = Vec::new(); // (other_id, client_id, appeared)
+    for (&cid, cs) in &world.clients {
+        if let ClientSession::InGame(s) = cs {
+            let other_id = s.player_object_id();
+            if other_id == object_id {
+                continue;
+            }
+            let Some(other) = world.players.get(&other_id) else { continue };
+            let was = regions_adjacent(old, other.region);
+            let now = regions_adjacent(new, other.region);
+            if was != now {
+                deltas.push((other_id, cid, now));
+            }
+        }
+    }
+    if deltas.is_empty() {
+        return;
+    }
+
+    let my_client = client_for_player(world, object_id);
+    for (other_id, other_client, appeared) in deltas {
+        if appeared {
+            if let (Some(me), Some(other)) = (world.players.get(&object_id), world.players.get(&other_id)) {
+                if let Some(cs) = world.clients.get(&other_client) {
+                    cs.send(server_packets::char_info(me));
+                    describe_state(cs, me);
+                }
+                if let Some(cs) = my_client.and_then(|cid| world.clients.get(&cid)) {
+                    cs.send(server_packets::char_info(other));
+                    describe_state(cs, other);
+                }
+            }
+        } else {
+            if let Some(cs) = world.clients.get(&other_client) {
+                cs.send(server_packets::delete_object(object_id));
+            }
+            if let Some(cs) = my_client.and_then(|cid| world.clients.get(&cid)) {
+                cs.send(server_packets::delete_object(other_id));
+            }
+            if let Some(other) = world.players.get_mut(&other_id) {
+                if other.target == Some(object_id) {
+                    other.target = None;
+                }
+            }
+            if let Some(me) = world.players.get_mut(&object_id) {
+                if me.target == Some(other_id) {
+                    me.target = None;
+                }
+            }
+        }
+    }
+}
+
+/// Java `World.removeVisibleObject` for a player leaving the world (logout /
+/// restart / disconnect): `DeleteObject` to every player that could see them,
+/// dropping dangling targets. The Java side also deletes every visible object
+/// from the *leaver's* screen; their client is leaving the game scene anyway
+/// (and the session may already be gone on the restart path), so that
+/// direction is skipped. Call *before* removing the player from
+/// `world.players`.
+pub(crate) fn on_leave_world(world: &mut World, object_id: i32) {
+    let Some(p) = world.players.get(&object_id) else { return };
+    let region = p.region;
+    let mut observers: Vec<i32> = Vec::new();
+    for cs in world.clients.values() {
+        if let ClientSession::InGame(s) = cs {
+            let other_id = s.player_object_id();
+            if other_id == object_id {
+                continue;
+            }
+            let Some(other) = world.players.get(&other_id) else { continue };
+            if regions_adjacent(region, other.region) {
+                cs.send(server_packets::delete_object(object_id));
+                observers.push(other_id);
+            }
+        }
+    }
+    for other_id in observers {
+        if let Some(other) = world.players.get_mut(&other_id) {
+            if other.target == Some(object_id) {
+                other.target = None;
+            }
+        }
+    }
+}
+
+/// The per-tick movement system plus Java's `setXYZ` → `updateWorldRegion`
+/// coupling: advance every mover (`movement::tick`), then fire region switches
+/// for anyone whose cell changed. `update_region` early-outs on an unchanged
+/// cell, so the sweep is a cheap comparison per player on quiet ticks.
+pub(crate) fn movement_tick(world: &mut World) {
+    crate::model::movement::tick(world);
+    let ids: Vec<i32> = world.players.keys().copied().collect();
+    for id in ids {
+        update_region(world, id);
+    }
+}

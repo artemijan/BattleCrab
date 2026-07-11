@@ -1425,3 +1425,149 @@ fn disconnect_stores_ingame_player() {
     assert!(world.players.is_empty());
     assert!(world.clients.is_empty());
 }
+
+// ---- region-scoped visibility (Java World regions / knownlist) ----
+
+/// The object id carried by a `CharInfo` (opcode + GC byte + x/y/z/vehicle).
+fn char_info_object_id(pkt: &[u8]) -> i32 {
+    assert_eq!(pkt[0], server_packets::opcodes::CHAR_INFO);
+    i32::from_le_bytes(pkt[18..22].try_into().unwrap())
+}
+
+/// The object id carried by a `DeleteObject`.
+fn delete_object_id(pkt: &[u8]) -> i32 {
+    assert_eq!(pkt[0], server_packets::opcodes::DELETE_OBJECT);
+    i32::from_le_bytes(pkt[1..5].try_into().unwrap())
+}
+
+/// A client in the `Entering` state (post-CharSelected), ready for
+/// `handle_enter_world` — unlike `ingame_player`, which skips the enter-world
+/// packet path entirely.
+fn entering_player(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    x: i32,
+    y: i32,
+    z: i32,
+) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>> {
+    let mut chr = dummy_char(object_id, &format!("P{object_id}"));
+    chr.x = x;
+    chr.y = y;
+    chr.z = z;
+    let player = Player::from_char(&world.data, &chr);
+    let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
+    let s = Session::new(client_id, out_tx, "127.0.0.1:1".parse().unwrap())
+        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+        .into_lobby(vec![])
+        .into_entering(player);
+    world.clients.insert(client_id, ClientSession::Entering(s));
+    out_rx
+}
+
+/// Entering the world exchanges `CharInfo` with players in the surrounding
+/// regions (Java `spawnMe` → `World.addVisibleObject`) and with no one
+/// beyond them.
+#[test]
+fn enter_world_exchanges_char_info_with_nearby_players_only() {
+    let (mut world, ..) = test_world();
+    let mut near_rx = ingame_player(&mut world, 1, 6001, 500, 500, 0);
+    let mut far_rx = ingame_player(&mut world, 2, 6002, 10_000, 10_000, 0);
+    let mut new_rx = entering_player(&mut world, 3, 6003, 0, 0, 0);
+
+    handle_enter_world(&mut world, 3);
+
+    // The nearby player learns about the newcomer…
+    let pkt = near_rx.try_recv().expect("nearby player must get CharInfo");
+    assert_eq!(char_info_object_id(&pkt), 6003);
+    assert!(near_rx.try_recv().is_err());
+    // …the far one (regions (4,4) vs (0,0)) hears nothing…
+    assert!(far_rx.try_recv().is_err(), "far player must not get CharInfo");
+    // …and the newcomer's burst ends with the nearby player's CharInfo only.
+    let to_newcomer = drain(&mut new_rx);
+    let char_infos: Vec<i32> = to_newcomer
+        .iter()
+        .filter(|p| p[0] == server_packets::opcodes::CHAR_INFO)
+        .map(|p| char_info_object_id(p))
+        .collect();
+    assert_eq!(char_infos, vec![6001]);
+}
+
+/// Broadcasts only reach players whose region cell is adjacent to the
+/// broadcaster's (Java `broadcastPacket` over `forEachVisibleObject`).
+#[test]
+fn broadcast_is_scoped_to_surrounding_regions() {
+    let (mut world, ..) = test_world();
+    let _mover_rx = ingame_player(&mut world, 1, 6101, 0, 0, 0);
+    let mut near_rx = ingame_player(&mut world, 2, 6102, 500, 500, 0);
+    let mut far_rx = ingame_player(&mut world, 3, 6103, 10_000, 10_000, 0);
+    world.players.get_mut(&6101).unwrap().run_spd = 100;
+
+    handle_move_backward_to_location(&mut world, 1, &move_body((1000, 0, 0), (0, 0, 0), 1));
+
+    assert_eq!(near_rx.try_recv().unwrap()[0], server_packets::opcodes::MOVE_TO_LOCATION);
+    assert!(far_rx.try_recv().is_err(), "far player must not see the move");
+}
+
+/// Walking across a region boundary out of / back into an observer's 3×3
+/// block sends `DeleteObject` / `CharInfo` (Java `World.switchRegion`), and a
+/// newly visible mover is introduced mid-move (`describeStateToPlayer` →
+/// `MoveToLocation`).
+#[test]
+fn region_crossing_exchanges_delete_object_and_char_info() {
+    let (mut world, ..) = test_world();
+    let mut mover_rx = ingame_player(&mut world, 1, 6201, 0, 0, 0);
+    let mut watcher_rx = ingame_player(&mut world, 2, 6202, 3000, 0, 0); // region (1,0)
+    world.players.get_mut(&6201).unwrap().run_spd = 500;
+    world.players.get_mut(&6202).unwrap().target = Some(6201);
+
+    // Walk west: region 0 → -1 → -2; (−1,0) is no longer adjacent to (1,0).
+    handle_move_backward_to_location(&mut world, 1, &move_body((-2500, 0, 0), (0, 0, 0), 1));
+    assert_eq!(mover_rx.try_recv().unwrap()[0], server_packets::opcodes::MOVE_TO_LOCATION);
+    assert_eq!(watcher_rx.try_recv().unwrap()[0], server_packets::opcodes::MOVE_TO_LOCATION);
+    for _ in 0..100 {
+        world.tick += 1;
+        visibility::movement_tick(&mut world);
+    }
+    assert!(world.players[&6201].move_data.is_none(), "move must have finished");
+
+    let to_watcher = drain(&mut watcher_rx);
+    assert_eq!(to_watcher.len(), 1, "exactly one packet after the move start");
+    assert_eq!(delete_object_id(&to_watcher[0]), 6201);
+    assert_eq!(delete_object_id(&drain(&mut mover_rx).pop().unwrap()), 6202);
+    assert_eq!(world.players[&6202].target, None, "dangling target dropped");
+
+    // Walk back east: crossing into region 0 re-enters the watcher's block —
+    // CharInfo, then the in-flight move (describeStateToPlayer).
+    handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (-2500, 0, 0), 1));
+    assert_eq!(mover_rx.try_recv().unwrap()[0], server_packets::opcodes::MOVE_TO_LOCATION);
+    for _ in 0..100 {
+        world.tick += 1;
+        visibility::movement_tick(&mut world);
+    }
+    let to_watcher = drain(&mut watcher_rx);
+    assert_eq!(to_watcher.len(), 2);
+    assert_eq!(char_info_object_id(&to_watcher[0]), 6201);
+    assert_eq!(to_watcher[1][0], server_packets::opcodes::MOVE_TO_LOCATION);
+    let to_mover = drain(&mut mover_rx);
+    assert_eq!(to_mover.len(), 1, "watcher isn't moving → CharInfo only");
+    assert_eq!(char_info_object_id(&to_mover[0]), 6202);
+}
+
+/// Leaving the world (logout here; restart/disconnect share the path)
+/// broadcasts `DeleteObject` to everyone watching and drops their target
+/// (Java `deleteMe` → `World.removeVisibleObject`).
+#[test]
+fn leave_world_sends_delete_object_to_watchers() {
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    let _leaver_rx = ingame_player(&mut world, 1, 6301, 0, 0, 0);
+    let mut near_rx = ingame_player(&mut world, 2, 6302, 500, 500, 0);
+    let mut far_rx = ingame_player(&mut world, 3, 6303, 10_000, 10_000, 0);
+    world.players.get_mut(&6302).unwrap().target = Some(6301);
+
+    handle_logout(&mut world, 1);
+
+    assert_eq!(delete_object_id(&near_rx.try_recv().unwrap()), 6301);
+    assert_eq!(world.players[&6302].target, None, "dangling target dropped");
+    assert!(far_rx.try_recv().is_err());
+}

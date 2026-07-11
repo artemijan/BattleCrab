@@ -72,6 +72,11 @@ pub struct Player {
     pub y: i32,
     pub z: i32,
     pub heading: i32,
+    /// The world-region cell this player is registered in (Java
+    /// `WorldObject._worldRegion`). Kept in sync with `x`/`y` by
+    /// `game_loop::visibility` (Java `updateWorldRegion`/`switchRegion`) —
+    /// visibility deltas are computed against this, not raw coordinates.
+    pub region: (i32, i32),
 
     // Base primary stats (TODO(G7): + henna/items/buffs).
     pub str_: i32,
@@ -198,6 +203,7 @@ impl Player {
             y: c.y,
             z: c.z,
             heading: 0,
+            region: crate::world::region_of(c.x, c.y),
             str_: t.base_str,
             dex: t.base_dex,
             con: t.base_con,

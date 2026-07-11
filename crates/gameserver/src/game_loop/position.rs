@@ -175,5 +175,9 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
     if let (Some(pkt_bytes), Some(cs)) = (correction, clients.get(&client_id)) {
         cs.send(pkt_bytes);
     }
+
+    // The out-of-sync snap above may have moved the player across a region
+    // boundary (Java `setXYZ` → `updateWorldRegion`).
+    super::visibility::update_region(world, object_id);
 }
 
