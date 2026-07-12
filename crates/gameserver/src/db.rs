@@ -201,6 +201,25 @@ pub enum DbCommand {
     DeleteFriendPair { a: i32, b: i32 },
     /// Fire-and-forget `MacroList.deleteMacroFromDb`.
     DeleteMacro { char_id: i32, macro_id: i32 },
+    /// Fire-and-forget quest-variable write (`Quest.createQuestVarInDb`/
+    /// `updateQuestVarInDb`, collapsed to the `insert_or_update_quest_var`
+    /// upsert both funnel into anyway).
+    UpsertQuestVar { char_id: i32, quest: String, var: String, value: String },
+    /// Fire-and-forget `Quest.deleteQuestVarInDb`.
+    DeleteQuestVar { char_id: i32, quest: String, var: String },
+    /// Fire-and-forget `Quest.deleteQuestInDb`: `keep_state` = the
+    /// non-repeatable variant that leaves the `<state>` row (COMPLETED).
+    DeleteQuest { char_id: i32, quest: String, keep_state: bool },
+    /// Fire-and-forget hard delete of an inventory item row (quest
+    /// `takeItems` exhausting a stack — first item-destruction path).
+    DeleteItem { object_id: i32 },
+    /// Fire-and-forget `Clan.store()` — the 13-column `clan_data` INSERT
+    /// with everything but id/name/leader at Java's defaults.
+    InsertClan { clan_id: i32, name: String, leader_id: i32 },
+    /// Fire-and-forget clan-membership update on a character
+    /// (`ClanTable.createClan` side effects; `StorePlayer`'s UPDATE doesn't
+    /// touch these columns).
+    UpdateCharClan { char_id: i32, clan_id: i32, clan_privs: i32 },
     Shutdown,
 }
 
@@ -217,6 +236,9 @@ pub enum DbEvent {
     /// A reserved object-id block `[start, end)` for the game thread's
     /// runtime allocations (loot items). One is pushed unprompted at boot.
     IdBlock { start: i64, end: i64 },
+    /// The full clan table (`ClanTable` boot load), pushed unprompted at
+    /// boot like the first `IdBlock`.
+    ClansLoaded { clans: Vec<crate::model::clan::Clan> },
 }
 
 pub type CmdTx = tokio::sync::mpsc::UnboundedSender<DbCommand>;
@@ -252,6 +274,9 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
     // ask before it knows the DB thread is up; see `DbCommand::ReserveIds`).
     let _ = event_tx.send(DbEvent::IdBlock { start: next_id, end: next_id + ID_BLOCK_SIZE });
     next_id += ID_BLOCK_SIZE;
+
+    // `ClanTable`'s boot restore, likewise unprompted.
+    let _ = event_tx.send(DbEvent::ClansLoaded { clans: load_clans(&pool).await });
 
     while let Some(cmd) = cmd_rx.recv().await {
         match cmd {
@@ -395,6 +420,71 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
+            DbCommand::UpsertQuestVar { char_id, quest, var, value } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT INTO character_quests (charId, name, var, value) VALUES (?, ?, ?, ?) \
+                         ON CONFLICT(charId, name, var) DO UPDATE SET value=excluded.value",
+                    )
+                    .bind(char_id)
+                    .bind(quest)
+                    .bind(var)
+                    .bind(value),
+                )
+                .await;
+            }
+            DbCommand::DeleteQuestVar { char_id, quest, var } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM character_quests WHERE charId=? AND name=? AND var=?")
+                        .bind(char_id)
+                        .bind(quest)
+                        .bind(var),
+                )
+                .await;
+            }
+            DbCommand::DeleteQuest { char_id, quest, keep_state } => {
+                let q = if keep_state {
+                    sqlx::query("DELETE FROM character_quests WHERE charId=? AND name=? AND var!=?")
+                        .bind(char_id)
+                        .bind(quest)
+                        .bind(crate::model::quest::STATE_VAR)
+                } else {
+                    sqlx::query("DELETE FROM character_quests WHERE charId=? AND name=?")
+                        .bind(char_id)
+                        .bind(quest)
+                };
+                exec(&pool, q).await;
+            }
+            DbCommand::DeleteItem { object_id } => {
+                exec(&pool, sqlx::query("DELETE FROM items WHERE object_id=?").bind(object_id)).await;
+            }
+            DbCommand::InsertClan { clan_id, name, leader_id } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT INTO clan_data (clan_id, clan_name, clan_level, hasCastle, \
+                         blood_alliance_count, blood_oath_count, ally_id, ally_name, leader_id, \
+                         crest_id, crest_large_id, ally_crest_id, new_leader_id) \
+                         VALUES (?, ?, 0, 0, 0, 0, 0, NULL, ?, 0, 0, 0, 0)",
+                    )
+                    .bind(clan_id)
+                    .bind(name)
+                    .bind(leader_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateCharClan { char_id, clan_id, clan_privs } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE characters SET clanid=?, clan_privs=? WHERE charId=?")
+                        .bind(clan_id)
+                        .bind(clan_privs)
+                        .bind(char_id),
+                )
+                .await;
+            }
             DbCommand::Shutdown => break,
         }
     }
@@ -452,6 +542,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
         let shortcuts = load_shortcuts(pool, object_id).await;
         let macros = load_macros(pool, object_id).await;
         let friends = load_friends(pool, object_id).await;
+        let quests = load_quests(pool, object_id).await;
         out.push(CharData {
             object_id,
             name: gets(row, "char_name"),
@@ -474,6 +565,8 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             pk_kills: geti(row, "pkkills") as i32,
             pvp_kills: geti(row, "pvpkills") as i32,
             clan_id: geti(row, "clanid") as i32,
+            clan_privs: geti(row, "clan_privs") as i32,
+            clan_create_expiry_time: geti(row, "clan_create_expiry_time"),
             race: geti(row, "race") as i32,
             class_id: geti(row, "classid") as i32,
             base_class_id: geti(row, "base_class") as i32,
@@ -488,6 +581,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             shortcuts,
             macros,
             friends,
+            quests,
         });
     }
     // Characters marked for deletion are listed last in the lobby; the stable
@@ -556,6 +650,69 @@ async fn load_friends(pool: &SqlitePool, owner_id: i32) -> Vec<crate::character:
             class_id: geti(row, "classid") as i32,
         })
         .collect()
+}
+
+/// A character's `character_quests` rows grouped by quest name (Java
+/// `Quest.playerEnter`): the `<state>` rows define which quests exist, the
+/// remaining rows fill each one's variable map. Vars for a quest without a
+/// state row are orphans — Java warns (or deletes with
+/// `AUTODELETE_INVALID_QUEST_DATA`); we drop them from the load.
+async fn load_quests(pool: &SqlitePool, owner_id: i32) -> std::collections::HashMap<String, crate::model::quest::QuestState> {
+    use crate::model::quest::{state, QuestState, STATE_VAR};
+    let rows = sqlx::query("SELECT name, var, value FROM character_quests WHERE charId=?")
+        .bind(owner_id)
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
+    let mut out: std::collections::HashMap<String, QuestState> = std::collections::HashMap::new();
+    for row in rows.iter().filter(|r| gets(r, "var") == STATE_VAR) {
+        out.insert(
+            gets(row, "name"),
+            QuestState { state: state::from_name(&gets(row, "value")), ..Default::default() },
+        );
+    }
+    for row in rows.iter().filter(|r| gets(r, "var") != STATE_VAR) {
+        if let Some(qs) = out.get_mut(&gets(row, "name")) {
+            qs.vars.insert(gets(row, "var"), gets(row, "value"));
+        }
+    }
+    out
+}
+
+/// `ClanTable`'s boot restore: every `clan_data` row + its member roster
+/// from `characters WHERE clanid=?` (Java `Clan.restore`).
+async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
+    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, leader_id FROM clan_data")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
+    let mut out = Vec::with_capacity(clan_rows.len());
+    for row in &clan_rows {
+        let clan_id = geti(row, "clan_id") as i32;
+        let member_rows = sqlx::query("SELECT charId, char_name, level, classid, sex, race FROM characters WHERE clanid=?")
+            .bind(clan_id)
+            .fetch_all(pool)
+            .await
+            .unwrap_or_default();
+        out.push(crate::model::clan::Clan {
+            id: clan_id,
+            name: gets(row, "clan_name"),
+            leader_id: geti(row, "leader_id") as i32,
+            level: geti(row, "clan_level") as i32,
+            members: member_rows
+                .iter()
+                .map(|m| crate::model::clan::ClanMember {
+                    char_id: geti(m, "charId") as i32,
+                    name: gets(m, "char_name"),
+                    level: geti(m, "level") as i32,
+                    class_id: geti(m, "classid") as i32,
+                    sex: geti(m, "sex") as i32,
+                    race: geti(m, "race") as i32,
+                })
+                .collect(),
+        });
+    }
+    out
 }
 
 /// A character's `character_macroses` rows (Java `MacroList.restoreMe`),

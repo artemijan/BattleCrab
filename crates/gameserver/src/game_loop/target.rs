@@ -12,7 +12,21 @@ use super::helpers::broadcast_to_others;
 use super::skills::cast::abort_cast;
 
 /// `Npc.INTERACTION_DISTANCE`.
-const INTERACTION_DISTANCE: f64 = 250.0;
+pub(crate) const INTERACTION_DISTANCE: f64 = 250.0;
+
+/// `Npc.canInteract(player)`: plain 3D distance vs `INTERACTION_DISTANCE`
+/// between two world objects. Shared by the interact path here and the
+/// bypass router (Java re-checks it on every `npc_…` bypass).
+pub(crate) fn can_interact(world: &World, player_object_id: i32, npc_object_id: i32) -> bool {
+    let (Some(ppos), Some(npos)) = (
+        world.objects.get_component::<Position>(&player_object_id),
+        world.objects.get_component::<Position>(&npc_object_id),
+    ) else {
+        return false;
+    };
+    let (dx, dy, dz) = ((npos.x - ppos.x) as f64, (npos.y - ppos.y) as f64, (npos.z - ppos.z) as f64);
+    dx * dx + dy * dy + dz * dz <= INTERACTION_DISTANCE * INTERACTION_DISTANCE
+}
 
 /// Port of `clientpackets/Action.runImpl` for the single-click case
 /// (`action_id == 0`), now resolving both players and NPCs. Java's dispatch:
@@ -33,6 +47,9 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         // Java `Npc.canTarget` → `WorldObject.isTargetable` (template flag).
         let targetable = npc.template(world).is_none_or(|t| t.targetable);
         if targetable {
+            // `NpcAction.action`: every click on an NPC records it as the
+            // player's last folk NPC (bare-bypass origin resolution).
+            world.objects.add_components(&object_id, crate::model::components::LastFolkNpc(pkt.object_id));
             let already_targeted =
                 world.objects.get_component::<TargetRef>(&object_id).copied().unwrap_or_default().0 == Some(pkt.object_id);
             if already_targeted {
@@ -203,15 +220,7 @@ fn interact_with_npc(world: &mut World, client_id: u32, object_id: i32, npc_obje
         }
         return;
     }
-    // `Npc.canInteract`: plain 3D distance vs INTERACTION_DISTANCE.
-    let (Some(ppos), Some(npos)) = (
-        world.objects.get_component::<Position>(&object_id),
-        world.objects.get_component::<Position>(&npc_object_id),
-    ) else {
-        return;
-    };
-    let (dx, dy, dz) = ((npos.x - ppos.x) as f64, (npos.y - ppos.y) as f64, (npos.z - ppos.z) as f64);
-    if dx * dx + dy * dy + dz * dz > INTERACTION_DISTANCE * INTERACTION_DISTANCE {
+    if !can_interact(world, object_id, npc_object_id) {
         return;
     }
     // `Npc.showChatWindow(player, 0)`.

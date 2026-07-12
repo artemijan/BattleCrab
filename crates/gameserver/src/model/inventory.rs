@@ -71,6 +71,16 @@ impl ItemInstance {
     }
 }
 
+/// What `remove_item` did to one instance — the Java `InventoryUpdate`
+/// change types this slice can produce (2 = modified, 3 = removed; adds go
+/// through the modified-only `inventory_update` like before). `Removed`
+/// carries the final snapshot because the instance is gone from the list.
+#[derive(Debug, Clone, Copy)]
+pub enum ItemChange {
+    Modified(ItemInstance),
+    Removed(ItemInstance),
+}
+
 /// Port of `PlayerInventory`: the flat item list plus the paperdoll (indices
 /// into that list by `object_id`, mirroring Java's paperdoll array referencing
 /// the same `Item` objects).
@@ -132,6 +142,42 @@ impl Inventory {
         }
         self.items.push(ItemInstance::new(object_id, item_id, count));
         object_id
+    }
+
+    /// Total count of an item id across all instances
+    /// (`Inventory.getInventoryItemCount` narrowed to no-enchant matching —
+    /// what `AbstractScript.getQuestItemsCount` calls).
+    pub fn count_of(&self, item_id: i32) -> i64 {
+        self.items.iter().filter(|i| i.item_id == item_id).map(|i| i.count).sum()
+    }
+
+    /// Destroy up to `count` of an item id (negative = all, Java
+    /// `takeItems`' clamp) — the first item-removal path in the codebase
+    /// (quest `takeItems`; drop/trade/crystallize are later milestones).
+    /// Never touches the paperdoll: quest items can't be equipped, and the
+    /// game-loop wrapper (`quests::take_items`) is the only caller. Returns
+    /// what happened per touched instance so the caller can mirror it to the
+    /// client (`InventoryUpdate`) and the DB.
+    pub fn remove_item(&mut self, item_id: i32, count: i64) -> Vec<ItemChange> {
+        let mut remaining = if count < 0 { i64::MAX } else { count };
+        let mut changes = Vec::new();
+        while remaining > 0 {
+            let Some(idx) = self.items.iter().position(|i| i.item_id == item_id) else { break };
+            if self.items[idx].count > remaining {
+                self.items[idx].count -= remaining;
+                changes.push(ItemChange::Modified(self.items[idx]));
+                break;
+            }
+            let removed = self.items.remove(idx);
+            remaining -= removed.count;
+            self.paperdoll.iter_mut().for_each(|s| {
+                if *s == Some(removed.object_id) {
+                    *s = None; // defensive; see doc comment
+                }
+            });
+            changes.push(ItemChange::Removed(removed));
+        }
+        changes
     }
 
     /// The `PaperdollSlot` an item's `body_part` bitmask resolves to when

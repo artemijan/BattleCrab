@@ -55,6 +55,10 @@ pub struct CharData {
     pub pk_kills: i32,
     pub pvp_kills: i32,
     pub clan_id: i32,
+    /// `characters.clan_privs` (the leader's is the all-bits mask).
+    pub clan_privs: i32,
+    /// `characters.clan_create_expiry_time` (10-day recreate cooldown).
+    pub clan_create_expiry_time: i64,
     pub race: i32,
     pub class_id: i32,
     pub base_class_id: i32,
@@ -73,4 +77,7 @@ pub struct CharData {
     pub macros: Vec<crate::model::shortcut::Macro>,
     /// `character_friends` joined with each friend's character row.
     pub friends: Vec<FriendInfo>,
+    /// `character_quests` rows grouped by quest name (Java
+    /// `Quest.playerEnter`); only quests with a `<state>` row count.
+    pub quests: std::collections::HashMap<String, crate::model::quest::QuestState>,
 }

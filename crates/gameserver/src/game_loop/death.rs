@@ -19,7 +19,7 @@ use crate::world::{regions_adjacent, World};
 use super::helpers::{broadcast_including_self, broadcast_near_region, client_for_player};
 
 /// `Inventory.ADENA_ID`.
-const ADENA_ID: i32 = 57;
+pub(crate) const ADENA_ID: i32 = 57;
 
 // ---------------------------------------------------------------------------
 // NPC death → decay → respawn
@@ -54,6 +54,16 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
 
     calculate_rewards(world, npc_oid, killer_oid);
+
+    // `OnAttackableKill` listeners (Java fires them async off the death
+    // path; here it's an ordinary call after rewards — same tick, no
+    // component borrow held). Killer-only: party quest sharing is deferred.
+    {
+        let npc_id = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).map(|n| n.npc_id);
+        if let Some(npc_id) = npc_id {
+            super::quests::notify_kill(world, killer_oid, npc_oid, npc_id);
+        }
+    }
 
     // `setCurrentHp(0)` broadcasts the final StatusUpdate before `Die` —
     // without it the target window keeps the last non-zero HP.
@@ -316,38 +326,9 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
     if !world.cfg.character.auto_loot {
         return; // ground-drop path unported (see PROGRESS G9 notes).
     }
-    let stackable = world.data.item_data.get(item_id).map(|t| t.is_stackable).unwrap_or(false);
-    let existing_stack = stackable
-        .then(|| {
-            world
-                .objects
-                .get_component::<crate::model::inventory::Inventory>(&player_oid)
-                .and_then(|inv| inv.items().iter().find(|i| i.item_id == item_id).map(|i| i.object_id))
-        })
-        .flatten();
-
-    let changed_oid = if let Some(stack_oid) = existing_stack {
-        let new_count = {
-            let inv = world
-                .objects
-                .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)
-                .expect("checked");
-            inv.add_item(&world.data.item_data, stack_oid, item_id, count);
-            inv.items().iter().find(|i| i.object_id == stack_oid).map(|i| i.count).unwrap_or(count)
-        };
-        let _ = world.db.send(crate::db::DbCommand::UpdateItemCount { object_id: stack_oid, count: new_count });
-        stack_oid
-    } else {
-        let Some(new_oid) = world.alloc_object_id() else {
-            tracing::warn!("give_item: object-id pool exhausted, dropping loot {item_id}×{count}");
-            return;
-        };
-        let Some(inv) = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&player_oid) else {
-            return;
-        };
-        inv.add_item(&world.data.item_data, new_oid, item_id, count);
-        let _ = world.db.send(crate::db::DbCommand::InsertItem { owner_id: player_oid, object_id: new_oid, item_id, count });
-        new_oid
+    let Some(changed_oid) = super::items::add_inventory_item(world, player_oid, item_id, count) else {
+        tracing::warn!("give_item: object-id pool exhausted, dropping loot {item_id}×{count}");
+        return;
     };
 
     // "You have obtained …" + InventoryUpdate + the weight/adena footers.

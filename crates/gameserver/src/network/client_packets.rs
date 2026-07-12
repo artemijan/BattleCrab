@@ -34,6 +34,8 @@ pub mod opcodes {
     pub const REQUEST_MAKE_MACRO: u8 = 0xCD;
     pub const REQUEST_DELETE_MACRO: u8 = 0xCE;
     pub const SAY2: u8 = 0x49;
+    pub const REQUEST_BYPASS_TO_SERVER: u8 = 0x23;
+    pub const REQUEST_QUEST_ABORT: u8 = 0x63;
     pub const REQUEST_JOIN_PARTY: u8 = 0x42;
     pub const REQUEST_ANSWER_JOIN_PARTY: u8 = 0x43;
     pub const REQUEST_WITH_DRAWAL_PARTY: u8 = 0x44;
@@ -430,6 +432,25 @@ impl Say2 {
             None
         };
         Some(Self { text, chat_type, target })
+    }
+}
+
+/// Port of `clientpackets/RequestBypassToServer` — one command string, sent
+/// by the client when an HTML `action="bypass -h …"` link is clicked (the
+/// `bypass -h ` prefix is stripped client-side; the command arrives bare).
+pub fn read_bypass_command(body_after_opcode: &[u8]) -> Option<String> {
+    PacketReader::new(body_after_opcode).read_string()
+}
+
+/// Port of `clientpackets/RequestQuestAbort` — the quest UI's Abandon button.
+pub struct RequestQuestAbort {
+    pub quest_id: i32,
+}
+
+impl RequestQuestAbort {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        Some(Self { quest_id: r.read_i32()? })
     }
 }
 

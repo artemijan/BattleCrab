@@ -1,4 +1,5 @@
 use super::*;
+use super::bypass::handle_request_bypass_to_server;
 use super::dispatch::*;
 use super::lobby::*;
 use super::net::*;
@@ -13,7 +14,7 @@ use crate::db::DbEvent;
 use crate::loginlink::LoginLinkCommand;
 use crate::model::formulas;
 use crate::model::skill::{OperateType, Skill, TargetType};
-use crate::model::components::{Buffs, Casting, ClientPos, CombatStats, Intent, Movement, PlayerVitals, Position, Reuses, SkillBook, Speeds, TargetRef, Vitals};
+use crate::model::components::{Buffs, Casting, ClientPos, CombatStats, Intent, LastFolkNpc, Movement, PlayerVitals, Position, Reuses, SkillBook, Speeds, TargetRef, Vitals};
 use crate::model::Player;
 use crate::network::client_packets::{self as cp, opcodes as cop};
 use crate::network::server_packets;
@@ -92,6 +93,8 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         pk_kills: 0,
         pvp_kills: 0,
         clan_id: 0,
+        clan_privs: 0,
+        clan_create_expiry_time: 0,
         race: 0,
         class_id: 0,
         base_class_id: 0,
@@ -106,6 +109,7 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         shortcuts: vec![],
         macros: vec![],
         friends: vec![],
+        quests: Default::default(),
     }
 }
 
@@ -193,10 +197,11 @@ async fn character_create_inserts_into_real_schema() {
     let name = format!("Tc{}", std::process::id() % 100000);
     handle_character_create(&mut world, 1, &character_create_body(&name, 0));
 
-    // The DB thread pushes its boot-time id block first; skip it.
-    let mut next_event = || loop {
+    // The DB thread pushes its boot-time id block and clan table first;
+    // skip them.
+    let next_event = || loop {
         match db_event_rx.recv_timeout(std::time::Duration::from_secs(5)).unwrap() {
-            DbEvent::IdBlock { .. } => continue,
+            DbEvent::IdBlock { .. } | DbEvent::ClansLoaded { .. } => continue,
             other => return other,
         }
     };
@@ -1618,6 +1623,59 @@ fn action_on_monster_colors_target_and_never_talks() {
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
     assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
     assert!(rx.try_recv().is_err(), "no chat window from a monster");
+}
+
+fn bypass_body(command: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_string(command);
+    w.into_bytes()
+}
+
+/// Bypass plumbing (G11): `npc_<oid>_<verb>` parses, range-checks, and always
+/// terminates with `ActionFailed`; malformed/empty/unknown commands drop
+/// without a reply (and without a panic); clicking an NPC records it as
+/// `LastFolkNpc`, which bare `Quest …` bypasses resolve through.
+#[test]
+fn bypass_routes_npc_commands_and_tracks_last_folk_npc() {
+    let (mut world, ..) = test_world();
+    add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    // Clicking the NPC records it as the last folk NPC (`NpcAction.action`).
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    assert_eq!(
+        world.objects.get_component::<LastFolkNpc>(&3001),
+        Some(&LastFolkNpc(NPC_OID)),
+        "NPC click must set LastFolkNpc"
+    );
+    drain(&mut rx);
+
+    // `npc_`-prefixed command on an in-range NPC: the verb is unhandled in
+    // this phase (log-drop) but the `ActionFailed` terminator still arrives —
+    // Java sends it from the `npc_` branch regardless of the outcome.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Chat 0")));
+    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert!(rx.try_recv().is_err());
+
+    // Malformed `npc_` forms never act but still terminate: missing command
+    // tail, non-numeric id, unknown object id.
+    for cmd in ["npc_12345", "npc_x_y", "npc_999_Chat 0"] {
+        handle_request_bypass_to_server(&mut world, 1, &bypass_body(cmd));
+        assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL, "for {cmd}");
+        assert!(rx.try_recv().is_err(), "for {cmd}");
+    }
+
+    // Empty and unknown bare commands drop silently (deviation: Java
+    // disconnects on empty; unhandled prefixes only log there too).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(""));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("_bbshome"));
+    assert!(rx.try_recv().is_err());
+
+    // Bare `Quest` with no LastFolkNpc (fresh player who never clicked an
+    // NPC): dropped, no packets, no panic.
+    let mut rx2 = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    handle_request_bypass_to_server(&mut world, 2, &bypass_body("Quest"));
+    assert!(rx2.try_recv().is_err());
 }
 
 /// `MoveBackwardToLocation` starts a move: `move_data` is set, a
@@ -3846,4 +3904,565 @@ fn friend_login_logout_notifications() {
     let a_pkts = drain(&mut a_rx);
     let status = a_pkts.iter().find(|p| p[0] == server_packets::opcodes::FRIEND_STATUS).expect("offline ping");
     assert_eq!(i32::from_le_bytes(status[1..5].try_into().unwrap()), 0, "MODE_OFFLINE");
+}
+
+// ---------------------------------------------------------------------------
+// Quests (G11)
+// ---------------------------------------------------------------------------
+
+/// `combat_test_world` + the real dist html root and the item/NPC templates
+/// the two shipped quests touch (pelts/bones as stackable quest items, the
+/// Q00258 reward gear, the quest NPCs and their monsters).
+fn quest_test_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
+    let (mut world, db_rx, link_rx) = combat_test_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    for (item_id, name, is_quest_item, is_stackable) in [
+        (702, "Wolf Pelt", true, true),
+        (809, "Bone Fragment", true, true),
+        (41, "Cloth Cap", false, false),
+        (42, "Leather Cap", false, false),
+        (462, "Stockings", false, false),
+    ] {
+        world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+            item_id,
+            name: name.into(),
+            kind: crate::data::item_data::ItemKind::Etc,
+            body_part: 0,
+            weight: 0,
+            is_stackable,
+            type1: 4,
+            type2: if is_quest_item { 3 } else { 5 },
+            is_quest_item,
+        });
+    }
+    for npc_id in [20120i32, 20517] {
+        let mut t = crate::data::npc_data::default_template(npc_id);
+        t.type_name = "Monster".into();
+        t.level = 5;
+        t.base_hp_max = 100.0;
+        t.base_mp_max = 30.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    (world, db_rx, link_rx)
+}
+
+/// Decode a `PlaySound` (0x9E) packet's sound-file string.
+fn play_sound_name(pkt: &[u8]) -> Option<String> {
+    if pkt[0] != server_packets::opcodes::PLAY_SOUND {
+        return None;
+    }
+    let mut r = commons::network::PacketReader::new(&pkt[1..]);
+    r.read_i32()?;
+    r.read_string()
+}
+
+fn sound_names(pkts: &[Vec<u8>]) -> Vec<String> {
+    pkts.iter().filter_map(|p| play_sound_name(p)).collect()
+}
+
+fn is_ex(pkt: &[u8], sub: i16) -> bool {
+    pkt[0] == server_packets::opcodes::EX && pkt.len() >= 3 && i16::from_le_bytes([pkt[1], pkt[2]]) == sub
+}
+
+/// The full Q00258 loop against the real dist htmls: quest window on talk
+/// (`ExNpcQuestHtmlMessage` for the `.htm`), accept event (`startQuest`:
+/// cond 1 + STARTED persisted, accept sound, `.html` via plain
+/// `NpcHtmlMessage`), pelts accumulating on kills (quest tab refresh +
+/// "earned" SM), the 40-pelt cond bump (`ExShowQuestMark` + middle sound),
+/// and the turn-in (reward roll, quest items destroyed with removed-type
+/// `InventoryUpdate` + DB deletes, repeatable exit wiping the state).
+#[test]
+fn quest_q00258_accept_collect_turn_in() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 3;
+    drain_db(&mut db_rx);
+
+    // Talk: the single talk-quest short-circuits the chooser; CREATED at
+    // level 3 → 30001-02.htm → the quest-window packet (FE:0x8E).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+    let pkts = drain(&mut rx);
+    assert!(pkts.iter().any(|p| is_ex(p, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)), "quest window html");
+
+    // Accept.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00258_BringWolfPelts 30001-03.html")),
+    );
+    let pkts = drain(&mut rx);
+    {
+        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let qs = &quests.0["Q00258_BringWolfPelts"];
+        assert_eq!(qs.state, crate::model::quest::state::STARTED);
+        assert_eq!(qs.cond(), 1);
+    }
+    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::QUEST_LIST), "QuestList after accept");
+    assert!(sound_names(&pkts).contains(&"ItemSound.quest_accept".to_string()), "accept sound");
+    assert!(
+        pkts.iter().any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
+        ".html result uses the plain window"
+    );
+    let cmds = drain_db(&mut db_rx);
+    assert!(
+        cmds.iter().any(|c| matches!(c, db::DbCommand::UpsertQuestVar { char_id: 3001, quest, var, value }
+            if quest == "Q00258_BringWolfPelts" && var == "cond" && value == "1")),
+        "cond persisted"
+    );
+    assert!(
+        cmds.iter().any(|c| matches!(c, db::DbCommand::UpsertQuestVar { char_id: 3001, quest, var, value }
+            if quest == "Q00258_BringWolfPelts" && var == "<state>" && value == "Started")),
+        "state persisted"
+    );
+
+    // First wolf kill: one pelt, earned-SM, quest-tab refresh, itemget sound.
+    let wolf = NPC_OID + 1;
+    add_test_npc(&mut world, wolf, 20120, "Monster", 5, 30, 0, 0);
+    death::npc_do_die(&mut world, wolf, 3001);
+    let pkts = drain(&mut rx);
+    let inv_count = |world: &World| {
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&3001)
+            .unwrap()
+            .count_of(702)
+    };
+    assert_eq!(inv_count(&world), 1);
+    assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOU_HAVE_EARNED_S1), "earned SM");
+    assert!(pkts.iter().any(|p| is_ex(p, server_packets::opcodes::EX_QUEST_ITEM_LIST)), "quest tab refresh");
+    assert!(sound_names(&pkts).contains(&"ItemSound.quest_itemget".to_string()));
+
+    // 38 more pelts, then the 40th kill flips cond 2 (+ mark + middle).
+    super::items::add_inventory_item(&mut world, 3001, 702, 38).unwrap();
+    let wolf2 = NPC_OID + 2;
+    add_test_npc(&mut world, wolf2, 20442, "Monster", 5, 30, 0, 0);
+    death::npc_do_die(&mut world, wolf2, 3001);
+    let pkts = drain(&mut rx);
+    assert_eq!(inv_count(&world), 40);
+    {
+        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        assert_eq!(quests.0["Q00258_BringWolfPelts"].cond(), 2);
+    }
+    let mark = pkts.iter().find(|p| is_ex(p, server_packets::opcodes::EX_SHOW_QUEST_MARK)).expect("quest mark");
+    assert_eq!(i32::from_le_bytes(mark[3..7].try_into().unwrap()), 258);
+    assert_eq!(i32::from_le_bytes(mark[7..11].try_into().unwrap()), 2);
+    assert!(sound_names(&pkts).contains(&"ItemSound.quest_middle".to_string()));
+
+    // Turn-in: roll 0 → Cloth Cap; pelts destroyed; repeatable exit.
+    drain_db(&mut db_rx);
+    world.forced_rolls.push_back(0);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00258_BringWolfPelts")));
+    let pkts = drain(&mut rx);
+    assert_eq!(inv_count(&world), 0, "pelts destroyed on exit");
+    assert_eq!(
+        world.objects.get_component::<crate::model::inventory::Inventory>(&3001).unwrap().count_of(41),
+        1,
+        "Cloth Cap rewarded on roll 0"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap()
+            .0
+            .get("Q00258_BringWolfPelts")
+            .is_none(),
+        "repeatable exit forgets the quest"
+    );
+    assert!(sound_names(&pkts).contains(&"ItemSound.quest_finish".to_string()));
+    // The removal reaches the client as a removed-type InventoryUpdate.
+    assert!(
+        pkts.iter().any(|p| p[0] == 0x21 && i16::from_le_bytes([p[3], p[4]]) == 3),
+        "InventoryUpdate with change type 3 (removed)"
+    );
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::DeleteItem { .. })), "pelt row deleted");
+    assert!(
+        cmds.iter().any(|c| matches!(c, db::DbCommand::DeleteQuest { char_id: 3001, quest, keep_state: false }
+            if quest == "Q00258_BringWolfPelts")),
+        "repeatable delete"
+    );
+
+    // Re-talk: the quest is takeable again (CREATED intro window).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+    let pkts = drain(&mut rx);
+    assert!(pkts.iter().any(|p| is_ex(p, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)), "repeatable re-offer");
+}
+
+/// Q00320's chance-drop path (forced `roll_f64`), the giveItemRandomly
+/// limit semantics, the level/race start gates, and the rated adena reward.
+#[test]
+fn quest_q00320_chance_drops_and_adena_reward() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30359, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 10;
+        p.race = 2; // Dark Elf
+    }
+    drain_db(&mut db_rx);
+
+    // Accept (talk creates the CREATED state, the event starts it).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00320_BonesTellTheFuture 30359-04.htm")),
+    );
+    drain(&mut rx);
+
+    let skel = NPC_OID + 1;
+    add_test_npc(&mut world, skel, 20517, "Monster", 5, 30, 0, 0);
+
+    // Roll 0.999999 > 0.18 → no drop.
+    world.forced_rolls.push_back(999_999);
+    death::npc_do_die(&mut world, skel, 3001);
+    let count_of = |world: &World, id: i32| {
+        world.objects.get_component::<crate::model::inventory::Inventory>(&3001).unwrap().count_of(id)
+    };
+    assert_eq!(count_of(&world, 809), 0, "18% roll failed");
+
+    // Roll 0 → drop.
+    let skel2 = NPC_OID + 2;
+    add_test_npc(&mut world, skel2, 20517, "Monster", 5, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, skel2, 3001);
+    assert_eq!(count_of(&world, 809), 1);
+    drain(&mut rx);
+
+    // 9 bones banked, the 10th caps the collection: cond 2 + middle sound.
+    super::items::add_inventory_item(&mut world, 3001, 809, 8).unwrap();
+    let skel3 = NPC_OID + 3;
+    add_test_npc(&mut world, skel3, 20517, "Monster", 5, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, skel3, 3001);
+    let pkts = drain(&mut rx);
+    assert_eq!(count_of(&world, 809), 10);
+    {
+        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        assert_eq!(quests.0["Q00320_BonesTellTheFuture"].cond(), 2);
+    }
+    assert!(sound_names(&pkts).contains(&"ItemSound.quest_middle".to_string()), "limit-reached sound");
+
+    // Turn-in: 500 adena (rates ×1 in tests), bones destroyed, exit.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00320_BonesTellTheFuture")));
+    let pkts = drain(&mut rx);
+    assert_eq!(count_of(&world, 809), 0);
+    assert_eq!(count_of(&world, 57), 500, "500 adena at ×1 rates");
+    assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOU_HAVE_EARNED_S1_ADENA));
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap()
+            .0
+            .get("Q00320_BonesTellTheFuture")
+            .is_none()
+    );
+}
+
+/// The quest UI's Abandon button (`RequestQuestAbort` 0x63): repeatable
+/// exit without the finish sound — state forgotten, quest items destroyed.
+#[test]
+fn quest_abort_wipes_state_and_items() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 3;
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00258_BringWolfPelts 30001-03.html")),
+    );
+    super::items::add_inventory_item(&mut world, 3001, 702, 5).unwrap();
+    drain(&mut rx);
+    drain_db(&mut db_rx);
+
+    let mut w = PacketWriter::new();
+    w.write_i32(258);
+    on_packet(&mut world, 1, {
+        let mut v = vec![cop::REQUEST_QUEST_ABORT];
+        v.extend(w.into_bytes());
+        v
+    });
+
+    let pkts = drain(&mut rx);
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap()
+            .0
+            .get("Q00258_BringWolfPelts")
+            .is_none(),
+        "abort forgets the quest"
+    );
+    assert_eq!(
+        world.objects.get_component::<crate::model::inventory::Inventory>(&3001).unwrap().count_of(702),
+        0,
+        "quest items destroyed"
+    );
+    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::QUEST_LIST), "QuestList refresh");
+    assert!(!sound_names(&pkts).contains(&"ItemSound.quest_finish".to_string()), "no finish sound on abort");
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::DeleteQuest { keep_state: false, .. })));
+}
+
+/// Quest-timer groundwork: a synthetic script starts a 500 ms timer via an
+/// event bypass; it fires once through the scheduler (seq match) and a
+/// cancelled one stays silent (seq bumped).
+#[test]
+fn quest_timer_fires_once_and_cancels() {
+    struct TimerTestScript;
+    impl quests::QuestScript for TimerTestScript {
+        fn id(&self) -> i32 {
+            -2
+        }
+        fn name(&self) -> &'static str {
+            "TimerTest"
+        }
+        fn html_dir(&self) -> &'static str {
+            ""
+        }
+        fn start_npcs(&self) -> &[i32] {
+            &[]
+        }
+        fn talk_npcs(&self) -> &[i32] {
+            &[30001]
+        }
+        fn on_talk(&self, _ctx: &mut quests::QuestCtx) -> Option<String> {
+            None
+        }
+        fn on_event(&self, ctx: &mut quests::QuestCtx, event: &str) -> Option<String> {
+            match event {
+                "start" => ctx.start_quest_timer("tick", 500),
+                "cancel" => ctx.cancel_quest_timer("tick"),
+                _ => {}
+            }
+            None
+        }
+        fn on_timer(&self, ctx: &mut quests::QuestCtx, name: &str) {
+            if name == "tick" {
+                ctx.play_sound("timer_fired");
+            }
+        }
+    }
+
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    world.quests = std::sync::Arc::new(quests::QuestRegistry::new(vec![std::sync::Arc::new(TimerTestScript)]));
+    add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest TimerTest start")));
+    drain(&mut rx);
+    advance_ticks(&mut world, 5);
+    let pkts = drain(&mut rx);
+    assert!(sound_names(&pkts).contains(&"timer_fired".to_string()), "timer fired at 500 ms");
+    advance_ticks(&mut world, 10);
+    assert!(drain(&mut rx).is_empty(), "non-repeating: fires once");
+
+    // Start then cancel: the stale seq no-ops.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest TimerTest start")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest TimerTest cancel")));
+    drain(&mut rx);
+    advance_ticks(&mut world, 10);
+    assert!(sound_names(&drain(&mut rx)).is_empty(), "cancelled timer never fires");
+}
+
+// ---------------------------------------------------------------------------
+// Clans (G11)
+// ---------------------------------------------------------------------------
+
+fn decode_npc_html(pkt: &[u8]) -> Option<String> {
+    if pkt[0] != server_packets::opcodes::NPC_HTML_MESSAGE {
+        return None;
+    }
+    let mut r = commons::network::PacketReader::new(&pkt[1..]);
+    r.read_i32()?;
+    r.read_string()
+}
+
+/// The `create_clan` bypass: Java's guard matrix (SM ids in `ClanTable.
+/// createClan` order), then the success path — clan registered + persisted,
+/// leader flags/privileges set, the pledge-window packet trio + SM 189, and
+/// duplicate-name/already-in-clan rejects afterwards.
+#[test]
+fn clan_create_guards_and_success() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30026, "VillageMaster", 5, 100, 0, 0);
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain_db(&mut db_rx);
+
+    let create = |world: &mut World, client: u32, name: &str| {
+        handle_request_bypass_to_server(world, client, &bypass_body(&format!("npc_{NPC_OID}_create_clan {name}")));
+    };
+
+    // Level < 10.
+    create(&mut world, 1, "Myclan");
+    let pkts = drain(&mut a_rx);
+    assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOU_DO_NOT_MEET_THE_CRITERIA_IN_ORDER_TO_CREATE_A_CLAN));
+
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 10;
+
+    // Name with a space arrives as two tokens → invalid.
+    create(&mut world, 1, "My clan");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::CLAN_NAME_IS_INVALID));
+    // Non-alphanumeric.
+    create(&mut world, 1, "Cl@n");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::CLAN_NAME_IS_INVALID));
+    // Too short / too long.
+    create(&mut world, 1, "C");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::CLAN_NAME_IS_INVALID));
+    create(&mut world, 1, "Averyveryverylongclanname");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::CLAN_NAME_S_LENGTH_IS_INCORRECT));
+    // Recreate cooldown.
+    world.objects.get_component_mut::<Player>(&3001).unwrap().clan_create_expiry_time = i64::MAX;
+    create(&mut world, 1, "Myclan");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::YOU_MUST_WAIT_10_DAYS_BEFORE_CREATING_A_NEW_CLAN));
+    world.objects.get_component_mut::<Player>(&3001).unwrap().clan_create_expiry_time = 0;
+
+    // Success.
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    drain_db(&mut db_rx);
+    create(&mut world, 1, "Myclan");
+    let pkts = drain(&mut a_rx);
+    let p = world.objects.get_component::<Player>(&3001).unwrap();
+    let clan_id = p.clan_id;
+    assert_ne!(clan_id, 0);
+    assert!(p.clan_leader);
+    assert_eq!(p.clan_privs, crate::model::clan::ALL_CLAN_PRIVILEGES);
+    let clan = &world.clans[&clan_id];
+    assert_eq!((clan.name.as_str(), clan.leader_id, clan.members.len()), ("Myclan", 3001, 1));
+    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_INFO_UPDATE));
+    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_MEMBER_LIST_ALL));
+    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_MEMBER_LIST_UPDATE));
+    assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOUR_CLAN_HAS_BEEN_CREATED));
+    assert!(pkts.iter().any(|p| p[0] == 0x32), "fresh UserInfo with the clan id");
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::InsertClan { name, leader_id: 3001, .. } if name == "Myclan")));
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::UpdateCharClan { char_id: 3001, clan_privs, .. }
+        if *clan_privs == crate::model::clan::ALL_CLAN_PRIVILEGES)));
+
+    // Already in a clan.
+    create(&mut world, 1, "Another");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::YOU_HAVE_FAILED_TO_CREATE_A_CLAN));
+
+    // Second player: the name is taken (case-insensitive).
+    let mut b_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3002).unwrap().level = 10;
+    create(&mut world, 2, "MYCLAN");
+    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::S1_ALREADY_EXISTS));
+}
+
+/// ClanMaster dialog navigation: `Quest ClanMaster <page>` events render
+/// the page (bare bypass resolved through `LastFolkNpc`), with the
+/// leader-required remap for non-leaders.
+#[test]
+fn clan_master_dialog_gates_on_leadership() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30026, "VillageMaster", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    // Click the NPC so LastFolkNpc resolves the bare Quest bypasses.
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    drain(&mut rx);
+
+    let root = world.data.root.clone();
+    let page = |name: &str| {
+        std::fs::read_to_string(format!("{root}data/scripts/village_master/ClanMaster/{name}"))
+            .expect(name)
+            .replace("%objectId%", &NPC_OID.to_string())
+    };
+
+    // Talk → the root menu (ClanMaster id -1 ⇒ plain NpcHtmlMessage).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest ClanMaster"));
+    let pkts = drain(&mut rx);
+    let html = pkts.iter().find_map(|p| decode_npc_html(p)).expect("root menu html");
+    assert_eq!(html, page("9000-01.htm"));
+
+    // Leader-gated page as a non-leader → the -no variant.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest ClanMaster 9000-03.htm"));
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("gated html");
+    assert_eq!(html, page("9000-03-no.htm"));
+
+    // As a leader → the real page.
+    world.objects.get_component_mut::<Player>(&3001).unwrap().clan_leader = true;
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest ClanMaster 9000-03.htm"));
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("leader html");
+    assert_eq!(html, page("9000-03.htm"));
+}
+
+/// Clan roster notifications + clan chat: enter-world sends the pledge
+/// window to the member and the online ping to the rest; clan chat reaches
+/// every online member; leaving pings offline; the clanless get SM 4202.
+#[test]
+fn clan_roster_notifications_and_chat() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut b_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+
+    // A clan with A (leader, online) and B — installed directly; invites
+    // are deferred past G11.
+    let clan_id = 5000;
+    let member = |char_id: i32, name: &str| crate::model::clan::ClanMember {
+        char_id,
+        name: name.into(),
+        level: 1,
+        class_id: 0,
+        sex: 0,
+        race: 0,
+    };
+    world.clans.insert(
+        clan_id,
+        crate::model::clan::Clan {
+            id: clan_id,
+            name: "Testers".into(),
+            leader_id: 3001,
+            level: 0,
+            members: vec![member(3001, "P3001"), member(3002, "P3002")],
+        },
+    );
+    for oid in [3001, 3002] {
+        world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
+    }
+
+    // B "enters world": pledge window to B, online ping to A.
+    clans::on_enter_world(&mut world, 2, 3002);
+    let b_pkts = drain(&mut b_rx);
+    assert!(b_pkts.iter().any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_MEMBER_LIST_ALL));
+    let a_pkts = drain(&mut a_rx);
+    let upd = a_pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_MEMBER_LIST_UPDATE)
+        .expect("online ping to A");
+    let mut r = commons::network::PacketReader::new(&upd[1..]);
+    assert_eq!(r.read_string().unwrap(), "P3002");
+
+    // Clan chat from A reaches both.
+    chat::handle_say2(&mut world, 1, &say2_body("hail", crate::enums::ChatType::Clan.client_id(), None));
+    assert!(drain(&mut a_rx).iter().any(|p| p[0] == server_packets::opcodes::SAY2));
+    assert!(drain(&mut b_rx).iter().any(|p| p[0] == server_packets::opcodes::SAY2));
+
+    // A clanless player gets SM 4202.
+    let mut c_rx = ingame_player(&mut world, 3, 3003, 0, 0, 0);
+    chat::handle_say2(&mut world, 3, &say2_body("hail", crate::enums::ChatType::Clan.client_id(), None));
+    assert!(sm_ids_of(&drain(&mut c_rx)).contains(&server_packets::sm_ids::YOU_ARE_NOT_IN_A_CLAN));
+
+    // B leaves the world: offline ping to A.
+    net::store_and_remove_player(&mut world, 3002);
+    let a_pkts = drain(&mut a_rx);
+    let upd = a_pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_MEMBER_LIST_UPDATE)
+        .expect("offline ping to A");
+    // Online-status byte is the packet tail.
+    assert_eq!(*upd.last().unwrap(), 0, "offline");
 }

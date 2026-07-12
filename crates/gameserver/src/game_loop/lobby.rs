@@ -308,7 +308,13 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         }
         return;
     };
-    let (session, bundle) = s.into_ingame();
+    let (session, mut bundle) = s.into_ingame();
+    // Clan-leader flag comes from the live clan table (Java reads it off
+    // the restored `Clan` object) — fix it before the first UserInfo.
+    bundle.player.clan_leader = world
+        .clans
+        .get(&bundle.player.clan_id)
+        .is_some_and(|c| c.leader_id == bundle.player.object_id);
     let view = bundle.view();
     let player = &bundle.player;
     let name = player.name.clone();
@@ -316,9 +322,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     use crate::network::enter_world as ew;
     use crate::network::user_info::user_info;
 
-    // The enter-world packet burst (EnterWorld.runImpl). Inventory is real as of
-    // G5; lists that need systems not yet built are still empty (TODOs in
-    // `enter_world`): SkillList/HennaInfo/shortcuts/quests, clan/friend/mail.
+    // The enter-world packet burst (EnterWorld.runImpl). Inventory real as
+    // of G5, skills G6, shortcuts/macros G9.6, friends G10, quest lists
+    // G11; henna/mail still empty (TODOs in `enter_world`).
     session.send(user_info(&view, data));
     session.send(ew::ex_vitality_effect_info(player));
     session.send(server_packets::ex_ui_setting());
@@ -329,7 +335,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     }
     session.send(ew::ex_get_bookmark_info());
     session.send(ew::item_list(&bundle.inventory, data));
-    session.send(ew::ex_quest_item_list());
+    session.send(ew::ex_quest_item_list(&bundle.inventory, data));
     session.send(server_packets::shortcut_init(&bundle.shortcuts));
     session.send(ew::ex_basic_action_list(data));
     session.send(ew::henna_info());
@@ -341,7 +347,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(ew::ex_user_info_inven_weight(player.object_id, &bundle.inventory, data));
     session.send(ew::ex_adena_inven_count(&bundle.inventory));
     session.send(ew::ex_user_info_equip_slot(player.object_id, &bundle.inventory));
-    session.send(ew::quest_list());
+    session.send(ew::quest_list(&bundle.quests, &world.quests));
     session.send(ew::ex_rotation(player.object_id, bundle.position.heading));
     // `L2FriendList` — the real roster (Java sends it at this spot).
     session.send(super::friends::l2_friend_list_packet(world, &bundle.friends));
@@ -366,6 +372,8 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     super::visibility::on_enter_world(world, client_id, object_id);
     // "Your friend just logged in" + FriendStatus(ONLINE) to online friends.
     super::friends::on_enter_world(world, object_id);
+    // Pledge window to the member + online ping to the rest of the clan.
+    super::clans::on_enter_world(world, client_id, object_id);
 
     // Java `EnterWorld`: a character that logged out dead comes back dead —
     // re-open the death dialog.

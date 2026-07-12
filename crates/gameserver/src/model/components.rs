@@ -235,6 +235,15 @@ pub struct Macros {
 #[derive(Component, Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct TargetRef(pub Option<i32>);
 
+/// Object id of the last NPC this player clicked/talked to (Java
+/// `Player._lastFolkNpc`, set by `NpcAction.action`). Bare (non-`npc_`-
+/// prefixed) HTML bypasses like `Quest ClanMaster 9000-02.htm` resolve their
+/// NPC through this — Java uses the `validateHtmlAction` origin id there,
+/// which we don't port (see `game_loop/bypass.rs`); the distance re-check at
+/// use time is the guard either way. Player-only.
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LastFolkNpc(pub i32);
+
 /// Last position/heading the client reported via `ValidatePosition`
 /// (Java `Player._clientX/_clientY/_clientZ/_clientHeading`).
 #[derive(Component, Debug, Clone, Copy, Default)]
@@ -294,3 +303,17 @@ pub struct PendingRequest {
 /// status is always read live from `World`, never from here.
 #[derive(Component, Debug, Clone, Default)]
 pub struct Friends(pub Vec<crate::character::FriendInfo>);
+
+/// Quest progress (Java `Player._quests`), keyed by quest name — the same
+/// key the `character_quests` rows and the `Quest <Name> …` bypasses use.
+/// Loaded with the character; mutated only through the quest engine
+/// (`game_loop/quests.rs`), which mirrors every change to the DB.
+#[derive(Component, Debug, Clone, Default)]
+pub struct Quests(pub std::collections::HashMap<String, crate::model::quest::QuestState>);
+
+/// Live quest-timer generations, keyed by `(quest name, timer name)` — the
+/// cancellation side of `ScheduledTask::QuestTimer` (a fired task whose seq
+/// no longer matches is stale). Starting a timer bumps the seq; so does
+/// cancelling (Java's `QuestTimer.cancel`). Not persisted, like Java.
+#[derive(Component, Debug, Clone, Default)]
+pub struct QuestTimerSeqs(pub std::collections::HashMap<(&'static str, String), u64>);

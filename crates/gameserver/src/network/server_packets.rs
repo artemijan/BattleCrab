@@ -71,6 +71,11 @@ pub mod opcodes {
     pub const L2_FRIEND_LIST: u8 = 0x75;
     pub const L2_FRIEND_SAY: u8 = 0x78;
     pub const FRIEND_ADD_REQUEST: u8 = 0x83;
+    pub const PLAY_SOUND: u8 = 0x9E;
+    pub const QUEST_LIST: u8 = 0x86;
+    pub const PLEDGE_SHOW_MEMBER_LIST_ALL: u8 = 0x5A;
+    pub const PLEDGE_SHOW_MEMBER_LIST_UPDATE: u8 = 0x5B;
+    pub const PLEDGE_SHOW_INFO_UPDATE: u8 = 0x8E;
 
     /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
     pub const EX: u8 = 0xFE;
@@ -79,6 +84,151 @@ pub mod opcodes {
     pub const EX_UI_SETTING: i16 = 0x71;
     pub const EX_ASK_MODIFY_PARTY_LOOTING: i16 = 0xC0;
     pub const EX_SET_PARTY_LOOTING: i16 = 0xC1;
+    pub const EX_SHOW_QUEST_MARK: i16 = 0x21;
+    pub const EX_NPC_QUEST_HTML_MESSAGE: i16 = 0x8E;
+    pub const EX_QUEST_ITEM_LIST: i16 = 0xC7;
+}
+
+/// Port of `serverpackets/PledgeShowInfoUpdate` — the clan-info refresh
+/// sent to the new leader on creation. Castle/hideout/fort/rank/reputation/
+/// ally/war all zero (their systems are later milestones).
+pub fn pledge_show_info_update(clan: &crate::model::clan::Clan) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLEDGE_SHOW_INFO_UPDATE);
+    w.write_i32(clan.id);
+    w.write_i32(1); // Config.SERVER_ID
+    w.write_i32(0); // crest id
+    w.write_i32(clan.level);
+    w.write_i32(0); // castle id
+    w.write_i32(0); // castle state
+    w.write_i32(0); // hideout id
+    w.write_i32(0); // fort id
+    w.write_i32(0); // rank
+    w.write_i32(0); // reputation score
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(0); // ally id
+    w.write_string(""); // ally name
+    w.write_i32(0); // ally crest id
+    w.write_i32(0); // at war
+    w.write_i32(0);
+    w.write_i32(0);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeShowMemberListAll` for the main pledge
+/// (`_pledgeId` 0): the full roster with per-member online status resolved
+/// live against the world registry.
+pub fn pledge_show_member_list_all(
+    clan: &crate::model::clan::Clan,
+    objects: &crate::store::EntityStore,
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLEDGE_SHOW_MEMBER_LIST_ALL);
+    w.write_i32(1); // !isSubPledge
+    w.write_i32(clan.id);
+    w.write_i32(1); // Config.SERVER_ID
+    w.write_i32(0); // pledge id (main)
+    w.write_string(&clan.name);
+    w.write_string(clan.leader_name());
+    w.write_i32(0); // crest id
+    w.write_i32(clan.level);
+    w.write_i32(0); // castle id
+    w.write_i32(0);
+    w.write_i32(0); // hideout id
+    w.write_i32(0); // fort id
+    w.write_i32(0); // rank
+    w.write_i32(0); // reputation score
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(0); // ally id
+    w.write_string(""); // ally name
+    w.write_i32(0); // ally crest id
+    w.write_i32(0); // at war
+    w.write_i32(0); // territory castle id
+    w.write_i32(clan.members.len() as i32);
+    for m in &clan.members {
+        let online = objects.has_component::<crate::model::Player>(&m.char_id);
+        w.write_string(&m.name);
+        w.write_i32(m.level);
+        w.write_i32(m.class_id);
+        w.write_i32(m.sex);
+        w.write_i32(m.race);
+        w.write_i32(if online { m.char_id } else { 0 });
+        w.write_i32(0); // has sponsor
+        w.write_u8(online as u8);
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeShowMemberListUpdate` — one member's
+/// online-status/level refresh, pushed to the rest of the clan.
+pub fn pledge_show_member_list_update(m: &crate::model::clan::ClanMember, online: bool) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLEDGE_SHOW_MEMBER_LIST_UPDATE);
+    w.write_string(&m.name);
+    w.write_i32(m.level);
+    w.write_i32(m.class_id);
+    w.write_i32(m.sex);
+    w.write_i32(m.race);
+    if online {
+        w.write_i32(m.char_id);
+        w.write_i32(0); // pledge type (main)
+    } else {
+        w.write_i32(0);
+        w.write_i32(0);
+    }
+    w.write_i32(0); // has sponsor
+    w.write_u8(online as u8);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PlaySound`'s quest-sound shape (`new
+/// PlaySound(soundFile)`): every non-string field 0.
+pub fn play_sound(sound_file: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLAY_SOUND);
+    w.write_i32(0); // 0 for quest sounds
+    w.write_string(sound_file);
+    w.write_i32(0); // 1 for ship sounds
+    w.write_i32(0); // ship object id
+    w.write_i32(0); // x
+    w.write_i32(0); // y
+    w.write_i32(0); // z
+    w.write_i32(0);
+    w.into_bytes()
+}
+
+/// The `QuestSound` file names this slice plays.
+pub mod quest_sounds {
+    pub const ACCEPT: &str = "ItemSound.quest_accept";
+    pub const MIDDLE: &str = "ItemSound.quest_middle";
+    pub const FINISH: &str = "ItemSound.quest_finish";
+    pub const ITEMGET: &str = "ItemSound.quest_itemget";
+}
+
+/// Port of `serverpackets/ExShowQuestMark` — the on-screen quest marker,
+/// sent after every cond change (Java `QuestState.setCond`).
+pub fn ex_show_quest_mark(quest_id: i32, quest_state: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SHOW_QUEST_MARK);
+    w.write_i32(quest_id);
+    w.write_i32(quest_state);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/NpcQuestHtmlMessage` — the quest-window variant of
+/// `NpcHtmlMessage`, used for `.htm` results of quests with `0 < id < 20000`
+/// (`Quest.showHtmlFile`'s `questwindow` branch).
+pub fn ex_npc_quest_html_message(npc_object_id: i32, html: &str, quest_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_NPC_QUEST_HTML_MESSAGE);
+    w.write_i32(npc_object_id);
+    w.write_string(html);
+    w.write_i32(quest_id);
+    w.into_bytes()
 }
 
 /// Port of `serverpackets/ExSendManorList` — the castles that have a manor.
@@ -250,7 +400,7 @@ pub fn char_selection_info(
         w.write_i32(c.object_id);
         w.write_string(login_name);
         w.write_i32(session_id);
-        w.write_i32(0); // clan id
+        w.write_i32(c.clan_id);
         w.write_i32(0); // builder level
         w.write_i32(c.sex);
         w.write_i32(c.race);
@@ -396,7 +546,7 @@ pub fn char_selected(v: &crate::model::PlayerView, session_id: i32, game_time: i
     w.write_i32(p.object_id);
     w.write_string(&p.title);
     w.write_i32(session_id);
-    w.write_i32(0); // clan id
+    w.write_i32(p.clan_id);
     w.write_i32(0);
     w.write_i32(p.is_female as i32);
     w.write_i32(p.race);
@@ -803,6 +953,18 @@ pub mod sm_ids {
     pub const INVALID_MACRO_REFER_TO_THE_HELP_FILE_FOR_INSTRUCTIONS: i16 = 810;
     pub const MACRO_DESCRIPTIONS_MAY_CONTAIN_UP_TO_32_CHARACTERS: i16 = 837;
     pub const ENTER_THE_NAME_OF_THE_MACRO: i16 = 838;
+    // Clans (G11)
+    pub const S1_ALREADY_EXISTS: i16 = 5;
+    pub const YOUR_CLAN_HAS_BEEN_CREATED: i16 = 189;
+    pub const YOU_HAVE_FAILED_TO_CREATE_A_CLAN: i16 = 190;
+    pub const YOU_DO_NOT_MEET_THE_CRITERIA_IN_ORDER_TO_CREATE_A_CLAN: i16 = 229;
+    pub const YOU_MUST_WAIT_10_DAYS_BEFORE_CREATING_A_NEW_CLAN: i16 = 230;
+    pub const CLAN_NAME_IS_INVALID: i16 = 261;
+    pub const CLAN_NAME_S_LENGTH_IS_INCORRECT: i16 = 262;
+    // Quests (G11): "earned" for quest gives, vs the loot "obtained" trio.
+    pub const YOU_HAVE_EARNED_S1_ADENA: i16 = 52;
+    pub const YOU_HAVE_EARNED_S2_S1_S: i16 = 53;
+    pub const YOU_HAVE_EARNED_S1: i16 = 54;
     pub const YOU_HAVE_OBTAINED_S1_ADENA: i16 = 28;
     pub const YOU_HAVE_OBTAINED_S2_S1: i16 = 29;
     pub const YOU_HAVE_OBTAINED_S1: i16 = 30;
@@ -1088,7 +1250,7 @@ pub fn char_info(v: &crate::model::PlayerView) -> Vec<u8> {
     w.write_i32(p.hair_color);
     w.write_i32(p.face);
     w.write_string(&p.title);
-    w.write_i32(0); // clan id
+    w.write_i32(p.clan_id);
     w.write_i32(0); // clan crest id
     w.write_i32(0); // ally id
     w.write_i32(0); // ally crest id

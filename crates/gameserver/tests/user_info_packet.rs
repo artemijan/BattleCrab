@@ -31,6 +31,10 @@ async fn user_info_test() {
         fame: 0,
 
         // Extracted from your m.variables JSON string / sample fields
+        clan_id: 0,
+        clan_privs: 0,
+        clan_leader: false,
+        clan_create_expiry_time: 0,
         face: 1,       // m.face / visualFaceId
         hair_style: 3, // visualHairStyleId
         hair_color: 2, // visualHairColorId

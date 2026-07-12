@@ -92,7 +92,7 @@ pub(crate) fn broadcast_to_party(world: &World, party_id: u32, packet: &[u8], ex
 /// `Player.broadcastUserInfo()` — fresh `UserInfo` to self, `CharInfo` to
 /// everyone who can see them (the party windows read relation bits off
 /// these; the packets themselves carry no party fields yet).
-fn broadcast_user_info(world: &World, object_id: i32) {
+pub(crate) fn broadcast_user_info(world: &World, object_id: i32) {
     let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) else { return };
     send_to_player(world, object_id, crate::network::user_info::user_info(&v, &world.data));
     let char_info = server_packets::char_info(&v);

@@ -154,15 +154,16 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData) -> Vec<u8> {
     w.write_u8(0);
     w.write_i16(0);
 
-    // CLAN (+ title*2) — TODO(G9): clan/ally.
+    // CLAN (+ title*2) — id/privileges/leader real as of G11; crests and
+    // ally wait for their systems.
     w.write_i16((UserInfoType::Clan.block_length() + title_units * 2) as i16);
     w.write_sized_string(&p.title);
-    w.write_i16(0); // pledge type
-    w.write_i32(0); // clan id
+    w.write_i16(0); // pledge type (main clan)
+    w.write_i32(p.clan_id);
     w.write_i32(0); // clan crest large
     w.write_i32(0); // clan crest
-    w.write_i32(0); // clan privileges
-    w.write_u8(0); // is clan leader
+    w.write_i32(p.clan_privs);
+    w.write_u8(p.clan_leader as u8);
     w.write_i32(0); // ally id
     w.write_i32(0); // ally crest
     w.write_u8(0); // in matching room

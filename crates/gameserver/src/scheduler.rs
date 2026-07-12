@@ -56,6 +56,11 @@ pub enum ScheduledTask {
     /// The 15 s loot-rule-change window elapsed without unanimous approval
     /// (`Party.PARTY_DISTRIBUTION_TYPE_REQUEST_TIMEOUT`).
     PartyLootChangeTimeout { party_id: u32, seq: u64 },
+    /// A `Quest.startQuestTimer` firing → `quest.notifyEvent(name, …)` →
+    /// `on_timer`. `seq` is checked against the player's `QuestTimerSeqs`
+    /// entry for `(quest, name)` — cancelling a timer is bumping that seq
+    /// (the cast_seq pattern). `npc` is 0 when the timer has no NPC.
+    QuestTimer { quest: &'static str, name: String, player: i32, npc: i32, seq: u64 },
 }
 
 struct Entry {

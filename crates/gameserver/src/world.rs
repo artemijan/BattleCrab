@@ -128,6 +128,16 @@ pub struct World {
     /// `geo`/`path_finding`.
     pub cfg: crate::config::CombatConfig,
 
+    /// The compiled-in script registry (Java `QuestManager` + the boot-time
+    /// `ScriptEngineManager` pass, minus the runtime compilation). `Arc` for
+    /// the same reason as `geo`: call sites clone the handle, then hand
+    /// `&mut World` into the script — no self-borrow. Immutable after boot.
+    pub quests: std::sync::Arc<crate::game_loop::quests::QuestRegistry>,
+
+    /// Every clan, keyed by clan id (Java `ClanTable._clans`). Loaded once
+    /// at boot (`DbEvent::ClansLoaded`); `create_clan` inserts.
+    pub clans: HashMap<i32, crate::model::clan::Clan>,
+
     /// Live parties (`Party` objects have no Java-side registry — they only
     /// exist through member references; an id-keyed map is the Rust shape).
     pub parties: HashMap<u32, crate::model::party::Party>,
@@ -166,6 +176,8 @@ impl World {
             path: std::sync::mpsc::channel().0,
             path_seq: 0,
             cfg: crate::config::CombatConfig::default(),
+            quests: std::sync::Arc::new(crate::scripts::build_registry()),
+            clans: HashMap::new(),
             parties: HashMap::new(),
             next_party_id: 1,
             request_seq: 0,

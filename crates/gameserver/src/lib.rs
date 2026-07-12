@@ -15,6 +15,7 @@ pub mod loginlink;
 pub mod model;
 pub mod network;
 pub mod scheduler;
+pub mod scripts;
 pub mod session;
 pub mod store;
 pub mod world;

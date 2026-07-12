@@ -132,7 +132,20 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                 send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_A_PARTY);
             }
         }
-        ChatType::Clan => send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_A_CLAN),
+        ChatType::Clan => {
+            // ChatClan — `clan.broadcastToOnlineMembers` (speaker included).
+            let clan_id = world
+                .objects
+                .get_component::<crate::model::Player>(&sender_oid)
+                .map(|p| p.clan_id)
+                .unwrap_or(0);
+            if clan_id != 0 && world.clans.contains_key(&clan_id) {
+                let say = server_packets::creature_say(sender_oid, chat_type, &sender_name, &pkt.text, None);
+                super::clans::broadcast_to_clan(world, clan_id, &say);
+            } else {
+                send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_A_CLAN);
+            }
+        }
         ChatType::Alliance => send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_AN_ALLIANCE),
     }
 }

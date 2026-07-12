@@ -31,6 +31,19 @@ pub struct RatesConfig {
     /// kill can award (raid variant deferred with raids).
     pub drop_max_occurrences_normal: i32,
 
+    /// `RateQuestDrop` — multiplies quest-kill drop chance *and* amount
+    /// (`AbstractScript.giveItemRandomly`). **10** on this dist.
+    pub rate_quest_drop: f64,
+    /// `RateQuestReward` / `RateQuestRewardAdena` — turn-in reward
+    /// multipliers (`rewardItems`; the per-EtcItem-type multipliers behind
+    /// `RateQuestRewardUseMultipliers = False` are not ported). Both **10**.
+    pub rate_quest_reward: f64,
+    pub rate_quest_reward_adena: f64,
+    /// `RateQuestRewardXP` / `RateQuestRewardSP` — quest `addExpAndSp`
+    /// multipliers. Both **10**.
+    pub rate_quest_reward_xp: f64,
+    pub rate_quest_reward_sp: f64,
+
     /// The level-gap gates: full drop chance while `mobLevel - playerLevel >=
     /// -minDiff`, scaling linearly down to `minGapChance`% at `-maxDiff`.
     pub drop_adena_min_level_difference: i32,
@@ -54,6 +67,11 @@ impl Default for RatesConfig {
             drop_chance_by_id: HashMap::new(),
             drop_amount_by_id: HashMap::new(),
             drop_max_occurrences_normal: 2,
+            rate_quest_drop: 1.0,
+            rate_quest_reward: 1.0,
+            rate_quest_reward_adena: 1.0,
+            rate_quest_reward_xp: 1.0,
+            rate_quest_reward_sp: 1.0,
             drop_adena_min_level_difference: 8,
             drop_adena_max_level_difference: 15,
             drop_adena_min_level_gap_chance: 10.0,
@@ -78,6 +96,11 @@ impl RatesConfig {
             drop_chance_by_id: parse_id_multiplier_list(&p.get_string("DropChanceMultiplierByItemId", "")),
             drop_amount_by_id: parse_id_multiplier_list(&p.get_string("DropAmountMultiplierByItemId", "")),
             drop_max_occurrences_normal: p.get_int("DropMaxOccurrencesNormal", d.drop_max_occurrences_normal),
+            rate_quest_drop: p.get_float("RateQuestDrop", 1.0) as f64,
+            rate_quest_reward: p.get_float("RateQuestReward", 1.0) as f64,
+            rate_quest_reward_adena: p.get_float("RateQuestRewardAdena", 1.0) as f64,
+            rate_quest_reward_xp: p.get_float("RateQuestRewardXP", 1.0) as f64,
+            rate_quest_reward_sp: p.get_float("RateQuestRewardSP", 1.0) as f64,
             drop_adena_min_level_difference: p.get_int("DropAdenaMinLevelDifference", 8),
             drop_adena_max_level_difference: p.get_int("DropAdenaMaxLevelDifference", 15),
             drop_adena_min_level_gap_chance: p.get_float("DropAdenaMinLevelGapChance", 10.0) as f64,

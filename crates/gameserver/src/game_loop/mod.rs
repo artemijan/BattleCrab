@@ -6,7 +6,9 @@
 //! tick systems (G4+) → flush. Packet dispatch and login handoff land here on
 //! the game thread, keeping handler code sequential and 1:1 with Java `run()`.
 
+mod bypass;
 mod chat;
+mod clans;
 mod combat;
 mod death;
 mod dispatch;
@@ -18,6 +20,7 @@ mod net;
 mod npc_ai;
 mod party;
 mod position;
+pub mod quests;
 mod regen;
 mod shortcuts;
 mod skills;
@@ -229,6 +232,9 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::PartyLootChangeTimeout { party_id, seq } => {
                 party::handle_loot_change_timeout(world, party_id, seq);
+            }
+            ScheduledTask::QuestTimer { quest, name, player, npc, seq } => {
+                quests::handle_quest_timer(world, quest, &name, player, npc, seq);
             }
         }
     }

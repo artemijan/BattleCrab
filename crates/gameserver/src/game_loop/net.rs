@@ -50,6 +50,15 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     super::party::on_player_leave_world(world, player_object_id);
     // deleteMe → notifyFriends(MODE_OFFLINE).
     super::friends::on_leave_world(world, player_object_id);
+    // deleteMe → clan.broadcastToOnlineMembers(PledgeShowMemberListUpdate offline).
+    {
+        let clan_id = world
+            .objects
+            .get_component::<crate::model::Player>(&player_object_id)
+            .map(|p| p.clan_id)
+            .unwrap_or(0);
+        super::clans::on_leave_world(world, player_object_id, clan_id);
+    }
     // deleteMe → World.removeVisibleObject: DeleteObject to everyone watching.
     super::visibility::on_leave_world(world, player_object_id);
     // Gather everything persistence needs before despawn — components drop
@@ -275,6 +284,10 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
             }
             DbEvent::IdBlock { start, end } => {
                 world.id_pool = start..end;
+            }
+            DbEvent::ClansLoaded { clans } => {
+                tracing::info!("GameLoop: loaded {} clans.", clans.len());
+                world.clans = clans.into_iter().map(|c| (c.id, c)).collect();
             }
         }
     }

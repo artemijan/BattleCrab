@@ -32,8 +32,9 @@ fn new_char(name: &str) -> NewCharacter {
 fn recv(rx: &std::sync::mpsc::Receiver<DbEvent>) -> DbEvent {
     loop {
         match rx.recv_timeout(Duration::from_secs(5)).expect("db event") {
-            // Boot-time runtime-id reservation, not part of any exchange.
-            DbEvent::IdBlock { .. } => continue,
+            // Boot-time pushes (id reservation, clan table), not part of
+            // any exchange.
+            DbEvent::IdBlock { .. } | DbEvent::ClansLoaded { .. } => continue,
             other => return other,
         }
     }
@@ -300,6 +301,100 @@ async fn friendships_persist() {
     cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => assert!(chars[0].friends.is_empty()),
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    cmd_tx.send(DbCommand::Shutdown).unwrap();
+    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// G11: quest-state rows persist and reload through the real DB thread —
+/// var upserts, the repeatable/non-repeatable delete split, and the
+/// orphan-var filter (vars without a `<state>` row don't load).
+#[tokio::test]
+async fn quest_states_persist() {
+    use gameserver::model::quest::{state, STATE_VAR};
+
+    let dir = std::env::temp_dir().join(format!("l2r_g11_{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let db_path = dir.join("test.db");
+    let url = format!("jdbc:sqlite:{}", db_path.display());
+
+    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    {
+        let pool = commons::db::init(&url, 1).await.unwrap();
+        for table in ["characters", "items", "character_skills", "character_shortcuts", "character_macroses", "character_friends", "character_quests"] {
+            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
+            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
+                sqlx::query(stmt).execute(&pool).await.unwrap();
+            }
+        }
+        pool.close().await;
+    }
+
+    let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (event_tx, event_rx) = std::sync::mpsc::channel();
+    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
+
+    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Ques") }).unwrap();
+    recv(&event_rx); // CharacterCreated
+    let oid = match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => chars[0].object_id,
+        _ => panic!("expected CharactersLoaded"),
+    };
+
+    let quest = "Q00258_BringWolfPelts";
+    let up = |var: &str, value: &str| DbCommand::UpsertQuestVar {
+        char_id: oid,
+        quest: quest.into(),
+        var: var.into(),
+        value: value.into(),
+    };
+    cmd_tx.send(up(STATE_VAR, "Started")).unwrap();
+    cmd_tx.send(up("cond", "1")).unwrap();
+    cmd_tx.send(up("cond", "2")).unwrap(); // upsert path: same PK, new value
+    // Orphan rows (no <state>) must not surface as a quest.
+    cmd_tx
+        .send(DbCommand::UpsertQuestVar {
+            char_id: oid,
+            quest: "Q99999_Ghost".into(),
+            var: "cond".into(),
+            value: "5".into(),
+        })
+        .unwrap();
+
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            let quests = &chars[0].quests;
+            assert_eq!(quests.len(), 1, "orphan vars must not create a quest");
+            let qs = &quests[quest];
+            assert_eq!(qs.state, state::STARTED);
+            assert_eq!(qs.cond(), 2);
+        }
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    // Non-repeatable exit: vars deleted, <state> row kept (COMPLETED write
+    // comes through a normal UpsertQuestVar from the engine).
+    cmd_tx.send(up(STATE_VAR, "Completed")).unwrap();
+    cmd_tx.send(DbCommand::DeleteQuest { char_id: oid, quest: quest.into(), keep_state: true }).unwrap();
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            let qs = &chars[0].quests[quest];
+            assert_eq!(qs.state, state::COMPLETED);
+            assert!(qs.vars.is_empty(), "non-repeatable delete keeps only <state>");
+        }
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    // Repeatable exit: everything gone.
+    cmd_tx.send(DbCommand::DeleteQuest { char_id: oid, quest: quest.into(), keep_state: false }).unwrap();
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => assert!(chars[0].quests.is_empty()),
         _ => panic!("expected CharactersLoaded"),
     }
 

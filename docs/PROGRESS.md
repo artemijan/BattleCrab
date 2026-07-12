@@ -32,7 +32,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G9.5 ECS stage 2 — split components, one world              | ✅ (plan: [PLAN_ECS_STAGE2.md](PLAN_ECS_STAGE2.md)) |
 | Game  | G9.6 Macros & panel shortcuts                               | ✅ (plan: [PLAN_MACROS_SHORTCUTS.md](PLAN_MACROS_SHORTCUTS.md)) |
 | Game  | G10 Social systems                                          | ✅ vertical slice (chat, party, friends — clans/mail/BBS deferred) |
-| Game  | G11 Scripting engine + quests (+ clans via bypass)          | ⏳ |
+| Game  | G11 Scripting engine + quests (+ clans via bypass)          | ✅ vertical slice (bypass routing, quest engine, Q00258/Q00320, clan creation — plan: [PLAN_G11_QUESTS_CLANS.md](PLAN_G11_QUESTS_CLANS.md)) |
 | Game  | G12 Script/content breadth                                  | ⏳ |
 | Game  | G13 Long tail & parity sweep                                | ⏳ |
 
@@ -895,13 +895,75 @@ mail/community board/matching rooms/command channels.
   `char_persistence::friendships_persist` (real DB thread); `e2e_create`
   now asserts the real `L2FriendList` in the burst.
 
-### G11–G13 — ⏳ not started
+### G11 — Scripting engine + quests + clans via bypass ✅ vertical slice
+Plan: [PLAN_G11_QUESTS_CLANS.md](PLAN_G11_QUESTS_CLANS.md). The engine
+slice of the script-breadth gate: bypass routing, a native quest framework
+(compiled-in trait-object scripts), two completable quests, and clan
+creation through the ClanMaster dialog. Script breadth is G12.
+
+- **Bypass** (`game_loop/bypass.rs`): `RequestBypassToServer` 0x23 —
+  `npc_<oid>_<cmd>` (existence + `INTERACTION_DISTANCE` + `ActionFailed`
+  terminator) routed by first token (`Quest`, `create_clan` on
+  `VillageMaster*` templates; rest log-drop); bare `Quest …` resolves its
+  NPC via the new `LastFolkNpc` component (set on every NPC click —
+  `validateHtmlAction` is deliberately unported, distance re-checks stand
+  in). Empty bypass logs instead of Java's disconnect.
+- **Quest framework**: `model/quest.rs` (`QuestState`, the
+  `__compltdStateFlags` skipped-step math as a pure function, legacy
+  bit-31 `condBitSet` unpack) + `Quests`/`QuestTimerSeqs` components;
+  `game_loop/quests.rs` — `QuestScript` trait + `QuestRegistry` (per-npc
+  start/talk/kill indexes) behind `World.quests: Arc<…>` (the `geo`
+  borrow pattern), `QuestCtx` porting the `QuestState`/`AbstractScript`
+  primitives (start/cond/exit, give/reward/take items, `giveItemRandomly`
+  with ×`RateQuestDrop`, rated adena/XP/SP), QuestLink's chooser/talk/
+  event split, `showResult`'s `.htm`-quest-window vs `.html`-plain split
+  (`ExNpcQuestHtmlMessage` FE:0x8E vs `NpcHtmlMessage`), `onKill` fired
+  from `npc_do_die` after combat rewards (killer-only — party sharing
+  deferred), `RequestQuestAbort` 0x63, and seq-guarded
+  `ScheduledTask::QuestTimer`.
+- **Persistence**: `character_quests` row-per-var, Java-schema-compatible
+  (`<state>` as `Start/Started/Completed`); `load_quests` (orphan vars
+  dropped) + fire-and-forget `UpsertQuestVar`/`DeleteQuestVar`/
+  `DeleteQuest{keep_state}`.
+- **Packets/items**: real `QuestList` (one-time mask incl. Java's
+  id-range exclusions) and `ExQuestItemList` replace the G4 stubs;
+  `ExShowQuestMark`, `PlaySound`; **first item-removal path** —
+  `Inventory::remove_item` → `ItemChange`s → removed-type
+  `InventoryUpdate` + `DbCommand::DeleteItem`; `Player.addItem`'s
+  stack-or-create core extracted to `items::add_inventory_item` (shared
+  with G9 loot). SM 52/53/54 "earned" trio for quest gives.
+- **Scripts** (`src/scripts/`, `build_registry()` = the boot-time script
+  pass): `Q00258_BringWolfPelts` (deterministic drop, reward table),
+  `Q00320_BonesTellTheFuture` (0.18-chance drop ×`RateQuestDrop`, rated
+  adena), `ClanMaster` (60 NPC ids, `LEADER_REQUIRED` → `-no.htm` remap;
+  Clan Advent buff unported). Quest htmls read from the dist tree with
+  the `quests/<Name>/` fallback and `noquest.htm` default.
+- **Clans** (`model/clan.rs` + `game_loop/clans.rs`): `World.clans`
+  loaded at boot (unprompted `DbEvent::ClansLoaded`, `IdBlock` pattern);
+  `create_clan` with Java's guard order (SM 229/190/230/261/262/5), clan
+  id from the shared `IdManager` pool, `InsertClan` + `UpdateCharClan`
+  persistence, `PledgeShowInfoUpdate`/`PledgeShowMemberListAll`/
+  `PledgeShowMemberListUpdate` + SM 189 + UserInfo/CharInfo re-broadcast.
+  `Player` grew `clan_id`/`clan_privs`/`clan_leader` (fixed up at
+  enter-world)/`clan_create_expiry_time`; clan id real in UserInfo CLAN
+  block, CharInfo, CharSelectionInfo, CharSelected; clan chat now
+  broadcasts to online members; enter/leave world send the roster window
+  and online/offline pings.
+- **Tests**: cond-flags/bit-unpack units; `char_persistence::
+  quest_states_persist`; synthetic-world tests for bypass routing, the
+  full Q00258 loop (accept → drops → cond mark → turn-in → repeatable
+  re-offer, packet+DB assertions), Q00320's forced-roll chance path and
+  rated adena, abort, a synthetic-script quest timer (fire/cancel), the
+  clan guard matrix + creation packet trio + persistence, ClanMaster
+  leader gating against the real dist htmls, and roster/chat scoping.
+
+### G12–G13 — ⏳ not started
 See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gates:
-the remaining static-world scope (zones/doors/`StaticObjectData`) or the
-scripting engine + quests (G11 — also the gate for **clans**, which need
-village-master bypass dialogs). New object kinds (doors, items-on-ground, …)
-should become component bundles in `World.objects`, not new bare `HashMap`
-fields.
+script/content breadth (more quests, `ai/` scripts, the other bypass
+families) or the remaining static-world scope
+(zones/doors/`StaticObjectData`). New object kinds (doors,
+items-on-ground, …) should become component bundles in `World.objects`,
+not new bare `HashMap` fields.
 
 ---
 
@@ -961,15 +1023,28 @@ Empty/placeholder now, to be filled in the owning milestone:
   (the plan's remaining static-world scope; `MapRegionManager` now exists
   for town respawns); `NpcNameLocalisationData`/multilang; the death
   dialog's non-village restart points (clan hall/castle/fixed-feather).
-- **Quests (G11):** `QuestList` empty, `ExQuestItemList` empty.
-- **Social (post-G10):** clans/alliances (need bypass dialogs — G11): clan/
-  ally blocks in `UserInfo`/`CharInfo`, clan/ally chat, `RelationChanged`;
-  mail; community board; party matching rooms; command channels (MPCC);
-  tactical signs; block list (`BlockList` checks skipped everywhere);
-  friend memos + `RequestExFriendListExtended`; pet/servitor party-window
-  packets; chat bans/say filter/voiced commands/item links in chat;
-  `GlobalChat`/`TradeChat` OFF/GM modes; skill/reuse persistence for
-  party-relevant buffs unchanged (see skills section).
+- **Quests/scripts (post-G11):** party quest sharing
+  (`getRandomPartyMemberState` — kill credit is killer-only); daily quests
+  (`restartTime`/reset hour); `onFirstTalk`/`onAttack`/`onSpawn` hooks
+  (no trait slots yet — add with the first consumer); tutorial (Q00255);
+  `ExQuestNpcLogList`; the quest-window weight/inventory-90%/40-quest
+  guards; the chooser's simulated-`onTalk` pre-filter; `validateHtmlAction`
+  (bare bypasses resolve via `LastFolkNpc` + distance); the remaining ~198
+  quests and all `ai/` scripts; other bypass families (`Link`,
+  `multisell`, `learn_clan_skills`, `item_`, `admin_`, `_bbs`, menu/manor
+  selects).
+- **Social (post-G10/G11):** clans past creation (invite/leave/dissolve/
+  level-up/wars/ally/academy/sub-pledges, clan skills +
+  `PledgeSkillList`, crests, notices, warehouse, `PledgeInfo`/
+  `PledgeStatusChanged` beyond the creation trio, the Clan Advent buff,
+  RELATION bits / `RelationChanged` — the full UserInfo/CharInfo re-send
+  stands in); ally chat; mail; community board; party matching rooms;
+  command channels (MPCC); tactical signs; block list (`BlockList` checks
+  skipped everywhere); friend memos + `RequestExFriendListExtended`;
+  pet/servitor party-window packets; chat bans/say filter/voiced
+  commands/item links in chat; `GlobalChat`/`TradeChat` OFF/GM modes;
+  skill/reuse persistence for party-relevant buffs unchanged (see skills
+  section).
 - **Misc:** ~~macros~~ (✅ G9.6), `HennaInfo` empty, `ExUserBanInfo`, `ExVitalityEffectInfo`
   bonuses, real castle list for manor, game-time clock (CharSelected/UserInfo
   use 0), periodic auto-save while in game (`AutoSaveManager`; persistence on
@@ -999,6 +1074,11 @@ Empty/placeholder now, to be filled in the owning milestone:
 - **Social (G10):** chat/party/friend synthetic-world tests (see the G10
   section), party-math units with exact Java values, friendship DB
   round-trip.
+- **Quests/clans (G11):** cond-flags math units vs hand-traced Java
+  values; `character_quests` DB round-trip; synthetic-world tests for the
+  full quest loops (Q00258/Q00320 with forced rolls), bypass routing,
+  abort, quest timers, the clan guard matrix/creation flow, ClanMaster
+  dialog gating vs the real dist htmls, and clan roster/chat scoping.
 - **Combat (G9):** physical-formula units with exact Java values; drop/
   corpse/aggro template assertions against the real dist; synthetic-world
   integration tests over the real tick systems — melee kill (rewards,

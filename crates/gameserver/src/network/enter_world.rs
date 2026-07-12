@@ -1,8 +1,9 @@
 //! The enter-world packet burst (`EnterWorld.runImpl`). Inventory is real as
-//! of G5, skills as of G6, shortcuts/macros as of G9.6 (those builders live
-//! in `server_packets.rs`); lists that depend on systems not yet built
-//! (quests, henna, friends, clan, mail) are still sent **empty** with TODOs;
-//! stat/position/action/item packets carry real values.
+//! of G5, skills as of G6, shortcuts/macros as of G9.6, friends as of G10,
+//! quest lists as of G11 (those builders live in `server_packets.rs` or
+//! here); lists that depend on systems not yet built (henna, mail) are
+//! still sent **empty** with TODOs; stat/position/action/item packets carry
+//! real values.
 //!
 //! Opcodes: plain packets use a single-byte id; extended packets use `0xFE` +
 //! a 2-byte little-endian sub-opcode.
@@ -90,6 +91,30 @@ pub fn inventory_update(
     w.into_bytes()
 }
 
+/// `InventoryUpdate` (0x21) from explicit [`ItemChange`]s — the shape quest
+/// `takeItems` needs: modified stacks write their new count, removed
+/// instances write change type 3 from the final snapshot (`remove_item`
+/// returns it; the instance no longer exists in the inventory).
+pub fn inventory_update_changes(
+    data: &GameData,
+    changes: &[crate::model::inventory::ItemChange],
+) -> Vec<u8> {
+    use crate::model::inventory::ItemChange;
+    let mut w = PacketWriter::new();
+    w.write_u8(0x21);
+    w.write_i16(changes.len() as i16);
+    for change in changes {
+        let (kind, item) = match change {
+            ItemChange::Modified(item) => (2i16, item),
+            ItemChange::Removed(item) => (3i16, item),
+        };
+        let Some(template) = data.item_data.get(item.item_id) else { continue };
+        w.write_i16(kind);
+        write_item_entry(&mut w, item, template, false);
+    }
+    w.into_bytes()
+}
+
 /// `SkillList` (0x5F), one entry per known skill (Java `Player.sendSkillList`
 /// via `SkillList.addSkill`): passive flag, level, sub-level, id, reuse-delay
 /// group (`Skill.reuseDelayGroup`, -1 when ungrouped), disabled (clan
@@ -164,12 +189,35 @@ pub fn etc_status_update() -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `QuestList` (0x86) — no active quests. TODO(G10).
-pub fn quest_list() -> Vec<u8> {
+/// `QuestList` (0x86): every STARTED quest as `(id, condBitSet)` plus the
+/// 128-byte one-time mask of COMPLETED quests (Java packs `id % 10000` into
+/// it, skipping the 256..10255 and >11023 id ranges that don't fit the
+/// client's table).
+pub fn quest_list(
+    quests: &crate::model::components::Quests,
+    registry: &crate::game_loop::quests::QuestRegistry,
+) -> Vec<u8> {
+    let mut active: Vec<(i32, i32)> = Vec::new();
+    let mut one_time_mask = [0u8; 128];
+    for (name, qs) in &quests.0 {
+        let Some(quest_id) = registry.quest_id(name) else { continue };
+        if quest_id <= 0 {
+            continue;
+        }
+        if qs.is_started() {
+            active.push((quest_id, qs.cond_bit_set()));
+        } else if qs.is_completed() && !((quest_id > 255 && quest_id < 10256) || quest_id > 11023) {
+            one_time_mask[(quest_id % 10000) as usize / 8] |= 1 << (quest_id % 8);
+        }
+    }
     let mut w = PacketWriter::new();
     w.write_u8(0x86);
-    w.write_i16(0); // active quests
-    w.write_bytes(&[0u8; 128]); // one-time quest mask
+    w.write_i16(active.len() as i16);
+    for (id, cond) in active {
+        w.write_i32(id);
+        w.write_i32(cond);
+    }
+    w.write_bytes(&one_time_mask);
     w.into_bytes()
 }
 
@@ -241,10 +289,20 @@ pub fn ex_get_bookmark_info() -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `ExQuestItemList` (0xC7) — no quest items exist yet (quests: later milestone).
-pub fn ex_quest_item_list() -> Vec<u8> {
+/// `ExQuestItemList` (0xC7) — the quest-inventory tab: the `is_quest_item`
+/// complement of `item_list`.
+pub fn ex_quest_item_list(inventory: &crate::model::inventory::Inventory, data: &GameData) -> Vec<u8> {
+    let entries: Vec<_> = inventory
+        .items()
+        .iter()
+        .filter_map(|item| data.item_data.get(item.item_id).map(|t| (item, t)))
+        .filter(|(_, t)| t.is_quest_item)
+        .collect();
     let mut w = ex(0xC7);
-    w.write_i16(0); // item count
+    w.write_i16(entries.len() as i16);
+    for (item, template) in &entries {
+        write_item_entry(&mut w, item, template, false);
+    }
     w.write_i16(0); // inventory block (none)
     w.into_bytes()
 }

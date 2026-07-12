@@ -5,6 +5,42 @@ use crate::network::client_packets as cp;
 use crate::session::ClientSession;
 use crate::world::World;
 
+/// The stack-or-create core of `Player.addItem`: merge into an existing
+/// stack (persisting the new count) or allocate an object id and insert a
+/// fresh instance. Returns the touched instance's object id; `None` only on
+/// id-pool exhaustion. Shared by the auto-loot path (`death::give_item`) and
+/// quest rewards (`quests`); the caller owns messaging/`InventoryUpdate`.
+pub(crate) fn add_inventory_item(world: &mut World, player_oid: i32, item_id: i32, count: i64) -> Option<i32> {
+    let stackable = world.data.item_data.get(item_id).map(|t| t.is_stackable).unwrap_or(false);
+    let existing_stack = stackable
+        .then(|| {
+            world
+                .objects
+                .get_component::<crate::model::inventory::Inventory>(&player_oid)
+                .and_then(|inv| inv.items().iter().find(|i| i.item_id == item_id).map(|i| i.object_id))
+        })
+        .flatten();
+
+    if let Some(stack_oid) = existing_stack {
+        let new_count = {
+            let inv = world
+                .objects
+                .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)
+                .expect("checked");
+            inv.add_item(&world.data.item_data, stack_oid, item_id, count);
+            inv.items().iter().find(|i| i.object_id == stack_oid).map(|i| i.count).unwrap_or(count)
+        };
+        let _ = world.db.send(db::DbCommand::UpdateItemCount { object_id: stack_oid, count: new_count });
+        Some(stack_oid)
+    } else {
+        let new_oid = world.alloc_object_id()?;
+        let inv = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
+        inv.add_item(&world.data.item_data, new_oid, item_id, count);
+        let _ = world.db.send(db::DbCommand::InsertItem { owner_id: player_oid, object_id: new_oid, item_id, count });
+        Some(new_oid)
+    }
+}
+
 /// Port of `clientpackets/UseItem.runImpl`, scoped to gear: right-clicking a
 /// `Weapon`/`Armor` toggles equip/unequip (Java routes both through this same
 /// packet). `EtcItem` "use" (potions, soulshots, …) is a later milestone — the

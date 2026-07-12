@@ -3,12 +3,14 @@
 //! to enter the world and display correctly. Inventory, skills, effects, and the
 //! full stat pipeline arrive in later milestones.
 
+pub mod clan;
 pub mod components;
 pub mod formulas;
 pub mod inventory;
 pub mod movement;
 pub mod npc;
 pub mod party;
+pub mod quest;
 pub mod shortcut;
 pub mod skill;
 pub mod stats;
@@ -100,6 +102,16 @@ pub struct Player {
     pub vitality_points: i32,
     pub fame: i32,
 
+    // Clan membership (G11 — creation/display slice). The `Clan` itself
+    // lives in `World.clans`; these are the per-player fields the
+    // UserInfo/CharInfo builders write. `clan_leader` is fixed up at
+    // enter-world from the live table (and by `create_clan`).
+    pub clan_id: i32,
+    pub clan_privs: i32,
+    pub clan_leader: bool,
+    /// `characters.clan_create_expiry_time` — the 10-day recreate cooldown.
+    pub clan_create_expiry_time: i64,
+
     pub face: i32,
     pub hair_style: i32,
     pub hair_color: i32,
@@ -147,6 +159,7 @@ pub struct PlayerData {
     pub shortcuts: Shortcuts,
     pub macros: Macros,
     pub friends: components::Friends,
+    pub quests: components::Quests,
 }
 
 
@@ -173,6 +186,7 @@ impl PlayerData {
                     self.shortcuts,
                     self.macros,
                     self.friends,
+                    self.quests,
                     AttackState::default(),
                     TargetRef::default(),
                     ClientPos::default(),
@@ -293,6 +307,10 @@ impl Player {
             pvp_kills: c.pvp_kills,
             vitality_points: c.vitality_points,
             fame: 0,
+            clan_id: c.clan_id,
+            clan_privs: c.clan_privs,
+            clan_leader: false, // fixed up at enter-world from World.clans
+            clan_create_expiry_time: c.clan_create_expiry_time,
             face: c.face,
             hair_style: c.hair_style,
             hair_color: c.hair_color,
@@ -346,6 +364,7 @@ impl Player {
             shortcuts: Shortcuts::from_list(shortcuts),
             macros: Macros::from_list(c.macros.clone()),
             friends: components::Friends(c.friends.clone()),
+            quests: components::Quests(c.quests.clone()),
         }
     }
 
