@@ -12,7 +12,7 @@
 //! system.
 
 use crate::model::components::{AttackState, Casting, Collision, CombatStats, Intent, Movement, PlayerVitals, Position, RegionCell, Speeds, Vitals};
-use crate::model::formulas;
+use crate::model::{formulas, Player};
 use crate::model::movement::{self, get_position, MoveData};
 use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 use crate::model::stats::BaseStat;
@@ -328,7 +328,11 @@ pub(crate) fn pawn_destination(mover: &Combatant, target: &Combatant, reach: f64
     if distance <= reach {
         return None;
     }
-    let frac = (distance - reach) / distance;
+    // Land 5 units inside reach (Java `moveToLocation`: "due to rounding
+    // error, we have to move a bit closer to be in range") — aiming at the
+    // exact boundary can round to a point just outside it, wedging the
+    // chase in an arrive/re-path loop that never satisfies the range gate.
+    let frac = (distance - (reach - 5.0).max(0.0)) / distance;
     let dest_x = mover.x + (dx * frac).round() as i32;
     let dest_y = mover.y + (dy * frac).round() as i32;
     let heading = movement::calculate_heading(dx, dy);

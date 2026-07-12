@@ -69,7 +69,9 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         return;
     }
     // A manual move click replaces an attack loop (MOVE_TO intention).
-    world.objects.remove_component::<Intent>(&object_id);
+    if world.objects.has_component::<Intent>(&object_id) {
+        world.objects.remove_component::<Intent>(&object_id);
+    }
 
     intention_move_to(world, client_id, object_id, cur, (pkt.target_x, pkt.target_y, pkt.target_z));
 }

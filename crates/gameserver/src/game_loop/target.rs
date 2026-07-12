@@ -2,7 +2,7 @@
 //! `Player.setTarget` port, and (G8) the `NpcAction` interact path — talking
 //! to a targeted NPC opens its chat window.
 
-use crate::model::components::{Intent, Position, TargetRef, Vitals};
+use crate::model::components::{Intent, Position, QueuedAction, TargetRef, Vitals};
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::session::ClientSession;
@@ -47,20 +47,38 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
     }
 }
 
-/// Port of `clientpackets/RequestTargetCanceld.runImpl`: Esc aborts an
-/// in-flight cast (Java `abortAllSkillCasters`, regardless of the
-/// `targetLost` flag), then clears the target if `targetLost`. The
-/// locked-target/queued-skill/air-ship guards are features that don't exist
-/// yet.
+/// Port of `clientpackets/RequestTargetCanceld.runImpl`: clear a queued
+/// skill (`setQueuedSkill(null, …)`), abort an in-flight cast (Java
+/// `abortAllSkillCasters`, regardless of the `targetLost` flag), then clear
+/// the target if `targetLost`. The locked-target/air-ship guards are
+/// features that don't exist yet.
+///
+/// The client sends this packet on a plain target *switch* too, not just
+/// Esc — Java's handler never touches the AI intention, so a walk-to-cast
+/// must survive it (`thinkCast` drives the intention's snapshotted cast
+/// target, not the player's current one). Only the attack loop ends, and
+/// only when the target is actually cleared: Java's `thinkAttack` follows
+/// the *current* target, which `setTarget(null)` just removed — our `Attack`
+/// intent snapshots the target, so drop it explicitly to match.
 pub(crate) fn handle_request_target_canceld(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::RequestTargetCanceld::read(body) else { return };
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
+    if matches!(
+        world.objects.get_component::<QueuedAction>(&object_id),
+        Some(QueuedAction::Skill { .. })
+    ) {
+        world.objects.remove_component::<QueuedAction>(&object_id);
+    }
     abort_cast(world, object_id);
-    // Esc also ends an attack loop (Java: ATTACK intention → ACTIVE).
-    world.objects.remove_component::<Intent>(&object_id);
     if !pkt.target_lost {
         return;
+    }
+    if matches!(
+        world.objects.get_component::<Intent>(&object_id),
+        Some(Intent(crate::model::PlayerIntent::Attack { .. }))
+    ) {
+        world.objects.remove_component::<Intent>(&object_id);
     }
     set_target(world, client_id, object_id, None);
 }

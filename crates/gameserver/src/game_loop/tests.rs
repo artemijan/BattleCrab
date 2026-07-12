@@ -2479,6 +2479,113 @@ fn move_click_cancels_walk_to_cast() {
     assert!(!packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE), "the cast never fires");
 }
 
+/// Selecting another target mid-walk must NOT drop the cast: Java's
+/// `RequestTargetCanceld` (which the client also sends on a target switch)
+/// never touches the AI intention, and `thinkCast` casts at the intention's
+/// snapshotted target even after a re-target.
+#[test]
+fn retarget_mid_walk_keeps_cast_intent() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_a = NPC_OID + 60;
+    spawn_targeted_monster(&mut world, &mut a_rx, npc_a, 700);
+
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    assert!(world.objects.has_component::<Intent>(&3001), "walk-to-cast started");
+
+    // Walk a couple of ticks, then switch to monster B — the client emits
+    // a target cancel followed by the new select click.
+    advance_world(&mut world, 2);
+    let npc_b = NPC_OID + 61;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_b, 40001, 300, 300, 0, 5000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_b);
+    world.objects.spawn(npc_b, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_b, cs);
+    handle_request_target_canceld(&mut world, 1, &target_canceld_body(true));
+    handle_action(&mut world, 1, &action_body(npc_b, 0));
+    drain(&mut a_rx);
+
+    assert!(world.objects.has_component::<Intent>(&3001), "re-target must not drop the cast intent");
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(npc_b), "target switched to B");
+    advance_world(&mut world, 60);
+    let packets = drain(&mut a_rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
+        "cast fires at the snapshotted target after the walk"
+    );
+    assert!(nvit(&world, npc_a).cur_hp < 5000.0, "nuke landed on monster A");
+    assert_eq!(nvit(&world, npc_b).cur_hp, 5000.0, "monster B untouched");
+}
+
+/// Same as `retarget_mid_walk_keeps_cast_intent`, but the new target is far
+/// away (out of the skill's cast range) — the reported live repro: the switch
+/// must still not drop the walk-to-cast, and the nuke still lands on A.
+#[test]
+fn retarget_mid_walk_to_far_target_keeps_cast_intent() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_a = NPC_OID + 62;
+    spawn_targeted_monster(&mut world, &mut a_rx, npc_a, 700);
+
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    assert!(world.objects.has_component::<Intent>(&3001), "walk-to-cast started");
+
+    // Walk a couple of ticks, then switch to monster B, far off to the side
+    // (well beyond castRange 600 from the walking player).
+    advance_world(&mut world, 2);
+    let npc_b = NPC_OID + 63;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_b, 40001, 700, 1500, 0, 5000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_b);
+    world.objects.spawn(npc_b, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_b, cs);
+    handle_request_target_canceld(&mut world, 1, &target_canceld_body(true));
+    handle_action(&mut world, 1, &action_body(npc_b, 0));
+    drain(&mut a_rx);
+
+    assert!(world.objects.has_component::<Intent>(&3001), "re-target must not drop the cast intent");
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(npc_b), "target switched to B");
+    advance_world(&mut world, 60);
+    let packets = drain(&mut a_rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
+        "cast fires at the snapshotted target after the walk"
+    );
+    assert!(nvit(&world, npc_a).cur_hp < 5000.0, "nuke landed on monster A");
+    assert_eq!(nvit(&world, npc_b).cur_hp, 5000.0, "monster B untouched");
+}
+
+/// Off-axis approach where the reach-boundary point rounds to integer
+/// coordinates just *outside* reach: from (0,0) to a monster at (500,500)
+/// (distance ~707.1, reach 619) the exact-boundary destination rounds to
+/// (62,62), which is ~619.4 from the target. Without Java `moveToLocation`'s
+/// "move a bit closer" inset (`distance -= (offset - 5)`) the chase wedges
+/// in an arrive/re-path loop there and the cast never fires.
+#[test]
+fn walk_to_cast_boundary_rounding_still_casts() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 64;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 500, 500, 0, 5000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    drain(&mut a_rx);
+
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    assert!(world.objects.has_component::<Intent>(&3001), "walk-to-cast started");
+
+    // ~93 units to walk at run speed — in range well within 20 ticks.
+    advance_world(&mut world, 20);
+    assert!(world.objects.has_component::<Casting>(&3001), "cast starts on arrival despite boundary rounding");
+    assert!(!world.objects.has_component::<Intent>(&3001), "the walk-to-cast intent is consumed");
+    let packets = drain(&mut a_rx);
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE), "the cast fires");
+}
+
 /// The walk-to-cast target dying mid-walk drops the intention on the next
 /// think (`checkTargetLost`).
 #[test]
