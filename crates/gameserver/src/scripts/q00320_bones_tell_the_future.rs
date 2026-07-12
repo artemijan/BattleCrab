@@ -50,26 +50,6 @@ impl QuestScript for Q00320BonesTellTheFuture {
         (ctx.player_level() > 18).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if ctx.has_qs() && event == "30359-04.htm" {
-            ctx.start_quest();
-            return Some(event.to_string());
-        }
-        None
-    }
-
-    /// Java rolls through `getRandomPartyMemberState(killer, 1, 3, npc)` —
-    /// killer-only here (documented G11 deviation), which reduces to the
-    /// cond-1 gate.
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs()
-            && ctx.is_cond(1)
-            && ctx.give_item_randomly(BONE_FRAGMENT, 1, REQUIRED_BONE_COUNT, DROP_CHANCE, true)
-        {
-            ctx.set_cond(2, false);
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -95,5 +75,25 @@ impl QuestScript for Q00320BonesTellTheFuture {
             .to_string());
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if ctx.has_qs() && event == "30359-04.htm" {
+            ctx.start_quest();
+            return Some(event.to_string());
+        }
+        None
+    }
+
+    /// Java rolls through `getRandomPartyMemberState(killer, 1, 3, npc)` —
+    /// killer-only here (documented G11 deviation), which reduces to the
+    /// cond-1 gate.
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if ctx.has_qs()
+            && ctx.is_cond(1)
+            && ctx.give_item_randomly(BONE_FRAGMENT, 1, REQUIRED_BONE_COUNT, DROP_CHANCE, true)
+        {
+            ctx.set_cond(2, false);
+        }
     }
 }

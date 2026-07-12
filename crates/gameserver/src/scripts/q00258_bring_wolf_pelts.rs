@@ -53,25 +53,6 @@ impl QuestScript for Q00258BringWolfPelts {
         (ctx.player_level() > 9).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if ctx.has_qs() && event.eq_ignore_ascii_case("30001-03.html") {
-            ctx.start_quest();
-            return Some(event.to_string());
-        }
-        None
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs() && ctx.is_cond(1) {
-            ctx.give_items(WOLF_PELT, 1);
-            if ctx.quest_items_count(WOLF_PELT) >= WOLF_PELT_COUNT {
-                ctx.set_cond(2, true);
-            } else {
-                ctx.play_sound(crate::network::server_packets::quest_sounds::ITEMGET);
-            }
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -95,5 +76,24 @@ impl QuestScript for Q00258BringWolfPelts {
             }
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if ctx.has_qs() && event.eq_ignore_ascii_case("30001-03.html") {
+            ctx.start_quest();
+            return Some(event.to_string());
+        }
+        None
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if ctx.has_qs() && ctx.is_cond(1) {
+            ctx.give_items(WOLF_PELT, 1);
+            if ctx.quest_items_count(WOLF_PELT) >= WOLF_PELT_COUNT {
+                ctx.set_cond(2, true);
+            } else {
+                ctx.play_sound(crate::network::server_packets::quest_sounds::ITEMGET);
+            }
+        }
     }
 }

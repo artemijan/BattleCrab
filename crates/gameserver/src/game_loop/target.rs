@@ -204,10 +204,11 @@ pub(crate) fn set_target(world: &mut World, client_id: u32, object_id: i32, new_
 
 /// The `NpcAction` interact branch (second click on the current NPC target):
 /// monsters start the auto-attack loop (G9); everything else in interaction
-/// range opens its chat window (`Npc.showChatWindow`). Out of range does
-/// nothing for dialogs — Java's walk-into-range AI intent is only ported for
-/// the attack path.
-fn interact_with_npc(world: &mut World, client_id: u32, object_id: i32, npc_object_id: i32) {
+/// range opens its chat window (`Npc.showChatWindow`). Out of range, the
+/// player walks in first (`combat::start_interact_intent`, Java's
+/// `AI_INTENTION_INTERACT`) and this function is re-entered on arrival —
+/// matching Java's `Player.doInteract` re-dispatching `onAction`.
+pub(crate) fn interact_with_npc(world: &mut World, client_id: u32, object_id: i32, npc_object_id: i32) {
     if world.objects.get_component::<crate::model::Player>(&object_id).is_none() {
         return;
     }
@@ -221,6 +222,7 @@ fn interact_with_npc(world: &mut World, client_id: u32, object_id: i32, npc_obje
         return;
     }
     if !can_interact(world, object_id, npc_object_id) {
+        super::combat::start_interact_intent(world, object_id, npc_object_id);
         return;
     }
     // `Npc.showChatWindow(player, 0)`.

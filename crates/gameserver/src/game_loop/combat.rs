@@ -12,7 +12,7 @@
 //! system.
 
 use crate::model::components::{AttackState, Casting, Collision, CombatStats, Intent, Movement, PlayerVitals, Position, RegionCell, Speeds, Vitals};
-use crate::model::{formulas, Player};
+use crate::model::formulas;
 use crate::model::movement::{self, get_position, MoveData};
 use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 use crate::model::stats::BaseStat;
@@ -198,6 +198,7 @@ pub(crate) fn player_combat_tick(world: &mut World) {
         match world.objects.get_component::<Intent>(&object_id).copied() {
             Some(Intent(PlayerIntent::Attack { .. })) => player_attack_think(world, object_id),
             Some(Intent(PlayerIntent::Cast { .. })) => player_cast_think(world, object_id),
+            Some(Intent(PlayerIntent::Interact { .. })) => player_interact_think(world, object_id),
             None => {}
         }
     }
@@ -386,6 +387,56 @@ pub(crate) fn player_cast_think(world: &mut World, object_id: i32) {
     }
     let Some(client_id) = client_for_player(world, object_id) else { return };
     super::skills::cast::use_magic_on(world, client_id, object_id, skill_id, ctrl, shift, Some(target_object_id));
+}
+
+/// Shared entry for "the player wants to talk to this NPC but
+/// `Npc.canInteract` failed" (out of `target::INTERACTION_DISTANCE`): Java's
+/// `NpcAction` sets `AI_INTENTION_INTERACT`, which `CreatureAI.onIntentionInteract`
+/// turns into an immediate `moveToPawn` — mirrored here by setting the intent
+/// and thinking it once synchronously, same as `start_attack_intent`.
+pub(crate) fn start_interact_intent(world: &mut World, object_id: i32, target_object_id: i32) {
+    world.objects.add_components(&object_id, Intent(PlayerIntent::Interact { target_object_id }));
+    player_interact_think(world, object_id);
+}
+
+/// `PlayerAI.thinkInteract`: chase to `maybeMoveToPawn(target, 36)` range,
+/// then hand back to `interact_with_npc` for a fully re-validated interaction
+/// — Java's `Player.doInteract` re-dispatches `target.onAction(this)`, which
+/// re-runs the same click handler now that `canInteract` (250 units) passes
+/// comfortably inside this 36-unit arrival range.
+fn player_interact_think(world: &mut World, object_id: i32) {
+    let Some(Intent(PlayerIntent::Interact { target_object_id })) =
+        world.objects.get_component::<Intent>(&object_id).copied()
+    else {
+        return;
+    };
+    if world.objects.get_component::<Vitals>(&object_id).is_none_or(|v| v.dead)
+        || world.objects.has_component::<Casting>(&object_id)
+    {
+        return;
+    }
+    let Some(attacker) = combatant(world, object_id) else { return };
+    // Target gone → drop the intention (Java `checkTargetLost`).
+    let Some(target) = combatant(world, target_object_id) else {
+        world.objects.remove_component::<Intent>(&object_id);
+        return;
+    };
+    const INTERACT_APPROACH_RANGE: i32 = 36;
+    let reach = INTERACT_APPROACH_RANGE as f64 + attacker.collision_radius + target.collision_radius;
+    if distance_2d(&attacker, &target) > reach {
+        chase_target(world, object_id, target_object_id, INTERACT_APPROACH_RANGE);
+        return;
+    }
+    // Arrived: stop the chase leg and re-run the interact click.
+    world.objects.remove_component::<Intent>(&object_id);
+    if world.objects.has_component::<Movement>(&object_id) {
+        world.objects.remove_component::<Movement>(&object_id);
+        if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
+            broadcast_including_self(world, object_id, &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading));
+        }
+    }
+    let Some(client_id) = client_for_player(world, object_id) else { return };
+    super::target::interact_with_npc(world, client_id, object_id, target_object_id);
 }
 
 // ---------------------------------------------------------------------------

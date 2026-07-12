@@ -582,7 +582,10 @@ NPCs a way to die).
   `Npc.showChatWindow` — `NpcHtmlMessage` (0x19) from
   `data/html/<type-dir>/{id}.htm` with the Folk `npcdefault.htm` fallback and
   `%objectId%`/`%npcname%` replacement (read per interaction; no `HtmCache`).
-  Walk-into-range AI intent not ported (same gap as the G7.5 cast-range gate).
+  Out-of-range clicks walk in first (`PlayerIntent::Interact`, `combat.rs`'s
+  `start_interact_intent`/`player_interact_think` — same chase-then-act shape
+  as the cast/attack intents) and re-run the interact click on arrival, same
+  as Java's `doInteract` re-dispatching `onAction`.
 - **Tests**: loader tests against the real dist (counts + hand-checked
   templates/spawn lines, elemental `<attribute>` vs base `<defence>`
   disambiguation, duration parsing, NPoly containment); `spawn_all` smoke
@@ -1016,8 +1019,7 @@ Empty/placeholder now, to be filled in the owning milestone:
   split + overhit; Java's teleport-home on attack timeout (we walk);
   elemental attributes (template parse skips them); `dbSave` raid
   persistence (`DBSpawnManager` — spawned statically at full HP);
-  walk-into-interaction-range AI intent for dialogs; `HtmCache` (dialog
-  `.htm`s are read per interaction) + bypass handling
+  `HtmCache` (dialog `.htm`s are read per interaction) + bypass handling
   (`RequestBypassToServer` — dialog buttons do nothing yet); server-side
   `Say2` chat around NPCs; zones/doors/`StaticObjectData`
   (the plan's remaining static-world scope; `MapRegionManager` now exists

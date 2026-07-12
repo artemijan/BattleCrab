@@ -172,7 +172,7 @@ impl LoginClient {
 /// Run the login flow; returns the 4 session-key ints (loginOk1/2, playOk1/2).
 async fn do_login(addr: std::net::SocketAddr, user: &str, password: &str) -> (i32, i32, i32, i32) {
     let stream = TcpStream::connect(addr).await.unwrap();
-    let (mut read, mut write) = stream.into_split();
+    let (mut read, write) = stream.into_split();
     let mut init = read_frame(&mut read, 8192).await.unwrap().unwrap();
     NewCrypt::new(&STATIC_BLOWFISH_KEY).decrypt(&mut init);
     dec_xor_pass(&mut init);

@@ -1603,6 +1603,54 @@ fn action_on_npc_selects_then_second_click_opens_chat_window() {
     assert!(rx.try_recv().is_err());
 }
 
+/// `Action` on a talkable NPC outside `INTERACTION_DISTANCE`: the second
+/// click can't open the dialog immediately (`Npc.canInteract` fails), so the
+/// player walks in first (`AI_INTENTION_INTERACT` / `Interact` intent) —
+/// `MoveToPawn` goes out, then once movement ticks close the distance the
+/// chat window opens on its own, with no further client click.
+#[test]
+fn action_on_far_npc_walks_in_then_opens_chat_window() {
+    let (mut world, ..) = test_world();
+    add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 2000, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Speeds>(&3001).unwrap().run_spd = 100.0;
+
+    // First click: select (far away, selection itself isn't range-gated).
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    drain(&mut rx);
+
+    // Second click: too far to talk (2000 > INTERACTION_DISTANCE=250) — walks
+    // in instead of doing nothing.
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    let packets = drain(&mut rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::MOVE_TO_PAWN),
+        "out-of-range talk click must start walking toward the NPC"
+    );
+    assert!(
+        !packets.iter().any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
+        "no dialog yet — still far away"
+    );
+    assert!(matches!(
+        world.objects.get_component::<Intent>(&3001).copied(),
+        Some(Intent(crate::model::PlayerIntent::Interact { target_object_id })) if target_object_id == NPC_OID
+    ));
+
+    // Run the movement + combat-tick systems until the player arrives and
+    // re-triggers the interact click on its own (Java: `EVT_ARRIVED` →
+    // `thinkInteract` → `doInteract` re-dispatching `onAction`).
+    advance_world(&mut world, 400);
+    let packets = drain(&mut rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
+        "chat window must open once the walk-in arrives"
+    );
+    assert!(
+        world.objects.get_component::<Intent>(&3001).is_none(),
+        "interact intent consumed on arrival"
+    );
+}
+
 /// `Action` on a monster tints `MyTargetSelected` with the level gap and the
 /// second click does nothing yet (attack intent is G9) — no chat window.
 #[test]

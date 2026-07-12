@@ -52,12 +52,16 @@ pub struct CastState {
 /// (and walking into range of) the target until it dies, the player cancels
 /// (Esc / move click), or the player dies — `PlayerAI.thinkAttack`'s loop.
 /// `Cast` walks into cast range of the snapshotted target and then casts —
-/// `PlayerAI.thinkCast` → `maybeMoveToPawn`. Both are driven from the combat
-/// tick system and cleared by the same cancel paths.
+/// `PlayerAI.thinkCast` → `maybeMoveToPawn`. `Interact` walks into an NPC's
+/// talk range and then re-runs the interact click — `PlayerAI.thinkInteract`
+/// → `maybeMoveToPawn` → `Player.doInteract` re-dispatching `onAction`. All
+/// three are driven from the combat tick system and cleared by the same
+/// cancel paths.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PlayerIntent {
     Attack { target_object_id: i32 },
     Cast { skill_id: i32, ctrl: bool, shift: bool, target_object_id: i32 },
+    Interact { target_object_id: i32 },
 }
 
 /// One live cooldown (Java `TimeStamp`, trimmed): `SkillCoolTime` reports the
