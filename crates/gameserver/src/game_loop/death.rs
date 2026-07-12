@@ -28,7 +28,7 @@ const ADENA_ID: i32 = 57;
 /// `Npc/Attackable.doDie`: mark dead, hand out rewards, broadcast `Die`,
 /// schedule the decay task.
 pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
-    let corpse_secs = {
+    let (corpse_secs, max_hp) = {
         let Some((npc, mut vitals)) =
             world.objects.get_many_mut::<(&mut crate::model::npc::Npc, &mut Vitals)>(&npc_oid)
         else {
@@ -40,19 +40,34 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         vitals.dead = true;
         vitals.cur_hp = 0.0;
         let npc_id = npc.npc_id;
+        let max_hp = vitals.max_hp;
         drop((npc, vitals));
         world.objects.remove_component::<Movement>(&npc_oid);
-        world
+        let corpse_secs = world
             .data
             .npc_data
             .get(npc_id)
             .and_then(|t| t.corpse_time)
-            .unwrap_or(world.cfg.npc.default_corpse_time)
+            .unwrap_or(world.cfg.npc.default_corpse_time);
+        (corpse_secs, max_hp)
     };
     let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
 
     calculate_rewards(world, npc_oid, killer_oid);
 
+    // `setCurrentHp(0)` broadcasts the final StatusUpdate before `Die` —
+    // without it the target window keeps the last non-zero HP.
+    broadcast_near_region(
+        world,
+        region,
+        &server_packets::status_update(
+            npc_oid,
+            &[
+                (server_packets::status_update_type::MAX_HP, max_hp),
+                (server_packets::status_update_type::CUR_HP, 0),
+            ],
+        ),
+    );
     broadcast_near_region(world, region, &server_packets::die(npc_oid, false));
     world
         .scheduler
@@ -388,12 +403,15 @@ fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
         vitals.max_hp = crate::model::calc_max_hp(data, &t, p.level) as i32;
         vitals.max_mp = crate::model::calc_max_mp(data, &t, p.level) as i32;
         pvitals.max_cp = crate::model::calc_max_cp(data, &t, p.level) as i32;
-        vitals.cur_hp = vitals.cur_hp.min(vitals.max_hp as f64);
-        vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
         if leveled_up {
-            // `addLevel`: CP refills on level-up.
+            // Classic level-up: all vitals refill (Mobius Java only refills
+            // CP here, but retail Classic restores HP/MP too).
+            vitals.cur_hp = vitals.max_hp as f64;
+            vitals.cur_mp = vitals.max_mp as f64;
             pvitals.cur_cp = pvitals.max_cp as f64;
         } else {
+            vitals.cur_hp = vitals.cur_hp.min(vitals.max_hp as f64);
+            vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
             pvitals.cur_cp = pvitals.cur_cp.min(pvitals.max_cp as f64);
         }
         p.recalculate_stats(data, &base, &mods, &mut speeds, &mut combat);
