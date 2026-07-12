@@ -35,7 +35,7 @@ pub(crate) fn is_npc_oid(object_id: i32) -> bool {
 }
 
 /// `Vitals` of any combat actor (one store since the world merge).
-pub(crate) fn vitals_of<'a>(world: &'a World, object_id: i32) -> Option<&'a Vitals> {
+pub(crate) fn vitals_of(world: &World, object_id: i32) -> Option<&Vitals> {
     world.objects.get_component::<Vitals>(&object_id)
 }
 
