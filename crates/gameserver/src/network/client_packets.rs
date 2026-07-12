@@ -146,10 +146,10 @@ impl UseItem {
     }
 }
 
-/// Port of `clientpackets/RequestMagicSkillUse` (`cdc`). `shift_pressed`
-/// (Java `dontMove`, used for don't-move casting and ground targeting) is
-/// read for stream correctness but drives nothing yet — no follow-into-range
-/// or ground targeting until later milestones.
+/// Port of `clientpackets/RequestMagicSkillUse` (`cdc`). `shift_pressed` is
+/// Java's `dontMove`: an out-of-range shift-cast is cancelled (SM 748)
+/// instead of walking into range. Ground targeting still waits on a later
+/// milestone.
 pub struct RequestMagicSkillUse {
     pub magic_id: i32,
     pub ctrl_pressed: bool,

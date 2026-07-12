@@ -208,6 +208,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::AttackHit { attacker, target, damage, miss, crit } => {
                 combat::handle_attack_hit(world, attacker, target, damage, miss, crit);
             }
+            ScheduledTask::AttackFinish { object_id } => {
+                helpers::run_queued_action(world, object_id);
+            }
             ScheduledTask::NpcDecay { npc_object_id } => {
                 death::handle_npc_decay(world, npc_object_id);
             }

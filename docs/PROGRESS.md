@@ -322,8 +322,8 @@ damage math, server-side reuse enforcement, and cast interruption.
   `Self`/`Target`/`Enemy`/`EnemyOnly` target-handler scripts (players only,
   no geodata LOS/peace zones; with no PvP flags an `ENEMY` cast always needs
   ctrl/force-use). Cast-range gate ports `Util.checkIfInRange` with collision
-  radii (out-of-range = `ActionFailed`; Java's walk-into-range AI is not
-  ported).
+  radii (out-of-range = `ActionFailed`; Java's walk-into-range AI was not
+  ported at the time — done post-G9.5 via `PlayerIntent::Cast`).
 - **Effects**: `SkillEffect` enum (`StatModifier` | `MagicalAttack` |
   `Heal`) replaces the stat-modifier-only effect list; buffs now land on the
   *resolved target* (buff-a-friend works). Magic damage drains **CP first**
@@ -781,8 +781,12 @@ Empty/placeholder now, to be filled in the owning milestone:
   sweeps, soulshots (`SHOTS_BONUS`), shield defence (`calcShldUse` — needs
   item `<stats>` parsing), PvP auto-attack (needs PvP flags/karma); AoE
   affect scopes (only `SINGLE` resolves); `ALT_GAME_MAGICFAILURES`
-  magic-resist rolls (`calcMagicSuccess`); queued skills +
-  walk-into-cast-range AI; the other 8 `AcquireSkillType`s (PLEDGE,
+  magic-resist rolls (`calcMagicSuccess`); ~~queued skills +
+  walk-into-cast-range AI~~ (both done: `QueuedAction` slot + `PlayerIntent::Cast`
+  chase — an out-of-range cast walks into cast range then casts at the
+  snapshotted target, shift-click = `dontMove` → SM 748; ground-target
+  `maybeMoveToPosition` still waits on GROUND targeting);
+  the other 8 `AcquireSkillType`s (PLEDGE,
   TRANSFORM, TRANSFER, SUBCLASS, …); toggle-type skills; skill mastery +
   `MAGIC_REUSE_RATE`; skill reuse-delay persistence across relog;
   `ExAbnormalStatusUpdateFromTarget` (broadcast to other players); most of

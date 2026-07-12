@@ -236,6 +236,11 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
 
     db::spawn(db_url, 1, 7, db_cmd_rx, db_event_tx);
 
+    let geo = std::sync::Arc::new(gameserver::geo::GeoEngine::empty());
+    let (path_tx, path_req_rx) = std::sync::mpsc::channel();
+    let (path_event_tx, path_rx) = std::sync::mpsc::channel();
+    gameserver::geo::worker::spawn(geo.clone(), Default::default(), path_req_rx, path_event_tx);
+
     let data = gameserver::data::GameData::load();
     let _game = game_loop::spawn(
         Shutdown::new(),
@@ -246,7 +251,9 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
             db_rx,
             db_tx,
             data,
-            geo: gameserver::geo::GeoEngine::empty(),
+            geo,
+            path_tx,
+            path_rx,
             path_finding: 2,
             max_characters_per_account: 7,
             delete_days: 3,

@@ -505,6 +505,14 @@ fn magic_skill_use_body(magic_id: i32, ctrl: bool) -> Vec<u8> {
     w.into_bytes()
 }
 
+fn magic_skill_use_body_shift(magic_id: i32, ctrl: bool) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(magic_id);
+    w.write_i32(if ctrl { 1 } else { 0 });
+    w.write_u8(1); // shiftPressed — Java `dontMove`
+    w.into_bytes()
+}
+
 /// The `SystemMessage` id of a packet (opcode 0x62 + LE i16 id).
 fn sm_id(pkt: &[u8]) -> i16 {
     assert_eq!(pkt[0], server_packets::opcodes::SYSTEM_MESSAGE, "not a SystemMessage: 0x{:02x}", pkt[0]);
@@ -763,9 +771,10 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
     assert!(b_rx.try_recv().is_err(), "rejected cast must not broadcast");
 }
 
-/// Out-of-cast-range requests are rejected before anything is announced.
+/// A shift-click cast out of range (Java `dontMove`) is cancelled with
+/// SM 748 — no walk-into-range, nothing announced.
 #[test]
-fn cast_out_of_range_rejected() {
+fn shift_cast_out_of_range_cancelled_without_moving() {
     let (mut world, ..) = cast_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let mut b_rx = ingame_caster(&mut world, 2, 3002, 700, 0); // castRange 600
@@ -773,11 +782,14 @@ fn cast_out_of_range_rejected() {
     drain(&mut a_rx);
     drain(&mut b_rx);
 
-    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body_shift(1177, true));
+    assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::DISTANCE_TOO_FAR_CASTING_CANCELLED);
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
     assert!(a_rx.try_recv().is_err());
     assert!(b_rx.try_recv().is_err());
     assert!(!world.objects.has_component::<Casting>(&3001));
+    assert!(!world.objects.has_component::<Intent>(&3001), "dontMove must not start a walk-to-cast");
+    assert!(!world.objects.has_component::<Movement>(&3001));
 }
 
 /// A lethal nuke kills (G9): HP hits 0, the victim is dead, and `Die` with
@@ -1075,6 +1087,305 @@ fn incoming_magic_damage_can_break_precast() {
     // B's stale launch task fires and no-ops: no buff ever lands.
     advance_ticks(&mut world, 60);
     assert_eq!(pbuffs(&world, 3002), 0);
+}
+
+/// A move click during a cast is rejected (ActionFailed, cast keeps going)
+/// but saved as the next intention, and the move starts by itself once the
+/// cast stops — Java `PlayerAI.onIntentionMoveTo`'s `saveNextIntention` +
+/// `onEvtFinishCasting`.
+#[test]
+fn move_click_during_cast_is_queued_and_replayed_when_cast_stops() {
+    use crate::model::components::QueuedAction;
+
+    let (mut world, ..) = cast_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+    world.objects.get_component_mut::<Speeds>(&3001).unwrap().run_spd = 100.0;
+    world.objects.get_component_mut::<Speeds>(&3001).unwrap().running = true;
+
+    handle_action(&mut world, 1, &action_body(3002, 0));
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+    assert!(world.objects.has_component::<Casting>(&3001));
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    // Click to move mid-cast: rejected, cast intact, click remembered.
+    handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
+    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert!(a_rx.try_recv().is_err(), "nothing else while the cast runs");
+    assert!(world.objects.has_component::<Casting>(&3001), "the cast is not aborted");
+    assert!(!world.objects.has_component::<Movement>(&3001), "no move yet");
+    assert!(matches!(world.objects.get_component::<QueuedAction>(&3001), Some(QueuedAction::Move { .. })));
+
+    // Launch (35 ticks) + finish (5 more, coolTime 0 frees the slot): the
+    // queued click replays through the normal move pipeline.
+    advance_ticks(&mut world, 45);
+    assert!(!world.objects.has_component::<Casting>(&3001));
+    assert!(!world.objects.has_component::<QueuedAction>(&3001), "queue consumed");
+    let mv = world.objects.get_component::<Movement>(&3001).expect("move started at cast end");
+    assert_eq!((mv.0.dest_x, mv.0.dest_y), (500, 0));
+    let a_packets = drain(&mut a_rx);
+    assert!(a_packets.iter().any(|p| p[0] == server_packets::opcodes::MOVE_TO_LOCATION));
+    let b_packets = drain(&mut b_rx);
+    assert!(b_packets.iter().any(|p| p[0] == server_packets::opcodes::MOVE_TO_LOCATION));
+}
+
+/// Casting a good skill while running pauses the move and resumes it toward
+/// the original destination after the cast; an offensive skill forgets it —
+/// Java `PlayerAI.changeIntention`'s save/clear of the interrupted intention.
+#[test]
+fn good_skill_cast_pauses_and_resumes_inflight_move() {
+    use crate::model::components::QueuedAction;
+
+    let (mut world, ..) = cast_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    world.objects.get_component_mut::<Speeds>(&3001).unwrap().run_spd = 100.0;
+    world.objects.get_component_mut::<Speeds>(&3001).unwrap().running = true;
+
+    handle_move_backward_to_location(&mut world, 1, &move_body((600, 0, 0), (0, 0, 0), 1));
+    assert!(world.objects.has_component::<Movement>(&3001));
+    drain(&mut a_rx);
+
+    // Slow Aura (good, self): the move stops but its destination is saved.
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(91, false));
+    assert!(world.objects.has_component::<Casting>(&3001));
+    assert!(!world.objects.has_component::<Movement>(&3001), "cast stops the move");
+    match world.objects.get_component::<QueuedAction>(&3001) {
+        Some(&QueuedAction::Move { x, y, z }) => assert_eq!((x, y, z), (600, 0, 0)),
+        other => panic!("interrupted move not saved: {other:?}"),
+    }
+
+    // hit 9500 ms (95 ticks) + finish 5 ticks later: the move resumes.
+    advance_ticks(&mut world, 101);
+    assert!(!world.objects.has_component::<Casting>(&3001));
+    let mv = world.objects.get_component::<Movement>(&3001).expect("move resumed after the cast");
+    assert_eq!((mv.0.dest_x, mv.0.dest_y), (600, 0));
+
+    // An offensive cast instead forgets the interrupted move.
+    let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+    handle_action(&mut world, 1, &action_body(3002, 0));
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+    assert!(world.objects.has_component::<Casting>(&3001));
+    assert!(!world.objects.has_component::<Movement>(&3001), "cast stops the move");
+    assert!(!world.objects.has_component::<QueuedAction>(&3001), "bad skill forgets the move");
+    advance_ticks(&mut world, 45);
+    assert!(!world.objects.has_component::<Movement>(&3001), "nothing resumes after a nuke");
+}
+
+/// A skill clicked during a cast is queued (`Player._queuedSkill`) and fires
+/// when the cast stops, resolved against the player's *current* target — so
+/// re-targeting mid-cast redirects the queued skill (Java `stopCasting` →
+/// `useMagic`, which re-resolves the target).
+#[test]
+fn skill_queued_during_cast_replays_on_current_target() {
+    use crate::model::components::QueuedAction;
+
+    let (mut world, ..) = cast_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let _b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+    let _c_rx = ingame_caster(&mut world, 3, 3003, 150, 0);
+    world.objects.get_component_mut::<Vitals>(&3003).unwrap().cur_hp = 50.0;
+
+    // A nukes B (hit 3500 + finish 500 ms = 40 ticks).
+    handle_action(&mut world, 1, &action_body(3002, 0));
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+    assert!(world.objects.has_component::<Casting>(&3001));
+    drain(&mut a_rx);
+
+    // Mid-cast: select C, then click Battle Heal → rejected but queued.
+    handle_action(&mut world, 1, &action_body(3003, 0));
+    drain(&mut a_rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1015, false));
+    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert!(a_rx.try_recv().is_err(), "nothing else while the cast runs");
+    assert!(
+        matches!(world.objects.get_component::<QueuedAction>(&3001), Some(QueuedAction::Skill { skill_id: 1015, .. })),
+        "skill click parked in the queue slot"
+    );
+    assert_eq!(
+        world.objects.get_component::<Casting>(&3001).unwrap().0.skill_id,
+        1177,
+        "the running cast is untouched"
+    );
+
+    // The nuke finishes → the queued heal starts by itself, aimed at C.
+    advance_ticks(&mut world, 45);
+    let cast = world.objects.get_component::<Casting>(&3001).expect("queued skill cast started");
+    assert_eq!(cast.0.skill_id, 1015);
+    assert_eq!(cast.0.target_object_id, 3003, "replay resolves the mid-cast re-target");
+    assert!(!world.objects.has_component::<QueuedAction>(&3001), "queue consumed");
+
+    // Heal phases (hit 500 + finish 500 ms): C's HP goes up.
+    advance_ticks(&mut world, 12);
+    assert!(pvit(&world, 3003).cur_hp > 50.0, "heal landed on the new target");
+}
+
+/// The queue slot is last-click-wins, both ways: a skill click supersedes a
+/// queued move (Java: the `stopCasting` skill launch makes the new cast
+/// forget `_nextIntention`), and a later move click wipes a queued skill
+/// (Java `MoveBackwardToLocation.runImpl`'s "remove queued skill upon move
+/// request").
+#[test]
+fn queued_action_slot_is_last_click_wins() {
+    use crate::model::components::QueuedAction;
+
+    let (mut world, ..) = cast_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let _b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+    world.objects.get_component_mut::<Speeds>(&3001).unwrap().run_spd = 100.0;
+    world.objects.get_component_mut::<Speeds>(&3001).unwrap().running = true;
+
+    handle_action(&mut world, 1, &action_body(3002, 0));
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+    drain(&mut a_rx);
+
+    handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
+    assert!(matches!(world.objects.get_component::<QueuedAction>(&3001), Some(QueuedAction::Move { .. })));
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1015, false));
+    assert!(matches!(world.objects.get_component::<QueuedAction>(&3001), Some(QueuedAction::Skill { skill_id: 1015, .. })));
+    handle_move_backward_to_location(&mut world, 1, &move_body((600, 0, 0), (0, 0, 0), 1));
+    match world.objects.get_component::<QueuedAction>(&3001) {
+        Some(&QueuedAction::Move { x, .. }) => assert_eq!(x, 600, "move click wipes the queued skill"),
+        other => panic!("expected the last move click in the slot: {other:?}"),
+    }
+
+    // Cast end: the last click (move) replays; no second cast starts.
+    advance_ticks(&mut world, 45);
+    assert!(!world.objects.has_component::<Casting>(&3001));
+    let mv = world.objects.get_component::<Movement>(&3001).expect("move started at cast end");
+    assert_eq!((mv.0.dest_x, mv.0.dest_y), (600, 0));
+}
+
+/// A skill clicked mid-swing (`isAttackingNow`) queues and fires when the
+/// swing period ends (Java `thinkAttack`'s queued-skill check /
+/// `EVT_READY_TO_ACT`), leaving the attack intent alive to resume after.
+#[test]
+fn skill_mid_swing_is_queued_until_swing_end() {
+    use crate::model::components::QueuedAction;
+
+    let (mut world, ..) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 20;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    // Swing rolls: hit, no crit, ±0 random damage.
+    world.forced_rolls.extend([0, 99, 10]);
+    handle_attack_request(&mut world, 1, &attack_request_body(npc_oid));
+    drain(&mut a_rx);
+    let swing_end = world.objects.get_component::<crate::model::components::AttackState>(&3001).unwrap().attack_end_tick;
+    assert!(swing_end > world.tick, "swing in flight");
+
+    // Mid-swing skill click: rejected, queued, intent intact.
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(91, false));
+    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert!(!world.objects.has_component::<Casting>(&3001), "no cast mid-swing");
+    assert!(matches!(world.objects.get_component::<QueuedAction>(&3001), Some(QueuedAction::Skill { skill_id: 91, .. })));
+    assert!(world.objects.has_component::<Intent>(&3001), "skill click keeps the attack intent");
+
+    // Swing period over (`AttackFinish`): the queued cast starts.
+    let remaining = swing_end - world.tick;
+    advance_ticks(&mut world, remaining);
+    let cast = world.objects.get_component::<Casting>(&3001).expect("queued skill fired at swing end");
+    assert_eq!(cast.0.skill_id, 91);
+    assert!(world.objects.has_component::<Intent>(&3001), "attack resumes after the cast");
+}
+
+/// A move click mid-swing waits out the swing (Java `onIntentionMoveTo`'s
+/// `isAttackingNow` branch) and starts at swing end via `AttackFinish` —
+/// which must fire even though the click dropped the attack intent.
+#[test]
+fn move_click_mid_swing_defers_to_swing_end() {
+    use crate::model::components::QueuedAction;
+
+    let (mut world, ..) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 21;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    world.forced_rolls.extend([0, 99, 10]);
+    handle_attack_request(&mut world, 1, &attack_request_body(npc_oid));
+    drain(&mut a_rx);
+    let swing_end = world.objects.get_component::<crate::model::components::AttackState>(&3001).unwrap().attack_end_tick;
+
+    handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
+    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert!(!world.objects.has_component::<Movement>(&3001), "no move mid-swing");
+    assert!(!world.objects.has_component::<Intent>(&3001), "move click ends the attack loop");
+    assert!(matches!(world.objects.get_component::<QueuedAction>(&3001), Some(QueuedAction::Move { .. })));
+
+    let remaining = swing_end - world.tick;
+    advance_ticks(&mut world, remaining);
+    let mv = world.objects.get_component::<Movement>(&3001).expect("move started at swing end");
+    assert_eq!((mv.0.dest_x, mv.0.dest_y), (500, 0));
+}
+
+fn use_item_body(object_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(object_id);
+    w.write_i32(0); // ctrl
+    w.into_bytes()
+}
+
+/// Equipping gear during a cast is deferred to cast end (Java `UseItem`'s
+/// `setNextAction(NextAction(EVT_FINISH_CASTING, …))`), silently — no packet
+/// at click time, the equip lands when the cast stops.
+#[test]
+fn equip_click_during_cast_is_deferred_to_cast_end() {
+    use crate::model::components::QueuedAction;
+    use crate::model::inventory::Inventory;
+
+    let (mut world, ..) = cast_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+        item_id: 2,
+        name: "Test Sword".into(),
+        kind: crate::data::item_data::ItemKind::Weapon,
+        body_part: crate::data::item_data::SLOT_R_HAND,
+        weight: 0,
+        is_stackable: false,
+        type1: 0,
+        type2: 0,
+        is_quest_item: false,
+    });
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9001, 2, 1);
+    }
+
+    // Slow self-cast, then the equip click mid-cast: swallowed silently.
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(91, false));
+    drain(&mut a_rx);
+    items::handle_use_item(&mut world, 1, &use_item_body(9001));
+    assert!(a_rx.try_recv().is_err(), "no packet at click time (Java sends none)");
+    assert!(matches!(
+        world.objects.get_component::<QueuedAction>(&3001),
+        Some(QueuedAction::UseItem { item_object_id: 9001 })
+    ));
+    {
+        let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+        assert!(inv.paperdoll_slot_of(9001).is_none(), "not equipped mid-cast");
+    }
+
+    // Cast ends (hit 9500 + finish 500 ms): the equip fires.
+    advance_ticks(&mut world, 101);
+    assert!(!world.objects.has_component::<QueuedAction>(&3001), "queue consumed");
+    let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+    assert!(inv.paperdoll_slot_of(9001).is_some(), "sword equipped at cast end");
+    let packets = drain(&mut a_rx);
+    assert!(!packets.is_empty(), "InventoryUpdate/UserInfo sent with the deferred equip");
 }
 
 /// Puts a bare `Player` (built from `dummy_char`) straight into `InGame`,
@@ -2095,6 +2406,92 @@ fn attack_out_of_reach_chases_and_monster_retaliates() {
             && sm_id(p) == server_packets::sm_ids::C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2),
         "victim damage message"
     );
+}
+
+/// Spawn the standard 5000-HP test monster at `x` and target it with the
+/// caster's `Action` click.
+fn spawn_targeted_monster(
+    world: &mut World,
+    a_rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    npc_oid: i32,
+    x: i32,
+) {
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, x, 0, 0, 5000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+    handle_action(world, 1, &action_body(npc_oid, 0));
+    drain(a_rx);
+}
+
+/// An out-of-range cast walks the caster into cast range (Java `useMagic` →
+/// CAST intention → `thinkCast`/`maybeMoveToPawn`) and only then starts the
+/// cast at the snapshotted target.
+#[test]
+fn cast_out_of_range_walks_into_range_then_casts() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 9;
+    // 700 away — castRange 600 + collision 9 + 10 leaves ~81 units to walk.
+    spawn_targeted_monster(&mut world, &mut a_rx, npc_oid, 700);
+
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    let packets = drain(&mut a_rx);
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::MOVE_TO_PAWN), "walks toward the cast target");
+    assert!(!packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE), "no cast before range");
+    assert!(world.objects.has_component::<Intent>(&3001));
+    assert!(!world.objects.has_component::<Casting>(&3001));
+
+    // ~81 units at run speed 115 ⇒ in range in ~8 ticks.
+    advance_world(&mut world, 15);
+    assert!(world.objects.has_component::<Casting>(&3001), "cast starts on arrival");
+    assert!(!world.objects.has_component::<Intent>(&3001), "the walk-to-cast intent is consumed");
+    assert!(!world.objects.has_component::<Movement>(&3001), "chase leg stopped before casting");
+    let packets = drain(&mut a_rx);
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE));
+
+    // Launch (35 ticks) + finish (5): the nuke lands on the walked-to monster.
+    advance_world(&mut world, 45);
+    assert!(nvit(&world, npc_oid).cur_hp < 5000.0, "nuke landed after the walk");
+}
+
+/// A move click while walking to cast abandons the cast intention (Java: the
+/// new MOVE_TO intention replaces CAST) — the player never casts.
+#[test]
+fn move_click_cancels_walk_to_cast() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 10;
+    spawn_targeted_monster(&mut world, &mut a_rx, npc_oid, 700);
+
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    assert!(world.objects.has_component::<Intent>(&3001));
+
+    handle_move_backward_to_location(&mut world, 1, &move_body((0, 300, 0), (0, 0, 0), 1));
+    assert!(!world.objects.has_component::<Intent>(&3001), "move click drops the walk-to-cast");
+    advance_world(&mut world, 60);
+    assert!(!world.objects.has_component::<Casting>(&3001));
+    let packets = drain(&mut a_rx);
+    assert!(!packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE), "the cast never fires");
+}
+
+/// The walk-to-cast target dying mid-walk drops the intention on the next
+/// think (`checkTargetLost`).
+#[test]
+fn walk_to_cast_target_death_drops_intent() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 11;
+    spawn_targeted_monster(&mut world, &mut a_rx, npc_oid, 700);
+
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    assert!(world.objects.has_component::<Intent>(&3001));
+
+    world.objects.get_component_mut::<Vitals>(&npc_oid).unwrap().dead = true;
+    advance_world(&mut world, 1);
+    assert!(!world.objects.has_component::<Intent>(&3001), "dead target ends the walk-to-cast");
+    assert!(!world.objects.has_component::<Casting>(&3001));
 }
 
 /// An aggressive monster acquires a player who just stands inside its aggro

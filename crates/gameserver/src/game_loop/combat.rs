@@ -1,6 +1,7 @@
 //! The auto-attack pipeline (G9): `AttackRequest` handling, the player
-//! attack-intent think loop (`PlayerAI.thinkAttack` + `CreatureFollowTask`),
-//! the shared swing/hit mechanics (`Creature.doAutoAttack` →
+//! intent think loops (`PlayerAI.thinkAttack`/`thinkCast` +
+//! `CreatureFollowTask` — chase into attack or cast range, then act), the
+//! shared swing/hit mechanics (`Creature.doAutoAttack` →
 //! `CreatureAttackTaskManager` → `onHitTimeNotDual` → `onHitTarget`), and the
 //! combat-stance tracker (`AttackStanceTaskManager`).
 //!
@@ -188,13 +189,17 @@ pub(crate) fn start_attack_intent(world: &mut World, client_id: u32, object_id: 
     player_attack_think(world, object_id);
 }
 
-/// Per-tick player combat system: drive every attack intent one step. The
-/// sweep is presence-filtered — only intent-holders are visited.
+/// Per-tick player combat system: drive every attack/cast intent one step.
+/// The sweep is presence-filtered — only intent-holders are visited.
 pub(crate) fn player_combat_tick(world: &mut World) {
     let mut ids: Vec<i32> = Vec::new();
     world.objects.for_each_mut::<(&crate::model::Player, &Intent)>(|(p, _)| ids.push(p.object_id));
     for object_id in ids {
-        player_attack_think(world, object_id);
+        match world.objects.get_component::<Intent>(&object_id).copied() {
+            Some(Intent(PlayerIntent::Attack { .. })) => player_attack_think(world, object_id),
+            Some(Intent(PlayerIntent::Cast { .. })) => player_cast_think(world, object_id),
+            None => {}
+        }
     }
 }
 
@@ -229,11 +234,21 @@ fn player_attack_think(world: &mut World, object_id: i32) {
     {
         return;
     }
+    // A skill queued during the swing fires before the next swing (Java
+    // `thinkAttack`'s queued-skill check). Normally the `AttackFinish` task
+    // consumed it already this tick — this is the in-loop backstop. A cast
+    // takes over the turn; anything else interleaves with the loop.
+    if world.objects.has_component::<crate::model::components::QueuedAction>(&object_id) {
+        super::helpers::run_queued_action(world, object_id);
+        if world.objects.has_component::<Casting>(&object_id) {
+            return;
+        }
+    }
 
     let Some(attacker) = combatant(world, object_id) else { return };
     let Some(target) = combatant(world, target_object_id) else { return };
     if distance_2d(&attacker, &target) > attack_reach(&attacker, &target) {
-        chase_target(world, object_id, target_object_id);
+        chase_target(world, object_id, target_object_id, attacker.atk_range);
         return;
     }
     // In reach: stop the chase and swing.
@@ -246,10 +261,10 @@ fn player_attack_think(world: &mut World, object_id: i32) {
     do_auto_attack(world, object_id, target_object_id);
 }
 
-/// `Creature.moveToPawn` for a player chasing its attack target: walk to the
-/// edge of attack reach, re-pathed every 5 ticks (Java's 500 ms
-/// `CreatureFollowTaskManager.ATTACK_FOLLOW_WEIGHT` cadence).
-fn chase_target(world: &mut World, object_id: i32, target_object_id: i32) {
+/// `Creature.moveToPawn` for a player chasing a pawn (attack target or cast
+/// target): walk to `range` + collision radii of it, re-pathed every 5 ticks
+/// (Java's 500 ms `CreatureFollowTaskManager.ATTACK_FOLLOW_WEIGHT` cadence).
+fn chase_target(world: &mut World, object_id: i32, target_object_id: i32, range: i32) {
     if !world.tick.is_multiple_of(5) {
         // Keep walking on the current path between re-paths.
         if world.objects.has_component::<Movement>(&object_id) {
@@ -258,7 +273,7 @@ fn chase_target(world: &mut World, object_id: i32, target_object_id: i32) {
     }
     let Some(attacker) = combatant(world, object_id) else { return };
     let Some(target) = combatant(world, target_object_id) else { return };
-    let reach = attack_reach(&attacker, &target);
+    let reach = range as f64 + attacker.collision_radius + target.collision_radius;
     let Some((dest_x, dest_y, dest_z, heading)) = pawn_destination(&attacker, &target, reach) else { return };
 
     let (speed, start) = {
@@ -292,7 +307,7 @@ fn chase_target(world: &mut World, object_id: i32, target_object_id: i32) {
     let pkt = server_packets::move_to_pawn(
         object_id,
         target_object_id,
-        attack_reach(&attacker, &target) as i32,
+        reach as i32,
         start.0,
         start.1,
         start.2,
@@ -318,6 +333,55 @@ pub(crate) fn pawn_destination(mover: &Combatant, target: &Combatant, reach: f64
     let dest_y = mover.y + (dy * frac).round() as i32;
     let heading = movement::calculate_heading(dx, dy);
     Some((dest_x, dest_y, target.z, heading))
+}
+
+/// `PlayerAI.thinkCast` for the walk-to-cast leg: chase into the skill's cast
+/// range (`maybeMoveToPawn(target, getMagicalAttackRange(skill))`), then hand
+/// back to `use_magic_on` for a fully re-validated cast (LOS from the arrival
+/// spot, MP, reuse) at the target snapshotted in the intent — Java casts at
+/// the intention's cast target even if the player re-targeted mid-walk.
+pub(crate) fn player_cast_think(world: &mut World, object_id: i32) {
+    let Some(Intent(PlayerIntent::Cast { skill_id, ctrl, shift, target_object_id })) =
+        world.objects.get_component::<Intent>(&object_id).copied()
+    else {
+        return;
+    };
+    if world.objects.get_component::<Vitals>(&object_id).is_none_or(|v| v.dead)
+        || world.objects.has_component::<Casting>(&object_id)
+    {
+        return;
+    }
+    // `checkTargetLost`: a dead or vanished target drops the intention.
+    if vitals_of(world, target_object_id).is_none_or(|v| v.dead) {
+        world.objects.remove_component::<Intent>(&object_id);
+        return;
+    }
+    let cast_range = world
+        .objects
+        .get_component::<crate::model::components::SkillBook>(&object_id)
+        .and_then(|book| book.0.get(&skill_id))
+        .and_then(|&level| world.data.skill_data.get(skill_id, level))
+        .map(|s| s.cast_range);
+    let Some(cast_range) = cast_range else {
+        world.objects.remove_component::<Intent>(&object_id);
+        return;
+    };
+    let Some(caster_pos) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+    if !super::skills::cast::in_cast_range(world, object_id, &caster_pos, target_object_id, cast_range, false) {
+        chase_target(world, object_id, target_object_id, cast_range);
+        return;
+    }
+    // Arrived: consume the intention, stop the chase leg (`clientStopMoving`
+    // in `thinkCast`), and cast.
+    world.objects.remove_component::<Intent>(&object_id);
+    if world.objects.has_component::<Movement>(&object_id) {
+        world.objects.remove_component::<Movement>(&object_id);
+        if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
+            broadcast_including_self(world, object_id, &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading));
+        }
+    }
+    let Some(client_id) = client_for_player(world, object_id) else { return };
+    super::skills::cast::use_magic_on(world, client_id, object_id, skill_id, ctrl, shift, Some(target_object_id));
 }
 
 // ---------------------------------------------------------------------------
@@ -390,13 +454,18 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     let now = world.tick;
     if let Some(st) = world.objects.get_component_mut::<AttackState>(&attacker_oid) {
         st.attack_end_tick = now + ms_to_ticks(time_atk);
-    } else if let Some(st) = world.objects.get_component_mut::<AttackState>(&attacker_oid) {
-        st.attack_end_tick = now + ms_to_ticks(time_atk);
     }
     world.scheduler.schedule(
         now + ms_to_ticks(time_to_hit),
         ScheduledTask::AttackHit { attacker: attacker_oid, target: target_oid, damage, miss, crit },
     );
+    // Swing-end hook for players (Java's `EVT_READY_TO_ACT` schedule in
+    // `doAttack`): fires the action the swing held back, if any.
+    if !is_npc_oid(attacker_oid) {
+        world
+            .scheduler
+            .schedule(now + ms_to_ticks(time_atk), ScheduledTask::AttackFinish { object_id: attacker_oid });
+    }
 
     // Broadcast the swing.
     let hit = server_packets::AttackHit { target_object_id: target_oid, damage, miss, crit };

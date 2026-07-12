@@ -2,7 +2,7 @@
 //! and the path-worker reply handler (`handle_path_result`).
 
 use crate::geo::worker::{PathEvent, PathRequest};
-use crate::model::components::{Casting, ClientPos, Intent, Movement, PathWait, Position, Speeds, Vitals};
+use crate::model::components::{AttackState, Casting, ClientPos, Intent, Movement, PathWait, Position, QueuedAction, Speeds, Vitals};
 use crate::model::movement::GeoPath;
 use crate::model::Player;
 use crate::network::client_packets as cp;
@@ -19,8 +19,10 @@ use super::helpers::broadcast_to_others;
 /// more than 30 units the destination goes to the path worker instead —
 /// the move then starts from `handle_path_result` when the route lands
 /// (Java runs `CellPathFinding.findPath` synchronously at this point).
-/// Door-crossing, teleport-mode switches, and queued-skill clearing are all
-/// skipped as out of scope (no doors/admin-teleport/queued-skills yet).
+/// Door-crossing and teleport-mode switches are skipped as out of scope (no
+/// doors/admin-teleport). Java's "remove queued skill upon move request" is
+/// covered by the busy branch overwriting the `QueuedAction` slot — outside
+/// a cast/swing the slot is always empty, so there is nothing to clear.
 pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::MoveBackwardToLocation::read(body) else { return };
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
@@ -38,12 +40,29 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         return;
     }
 
-    // Java `PlayerAI.onIntentionMoveTo`: a move request during a cast is
-    // rejected with ActionFailed (the cast is NOT aborted); the queued
-    // next-intention move is not ported. Dead players can't move at all
-    // (`isMovementDisabled`).
-    let is_dead = world.objects.get_component::<Vitals>(&object_id).is_some_and(|v| v.dead);
-    if world.objects.has_component::<Casting>(&object_id) || is_dead {
+    // Dead players can't move at all (`isMovementDisabled`).
+    if world.objects.get_component::<Vitals>(&object_id).is_some_and(|v| v.dead) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
+    // Java `PlayerAI.onIntentionMoveTo`: a move request while busy (mid-cast
+    // or mid-swing, `isCastingNow || isAttackingNow`) is rejected with
+    // ActionFailed (the cast/swing is NOT aborted) but saved as the next
+    // intention (`saveNextIntention`), replayed when the cast stops
+    // (`stop_casting`) or the swing ends (`AttackFinish`). The click also
+    // displaces a pending attack loop — afterwards the player moves, not
+    // swings.
+    let mid_swing = world
+        .objects
+        .get_component::<AttackState>(&object_id)
+        .is_some_and(|st| st.attack_end_tick > world.tick);
+    if mid_swing || world.objects.has_component::<Casting>(&object_id) {
+        world.objects.remove_component::<Intent>(&object_id);
+        world
+            .objects
+            .add_components(&object_id, QueuedAction::Move { x: pkt.target_x, y: pkt.target_y, z: pkt.target_z });
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -52,9 +71,21 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     // A manual move click replaces an attack loop (MOVE_TO intention).
     world.objects.remove_component::<Intent>(&object_id);
 
-    let mut target_x = pkt.target_x;
-    let mut target_y = pkt.target_y;
-    let target_z = pkt.target_z;
+    intention_move_to(world, client_id, object_id, cur, (pkt.target_x, pkt.target_y, pkt.target_z));
+}
+
+/// The movement pipeline behind the intention gates — geodata clamping,
+/// path-worker handoff, or a straight move (`Creature.moveToLocation`'s
+/// body). Entered from the move packet handler and from the queued-move
+/// replay when a cast stops.
+pub(crate) fn intention_move_to(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    cur: Position,
+    target: (i32, i32, i32),
+) {
+    let (mut target_x, mut target_y, target_z) = target;
     let mut dx = (target_x - cur.x) as f64;
     let mut dy = (target_y - cur.y) as f64;
     if dx * dx + dy * dy > 98_010_000.0 {

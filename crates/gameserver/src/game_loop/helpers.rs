@@ -79,4 +79,35 @@ pub(crate) fn broadcast_including_self(world: &World, object_id: i32, packet: &[
     broadcast_to_others(world, object_id, packet);
 }
 
+/// Fire the held-back action — the tail of Java `SkillCaster.stopCasting`
+/// (queued skill → `useMagic`, else `EVT_FINISH_CASTING` → the saved MOVE_TO)
+/// and of `EVT_READY_TO_ACT` at swing end. Each replay re-enters the normal
+/// handler pipeline, so it re-validates everything exactly like a fresh
+/// click. No-op while still busy (casting or mid-swing) or dead — the slot
+/// stays for the later stop.
+pub(crate) fn run_queued_action(world: &mut World, object_id: i32) {
+    use crate::model::components::{AttackState, Casting, Position, QueuedAction, Vitals};
+    let Some(&action) = world.objects.get_component::<QueuedAction>(&object_id) else { return };
+    if world.objects.has_component::<Casting>(&object_id)
+        || world.objects.get_component::<AttackState>(&object_id).is_some_and(|st| st.attack_end_tick > world.tick)
+        || world.objects.get_component::<Vitals>(&object_id).is_some_and(|v| v.dead)
+    {
+        return;
+    }
+    world.objects.remove_component::<QueuedAction>(&object_id);
+    let Some(client_id) = client_for_player(world, object_id) else { return };
+    match action {
+        QueuedAction::Move { x, y, z } => {
+            let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+            crate::game_loop::position::intention_move_to(world, client_id, object_id, cur, (x, y, z));
+        }
+        QueuedAction::Skill { skill_id, ctrl, shift } => {
+            crate::game_loop::skills::cast::use_magic(world, client_id, object_id, skill_id, ctrl, shift);
+        }
+        QueuedAction::UseItem { item_object_id } => {
+            crate::game_loop::items::use_equipable_item(world, client_id, object_id, item_object_id);
+        }
+    }
+}
+
 

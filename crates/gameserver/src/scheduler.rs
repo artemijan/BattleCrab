@@ -36,6 +36,10 @@ pub enum ScheduledTask {
     /// disappearance before it fires makes it a no-op (Java's `isDead` /
     /// dead-ref checks inside the task).
     AttackHit { attacker: i32, target: i32, damage: i32, miss: bool, crit: bool },
+    /// The Rust `EVT_READY_TO_ACT`: a player's swing period ended
+    /// (`attack_end_tick`), releasing whatever action the swing held back
+    /// (`run_queued_action`); a no-op when nothing is queued.
+    AttackFinish { object_id: i32 },
     /// `DecayTaskManager` firing for a dead NPC: the corpse disappears.
     NpcDecay { npc_object_id: i32 },
     /// `RespawnTaskManager` → `Spawn.respawnNpc`: re-run the spawn line the

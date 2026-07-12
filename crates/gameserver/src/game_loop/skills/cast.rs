@@ -3,9 +3,9 @@
 //! end), plus cast aborts.
 
 use crate::game_loop::helpers::{
-    broadcast_including_self, client_for_player, ms_to_ticks, send_sm_and_action_failed,
+    broadcast_including_self, client_for_player, ms_to_ticks, run_queued_action, send_sm_and_action_failed,
 };
-use crate::model::components::{Casting, Collision, Movement, Position, Vitals};
+use crate::model::components::{AttackState, Casting, Collision, Intent, Movement, Position, QueuedAction, Vitals};
 use crate::model::formulas;
 use crate::model::skill::{OperateType, Skill, TargetType};
 use crate::model::Player;
@@ -90,7 +90,7 @@ pub(crate) fn target_state(world: &World, object_id: i32) -> Option<(i32, i32, i
 }
 
 /// `Util.checkIfInRange` over any two castable actors.
-fn in_cast_range(
+pub(crate) fn in_cast_range(
     world: &World,
     caster_oid: i32,
     caster_pos: &Position,
@@ -108,17 +108,38 @@ fn in_cast_range(
 }
 
 
-/// Port of `clientpackets/RequestMagicSkillUse.runImpl` + `Player.useMagic`'s
-/// guards + `SkillCaster.castSkill`/`checkUseConditions`. Narrowing: no
-/// queued skills, no follow-into-range (an out-of-range cast just fails), no
-/// mute/sit/fake-death states (none exist), toggles and non-single targeting
-/// still silently ignored.
+/// Port of `clientpackets/RequestMagicSkillUse.runImpl`: parse and hand to
+/// `use_magic`.
 pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, body: &[u8]) {
-    use server_packets::{sm_ids, SmParam};
-
     let Some(pkt) = cp::RequestMagicSkillUse::read(body) else { return };
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
+    use_magic(world, client_id, object_id, pkt.magic_id, pkt.ctrl_pressed, pkt.shift_pressed);
+}
+
+/// Port of `Player.useMagic`'s guards + `SkillCaster.castSkill`/
+/// `checkUseConditions`, entered from the packet handler and from the
+/// queued-skill replay (`run_queued_action`). Narrowing: no mute/sit/
+/// fake-death states (none exist), toggles and non-single targeting still
+/// silently ignored.
+pub(crate) fn use_magic(world: &mut World, client_id: u32, object_id: i32, magic_id: i32, ctrl: bool, shift: bool) {
+    use_magic_on(world, client_id, object_id, magic_id, ctrl, shift, None);
+}
+
+/// `use_magic` with an optional pre-resolved target: the walk-to-cast think
+/// (`player_cast_think`) re-enters here with the intent's snapshotted target
+/// so a mid-walk re-target can't redirect the cast; everything else about the
+/// click is re-validated from scratch.
+pub(crate) fn use_magic_on(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    magic_id: i32,
+    ctrl: bool,
+    shift: bool,
+    forced_target: Option<i32>,
+) {
+    use server_packets::{sm_ids, SmParam};
 
     let Some(player) = world.objects.get_component::<crate::model::Player>(&object_id) else { return };
     // The dead can't cast (`checkUseConditions` → `isDead`).
@@ -132,14 +153,14 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
     let Some(&skill_level) = world
         .objects
         .get_component::<crate::model::components::SkillBook>(&object_id)
-        .and_then(|book| book.0.get(&pkt.magic_id))
+        .and_then(|book| book.0.get(&magic_id))
     else {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
         return;
     };
-    let Some(skill) = world.data.skill_data.get(pkt.magic_id, skill_level).cloned() else { return };
+    let Some(skill) = world.data.skill_data.get(magic_id, skill_level).cloned() else { return };
 
     // Passive → ActionFailed (useMagic); toggles/unsupported targeting are
     // not castable yet and are consumed silently, same as before.
@@ -197,8 +218,31 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
         }
     }
 
-    // Single NORMAL casting slot busy (`checkUseConditions`).
-    if world.objects.has_component::<Casting>(&object_id) {
+    // Target validity first, like Java (`useMagic` resolves and checks the
+    // target before the queue/MP decisions).
+    let Some(caster_pos) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+    let caster_target = forced_target.or_else(|| {
+        world.objects.get_component::<crate::model::components::TargetRef>(&object_id).copied().unwrap_or_default().0
+    });
+    let target_oid = match resolve_cast_target(world, player, &caster_pos, caster_target, &skill, ctrl) {
+        Ok(oid) => oid,
+        Err(sm_id) => {
+            send_sm_and_action_failed(world, client_id, sm_id, &[]);
+            return;
+        }
+    };
+
+    // Busy — mid-cast or mid-swing (`useMagic`'s `isAttackingNow() ||
+    // isCastingNow()` branch): park the click in the queue slot instead of
+    // dropping it; it replays with full re-validation when the cast stops
+    // (`stop_casting`) or the swing ends (`AttackFinish`/`thinkAttack`).
+    // Java checks MP only after this, so a low-MP click still queues.
+    let mid_swing = world
+        .objects
+        .get_component::<AttackState>(&object_id)
+        .is_some_and(|st| st.attack_end_tick > world.tick);
+    if mid_swing || world.objects.has_component::<Casting>(&object_id) {
+        world.objects.add_components(&object_id, QueuedAction::Skill { skill_id: magic_id, ctrl, shift });
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -216,27 +260,34 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
         return;
     }
 
-    let Some(caster_pos) = world.objects.get_component::<Position>(&object_id).copied() else { return };
-    let caster_target =
-        world.objects.get_component::<crate::model::components::TargetRef>(&object_id).copied().unwrap_or_default().0;
-    let target_oid = match resolve_cast_target(world, player, &caster_pos, caster_target, &skill, pkt.ctrl_pressed) {
-        Ok(oid) => oid,
-        Err(sm_id) => {
-            send_sm_and_action_failed(world, client_id, sm_id, &[]);
-            return;
-        }
-    };
-
-    // Cast-range gate (`SkillCaster.castSkill`). Java returns null and lets
-    // the AI walk into range; there's no follow-to-cast yet, so just unstick
-    // the client (narrowing note).
-    if skill.cast_range > 0
+    // Cast-range gate (`SkillCaster.castSkill` returning null → the AI walks
+    // into range via `thinkCast`/`maybeMoveToPawn`). Shift-click is Java's
+    // `dontMove`: the target handlers reject with SM 748 instead of moving.
+    let out_of_range = skill.cast_range > 0
         && target_oid != object_id
-        && !in_cast_range(world, object_id, &caster_pos, target_oid, skill.cast_range, false)
-    {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        && !in_cast_range(world, object_id, &caster_pos, target_oid, skill.cast_range, false);
+    if out_of_range && shift {
+        send_sm_and_action_failed(world, client_id, sm_ids::DISTANCE_TOO_FAR_CASTING_CANCELLED, &[]);
+        return;
+    }
+
+    // Past every reject: this click is now the player's order — a walk-to-cast
+    // still in flight is superseded (Java: each accepted `useMagic` sets a
+    // fresh CAST intention; a rejected one leaves the old intention running).
+    if matches!(
+        world.objects.get_component::<Intent>(&object_id),
+        Some(Intent(crate::model::PlayerIntent::Cast { .. }))
+    ) {
+        world.objects.remove_component::<Intent>(&object_id);
+    }
+
+    if out_of_range {
+        world.objects.add_components(
+            &object_id,
+            Intent(crate::model::PlayerIntent::Cast { skill_id: magic_id, ctrl, shift, target_object_id: target_oid }),
+        );
+        // Start walking immediately — the first leg shouldn't wait a tick.
+        crate::game_loop::combat::player_cast_think(world, object_id);
         return;
     }
 
@@ -269,10 +320,26 @@ pub(crate) fn start_casting(world: &mut World, client_id: u32, object_id: i32, s
         }
     }
 
+    // A new cast wipes the queue slot — Java clears `_queuedSkill` on every
+    // successful `useMagic`, `changeIntention` drops `_nextIntention` for
+    // offensive skills, and `setIntention(CAST)` cancels a pending equip.
+    world.objects.remove_component::<QueuedAction>(&object_id);
+
     // Stop movement (`clientStopMoving`) — the client freezes on its own; the
-    // broadcast pins the position for everyone else.
-    let was_moving = world.objects.has_component::<Movement>(&object_id);
-    if was_moving {
+    // broadcast pins the position for everyone else. A good-skill cast saves
+    // an interrupted *manual* move to resume after (the current MOVE_TO
+    // intention becomes the next intention in `changeIntention`) — but not a
+    // chase leg: while attacking, Java's current intention is ATTACK, and the
+    // surviving `Intent` component already resumes the loop (and its chase)
+    // by itself.
+    if let Some(mv) = world.objects.get_component::<Movement>(&object_id).cloned() {
+        if !skill.is_bad() && !world.objects.has_component::<Intent>(&object_id) {
+            let (x, y, z) = match &mv.0.geo_path {
+                Some(gp) => (gp.accurate_tx, gp.accurate_ty, gp.points[gp.points.len() - 1].2),
+                None => (mv.0.dest_x, mv.0.dest_y, mv.0.dest_z),
+            };
+            world.objects.add_components(&object_id, QueuedAction::Move { x, y, z });
+        }
         world.objects.remove_component::<Movement>(&object_id);
         if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
             broadcast_including_self(world, object_id, &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading));
@@ -359,6 +426,16 @@ pub(crate) fn start_casting(world: &mut World, client_id: u32, object_id: i32, s
         .schedule(world.tick + ms_to_ticks(hit_ms), ScheduledTask::SkillLaunch { player_object_id: object_id, cast_seq });
 }
 
+/// Every cast-stop path funnels here — Java `SkillCaster.stopCasting`: free
+/// the casting slot, then fire whatever the cast held back (the queued skill
+/// `useMagic` replay, or `EVT_FINISH_CASTING` → the saved MOVE_TO / pending
+/// equip). The dead don't replay (guarded in `run_queued_action`; the slot is
+/// also cleared in `player_do_die`).
+pub(crate) fn stop_casting(world: &mut World, object_id: i32) {
+    world.objects.remove_component::<Casting>(&object_id);
+    run_queued_action(world, object_id);
+}
+
 /// A cast task's `CastState` if it's still the live one (seq matches);
 /// stale/aborted tasks resolve to `None` and no-op.
 pub(crate) fn live_cast(world: &World, player_object_id: i32, cast_seq: u64) -> Option<crate::model::CastState> {
@@ -382,7 +459,7 @@ pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast
     // Target gone (logged off / decayed) → quiet stop, like Java's dead-ref
     // return.
     if target_state(world, cast.target_object_id).is_none() {
-        world.objects.remove_component::<Casting>(&player_object_id);
+        stop_casting(world, player_object_id);
         return;
     }
 
@@ -394,7 +471,7 @@ pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast
                     cs.send(server_packets::system_message_with(sm_ids::DISTANCE_TOO_FAR_CASTING_CANCELLED, &[]));
                 }
             }
-            world.objects.remove_component::<Casting>(&player_object_id);
+            stop_casting(world, player_object_id);
             return;
         }
     }
@@ -434,7 +511,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             let sm = if insufficient_mp { sm_ids::NOT_ENOUGH_MP } else { sm_ids::NOT_ENOUGH_HP };
             send_sm_and_action_failed(world, client_id, sm, &[]);
         }
-        world.objects.remove_component::<Casting>(&player_object_id);
+        stop_casting(world, player_object_id);
         return;
     }
 
@@ -466,7 +543,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     // `_coolTime`), freeing inline when there's nothing to wait out.
     let cool_ticks = ms_to_ticks(cast.cool_ms);
     if cool_ticks == 0 {
-        world.objects.remove_component::<Casting>(&player_object_id);
+        stop_casting(world, player_object_id);
     } else {
         world
             .scheduler
@@ -479,7 +556,7 @@ pub(crate) fn handle_cast_end(world: &mut World, player_object_id: i32, cast_seq
     if live_cast(world, player_object_id, cast_seq).is_none() {
         return;
     }
-    world.objects.remove_component::<Casting>(&player_object_id);
+    stop_casting(world, player_object_id);
 }
 
 /// Port of `Creature.abortCast` → `stopCasting(aborted == true)`: only casts
@@ -491,12 +568,14 @@ pub(crate) fn abort_cast(world: &mut World, object_id: i32) {
     if !abortable {
         return;
     }
-    world.objects.remove_component::<Casting>(&object_id);
     broadcast_including_self(world, object_id, &server_packets::magic_skill_canceld(object_id));
     if let Some(client_id) = client_for_player(world, object_id) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
     }
+    // Java `stopCasting(true)` also ends with `EVT_FINISH_CASTING`, so an
+    // interrupted cast still releases the click it held back.
+    stop_casting(world, object_id);
 }
 

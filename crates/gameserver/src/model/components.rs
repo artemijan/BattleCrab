@@ -165,6 +165,32 @@ pub struct Casting(pub crate::model::CastState);
 #[derive(Component, Debug, Clone, Copy)]
 pub struct Intent(pub crate::model::PlayerIntent);
 
+/// The one action a busy actor holds back — Java's three queue slots
+/// (`PlayerAI._nextIntention` MOVE_TO, `Player._queuedSkill`,
+/// `AbstractAI._nextAction` equip) folded into a single presence-based slot.
+/// Written while a cast or attack swing is in flight, consumed when it stops
+/// (`stop_casting` / the `AttackFinish` task), dropped on death/teleport.
+/// The slot is last-click-wins, matching Java's observable outcomes: a move
+/// packet wipes `_queuedSkill` (`MoveBackwardToLocation.runImpl`), and a
+/// queued skill's `stopCasting` launch supersedes the saved move. Known
+/// narrowing: Java keeps the equip in its own slot and can fire it
+/// *alongside* a queued move; this single slot keeps only the last click.
+#[derive(Component, Debug, Clone, Copy)]
+pub enum QueuedAction {
+    /// A move click swallowed while busy (`onIntentionMoveTo` →
+    /// `saveNextIntention`), or the move a good-skill cast interrupted
+    /// (`PlayerAI.changeIntention`).
+    Move { x: i32, y: i32, z: i32 },
+    /// `Player._queuedSkill` (`SkillUseHolder`): skill + click modifiers, no
+    /// target — the target is re-resolved from the player's *current* target
+    /// at replay, which is what lets a mid-cast re-target redirect the
+    /// queued skill.
+    Skill { skill_id: i32, ctrl: bool, shift: bool },
+    /// An equipable `UseItem` click (Java defers it via
+    /// `NextAction(EVT_FINISH_CASTING, …)` / a swing-end schedule).
+    UseItem { item_object_id: i32 },
+}
+
 /// Known skills (skill_id → level), loaded from `character_skills` (or the
 /// class's autoGet initial set at creation). Player-only.
 #[derive(Component, Debug, Clone, Default)]

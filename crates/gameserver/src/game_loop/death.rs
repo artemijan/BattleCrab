@@ -489,6 +489,7 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
         drop((p, vitals));
         world.objects.remove_component::<Movement>(&player_oid);
         world.objects.remove_component::<Intent>(&player_oid);
+        world.objects.remove_component::<crate::model::components::QueuedAction>(&player_oid);
         if let Some(t) = world.objects.get_component_mut::<crate::model::components::TargetRef>(&player_oid) {
             t.0 = None;
         }
@@ -584,6 +585,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     }
     world.objects.remove_component::<Movement>(&player_oid);
     world.objects.remove_component::<Intent>(&player_oid);
+    world.objects.remove_component::<crate::model::components::QueuedAction>(&player_oid);
     let Some(heading) = world.objects.get_component::<Position>(&player_oid).map(|p| p.heading) else { return };
     broadcast_including_self(world, player_oid, &server_packets::teleport_to_location(player_oid, x, y, z, heading));
     // `decayMe`: DeleteObject to everyone who could see the old position
