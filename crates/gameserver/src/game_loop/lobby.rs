@@ -118,6 +118,7 @@ pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &
     // Initial skills for the class (Java: getAvailableSkills at level 1).
     let skills = world.data.skill_trees.initial_skills(pkt.class_id);
     let items = resolve_initial_items(world, pkt.class_id);
+    let (shortcuts, macros) = resolve_initial_shortcuts(world, pkt.class_id, &skills);
     let data = NewCharacter {
         account,
         name: pkt.name,
@@ -134,6 +135,8 @@ pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &
         max_mp,
         skills,
         items,
+        shortcuts,
+        macros,
     };
     let _ = world
         .db
@@ -176,6 +179,40 @@ pub(crate) fn resolve_initial_items(world: &World, class_id: i32) -> Vec<db::New
             paperdoll_index: inv.paperdoll_slot_of(item.object_id),
         })
         .collect()
+}
+
+/// Port of `InitialShortcutData.registerAllShortcuts`' filtering half —
+/// global + class `initialShortcuts.xml` entries, minus SKILL slots the new
+/// character won't know and MACRO slots without an (enabled) preset; the
+/// referenced presets ride along for `character_macroses`. ITEM entries keep
+/// their item id — the DB thread resolves the created item's object id (and
+/// drops entries whose item the class didn't receive), see
+/// `db::create_character`.
+pub(crate) fn resolve_initial_shortcuts(
+    world: &World,
+    class_id: i32,
+    initial_skills: &[(i32, i32)],
+) -> (Vec<db::NewShortcut>, Vec<crate::model::shortcut::Macro>) {
+    use crate::model::shortcut::ShortcutType;
+    let data = &world.data.initial_shortcuts;
+    let mut shortcuts = Vec::new();
+    let mut macros: Vec<crate::model::shortcut::Macro> = Vec::new();
+    for sc in data.global().iter().chain(data.for_class(class_id)) {
+        match sc.kind {
+            ShortcutType::Skill if !initial_skills.iter().any(|&(id, _)| id == sc.id) => continue,
+            ShortcutType::Macro => match data.macro_preset(sc.id) {
+                Some(preset) => {
+                    if !macros.iter().any(|m| m.id == preset.id) {
+                        macros.push(preset.clone());
+                    }
+                }
+                None => continue,
+            },
+            _ => {}
+        }
+        shortcuts.push(db::NewShortcut { slot: sc.slot, page: sc.page, kind: sc.kind, id: sc.id, level: sc.level });
+    }
+    (shortcuts, macros)
 }
 
 /// Port of `CharacterDelete.runImpl`: mark the slot's character for deletion.
@@ -243,6 +280,11 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
         return;
     };
     let Some(chr) = s.char_at(slot).cloned() else { return };
+    // The DB half of `ShortCuts.restoreMe`'s ITEM verification: `from_char`
+    // drops shortcuts whose item left the inventory; delete their rows too.
+    for (sc_slot, sc_page) in crate::model::Player::stale_item_shortcuts(&chr) {
+        let _ = world.db.send(db::DbCommand::DeleteShortcut { char_id: chr.object_id, slot: sc_slot, page: sc_page });
+    }
     let bundle = crate::model::Player::from_char(&world.data, &chr);
     let selected = server_packets::char_selected(&bundle.view(), s.play_ok1(), 0);
 
@@ -280,11 +322,15 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(user_info(&view, data));
     session.send(ew::ex_vitality_effect_info(player));
     session.send(server_packets::ex_ui_setting());
-    // TODO: macros (SendMacroList) — empty for now.
+    // `MacroList.sendAllMacros` — one packet per stored macro (or one empty
+    // LIST packet), in Java's position before the bookmark/item lists.
+    for pkt in server_packets::send_all_macros(&bundle.macros) {
+        session.send(pkt);
+    }
     session.send(ew::ex_get_bookmark_info());
     session.send(ew::item_list(&bundle.inventory, data));
     session.send(ew::ex_quest_item_list());
-    session.send(ew::shortcut_init());
+    session.send(server_packets::shortcut_init(&bundle.shortcuts));
     session.send(ew::ex_basic_action_list(data));
     session.send(ew::henna_info());
     session.send(ew::skill_list(&bundle.skills, data));

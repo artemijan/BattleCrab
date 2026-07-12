@@ -24,6 +24,8 @@ fn new_char(name: &str) -> NewCharacter {
         max_mp: 30,
         skills: vec![(1177, 1)],
         items: vec![],
+        shortcuts: vec![],
+        macros: vec![],
     }
 }
 
@@ -124,6 +126,106 @@ async fn create_persist_delete_restore() {
             assert!(del_times.is_empty());
         }
         _ => panic!("expected CharCount"),
+    }
+
+    cmd_tx.send(DbCommand::Shutdown).unwrap();
+    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// G9.6: initial shortcuts/macros persist at creation (ITEM entries resolved
+/// to the created items' object ids, missing items dropped), the runtime
+/// upsert/delete commands round-trip, and macro commands survive the
+/// `type,d1,d2[,cmd];` column encoding.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn shortcuts_and_macros_persist() {
+    use gameserver::model::shortcut::{Macro, MacroCmd, MacroType, ShortcutType};
+
+    let dir = std::env::temp_dir().join(format!("l2r_g96_{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let db_path = dir.join("test.db");
+    let url = format!("jdbc:sqlite:{}", db_path.display());
+
+    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    {
+        let pool = commons::db::init(&url, 1).await.unwrap();
+        for table in ["characters", "items", "character_skills", "character_shortcuts", "character_macroses"] {
+            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
+            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
+                sqlx::query(stmt).execute(&pool).await.unwrap();
+            }
+        }
+        pool.close().await;
+    }
+
+    let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (event_tx, event_rx) = std::sync::mpsc::channel();
+    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
+
+    let sc = |slot: i32, kind: ShortcutType, id: i32, level: i32| db::NewShortcut { slot, page: 0, kind, id, level };
+    let preset = Macro {
+        id: 10000,
+        icon: 1,
+        name: "preset".into(),
+        descr: "d".into(),
+        acronym: "p".into(),
+        commands: vec![
+            MacroCmd { entry: 0, kind: MacroType::Skill, d1: 1177, d2: 1, cmd: String::new() },
+            MacroCmd { entry: 1, kind: MacroType::Text, d1: 0, d2: 0, cmd: "/loc".into() },
+        ],
+    };
+    let mut data = new_char("Shorty");
+    data.items = vec![db::NewItem { item_id: 2369, count: 1, paperdoll_index: Some(5) }];
+    data.shortcuts = vec![
+        sc(0, ShortcutType::Action, 2, 0),
+        sc(1, ShortcutType::Item, 2369, 0),
+        sc(2, ShortcutType::Item, 999, 0), // item the class didn't get — dropped
+        sc(3, ShortcutType::Skill, 1177, 1),
+        sc(4, ShortcutType::Macro, 10000, 0),
+    ];
+    data.macros = vec![preset.clone()];
+
+    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharacterCreated { result, .. } => assert_eq!(result, CreateResult::Ok),
+        _ => panic!("expected CharacterCreated"),
+    }
+    let (char_id, item_object_id) = match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            let c = &chars[0];
+            assert_eq!(c.items.len(), 1);
+            let item_oid = c.items[0].object_id;
+            assert_eq!(c.shortcuts.len(), 4, "missing-item shortcut dropped");
+            let item_sc = c.shortcuts.iter().find(|s| s.kind == ShortcutType::Item).unwrap();
+            assert_eq!(item_sc.id, item_oid, "ITEM shortcut resolved to the created object id");
+            assert!(c.shortcuts.iter().any(|s| s.kind == ShortcutType::Skill && s.id == 1177 && s.level == 1));
+            assert!(c.shortcuts.iter().any(|s| s.kind == ShortcutType::Macro && s.id == 10000));
+            assert_eq!(c.macros.len(), 1);
+            assert_eq!(c.macros[0].commands, preset.commands, "commands column round-trips");
+            (c.object_id, item_oid)
+        }
+        _ => panic!("expected CharactersLoaded"),
+    };
+    let _ = item_object_id;
+
+    // Runtime traffic: overwrite a slot, delete one, add + delete a macro.
+    cmd_tx.send(DbCommand::UpsertShortcut { char_id, slot: 0, page: 0, kind: ShortcutType::Skill.ordinal(), shortcut_id: 1177, level: 2 }).unwrap();
+    cmd_tx.send(DbCommand::DeleteShortcut { char_id, slot: 3, page: 0 }).unwrap();
+    let user_macro = Macro { id: 1000, icon: 0, name: "mine".into(), descr: String::new(), acronym: String::new(), commands: vec![] };
+    cmd_tx.send(DbCommand::UpsertMacro { char_id, macro_: user_macro }).unwrap();
+    cmd_tx.send(DbCommand::DeleteMacro { char_id, macro_id: 10000 }).unwrap();
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            let c = &chars[0];
+            assert_eq!(c.shortcuts.len(), 3);
+            let slot0 = c.shortcuts.iter().find(|s| s.slot == 0 && s.page == 0).unwrap();
+            assert_eq!((slot0.kind, slot0.id, slot0.level), (ShortcutType::Skill, 1177, 2), "slot overwritten in place");
+            assert!(!c.shortcuts.iter().any(|s| s.slot == 3), "deleted slot gone");
+            assert_eq!(c.macros.len(), 1);
+            assert_eq!(c.macros[0].id, 1000, "preset deleted, user macro kept");
+        }
+        _ => panic!("expected CharactersLoaded"),
     }
 
     cmd_tx.send(DbCommand::Shutdown).unwrap();

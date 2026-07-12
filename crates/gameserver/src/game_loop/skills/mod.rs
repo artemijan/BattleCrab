@@ -48,5 +48,8 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
             cs.send(crate::network::user_info::user_info(&v, &world.data));
         }
     }
+    // `player.updateShortCuts(_id, _level, 0)` — refresh SKILL slots holding
+    // the upgraded skill.
+    super::shortcuts::update_skill_shortcuts(world, object_id, skill_id, skill_level);
 }
 

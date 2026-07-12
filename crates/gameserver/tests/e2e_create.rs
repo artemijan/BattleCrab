@@ -493,6 +493,7 @@ async fn full_login_to_character_create() {
     let mut opcodes = vec![ui[0]];
     let mut item_list_pkt = None;
     let mut equip_slot_pkt = None;
+    let mut shortcut_init_pkt = None;
     loop {
         let pkt = g2.recv().await;
         if pkt[0] == 0x0C {
@@ -501,6 +502,9 @@ async fn full_login_to_character_create() {
         opcodes.push(pkt[0]);
         if pkt[0] == 0x11 {
             item_list_pkt = Some(pkt.clone());
+        }
+        if pkt[0] == 0x45 {
+            shortcut_init_pkt = Some(pkt.clone());
         }
         if pkt[0] == 0xFE && pkt.len() >= 3 && i16::from_le_bytes([pkt[1], pkt[2]]) == 0x156 {
             equip_slot_pkt = Some(pkt.clone());
@@ -513,10 +517,21 @@ async fn full_login_to_character_create() {
     // Key packets the client needs must be present.
     assert!(opcodes.contains(&0x11), "ItemList");
     assert!(opcodes.contains(&0x45), "ShortCutInit");
+    assert!(opcodes.contains(&0xE8), "SendMacroList");
     assert!(opcodes.contains(&0x86), "QuestList");
     assert!(opcodes.contains(&0x5F), "SkillList");
     assert!(opcodes.contains(&0x58), "FriendList");
     assert!(opcodes.iter().filter(|&&o| o == 0x32).count() >= 2, "UserInfo sent twice");
+
+    // G9.6: a fresh Human Mystic gets the initialShortcuts.xml panel — the 4
+    // global actions plus the class page's Wind Strike/Self Heal, minus one:
+    // Self Heal lands on slot 10, the same slot as the global Sit/Stand, and
+    // the class list overwrites the global entry (Java map-put order). The
+    // stock MACRO example slot is dropped too (its preset ships
+    // enabled="false").
+    let shortcut_init = shortcut_init_pkt.expect("ShortCutInit packet");
+    let shortcut_count = i32::from_le_bytes([shortcut_init[1], shortcut_init[2], shortcut_init[3], shortcut_init[4]]);
+    assert_eq!(shortcut_count, 5, "Human Mystic starting panel");
 
     // The Human Mystic's starting gear (initialEquipment.xml classId=10: wand,
     // tunic, stockings, all equipped) shows up in ItemList and the paperdoll.

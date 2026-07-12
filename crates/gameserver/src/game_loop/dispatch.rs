@@ -20,6 +20,10 @@ use super::lobby::{
 };
 use super::net::{handle_logout, handle_request_restart};
 use super::position::{handle_move_backward_to_location, handle_validate_position};
+use super::shortcuts::{
+    handle_request_delete_macro, handle_request_make_macro, handle_request_short_cut_del,
+    handle_request_short_cut_reg,
+};
 use super::skills::cast::handle_request_magic_skill_use;
 use super::skills::handle_request_acquire_skill;
 use super::target::{handle_action, handle_request_target_canceld};
@@ -59,6 +63,10 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_TARGET_CANCELD => handle_request_target_canceld(world, client_id, body),
         cop::MOVE_BACKWARD_TO_LOCATION => handle_move_backward_to_location(world, client_id, body),
         cop::VALIDATE_POSITION => handle_validate_position(world, client_id, body),
+        cop::REQUEST_SHORT_CUT_REG => handle_request_short_cut_reg(world, client_id, body),
+        cop::REQUEST_SHORT_CUT_DEL => handle_request_short_cut_del(world, client_id, body),
+        cop::REQUEST_MAKE_MACRO => handle_request_make_macro(world, client_id, body),
+        cop::REQUEST_DELETE_MACRO => handle_request_delete_macro(world, client_id, body),
         cop::LOGOUT => handle_logout(world, client_id),
         cop::REQUEST_RESTART => handle_request_restart(world, client_id),
         cop::EX_PACKET => on_ex_packet(world, client_id, body),

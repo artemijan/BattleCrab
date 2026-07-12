@@ -6,6 +6,7 @@ pub mod action_data;
 pub mod experience;
 pub mod hit_condition_bonus;
 pub mod initial_equipment;
+pub mod initial_shortcut;
 pub mod item_data;
 pub mod map_region;
 pub mod npc_data;
@@ -20,6 +21,7 @@ pub use action_data::ActionData;
 pub use experience::ExperienceData;
 pub use hit_condition_bonus::HitConditionBonusData;
 pub use initial_equipment::InitialEquipmentData;
+pub use initial_shortcut::InitialShortcutData;
 pub use item_data::ItemData;
 pub use map_region::MapRegionData;
 pub use npc_data::NpcData;
@@ -40,6 +42,7 @@ pub struct GameData {
     pub action_data: ActionData,
     pub item_data: ItemData,
     pub initial_equipment: InitialEquipmentData,
+    pub initial_shortcuts: InitialShortcutData,
     pub skill_data: SkillData,
     pub npc_data: NpcData,
     pub spawn_data: SpawnData,
@@ -63,6 +66,7 @@ impl GameData {
             action_data: ActionData::load_from(file_path),
             item_data: ItemData::load_from(file_path),
             initial_equipment: InitialEquipmentData::load_from(file_path),
+            initial_shortcuts: InitialShortcutData::load_from(file_path),
             skill_data: SkillData::load_from(file_path),
             npc_data: NpcData::load_from(file_path),
             spawn_data: SpawnData::load_from(file_path),
@@ -81,6 +85,7 @@ impl GameData {
             action_data: ActionData::load(),
             item_data: ItemData::load(),
             initial_equipment: InitialEquipmentData::load(),
+            initial_shortcuts: InitialShortcutData::load(),
             skill_data: SkillData::load(),
             npc_data: NpcData::load(),
             spawn_data: SpawnData::load(),
@@ -103,6 +108,7 @@ impl GameData {
             action_data: ActionData::empty(),
             item_data: ItemData::empty(),
             initial_equipment: InitialEquipmentData::empty(),
+            initial_shortcuts: InitialShortcutData::empty(),
             skill_data: SkillData::empty(),
             npc_data: NpcData::empty(),
             spawn_data: SpawnData::empty(),

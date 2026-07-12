@@ -439,6 +439,9 @@ fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
         }
         for (id, lvl) in granted {
             let _ = world.db.send(crate::db::DbCommand::UpsertSkill { char_id: player_oid, skill_id: id, skill_level: lvl });
+            // `updateShortCuts` — panel slots holding the skill pick up the
+            // auto-granted level.
+            super::shortcuts::update_skill_shortcuts(world, player_oid, id, lvl);
         }
     }
 

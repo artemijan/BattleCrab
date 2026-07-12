@@ -16,6 +16,7 @@ mod net;
 mod npc_ai;
 mod position;
 mod regen;
+mod shortcuts;
 mod skills;
 mod target;
 #[cfg(test)]

@@ -30,6 +30,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G8 Static world content (NPCs/spawns)                       | ✅ vertical slice (34.9k NPCs spawned, visible, targetable, talkable — zones/doors still ⏳) |
 | Game  | G9 Combat & AI                                              | ✅ vertical slice (auto-attack, monster AI, death/decay/respawn, XP/SP/level-ups, auto-loot drops, die→revive) |
 | Game  | G9.5 ECS stage 2 — split components, one world              | ✅ (plan: [PLAN_ECS_STAGE2.md](PLAN_ECS_STAGE2.md)) |
+| Game  | G9.6 Macros & panel shortcuts                               | ✅ (plan: [PLAN_MACROS_SHORTCUTS.md](PLAN_MACROS_SHORTCUTS.md)) |
 | Game  | G10 Social systems                                          | ⏳ |
 | Game  | G11 Scripting engine + quests                               | ⏳ |
 | Game  | G12 Script/content breadth                                  | ⏳ |
@@ -755,6 +756,70 @@ test suite — no gameplay change.
   smoke test) after every phase; stage-3 (`Schedule` + ECS resources)
   logged in CONCURRENCY_MODEL §2.8 as an open question, default **no**.
 
+### G9.6 — Macros & panel shortcuts ✅
+Plan: [PLAN_MACROS_SHORTCUTS.md](PLAN_MACROS_SHORTCUTS.md). The shortcut bar
+and server-stored macros, persisted per character. Macro *execution* is
+client-side in the Java reference too — the server only stores and echoes.
+
+- **Model** (`model/shortcut.rs` + `Shortcuts`/`Macros` components):
+  `Shortcut`/`Macro`/`MacroCmd` + the `ShortcutType`/`MacroType`/
+  `MacroUpdateType` enums (wire value = Java ordinal); registry logic as
+  component methods (slot key `slot + page*12`, macro ids allocated from
+  1000 skipping taken ones, insertion-ordered entries like Java's
+  `LinkedHashMap`); the `type,d1,d2[,cmd];` DB `commands` codec with Java's
+  tokenizer semantics (4th comma-token only, 255-char truncation) kept for
+  round-trip parity.
+- **DB** (`db.rs`): `character_shortcuts`/`character_macroses` load with the
+  per-character select (like items/skills; `class_index` always 0); new
+  fire-and-forget `UpsertShortcut`/`DeleteShortcut`/`UpsertMacro`/
+  `DeleteMacro`; creation inserts the initial panel + macro presets,
+  resolving ITEM entries item id → created object id on the DB thread.
+- **Packets**: `ShortCutInit` (0x45, real per-type layouts — replaces the
+  empty G4 stub), `ShortCutRegister` (0x44), `SendMacroList` (0xE8, one
+  packet per macro with total count on enter world; ADD=1/MODIFY=2/DELETE=0
+  echoes) — hand-computed byte tests (no client capture yet).
+- **Handlers**: `RequestShortCutReg` 0x3D (page 0-19 gate, ITEM verified
+  against the inventory + template shared-reuse-group; the
+  `ShortCutRegister` echo and `SkillList` re-send are unconditional, a Java
+  quirk kept), `RequestShortCutDel` 0x3F (deletion re-sends the whole
+  `ShortCutInit` — there's no per-slot delete packet), `RequestMakeMacro`
+  0xCD (Java's validation order: >255 command chars → SM 810, >48 macros →
+  SM 797, empty name → SM 838, >32-char descr → SM 837),
+  `RequestDeleteMacro` 0xCE (panel-slot cascade + DELETE echo).
+- **Deliberate deviation — no recurring macros:** `RequestMakeMacro`
+  rejects any macro containing a `SHORTCUT`-type command (SM 810 "Invalid
+  macro"). That command ("press panel slot X") is the only way a macro can
+  invoke another macro — the classic looping AFK macro, which Java happily
+  registers. Blocking the command type outright is the airtight rule: slot
+  contents can be rebound after registration, so checking what the slot
+  holds is bypassable.
+- **Hooks**: enter world sends the macro LIST burst before `ItemList` and
+  the real `ShortCutInit` after it (Java's order); relog restore prunes
+  ITEM shortcuts whose object id left the inventory (component + DB row);
+  skill learn and level-up auto-grants rewrite matching SKILL slots
+  (`updateShortCuts`: level bump + `ShortCutRegister` + row upsert).
+- **New characters** (`data/initial_shortcut.rs`): `initialShortcuts.xml`
+  port — global + per-class pages + macro presets (`enabled="false"`
+  presets skipped, and MACRO slots referencing them dropped, so the stock
+  example macro never lands). Mystic-class quirk: the class page's Self
+  Heal shares slot 10 with the global Sit/Stand and overwrites it (Java
+  map-put order) — a fresh Human Mystic panel is 5 slots, asserted in
+  `e2e_create`.
+- **Deferred**: pet/summon panels (`character_type` 2 is stored, nothing
+  consumes it), RECIPE/BOOKMARK behavior (packet arms exist, nothing
+  produces them), auto-soulshot deactivation on shortcut delete, the
+  item-removal prune hook (no drop/trade/destroy exists yet — the
+  restore-time prune covers stale rows meanwhile).
+- **Tests**: codec/registry units; `initialShortcuts.xml` loader vs the
+  real dist; packet byte tests; synthetic-world tests (register/delete
+  round trip incl. DB commands, ITEM-verify reject, every
+  `RequestMakeMacro` rejection incl. the SHORTCUT-command rule, delete
+  cascade, skill-upgrade slot rewrite, `from_char` restore + stale-ITEM
+  prune, enter-world packet order); `char_persistence::
+  shortcuts_and_macros_persist` (real DB thread: creation panel + ITEM
+  resolution, upserts/deletes, commands round-trip); `e2e_create` asserts
+  the macro LIST packet + the 5-slot Mystic panel in the burst.
+
 ### G10–G13 — ⏳ not started
 See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gates:
 **social systems** (G10 — clans/parties/friends/mail) or the remaining
@@ -822,7 +887,7 @@ Empty/placeholder now, to be filled in the owning milestone:
   dialog's non-village restart points (clan hall/castle/fixed-feather).
 - **Quests (G11):** `QuestList` empty, `ExQuestItemList` empty.
 - **Social (G10):** clan/ally blocks in `UserInfo`, `FriendList` empty, mail.
-- **Misc:** macros, `HennaInfo` empty, `ExUserBanInfo`, `ExVitalityEffectInfo`
+- **Misc:** ~~macros~~ (✅ G9.6), `HennaInfo` empty, `ExUserBanInfo`, `ExVitalityEffectInfo`
   bonuses, real castle list for manor, game-time clock (CharSelected/UserInfo
   use 0), periodic auto-save while in game (`AutoSaveManager`; persistence on
   restart/logout/disconnect is done).

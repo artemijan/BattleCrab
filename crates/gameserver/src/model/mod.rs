@@ -8,6 +8,7 @@ pub mod formulas;
 pub mod inventory;
 pub mod movement;
 pub mod npc;
+pub mod shortcut;
 pub mod skill;
 pub mod stats;
 
@@ -16,7 +17,7 @@ use std::collections::HashMap;
 use crate::character::CharData;
 use crate::data::player_template::PlayerTemplate;
 use crate::data::GameData;
-use components::{AttackState, BaseStats, Buffs, ClientPos, Collision, CombatStats, PlayerVitals, Position, RegionCell, Reuses, SkillBook, Speeds, StatModifiers, TargetRef, Vitals};
+use components::{AttackState, BaseStats, Buffs, ClientPos, Collision, CombatStats, Macros, PlayerVitals, Position, RegionCell, Reuses, Shortcuts, SkillBook, Speeds, StatModifiers, TargetRef, Vitals};
 use inventory::Inventory;
 use skill::{ActiveBuff, StatModifierEffect};
 use stats::{BaseStat, Stat, StatModifierType};
@@ -142,6 +143,8 @@ pub struct PlayerData {
     pub combat: CombatStats,
     pub inventory: Inventory,
     pub skills: SkillBook,
+    pub shortcuts: Shortcuts,
+    pub macros: Macros,
 }
 
 
@@ -165,6 +168,8 @@ impl PlayerData {
                 (
                     self.inventory,
                     self.skills,
+                    self.shortcuts,
+                    self.macros,
                     AttackState::default(),
                     TargetRef::default(),
                     ClientPos::default(),
@@ -296,6 +301,33 @@ impl Player {
         // template constants the finalizers never touch.
         let mut combat = CombatStats { atk_range: t.base_atk_range, random_dmg: 10, ..Default::default() };
         p.recalculate_stats(data, &base_stats, &StatModifiers::default(), &mut speeds, &mut combat);
+
+        // `ShortCuts.restoreMe`'s verification tail: ITEM shortcuts whose
+        // object id left the inventory are dropped (the caller fires the
+        // `DeleteShortcut` DB command — see `stale_item_shortcuts`), surviving
+        // *EtcItem* shortcuts pick up the template's shared reuse group
+        // (weapons/armor keep -1 on restore — a Java quirk kept as-is).
+        let shortcuts = c
+            .shortcuts
+            .iter()
+            .filter(|sc| {
+                sc.kind != shortcut::ShortcutType::Item
+                    || c.items.iter().any(|i| i.object_id == sc.id)
+            })
+            .map(|sc| {
+                let mut sc = *sc;
+                if sc.kind == shortcut::ShortcutType::Item {
+                    let is_etc = c.items.iter().find(|i| i.object_id == sc.id).and_then(|i| data.item_data.get(i.item_id)).is_some_and(|t| t.kind == crate::data::item_data::ItemKind::Etc);
+                    if is_etc {
+                        // `shared_reuse_group` template default (never set in
+                        // this dist's item XMLs).
+                        sc.shared_reuse_group = 0;
+                    }
+                }
+                sc
+            })
+            .collect();
+
         PlayerData {
             player: p,
             position: Position { x: c.x, y: c.y, z: c.z, heading: 0 },
@@ -308,7 +340,23 @@ impl Player {
             combat,
             inventory: Inventory::from_rows(&c.items),
             skills: SkillBook(c.skills.iter().copied().collect()),
+            shortcuts: Shortcuts::from_list(shortcuts),
+            macros: Macros::from_list(c.macros.clone()),
         }
+    }
+
+    /// The ITEM shortcuts `from_char` will prune (object id no longer in the
+    /// inventory) — the character-select handler deletes their DB rows, the
+    /// `deleteShortCutFromDb` half of `ShortCuts.restoreMe`'s verification.
+    pub fn stale_item_shortcuts(c: &CharData) -> Vec<(i32, i32)> {
+        c.shortcuts
+            .iter()
+            .filter(|sc| {
+                sc.kind == shortcut::ShortcutType::Item
+                    && !c.items.iter().any(|i| i.object_id == sc.id)
+            })
+            .map(|sc| (sc.slot, sc.page))
+            .collect()
     }
 
     /// Java `CreatureStat.recalculateStats` narrowed to the combat stats G6

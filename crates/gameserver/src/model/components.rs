@@ -215,6 +215,21 @@ pub struct StatModifiers {
     pub mul: HashMap<crate::model::stats::Stat, f64>,
 }
 
+/// Panel shortcuts (Java `Player._shortCuts`), keyed by
+/// `slot + page * 12` — a `BTreeMap` so `ShortCutInit` order is stable.
+/// Player-only; registry logic in `model/shortcut.rs`.
+#[derive(Component, Debug, Clone, Default)]
+pub struct Shortcuts(pub std::collections::BTreeMap<i32, crate::model::shortcut::Shortcut>);
+
+/// Server-stored macros (Java `Player._macros`), insertion-ordered like
+/// Java's `LinkedHashMap`. `next_id` is `MacroList._macroId` (starts at
+/// 1000). Player-only; registry logic in `model/shortcut.rs`.
+#[derive(Component, Debug, Clone)]
+pub struct Macros {
+    pub next_id: i32,
+    pub entries: Vec<crate::model::shortcut::Macro>,
+}
+
 /// Currently targeted object id (Java `Creature._target`), player-only —
 /// NPC targeting goes through the aggro list.
 #[derive(Component, Debug, Clone, Copy, Default, PartialEq, Eq)]

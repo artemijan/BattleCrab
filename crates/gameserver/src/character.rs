@@ -57,4 +57,8 @@ pub struct CharData {
     pub items: Vec<ItemRow>,
     /// `character_skills` rows: (skill_id, skill_level).
     pub skills: Vec<(i32, i32)>,
+    /// `character_shortcuts` rows (class_index 0).
+    pub shortcuts: Vec<crate::model::shortcut::Shortcut>,
+    /// `character_macroses` rows, commands already decoded.
+    pub macros: Vec<crate::model::shortcut::Macro>,
 }

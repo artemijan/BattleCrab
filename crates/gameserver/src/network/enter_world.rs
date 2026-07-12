@@ -1,6 +1,7 @@
-//! The enter-world packet burst (`EnterWorld.runImpl`). Inventory is real as of
-//! G5; lists that depend on systems not yet built (skills, quests, macros,
-//! henna, friends, clan, mail) are still sent **empty** with TODOs;
+//! The enter-world packet burst (`EnterWorld.runImpl`). Inventory is real as
+//! of G5, skills as of G6, shortcuts/macros as of G9.6 (those builders live
+//! in `server_packets.rs`); lists that depend on systems not yet built
+//! (quests, henna, friends, clan, mail) are still sent **empty** with TODOs;
 //! stat/position/action/item packets carry real values.
 //!
 //! Opcodes: plain packets use a single-byte id; extended packets use `0xFE` +
@@ -86,14 +87,6 @@ pub fn inventory_update(
         w.write_i16(2); // change type: modify
         write_item_entry(&mut w, item, template, equipped);
     }
-    w.into_bytes()
-}
-
-/// `ShortCutInit` (0x45) — no shortcuts. TODO(G-later).
-pub fn shortcut_init() -> Vec<u8> {
-    let mut w = PacketWriter::new();
-    w.write_u8(0x45);
-    w.write_i32(0);
     w.into_bytes()
 }
 

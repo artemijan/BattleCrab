@@ -29,6 +29,20 @@ pub struct NewItem {
     pub paperdoll_index: Option<usize>,
 }
 
+/// An initial shortcut to persist at creation (`InitialShortcutData.
+/// registerAllShortcuts`), already filtered by the game thread (unknown
+/// skills / missing macro presets dropped). For `ShortcutType::Item` the `id`
+/// is still the *item id* — the DB thread resolves it to the freshly created
+/// item's object id (the game thread never learns those).
+#[derive(Debug, Clone, Copy)]
+pub struct NewShortcut {
+    pub slot: i32,
+    pub page: i32,
+    pub kind: crate::model::shortcut::ShortcutType,
+    pub id: i32,
+    pub level: i32,
+}
+
 /// A validated character to insert (built by the game thread from the template).
 #[derive(Debug, Clone)]
 pub struct NewCharacter {
@@ -49,6 +63,10 @@ pub struct NewCharacter {
     pub skills: Vec<(i32, i32)>,
     /// Initial equipment + starting adena, pre-resolved by the game thread.
     pub items: Vec<NewItem>,
+    /// Initial panel shortcuts (`initialShortcuts.xml`, global + class pages).
+    pub shortcuts: Vec<NewShortcut>,
+    /// Macro presets referenced by MACRO shortcuts above.
+    pub macros: Vec<crate::model::shortcut::Macro>,
 }
 
 /// The persistable slice of a `Player`, snapshotted on the game thread when the
@@ -166,6 +184,17 @@ pub enum DbCommand {
     InsertItem { owner_id: i32, object_id: i32, item_id: i32, count: i64 },
     /// Fire-and-forget count update on an existing stack.
     UpdateItemCount { object_id: i32, count: i64 },
+    /// Fire-and-forget shortcut registration (`ShortCuts.registerShortCutInDb`
+    /// — Java's delete+insert collapsed to an upsert, the PK makes them
+    /// equivalent). `class_index`/`sub_level` are always 0 (no subclasses).
+    UpsertShortcut { char_id: i32, slot: i32, page: i32, kind: i32, shortcut_id: i32, level: i32 },
+    /// Fire-and-forget `ShortCuts.deleteShortCutFromDb`.
+    DeleteShortcut { char_id: i32, slot: i32, page: i32 },
+    /// Fire-and-forget macro registration (`MacroList.registerMacroInDb`,
+    /// delete+insert collapsed to an upsert on the (charId, id) PK).
+    UpsertMacro { char_id: i32, macro_: crate::model::shortcut::Macro },
+    /// Fire-and-forget `MacroList.deleteMacroFromDb`.
+    DeleteMacro { char_id: i32, macro_id: i32 },
     Shutdown,
 }
 
@@ -313,6 +342,31 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
+            DbCommand::UpsertShortcut { char_id, slot, page, kind, shortcut_id, level } => {
+                upsert_shortcut(&pool, char_id, slot, page, kind, shortcut_id, level).await;
+            }
+            DbCommand::DeleteShortcut { char_id, slot, page } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM character_shortcuts WHERE charId=? AND slot=? AND page=? AND class_index=0")
+                        .bind(char_id)
+                        .bind(slot)
+                        .bind(page),
+                )
+                .await;
+            }
+            DbCommand::UpsertMacro { char_id, macro_ } => {
+                upsert_macro(&pool, char_id, &macro_).await;
+            }
+            DbCommand::DeleteMacro { char_id, macro_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM character_macroses WHERE charId=? AND id=?")
+                        .bind(char_id)
+                        .bind(macro_id),
+                )
+                .await;
+            }
             DbCommand::Shutdown => break,
         }
     }
@@ -367,6 +421,8 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
         }
         let items = load_items(pool, object_id).await;
         let skills = load_skills(pool, object_id).await;
+        let shortcuts = load_shortcuts(pool, object_id).await;
+        let macros = load_macros(pool, object_id).await;
         out.push(CharData {
             object_id,
             name: gets(row, "char_name"),
@@ -400,6 +456,8 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             char_slot: slot as i32,
             items,
             skills,
+            shortcuts,
+            macros,
         });
     }
     // Characters marked for deletion are listed last in the lobby; the stable
@@ -422,6 +480,90 @@ async fn load_skills(pool: &SqlitePool, owner_id: i32) -> Vec<(i32, i32)> {
         .await
         .unwrap_or_default();
     rows.iter().map(|r| (geti(r, "skill_id") as i32, geti(r, "skill_level") as i32)).collect()
+}
+
+/// A character's `character_shortcuts` rows (Java `ShortCuts.restoreMe` —
+/// the inventory verification half runs on the game thread, in
+/// `Player::from_char`). `characterType` isn't stored; restore hardcodes 1
+/// like Java. `shared_reuse_group` starts at the -1 default; `from_char`
+/// fills it for EtcItem shortcuts.
+async fn load_shortcuts(pool: &SqlitePool, owner_id: i32) -> Vec<crate::model::shortcut::Shortcut> {
+    let rows = sqlx::query("SELECT slot, page, type, shortcut_id, level FROM character_shortcuts WHERE charId=? AND class_index=0")
+        .bind(owner_id)
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
+    rows.iter()
+        .map(|r| crate::model::shortcut::Shortcut {
+            slot: geti(r, "slot") as i32,
+            page: geti(r, "page") as i32,
+            kind: crate::model::shortcut::ShortcutType::from_ordinal(geti(r, "type") as i32),
+            id: geti(r, "shortcut_id") as i32,
+            level: geti(r, "level") as i32,
+            character_type: 1,
+            shared_reuse_group: -1,
+        })
+        .collect()
+}
+
+/// A character's `character_macroses` rows (Java `MacroList.restoreMe`),
+/// commands decoded from the `type,d1,d2[,cmd];…` column encoding.
+async fn load_macros(pool: &SqlitePool, owner_id: i32) -> Vec<crate::model::shortcut::Macro> {
+    let rows = sqlx::query("SELECT id, icon, name, descr, acronym, commands FROM character_macroses WHERE charId=?")
+        .bind(owner_id)
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
+    rows.iter()
+        .map(|r| crate::model::shortcut::Macro {
+            id: geti(r, "id") as i32,
+            icon: geti(r, "icon") as i32,
+            name: gets(r, "name"),
+            descr: gets(r, "descr"),
+            acronym: gets(r, "acronym"),
+            commands: crate::model::shortcut::decode_commands(&gets(r, "commands")),
+        })
+        .collect()
+}
+
+async fn upsert_shortcut(pool: &SqlitePool, char_id: i32, slot: i32, page: i32, kind: i32, shortcut_id: i32, level: i32) {
+    exec(
+        pool,
+        sqlx::query(
+            "INSERT INTO character_shortcuts (charId, slot, page, type, shortcut_id, level, sub_level, class_index) \
+             VALUES (?, ?, ?, ?, ?, ?, 0, 0) \
+             ON CONFLICT(charId, slot, page, class_index) DO UPDATE SET \
+             type=excluded.type, shortcut_id=excluded.shortcut_id, level=excluded.level",
+        )
+        .bind(char_id)
+        .bind(slot)
+        .bind(page)
+        .bind(kind)
+        .bind(shortcut_id)
+        .bind(level),
+    )
+    .await;
+}
+
+async fn upsert_macro(pool: &SqlitePool, char_id: i32, m: &crate::model::shortcut::Macro) {
+    exec(
+        pool,
+        sqlx::query(
+            "INSERT INTO character_macroses (charId, id, icon, name, descr, acronym, commands) \
+             VALUES (?, ?, ?, ?, ?, ?, ?) \
+             ON CONFLICT(charId, id) DO UPDATE SET \
+             icon=excluded.icon, name=excluded.name, descr=excluded.descr, \
+             acronym=excluded.acronym, commands=excluded.commands",
+        )
+        .bind(char_id)
+        .bind(m.id)
+        .bind(m.icon)
+        .bind(&m.name)
+        .bind(&m.descr)
+        .bind(&m.acronym)
+        .bind(crate::model::shortcut::encode_commands(&m.commands)),
+    )
+    .await;
 }
 
 /// A character's `items` rows (Java: `PlayerInventory.restore`, called for
@@ -504,7 +646,7 @@ async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: 
 
     match res {
         Ok(_) => {
-            // Initial skills (character_skills). TODO(G-later): shortcuts.
+            // Initial skills (character_skills).
             for (skill_id, skill_level) in &data.skills {
                 exec(
                     pool,
@@ -518,10 +660,14 @@ async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: 
                 )
                 .await;
             }
-            // Initial equipment + starting adena.
+            // Initial equipment + starting adena. The item_id → object_id
+            // map feeds ITEM shortcut resolution below (first occurrence
+            // wins, like Java `getItemByItemId`).
+            let mut item_object_ids: std::collections::HashMap<i32, i64> = std::collections::HashMap::new();
             for item in &data.items {
                 let item_object_id = *next_id;
                 *next_id += 1;
+                item_object_ids.entry(item.item_id).or_insert(item_object_id);
                 let (loc, loc_data) = match item.paperdoll_index {
                     Some(slot) => ("PAPERDOLL", slot as i32),
                     None => ("INVENTORY", 0),
@@ -542,6 +688,25 @@ async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: 
                     .bind(loc_data),
                 )
                 .await;
+            }
+            // Initial shortcuts + macro presets (`InitialShortcutData.
+            // registerAllShortcuts` — persistence only; there's no in-world
+            // session to echo packets to at creation).
+            for sc in &data.shortcuts {
+                let shortcut_id = if sc.kind == crate::model::shortcut::ShortcutType::Item {
+                    // ITEM entries reference an item id; skip ones the new
+                    // character didn't actually receive (Java `continue`s).
+                    match item_object_ids.get(&sc.id) {
+                        Some(&object_id) => object_id as i32,
+                        None => continue,
+                    }
+                } else {
+                    sc.id
+                };
+                upsert_shortcut(pool, char_id as i32, sc.slot, sc.page, sc.kind.ordinal(), shortcut_id, sc.level).await;
+            }
+            for m in &data.macros {
+                upsert_macro(pool, char_id as i32, m).await;
             }
             info!(
                 "Created character '{}' ({}) for account {} with {} initial skill(s), {} item(s).",
