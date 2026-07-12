@@ -232,3 +232,78 @@ async fn shortcuts_and_macros_persist() {
     tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// G10: friendship rows round-trip — the pair insert writes both directions,
+/// the reload joins the friend's name/level/class, and the pair delete
+/// removes both rows.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn friendships_persist() {
+    let dir = std::env::temp_dir().join(format!("l2r_g10_{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let db_path = dir.join("test.db");
+    let url = format!("jdbc:sqlite:{}", db_path.display());
+
+    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    {
+        let pool = commons::db::init(&url, 1).await.unwrap();
+        for table in ["characters", "items", "character_skills", "character_shortcuts", "character_macroses", "character_friends"] {
+            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
+            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
+                sqlx::query(stmt).execute(&pool).await.unwrap();
+            }
+        }
+        pool.close().await;
+    }
+
+    let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (event_tx, event_rx) = std::sync::mpsc::channel();
+    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
+
+    // Two characters on separate accounts.
+    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Aria") }).unwrap();
+    recv(&event_rx); // CharacterCreated
+    let aria = match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => chars[0].object_id,
+        _ => panic!("expected CharactersLoaded"),
+    };
+    let mut second = new_char("Boro");
+    second.account = "acc2".into();
+    cmd_tx.send(DbCommand::CreateCharacter { client_id: 2, data: second }).unwrap();
+    recv(&event_rx);
+    let boro = match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => chars[0].object_id,
+        _ => panic!("expected CharactersLoaded"),
+    };
+
+    // Befriend + reload: both sides see each other with joined columns.
+    cmd_tx.send(DbCommand::InsertFriendPair { a: aria, b: boro }).unwrap();
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            assert_eq!(chars[0].friends.len(), 1);
+            let f = &chars[0].friends[0];
+            assert_eq!((f.char_id, f.name.as_str(), f.level), (boro, "Boro", 1));
+        }
+        _ => panic!("expected CharactersLoaded"),
+    }
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 2, account: "acc2".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            assert_eq!(chars[0].friends.len(), 1);
+            assert_eq!(chars[0].friends[0].char_id, aria);
+        }
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    // Unfriend removes both rows.
+    cmd_tx.send(DbCommand::DeleteFriendPair { a: boro, b: aria }).unwrap();
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => assert!(chars[0].friends.is_empty()),
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    cmd_tx.send(DbCommand::Shutdown).unwrap();
+    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    let _ = std::fs::remove_dir_all(&dir);
+}

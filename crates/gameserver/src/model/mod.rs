@@ -8,6 +8,7 @@ pub mod formulas;
 pub mod inventory;
 pub mod movement;
 pub mod npc;
+pub mod party;
 pub mod shortcut;
 pub mod skill;
 pub mod stats;
@@ -145,6 +146,7 @@ pub struct PlayerData {
     pub skills: SkillBook,
     pub shortcuts: Shortcuts,
     pub macros: Macros,
+    pub friends: components::Friends,
 }
 
 
@@ -170,6 +172,7 @@ impl PlayerData {
                     self.skills,
                     self.shortcuts,
                     self.macros,
+                    self.friends,
                     AttackState::default(),
                     TargetRef::default(),
                     ClientPos::default(),
@@ -342,6 +345,7 @@ impl Player {
             skills: SkillBook(c.skills.iter().copied().collect()),
             shortcuts: Shortcuts::from_list(shortcuts),
             macros: Macros::from_list(c.macros.clone()),
+            friends: components::Friends(c.friends.clone()),
         }
     }
 

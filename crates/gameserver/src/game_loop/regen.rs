@@ -37,6 +37,7 @@ pub(crate) fn run_regen_tick(world: &mut World) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::status_update(object_id, &updates));
         }
+        super::party::notify_party_vitals(world, object_id);
     }
 }
 

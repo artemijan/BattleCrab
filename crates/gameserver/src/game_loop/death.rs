@@ -121,8 +121,9 @@ pub(crate) fn handle_npc_respawn(world: &mut World, spawn_idx: usize, group_idx:
 // ---------------------------------------------------------------------------
 
 /// XP/SP shares from the aggro list + drops to the top damage dealer.
-/// Narrowings: no parties (each attacker is rewarded solo), no overhit bonus
-/// (no overhit skills), no raid points, no champion mods.
+/// Party members pool shares and split via `Party.distributeXpAndSp` (G10).
+/// Narrowings: no overhit bonus (no overhit skills), no raid points, no
+/// champion mods, no command channels.
 fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
     let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) else { return };
     let Some(t) = npc.template(world).cloned() else { return };
@@ -155,12 +156,18 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
         }
     }
 
-    // Drops go to the top damage dealer (fall back to the killer).
+    // Drops go to the top damage dealer (fall back to the killer); a looter
+    // in a party routes every item through `Party.distributeItem`
+    // (`Player.doAutoLoot`).
     let looter = max_dealer.map(|(id, _)| id).or_else(|| world.objects.has_component::<crate::model::Player>(&killer_oid).then_some(killer_oid));
     if let Some(looter) = looter {
         let drops = roll_drops(world, &t, looter);
+        let party_id = world.objects.get_component::<crate::model::components::PartyRef>(&looter).map(|r| r.0);
         for (item_id, count) in drops {
-            give_item(world, looter, item_id, count);
+            match party_id {
+                Some(pid) => super::party::distribute_item(world, pid, looter, item_id, count, (nx, ny)),
+                None => give_item(world, looter, item_id, count),
+            }
         }
     }
 
@@ -168,18 +175,68 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
         return;
     }
     // `calculateExpAndSp` per attacker: template reward × rate × damage
-    // share × level-gap multiplier.
+    // share × level-gap multiplier. Attackers in a party pool their shares
+    // once (the Java party branch); the rest reward solo.
     let (rate_xp, rate_sp) = (world.cfg.rates.rate_xp, world.cfg.rates.rate_sp);
-    for (player_oid, damage) in shares {
-        let Some(p) = world.objects.get_component::<crate::model::Player>(&player_oid) else { continue };
-        let Some(pregion) = world.objects.get_component::<RegionCell>(&player_oid).map(|r| r.0) else { continue };
-        if !regions_adjacent(npc_region, pregion) {
-            continue; // Java `isInSurroundingRegion(attacker)`.
+    let mut processed: std::collections::HashSet<i32> = std::collections::HashSet::new();
+    for &(player_oid, damage) in &shares {
+        if processed.contains(&player_oid) {
+            continue;
         }
-        let gap = formulas::exp_sp_level_gap_multiplier(p.level, t.level);
-        let exp = (t.exp * rate_xp * damage / total_damage * gap).max(0.0);
-        let sp = (t.sp * rate_sp * damage / total_damage * gap).max(0.0);
-        add_exp_and_sp(world, player_oid, exp.round() as i64, sp.round() as i64);
+        let party_id = world.objects.get_component::<crate::model::components::PartyRef>(&player_oid).map(|r| r.0);
+        let Some(party_id) = party_id else {
+            // Solo branch (unchanged from G9).
+            let Some(p) = world.objects.get_component::<crate::model::Player>(&player_oid) else { continue };
+            let Some(pregion) = world.objects.get_component::<RegionCell>(&player_oid).map(|r| r.0) else { continue };
+            if !regions_adjacent(npc_region, pregion) {
+                continue; // Java `isInSurroundingRegion(attacker)`.
+            }
+            let gap = formulas::exp_sp_level_gap_multiplier(p.level, t.level);
+            let exp = (t.exp * rate_xp * damage / total_damage * gap).max(0.0);
+            let sp = (t.sp * rate_sp * damage / total_damage * gap).max(0.0);
+            add_exp_and_sp(world, player_oid, exp.round() as i64, sp.round() as i64);
+            continue;
+        };
+
+        // Party branch: pool every member's share; alive members within
+        // `ALT_PARTY_RANGE` of the corpse are rewarded, the top rewarded
+        // level keys the level-gap multiplier and the cutoff.
+        let members = world.parties.get(&party_id).map(|p| p.members.clone()).unwrap_or_default();
+        let share_of: std::collections::HashMap<i32, f64> = shares.iter().copied().collect();
+        let mut party_dmg = 0.0;
+        let mut rewarded: Vec<(i32, i32)> = Vec::new();
+        let mut party_lvl = 0;
+        for &m in &members {
+            let dead = world.objects.get_component::<Vitals>(&m).map(|v| v.dead).unwrap_or(true);
+            if dead {
+                continue; // their leftover share rewards nothing (Java parity)
+            }
+            let in_range = world.objects.get_component::<Position>(&m).is_some_and(|p| {
+                let (dx, dy) = ((p.x - nx) as f64, (p.y - ny) as f64);
+                (dx * dx + dy * dy).sqrt() <= reward_range
+            });
+            if !in_range {
+                continue;
+            }
+            if let Some(&share) = share_of.get(&m) {
+                party_dmg += share;
+                processed.insert(m);
+            }
+            rewarded.push((m, world.objects.get_component::<crate::model::Player>(&m).map(|p| p.level).unwrap_or(0)));
+            party_lvl = party_lvl.max(rewarded.last().unwrap().1);
+        }
+        processed.insert(player_oid);
+        if party_dmg <= 0.0 || rewarded.is_empty() {
+            continue;
+        }
+        // `calculateExpAndSp(partyLvl, partyDmg, totalDamage)` then
+        // `exp *= partyMul` — Java applies the damage fraction twice when
+        // outsiders contributed; kept for parity.
+        let party_mul = if party_dmg < total_damage { party_dmg / total_damage } else { 1.0 };
+        let gap = formulas::exp_sp_level_gap_multiplier(party_lvl, t.level);
+        let exp = (t.exp * rate_xp * party_dmg / total_damage * gap).max(0.0) * party_mul;
+        let sp = (t.sp * rate_sp * party_dmg / total_damage * gap).max(0.0) * party_mul;
+        super::party::distribute_xp_and_sp(world, &rewarded, party_lvl, exp, sp);
     }
 }
 
@@ -475,6 +532,8 @@ fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
             ],
         ),
     );
+    // Java `PlayerStat.addLevel` → `PartySmallWindowUpdate(this, true)`.
+    super::party::notify_party_all(world, player_oid);
     if let Some(client_id) = client_for_player(world, player_oid) {
         if let (Some(v), Some(cs)) =
             (crate::model::PlayerView::of(&world.objects, player_oid), world.clients.get(&client_id))
@@ -673,6 +732,7 @@ fn do_revive(world: &mut World, player_oid: i32) {
         }
     }
     broadcast_including_self(world, player_oid, &server_packets::revive(player_oid));
+    super::party::notify_party_vitals(world, player_oid);
     let (Some(vitals), Some(pvitals)) = (
         world.objects.get_component::<Vitals>(&player_oid).copied(),
         world.objects.get_component::<PlayerVitals>(&player_oid).copied(),

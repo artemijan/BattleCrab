@@ -45,6 +45,11 @@ pub(crate) fn drain_network(world: &mut World, net_rx: &NetEventRx) {
 /// `Disconnection.storeMe().deleteMe()`. Shared by restart, logout, and
 /// unexpected disconnects. Scheduled tasks holding the dead object id no-op.
 pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) {
+    // deleteMe → leaveParty (DISCONNECTED semantics: leadership transfers)
+    // + pending party/friend request cleanup on both sides.
+    super::party::on_player_leave_world(world, player_object_id);
+    // deleteMe → notifyFriends(MODE_OFFLINE).
+    super::friends::on_leave_world(world, player_object_id);
     // deleteMe → World.removeVisibleObject: DeleteObject to everyone watching.
     super::visibility::on_leave_world(world, player_object_id);
     // Gather everything persistence needs before despawn — components drop

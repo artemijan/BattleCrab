@@ -78,6 +78,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                             &[(server_packets::status_update_type::CUR_HP, cur_hp)],
                         ));
                     }
+                    crate::game_loop::party::notify_party_vitals(world, target_oid);
                 }
             }
             SkillEffect::StatModifier(_) => {} // collected below

@@ -10,6 +10,7 @@ use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::World;
 
+use super::chat::handle_say2;
 use super::combat::handle_attack_request;
 use super::death::{handle_appearing, handle_request_restart_point};
 use super::items::{handle_request_un_equip_item, handle_use_item};
@@ -19,6 +20,15 @@ use super::lobby::{
     handle_request_character_name_creatable,
 };
 use super::net::{handle_logout, handle_request_restart};
+use super::friends::{
+    handle_request_answer_friend_invite, handle_request_friend_del, handle_request_friend_invite,
+    handle_request_friend_list, handle_request_send_friend_msg,
+};
+use super::party::{
+    handle_answer_party_loot_modification, handle_request_answer_join_party,
+    handle_request_change_party_leader, handle_request_join_party, handle_request_oust_party_member,
+    handle_request_party_loot_modification, handle_request_withdrawal_party,
+};
 use super::position::{handle_move_backward_to_location, handle_validate_position};
 use super::shortcuts::{
     handle_request_delete_macro, handle_request_make_macro, handle_request_short_cut_del,
@@ -67,6 +77,16 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_SHORT_CUT_DEL => handle_request_short_cut_del(world, client_id, body),
         cop::REQUEST_MAKE_MACRO => handle_request_make_macro(world, client_id, body),
         cop::REQUEST_DELETE_MACRO => handle_request_delete_macro(world, client_id, body),
+        cop::SAY2 => handle_say2(world, client_id, body),
+        cop::REQUEST_JOIN_PARTY => handle_request_join_party(world, client_id, body),
+        cop::REQUEST_ANSWER_JOIN_PARTY => handle_request_answer_join_party(world, client_id, body),
+        cop::REQUEST_WITH_DRAWAL_PARTY => handle_request_withdrawal_party(world, client_id),
+        cop::REQUEST_OUST_PARTY_MEMBER => handle_request_oust_party_member(world, client_id, body),
+        cop::REQUEST_FRIEND_INVITE => handle_request_friend_invite(world, client_id, body),
+        cop::REQUEST_ANSWER_FRIEND_INVITE => handle_request_answer_friend_invite(world, client_id, body),
+        cop::REQUEST_FRIEND_LIST => handle_request_friend_list(world, client_id),
+        cop::REQUEST_FRIEND_DEL => handle_request_friend_del(world, client_id, body),
+        cop::REQUEST_SEND_FRIEND_MSG => handle_request_send_friend_msg(world, client_id, body),
         cop::LOGOUT => handle_logout(world, client_id),
         cop::REQUEST_RESTART => handle_request_restart(world, client_id),
         cop::EX_PACKET => on_ex_packet(world, client_id, body),
@@ -101,6 +121,9 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // RequestUserBanInfo (IN_GAME): Mobius has a null handler — the client
         // tolerates no reply, so consume it silently. TODO: ExUserBanInfo.
         exop::REQUEST_USER_BAN_INFO => {}
+        exop::REQUEST_CHANGE_PARTY_LEADER => handle_request_change_party_leader(world, client_id, ex_body),
+        exop::REQUEST_PARTY_LOOT_MODIFICATION => handle_request_party_loot_modification(world, client_id, ex_body),
+        exop::ANSWER_PARTY_LOOT_MODIFICATION => handle_answer_party_loot_modification(world, client_id, ex_body),
         exop::REQUEST_GOTO_LOBBY => {
             let maybe_session = world.clients.get(&client_id);
             if let Some(ClientSession::InLobby(session)) = maybe_session {

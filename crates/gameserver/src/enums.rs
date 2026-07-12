@@ -326,3 +326,38 @@ impl NpcInfoType {
         }
     }
 }
+
+/// Port of `enums/ChatType` — the `Say2` channel ids the client sends and
+/// `CreatureSay` echoes back. Only the channels the chat slice handles are
+/// listed; unknown ids are dropped by the handler (Java disconnects — see the
+/// G10 plan's deviations).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(i32)]
+pub enum ChatType {
+    General = 0,
+    Shout = 1,
+    Whisper = 2,
+    Party = 3,
+    Clan = 4,
+    Trade = 8,
+    Alliance = 9,
+}
+
+impl ChatType {
+    pub fn client_id(self) -> i32 {
+        self as i32
+    }
+
+    pub fn from_client_id(id: i32) -> Option<Self> {
+        match id {
+            0 => Some(Self::General),
+            1 => Some(Self::Shout),
+            2 => Some(Self::Whisper),
+            3 => Some(Self::Party),
+            4 => Some(Self::Clan),
+            8 => Some(Self::Trade),
+            9 => Some(Self::Alliance),
+            _ => None,
+        }
+    }
+}

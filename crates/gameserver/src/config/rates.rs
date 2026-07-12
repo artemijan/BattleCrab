@@ -12,6 +12,11 @@ pub struct RatesConfig {
     /// `RateXp` / `RateSp` — multiply every NPC's template exp/sp reward.
     pub rate_xp: f64,
     pub rate_sp: f64,
+    /// `RatePartyXp` / `RatePartySp` — extra multiplier folded into the
+    /// party-size bonus for parties of 2+ (`Party.getExpBonus`). **70** on
+    /// this dist!
+    pub rate_party_xp: f64,
+    pub rate_party_sp: f64,
 
     /// `DeathDropChanceMultiplier` / `DeathDropAmountMultiplier` — the generic
     /// (non-per-item) drop multipliers for normal monsters.
@@ -42,6 +47,8 @@ impl Default for RatesConfig {
         Self {
             rate_xp: 1.0,
             rate_sp: 1.0,
+            rate_party_xp: 1.0,
+            rate_party_sp: 1.0,
             death_drop_chance_multiplier: 1.0,
             death_drop_amount_multiplier: 1.0,
             drop_chance_by_id: HashMap::new(),
@@ -64,6 +71,8 @@ impl RatesConfig {
         Self {
             rate_xp: p.get_float("RateXp", 1.0) as f64,
             rate_sp: p.get_float("RateSp", 1.0) as f64,
+            rate_party_xp: p.get_float("RatePartyXp", 1.0) as f64,
+            rate_party_sp: p.get_float("RatePartySp", 1.0) as f64,
             death_drop_chance_multiplier: p.get_float("DeathDropChanceMultiplier", 1.0) as f64,
             death_drop_amount_multiplier: p.get_float("DeathDropAmountMultiplier", 1.0) as f64,
             drop_chance_by_id: parse_id_multiplier_list(&p.get_string("DropChanceMultiplierByItemId", "")),

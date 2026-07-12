@@ -6,14 +6,17 @@
 //! tick systems (G4+) → flush. Packet dispatch and login handoff land here on
 //! the game thread, keeping handler code sequential and 1:1 with Java `run()`.
 
+mod chat;
 mod combat;
 mod death;
 mod dispatch;
+mod friends;
 mod helpers;
 mod items;
 mod lobby;
 mod net;
 mod npc_ai;
+mod party;
 mod position;
 mod regen;
 mod shortcuts;
@@ -217,6 +220,15 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::NpcRespawn { spawn_idx, group_idx, npc_idx } => {
                 death::handle_npc_respawn(world, spawn_idx, group_idx, npc_idx);
+            }
+            ScheduledTask::RequestTimeout { object_id, seq } => {
+                party::handle_request_timeout(world, object_id, seq);
+            }
+            ScheduledTask::PartyPositionBroadcast { party_id, seq } => {
+                party::handle_position_broadcast(world, party_id, seq);
+            }
+            ScheduledTask::PartyLootChangeTimeout { party_id, seq } => {
+                party::handle_loot_change_timeout(world, party_id, seq);
             }
         }
     }

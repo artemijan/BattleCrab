@@ -45,6 +45,17 @@ pub enum ScheduledTask {
     /// `RespawnTaskManager` → `Spawn.respawnNpc`: re-run the spawn line the
     /// dead NPC came from (indices into `GameData.spawn_data`).
     NpcRespawn { spawn_idx: usize, group_idx: usize, npc_idx: usize },
+    /// A party/friend invite went unanswered (Java `PartyRequest.
+    /// scheduleTimeout` / `_requestExpireTime`): clear the player's
+    /// `PendingRequest` if `seq` still matches.
+    RequestTimeout { object_id: i32, seq: u64 },
+    /// The 12 s `PartyMemberPosition` broadcast (Java's per-party
+    /// `_positionBroadcastTask`); reschedules itself while the party lives
+    /// and `seq` matches.
+    PartyPositionBroadcast { party_id: u32, seq: u64 },
+    /// The 15 s loot-rule-change window elapsed without unanimous approval
+    /// (`Party.PARTY_DISTRIBUTION_TYPE_REQUEST_TIMEOUT`).
+    PartyLootChangeTimeout { party_id: u32, seq: u64 },
 }
 
 struct Entry {

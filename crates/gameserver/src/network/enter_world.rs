@@ -192,14 +192,6 @@ pub fn abnormal_status_update(buffs: &crate::model::components::Buffs, now_tick:
     w.into_bytes()
 }
 
-/// `FriendList` (0x58) — no friends. TODO(G9).
-pub fn friend_list() -> Vec<u8> {
-    let mut w = PacketWriter::new();
-    w.write_u8(0x58);
-    w.write_i32(0);
-    w.into_bytes()
-}
-
 /// `MoveToLocation` (0x2F): destination == current position (Java sends this on
 /// enter so the client fixes the character's position).
 pub fn move_to_location(object_id: i32, pos: &crate::model::components::Position) -> Vec<u8> {

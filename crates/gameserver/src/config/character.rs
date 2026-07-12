@@ -27,6 +27,19 @@ pub struct CharacterConfig {
     /// `RandomRespawnInTownEnabled`: pick a random town respawn point instead
     /// of the first.
     pub random_respawn_in_town: bool,
+    /// `AltPartyMaxMembers` (9 on this dist, Java default 7).
+    pub alt_party_max_members: usize,
+    /// `AltLeavePartyLeader`: leader leaving transfers lead instead of
+    /// disbanding (True on this dist).
+    pub alt_leave_party_leader: bool,
+    /// `PartyXpCutoffMethod` (+ its per-method tuning): which rewarded
+    /// members share the party XP split, and — for "highfive" (this dist) —
+    /// the per-member level-gap percentage table.
+    pub party_xp_cutoff_method: String,
+    pub party_xp_cutoff_level: i32,
+    pub party_xp_cutoff_percent: f64,
+    pub party_xp_cutoff_gaps: Vec<(i32, i32)>,
+    pub party_xp_cutoff_gap_percents: Vec<i32>,
 }
 
 impl Default for CharacterConfig {
@@ -43,6 +56,13 @@ impl Default for CharacterConfig {
             player_delevel: true,
             delevel_minimum: 85,
             random_respawn_in_town: true,
+            alt_party_max_members: 7,
+            alt_leave_party_leader: false,
+            party_xp_cutoff_method: "level".to_string(),
+            party_xp_cutoff_level: 20,
+            party_xp_cutoff_percent: 3.0,
+            party_xp_cutoff_gaps: vec![(0, 9), (10, 14), (15, 99)],
+            party_xp_cutoff_gap_percents: vec![100, 30, 0],
         }
     }
 }
@@ -62,6 +82,27 @@ impl CharacterConfig {
             player_delevel: p.get_bool("Delevel", d.player_delevel),
             delevel_minimum: p.get_int("DelevelMinimum", d.delevel_minimum),
             random_respawn_in_town: p.get_bool("RandomRespawnInTownEnabled", d.random_respawn_in_town),
+            alt_party_max_members: p.get_int("AltPartyMaxMembers", 7).max(2) as usize,
+            alt_leave_party_leader: p.get_bool("AltLeavePartyLeader", d.alt_leave_party_leader),
+            party_xp_cutoff_method: p.get_string("PartyXpCutoffMethod", "level").to_lowercase(),
+            party_xp_cutoff_level: p.get_int("PartyXpCutoffLevel", 20),
+            party_xp_cutoff_percent: p.get_float("PartyXpCutoffPercent", 3.0) as f64,
+            party_xp_cutoff_gaps: parse_gaps(&p.get_string("PartyXpCutoffGaps", "0,9;10,14;15,99")),
+            party_xp_cutoff_gap_percents: p
+                .get_string("PartyXpCutoffGapPercent", "100;30;0")
+                .split(';')
+                .filter_map(|v| v.trim().parse().ok())
+                .collect(),
         }
     }
+}
+
+/// `PartyXpCutoffGaps`: `from,to;from,to;…` pairs.
+fn parse_gaps(raw: &str) -> Vec<(i32, i32)> {
+    raw.split(';')
+        .filter_map(|pair| {
+            let (a, b) = pair.split_once(',')?;
+            Some((a.trim().parse().ok()?, b.trim().parse().ok()?))
+        })
+        .collect()
 }

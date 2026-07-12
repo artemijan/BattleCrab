@@ -520,7 +520,7 @@ async fn full_login_to_character_create() {
     assert!(opcodes.contains(&0xE8), "SendMacroList");
     assert!(opcodes.contains(&0x86), "QuestList");
     assert!(opcodes.contains(&0x5F), "SkillList");
-    assert!(opcodes.contains(&0x58), "FriendList");
+    assert!(opcodes.contains(&0x75), "L2FriendList");
     assert!(opcodes.iter().filter(|&&o| o == 0x32).count() >= 2, "UserInfo sent twice");
 
     // G9.6: a fresh Human Mystic gets the initialShortcuts.xml panel — the 4

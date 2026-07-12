@@ -31,8 +31,8 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G9 Combat & AI                                              | ✅ vertical slice (auto-attack, monster AI, death/decay/respawn, XP/SP/level-ups, auto-loot drops, die→revive) |
 | Game  | G9.5 ECS stage 2 — split components, one world              | ✅ (plan: [PLAN_ECS_STAGE2.md](PLAN_ECS_STAGE2.md)) |
 | Game  | G9.6 Macros & panel shortcuts                               | ✅ (plan: [PLAN_MACROS_SHORTCUTS.md](PLAN_MACROS_SHORTCUTS.md)) |
-| Game  | G10 Social systems                                          | ⏳ |
-| Game  | G11 Scripting engine + quests                               | ⏳ |
+| Game  | G10 Social systems                                          | ✅ vertical slice (chat, party, friends — clans/mail/BBS deferred) |
+| Game  | G11 Scripting engine + quests (+ clans via bypass)          | ⏳ |
 | Game  | G12 Script/content breadth                                  | ⏳ |
 | Game  | G13 Long tail & parity sweep                                | ⏳ |
 
@@ -820,12 +820,88 @@ client-side in the Java reference too — the server only stores and echoes.
   resolution, upserts/deletes, commands round-trip); `e2e_create` asserts
   the macro LIST packet + the 5-slot Mystic panel in the burst.
 
-### G10–G13 — ⏳ not started
+### G10 — Social systems ✅ vertical slice (chat + party + friends)
+Plan: [PLAN_G10_SOCIAL.md](PLAN_G10_SOCIAL.md). Scoped to what two live
+clients can exercise: chat, party, friends. **Clans deferred** (creation
+only exists through village-master bypass dialogs — the G11 gate), with
+mail/community board/matching rooms/command channels.
+
+- **Chat** (`game_loop/chat.rs`): `Say2` (0x49) → `CreatureSay` (0x4A) with
+  the `ChatType` enum. GENERAL = 1250-unit radius (region prefilter),
+  SHOUT/TRADE = same map-region tile bucket (`GlobalChat/TradeChat = ON`
+  semantics), WHISPER by name with the relation-mask tail (friend bit 0x01
+  live, other bits await clans), PARTY via the party broadcast, CLAN/
+  ALLIANCE answer SM 4202/4203. Guards: 105-char cap (SM 1078); malformed
+  type/empty text **log-and-drop instead of Java's force disconnect**
+  (deliberate deviation). Chat bans/jail/olympiad/block-list/say-filter/
+  voiced commands/item links skipped with their systems.
+- **Party** (`model/party.rs` + `game_loop/party.rs`): `World.parties`
+  id-keyed map + `PartyRef` component back-pointer; one `PendingRequest`
+  component slot covers Java's request map + `_activeRequester` for party
+  *and* friend invites (30 s / 15 s seq-guarded `RequestTimeout` tasks).
+  Full invite flow (`RequestJoinParty` 0x42 with the embryo-party shape —
+  the Party exists from first invite, the leader binds on accept —
+  `AskJoinParty`/`JoinParty`, busy/full/leader/pending guards),
+  `PartySmallWindowAll/Add/Delete/DeleteAll` (0x4E–0x51), leave/oust with
+  Java's disband rules (2 members left; leader-quit honors
+  `AltLeavePartyLeader = True` on this dist; disconnect always transfers
+  lead — SM 1384 + full window rebuild), `RequestChangePartyLeader`
+  (D0:0x0C) slot swap, loot-rule voting (D0:0x75/0x76 →
+  `ExAskModifyPartyLooting`/`ExSetPartyLooting` FE:C0/C1, unanimous-yes,
+  15 s timeout), 12 s `PartyMemberPosition` (0xBA) self-rescheduling task
+  (dies with the party via a seq bump), and `PartySmallWindowUpdate` (0x52
+  — plain-short mask, **not** the reversed `masks.rs` scheme) piggybacked
+  on every member vitals `StatusUpdate` (regen/damage/heal/MP consume;
+  level-ups send the all-flags variant). Java's needCp/Hp/MpUpdate
+  hysteresis dropped.
+- **Party rewards** (`death.rs::calculate_rewards` party branch +
+  `party::distribute_xp_and_sp`/`distribute_item`): members pool damage
+  shares (alive + `AltPartyRange` of the corpse), level-gap multiplier at
+  the top rewarded level, Java's fraction-squared `partyMul` quirk kept,
+  `BONUS_EXP_SP` ladder × `RatePartyXp/Sp` (**70** on this dist) for 2+,
+  level²-weighted split, all four `PartyXpCutoffMethod`s ported (dist runs
+  `highfive`: gaps 0–9 → 100 %, 10–14 → 30 %, 15+ → 0). Auto-loot routes
+  through `Party.distributeItem`: adena splits evenly in range; items go
+  FINDERS_KEEPERS/RANDOM/BY_TURN (spoil variants inert — no spoil), with
+  SM 299/300 "C1 has obtained" to the rest.
+- **Friends** (`game_loop/friends.rs`): `character_friends` loads with the
+  character (joined name/level/class snapshot → `Friends` component; new
+  `InsertFriendPair`/`DeleteFriendPair` both-direction DB commands).
+  Invite/answer (`FriendAddRequest` 0x83 → `FriendAddRequestResult` 0x55 +
+  both lists/rows), delete by name from the snapshot (no global name cache
+  needed — you can only delete someone on your list), SM-based
+  `RequestFriendList`, `RequestSendFriendMsg` → `L2FriendSay` (0x78,
+  receiver must have the *sender* friended). Enter world sends the real
+  `L2FriendList` (0x75, replacing the G4-era empty 0x58 stub) + SM 503 and
+  `FriendStatus(ONLINE)` (0x59) to online friends; leave world pings
+  `FriendStatus(OFFLINE)`.
+- **Config**: `AltPartyMaxMembers`/`AltLeavePartyLeader`/`PartyXpCutoff*`
+  (Character.ini), `RatePartyXp/Sp` (Rates.ini). `GlobalChat`/`TradeChat`
+  read as always-ON (dist value; OFF/GM variants unported).
+- **Deferred**: clans/alliances (all clan chat answers "not in a clan"),
+  mail, community board, party matching rooms & waiting list, command
+  channels, tactical signs, block list, friend memos, `RelationChanged`
+  packets (UserInfo/CharInfo re-broadcast stands in), pets in party
+  windows, hero/petition chats.
+- **Tests**: `model/party` units (bonus ladder, highfive gaps, cutoff
+  methods); synthetic-world tests for chat scoping (1250 range, region
+  bucket, whisper echo + offline SM 145, party-only chat), the invite/
+  accept/decline/guards/timeout flows (packet shapes both sides), disband
+  rules + leadership transfer on disconnect + oust + leader change, loot
+  votes (accept + timeout), the 12 s position task lifecycle, vitals
+  piggyback, party kill XP split with exact Java values, adena split +
+  BY_TURN rotation skipping out-of-range members, friend invite/accept/
+  delete/message round trips + login/logout notifications;
+  `char_persistence::friendships_persist` (real DB thread); `e2e_create`
+  now asserts the real `L2FriendList` in the burst.
+
+### G11–G13 — ⏳ not started
 See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gates:
-**social systems** (G10 — clans/parties/friends/mail) or the remaining
-static-world scope (zones/doors/`StaticObjectData`), then the scripting
-engine + quests (G11+). New object kinds (doors, items-on-ground, …) should
-become component bundles in `World.objects`, not new bare `HashMap` fields.
+the remaining static-world scope (zones/doors/`StaticObjectData`) or the
+scripting engine + quests (G11 — also the gate for **clans**, which need
+village-master bypass dialogs). New object kinds (doors, items-on-ground, …)
+should become component bundles in `World.objects`, not new bare `HashMap`
+fields.
 
 ---
 
@@ -886,7 +962,14 @@ Empty/placeholder now, to be filled in the owning milestone:
   for town respawns); `NpcNameLocalisationData`/multilang; the death
   dialog's non-village restart points (clan hall/castle/fixed-feather).
 - **Quests (G11):** `QuestList` empty, `ExQuestItemList` empty.
-- **Social (G10):** clan/ally blocks in `UserInfo`, `FriendList` empty, mail.
+- **Social (post-G10):** clans/alliances (need bypass dialogs — G11): clan/
+  ally blocks in `UserInfo`/`CharInfo`, clan/ally chat, `RelationChanged`;
+  mail; community board; party matching rooms; command channels (MPCC);
+  tactical signs; block list (`BlockList` checks skipped everywhere);
+  friend memos + `RequestExFriendListExtended`; pet/servitor party-window
+  packets; chat bans/say filter/voiced commands/item links in chat;
+  `GlobalChat`/`TradeChat` OFF/GM modes; skill/reuse persistence for
+  party-relevant buffs unchanged (see skills section).
 - **Misc:** ~~macros~~ (✅ G9.6), `HennaInfo` empty, `ExUserBanInfo`, `ExVitalityEffectInfo`
   bonuses, real castle list for manor, game-time clock (CharSelected/UserInfo
   use 0), periodic auto-save while in game (`AutoSaveManager`; persistence on
@@ -913,6 +996,9 @@ Empty/placeholder now, to be filled in the owning milestone:
   dist; `spawn_all` placement/coordinate/region-index smoke test; `NpcInfo`
   hand-computed byte test; synthetic-world visibility & two-click
   interaction tests.
+- **Social (G10):** chat/party/friend synthetic-world tests (see the G10
+  section), party-math units with exact Java values, friendship DB
+  round-trip.
 - **Combat (G9):** physical-formula units with exact Java values; drop/
   corpse/aggro template assertions against the real dist; synthetic-world
   integration tests over the real tick systems — melee kill (rewards,

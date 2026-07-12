@@ -374,6 +374,7 @@ pub(crate) fn start_casting(world: &mut World, client_id: u32, object_id: i32, s
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::status_update(object_id, &[(server_packets::status_update_type::CUR_MP, mp)]));
         }
+        crate::game_loop::party::notify_party_vitals(world, object_id);
     }
 
     // Broadcast the cast start, then the caster-only YOU_USE_S1 + cast bar.
@@ -532,6 +533,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
                 cs.send(server_packets::status_update(player_object_id, &updates));
             }
         }
+        crate::game_loop::party::notify_party_vitals(world, player_object_id);
     }
 
     // `callSkill` → effect application, if the target is still around.

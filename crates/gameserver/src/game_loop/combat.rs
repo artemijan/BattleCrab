@@ -692,6 +692,7 @@ pub(crate) fn player_receive_damage(world: &mut World, player_oid: i32, attacker
             ],
         ),
     );
+    super::party::notify_party_vitals(world, player_oid);
 
     if died {
         super::death::player_do_die(world, player_oid, attacker_oid);

@@ -257,3 +257,40 @@ pub struct BaseStats {
     pub wit: i32,
     pub men: i32,
 }
+
+/// Party membership — **present only while in a party**; the value keys
+/// `World.parties`. The party's member list is the authority on membership,
+/// this is the O(1) back-pointer (Java `Player._party`).
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PartyRef(pub u32);
+
+/// What a `PendingRequest` is asking.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RequestKind {
+    /// An `AskJoinParty` is on the target's screen; answering joins this party.
+    PartyInvite { party_id: u32 },
+    /// A `FriendAddRequest` is on the target's screen.
+    FriendInvite,
+}
+
+/// The one outstanding transaction-request slot — **present only while a
+/// request is in flight**, on *both* sides (Java splits this across
+/// `Player._requests`, `_activeRequester` and `_requestExpireTime`; one slot
+/// covers them because a busy player answers "C1 is on another task" either
+/// way). Cleared by the answer, the `RequestTimeout` task (seq-guarded), or
+/// either side leaving the world.
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PendingRequest {
+    pub kind: RequestKind,
+    /// The other side (target for the requestor, requestor for the target).
+    pub other: i32,
+    /// True on the side that must answer (got the Ask/FriendAddRequest).
+    pub answerer: bool,
+    pub seq: u64,
+}
+
+/// Friend-list snapshot (`Player._friendList` + the name/level/class data
+/// Java pulls from `CharInfoTable`), loaded with the character. Online
+/// status is always read live from `World`, never from here.
+#[derive(Component, Debug, Clone, Default)]
+pub struct Friends(pub Vec<crate::character::FriendInfo>);

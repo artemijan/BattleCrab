@@ -127,6 +127,14 @@ pub struct World {
     /// Defaults (Java's, rates ×1) unless boot replaces it — same pattern as
     /// `geo`/`path_finding`.
     pub cfg: crate::config::CombatConfig,
+
+    /// Live parties (`Party` objects have no Java-side registry — they only
+    /// exist through member references; an id-keyed map is the Rust shape).
+    pub parties: HashMap<u32, crate::model::party::Party>,
+    pub next_party_id: u32,
+    /// Generation counter for `PendingRequest`s (stale `RequestTimeout`
+    /// tasks no-op on mismatch, like `path_seq`).
+    pub request_seq: u64,
     /// Command channel to the DB thread.
     pub db: db::CmdTx,
     /// Game RNG (Java `Rnd`) — owned here so handlers roll through `roll()`,
@@ -158,6 +166,9 @@ impl World {
             path: std::sync::mpsc::channel().0,
             path_seq: 0,
             cfg: crate::config::CombatConfig::default(),
+            parties: HashMap::new(),
+            next_party_id: 1,
+            request_seq: 0,
             db,
             rng: StdRng::from_entropy(),
             #[cfg(test)]
@@ -169,6 +180,12 @@ impl World {
     pub fn next_path_seq(&mut self) -> u64 {
         self.path_seq += 1;
         self.path_seq
+    }
+
+    /// Next transaction-request sequence number (see `request_seq`).
+    pub fn next_request_seq(&mut self) -> u64 {
+        self.request_seq += 1;
+        self.request_seq
     }
 
     /// Object ids of every NPC whose region cell lies in `region`'s 3×3

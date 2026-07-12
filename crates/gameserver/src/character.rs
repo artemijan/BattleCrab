@@ -21,6 +21,16 @@ pub struct ItemRow {
     pub time: i32,
 }
 
+/// One `character_friends` row joined with the friend's character row
+/// (Java reads the extra columns through `CharInfoTable` on demand).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FriendInfo {
+    pub char_id: i32,
+    pub name: String,
+    pub level: i32,
+    pub class_id: i32,
+}
+
 /// One row of the `characters` table, restored for character selection.
 #[derive(Debug, Clone, Default)]
 pub struct CharData {
@@ -61,4 +71,6 @@ pub struct CharData {
     pub shortcuts: Vec<crate::model::shortcut::Shortcut>,
     /// `character_macroses` rows, commands already decoded.
     pub macros: Vec<crate::model::shortcut::Macro>,
+    /// `character_friends` joined with each friend's character row.
+    pub friends: Vec<FriendInfo>,
 }

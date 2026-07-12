@@ -33,6 +33,16 @@ pub mod opcodes {
     pub const REQUEST_SHORT_CUT_DEL: u8 = 0x3F;
     pub const REQUEST_MAKE_MACRO: u8 = 0xCD;
     pub const REQUEST_DELETE_MACRO: u8 = 0xCE;
+    pub const SAY2: u8 = 0x49;
+    pub const REQUEST_JOIN_PARTY: u8 = 0x42;
+    pub const REQUEST_ANSWER_JOIN_PARTY: u8 = 0x43;
+    pub const REQUEST_WITH_DRAWAL_PARTY: u8 = 0x44;
+    pub const REQUEST_OUST_PARTY_MEMBER: u8 = 0x45;
+    pub const REQUEST_SEND_FRIEND_MSG: u8 = 0x6B;
+    pub const REQUEST_FRIEND_INVITE: u8 = 0x77;
+    pub const REQUEST_ANSWER_FRIEND_INVITE: u8 = 0x78;
+    pub const REQUEST_FRIEND_LIST: u8 = 0x79;
+    pub const REQUEST_FRIEND_DEL: u8 = 0x7A;
     /// Extended packets: opcode 0xD0 + a 2-byte little-endian sub-opcode.
     pub const EX_PACKET: u8 = 0xD0;
 }
@@ -44,6 +54,9 @@ pub mod ex_opcodes {
     pub const REQUEST_CHARACTER_NAME_CREATABLE: u16 = 0xA9;
     pub const REQUEST_USER_BAN_INFO: u16 = 0x138;
     pub const REQUEST_GOTO_LOBBY: u16 = 0x33;
+    pub const REQUEST_CHANGE_PARTY_LEADER: u16 = 0x0C;
+    pub const REQUEST_PARTY_LOOT_MODIFICATION: u16 = 0x75;
+    pub const ANSWER_PARTY_LOOT_MODIFICATION: u16 = 0x76;
 }
 
 /// Split an extended-packet body (after the `0xD0` opcode) into its 2-byte LE
@@ -395,5 +408,76 @@ impl ValidatePosition {
         let heading = r.read_i32()?;
         let _vehicle_id = r.read_i32()?;
         Some(Self { x, y, z, heading })
+    }
+}
+
+/// Port of `clientpackets/Say2`: chat text, channel (`ChatType` client id),
+/// and — for WHISPER (2) only — the target player name.
+pub struct Say2 {
+    pub text: String,
+    pub chat_type: i32,
+    pub target: Option<String>,
+}
+
+impl Say2 {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let text = r.read_string()?;
+        let chat_type = r.read_i32()?;
+        let target = if chat_type == crate::enums::ChatType::Whisper.client_id() {
+            Some(r.read_string()?)
+        } else {
+            None
+        };
+        Some(Self { text, chat_type, target })
+    }
+}
+
+/// Port of `clientpackets/RequestJoinParty`: invitee name + the loot rule a
+/// brand-new party would use.
+pub struct RequestJoinParty {
+    pub name: String,
+    pub loot_rule_id: i32,
+}
+
+impl RequestJoinParty {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let name = r.read_string()?;
+        let loot_rule_id = r.read_i32()?;
+        Some(Self { name, loot_rule_id })
+    }
+}
+
+/// `RequestAnswerJoinParty` / `AnswerPartyLootModification` — one int
+/// (1 = yes; party-answer -1 = auto-refuse mode).
+pub fn read_answer(body_after_opcode: &[u8]) -> Option<i32> {
+    PacketReader::new(body_after_opcode).read_i32()
+}
+
+/// `RequestOustPartyMember` / `RequestChangePartyLeader` — one name.
+pub fn read_name(body_after_opcode: &[u8]) -> Option<String> {
+    PacketReader::new(body_after_opcode).read_string()
+}
+
+/// `RequestAnswerFriendInvite` — a pad byte, then the response int.
+pub fn read_friend_answer(body_after_opcode: &[u8]) -> Option<i32> {
+    let mut r = PacketReader::new(body_after_opcode);
+    r.read_u8()?;
+    r.read_i32()
+}
+
+/// Port of `clientpackets/friend/RequestSendFriendMsg`.
+pub struct RequestSendFriendMsg {
+    pub message: String,
+    pub receiver: String,
+}
+
+impl RequestSendFriendMsg {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let message = r.read_string()?;
+        let receiver = r.read_string()?;
+        Some(Self { message, receiver })
     }
 }

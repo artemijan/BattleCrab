@@ -56,12 +56,29 @@ pub mod opcodes {
     pub const SHORT_CUT_REGISTER: u8 = 0x44;
     pub const SHORT_CUT_INIT: u8 = 0x45;
     pub const MACRO_LIST: u8 = 0xE8;
+    pub const SAY2: u8 = 0x4A;
+    pub const ASK_JOIN_PARTY: u8 = 0x39;
+    pub const JOIN_PARTY: u8 = 0x3A;
+    pub const PARTY_SMALL_WINDOW_ALL: u8 = 0x4E;
+    pub const PARTY_SMALL_WINDOW_ADD: u8 = 0x4F;
+    pub const PARTY_SMALL_WINDOW_DELETE_ALL: u8 = 0x50;
+    pub const PARTY_SMALL_WINDOW_DELETE: u8 = 0x51;
+    pub const PARTY_SMALL_WINDOW_UPDATE: u8 = 0x52;
+    pub const PARTY_MEMBER_POSITION: u8 = 0xBA;
+    pub const FRIEND_ADD_REQUEST_RESULT: u8 = 0x55;
+    pub const FRIEND_REMOVE: u8 = 0x57;
+    pub const FRIEND_STATUS: u8 = 0x59;
+    pub const L2_FRIEND_LIST: u8 = 0x75;
+    pub const L2_FRIEND_SAY: u8 = 0x78;
+    pub const FRIEND_ADD_REQUEST: u8 = 0x83;
 
     /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
     pub const EX: u8 = 0xFE;
     pub const EX_IS_CHAR_NAME_CREATABLE: i16 = 0x10B;
     pub const EX_SEND_MANOR_LIST: i16 = 0x22;
     pub const EX_UI_SETTING: i16 = 0x71;
+    pub const EX_ASK_MODIFY_PARTY_LOOTING: i16 = 0xC0;
+    pub const EX_SET_PARTY_LOOTING: i16 = 0xC1;
 }
 
 /// Port of `serverpackets/ExSendManorList` — the castles that have a manor.
@@ -816,6 +833,55 @@ pub mod sm_ids {
     pub const S2_SECONDS_REMAINING_FOR_REUSE: i16 = 2303;
     pub const S2_MINUTES_S3_SECONDS_REMAINING_FOR_REUSE: i16 = 2304;
     pub const S2_HOURS_S3_MINUTES_S4_SECONDS_REMAINING_FOR_REUSE: i16 = 2305;
+    // Party (G10)
+    pub const C1_HAS_BEEN_INVITED_TO_THE_PARTY: i16 = 105;
+    pub const YOU_HAVE_JOINED_S1_S_PARTY: i16 = 106;
+    pub const C1_HAS_JOINED_THE_PARTY: i16 = 107;
+    pub const C1_HAS_LEFT_THE_PARTY: i16 = 108;
+    pub const YOU_HAVE_INVITED_THE_WRONG_TARGET: i16 = 152;
+    pub const C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER: i16 = 153;
+    pub const ONLY_THE_LEADER_CAN_GIVE_OUT_INVITATIONS: i16 = 154;
+    pub const THE_PARTY_IS_FULL: i16 = 155;
+    pub const C1_IS_A_MEMBER_OF_ANOTHER_PARTY_AND_CANNOT_BE_INVITED: i16 = 160;
+    pub const WAITING_FOR_ANOTHER_REPLY: i16 = 164;
+    pub const YOU_MUST_FIRST_SELECT_A_USER_TO_INVITE_TO_YOUR_PARTY: i16 = 185;
+    pub const YOU_HAVE_WITHDRAWN_FROM_THE_PARTY: i16 = 200;
+    pub const C1_WAS_EXPELLED_FROM_THE_PARTY: i16 = 201;
+    pub const YOU_HAVE_BEEN_EXPELLED_FROM_THE_PARTY: i16 = 202;
+    pub const THE_PARTY_HAS_DISPERSED: i16 = 203;
+    pub const C1_HAS_OBTAINED_S3_S2: i16 = 299;
+    pub const C1_HAS_OBTAINED_S2: i16 = 300;
+    pub const THE_PLAYER_DECLINED_TO_JOIN_YOUR_PARTY: i16 = 305;
+    pub const C1_HAS_BECOME_THE_PARTY_LEADER: i16 = 1384;
+    pub const SLOW_DOWN_YOU_ARE_ALREADY_THE_PARTY_LEADER: i16 = 1401;
+    pub const YOU_MAY_ONLY_TRANSFER_PARTY_LEADERSHIP: i16 = 1402;
+    pub const REQUESTING_APPROVAL_FOR_CHANGING_PARTY_LOOT_TO_S1: i16 = 3135;
+    pub const PARTY_LOOT_CHANGE_WAS_CANCELLED: i16 = 3137;
+    pub const PARTY_LOOT_WAS_CHANGED_TO_S1: i16 = 3138;
+    pub const C1_IS_SET_TO_REFUSE_PARTY_REQUESTS: i16 = 3168;
+    // Friends (G10)
+    pub const S1_HAS_BEEN_ADDED_TO_YOUR_FRIENDS_LIST: i16 = 132;
+    pub const YOU_CANNOT_ADD_YOURSELF_TO_YOUR_OWN_FRIEND_LIST: i16 = 165;
+    pub const C1_IS_ALREADY_ON_YOUR_FRIEND_LIST: i16 = 167;
+    pub const FRIEND_INVITE_TARGET_NOT_FOUND: i16 = 170;
+    pub const C1_IS_NOT_ON_YOUR_FRIEND_LIST: i16 = 171;
+    pub const S1_HAS_BEEN_ADDED_TO_YOUR_FRIENDS_LIST_2: i16 = 479;
+    pub const S1_HAS_BEEN_REMOVED_FROM_YOUR_FRIENDS_LIST_2: i16 = 481;
+    pub const THIS_PLAYER_IS_ALREADY_REGISTERED_ON_YOUR_FRIENDS_LIST: i16 = 484;
+    pub const FRIENDS_LIST_HEADER: i16 = 487;
+    pub const S1_CURRENTLY_ONLINE: i16 = 488;
+    pub const S1_CURRENTLY_OFFLINE: i16 = 489;
+    pub const FRIENDS_LIST_FOOTER: i16 = 490;
+    pub const YOUR_FRIEND_S1_JUST_LOGGED_IN: i16 = 503;
+    pub const FRIEND_ADDED_SUCCESSFULLY: i16 = 525;
+    pub const YOU_HAVE_FAILED_TO_ADD_A_FRIEND: i16 = 526;
+    pub const YOU_VE_REQUESTED_C1_TO_BE_ON_YOUR_FRIENDS_LIST: i16 = 2911;
+    // Chat (G10)
+    pub const THAT_PLAYER_IS_NOT_ONLINE: i16 = 145;
+    pub const KEYBOARD_INPUT_SPAM_WARNING: i16 = 1078;
+    pub const YOU_ARE_NOT_IN_A_PARTY: i16 = 4201;
+    pub const YOU_ARE_NOT_IN_A_CLAN: i16 = 4202;
+    pub const YOU_ARE_NOT_IN_AN_ALLIANCE: i16 = 4203;
 }
 
 /// One `SystemMessage` parameter (Java `SystemMessage.SMParam`), scoped to the
@@ -835,6 +901,8 @@ pub enum SmParam {
     Long(i64),
     /// `TYPE_PLAYER_NAME` (12) — `addPcName`.
     PlayerName(String),
+    /// `TYPE_SYSTEM_STRING` (13) — `addSystemString` (sysstring-e.dat id).
+    SysString(i32),
 }
 
 /// Port of `serverpackets/SystemMessage.writeImpl` (localisation branch
@@ -876,6 +944,10 @@ pub fn system_message_with(message_id: i16, params: &[SmParam]) -> Vec<u8> {
             SmParam::PlayerName(s) => {
                 w.write_u8(12);
                 w.write_string(s);
+            }
+            SmParam::SysString(id) => {
+                w.write_u8(13);
+                w.write_i32(*id);
             }
         }
     }
@@ -1576,4 +1648,316 @@ mod tests {
             assert_eq!(pkt[7], 1); // has macro
         }
     }
+}
+
+/// Port of `serverpackets/CreatureSay` (the plain-text player branch):
+/// sender object id, chat channel, sender name, the NpcString id slot (-1 =
+/// literal text), the text — and, for player WHISPERs only, the trailing
+/// receiver-relation mask byte + sender level (`whisper_tail`; mask bit 0x01 =
+/// sender is on the receiver's friend list, other bits need clans/mentors).
+pub fn creature_say(
+    sender_object_id: i32,
+    chat_type: crate::enums::ChatType,
+    sender_name: &str,
+    text: &str,
+    whisper_tail: Option<(u8, i32)>,
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::SAY2);
+    w.write_i32(sender_object_id);
+    w.write_i32(chat_type.client_id());
+    w.write_string(sender_name);
+    w.write_i32(-1); // NpcString id — plain text
+    w.write_string(text);
+    if let Some((mask, level)) = whisper_tail {
+        w.write_u8(mask);
+        if mask & 0x10 == 0 {
+            w.write_u8(level as u8);
+        }
+    }
+    w.into_bytes()
+}
+
+// ---------------------------------------------------------------------------
+// Party packets (G10)
+// ---------------------------------------------------------------------------
+
+/// The per-member fields the party-window packets write, gathered from the
+/// member's components by `game_loop/party.rs`.
+#[derive(Debug, Clone)]
+pub struct PartyMemberView {
+    pub object_id: i32,
+    pub name: String,
+    pub cp: i32,
+    pub max_cp: i32,
+    pub hp: i32,
+    pub max_hp: i32,
+    pub mp: i32,
+    pub max_mp: i32,
+    pub vitality: i32,
+    pub level: i32,
+    pub class_id: i32,
+    pub race: i32,
+}
+
+/// `serverpackets/AskJoinParty`.
+pub fn ask_join_party(requestor_name: &str, loot_rule_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::ASK_JOIN_PARTY);
+    w.write_string(requestor_name);
+    w.write_i32(loot_rule_id);
+    w.into_bytes()
+}
+
+/// `serverpackets/JoinParty` — the answer echoed to the requestor. The
+/// trailing int is Java's own `// TODO: Find me!`, written 0 there too.
+pub fn join_party(response: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::JOIN_PARTY);
+    w.write_i32(response);
+    w.write_i32(0);
+    w.into_bytes()
+}
+
+fn write_party_member(w: &mut PacketWriter, m: &PartyMemberView) {
+    w.write_i32(m.object_id);
+    w.write_string(&m.name);
+    w.write_i32(m.cp);
+    w.write_i32(m.max_cp);
+    w.write_i32(m.hp);
+    w.write_i32(m.max_hp);
+    w.write_i32(m.mp);
+    w.write_i32(m.max_mp);
+    w.write_i32(m.vitality);
+    w.write_u8(m.level as u8);
+    w.write_i16(m.class_id as i16);
+}
+
+/// `serverpackets/PartySmallWindowAll` — the receiver's full party window
+/// (every member **except the receiver**, leader first).
+pub fn party_small_window_all(leader_object_id: i32, loot_rule_id: i32, others: &[PartyMemberView]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PARTY_SMALL_WINDOW_ALL);
+    w.write_i32(leader_object_id);
+    w.write_u8(loot_rule_id as u8);
+    w.write_u8(others.len() as u8);
+    for m in others {
+        write_party_member(&mut w, m);
+        w.write_u8(1); // unk
+        w.write_i16(m.race as i16);
+        w.write_i32(0); // summon count — no pets/servitors
+    }
+    w.into_bytes()
+}
+
+/// `serverpackets/PartySmallWindowAdd` — one new member for existing members'
+/// windows (note: loot rule is an **int** here, a byte in `…All`).
+pub fn party_small_window_add(leader_object_id: i32, loot_rule_id: i32, member: &PartyMemberView) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PARTY_SMALL_WINDOW_ADD);
+    w.write_i32(leader_object_id);
+    w.write_i32(loot_rule_id);
+    write_party_member(&mut w, member);
+    w.write_u8(0);
+    w.write_i16(member.race as i16);
+    w.into_bytes()
+}
+
+/// `serverpackets/PartySmallWindowDelete`.
+pub fn party_small_window_delete(object_id: i32, name: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PARTY_SMALL_WINDOW_DELETE);
+    w.write_i32(object_id);
+    w.write_string(name);
+    w.into_bytes()
+}
+
+/// `serverpackets/PartySmallWindowDeleteAll`.
+pub fn party_small_window_delete_all() -> Vec<u8> {
+    vec![opcodes::PARTY_SMALL_WINDOW_DELETE_ALL]
+}
+
+/// `PartySmallWindowUpdateType` masks — **natural** bit values written as one
+/// short (`writeShort(_flags)`), NOT the reversed-array masked-packet scheme.
+pub mod party_window_flags {
+    pub const CURRENT_CP: u16 = 1;
+    pub const MAX_CP: u16 = 2;
+    pub const CURRENT_HP: u16 = 4;
+    pub const MAX_HP: u16 = 8;
+    pub const CURRENT_MP: u16 = 16;
+    pub const MAX_MP: u16 = 32;
+    pub const LEVEL: u16 = 64;
+    pub const CLASS_ID: u16 = 128;
+    pub const PARTY_SUBSTITUTE: u16 = 256;
+    pub const VITALITY_POINTS: u16 = 512;
+    /// The CP/HP/MP block `broadcastStatusUpdate` sends.
+    pub const VITALS: u16 = CURRENT_CP | MAX_CP | CURRENT_HP | MAX_HP | CURRENT_MP | MAX_MP;
+    /// `PartySmallWindowUpdate(member, true)` — every component.
+    pub const ALL: u16 = VITALS | LEVEL | CLASS_ID | PARTY_SUBSTITUTE | VITALITY_POINTS;
+}
+
+/// `serverpackets/PartySmallWindowUpdate` — masked member-field refresh for
+/// the other members' windows.
+pub fn party_small_window_update(m: &PartyMemberView, flags: u16) -> Vec<u8> {
+    use party_window_flags as f;
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PARTY_SMALL_WINDOW_UPDATE);
+    w.write_i32(m.object_id);
+    w.write_i16(flags as i16);
+    for (flag, value) in [
+        (f::CURRENT_CP, m.cp),
+        (f::MAX_CP, m.max_cp),
+        (f::CURRENT_HP, m.hp),
+        (f::MAX_HP, m.max_hp),
+        (f::CURRENT_MP, m.mp),
+        (f::MAX_MP, m.max_mp),
+    ] {
+        if flags & flag != 0 {
+            w.write_i32(value);
+        }
+    }
+    if flags & f::LEVEL != 0 {
+        w.write_u8(m.level as u8);
+    }
+    if flags & f::CLASS_ID != 0 {
+        w.write_i16(m.class_id as i16);
+    }
+    if flags & f::PARTY_SUBSTITUTE != 0 {
+        w.write_u8(0);
+    }
+    if flags & f::VITALITY_POINTS != 0 {
+        w.write_i32(m.vitality);
+    }
+    w.into_bytes()
+}
+
+/// `serverpackets/PartyMemberPosition` — the 12 s member-location refresh.
+pub fn party_member_position(locations: &[(i32, i32, i32, i32)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PARTY_MEMBER_POSITION);
+    w.write_i32(locations.len() as i32);
+    for &(object_id, x, y, z) in locations {
+        w.write_i32(object_id);
+        w.write_i32(x);
+        w.write_i32(y);
+        w.write_i32(z);
+    }
+    w.into_bytes()
+}
+
+/// `serverpackets/ExAskModifyPartyLooting` — the leader wants a new loot rule.
+pub fn ex_ask_modify_party_looting(leader_name: &str, loot_rule_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_ASK_MODIFY_PARTY_LOOTING);
+    w.write_string(leader_name);
+    w.write_i32(loot_rule_id);
+    w.into_bytes()
+}
+
+/// `serverpackets/ExSetPartyLooting` — the loot-rule change verdict.
+pub fn ex_set_party_looting(result: i32, loot_rule_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SET_PARTY_LOOTING);
+    w.write_i32(result);
+    w.write_i32(loot_rule_id);
+    w.into_bytes()
+}
+
+// ---------------------------------------------------------------------------
+// Friend packets (G10)
+// ---------------------------------------------------------------------------
+
+/// One friend entry + live online flag, assembled by `game_loop/friends.rs`.
+pub struct FriendEntry {
+    pub char_id: i32,
+    pub name: String,
+    pub level: i32,
+    pub class_id: i32,
+    pub online: bool,
+}
+
+/// `serverpackets/friend/L2FriendList` — the enter-world friend roster.
+pub fn l2_friend_list(entries: &[FriendEntry]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::L2_FRIEND_LIST);
+    w.write_i32(entries.len() as i32);
+    for e in entries {
+        w.write_i32(e.char_id);
+        w.write_string(&e.name);
+        w.write_i32(e.online as i32);
+        w.write_i32(if e.online { e.char_id } else { 0 });
+        w.write_i32(e.level);
+        w.write_i32(e.class_id);
+        w.write_i16(0);
+    }
+    w.into_bytes()
+}
+
+/// `serverpackets/friend/FriendAddRequest` — the invite popup.
+pub fn friend_add_request(requestor_name: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::FRIEND_ADD_REQUEST);
+    w.write_u8(0);
+    w.write_string(requestor_name);
+    w.into_bytes()
+}
+
+/// `serverpackets/friend/FriendAddRequestResult` — pushes the new friend into
+/// the client-side list (result 1 = accepted).
+pub fn friend_add_request_result(result: i32, e: &FriendEntry) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::FRIEND_ADD_REQUEST_RESULT);
+    w.write_i32(result);
+    w.write_i32(e.char_id);
+    w.write_string(&e.name);
+    w.write_i32(e.online as i32);
+    w.write_i32(if e.online { e.char_id } else { 0 });
+    w.write_i32(e.level);
+    w.write_i32(e.class_id);
+    w.write_i16(0); // "Always 0 on retail"
+    w.into_bytes()
+}
+
+/// `serverpackets/friend/FriendRemove`.
+pub fn friend_remove(name: &str, response: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::FRIEND_REMOVE);
+    w.write_i32(response);
+    w.write_string(name);
+    w.into_bytes()
+}
+
+/// `FriendStatus` modes.
+pub mod friend_status_mode {
+    pub const OFFLINE: i32 = 0;
+    pub const ONLINE: i32 = 1;
+    pub const LEVEL: i32 = 2;
+    pub const CLASS: i32 = 3;
+}
+
+/// `serverpackets/friend/FriendStatus` — login/logout/level/class pings to
+/// everyone who has this player friended.
+pub fn friend_status(mode: i32, name: &str, extra: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::FRIEND_STATUS);
+    w.write_i32(mode);
+    w.write_string(name);
+    match mode {
+        friend_status_mode::OFFLINE | friend_status_mode::LEVEL | friend_status_mode::CLASS => w.write_i32(extra),
+        _ => {} // ONLINE writes nothing extra
+    }
+    w.into_bytes()
+}
+
+/// `serverpackets/friend/L2FriendSay` — a `RequestSendFriendMsg` delivery.
+pub fn l2_friend_say(sender: &str, receiver: &str, message: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::L2_FRIEND_SAY);
+    w.write_i32(0);
+    w.write_string(receiver);
+    w.write_string(sender);
+    w.write_string(message);
+    w.into_bytes()
 }

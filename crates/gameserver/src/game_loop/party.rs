@@ -1,0 +1,851 @@
+//! Port of the party flows: `RequestJoinParty`/`RequestAnswerJoinParty`/
+//! `RequestWithDrawalParty`/`RequestOustPartyMember`/`RequestChangePartyLeader`
+//! + `Party`'s member management, loot-rule voting, the 12 s position
+//! broadcast, and the `PartySmallWindowUpdate` vitals piggyback.
+//! Out of scope (PLAN_G10_SOCIAL.md): command channels, matching rooms,
+//! tactical signs, pets/servitors, duels, block list.
+
+use crate::model::components::{PartyRef, PendingRequest, PlayerVitals, Position, RequestKind, Vitals};
+use crate::model::party::{LootChangeRequest, LootRule, Party};
+use crate::model::Player;
+use crate::network::client_packets as cp;
+use crate::network::server_packets::{self, sm_ids, PartyMemberView, SmParam};
+use crate::scheduler::ScheduledTask;
+use crate::session::ClientSession;
+use crate::world::World;
+
+use super::helpers::{broadcast_to_others, client_for_player};
+
+/// `Player.REQUEST_TIMEOUT` (15 s) in ticks — the `_pendingInvitation`
+/// expiry and the friend-invite request timeout.
+pub(crate) const REQUEST_TIMEOUT_TICKS: u64 = 15 * 10;
+/// `PartyRequest.scheduleTimeout(30 * 1000)` in ticks.
+const PARTY_REQUEST_TIMEOUT_TICKS: u64 = 30 * 10;
+/// `PARTY_POSITION_BROADCAST_INTERVAL` (12 s) in ticks.
+const POSITION_BROADCAST_TICKS: u64 = 12 * 10;
+/// `PARTY_DISTRIBUTION_TYPE_REQUEST_TIMEOUT` (15 s) in ticks.
+const LOOT_CHANGE_TIMEOUT_TICKS: u64 = 15 * 10;
+
+// ---------------------------------------------------------------------------
+// Small lookups
+// ---------------------------------------------------------------------------
+
+/// `World.getPlayer(name)` — case-insensitive scan over in-game players.
+pub(crate) fn find_player_by_name(world: &World, name: &str) -> Option<(u32, i32)> {
+    world.clients.iter().find_map(|(&cid, cs)| match cs {
+        ClientSession::InGame(s) => {
+            let oid = s.player_object_id();
+            world
+                .objects
+                .get_component::<Player>(&oid)
+                .filter(|p| p.name.eq_ignore_ascii_case(name))
+                .map(|_| (cid, oid))
+        }
+        _ => None,
+    })
+}
+
+/// The member fields the party-window packets carry.
+pub(crate) fn member_view(world: &World, object_id: i32) -> Option<PartyMemberView> {
+    let p = world.objects.get_component::<Player>(&object_id)?;
+    let v = world.objects.get_component::<Vitals>(&object_id)?;
+    let pv = world.objects.get_component::<PlayerVitals>(&object_id)?;
+    Some(PartyMemberView {
+        object_id,
+        name: p.name.clone(),
+        cp: pv.cur_cp as i32,
+        max_cp: pv.max_cp,
+        hp: v.cur_hp as i32,
+        max_hp: v.max_hp,
+        mp: v.cur_mp as i32,
+        max_mp: v.max_mp,
+        vitality: p.vitality_points,
+        level: p.level,
+        class_id: p.class_id,
+        race: p.race,
+    })
+}
+
+fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
+    if let Some(cid) = client_for_player(world, object_id) {
+        if let Some(cs) = world.clients.get(&cid) {
+            cs.send(packet);
+        }
+    }
+}
+
+fn send_sm_to_player(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
+    send_to_player(world, object_id, server_packets::system_message_with(message_id, params));
+}
+
+/// `Party.broadcastPacket` — every member, or all but `exclude`.
+pub(crate) fn broadcast_to_party(world: &World, party_id: u32, packet: &[u8], exclude: Option<i32>) {
+    let Some(party) = world.parties.get(&party_id) else { return };
+    for &m in &party.members {
+        if exclude == Some(m) {
+            continue;
+        }
+        send_to_player(world, m, packet.to_vec());
+    }
+}
+
+/// `Player.broadcastUserInfo()` — fresh `UserInfo` to self, `CharInfo` to
+/// everyone who can see them (the party windows read relation bits off
+/// these; the packets themselves carry no party fields yet).
+fn broadcast_user_info(world: &World, object_id: i32) {
+    let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) else { return };
+    send_to_player(world, object_id, crate::network::user_info::user_info(&v, &world.data));
+    let char_info = server_packets::char_info(&v);
+    broadcast_to_others(world, object_id, &char_info);
+}
+
+fn player_name(world: &World, object_id: i32) -> String {
+    world.objects.get_component::<Player>(&object_id).map(|p| p.name.clone()).unwrap_or_default()
+}
+
+// ---------------------------------------------------------------------------
+// Pending requests (Java `PartyRequest` / `_activeRequester`)
+// ---------------------------------------------------------------------------
+
+/// Install a linked request on both sides + its timeout tasks.
+pub(crate) fn install_request(world: &mut World, requestor: i32, target: i32, kind: RequestKind, timeout_ticks: u64) {
+    let seq = world.next_request_seq();
+    world
+        .objects
+        .add_components(&requestor, PendingRequest { kind, other: target, answerer: false, seq });
+    world
+        .objects
+        .add_components(&target, PendingRequest { kind, other: requestor, answerer: true, seq });
+    let at = world.tick + timeout_ticks;
+    world.scheduler.schedule(at, ScheduledTask::RequestTimeout { object_id: requestor, seq });
+    world.scheduler.schedule(at, ScheduledTask::RequestTimeout { object_id: target, seq });
+}
+
+/// Drop one side's request slot; returns the removed request.
+fn take_request(world: &mut World, object_id: i32) -> Option<PendingRequest> {
+    let req = world.objects.get_component::<PendingRequest>(&object_id).copied()?;
+    world.objects.remove_component::<PendingRequest>(&object_id);
+    Some(req)
+}
+
+/// Clear a request from both sides (answer received / a side left the world).
+pub(crate) fn clear_linked_request(world: &mut World, object_id: i32) -> Option<PendingRequest> {
+    let req = take_request(world, object_id)?;
+    if world.objects.get_component::<PendingRequest>(&req.other).is_some_and(|r| r.seq == req.seq) {
+        world.objects.remove_component::<PendingRequest>(&req.other);
+    }
+    Some(req)
+}
+
+/// `ScheduledTask::RequestTimeout` — the invite went unanswered.
+pub(crate) fn handle_request_timeout(world: &mut World, object_id: i32, seq: u64) {
+    let stale = !world.objects.get_component::<PendingRequest>(&object_id).is_some_and(|r| r.seq == seq);
+    if stale {
+        return;
+    }
+    let Some(req) = take_request(world, object_id) else { return };
+    // An answered-side timeout for a never-attached fresh party drops it
+    // (Java leaks the object to GC; our map needs the explicit remove).
+    if req.answerer {
+        if let RequestKind::PartyInvite { party_id } = req.kind {
+            drop_party_if_unborn(world, party_id);
+        }
+    }
+}
+
+/// Remove a party that only ever existed inside a pending invite (single
+/// member who never got `PartyRef` attached).
+fn drop_party_if_unborn(world: &mut World, party_id: u32) {
+    let unborn = world
+        .parties
+        .get(&party_id)
+        .is_some_and(|p| p.members.len() == 1 && !world.objects.has_component::<PartyRef>(&p.leader()));
+    if unborn {
+        world.parties.remove(&party_id);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Invite (`RequestJoinParty` → `AskJoinParty`)
+// ---------------------------------------------------------------------------
+
+pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let requestor = session.player_object_id();
+    let Some(pkt) = cp::RequestJoinParty::read(body) else { return };
+
+    let Some((_, target)) = find_player_by_name(world, &pkt.name) else {
+        send_sm_to_player(world, requestor, sm_ids::YOU_MUST_FIRST_SELECT_A_USER_TO_INVITE_TO_YOUR_PARTY, &[]);
+        return;
+    };
+    if world.objects.has_component::<PartyRef>(&target) {
+        send_sm_to_player(
+            world,
+            requestor,
+            sm_ids::C1_IS_A_MEMBER_OF_ANOTHER_PARTY_AND_CANNOT_BE_INVITED,
+            &[SmParam::Text(player_name(world, target))],
+        );
+        return;
+    }
+    if target == requestor {
+        send_sm_to_player(world, requestor, sm_ids::YOU_HAVE_INVITED_THE_WRONG_TARGET, &[]);
+        return;
+    }
+    // (Cursed weapons / jail / olympiad / block-list / event guards skipped —
+    // systems absent.)
+
+    // Java sends "C1 has been invited" before the create/add branches — a
+    // later guard failing still leaves this on the requestor's screen.
+    send_sm_to_player(
+        world,
+        requestor,
+        sm_ids::C1_HAS_BEEN_INVITED_TO_THE_PARTY,
+        &[SmParam::Text(player_name(world, target))],
+    );
+
+    match world.objects.get_component::<PartyRef>(&requestor).copied() {
+        None => {
+            // `createNewParty`: the Party exists from the invite on, but the
+            // requestor only links to it (`setParty`) when the target accepts.
+            let Some(rule) = LootRule::from_id(pkt.loot_rule_id) else { return };
+            if world.objects.has_component::<PendingRequest>(&target) {
+                send_sm_to_player(world, requestor, sm_ids::WAITING_FOR_ANOTHER_REPLY, &[]);
+                return;
+            }
+            let party_id = world.next_party_id;
+            world.next_party_id += 1;
+            let seq = world.next_request_seq();
+            let mut party = Party::new(requestor, rule, seq);
+            party.pending_invitation = true;
+            party.pending_invite_expiry_tick = world.tick + REQUEST_TIMEOUT_TICKS;
+            world.parties.insert(party_id, party);
+            install_request(world, requestor, target, RequestKind::PartyInvite { party_id }, PARTY_REQUEST_TIMEOUT_TICKS);
+            send_to_player(world, target, server_packets::ask_join_party(&player_name(world, requestor), rule.id()));
+        }
+        Some(PartyRef(party_id)) => {
+            // `addTargetToParty`.
+            let Some(party) = world.parties.get(&party_id) else { return };
+            if !party.is_leader(requestor) {
+                send_sm_to_player(world, requestor, sm_ids::ONLY_THE_LEADER_CAN_GIVE_OUT_INVITATIONS, &[]);
+            } else if party.members.len() >= world.cfg.character.alt_party_max_members {
+                send_sm_to_player(world, requestor, sm_ids::THE_PARTY_IS_FULL, &[]);
+            } else if party.pending_invitation && party.pending_invite_expiry_tick > world.tick {
+                send_sm_to_player(world, requestor, sm_ids::WAITING_FOR_ANOTHER_REPLY, &[]);
+            } else if !world.objects.has_component::<PendingRequest>(&target) {
+                let rule = party.distribution;
+                install_request(world, requestor, target, RequestKind::PartyInvite { party_id }, PARTY_REQUEST_TIMEOUT_TICKS);
+                if let Some(party) = world.parties.get_mut(&party_id) {
+                    party.pending_invitation = true;
+                    party.pending_invite_expiry_tick = world.tick + REQUEST_TIMEOUT_TICKS;
+                }
+                send_to_player(world, target, server_packets::ask_join_party(&player_name(world, requestor), rule.id()));
+            } else {
+                send_sm_to_player(
+                    world,
+                    requestor,
+                    sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER,
+                    &[SmParam::Text(player_name(world, target))],
+                );
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Answer (`RequestAnswerJoinParty` → `JoinParty` + `addPartyMember`)
+// ---------------------------------------------------------------------------
+
+pub(crate) fn handle_request_answer_join_party(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    let response = cp::read_answer(body).unwrap_or(0);
+
+    let Some(req) = world.objects.get_component::<PendingRequest>(&player).copied() else { return };
+    let (RequestKind::PartyInvite { party_id }, true) = (req.kind, req.answerer) else { return };
+    clear_linked_request(world, player);
+    let requestor = req.other;
+
+    if !world.parties.contains_key(&party_id) {
+        return;
+    }
+    // Java: a requestor who meanwhile joined a *different* party voids the
+    // request.
+    if world.objects.get_component::<PartyRef>(&requestor).is_some_and(|r| r.0 != party_id) {
+        if let Some(party) = world.parties.get_mut(&party_id) {
+            party.pending_invitation = false;
+        }
+        drop_party_if_unborn(world, party_id);
+        return;
+    }
+
+    send_to_player(world, requestor, server_packets::join_party(response.clamp(-1, 1)));
+
+    if response == 1 {
+        let (member_count, max) =
+            (world.parties[&party_id].members.len(), world.cfg.character.alt_party_max_members);
+        if member_count >= max {
+            send_sm_to_player(world, player, sm_ids::THE_PARTY_IS_FULL, &[]);
+            send_sm_to_player(world, requestor, sm_ids::THE_PARTY_IS_FULL, &[]);
+        } else {
+            // First accept binds the leader (`requestor.setParty(party)`).
+            if !world.objects.has_component::<PartyRef>(&requestor) {
+                world.objects.add_components(&requestor, PartyRef(party_id));
+            }
+            add_party_member(world, party_id, player);
+        }
+    } else {
+        if response == -1 {
+            send_sm_to_player(
+                world,
+                requestor,
+                sm_ids::C1_IS_SET_TO_REFUSE_PARTY_REQUESTS,
+                &[SmParam::PlayerName(player_name(world, player))],
+            );
+        }
+        // A declined first invite dissolves the embryo party.
+        drop_party_if_unborn(world, party_id);
+    }
+
+    if let Some(party) = world.parties.get_mut(&party_id) {
+        party.pending_invitation = false;
+    }
+}
+
+/// `Party.addPartyMember` (pets/CC/duel/tactical-sign hooks dropped).
+pub(crate) fn add_party_member(world: &mut World, party_id: u32, new_member: i32) {
+    let Some(party) = world.parties.get(&party_id) else { return };
+    if party.contains(new_member) {
+        return;
+    }
+    // A pending loot-rule vote dies on member change.
+    if world.parties[&party_id].loot_change.is_some() {
+        finish_loot_change(world, party_id, false);
+    }
+
+    let started_broadcast = {
+        let party = world.parties.get_mut(&party_id).expect("checked");
+        let first_add = party.members.len() == 1;
+        party.members.push(new_member);
+        first_add
+    };
+    world.objects.add_components(&new_member, PartyRef(party_id));
+
+    let party = &world.parties[&party_id];
+    let (leader, rule, members) = (party.leader(), party.distribution, party.members.clone());
+    let leader_name = player_name(world, leader);
+    let new_name = player_name(world, new_member);
+
+    // New member: the full window (everyone but themselves) + "you joined".
+    let others: Vec<PartyMemberView> =
+        members.iter().filter(|&&m| m != new_member).filter_map(|&m| member_view(world, m)).collect();
+    send_to_player(world, new_member, server_packets::party_small_window_all(leader, rule.id(), &others));
+    send_sm_to_player(world, new_member, sm_ids::YOU_HAVE_JOINED_S1_S_PARTY, &[SmParam::Text(leader_name)]);
+
+    // Everyone (new member included, per Java's broadcast after add):
+    // "C1 has joined the party"; existing members also get the Add window
+    // entry and the new member's HP bar.
+    let joined_sm =
+        server_packets::system_message_with(sm_ids::C1_HAS_JOINED_THE_PARTY, &[SmParam::Text(new_name)]);
+    broadcast_to_party(world, party_id, &joined_sm, None);
+    if let Some(view) = member_view(world, new_member) {
+        let add = server_packets::party_small_window_add(leader, rule.id(), &view);
+        let su = server_packets::status_update(
+            new_member,
+            &[
+                (server_packets::status_update_type::MAX_HP, view.max_hp),
+                (server_packets::status_update_type::CUR_HP, view.hp),
+            ],
+        );
+        for &m in &members {
+            if m != new_member {
+                send_to_player(world, m, add.clone());
+            }
+            send_to_player(world, m, su.clone());
+        }
+    }
+    // `member.broadcastUserInfo()` for everyone (relation bits refresh).
+    for &m in &members {
+        broadcast_user_info(world, m);
+    }
+
+    // The 12 s position broadcast starts with the first real member add
+    // (Java: `_positionBroadcastTask == null`), initial delay = period / 2.
+    if started_broadcast {
+        let seq = world.parties[&party_id].seq;
+        world
+            .scheduler
+            .schedule(world.tick + POSITION_BROADCAST_TICKS / 2, ScheduledTask::PartyPositionBroadcast { party_id, seq });
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Leave / oust / disband / leader change
+// ---------------------------------------------------------------------------
+
+/// `PartyMessageType`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum LeaveType {
+    Left,
+    Expelled,
+    Disconnected,
+    None,
+}
+
+pub(crate) fn handle_request_withdrawal_party(world: &mut World, client_id: u32) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    if let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&player).copied() {
+        remove_party_member(world, party_id, player, LeaveType::Left);
+    }
+}
+
+pub(crate) fn handle_request_oust_party_member(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    let Some(name) = cp::read_name(body) else { return };
+    let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&player).copied() else { return };
+    if !world.parties.get(&party_id).is_some_and(|p| p.is_leader(player)) {
+        return;
+    }
+    let victim = world.parties[&party_id]
+        .members
+        .iter()
+        .copied()
+        .find(|&m| player_name(world, m).eq_ignore_ascii_case(&name));
+    if let Some(victim) = victim {
+        remove_party_member(world, party_id, victim, LeaveType::Expelled);
+    }
+}
+
+pub(crate) fn handle_request_change_party_leader(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    let Some(name) = cp::read_name(body) else { return };
+    let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&player).copied() else { return };
+    if !world.parties.get(&party_id).is_some_and(|p| p.is_leader(player)) {
+        return;
+    }
+    let target = world.parties[&party_id]
+        .members
+        .iter()
+        .copied()
+        .find(|&m| player_name(world, m).eq_ignore_ascii_case(&name));
+    let Some(target) = target else {
+        // Java answers this to the *named* player object being absent from
+        // the member list.
+        send_sm_to_player(world, player, sm_ids::YOU_MAY_ONLY_TRANSFER_PARTY_LEADERSHIP, &[]);
+        return;
+    };
+    if target == player {
+        send_sm_to_player(world, player, sm_ids::SLOW_DOWN_YOU_ARE_ALREADY_THE_PARTY_LEADER, &[]);
+        return;
+    }
+    {
+        let party = world.parties.get_mut(&party_id).expect("checked");
+        let idx = party.members.iter().position(|&m| m == target).expect("checked");
+        party.members.swap(0, idx);
+    }
+    announce_new_leader(world, party_id);
+}
+
+/// SM 1384 + `broadcastToPartyMembersNewLeader` (window rebuild for all).
+fn announce_new_leader(world: &mut World, party_id: u32) {
+    let leader_name = player_name(world, world.parties[&party_id].leader());
+    let sm = server_packets::system_message_with(
+        sm_ids::C1_HAS_BECOME_THE_PARTY_LEADER,
+        &[SmParam::Text(leader_name)],
+    );
+    broadcast_to_party(world, party_id, &sm, None);
+
+    let party = &world.parties[&party_id];
+    let (leader, rule, members) = (party.leader(), party.distribution, party.members.clone());
+    for &m in &members {
+        send_to_player(world, m, server_packets::party_small_window_delete_all());
+        let others: Vec<PartyMemberView> =
+            members.iter().filter(|&&o| o != m).filter_map(|&o| member_view(world, o)).collect();
+        send_to_player(world, m, server_packets::party_small_window_all(leader, rule.id(), &others));
+        broadcast_user_info(world, m);
+    }
+}
+
+/// `Party.removePartyMember(player, type)`.
+pub(crate) fn remove_party_member(world: &mut World, party_id: u32, leaver: i32, leave_type: LeaveType) {
+    let Some(party) = world.parties.get(&party_id) else { return };
+    if !party.contains(leaver) {
+        return;
+    }
+    let was_leader = party.is_leader(leaver);
+    let two_left = party.members.len() == 2;
+    let leader_quit = was_leader
+        && !world.cfg.character.alt_leave_party_leader
+        && leave_type != LeaveType::Disconnected
+        && leave_type != LeaveType::None;
+    if two_left || leader_quit {
+        disband_party(world, party_id);
+        return;
+    }
+
+    {
+        let party = world.parties.get_mut(&party_id).expect("checked");
+        party.members.retain(|&m| m != leaver);
+        if party.loot_change.is_some() {
+            // Member change voids the vote (answers count against a stale
+            // member set otherwise).
+            finish_loot_change_inline(party);
+        }
+    }
+    world.objects.remove_component::<PartyRef>(&leaver);
+
+    let leaver_name = player_name(world, leaver);
+    match leave_type {
+        LeaveType::Expelled => {
+            send_sm_to_player(world, leaver, sm_ids::YOU_HAVE_BEEN_EXPELLED_FROM_THE_PARTY, &[]);
+            let sm = server_packets::system_message_with(
+                sm_ids::C1_WAS_EXPELLED_FROM_THE_PARTY,
+                &[SmParam::Text(leaver_name.clone())],
+            );
+            broadcast_to_party(world, party_id, &sm, None);
+        }
+        LeaveType::Left | LeaveType::Disconnected => {
+            send_sm_to_player(world, leaver, sm_ids::YOU_HAVE_WITHDRAWN_FROM_THE_PARTY, &[]);
+            let sm = server_packets::system_message_with(
+                sm_ids::C1_HAS_LEFT_THE_PARTY,
+                &[SmParam::Text(leaver_name.clone())],
+            );
+            broadcast_to_party(world, party_id, &sm, None);
+        }
+        LeaveType::None => {}
+    }
+
+    send_to_player(world, leaver, server_packets::party_small_window_delete_all());
+    let delete = server_packets::party_small_window_delete(leaver, &leaver_name);
+    broadcast_to_party(world, party_id, &delete, None);
+    broadcast_user_info(world, leaver);
+
+    if was_leader {
+        announce_new_leader(world, party_id);
+    }
+}
+
+/// `Party.disbandParty` — SM 203 to everyone, all windows cleared, party
+/// gone. (Java re-enters `removePartyMember` per member with `_disbanding`
+/// set; the observable packets are the dissolve SM + each member's
+/// `PartySmallWindowDeleteAll`, which this sends directly.)
+pub(crate) fn disband_party(world: &mut World, party_id: u32) {
+    let Some(party) = world.parties.get_mut(&party_id) else { return };
+    party.seq = party.seq.wrapping_add(1); // kill outstanding tasks
+    let members = party.members.clone();
+    let sm = server_packets::system_message_with(sm_ids::THE_PARTY_HAS_DISPERSED, &[]);
+    for &m in &members {
+        world.objects.remove_component::<PartyRef>(&m);
+        send_to_player(world, m, sm.clone());
+        send_to_player(world, m, server_packets::party_small_window_delete_all());
+    }
+    world.parties.remove(&party_id);
+    for &m in &members {
+        broadcast_user_info(world, m);
+    }
+}
+
+/// Player left the world (logout/restart/disconnect): party + request
+/// cleanup. Called by `store_and_remove_player`.
+pub(crate) fn on_player_leave_world(world: &mut World, object_id: i32) {
+    if let Some(req) = clear_linked_request(world, object_id) {
+        // A vanished inviter's embryo party dies with the invite.
+        if let RequestKind::PartyInvite { party_id } = req.kind {
+            drop_party_if_unborn(world, party_id);
+        }
+    }
+    if let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&object_id).copied() {
+        remove_party_member(world, party_id, object_id, LeaveType::Disconnected);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Loot-rule voting (`requestLootChange` / `answerLootChangeRequest`)
+// ---------------------------------------------------------------------------
+
+pub(crate) fn handle_request_party_loot_modification(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    let Some(rule) = cp::read_answer(body).and_then(LootRule::from_id) else { return };
+    let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&player).copied() else { return };
+    let Some(party) = world.parties.get(&party_id) else { return };
+    if !party.is_leader(player) || party.loot_change.is_some() {
+        return;
+    }
+    let seq = world.next_request_seq();
+    let leader_name = player_name(world, player);
+    {
+        let party = world.parties.get_mut(&party_id).expect("checked");
+        party.loot_change = Some(LootChangeRequest { rule, answers: Default::default() });
+        party.seq = seq; // NOTE: shared generation — see handle_loot_change_timeout
+    }
+    world
+        .scheduler
+        .schedule(world.tick + LOOT_CHANGE_TIMEOUT_TICKS, ScheduledTask::PartyLootChangeTimeout { party_id, seq });
+    let ask = server_packets::ex_ask_modify_party_looting(&leader_name, rule.id());
+    broadcast_to_party(world, party_id, &ask, Some(player));
+    send_sm_to_player(
+        world,
+        player,
+        sm_ids::REQUESTING_APPROVAL_FOR_CHANGING_PARTY_LOOT_TO_S1,
+        &[SmParam::SysString(rule.sys_string_id())],
+    );
+}
+
+pub(crate) fn handle_answer_party_loot_modification(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    let answer = cp::read_answer(body).unwrap_or(0);
+    let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&player).copied() else { return };
+    let Some(party) = world.parties.get_mut(&party_id) else { return };
+    let member_count = party.members.len();
+    let Some(change) = party.loot_change.as_mut() else { return };
+    if change.answers.contains(&player) {
+        return;
+    }
+    if answer != 1 {
+        finish_loot_change(world, party_id, false);
+        return;
+    }
+    change.answers.insert(player);
+    if change.answers.len() >= member_count - 1 {
+        finish_loot_change(world, party_id, true);
+    }
+}
+
+pub(crate) fn handle_loot_change_timeout(world: &mut World, party_id: u32, seq: u64) {
+    let live = world.parties.get(&party_id).is_some_and(|p| p.seq == seq && p.loot_change.is_some());
+    if live {
+        finish_loot_change(world, party_id, false);
+    }
+}
+
+/// `finishLootRequest`.
+fn finish_loot_change(world: &mut World, party_id: u32, success: bool) {
+    let Some(party) = world.parties.get_mut(&party_id) else { return };
+    let Some(change) = party.loot_change.take() else { return };
+    if success {
+        party.distribution = change.rule;
+    }
+    let rule = if success { change.rule } else { party.distribution };
+    let set = server_packets::ex_set_party_looting(success as i32, rule.id());
+    broadcast_to_party(world, party_id, &set, None);
+    let sm = if success {
+        server_packets::system_message_with(
+            sm_ids::PARTY_LOOT_WAS_CHANGED_TO_S1,
+            &[SmParam::SysString(rule.sys_string_id())],
+        )
+    } else {
+        server_packets::system_message_with(sm_ids::PARTY_LOOT_CHANGE_WAS_CANCELLED, &[])
+    };
+    broadcast_to_party(world, party_id, &sm, None);
+}
+
+/// The member-change path already holds `&mut Party` — just void the vote;
+/// the verdict packets follow from the caller when needed. Java cancels with
+/// the full `finishLootRequest(false)` broadcast on member add; on removal
+/// the vote silently dies with the member set. We void silently in both
+/// spots and let `add_party_member` do the broadcast variant.
+fn finish_loot_change_inline(party: &mut Party) {
+    party.loot_change = None;
+}
+
+// ---------------------------------------------------------------------------
+// Position broadcast + vitals piggyback
+// ---------------------------------------------------------------------------
+
+pub(crate) fn handle_position_broadcast(world: &mut World, party_id: u32, seq: u64) {
+    let Some(party) = world.parties.get(&party_id) else { return };
+    if party.seq != seq {
+        return;
+    }
+    let locations: Vec<(i32, i32, i32, i32)> = party
+        .members
+        .iter()
+        .filter_map(|&m| {
+            world.objects.get_component::<Position>(&m).map(|p| (m, p.x, p.y, p.z))
+        })
+        .collect();
+    let pkt = server_packets::party_member_position(&locations);
+    broadcast_to_party(world, party_id, &pkt, None);
+    world
+        .scheduler
+        .schedule(world.tick + POSITION_BROADCAST_TICKS, ScheduledTask::PartyPositionBroadcast { party_id, seq });
+}
+
+/// The `PartySmallWindowUpdate` piggyback: whenever a party member's vitals
+/// `StatusUpdate` goes out, the other members' windows refresh too (Java
+/// `Player.broadcastStatusUpdate`, hysteresis dropped).
+pub(crate) fn notify_party_vitals(world: &World, object_id: i32) {
+    notify_party_window(world, object_id, server_packets::party_window_flags::VITALS);
+}
+
+/// The all-flags variant (level-ups — Java `PartySmallWindowUpdate(this, true)`).
+pub(crate) fn notify_party_all(world: &World, object_id: i32) {
+    notify_party_window(world, object_id, server_packets::party_window_flags::ALL);
+}
+
+fn notify_party_window(world: &World, object_id: i32, flags: u16) {
+    let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&object_id).copied() else { return };
+    let Some(view) = member_view(world, object_id) else { return };
+    let pkt = server_packets::party_small_window_update(&view, flags);
+    broadcast_to_party(world, party_id, &pkt, Some(object_id));
+}
+
+// ---------------------------------------------------------------------------
+// Party chat (`ChatParty`)
+// ---------------------------------------------------------------------------
+
+/// Broadcast a party line to every member (speaker included). Returns false
+/// when the speaker has no party (caller answers SM 4201).
+pub(crate) fn party_say(world: &World, speaker: i32, packet: &[u8]) -> bool {
+    let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&speaker).copied() else {
+        return false;
+    };
+    broadcast_to_party(world, party_id, packet, None);
+    true
+}
+
+// ---------------------------------------------------------------------------
+// Party rewards (`Party.distributeXpAndSp` + `distributeItem`/`distributeAdena`)
+// ---------------------------------------------------------------------------
+
+/// XP/SP for one party's damage share against one kill — the party branch of
+/// `Attackable.calculateRewards` + `Party.distributeXpAndSp`.
+/// `base_exp`/`base_sp` already carry `partyDmg/totalDamage × partyMul ×
+/// level-gap` (the caller ports `calculateExpAndSp`); this adds the party
+/// bonus ladder and splits by level².
+pub(crate) fn distribute_xp_and_sp(
+    world: &mut World,
+    rewarded: &[(i32, i32)], // (object_id, level), alive + in range
+    top_level: i32,
+    base_exp: f64,
+    base_sp: f64,
+) {
+    let cfg = &world.cfg.character;
+    let valid = crate::model::party::valid_members(
+        rewarded,
+        top_level,
+        &cfg.party_xp_cutoff_method,
+        cfg.party_xp_cutoff_level,
+        cfg.party_xp_cutoff_percent,
+    );
+    let xp_reward = base_exp * crate::model::party::exp_sp_bonus(valid.len(), world.cfg.rates.rate_party_xp);
+    let sp_reward = base_sp * crate::model::party::exp_sp_bonus(valid.len(), world.cfg.rates.rate_party_sp);
+    let sq_level_sum: f64 = rewarded
+        .iter()
+        .filter(|(id, _)| valid.contains(id))
+        .map(|&(_, l)| (l as f64) * (l as f64))
+        .sum();
+    if sq_level_sum <= 0.0 {
+        return;
+    }
+
+    let highfive = cfg.party_xp_cutoff_method == "highfive";
+    let (gaps, percents) = (cfg.party_xp_cutoff_gaps.clone(), cfg.party_xp_cutoff_gap_percents.clone());
+    for &(member, level) in rewarded {
+        if !valid.contains(&member) {
+            continue; // Java: `member.addExpAndSp(0, 0)` — a no-op here.
+        }
+        let pre = (level as f64) * (level as f64) / sq_level_sum;
+        let mut xp = xp_reward * pre;
+        let mut sp = sp_reward * pre;
+        if highfive {
+            match crate::model::party::highfive_cutoff_percent(top_level - level, &gaps, &percents) {
+                Some(pct) => {
+                    xp = xp * pct as f64 / 100.0;
+                    sp = sp * pct as f64 / 100.0;
+                }
+                None => continue, // outside every gap range: nothing at all
+            }
+        }
+        super::death::add_exp_and_sp(world, member, xp.round() as i64, sp.round() as i64);
+    }
+}
+
+/// `Party.distributeItem`/`distributeAdena` for an auto-looted drop. The
+/// corpse position gates the in-range member set (`ALT_PARTY_RANGE`).
+pub(crate) fn distribute_item(
+    world: &mut World,
+    party_id: u32,
+    killer: i32,
+    item_id: i32,
+    count: i64,
+    corpse: (i32, i32),
+) {
+    const ADENA_ID: i32 = 57;
+    let range = world.cfg.character.alt_party_range as f64;
+    let Some((members, rule, last_loot)) = world
+        .parties
+        .get(&party_id)
+        .map(|p| (p.members.clone(), p.distribution, p.item_last_loot))
+    else {
+        super::death::give_item(world, killer, item_id, count);
+        return;
+    };
+    let in_range: Vec<i32> = members
+        .iter()
+        .copied()
+        .filter(|&m| {
+            world.objects.get_component::<Position>(&m).is_some_and(|p| {
+                let (dx, dy) = ((p.x - corpse.0) as f64, (p.y - corpse.1) as f64);
+                (dx * dx + dy * dy).sqrt() <= range
+            })
+        })
+        .collect();
+
+    if item_id == ADENA_ID {
+        // `distributeAdena` — an even split over the in-range members.
+        if in_range.is_empty() {
+            return;
+        }
+        let share = count / in_range.len() as i64;
+        if share > 0 {
+            for m in in_range {
+                super::death::give_item(world, m, item_id, share);
+            }
+        }
+        return;
+    }
+
+    let looter = if rule.is_random() {
+        if in_range.is_empty() { killer } else { in_range[world.roll(in_range.len() as i32) as usize] }
+    } else if rule.is_by_turn() {
+        // `getCheckedNextLooter`: advance the cursor over the member list,
+        // skipping out-of-range members.
+        let mut cursor = last_loot;
+        let mut picked = None;
+        for _ in 0..members.len() {
+            cursor = (cursor + 1) % members.len();
+            if in_range.contains(&members[cursor]) {
+                picked = Some(members[cursor]);
+                break;
+            }
+        }
+        if let Some(party) = world.parties.get_mut(&party_id) {
+            party.item_last_loot = cursor;
+        }
+        picked.unwrap_or(killer)
+    } else {
+        killer // FINDERS_KEEPERS
+    };
+
+    super::death::give_item(world, looter, item_id, count);
+
+    // "C1 has obtained …" to the rest of the party.
+    let looter_name = player_name(world, looter);
+    let sm = if count > 1 {
+        server_packets::system_message_with(
+            sm_ids::C1_HAS_OBTAINED_S3_S2,
+            &[SmParam::Text(looter_name), SmParam::ItemName(item_id), SmParam::Long(count)],
+        )
+    } else {
+        server_packets::system_message_with(
+            sm_ids::C1_HAS_OBTAINED_S2,
+            &[SmParam::Text(looter_name), SmParam::ItemName(item_id)],
+        )
+    };
+    broadcast_to_party(world, party_id, &sm, Some(looter));
+}

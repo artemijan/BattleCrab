@@ -343,7 +343,8 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(ew::ex_user_info_equip_slot(player.object_id, &bundle.inventory));
     session.send(ew::quest_list());
     session.send(ew::ex_rotation(player.object_id, bundle.position.heading));
-    session.send(ew::friend_list());
+    // `L2FriendList` — the real roster (Java sends it at this spot).
+    session.send(super::friends::l2_friend_list_packet(world, &bundle.friends));
     session.send(server_packets::skill_cool_time(&crate::model::components::Reuses::default(), world.tick));
 
     // Register the player in the world and re-send UserInfo (Java does both).
@@ -363,6 +364,8 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // Java `spawnMe` → `World.addVisibleObject`: mutual CharInfo with every
     // player visible from the spawn region.
     super::visibility::on_enter_world(world, client_id, object_id);
+    // "Your friend just logged in" + FriendStatus(ONLINE) to online friends.
+    super::friends::on_enter_world(world, object_id);
 
     // Java `EnterWorld`: a character that logged out dead comes back dead —
     // re-open the death dialog.

@@ -193,6 +193,12 @@ pub enum DbCommand {
     /// Fire-and-forget macro registration (`MacroList.registerMacroInDb`,
     /// delete+insert collapsed to an upsert on the (charId, id) PK).
     UpsertMacro { char_id: i32, macro_: crate::model::shortcut::Macro },
+    /// Fire-and-forget friendship insert — both directions in one statement
+    /// (Java `RequestAnswerFriendInvite`'s two-row INSERT).
+    InsertFriendPair { a: i32, b: i32 },
+    /// Fire-and-forget friendship delete, both directions
+    /// (`RequestFriendDel`).
+    DeleteFriendPair { a: i32, b: i32 },
     /// Fire-and-forget `MacroList.deleteMacroFromDb`.
     DeleteMacro { char_id: i32, macro_id: i32 },
     Shutdown,
@@ -367,6 +373,28 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
+            DbCommand::InsertFriendPair { a, b } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT OR IGNORE INTO character_friends (charId, friendId, relation) VALUES (?, ?, 0), (?, ?, 0)")
+                        .bind(a)
+                        .bind(b)
+                        .bind(b)
+                        .bind(a),
+                )
+                .await;
+            }
+            DbCommand::DeleteFriendPair { a, b } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM character_friends WHERE (charId=? AND friendId=?) OR (charId=? AND friendId=?)")
+                        .bind(a)
+                        .bind(b)
+                        .bind(b)
+                        .bind(a),
+                )
+                .await;
+            }
             DbCommand::Shutdown => break,
         }
     }
@@ -423,6 +451,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
         let skills = load_skills(pool, object_id).await;
         let shortcuts = load_shortcuts(pool, object_id).await;
         let macros = load_macros(pool, object_id).await;
+        let friends = load_friends(pool, object_id).await;
         out.push(CharData {
             object_id,
             name: gets(row, "char_name"),
@@ -458,6 +487,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             skills,
             shortcuts,
             macros,
+            friends,
         });
     }
     // Characters marked for deletion are listed last in the lobby; the stable
@@ -502,6 +532,28 @@ async fn load_shortcuts(pool: &SqlitePool, owner_id: i32) -> Vec<crate::model::s
             level: geti(r, "level") as i32,
             character_type: 1,
             shared_reuse_group: -1,
+        })
+        .collect()
+}
+
+/// A character's `character_friends` rows joined with each friend's
+/// character row — the name/level/class snapshot Java reads through
+/// `CharInfoTable` on demand (`relation`/`memo` unused).
+async fn load_friends(pool: &SqlitePool, owner_id: i32) -> Vec<crate::character::FriendInfo> {
+    let rows = sqlx::query(
+        "SELECT f.friendId, c.char_name, c.level, c.classid FROM character_friends f \
+         JOIN characters c ON c.charId = f.friendId WHERE f.charId=?",
+    )
+    .bind(owner_id)
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    rows.iter()
+        .map(|row| crate::character::FriendInfo {
+            char_id: geti(row, "friendId") as i32,
+            name: gets(row, "char_name"),
+            level: geti(row, "level") as i32,
+            class_id: geti(row, "classid") as i32,
         })
         .collect()
 }
