@@ -105,6 +105,10 @@ pub struct NpcTemplate {
     pub random_walk: bool,
 
     // <ai>
+    /// Java `isAggressive` (default false). `aggroRange` alone is *not*
+    /// aggression — most passive mobs (even Rabbit 20002) carry
+    /// `aggroRange="450"`; it's only the scan radius when this flag is set.
+    pub is_aggressive: bool,
     pub aggro_range: i32,
     pub clan_help_range: i32,
 }
@@ -243,6 +247,7 @@ pub fn default_template(id: i32) -> NpcTemplate {
         show_name: true,
         can_move: true,
         random_walk: false,
+        is_aggressive: false,
         aggro_range: 0,
         clan_help_range: 0,
     }
@@ -407,6 +412,9 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                     }
                     b"ai" => {
                         if let Some(t) = cur.as_mut() {
+                            if let Some(v) = attr_bool(&e, b"isAggressive") {
+                                t.is_aggressive = v;
+                            }
                             set_i32(&e, b"aggroRange", &mut t.aggro_range);
                             set_i32(&e, b"clanHelpRange", &mut t.clan_help_range);
                         }
@@ -532,9 +540,19 @@ mod tests {
         assert_eq!(g.base_rnd_dam, 30);
         assert_eq!(g.base_crit_rate, 4.75);
 
+        // Starting-village Gremlin (18342): has aggroRange 450 but no
+        // isAggressive flag — must stay passive (the aggroRange-implies-
+        // aggressive bug made newbie mobs hostile).
+        let sg = data.get(18342).expect("npc 18342");
+        assert_eq!(sg.aggro_range, 450);
+        assert!(!sg.is_aggressive);
+        // Gora Werewolf (20012) is the first mob with isAggressive="true".
+        assert!(data.get(20012).expect("npc 20012").is_aggressive);
+
         // Goblin (20003): drop list + aggro range, hand-checked from the XML.
         let goblin = data.get(20003).expect("npc 20003");
         assert_eq!(goblin.aggro_range, 450);
+        assert!(!goblin.is_aggressive);
         assert_eq!(goblin.drop_list_death.len(), 9);
         let adena = goblin.drop_list_death.iter().find(|d| d.item_id == 57).expect("adena line");
         assert_eq!((adena.min, adena.max), (13, 30));

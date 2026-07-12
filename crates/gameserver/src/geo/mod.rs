@@ -3,12 +3,14 @@
 //! queries built on it (`canSeeTarget`, `canMoveToTarget`,
 //! `getValidLocation`, spawn heights).
 //!
-//! Not ported yet: pathfinding (`CellPathFinding` — planned as a path-worker
-//! service, PLAN_GAME_SERVER §5 G5), door/fence LOS carve-outs (no doors or
-//! fences exist on the Rust side yet), and runtime NSWE editing.
+//! Pathfinding (`CellPathFinding`) lives in [`path`] and runs on the
+//! dedicated [`worker`] thread. Not ported yet: door/fence LOS carve-outs
+//! (no doors or fences exist on the Rust side yet) and runtime NSWE editing.
 
 pub mod line;
+pub mod path;
 pub mod region;
+pub mod worker;
 
 use std::path::Path;
 

@@ -286,6 +286,7 @@ fn chase_target(world: &mut World, object_id: i32, target_object_id: i32) {
             dest_z,
             start_tick,
             total_ticks,
+            geo_path: None,
         }),
     );
     let pkt = server_packets::move_to_pawn(

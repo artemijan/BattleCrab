@@ -31,3 +31,12 @@ thiserror = "2"
 quick-xml = "0.37"
 if-addrs = "0.13"
 memmap2 = "0.9"
+
+# RSA keygen (LoginController's 10 client pairs + 10 GS-link pairs at boot)
+# runs 30-100x slower without optimizations — keep the bigint math crates
+# optimized even in dev builds so the login server boots fast.
+[profile.dev.package.num-bigint-dig]
+opt-level = 3
+
+[profile.dev.package.rsa]
+opt-level = 3

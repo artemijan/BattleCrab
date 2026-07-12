@@ -24,7 +24,8 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G6 Stats, skills & effects                                  | ✅ vertical slice (stat engine, skill learn/cast, buffs) |
 | Game  | G7 Movement & targeting (no geodata)                        | ✅ |
 | Game  | G7.5 Full single-target skill casting                       | ✅ (real cast timing/formulas, reuse, abort, nukes/heals/buffs on others) |
-| Game  | G7.8 Geodata & position validation                          | ✅ (`.l2j` loading, LOS, move clamping, ValidatePosition — pathfinding/zones still ⏳) |
+| Game  | G7.8 Geodata & position validation                          | ✅ (`.l2j` loading, LOS, move clamping, ValidatePosition — zones still ⏳) |
+| Game  | G7.85 Pathfinding (path-worker service)                     | ✅ (`CellPathFinding` port, dedicated worker thread + channels, multi-segment route following for player moves — NPC moves still straight-line) |
 | Game  | G7.9 Region-grid visibility & scoped broadcasting           | ✅ (CharInfo/DeleteObject, 3×3 region knownlist, region-scoped broadcasts) |
 | Game  | G8 Static world content (NPCs/spawns)                       | ✅ vertical slice (34.9k NPCs spawned, visible, targetable, talkable — zones/doors still ⏳) |
 | Game  | G9 Combat & AI                                              | ✅ vertical slice (auto-attack, monster AI, death/decay/respawn, XP/SP/level-ups, auto-loot drops, die→revive) |
@@ -365,9 +366,9 @@ now load and back server-side LOS + walkability checks.
   (incl. `checkNearestNsweAntiCornerCut`, Java's NW quirk kept for parity),
   `getNearestZ`/`getNextLowerZ`/`getNextHigherZ`, `getSpawnHeight`,
   `canSeeTarget` (48-unit see-over, elevated-origin allowance),
-  `canMoveToTarget`, `getValidLocation`. Not ported: `CellPathFinding`
-  (planned as a path-worker service), door/fence LOS carve-outs (no
-  doors/fences yet), runtime NSWE editing.
+  `canMoveToTarget`, `getValidLocation`. Not ported: door/fence LOS
+  carve-outs (no doors/fences yet), runtime NSWE editing.
+  (`CellPathFinding` landed later as G7.85 — see below.)
 - **Boot**: new `config/geoengine.rs` reads `GeoEngine.ini` (`GeoDataPath`,
   `PathFinding`); `main.rs` prints the Geodata section and loads all 227
   dist regions (~2.5 s, debug) into `World.geo` (`GeoEngine::empty()` =
@@ -376,9 +377,8 @@ now load and back server-side LOS + walkability checks.
   `Creature.moveToLocation`'s geodata block — destination clamped via
   `getValidLocation` (players keep client z, far-click > 3000 and
   fall-intent guards honored), fully-clamped moves canceled with
-  `ActionFailed`. **Pathfinding fallback not ported**: where Java walks
-  around an obstacle (clamp shortened path > 30), the player now walks up
-  to it and stops.
+  `ActionFailed`. (The pathfinding fallback — Java walks around an
+  obstacle when the clamp shortened the path > 30 — landed as G7.85.)
 - **`ValidatePosition` (0x59)** — previously unhandled: full
   `runImpl` reconciliation (trust-the-climb z adoption, moderate-drift
   `ValidateLocation` correction (new packet, 0x79), out-of-sync snap with
@@ -396,6 +396,60 @@ now load and back server-side LOS + walkability checks.
   Also fixed a test-suite race: dist-loading tests now use absolute
   `CARGO_MANIFEST_DIR` paths (the ipconfig test chdirs the process
   mid-run and could starve relative-path loaders).
+
+### G7.85 — Pathfinding (path-worker service) ✅
+Closes G7.8's "walks up to the obstacle and stops" gap: blocked player
+moves now route around obstacles via the `CellPathFinding` port, running
+on a dedicated worker thread per CONCURRENCY_MODEL §2.4 (the game thread
+never blocks on a path search).
+
+- **`geo/path.rs`**: pure-function port of `CellNodeBuffer` (best-first
+  search with the cost-sorted-chain open list, arena-allocated nodes
+  instead of Java's object graph, all weights/`MAX_ITERATIONS`/z-keying
+  quirks kept) + `CellPathFinding.findPath` (buffer sizing from
+  `PathFindBuffers`, `constructPath` direction-change compression, the
+  `canMoveToTarget` postfilter with its playable/AI pass asymmetry).
+  Java's cross-thread buffer pool is collapsed to "smallest configured
+  size that fits, allocated fresh" — single worker, so pooling buys
+  nothing; the size ceiling (too-far request ⇒ no path) is preserved.
+- **`geo/worker.rs`**: the path-worker thread. `PathRequest` in via
+  `std::sync::mpsc`, `PathEvent` back to the game loop, drained per tick
+  (`drain_path`, same shape as `drain_db`). `World.geo` became
+  `Arc<GeoEngine>` so the worker shares the mmap'd geodata read-only.
+- **Async move flow** (`position.rs`): when the `getValidLocation` clamp
+  shortens a click by > 30 units, the handler stores a `PathWait { seq }`
+  component and sends the *original* destination to the worker instead of
+  starting the move; the reply (`handle_path_result`) either starts a
+  route move or answers `ActionFailed` (no path — Java's player branch).
+  Stale replies (player re-clicked → newer seq, or left) are dropped;
+  re-clicks onto the geo cell already being pathed to are ignored and
+  clicks elsewhere abandon route following, both per Java
+  `isOnGeodataPath()`. The one-tick (~100 ms) confirmation delay replaces
+  Java's synchronous in-handler search.
+- **Route following** (`model/movement.rs`): `MoveData.geo_path`
+  (`points`/`index`/`accurateTx/Ty`/`gtx/gty` as one `Option<GeoPath>`);
+  segment completion in the movement tick runs `moveToNextRoutePoint`
+  (next dest — accurate destination on the final segment — ticks
+  recomputed at current speed, heading updated) and the caller broadcasts
+  `MoveToLocation` per segment.
+- **Config/boot**: `config/geoengine.rs` now reads the full tuning block
+  (`PathFindBuffers`, `Low/Medium/High/DiagonalWeight`,
+  `AdvancedDiagonalStrategy`, `MaxPostfilterPasses`) into a `PathConfig`;
+  `main.rs` spawns the worker with a clone of the geodata `Arc` and joins
+  it at shutdown (channel close stops it).
+- **Not ported yet**: NPC moves stay straight-line (Java also paths
+  chase/return-home moves and has the Attackable closest-reachable-point
+  grid scan); `GeoPathFinding` (`PathFinding = 1` node files — Java's own
+  default is 2, cell pathfinding); debug-item drops and `getStat()`
+  counters.
+- **Tests**: algorithm units on synthetic regions (walk-around through a
+  wall gap with every postfiltered leg verified walkable, sealed wall ⇒
+  `None`, no-geodata ⇒ `None`, over-buffer distance ⇒ `None`) + a
+  real-dist Giran route; game-loop tests for the deferral (PathWait, no
+  packet until reply) and a full round-trip against a live worker thread
+  (click across a wall → route move with several segments →
+  `MoveToLocation` per advance → arrival at the exact requested
+  destination).
 
 ### Post-G7.8 — Restart/Logout + player persistence ✅
 Fixed "relogin ignored": the client's `RequestRestart` (0x57) and `Logout`
@@ -735,9 +789,10 @@ Empty/placeholder now, to be filled in the owning milestone:
   the 230-entry `Stat` enum and 369 effect classes (grow `EFFECT_REGISTRY`/
   `SkillEffect` as needed); overhit XP bonus; buffs/effects on NPC targets
   (no NPC effect list).
-- **Movement/targeting (post-G7.8):** pathfinding (`CellPathFinding` — the
-  clamp stops players at obstacles where Java walks around them; planned as
-  a path-worker service per the plan); zones (`ZoneManager` — peace/water/
+- **Movement/targeting (post-G7.8):** NPC pathfinding (player moves path
+  via the G7.85 worker; NPC chase/return-home moves are still straight-line,
+  and the Attackable closest-reachable-point grid scan is unported);
+  zones (`ZoneManager` — peace/water/
   siege/town zones, none exist; `isInsideZone` is the missing gate for
   several Java checks G7.8 skipped); door/fence LOS + `DoorData` checks
   (`ValidatePosition`'s door-exploit tail, LOS occlusion); the rest of

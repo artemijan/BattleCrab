@@ -27,7 +27,20 @@ pub struct LoginContext {
 
 impl LoginContext {
     pub fn new(config: LoginConfig, pool: SqlitePool, controller: ControllerHandle) -> Self {
-        let keypairs: Vec<_> = (0..KEYPAIRS).map(|_| Arc::new(ScrambledKeyPair::generate())).collect();
+        // Keygen is the dominant boot cost (prime hunting), so generate all
+        // pairs in parallel — one thread per key, wall time ≈ the slowest
+        // single key (Java generates the same caches sequentially).
+        let (keypairs, gs_keypairs) = std::thread::scope(|s| {
+            let client: Vec<_> =
+                (0..KEYPAIRS).map(|_| s.spawn(|| Arc::new(ScrambledKeyPair::generate()))).collect();
+            // GameServerTable.initRSAKeys: 512-bit pairs for the GS link.
+            let gs: Vec<_> =
+                (0..GS_KEYPAIRS).map(|_| s.spawn(|| Arc::new(RawRsaKeyPair::generate(512)))).collect();
+            (
+                client.into_iter().map(|h| h.join().expect("RSA keygen thread panicked")).collect::<Vec<_>>(),
+                gs.into_iter().map(|h| h.join().expect("RSA keygen thread panicked")).collect::<Vec<_>>(),
+            )
+        });
         info!("Cached {KEYPAIRS} KeyPairs for RSA communication.");
 
         let blowfish_keys: Vec<[u8; 16]> = (0..BLOWFISH_KEYS)
@@ -39,8 +52,6 @@ impl LoginContext {
             .collect();
         info!("Stored {BLOWFISH_KEYS} keys for Blowfish communication.");
 
-        // GameServerTable.initRSAKeys: 512-bit pairs for the GS link.
-        let gs_keypairs: Vec<_> = (0..GS_KEYPAIRS).map(|_| Arc::new(RawRsaKeyPair::generate(512))).collect();
         info!("Cached {GS_KEYPAIRS} RSA keys for Game Server communication.");
 
         Self { config, pool, controller, keypairs, blowfish_keys, gs_keypairs }

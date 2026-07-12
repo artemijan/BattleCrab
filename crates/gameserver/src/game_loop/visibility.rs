@@ -258,13 +258,21 @@ pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
 /// for anyone whose cell changed. `update_region` early-outs on an unchanged
 /// cell, so the sweep is a cheap comparison per player on quiet ticks.
 pub(crate) fn movement_tick(world: &mut World) {
-    let moved_npcs = crate::model::movement::tick(world);
+    let outcome = crate::model::movement::tick(world);
     let mut ids: Vec<i32> = Vec::new();
     world.objects.for_each_mut::<&Player>(|p| ids.push(p.object_id));
     for id in ids {
         update_region(world, id);
     }
-    for id in moved_npcs {
+    for id in outcome.moved_npcs {
         update_npc_region(world, id);
+    }
+    // Route advances need a `MoveToLocation` for the new segment — unlike
+    // plain moves, the client only knows the previous segment's endpoint
+    // (Java `moveToNextRoutePoint` → `broadcastMoveToLocation`).
+    for id in outcome.route_advanced {
+        let Some(Movement(m)) = world.objects.get_component::<Movement>(&id) else { continue };
+        let pkt = server_packets::move_to_location(id, m.dest_x, m.dest_y, m.dest_z, m.start_x, m.start_y, m.start_z);
+        super::helpers::broadcast_including_self(world, id, &pkt);
     }
 }

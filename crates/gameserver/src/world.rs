@@ -110,11 +110,19 @@ pub struct World {
     pub data: GameData,
     /// Geodata queries (LOS, walkability, heights). Constructed empty
     /// (`NullRegion` behaviour everywhere) and replaced with the loaded
-    /// engine at boot — tests install synthetic regions instead.
-    pub geo: GeoEngine,
+    /// engine at boot — tests install synthetic regions instead. Shared with
+    /// the path-worker thread, hence the `Arc` (read-only after boot).
+    pub geo: std::sync::Arc<GeoEngine>,
     /// `Config.PATHFINDING` (`GeoEngine.ini`): non-zero = geodata movement
-    /// checks are enforced (the pathfinder itself is not ported yet).
+    /// checks are enforced and blocked moves are handed to the path worker.
     pub path_finding: i32,
+    /// Request channel to the path-worker thread (`geo::worker`). `new()`
+    /// installs a closed dummy channel (requests vanish — `NullRegion`-style
+    /// no-op); boot and pathfinding tests replace it with a live worker's.
+    pub path: crate::geo::worker::PathReqTx,
+    /// Last issued path-request sequence number (`next_path_seq`) — replies
+    /// carrying anything older than the requester's `PathWait` are stale.
+    pub path_seq: u64,
     /// Combat/AI/reward config keys (`Character.ini`/`NPC.ini`/`Rates.ini`).
     /// Defaults (Java's, rates ×1) unless boot replaces it — same pattern as
     /// `geo`/`path_finding`.
@@ -145,14 +153,22 @@ impl World {
             delete_days,
             starting_adena,
             data,
-            geo: GeoEngine::empty(),
+            geo: std::sync::Arc::new(GeoEngine::empty()),
             path_finding: 2,
+            path: std::sync::mpsc::channel().0,
+            path_seq: 0,
             cfg: crate::config::CombatConfig::default(),
             db,
             rng: StdRng::from_entropy(),
             #[cfg(test)]
             forced_rolls: std::collections::VecDeque::new(),
         }
+    }
+
+    /// Next path-request sequence number (see `path_seq`).
+    pub fn next_path_seq(&mut self) -> u64 {
+        self.path_seq += 1;
+        self.path_seq
     }
 
     /// Object ids of every NPC whose region cell lies in `region`'s 3×3

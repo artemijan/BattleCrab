@@ -84,7 +84,9 @@ fn think_active(world: &mut World, npc_oid: i32) {
             ai.global_aggro += if ai.global_aggro < 0 { 1 } else { -1 };
         }
         let t = world.data.npc_data.get(npc_id);
-        (t.map(|t| t.aggro_range > 0).unwrap_or(false), t.map(|t| t.aggro_range).unwrap_or(0))
+        // Java `npc.isAggressive()`: the explicit flag, not aggroRange —
+        // nearly every passive mob in the datapack has an aggroRange too.
+        (t.map(|t| t.is_aggressive && t.aggro_range > 0).unwrap_or(false), t.map(|t| t.aggro_range).unwrap_or(0))
     };
     let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
 
@@ -279,6 +281,7 @@ fn chase(world: &mut World, npc_oid: i32, target_oid: i32, reach: f64) {
             dest_z,
             start_tick,
             total_ticks,
+            geo_path: None,
         }),
     );
     broadcast_near_region(
@@ -322,6 +325,7 @@ fn move_npc_to(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32) {
             dest_z: z,
             start_tick,
             total_ticks,
+            geo_path: None,
         }),
     );
     broadcast_near_region(world, region, &server_packets::move_to_location(npc_oid, x, y, z, start.0, start.1, start.2));

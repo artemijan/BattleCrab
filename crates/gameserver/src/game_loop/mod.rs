@@ -36,7 +36,7 @@ use crate::network::NetEventRx;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-use net::{drain_db, drain_login_link, drain_network};
+use net::{drain_db, drain_login_link, drain_network, drain_path};
 use regen::{run_regen_tick, REGEN_TICK_PERIOD};
 use skills::cast::{handle_cast_end, handle_skill_finish, handle_skill_launch};
 use skills::effects::handle_buff_expire;
@@ -77,7 +77,9 @@ pub struct GameThreadChannels {
     pub db_rx: DbEventRx,
     pub db_tx: db::CmdTx,
     pub data: GameData,
-    pub geo: crate::geo::GeoEngine,
+    pub geo: std::sync::Arc<crate::geo::GeoEngine>,
+    pub path_tx: crate::geo::worker::PathReqTx,
+    pub path_rx: crate::geo::worker::PathEventRx,
     pub path_finding: i32,
     pub max_characters_per_account: i32,
     pub delete_days: i32,
@@ -103,6 +105,8 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         db_tx,
         data,
         geo,
+        path_tx,
+        path_rx,
         path_finding,
         max_characters_per_account,
         delete_days,
@@ -118,6 +122,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         db_tx,
     );
     world.geo = geo;
+    world.path = path_tx;
     world.path_finding = path_finding;
     world.cfg = cfg;
 
@@ -132,9 +137,10 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
 
         // 1. Network events: connects, disconnects, and inbound packets.
         drain_network(&mut world, &net_rx);
-        // 2. Service results: login-link + DB (path added G5+).
+        // 2. Service results: login-link + DB + path worker.
         drain_login_link(&mut world, &login_rx);
         drain_db(&mut world, &db_rx);
+        drain_path(&mut world, &path_rx);
 
         // 3. One-shot timers due this tick.
         apply_due_tasks(&mut world);

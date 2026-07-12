@@ -4,6 +4,7 @@
 use tracing::{debug, info, warn};
 
 use crate::db::{self, DbEvent, DbEventRx};
+use crate::geo::worker::PathEventRx;
 use crate::loginlink::{LoginLinkCommand, LoginLinkEvent, LoginLinkEventRx};
 use crate::network::{server_packets, NetEvent, NetEventRx};
 use crate::session::{ClientSession, Session};
@@ -220,6 +221,13 @@ pub(crate) fn handle_player_auth_response(world: &mut World, account: String, au
 }
 
 /// Bounded, non-blocking drain of the DB→game channel (step 2).
+/// Apply every path-worker reply that landed since the last tick.
+pub(crate) fn drain_path(world: &mut World, path_rx: &PathEventRx) {
+    while let Ok(event) = path_rx.try_recv() {
+        super::position::handle_path_result(world, event);
+    }
+}
+
 pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
     while let Ok(event) = db_rx.try_recv() {
         match event {

@@ -1,12 +1,39 @@
-//! Port of `Creature.MoveData`/`Creature.moveToLocation`, narrowed to what a
-//! no-geodata milestone needs: straight-line interpolation from a start point
-//! to a destination over a precomputed tick count. Everything geodata/
-//! pathfinding-related in the Java `MoveData` (`disregardingGeodata`,
-//! `onGeodataPathIndex`, `geoPath`, …) is out of scope — see `docs/PROGRESS.md`
-//! G7's deferred-TODO note.
+//! Port of `Creature.MoveData`/`Creature.moveToLocation`: straight-line
+//! interpolation from a start point to a destination over a precomputed tick
+//! count, plus multi-segment route following when the move carries a geodata
+//! path (`geoPath`/`onGeodataPathIndex`/`moveToNextRoutePoint`). Java's
+//! `disregardingGeodata` flag has no equivalent — the conditions it tracks
+//! (inactive region, flying, water, vehicles) don't exist yet.
 
-/// Java `Creature.MoveData`, geodata fields stripped. `Some` on `Player.move_data`
-/// ⇔ the player is currently moving (mirrors Java's nullable `_move`).
+/// The geodata route attached to a pathfound move — Java `MoveData.geoPath` +
+/// `onGeodataPathIndex`/`geoPathAccurateTx`/`geoPathAccurateTy`/`geoPathGtx`/
+/// `geoPathGty` flattened into one struct (present ⇔ the Java index != -1).
+#[derive(Debug, Clone, PartialEq)]
+pub struct GeoPath {
+    /// Route points in world coordinates (`CellPathFinding.findPath` output).
+    pub points: Vec<(i32, i32, i32)>,
+    /// Index of the point the current segment is heading to.
+    pub index: usize,
+    /// The player-requested destination — the final segment aims here rather
+    /// than at the last cell-centre route point.
+    pub accurate_tx: i32,
+    pub accurate_ty: i32,
+    /// Geo cell of the requested destination, for the "re-click on the cell
+    /// we are already pathing to" ignore check.
+    pub gtx: i32,
+    pub gty: i32,
+}
+
+impl GeoPath {
+    /// Java `isOnGeodataPath()`: false once the final route point is the
+    /// active segment — arrival there ends the move.
+    pub fn has_next(&self) -> bool {
+        self.index != self.points.len() - 1
+    }
+}
+
+/// Java `Creature.MoveData`. `Some` on the `Movement` component ⇔ the
+/// creature is currently moving (mirrors Java's nullable `_move`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct MoveData {
     pub start_x: i32,
@@ -19,9 +46,11 @@ pub struct MoveData {
     pub start_tick: u64,
     /// Ticks (100ms each, matching `Formulas.TICKS_PER_SECOND` = `world`'s own
     /// 10-ticks/sec loop) needed to cover the full distance at the speed in
-    /// effect when the move started. Fixed for the whole move — no geodata
-    /// path corrections to recompute mid-flight.
+    /// effect when the move started. Fixed for one segment — a route advance
+    /// recomputes it at the speed in effect then.
     pub total_ticks: u64,
+    /// The remaining pathfound route, `None` for plain straight moves.
+    pub geo_path: Option<GeoPath>,
 }
 
 /// Port of `Util.calculateHeadingFrom(double dx, double dy)`.
@@ -74,43 +103,100 @@ fn advance(m: &MoveData, now: u64) -> (i32, i32, i32, bool) {
     }
 }
 
-/// `Creature.updatePosition`, geodata-free: advance **every** mover — player
-/// or NPC — one tick in a single presence-filtered sweep (only entities
-/// carrying `Movement` are visited; arrivals are collected and their
-/// component removed after the iteration). Called unconditionally every
-/// game-loop iteration (100 ms), not gated like the slower fixed-rate
-/// systems — movement must keep the server's authoritative position current.
-/// Returns the object ids of NPCs whose position changed, so the caller can
-/// fire region re-indexing/visibility deltas (`visibility::update_npc_region`;
-/// players get their region switch from the caller's own player pass).
-/// Arrival needs no broadcast either way — the client self-predicts.
-pub fn tick(world: &mut crate::world::World) -> Vec<i32> {
-    use crate::model::components::{Movement, Position};
+/// What `tick` observed, so the caller can fire the follow-up packets/events.
+#[derive(Debug, Default)]
+pub struct TickOutcome {
+    /// NPCs whose position changed (region re-index/visibility deltas).
+    pub moved_npcs: Vec<i32>,
+    /// Movers that finished a route segment and started the next one — the
+    /// caller broadcasts `MoveToLocation` for the new segment (Java
+    /// `moveToNextRoutePoint` → `broadcastMoveToLocation`).
+    pub route_advanced: Vec<i32>,
+}
+
+/// `Creature.updatePosition`: advance **every** mover — player or NPC — one
+/// tick in a single presence-filtered sweep (only entities carrying
+/// `Movement` are visited; arrivals are collected and their component
+/// removed after the iteration). Called unconditionally every game-loop
+/// iteration (100 ms), not gated like the slower fixed-rate systems —
+/// movement must keep the server's authoritative position current.
+/// A mover that finishes a segment of a geodata path advances to the next
+/// route point instead of arriving (`Creature.moveToNextRoutePoint`: new
+/// destination, ticks recomputed at the current speed, heading updated); the
+/// final segment aims at the accurate requested destination. Plain arrivals
+/// need no broadcast — the client self-predicts.
+pub fn tick(world: &mut crate::world::World) -> TickOutcome {
+    use crate::model::components::{Movement, Position, Speeds};
     let now = world.tick;
-    let mut moved_npcs: Vec<i32> = Vec::new();
+    let mut out = TickOutcome::default();
     let mut arrived: Vec<i32> = Vec::new();
     world.objects.for_each_mut::<(
-        &Movement,
+        &mut Movement,
         &mut Position,
+        Option<&Speeds>,
         Option<&crate::model::Player>,
         Option<&crate::model::npc::Npc>,
-    )>(|(m, mut pos, player, npc)| {
+    )>(|(mut m, mut pos, speeds, player, npc)| {
         let (x, y, z, done) = advance(&m.0, now);
         pos.x = x;
         pos.y = y;
         pos.z = z;
         let object_id = player.map(|p| p.object_id).or(npc.map(|n| n.object_id));
         if let Some(npc) = npc {
-            moved_npcs.push(npc.object_id);
+            out.moved_npcs.push(npc.object_id);
         }
         if done {
+            let speed = speeds.map(Speeds::move_speed).unwrap_or(0.0);
             if let Some(id) = object_id {
-                arrived.push(id);
+                if advance_route(&mut m.0, &mut pos, speed, now) {
+                    out.route_advanced.push(id);
+                } else {
+                    arrived.push(id);
+                }
             }
         }
     });
     for id in arrived {
         world.objects.remove_component::<Movement>(&id);
     }
-    moved_npcs
+    out
+}
+
+/// `Creature.moveToNextRoutePoint`, minus the packet send (the caller's job):
+/// rewrite `m` in place for the next segment of its geodata path. Returns
+/// false — final arrival — when there is no next route point or the mover
+/// can no longer move (speed ≤ 0).
+fn advance_route(
+    m: &mut MoveData,
+    pos: &mut crate::model::components::Position,
+    speed: f64,
+    now: u64,
+) -> bool {
+    let Some(path) = &mut m.geo_path else { return false };
+    if !path.has_next() || speed <= 0.0 {
+        return false;
+    }
+    path.index += 1;
+    // The last segment heads to the accurate (requested) destination, not
+    // the cell-centre route point.
+    let (dest_x, dest_y, dest_z) = if path.index == path.points.len() - 1 {
+        (path.accurate_tx, path.accurate_ty, path.points[path.index].2)
+    } else {
+        path.points[path.index]
+    };
+    m.start_x = pos.x;
+    m.start_y = pos.y;
+    m.start_z = pos.z;
+    m.dest_x = dest_x;
+    m.dest_y = dest_y;
+    m.dest_z = dest_z;
+    m.start_tick = now;
+    let dx = (dest_x - pos.x) as f64;
+    let dy = (dest_y - pos.y) as f64;
+    let distance = (dx * dx + dy * dy).sqrt();
+    m.total_ticks = ((10.0 * distance / speed).round() as u64).max(1);
+    if distance != 0.0 {
+        pos.heading = calculate_heading(dx, dy);
+    }
+    true
 }

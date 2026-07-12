@@ -1365,7 +1365,9 @@ fn move_backward_to_location_same_origin_and_target_sends_stop_move() {
 /// exit (how real geodata encodes walls).
 fn install_wall_region(world: &mut World) {
     use crate::geo::{synthetic_region, NSWE_ALL, NSWE_EAST};
-    world.geo.set_region(
+    // `world.geo` is shared with the path worker via `Arc` — in tests nothing
+    // has cloned it yet, so it can be mutated in place.
+    std::sync::Arc::get_mut(&mut world.geo).expect("geo Arc not shared yet").set_region(
         20,
         18,
         synthetic_region(|x, _y| {
@@ -1390,19 +1392,39 @@ fn validate_position_body(x: i32, y: i32, z: i32, heading: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
-/// A click past a geodata wall is clamped to the last walkable cell
-/// (`GeoEngine.getValidLocation` in `Creature.moveToLocation`): the
-/// stored move and the broadcast `MoveToLocation` both carry the clamped
-/// destination, not the client's.
+/// A click past a geodata wall used to just clamp; now a clamp that
+/// shortens the move by > 30 units defers the move to the path worker
+/// (Java: `CellPathFinding.findPath` inline): nothing moves yet, a
+/// `PathWait` marks the pending request, and no packet is sent.
 #[test]
-fn move_destination_is_clamped_by_geodata() {
+fn move_blocked_by_wall_defers_to_path_worker() {
     let (mut world, ..) = test_world();
     install_wall_region(&mut world);
     let mut mover_rx = ingame_player(&mut world, 1, 4001, 8, 8, 0); // cell 0
     world.objects.get_component_mut::<Speeds>(&4001).unwrap().run_spd = 100.0;
 
-    // Click to cell 20 (x = 328), on the far side of the wall at cell 10.
+    // Click to cell 20 (x = 328), on the far side of the wall at cell 10:
+    // the clamp to cell 9 (x = 152) shortens 320 → 144, well over 30.
     handle_move_backward_to_location(&mut world, 1, &move_body((328, 8, 0), (8, 8, 0), 1));
+
+    assert!(!world.objects.has_component::<Movement>(&4001), "move deferred, not started");
+    assert!(world.objects.has_component::<crate::model::components::PathWait>(&4001));
+    assert!(mover_rx.try_recv().is_err(), "no packet until the path reply lands");
+}
+
+/// A clamp of ≤ 30 units starts the move directly with the clamped
+/// destination (`GeoEngine.getValidLocation` in `Creature.moveToLocation`) —
+/// no pathfinding round-trip.
+#[test]
+fn move_destination_is_clamped_by_geodata() {
+    let (mut world, ..) = test_world();
+    install_wall_region(&mut world);
+    let mut mover_rx = ingame_player(&mut world, 1, 4001, 120, 8, 0); // cell 7
+    world.objects.get_component_mut::<Speeds>(&4001).unwrap().run_spd = 100.0;
+
+    // Click one cell into the wall (cell 10, x = 168): clamped to cell 9
+    // (x = 152), only 16 units short of the request.
+    handle_move_backward_to_location(&mut world, 1, &move_body((168, 8, 0), (120, 8, 0), 1));
 
     let md = world.objects.get_component::<Movement>(&4001).map(|m| m.0.clone()).expect("move must start");
     assert_eq!((md.dest_x, md.dest_y), (152, 8), "clamped to cell 9, before the wall");
@@ -1410,6 +1432,80 @@ fn move_destination_is_clamped_by_geodata() {
     assert_eq!(pkt[0], server_packets::opcodes::MOVE_TO_LOCATION);
     let dest_x = i32::from_le_bytes(pkt[5..9].try_into().unwrap());
     assert_eq!(dest_x, 152, "MoveToLocation carries the clamped destination");
+}
+
+/// Full pathfinding round-trip against a real path-worker thread: a click
+/// across a walled-off area (with a gap further south) starts a
+/// multi-segment route move once the worker replies, route advances
+/// broadcast `MoveToLocation` per segment, and the mover arrives at the
+/// exact requested destination on the far side of the wall.
+#[test]
+fn path_worker_round_trip_walks_around_wall() {
+    use crate::geo::path::PathConfig;
+    use crate::geo::{synthetic_region, NSWE_ALL, NSWE_EAST};
+    use crate::model::components::PathWait;
+
+    let (mut world, ..) = test_world();
+    // Mid-region wall at cell x == 10 with a gap at y ∈ [1010, 1014) — far
+    // from region edges so the search can't skirt through unloaded void.
+    std::sync::Arc::get_mut(&mut world.geo).expect("geo Arc not shared yet").set_region(
+        20,
+        18,
+        synthetic_region(|x, y| {
+            let in_gap = (1010..1014).contains(&y);
+            if x == 10 && !in_gap {
+                (200, 0)
+            } else if x == 9 && !in_gap {
+                (0, NSWE_ALL & !NSWE_EAST)
+            } else {
+                (0, NSWE_ALL)
+            }
+        }),
+    );
+    let (req_tx, req_rx) = std::sync::mpsc::channel();
+    let (ev_tx, ev_rx) = std::sync::mpsc::channel();
+    let worker = crate::geo::worker::spawn(world.geo.clone(), PathConfig::default(), req_rx, ev_tx);
+    world.path = req_tx;
+
+    // Player at cell (0, 1000) = (8, 16008); click to cell (20, 1000).
+    let mut mover_rx = ingame_player(&mut world, 1, 4001, 8, 16008, 0);
+    world.objects.get_component_mut::<Speeds>(&4001).unwrap().run_spd = 100.0;
+    handle_move_backward_to_location(&mut world, 1, &move_body((328, 16008, 0), (8, 16008, 0), 1));
+    assert!(world.objects.has_component::<PathWait>(&4001));
+
+    // The reply normally lands via `drain_path` on a later tick.
+    let ev = ev_rx.recv_timeout(std::time::Duration::from_secs(10)).expect("worker reply");
+    handle_path_result(&mut world, ev);
+    assert!(!world.objects.has_component::<PathWait>(&4001));
+
+    let md = world.objects.get_component::<Movement>(&4001).map(|m| m.0.clone()).expect("route move started");
+    let path = md.geo_path.expect("move carries the geodata route");
+    assert_eq!(path.index, 0);
+    assert!(path.points.len() > 1, "walking around needs several segments");
+    assert_eq!((path.accurate_tx, path.accurate_ty), (328, 16008));
+    assert_eq!(mover_rx.try_recv().unwrap()[0], server_packets::opcodes::MOVE_TO_LOCATION);
+
+    // Walk the whole route: each segment completion advances to the next
+    // point and broadcasts another MoveToLocation; the last one arrives.
+    let mut advances = 0;
+    for _ in 0..10_000 {
+        if !world.objects.has_component::<Movement>(&4001) {
+            break;
+        }
+        world.tick += 1;
+        visibility::movement_tick(&mut world);
+        if let Ok(pkt) = mover_rx.try_recv() {
+            assert_eq!(pkt[0], server_packets::opcodes::MOVE_TO_LOCATION);
+            advances += 1;
+        }
+    }
+    assert!(!world.objects.has_component::<Movement>(&4001), "route must complete");
+    assert!(advances >= 1, "route advances broadcast MoveToLocation");
+    let pos = world.objects.get_component::<Position>(&4001).unwrap();
+    assert_eq!((pos.x, pos.y), (328, 16008), "arrived at the exact requested destination");
+
+    drop(world);
+    worker.join().unwrap();
 }
 
 /// Standing right at the wall, a click into it clamps the whole path away
@@ -2010,6 +2106,7 @@ fn aggressive_monster_aggros_idle_player() {
     {
         // Make 40001 aggressive for this test.
         let mut t = world.data.npc_data.get(40001).unwrap().clone();
+        t.is_aggressive = true;
         t.aggro_range = 300;
         world.data.npc_data.insert_for_test(t);
     }

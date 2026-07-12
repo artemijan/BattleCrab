@@ -143,6 +143,16 @@ pub struct AttackState {
 #[derive(Component, Debug, Clone, PartialEq)]
 pub struct Movement(pub crate::model::movement::MoveData);
 
+/// A move deferred on the path worker — **present only while waiting** for
+/// the `PathEvent` reply. `seq` is the request's sequence number: a reply
+/// with an older one is stale (superseded by a newer click) and is dropped.
+/// Java has no equivalent state — `CellPathFinding.findPath` runs
+/// synchronously inside `moveToLocation`.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct PathWait {
+    pub seq: u64,
+}
+
 /// An in-flight cast — **present only mid-cast** (Java's single NORMAL
 /// `SkillCaster` slot, `Player.cast` before stage 2). The generation counter
 /// (`Player.cast_seq`) stays on the player: it must survive across casts for

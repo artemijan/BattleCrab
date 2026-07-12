@@ -1,6 +1,9 @@
-//! Movement/position handlers (`MoveBackwardToLocation`, `ValidatePosition`).
+//! Movement/position handlers (`MoveBackwardToLocation`, `ValidatePosition`)
+//! and the path-worker reply handler (`handle_path_result`).
 
-use crate::model::components::{Casting, ClientPos, Intent, Movement, Position, Speeds, Vitals};
+use crate::geo::worker::{PathEvent, PathRequest};
+use crate::model::components::{Casting, ClientPos, Intent, Movement, PathWait, Position, Speeds, Vitals};
+use crate::model::movement::GeoPath;
 use crate::model::Player;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
@@ -12,12 +15,12 @@ use super::helpers::broadcast_to_others;
 /// Port of `clientpackets/MoveBackwardToLocation.runImpl` +
 /// `Creature.moveToLocation`'s geodata movement checks: the requested
 /// destination is clamped to the last walkable cell via
-/// `GeoEngine.getValidLocation`. The pathfinding fallback (Java runs
-/// `CellPathFinding` when the clamp shortens the path by > 30 units) is not
-/// ported yet — where Java would walk around an obstacle, the player walks up
-/// to it and stops. Door-crossing, teleport-mode switches, and queued-skill
-/// clearing are all skipped as out of scope (no doors/admin-teleport/
-/// queued-skills yet).
+/// `GeoEngine.getValidLocation`, and when the clamp shortens the move by
+/// more than 30 units the destination goes to the path worker instead —
+/// the move then starts from `handle_path_result` when the route lands
+/// (Java runs `CellPathFinding.findPath` synchronously at this point).
+/// Door-crossing, teleport-mode switches, and queued-skill clearing are all
+/// skipped as out of scope (no doors/admin-teleport/queued-skills yet).
 pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::MoveBackwardToLocation::read(body) else { return };
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
@@ -63,10 +66,30 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     }
     let mut distance = (dx * dx + dy * dy).sqrt();
 
-    // GEODATA MOVEMENT CHECKS (`Creature.moveToLocation`). Java skips the
-    // destination correction for far clicks (> 3000: "should be able to
-    // click far away and move" — pathfinding would take over) and for
-    // intentional falls ((curZ - z) > 300 with distance < 300).
+    // GEODATA MOVEMENT CHECKS AND PATHFINDING (`Creature.moveToLocation`).
+    let (original_x, original_y, original_z) = (target_x, target_y, target_z);
+    let original_distance = distance;
+    if world.path_finding > 0 {
+        // A re-click onto the geo cell we're already pathing to is ignored;
+        // a click elsewhere abandons route following on the in-flight move
+        // (Java `isOnGeodataPath()` → same gtx/gty return / index = -1).
+        let gtx = world.geo.get_geo_x(original_x);
+        let gty = world.geo.get_geo_y(original_y);
+        if let Some(mv) = world.objects.get_component_mut::<Movement>(&object_id) {
+            if let Some(gp) = &mv.0.geo_path {
+                if gp.has_next() {
+                    if gp.gtx == gtx && gp.gty == gty {
+                        return;
+                    }
+                    mv.0.geo_path = None;
+                }
+            }
+        }
+    }
+
+    // Java skips the destination correction for far clicks (> 3000: "should
+    // be able to click far away and move") and for intentional falls
+    // ((curZ - z) > 300 with distance < 300).
     if world.path_finding > 0 && distance <= 3000.0 && !(cur.z - target_z > 300 && distance < 300.0) {
         let (vx, vy, _vz) = world.geo.get_valid_location(cur.x, cur.y, cur.z, target_x, target_y, target_z);
         // Players keep the client-requested z (Java: `if (!isPlayer()) z = destiny.getZ()`).
@@ -75,6 +98,23 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         dx = (target_x - cur.x) as f64;
         dy = (target_y - cur.y) as f64;
         distance = (dx * dx + dy * dy).sqrt();
+    }
+
+    // The clamp shortened the move by > 30 units — hand the original
+    // destination to the path worker; the move starts (or fails with
+    // ActionFailed) in `handle_path_result` when the reply lands.
+    if world.path_finding > 0 && (original_distance - distance) > 30.0 {
+        let seq = world.next_path_seq();
+        world.objects.add_components(&object_id, PathWait { seq });
+        let _ = world.path.send(PathRequest {
+            seq,
+            client_id,
+            object_id,
+            from: (cur.x, cur.y, cur.z),
+            to: (original_x, original_y, original_z),
+            playable: true,
+        });
+        return;
     }
 
     // Java: `(distance < 1) && (Config.PATHFINDING > 0 || isPlayable())` —
@@ -86,6 +126,74 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         return;
     }
 
+    start_move(world, client_id, object_id, cur, (target_x, target_y, target_z), None);
+}
+
+/// The path worker's reply (`geo::worker::PathEvent`): start the route move,
+/// or tell the player the click leads nowhere. Java reaches the same two
+/// outcomes inline in `Creature.moveToLocation` ("if found" / "No path
+/// found" + ActionFailed); the extra liveness re-checks cover state changes
+/// during the round-trip, which the synchronous Java flow can't see.
+pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
+    let PathEvent { seq, client_id, object_id, to, path } = ev;
+    // Stale reply: the player left, or clicked again (newer seq) — drop it.
+    match world.objects.get_component::<PathWait>(&object_id) {
+        Some(w) if w.seq == seq => {}
+        _ => return,
+    }
+    world.objects.remove_component::<PathWait>(&object_id);
+
+    // Java `found = (geoPath != null) && (geoPath.size() > 1)`; a player
+    // with no path gets ActionFailed (any in-flight move keeps running).
+    let points = match path {
+        Some(p) if p.len() > 1 => p,
+        _ => {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
+            return;
+        }
+    };
+
+    // Move gates re-checked after the round-trip (same set as the click).
+    let is_dead = world.objects.get_component::<Vitals>(&object_id).is_some_and(|v| v.dead);
+    if world.objects.has_component::<Casting>(&object_id) || is_dead {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
+    let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+
+    let first = points[0];
+    let geo_path = GeoPath {
+        points,
+        index: 0,
+        accurate_tx: to.0,
+        accurate_ty: to.1,
+        gtx: world.geo.get_geo_x(to.0),
+        gty: world.geo.get_geo_y(to.1),
+    };
+    start_move(world, client_id, object_id, cur, first, Some(geo_path));
+}
+
+/// The tail of `Creature.moveToLocation`: store the `MoveData` (heading,
+/// speed-derived tick count, optional geodata route) and broadcast
+/// `MoveToLocation` — including the mover, who does not self-predict and
+/// only starts walking on the server's confirmation (Java `broadcastPacket`,
+/// which `Player` overrides with `includeSelf == true`).
+fn start_move(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    cur: Position,
+    dest: (i32, i32, i32),
+    geo_path: Option<GeoPath>,
+) {
+    let (target_x, target_y, target_z) = dest;
+    let dx = (target_x - cur.x) as f64;
+    let dy = (target_y - cur.y) as f64;
+    let distance = (dx * dx + dy * dy).sqrt();
     let (start_x, start_y, start_z) = (cur.x, cur.y, cur.z);
     let heading = crate::model::movement::calculate_heading(dx, dy);
     let Some(speed) = world.objects.get_component::<Speeds>(&object_id).map(Speeds::move_speed) else { return };
@@ -106,13 +214,10 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
             dest_z: target_z,
             start_tick,
             total_ticks,
+            geo_path,
         }),
     );
 
-    // Broadcast once at move start, including the mover — the client does
-    // not self-predict; it only starts walking once the server confirms with
-    // `MoveToLocation` (Java: `Creature.moveToLocation` → `broadcastPacket`,
-    // which `Player` overrides with `includeSelf == true`).
     let move_pkt =
         server_packets::move_to_location(object_id, target_x, target_y, target_z, start_x, start_y, start_z);
     if let Some(cs) = world.clients.get(&client_id) {

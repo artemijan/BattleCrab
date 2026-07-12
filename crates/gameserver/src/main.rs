@@ -41,7 +41,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Java: print_section("Geodata") → GeoEngine.getInstance() (scans
     // GeoDataPath for `{x}_{y}.l2j` regions; missing files just stay null).
     print_section("Geodata");
-    let geo = gameserver::geo::GeoEngine::load(std::path::Path::new(&config.geoengine.geodata_path));
+    let geo = Arc::new(gameserver::geo::GeoEngine::load(std::path::Path::new(
+        &config.geoengine.geodata_path,
+    )));
 
     // Channels between the network / login-link / DB tasks and the game thread.
     let (net_tx, net_rx) = std::sync::mpsc::channel::<NetEvent>();
@@ -49,6 +51,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, db_cmd_rx) = tokio::sync::mpsc::unbounded_channel::<DbCommand>();
     let (db_event_tx, db_rx) = std::sync::mpsc::channel::<DbEvent>();
+    let (path_tx, path_req_rx) = std::sync::mpsc::channel();
+    let (path_event_tx, path_rx) = std::sync::mpsc::channel();
+
+    // Path-worker thread (Java: CellPathFinding, run synchronously there —
+    // here the game thread talks to it through the channels above). Shares
+    // the read-only geodata; exits when the game thread drops its sender.
+    let path_thread =
+        gameserver::geo::worker::spawn(geo.clone(), config.geoengine.path.clone(), path_req_rx, path_event_tx);
 
     print_section("Database");
     let db_thread = db::spawn(
@@ -77,6 +87,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             db_tx: db_tx.clone(),
             data,
             geo,
+            path_tx,
+            path_rx,
             path_finding: config.geoengine.path_finding,
             max_characters_per_account: config.server.max_characters_number_per_account,
             delete_days: config.character.delete_days,
@@ -130,6 +142,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Join the game thread so its final tick (drain + save) completes, then
     // stop the DB thread (which flushes and closes the pool).
     tokio::task::spawn_blocking(move || game_thread.join()).await?.ok();
+    // The game thread's World held the last path-request sender, so the path
+    // worker is already unblocking; then flush and stop the DB thread.
+    tokio::task::spawn_blocking(move || path_thread.join()).await?.ok();
     let _ = db_tx.send(DbCommand::Shutdown);
     tokio::task::spawn_blocking(move || db_thread.join()).await?.ok();
     info!("GameServer: shutdown complete.");

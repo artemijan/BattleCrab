@@ -1,18 +1,22 @@
 //! `GeoEngine.ini` — port of the `GEOENGINE_CONFIG_FILE` block of `Config.java`.
-//! Only the keys the ported engine uses are loaded; the pathfinding tuning
-//! knobs (buffers, weights, postfilter) wait for the CellPathFinding port.
 
 use commons::config::PropertiesParser;
+
+use crate::geo::path::{parse_buffer_sizes, PathConfig};
 
 pub const GEOENGINE_CONFIG_FILE: &str = "config/GeoEngine.ini";
 
 pub struct GeoEngineConfig {
     /// `PathFinding`: 0 = geodata checks disabled, 1 = path node files,
     /// 2 = cell pathfinding. The Rust port treats any non-zero value as
-    /// "geodata movement checks on" (the pathfinder itself is not ported yet).
+    /// "geodata movement checks on + cell pathfinding" (the geo-node file
+    /// variant of mode 1 was never ported — Java's own default is 2).
     pub path_finding: i32,
     /// `GeoDataPath`: directory scanned for `{x}_{y}.l2j` region files.
     pub geodata_path: String,
+    /// The `CellPathFinding` tuning knobs (buffers, weights, postfilter),
+    /// handed to the path worker.
+    pub path: PathConfig,
 }
 
 impl GeoEngineConfig {
@@ -21,6 +25,18 @@ impl GeoEngineConfig {
         Self {
             path_finding: p.get_int("PathFinding", 0),
             geodata_path: p.get_string("GeoDataPath", "./data/geodata/"),
+            path: PathConfig {
+                buffer_sizes: parse_buffer_sizes(&p.get_string(
+                    "PathFindBuffers",
+                    "100x6;128x6;192x6;256x4;320x4;384x4;500x2",
+                )),
+                low_weight: p.get_float("LowWeight", 0.5) as f64,
+                medium_weight: p.get_float("MediumWeight", 2.0) as f64,
+                high_weight: p.get_float("HighWeight", 3.0) as f64,
+                advanced_diagonal_strategy: p.get_bool("AdvancedDiagonalStrategy", true),
+                diagonal_weight: p.get_float("DiagonalWeight", 0.707) as f64,
+                max_postfilter_passes: p.get_int("MaxPostfilterPasses", 3),
+            },
         }
     }
 }
