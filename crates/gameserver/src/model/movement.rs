@@ -74,40 +74,43 @@ fn advance(m: &MoveData, now: u64) -> (i32, i32, i32, bool) {
     }
 }
 
-/// `Creature.updatePosition`, geodata-free: advance every moving player one
-/// tick. Called unconditionally every game-loop iteration (100ms), not gated
-/// like the slower fixed-rate systems (e.g. regen) — movement needs to be
-/// recomputed every tick to keep the server's authoritative position current.
-pub fn tick(world: &mut crate::world::World) {
-    let now = world.tick;
-    for p in world.players.values_mut() {
-        let Some(m) = p.move_data.clone() else { continue };
-        let (x, y, z, arrived) = advance(&m, now);
-        p.x = x;
-        p.y = y;
-        p.z = z;
-        if arrived {
-            p.move_data = None; // arrival needs no broadcast — client self-predicts (see plan).
-        }
-    }
-}
-
-/// The same per-tick advance for moving NPCs (G9 chase/return-home movement).
+/// `Creature.updatePosition`, geodata-free: advance **every** mover — player
+/// or NPC — one tick in a single presence-filtered sweep (only entities
+/// carrying `Movement` are visited; arrivals are collected and their
+/// component removed after the iteration). Called unconditionally every
+/// game-loop iteration (100 ms), not gated like the slower fixed-rate
+/// systems — movement must keep the server's authoritative position current.
 /// Returns the object ids of NPCs whose position changed, so the caller can
-/// fire region re-indexing/visibility deltas (`visibility::update_npc_region`).
-pub fn tick_npcs(world: &mut crate::world::World) -> Vec<i32> {
+/// fire region re-indexing/visibility deltas (`visibility::update_npc_region`;
+/// players get their region switch from the caller's own player pass).
+/// Arrival needs no broadcast either way — the client self-predicts.
+pub fn tick(world: &mut crate::world::World) -> Vec<i32> {
+    use crate::model::components::{Movement, Position};
     let now = world.tick;
-    let mut moved = Vec::new();
-    for npc in world.npcs.values_mut() {
-        let Some(m) = npc.move_data.clone() else { continue };
-        let (x, y, z, arrived) = advance(&m, now);
-        npc.x = x;
-        npc.y = y;
-        npc.z = z;
-        if arrived {
-            npc.move_data = None;
+    let mut moved_npcs: Vec<i32> = Vec::new();
+    let mut arrived: Vec<i32> = Vec::new();
+    world.objects.for_each_mut::<(
+        &Movement,
+        &mut Position,
+        Option<&crate::model::Player>,
+        Option<&crate::model::npc::Npc>,
+    )>(|(m, mut pos, player, npc)| {
+        let (x, y, z, done) = advance(&m.0, now);
+        pos.x = x;
+        pos.y = y;
+        pos.z = z;
+        let object_id = player.map(|p| p.object_id).or(npc.map(|n| n.object_id));
+        if let Some(npc) = npc {
+            moved_npcs.push(npc.object_id);
         }
-        moved.push(npc.object_id);
+        if done {
+            if let Some(id) = object_id {
+                arrived.push(id);
+            }
+        }
+    });
+    for id in arrived {
+        world.objects.remove_component::<Movement>(&id);
     }
-    moved
+    moved_npcs
 }

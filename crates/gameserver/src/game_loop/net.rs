@@ -46,10 +46,21 @@ pub(crate) fn drain_network(world: &mut World, net_rx: &NetEventRx) {
 pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) {
     // deleteMe → World.removeVisibleObject: DeleteObject to everyone watching.
     super::visibility::on_leave_world(world, player_object_id);
-    if let Some(p) = world.players.remove(&player_object_id) {
-        let _ = world.db.send(db::DbCommand::StorePlayer {
-            snap: db::PlayerSnapshot::of(&p),
-        });
+    // Gather everything persistence needs before despawn — components drop
+    // with the entity (PLAN_ECS_STAGE2 §7 risk 3).
+    let snap = {
+        let p = world.objects.get_component::<crate::model::Player>(&player_object_id);
+        let pos = world.objects.get_component::<crate::model::components::Position>(&player_object_id);
+        let vitals = world.objects.get_component::<crate::model::components::Vitals>(&player_object_id);
+        let pvitals = world.objects.get_component::<crate::model::components::PlayerVitals>(&player_object_id);
+        match (p, pos, vitals, pvitals) {
+            (Some(p), Some(pos), Some(vitals), Some(pvitals)) => Some(db::PlayerSnapshot::of(p, pos, vitals, pvitals)),
+            _ => None,
+        }
+    };
+    if let Some(snap) = snap {
+        world.objects.despawn(&player_object_id);
+        let _ = world.db.send(db::DbCommand::StorePlayer { snap });
     }
 }
 
@@ -113,8 +124,9 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
             store_and_remove_player(world, s.player_object_id());
         }
         Some(ClientSession::Entering(s)) => {
+            let b = s.player();
             let _ = world.db.send(db::DbCommand::StorePlayer {
-                snap: db::PlayerSnapshot::of(s.player()),
+                snap: db::PlayerSnapshot::of(&b.player, &b.position, &b.vitals, &b.player_vitals),
             });
         }
         _ => {}

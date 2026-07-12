@@ -21,25 +21,31 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
 
-    let Some(player) = world.players.get(&object_id) else { return };
+    let Some(player) = world.objects.get_component::<crate::model::Player>(&object_id) else { return };
     let Some(learn) = world.data.skill_trees.skill_learn(player.class_id, pkt.skill_id, pkt.skill_level) else { return };
     if learn.get_level > player.level || learn.level_up_sp > player.sp {
         return; // TODO: SystemMessage (level/SP gate)
     }
     let (skill_id, skill_level, level_up_sp) = (learn.skill_id, learn.skill_level, learn.level_up_sp);
 
-    if let Some(player) = world.players.get_mut(&object_id) {
+    if let Some(player) = world.objects.get_component_mut::<crate::model::Player>(&object_id) {
         player.sp -= level_up_sp;
-        player.skills.insert(skill_id, skill_level);
+    }
+    if let Some(book) = world.objects.get_component_mut::<crate::model::components::SkillBook>(&object_id) {
+        book.0.insert(skill_id, skill_level);
     }
     let _ = world.db.send(db::DbCommand::UpsertSkill { char_id: object_id, skill_id, skill_level });
 
-    if let Some(player) = world.players.get(&object_id) {
+    if let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) {
         if let Some(cs) = world.clients.get(&client_id) {
+            let Some(skills) = world.objects.get_component::<crate::model::components::SkillBook>(&object_id)
+            else {
+                return;
+            };
             cs.send(server_packets::acquire_skill_done());
-            cs.send(crate::network::enter_world::skill_list(player, &world.data));
-            cs.send(crate::network::enter_world::acquire_skill_list(player, &world.data));
-            cs.send(crate::network::user_info::user_info(player, &world.data));
+            cs.send(crate::network::enter_world::skill_list(skills, &world.data));
+            cs.send(crate::network::enter_world::acquire_skill_list(v.p, skills, &world.data));
+            cs.send(crate::network::user_info::user_info(&v, &world.data));
         }
     }
 }

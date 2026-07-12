@@ -1,5 +1,7 @@
 use gameserver::data::GameData;
+use gameserver::model::components::{BaseStats, Collision, CombatStats, PlayerVitals, Position, Speeds, Vitals};
 use gameserver::model::Player;
+use gameserver::model::PlayerView;
 use gameserver::network::user_info::user_info;
 
 #[tokio::test]
@@ -20,27 +22,6 @@ async fn user_info_test() {
         race: 0,           // Maps to m.race_id
         is_female: true,
 
-        x: -90939,
-        y: 248_138,
-        z: -3563,
-        heading: 0,
-        region: gameserver::world::region_of(-90939, 248_138),
-
-        // Base primary stats (Placeholders until template lookup is hooked up)
-        str_: 22,
-        dex: 21,
-        con: 27,
-        int_: 41,
-        wit: 20,
-        men: 39,
-
-        // Max values are cast to i32 to match your Player struct definition
-        max_hp: 98, // 98.00 -> i32
-        cur_hp: 98.00,
-        max_mp: 59, // 59.00 -> i32
-        cur_mp: 59.00,
-        max_cp: 49, // 49.00 -> i32
-        cur_cp: 49.00,
         exp: 0,
         sp: 0,
         reputation: 0,
@@ -54,54 +35,38 @@ async fn user_info_test() {
         hair_style: 3, // visualHairStyleId
         hair_color: 2, // visualHairColorId
 
-        // Combat stats (Placeholders)
-        p_atk: 0,
-        p_atk_spd: 0,
-        p_def: 0,
-        m_atk: 0,
-        m_atk_spd: 0,
-        m_def: 0,
-        crit_hit: 0,
-        m_crit_hit: 0,
-        evasion: 0,
-        accuracy: 31,
-        magic_evasion: 0,
-        magic_accuracy: 31,
-        atk_range: 0,
-
-        // Movement & Collision (Placeholders)
-        run_spd: 0,
-        walk_spd: 0,
-        swim_run_spd: 0,
-        swim_walk_spd: 0,
-        move_multiplier: 1.0,
-        collision_radius: 0.0,
-        collision_height: 0.0,
-        running: true,
-
-        inventory: Default::default(),
-        skills: Default::default(),
-        buffs: Default::default(),
-        stats_add: Default::default(),
-        stats_mul: Default::default(),
-        cast: None,
         cast_seq: 0,
-        reuses: Default::default(),
-        target: None,
-        move_data: None,
-        client_x: 0,
-        client_y: 0,
-        client_z: 0,
-        client_heading: 0,
-        dead: false,
-        intent: None,
-        attack_end_tick: 0,
-        stance_until_tick: 0,
         pending_revive: false,
         teleporting: false,
     };
+    let position = Position { x: -90939, y: 248_138, z: -3563, heading: 0 };
+    let vitals = Vitals { max_hp: 98, cur_hp: 98.0, max_mp: 59, cur_mp: 59.0, dead: false };
+    let pvitals = PlayerVitals { max_cp: 49, cur_cp: 49.0 };
+    let base = BaseStats { str_: 22, dex: 21, con: 27, int_: 41, wit: 20, men: 39 };
+    let speeds = Speeds {
+        run_spd: 0.0,
+        walk_spd: 0.0,
+        swim_run_spd: 0.0,
+        swim_walk_spd: 0.0,
+        move_multiplier: 1.0,
+        running: true,
+    };
+    let collision = Collision { radius: 0.0, height: 0.0 };
+    let combat = CombatStats { accuracy: 31, magic_accuracy: 31, ..Default::default() };
+    let inventory = gameserver::model::inventory::Inventory::default();
+    let view = PlayerView {
+        p: &player,
+        pos: &position,
+        vitals: &vitals,
+        pvitals: &pvitals,
+        base: &base,
+        speeds: &speeds,
+        collision: &collision,
+        combat: &combat,
+        inventory: &inventory,
+    };
     let gd = GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
-    let packet = user_info(&player, &gd);
+    let packet = user_info(&view, &gd);
     assert_eq!(
         vec![
             50, 44, 159, 0, 16, 137, 1, 0, 0, 23, 0, 255, 255, 254, 0, 0, 0, 0, 32, 0, 8, 0, 65, 0,

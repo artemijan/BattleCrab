@@ -38,53 +38,74 @@ pub fn calc_magic_crit(m_crit_rate: f64, is_bad: bool, roll: i32) -> bool {
 
 /// `Formulas.calcAtkSpdMultiplier` (armorBonus = 1). The "weapon base" attack
 /// speed for an unarmed player is the class template's `basePAtkSpd`.
-pub fn calc_atk_spd_multiplier(p: &Player, data: &GameData) -> f64 {
+pub fn calc_atk_spd_multiplier(
+    p: &Player,
+    base: &crate::model::components::BaseStats,
+    mods: &crate::model::components::StatModifiers,
+    data: &GameData,
+) -> f64 {
     let t = data
         .player_templates
         .get(p.class_id)
         .or_else(|| data.player_templates.get(p.base_class_id))
         .cloned()
         .unwrap_or_default();
-    let dex_bonus = data.stat_bonus.bonus(BaseStat::Dex, p.dex);
-    let mul = p.stats_mul.get(&Stat::PhysicalAttackSpeed).copied().unwrap_or(1.0);
-    let add = p.stats_add.get(&Stat::PhysicalAttackSpeed).copied().unwrap_or(0.0);
+    let dex_bonus = data.stat_bonus.bonus(BaseStat::Dex, base.dex);
+    let mul = mods.mul.get(&Stat::PhysicalAttackSpeed).copied().unwrap_or(1.0);
+    let add = mods.add.get(&Stat::PhysicalAttackSpeed).copied().unwrap_or(0.0);
     dex_bonus * (t.base_p_atk_spd as f64 / 333.0) * mul + add / 333.0
 }
 
 /// `Formulas.calcMAtkSpdMultiplier` (armorBonus = 1).
-pub fn calc_m_atk_spd_multiplier(p: &Player, data: &GameData) -> f64 {
-    let wit_bonus = data.stat_bonus.bonus(BaseStat::Wit, p.wit);
-    let mul = p.stats_mul.get(&Stat::MagicAttackSpeed).copied().unwrap_or(1.0);
-    let add = p.stats_add.get(&Stat::MagicAttackSpeed).copied().unwrap_or(0.0);
+pub fn calc_m_atk_spd_multiplier(
+    base: &crate::model::components::BaseStats,
+    mods: &crate::model::components::StatModifiers,
+    data: &GameData,
+) -> f64 {
+    let wit_bonus = data.stat_bonus.bonus(BaseStat::Wit, base.wit);
+    let mul = mods.mul.get(&Stat::MagicAttackSpeed).copied().unwrap_or(1.0);
+    let add = mods.add.get(&Stat::MagicAttackSpeed).copied().unwrap_or(0.0);
     wit_bonus * mul + add / 333.0
 }
 
 /// `Formulas.calcSkillTimeFactor` — the divisor for hit/cancel time. No
 /// channeling skills or NPCs exist; the spiritshot hit-time term is 0.
-pub fn calc_skill_time_factor(p: &Player, data: &GameData, skill: &Skill) -> f64 {
+pub fn calc_skill_time_factor(
+    p: &Player,
+    base: &crate::model::components::BaseStats,
+    mods: &crate::model::components::StatModifiers,
+    data: &GameData,
+    skill: &Skill,
+) -> f64 {
     if skill.magic_type == 2 || skill.magic_type == 4 || skill.magic_type == 21 {
         return 1.0;
     }
     let factor = if skill.magic_type == 1 {
-        calc_m_atk_spd_multiplier(p, data)
+        calc_m_atk_spd_multiplier(base, mods, data)
     } else {
-        calc_atk_spd_multiplier(p, data)
+        calc_atk_spd_multiplier(p, base, mods, data)
     };
     factor.max(0.01)
 }
 
 /// `Formulas.calcSkillCancelTime` — the launch→finish phase length in ms.
-pub fn calc_skill_cancel_time(p: &Player, data: &GameData, skill: &Skill) -> f64 {
-    ((skill.hit_cancel_time * 1000.0) / calc_skill_time_factor(p, data, skill)).max(SKILL_LAUNCH_TIME_MS)
+pub fn calc_skill_cancel_time(
+    p: &Player,
+    base: &crate::model::components::BaseStats,
+    mods: &crate::model::components::StatModifiers,
+    data: &GameData,
+    skill: &Skill,
+) -> f64 {
+    ((skill.hit_cancel_time * 1000.0) / calc_skill_time_factor(p, base, mods, data, skill)).max(SKILL_LAUNCH_TIME_MS)
 }
 
 /// `Formulas.calcAtkSpd` — the post-finish cool phase in ms (magic scales by
 /// casting speed against the 333 base, physical by attack speed against 300).
-pub fn calc_atk_spd(p: &Player, skill: &Skill, skill_time: f64) -> i32 {
+pub fn calc_atk_spd(combat: &crate::model::components::CombatStats, skill: &Skill, skill_time: f64) -> i32 {
     if skill.magic_type == 1 {
-        (skill_time / p.m_atk_spd.max(1) as f64 * 333.0) as i32
+        (skill_time / combat.m_atk_spd.max(1) as f64 * 333.0) as i32
     } else {
-        (skill_time / p.p_atk_spd.max(1) as f64 * 300.0) as i32
+        (skill_time / combat.p_atk_spd.max(1) as f64 * 300.0) as i32
     }
 }
 
@@ -94,11 +115,18 @@ pub fn calc_atk_spd(p: &Player, skill: &Skill, skill_time: f64) -> i32 {
 /// `Formulas.calcAtkSpd(caster, skill, coolTime)` before it's ever used, so
 /// only the override is ported. Client-displayed cast time (`MagicSkillUse` /
 /// `SetupGauge`) is `hit + cancel`.
-pub fn calc_cast_times(p: &Player, data: &GameData, skill: &Skill) -> (i32, i32, i32) {
-    let factor = calc_skill_time_factor(p, data, skill);
-    let cancel = calc_skill_cancel_time(p, data, skill);
+pub fn calc_cast_times(
+    p: &Player,
+    base: &crate::model::components::BaseStats,
+    mods: &crate::model::components::StatModifiers,
+    combat: &crate::model::components::CombatStats,
+    data: &GameData,
+    skill: &Skill,
+) -> (i32, i32, i32) {
+    let factor = calc_skill_time_factor(p, base, mods, data, skill);
+    let cancel = calc_skill_cancel_time(p, base, mods, data, skill);
     let hit = (skill.hit_time as f64 / factor - cancel).max(0.0) as i32;
-    let cool = calc_atk_spd(p, skill, skill.cool_time as f64);
+    let cool = calc_atk_spd(combat, skill, skill.cool_time as f64);
     (hit, cancel as i32, cool)
 }
 

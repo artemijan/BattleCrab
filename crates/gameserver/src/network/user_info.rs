@@ -9,12 +9,12 @@ use commons::network::PacketWriter;
 
 use crate::data::GameData;
 use crate::enums::UserInfoType;
-use crate::model::Player;
 use crate::network::masks::build_mask;
 
 const OPCODE_USER_INFO: u8 = 0x32;
 
-pub fn user_info(p: &Player, data: &GameData) -> Vec<u8> {
+pub fn user_info(v: &crate::model::PlayerView, data: &GameData) -> Vec<u8> {
+    let crate::model::PlayerView { p, pos, vitals, pvitals, base, speeds, collision, combat, .. } = v;
     let name_units = p.name.encode_utf16().count() as i32;
     let title_units = p.title.encode_utf16().count() as i32;
 
@@ -55,26 +55,26 @@ pub fn user_info(p: &Player, data: &GameData) -> Vec<u8> {
 
     // BASE_STATS
     w.write_i16(UserInfoType::BaseStats.block_length() as i16);
-    w.write_i16(p.str_ as i16);
-    w.write_i16(p.dex as i16);
-    w.write_i16(p.con as i16);
-    w.write_i16(p.int_ as i16);
-    w.write_i16(p.wit as i16);
-    w.write_i16(p.men as i16);
+    w.write_i16(base.str_ as i16);
+    w.write_i16(base.dex as i16);
+    w.write_i16(base.con as i16);
+    w.write_i16(base.int_ as i16);
+    w.write_i16(base.wit as i16);
+    w.write_i16(base.men as i16);
     w.write_i16(0);
     w.write_i16(0);
 
     // MAX_HPCPMP
     w.write_i16(UserInfoType::MaxHpCpMp.block_length() as i16);
-    w.write_i32(p.max_hp);
-    w.write_i32(p.max_mp);
-    w.write_i32(p.max_cp);
+    w.write_i32(vitals.max_hp);
+    w.write_i32(vitals.max_mp);
+    w.write_i32(pvitals.max_cp);
 
     // CURRENT_HPMPCP_EXP_SP
     w.write_i16(UserInfoType::CurrentHpMpCpExpSp.block_length() as i16);
-    w.write_i32(p.cur_hp.round() as i32);
-    w.write_i32(p.cur_mp.round() as i32);
-    w.write_i32(p.cur_cp.round() as i32);
+    w.write_i32(vitals.cur_hp.round() as i32);
+    w.write_i32(vitals.cur_mp.round() as i32);
+    w.write_i32(pvitals.cur_cp.round() as i32);
     w.write_i64(p.sp);
     w.write_i64(p.exp);
     w.write_f64(p.exp_percent(data));
@@ -101,19 +101,19 @@ pub fn user_info(p: &Player, data: &GameData) -> Vec<u8> {
     // STATS — base values (TODO(G7): full combat-stat calc).
     w.write_i16(UserInfoType::Stats.block_length() as i16);
     w.write_i16(20); // no weapon equipped (40 with weapon)
-    w.write_i32(p.p_atk);
-    w.write_i32(p.p_atk_spd);
-    w.write_i32(p.p_def);
-    w.write_i32(p.evasion);
-    w.write_i32(p.accuracy);
-    w.write_i32(p.crit_hit);
-    w.write_i32(p.m_atk);
-    w.write_i32(p.m_atk_spd);
-    w.write_i32(p.p_atk_spd); // atk speed - 1 (client quirk)
-    w.write_i32(p.magic_evasion);
-    w.write_i32(p.m_def);
-    w.write_i32(p.magic_accuracy);
-    w.write_i32(p.m_crit_hit);
+    w.write_i32(combat.p_atk as i32);
+    w.write_i32(combat.p_atk_spd);
+    w.write_i32(combat.p_def as i32);
+    w.write_i32(combat.evasion);
+    w.write_i32(combat.accuracy);
+    w.write_i32(combat.crit_hit as i32);
+    w.write_i32(combat.m_atk as i32);
+    w.write_i32(combat.m_atk_spd);
+    w.write_i32(combat.p_atk_spd); // atk speed - 1 (client quirk)
+    w.write_i32(combat.magic_evasion);
+    w.write_i32(combat.m_def as i32);
+    w.write_i32(combat.magic_accuracy);
+    w.write_i32(combat.m_crit_hit as i32);
 
     // ELEMENTALS — TODO(G6): attribute attack/defense.
     w.write_i16(UserInfoType::Elementals.block_length() as i16);
@@ -123,17 +123,17 @@ pub fn user_info(p: &Player, data: &GameData) -> Vec<u8> {
 
     // POSITION
     w.write_i16(UserInfoType::Position.block_length() as i16);
-    w.write_i32(p.x);
-    w.write_i32(p.y);
-    w.write_i32(p.z);
+    w.write_i32(pos.x);
+    w.write_i32(pos.y);
+    w.write_i32(pos.z);
     w.write_i32(0); // vehicle object id
 
     // SPEED
     w.write_i16(UserInfoType::Speed.block_length() as i16);
-    w.write_i16(p.run_spd as i16);
-    w.write_i16(p.walk_spd as i16);
-    w.write_i16(p.swim_run_spd as i16);
-    w.write_i16(p.swim_walk_spd as i16);
+    w.write_i16(speeds.run_spd as i16);
+    w.write_i16(speeds.walk_spd as i16);
+    w.write_i16(speeds.swim_run_spd as i16);
+    w.write_i16(speeds.swim_walk_spd as i16);
     w.write_i16(0); // fly run
     w.write_i16(0); // fly walk
     w.write_i16(0); // fly run (mount)
@@ -141,13 +141,13 @@ pub fn user_info(p: &Player, data: &GameData) -> Vec<u8> {
 
     // MULTIPLIER
     w.write_i16(UserInfoType::Multiplier.block_length() as i16);
-    w.write_f64(p.move_multiplier);
+    w.write_f64(speeds.move_multiplier);
     w.write_f64(1.0); // attack speed multiplier
 
     // COL_RADIUS_HEIGHT
     w.write_i16(UserInfoType::ColRadiusHeight.block_length() as i16);
-    w.write_f64(p.collision_radius);
-    w.write_f64(p.collision_height);
+    w.write_f64(collision.radius);
+    w.write_f64(collision.height);
 
     // ATK_ELEMENTAL
     w.write_i16(UserInfoType::AtkElemental.block_length() as i16);
@@ -195,7 +195,7 @@ pub fn user_info(p: &Player, data: &GameData) -> Vec<u8> {
     // MOVEMENTS
     w.write_i16(UserInfoType::Movements.block_length() as i16);
     w.write_u8(0); // 1 water, 2 flying, else 0
-    w.write_u8(p.running as u8);
+    w.write_u8(speeds.running as u8);
 
     // COLOR
     w.write_i16(UserInfoType::Color.block_length() as i16);

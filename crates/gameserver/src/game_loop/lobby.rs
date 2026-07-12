@@ -243,14 +243,14 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
         return;
     };
     let Some(chr) = s.char_at(slot).cloned() else { return };
-    let player = crate::model::Player::from_char(&world.data, &chr);
-    let selected = server_packets::char_selected(&player, s.play_ok1(), 0);
+    let bundle = crate::model::Player::from_char(&world.data, &chr);
+    let selected = server_packets::char_selected(&bundle.view(), s.play_ok1(), 0);
 
-    // Transition InLobby → Entering, holding the built Player.
+    // Transition InLobby → Entering, holding the built Player bundle.
     if let Some(ClientSession::InLobby(s)) = world.clients.remove(&client_id) {
-        let s = s.into_entering(player);
+        let s = s.into_entering(bundle);
         s.send(selected);
-        info!("GameLoop: client {client_id} selected character '{}'.", s.player().name);
+        info!("GameLoop: client {client_id} selected character '{}'.", s.player().player.name);
         world.clients.insert(client_id, ClientSession::Entering(s));
     }
 }
@@ -266,7 +266,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         }
         return;
     };
-    let (session, player) = s.into_ingame();
+    let (session, bundle) = s.into_ingame();
+    let view = bundle.view();
+    let player = &bundle.player;
     let name = player.name.clone();
     let data = &world.data;
     use crate::network::enter_world as ew;
@@ -275,42 +277,42 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // The enter-world packet burst (EnterWorld.runImpl). Inventory is real as of
     // G5; lists that need systems not yet built are still empty (TODOs in
     // `enter_world`): SkillList/HennaInfo/shortcuts/quests, clan/friend/mail.
-    session.send(user_info(&player, data));
-    session.send(ew::ex_vitality_effect_info(&player));
+    session.send(user_info(&view, data));
+    session.send(ew::ex_vitality_effect_info(player));
     session.send(server_packets::ex_ui_setting());
     // TODO: macros (SendMacroList) — empty for now.
     session.send(ew::ex_get_bookmark_info());
-    session.send(ew::item_list(&player, data));
+    session.send(ew::item_list(&bundle.inventory, data));
     session.send(ew::ex_quest_item_list());
     session.send(ew::shortcut_init());
     session.send(ew::ex_basic_action_list(data));
     session.send(ew::henna_info());
-    session.send(ew::skill_list(&player, data));
-    session.send(ew::acquire_skill_list(&player, data));
+    session.send(ew::skill_list(&bundle.skills, data));
+    session.send(ew::acquire_skill_list(player, &bundle.skills, data));
     session.send(ew::etc_status_update());
     session.send(ew::ex_pledge_waiting_list_alarm());
-    session.send(ew::ex_subjob_info(&player));
-    session.send(ew::ex_user_info_inven_weight(&player, data));
-    session.send(ew::ex_adena_inven_count(&player));
-    session.send(ew::ex_user_info_equip_slot(&player));
+    session.send(ew::ex_subjob_info(player));
+    session.send(ew::ex_user_info_inven_weight(player.object_id, &bundle.inventory, data));
+    session.send(ew::ex_adena_inven_count(&bundle.inventory));
+    session.send(ew::ex_user_info_equip_slot(player.object_id, &bundle.inventory));
     session.send(ew::quest_list());
-    session.send(ew::ex_rotation(&player));
+    session.send(ew::ex_rotation(player.object_id, bundle.position.heading));
     session.send(ew::friend_list());
-    session.send(server_packets::skill_cool_time(&player, world.tick));
+    session.send(server_packets::skill_cool_time(&crate::model::components::Reuses::default(), world.tick));
 
     // Register the player in the world and re-send UserInfo (Java does both).
-    session.send(user_info(&player, data));
+    session.send(user_info(&view, data));
     session.send(ew::ex_set_compass_zone_code(0));
-    session.send(ew::move_to_location(&player));
+    session.send(ew::move_to_location(player.object_id, &bundle.position));
     for kind in 0..4 {
         session.send(ew::ex_auto_soul_shot(0, true, kind));
     }
-    session.send(ew::abnormal_status_update(&player, world.tick));
+    session.send(ew::abnormal_status_update(&crate::model::components::Buffs::default(), world.tick));
     session.send(ew::system_message(ew::SM_WELCOME));
 
     let object_id = player.object_id;
-    world.players.insert(object_id, player);
-    info!("GameLoop: '{name}' entered the world ({} online).", world.players.len());
+    bundle.spawn_into(&mut world.objects);
+    info!("GameLoop: '{name}' entered the world ({} online).", world.objects.count::<crate::model::Player>());
     world.clients.insert(client_id, ClientSession::InGame(session));
     // Java `spawnMe` → `World.addVisibleObject`: mutual CharInfo with every
     // player visible from the spawn region.
@@ -318,7 +320,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
 
     // Java `EnterWorld`: a character that logged out dead comes back dead —
     // re-open the death dialog.
-    if world.players.get(&object_id).is_some_and(|p| p.dead) {
+    if world.objects.get_component::<crate::model::components::Vitals>(&object_id).is_some_and(|v| v.dead) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(crate::network::server_packets::die(object_id, true));
         }

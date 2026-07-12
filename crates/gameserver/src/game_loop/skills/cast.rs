@@ -5,6 +5,7 @@
 use crate::game_loop::helpers::{
     broadcast_including_self, client_for_player, ms_to_ticks, send_sm_and_action_failed,
 };
+use crate::model::components::{Casting, Collision, Movement, Position, Vitals};
 use crate::model::formulas;
 use crate::model::skill::{OperateType, Skill, TargetType};
 use crate::model::Player;
@@ -21,7 +22,14 @@ use super::effects::apply_skill_effects;
 /// `Err(sm_id)` is the system message the caller sends alongside
 /// `ActionFailed` (Java: the handlers' `sendMessage` path) — SM 109 for an
 /// invalid target, SM 181 when geodata blocks line of sight.
-pub(crate) fn resolve_cast_target(world: &World, caster: &Player, skill: &Skill, ctrl: bool) -> Result<i32, i16> {
+pub(crate) fn resolve_cast_target(
+    world: &World,
+    caster: &Player,
+    caster_pos: &Position,
+    caster_target: Option<i32>,
+    skill: &Skill,
+    ctrl: bool,
+) -> Result<i32, i16> {
     use server_packets::sm_ids;
 
     let resolved = match skill.target_type {
@@ -29,7 +37,7 @@ pub(crate) fn resolve_cast_target(world: &World, caster: &Player, skill: &Skill,
         // `Target.java`: the selected target, friend or foe; self allowed
         // (and self skips the LOS check — "you can always target yourself").
         TargetType::Target => {
-            let t = caster.target.ok_or(sm_ids::INVALID_TARGET)?;
+            let t = caster_target.ok_or(sm_ids::INVALID_TARGET)?;
             if t == caster.object_id {
                 return Ok(t);
             }
@@ -39,13 +47,13 @@ pub(crate) fn resolve_cast_target(world: &World, caster: &Player, skill: &Skill,
         // forceUse` — monsters are auto-attackable; players carry no PvP
         // flag/karma yet, so hitting one still needs ctrl (force-use).
         TargetType::Enemy | TargetType::EnemyOnly => {
-            let t = caster.target.ok_or(sm_ids::INVALID_TARGET)?;
+            let t = caster_target.ok_or(sm_ids::INVALID_TARGET)?;
             if t == caster.object_id {
                 return Err(sm_ids::INVALID_TARGET);
             }
             let auto_attackable = world
-                .npcs
-                .get(&t)
+                .objects
+                .get_component::<crate::model::npc::Npc>(&t)
                 .and_then(|n| n.template(world))
                 .is_some_and(|tm| tm.is_auto_attackable());
             if !auto_attackable && !ctrl {
@@ -61,7 +69,7 @@ pub(crate) fn resolve_cast_target(world: &World, caster: &Player, skill: &Skill,
     }
     // "Geodata check when character is within range" — every non-self
     // handler ends with `GeoEngine.canSeeTarget` → CANNOT_SEE_TARGET.
-    if !world.geo.can_see_target(caster.x, caster.y, caster.z, tx, ty, tz) {
+    if !world.geo.can_see_target(caster_pos.x, caster_pos.y, caster_pos.z, tx, ty, tz) {
         return Err(sm_ids::CANNOT_SEE_TARGET);
     }
     Ok(resolved)
@@ -70,26 +78,32 @@ pub(crate) fn resolve_cast_target(world: &World, caster: &Player, skill: &Skill,
 /// Position + liveness of a castable target, whichever registry it lives in
 /// (plus its collision radius for the range gates).
 pub(crate) fn target_state(world: &World, object_id: i32) -> Option<(i32, i32, i32, bool)> {
-    if let Some(p) = world.players.get(&object_id) {
-        return Some((p.x, p.y, p.z, p.dead));
+    if world.objects.get_component::<Player>(&object_id).is_some() {
+        let pos = world.objects.get_component::<Position>(&object_id)?;
+        let vitals = world.objects.get_component::<Vitals>(&object_id)?;
+        return Some((pos.x, pos.y, pos.z, vitals.dead));
     }
-    let n = world.npcs.get(&object_id)?;
-    Some((n.x, n.y, n.z, n.dead))
+    world.objects.get_component::<crate::model::npc::Npc>(&object_id)?;
+    let pos = world.objects.get_component::<Position>(&object_id)?;
+    let vitals = world.objects.get_component::<Vitals>(&object_id)?;
+    Some((pos.x, pos.y, pos.z, vitals.dead))
 }
 
 /// `Util.checkIfInRange` over any two castable actors.
-fn in_cast_range(world: &World, caster: &Player, target_oid: i32, range: i32, include_z: bool) -> bool {
+fn in_cast_range(
+    world: &World,
+    caster_oid: i32,
+    caster_pos: &Position,
+    target_oid: i32,
+    range: i32,
+    include_z: bool,
+) -> bool {
     let Some((tx, ty, tz, _)) = target_state(world, target_oid) else { return false };
-    let target_radius = world
-        .npcs
-        .get(&target_oid)
-        .and_then(|n| n.template(world))
-        .map(|t| t.collision_radius)
-        .or_else(|| world.players.get(&target_oid).map(|p| p.collision_radius))
-        .unwrap_or(0.0);
-    let (dx, dy, dz) = ((tx - caster.x) as f64, (ty - caster.y) as f64, (tz - caster.z) as f64);
+    let target_radius = world.objects.get_component::<Collision>(&target_oid).map(|c| c.radius).unwrap_or(0.0);
+    let caster_radius = world.objects.get_component::<Collision>(&caster_oid).map(|c| c.radius).unwrap_or(0.0);
+    let (dx, dy, dz) = ((tx - caster_pos.x) as f64, (ty - caster_pos.y) as f64, (tz - caster_pos.z) as f64);
     let d2 = dx * dx + dy * dy + if include_z { dz * dz } else { 0.0 };
-    let reach = range as f64 + caster.collision_radius + target_radius;
+    let reach = range as f64 + caster_radius + target_radius;
     d2 <= reach * reach
 }
 
@@ -106,16 +120,20 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
 
-    let Some(player) = world.players.get(&object_id) else { return };
+    let Some(player) = world.objects.get_component::<crate::model::Player>(&object_id) else { return };
     // The dead can't cast (`checkUseConditions` → `isDead`).
-    if player.dead {
+    if world.objects.get_component::<Vitals>(&object_id).is_none_or(|v| v.dead) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
         return;
     }
     // Unknown skill → ActionFailed (RequestMagicSkillUse.runImpl).
-    let Some(&skill_level) = player.skills.get(&pkt.magic_id) else {
+    let Some(&skill_level) = world
+        .objects
+        .get_component::<crate::model::components::SkillBook>(&object_id)
+        .and_then(|book| book.0.get(&pkt.magic_id))
+    else {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -138,7 +156,11 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
     // Reuse gate (`Player.useMagic`'s `isSkillDisabled` branch), keyed by the
     // shared reuse group when the skill has one: timestamp reuses (> 3000 ms)
     // get the remaining h/m/s breakdown, short ones SM 48.
-    if let Some(&crate::model::SkillReuse { until_tick, total_ms, .. }) = player.reuses.get(&skill.reuse_key()) {
+    if let Some(&crate::model::SkillReuse { until_tick, total_ms, .. }) = world
+        .objects
+        .get_component::<crate::model::components::Reuses>(&object_id)
+        .and_then(|r| r.0.get(&skill.reuse_key()))
+    {
         if until_tick > world.tick {
             let name_param = SmParam::SkillName { id: skill.id, level: skill.level };
             if total_ms > 3000 {
@@ -176,7 +198,7 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
     }
 
     // Single NORMAL casting slot busy (`checkUseConditions`).
-    if player.cast.is_some() {
+    if world.objects.has_component::<Casting>(&object_id) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -184,16 +206,20 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
     }
 
     // MP/HP prechecks (`checkUseConditions`).
-    if player.cur_mp < (skill.mp_initial_consume + skill.mp_consume) as f64 {
+    let Some(v) = world.objects.get_component::<Vitals>(&object_id) else { return };
+    if v.cur_mp < (skill.mp_initial_consume + skill.mp_consume) as f64 {
         send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_MP, &[]);
         return;
     }
-    if player.cur_hp <= skill.hp_consume as f64 {
+    if v.cur_hp <= skill.hp_consume as f64 {
         send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_HP, &[]);
         return;
     }
 
-    let target_oid = match resolve_cast_target(world, player, &skill, pkt.ctrl_pressed) {
+    let Some(caster_pos) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+    let caster_target =
+        world.objects.get_component::<crate::model::components::TargetRef>(&object_id).copied().unwrap_or_default().0;
+    let target_oid = match resolve_cast_target(world, player, &caster_pos, caster_target, &skill, pkt.ctrl_pressed) {
         Ok(oid) => oid,
         Err(sm_id) => {
             send_sm_and_action_failed(world, client_id, sm_id, &[]);
@@ -204,7 +230,9 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
     // Cast-range gate (`SkillCaster.castSkill`). Java returns null and lets
     // the AI walk into range; there's no follow-to-cast yet, so just unstick
     // the client (narrowing note).
-    if skill.cast_range > 0 && target_oid != object_id && !in_cast_range(world, player, target_oid, skill.cast_range, false)
+    if skill.cast_range > 0
+        && target_oid != object_id
+        && !in_cast_range(world, object_id, &caster_pos, target_oid, skill.cast_range, false)
     {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
@@ -222,16 +250,19 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
 pub(crate) fn start_casting(world: &mut World, client_id: u32, object_id: i32, skill: &Skill, target_oid: i32) {
     use server_packets::{sm_ids, SmParam};
 
-    let Some(player) = world.players.get(&object_id) else { return };
-    let (hit_ms, cancel_ms, cool_ms) = formulas::calc_cast_times(player, &world.data, skill);
+    let Some(player) = world.objects.get_component::<crate::model::Player>(&object_id) else { return };
+    let Some(base) = world.objects.get_component::<crate::model::components::BaseStats>(&object_id) else { return };
+    let Some(mods) = world.objects.get_component::<crate::model::components::StatModifiers>(&object_id) else { return };
+    let Some(combat) = world.objects.get_component::<crate::model::components::CombatStats>(&object_id) else { return };
+    let (hit_ms, cancel_ms, cool_ms) = formulas::calc_cast_times(player, base, mods, combat, &world.data, skill);
     let displayed_cast_time = hit_ms + cancel_ms;
 
     // Register the reuse (skipped when trivially short, like Java's `> 10`),
     // under the shared group id when the skill has one.
     if skill.reuse_delay > 10 {
         let until_tick = world.tick + ms_to_ticks(skill.reuse_delay);
-        if let Some(player) = world.players.get_mut(&object_id) {
-            player.reuses.insert(
+        if let Some(reuses) = world.objects.get_component_mut::<crate::model::components::Reuses>(&object_id) {
+            reuses.0.insert(
                 skill.reuse_key(),
                 crate::model::SkillReuse { skill_level: skill.level, until_tick, total_ms: skill.reuse_delay },
             );
@@ -240,41 +271,37 @@ pub(crate) fn start_casting(world: &mut World, client_id: u32, object_id: i32, s
 
     // Stop movement (`clientStopMoving`) — the client freezes on its own; the
     // broadcast pins the position for everyone else.
-    let was_moving = world.players.get(&object_id).is_some_and(|p| p.move_data.is_some());
+    let was_moving = world.objects.has_component::<Movement>(&object_id);
     if was_moving {
-        if let Some(player) = world.players.get_mut(&object_id) {
-            player.move_data = None;
+        world.objects.remove_component::<Movement>(&object_id);
+        if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
+            broadcast_including_self(world, object_id, &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading));
         }
-        let p = &world.players[&object_id];
-        broadcast_including_self(world, object_id, &server_packets::stop_move(object_id, p.x, p.y, p.z, p.heading));
     }
 
     // Face the target (Java: `setHeading` + broadcast `ExRotation`).
     if target_oid != object_id {
         let Some((tx, ty, _, _)) = target_state(world, target_oid) else { return };
-        let (dx, dy) = {
-            let p = &world.players[&object_id];
-            ((tx - p.x) as f64, (ty - p.y) as f64)
+        let heading = {
+            let Some(pos) = world.objects.get_component::<Position>(&object_id) else { return };
+            crate::model::movement::calculate_heading((tx - pos.x) as f64, (ty - pos.y) as f64)
         };
-        let heading = crate::model::movement::calculate_heading(dx, dy);
-        if let Some(player) = world.players.get_mut(&object_id) {
-            player.heading = heading;
+        if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
+            pos.heading = heading;
         }
-        let p = &world.players[&object_id];
-        broadcast_including_self(world, object_id, &crate::network::enter_world::ex_rotation(p));
+        broadcast_including_self(world, object_id, &crate::network::enter_world::ex_rotation(object_id, heading));
     }
 
     // Initial MP consume + StatusUpdate (re-checked here in Java too).
     let mut mp_update = None;
-    if let Some(player) = world.players.get_mut(&object_id) {
-        if skill.mp_initial_consume > 0 {
-            if player.cur_mp < skill.mp_initial_consume as f64 {
-                send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_MP, &[]);
-                return;
-            }
-            player.cur_mp -= skill.mp_initial_consume as f64;
-            mp_update = Some(player.cur_mp as i32);
+    if skill.mp_initial_consume > 0 {
+        let Some(vitals) = world.objects.get_component_mut::<Vitals>(&object_id) else { return };
+        if vitals.cur_mp < skill.mp_initial_consume as f64 {
+            send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_MP, &[]);
+            return;
         }
+        vitals.cur_mp -= skill.mp_initial_consume as f64;
+        mp_update = Some(vitals.cur_mp as i32);
     }
     if let Some(mp) = mp_update {
         if let Some(cs) = world.clients.get(&client_id) {
@@ -285,12 +312,14 @@ pub(crate) fn start_casting(world: &mut World, client_id: u32, object_id: i32, s
     // Broadcast the cast start, then the caster-only YOU_USE_S1 + cast bar.
     {
         let Some((tx, ty, tz, _)) = target_state(world, target_oid) else { return };
-        let caster = &world.players[&object_id];
+        let caster = &world.objects.get_component::<crate::model::Player>(&object_id).expect("player");
+        let Some(caster_pos) = world.objects.get_component::<Position>(&object_id) else { return };
         broadcast_including_self(
             world,
             object_id,
             &server_packets::magic_skill_use(
                 caster,
+                caster_pos,
                 (target_oid, tx, ty, tz),
                 skill.id,
                 skill.level,
@@ -309,19 +338,22 @@ pub(crate) fn start_casting(world: &mut World, client_id: u32, object_id: i32, s
     }
 
     let cast_seq = {
-        let Some(player) = world.players.get_mut(&object_id) else { return };
+        let Some(player) = world.objects.get_component_mut::<crate::model::Player>(&object_id) else { return };
         player.cast_seq += 1;
-        player.cast = Some(crate::model::CastState {
+        player.cast_seq
+    };
+    world.objects.add_components(
+        &object_id,
+        Casting(crate::model::CastState {
             skill_id: skill.id,
             skill_level: skill.level,
             target_object_id: target_oid,
-            seq: player.cast_seq,
+            seq: cast_seq,
             launched: false,
             cancel_ms,
             cool_ms,
-        });
-        player.cast_seq
-    };
+        }),
+    );
     world
         .scheduler
         .schedule(world.tick + ms_to_ticks(hit_ms), ScheduledTask::SkillLaunch { player_object_id: object_id, cast_seq });
@@ -331,10 +363,9 @@ pub(crate) fn start_casting(world: &mut World, client_id: u32, object_id: i32, s
 /// stale/aborted tasks resolve to `None` and no-op.
 pub(crate) fn live_cast(world: &World, player_object_id: i32, cast_seq: u64) -> Option<crate::model::CastState> {
     world
-        .players
-        .get(&player_object_id)?
-        .cast
-        .clone()
+        .objects
+        .get_component::<Casting>(&player_object_id)
+        .map(|c| c.0.clone())
         .filter(|c| c.seq == cast_seq)
 }
 
@@ -351,23 +382,19 @@ pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast
     // Target gone (logged off / decayed) → quiet stop, like Java's dead-ref
     // return.
     if target_state(world, cast.target_object_id).is_none() {
-        if let Some(player) = world.players.get_mut(&player_object_id) {
-            player.cast = None;
-        }
+        world.objects.remove_component::<Casting>(&player_object_id);
         return;
     }
 
     if skill.effect_range > 0 && cast.target_object_id != player_object_id {
-        let caster = &world.players[&player_object_id];
-        if !in_cast_range(world, caster, cast.target_object_id, skill.effect_range, true) {
+        let Some(caster_pos) = world.objects.get_component::<Position>(&player_object_id).copied() else { return };
+        if !in_cast_range(world, player_object_id, &caster_pos, cast.target_object_id, skill.effect_range, true) {
             if let Some(client_id) = client_for_player(world, player_object_id) {
                 if let Some(cs) = world.clients.get(&client_id) {
                     cs.send(server_packets::system_message_with(sm_ids::DISTANCE_TOO_FAR_CASTING_CANCELLED, &[]));
                 }
             }
-            if let Some(player) = world.players.get_mut(&player_object_id) {
-                player.cast = None;
-            }
+            world.objects.remove_component::<Casting>(&player_object_id);
             return;
         }
     }
@@ -378,10 +405,8 @@ pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast
         &server_packets::magic_skill_launched(player_object_id, skill.id, skill.level, &[cast.target_object_id]),
     );
 
-    if let Some(player) = world.players.get_mut(&player_object_id) {
-        if let Some(c) = player.cast.as_mut() {
-            c.launched = true;
-        }
+    if let Some(c) = world.objects.get_component_mut::<Casting>(&player_object_id) {
+        c.0.launched = true;
     }
     world.scheduler.schedule(
         world.tick + ms_to_ticks(cast.cancel_ms),
@@ -401,28 +426,27 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     let client_id = client_for_player(world, player_object_id);
 
     // MP/HP re-check at landing (no refund of the initial consume).
-    let insufficient_mp = world.players[&player_object_id].cur_mp < skill.mp_consume as f64;
-    let insufficient_hp = world.players[&player_object_id].cur_hp <= skill.hp_consume as f64;
+    let Some(v) = world.objects.get_component::<Vitals>(&player_object_id) else { return };
+    let insufficient_mp = v.cur_mp < skill.mp_consume as f64;
+    let insufficient_hp = v.cur_hp <= skill.hp_consume as f64;
     if insufficient_mp || insufficient_hp {
         if let Some(client_id) = client_id {
             let sm = if insufficient_mp { sm_ids::NOT_ENOUGH_MP } else { sm_ids::NOT_ENOUGH_HP };
             send_sm_and_action_failed(world, client_id, sm, &[]);
         }
-        if let Some(player) = world.players.get_mut(&player_object_id) {
-            player.cast = None;
-        }
+        world.objects.remove_component::<Casting>(&player_object_id);
         return;
     }
 
     let mut updates = Vec::new();
-    if let Some(player) = world.players.get_mut(&player_object_id) {
+    if let Some(vitals) = world.objects.get_component_mut::<Vitals>(&player_object_id) {
         if skill.mp_consume > 0 {
-            player.cur_mp = (player.cur_mp - skill.mp_consume as f64).max(0.0);
-            updates.push((server_packets::status_update_type::CUR_MP, player.cur_mp as i32));
+            vitals.cur_mp = (vitals.cur_mp - skill.mp_consume as f64).max(0.0);
+            updates.push((server_packets::status_update_type::CUR_MP, vitals.cur_mp as i32));
         }
         if skill.hp_consume > 0 {
-            player.cur_hp = (player.cur_hp - skill.hp_consume as f64).max(0.0);
-            updates.push((server_packets::status_update_type::CUR_HP, player.cur_hp as i32));
+            vitals.cur_hp = (vitals.cur_hp - skill.hp_consume as f64).max(0.0);
+            updates.push((server_packets::status_update_type::CUR_HP, vitals.cur_hp as i32));
         }
     }
     if !updates.is_empty() {
@@ -442,9 +466,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     // `_coolTime`), freeing inline when there's nothing to wait out.
     let cool_ticks = ms_to_ticks(cast.cool_ms);
     if cool_ticks == 0 {
-        if let Some(player) = world.players.get_mut(&player_object_id) {
-            player.cast = None;
-        }
+        world.objects.remove_component::<Casting>(&player_object_id);
     } else {
         world
             .scheduler
@@ -457,9 +479,7 @@ pub(crate) fn handle_cast_end(world: &mut World, player_object_id: i32, cast_seq
     if live_cast(world, player_object_id, cast_seq).is_none() {
         return;
     }
-    if let Some(player) = world.players.get_mut(&player_object_id) {
-        player.cast = None;
-    }
+    world.objects.remove_component::<Casting>(&player_object_id);
 }
 
 /// Port of `Creature.abortCast` → `stopCasting(aborted == true)`: only casts
@@ -467,13 +487,11 @@ pub(crate) fn handle_cast_end(world: &mut World, player_object_id: i32, cast_seq
 /// included, to stop the animation) + `ActionFailed` to the caster. The
 /// already-scheduled phase tasks go stale via the seq mismatch.
 pub(crate) fn abort_cast(world: &mut World, object_id: i32) {
-    let abortable = world.players.get(&object_id).is_some_and(|p| p.cast.as_ref().is_some_and(|c| !c.launched));
+    let abortable = world.objects.get_component::<Casting>(&object_id).is_some_and(|c| !c.0.launched);
     if !abortable {
         return;
     }
-    if let Some(player) = world.players.get_mut(&object_id) {
-        player.cast = None;
-    }
+    world.objects.remove_component::<Casting>(&object_id);
     broadcast_including_self(world, object_id, &server_packets::magic_skill_canceld(object_id));
     if let Some(client_id) = client_for_player(world, object_id) {
         if let Some(cs) = world.clients.get(&client_id) {

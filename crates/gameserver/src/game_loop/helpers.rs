@@ -19,15 +19,17 @@ pub(crate) fn client_for_player(world: &World, player_object_id: i32) -> Option<
 /// `World.forEachVisibleObject`: only players whose world region is in the
 /// broadcaster's 3×3 surrounding-region block receive it.
 pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[u8]) {
-    let Some(from) = world.players.get(&from_object_id) else { return };
+    use crate::model::components::RegionCell;
+    let Some(from) = world.objects.get_component::<RegionCell>(&from_object_id) else { return };
+    let from_region = from.0;
     for cs in world.clients.values() {
         if let ClientSession::InGame(s) = cs {
             let other_id = s.player_object_id();
             if other_id == from_object_id {
                 continue;
             }
-            let Some(other) = world.players.get(&other_id) else { continue };
-            if crate::world::regions_adjacent(from.region, other.region) {
+            let Some(other) = world.objects.get_component::<RegionCell>(&other_id) else { continue };
+            if crate::world::regions_adjacent(from_region, other.0) {
                 cs.send(packet.to_vec());
             }
         }
@@ -39,10 +41,11 @@ pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[
 /// `Npc.broadcastPacket`; NPCs never hold a session, so there is no
 /// self/others split).
 pub(crate) fn broadcast_near_region(world: &World, region: (i32, i32), packet: &[u8]) {
+    use crate::model::components::RegionCell;
     for cs in world.clients.values() {
         if let ClientSession::InGame(s) = cs {
-            let Some(p) = world.players.get(&s.player_object_id()) else { continue };
-            if crate::world::regions_adjacent(region, p.region) {
+            let Some(p) = world.objects.get_component::<RegionCell>(&s.player_object_id()) else { continue };
+            if crate::world::regions_adjacent(region, p.0) {
                 cs.send(packet.to_vec());
             }
         }

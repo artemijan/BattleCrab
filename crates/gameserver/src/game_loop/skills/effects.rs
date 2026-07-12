@@ -2,6 +2,7 @@
 //! effects, and buff expiry.
 
 use crate::game_loop::helpers::client_for_player;
+use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers, Vitals};
 use crate::model::formulas;
 use crate::model::skill::{abnormal_type_client_id, ActiveBuff, Skill, SkillEffect};
 use crate::network::server_packets;
@@ -17,7 +18,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
 
     // Magic crit is rolled once per cast (Java rolls in each instant effect's
     // `instant()`; one roll covers the single instant effect skills have).
-    let m_crit_rate = world.players[&caster_oid].m_crit_hit as f64;
+    let m_crit_rate = world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_crit_hit).unwrap_or(0.0);
     let crit_roll = world.roll(1000);
     let mcrit = skill.magic_type == 1 && formulas::calc_magic_crit(m_crit_rate, skill.is_bad(), crit_roll);
 
@@ -25,34 +26,35 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         match *effect {
             SkillEffect::MagicalAttack { power } => {
                 let (m_atk, caster_name) = {
-                    let c = &world.players[&caster_oid];
-                    (c.m_atk as f64, c.name.clone())
+                    let m_atk =
+                        world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
+                    (m_atk, world.objects.get_component::<crate::model::Player>(&caster_oid).expect("player").name.clone())
                 };
                 let m_def = target_m_def(world, target_oid);
                 let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit);
                 apply_magic_damage(world, caster_oid, target_oid, damage, mcrit, &caster_name);
             }
             SkillEffect::Heal { power } => {
-                let m_atk = world.players[&caster_oid].m_atk as f64;
+                let m_atk = world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
                 let amount = formulas::calc_heal(power, m_atk, mcrit);
                 if crate::game_loop::combat::is_npc_oid(target_oid) {
                     // Healing an NPC: clamp and update, no system messages
                     // (nobody to send them to).
-                    if let Some(npc) = world.npcs.get_mut(&target_oid) {
-                        if !npc.dead {
-                            npc.cur_hp = (npc.cur_hp + amount).min(npc.max_hp as f64);
+                    if let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid) {
+                        if !vitals.dead {
+                            vitals.cur_hp = (vitals.cur_hp + amount).min(vitals.max_hp as f64);
                         }
                     }
                     continue;
                 }
                 let healed = {
-                    let Some(target) = world.players.get_mut(&target_oid) else { continue };
+                    let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid) else { continue };
                     // Overheal clamp (`Heal.java`).
-                    let amount = amount.min((target.max_hp as f64 - target.cur_hp).max(0.0));
-                    target.cur_hp += amount;
+                    let amount = amount.min((vitals.max_hp as f64 - vitals.cur_hp).max(0.0));
+                    vitals.cur_hp += amount;
                     amount
                 };
-                let caster_name = world.players[&caster_oid].name.clone();
+                let caster_name = world.objects.get_component::<crate::model::Player>(&caster_oid).expect("player").name.clone();
                 if let Some(client_id) = client_for_player(world, target_oid) {
                     if let Some(cs) = world.clients.get(&client_id) {
                         if target_oid != caster_oid {
@@ -66,7 +68,11 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                                 &[SmParam::Int(healed as i32)],
                             ));
                         }
-                        let cur_hp = world.players[&target_oid].cur_hp as i32;
+                        let cur_hp = world
+                            .objects
+                            .get_component::<Vitals>(&target_oid)
+                            .map(|v| v.cur_hp as i32)
+                            .unwrap_or(0);
                         cs.send(server_packets::status_update(
                             target_oid,
                             &[(server_packets::status_update_type::CUR_HP, cur_hp)],
@@ -94,19 +100,29 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             expires_at_tick,
             effects: buff_effects,
         };
-        if let Some(target) = world.players.get_mut(&target_oid) {
-            target.apply_buff(&world.data, buff);
+        if let Some((target, base, mut mods, mut buffs, mut speeds, mut combat)) = world
+            .objects
+            .get_many_mut::<(
+                &mut crate::model::Player,
+                &BaseStats,
+                &mut StatModifiers,
+                &mut Buffs,
+                &mut Speeds,
+                &mut CombatStats,
+            )>(&target_oid)
+        {
+            target.apply_buff(&world.data, &base, &mut mods, &mut buffs, &mut speeds, &mut combat, buff);
         }
         world
             .scheduler
             .schedule(expires_at_tick, ScheduledTask::BuffExpire { player_object_id: target_oid, skill_id: skill.id });
         let now = world.tick;
         if let Some(client_id) = client_for_player(world, target_oid) {
-            if let Some(target) = world.players.get(&target_oid) {
+            if let Some(buffs) = world.objects.get_component::<Buffs>(&target_oid) {
                 if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(crate::network::enter_world::abnormal_status_update(target, now));
+                    cs.send(crate::network::enter_world::abnormal_status_update(buffs, now));
                 }
-            }
+                }
         }
     }
 }
@@ -115,12 +131,11 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
 /// their stat pipeline, NPCs through the `MDefenseFinalizer` shape
 /// (base × MEN bonus × level mod).
 fn target_m_def(world: &World, target_oid: i32) -> f64 {
-    if let Some(p) = world.players.get(&target_oid) {
-        return p.m_def as f64;
+    if let Some(cs) = world.objects.get_component::<CombatStats>(&target_oid) {
+        return cs.m_def;
     }
-    let Some(t) = world.npcs.get(&target_oid).and_then(|n| n.template(world)) else { return 1.0 };
-    let men_bonus = world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Men, t.base_men);
-    t.base_m_def * men_bonus * (t.level as f64 + 89.0) / 100.0
+    // NPCs: memoized at spawn through the same MDefenseFinalizer shape.
+    world.objects.get_component::<CombatStats>(&target_oid).map(|cs| cs.m_def).unwrap_or(1.0)
 }
 
 /// Port of `Creature.doAttack` → `reduceCurrentHp` for magic skill damage:
@@ -130,9 +145,9 @@ fn target_m_def(world: &World, target_oid: i32) -> f64 {
 pub(crate) fn apply_magic_damage(world: &mut World, caster_oid: i32, target_oid: i32, damage: f64, mcrit: bool, caster_name: &str) {
     use server_packets::{sm_ids, SmParam};
 
-    let target_param = if let Some(p) = world.players.get(&target_oid) {
+    let target_param = if let Some(p) = world.objects.get_component::<crate::model::Player>(&target_oid) {
         SmParam::PlayerName(p.name.clone())
-    } else if let Some(t) = world.npcs.get(&target_oid).and_then(|n| n.template(world)) {
+    } else if let Some(t) = world.objects.get_component::<crate::model::npc::Npc>(&target_oid).and_then(|n| n.template(world)) {
         SmParam::NpcName(t.id)
     } else {
         return;
@@ -162,20 +177,30 @@ pub(crate) fn apply_magic_damage(world: &mut World, caster_oid: i32, target_oid:
 /// no-op, matching the scheduler's dead-id contract.
 pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill_id: i32) {
     let still_active = world
-        .players
-        .get(&player_object_id)
-        .is_some_and(|p| p.buffs.iter().any(|b| b.skill_id == skill_id));
+        .objects
+        .get_component::<Buffs>(&player_object_id)
+        .is_some_and(|b| b.0.iter().any(|b| b.skill_id == skill_id));
     if !still_active {
         return;
     }
-    if let Some(player) = world.players.get_mut(&player_object_id) {
-        player.remove_buff(&world.data, skill_id);
+    if let Some((player, base, mut mods, mut buffs, mut speeds, mut combat)) = world
+        .objects
+        .get_many_mut::<(
+            &mut crate::model::Player,
+            &BaseStats,
+            &mut StatModifiers,
+            &mut Buffs,
+            &mut Speeds,
+            &mut CombatStats,
+        )>(&player_object_id)
+    {
+        player.remove_buff(&world.data, &base, &mut mods, &mut buffs, &mut speeds, &mut combat, skill_id);
     }
     let now = world.tick;
     let Some(client_id) = client_for_player(world, player_object_id) else { return };
-    if let Some(player) = world.players.get(&player_object_id) {
+    if let Some(buffs) = world.objects.get_component::<Buffs>(&player_object_id) {
         if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(crate::network::enter_world::abnormal_status_update(player, now));
+            cs.send(crate::network::enter_world::abnormal_status_update(buffs, now));
         }
     }
 }

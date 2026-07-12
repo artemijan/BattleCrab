@@ -9,7 +9,6 @@ use commons::network::PacketWriter;
 use crate::data::npc_data::NpcTemplate;
 use crate::enums::NpcInfoType;
 use crate::model::inventory::PaperdollSlot;
-use crate::model::npc::Npc;
 use crate::model::Player;
 use crate::network::masks;
 
@@ -369,7 +368,8 @@ pub fn char_delete_fail(reason: i32) -> Vec<u8> {
 /// Port of `serverpackets/CharSelected` — the reply to `CharacterSelect` that
 /// starts the enter-world loading screen. `game_time` is minutes of the in-game
 /// day (TODO(G4): real GameTimeTaskManager clock; 0 = midnight for now).
-pub fn char_selected(p: &crate::model::Player, session_id: i32, game_time: i32) -> Vec<u8> {
+pub fn char_selected(v: &crate::model::PlayerView, session_id: i32, game_time: i32) -> Vec<u8> {
+    let crate::model::PlayerView { p, pos, vitals, .. } = v;
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::CHAR_SELECTED);
     w.write_string(&p.name);
@@ -382,11 +382,11 @@ pub fn char_selected(p: &crate::model::Player, session_id: i32, game_time: i32) 
     w.write_i32(p.race);
     w.write_i32(p.class_id);
     w.write_i32(1); // active
-    w.write_i32(p.x);
-    w.write_i32(p.y);
-    w.write_i32(p.z);
-    w.write_f64(p.cur_hp);
-    w.write_f64(p.cur_mp);
+    w.write_i32(pos.x);
+    w.write_i32(pos.y);
+    w.write_i32(pos.z);
+    w.write_f64(vitals.cur_hp);
+    w.write_f64(vitals.cur_mp);
     w.write_i64(p.sp);
     w.write_i64(p.exp);
     w.write_i32(p.level);
@@ -707,6 +707,7 @@ pub fn move_to_location(object_id: i32, dest_x: i32, dest_y: i32, dest_z: i32, x
 /// default is -1).
 pub fn magic_skill_use(
     caster: &Player,
+    caster_pos: &crate::model::components::Position,
     target: (i32, i32, i32, i32), // (object_id, x, y, z) — player or NPC
     skill_id: i32,
     skill_level: i32,
@@ -724,9 +725,9 @@ pub fn magic_skill_use(
     w.write_i32(hit_time);
     w.write_i32(reuse_group);
     w.write_i32(reuse_delay);
-    w.write_i32(caster.x);
-    w.write_i32(caster.y);
-    w.write_i32(caster.z);
+    w.write_i32(caster_pos.x);
+    w.write_i32(caster_pos.y);
+    w.write_i32(caster_pos.z);
     w.write_i16(0); // isGroundTargetSkill
     w.write_i16(0); // no ground location
     w.write_i32(target.1);
@@ -880,9 +881,9 @@ pub fn system_message_with(message_id: i16, params: &[SmParam]) -> Vec<u8> {
 /// the skill has one, else the skill id (Java writes
 /// `sharedReuseGroup > 0 ? group : skillId`). Sent on enter-world and on
 /// `RequestSkillCoolTime`.
-pub fn skill_cool_time(p: &Player, now_tick: u64) -> Vec<u8> {
-    let entries: Vec<(i32, i32, i32, i32)> = p
-        .reuses
+pub fn skill_cool_time(reuses: &crate::model::components::Reuses, now_tick: u64) -> Vec<u8> {
+    let entries: Vec<(i32, i32, i32, i32)> = reuses
+        .0
         .iter()
         .filter_map(|(&reuse_key, r)| {
             let remaining_ticks = r.until_tick.checked_sub(now_tick)?;
@@ -960,13 +961,14 @@ const CHAR_INFO_PAPERDOLL_ORDER_VISUAL_ID: [PaperdollSlot; 9] = [
 /// systems not yet modeled (clan, mounts, stores, cubics, fishing, abnormal
 /// visual effects…) are their empty Java defaults; the vehicle branch and the
 /// GM-sees-invisible variant are skipped (no boats/GM model).
-pub fn char_info(p: &Player) -> Vec<u8> {
+pub fn char_info(v: &crate::model::PlayerView) -> Vec<u8> {
+    let crate::model::PlayerView { p, pos, vitals, pvitals, speeds, collision, combat, inventory, .. } = v;
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::CHAR_INFO);
     w.write_u8(0); // Grand Crusade
-    w.write_i32(p.x);
-    w.write_i32(p.y);
-    w.write_i32(p.z);
+    w.write_i32(pos.x);
+    w.write_i32(pos.y);
+    w.write_i32(pos.z);
     w.write_i32(0); // vehicle object id
     w.write_i32(p.object_id);
     w.write_string(&p.name);
@@ -975,34 +977,34 @@ pub fn char_info(p: &Player) -> Vec<u8> {
     w.write_i32(p.base_class_id); // root class id
 
     for slot in CHAR_INFO_PAPERDOLL_ORDER {
-        w.write_i32(p.inventory.paperdoll_item_id(slot)); // display id
+        w.write_i32(inventory.paperdoll_item_id(slot)); // display id
     }
     for slot in CHAR_INFO_PAPERDOLL_ORDER_AUGMENT {
-        let augment = p.inventory.paperdoll_augmentation(slot);
+        let augment = inventory.paperdoll_augmentation(slot);
         w.write_i32(augment.map_or(0, |a| a.0));
         w.write_i32(augment.map_or(0, |a| a.1));
     }
     w.write_u8(0); // armor min enchant
     for slot in CHAR_INFO_PAPERDOLL_ORDER_VISUAL_ID {
-        w.write_i32(p.inventory.paperdoll_visual_id(slot));
+        w.write_i32(inventory.paperdoll_visual_id(slot));
     }
 
     w.write_u8(0); // pvp flag
     w.write_i32(p.reputation);
-    w.write_i32(p.m_atk_spd);
-    w.write_i32(p.p_atk_spd);
-    w.write_i16(p.run_spd as i16);
-    w.write_i16(p.walk_spd as i16);
-    w.write_i16(p.swim_run_spd as i16);
-    w.write_i16(p.swim_walk_spd as i16);
+    w.write_i32(combat.m_atk_spd);
+    w.write_i32(combat.p_atk_spd);
+    w.write_i16(speeds.run_spd as i16);
+    w.write_i16(speeds.walk_spd as i16);
+    w.write_i16(speeds.swim_run_spd as i16);
+    w.write_i16(speeds.swim_walk_spd as i16);
     w.write_i16(0); // fly run
     w.write_i16(0); // fly walk
     w.write_i16(0); // fly run (repeat)
     w.write_i16(0); // fly walk (repeat)
-    w.write_f64(p.move_multiplier);
+    w.write_f64(speeds.move_multiplier);
     w.write_f64(1.0); // attack speed multiplier
-    w.write_f64(p.collision_radius);
-    w.write_f64(p.collision_height);
+    w.write_f64(collision.radius);
+    w.write_f64(collision.height);
     w.write_i32(p.hair_style); // visual hair
     w.write_i32(p.hair_color);
     w.write_i32(p.face);
@@ -1012,7 +1014,7 @@ pub fn char_info(p: &Player) -> Vec<u8> {
     w.write_i32(0); // ally id
     w.write_i32(0); // ally crest id
     w.write_u8(1); // !isSitting — standing
-    w.write_u8(p.running as u8);
+    w.write_u8(speeds.running as u8);
     w.write_u8(0); // in combat
     w.write_u8(0); // alike dead
     w.write_u8(0); // invisible
@@ -1025,7 +1027,7 @@ pub fn char_info(p: &Player) -> Vec<u8> {
     w.write_i32(0); // mount npc id
     w.write_i32(p.class_id);
     w.write_i32(0); // TODO: Find me! (Java unknown)
-    w.write_u8(p.inventory.paperdoll_enchant_level(PaperdollSlot::RHand) as u8); // weapon enchant
+    w.write_u8(inventory.paperdoll_enchant_level(PaperdollSlot::RHand) as u8); // weapon enchant
     w.write_u8(0); // team id
     w.write_i32(0); // clan crest large id
     w.write_u8(0); // noble
@@ -1035,7 +1037,7 @@ pub fn char_info(p: &Player) -> Vec<u8> {
     w.write_i32(0); // bait y
     w.write_i32(0); // bait z
     w.write_i32(0xFFFFFF); // name color
-    w.write_i32(p.heading);
+    w.write_i32(pos.heading);
     w.write_u8(0); // pledge class
     w.write_i16(0); // pledge type
     w.write_i32(0xFFFF77); // title color
@@ -1044,11 +1046,11 @@ pub fn char_info(p: &Player) -> Vec<u8> {
     w.write_i32(0); // transformation display id
     w.write_i32(0); // agathion id
     w.write_u8(0); // nPvPRestrainStatus
-    w.write_i32(p.cur_cp.round() as i32);
-    w.write_i32(p.max_hp);
-    w.write_i32(p.cur_hp.round() as i32);
-    w.write_i32(p.max_mp);
-    w.write_i32(p.cur_mp.round() as i32);
+    w.write_i32(pvitals.cur_cp.round() as i32);
+    w.write_i32(vitals.max_hp);
+    w.write_i32(vitals.cur_hp.round() as i32);
+    w.write_i32(vitals.max_mp);
+    w.write_i32(vitals.cur_mp.round() as i32);
     w.write_u8(0); // cBRLectureMark
     w.write_i32(0); // abnormal visual effect count (+ short ids)
     w.write_u8(0); // true hero (100 when true)
@@ -1062,7 +1064,8 @@ pub fn char_info(p: &Player) -> Vec<u8> {
 /// state at its defaults: no summon animation, no water/fly/team/enchant/
 /// clone/transform/abnormals, no clan, reputation 0, pvp flag 0. The
 /// localisation pass (`MULTILANG_ENABLE`) is skipped.
-pub fn npc_info(npc: &Npc, t: &NpcTemplate) -> Vec<u8> {
+pub fn npc_info(v: &crate::model::npc::NpcView, t: &NpcTemplate) -> Vec<u8> {
+    let crate::model::npc::NpcView { npc, pos, vitals, speeds } = v;
     use NpcInfoType as T;
 
     // Java `NpcInfo._masks` starts with the two unnamed always-on component
@@ -1088,7 +1091,7 @@ pub fn npc_info(npc: &Npc, t: &NpcTemplate) -> Vec<u8> {
     add(&mut mask_bytes, T::Position);
     add(&mut mask_bytes, T::StopMode);
     add(&mut mask_bytes, T::MoveMode);
-    if npc.heading > 0 {
+    if pos.heading > 0 {
         add(&mut mask_bytes, T::Heading);
     }
     if t.base_p_atk_spd > 0 || t.base_m_atk_spd > 0 {
@@ -1100,16 +1103,16 @@ pub fn npc_info(npc: &Npc, t: &NpcTemplate) -> Vec<u8> {
     if t.rhand > 0 || t.lhand > 0 {
         add(&mut mask_bytes, T::Equipped);
     }
-    if npc.max_hp > 0 {
+    if vitals.max_hp > 0 {
         add(&mut mask_bytes, T::MaxHp);
     }
-    if npc.max_mp > 0 {
+    if vitals.max_mp > 0 {
         add(&mut mask_bytes, T::MaxMp);
     }
-    if npc.cur_hp <= npc.max_hp as f64 {
+    if vitals.cur_hp <= vitals.max_hp as f64 {
         add(&mut mask_bytes, T::CurrentHp);
     }
-    if npc.cur_mp <= npc.max_mp as f64 {
+    if vitals.cur_mp <= vitals.max_mp as f64 {
         add(&mut mask_bytes, T::CurrentMp);
     }
     if t.server_side_name {
@@ -1151,11 +1154,11 @@ pub fn npc_info(npc: &Npc, t: &NpcTemplate) -> Vec<u8> {
     // Block 2.
     w.write_i16(block_size as i16);
     w.write_i32(t.display_id + 1_000_000);
-    w.write_i32(npc.x);
-    w.write_i32(npc.y);
-    w.write_i32(npc.z);
+    w.write_i32(pos.x);
+    w.write_i32(pos.y);
+    w.write_i32(pos.z);
     if contains(T::Heading) {
-        w.write_i32(npc.heading);
+        w.write_i32(pos.heading);
     }
     if contains(T::AtkCastSpeed) {
         w.write_i32(t.base_p_atk_spd);
@@ -1172,19 +1175,19 @@ pub fn npc_info(npc: &Npc, t: &NpcTemplate) -> Vec<u8> {
         w.write_i32(t.lhand);
     }
     w.write_u8(1); // STOP_MODE: !isDead
-    w.write_u8(npc.running as u8); // MOVE_MODE
+    w.write_u8(speeds.running as u8); // MOVE_MODE
     w.write_i32(0); // PET_EVOLUTION_ID
     if contains(T::CurrentHp) {
-        w.write_i32(npc.cur_hp as i32);
+        w.write_i32(vitals.cur_hp as i32);
     }
     if contains(T::CurrentMp) {
-        w.write_i32(npc.cur_mp as i32);
+        w.write_i32(vitals.cur_mp as i32);
     }
     if contains(T::MaxHp) {
-        w.write_i32(npc.max_hp);
+        w.write_i32(vitals.max_hp);
     }
     if contains(T::MaxMp) {
-        w.write_i32(npc.max_mp);
+        w.write_i32(vitals.max_mp);
     }
     if contains(T::Name) {
         w.write_string(&t.name);
@@ -1226,9 +1229,10 @@ mod tests {
         t.base_mp_max = 50.0;
         // Defaults keep: p_atk_spd 300, m_atk_spd 333, run 120, rhand/lhand 0,
         // targetable + show_name true (→ status mask 0x0C), type Folk.
-        let mut npc = crate::model::npc::Npc::for_test(0x4000_0001, 30001, 100, 200, -300, 100, 50);
-        npc.heading = 4000;
-        npc.region = (0, 0);
+        let (npc, (mut pos, _region, vitals, speeds, _collision, _attack, _ai, _aggro)) =
+            crate::model::npc::Npc::for_test(0x4000_0001, 30001, 100, 200, -300, 100, 50);
+        pos.heading = 4000;
+        let v = crate::model::npc::NpcView { npc: &npc, pos: &pos, vitals: &vitals, speeds: &speeds };
 
         let mut w = PacketWriter::new();
         w.write_u8(0x0C); // NPC_INFO
@@ -1264,7 +1268,7 @@ mod tests {
         w.write_u8(0x0C); // visual state: targetable | show name
         let expected = w.into_bytes();
 
-        assert_eq!(super::npc_info(&npc, &t), expected);
+        assert_eq!(super::npc_info(&v, &t), expected);
     }
 
     fn chr(last_access: i64, delete_time: i64) -> CharData {

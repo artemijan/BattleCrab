@@ -89,24 +89,29 @@ pub struct PlayerSnapshot {
 }
 
 impl PlayerSnapshot {
-    pub fn of(p: &crate::model::Player) -> Self {
+    pub fn of(
+        p: &crate::model::Player,
+        pos: &crate::model::components::Position,
+        vitals: &crate::model::components::Vitals,
+        pvitals: &crate::model::components::PlayerVitals,
+    ) -> Self {
         Self {
             object_id: p.object_id,
             level: p.level,
-            max_hp: p.max_hp,
-            cur_hp: p.cur_hp,
-            max_cp: p.max_cp,
-            cur_cp: p.cur_cp,
-            max_mp: p.max_mp,
-            cur_mp: p.cur_mp,
+            max_hp: vitals.max_hp,
+            cur_hp: vitals.cur_hp,
+            max_cp: pvitals.max_cp,
+            cur_cp: pvitals.cur_cp,
+            max_mp: vitals.max_mp,
+            cur_mp: vitals.cur_mp,
             face: p.face,
             hair_style: p.hair_style,
             hair_color: p.hair_color,
             sex: p.is_female as i32,
-            heading: p.heading,
-            x: p.x,
-            y: p.y,
-            z: p.z,
+            heading: pos.heading,
+            x: pos.x,
+            y: pos.y,
+            z: pos.z,
             exp: p.exp,
             sp: p.sp,
             reputation: p.reputation,

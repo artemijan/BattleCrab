@@ -41,8 +41,10 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         // RequestSkillCoolTime (IN_GAME): resend the reuse timers.
         cop::REQUEST_SKILL_COOL_TIME => {
             if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id) {
-                if let Some(player) = world.players.get(&session.player_object_id()) {
-                    cs.send(server_packets::skill_cool_time(player, world.tick));
+                if let Some(reuses) =
+                    world.objects.get_component::<crate::model::components::Reuses>(&session.player_object_id())
+                {
+                    cs.send(server_packets::skill_cool_time(reuses, world.tick));
                 }
             }
         }

@@ -10,9 +10,10 @@
 //! auto-attack (force-attacking players) is deferred with the PvP-flag
 //! system.
 
+use crate::model::components::{AttackState, Casting, Collision, CombatStats, Intent, Movement, PlayerVitals, Position, RegionCell, Speeds, Vitals};
 use crate::model::formulas;
 use crate::model::movement::{self, get_position, MoveData};
-use crate::model::npc::NpcIntention;
+use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 use crate::model::stats::BaseStat;
 use crate::model::PlayerIntent;
 use crate::network::client_packets as cp;
@@ -31,6 +32,11 @@ pub(crate) const COMBAT_STANCE_TICKS: u64 = 150;
 /// everything below is a persistent id (players, items).
 pub(crate) fn is_npc_oid(object_id: i32) -> bool {
     object_id >= crate::model::npc::FIRST_NPC_OBJECT_ID
+}
+
+/// `Vitals` of any combat actor (one store since the world merge).
+pub(crate) fn vitals_of<'a>(world: &'a World, object_id: i32) -> Option<&'a Vitals> {
+    world.objects.get_component::<Vitals>(&object_id)
 }
 
 /// The combat-relevant view of a player or NPC — the stat finalizer outputs
@@ -56,51 +62,28 @@ pub(crate) struct Combatant {
 }
 
 pub(crate) fn combatant(world: &World, object_id: i32) -> Option<Combatant> {
-    if let Some(p) = world.players.get(&object_id) {
-        return Some(Combatant {
-            x: p.x,
-            y: p.y,
-            z: p.z,
-            heading: p.heading,
-            collision_radius: p.collision_radius,
-            dead: p.dead,
-            p_atk: p.p_atk as f64,
-            p_def: p.p_def as f64,
-            crit_stat: p.crit_hit as f64,
-            accuracy: p.accuracy,
-            evasion: p.evasion,
-            p_atk_spd: p.p_atk_spd,
-            // Class templates all declare `baseRndDam = 10`; the equipped
-            // weapon's `randomDamage` would override it, but item `<stats>`
-            // aren't parsed yet (same G5 narrowing as every other item stat).
-            random_dmg: 10,
-            atk_range: p.atk_range,
-        });
-    }
-    let npc = world.npcs.get(&object_id)?;
-    let t = npc.template(world)?;
-    let sb = &world.data.stat_bonus;
-    let level_mod = (t.level as f64 + 89.0) / 100.0;
-    let level = t.level as f64;
+    // One component-shaped path for both kinds — NPC stats are memoized
+    // into `CombatStats` at spawn (`npc::npc_combat_stats`), so the old
+    // per-call template derivation is gone.
+    let pos = world.objects.get_component::<Position>(&object_id)?;
+    let collision = world.objects.get_component::<Collision>(&object_id)?;
+    let vitals = world.objects.get_component::<Vitals>(&object_id)?;
+    let cs = world.objects.get_component::<CombatStats>(&object_id)?;
     Some(Combatant {
-        x: npc.x,
-        y: npc.y,
-        z: npc.z,
-        heading: npc.heading,
-        collision_radius: t.collision_radius,
-        dead: npc.dead,
-        // PAttackFinalizer / PDefenseFinalizer (no gear/buffs on NPCs).
-        p_atk: t.base_p_atk * sb.bonus(BaseStat::Str, t.base_str) * level_mod,
-        p_def: t.base_p_def * level_mod,
-        // PCriticalRateFinalizer: base × DEX bonus × 10 (per-mille-ish).
-        crit_stat: t.base_crit_rate * sb.bonus(BaseStat::Dex, t.base_dex) * 10.0,
-        // P{Accuracy,EvasionRate}Finalizer, sub-70 shape (the NPC XML
-        // `accuracy`/`evasion` attributes are unimplemented in Java too).
-        accuracy: ((t.base_dex as f64).sqrt() * 5.0 + level).round() as i32,
-        evasion: ((t.base_dex as f64).sqrt() * 5.0 + level).round() as i32,
-        p_atk_spd: t.base_p_atk_spd,
-        random_dmg: t.base_rnd_dam,
-        atk_range: t.base_atk_range,
+        x: pos.x,
+        y: pos.y,
+        z: pos.z,
+        heading: pos.heading,
+        collision_radius: collision.radius,
+        dead: vitals.dead,
+        p_atk: cs.p_atk,
+        p_def: cs.p_def,
+        crit_stat: cs.crit_hit,
+        accuracy: cs.accuracy,
+        evasion: cs.evasion,
+        p_atk_spd: cs.p_atk_spd,
+        random_dmg: cs.random_dmg,
+        atk_range: cs.atk_range,
     })
 }
 
@@ -123,9 +106,9 @@ fn attack_reach(a: &Combatant, b: &Combatant) -> f64 {
 /// Broadcasts `AutoAttackStart` only on the not-in-stance → in-stance edge.
 pub(crate) fn refresh_attack_stance(world: &mut World, player_object_id: i32) {
     let now = world.tick;
-    let Some(p) = world.players.get_mut(&player_object_id) else { return };
-    let was_in_stance = p.stance_until_tick > now;
-    p.stance_until_tick = now + COMBAT_STANCE_TICKS;
+    let Some(st) = world.objects.get_component_mut::<AttackState>(&player_object_id) else { return };
+    let was_in_stance = st.stance_until_tick > now;
+    st.stance_until_tick = now + COMBAT_STANCE_TICKS;
     if !was_in_stance {
         broadcast_including_self(world, player_object_id, &server_packets::auto_attack_start(player_object_id));
     }
@@ -135,15 +118,15 @@ pub(crate) fn refresh_attack_stance(world: &mut World, player_object_id: i32) {
 /// (`AutoAttackStop` broadcast).
 pub(crate) fn stance_tick(world: &mut World) {
     let now = world.tick;
-    let expired: Vec<i32> = world
-        .players
-        .values()
-        .filter(|p| p.stance_until_tick != 0 && p.stance_until_tick <= now)
-        .map(|p| p.object_id)
-        .collect();
+    let mut expired: Vec<i32> = Vec::new();
+    world.objects.for_each_mut::<(&crate::model::Player, &AttackState)>(|(p, st)| {
+        if st.stance_until_tick != 0 && st.stance_until_tick <= now {
+            expired.push(p.object_id);
+        }
+    });
     for object_id in expired {
-        if let Some(p) = world.players.get_mut(&object_id) {
-            p.stance_until_tick = 0;
+        if let Some(st) = world.objects.get_component_mut::<AttackState>(&object_id) {
+            st.stance_until_tick = 0;
         }
         broadcast_including_self(world, object_id, &server_packets::auto_attack_stop(object_id));
     }
@@ -161,16 +144,18 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
     let Some(pkt) = cp::AttackRequest::read(body) else { return };
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
-    let Some(player) = world.players.get(&object_id) else { return };
+    let Some(player) = world.objects.get_component::<crate::model::Player>(&object_id) else { return };
 
-    if player.dead {
+    if world.objects.get_component::<Vitals>(&object_id).is_none_or(|v| v.dead) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
         return;
     }
 
-    if player.target != Some(pkt.object_id) {
+    let _ = player;
+    let current = world.objects.get_component::<crate::model::components::TargetRef>(&object_id).copied().unwrap_or_default().0;
+    if current != Some(pkt.object_id) {
         super::target::set_target(world, client_id, object_id, Some(pkt.object_id));
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
@@ -187,32 +172,27 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
 /// for PvP flags.
 pub(crate) fn start_attack_intent(world: &mut World, client_id: u32, object_id: i32, target_object_id: i32) {
     let attackable = world
-        .npcs
-        .get(&target_object_id)
+        .objects
+        .get_component::<crate::model::npc::Npc>(&target_object_id)
         .and_then(|n| n.template(world))
         .is_some_and(|t| t.is_auto_attackable());
-    let target_dead = world.npcs.get(&target_object_id).is_none_or(|n| n.dead);
+    let target_dead = world.objects.get_component::<Vitals>(&target_object_id).is_none_or(|v| v.dead);
     if !attackable || target_dead {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
         return;
     }
-    if let Some(p) = world.players.get_mut(&object_id) {
-        p.intent = Some(PlayerIntent::Attack { target_object_id });
-    }
+    world.objects.add_components(&object_id, Intent(PlayerIntent::Attack { target_object_id }));
     // Think immediately — first swing shouldn't wait for the next tick.
     player_attack_think(world, object_id);
 }
 
-/// Per-tick player combat system: drive every attack intent one step.
+/// Per-tick player combat system: drive every attack intent one step. The
+/// sweep is presence-filtered — only intent-holders are visited.
 pub(crate) fn player_combat_tick(world: &mut World) {
-    let ids: Vec<i32> = world
-        .players
-        .values()
-        .filter(|p| p.intent.is_some())
-        .map(|p| p.object_id)
-        .collect();
+    let mut ids: Vec<i32> = Vec::new();
+    world.objects.for_each_mut::<(&crate::model::Player, &Intent)>(|(p, _)| ids.push(p.object_id));
     for object_id in ids {
         player_attack_think(world, object_id);
     }
@@ -222,24 +202,31 @@ pub(crate) fn player_combat_tick(world: &mut World) {
 /// tick per intent-holding player; chase re-pathing is throttled to the
 /// follow cadence inside `chase_target`.
 fn player_attack_think(world: &mut World, object_id: i32) {
-    let Some(player) = world.players.get(&object_id) else { return };
-    let Some(PlayerIntent::Attack { target_object_id }) = player.intent else { return };
+    let Some(player) = world.objects.get_component::<crate::model::Player>(&object_id) else { return };
+    let Some(Intent(PlayerIntent::Attack { target_object_id })) =
+        world.objects.get_component::<Intent>(&object_id).copied()
+    else {
+        return;
+    };
 
-    if player.dead || player.cast.is_some() {
+    let dead = world.objects.get_component::<Vitals>(&object_id).is_none_or(|v| v.dead);
+    if dead || world.objects.has_component::<Casting>(&object_id) {
         return; // casting pauses the loop (Java: CAST intention), death ends it via do_die.
     }
     // Target gone or dead → drop the intent (Java `checkTargetLostOrDead` →
     // ACTIVE intention).
-    let target_alive = world.npcs.get(&target_object_id).is_some_and(|n| !n.dead)
-        || world.players.get(&target_object_id).is_some_and(|p| !p.dead);
+    let target_alive = vitals_of(world, target_object_id).is_some_and(|v| !v.dead);
     if !target_alive {
-        if let Some(p) = world.players.get_mut(&object_id) {
-            p.intent = None;
-        }
+        world.objects.remove_component::<Intent>(&object_id);
         return;
     }
     // Mid-swing: wait for the attack period to pass (`isAttackingNow`).
-    if player.attack_end_tick > world.tick {
+    let _ = player;
+    if world
+        .objects
+        .get_component::<AttackState>(&object_id)
+        .is_some_and(|st| st.attack_end_tick > world.tick)
+    {
         return;
     }
 
@@ -250,12 +237,11 @@ fn player_attack_think(world: &mut World, object_id: i32) {
         return;
     }
     // In reach: stop the chase and swing.
-    if world.players.get(&object_id).is_some_and(|p| p.move_data.is_some()) {
-        if let Some(p) = world.players.get_mut(&object_id) {
-            p.move_data = None;
+    if world.objects.has_component::<Movement>(&object_id) {
+        world.objects.remove_component::<Movement>(&object_id);
+        if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
+            broadcast_including_self(world, object_id, &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading));
         }
-        let p = &world.players[&object_id];
-        broadcast_including_self(world, object_id, &server_packets::stop_move(object_id, p.x, p.y, p.z, p.heading));
     }
     do_auto_attack(world, object_id, target_object_id);
 }
@@ -266,7 +252,7 @@ fn player_attack_think(world: &mut World, object_id: i32) {
 fn chase_target(world: &mut World, object_id: i32, target_object_id: i32) {
     if !world.tick.is_multiple_of(5) {
         // Keep walking on the current path between re-paths.
-        if world.players.get(&object_id).is_some_and(|p| p.move_data.is_some()) {
+        if world.objects.has_component::<Movement>(&object_id) {
             return;
         }
     }
@@ -276,8 +262,9 @@ fn chase_target(world: &mut World, object_id: i32, target_object_id: i32) {
     let Some((dest_x, dest_y, dest_z, heading)) = pawn_destination(&attacker, &target, reach) else { return };
 
     let (speed, start) = {
-        let p = &world.players[&object_id];
-        ((if p.running { p.run_spd } else { p.walk_spd } as f64) * p.move_multiplier, (p.x, p.y, p.z))
+        let Some(speeds) = world.objects.get_component::<Speeds>(&object_id) else { return };
+        let pos = world.objects.get_component::<Position>(&object_id).copied().unwrap_or(Position { x: 0, y: 0, z: 0, heading: 0 });
+        (speeds.move_speed(), (pos.x, pos.y, pos.z))
     };
     if speed <= 0.0 {
         return;
@@ -285,9 +272,12 @@ fn chase_target(world: &mut World, object_id: i32, target_object_id: i32) {
     let distance = (((dest_x - start.0) as f64).powi(2) + ((dest_y - start.1) as f64).powi(2)).sqrt();
     let total_ticks = ((10.0 * distance / speed).round() as u64).max(1);
     let start_tick = world.tick;
-    if let Some(p) = world.players.get_mut(&object_id) {
-        p.heading = heading;
-        p.move_data = Some(MoveData {
+    if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
+        pos.heading = heading;
+    }
+    world.objects.add_components(
+        &object_id,
+        Movement(MoveData {
             start_x: start.0,
             start_y: start.1,
             start_z: start.2,
@@ -296,8 +286,8 @@ fn chase_target(world: &mut World, object_id: i32, target_object_id: i32) {
             dest_z,
             start_tick,
             total_ticks,
-        });
-    }
+        }),
+    );
     let pkt = server_packets::move_to_pawn(
         object_id,
         target_object_id,
@@ -348,17 +338,15 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         if let Some(client_id) = client_for_player(world, attacker_oid) {
             super::helpers::send_sm_and_action_failed(world, client_id, sm_ids::CANNOT_SEE_TARGET, &[]);
         }
-        if let Some(p) = world.players.get_mut(&attacker_oid) {
-            p.intent = None;
-        }
+        world.objects.remove_component::<Intent>(&attacker_oid);
         return;
     }
 
     let time_atk = formulas::calculate_time_between_attacks(attacker.p_atk_spd);
     // Two-handed timing needs the weapon's body part — item kinds are parsed
     // (G5), so check the equipped right hand for SLOT_LR_HAND.
-    let two_handed = world.players.get(&attacker_oid).is_some_and(|p| {
-        let rhand = p.inventory.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand);
+    let two_handed = world.objects.get_component::<crate::model::inventory::Inventory>(&attacker_oid).is_some_and(|inv| {
+        let rhand = inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand);
         rhand != 0
             && world
                 .data
@@ -370,10 +358,10 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
 
     // Face the target (Java `setHeading(calculateHeadingFrom(...))`).
     let heading = movement::calculate_heading((target.x - attacker.x) as f64, (target.y - attacker.y) as f64);
-    if let Some(p) = world.players.get_mut(&attacker_oid) {
-        p.heading = heading;
-    } else if let Some(n) = world.npcs.get_mut(&attacker_oid) {
-        n.heading = heading;
+    if let Some(pos) = world.objects.get_component_mut::<Position>(&attacker_oid) {
+        pos.heading = heading;
+    } else if let Some(pos) = world.objects.get_component_mut::<Position>(&attacker_oid) {
+        pos.heading = heading;
     }
 
     // Roll the hit (`generateHit`): miss → everything else skipped.
@@ -399,10 +387,10 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     };
 
     let now = world.tick;
-    if let Some(p) = world.players.get_mut(&attacker_oid) {
-        p.attack_end_tick = now + ms_to_ticks(time_atk);
-    } else if let Some(n) = world.npcs.get_mut(&attacker_oid) {
-        n.attack_end_tick = now + ms_to_ticks(time_atk);
+    if let Some(st) = world.objects.get_component_mut::<AttackState>(&attacker_oid) {
+        st.attack_end_tick = now + ms_to_ticks(time_atk);
+    } else if let Some(st) = world.objects.get_component_mut::<AttackState>(&attacker_oid) {
+        st.attack_end_tick = now + ms_to_ticks(time_atk);
     }
     world.scheduler.schedule(
         now + ms_to_ticks(time_to_hit),
@@ -413,7 +401,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     let hit = server_packets::AttackHit { target_object_id: target_oid, damage, miss, crit };
     let pkt = server_packets::attack(attacker_oid, &hit, attacker.x, attacker.y, attacker.z, target.x, target.y, target.z);
     if is_npc_oid(attacker_oid) {
-        let region = world.npcs[&attacker_oid].region;
+        let Some(region) = world.objects.get_component::<RegionCell>(&attacker_oid).map(|r| r.0) else { return };
         broadcast_near_region(world, region, &pkt);
     } else {
         broadcast_including_self(world, attacker_oid, &pkt);
@@ -425,12 +413,12 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
 /// lands (or misses).
 pub(crate) fn handle_attack_hit(world: &mut World, attacker: i32, target: i32, damage: i32, miss: bool, crit: bool) {
     // Attacker died mid-swing → EVT_CANCEL (nothing lands).
-    let attacker_alive = world.players.get(&attacker).map(|p| !p.dead).or_else(|| world.npcs.get(&attacker).map(|n| !n.dead));
+    let attacker_alive = vitals_of(world, attacker).map(|v| !v.dead);
     if attacker_alive != Some(true) {
         return;
     }
     // Target dead/gone → skipped (Java's per-hit target check).
-    let target_alive = world.players.get(&target).map(|p| !p.dead).or_else(|| world.npcs.get(&target).map(|n| !n.dead));
+    let target_alive = vitals_of(world, target).map(|v| !v.dead);
     if target_alive != Some(true) {
         return;
     }
@@ -438,7 +426,7 @@ pub(crate) fn handle_attack_hit(world: &mut World, attacker: i32, target: i32, d
     if miss {
         // `sendDamageMessage(miss)` + `notifyAttackAvoid`.
         if let Some(client_id) = client_for_player(world, attacker) {
-            let name = world.players[&attacker].name.clone();
+            let name = world.objects.get_component::<crate::model::Player>(&attacker).expect("player").name.clone();
             if let Some(cs) = world.clients.get(&client_id) {
                 cs.send(server_packets::system_message_with(sm_ids::C1_S_ATTACK_WENT_ASTRAY, &[SmParam::PlayerName(name)]));
             }
@@ -448,7 +436,7 @@ pub(crate) fn handle_attack_hit(world: &mut World, attacker: i32, target: i32, d
             if let Some(cs) = world.clients.get(&client_id) {
                 cs.send(server_packets::system_message_with(
                     sm_ids::C1_HAS_EVADED_C2_S_ATTACK,
-                    &[SmParam::PlayerName(world.players[&target].name.clone()), attacker_name],
+                    &[SmParam::PlayerName(world.objects.get_component::<crate::model::Player>(&target).expect("player").name.clone()), attacker_name],
                 ));
             }
             refresh_attack_stance(world, target);
@@ -458,7 +446,7 @@ pub(crate) fn handle_attack_hit(world: &mut World, attacker: i32, target: i32, d
 
     // Crit + damage messages (`Player.sendDamageMessage`).
     if let Some(client_id) = client_for_player(world, attacker) {
-        let attacker_name = world.players[&attacker].name.clone();
+        let attacker_name = world.objects.get_component::<crate::model::Player>(&attacker).expect("player").name.clone();
         let target_name = target_display_param(world, target);
         if let Some(cs) = world.clients.get(&client_id) {
             if crit {
@@ -479,9 +467,9 @@ pub(crate) fn handle_attack_hit(world: &mut World, attacker: i32, target: i32, d
 
 /// How an attacker shows up in the *victim's* damage messages ($c2).
 fn attacker_display_name(world: &World, attacker: i32) -> SmParam {
-    if let Some(p) = world.players.get(&attacker) {
+    if let Some(p) = world.objects.get_component::<crate::model::Player>(&attacker) {
         SmParam::PlayerName(p.name.clone())
-    } else if let Some(t) = world.npcs.get(&attacker).and_then(|n| n.template(world)) {
+    } else if let Some(t) = world.objects.get_component::<crate::model::npc::Npc>(&attacker).and_then(|n| n.template(world)) {
         SmParam::NpcName(t.id)
     } else {
         SmParam::Text(String::new())
@@ -507,39 +495,48 @@ pub(crate) fn apply_physical_damage(world: &mut World, attacker: i32, target: i3
 /// `Attackable.reduceCurrentHp` → `addDamage`/`addDamageHate` + the
 /// `onEvtAttacked` AI reaction, then the HP cut and `doDie`.
 pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: i32, damage: f64) {
-    let level = match world.npcs.get(&npc_oid) {
-        Some(npc) if !npc.dead => npc.template(world).map(|t| t.level).unwrap_or(1),
-        _ => return,
+    if world.objects.get_component::<Vitals>(&npc_oid).is_none_or(|v| v.dead) {
+        return;
+    }
+    let level = match world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) {
+        Some(npc) => npc.template(world).map(|t| t.level).unwrap_or(1),
+        None => return,
     };
     let now = world.tick;
 
     let mut became_running = false;
     let mut died = false;
-    let (cur_hp, max_hp, region) = {
-        let npc = world.npcs.get_mut(&npc_oid).expect("checked above");
+    let (cur_hp, max_hp) = {
+        let Some((mut aggro, mut ai, mut vitals, mut speeds)) = world
+            .objects
+            .get_many_mut::<(&mut AggroList, &mut NpcAi, &mut Vitals, &mut Speeds)>(&npc_oid)
+        else {
+            return;
+        };
         // `addDamage`: hate = damage·100 / (level + 7); `onEvtAttacked`:
         // reset the calm-after-spawn counter, arm the attack timeout, run.
         let hate = damage * 100.0 / (level + 7) as f64;
-        let entry = npc.aggro.entry(attacker_oid).or_default();
+        let entry = aggro.0.entry(attacker_oid).or_default();
         entry.damage += damage;
         entry.hate += hate;
-        if npc.global_aggro < 0 {
-            npc.global_aggro = 0;
+        if ai.global_aggro < 0 {
+            ai.global_aggro = 0;
         }
-        npc.attack_timeout_tick = now + ATTACK_TIMEOUT_TICKS;
-        if !npc.running {
-            npc.running = true;
+        ai.attack_timeout_tick = now + ATTACK_TIMEOUT_TICKS;
+        if !speeds.running {
+            speeds.running = true;
             became_running = true;
         }
-        npc.intention = NpcIntention::Attack;
+        ai.intention = NpcIntention::Attack;
 
-        npc.cur_hp -= damage;
-        if npc.cur_hp <= 0.0 {
-            npc.cur_hp = 0.0;
+        vitals.cur_hp -= damage;
+        if vitals.cur_hp <= 0.0 {
+            vitals.cur_hp = 0.0;
             died = true;
         }
-        (npc.cur_hp as i32, npc.max_hp, npc.region)
+        (vitals.cur_hp as i32, vitals.max_hp)
     };
+    let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
 
     if became_running {
         broadcast_near_region(world, region, &server_packets::change_move_type(npc_oid, true));
@@ -573,28 +570,32 @@ pub(crate) fn player_receive_damage(world: &mut World, player_oid: i32, attacker
     let attacker_is_playable = !is_npc_oid(attacker_oid);
     let mut died = false;
     let (cp_after, hp_after) = {
-        let Some(p) = world.players.get_mut(&player_oid) else { return };
-        if p.dead {
+        let Some((mut vitals, mut pvitals)) =
+            world.objects.get_many_mut::<(&mut Vitals, &mut PlayerVitals)>(&player_oid)
+        else {
+            return;
+        };
+        if vitals.dead {
             return;
         }
         let mut remaining = damage;
         if attacker_is_playable {
-            let cp_absorb = remaining.min(p.cur_cp);
-            p.cur_cp -= cp_absorb;
+            let cp_absorb = remaining.min(pvitals.cur_cp);
+            pvitals.cur_cp -= cp_absorb;
             remaining -= cp_absorb;
         }
-        p.cur_hp -= remaining;
-        if p.cur_hp <= 0.0 {
-            p.cur_hp = 0.0;
+        vitals.cur_hp -= remaining;
+        if vitals.cur_hp <= 0.0 {
+            vitals.cur_hp = 0.0;
             died = true;
         }
-        (p.cur_cp as i32, p.cur_hp as i32)
+        (pvitals.cur_cp as i32, vitals.cur_hp as i32)
     };
 
     // Victim-side damage message + stance.
     if let Some(client_id) = client_for_player(world, player_oid) {
         let attacker_name = attacker_display_name(world, attacker_oid);
-        let victim_name = world.players[&player_oid].name.clone();
+        let victim_name = world.objects.get_component::<crate::model::Player>(&player_oid).expect("player").name.clone();
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::system_message_with(
                 sm_ids::C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2,
@@ -626,13 +627,13 @@ pub(crate) fn player_receive_damage(world: &mut World, player_oid: i32, attacker
     // Cast break on hit (`Formulas.calcAtkBreak`, same roll as the magic
     // damage path).
     let breakable = world
-        .players
-        .get(&player_oid)
-        .is_some_and(|p| p.cast.as_ref().is_some_and(|c| !c.launched));
+        .objects
+        .get_component::<Casting>(&player_oid)
+        .is_some_and(|c| !c.0.launched);
     if breakable {
         let men_bonus = {
-            let p = &world.players[&player_oid];
-            world.data.stat_bonus.bonus(BaseStat::Men, p.men)
+            let men = world.objects.get_component::<crate::model::components::BaseStats>(&player_oid).map(|b| b.men).unwrap_or(0);
+            world.data.stat_bonus.bonus(BaseStat::Men, men)
         };
         let break_roll = world.roll(100);
         if formulas::calc_atk_break(damage, men_bonus, break_roll) {

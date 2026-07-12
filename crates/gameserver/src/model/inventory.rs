@@ -74,7 +74,7 @@ impl ItemInstance {
 /// Port of `PlayerInventory`: the flat item list plus the paperdoll (indices
 /// into that list by `object_id`, mirroring Java's paperdoll array referencing
 /// the same `Item` objects).
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, bevy_ecs::component::Component)]
 pub struct Inventory {
     items: Vec<ItemInstance>,
     paperdoll: [Option<i32>; PAPERDOLL_TOTAL_SLOTS],

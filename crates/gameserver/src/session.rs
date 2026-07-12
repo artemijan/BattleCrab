@@ -118,7 +118,7 @@ impl Session<InLobby> {
 
     /// `CharacterSelect`: a character is chosen and its `Player` built; move to
     /// the loading screen (Java `ConnectionState.ENTERING`).
-    pub fn into_entering(self, player: crate::model::Player) -> Session<Entering> {
+    pub fn into_entering(self, player: crate::model::PlayerData) -> Session<Entering> {
         Session {
             client_id: self.client_id,
             out: self.out,
@@ -129,11 +129,12 @@ impl Session<InLobby> {
 }
 
 /// State: character selected, entering the world (Java `ENTERING`). Holds the
-/// built `Player` until `EnterWorld` moves it into the `World` registry.
+/// built `Player` (as its full component bundle — the player is outside the
+/// ECS world until `EnterWorld` spawns it into the `World` registry).
 pub struct Entering {
     pub account: String,
     pub session_key: SessionKey,
-    pub player: crate::model::Player,
+    pub player: crate::model::PlayerData,
 }
 
 /// State: in the world. The `Player` lives in the `World` object registry; this
@@ -151,13 +152,13 @@ impl Session<Entering> {
     pub fn play_ok1(&self) -> i32 {
         self.state.session_key.play_ok1
     }
-    pub fn player(&self) -> &crate::model::Player {
+    pub fn player(&self) -> &crate::model::PlayerData {
         &self.state.player
     }
 
     /// `EnterWorld`: hand the `Player` to the world and move to `InGame`.
-    pub fn into_ingame(self) -> (Session<InGame>, crate::model::Player) {
-        let object_id = self.state.player.object_id;
+    pub fn into_ingame(self) -> (Session<InGame>, crate::model::PlayerData) {
+        let object_id = self.state.player.player.object_id;
         let session = Session {
             client_id: self.client_id,
             out: self.out,

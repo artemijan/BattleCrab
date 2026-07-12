@@ -14,19 +14,21 @@ pub(crate) fn handle_use_item(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
     let catalog = &world.data.item_data;
-    let Some(player) = world.players.get_mut(&object_id) else { return };
+    let Some(inventory) = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&object_id) else {
+        return;
+    };
 
-    let Some(item) = player.inventory.items().iter().find(|i| i.object_id == pkt.object_id) else { return };
+    let Some(item) = inventory.items().iter().find(|i| i.object_id == pkt.object_id) else { return };
     let Some(template) = catalog.get(item.item_id) else { return };
     if !template.is_equipable() {
         return; // EtcItem "use" (potions, shots, …): later milestone.
     }
     let body_part = template.body_part;
 
-    let changed = if player.inventory.paperdoll_slot_of(pkt.object_id).is_some() {
-        player.inventory.unequip_body_part(body_part)
+    let changed = if inventory.paperdoll_slot_of(pkt.object_id).is_some() {
+        inventory.unequip_body_part(body_part)
     } else {
-        player.inventory.equip_item(catalog, pkt.object_id)
+        inventory.equip_item(catalog, pkt.object_id)
     };
     finish_equip_change(world, client_id, object_id, &changed);
 }
@@ -37,8 +39,10 @@ pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, bo
     let Some(body_part) = cp::read_char_slot(body) else { return };
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
-    let Some(player) = world.players.get_mut(&object_id) else { return };
-    let changed = player.inventory.unequip_slot(body_part);
+    let Some(inventory) = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&object_id) else {
+        return;
+    };
+    let changed = inventory.unequip_slot(body_part);
     finish_equip_change(world, client_id, object_id, &changed);
 }
 
@@ -49,17 +53,21 @@ pub(crate) fn finish_equip_change(world: &mut World, client_id: u32, object_id: 
     if changed.is_empty() {
         return;
     }
-    let Some(player) = world.players.get(&object_id) else { return };
+    let Some(inventory) = world.objects.get_component::<crate::model::inventory::Inventory>(&object_id) else {
+        return;
+    };
     for &oid in changed {
-        let (loc, loc_data) = match player.inventory.paperdoll_slot_of(oid) {
+        let (loc, loc_data) = match inventory.paperdoll_slot_of(oid) {
             Some(slot) => ("PAPERDOLL", slot as i32),
             None => ("INVENTORY", 0),
         };
         let _ = world.db.send(db::DbCommand::UpdateItemLocation { object_id: oid, loc, loc_data });
     }
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::enter_world::inventory_update(player, &world.data, changed));
-        cs.send(crate::network::user_info::user_info(player, &world.data));
+        cs.send(crate::network::enter_world::inventory_update(inventory, &world.data, changed));
+        if let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) {
+            cs.send(crate::network::user_info::user_info(&v, &world.data));
+        }
     }
 }
 

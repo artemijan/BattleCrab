@@ -28,6 +28,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G7.9 Region-grid visibility & scoped broadcasting           | ✅ (CharInfo/DeleteObject, 3×3 region knownlist, region-scoped broadcasts) |
 | Game  | G8 Static world content (NPCs/spawns)                       | ✅ vertical slice (34.9k NPCs spawned, visible, targetable, talkable — zones/doors still ⏳) |
 | Game  | G9 Combat & AI                                              | ✅ vertical slice (auto-attack, monster AI, death/decay/respawn, XP/SP/level-ups, auto-loot drops, die→revive) |
+| Game  | G9.5 ECS stage 2 — split components, one world              | ✅ (plan: [PLAN_ECS_STAGE2.md](PLAN_ECS_STAGE2.md)) |
 | Game  | G10 Social systems                                          | ⏳ |
 | Game  | G11 Scripting engine + quests                               | ⏳ |
 | Game  | G12 Script/content breadth                                  | ⏳ |
@@ -653,11 +654,59 @@ HashMap bucket walks).
 - **Tests**: `store::tests` (roundtrip + iteration); the whole existing suite
   runs against the ECS-backed stores unchanged.
 
+### G9.5 — ECS stage 2: split components, one world ✅
+Plan: [PLAN_ECS_STAGE2.md](PLAN_ECS_STAGE2.md); executed in the planned
+split-first/merge-second phases, each gated on the full (behavior-level)
+test suite — no gameplay change.
+
+- **Components** (`model/components.rs`), split along system access seams:
+  shared `Position`, `RegionCell`, `Vitals` (HP/MP + `dead`), `Speeds`,
+  `Collision`, `CombatStats`, `AttackState`; presence-based `Movement`/
+  `Casting`/`Intent` (insert = state starts, remove = it ends — the
+  movement tick sweeps only entities carrying `Movement` instead of
+  scanning 34.9k static NPCs' `None`s, and the player combat tick sweeps
+  only intent-holders); player-only `PlayerVitals` (CP), `BaseStats`,
+  `StatModifiers`, `Buffs`, `Inventory`, `SkillBook`, `Reuses`, `TargetRef`,
+  `ClientPos`; NPC-only `NpcAi`, `AggroList`.
+- **One world** (`store.rs`): `World.players`/`World.npcs` →
+  `World.objects: EntityStore` (non-generic) — one `bevy_ecs::World`, one
+  id → `Entity` index (`npc_regions` unchanged). API:
+  `spawn`/`despawn`/`get_component(_mut)`/`get_many_mut`/`has_component`/
+  `add_components`/`remove_component`/`for_each_mut`/`count`. Object ids
+  stay the only foreign key; `Entity` never leaves `store.rs`.
+- **Residual cores as markers:** `Player`/`Npc` shrank to identity +
+  bookkeeping nothing sweeps and double as the kind markers (the plan's
+  separate `PlayerTag`/`NpcTag` were redundant). `combat::combatant()` is
+  one component fetch for both kinds — NPC stats are memoized into
+  `CombatStats` at spawn (`npc_combat_stats`, same finalizer math as the
+  deleted per-call template derivation, m_def included for the magic path).
+- **Movement unification:** one sweep advances every mover (player or NPC),
+  returning moved-NPC ids for region re-indexing — the duplicated
+  `tick`/`tick_npcs` pair is gone.
+- **Boundary DTO:** `PlayerData` (né `PlayerBundle`) carries the full
+  component set outside the ECS (from_char → `Entering` session →
+  `spawn_into` at EnterWorld); `PlayerView` is its borrowed read-side for
+  packet builders (UserInfo/CharInfo/CharSelected take one view arg, not
+  eight components). Persistence (`PlayerSnapshot`) and NPC decay gather
+  state from components *before* `despawn` — the old `remove() → whole
+  struct` shape is gone.
+- **Plan deviations:** kind markers folded into the residual cores (no
+  zero-sized tags); `pair_mut` never materialized (no call site holds two
+  entities' components mutably at once — the sequential re-fetch shape the
+  handlers already had survived the merge); `SparseSet` storage fallback
+  not needed. Known bevy quirk documented on `get_many_mut`: `Option<&C>`
+  errors for never-registered `C` (probe with `has_component` instead).
+- **Verified:** full suite green (147 tests incl. the real-socket
+  `e2e_create` login→create→enter-world flow and the 34.9k-NPC dist spawn
+  smoke test) after every phase; stage-3 (`Schedule` + ECS resources)
+  logged in CONCURRENCY_MODEL §2.8 as an open question, default **no**.
+
 ### G10–G13 — ⏳ not started
 See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gates:
 **social systems** (G10 — clans/parties/friends/mail) or the remaining
 static-world scope (zones/doors/`StaticObjectData`), then the scripting
-engine + quests (G11+).
+engine + quests (G11+). New object kinds (doors, items-on-ground, …) should
+become component bundles in `World.objects`, not new bare `HashMap` fields.
 
 ---
 
@@ -758,8 +807,10 @@ Run: `cargo test` (all green). Boot a pair on alt ports:
 - Session lifecycle is a **type-state** machine (plan §3.1):
   `Connecting → Authenticated → InLobby → Entering → InGame`; the `Player` lives
   in `World.players` keyed by object id, `InGame` links by id.
-- Object registries (`World.players`/`npcs`) are **ECS-backed** (`bevy_ecs`
-  via `store::EntityStore` — fat-component stage; CONCURRENCY_MODEL §2.8).
-  The game thread remains the sole owner; no parallel scheduling.
+- The object registry (`World.objects`) is **one `bevy_ecs` world** holding
+  players and NPCs as entities decomposed into per-concern components
+  (CONCURRENCY_MODEL §2.8; G9.5 / [PLAN_ECS_STAGE2.md](PLAN_ECS_STAGE2.md)).
+  The game thread remains the sole owner; no parallel scheduling; object
+  ids are the only foreign key (`Entity` never leaves `store.rs`).
 - Masked packets use the reversed `DEFAULT_FLAG_ARRAY` bit order — get this right
   or the client desyncs (root cause of the earlier UserInfo mask fix).

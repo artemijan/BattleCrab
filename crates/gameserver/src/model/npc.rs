@@ -39,52 +39,19 @@ pub struct AggroInfo {
     pub damage: f64,
 }
 
-/// A spawned NPC. Stats-wise this carries only what displaying, targeting and
-/// the combat formulas need — everything else reads through the template
-/// (`world.data.npc_data`).
-/// An ECS component (one fat component per NPC entity for now — see
-/// `store::EntityStore`).
+/// The NPC residual core: identity + spawn-line bookkeeping — nothing any
+/// per-tick system sweeps. Everything system-shaped lives in the extracted
+/// components: `Position`/`RegionCell` (phase 1), `Vitals`/`Speeds`/
+/// `Collision` (phase 2), presence-based `Movement` (phase 3),
+/// `CombatStats`/`AttackState` (phase 4), `NpcAi`/`AggroList` (phase 5).
 #[derive(Debug, Clone, bevy_ecs::component::Component)]
 pub struct Npc {
     pub object_id: i32,
     /// Template id (`world.data.npc_data.get(npc_id)`).
     pub npc_id: i32,
-    pub x: i32,
-    pub y: i32,
-    pub z: i32,
-    pub heading: i32,
-    /// Region cell, kept in sync by the movement tick (AI chase movement can
-    /// cross cells; `World.npc_regions` is re-indexed on change).
-    pub region: (i32, i32),
-    /// Unbuffed NPC max HP/MP = template base values (`NpcStat` finalizers).
-    pub max_hp: i32,
-    pub max_mp: i32,
-    pub cur_hp: f64,
-    pub cur_mp: f64,
-    /// `Creature._isRunning` — NPCs spawn walking; AI flips to run on aggro.
-    pub running: bool,
     /// Respawn bookkeeping for the death/respawn scheduler.
     pub respawn_secs: i32,
     pub respawn_random_secs: i32,
-
-    // --- Combat/AI state (G9) ---
-    /// Java `Creature._isDead` — corpse until the decay task removes it.
-    pub dead: bool,
-    /// `AttackableAI`'s intention (active scan vs. attack loop).
-    pub intention: NpcIntention,
-    /// `Attackable._aggroList`, keyed by player object id.
-    pub aggro: std::collections::HashMap<i32, AggroInfo>,
-    /// `AttackableAI._globalAggro`: starts at -10 (calm for ~10 think ticks
-    /// after spawn), climbs to 0, must be ≥ 0 for aggro-range scans to act.
-    pub global_aggro: i32,
-    /// `AttackableAI._attackTimeout` (absolute world tick): give up chasing
-    /// when it passes without landing/receiving a hit.
-    pub attack_timeout_tick: u64,
-    /// Busy-swinging until this tick (Java `_attackEndTime`).
-    pub attack_end_tick: u64,
-    /// `Some` while moving (chase/return-home), same tick interpolation as
-    /// players.
-    pub move_data: Option<crate::model::movement::MoveData>,
     /// Where this NPC spawned (Java `Npc.getSpawn()` location) — the drift
     /// anchor AI walks back to.
     pub spawn_loc: (i32, i32, i32),
@@ -93,52 +60,161 @@ pub struct Npc {
     pub spawn_ref: (usize, usize, usize),
 }
 
-impl Npc {
-    pub fn template<'a>(&self, world: &'a World) -> Option<&'a NpcTemplate> {
-        world.data.npc_data.get(self.npc_id)
-    }
+/// `AttackableAI`'s think state (G9), NPC-only.
+#[derive(Debug, Clone, Copy, bevy_ecs::component::Component)]
+pub struct NpcAi {
+    /// Active scan vs. attack loop.
+    pub intention: NpcIntention,
+    /// `AttackableAI._globalAggro`: starts at -10 (calm for ~10 think ticks
+    /// after spawn), climbs to 0, must be ≥ 0 for aggro-range scans to act.
+    pub global_aggro: i32,
+    /// `AttackableAI._attackTimeout` (absolute world tick): give up chasing
+    /// when it passes without landing/receiving a hit.
+    pub attack_timeout_tick: u64,
+}
 
-    /// A synthetic instance for unit tests (spawn-fresh AI/combat state).
-    #[doc(hidden)]
-    pub fn for_test(object_id: i32, npc_id: i32, x: i32, y: i32, z: i32, max_hp: i32, max_mp: i32) -> Self {
-        Self {
-            object_id,
-            npc_id,
-            x,
-            y,
-            z,
-            heading: 0,
-            region: region_of(x, y),
-            max_hp,
-            max_mp,
-            cur_hp: max_hp as f64,
-            cur_mp: max_mp as f64,
-            running: false,
-            respawn_secs: 0,
-            respawn_random_secs: 0,
-            dead: false,
-            intention: NpcIntention::Active,
-            aggro: std::collections::HashMap::new(),
-            global_aggro: -10,
-            attack_timeout_tick: 0,
-            attack_end_tick: 0,
-            move_data: None,
-            spawn_loc: (x, y, z),
-            spawn_ref: (0, 0, 0),
-        }
+impl Default for NpcAi {
+    fn default() -> Self {
+        // Java seeds _globalAggro = -10: no aggro for ~10 think seconds.
+        Self { intention: NpcIntention::Active, global_aggro: -10, attack_timeout_tick: 0 }
     }
+}
 
-    /// `Attackable.getMostHated()`: highest-hate living entry.
+/// `Attackable._aggroList`, keyed by player object id (NPC-only).
+#[derive(Debug, Clone, Default, bevy_ecs::component::Component)]
+pub struct AggroList(pub std::collections::HashMap<i32, AggroInfo>);
+
+impl AggroList {
+    /// `Attackable.getMostHated()`: highest-hate entry. Liveness
+    /// (`Vitals.dead`) is checked by the callers — a corpse's aggro list is
+    /// never consulted (AI skips the dead, rewards run before decay).
     pub fn most_hated(&self) -> Option<i32> {
-        if self.dead {
-            return None;
-        }
-        self.aggro
+        self.0
             .iter()
             .filter(|(_, info)| info.hate > 0.0)
             .max_by(|a, b| a.1.hate.partial_cmp(&b.1.hate).unwrap_or(std::cmp::Ordering::Equal))
             .map(|(&id, _)| id)
     }
+}
+
+/// `NpcStat`'s finalizer outputs for a template, memoized into the
+/// `CombatStats` component at spawn — the same math the pre-stage-2
+/// `combat::combatant()` NPC branch and `effects::target_m_def` ran per
+/// call (no gear/buffs on NPCs, so the values never change):
+/// - `p_atk`: `PAttackFinalizer` — base × STR bonus × level mod.
+/// - `p_def`/`m_def`: `P/MDefenseFinalizer` — base × level mod (m_def also
+///   × MEN bonus).
+/// - `crit_hit`: `PCriticalRateFinalizer` — base × DEX bonus × 10.
+/// - accuracy/evasion: the sub-70 `P{Accuracy,EvasionRate}Finalizer` shape
+///   (the NPC XML `accuracy`/`evasion` attributes are unimplemented in Java
+///   too).
+pub fn npc_combat_stats(
+    t: &NpcTemplate,
+    sb: &crate::data::stat_bonus::StatBonus,
+) -> crate::model::components::CombatStats {
+    use crate::model::stats::BaseStat;
+    let level_mod = (t.level as f64 + 89.0) / 100.0;
+    let level = t.level as f64;
+    let acc_ev = ((t.base_dex as f64).sqrt() * 5.0 + level).round() as i32;
+    crate::model::components::CombatStats {
+        p_atk: t.base_p_atk * sb.bonus(BaseStat::Str, t.base_str) * level_mod,
+        m_atk: t.base_m_atk * sb.bonus(BaseStat::Int, t.base_int) * level_mod,
+        p_def: t.base_p_def * level_mod,
+        m_def: t.base_m_def * sb.bonus(BaseStat::Men, t.base_men) * level_mod,
+        p_atk_spd: t.base_p_atk_spd,
+        m_atk_spd: t.base_m_atk_spd,
+        crit_hit: t.base_crit_rate * sb.bonus(BaseStat::Dex, t.base_dex) * 10.0,
+        m_crit_hit: 0.0,
+        evasion: acc_ev,
+        accuracy: acc_ev,
+        magic_evasion: 0,
+        magic_accuracy: 0,
+        atk_range: t.base_atk_range,
+        random_dmg: t.base_rnd_dam,
+    }
+}
+
+/// Borrowed view of an NPC's component set for packet builders (the NPC
+/// counterpart of `PlayerView`).
+pub struct NpcView<'a> {
+    pub npc: &'a Npc,
+    pub pos: &'a crate::model::components::Position,
+    pub vitals: &'a crate::model::components::Vitals,
+    pub speeds: &'a crate::model::components::Speeds,
+}
+
+impl<'a> NpcView<'a> {
+    pub fn of(objects: &'a crate::store::EntityStore, object_id: i32) -> Option<Self> {
+        Some(Self {
+            npc: objects.get_component::<Npc>(&object_id)?,
+            pos: objects.get_component::<crate::model::components::Position>(&object_id)?,
+            vitals: objects.get_component::<crate::model::components::Vitals>(&object_id)?,
+            speeds: objects.get_component::<crate::model::components::Speeds>(&object_id)?,
+        })
+    }
+}
+
+/// The extracted-component tuple `for_test` builds (spawn via
+/// `npcs.insert_with(id, npc, extra)`).
+pub type NpcExtra = (
+    crate::model::components::Position,
+    crate::model::components::RegionCell,
+    crate::model::components::Vitals,
+    crate::model::components::Speeds,
+    crate::model::components::Collision,
+    crate::model::components::AttackState,
+    NpcAi,
+    AggroList,
+);
+
+impl Npc {
+    pub fn template<'a>(&self, world: &'a World) -> Option<&'a NpcTemplate> {
+        world.data.npc_data.get(self.npc_id)
+    }
+
+    /// A synthetic instance for unit tests (spawn-fresh AI/combat state),
+    /// with its extracted components: spawn via
+    /// `world.objects.spawn(id, (npc, extra))`.
+    #[doc(hidden)]
+    pub fn for_test(
+        object_id: i32,
+        npc_id: i32,
+        x: i32,
+        y: i32,
+        z: i32,
+        max_hp: i32,
+        max_mp: i32,
+    ) -> (Self, NpcExtra) {
+        use crate::model::components::{AttackState, Collision, Position, RegionCell, Speeds, Vitals};
+        let npc = Self {
+            object_id,
+            npc_id,
+            respawn_secs: 0,
+            respawn_random_secs: 0,
+            spawn_loc: (x, y, z),
+            spawn_ref: (0, 0, 0),
+        };
+        let extra = (
+            Position { x, y, z, heading: 0 },
+            RegionCell(region_of(x, y)),
+            Vitals::hp_full(max_hp, max_mp),
+            // Default-template speeds (run 120/walk 60), like spawn_one.
+            Speeds {
+                run_spd: 120.0,
+                walk_spd: 60.0,
+                swim_run_spd: 0.0,
+                swim_walk_spd: 0.0,
+                move_multiplier: 1.0,
+                running: false,
+            },
+            Collision { radius: 8.0, height: 15.0 },
+            AttackState::default(),
+            NpcAi::default(),
+            AggroList::default(),
+        );
+        (npc, extra)
+    }
+
 }
 
 /// Instance-class (`type` attribute) names that exist under Java's
@@ -193,7 +269,7 @@ const SPAWNABLE_TYPES: &[&str] = &[
 pub fn spawn_all(world: &mut World) -> usize {
     let mut placed = 0usize;
     let mut skipped = 0usize;
-    // The data bundle can't be borrowed while `world.npcs` is mutated, and the
+    // The data bundle can't be borrowed while `world.objects` is mutated, and the
     // spawn definitions are read-only — walk indices instead of iterators.
     for spawn_idx in 0..world.data.spawn_data.spawns.len() {
         for group_idx in 0..world.data.spawn_data.spawns[spawn_idx].groups.len() {
@@ -260,33 +336,45 @@ pub(crate) fn spawn_one(world: &mut World, spawn_idx: usize, group_idx: usize, n
     let npc = Npc {
         object_id: world.next_npc_object_id,
         npc_id,
-        x,
-        y,
-        z,
-        heading,
-        region: region_of(x, y),
-        max_hp: t.base_hp_max as i32,
-        max_mp: t.base_mp_max as i32,
-        cur_hp: t.base_hp_max,
-        cur_mp: t.base_mp_max,
-        running: false,
         respawn_secs,
         respawn_random_secs,
-        dead: false,
-        intention: NpcIntention::Active,
-        aggro: std::collections::HashMap::new(),
-        // Java seeds _globalAggro = -10: no aggro for ~10 think seconds.
-        global_aggro: -10,
-        attack_timeout_tick: 0,
-        attack_end_tick: 0,
-        move_data: None,
         spawn_loc: (x, y, z),
         spawn_ref: (spawn_idx, group_idx, npc_idx),
     };
     let object_id = npc.object_id;
+    let region = region_of(x, y);
     world.next_npc_object_id += 1;
-    world.npc_regions.entry(npc.region).or_default().push(npc.object_id);
-    world.npcs.insert(npc.object_id, npc);
+    world.npc_regions.entry(region).or_default().push(object_id);
+    world.objects.spawn(
+        object_id,
+        (
+            npc,
+            crate::model::components::Position { x, y, z, heading },
+            crate::model::components::RegionCell(region),
+            crate::model::components::Vitals {
+                max_hp: t.base_hp_max as i32,
+                cur_hp: t.base_hp_max,
+                max_mp: t.base_mp_max as i32,
+                cur_mp: t.base_mp_max,
+                dead: false,
+            },
+            // Speeds memoized off the (immutable) template; NPCs spawn
+            // walking, AI flips `running` on aggro.
+            crate::model::components::Speeds {
+                run_spd: t.base_run_spd,
+                walk_spd: t.base_walk_spd,
+                swim_run_spd: 0.0,
+                swim_walk_spd: 0.0,
+                move_multiplier: 1.0,
+                running: false,
+            },
+            crate::model::components::Collision { radius: t.collision_radius, height: t.collision_height },
+            npc_combat_stats(t, &world.data.stat_bonus),
+            crate::model::components::AttackState::default(),
+            NpcAi::default(),
+            AggroList::default(),
+        ),
+    );
     Some(object_id)
 }
 
@@ -352,28 +440,38 @@ mod tests {
         let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
         let placed = spawn_all(&mut world);
-        assert_eq!(placed, world.npcs.len());
+        assert_eq!(placed, world.objects.count::<Npc>());
         assert!(placed > 20_000, "expected >20k placed NPCs, got {placed}");
 
         // Giran.xml: <npc id="30878" x="47984" y="186832" z="-3445" heading="42000"/>.
-        let giran_guide = world
-            .npcs
-            .values()
-            .find(|n| n.npc_id == 30878 && n.x == 47984)
+        let mut candidates: Vec<i32> = Vec::new();
+        world.objects.for_each_mut::<&Npc>(|n| {
+            if n.npc_id == 30878 {
+                candidates.push(n.object_id);
+            }
+        });
+        let giran_guide_id = candidates
+            .into_iter()
+            .find(|oid| world.objects.get_component::<crate::model::components::Position>(oid).is_some_and(|p| p.x == 47984))
             .expect("Giran npc 30878 at retail coords");
-        assert_eq!((giran_guide.y, giran_guide.z, giran_guide.heading), (186832, -3445, 42000));
-        assert_eq!(giran_guide.region, region_of(47984, 186832));
+        let pos = world.objects.get_component::<crate::model::components::Position>(&giran_guide_id).unwrap();
+        assert_eq!((pos.y, pos.z, pos.heading), (186832, -3445, 42000));
+        let region = world.objects.get_component::<crate::model::components::RegionCell>(&giran_guide_id).unwrap();
+        assert_eq!(region.0, region_of(47984, 186832));
 
         // Region index covers every NPC exactly once.
         let indexed: usize = world.npc_regions.values().map(Vec::len).sum();
         assert_eq!(indexed, placed);
         for (region, ids) in &world.npc_regions {
             for id in ids {
-                assert_eq!(world.npcs[id].region, *region);
+                let cell = world.objects.get_component::<crate::model::components::RegionCell>(id).unwrap();
+                assert_eq!(cell.0, *region);
             }
         }
 
         // Monsters got distinct object ids starting at the NPC base.
-        assert!(world.npcs.keys().all(|&id| id >= FIRST_NPC_OBJECT_ID));
+        let mut ids: Vec<i32> = Vec::new();
+        world.objects.for_each_mut::<&Npc>(|n| ids.push(n.object_id));
+        assert!(ids.iter().all(|&id| id >= FIRST_NPC_OBJECT_ID));
     }
 }

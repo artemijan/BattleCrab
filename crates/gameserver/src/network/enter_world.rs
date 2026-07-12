@@ -48,9 +48,8 @@ fn write_item_entry(w: &mut PacketWriter, item: &ItemInstance, template: &ItemTe
 // ---- plain packets ----
 
 /// `ItemList` (0x11). Quest items are filtered out (none exist yet).
-pub fn item_list(p: &Player, data: &GameData) -> Vec<u8> {
-    let entries: Vec<_> = p
-        .inventory
+pub fn item_list(inventory: &crate::model::inventory::Inventory, data: &GameData) -> Vec<u8> {
+    let entries: Vec<_> = inventory
         .items()
         .iter()
         .filter_map(|item| data.item_data.get(item.item_id).map(|t| (item, t)))
@@ -62,7 +61,7 @@ pub fn item_list(p: &Player, data: &GameData) -> Vec<u8> {
     w.write_i16(0); // show window (false)
     w.write_i16(entries.len() as i16);
     for (item, template) in &entries {
-        let equipped = p.inventory.paperdoll_slot_of(item.object_id).is_some();
+        let equipped = inventory.paperdoll_slot_of(item.object_id).is_some();
         write_item_entry(&mut w, item, template, equipped);
     }
     w.write_i16(0); // inventory block (none)
@@ -72,14 +71,18 @@ pub fn item_list(p: &Player, data: &GameData) -> Vec<u8> {
 /// `InventoryUpdate` (0x21). `change=2` (modify) for every entry: equip/unequip
 /// only moves an existing `Item` between `INVENTORY`/`PAPERDOLL`, it never
 /// creates or destroys the object (matches Java's `addItems`/plain `ItemInfo`).
-pub fn inventory_update(p: &Player, data: &GameData, changed_object_ids: &[i32]) -> Vec<u8> {
+pub fn inventory_update(
+    inventory: &crate::model::inventory::Inventory,
+    data: &GameData,
+    changed_object_ids: &[i32],
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0x21);
     w.write_i16(changed_object_ids.len() as i16);
     for &object_id in changed_object_ids {
-        let Some(item) = p.inventory.items().iter().find(|i| i.object_id == object_id) else { continue };
+        let Some(item) = inventory.items().iter().find(|i| i.object_id == object_id) else { continue };
         let Some(template) = data.item_data.get(item.item_id) else { continue };
-        let equipped = p.inventory.paperdoll_slot_of(object_id).is_some();
+        let equipped = inventory.paperdoll_slot_of(object_id).is_some();
         w.write_i16(2); // change type: modify
         write_item_entry(&mut w, item, template, equipped);
     }
@@ -98,11 +101,11 @@ pub fn shortcut_init() -> Vec<u8> {
 /// via `SkillList.addSkill`): passive flag, level, sub-level, id, reuse-delay
 /// group (`Skill.reuseDelayGroup`, -1 when ungrouped), disabled (clan
 /// reputation gate — always false, no clans yet), enchanted (always false).
-pub fn skill_list(p: &Player, data: &GameData) -> Vec<u8> {
+pub fn skill_list(skills: &crate::model::components::SkillBook, data: &GameData) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0x5F);
-    w.write_i32(p.skills.len() as i32);
-    for (&skill_id, &level) in &p.skills {
+    w.write_i32(skills.0.len() as i32);
+    for (&skill_id, &level) in &skills.0 {
         let skill = data.skill_data.get(skill_id, level);
         let passive = skill.is_some_and(|s| s.operate_type == crate::model::skill::OperateType::Passive);
         w.write_i32(passive as i32);
@@ -122,8 +125,8 @@ pub fn skill_list(p: &Player, data: &GameData) -> Vec<u8> {
 /// `data/skill_tree.rs::available_skills`). Base-class skills never carry
 /// required items/remove-skills/dual-class gates (confirmed empty in
 /// `StartingClass/*.xml`), so those lists are always written empty.
-pub fn acquire_skill_list(p: &Player, data: &GameData) -> Vec<u8> {
-    let learnable = data.skill_trees.available_skills(p.class_id, p.level, &p.skills);
+pub fn acquire_skill_list(p: &Player, skills: &crate::model::components::SkillBook, data: &GameData) -> Vec<u8> {
+    let learnable = data.skill_trees.available_skills(p.class_id, p.level, &skills.0);
     let mut w = PacketWriter::new();
     w.write_u8(0x90);
     w.write_i16(learnable.len() as i16);
@@ -181,11 +184,11 @@ pub fn quest_list() -> Vec<u8> {
 /// `BuffInfo` list) — display id/level/sub-level, `AbnormalType` client id,
 /// remaining seconds. `now_tick` is `world.tick` (10 ticks/s) so the
 /// remaining time can be derived from each buff's `expires_at_tick`.
-pub fn abnormal_status_update(p: &Player, now_tick: u64) -> Vec<u8> {
+pub fn abnormal_status_update(buffs: &crate::model::components::Buffs, now_tick: u64) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0x85);
-    w.write_i16(p.buffs.len() as i16);
-    for buff in &p.buffs {
+    w.write_i16(buffs.0.len() as i16);
+    for buff in &buffs.0 {
         let remaining_secs = buff.expires_at_tick.saturating_sub(now_tick) / 10;
         w.write_i32(buff.skill_id);
         w.write_i16(buff.skill_level as i16);
@@ -206,16 +209,16 @@ pub fn friend_list() -> Vec<u8> {
 
 /// `MoveToLocation` (0x2F): destination == current position (Java sends this on
 /// enter so the client fixes the character's position).
-pub fn move_to_location(p: &Player) -> Vec<u8> {
+pub fn move_to_location(object_id: i32, pos: &crate::model::components::Position) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0x2F);
-    w.write_i32(p.object_id);
-    w.write_i32(p.x);
-    w.write_i32(p.y);
-    w.write_i32(p.z);
-    w.write_i32(p.x);
-    w.write_i32(p.y);
-    w.write_i32(p.z);
+    w.write_i32(object_id);
+    w.write_i32(pos.x);
+    w.write_i32(pos.y);
+    w.write_i32(pos.z);
+    w.write_i32(pos.x);
+    w.write_i32(pos.y);
+    w.write_i32(pos.z);
     w.into_bytes()
 }
 
@@ -284,44 +287,47 @@ pub fn ex_subjob_info(p: &Player) -> Vec<u8> {
 
 /// `ExUserInfoInvenWeight` (0x166). Max load stays a placeholder — encumbrance
 /// enforcement is out of scope.
-pub fn ex_user_info_inven_weight(p: &Player, data: &GameData) -> Vec<u8> {
-    let load: i64 = p
-        .inventory
+pub fn ex_user_info_inven_weight(
+    object_id: i32,
+    inventory: &crate::model::inventory::Inventory,
+    data: &GameData,
+) -> Vec<u8> {
+    let load: i64 = inventory
         .items()
         .iter()
         .map(|item| data.item_data.get(item.item_id).map_or(0, |t| t.weight as i64 * item.count))
         .sum();
     let mut w = ex(0x166);
-    w.write_i32(p.object_id);
+    w.write_i32(object_id);
     w.write_i32(load as i32);
     w.write_i32(80_000); // max load (placeholder)
     w.into_bytes()
 }
 
 /// `ExAdenaInvenCount` (0x13E).
-pub fn ex_adena_inven_count(p: &Player) -> Vec<u8> {
+pub fn ex_adena_inven_count(inventory: &crate::model::inventory::Inventory) -> Vec<u8> {
     let mut w = ex(0x13E);
-    w.write_i64(p.inventory.adena());
-    w.write_i16(p.inventory.items().len() as i16);
+    w.write_i64(inventory.adena());
+    w.write_i16(inventory.items().len() as i16);
     w.into_bytes()
 }
 
 /// `ExUserInfoEquipSlot` (0x156) — masked, all 33 `InventorySlot` components,
 /// values read from the real paperdoll.
-pub fn ex_user_info_equip_slot(p: &Player) -> Vec<u8> {
+pub fn ex_user_info_equip_slot(object_id: i32, inventory: &crate::model::inventory::Inventory) -> Vec<u8> {
     let mut w = ex(0x156);
-    w.write_i32(p.object_id);
+    w.write_i32(object_id);
     w.write_i16(InventorySlot::VALUES.len() as i16);
     w.write_bytes(&masks::build_mask::<5>(InventorySlot::VALUES.iter().map(|s| s.mask())));
     for slot in InventorySlot::VALUES {
         let pd = slot.slot();
-        let augment = p.inventory.paperdoll_augmentation(pd);
+        let augment = inventory.paperdoll_augmentation(pd);
         w.write_i16(22); // block length: 10 + 4 * 3
-        w.write_i32(p.inventory.paperdoll_object_id(pd));
-        w.write_i32(p.inventory.paperdoll_item_id(pd));
+        w.write_i32(inventory.paperdoll_object_id(pd));
+        w.write_i32(inventory.paperdoll_item_id(pd));
         w.write_i32(augment.map_or(0, |(opt1, _)| opt1));
         w.write_i32(augment.map_or(0, |(_, opt2)| opt2));
-        w.write_i32(p.inventory.paperdoll_visual_id(pd));
+        w.write_i32(inventory.paperdoll_visual_id(pd));
     }
     w.into_bytes()
 }
@@ -332,10 +338,10 @@ pub fn ex_pledge_waiting_list_alarm() -> Vec<u8> {
 }
 
 /// `ExRotation` (0xC2).
-pub fn ex_rotation(p: &Player) -> Vec<u8> {
+pub fn ex_rotation(object_id: i32, heading: i32) -> Vec<u8> {
     let mut w = ex(0xC2);
-    w.write_i32(p.object_id);
-    w.write_i32(p.heading);
+    w.write_i32(object_id);
+    w.write_i32(heading);
     w.into_bytes()
 }
 

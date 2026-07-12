@@ -13,6 +13,7 @@ use crate::db::DbEvent;
 use crate::loginlink::LoginLinkCommand;
 use crate::model::formulas;
 use crate::model::skill::{OperateType, Skill, TargetType};
+use crate::model::components::{Buffs, Casting, ClientPos, CombatStats, Intent, Movement, PlayerVitals, Position, Reuses, SkillBook, Speeds, TargetRef, Vitals};
 use crate::model::Player;
 use crate::network::client_packets::{self as cp, opcodes as cop};
 use crate::network::server_packets;
@@ -49,6 +50,23 @@ fn auth_login_body(name: &str, key: SessionKey) -> Vec<u8> {
     w.write_i32(key.login_ok1);
     w.write_i32(key.login_ok2);
     w.into_bytes()
+}
+
+/// Component peek helpers for assertions (stage-2 shape).
+fn pvit(world: &World, oid: i32) -> Vitals {
+    *world.objects.get_component::<Vitals>(&oid).unwrap()
+}
+fn pcp(world: &World, oid: i32) -> PlayerVitals {
+    *world.objects.get_component::<PlayerVitals>(&oid).unwrap()
+}
+fn nvit(world: &World, oid: i32) -> Vitals {
+    *world.objects.get_component::<Vitals>(&oid).unwrap()
+}
+fn pcs(world: &World, oid: i32) -> CombatStats {
+    *world.objects.get_component::<CombatStats>(&oid).unwrap()
+}
+fn pbuffs(world: &World, oid: i32) -> usize {
+    world.objects.get_component::<Buffs>(&oid).map(|b| b.0.len()).unwrap_or(0)
 }
 
 fn dummy_char(object_id: i32, name: &str) -> CharData {
@@ -413,16 +431,16 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     chr.level = 5;
     chr.sp = 200;
     chr.cur_mp = 50.0;
-    let player = Player::from_char(&world.data, &chr);
-    assert_eq!(player.p_def, 80, "naked P.Def before any buff");
+    let bundle = Player::from_char(&world.data, &chr);
+    assert_eq!(bundle.combat.p_def, 80.0, "naked P.Def before any buff");
 
     let (out_tx, mut out_rx) = tokio::sync::mpsc::unbounded_channel();
     let s = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
         .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
         .into_lobby(vec![])
-        .into_entering(player);
-    let (session, player) = s.into_ingame();
-    world.players.insert(player.object_id, player);
+        .into_entering(bundle);
+    let (session, bundle) = s.into_ingame();
+    bundle.spawn_into(&mut world.objects);
     world.clients.insert(1, ClientSession::InGame(session));
 
     // --- Learn: RequestAcquireSkill(id=91, level=1, type=CLASS). ---
@@ -432,8 +450,8 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     w.write_i32(cp::RequestAcquireSkill::CLASS);
     handle_request_acquire_skill(&mut world, 1, &w.into_bytes());
 
-    assert_eq!(world.players[&2001].skills.get(&91), Some(&1));
-    assert_eq!(world.players[&2001].sp, 100, "200 SP - levelUpSp(100)");
+    assert_eq!(world.objects.get_component::<SkillBook>(&2001).unwrap().0.get(&91), Some(&1));
+    assert_eq!(world.objects.get_component::<crate::model::Player>(&2001).expect("player").sp, 100, "200 SP - levelUpSp(100)");
     assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::ACQUIRE_SKILL_DONE);
     assert_eq!(out_rx.try_recv().unwrap()[0], 0x5F); // SkillList
     let _ = out_rx.try_recv().unwrap(); // AcquireSkillList
@@ -442,18 +460,18 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     // --- Cast: RequestMagicSkillUse(91). ---
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(91, false));
 
-    assert!(world.players[&2001].cast.is_some());
+    assert!(world.objects.has_component::<Casting>(&2001));
     assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE); // initial MP consume
     assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_USE);
     assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::SYSTEM_MESSAGE); // YOU_USE_S1
     assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::SETUP_GAUGE);
-    assert_eq!(world.players[&2001].cur_mp, 49.0, "50 - mpInitialConsume(1)");
+    assert_eq!(pvit(&world, 2001).cur_mp, 49.0, "50 - mpInitialConsume(1)");
 
     // --- Launch: hit = max(400/factor(1.0) − cancel(500), 0) = 0 ms, so
     // the launch task is already due; the finish follows 500 ms later.
     apply_due_tasks(&mut world);
     assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_LAUNCHED);
-    assert!(world.players[&2001].cast.as_ref().is_some_and(|c| c.launched));
+    assert!(world.objects.get_component::<Casting>(&2001).is_some_and(|c| c.0.launched));
 
     world.tick += 5;
     apply_due_tasks(&mut world);
@@ -461,12 +479,11 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     assert_eq!(out_rx.try_recv().unwrap()[0], 0x85); // AbnormalStatusUpdate
 
     {
-        let p = &world.players[&2001];
-        assert!(p.cast.is_none(), "coolTime 0 frees the cast slot inline");
-        assert_eq!(p.cur_mp, 45.0, "49 - mpConsume(4)");
-        assert_eq!(p.buffs.len(), 1);
-        assert_eq!(p.p_def, 86, "80 * 1.08 (PhysicalDefence +8%), rounded");
+        assert!(!world.objects.has_component::<Casting>(&2001), "coolTime 0 frees the cast slot inline");
+        assert_eq!(pbuffs(&world, 2001), 1);
+        assert_eq!(pcs(&world, 2001).p_def, 86.0, "80 * 1.08 (PhysicalDefence +8%), rounded");
     }
+    assert_eq!(pvit(&world, 2001).cur_mp, 45.0, "49 - mpConsume(4)");
 
     // --- Advance past expiry (abnormalTime 20 s = 200 ticks) and drain again. ---
     world.tick += 200;
@@ -476,9 +493,8 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     assert_eq!(expired[0], 0x85);
     assert_eq!(&expired[1..3], &[0, 0], "AbnormalStatusUpdate count = 0 once expired");
 
-    let p = &world.players[&2001];
-    assert!(p.buffs.is_empty());
-    assert_eq!(p.p_def, 80, "P.Def restored after the buff expired");
+    assert_eq!(pbuffs(&world, 2001), 0);
+    assert_eq!(pcs(&world, 2001).p_def, 80.0, "P.Def restored after the buff expired");
 }
 
 fn magic_skill_use_body(magic_id: i32, ctrl: bool) -> Vec<u8> {
@@ -641,10 +657,10 @@ fn ingame_caster(
         .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
         .into_lobby(vec![])
         .into_entering(player);
-    let (session, player) = s.into_ingame();
-    world.players.insert(player.object_id, player);
+    let (session, bundle) = s.into_ingame();
+    bundle.spawn_into(&mut world.objects);
     world.clients.insert(client_id, ClientSession::InGame(session));
-    world.players.get_mut(&object_id).unwrap().cur_cp = 100.0;
+    world.objects.get_component_mut::<PlayerVitals>(&object_id).unwrap().cur_cp = 100.0;
     out_rx
 }
 
@@ -684,7 +700,7 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
     assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::INVALID_TARGET);
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
-    assert!(world.players[&3001].cast.is_none());
+    assert!(!world.objects.has_component::<Casting>(&3001));
 
     // With ctrl: ExRotation (face target) + initial-MP StatusUpdate +
     // MagicSkillUse to everyone, YOU_USE_S1 + SetupGauge to the caster.
@@ -704,7 +720,7 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::EX);
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_USE);
     assert!(b_rx.try_recv().is_err());
-    assert_eq!(world.players[&3001].cur_mp, 48.0, "50 - mpInitialConsume(2)");
+    assert_eq!(pvit(&world, 3001).cur_mp, 48.0, "50 - mpInitialConsume(2)");
 
     // Launch at hit = 4000/1.0 − 500 = 3500 ms = 35 ticks.
     world.tick += 35;
@@ -716,13 +732,14 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
     world.tick += 5;
     apply_due_tasks(&mut world);
 
-    let m_atk = world.players[&3001].m_atk as f64;
-    let m_def = world.players[&3002].m_def as f64;
+    let m_atk = pcs(&world, 3001).m_atk;
+    let m_def = pcs(&world, 3002).m_def;
     let damage = formulas::calc_magic_dam(m_atk, m_def, 12.0, false);
     assert!(damage > 100.0, "sanity: the nuke must overflow B's CP ({damage})");
     {
-        let b = &world.players[&3002];
-        assert_eq!(b.cur_cp, 0.0, "CP absorbs first");
+        let b = pvit(&world, 3002);
+        let bcp = pcp(&world, 3002);
+        assert_eq!(bcp.cur_cp, 0.0, "CP absorbs first");
         assert!((b.cur_hp - (100.0 - (damage - 100.0))).abs() < 1e-9, "HP takes the rest");
     }
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE); // MP consume
@@ -736,13 +753,13 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::AUTO_ATTACK_START);
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
     assert!(b_rx.try_recv().is_err());
-    assert!(world.players[&3001].cast.is_none(), "coolTime 0 frees the slot");
+    assert!(!world.objects.has_component::<Casting>(&3001), "coolTime 0 frees the slot");
 
     // Immediate re-cast: 10 s reuse still has 6 s left → SM 2303 + fail.
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
     assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::S2_SECONDS_REMAINING_FOR_REUSE);
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
-    assert!(world.players[&3001].cast.is_none());
+    assert!(!world.objects.has_component::<Casting>(&3001));
     assert!(b_rx.try_recv().is_err(), "rejected cast must not broadcast");
 }
 
@@ -760,7 +777,7 @@ fn cast_out_of_range_rejected() {
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
     assert!(a_rx.try_recv().is_err());
     assert!(b_rx.try_recv().is_err());
-    assert!(world.players[&3001].cast.is_none());
+    assert!(!world.objects.has_component::<Casting>(&3001));
 }
 
 /// A lethal nuke kills (G9): HP hits 0, the victim is dead, and `Die` with
@@ -770,15 +787,12 @@ fn nuke_kills_at_zero_hp() {
     let (mut world, ..) = cast_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
-    {
-        let b = world.players.get_mut(&3002).unwrap();
-        b.cur_cp = 0.0;
-        b.cur_hp = 5.0;
-    }
+    world.objects.get_component_mut::<PlayerVitals>(&3002).unwrap().cur_cp = 0.0;
+    world.objects.get_component_mut::<Vitals>(&3002).unwrap().cur_hp = 5.0;
     handle_action(&mut world, 1, &action_body(3002, 0));
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
     advance_ticks(&mut world, 45);
-    let b = &world.players[&3002];
+    let b = pvit(&world, 3002);
     assert_eq!(b.cur_hp, 0.0);
     assert!(b.dead);
     let a_packets = drain(&mut a_rx);
@@ -805,11 +819,11 @@ fn esc_aborts_cast_and_stale_tasks_noop() {
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
     drain(&mut a_rx);
     drain(&mut b_rx);
-    let mp_after_start = world.players[&3001].cur_mp;
+    let mp_after_start = pvit(&world, 3001).cur_mp;
 
     // Esc (targetLost=false: abort only, keep the target).
     handle_request_target_canceld(&mut world, 1, &target_canceld_body(false));
-    assert!(world.players[&3001].cast.is_none());
+    assert!(!world.objects.has_component::<Casting>(&3001));
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_CANCELED);
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_CANCELED);
@@ -819,8 +833,8 @@ fn esc_aborts_cast_and_stale_tasks_noop() {
     apply_due_tasks(&mut world);
     assert!(a_rx.try_recv().is_err());
     assert!(b_rx.try_recv().is_err());
-    assert_eq!(world.players[&3001].cur_mp, mp_after_start, "no finish consume after abort");
-    assert_eq!(world.players[&3002].cur_hp, 100.0);
+    assert_eq!(pvit(&world, 3001).cur_mp, mp_after_start, "no finish consume after abort");
+    assert_eq!(pvit(&world, 3002).cur_hp, 100.0);
 
     // Reuse (registered at cast start) still blocks, then expires.
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
@@ -829,7 +843,7 @@ fn esc_aborts_cast_and_stale_tasks_noop() {
     world.tick += 60;
     apply_due_tasks(&mut world);
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
-    assert!(world.players[&3001].cast.is_some(), "castable again after reuse expiry");
+    assert!(world.objects.has_component::<Casting>(&3001), "castable again after reuse expiry");
 }
 
 /// The launch-phase `effectRange` re-check: a target who got away between
@@ -845,15 +859,15 @@ fn effect_range_recheck_cancels_when_target_moves_away() {
     drain(&mut a_rx);
     drain(&mut b_rx);
 
-    world.players.get_mut(&3002).unwrap().x = 5000; // > effectRange 1100
+    world.objects.get_component_mut::<Position>(&3002).unwrap().x = 5000; // > effectRange 1100
 
     world.tick += 40;
     apply_due_tasks(&mut world);
     assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::DISTANCE_TOO_FAR_CASTING_CANCELLED);
     assert!(a_rx.try_recv().is_err(), "no MagicSkillLaunched, no cancel packet");
     assert!(b_rx.try_recv().is_err());
-    assert!(world.players[&3001].cast.is_none());
-    assert_eq!(world.players[&3002].cur_hp, 100.0);
+    assert!(!world.objects.has_component::<Casting>(&3001));
+    assert_eq!(pvit(&world, 3002).cur_hp, 100.0);
 }
 
 /// A heal on another player: Heal.java's `power + sqrt(2·mAtk)` amount,
@@ -863,20 +877,20 @@ fn heal_on_other_restores_hp_with_formula() {
     let (mut world, ..) = cast_test_world();
     let mut _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
-    world.players.get_mut(&3002).unwrap().cur_hp = 50.0;
+    world.objects.get_component_mut::<Vitals>(&3002).unwrap().cur_hp = 50.0;
     handle_action(&mut world, 1, &action_body(3002, 0));
     drain(&mut b_rx);
 
     // TARGET-type skills need no ctrl.
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1015, false));
-    assert!(world.players[&3001].cast.is_some());
+    assert!(world.objects.has_component::<Casting>(&3001));
     drain(&mut b_rx); // ExRotation + MagicSkillUse
 
     advance_ticks(&mut world, 10); // hit 500 ms + cancel 500 ms
 
-    let heal = formulas::calc_heal(83.0, world.players[&3001].m_atk as f64, false);
+    let heal = formulas::calc_heal(83.0, pcs(&world, 3001).m_atk, false);
     assert!(heal > 50.0, "sanity: heal ({heal}) overflows the missing 50 HP");
-    assert_eq!(world.players[&3002].cur_hp, 100.0, "overheal clamped at max HP");
+    assert_eq!(pvit(&world, 3002).cur_hp, 100.0, "overheal clamped at max HP");
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_LAUNCHED);
     assert_eq!(sm_id(&b_rx.try_recv().unwrap()), server_packets::sm_ids::S2_HP_HAS_BEEN_RESTORED_BY_C1);
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
@@ -891,27 +905,25 @@ fn buff_on_other_player_lands_on_target() {
     let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
     handle_action(&mut world, 1, &action_body(3002, 0));
     drain(&mut b_rx);
-    let base_p_atk = world.players[&3002].p_atk;
+    let base_p_atk = pcs(&world, 3002).p_atk;
 
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1068, false));
     advance_ticks(&mut world, 10);
 
     {
-        let b = &world.players[&3002];
-        assert_eq!(b.buffs.len(), 1);
-        assert!(b.p_atk > base_p_atk, "P.Atk pumped by Might (+8%)");
+        assert_eq!(pbuffs(&world, 3002), 1);
+        assert!(pcs(&world, 3002).p_atk > base_p_atk, "P.Atk pumped by Might (+8%)");
     }
     let b_packets = drain(&mut b_rx);
     assert!(
         b_packets.iter().any(|p| p[0] == 0x85),
         "target's client gets the AbnormalStatusUpdate"
     );
-    assert!(world.players[&3001].buffs.is_empty(), "nothing lands on the caster");
+    assert_eq!(pbuffs(&world, 3001), 0, "nothing lands on the caster");
 
     advance_ticks(&mut world, 200);
-    let b = &world.players[&3002];
-    assert!(b.buffs.is_empty());
-    assert_eq!(b.p_atk, base_p_atk, "restored after expiry");
+    assert_eq!(pbuffs(&world, 3002), 0);
+    assert_eq!(pcs(&world, 3002).p_atk, base_p_atk, "restored after expiry");
 }
 
 /// Finish-phase MP shortfall stops the cast quietly: SM 24 +
@@ -927,7 +939,7 @@ fn finish_phase_mp_shortfall_aborts_quietly() {
     drain(&mut a_rx);
     drain(&mut b_rx);
 
-    world.players.get_mut(&3001).unwrap().cur_mp = 0.0;
+    world.objects.get_component_mut::<Vitals>(&3001).unwrap().cur_mp = 0.0;
 
     advance_ticks(&mut world, 45);
     // Launch fires normally (range fine), then the finish fails on MP.
@@ -937,8 +949,8 @@ fn finish_phase_mp_shortfall_aborts_quietly() {
     assert!(a_rx.try_recv().is_err());
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_LAUNCHED);
     assert!(b_rx.try_recv().is_err(), "no cancel packet on a quiet stop");
-    assert!(world.players[&3001].cast.is_none());
-    assert_eq!(world.players[&3002].cur_hp, 100.0, "no damage landed");
+    assert!(!world.objects.has_component::<Casting>(&3001));
+    assert_eq!(pvit(&world, 3002).cur_hp, 100.0, "no damage landed");
 }
 
 /// `RequestSkillCoolTime` reports the remaining reuse of a just-cast
@@ -956,7 +968,7 @@ fn skill_cool_time_lists_remaining_reuse() {
     assert_eq!(i32::from_le_bytes(pkt[1..5].try_into().unwrap()), 0, "Slow Aura has no reuse delay");
 
     // A reuse with 6 s left is reported with its total and remainder.
-    world.players.get_mut(&3001).unwrap().reuses.insert(
+    world.objects.get_component_mut::<Reuses>(&3001).unwrap().0.insert(
         1177,
         crate::model::SkillReuse { skill_level: 1, until_tick: world.tick + 60, total_ms: 10_000 },
     );
@@ -992,7 +1004,7 @@ fn shared_reuse_group_blocks_sibling_skill() {
     }
 
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
-    let skills = &mut world.players.get_mut(&3001).unwrap().skills;
+    let skills = &mut world.objects.get_component_mut::<SkillBook>(&3001).unwrap().0;
     skills.insert(7001, 1);
     skills.insert(7002, 1);
 
@@ -1005,7 +1017,7 @@ fn shared_reuse_group_blocks_sibling_skill() {
         .expect("MagicSkillUse broadcast");
     assert_eq!(i32::from_le_bytes(msu[25..29].try_into().unwrap()), 9000, "reuse group");
     assert_eq!(i32::from_le_bytes(msu[29..33].try_into().unwrap()), 2000, "reuse delay");
-    let reuses = &world.players[&3001].reuses;
+    let reuses = &world.objects.get_component::<Reuses>(&3001).unwrap().0;
     assert!(reuses.contains_key(&9000) && !reuses.contains_key(&7001));
 
     // The sibling is blocked by the shared cooldown (reuse gate fires
@@ -1036,7 +1048,7 @@ fn incoming_magic_damage_can_break_precast() {
 
     // B starts a slow self-cast (hit = 9500 ms = 95 ticks).
     handle_request_magic_skill_use(&mut world, 2, &magic_skill_use_body(91, false));
-    assert!(world.players[&3002].cast.is_some());
+    assert!(world.objects.has_component::<Casting>(&3002));
 
     // A nukes B; the nuke lands at 40 ticks, well before B's launch.
     handle_action(&mut world, 1, &action_body(3002, 0));
@@ -1050,7 +1062,7 @@ fn incoming_magic_damage_can_break_precast() {
 
     advance_ticks(&mut world, 45);
 
-    assert!(world.players[&3002].cast.is_none(), "victim's cast broken");
+    assert!(!world.objects.has_component::<Casting>(&3002), "victim's cast broken");
     let b_packets = drain(&mut b_rx);
     assert!(b_packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED));
     assert!(b_packets
@@ -1062,7 +1074,7 @@ fn incoming_magic_damage_can_break_precast() {
 
     // B's stale launch task fires and no-ops: no buff ever lands.
     advance_ticks(&mut world, 60);
-    assert!(world.players[&3002].buffs.is_empty());
+    assert_eq!(pbuffs(&world, 3002), 0);
 }
 
 /// Puts a bare `Player` (built from `dummy_char`) straight into `InGame`,
@@ -1080,14 +1092,14 @@ fn ingame_player(
     chr.x = x;
     chr.y = y;
     chr.z = z;
-    let player = Player::from_char(&world.data, &chr);
+    let bundle = Player::from_char(&world.data, &chr);
     let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
     let s = Session::new(client_id, out_tx, "127.0.0.1:1".parse().unwrap())
         .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
         .into_lobby(vec![])
-        .into_entering(player);
-    let (session, player) = s.into_ingame();
-    world.players.insert(player.object_id, player);
+        .into_entering(bundle);
+    let (session, bundle) = s.into_ingame();
+    bundle.spawn_into(&mut world.objects);
     world.clients.insert(client_id, ClientSession::InGame(session));
     out_rx
 }
@@ -1135,7 +1147,7 @@ fn action_selects_switches_and_cancels_target() {
 
     handle_action(&mut world, 1, &action_body(3002, 0));
 
-    assert_eq!(world.players[&3001].target, Some(3002));
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(3002));
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::MY_TARGET_SELECTED);
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
@@ -1152,7 +1164,7 @@ fn action_selects_switches_and_cancels_target() {
 
     // Cancel.
     handle_request_target_canceld(&mut world, 1, &target_canceld_body(true));
-    assert_eq!(world.players[&3001].target, None);
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, None);
     assert_eq!(
         a_rx.try_recv().unwrap()[0],
         server_packets::opcodes::TARGET_UNSELECTED,
@@ -1163,7 +1175,7 @@ fn action_selects_switches_and_cancels_target() {
     // Self-click: same select path as any other player target (Java
     // routes self-clicks through `PlayerAction` too).
     handle_action(&mut world, 1, &action_body(3001, 0));
-    assert_eq!(world.players[&3001].target, Some(3001));
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(3001));
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::MY_TARGET_SELECTED);
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
@@ -1181,9 +1193,16 @@ fn add_test_npc(world: &mut World, object_id: i32, npc_id: i32, type_name: &str,
         t.base_mp_max = 50.0;
         world.data.npc_data.insert_for_test(t);
     }
-    let npc = crate::model::npc::Npc::for_test(object_id, npc_id, x, y, z, 100, 50);
-    world.npc_regions.entry(npc.region).or_default().push(object_id);
-    world.npcs.insert(object_id, npc);
+    let (npc, extra) = crate::model::npc::Npc::for_test(object_id, npc_id, x, y, z, 100, 50);
+    world.npc_regions.entry(extra.1 .0).or_default().push(object_id);
+    world.objects.spawn(object_id, (npc, extra));
+    // Memoized combat stats, from the template registered above (the
+    // test-side mirror of `spawn_one`'s `npc_combat_stats` bundle entry).
+    let cs = crate::model::npc::npc_combat_stats(
+        world.data.npc_data.get(npc_id).expect("registered above"),
+        &world.data.stat_bonus,
+    );
+    world.objects.add_components(&object_id, cs);
 }
 
 const NPC_OID: i32 = crate::model::npc::FIRST_NPC_OBJECT_ID;
@@ -1216,7 +1235,7 @@ fn region_cross_sends_npc_deltas_and_drops_npc_target() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
     // Step into region (2, 0): the NPC appears.
-    world.players.get_mut(&3001).unwrap().x = 2 * 2048 + 10;
+    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 2 * 2048 + 10;
     visibility::update_region(&mut world, 3001);
     let packets = drain(&mut rx);
     assert!(
@@ -1225,14 +1244,14 @@ fn region_cross_sends_npc_deltas_and_drops_npc_target() {
     );
 
     // Target it, then step back to region (0, 0): DeleteObject + target drop.
-    world.players.get_mut(&3001).unwrap().target = Some(NPC_OID);
-    world.players.get_mut(&3001).unwrap().x = 10;
+    world.objects.get_component_mut::<TargetRef>(&3001).unwrap().0 = Some(NPC_OID);
+    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 10;
     visibility::update_region(&mut world, 3001);
     let packets = drain(&mut rx);
     let del: Vec<_> = packets.iter().filter(|p| p[0] == server_packets::opcodes::DELETE_OBJECT).collect();
     assert_eq!(del.len(), 1, "DeleteObject for the NPC leaving range");
     assert_eq!(i32::from_le_bytes(del[0][1..5].try_into().unwrap()), NPC_OID);
-    assert_eq!(world.players[&3001].target, None, "dangling NPC target dropped");
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, None, "dangling NPC target dropped");
 }
 
 /// `Action` on an NPC: first click selects (`ValidateLocation` +
@@ -1246,7 +1265,7 @@ fn action_on_npc_selects_then_second_click_opens_chat_window() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
-    assert_eq!(world.players[&3001].target, Some(NPC_OID));
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(NPC_OID));
     assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::VALIDATE_LOCATION);
     let mts = rx.try_recv().unwrap();
     assert_eq!(mts[0], server_packets::opcodes::MY_TARGET_SELECTED);
@@ -1271,7 +1290,7 @@ fn action_on_monster_colors_target_and_never_talks() {
     let (mut world, ..) = test_world();
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 3, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.players.get_mut(&3001).unwrap().level = 8;
+    world.objects.get_component_mut::<crate::model::Player>(&3001).unwrap().level = 8;
 
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
     assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::VALIDATE_LOCATION);
@@ -1297,8 +1316,8 @@ fn move_backward_to_location_interpolates_and_arrives() {
     let (mut world, ..) = test_world();
     let mut mover_rx = ingame_player(&mut world, 1, 4001, 0, 0, 0);
     let mut bystander_rx = ingame_player(&mut world, 2, 4002, 500, 500, 0);
-    world.players.get_mut(&4001).unwrap().run_spd = 100;
-    world.players.get_mut(&4001).unwrap().running = true;
+    world.objects.get_component_mut::<Speeds>(&4001).unwrap().run_spd = 100.0;
+    world.objects.get_component_mut::<Speeds>(&4001).unwrap().running = true;
 
     handle_move_backward_to_location(&mut world, 1, &move_body((1000, 0, 0), (0, 0, 0), 1));
 
@@ -1306,22 +1325,22 @@ fn move_backward_to_location_interpolates_and_arrives() {
     assert!(mover_rx.try_recv().is_err(), "exactly one packet to the mover");
     assert_eq!(bystander_rx.try_recv().unwrap()[0], server_packets::opcodes::MOVE_TO_LOCATION);
 
-    let total_ticks = world.players[&4001].move_data.as_ref().unwrap().total_ticks;
+    let total_ticks = world.objects.get_component::<Movement>(&4001).unwrap().0.total_ticks;
     assert_eq!(total_ticks, 100, "distance 1000 / speed 100 * 10 ticks-per-sec");
 
     // Half way: linear interpolation.
     world.tick += total_ticks / 2;
     crate::model::movement::tick(&mut world);
-    let p = &world.players[&4001];
-    assert_eq!((p.x, p.y, p.z), (500, 0, 0));
-    assert!(p.move_data.is_some());
+    let pos = world.objects.get_component::<Position>(&4001).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (500, 0, 0));
+    assert!(world.objects.has_component::<Movement>(&4001));
 
     // Arrival: snapped exactly, move_data cleared, no StopMove needed.
     world.tick += total_ticks / 2;
     crate::model::movement::tick(&mut world);
-    let p = &world.players[&4001];
-    assert_eq!((p.x, p.y, p.z), (1000, 0, 0));
-    assert!(p.move_data.is_none());
+    let pos = world.objects.get_component::<Position>(&4001).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (1000, 0, 0));
+    assert!(!world.objects.has_component::<Movement>(&4001));
 }
 
 /// Java's `MoveBackwardToLocation` early-returns with `StopMove` +
@@ -1337,7 +1356,7 @@ fn move_backward_to_location_same_origin_and_target_sends_stop_move() {
 
     assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::STOP_MOVE);
     assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
-    assert!(world.players[&5001].move_data.is_none());
+    assert!(!world.objects.has_component::<Movement>(&5001));
 }
 
 /// Region 20_18 covers world x,y ∈ [0, 32768): flat ground at z = 0 with
@@ -1380,12 +1399,12 @@ fn move_destination_is_clamped_by_geodata() {
     let (mut world, ..) = test_world();
     install_wall_region(&mut world);
     let mut mover_rx = ingame_player(&mut world, 1, 4001, 8, 8, 0); // cell 0
-    world.players.get_mut(&4001).unwrap().run_spd = 100;
+    world.objects.get_component_mut::<Speeds>(&4001).unwrap().run_spd = 100.0;
 
     // Click to cell 20 (x = 328), on the far side of the wall at cell 10.
     handle_move_backward_to_location(&mut world, 1, &move_body((328, 8, 0), (8, 8, 0), 1));
 
-    let md = world.players[&4001].move_data.clone().expect("move must start");
+    let md = world.objects.get_component::<Movement>(&4001).map(|m| m.0.clone()).expect("move must start");
     assert_eq!((md.dest_x, md.dest_y), (152, 8), "clamped to cell 9, before the wall");
     let pkt = mover_rx.try_recv().unwrap();
     assert_eq!(pkt[0], server_packets::opcodes::MOVE_TO_LOCATION);
@@ -1400,11 +1419,11 @@ fn move_into_wall_from_adjacent_cell_is_cancelled() {
     let (mut world, ..) = test_world();
     install_wall_region(&mut world);
     let mut mover_rx = ingame_player(&mut world, 1, 4001, 152, 8, 0); // cell 9
-    world.players.get_mut(&4001).unwrap().run_spd = 100;
+    world.objects.get_component_mut::<Speeds>(&4001).unwrap().run_spd = 100.0;
 
     handle_move_backward_to_location(&mut world, 1, &move_body((168, 8, 0), (152, 8, 0), 1));
 
-    assert!(world.players[&4001].move_data.is_none(), "no movement into the wall");
+    assert!(!world.objects.has_component::<Movement>(&4001), "no movement into the wall");
     assert_eq!(mover_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
     assert!(mover_rx.try_recv().is_err());
 }
@@ -1425,12 +1444,12 @@ fn cast_blocked_by_wall_sends_cannot_see_target() {
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
     assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::CANNOT_SEE_TARGET);
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
-    assert!(world.players[&3001].cast.is_none());
+    assert!(!world.objects.has_component::<Casting>(&3001));
 
     // Same side of the wall: the cast starts.
-    world.players.get_mut(&3002).unwrap().x = 72; // cell 4
+    world.objects.get_component_mut::<Position>(&3002).unwrap().x = 72; // cell 4
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
-    assert!(world.players[&3001].cast.is_some());
+    assert!(world.objects.has_component::<Casting>(&3001));
 }
 
 /// `ValidatePosition` reconciliation, one branch at a time: a plausible
@@ -1444,20 +1463,20 @@ fn validate_position_reconciles_client_and_server() {
     install_wall_region(&mut world);
     let mut rx = ingame_player(&mut world, 1, 4001, 1000, 1000, 0);
     {
-        let p = world.players.get_mut(&4001).unwrap();
-        p.run_spd = 600;
-        p.running = true;
+        let speeds = world.objects.get_component_mut::<Speeds>(&4001).unwrap();
+        speeds.run_spd = 600.0;
+        speeds.running = true;
     }
 
     // Climb: z 0 → 300 with matching client-z history — trusted, silent.
     handle_validate_position(&mut world, 1, &validate_position_body(1000, 1000, 300, 0));
-    assert_eq!(world.players[&4001].z, 300);
+    assert_eq!(world.objects.get_component::<Position>(&4001).unwrap().z, 300);
     assert!(rx.try_recv().is_err(), "no correction for a trusted climb");
 
     // Drift: diffSq 270400 ∈ (250000, 360000), within move speed (600) —
     // server answers ValidateLocation and stays put.
     handle_validate_position(&mut world, 1, &validate_position_body(1520, 1000, 300, 0));
-    assert_eq!(world.players[&4001].x, 1000, "server position kept on drift");
+    assert_eq!(world.objects.get_component::<Position>(&4001).unwrap().x, 1000, "server position kept on drift");
     let pkt = rx.try_recv().unwrap();
     assert_eq!(pkt[0], server_packets::opcodes::VALIDATE_LOCATION);
     assert!(rx.try_recv().is_err());
@@ -1465,9 +1484,10 @@ fn validate_position_reconciles_client_and_server() {
     // Desync: 2000 units in one report — snap to the client, with z
     // pulled onto the geodata ground (server was above the client).
     handle_validate_position(&mut world, 1, &validate_position_body(3000, 1000, 0, 0));
-    let p = &world.players[&4001];
-    assert_eq!((p.x, p.y, p.z), (3000, 1000, 0), "snapped, z on the geodata floor");
-    assert_eq!((p.client_x, p.client_y, p.client_z), (3000, 1000, 0));
+    let pos = world.objects.get_component::<Position>(&4001).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (3000, 1000, 0), "snapped, z on the geodata floor");
+    let c = world.objects.get_component::<ClientPos>(&4001).unwrap();
+    assert_eq!((c.x, c.y, c.z), (3000, 1000, 0));
 }
 
 /// The next queued DB command, which must be a `StorePlayer`; returns its
@@ -1487,10 +1507,10 @@ fn restart_stores_player_and_returns_to_lobby() {
     let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
     let mut out_rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
     {
-        let p = world.players.get_mut(&5001).unwrap();
+        let p = world.objects.get_component_mut::<crate::model::Player>(&5001).unwrap();
         p.exp = 1234;
-        p.x = 777;
     }
+    world.objects.get_component_mut::<Position>(&5001).unwrap().x = 777;
 
     handle_request_restart(&mut world, 1);
 
@@ -1506,7 +1526,7 @@ fn restart_stores_player_and_returns_to_lobby() {
     }
 
     // deleteMe + setConnectionState(AUTHENTICATED) + RestartResponse.TRUE.
-    assert!(world.players.is_empty());
+    assert_eq!(world.objects.count::<Player>(), 0);
     assert!(matches!(world.clients.get(&1), Some(ClientSession::Authenticated(_))));
     let pkt = out_rx.try_recv().unwrap();
     assert_eq!(pkt[0], server_packets::opcodes::RESTART_RESPONSE);
@@ -1534,7 +1554,7 @@ fn restart_then_reenter_world() {
     handle_character_select(&mut world, 1, &w.into_bytes());
     assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::CHAR_SELECTED);
     handle_enter_world(&mut world, 1);
-    assert!(world.players.contains_key(&5001), "player re-entered the world");
+    assert!(world.objects.has_component::<crate::model::Player>(&5001), "player re-entered the world");
     assert!(matches!(world.clients.get(&1), Some(ClientSession::InGame(_))));
 }
 
@@ -1548,7 +1568,7 @@ fn logout_stores_player_and_sends_leave_world() {
     handle_logout(&mut world, 1);
 
     assert_eq!(expect_store_player(&mut db_rx).object_id, 5002);
-    assert!(world.players.is_empty());
+    assert_eq!(world.objects.count::<Player>(), 0);
     assert!(world.clients.is_empty(), "session dropped → socket closes");
     assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::LOG_OUT_OK);
 }
@@ -1563,7 +1583,7 @@ fn disconnect_stores_ingame_player() {
     on_disconnect(&mut world, 1);
 
     assert_eq!(expect_store_player(&mut db_rx).object_id, 5003);
-    assert!(world.players.is_empty());
+    assert_eq!(world.objects.count::<Player>(), 0);
     assert!(world.clients.is_empty());
 }
 
@@ -1642,7 +1662,7 @@ fn broadcast_is_scoped_to_surrounding_regions() {
     let _mover_rx = ingame_player(&mut world, 1, 6101, 0, 0, 0);
     let mut near_rx = ingame_player(&mut world, 2, 6102, 500, 500, 0);
     let mut far_rx = ingame_player(&mut world, 3, 6103, 10_000, 10_000, 0);
-    world.players.get_mut(&6101).unwrap().run_spd = 100;
+    world.objects.get_component_mut::<Speeds>(&6101).unwrap().run_spd = 100.0;
 
     handle_move_backward_to_location(&mut world, 1, &move_body((1000, 0, 0), (0, 0, 0), 1));
 
@@ -1659,8 +1679,8 @@ fn region_crossing_exchanges_delete_object_and_char_info() {
     let (mut world, ..) = test_world();
     let mut mover_rx = ingame_player(&mut world, 1, 6201, 0, 0, 0);
     let mut watcher_rx = ingame_player(&mut world, 2, 6202, 3000, 0, 0); // region (1,0)
-    world.players.get_mut(&6201).unwrap().run_spd = 500;
-    world.players.get_mut(&6202).unwrap().target = Some(6201);
+    world.objects.get_component_mut::<Speeds>(&6201).unwrap().run_spd = 500.0;
+    world.objects.get_component_mut::<TargetRef>(&6202).unwrap().0 = Some(6201);
 
     // Walk west: region 0 → -1 → -2; (−1,0) is no longer adjacent to (1,0).
     handle_move_backward_to_location(&mut world, 1, &move_body((-2500, 0, 0), (0, 0, 0), 1));
@@ -1670,13 +1690,13 @@ fn region_crossing_exchanges_delete_object_and_char_info() {
         world.tick += 1;
         visibility::movement_tick(&mut world);
     }
-    assert!(world.players[&6201].move_data.is_none(), "move must have finished");
+    assert!(!world.objects.has_component::<Movement>(&6201), "move must have finished");
 
     let to_watcher = drain(&mut watcher_rx);
     assert_eq!(to_watcher.len(), 1, "exactly one packet after the move start");
     assert_eq!(delete_object_id(&to_watcher[0]), 6201);
     assert_eq!(delete_object_id(&drain(&mut mover_rx).pop().unwrap()), 6202);
-    assert_eq!(world.players[&6202].target, None, "dangling target dropped");
+    assert_eq!(world.objects.get_component::<TargetRef>(&6202).unwrap().0, None, "dangling target dropped");
 
     // Walk back east: crossing into region 0 re-enters the watcher's block —
     // CharInfo, then the in-flight move (describeStateToPlayer).
@@ -1704,12 +1724,12 @@ fn leave_world_sends_delete_object_to_watchers() {
     let _leaver_rx = ingame_player(&mut world, 1, 6301, 0, 0, 0);
     let mut near_rx = ingame_player(&mut world, 2, 6302, 500, 500, 0);
     let mut far_rx = ingame_player(&mut world, 3, 6303, 10_000, 10_000, 0);
-    world.players.get_mut(&6302).unwrap().target = Some(6301);
+    world.objects.get_component_mut::<TargetRef>(&6302).unwrap().0 = Some(6301);
 
     handle_logout(&mut world, 1);
 
     assert_eq!(delete_object_id(&near_rx.try_recv().unwrap()), 6301);
-    assert_eq!(world.players[&6302].target, None, "dangling target dropped");
+    assert_eq!(world.objects.get_component::<TargetRef>(&6302).unwrap().0, None, "dangling target dropped");
     assert!(far_rx.try_recv().is_err());
 }
 
@@ -1817,13 +1837,15 @@ fn melee_kill_rewards_and_decay() {
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     {
         // Level 5 exactly at its threshold +500 (table: L5 = 4000, L6 = 5000).
-        let p = world.players.get_mut(&3001).unwrap();
+        let p = world.objects.get_component_mut::<crate::model::Player>(&3001).unwrap();
         p.exp = 4500;
     }
     let npc_oid = NPC_OID + 7;
-    let npc = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100, 30);
-    world.npc_regions.entry(npc.region).or_default().push(npc_oid);
-    world.npcs.insert(npc_oid, npc);
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
 
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     drain(&mut a_rx);
@@ -1839,7 +1861,7 @@ fn melee_kill_rewards_and_decay() {
 
     // Expected damage: pAtk × rand(1.0) [+ position bonus] ×77 / pDef.
     // Attacker at (0,0), target heading 0 at (30,0) → attacker is BEHIND.
-    let p_atk = world.players[&3001].p_atk as f64;
+    let p_atk = pcs(&world, 3001).p_atk;
     let p_def = 40.0 * (5.0 + 89.0) / 100.0;
     let expected = formulas::calc_auto_attack_damage(
         p_atk,
@@ -1857,7 +1879,7 @@ fn melee_kill_rewards_and_decay() {
     advance_world(&mut world, 12);
 
     // Monster died: Die broadcast, rewards granted.
-    assert!(world.npcs[&npc_oid].dead);
+    assert!(nvit(&world, npc_oid).dead);
     let packets = drain(&mut a_rx);
     assert!(
         packets.iter().any(|p| p[0] == server_packets::opcodes::DIE
@@ -1865,10 +1887,11 @@ fn melee_kill_rewards_and_decay() {
         "Die broadcast for the monster"
     );
     // XP: 2000 × share 1.0 × gap 1.0 (same level) → 4500 + 2000 = 6500 ⇒ level 6.
-    let p = &world.players[&3001];
+    let p = &world.objects.get_component::<crate::model::Player>(&3001).expect("player");
     assert_eq!(p.exp, 6500);
     assert_eq!(p.level, 6);
-    assert_eq!(p.cur_cp, p.max_cp as f64, "level-up refills CP");
+    let cp = pcp(&world, 3001);
+    assert_eq!(cp.cur_cp, cp.max_cp as f64, "level-up refills CP");
     assert_eq!(p.sp, 100);
     assert!(
         packets.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
@@ -1886,7 +1909,8 @@ fn melee_kill_rewards_and_decay() {
         "level-up message"
     );
     // Auto-loot: 5 adena in the inventory, SM 28, persisted via InsertItem.
-    let adena = world.players[&3001].inventory.items().iter().find(|i| i.item_id == 57).expect("looted adena");
+    let inv = world.objects.get_component::<crate::model::inventory::Inventory>(&3001).unwrap();
+    let adena = inv.items().iter().find(|i| i.item_id == 57).expect("looted adena");
     assert_eq!(adena.count, 5);
     assert!(
         packets.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
@@ -1904,12 +1928,12 @@ fn melee_kill_rewards_and_decay() {
 
     // The attack intent drops on the next combat tick (dead target).
     advance_world(&mut world, 1);
-    assert!(world.players[&3001].intent.is_none());
+    assert!(!world.objects.has_component::<Intent>(&3001));
 
     // Decay after the 2 s corpse time: DeleteObject, corpse gone, no respawn
     // scheduled (respawn_secs == 0).
     advance_world(&mut world, 20);
-    assert!(!world.npcs.contains_key(&npc_oid));
+    assert!(!world.objects.has_component::<crate::model::npc::Npc>(&npc_oid));
     let packets = drain(&mut a_rx);
     assert!(
         packets.iter().any(|p| p[0] == server_packets::opcodes::DELETE_OBJECT),
@@ -1929,9 +1953,11 @@ fn attack_out_of_reach_chases_and_monster_retaliates() {
     let npc_oid = NPC_OID + 8;
     // 200 units away — beyond reach 20 + 0 + 10 = 30; big HP pool so the
     // monster survives and hits back.
-    let npc = crate::model::npc::Npc::for_test(npc_oid, 40001, 200, 0, 0, 5000, 30);
-    world.npc_regions.entry(npc.region).or_default().push(npc_oid);
-    world.npcs.insert(npc_oid, npc);
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 200, 0, 0, 5000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
 
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     drain(&mut a_rx);
@@ -1947,16 +1973,16 @@ fn attack_out_of_reach_chases_and_monster_retaliates() {
     // Player run speed 115 u/s over ~170 units ⇒ in reach in ~1.5 s. Force
     // every swing in the window (player ×2, monster ×1) to a plain hit.
     world.forced_rolls.extend([0, 99, 10, 0, 99, 10, 0, 99, 10]);
-    let hp_before = world.players[&3001].cur_hp;
-    let cp_before = world.players[&3001].cur_cp;
+    let hp_before = pvit(&world, 3001).cur_hp;
+    let cp_before = pcp(&world, 3001).cur_cp;
     advance_world(&mut world, 45);
 
     let packets = drain(&mut a_rx);
     assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::ATTACK
         && i32::from_le_bytes(p[1..5].try_into().unwrap()) == 3001), "player swung after closing in");
-    assert!(world.npcs[&npc_oid].cur_hp < 5000.0, "monster took damage");
-    assert_eq!(world.npcs[&npc_oid].intention, crate::model::npc::NpcIntention::Attack);
-    assert!(world.npcs[&npc_oid].running, "aggroed monsters run");
+    assert!(nvit(&world, npc_oid).cur_hp < 5000.0, "monster took damage");
+    assert_eq!(world.objects.get_component::<crate::model::npc::NpcAi>(&npc_oid).unwrap().intention, crate::model::npc::NpcIntention::Attack);
+    assert!(world.objects.get_component::<Speeds>(&npc_oid).unwrap().running, "aggroed monsters run");
     assert!(
         packets.iter().any(|p| p[0] == server_packets::opcodes::CHANGE_MOVE_TYPE),
         "run-mode broadcast"
@@ -1966,8 +1992,8 @@ fn attack_out_of_reach_chases_and_monster_retaliates() {
             && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid),
         "monster swung back"
     );
-    assert!(world.players[&3001].cur_hp < hp_before, "player HP bitten");
-    assert_eq!(world.players[&3001].cur_cp, cp_before, "no CP soak from NPC hits");
+    assert!(pvit(&world, 3001).cur_hp < hp_before, "player HP bitten");
+    assert_eq!(pcp(&world, 3001).cur_cp, cp_before, "no CP soak from NPC hits");
     assert!(
         packets.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
             && sm_id(p) == server_packets::sm_ids::C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2),
@@ -1989,9 +2015,11 @@ fn aggressive_monster_aggros_idle_player() {
     }
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 9;
-    let npc = crate::model::npc::Npc::for_test(npc_oid, 40001, 150, 0, 0, 5000, 30);
-    world.npc_regions.entry(npc.region).or_default().push(npc_oid);
-    world.npcs.insert(npc_oid, npc);
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 150, 0, 0, 5000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
     drain(&mut a_rx);
 
     // 10 think seconds of calm (globalAggro −10 → 0), then the scan seeds
@@ -1999,14 +2027,14 @@ fn aggressive_monster_aggros_idle_player() {
     // 140 ticks forced to plain hits).
     world.forced_rolls.extend([0, 99, 10, 0, 99, 10]);
     advance_world(&mut world, 140);
-    assert_eq!(world.npcs[&npc_oid].intention, crate::model::npc::NpcIntention::Attack);
+    assert_eq!(world.objects.get_component::<crate::model::npc::NpcAi>(&npc_oid).unwrap().intention, crate::model::npc::NpcIntention::Attack);
     let packets = drain(&mut a_rx);
     assert!(
         packets.iter().any(|p| p[0] == server_packets::opcodes::ATTACK
             && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid),
         "unprovoked attack on the idle player"
     );
-    assert!(world.players[&3001].cur_hp < 100.0, "the swing landed");
+    assert!(pvit(&world, 3001).cur_hp < 100.0, "the swing landed");
 }
 
 /// Death and the to-village loop: a killing blow sends `Die` with the
@@ -2024,16 +2052,18 @@ fn player_death_penalty_and_revive_to_village() {
     }]);
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     {
-        let p = world.players.get_mut(&3001).unwrap();
+        let p = world.objects.get_component_mut::<crate::model::Player>(&3001).unwrap();
         p.exp = 4500; // level 5 (threshold 4000) + 500 into the level
         p.level = 5;
-        p.cur_hp = 1.0;
-        p.cur_cp = 0.0;
     }
+    world.objects.get_component_mut::<Vitals>(&3001).unwrap().cur_hp = 1.0;
+    world.objects.get_component_mut::<PlayerVitals>(&3001).unwrap().cur_cp = 0.0;
     let npc_oid = NPC_OID + 10;
-    let npc = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 5000, 30);
-    world.npc_regions.entry(npc.region).or_default().push(npc_oid);
-    world.npcs.insert(npc_oid, npc);
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 5000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
     // Wake the monster by damage (as if the player had hit it).
     combat::npc_receive_damage(&mut world, npc_oid, 3001, 10.0);
     drain(&mut a_rx);
@@ -2042,11 +2072,11 @@ fn player_death_penalty_and_revive_to_village() {
     world.forced_rolls.extend([0, 99, 10]);
     advance_world(&mut world, 30);
 
-    let p = &world.players[&3001];
+    let p = pvit(&world, 3001);
     assert!(p.dead);
     assert_eq!(p.cur_hp, 0.0);
     // Death penalty: 1% (empty table default) of the 1000-XP level = 10.
-    assert_eq!(p.exp, 4490);
+    assert_eq!(world.objects.get_component::<crate::model::Player>(&3001).expect("player").exp, 4490);
     let packets = drain(&mut a_rx);
     let die = packets
         .iter()
@@ -2066,17 +2096,19 @@ fn player_death_penalty_and_revive_to_village() {
         w.write_i32(0); // TO_VILLAGE
         w.into_bytes()
     });
-    let p = &world.players[&3001];
-    assert_eq!((p.x, p.y, p.z), (1000, 1000, 7));
-    assert!(p.teleporting && p.pending_revive && p.dead);
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (1000, 1000, 7));
+    let p = &world.objects.get_component::<crate::model::Player>(&3001).expect("player");
+    assert!(p.teleporting && p.pending_revive && pvit(&world, 3001).dead);
     let packets = drain(&mut a_rx);
     assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
 
     // Client finished loading: Appearing → revive at 65% HP.
     on_packet(&mut world, 1, vec![cp::opcodes::APPEARING]);
-    let p = &world.players[&3001];
-    assert!(!p.dead && !p.teleporting && !p.pending_revive);
-    assert_eq!(p.cur_hp, p.max_hp as f64 * 0.65);
+    let p = &world.objects.get_component::<crate::model::Player>(&3001).expect("player");
+    assert!(!pvit(&world, 3001).dead && !p.teleporting && !p.pending_revive);
+    let v = pvit(&world, 3001);
+    assert_eq!(v.cur_hp, v.max_hp as f64 * 0.65);
     let packets = drain(&mut a_rx);
     assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::REVIVE));
 }
@@ -2089,25 +2121,27 @@ fn nuke_kills_monster_and_rewards() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 11;
-    let npc = crate::model::npc::Npc::for_test(npc_oid, 40001, 100, 0, 0, 100, 30);
-    world.npc_regions.entry(npc.region).or_default().push(npc_oid);
-    world.npcs.insert(npc_oid, npc);
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 100, 0, 0, 100, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
 
-    world.players.get_mut(&3001).unwrap().exp = 4000; // level 5 on the test table
+    world.objects.get_component_mut::<crate::model::Player>(&3001).unwrap().exp = 4000; // level 5 on the test table
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     drain(&mut a_rx);
 
     // Monsters are valid Enemy targets without ctrl.
-    let exp_before = world.players[&3001].exp;
+    let exp_before = world.objects.get_component::<crate::model::Player>(&3001).expect("player").exp;
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
-    assert!(world.players[&3001].cast.is_some(), "cast accepted without force-use");
+    assert!(world.objects.has_component::<Casting>(&3001), "cast accepted without force-use");
     // Drop rolls at death: gap fails (droppable but let it fail → no loot
     // noise in this test).
     world.forced_rolls.extend([999_999, 999_999]);
     advance_world(&mut world, 45);
 
-    assert!(world.npcs[&npc_oid].dead, "the nuke killed it");
-    assert!(world.players[&3001].exp > exp_before, "XP rewarded through the same death path");
+    assert!(nvit(&world, npc_oid).dead, "the nuke killed it");
+    assert!(world.objects.get_component::<crate::model::Player>(&3001).expect("player").exp > exp_before, "XP rewarded through the same death path");
     let packets = drain(&mut a_rx);
     assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::DIE));
 }
@@ -2136,28 +2170,35 @@ fn dead_monster_decays_and_respawns() {
     };
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = crate::model::npc::spawn_one(&mut world, 0, 0, 0).expect("spawned");
-    world.players.get_mut(&3001).unwrap().target = Some(npc_oid);
+    world.objects.get_component_mut::<TargetRef>(&3001).unwrap().0 = Some(npc_oid);
     drain(&mut a_rx);
 
     // Kill it outright (drop level-gap roll forced to fail: no loot noise).
     world.forced_rolls.push_back(999_999);
     combat::npc_receive_damage(&mut world, npc_oid, 3001, 1_000_000.0);
-    assert!(world.npcs[&npc_oid].dead);
+    assert!(nvit(&world, npc_oid).dead);
 
     // Decay at +2 s: corpse gone, DeleteObject seen, dangling target dropped,
     // respawn pending.
     advance_world(&mut world, 21);
-    assert!(!world.npcs.contains_key(&npc_oid));
-    assert_eq!(world.players[&3001].target, None);
+    assert!(!world.objects.has_component::<crate::model::npc::Npc>(&npc_oid));
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, None);
     let packets = drain(&mut a_rx);
     assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::DELETE_OBJECT));
 
     // Respawn at +3 s more: a fresh NPC on the same spawn line, announced.
     advance_world(&mut world, 31);
-    let respawned = world.npcs.values().find(|n| n.npc_id == 40001).expect("respawned");
-    assert_ne!(respawned.object_id, npc_oid, "transient ids are not reused");
-    assert_eq!((respawned.x, respawned.y, respawned.z), (30, 0, 0));
-    assert!(!respawned.dead);
+    let mut respawned_ids: Vec<i32> = Vec::new();
+    world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+        if n.npc_id == 40001 {
+            respawned_ids.push(n.object_id);
+        }
+    });
+    let respawned_oid = *respawned_ids.first().expect("respawned");
+    assert_ne!(respawned_oid, npc_oid, "transient ids are not reused");
+    let rpos = world.objects.get_component::<Position>(&respawned_oid).unwrap();
+    assert_eq!((rpos.x, rpos.y, rpos.z), (30, 0, 0));
+    assert!(!nvit(&world, respawned_oid).dead);
     let packets = drain(&mut a_rx);
     assert!(
         packets.iter().any(|p| p[0] == server_packets::opcodes::NPC_INFO),

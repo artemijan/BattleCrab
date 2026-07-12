@@ -3,6 +3,7 @@
 //! to enter the world and display correctly. Inventory, skills, effects, and the
 //! full stat pipeline arrive in later milestones.
 
+pub mod components;
 pub mod formulas;
 pub mod inventory;
 pub mod movement;
@@ -15,8 +16,8 @@ use std::collections::HashMap;
 use crate::character::CharData;
 use crate::data::player_template::PlayerTemplate;
 use crate::data::GameData;
+use components::{AttackState, BaseStats, Buffs, ClientPos, Collision, CombatStats, PlayerVitals, Position, RegionCell, Reuses, SkillBook, Speeds, StatModifiers, TargetRef, Vitals};
 use inventory::Inventory;
-use movement::MoveData;
 use skill::{ActiveBuff, StatModifierEffect};
 use stats::{BaseStat, Stat, StatModifierType};
 
@@ -64,10 +65,11 @@ pub struct SkillReuse {
     pub total_ms: i32,
 }
 
-/// A player character in (or entering) the world. Owned by the `World` object
-/// registry once in game; the `InGame` session links to it by `object_id`.
-/// An ECS component (one fat component per player entity for now — see
-/// `store::EntityStore`).
+/// The player residual core component: identity, class/appearance,
+/// progression counters, and the few flags nothing sweeps — everything
+/// system-shaped lives in the extracted components (`model/components.rs`;
+/// PLAN_ECS_STAGE2 §2). Owned by the `World` object registry once in game;
+/// the `InGame` session links to it by `object_id`.
 #[derive(Debug, Clone, bevy_ecs::component::Component)]
 pub struct Player {
     pub object_id: i32,
@@ -81,30 +83,9 @@ pub struct Player {
     pub race: i32,
     pub is_female: bool,
 
-    pub x: i32,
-    pub y: i32,
-    pub z: i32,
-    pub heading: i32,
-    /// The world-region cell this player is registered in (Java
-    /// `WorldObject._worldRegion`). Kept in sync with `x`/`y` by
-    /// `game_loop::visibility` (Java `updateWorldRegion`/`switchRegion`) —
-    /// visibility deltas are computed against this, not raw coordinates.
-    pub region: (i32, i32),
-
-    // Base primary stats (TODO(G7): + henna/items/buffs).
-    pub str_: i32,
-    pub dex: i32,
-    pub con: i32,
-    pub int_: i32,
-    pub wit: i32,
-    pub men: i32,
-
-    pub max_hp: i32,
-    pub cur_hp: f64,
-    pub max_mp: i32,
-    pub cur_mp: f64,
-    pub max_cp: i32,
-    pub cur_cp: f64,
+    // Extracted components on the same entity (stage 2 —
+    // `model/components.rs`): Position/RegionCell (phase 1); Vitals (+ CP in
+    // PlayerVitals), BaseStats, Speeds, Collision (phase 2).
 
     pub exp: i64,
     pub sp: i64,
@@ -118,95 +99,135 @@ pub struct Player {
     pub hair_style: i32,
     pub hair_color: i32,
 
-    // Combat stats — base template values for now (TODO(G7): full stat calc).
-    pub p_atk: i32,
-    pub p_atk_spd: i32,
-    pub p_def: i32,
-    pub m_atk: i32,
-    pub m_atk_spd: i32,
-    pub m_def: i32,
-    pub crit_hit: i32,
-    pub m_crit_hit: i32,
-    pub evasion: i32,
-    pub accuracy: i32,
-    pub magic_evasion: i32,
-    pub magic_accuracy: i32,
-    pub atk_range: i32,
+    // Computed combat stats live in the `CombatStats` component; swing/
+    // stance timing in `AttackState` (stage 2 phase 4).
 
-    // Movement (pre-multiplier) + collision.
-    pub run_spd: i32,
-    pub walk_spd: i32,
-    pub swim_run_spd: i32,
-    pub swim_walk_spd: i32,
-    pub move_multiplier: f64,
-    pub collision_radius: f64,
-    pub collision_height: f64,
-    pub running: bool,
+    // Inventory / SkillBook / Buffs / StatModifiers / Reuses / TargetRef /
+    // ClientPos are components on the same entity (stage 2 phase 5); the
+    // in-flight move / cast / attack intention are the presence-based
+    // `Movement`/`Casting`/`Intent` components (phase 3).
 
-    pub inventory: Inventory,
-
-    /// Known skills (skill_id → level), loaded from `character_skills` (or the
-    /// class's autoGet initial set at creation — see `character.rs`/`db.rs`).
-    pub skills: HashMap<i32, i32>,
-    /// Active buffs/debuffs (Java `EffectList`). Expiry is driven by the
-    /// `Scheduler` (`ScheduledTask::BuffExpire`), not by anything here.
-    pub buffs: Vec<ActiveBuff>,
-    /// Java `CreatureStat`'s two modifier maps — buffs/gear push entries here;
-    /// `recalculate_stats` folds them into the displayed combat stats.
-    pub stats_add: HashMap<Stat, f64>,
-    pub stats_mul: HashMap<Stat, f64>,
-    /// `Some` while a cast is in flight (Java `Creature._skillCasters`, single
-    /// NORMAL slot). Replaces + extends the old `casting: bool` re-entrancy
-    /// guard: also carries the target snapshot and the task generation.
-    pub cast: Option<CastState>,
-    /// Monotonic cast-generation counter, bumped every `startCasting`.
+    /// Monotonic cast-generation counter, bumped every `startCasting` — the
+    /// in-flight cast itself is the presence-based `Casting` component
+    /// (stage 2 phase 3); this counter must survive across casts for the
+    /// scheduler's stale-task no-op contract.
     pub cast_seq: u64,
-    /// Java `Creature._reuseTimeStampsSkills` + `_disabledSkills`, unified,
-    /// keyed by `Skill::reuse_key()` (the shared `reuseDelayGroup` when one is
-    /// set, else the skill id — so grouped skills share one entry). Java
-    /// splits short reuses from >3000 ms timestamps only for DB persistence
-    /// and packet filtering, both derivable from one map. Checked lazily — no
-    /// expiry tasks.
-    /// TODO: persist across relog like Java's `character_skills_save`.
-    pub reuses: HashMap<i32, SkillReuse>,
-
-    /// Currently targeted object id (Java `Creature._target`).
-    pub target: Option<i32>,
-    /// `Some` while moving (Java's nullable `Creature._move`); cleared on
-    /// arrival by `movement::tick`.
-    pub move_data: Option<MoveData>,
 
     // --- Combat state (G9) ---
-    /// Java `Creature._isDead`.
-    pub dead: bool,
-    /// Persistent AI intention (attack loop) — see `PlayerIntent`.
-    pub intent: Option<PlayerIntent>,
-    /// Busy-swinging until this tick (Java `_attackEndTime`); the next swing
-    /// may start once it passes.
-    pub attack_end_tick: u64,
-    /// In combat stance (client sword-drawn state) until this tick — 15 s
-    /// past the last swing/hit (`AttackStanceTaskManager`); 0 = not in stance.
-    pub stance_until_tick: u64,
     /// `Player._reviveRequested`-ish: die → "to village" → teleport →
     /// revive on `Appearing` (Java `setPendingRevive` → `onTeleported`).
     pub pending_revive: bool,
     /// Java `Creature._isTeleporting`: position pushed server-side, waiting
     /// for the client's `Appearing`.
     pub teleporting: bool,
+}
 
-    /// Last position/heading the client reported via `ValidatePosition`
-    /// (Java `Player._clientX/_clientY/_clientZ/_clientHeading`).
-    pub client_x: i32,
-    pub client_y: i32,
-    pub client_z: i32,
-    pub client_heading: i32,
+/// The player's full component set, together *outside* the ECS world — the
+/// boundary DTO of PLAN_ECS_STAGE2 §3. Built by `from_char`, held by the
+/// `Entering` session state until `EnterWorld` spawns it (`spawn_into`);
+/// persistence gathers its own view (`PlayerSnapshot`) from components.
+#[derive(Debug, Clone)]
+pub struct PlayerData {
+    pub player: Player,
+    pub position: Position,
+    pub region: RegionCell,
+    pub vitals: Vitals,
+    pub player_vitals: PlayerVitals,
+    pub base_stats: BaseStats,
+    pub speeds: Speeds,
+    pub collision: Collision,
+    pub combat: CombatStats,
+    pub inventory: Inventory,
+    pub skills: SkillBook,
+}
+
+
+impl PlayerData {
+    /// Spawn into the world registry (Java `World.addObject` at EnterWorld).
+    pub fn spawn_into(self, objects: &mut crate::store::EntityStore) {
+        objects.spawn(
+            self.player.object_id,
+            (
+                self.player,
+                (
+                    self.position,
+                    self.region,
+                    self.vitals,
+                    self.player_vitals,
+                    self.base_stats,
+                    self.speeds,
+                    self.collision,
+                    self.combat,
+                ),
+                (
+                    self.inventory,
+                    self.skills,
+                    AttackState::default(),
+                    TargetRef::default(),
+                    ClientPos::default(),
+                    Buffs::default(),
+                    StatModifiers::default(),
+                    Reuses::default(),
+                ),
+            ),
+        );
+    }
+}
+
+/// Borrowed view of a player's full component set — the read-side
+/// counterpart of `PlayerData`, so packet builders take one argument
+/// instead of seven. Build with `PlayerView::of` (in-world player) or
+/// `PlayerData::view` (pre-spawn, enter-world path).
+pub struct PlayerView<'a> {
+    pub p: &'a Player,
+    pub pos: &'a Position,
+    pub vitals: &'a Vitals,
+    pub pvitals: &'a PlayerVitals,
+    pub base: &'a BaseStats,
+    pub speeds: &'a Speeds,
+    pub collision: &'a Collision,
+    pub combat: &'a CombatStats,
+    pub inventory: &'a Inventory,
+}
+
+impl<'a> PlayerView<'a> {
+    pub fn of(objects: &'a crate::store::EntityStore, object_id: i32) -> Option<Self> {
+        Some(Self {
+            p: objects.get_component::<Player>(&object_id)?,
+            pos: objects.get_component::<Position>(&object_id)?,
+            vitals: objects.get_component::<Vitals>(&object_id)?,
+            pvitals: objects.get_component::<PlayerVitals>(&object_id)?,
+            base: objects.get_component::<BaseStats>(&object_id)?,
+            speeds: objects.get_component::<Speeds>(&object_id)?,
+            collision: objects.get_component::<Collision>(&object_id)?,
+            combat: objects.get_component::<CombatStats>(&object_id)?,
+            inventory: objects.get_component::<Inventory>(&object_id)?,
+        })
+    }
+}
+
+impl PlayerData {
+    pub fn view(&self) -> PlayerView<'_> {
+        PlayerView {
+            p: &self.player,
+            pos: &self.position,
+            vitals: &self.vitals,
+            pvitals: &self.player_vitals,
+            base: &self.base_stats,
+            speeds: &self.speeds,
+            collision: &self.collision,
+            combat: &self.combat,
+            inventory: &self.inventory,
+        }
+    }
 }
 
 impl Player {
-    /// Build a `Player` from a stored character row + its class template.
+    /// Build a `Player` (+ its extracted components, as a `PlayerData`)
+    /// from a stored character row + its class template.
     /// Max HP/MP/CP are recomputed (not read from the DB) so they display
     /// correctly; current HP/MP come from the row, clamped to the max.
-    pub fn from_char(data: &GameData, c: &CharData) -> Self {
+    pub fn from_char(data: &GameData, c: &CharData) -> PlayerData {
         // The active class's template (base classes only in G4).
         let t = data
             .player_templates
@@ -219,7 +240,32 @@ impl Player {
         let max_mp = calc_max_mp(data, &t, c.level);
         let max_cp = calc_max_cp(data, &t, c.level);
 
-        let mut p = Player {
+        let base_stats = BaseStats {
+            str_: t.base_str,
+            dex: t.base_dex,
+            con: t.base_con,
+            int_: t.base_int,
+            wit: t.base_wit,
+            men: t.base_men,
+        };
+        let vitals = Vitals {
+            max_hp: max_hp as i32,
+            cur_hp: c.cur_hp.min(max_hp),
+            max_mp: max_mp as i32,
+            cur_mp: c.cur_mp.min(max_mp),
+            dead: c.cur_hp < 0.5,
+        };
+        let player_vitals = PlayerVitals { max_cp: max_cp as i32, cur_cp: 0.0 };
+        let mut speeds = Speeds {
+            run_spd: t.base_run_spd as f64,
+            walk_spd: t.base_walk_spd as f64,
+            swim_run_spd: t.base_swim_run_spd as f64,
+            swim_walk_spd: t.base_swim_walk_spd as f64,
+            move_multiplier: 1.0,
+            running: true,
+        };
+        let collision = Collision { radius: t.collision_radius, height: t.collision_height };
+        let p = Player {
             object_id: c.object_id,
             name: c.name.clone(),
             account: c.account_name.clone(),
@@ -229,23 +275,6 @@ impl Player {
             base_class_id: c.base_class_id,
             race: c.race,
             is_female: c.sex != 0,
-            x: c.x,
-            y: c.y,
-            z: c.z,
-            heading: 0,
-            region: crate::world::region_of(c.x, c.y),
-            str_: t.base_str,
-            dex: t.base_dex,
-            con: t.base_con,
-            int_: t.base_int,
-            wit: t.base_wit,
-            men: t.base_men,
-            max_hp: max_hp as i32,
-            cur_hp: c.cur_hp.min(max_hp),
-            max_mp: max_mp as i32,
-            cur_mp: c.cur_mp.min(max_mp),
-            max_cp: max_cp as i32,
-            cur_cp: 0.0,
             exp: c.exp,
             sp: c.sp,
             reputation: c.reputation,
@@ -256,51 +285,27 @@ impl Player {
             face: c.face,
             hair_style: c.hair_style,
             hair_color: c.hair_color,
-            // Filled in by `recalculate_stats` below.
-            p_atk: 0,
-            p_atk_spd: 0,
-            p_def: 0,
-            m_atk: 0,
-            m_atk_spd: 0,
-            m_def: 0,
-            crit_hit: 0,
-            m_crit_hit: 0,
-            evasion: 0,
-            accuracy: 0,
-            magic_evasion: 0,
-            magic_accuracy: 0,
-            atk_range: t.base_atk_range,
-            run_spd: t.base_run_spd,
-            walk_spd: t.base_walk_spd,
-            swim_run_spd: t.base_swim_run_spd,
-            swim_walk_spd: t.base_swim_walk_spd,
-            move_multiplier: 1.0,
-            collision_radius: t.collision_radius,
-            collision_height: t.collision_height,
-            running: true,
-            inventory: Inventory::from_rows(&c.items),
-            skills: c.skills.iter().copied().collect(),
-            buffs: Vec::new(),
-            stats_add: HashMap::new(),
-            stats_mul: HashMap::new(),
-            cast: None,
             cast_seq: 0,
-            reuses: HashMap::new(),
-            target: None,
-            move_data: None,
-            dead: c.cur_hp < 0.5,
-            intent: None,
-            attack_end_tick: 0,
-            stance_until_tick: 0,
             pending_revive: false,
             teleporting: false,
-            client_x: 0,
-            client_y: 0,
-            client_z: 0,
-            client_heading: 0,
         };
-        p.recalculate_stats(data);
-        p
+        // Filled in by `recalculate_stats`; atk_range/random_dmg are
+        // template constants the finalizers never touch.
+        let mut combat = CombatStats { atk_range: t.base_atk_range, random_dmg: 10, ..Default::default() };
+        p.recalculate_stats(data, &base_stats, &StatModifiers::default(), &mut speeds, &mut combat);
+        PlayerData {
+            player: p,
+            position: Position { x: c.x, y: c.y, z: c.z, heading: 0 },
+            region: RegionCell(crate::world::region_of(c.x, c.y)),
+            vitals,
+            player_vitals,
+            base_stats,
+            speeds,
+            collision,
+            combat,
+            inventory: Inventory::from_rows(&c.items),
+            skills: SkillBook(c.skills.iter().copied().collect()),
+        }
     }
 
     /// Java `CreatureStat.recalculateStats` narrowed to the combat stats G6
@@ -310,7 +315,14 @@ impl Player {
     /// TODO(G8+): weapon/armor `<stats>` contributions — item stat bonuses
     /// aren't parsed yet (`data/item_data.rs`), so this is the unarmed/naked
     /// value, same simplification G5 already made for item stats.
-    pub fn recalculate_stats(&mut self, data: &GameData) {
+    pub fn recalculate_stats(
+        &self,
+        data: &GameData,
+        base: &BaseStats,
+        mods: &StatModifiers,
+        speeds: &mut Speeds,
+        combat: &mut CombatStats,
+    ) {
         let t = data
             .player_templates
             .get(self.class_id)
@@ -319,112 +331,104 @@ impl Player {
             .unwrap_or_default();
         let level_mod = (self.level as f64 + 89.0) / 100.0;
         let sb = &data.stat_bonus;
-        let str_bonus = sb.bonus(BaseStat::Str, self.str_);
-        let dex_bonus = sb.bonus(BaseStat::Dex, self.dex);
-        let int_bonus = sb.bonus(BaseStat::Int, self.int_);
-        let wit_bonus = sb.bonus(BaseStat::Wit, self.wit);
+        let str_bonus = sb.bonus(BaseStat::Str, base.str_);
+        let dex_bonus = sb.bonus(BaseStat::Dex, base.dex);
+        let int_bonus = sb.bonus(BaseStat::Int, base.int_);
+        let wit_bonus = sb.bonus(BaseStat::Wit, base.wit);
 
         // PAttackFinalizer / MAttackFinalizer.
-        self.p_atk = self
-            .finalize(Stat::PhysicalAttack, t.base_p_atk as f64 * str_bonus * level_mod)
+        combat.p_atk = finalize(mods, Stat::PhysicalAttack, t.base_p_atk as f64 * str_bonus * level_mod)
             .round()
-            .clamp(0.0, MAX_PATK) as i32;
-        self.m_atk = self
-            .finalize(Stat::MagicalAttack, t.base_m_atk as f64 * (int_bonus * level_mod).powf(2.2072))
+            .clamp(0.0, MAX_PATK);
+        combat.m_atk = finalize(mods, Stat::MagicalAttack, t.base_m_atk as f64 * (int_bonus * level_mod).powf(2.2072))
             .round()
-            .clamp(0.0, MAX_MATK) as i32;
+            .clamp(0.0, MAX_MATK);
 
         // P/MDefenseFinalizer, naked value only (see TODO above).
-        self.p_def = self.finalize(Stat::PhysicalDefence, t.base_p_def as f64).round().max(0.0) as i32;
-        self.m_def = self.finalize(Stat::MagicalDefence, t.base_m_def as f64).round().max(0.0) as i32;
+        combat.p_def = finalize(mods, Stat::PhysicalDefence, t.base_p_def as f64).round().max(0.0);
+        combat.m_def = finalize(mods, Stat::MagicalDefence, t.base_m_def as f64).round().max(0.0);
 
         // P/MAttackSpeedFinalizer: `mul` floors at 0.7, not the usual 1.0.
-        self.p_atk_spd = self
-            .finalize_speed(Stat::PhysicalAttackSpeed, t.base_p_atk_spd as f64 * dex_bonus)
+        combat.p_atk_spd = finalize_speed(mods, Stat::PhysicalAttackSpeed, t.base_p_atk_spd as f64 * dex_bonus)
             .round()
             .clamp(1.0, MAX_PATK_SPEED) as i32;
-        self.m_atk_spd = self
-            .finalize_speed(Stat::MagicAttackSpeed, t.base_m_atk_spd as f64 * wit_bonus)
+        combat.m_atk_spd = finalize_speed(mods, Stat::MagicAttackSpeed, t.base_m_atk_spd as f64 * wit_bonus)
             .round()
             .clamp(1.0, MAX_MATK_SPEED) as i32;
 
         // P/MCritRateFinalizer (in per-mille, ×10).
-        self.crit_hit = self
-            .finalize(Stat::CriticalRate, t.base_crit_rate as f64 * dex_bonus * 10.0)
+        combat.crit_hit = finalize(mods, Stat::CriticalRate, t.base_crit_rate as f64 * dex_bonus * 10.0)
             .round()
-            .clamp(0.0, MAX_PCRIT_RATE) as i32;
-        self.m_crit_hit = self
-            .finalize(Stat::MagicCriticalRate, t.base_m_crit_rate as f64 * wit_bonus * 10.0)
+            .clamp(0.0, MAX_PCRIT_RATE);
+        combat.m_crit_hit = finalize(mods, Stat::MagicCriticalRate, t.base_m_crit_rate as f64 * wit_bonus * 10.0)
             .round()
-            .clamp(0.0, MAX_MCRIT_RATE) as i32;
+            .clamp(0.0, MAX_MCRIT_RATE);
 
         // P/MAccuracyFinalizer, P/MEvasionRateFinalizer (high-level +N steps
         // above level 69 skipped — base classes here don't reach that high).
         let level = self.level as f64;
-        self.accuracy = self
-            .finalize(Stat::AccuracyCombat, (self.dex as f64).sqrt() * 5.0 + level)
+        combat.accuracy = finalize(mods, Stat::AccuracyCombat, (base.dex as f64).sqrt() * 5.0 + level)
             .round() as i32;
-        self.magic_accuracy = self
-            .finalize(Stat::AccuracyMagic, (self.wit as f64).sqrt() * 3.0 + level * 2.0)
+        combat.magic_accuracy = finalize(mods, Stat::AccuracyMagic, (base.wit as f64).sqrt() * 3.0 + level * 2.0)
             .round() as i32;
-        self.evasion = self
-            .finalize(Stat::EvasionRate, (self.dex as f64).sqrt() * 5.0 + level)
+        combat.evasion = finalize(mods, Stat::EvasionRate, (base.dex as f64).sqrt() * 5.0 + level)
             .round()
             .clamp(0.0, MAX_EVASION) as i32;
-        self.magic_evasion = self
-            .finalize(Stat::MagicEvasionRate, (self.wit as f64).sqrt() * 3.0 + level * 2.0)
+        combat.magic_evasion = finalize(mods, Stat::MagicEvasionRate, (base.wit as f64).sqrt() * 3.0 + level * 2.0)
             .round() as i32;
 
         // Speed: base template value, buffs (Speed effect) apply through the
-        // add/mul maps exactly like the combat stats above.
-        self.run_spd = self.finalize(Stat::RunSpeed, t.base_run_spd as f64).round() as i32;
-        self.walk_spd = self.finalize(Stat::WalkSpeed, t.base_walk_spd as f64).round() as i32;
-        self.swim_run_spd = self.finalize(Stat::SwimRunSpeed, t.base_swim_run_spd as f64).round() as i32;
-        self.swim_walk_spd = self.finalize(Stat::SwimWalkSpeed, t.base_swim_walk_spd as f64).round() as i32;
-    }
-
-    /// `Stat.defaultValue`: `base * mul + add` from the accumulated modifier
-    /// maps (1.0/0.0 when nothing has touched this stat).
-    fn finalize(&self, stat: Stat, base: f64) -> f64 {
-        let mul = self.stats_mul.get(&stat).copied().unwrap_or(1.0);
-        let add = self.stats_add.get(&stat).copied().unwrap_or(0.0);
-        base * mul + add
-    }
-
-    /// `P/MAttackSpeedFinalizer.defaultValue`: same shape, but `mul` floors at
-    /// 0.7 instead of applying whatever's in the map directly (so an absent or
-    /// tiny buff doesn't produce a slower-than-0.7x cast/attack speed).
-    fn finalize_speed(&self, stat: Stat, base: f64) -> f64 {
-        let mul = self.stats_mul.get(&stat).copied().unwrap_or(1.0).max(0.7);
-        let add = self.stats_add.get(&stat).copied().unwrap_or(0.0);
-        base * mul + add
+        // add/mul maps exactly like the combat stats above. Rounded like the
+        // old i32 fields, stored as f64 (Speeds is shared with NPCs).
+        speeds.run_spd = finalize(mods, Stat::RunSpeed, t.base_run_spd as f64).round();
+        speeds.walk_spd = finalize(mods, Stat::WalkSpeed, t.base_walk_spd as f64).round();
+        speeds.swim_run_spd = finalize(mods, Stat::SwimRunSpeed, t.base_swim_run_spd as f64).round();
+        speeds.swim_walk_spd = finalize(mods, Stat::SwimWalkSpeed, t.base_swim_walk_spd as f64).round();
     }
 
     /// Fold a landed buff's effects into the modifier maps and recompute.
     /// Java `BuffInfo.initializeEffects` → `AbstractEffect.pump`.
-    pub fn apply_buff(&mut self, data: &GameData, buff: ActiveBuff) {
+    /// Java `BuffInfo.initializeEffects` → `AbstractEffect.pump`.
+    pub fn apply_buff(
+        &self,
+        data: &GameData,
+        base: &BaseStats,
+        mods: &mut StatModifiers,
+        buffs: &mut Buffs,
+        speeds: &mut Speeds,
+        combat: &mut CombatStats,
+        buff: ActiveBuff,
+    ) {
         for effect in &buff.effects {
-            apply_modifier(&mut self.stats_add, &mut self.stats_mul, effect);
+            apply_modifier(&mut mods.add, &mut mods.mul, effect);
         }
-        self.buffs.push(buff);
-        self.recalculate_stats(data);
+        buffs.0.push(buff);
+        self.recalculate_stats(data, base, mods, speeds, combat);
     }
 
     /// Remove an expired/replaced buff and recompute from scratch (Java just
     /// removes the `BuffInfo` and calls `resetStats()`, which rebuilds the
     /// maps from the remaining active buffs — do the same here rather than
     /// trying to subtract in place, which would drift under rounding).
-    pub fn remove_buff(&mut self, data: &GameData, skill_id: i32) {
-        self.buffs.retain(|b| b.skill_id != skill_id);
-        self.stats_add.clear();
-        self.stats_mul.clear();
-        let buffs = self.buffs.clone();
-        for buff in &buffs {
+    pub fn remove_buff(
+        &self,
+        data: &GameData,
+        base: &BaseStats,
+        mods: &mut StatModifiers,
+        buffs: &mut Buffs,
+        speeds: &mut Speeds,
+        combat: &mut CombatStats,
+        skill_id: i32,
+    ) {
+        buffs.0.retain(|b| b.skill_id != skill_id);
+        mods.add.clear();
+        mods.mul.clear();
+        for buff in &buffs.0 {
             for effect in &buff.effects {
-                apply_modifier(&mut self.stats_add, &mut self.stats_mul, effect);
+                apply_modifier(&mut mods.add, &mut mods.mul, effect);
             }
         }
-        self.recalculate_stats(data);
+        self.recalculate_stats(data, base, mods, speeds, combat);
     }
 
     /// Fraction of the way through the current level (for XP-bar display).
@@ -450,6 +454,23 @@ const MAX_MCRIT_RATE: f64 = 200.0;
 const MAX_PATK_SPEED: f64 = 1500.0;
 const MAX_MATK_SPEED: f64 = 1999.0;
 const MAX_EVASION: f64 = 250.0;
+
+/// `Stat.defaultValue`: `base * mul + add` from the accumulated modifier
+/// maps (1.0/0.0 when nothing has touched this stat).
+fn finalize(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
+    let mul = mods.mul.get(&stat).copied().unwrap_or(1.0);
+    let add = mods.add.get(&stat).copied().unwrap_or(0.0);
+    base * mul + add
+}
+
+/// `P/MAttackSpeedFinalizer.defaultValue`: same shape, but `mul` floors at
+/// 0.7 instead of applying whatever's in the map directly (so an absent or
+/// tiny buff doesn't produce a slower-than-0.7x cast/attack speed).
+fn finalize_speed(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
+    let mul = mods.mul.get(&stat).copied().unwrap_or(1.0).max(0.7);
+    let add = mods.add.get(&stat).copied().unwrap_or(0.0);
+    base * mul + add
+}
 
 /// Java `CreatureStat.mergeAdd`/`mergeMul` — accumulate one effect's
 /// contribution into the add/mul maps (multiple buffs on the same stat stack).

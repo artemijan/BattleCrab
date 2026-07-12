@@ -2,6 +2,7 @@
 //! `Player.setTarget` port, and (G8) the `NpcAction` interact path — talking
 //! to a targeted NPC opens its chat window.
 
+use crate::model::components::{Intent, Position, TargetRef, Vitals};
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::session::ClientSession;
@@ -26,13 +27,14 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
 
-    if world.players.contains_key(&pkt.object_id) {
+    if world.objects.has_component::<crate::model::Player>(&pkt.object_id) {
         set_target(world, client_id, object_id, Some(pkt.object_id));
-    } else if let Some(npc) = world.npcs.get(&pkt.object_id) {
+    } else if let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&pkt.object_id) {
         // Java `Npc.canTarget` → `WorldObject.isTargetable` (template flag).
         let targetable = npc.template(world).is_none_or(|t| t.targetable);
         if targetable {
-            let already_targeted = world.players.get(&object_id).and_then(|p| p.target) == Some(pkt.object_id);
+            let already_targeted =
+                world.objects.get_component::<TargetRef>(&object_id).copied().unwrap_or_default().0 == Some(pkt.object_id);
             if already_targeted {
                 interact_with_npc(world, client_id, object_id, pkt.object_id);
             } else {
@@ -56,9 +58,7 @@ pub(crate) fn handle_request_target_canceld(world: &mut World, client_id: u32, b
     let object_id = session.player_object_id();
     abort_cast(world, object_id);
     // Esc also ends an attack loop (Java: ATTACK intention → ACTIVE).
-    if let Some(p) = world.players.get_mut(&object_id) {
-        p.intent = None;
-    }
+    world.objects.remove_component::<Intent>(&object_id);
     if !pkt.target_lost {
         return;
     }
@@ -80,29 +80,33 @@ struct TargetInfo {
 }
 
 fn target_info(world: &World, viewer_level: i32, target_id: i32) -> Option<TargetInfo> {
-    if let Some(p) = world.players.get(&target_id) {
+    if world.objects.get_component::<crate::model::Player>(&target_id).is_some() {
+        let pos = world.objects.get_component::<Position>(&target_id)?;
+        let vitals = world.objects.get_component::<Vitals>(&target_id)?;
         return Some(TargetInfo {
-            z: p.z,
-            max_hp: p.max_hp,
-            cur_hp: p.cur_hp as i32,
+            z: pos.z,
+            max_hp: vitals.max_hp,
+            cur_hp: vitals.cur_hp as i32,
             color: 0,
             is_npc: false,
-            heading: p.heading,
-            x: p.x,
-            y: p.y,
+            heading: pos.heading,
+            x: pos.x,
+            y: pos.y,
         });
     }
-    let npc = world.npcs.get(&target_id)?;
+    let npc = world.objects.get_component::<crate::model::npc::Npc>(&target_id)?;
+    let pos = world.objects.get_component::<Position>(&target_id)?;
+    let vitals = world.objects.get_component::<Vitals>(&target_id)?;
     let t = npc.template(world)?;
     Some(TargetInfo {
-        z: npc.z,
-        max_hp: npc.max_hp,
-        cur_hp: npc.cur_hp as i32,
+        z: pos.z,
+        max_hp: vitals.max_hp,
+        cur_hp: vitals.cur_hp as i32,
         color: if t.is_auto_attackable() { (viewer_level - t.level) as i16 } else { 0 },
         is_npc: true,
-        heading: npc.heading,
-        x: npc.x,
-        y: npc.y,
+        heading: pos.heading,
+        x: pos.x,
+        y: pos.y,
     })
 }
 
@@ -111,21 +115,23 @@ fn target_info(world: &World, viewer_level: i32, target_id: i32) -> Option<Targe
 /// (`handle_action` routes it to the interact path for NPCs; for players
 /// Java only re-sends `ValidateLocation`, which we skip).
 pub(crate) fn set_target(world: &mut World, client_id: u32, object_id: i32, new_target: Option<i32>) {
-    let Some(player) = world.players.get(&object_id) else { return };
-    if player.target == new_target {
+    let Some(player) = world.objects.get_component::<crate::model::Player>(&object_id) else { return };
+    let current = world.objects.get_component::<TargetRef>(&object_id).copied().unwrap_or_default().0;
+    if current == new_target {
         return;
     }
     let viewer_level = player.level;
 
+    let Some(ppos) = world.objects.get_component::<Position>(&object_id).copied() else { return };
     // Prevents /target exploiting: reject targets too far away in Z.
     let new_target = new_target.filter(|&t| {
-        target_info(world, viewer_level, t).map(|i| (i.z - player.z).abs() <= 1000).unwrap_or(false)
+        target_info(world, viewer_level, t).map(|i| (i.z - ppos.z).abs() <= 1000).unwrap_or(false)
     });
-    if player.target == new_target {
+    if current == new_target {
         return;
     }
 
-    let (px, py, pz) = (player.x, player.y, player.z);
+    let (px, py, pz) = (ppos.x, ppos.y, ppos.z);
     if let Some(t) = new_target {
         let Some(info) = target_info(world, viewer_level, t) else { return };
         if let Some(cs) = world.clients.get(&client_id) {
@@ -156,8 +162,8 @@ pub(crate) fn set_target(world: &mut World, client_id: u32, object_id: i32, new_
         broadcast_to_others(world, object_id, &pkt);
     }
 
-    if let Some(player) = world.players.get_mut(&object_id) {
-        player.target = new_target;
+    if let Some(t) = world.objects.get_component_mut::<TargetRef>(&object_id) {
+        t.0 = new_target;
     }
 }
 
@@ -167,17 +173,26 @@ pub(crate) fn set_target(world: &mut World, client_id: u32, object_id: i32, new_
 /// nothing for dialogs — Java's walk-into-range AI intent is only ported for
 /// the attack path.
 fn interact_with_npc(world: &mut World, client_id: u32, object_id: i32, npc_object_id: i32) {
-    let Some(player) = world.players.get(&object_id) else { return };
-    let Some(npc) = world.npcs.get(&npc_object_id) else { return };
+    if world.objects.get_component::<crate::model::Player>(&object_id).is_none() {
+        return;
+    }
+    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_object_id) else { return };
     let Some(t) = npc.template(world) else { return };
     if t.is_auto_attackable() {
-        if !player.dead {
+        let dead = world.objects.get_component::<Vitals>(&object_id).is_some_and(|v| v.dead);
+        if !dead {
             super::combat::start_attack_intent(world, client_id, object_id, npc_object_id);
         }
         return;
     }
     // `Npc.canInteract`: plain 3D distance vs INTERACTION_DISTANCE.
-    let (dx, dy, dz) = ((npc.x - player.x) as f64, (npc.y - player.y) as f64, (npc.z - player.z) as f64);
+    let (Some(ppos), Some(npos)) = (
+        world.objects.get_component::<Position>(&object_id),
+        world.objects.get_component::<Position>(&npc_object_id),
+    ) else {
+        return;
+    };
+    let (dx, dy, dz) = ((npos.x - ppos.x) as f64, (npos.y - ppos.y) as f64, (npos.z - ppos.z) as f64);
     if dx * dx + dy * dy + dz * dz > INTERACTION_DISTANCE * INTERACTION_DISTANCE {
         return;
     }

@@ -322,26 +322,42 @@ attaching components rather than growing an inheritance tree — the same
 problem Java solves with its `WorldObject → Creature → Playable → Player`
 hierarchy and challenge #1 solves with composition.
 
-**How it maps here** (`gameserver/src/store.rs`):
+**How it maps here** (`gameserver/src/store.rs`, final stage-2 shape —
+G9.5, [PLAN_ECS_STAGE2.md](PLAN_ECS_STAGE2.md)):
 
-- `World.players` and `World.npcs` are each an `EntityStore<T>`: a
-  `bevy_ecs::World` whose entities carry the game object as a component, plus
-  an `object_id → Entity` index, so id-based lookups (decision 2.B) stay O(1)
-  and the game-facing API stays HashMap-shaped (`get`/`get_mut`/`insert`/
-  `values_mut`/…).
-- **Nothing about the concurrency model changes.** The ECS worlds live inside
-  `World`, owned and mutated by the game thread alone; systems are still the
-  plain functions called in the §2.2 loop order. `bevy_ecs`'s parallel
+- `World.objects` is one non-generic `EntityStore`: a single
+  `bevy_ecs::World` holding **all** world objects — players and NPCs — as
+  entities, plus one `object_id → Entity` index, so id-based lookups
+  (decision 2.B) stay O(1). Object ids (`i32`) remain the only key the game
+  logic speaks; `Entity` never leaves `store.rs`.
+- **Objects are decomposed into per-concern components**
+  (`model/components.rs`), split along system access seams: shared
+  `Position`/`RegionCell`/`Vitals`/`Speeds`/`Collision`/`CombatStats`/
+  `AttackState`; presence-based `Movement`/`Casting`/`Intent` (the component
+  exists only while the state is active, so per-tick sweeps visit exactly
+  the movers/casters/intent-holders — not 34.9k idle NPCs); player-only
+  `PlayerVitals`/`BaseStats`/`StatModifiers`/`Buffs`/`Inventory`/`SkillBook`/
+  `Reuses`/`TargetRef`/`ClientPos`; NPC-only `NpcAi`/`AggroList`. The
+  residual `Player`/`Npc` core components (identity + bookkeeping nothing
+  sweeps) double as the kind markers for queries.
+- **NPC combat stats are memoized** into `CombatStats` at spawn
+  (`npc_combat_stats`) through the same finalizer math the old per-call
+  template derivation ran — `combat::combatant()` is one component fetch for
+  both kinds.
+- **Boundary DTO:** `model::PlayerData` carries a player's full component
+  set outside the ECS (built by `from_char`, held by the `Entering` session
+  state, exploded into a bundle at `EnterWorld`); persistence gathers
+  `PlayerSnapshot` from components *before* despawn.
+- **Nothing about the concurrency model changes.** The ECS world lives
+  inside `World` next to its sibling services (clients, scheduler, geo, DB
+  channel), owned and mutated by the game thread alone; systems are still
+  plain functions called in the §2.2 loop order, and `&mut world.objects` +
+  `&world.geo` remain disjoint struct-field borrows. `bevy_ecs`'s parallel
   scheduler is deliberately unused — single-owner `&mut World` remains the
-  rule.
-- **Staging:** stage 1 (current) keeps `Player`/`Npc` as one fat component
-  each, preserving the disjoint-field borrows handlers rely on (`&mut` a
-  player while reading `world.npcs`). Stage 2 splits shared data into real
-  components (`Position`, `Vitals`, `MoveData`, …) and merges players/NPCs
-  into one ECS world, so cross-type sweeps (movement, combat's `Combatant`
-  view) become single queries; tick systems can then migrate to a `bevy_ecs`
-  `Schedule` with `World`'s services (clients, scheduler, geo, DB channel) as
-  ECS resources.
+  rule. Migrating tick systems to a `bevy_ecs` `Schedule` with the services
+  as ECS resources is a possible stage 3; default answer is **no** until
+  something concretely needs it (it buys ergonomics, not correctness or
+  speed).
 
 ### 2.9 Scaling path (explicitly out of scope for v1)
 
