@@ -494,6 +494,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     apply_due_tasks(&mut world);
     assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE); // final MP consume
     assert_eq!(out_rx.try_recv().unwrap()[0], 0x85); // AbnormalStatusUpdate
+    let _ = out_rx.try_recv().unwrap(); // UserInfo (buff changed pDef → broadcastUserInfo)
 
     {
         assert!(!world.objects.has_component::<Casting>(&2001), "coolTime 0 frees the cast slot inline");
@@ -506,6 +507,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     world.tick += 200;
     apply_due_tasks(&mut world);
 
+    let _ = out_rx.try_recv().unwrap(); // UserInfo (buff removal reverted pDef → broadcastUserInfo)
     let expired = out_rx.try_recv().unwrap();
     assert_eq!(expired[0], 0x85);
     assert_eq!(&expired[1..3], &[0, 0], "AbnormalStatusUpdate count = 0 once expired");

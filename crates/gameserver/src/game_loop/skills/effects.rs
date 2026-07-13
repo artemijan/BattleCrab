@@ -135,6 +135,11 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 }
                 }
         }
+        // A stat buff changed pAtk/pDef/speed/…; Java's `recalculateStats(true)`
+        // follows with `broadcastUserInfo()`. Without this the client shows the
+        // buff icon but never the changed stats or movement speed (and other
+        // players never see the speed change).
+        crate::game_loop::party::broadcast_user_info(world, target_oid);
     }
 }
 
@@ -285,6 +290,9 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         player.remove_buff(&world.data, &base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, skill_id);
     }
     let now = world.tick;
+    // Removing the buff reverted its stat contribution — rebroadcast so the
+    // client (and nearby players, for speed) see the stats return to normal.
+    crate::game_loop::party::broadcast_user_info(world, player_object_id);
     let Some(client_id) = client_for_player(world, player_object_id) else { return };
     if let Some(buffs) = world.objects.get_component::<Buffs>(&player_object_id) {
         if let Some(cs) = world.clients.get(&client_id) {

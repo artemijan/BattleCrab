@@ -308,22 +308,40 @@ fn finalize_skill(
 
         let skill_effects = effects
             .iter()
-            .filter_map(|(xml_name, params, mode, groups, armor_condition)| {
+            .flat_map(|(xml_name, params, mode, groups, armor_condition)| {
                 let param = |key: &str| -> Option<f64> { value_at(params, key, level).and_then(|v| v.parse().ok()) };
+                let modifier_mode = if mode == "PER" { StatModifierType::Per } else { StatModifierType::Diff };
+                let stat_mod = |stat: Stat, amount: f64| {
+                    SkillEffect::StatModifier(StatModifierEffect { stat, mode: modifier_mode, amount, armor_condition: *armor_condition })
+                };
                 match xml_name.as_str() {
-                    "MagicalAttack" => Some(SkillEffect::MagicalAttack { power: param("power")? }),
-                    "Heal" => Some(SkillEffect::Heal { power: param("power")? }),
-                    "Restoration" => Some(SkillEffect::GiveItem {
-                        item_id: param("itemId")? as i32,
-                        item_count: param("itemCount")? as i64,
-                        item_enchant_level: param("itemEnchantmentLevel").unwrap_or(0.0) as i32,
-                    }),
-                    "RestorationRandom" => Some(SkillEffect::GiveItemRandom { groups: groups.clone() }),
-                    _ => {
-                        let stat = EFFECT_REGISTRY.iter().find(|(n, _)| n == xml_name).map(|(_, s)| *s)?;
-                        let mode = if mode == "PER" { StatModifierType::Per } else { StatModifierType::Diff };
-                        Some(SkillEffect::StatModifier(StatModifierEffect { stat, mode, amount: param("amount")?, armor_condition: *armor_condition }))
-                    }
+                    "MagicalAttack" => param("power").map(|power| SkillEffect::MagicalAttack { power }).into_iter().collect::<Vec<_>>(),
+                    "Heal" => param("power").map(|power| SkillEffect::Heal { power }).into_iter().collect(),
+                    "Restoration" => match (param("itemId"), param("itemCount")) {
+                        (Some(item_id), Some(item_count)) => vec![SkillEffect::GiveItem {
+                            item_id: item_id as i32,
+                            item_count: item_count as i64,
+                            item_enchant_level: param("itemEnchantmentLevel").unwrap_or(0.0) as i32,
+                        }],
+                        _ => Vec::new(),
+                    },
+                    "RestorationRandom" => vec![SkillEffect::GiveItemRandom { groups: groups.clone() }],
+                    // `Speed` pumps four move-speed stats at once (Java
+                    // `Speed.pump`); the 1-name→1-stat `EFFECT_REGISTRY` can't
+                    // express that, so expand it here. Without this, movement
+                    // buffs (Wind Walk, Agility) loaded with an empty effect
+                    // list and did nothing — server or client.
+                    "Speed" => match param("amount") {
+                        Some(amount) => [Stat::RunSpeed, Stat::WalkSpeed, Stat::SwimRunSpeed, Stat::SwimWalkSpeed]
+                            .into_iter()
+                            .map(|stat| stat_mod(stat, amount))
+                            .collect(),
+                        None => Vec::new(),
+                    },
+                    _ => match EFFECT_REGISTRY.iter().find(|(n, _)| n == xml_name).map(|(_, s)| *s) {
+                        Some(stat) => param("amount").map(|amount| stat_mod(stat, amount)).into_iter().collect(),
+                        None => Vec::new(),
+                    },
                 }
             })
             .collect::<Vec<_>>();
