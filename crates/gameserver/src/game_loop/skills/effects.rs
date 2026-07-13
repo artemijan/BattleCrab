@@ -4,7 +4,7 @@
 use crate::game_loop::helpers::client_for_player;
 use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers, Vitals};
 use crate::model::formulas;
-use crate::model::skill::{abnormal_type_client_id, ActiveBuff, Skill, SkillEffect};
+use crate::model::skill::{abnormal_type_client_id, ActiveBuff, RestorationGroup, Skill, SkillEffect};
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -23,8 +23,9 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     let mcrit = skill.magic_type == 1 && formulas::calc_magic_crit(m_crit_rate, skill.is_bad(), crit_roll);
 
     for effect in &skill.effects {
-        match *effect {
+        match effect {
             SkillEffect::MagicalAttack { power } => {
+                let power = *power;
                 let (m_atk, caster_name) = {
                     let m_atk =
                         world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
@@ -35,6 +36,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 apply_magic_damage(world, caster_oid, target_oid, damage, mcrit, &caster_name);
             }
             SkillEffect::Heal { power } => {
+                let power = *power;
                 let m_atk = world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
                 let amount = formulas::calc_heal(power, m_atk, mcrit);
                 if crate::game_loop::combat::is_npc_oid(target_oid) {
@@ -81,6 +83,12 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     crate::game_loop::party::notify_party_vitals(world, target_oid);
                 }
             }
+            SkillEffect::GiveItem { item_id, item_count, item_enchant_level: _ } => {
+                give_item(world, target_oid, *item_id, *item_count);
+            }
+            SkillEffect::GiveItemRandom { groups } => {
+                give_item_random(world, target_oid, groups);
+            }
             SkillEffect::StatModifier(_) => {} // collected below
         }
     }
@@ -124,6 +132,82 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     cs.send(crate::network::enter_world::abnormal_status_update(buffs, now));
                 }
                 }
+        }
+    }
+}
+
+/// `handlers/effecthandlers/Restoration.java` — instant single-item grant.
+/// Backs item-use skills wrapping a fixed pack/box reward (spiritshot packs,
+/// jewelry boxes, …): the item's `<skills>` entry casts a skill with this
+/// effect, and *that* is where the actual reward comes from — before this
+/// was ported, such skills loaded with an empty effect list, so the item was
+/// still consumed (`items::use_item_skills` destroys it once any skill
+/// "lands") but granted nothing.
+fn give_item(world: &mut World, target_oid: i32, item_id: i32, item_count: i64) {
+    use server_packets::sm_ids;
+
+    if item_id <= 0 || item_count <= 0 {
+        if let Some(client_id) = client_for_player(world, target_oid) {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::system_message_with(sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE, &[]));
+            }
+        }
+        return;
+    }
+    grant_and_notify(world, target_oid, &[(item_id, item_count)]);
+}
+
+/// `handlers/effecthandlers/RestorationRandom.java` — one weighted roulette
+/// pick among reward groups: walk `groups` accumulating `chance` until the
+/// roll falls in a slice's `[chance_from, chance_from + chance)` range, then
+/// grant every item in that slice's group together (Java: `100 *
+/// Rnd.nextDouble()` against the raw 0-100 XML percentages).
+fn give_item_random(world: &mut World, target_oid: i32, groups: &[RestorationGroup]) {
+    use server_packets::sm_ids;
+
+    let rnd_num = 100.0 * world.roll_f64();
+    let mut chance_from = 0.0;
+    let mut picked = None;
+    for group in groups {
+        if rnd_num >= chance_from && rnd_num <= chance_from + group.chance {
+            picked = Some(&group.items);
+            break;
+        }
+        chance_from += group.chance;
+    }
+    let Some(items) = picked else {
+        if let Some(client_id) = client_for_player(world, target_oid) {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::system_message_with(sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE, &[]));
+            }
+        }
+        return;
+    };
+    let grants: Vec<(i32, i64)> = items.iter().filter(|i| i.item_id > 0 && i.count > 0).map(|i| (i.item_id, i.count)).collect();
+    grant_and_notify(world, target_oid, &grants);
+}
+
+/// Shared grant + `InventoryUpdate` + "You have obtained…" messaging tail for
+/// `give_item`/`give_item_random` (Java: `Player.addItem` plus the
+/// `sendMessage` helper both `Restoration` variants duplicate).
+fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i32, i64)]) {
+    use server_packets::{sm_ids, SmParam};
+
+    for &(item_id, amount) in grants {
+        let Some(changed_oids) = crate::game_loop::items::add_inventory_item(world, target_oid, item_id, amount) else {
+            continue;
+        };
+        let Some(inventory) = world.objects.get_component::<crate::model::inventory::Inventory>(&target_oid) else { continue };
+        if let Some(client_id) = client_for_player(world, target_oid) {
+            if let Some(cs) = world.clients.get(&client_id) {
+                let sm = if amount > 1 {
+                    server_packets::system_message_with(sm_ids::YOU_HAVE_OBTAINED_S2_S1, &[SmParam::ItemName(item_id), SmParam::Long(amount)])
+                } else {
+                    server_packets::system_message_with(sm_ids::YOU_HAVE_OBTAINED_S1, &[SmParam::ItemName(item_id)])
+                };
+                cs.send(sm);
+                cs.send(crate::network::enter_world::inventory_update(inventory, &world.data, &changed_oids));
+            }
         }
     }
 }

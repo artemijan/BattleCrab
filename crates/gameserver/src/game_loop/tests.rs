@@ -1719,6 +1719,206 @@ fn item_skill_potion_heals_and_enforces_reuse() {
     assert_eq!(potion.count, 1, "reuse blocks a second consume");
 }
 
+/// The bug this guards: a `Restoration`-effect skill (e.g. the "Mysterious
+/// Blessed Spiritshot Pack" line, item 22599 → skill 22490) used to parse
+/// with an empty effect list — `SkillEffect::GiveItem`/`GiveItemRandom`
+/// didn't exist yet — so `use_item_skills` still consumed the pack (a skill
+/// was found and "cast") but granted nothing: the pack just disappeared.
+#[test]
+fn item_skill_give_item_grants_reward_and_consumes_pack() {
+    use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
+    use crate::model::inventory::Inventory;
+    use crate::model::skill::SkillEffect;
+
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    world.data.skill_data.insert_for_test(Skill {
+        id: 22490,
+        level: 5,
+        name: "Mysterious Spiritshot d 5000".into(),
+        operate_type: OperateType::Active,
+        target_type: TargetType::Self_,
+        magic_type: 2,
+        effect_point: 0,
+        cast_range: 0,
+        effect_range: 0,
+        hit_time: 0,
+        hit_cancel_time: 0.0,
+        cool_time: 0,
+        reuse_delay: 0,
+        reuse_delay_group: -1,
+        mp_consume: 0,
+        mp_initial_consume: 0,
+        hp_consume: 0,
+        abnormal_time: 0,
+        abnormal_level: 0,
+        abnormal_type: "NONE".into(),
+        effects: vec![SkillEffect::GiveItem { item_id: 21852, item_count: 5000, item_enchant_level: 0 }],
+    });
+    world.data.item_data.insert_for_test(ItemTemplate {
+        item_id: 22599,
+        name: "Mysterious Blessed Spiritshot Pack (5000) (D-grade)".into(),
+        kind: ItemKind::Etc,
+        body_part: 0,
+        weight: 1000,
+        is_stackable: true,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        price: 0,
+        handler: ItemHandler::ItemSkills,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: vec![(22490, 5)],
+    });
+    world.data.item_data.insert_for_test(ItemTemplate {
+        item_id: 21852,
+        name: "Blessed Spiritshot: D-grade".into(),
+        kind: ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: true,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        price: 0,
+        handler: ItemHandler::None,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+    });
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9001, 22599, 1);
+    }
+
+    items::handle_use_item(&mut world, 1, &use_item_body(9001));
+
+    let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+    assert!(inv.items().iter().all(|i| i.item_id != 22599), "pack consumed");
+    let shots = inv.items().iter().find(|i| i.item_id == 21852).expect("5000 Blessed Spiritshots granted, not lost");
+    assert_eq!(shots.count, 5000);
+
+    let packets = drain(&mut rx);
+    assert!(
+        sm_ids_of(&packets).into_iter().any(|id| id == server_packets::sm_ids::YOU_HAVE_OBTAINED_S2_S1),
+        "reward message sent"
+    );
+}
+
+/// `RestorationRandom` (e.g. "Quiver of Arrow"-shaped skills): exactly one
+/// weighted group is picked and its items granted together, matching Java's
+/// `100 * Rnd.nextDouble()` roulette roll against the raw 0-100 `chance`
+/// values.
+#[test]
+fn item_skill_give_item_random_grants_one_weighted_group() {
+    use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
+    use crate::model::inventory::Inventory;
+    use crate::model::skill::{RestorationGroup, RestorationItem, SkillEffect};
+
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    // `apply_skill_effects` rolls a magic-crit check unconditionally before
+    // walking the effect list (unused here since this isn't a
+    // `MagicalAttack`) — force it out of the queue first, then force the
+    // roulette roll: `roll_f64` reads a forced value `v` as `v / 1_000_000`,
+    // so 600_000 -> 0.6 -> `100 * 0.6 = 60`, landing in the second slice
+    // (30..80) below.
+    world.forced_rolls.push_back(0);
+    world.forced_rolls.push_back(600_000);
+
+    world.data.skill_data.insert_for_test(Skill {
+        id: 323,
+        level: 1,
+        name: "Quiver of Arrow".into(),
+        operate_type: OperateType::Active,
+        target_type: TargetType::Self_,
+        magic_type: 2,
+        effect_point: 0,
+        cast_range: 0,
+        effect_range: 0,
+        hit_time: 0,
+        hit_cancel_time: 0.0,
+        cool_time: 0,
+        reuse_delay: 0,
+        reuse_delay_group: -1,
+        mp_consume: 0,
+        mp_initial_consume: 0,
+        hp_consume: 0,
+        abnormal_time: 0,
+        abnormal_level: 0,
+        abnormal_type: "NONE".into(),
+        effects: vec![SkillEffect::GiveItemRandom {
+            groups: vec![
+                RestorationGroup {
+                    chance: 30.0,
+                    items: vec![RestorationItem { item_id: 1344, count: 700, min_enchant: 0, max_enchant: 0 }],
+                },
+                RestorationGroup {
+                    chance: 50.0,
+                    items: vec![RestorationItem { item_id: 1344, count: 1400, min_enchant: 0, max_enchant: 0 }],
+                },
+                RestorationGroup {
+                    chance: 20.0,
+                    items: vec![RestorationItem { item_id: 1344, count: 2800, min_enchant: 0, max_enchant: 0 }],
+                },
+            ],
+        }],
+    });
+    world.data.item_data.insert_for_test(ItemTemplate {
+        item_id: 1344,
+        name: "Mithril Arrow".into(),
+        kind: ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: true,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        price: 0,
+        handler: ItemHandler::None,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+    });
+    world.data.item_data.insert_for_test(ItemTemplate {
+        item_id: 9999,
+        name: "Quiver of Arrow scroll".into(),
+        kind: ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: true,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        price: 0,
+        handler: ItemHandler::ItemSkills,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: vec![(323, 1)],
+    });
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9001, 9999, 1);
+    }
+
+    items::handle_use_item(&mut world, 1, &use_item_body(9001));
+
+    let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+    let arrows = inv.items().iter().find(|i| i.item_id == 1344).expect("arrows granted");
+    assert_eq!(arrows.count, 1400, "roll 60 lands in the 30..80 (second) slice");
+    let _ = &mut rx;
+}
+
 /// Puts a bare `Player` (built from `dummy_char`) straight into `InGame`,
 /// the same session-transition chain the other tests use, and returns its
 /// outbound packet receiver.

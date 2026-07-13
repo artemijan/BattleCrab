@@ -18,7 +18,7 @@ use quick_xml::events::Event;
 use quick_xml::Reader;
 use tracing::info;
 
-use crate::model::skill::{OperateType, Skill, SkillEffect, StatModifierEffect, TargetType};
+use crate::model::skill::{OperateType, RestorationGroup, RestorationItem, Skill, SkillEffect, StatModifierEffect, TargetType};
 use crate::model::stats::{Stat, StatModifierType};
 
 pub const SKILLS_DIR: &str = "data/stats/skills";
@@ -119,8 +119,8 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
 
     // Effects collected for the current skill: (xml name, per-level params
     // keyed by param name — `amount` for stat modifiers, `power` for the
-    // instant damage/heal handlers —, mode).
-    let mut effects: Vec<(String, LeveledValues, String)> = Vec::new();
+    // instant damage/heal handlers —, mode, RestorationRandom groups).
+    let mut effects: Vec<(String, LeveledValues, String, Vec<RestorationGroup>)> = Vec::new();
     let mut in_effects = false;
     let mut in_conditions = false;
     let mut cur_effect_name: Option<String> = None;
@@ -128,16 +128,37 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
     let mut cur_effect_mode = String::from("DIFF");
     let mut cur_effect_field = String::new();
 
+    // `RestorationRandom`'s `<items><item chance="30"><item id=".." count=".."
+    // /></item></items>` shape doesn't fit the scalar/leveled-value model
+    // above (a list of chance-weighted item groups), so it's tracked
+    // separately: `cur_restoration_groups` accumulates finished groups for
+    // the current `<effect>`, `cur_group_chance`/`cur_group_items` build the
+    // group currently open.
+    let mut cur_restoration_groups: Vec<RestorationGroup> = Vec::new();
+    let mut cur_group_chance: f64 = 0.0;
+    let mut cur_group_items: Vec<RestorationItem> = Vec::new();
+
     // Tag-name stack relative to `<skill>` (path[0] == "skill" once inside one).
     let mut path: Vec<String> = Vec::new();
 
     loop {
         match reader.read_event() {
-            Ok(Event::Empty(_)) => {
-                // Self-closing leaf (e.g. an attribute-only tag with no text) —
-                // none of the fields this loader reads use this shape, so
-                // there's nothing to record; explicitly not pushed onto `path`
-                // since no matching `End` event follows a self-closing tag.
+            Ok(Event::Empty(e)) => {
+                // Self-closing leaf (e.g. an attribute-only tag with no text).
+                // Not pushed onto `path` since no matching `End` event follows
+                // — the one shape this loader reads here is `RestorationRandom`'s
+                // inner `<item id=".." count=".."/>`, sitting right inside an
+                // open group (`path` still at the group's depth, 5).
+                if in_effects && cur_effect_field == "items" && path.len() == 5 && e.name().as_ref() == b"item" {
+                    if let (Some(item_id), Some(count)) = (attr_i32(&e, b"id"), attr_i64(&e, b"count")) {
+                        cur_group_items.push(RestorationItem {
+                            item_id,
+                            count,
+                            min_enchant: attr_i32(&e, b"minEnchant").unwrap_or(0),
+                            max_enchant: attr_i32(&e, b"maxEnchant").unwrap_or(0),
+                        });
+                    }
+                }
             }
             Ok(Event::Start(e)) => {
                 let name = String::from_utf8_lossy(e.name().as_ref()).into_owned();
@@ -169,10 +190,15 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                     cur_effect_name = attr_str(&e, b"name");
                     cur_effect_params = HashMap::new();
                     cur_effect_mode = String::from("DIFF");
+                    cur_restoration_groups = Vec::new();
                 } else if path.len() == 3 && in_effects {
                     cur_effect_field = name.clone();
                 } else if path.len() == 4 && in_effects && name == "value" {
                     pending_level = attr_i32(&e, b"level").unwrap_or(0);
+                } else if path.len() == 4 && in_effects && cur_effect_field == "items" && name == "item" {
+                    // `RestorationRandom`'s outer `<item chance="30">` group tag.
+                    cur_group_chance = attr_f64(&e, b"chance").unwrap_or(0.0);
+                    cur_group_items = Vec::new();
                 }
                 path.push(name);
             }
@@ -225,9 +251,15 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                     in_effects = false;
                 } else if closed == "conditions" {
                     in_conditions = false;
+                } else if closed == "item" && in_effects && cur_effect_field == "items" {
+                    // Closes a `RestorationRandom` group (the inner
+                    // `<item id=".." count=".."/>` is self-closing, so this
+                    // `End` only ever fires for the outer group tag).
+                    cur_restoration_groups
+                        .push(RestorationGroup { chance: cur_group_chance, items: std::mem::take(&mut cur_group_items) });
                 } else if closed == "effect" && in_effects {
                     if let Some(name) = cur_effect_name.take() {
-                        effects.push((name, cur_effect_params.clone(), cur_effect_mode.clone()));
+                        effects.push((name, cur_effect_params.clone(), cur_effect_mode.clone(), std::mem::take(&mut cur_restoration_groups)));
                     }
                 }
             }
@@ -243,7 +275,7 @@ fn finalize_skill(
     name: &str,
     to_level: i32,
     values: &LeveledValues,
-    effects: &[(String, LeveledValues, String)],
+    effects: &[(String, LeveledValues, String, Vec<RestorationGroup>)],
     out: &mut HashMap<(i32, i32), Skill>,
 ) {
     if id < 0 {
@@ -268,11 +300,17 @@ fn finalize_skill(
 
         let skill_effects = effects
             .iter()
-            .filter_map(|(xml_name, params, mode)| {
+            .filter_map(|(xml_name, params, mode, groups)| {
                 let param = |key: &str| -> Option<f64> { value_at(params, key, level).and_then(|v| v.parse().ok()) };
                 match xml_name.as_str() {
                     "MagicalAttack" => Some(SkillEffect::MagicalAttack { power: param("power")? }),
                     "Heal" => Some(SkillEffect::Heal { power: param("power")? }),
+                    "Restoration" => Some(SkillEffect::GiveItem {
+                        item_id: param("itemId")? as i32,
+                        item_count: param("itemCount")? as i64,
+                        item_enchant_level: param("itemEnchantmentLevel").unwrap_or(0.0) as i32,
+                    }),
+                    "RestorationRandom" => Some(SkillEffect::GiveItemRandom { groups: groups.clone() }),
                     _ => {
                         let stat = EFFECT_REGISTRY.iter().find(|(n, _)| n == xml_name).map(|(_, s)| *s)?;
                         let mode = if mode == "PER" { StatModifierType::Per } else { StatModifierType::Diff };
@@ -325,6 +363,14 @@ fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
     attr_str(e, key).and_then(|s| s.parse().ok())
 }
 
+fn attr_i64(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i64> {
+    attr_str(e, key).and_then(|s| s.parse().ok())
+}
+
+fn attr_f64(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<f64> {
+    attr_str(e, key).and_then(|s| s.parse().ok())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -347,6 +393,32 @@ mod tests {
         let ki = sd.get(10248, 1).expect("Knight - Individual lvl 1");
         assert_eq!(ki.reuse_delay_group, 10008);
         assert_eq!(ki.reuse_key(), 10008);
+
+        // Skill 22490 "Mysterious Spiritshot d 5000" — the `Restoration`
+        // effect backing the "Mysterious Blessed Spiritshot Pack (5000)
+        // (D-grade)" item (22599). Previously parsed with an empty effect
+        // list, so using the pack consumed it and granted nothing.
+        let spiritshot_pack = sd.get(22490, 5).expect("Mysterious Spiritshot d 5000 lvl 5");
+        assert!(matches!(
+            spiritshot_pack.effects.as_slice(),
+            [SkillEffect::GiveItem { item_id: 21852, item_count: 5000, item_enchant_level: 0 }]
+        ));
+
+        // Skill 323 "Quiver of Arrow" — a real `RestorationRandom` skill
+        // (three weighted groups of Mithril Arrow).
+        let quiver = sd.get(323, 1).expect("Quiver of Arrow lvl 1");
+        match quiver.effects.as_slice() {
+            [SkillEffect::GiveItemRandom { groups }] => {
+                assert_eq!(groups.len(), 3);
+                assert_eq!(groups[0].chance, 30.0);
+                assert_eq!(groups[0].items, vec![RestorationItem { item_id: 1344, count: 700, min_enchant: 0, max_enchant: 0 }]);
+                assert_eq!(groups[1].chance, 50.0);
+                assert_eq!(groups[1].items[0].count, 1400);
+                assert_eq!(groups[2].chance, 20.0);
+                assert_eq!(groups[2].items[0].count, 2800);
+            }
+            other => panic!("expected one GiveItemRandom effect, got {other:?}"),
+        }
     }
 
     /// A trimmed Wind Strike (1177): per-level `targetType` and

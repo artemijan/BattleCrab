@@ -46,12 +46,37 @@ pub struct StatModifierEffect {
     pub amount: f64,
 }
 
+/// One entry inside a `RestorationRandom` reward group (Java
+/// `RestorationItemHolder`). `min_enchant`/`max_enchant` are carried but not
+/// yet applied when granting — parity with `ExtractableItems`'s enchant-roll
+/// gap (`game_loop::items::extract_item`'s doc comment): nothing currently
+/// loaded needs it.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct RestorationItem {
+    pub item_id: i32,
+    pub count: i64,
+    pub min_enchant: i32,
+    pub max_enchant: i32,
+}
+
+/// One `<items><item chance="..">...</item></items>` roulette slice (Java
+/// `ExtractableProductItem`): a chance-weighted set of items granted
+/// together when this slice is picked. `chance` is the raw XML percentage
+/// (0-100 space, slices summing to ~100), matching Java's
+/// `100 * Rnd.nextDouble()` roulette roll — not pre-scaled like
+/// `item_data::CapsuledItem::chance`.
+#[derive(Debug, Clone)]
+pub struct RestorationGroup {
+    pub chance: f64,
+    pub items: Vec<RestorationItem>,
+}
+
 /// A skill effect the pipeline knows how to apply. Java registers ~380 effect
 /// handler scripts by name; here each supported kind is a variant —
 /// `StatModifier` covers the whole `AbstractStatAddEffect`/
 /// `AbstractStatPercentEffect` family, the instant kinds get one variant per
 /// ported handler. Unregistered effect names are still dropped at load.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum SkillEffect {
     /// Continuous stat pump (goes into an `ActiveBuff` for `abnormal_time`).
     StatModifier(StatModifierEffect),
@@ -59,6 +84,15 @@ pub enum SkillEffect {
     MagicalAttack { power: f64 },
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.
     Heal { power: f64 },
+    /// `handlers/effecthandlers/Restoration.java` — instant single-item
+    /// grant. Backs item-use skills wrapping a fixed pack/box reward (e.g.
+    /// spiritshot packs): the item's `<skills>` entry casts this, which is
+    /// where the actual reward comes from.
+    GiveItem { item_id: i32, item_count: i64, item_enchant_level: i32 },
+    /// `handlers/effecthandlers/RestorationRandom.java` — one weighted
+    /// roulette pick among reward groups (each group can grant multiple
+    /// items at once). Used by "pick one of N" reward boxes.
+    GiveItemRandom { groups: Vec<RestorationGroup> },
 }
 
 /// `dist/game/data/stats/skills/*.xml` → `Skill.java`, scoped to G6.
