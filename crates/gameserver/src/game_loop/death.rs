@@ -455,33 +455,9 @@ fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
         p.recalculate_stats(data, &base, &mods, &mut speeds, &mut combat);
     }
 
-    // `rewardSkills`: grant every autoGet skill now reachable.
-    let (class_id, level, mut known) = {
-        let p = &world.objects.get_component::<crate::model::Player>(&player_oid).expect("player");
-        let skills = world.objects.get_component::<SkillBook>(&player_oid).cloned().unwrap_or_default();
-        (p.class_id, p.level, skills.0)
-    };
-    let mut granted = Vec::new();
-    for learn in world.data.skill_trees.auto_get_skills(class_id, level) {
-        let known_level = known.get(&learn.skill_id).copied().unwrap_or(0);
-        if learn.skill_level > known_level {
-            known.insert(learn.skill_id, learn.skill_level);
-            granted.push((learn.skill_id, learn.skill_level));
-        }
-    }
-    if !granted.is_empty() {
-        if let Some(book) = world.objects.get_component_mut::<SkillBook>(&player_oid) {
-            for &(id, lvl) in &granted {
-                book.0.insert(id, lvl);
-            }
-        }
-        for (id, lvl) in granted {
-            let _ = world.db.send(crate::db::DbCommand::UpsertSkill { char_id: player_oid, skill_id: id, skill_level: lvl });
-            // `updateShortCuts` — panel slots holding the skill pick up the
-            // auto-granted level.
-            super::shortcuts::update_skill_shortcuts(world, player_oid, id, lvl);
-        }
-    }
+    // `rewardSkills`: grant the skills now reachable (autoGet only, or — with
+    // `AutoLearnSkills` — every reachable class skill).
+    reward_skills(world, player_oid);
 
     if leveled_up {
         broadcast_including_self(
@@ -525,6 +501,74 @@ fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
             cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character));
             let Some(skills) = world.objects.get_component::<SkillBook>(&player_oid) else { return };
             cs.send(crate::network::enter_world::skill_list(skills, &world.data));
+        }
+    }
+}
+
+/// Java `Player.rewardSkills` skill selection: with `AutoLearnSkills` on,
+/// every class skill reachable at `level`; otherwise autoGet skills only.
+/// Returns the `(id, level)` pairs that are new or an upgrade over `known`.
+pub(crate) fn reward_skill_grants(
+    data: &crate::data::GameData,
+    cfg: &crate::config::CharacterConfig,
+    class_id: i32,
+    level: i32,
+    known: &std::collections::HashMap<i32, i32>,
+) -> Vec<(i32, i32)> {
+    if cfg.auto_learn_skills {
+        return data.skill_trees.all_available_skills(class_id, level, known);
+    }
+    let mut granted = Vec::new();
+    let mut seen: std::collections::HashMap<i32, i32> = std::collections::HashMap::new();
+    for learn in data.skill_trees.auto_get_skills(class_id, level) {
+        let cur = seen
+            .get(&learn.skill_id)
+            .copied()
+            .unwrap_or_else(|| known.get(&learn.skill_id).copied().unwrap_or(0));
+        if learn.skill_level > cur {
+            seen.insert(learn.skill_id, learn.skill_level);
+            granted.push((learn.skill_id, learn.skill_level));
+        }
+    }
+    granted
+}
+
+/// `Player.rewardSkills` for a live in-world player: grant the reachable
+/// skills, persist them, and roll any upgrades into panel shortcuts. With
+/// `AutoLearnSkills` it mirrors Java's `ShortCutInit` + "learned N skills"
+/// notice.
+pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
+    let (class_id, level, known) = {
+        let Some(p) = world.objects.get_component::<crate::model::Player>(&player_oid) else { return };
+        let skills = world.objects.get_component::<SkillBook>(&player_oid).cloned().unwrap_or_default();
+        (p.class_id, p.level, skills.0)
+    };
+    let granted = reward_skill_grants(&world.data, &world.cfg.character, class_id, level, &known);
+    if granted.is_empty() {
+        return;
+    }
+    if let Some(book) = world.objects.get_component_mut::<SkillBook>(&player_oid) {
+        for &(id, lvl) in &granted {
+            book.0.insert(id, lvl);
+        }
+    }
+    for &(id, lvl) in &granted {
+        let _ = world.db.send(crate::db::DbCommand::UpsertSkill { char_id: player_oid, skill_id: id, skill_level: lvl });
+        // `updateShortCuts` — panel slots holding the skill pick up the level.
+        super::shortcuts::update_skill_shortcuts(world, player_oid, id, lvl);
+    }
+    if world.cfg.character.auto_learn_skills {
+        if let Some(client_id) = client_for_player(world, player_oid) {
+            if let Some(cs) = world.clients.get(&client_id) {
+                let count = granted.iter().map(|&(id, _)| id).collect::<std::collections::HashSet<_>>().len();
+                if let Some(shortcuts) = world.objects.get_component::<crate::model::components::Shortcuts>(&player_oid) {
+                    cs.send(server_packets::shortcut_init(shortcuts));
+                }
+                cs.send(server_packets::system_message_with(
+                    sm_ids::S1_TEXT,
+                    &[SmParam::Text(format!("You have learned {count} new skills."))],
+                ));
+            }
         }
     }
 }

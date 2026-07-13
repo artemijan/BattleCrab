@@ -511,6 +511,64 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     assert_eq!(pcs(&world, 2001).p_def, 80.0, "P.Def restored after the buff expired");
 }
 
+/// `AutoLearnSkills`: `rewardSkills` must grant every reachable class skill,
+/// not just autoGet ones — and only autoGet ones when the flag is off.
+#[test]
+fn auto_learn_grants_all_reachable_class_skills() {
+    use crate::data::skill_tree::SkillLearn;
+
+    let mk_data = || {
+        let mut data = GameData::for_test();
+        data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![human_fighter_template()]);
+        // Class 0: a level-1 autoGet skill + a non-autoGet class skill (id 91,
+        // levels 1@getLevel5 and 2@getLevel10).
+        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 1000, skill_level: 1, name: "Auto".into(), get_level: 1, level_up_sp: 0, auto_get: true });
+        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 91, skill_level: 1, name: "Class1".into(), get_level: 5, level_up_sp: 100, auto_get: false });
+        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 91, skill_level: 2, name: "Class2".into(), get_level: 10, level_up_sp: 200, auto_get: false });
+        data
+    };
+
+    let spawn_level_5 = |world: &mut World| {
+        let mut chr = dummy_char(2001, "Al");
+        chr.level = 5;
+        let bundle = Player::from_char(&world.data, &chr);
+        let (link_out, _r) = tokio::sync::mpsc::unbounded_channel();
+        let s = Session::new(1, link_out, "127.0.0.1:1".parse().unwrap())
+            .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+            .into_lobby(vec![])
+            .into_entering(bundle);
+        let (_session, bundle) = s.into_ingame();
+        bundle.spawn_into(&mut world.objects);
+    };
+
+    // Flag ON: the class skill (id 91 @ level 1, the max reachable at char
+    // level 5) is auto-learned alongside the autoGet skill.
+    {
+        let (link_tx, _l) = tokio::sync::mpsc::unbounded_channel();
+        let (db_tx, _d) = tokio::sync::mpsc::unbounded_channel();
+        let mut world = World::new(link_tx, 7, 3, 0, mk_data(), db_tx);
+        world.cfg.character.auto_learn_skills = true;
+        spawn_level_5(&mut world);
+        super::death::reward_skills(&mut world, 2001);
+        let book = &world.objects.get_component::<SkillBook>(&2001).unwrap().0;
+        assert_eq!(book.get(&1000), Some(&1), "autoGet skill granted");
+        assert_eq!(book.get(&91), Some(&1), "class skill auto-learned at level 5");
+    }
+
+    // Flag OFF: only the autoGet skill; the class skill stays unlearned.
+    {
+        let (link_tx, _l) = tokio::sync::mpsc::unbounded_channel();
+        let (db_tx, _d) = tokio::sync::mpsc::unbounded_channel();
+        let mut world = World::new(link_tx, 7, 3, 0, mk_data(), db_tx);
+        assert!(!world.cfg.character.auto_learn_skills, "default is off");
+        spawn_level_5(&mut world);
+        super::death::reward_skills(&mut world, 2001);
+        let book = &world.objects.get_component::<SkillBook>(&2001).unwrap().0;
+        assert_eq!(book.get(&1000), Some(&1), "autoGet skill granted");
+        assert_eq!(book.get(&91), None, "class skill NOT auto-learned when flag is off");
+    }
+}
+
 fn magic_skill_use_body(magic_id: i32, ctrl: bool) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_i32(magic_id);

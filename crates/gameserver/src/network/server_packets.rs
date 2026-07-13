@@ -1125,6 +1125,9 @@ pub mod sm_ids {
     pub const YOU_HAVE_MISSED: i16 = 43;
     pub const CRITICAL_HIT: i16 = 44;
     pub const YOUR_LEVEL_HAS_INCREASED: i16 = 96;
+    /// Java `SystemMessage(String)` / `Player.sendMessage(String)` — a bare
+    /// `$s1` text line (`SystemMessageId.S1_2`).
+    pub const S1_TEXT: i16 = 1983;
     pub const YOU_HAVE_ACQUIRED_S1_SP: i16 = 331;
     pub const YOUR_SP_HAS_DECREASED_BY_S1: i16 = 538;
     pub const YOUR_XP_HAS_DECREASED_BY_S1: i16 = 539;

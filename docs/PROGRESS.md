@@ -1060,6 +1060,19 @@ commands) stays G13.
   (zones + doors + statics + 15 scripts); its skip-unsolicited helper now
   also skips the compass code (the mage-start spawn lies in a peace zone).
 
+**Post-G12 fixes:**
+- **`AutoLearnSkills` config now honored** (`config/character.rs`,
+  `data/skill_tree.rs`, `game_loop/death.rs`, `game_loop/lobby.rs`): the port
+  ignored `Character.ini`'s `AutoLearnSkills = True`, so players only ever got
+  autoGet skills. `Player.rewardSkills` now branches on the flag — with it on,
+  `SkillTreeData.all_available_skills` (a base-tree narrowing of Java's
+  `getAllAvailableSkills`: highest reachable level per class skill, no
+  FS/removeSkills/required-items in `StartingClass/*.xml`) grants every
+  reachable class skill on both enter-world and level-up, with the
+  `ShortCutInit` + "learned N skills" (`SystemMessageId.S1_2`) notice. FS /
+  divine-inspiration / removeSkills paths stay out of scope (absent from base
+  trees). Unit + level-up/enter-world grant tests.
+
 ---
 
 ## Deferred TODOs (by system)

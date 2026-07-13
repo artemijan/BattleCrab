@@ -315,6 +315,40 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         .clans
         .get(&bundle.player.clan_id)
         .is_some_and(|c| c.leader_id == bundle.player.object_id);
+
+    // `Player.rewardSkills` on char-load: grant any reachable skills the book
+    // is missing (autoGet always; with `AutoLearnSkills`, every reachable class
+    // skill). Runs before the skill/shortcut burst below so both reflect the
+    // grants. The player isn't in `world.objects` yet, so we apply to `bundle`.
+    let learned = {
+        let granted = super::death::reward_skill_grants(
+            &world.data,
+            &world.cfg.character,
+            bundle.player.class_id,
+            bundle.player.level,
+            &bundle.skills.0,
+        );
+        let char_id = bundle.player.object_id;
+        for &(id, lvl) in &granted {
+            bundle.skills.0.insert(id, lvl);
+            let _ = world.db.send(crate::db::DbCommand::UpsertSkill { char_id, skill_id: id, skill_level: lvl });
+            for sc in bundle.shortcuts.0.values_mut() {
+                if sc.kind == crate::model::shortcut::ShortcutType::Skill && sc.id == id {
+                    sc.level = lvl;
+                    let _ = world.db.send(crate::db::DbCommand::UpsertShortcut {
+                        char_id,
+                        slot: sc.slot,
+                        page: sc.page,
+                        kind: sc.kind.ordinal(),
+                        shortcut_id: sc.id,
+                        level: sc.level,
+                    });
+                }
+            }
+        }
+        granted.iter().map(|&(id, _)| id).collect::<std::collections::HashSet<_>>().len()
+    };
+
     let view = bundle.view();
     let player = &bundle.player;
     let name = player.name.clone();
@@ -363,6 +397,13 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     }
     session.send(ew::abnormal_status_update(&crate::model::components::Buffs::default(), world.tick));
     session.send(ew::system_message(ew::SM_WELCOME));
+    // `giveAvailableSkills` notice (only the `AutoLearnSkills` path shows it).
+    if world.cfg.character.auto_learn_skills && learned > 0 {
+        session.send(server_packets::system_message_with(
+            server_packets::sm_ids::S1_TEXT,
+            &[server_packets::SmParam::Text(format!("You have learned {learned} new skills."))],
+        ));
+    }
 
     let object_id = player.object_id;
     bundle.spawn_into(&mut world.objects);

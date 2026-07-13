@@ -50,6 +50,10 @@ pub struct CharacterConfig {
     /// items are checked against this separate cap, never the ordinary one
     /// (`PlayerInventory.validateCapacity`'s `questItem` branch).
     pub inventory_max_quest_items: i32,
+    /// `AutoLearnSkills`: when true, `Player.rewardSkills` grants every class
+    /// skill reachable at the player's level (not just autoGet skills), on
+    /// enter-world and every level-up (Java `giveAvailableSkills`).
+    pub auto_learn_skills: bool,
 }
 
 impl Default for CharacterConfig {
@@ -76,6 +80,7 @@ impl Default for CharacterConfig {
             inventory_max_no_dwarf: 80,
             inventory_max_dwarf: 100,
             inventory_max_quest_items: 100,
+            auto_learn_skills: false,
         }
     }
 }
@@ -119,6 +124,7 @@ impl CharacterConfig {
             inventory_max_no_dwarf: p.get_int("MaximumSlotsForNoDwarf", d.inventory_max_no_dwarf),
             inventory_max_dwarf: p.get_int("MaximumSlotsForDwarf", d.inventory_max_dwarf),
             inventory_max_quest_items: p.get_int("MaximumSlotsForQuestItems", d.inventory_max_quest_items),
+            auto_learn_skills: p.get_bool("AutoLearnSkills", d.auto_learn_skills),
         }
     }
 }
