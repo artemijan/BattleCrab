@@ -1408,6 +1408,93 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
     assert!(!packets.is_empty(), "InventoryUpdate/UserInfo sent with the deferred equip");
 }
 
+/// End-to-end guard for the ring/earring paperdoll bug: equipping, then
+/// swapping, a dual-slot item (earring) must resend `ExUserInfoEquipSlot`
+/// (Ex 0x156) — the packet that actually paints the client's own paperdoll —
+/// with the correct REar/LEar object ids on *every* click, not just at
+/// enter-world.
+#[test]
+fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
+    use crate::enums::InventorySlot;
+    use crate::model::inventory::Inventory;
+
+    let (mut world, ..) = cast_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    for id in [501, 502] {
+        world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+            item_id: id,
+            name: format!("earring{id}"),
+            kind: crate::data::item_data::ItemKind::Armor,
+            body_part: crate::data::item_data::SLOT_L_EAR | crate::data::item_data::SLOT_R_EAR,
+            weight: 0,
+            is_stackable: false,
+            type1: 0,
+            type2: 0,
+            is_quest_item: false,
+            price: 0,
+            handler: crate::data::item_data::ItemHandler::None,
+            capsuled_items: Vec::new(),
+            extractable_count_min: 0,
+            extractable_count_max: 0,
+            item_skills: Vec::new(),
+        });
+    }
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9001, 501, 1);
+        inv.add_item(&data.item_data, 9002, 502, 1);
+    }
+
+    // Extract (object_id, item_id) for a given InventorySlot from the most
+    // recent ExUserInfoEquipSlot packet in `packets`, panicking if absent.
+    fn ear_slots(packets: &[Vec<u8>]) -> (i32, i32, i32, i32) {
+        let pkt = packets
+            .iter()
+            .rev()
+            .find(|p| p.len() > 2 && p[0] == 0xFE && u16::from_le_bytes([p[1], p[2]]) == 0x156)
+            .expect("ExUserInfoEquipSlot not sent");
+        let mut offset = 14usize;
+        let (mut rear, mut lear) = ((0, 0), (0, 0));
+        for slot in InventorySlot::VALUES {
+            let block_len = u16::from_le_bytes([pkt[offset], pkt[offset + 1]]) as usize;
+            let obj_id = i32::from_le_bytes(pkt[offset + 2..offset + 6].try_into().unwrap());
+            let item_id = i32::from_le_bytes(pkt[offset + 6..offset + 10].try_into().unwrap());
+            match slot {
+                InventorySlot::REar => rear = (obj_id, item_id),
+                InventorySlot::LEar => lear = (obj_id, item_id),
+                _ => {}
+            }
+            offset += block_len;
+        }
+        (rear.0, rear.1, lear.0, lear.1)
+    }
+
+    // First earring: fills LEar (equip_item fills left-then-right).
+    items::handle_use_item(&mut world, 1, &use_item_body(9001));
+    let packets = drain(&mut a_rx);
+    let (rear_oid, _rear_iid, lear_oid, lear_iid) = ear_slots(&packets);
+    assert_eq!((rear_oid, lear_oid, lear_iid), (0, 9001, 501), "first earring lands in LEar");
+
+    // Second earring: fills the free REar slot, LEar untouched.
+    items::handle_use_item(&mut world, 1, &use_item_body(9002));
+    let packets = drain(&mut a_rx);
+    let (rear_oid, rear_iid, lear_oid, lear_iid) = ear_slots(&packets);
+    assert_eq!((rear_oid, rear_iid, lear_oid, lear_iid), (9002, 502, 9001, 501), "second earring lands in REar, first stays put");
+
+    // Clicking an *already-equipped* earring toggles it back off. Java
+    // resolves this via `getSlotFromItem` (the single-bit slot the item
+    // currently occupies), not the item's raw (combined, for ears/fingers)
+    // template body part — passing the latter used to silently no-op.
+    items::handle_use_item(&mut world, 1, &use_item_body(9001));
+    let packets = drain(&mut a_rx);
+    assert!(!packets.is_empty(), "unequip-via-click must send packets, not silently no-op");
+    let (rear_oid, rear_iid, lear_oid, _lear_iid) = ear_slots(&packets);
+    assert_eq!((rear_oid, rear_iid, lear_oid), (9002, 502, 0), "LEar cleared, REar untouched");
+    let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+    assert!(inv.paperdoll_slot_of(9001).is_none(), "first earring actually unequipped");
+}
+
 /// The bug this guards: `UseItem` on a non-equipable `EtcItem` used to be a
 /// silent no-op (`is_equipable() == false` → early return before any handler
 /// dispatch existed), so pack/box items like "Mage Class Equipment Set"

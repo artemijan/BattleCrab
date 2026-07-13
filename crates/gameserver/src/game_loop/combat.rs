@@ -30,7 +30,7 @@ use crate::world::World;
 use super::helpers::{
     broadcast_including_self, broadcast_near_region, client_for_player, ms_to_ticks,
 };
-use super::skills::cast::abort_cast;
+use super::skills::cast::break_cast;
 
 /// `AttackStanceTaskManager.COMBAT_TIME` (15 s) in ticks.
 pub(crate) const COMBAT_STANCE_TICKS: u64 = 150;
@@ -1052,7 +1052,7 @@ pub(crate) fn player_receive_damage(
         };
         let break_roll = world.roll(100);
         if formulas::calc_atk_break(damage, men_bonus, break_roll) {
-            abort_cast(world, player_oid);
+            break_cast(world, player_oid);
             maybe_distance_too_far(world, player_oid);
         }
     }

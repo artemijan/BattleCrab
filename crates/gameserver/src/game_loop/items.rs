@@ -65,6 +65,25 @@ pub(crate) fn add_inventory_item(world: &mut World, player_oid: i32, item_id: i3
     Some(created)
 }
 
+/// Port of `clientpackets/RequestItemList.runImpl`: the client opened its
+/// inventory window and wants the current contents. Java calls
+/// `player.sendItemList(true)`, which (after a 300 ms debounce we don't
+/// replicate — there's no per-client timer here) sends `ItemList` with the
+/// show-window flag set, then `ExQuestItemList`, `ExAdenaInvenCount` and
+/// `ExUserInfoInvenWeight`. The `isInventoryDisabled` guard is a no-op: nothing
+/// in this port blocks the inventory yet (set only by trades/some skills, both
+/// unported).
+pub(crate) fn handle_request_item_list(world: &mut World, client_id: u32) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+    let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else { return };
+    let Some(cs) = world.clients.get(&client_id) else { return };
+    cs.send(ew::item_list(inventory, &world.data, true));
+    cs.send(ew::ex_quest_item_list(inventory, &world.data));
+    cs.send(ew::ex_adena_inven_count(inventory));
+    cs.send(ew::ex_user_info_inven_weight(object_id, inventory, &world.data));
+}
+
 /// Port of `clientpackets/UseItem.runImpl`: right-clicking a `Weapon`/`Armor`
 /// toggles equip/unequip; anything else routes through the `EtcItem` handler
 /// dispatch (Java: `ItemHandler.getInstance().getHandler(etcItem)`).
@@ -112,12 +131,14 @@ pub(crate) fn use_equipable_item(world: &mut World, client_id: u32, object_id: i
     let Some(inventory) = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&object_id) else {
         return;
     };
-    let Some(item) = inventory.items().iter().find(|i| i.object_id == item_object_id) else { return };
-    let Some(template) = catalog.get(item.item_id) else { return };
-    let body_part = template.body_part;
 
+    // Java resolves the item's *currently occupied* single-bit slot
+    // (`getSlotFromItem`) before unequipping — not the item's raw template
+    // body part, which is a combined bitmask for rings/earrings and would
+    // silently no-op. `unequip_item` clears the exact slot we already know
+    // the object id is in, sidestepping that resolution entirely.
     let changed = if inventory.paperdoll_slot_of(item_object_id).is_some() {
-        inventory.unequip_body_part(body_part)
+        inventory.unequip_item(item_object_id)
     } else {
         inventory.equip_item(catalog, item_object_id)
     };
@@ -137,9 +158,53 @@ pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, bo
     finish_equip_change(world, client_id, object_id, &changed);
 }
 
+/// Port of `clientpackets/RequestSaveInventoryOrder.runImpl`: persist the
+/// client's custom inventory arrangement. For each `(object_id, order)` pair,
+/// Java sets `item.setItemLocation(INVENTORY, order)` — but only for items
+/// *currently* in `INVENTORY` (equipped/paperdoll items are skipped). We mirror
+/// that guard via `paperdoll_slot_of`, then fire-and-forget the new `loc_data`
+/// to the DB; `load_items` restores `ORDER BY loc_data`, so the arrangement
+/// survives relog. No response packet — Java sends none either.
+pub(crate) fn handle_request_save_inventory_order(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = cp::RequestSaveInventoryOrder::read(body) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+    let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
+        return;
+    };
+    for (item_object_id, order) in pkt.order {
+        // Only reorder items that are actually in the inventory grid — an
+        // equipped item occupies a paperdoll slot and keeps its slot index.
+        let in_inventory = inventory.items().iter().any(|i| i.object_id == item_object_id)
+            && inventory.paperdoll_slot_of(item_object_id).is_none();
+        if in_inventory {
+            let _ = world.db.send(db::DbCommand::UpdateItemLocation {
+                object_id: item_object_id,
+                loc: "INVENTORY",
+                loc_data: order,
+            });
+        }
+    }
+}
+
 /// Shared tail of the equip/unequip handlers: persist each changed slot
-/// (`items.loc`/`loc_data`), then resend `InventoryUpdate` + `UserInfo` (Java:
-/// `sendInventoryUpdate` + `broadcastUserInfo`).
+/// (`items.loc`/`loc_data`), then resend `ExUserInfoEquipSlot` + `UserInfo` +
+/// `InventoryUpdate` — in that order, mirroring Java's equip flow:
+///   1. `Inventory.setPaperdollItem` sends `ExUserInfoEquipSlot` synchronously
+///      *during* the equip, once per paperdoll slot it mutates;
+///   2. `Player.useEquippableItem` then calls `broadcastUserInfo` (`UserInfo`);
+///   3. …and finally `sendInventoryUpdate` (`InventoryUpdate`).
+/// `ExUserInfoEquipSlot` — not just `InventoryUpdate` — is what drives the
+/// client's own paperdoll rendering; skipping it leaves newly equipped
+/// rings/earrings invisible on the paperdoll even though the inventory list is
+/// correct. Two deliberate divergences from Java, both verified in-game:
+///   * We send one `ExUserInfoEquipSlot` for the whole action instead of one
+///     per `setPaperdollItem` call. The packet is a full 33-slot paperdoll
+///     snapshot, so a single send after all slot mutations already carries the
+///     final state; Java's per-slot sends only differ in transient intermediate
+///     snapshots the client immediately overwrites.
+///   * We omit Java's *extra* `ThreadPool.schedule(new ExUserInfoEquipSlot, 100)`
+///     in `useEquippableItem` — a redundant second copy of that same snapshot.
 pub(crate) fn finish_equip_change(world: &mut World, client_id: u32, object_id: i32, changed: &[i32]) {
     if changed.is_empty() {
         return;
@@ -155,10 +220,11 @@ pub(crate) fn finish_equip_change(world: &mut World, client_id: u32, object_id: 
         let _ = world.db.send(db::DbCommand::UpdateItemLocation { object_id: oid, loc, loc_data });
     }
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::enter_world::inventory_update(inventory, &world.data, changed));
+        cs.send(crate::network::enter_world::ex_user_info_equip_slot(object_id, inventory));
         if let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) {
             cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character));
         }
+        cs.send(crate::network::enter_world::inventory_update(inventory, &world.data, changed));
     }
 }
 

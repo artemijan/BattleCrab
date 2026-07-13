@@ -14,7 +14,10 @@ use super::bypass::handle_request_bypass_to_server;
 use super::chat::handle_say2;
 use super::combat::handle_attack_request;
 use super::death::{handle_appearing, handle_request_restart_point};
-use super::items::{handle_request_un_equip_item, handle_use_item};
+use super::items::{
+    handle_request_item_list, handle_request_save_inventory_order, handle_request_un_equip_item,
+    handle_use_item,
+};
 use super::lobby::{
     handle_auth_login, handle_character_create, handle_character_delete,
     handle_character_restore, handle_character_select, handle_enter_world, handle_new_character,
@@ -63,6 +66,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
                 }
             }
         }
+        cop::REQUEST_ITEM_LIST => handle_request_item_list(world, client_id),
         cop::USE_ITEM => handle_use_item(world, client_id, body),
         cop::REQUEST_UN_EQUIP_ITEM => handle_request_un_equip_item(world, client_id, body),
         cop::REQUEST_MAGIC_SKILL_USE => handle_request_magic_skill_use(world, client_id, body),
@@ -125,6 +129,7 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // RequestUserBanInfo (IN_GAME): Mobius has a null handler — the client
         // tolerates no reply, so consume it silently. TODO: ExUserBanInfo.
         exop::REQUEST_USER_BAN_INFO => {}
+        exop::REQUEST_SAVE_INVENTORY_ORDER => handle_request_save_inventory_order(world, client_id, ex_body),
         exop::REQUEST_CHANGE_PARTY_LEADER => handle_request_change_party_leader(world, client_id, ex_body),
         exop::REQUEST_PARTY_LOOT_MODIFICATION => handle_request_party_loot_modification(world, client_id, ex_body),
         exop::ANSWER_PARTY_LOOT_MODIFICATION => handle_answer_party_loot_modification(world, client_id, ex_body),

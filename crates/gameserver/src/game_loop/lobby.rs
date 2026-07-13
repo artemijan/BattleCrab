@@ -334,7 +334,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         session.send(pkt);
     }
     session.send(ew::ex_get_bookmark_info());
-    session.send(ew::item_list(&bundle.inventory, data));
+    session.send(ew::item_list(&bundle.inventory, data, false));
     session.send(ew::ex_quest_item_list(&bundle.inventory, data));
     session.send(server_packets::shortcut_init(&bundle.shortcuts));
     session.send(ew::ex_basic_action_list(data));

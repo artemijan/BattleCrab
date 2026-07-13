@@ -284,7 +284,6 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 reload(&pool, &event_tx, client_id, account, true).await;
             }
             DbCommand::CreateCharacter { client_id, data } => {
-                println!("create char");
                 let result = create_character(&pool, &mut next_id, max_characters, &data).await;
                 let _ = event_tx.send(DbEvent::CharacterCreated { client_id, result });
                 if result == CreateResult::Ok {
@@ -778,7 +777,9 @@ async fn upsert_macro(pool: &SqlitePool, char_id: i32, m: &crate::model::shortcu
 /// A character's `items` rows (Java: `PlayerInventory.restore`, called for
 /// every row shown in `CharSelectionInfo`, not just the entered character).
 async fn load_items(pool: &SqlitePool, owner_id: i32) -> Vec<ItemRow> {
-    let rows = sqlx::query("SELECT * FROM items WHERE owner_id=? ORDER BY object_id")
+    // Java `PlayerInventory.restore` orders by `loc_data` so a client's saved
+    // inventory arrangement (`RequestSaveInventoryOrder`) survives relog.
+    let rows = sqlx::query("SELECT * FROM items WHERE owner_id=? ORDER BY loc_data")
         .bind(owner_id)
         .fetch_all(pool)
         .await

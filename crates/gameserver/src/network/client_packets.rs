@@ -16,6 +16,7 @@ pub mod opcodes {
     pub const ENTER_WORLD: u8 = 0x11;
     pub const CHARACTER_SELECT: u8 = 0x12;
     pub const NEW_CHARACTER: u8 = 0x13;
+    pub const REQUEST_ITEM_LIST: u8 = 0x14;
     pub const REQUEST_SKILL_COOL_TIME: u8 = 0xA6;
     pub const CHARACTER_RESTORE: u8 = 0x7B;
     pub const REQUEST_UN_EQUIP_ITEM: u8 = 0x16;
@@ -60,6 +61,7 @@ pub mod ex_opcodes {
     pub const REQUEST_CHANGE_PARTY_LEADER: u16 = 0x0C;
     pub const REQUEST_PARTY_LOOT_MODIFICATION: u16 = 0x75;
     pub const ANSWER_PARTY_LOOT_MODIFICATION: u16 = 0x76;
+    pub const REQUEST_SAVE_INVENTORY_ORDER: u16 = 0x24;
 }
 
 /// Split an extended-packet body (after the `0xD0` opcode) into its 2-byte LE
@@ -200,6 +202,31 @@ impl UseItem {
         let object_id = r.read_i32()?;
         let ctrl_pressed = r.read_i32()? != 0;
         Some(Self { object_id, ctrl_pressed })
+    }
+}
+
+/// Port of `clientpackets/RequestSaveInventoryOrder` (`d[dd]`): the client's
+/// custom inventory arrangement — one `(object_id, order)` pair per grid slot.
+/// `order` is the slot index the client wants that item stored at (`items.
+/// loc_data` for `INVENTORY`-located items). Java caps the count at `LIMIT`
+/// (125) and silently drops the overflow.
+pub struct RequestSaveInventoryOrder {
+    pub order: Vec<(i32, i32)>,
+}
+
+impl RequestSaveInventoryOrder {
+    const LIMIT: usize = 125;
+
+    pub fn read(ex_body: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(ex_body);
+        let count = (r.read_i32()? as usize).min(Self::LIMIT);
+        let mut order = Vec::with_capacity(count);
+        for _ in 0..count {
+            let object_id = r.read_i32()?;
+            let slot = r.read_i32()?;
+            order.push((object_id, slot));
+        }
+        Some(Self { order })
     }
 }
 
@@ -538,5 +565,48 @@ impl RequestSendFriendMsg {
         let message = r.read_string()?;
         let receiver = r.read_string()?;
         Some(Self { message, receiver })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use commons::network::PacketWriter;
+
+    fn save_order_body(count: i32, pairs: &[(i32, i32)]) -> Vec<u8> {
+        let mut w = PacketWriter::new();
+        w.write_i32(count);
+        for &(object_id, order) in pairs {
+            w.write_i32(object_id);
+            w.write_i32(order);
+        }
+        w.into_bytes()
+    }
+
+    #[test]
+    fn save_inventory_order_reads_pairs() {
+        let pairs = [(1000, 0), (1001, 2), (1002, 1)];
+        let body = save_order_body(pairs.len() as i32, &pairs);
+        let pkt = RequestSaveInventoryOrder::read(&body).expect("parses");
+        assert_eq!(pkt.order, pairs);
+    }
+
+    #[test]
+    fn save_inventory_order_caps_at_limit() {
+        // A count above LIMIT reads exactly LIMIT pairs; trailing pairs the
+        // client sent past the cap are ignored (matches Java's `Math.min`).
+        let pairs: Vec<(i32, i32)> =
+            (0..RequestSaveInventoryOrder::LIMIT as i32 + 10).map(|i| (2000 + i, i)).collect();
+        let body = save_order_body(pairs.len() as i32, &pairs);
+        let pkt = RequestSaveInventoryOrder::read(&body).expect("parses");
+        assert_eq!(pkt.order.len(), RequestSaveInventoryOrder::LIMIT);
+        assert_eq!(pkt.order, pairs[..RequestSaveInventoryOrder::LIMIT]);
+    }
+
+    #[test]
+    fn save_inventory_order_rejects_truncated() {
+        // Claims two pairs but only supplies one.
+        let body = save_order_body(2, &[(1000, 0)]);
+        assert!(RequestSaveInventoryOrder::read(&body).is_none());
     }
 }

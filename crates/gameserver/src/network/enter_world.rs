@@ -49,8 +49,11 @@ pub(crate) fn write_item_entry(w: &mut PacketWriter, item: &ItemInstance, templa
 
 // ---- plain packets ----
 
-/// `ItemList` (0x11). Quest items are filtered out (none exist yet).
-pub fn item_list(inventory: &crate::model::inventory::Inventory, data: &GameData) -> Vec<u8> {
+/// `ItemList` (0x11). Quest items are filtered out (none exist yet). `open`
+/// is Java's `_showWindow`: the enter-world burst sends it false; a client
+/// `RequestItemList` (inventory window opened) sends it true so the client
+/// pops the inventory window.
+pub fn item_list(inventory: &crate::model::inventory::Inventory, data: &GameData, open: bool) -> Vec<u8> {
     let entries: Vec<_> = inventory
         .items()
         .iter()
@@ -60,7 +63,7 @@ pub fn item_list(inventory: &crate::model::inventory::Inventory, data: &GameData
 
     let mut w = PacketWriter::new();
     w.write_u8(0x11);
-    w.write_i16(0); // show window (false)
+    w.write_i16(i16::from(open)); // show window
     w.write_i16(entries.len() as i16);
     for (item, template) in &entries {
         let equipped = inventory.paperdoll_slot_of(item.object_id).is_some();
@@ -386,16 +389,26 @@ pub fn ex_user_info_equip_slot(object_id: i32, inventory: &crate::model::invento
     let mut w = ex(0x156);
     w.write_i32(object_id);
     w.write_i16(InventorySlot::VALUES.len() as i16);
-    w.write_bytes(&masks::build_mask::<5>(InventorySlot::VALUES.iter().map(|s| s.mask())));
+    // Java's `addAll=true` constructor: every slot component is in the mask.
+    let masks = masks::build_mask::<5>(InventorySlot::VALUES.iter().map(|s| s.mask()));
+    w.write_bytes(&masks);
     for slot in InventorySlot::VALUES {
+        // Match Java `writeImpl`: only write a block for slots set in the mask,
+        // so the body always follows the mask (no desync if the mask goes partial).
+        if !masks::contains_mask(&masks, slot.mask()) {
+            continue;
+        }
         let pd = slot.slot();
         let augment = inventory.paperdoll_augmentation(pd);
+        let object_id_val = inventory.paperdoll_object_id(pd);
+        let item_id = inventory.paperdoll_item_id(pd);
+        let visual_id = inventory.paperdoll_visual_id(pd);
         w.write_i16(22); // block length: 10 + 4 * 3
-        w.write_i32(inventory.paperdoll_object_id(pd));
-        w.write_i32(inventory.paperdoll_item_id(pd));
+        w.write_i32(object_id_val);
+        w.write_i32(item_id);
         w.write_i32(augment.map_or(0, |(opt1, _)| opt1));
         w.write_i32(augment.map_or(0, |(_, opt2)| opt2));
-        w.write_i32(inventory.paperdoll_visual_id(pd));
+        w.write_i32(visual_id);
     }
     w.into_bytes()
 }
@@ -427,4 +440,198 @@ pub fn ex_auto_soul_shot(item_id: i32, enable: bool, kind: i32) -> Vec<u8> {
     w.write_i32(enable as i32);
     w.write_i32(kind);
     w.into_bytes()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::data::item_data::{self, ItemData, ItemKind, ItemTemplate};
+    use crate::model::inventory::Inventory;
+
+    fn earring(id: i32) -> ItemTemplate {
+        ItemTemplate {
+            item_id: id,
+            name: format!("earring{id}"),
+            kind: ItemKind::Armor,
+            body_part: item_data::SLOT_L_EAR | item_data::SLOT_R_EAR,
+            weight: 0,
+            is_stackable: false,
+            type1: 0,
+            type2: 0,
+            is_quest_item: false,
+            price: 0,
+            handler: item_data::ItemHandler::None,
+            capsuled_items: Vec::new(),
+            extractable_count_min: 0,
+            extractable_count_max: 0,
+            item_skills: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn ex_user_info_equip_slot_reports_both_ear_slots() {
+        let catalog = ItemData::from_templates(vec![earring(501), earring(502)]);
+        let mut inv = Inventory::new();
+        inv.add_item(&catalog, 100, 501, 1);
+        inv.add_item(&catalog, 101, 502, 1);
+        inv.equip_item(&catalog, 100);
+        inv.equip_item(&catalog, 101);
+
+        let bytes = ex_user_info_equip_slot(3001, &inv);
+        // ex(0x156): 1 (EX) + 2 (sub) = 3; + 4 (object id) + 2 (slot count) + 5 (mask) = 14.
+        let mut offset = 14usize;
+        let mut found_rear = None;
+        let mut found_lear = None;
+        for slot in InventorySlot::VALUES {
+            let block_len = i16::from_le_bytes([bytes[offset], bytes[offset + 1]]) as usize;
+            let obj_id = i32::from_le_bytes(bytes[offset + 2..offset + 6].try_into().unwrap());
+            let item_id = i32::from_le_bytes(bytes[offset + 6..offset + 10].try_into().unwrap());
+            match slot {
+                InventorySlot::REar => found_rear = Some((obj_id, item_id)),
+                InventorySlot::LEar => found_lear = Some((obj_id, item_id)),
+                _ => {}
+            }
+            offset += block_len;
+        }
+        assert_eq!(offset, bytes.len(), "block lengths must account for every byte written");
+        assert_eq!(found_lear, Some((100, 501)), "first earring fills LEar (equip_item fills left first)");
+        assert_eq!(found_rear, Some((101, 502)), "second earring fills the free REar slot");
+    }
+
+    // ---- Java ground-truth golden (jewelry-in-inventory differential) ----
+    //
+    // Produced by `tests/java_golden/EquipMaskDump.java` (raw output kept in
+    // `tests/java_golden/equip_dump.json`), which runs against the real
+    // `InventorySlot` enum, `Inventory.PAPERDOLL_*` layout, and `ItemData.SLOTS`
+    // bodypart table in the interlude_classic reference. Regenerate from that
+    // repo with:
+    //   javac -cp target/classes -d out crates/.../EquipMaskDump.java
+    //   java  -cp target/classes:out EquipMaskDump
+    // If any assertion here fails, the Rust port diverged from the Java client
+    // wire format for equipped items (the reported jewelry display bug).
+
+    /// The ExUserInfoEquipSlot mask when every one of the 33 components is set.
+    const JAVA_MASK_ALL_SLOTS: [u8; 5] = [0xff, 0xff, 0xff, 0xff, 0x80];
+
+    /// `(InventorySlot name, mask bit, backing paperdoll index)` in wire order.
+    const JAVA_SLOTS: [(&str, usize, usize); 33] = [
+        ("UNDER", 0, 0), ("REAR", 1, 8), ("LEAR", 2, 9), ("NECK", 3, 4),
+        ("RFINGER", 4, 13), ("LFINGER", 5, 14), ("HEAD", 6, 1), ("RHAND", 7, 5),
+        ("LHAND", 8, 7), ("GLOVES", 9, 10), ("CHEST", 10, 6), ("LEGS", 11, 11),
+        ("FEET", 12, 12), ("CLOAK", 13, 23), ("LRHAND", 14, 5), ("HAIR", 15, 2),
+        ("HAIR2", 16, 3), ("RBRACELET", 17, 16), ("LBRACELET", 18, 15),
+        ("DECO1", 19, 17), ("DECO2", 20, 18), ("DECO3", 21, 19), ("DECO4", 22, 20),
+        ("DECO5", 23, 21), ("DECO6", 24, 22), ("BELT", 25, 24), ("BROOCH", 26, 25),
+        ("BROOCH_JEWEL", 27, 26), ("BROOCH_JEWEL2", 28, 27), ("BROOCH_JEWEL3", 29, 28),
+        ("BROOCH_JEWEL4", 30, 29), ("BROOCH_JEWEL5", 31, 30), ("BROOCH_JEWEL6", 32, 31),
+    ];
+
+    /// `(object_id, item_id)` block each component reports when paperdoll slot
+    /// `i` holds `(1000 + i, 2000 + i)`. RHAND and LRHAND repeat paperdoll 5.
+    const JAVA_EQUIP_BLOCKS: [(i32, i32); 33] = [
+        (1000, 2000), (1008, 2008), (1009, 2009), (1004, 2004), (1013, 2013),
+        (1014, 2014), (1001, 2001), (1005, 2005), (1007, 2007), (1010, 2010),
+        (1006, 2006), (1011, 2011), (1012, 2012), (1023, 2023), (1005, 2005),
+        (1002, 2002), (1003, 2003), (1016, 2016), (1015, 2015), (1017, 2017),
+        (1018, 2018), (1019, 2019), (1020, 2020), (1021, 2021), (1022, 2022),
+        (1024, 2024), (1025, 2025), (1026, 2026), (1027, 2027), (1028, 2028),
+        (1029, 2029), (1030, 2030), (1031, 2031),
+    ];
+
+    fn paperdoll_row(paperdoll_slot: i32, object_id: i32, item_id: i32) -> crate::character::ItemRow {
+        crate::character::ItemRow {
+            object_id,
+            item_id,
+            count: 1,
+            enchant_level: 0,
+            loc: "PAPERDOLL".to_string(),
+            loc_data: paperdoll_slot,
+            custom_type1: 0,
+            custom_type2: 0,
+            mana_left: -1,
+            time: 0,
+        }
+    }
+
+    #[test]
+    fn inventory_slot_order_matches_java() {
+        // Wire order, mask bit (= ordinal), and backing paperdoll index must all
+        // line up with the Java enum, or jewelry lands in the wrong slot.
+        assert_eq!(InventorySlot::VALUES.len(), JAVA_SLOTS.len());
+        for (slot, &(name, bit, paperdoll)) in InventorySlot::VALUES.iter().zip(JAVA_SLOTS.iter()) {
+            assert_eq!(slot.mask(), bit, "{name}: mask bit");
+            assert_eq!(slot.slot() as usize, paperdoll, "{name}: backing paperdoll slot");
+        }
+        assert_eq!(
+            masks::build_mask::<5>(InventorySlot::VALUES.iter().map(|s| s.mask())),
+            JAVA_MASK_ALL_SLOTS,
+            "all-slots mask bytes"
+        );
+    }
+
+    #[test]
+    fn ex_user_info_equip_slot_matches_java_golden() {
+        // Fill every paperdoll slot with (1000+i, 2000+i) and byte-compare the
+        // produced ExUserInfoEquipSlot against the Java dump.
+        let rows: Vec<_> = (0..crate::model::inventory::PAPERDOLL_TOTAL_SLOTS as i32)
+            .map(|i| paperdoll_row(i, 1000 + i, 2000 + i))
+            .collect();
+        let inv = Inventory::from_rows(&rows);
+
+        let bytes = ex_user_info_equip_slot(3001, &inv);
+
+        // Header: 1 (EX) + 2 (sub) + 4 (object id) + 2 (component count).
+        assert_eq!(i16::from_le_bytes([bytes[7], bytes[8]]), 33, "component count");
+        // Mask bytes.
+        assert_eq!(&bytes[9..14], &JAVA_MASK_ALL_SLOTS, "mask bytes");
+
+        // 33 blocks of 22 bytes: len(2) + obj(4) + item(4) + aug1(4) + aug2(4) + visual(4).
+        let mut offset = 14usize;
+        for (i, &(exp_obj, exp_item)) in JAVA_EQUIP_BLOCKS.iter().enumerate() {
+            let block_len = i16::from_le_bytes([bytes[offset], bytes[offset + 1]]);
+            let obj = i32::from_le_bytes(bytes[offset + 2..offset + 6].try_into().unwrap());
+            let item = i32::from_le_bytes(bytes[offset + 6..offset + 10].try_into().unwrap());
+            assert_eq!(block_len, 22, "block {i} length");
+            assert_eq!((obj, item), (exp_obj, exp_item), "block {i} ({})", JAVA_SLOTS[i].0);
+            offset += block_len as usize;
+        }
+        assert_eq!(offset, bytes.len(), "no trailing bytes");
+    }
+
+    #[test]
+    fn jewelry_item_list_slot_field_matches_java_golden() {
+        // AbstractItemPacket.writeItem writes `getBodyPart()` as the item's
+        // "Slot" (the field the inventory window reads to place jewelry). Golden
+        // bitmasks come straight from the Java ItemData.SLOTS table.
+        let cases: [(&str, i32, i32, i32); 3] = [
+            // (label, body_part, expected slot long, expected type2)
+            ("earring", item_data::SLOT_LR_EAR, 6, 2),
+            ("ring", item_data::SLOT_LR_FINGER, 48, 2),
+            ("necklace", item_data::SLOT_NECK, 8, 2),
+        ];
+        for (label, body_part, exp_slot, exp_type2) in cases {
+            let mut t = earring(9000);
+            t.body_part = body_part;
+            t.type2 = exp_type2;
+            let item = crate::model::inventory::ItemInstance {
+                object_id: 5000,
+                item_id: 9000,
+                count: 1,
+                enchant_level: 0,
+                custom_type1: 0,
+                custom_type2: 0,
+                mana_left: -1,
+                time: 0,
+            };
+            let mut w = PacketWriter::new();
+            write_item_entry(&mut w, &item, &t, true);
+            let bytes = w.into_bytes();
+            // Layout (byte offsets): mask@0(1) obj@1(4) item@5(4) T1@9(1)
+            // count@10(8) type2@18(1) ct1@19(1) equipped@20(2) bodypart@22(8) ...
+            let type2 = bytes[18];
+            let slot = i64::from_le_bytes(bytes[22..30].try_into().unwrap());
+            assert_eq!(type2 as i32, exp_type2, "{label} type2");
+            assert_eq!(slot as i32, exp_slot, "{label} body-part slot field");
+        }
+    }
 }

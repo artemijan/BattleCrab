@@ -844,3 +844,28 @@ pub(crate) fn abort_cast(world: &mut World, object_id: i32) {
     // interrupted cast still releases the click it held back.
     stop_casting(world, object_id);
 }
+
+/// Port of `Creature.breakCast`: a cast broken by *incoming damage* (as opposed
+/// to a self-initiated `abortCast`). It performs the same abort — `MagicSkillCanceled`
+/// + `ActionFailed`, only for a not-yet-launched cast — and then, if the victim
+/// is a player, additionally sends the `YOUR_CASTING_HAS_BEEN_INTERRUPTED`
+/// system message. That extra message is the sole difference from [`abort_cast`],
+/// which is why the movement/self-abort call sites keep using `abort_cast`.
+pub(crate) fn break_cast(world: &mut World, object_id: i32) {
+    let breakable = world
+        .objects
+        .get_component::<Casting>(&object_id)
+        .is_some_and(|c| !c.0.launched);
+    if !breakable {
+        return;
+    }
+    abort_cast(world, object_id);
+    if let Some(client_id) = client_for_player(world, object_id) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                server_packets::sm_ids::YOUR_CASTING_HAS_BEEN_INTERRUPTED,
+                &[],
+            ));
+        }
+    }
+}

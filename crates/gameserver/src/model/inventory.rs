@@ -355,6 +355,23 @@ impl Inventory {
         self.clear(slot).into_iter().collect()
     }
 
+    /// The `UseItem` click-to-unequip path (Java: `Player.useEquippableItem`
+    /// resolves `Inventory.getSlotFromItem(item)` — the single-bit slot the
+    /// item is *actually* occupying, read off `item.getLocationSlot()` — and
+    /// only then calls `unEquipItemInBodySlotAndRecord`). Passing the item's
+    /// raw template body part straight to [`Self::unequip_body_part`] instead
+    /// is wrong for rings/earrings: their template body part is the combined
+    /// `SLOT_LR_EAR`/`SLOT_LR_FINGER` bitmask, which matches none of that
+    /// function's single-bit arms and silently no-ops. Since we already know
+    /// which exact `PaperdollSlot` the object id occupies, clear it directly
+    /// instead of re-deriving an ambiguous body-part value from it.
+    pub fn unequip_item(&mut self, object_id: i32) -> Vec<i32> {
+        match self.paperdoll_slot_of(object_id) {
+            Some(idx) => self.paperdoll[idx].take().into_iter().collect(),
+            None => Vec::new(),
+        }
+    }
+
     /// Unequip by wire paperdoll index (`RequestUnEquipItem`'s `_slot` is
     /// actually a body-part bitmask in Java too — kept as a thin alias so call
     /// sites read naturally).
