@@ -31,6 +31,7 @@ mod target;
 mod tests;
 mod visibility;
 mod zones;
+mod common;
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
