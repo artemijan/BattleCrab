@@ -21,6 +21,75 @@ use crate::world::World;
 
 use super::effects::apply_skill_effects;
 
+/// Reuse gate shared by `use_magic_on` and the `ItemSkills` item handler
+/// (Java `Player.isSkillDisabled`/`getSkillRemainingReuseTime`), keyed by the
+/// shared reuse group when the skill has one. `true` means the skill is off
+/// cooldown; a still-cooling skill sends the h/m/s breakdown (or SM 48 for
+/// short reuses) plus `ActionFailed` and returns `false`.
+pub(crate) fn check_skill_reuse(world: &World, client_id: u32, object_id: i32, skill: &Skill) -> bool {
+    use server_packets::{sm_ids, SmParam};
+
+    let Some(&crate::model::SkillReuse { until_tick, total_ms, .. }) = world
+        .objects
+        .get_component::<crate::model::components::Reuses>(&object_id)
+        .and_then(|r| r.0.get(&skill.reuse_key()))
+    else {
+        return true;
+    };
+    if until_tick <= world.tick {
+        return true;
+    }
+    let name_param = SmParam::SkillName { id: skill.id, level: skill.level };
+    if total_ms > 3000 {
+        let remaining_ms = (until_tick - world.tick) * 100;
+        let hours = (remaining_ms / 3_600_000) as i32;
+        let minutes = ((remaining_ms % 3_600_000) / 60_000) as i32;
+        let seconds = ((remaining_ms / 1000) % 60) as i32;
+        if hours > 0 {
+            send_sm_and_action_failed(
+                world,
+                client_id,
+                sm_ids::S2_HOURS_S3_MINUTES_S4_SECONDS_REMAINING_FOR_REUSE,
+                &[name_param, SmParam::Int(hours), SmParam::Int(minutes), SmParam::Int(seconds)],
+            );
+        } else if minutes > 0 {
+            send_sm_and_action_failed(
+                world,
+                client_id,
+                sm_ids::S2_MINUTES_S3_SECONDS_REMAINING_FOR_REUSE,
+                &[name_param, SmParam::Int(minutes), SmParam::Int(seconds)],
+            );
+        } else {
+            send_sm_and_action_failed(
+                world,
+                client_id,
+                sm_ids::S2_SECONDS_REMAINING_FOR_REUSE,
+                &[name_param, SmParam::Int(seconds)],
+            );
+        }
+    } else {
+        send_sm_and_action_failed(world, client_id, sm_ids::S1_IS_NOT_AVAILABLE_REUSE, &[name_param]);
+    }
+    false
+}
+
+/// Registers a skill's cooldown (Java `Player.addTimeStamp`), skipped when
+/// trivially short (`> 10` ms, like Java). Shared by `start_casting` and the
+/// `ItemSkills` item handler (immediate-effect items never enter
+/// `start_casting`).
+pub(crate) fn set_skill_reuse(world: &mut World, object_id: i32, skill: &Skill) {
+    if skill.reuse_delay <= 10 {
+        return;
+    }
+    let until_tick = world.tick + ms_to_ticks(skill.reuse_delay);
+    if let Some(reuses) = world.objects.get_component_mut::<crate::model::components::Reuses>(&object_id) {
+        reuses.0.insert(
+            skill.reuse_key(),
+            crate::model::SkillReuse { skill_level: skill.level, until_tick, total_ms: skill.reuse_delay },
+        );
+    }
+}
+
 /// Port of `Skill.getTarget` + the `targethandlers/{Self,Target,Enemy,
 /// EnemyOnly}.java` scripts as a static match over players *and* NPCs (G9).
 /// `Err(sm_id)` is the system message the caller sends alongside
@@ -198,7 +267,7 @@ pub(crate) fn use_magic_on(
     shift: bool,
     forced_target: Option<i32>,
 ) {
-    use server_packets::{sm_ids, SmParam};
+    use server_packets::sm_ids;
 
     let Some(player) = world
         .objects
@@ -247,62 +316,8 @@ pub(crate) fn use_magic_on(
     // Reuse gate (`Player.useMagic`'s `isSkillDisabled` branch), keyed by the
     // shared reuse group when the skill has one: timestamp reuses (> 3000 ms)
     // get the remaining h/m/s breakdown, short ones SM 48.
-    if let Some(&crate::model::SkillReuse {
-        until_tick,
-        total_ms,
-        ..
-    }) = world
-        .objects
-        .get_component::<crate::model::components::Reuses>(&object_id)
-        .and_then(|r| r.0.get(&skill.reuse_key()))
-    {
-        if until_tick > world.tick {
-            let name_param = SmParam::SkillName {
-                id: skill.id,
-                level: skill.level,
-            };
-            if total_ms > 3000 {
-                let remaining_ms = (until_tick - world.tick) * 100;
-                let hours = (remaining_ms / 3_600_000) as i32;
-                let minutes = ((remaining_ms % 3_600_000) / 60_000) as i32;
-                let seconds = ((remaining_ms / 1000) % 60) as i32;
-                if hours > 0 {
-                    send_sm_and_action_failed(
-                        world,
-                        client_id,
-                        sm_ids::S2_HOURS_S3_MINUTES_S4_SECONDS_REMAINING_FOR_REUSE,
-                        &[
-                            name_param,
-                            SmParam::Int(hours),
-                            SmParam::Int(minutes),
-                            SmParam::Int(seconds),
-                        ],
-                    );
-                } else if minutes > 0 {
-                    send_sm_and_action_failed(
-                        world,
-                        client_id,
-                        sm_ids::S2_MINUTES_S3_SECONDS_REMAINING_FOR_REUSE,
-                        &[name_param, SmParam::Int(minutes), SmParam::Int(seconds)],
-                    );
-                } else {
-                    send_sm_and_action_failed(
-                        world,
-                        client_id,
-                        sm_ids::S2_SECONDS_REMAINING_FOR_REUSE,
-                        &[name_param, SmParam::Int(seconds)],
-                    );
-                }
-            } else {
-                send_sm_and_action_failed(
-                    world,
-                    client_id,
-                    sm_ids::S1_IS_NOT_AVAILABLE_REUSE,
-                    &[name_param],
-                );
-            }
-            return;
-        }
+    if !check_skill_reuse(world, client_id, object_id, &skill) {
+        return;
     }
 
     // Target validity first, like Java (`useMagic` resolves and checks the
@@ -458,22 +473,7 @@ pub(crate) fn start_casting(
 
     // Register the reuse (skipped when trivially short, like Java's `> 10`),
     // under the shared group id when the skill has one.
-    if skill.reuse_delay > 10 {
-        let until_tick = world.tick + ms_to_ticks(skill.reuse_delay);
-        if let Some(reuses) = world
-            .objects
-            .get_component_mut::<crate::model::components::Reuses>(&object_id)
-        {
-            reuses.0.insert(
-                skill.reuse_key(),
-                crate::model::SkillReuse {
-                    skill_level: skill.level,
-                    until_tick,
-                    total_ms: skill.reuse_delay,
-                },
-            );
-        }
-    }
+    set_skill_reuse(world, object_id, skill);
 
     // A new cast wipes the queue slot — Java clears `_queuedSkill` on every
     // successful `useMagic`, `changeIntention` drops `_nextIntention` for

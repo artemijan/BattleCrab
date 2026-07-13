@@ -1,8 +1,9 @@
 //! Port of `data/xml/ItemData` + `util/DocumentItem`, scoped to what G5 needs:
 //! identity, equip slot, weight, stackability, and the `type1`/`type2` pair the
-//! client needs for `ItemList` sorting/icons. The combat-stat bonuses under
-//! `<stats>` (and `<skills>`/`<cond>`/`<capsuled_items>`) feed the later stats
-//! engine milestone and are not parsed here.
+//! client needs for `ItemList` sorting/icons, plus (for `UseItem`'s `EtcItem`
+//! branch) the `handler`/`<capsuled_items>` pair `ExtractableItems` reads. The
+//! combat-stat bonuses under `<stats>` (and `<skills>`/`<cond>`) feed the
+//! later stats engine milestone and are not parsed here.
 
 use std::collections::HashMap;
 
@@ -110,6 +111,41 @@ pub enum ItemKind {
     Etc,
 }
 
+/// `<set name="handler">` (Java `EtcItem._handlerName`, dispatched at use time
+/// through `ItemHandler.getInstance().getHandler(name)`). Rust resolves the
+/// name to a typed variant once at load time instead of a runtime string
+/// registry — mirrors `SkillEffect`'s `name="..."` → enum pattern. Add new
+/// variants here (and a match arm in `game_loop::items::use_etc_item`) as
+/// more handlers get ported; unrecognized/absent names fall back to `None`
+/// and the item is consumed as a no-op, same as Java's "Unmanaged Item
+/// handler" branch.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ItemHandler {
+    #[default]
+    None,
+    ExtractableItems,
+    /// `ItemSkills`/`ItemSkillsTemplate` — casts the item's `<skills>` list
+    /// (potions, buff scrolls, …) via `ItemTemplate::item_skills`. Both Java
+    /// classes collapse to one variant: the only difference between them is
+    /// an Olympiad-mode guard, and there's no Olympiad here.
+    ItemSkills,
+}
+
+/// One `<capsuled_items><item .../></capsuled_items>` entry (Java
+/// `ExtractableProduct`). `chance` is pre-scaled the same way Java's
+/// constructor does (`(int) (chance * 1000)`), so it compares directly
+/// against a `World::roll(100_000)` draw. `minEnchant`/`maxEnchant` are not
+/// parsed — none of the currently-loaded extractable items set them, and
+/// applying an enchant level to a freshly granted item needs an `Inventory`
+/// setter that doesn't exist yet.
+#[derive(Debug, Clone, Copy)]
+pub struct CapsuledItem {
+    pub item_id: i32,
+    pub min: i64,
+    pub max: i64,
+    pub chance: i32,
+}
+
 #[derive(Debug, Clone)]
 pub struct ItemTemplate {
     pub item_id: i32,
@@ -124,6 +160,26 @@ pub struct ItemTemplate {
     /// `<set name="price">` — the reference price (sell value = half of it;
     /// the `CorrectPrices` buylist floor uses it too). 0 when undeclared.
     pub price: i64,
+    /// `<set name="handler">`, resolved to a typed dispatch target.
+    pub handler: ItemHandler,
+    /// `<capsuled_items>` children, in document order (`ExtractableItems`
+    /// rolls each entry independently against its `chance`).
+    pub capsuled_items: Vec<CapsuledItem>,
+    /// `<set name="extractableCountMin">` — 0 (the common case) means "no
+    /// minimum, one pass over the list is enough"; > 0 means keep re-rolling
+    /// the whole list until at least this many distinct entries have hit
+    /// (Java `ExtractableItems.useItem`'s `while` loop — used by "pick one of
+    /// N" reward boxes).
+    pub extractable_count_min: i32,
+    /// `<set name="extractableCountMax">` — 0 (the common case) means "no
+    /// cap, grant every entry that hits"; `ExtractableItems` stops rolling
+    /// once this many entries have been granted.
+    pub extractable_count_max: i32,
+    /// `<skills><skill id=".." level=".." /></skills>` (Java
+    /// `EtcItem._skills`, read by `ItemSkillsTemplate.useItem` via
+    /// `getSkills(ItemSkillType.NORMAL)`) — `(skill_id, skill_level)` pairs,
+    /// in document order.
+    pub item_skills: Vec<(i32, i32)>,
 }
 
 impl ItemTemplate {
@@ -193,6 +249,10 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, ItemTemplate>) {
     let mut cur_name = String::new();
     let mut cur_kind = ItemKind::Etc;
     let mut attrs: HashMap<String, String> = HashMap::new();
+    let mut in_capsules = false;
+    let mut cur_capsules: Vec<CapsuledItem> = Vec::new();
+    let mut in_skills = false;
+    let mut cur_item_skills: Vec<(i32, i32)> = Vec::new();
 
     loop {
         match reader.read_event() {
@@ -205,6 +265,8 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, ItemTemplate>) {
                     _ => ItemKind::Etc,
                 };
                 attrs.clear();
+                cur_capsules.clear();
+                cur_item_skills.clear();
             }
             Ok(Event::Empty(e)) if e.name().as_ref() == b"set" => {
                 if cur_id.is_none() {
@@ -214,9 +276,43 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, ItemTemplate>) {
                     attrs.insert(name, val);
                 }
             }
+            Ok(Event::Start(e)) if e.name().as_ref() == b"capsuled_items" => {
+                in_capsules = true;
+            }
+            Ok(Event::End(e)) if e.name().as_ref() == b"capsuled_items" => {
+                in_capsules = false;
+            }
+            Ok(Event::Empty(e)) if in_capsules && e.name().as_ref() == b"item" => {
+                if let (Some(item_id), Some(min), Some(max), Some(chance)) =
+                    (attr_i32(&e, b"id"), attr_i64(&e, b"min"), attr_i64(&e, b"max"), attr_f64(&e, b"chance"))
+                {
+                    cur_capsules.push(CapsuledItem { item_id, min, max, chance: (chance * 1000.0) as i32 });
+                }
+            }
+            Ok(Event::Start(e)) if e.name().as_ref() == b"skills" => {
+                in_skills = true;
+            }
+            Ok(Event::End(e)) if e.name().as_ref() == b"skills" => {
+                in_skills = false;
+            }
+            Ok(Event::Empty(e)) if in_skills && e.name().as_ref() == b"skill" => {
+                if let (Some(id), Some(level)) = (attr_i32(&e, b"id"), attr_i32(&e, b"level")) {
+                    cur_item_skills.push((id, level));
+                }
+            }
             Ok(Event::End(e)) if e.name().as_ref() == b"item" => {
                 if let Some(item_id) = cur_id.take() {
-                    out.insert(item_id, make_template(item_id, std::mem::take(&mut cur_name), cur_kind, &attrs));
+                    out.insert(
+                        item_id,
+                        make_template(
+                            item_id,
+                            std::mem::take(&mut cur_name),
+                            cur_kind,
+                            &attrs,
+                            std::mem::take(&mut cur_capsules),
+                            std::mem::take(&mut cur_item_skills),
+                        ),
+                    );
                 }
             }
             Ok(Event::Eof) => break,
@@ -226,7 +322,14 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, ItemTemplate>) {
     }
 }
 
-fn make_template(item_id: i32, name: String, kind: ItemKind, attrs: &HashMap<String, String>) -> ItemTemplate {
+fn make_template(
+    item_id: i32,
+    name: String,
+    kind: ItemKind,
+    attrs: &HashMap<String, String>,
+    capsuled_items: Vec<CapsuledItem>,
+    item_skills: Vec<(i32, i32)>,
+) -> ItemTemplate {
     let weight = attrs.get("weight").and_then(|v| v.parse().ok()).unwrap_or(0);
     let is_stackable = attrs.get("is_stackable").map(|v| v == "true").unwrap_or(false);
     let is_quest_item = attrs.get("is_questitem").map(|v| v == "true").unwrap_or(false);
@@ -253,6 +356,12 @@ fn make_template(item_id: i32, name: String, kind: ItemKind, attrs: &HashMap<Str
         }
     };
 
+    let handler = match attrs.get("handler").map(|s| s.as_str()) {
+        Some("ExtractableItems") => ItemHandler::ExtractableItems,
+        Some("ItemSkills") | Some("ItemSkillsTemplate") => ItemHandler::ItemSkills,
+        _ => ItemHandler::None,
+    };
+
     ItemTemplate {
         item_id,
         name,
@@ -264,6 +373,11 @@ fn make_template(item_id: i32, name: String, kind: ItemKind, attrs: &HashMap<Str
         type2,
         is_quest_item,
         price: attrs.get("price").and_then(|v| v.parse().ok()).unwrap_or(0),
+        handler,
+        capsuled_items,
+        extractable_count_min: attrs.get("extractableCountMin").and_then(|v| v.parse().ok()).unwrap_or(0),
+        extractable_count_max: attrs.get("extractableCountMax").and_then(|v| v.parse().ok()).unwrap_or(0),
+        item_skills,
     }
 }
 
@@ -275,6 +389,14 @@ fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
 }
 
 fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
+    attr_str(e, key).and_then(|v| v.parse().ok())
+}
+
+fn attr_i64(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i64> {
+    attr_str(e, key).and_then(|v| v.parse().ok())
+}
+
+fn attr_f64(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<f64> {
     attr_str(e, key).and_then(|v| v.parse().ok())
 }
 
@@ -297,5 +419,23 @@ mod tests {
         assert!(!adena.is_equipable());
 
         assert!(data.by_id.len() > 5000);
+    }
+
+    #[test]
+    fn parses_extractable_pack_handler_and_capsules() {
+        let data = ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let pack = data.get(15195).expect("item 15195 (Mage Class Equipment Set, 10-day)");
+        assert_eq!(pack.handler, ItemHandler::ExtractableItems);
+        assert_eq!(pack.extractable_count_min, 0);
+        assert_eq!(pack.extractable_count_max, 0);
+        assert_eq!(pack.capsuled_items.len(), 9);
+        let robe = pack.capsuled_items.iter().find(|c| c.item_id == 15230).expect("Dark Crystal Robe pack entry");
+        assert_eq!(robe.min, 1);
+        assert_eq!(robe.max, 1);
+        assert_eq!(robe.chance, 100_000); // chance="100" -> (100.0 * 1000) as i32
+
+        let box_item = data.get(23762).expect("item 23762 (High-grade Elixir Pack)");
+        assert_eq!(box_item.extractable_count_min, 1);
+        assert_eq!(box_item.extractable_count_max, 1);
     }
 }

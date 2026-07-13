@@ -180,6 +180,27 @@ impl Inventory {
         changes
     }
 
+    /// Destroy `count` of one specific instance by `object_id` (Java
+    /// `destroyItem(process, objectId, count, ...)`) — unlike [`Self::remove_item`],
+    /// which targets any stack of a given item id, this targets exactly the
+    /// clicked instance. Used by `UseItem`'s `EtcItem` branch (e.g.
+    /// `ExtractableItems`), where the client names the object id, not the
+    /// item id.
+    pub fn remove_by_object_id(&mut self, object_id: i32, count: i64) -> Option<ItemChange> {
+        let idx = self.items.iter().position(|i| i.object_id == object_id)?;
+        if self.items[idx].count > count {
+            self.items[idx].count -= count;
+            return Some(ItemChange::Modified(self.items[idx]));
+        }
+        let removed = self.items.remove(idx);
+        self.paperdoll.iter_mut().for_each(|s| {
+            if *s == Some(removed.object_id) {
+                *s = None; // defensive; see remove_item's doc comment
+            }
+        });
+        Some(ItemChange::Removed(removed))
+    }
+
     /// The `PaperdollSlot` an item's `body_part` bitmask resolves to when
     /// nothing else is equipped (`Inventory.getPaperdollIndex`, single-slot
     /// cases only — the dual-slot/two-handed cases are resolved in
@@ -406,11 +427,11 @@ mod tests {
     use crate::data::item_data::ItemTemplate;
 
     fn armor(id: i32, body_part: i32) -> ItemTemplate {
-        ItemTemplate { item_id: id, name: format!("armor{id}"), kind: ItemKind::Armor, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0 }
+        ItemTemplate { item_id: id, name: format!("armor{id}"), kind: ItemKind::Armor, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new() }
     }
 
     fn weapon(id: i32, body_part: i32) -> ItemTemplate {
-        ItemTemplate { item_id: id, name: format!("weapon{id}"), kind: ItemKind::Weapon, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0 }
+        ItemTemplate { item_id: id, name: format!("weapon{id}"), kind: ItemKind::Weapon, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new() }
     }
 
     #[test]
@@ -512,6 +533,11 @@ mod tests {
             type2: 0,
             is_quest_item: false,
             price: 0,
+            handler: item_data::ItemHandler::None,
+            capsuled_items: Vec::new(),
+            extractable_count_min: 0,
+            extractable_count_max: 0,
+            item_skills: Vec::new(),
         }]);
         let mut inv = Inventory::new();
         let oid = inv.add_item(&catalog, 1, 57, 100);

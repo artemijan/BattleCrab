@@ -1068,11 +1068,23 @@ Empty/placeholder now, to be filled in the owning milestone:
 
 - **Inventory/items (post-G5):** warehouse/clan warehouse/freight/mail,
   trade, pickup/drop, item actions (`RequestActionUse` beyond equip),
-  crystallization, enchanting, augmentation, elemental attributes, item
-  skills, `ExQuestItemList` (no quest items exist yet), real `maxLoad` calc +
+  crystallization, enchanting, augmentation, elemental attributes,
+  `ExQuestItemList` (no quest items exist yet), real `maxLoad` calc +
   encumbrance enforcement, `ItemList`/`ExUserInfoEquipSlot` visual-id block.
   Also blocks full P.Def/P.Atk/M.Def/M.Atk accuracy (see G6: naked-value only
-  until item `<stats>` are parsed).
+  until item `<stats>` are parsed). `UseItem`'s `EtcItem` branch dispatches
+  through a typed `ItemHandler` (`data/item_data.rs`); `ExtractableItems`
+  (pack/box unpacking, e.g. "Mage Class Equipment Set") and `ItemSkills`/
+  `ItemSkillsTemplate` (potions/buff scrolls — casts the item's `<skills>`
+  list immediately via the existing skill-effect pipeline, `Heal`/
+  `MagicalAttack`/`StatModifier` only since that's all `EFFECT_REGISTRY`
+  covers so far; reuse shared with `game_loop::skills::cast::{check,set}
+  _skill_reuse`, also extracted for `use_magic_on`) are ported — soulshots/
+  dyes/enchant scrolls and the rest of Java's `handlers/itemhandlers/*` are
+  still no-ops (`game_loop/items.rs::use_etc_item`'s `ItemHandler::None`
+  arm), as is `<cond>`-gating and the `itemConsumeId`/
+  `SKILL_REDUCE_ON_SKILL_SUCCESS` non-consume case (every `ItemSkills` use is
+  treated as consume-on-success).
 - **Skills/combat (post-G9):** `PhysicalAttack`-type *skills* (auto-attack
   damage is done; skill-based physical hits reuse `apply_physical_damage`);
   bows/crossbows (reuse gauge, arrows), dual-weapon split hits, polearm

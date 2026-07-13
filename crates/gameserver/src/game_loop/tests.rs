@@ -1373,6 +1373,11 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
         type2: 0,
         is_quest_item: false,
         price: 0,
+        handler: crate::data::item_data::ItemHandler::None,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
     });
     {
         let World { objects, data, .. } = &mut world;
@@ -1401,6 +1406,177 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
     assert!(inv.paperdoll_slot_of(9001).is_some(), "sword equipped at cast end");
     let packets = drain(&mut a_rx);
     assert!(!packets.is_empty(), "InventoryUpdate/UserInfo sent with the deferred equip");
+}
+
+/// The bug this guards: `UseItem` on a non-equipable `EtcItem` used to be a
+/// silent no-op (`is_equipable() == false` → early return before any handler
+/// dispatch existed), so pack/box items like "Mage Class Equipment Set"
+/// never unpacked in-game. `ExtractableItems` should destroy the pack and
+/// grant its `<capsuled_items>` contents.
+#[test]
+fn extractable_pack_item_unpacks_into_its_contents() {
+    use crate::data::item_data::{CapsuledItem, ItemHandler, ItemKind, ItemTemplate};
+    use crate::model::inventory::Inventory;
+
+    let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    world.data.item_data.insert_for_test(ItemTemplate {
+        item_id: 15195,
+        name: "Mage Class Equipment Set".into(),
+        kind: ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: false,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        price: 0,
+        handler: ItemHandler::ExtractableItems,
+        capsuled_items: vec![
+            CapsuledItem { item_id: 15230, min: 1, max: 1, chance: 100_000 },
+            CapsuledItem { item_id: 15270, min: 1, max: 1, chance: 100_000 },
+        ],
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+    });
+    for item_id in [15230, 15270] {
+        world.data.item_data.insert_for_test(ItemTemplate {
+            item_id,
+            name: format!("Pack Content {item_id}"),
+            kind: ItemKind::Etc,
+            body_part: 0,
+            weight: 0,
+            is_stackable: false,
+            type1: 4,
+            type2: 5,
+            is_quest_item: false,
+            price: 0,
+            handler: ItemHandler::None,
+            capsuled_items: Vec::new(),
+            extractable_count_min: 0,
+            extractable_count_max: 0,
+            item_skills: Vec::new(),
+        });
+    }
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9001, 15195, 1);
+    }
+
+    items::handle_use_item(&mut world, 1, &use_item_body(9001));
+
+    let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+    assert!(inv.items().iter().all(|i| i.item_id != 15195), "pack consumed");
+    assert!(inv.items().iter().any(|i| i.item_id == 15230), "first capsule granted");
+    assert!(inv.items().iter().any(|i| i.item_id == 15270), "second capsule granted");
+
+    let packets = drain(&mut rx);
+    let obtained_count = sm_ids_of(&packets).into_iter().filter(|&id| id == server_packets::sm_ids::YOU_HAVE_OBTAINED_S1).count();
+    assert_eq!(obtained_count, 2, "one obtained-message per capsule item");
+
+    let mut saw_delete = false;
+    while let Ok(cmd) = db_rx.try_recv() {
+        if let db::DbCommand::DeleteItem { object_id: 9001 } = cmd {
+            saw_delete = true;
+        }
+    }
+    assert!(saw_delete, "pack instance deleted from DB");
+}
+
+/// `ItemSkills` (the `handlers/itemhandlers/ItemSkillsTemplate` port): a
+/// self-targeted potion heals immediately (no cast bar) and consumes one
+/// unit from the stack; a second use inside the skill's reuse window is
+/// blocked and doesn't consume another.
+#[test]
+fn item_skill_potion_heals_and_enforces_reuse() {
+    use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
+    use crate::model::inventory::Inventory;
+    use crate::model::skill::SkillEffect;
+
+    let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    world.data.skill_data.insert_for_test(Skill {
+        id: 2031,
+        level: 1,
+        name: "Lesser Healing Potion".into(),
+        operate_type: OperateType::Active,
+        target_type: TargetType::Self_,
+        magic_type: 1,
+        effect_point: 100,
+        cast_range: 0,
+        effect_range: 0,
+        hit_time: 0,
+        hit_cancel_time: 0.0,
+        cool_time: 0,
+        reuse_delay: 6000,
+        reuse_delay_group: -1,
+        mp_consume: 0,
+        mp_initial_consume: 0,
+        hp_consume: 0,
+        abnormal_time: 0,
+        abnormal_level: 0,
+        abnormal_type: "NONE".into(),
+        effects: vec![SkillEffect::Heal { power: 30.0 }],
+    });
+    world.data.item_data.insert_for_test(ItemTemplate {
+        item_id: 9910,
+        name: "Lesser Healing Potion".into(),
+        kind: ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: true,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        price: 0,
+        handler: ItemHandler::ItemSkills,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: vec![(2031, 1)],
+    });
+    if let Some(vitals) = world.objects.get_component_mut::<Vitals>(&3001) {
+        vitals.max_hp = 100;
+        vitals.cur_hp = 10.0;
+    }
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9001, 9910, 2);
+    }
+
+    items::handle_use_item(&mut world, 1, &use_item_body(9001));
+
+    assert_eq!(pvit(&world, 3001).cur_hp, 40.0, "10 + Heal(30)");
+    {
+        let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+        let potion = inv.items().iter().find(|i| i.item_id == 9910).expect("one potion left");
+        assert_eq!(potion.count, 1, "one unit consumed");
+    }
+    let packets = drain(&mut rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::STATUS_UPDATE),
+        "heal must push an HP StatusUpdate"
+    );
+    let mut saw_update_count = false;
+    while let Ok(cmd) = db_rx.try_recv() {
+        if let db::DbCommand::UpdateItemCount { object_id: 9001, count: 1 } = cmd {
+            saw_update_count = true;
+        }
+    }
+    assert!(saw_update_count, "remaining stack count persisted");
+
+    // Second use, same tick: reuse still active, no extra heal or consume.
+    items::handle_use_item(&mut world, 1, &use_item_body(9001));
+    assert_eq!(pvit(&world, 3001).cur_hp, 40.0, "reuse blocks a second heal");
+    let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+    let potion = inv.items().iter().find(|i| i.item_id == 9910).expect("still one potion left");
+    assert_eq!(potion.count, 1, "reuse blocks a second consume");
 }
 
 /// Puts a bare `Player` (built from `dummy_char`) straight into `InGame`,
@@ -2299,6 +2475,11 @@ fn combat_test_world() -> (
         type2: 5,
         is_quest_item: false,
         price: 0,
+        handler: crate::data::item_data::ItemHandler::None,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
     });
     let mut t = crate::data::npc_data::default_template(40001);
     t.type_name = "Monster".into();
@@ -3762,6 +3943,11 @@ fn party_loot_split_and_rotation() {
         type2: 5,
         is_quest_item: false,
         price: 0,
+        handler: crate::data::item_data::ItemHandler::None,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
     });
     drain(&mut a_rx);
     drain(&mut b_rx);
@@ -3994,6 +4180,11 @@ fn quest_test_world() -> (
             type2: if is_quest_item { 3 } else { 5 },
             is_quest_item,
             price: 0,
+            handler: crate::data::item_data::ItemHandler::None,
+            capsuled_items: Vec::new(),
+            extractable_count_min: 0,
+            extractable_count_max: 0,
+            item_skills: Vec::new(),
         });
     }
     for npc_id in [20120i32, 20517] {
@@ -4909,6 +5100,11 @@ fn shop_world() -> (
         type2: 5,
         is_quest_item: false,
         price: 0,
+        handler: crate::data::item_data::ItemHandler::None,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
     });
     world.data.buy_lists.insert_for_test(crate::data::buy_list_data::BuyList {
         list_id: 3,
@@ -5026,6 +5222,11 @@ fn add_quest_items(world: &mut World, ids: &[(i32, &str, bool)]) {
             type2: if is_quest_item { 3 } else { 5 },
             is_quest_item,
             price: 0,
+            handler: crate::data::item_data::ItemHandler::None,
+            capsuled_items: Vec::new(),
+            extractable_count_min: 0,
+            extractable_count_max: 0,
+            item_skills: Vec::new(),
         });
     }
 }
