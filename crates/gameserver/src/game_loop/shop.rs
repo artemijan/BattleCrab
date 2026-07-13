@@ -136,8 +136,8 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
     // Deliver.
     let mut added: Vec<i32> = Vec::new();
     for line in &pkt.items {
-        if let Some(oid) = super::items::add_inventory_item(world, player, line.item_id, line.count) {
-            added.push(oid);
+        if let Some(oids) = super::items::add_inventory_item(world, player, line.item_id, line.count) {
+            added.extend(oids);
         }
     }
     if let (Some(inventory), Some(cs)) =

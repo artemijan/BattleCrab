@@ -14,38 +14,55 @@ use crate::world::World;
 
 /// The stack-or-create core of `Player.addItem`: merge into an existing
 /// stack (persisting the new count) or allocate an object id and insert a
-/// fresh instance. Returns the touched instance's object id; `None` only on
-/// id-pool exhaustion. Shared by the auto-loot path (`death::give_item`) and
-/// quest rewards (`quests`); the caller owns messaging/`InventoryUpdate`.
-pub(crate) fn add_inventory_item(world: &mut World, player_oid: i32, item_id: i32, count: i64) -> Option<i32> {
+/// fresh instance. Non-stackable items get one instance *per unit*, mirroring
+/// `ItemContainer.addItem`'s `for (i = 0; i < count; i++)` split under
+/// `MultipleItemDrop = True` — the only value ever shipped in this dist's
+/// `General.ini`, so it isn't wired up as a runtime toggle. Getting this
+/// wrong is exactly the "2 earrings become 1 that vanishes on equip" class of
+/// bug: a non-stackable item with count > 1 crammed into a single instance
+/// is a state the paperdoll (one object id per slot) can't represent.
+/// Returns every object id created/touched; `None` only on id-pool
+/// exhaustion (any already-created units stay, matching Java's partial
+/// completion when `createItem` fails mid-loop). Shared by the auto-loot
+/// path (`death::give_item`), quest rewards (`quests`), the shop (`shop`),
+/// and pack/box extraction (`extract_item` below); the caller owns
+/// messaging/`InventoryUpdate`.
+pub(crate) fn add_inventory_item(world: &mut World, player_oid: i32, item_id: i32, count: i64) -> Option<Vec<i32>> {
     let stackable = world.data.item_data.get(item_id).map(|t| t.is_stackable).unwrap_or(false);
-    let existing_stack = stackable
-        .then(|| {
-            world
-                .objects
-                .get_component::<crate::model::inventory::Inventory>(&player_oid)
-                .and_then(|inv| inv.items().iter().find(|i| i.item_id == item_id).map(|i| i.object_id))
-        })
-        .flatten();
+    if stackable {
+        let existing_stack = world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&player_oid)
+            .and_then(|inv| inv.items().iter().find(|i| i.item_id == item_id).map(|i| i.object_id));
 
-    if let Some(stack_oid) = existing_stack {
-        let new_count = {
-            let inv = world
-                .objects
-                .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)
-                .expect("checked");
-            inv.add_item(&world.data.item_data, stack_oid, item_id, count);
-            inv.items().iter().find(|i| i.object_id == stack_oid).map(|i| i.count).unwrap_or(count)
-        };
-        let _ = world.db.send(db::DbCommand::UpdateItemCount { object_id: stack_oid, count: new_count });
-        Some(stack_oid)
-    } else {
+        if let Some(stack_oid) = existing_stack {
+            let new_count = {
+                let inv = world
+                    .objects
+                    .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)
+                    .expect("checked");
+                inv.add_item(&world.data.item_data, stack_oid, item_id, count);
+                inv.items().iter().find(|i| i.object_id == stack_oid).map(|i| i.count).unwrap_or(count)
+            };
+            let _ = world.db.send(db::DbCommand::UpdateItemCount { object_id: stack_oid, count: new_count });
+            return Some(vec![stack_oid]);
+        }
         let new_oid = world.alloc_object_id()?;
         let inv = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
         inv.add_item(&world.data.item_data, new_oid, item_id, count);
         let _ = world.db.send(db::DbCommand::InsertItem { owner_id: player_oid, object_id: new_oid, item_id, count });
-        Some(new_oid)
+        return Some(vec![new_oid]);
     }
+
+    let mut created = Vec::with_capacity(count.max(1) as usize);
+    for _ in 0..count.max(1) {
+        let new_oid = world.alloc_object_id()?;
+        let inv = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
+        inv.add_item(&world.data.item_data, new_oid, item_id, 1);
+        let _ = world.db.send(db::DbCommand::InsertItem { owner_id: player_oid, object_id: new_oid, item_id, count: 1 });
+        created.push(new_oid);
+    }
+    Some(created)
 }
 
 /// Port of `clientpackets/UseItem.runImpl`: right-clicking a `Weapon`/`Armor`
@@ -308,7 +325,7 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
     }
 
     for (item_id, amount) in granted {
-        let Some(changed_oid) = add_inventory_item(world, object_id, item_id, amount) else {
+        let Some(changed_oids) = add_inventory_item(world, object_id, item_id, amount) else {
             warn!("ExtractableItems: object-id pool exhausted, dropping {item_id}x{amount}");
             continue;
         };
@@ -320,7 +337,7 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
                 server_packets::system_message_with(sm_ids::YOU_HAVE_OBTAINED_S1, &[SmParam::ItemName(item_id)])
             };
             cs.send(sm);
-            cs.send(ew::inventory_update(inventory, &world.data, &[changed_oid]));
+            cs.send(ew::inventory_update(inventory, &world.data, &changed_oids));
         }
     }
 }

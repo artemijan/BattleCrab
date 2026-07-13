@@ -326,7 +326,7 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
     if !world.cfg.character.auto_loot {
         return; // ground-drop path unported (see PROGRESS G9 notes).
     }
-    let Some(changed_oid) = super::items::add_inventory_item(world, player_oid, item_id, count) else {
+    let Some(changed_oids) = super::items::add_inventory_item(world, player_oid, item_id, count) else {
         tracing::warn!("give_item: object-id pool exhausted, dropping loot {item_id}×{count}");
         return;
     };
@@ -348,7 +348,7 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
             server_packets::system_message_with(sm_ids::YOU_HAVE_OBTAINED_S1, &[SmParam::ItemName(item_id)])
         };
         cs.send(sm);
-        cs.send(crate::network::enter_world::inventory_update(inventory, &world.data, &[changed_oid]));
+        cs.send(crate::network::enter_world::inventory_update(inventory, &world.data, &changed_oids));
     }
 }
 

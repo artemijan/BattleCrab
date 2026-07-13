@@ -1487,6 +1487,92 @@ fn extractable_pack_item_unpacks_into_its_contents() {
     assert!(saw_delete, "pack instance deleted from DB");
 }
 
+/// The bug this guards: a capsule entry with `min == max == 2` on a
+/// non-stackable, equipable item (e.g. the real "Jewelry Pack"'s Majestic
+/// Earring/Ring, `min="2" max="2"` in `15200-15299.xml`) used to be granted
+/// as a single item instance with `count == 2` — a state the paperdoll can't
+/// represent. The client showed "you obtained 2" but only one icon in the
+/// bag, and equipping it made the whole pair disappear (one unit moved to
+/// the paperdoll, the other had no object id of its own to remain behind
+/// with). `ItemContainer.addItem` in Java splits any non-stackable count
+/// into one instance per unit; this asserts the Rust port now does too.
+#[test]
+fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
+    use crate::data::item_data::{self, CapsuledItem, ItemHandler, ItemKind, ItemTemplate};
+    use crate::model::inventory::Inventory;
+
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    world.data.item_data.insert_for_test(ItemTemplate {
+        item_id: 15274,
+        name: "Jewelry Pack (A-grade)".into(),
+        kind: ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: false,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        price: 0,
+        handler: ItemHandler::ExtractableItems,
+        capsuled_items: vec![CapsuledItem { item_id: 14966, min: 2, max: 2, chance: 100_000 }],
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+    });
+    world.data.item_data.insert_for_test(ItemTemplate {
+        item_id: 14966,
+        name: "Majestic Earring of Fortune".into(),
+        kind: ItemKind::Armor,
+        body_part: item_data::SLOT_LR_EAR,
+        weight: 0,
+        is_stackable: false,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        price: 0,
+        handler: ItemHandler::None,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+    });
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9001, 15274, 1);
+    }
+
+    items::handle_use_item(&mut world, 1, &use_item_body(9001));
+
+    let earring_oids: Vec<i32> = {
+        let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+        inv.items().iter().filter(|i| i.item_id == 14966).map(|i| i.object_id).collect()
+    };
+    assert_eq!(earring_oids.len(), 2, "two separate earring instances, not one instance with count 2");
+    {
+        let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+        for oid in &earring_oids {
+            assert_eq!(inv.items().iter().find(|i| i.object_id == *oid).unwrap().count, 1, "each instance is a single unit");
+        }
+    }
+
+    let packets = drain(&mut rx);
+    let obtained_two = sm_ids_of(&packets).into_iter().any(|id| id == server_packets::sm_ids::YOU_HAVE_OBTAINED_S2_S1);
+    assert!(obtained_two, "message reports the pair as a count-2 grant");
+
+    // Equipping one instance must not touch (or vanish) the other.
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.equip_item(&data.item_data, earring_oids[0]);
+    }
+    let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+    assert!(inv.items().iter().any(|i| i.object_id == earring_oids[1]), "second earring still in the bag, not vanished");
+}
+
 /// The bug this guards: `extract_item` used to grant capsule rewards with no
 /// capacity check at all, so a full inventory would silently overflow.
 /// `ExtractableItems.useItem` refuses (leaving the box untouched) once
