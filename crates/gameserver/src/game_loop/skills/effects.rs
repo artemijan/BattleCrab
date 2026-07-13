@@ -107,6 +107,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             skill_level: skill.level,
             abnormal_type_client_id: abnormal_type_client_id(&skill.abnormal_type),
             expires_at_tick,
+            passive: false,
             effects: buff_effects,
         };
         if let Some((target, base, mut mods, mut buffs, mut speeds, mut combat)) = world

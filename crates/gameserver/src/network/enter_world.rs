@@ -178,14 +178,16 @@ pub fn henna_info() -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `EtcStatusUpdate` (0xF9) — no charges/penalties.
-pub fn etc_status_update() -> Vec<u8> {
+/// `EtcStatusUpdate` (0xF9). Charges/weight/death-penalty/souls are still 0
+/// (not modeled yet); the weapon/armor grade-penalty bytes carry the levels
+/// computed by `refresh_expertise_penalty`.
+pub fn etc_status_update(weapon_grade_penalty: i32, armor_grade_penalty: i32) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0xF9);
     w.write_u8(0); // charges
     w.write_i32(0); // weight penalty
-    w.write_u8(0); // weapon grade penalty
-    w.write_u8(0); // armor grade penalty
+    w.write_u8(weapon_grade_penalty as u8); // weapon grade penalty [1-4]
+    w.write_u8(armor_grade_penalty as u8); // armor grade penalty [1-4]
     w.write_u8(0); // death penalty
     w.write_u8(0); // charged souls
     w.write_u8(0); // mask
@@ -231,8 +233,11 @@ pub fn quest_list(
 pub fn abnormal_status_update(buffs: &crate::model::components::Buffs, now_tick: u64) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0x85);
-    w.write_i16(buffs.0.len() as i16);
-    for buff in &buffs.0 {
+    // Passive stand-ins (grade penalties) drive stats but never show as an
+    // abnormal icon — Java adds them via `addSkill`, not the effect list.
+    let shown = buffs.0.iter().filter(|b| !b.passive);
+    w.write_i16(shown.clone().count() as i16);
+    for buff in shown {
         let remaining_secs = buff.expires_at_tick.saturating_sub(now_tick) / 10;
         w.write_i32(buff.skill_id);
         w.write_i16(buff.skill_level as i16);
@@ -461,6 +466,7 @@ mod tests {
             is_quest_item: false,
             price: 0,
             handler: item_data::ItemHandler::None,
+            crystal_type: crate::data::item_data::CrystalType::None,
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,

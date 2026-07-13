@@ -419,6 +419,15 @@ mod tests {
             }
             other => panic!("expected one GiveItemRandom effect, got {other:?}"),
         }
+
+        // Grade-penalty skills (6209 weapon / 6213 armor) back the expertise
+        // penalty — each level must carry the registry-known stat maluses so
+        // `refresh_expertise_penalty` actually debuffs the over-grade wearer.
+        let weapon_pen = sd.get(6209, 1).expect("Weapon Grade Penalty lvl 1");
+        assert!(!weapon_pen.stat_modifier_effects().is_empty(), "6209 must have stat effects");
+        assert!(weapon_pen.stat_modifier_effects().iter().any(|e| e.stat == Stat::PhysicalAttack));
+        let armor_pen = sd.get(6213, 4).expect("Armor Grade Penalty lvl 4");
+        assert!(!armor_pen.stat_modifier_effects().is_empty(), "6213 must have stat effects");
     }
 
     /// A trimmed Wind Strike (1177): per-level `targetType` and

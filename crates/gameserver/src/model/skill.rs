@@ -192,5 +192,11 @@ pub struct ActiveBuff {
     /// Absolute tick the buff expires at (for `AbnormalStatusUpdate`'s
     /// remaining-time field).
     pub expires_at_tick: u64,
+    /// True for entries that stand in for a passive skill's stat pump (the
+    /// grade-penalty skills 6209/6213) rather than a timed buff. They drive
+    /// stats through the same modifier maps but are hidden from
+    /// `AbnormalStatusUpdate` (Java passive skills never show an abnormal icon)
+    /// and never get a `BuffExpire` schedule.
+    pub passive: bool,
     pub effects: Vec<StatModifierEffect>,
 }

@@ -111,6 +111,67 @@ pub enum ItemKind {
     Etc,
 }
 
+/// Port of `model/item/type/CrystalType` — an item's grade. `level()` returns
+/// the same ordinal Java's `CrystalType(int level, ...)` uses, which is what
+/// the expertise/grade-penalty check compares against `Player.getExpertiseLevel`
+/// (`Inventory`/`Player.refreshExpertisePenalty`). Parsed from
+/// `<set name="crystal_type" val="D"/>`; absent → `None` (level 0, no penalty).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum CrystalType {
+    #[default]
+    None,
+    D,
+    C,
+    B,
+    A,
+    S,
+    S80,
+    S84,
+    R,
+    R95,
+    R99,
+    Event,
+}
+
+impl CrystalType {
+    /// Java `CrystalType.getLevel()` (the first enum-constructor arg).
+    pub fn level(self) -> i32 {
+        match self {
+            CrystalType::None => 0,
+            CrystalType::D => 1,
+            CrystalType::C => 2,
+            CrystalType::B => 3,
+            CrystalType::A => 4,
+            CrystalType::S => 5,
+            CrystalType::S80 => 6,
+            CrystalType::S84 => 7,
+            CrystalType::R => 8,
+            CrystalType::R95 => 9,
+            CrystalType::R99 => 10,
+            CrystalType::Event => 11,
+        }
+    }
+
+    /// `<set name="crystal_type" val="..."/>` → variant (Java
+    /// `CrystalType.valueOf(name.toUpperCase())`). Unknown/absent → `None`.
+    fn from_name(name: Option<&str>) -> Self {
+        match name.map(|s| s.to_ascii_uppercase()).as_deref() {
+            Some("D") => CrystalType::D,
+            Some("C") => CrystalType::C,
+            Some("B") => CrystalType::B,
+            Some("A") => CrystalType::A,
+            Some("S") => CrystalType::S,
+            Some("S80") => CrystalType::S80,
+            Some("S84") => CrystalType::S84,
+            Some("R") => CrystalType::R,
+            Some("R95") => CrystalType::R95,
+            Some("R99") => CrystalType::R99,
+            Some("EVENT") => CrystalType::Event,
+            _ => CrystalType::None,
+        }
+    }
+}
+
 /// `<set name="handler">` (Java `EtcItem._handlerName`, dispatched at use time
 /// through `ItemHandler.getInstance().getHandler(name)`). Rust resolves the
 /// name to a typed variant once at load time instead of a runtime string
@@ -151,6 +212,9 @@ pub struct ItemTemplate {
     pub item_id: i32,
     pub name: String,
     pub kind: ItemKind,
+    /// `<set name="crystal_type"/>` — the item's grade, `None` when undeclared.
+    /// Drives the expertise/grade penalty (`refresh_expertise_penalty`).
+    pub crystal_type: CrystalType,
     pub body_part: i32,
     pub weight: i32,
     pub is_stackable: bool,
@@ -366,6 +430,7 @@ fn make_template(
         item_id,
         name,
         kind,
+        crystal_type: CrystalType::from_name(attrs.get("crystal_type").map(|s| s.as_str())),
         body_part: part,
         weight,
         is_stackable,
@@ -412,6 +477,14 @@ mod tests {
         assert_eq!(sword.kind, ItemKind::Weapon);
         assert_eq!(sword.body_part, SLOT_R_HAND);
         assert!(sword.is_equipable());
+        // No-grade weapon → CrystalType::None (level 0), so it never penalizes.
+        assert_eq!(sword.crystal_type, CrystalType::None);
+        assert_eq!(sword.crystal_type.level(), 0);
+
+        // A graded item parses its <set name="crystal_type"/>.
+        let boots = data.get(40).expect("item 40 (Leather Boots)");
+        assert_eq!(boots.crystal_type, CrystalType::D);
+        assert_eq!(boots.crystal_type.level(), 1);
 
         let adena = data.get(ADENA_ID).expect("adena");
         assert!(adena.is_stackable);

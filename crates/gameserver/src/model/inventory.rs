@@ -123,6 +123,25 @@ impl Inventory {
         &self.items
     }
 
+    /// The item instances currently occupying a paperdoll slot (Java: the
+    /// `isEquipped()` subset of `getItems()`). Each instance is returned once
+    /// even if it spans two slots (e.g. full armor covering chest + legs).
+    /// Used by `refresh_expertise_penalty` to scan equipped gear grades.
+    pub fn equipped_items(&self) -> Vec<&ItemInstance> {
+        let mut seen: Vec<i32> = Vec::new();
+        let mut out = Vec::new();
+        for oid in self.paperdoll.iter().flatten() {
+            if seen.contains(oid) {
+                continue;
+            }
+            seen.push(*oid);
+            if let Some(item) = self.find(*oid) {
+                out.push(item);
+            }
+        }
+        out
+    }
+
     fn find(&self, object_id: i32) -> Option<&ItemInstance> {
         self.items.iter().find(|i| i.object_id == object_id)
     }
@@ -464,11 +483,11 @@ mod tests {
     use crate::data::item_data::ItemTemplate;
 
     fn armor(id: i32, body_part: i32) -> ItemTemplate {
-        ItemTemplate { item_id: id, name: format!("armor{id}"), kind: ItemKind::Armor, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new() }
+        ItemTemplate { item_id: id, name: format!("armor{id}"), kind: ItemKind::Armor, crystal_type: item_data::CrystalType::None, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new() }
     }
 
     fn weapon(id: i32, body_part: i32) -> ItemTemplate {
-        ItemTemplate { item_id: id, name: format!("weapon{id}"), kind: ItemKind::Weapon, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new() }
+        ItemTemplate { item_id: id, name: format!("weapon{id}"), kind: ItemKind::Weapon, crystal_type: item_data::CrystalType::None, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new() }
     }
 
     #[test]
@@ -572,6 +591,7 @@ mod tests {
                 is_quest_item: true,
                 price: 0,
                 handler: item_data::ItemHandler::None,
+                crystal_type: crate::data::item_data::CrystalType::None,
                 capsuled_items: Vec::new(),
                 extractable_count_min: 0,
                 extractable_count_max: 0,
@@ -589,6 +609,7 @@ mod tests {
                 is_quest_item: false,
                 price: 0,
                 handler: item_data::ItemHandler::None,
+                crystal_type: crate::data::item_data::CrystalType::None,
                 capsuled_items: Vec::new(),
                 extractable_count_min: 0,
                 extractable_count_max: 0,
@@ -619,6 +640,7 @@ mod tests {
             is_quest_item: false,
             price: 0,
             handler: item_data::ItemHandler::None,
+            crystal_type: crate::data::item_data::CrystalType::None,
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,

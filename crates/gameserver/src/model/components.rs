@@ -202,6 +202,15 @@ pub enum QueuedAction {
 #[derive(Component, Debug, Clone, Default)]
 pub struct SkillBook(pub HashMap<i32, i32>);
 
+/// The currently-applied grade-penalty levels (Java `Player._expertiseWeaponPenalty`
+/// / `_expertiseArmorPenalty`, each 0-4). Cached so `refresh_expertise_penalty`
+/// can no-op when nothing changed, and read by `EtcStatusUpdate`. Player-only.
+#[derive(Component, Debug, Clone, Copy, Default)]
+pub struct ExpertisePenalty {
+    pub weapon: i32,
+    pub armor: i32,
+}
+
 /// Live cooldowns (Java `_reuseTimeStampsSkills` + `_disabledSkills`,
 /// unified), keyed by `Skill::reuse_key()`. Checked lazily — no expiry
 /// tasks. TODO: persist across relog like Java's `character_skills_save`.

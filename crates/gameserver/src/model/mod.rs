@@ -200,6 +200,7 @@ impl PlayerData {
                     StatModifiers::default(),
                     Reuses::default(),
                     components::ZoneFlags::default(),
+                    components::ExpertisePenalty::default(),
                 ),
             ),
         );

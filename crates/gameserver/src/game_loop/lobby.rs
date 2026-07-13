@@ -375,7 +375,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(ew::henna_info());
     session.send(ew::skill_list(&bundle.skills, data));
     session.send(ew::acquire_skill_list(player, &bundle.skills, data));
-    session.send(ew::etc_status_update());
+    // Initial burst carries 0/0; `refresh_expertise_penalty` (after the player
+    // is registered below) recomputes and resends if any gear is over-grade.
+    session.send(ew::etc_status_update(0, 0));
     session.send(ew::ex_pledge_waiting_list_alarm());
     session.send(ew::ex_subjob_info(player));
     session.send(ew::ex_user_info_inven_weight(player.object_id, &bundle.inventory, data));
@@ -409,6 +411,11 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     bundle.spawn_into(&mut world.objects);
     info!("GameLoop: '{name}' entered the world ({} online).", world.objects.count::<crate::model::Player>());
     world.clients.insert(client_id, ClientSession::InGame(session));
+    // Java `EnterWorld` calls `refreshExpertisePenalty` (via `restoreCharData`
+    // → equip listeners): a character wearing over-grade gear logs in already
+    // penalized. Runs now that the player is registered; resends
+    // EtcStatusUpdate + UserInfo only when there's an actual penalty.
+    super::expertise::refresh_expertise_penalty(world, object_id);
     // Java `spawnMe` → `World.addVisibleObject`: mutual CharInfo with every
     // player visible from the spawn region.
     super::visibility::on_enter_world(world, client_id, object_id);

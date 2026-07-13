@@ -226,6 +226,12 @@ pub(crate) fn finish_equip_change(world: &mut World, client_id: u32, object_id: 
         }
         cs.send(crate::network::enter_world::inventory_update(inventory, &world.data, changed));
     }
+    // Java `Inventory.equipItem`/`unEquipItemInBodySlot` fire
+    // `refreshExpertisePenalty` on the owner: a newly equipped over-grade item
+    // (or one just removed) changes the grade penalty. Runs last so the borrow
+    // of `inventory` above is released; it sends its own EtcStatusUpdate +
+    // UserInfo when the penalty actually changed.
+    crate::game_loop::expertise::refresh_expertise_penalty(world, object_id);
 }
 
 /// The `EtcItem` branch of `UseItem.runImpl` (Java:

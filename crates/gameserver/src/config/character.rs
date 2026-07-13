@@ -54,6 +54,10 @@ pub struct CharacterConfig {
     /// skill reachable at the player's level (not just autoGet skills), on
     /// enter-world and every level-up (Java `giveAvailableSkills`).
     pub auto_learn_skills: bool,
+    /// `ExpertisePenalty`: when true, equipping a weapon/armor whose grade
+    /// exceeds the character's expertise level applies the grade-penalty debuff
+    /// skills (Java `Player.refreshExpertisePenalty`, gated on this flag).
+    pub expertise_penalty: bool,
 }
 
 impl Default for CharacterConfig {
@@ -81,6 +85,7 @@ impl Default for CharacterConfig {
             inventory_max_dwarf: 100,
             inventory_max_quest_items: 100,
             auto_learn_skills: false,
+            expertise_penalty: true,
         }
     }
 }
@@ -125,6 +130,7 @@ impl CharacterConfig {
             inventory_max_dwarf: p.get_int("MaximumSlotsForDwarf", d.inventory_max_dwarf),
             inventory_max_quest_items: p.get_int("MaximumSlotsForQuestItems", d.inventory_max_quest_items),
             auto_learn_skills: p.get_bool("AutoLearnSkills", d.auto_learn_skills),
+            expertise_penalty: p.get_bool("ExpertisePenalty", d.expertise_penalty),
         }
     }
 }

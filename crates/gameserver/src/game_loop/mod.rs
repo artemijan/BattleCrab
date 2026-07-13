@@ -13,6 +13,7 @@ mod combat;
 mod death;
 mod dispatch;
 mod doors;
+mod expertise;
 mod friends;
 mod helpers;
 mod items;
