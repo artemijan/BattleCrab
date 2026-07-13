@@ -13,7 +13,7 @@ use crate::network::masks::build_mask;
 
 const OPCODE_USER_INFO: u8 = 0x32;
 
-pub fn user_info(v: &crate::model::PlayerView, data: &GameData) -> Vec<u8> {
+pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::config::CharacterConfig) -> Vec<u8> {
     let crate::model::PlayerView { p, pos, vitals, pvitals, base, speeds, collision, combat, .. } = v;
     let name_units = p.name.encode_utf16().count() as i32;
     let title_units = p.title.encode_utf16().count() as i32;
@@ -203,11 +203,11 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData) -> Vec<u8> {
     w.write_i32(0xFFFFFF); // name color
     w.write_i32(0xFFFF77); // title color
 
-    // INVENTORY_LIMIT — TODO(G6): real inventory limit.
+    // INVENTORY_LIMIT
     w.write_i16(UserInfoType::InventoryLimit.block_length() as i16);
     w.write_i16(0);
     w.write_i16(0);
-    w.write_i16(80); // inventory slot limit
+    w.write_i16(cfg.inventory_limit(p.race) as i16);
     w.write_u8(0);
 
     // TRUE_HERO

@@ -1487,6 +1487,60 @@ fn extractable_pack_item_unpacks_into_its_contents() {
     assert!(saw_delete, "pack instance deleted from DB");
 }
 
+/// The bug this guards: `extract_item` used to grant capsule rewards with no
+/// capacity check at all, so a full inventory would silently overflow.
+/// `ExtractableItems.useItem` refuses (leaving the box untouched) once
+/// non-quest item count reaches 80% of the inventory cap
+/// (`Player.isInventoryUnder80(false)`).
+#[test]
+fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
+    use crate::data::item_data::{CapsuledItem, ItemHandler, ItemKind, ItemTemplate};
+    use crate::model::inventory::Inventory;
+
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    assert_eq!(world.cfg.character.inventory_max_no_dwarf, 80, "test assumes the default 80-slot cap");
+
+    world.data.item_data.insert_for_test(ItemTemplate {
+        item_id: 15195,
+        name: "Mage Class Equipment Set".into(),
+        kind: ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: false,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        price: 0,
+        handler: ItemHandler::ExtractableItems,
+        capsuled_items: vec![CapsuledItem { item_id: 15230, min: 1, max: 1, chance: 100_000 }],
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+    });
+
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        // 65 items (> 80% of the 80-slot cap), the pack itself included.
+        for i in 0..64 {
+            inv.add_item(&data.item_data, 9100 + i, 20000 + i, 1);
+        }
+        inv.add_item(&data.item_data, 9001, 15195, 1);
+    }
+
+    items::handle_use_item(&mut world, 1, &use_item_body(9001));
+
+    let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+    assert!(inv.items().iter().any(|i| i.item_id == 15195), "pack not consumed when inventory is full");
+    assert!(inv.items().iter().all(|i| i.item_id != 15230), "no capsule granted when inventory is full");
+
+    let packets = drain(&mut rx);
+    let full_count = sm_ids_of(&packets).into_iter().filter(|&id| id == server_packets::sm_ids::YOUR_INVENTORY_IS_FULL).count();
+    assert_eq!(full_count, 1, "YOUR_INVENTORY_IS_FULL sent");
+}
+
 /// `ItemSkills` (the `handlers/itemhandlers/ItemSkillsTemplate` port): a
 /// self-targeted potion heals immediately (no cast bar) and consumes one
 /// unit from the stack; a second use inside the skill's reuse window is

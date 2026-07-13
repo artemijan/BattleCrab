@@ -94,7 +94,7 @@ pub(crate) fn broadcast_to_party(world: &World, party_id: u32, packet: &[u8], ex
 /// these; the packets themselves carry no party fields yet).
 pub(crate) fn broadcast_user_info(world: &World, object_id: i32) {
     let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) else { return };
-    send_to_player(world, object_id, crate::network::user_info::user_info(&v, &world.data));
+    send_to_player(world, object_id, crate::network::user_info::user_info(&v, &world.data, &world.cfg.character));
     let char_info = server_packets::char_info(&v);
     broadcast_to_others(world, object_id, &char_info);
 }

@@ -11,16 +11,6 @@ use crate::model::inventory::Inventory;
 const EX: u8 = 0xFE;
 pub const EX_BUY_SELL_LIST: i16 = 0xB8;
 
-/// Non-quest inventory size (`PlayerInventory.getNonQuestSize`), the
-/// "inventory slots" both tabs report.
-fn non_quest_size(inventory: &Inventory, data: &GameData) -> i32 {
-    inventory
-        .items()
-        .iter()
-        .filter(|i| data.item_data.get(i.item_id).is_none_or(|t| !t.is_quest_item))
-        .count() as i32
-}
-
 /// Port of `serverpackets/BuyList` — the buy tab. Product entries reuse the
 /// `AbstractItemPacket.writeItem` layout with `ItemInfo(Product)`'s fixed
 /// fields (object id 0, count 0 = unlimited, nothing enchanted/equipped).
@@ -32,7 +22,7 @@ pub fn buy_list(list: &BuyList, inventory: &Inventory, data: &GameData) -> Vec<u
     w.write_i32(0); // type BUY
     w.write_i64(inventory.adena());
     w.write_i32(list.list_id);
-    w.write_i32(non_quest_size(inventory, data));
+    w.write_i32(inventory.non_quest_size(&data.item_data) as i32);
     let products: Vec<_> = list
         .products
         .iter()
@@ -68,7 +58,7 @@ pub fn ex_buy_sell_list_sell(inventory: &Inventory, data: &GameData, done: bool)
     w.write_u8(EX);
     w.write_i16(EX_BUY_SELL_LIST);
     w.write_i32(1); // type SELL
-    w.write_i32(non_quest_size(inventory, data));
+    w.write_i32(inventory.non_quest_size(&data.item_data) as i32);
     let sellable: Vec<_> = inventory
         .items()
         .iter()

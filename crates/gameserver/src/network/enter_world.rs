@@ -347,6 +347,31 @@ pub fn ex_user_info_inven_weight(
     w.into_bytes()
 }
 
+/// `ExStorageMaxCount` (0x2F) — the capacity figures the client's inventory
+/// window reports as "X out of Y available"; without this packet the client
+/// never learns a max and shows 0. `_inventory`/`_inventoryQuestItems` are
+/// the two limits this port actually enforces (`Inventory::non_quest_size`/
+/// `quest_size`); warehouse/freight/private-store/recipe slots come from
+/// systems not implemented yet, so those fields carry Java's static config
+/// defaults rather than anything computed.
+pub fn ex_storage_max_count(race: i32, cfg: &crate::config::CharacterConfig) -> Vec<u8> {
+    let is_dwarf = race == crate::enums::Race::Dwarf as i32;
+    let mut w = ex(0x2F);
+    w.write_i32(cfg.inventory_limit(race));
+    w.write_i32(if is_dwarf { 120 } else { 100 }); // warehouse (unimplemented; Java defaults)
+    w.write_i32(200); // freight (unimplemented; Java default)
+    w.write_i32(150); // clan warehouse (unimplemented; Java default)
+    w.write_i32(if is_dwarf { 4 } else { 3 }); // private sell (unimplemented; Java defaults)
+    w.write_i32(if is_dwarf { 5 } else { 4 }); // private buy (unimplemented; Java defaults)
+    w.write_i32(50); // dwarf recipe book (unimplemented; Java default)
+    w.write_i32(50); // common recipe book (unimplemented; Java default)
+    w.write_i32(0); // belt-granted extra inventory slots (Stat.INVENTORY_NORMAL not wired)
+    w.write_i32(cfg.inventory_max_quest_items);
+    w.write_i32(40);
+    w.write_i32(40);
+    w.into_bytes()
+}
+
 /// `ExAdenaInvenCount` (0x13E).
 pub fn ex_adena_inven_count(inventory: &crate::model::inventory::Inventory) -> Vec<u8> {
     let mut w = ex(0x13E);

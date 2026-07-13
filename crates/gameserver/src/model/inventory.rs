@@ -419,6 +419,26 @@ impl Inventory {
     pub fn adena(&self) -> i64 {
         self.items.iter().filter(|i| i.item_id == item_data::ADENA_ID).map(|i| i.count).sum()
     }
+
+    /// `PlayerInventory.getNonQuestSize` — item count excluding quest items,
+    /// what the ordinary inventory-slot cap (`getInventoryLimit`) is checked
+    /// against, so quest rewards never crowd out bag space.
+    pub fn non_quest_size(&self, catalog: &ItemData) -> usize {
+        self.items.iter().filter(|i| catalog.get(i.item_id).is_none_or(|t| !t.is_quest_item)).count()
+    }
+
+    /// `PlayerInventory.getQuestSize` — quest items are checked against
+    /// their own separate `getQuestInventoryLimit`, never the ordinary one.
+    pub fn quest_size(&self, catalog: &ItemData) -> usize {
+        self.items.iter().filter(|i| catalog.get(i.item_id).is_some_and(|t| t.is_quest_item)).count()
+    }
+
+    /// `Player.isInventoryUnder80(false)`: ordinary (non-quest) item count is
+    /// under 80% of `normal_limit` — the gate `ExtractableItems.useItem`
+    /// checks before granting reward items.
+    pub fn is_under_80_percent(&self, catalog: &ItemData, normal_limit: i32) -> bool {
+        (self.non_quest_size(catalog) as f64) <= (normal_limit as f64 * 0.8)
+    }
 }
 
 #[cfg(test)]
@@ -518,6 +538,54 @@ mod tests {
         inv.equip_item(&catalog, 2);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::LEar), 1);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::REar), 2, "second earring fills the free REar slot");
+    }
+
+    #[test]
+    fn quest_items_are_excluded_from_the_ordinary_capacity_count() {
+        let catalog = ItemData::from_templates(vec![
+            ItemTemplate {
+                item_id: 1,
+                name: "quest_item".into(),
+                kind: ItemKind::Etc,
+                body_part: item_data::SLOT_NONE,
+                weight: 0,
+                is_stackable: false,
+                type1: 0,
+                type2: 0,
+                is_quest_item: true,
+                price: 0,
+                handler: item_data::ItemHandler::None,
+                capsuled_items: Vec::new(),
+                extractable_count_min: 0,
+                extractable_count_max: 0,
+                item_skills: Vec::new(),
+            },
+            ItemTemplate {
+                item_id: 2,
+                name: "ordinary_item".into(),
+                kind: ItemKind::Etc,
+                body_part: item_data::SLOT_NONE,
+                weight: 0,
+                is_stackable: false,
+                type1: 0,
+                type2: 0,
+                is_quest_item: false,
+                price: 0,
+                handler: item_data::ItemHandler::None,
+                capsuled_items: Vec::new(),
+                extractable_count_min: 0,
+                extractable_count_max: 0,
+                item_skills: Vec::new(),
+            },
+        ]);
+        let mut inv = Inventory::new();
+        inv.add_item(&catalog, 100, 1, 1);
+        inv.add_item(&catalog, 101, 2, 1);
+
+        assert_eq!(inv.quest_size(&catalog), 1);
+        assert_eq!(inv.non_quest_size(&catalog), 1);
+        // A full quest-item bag mustn't count against the ordinary cap.
+        assert!(inv.is_under_80_percent(&catalog, 2));
     }
 
     #[test]

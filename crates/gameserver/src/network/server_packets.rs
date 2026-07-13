@@ -1061,6 +1061,7 @@ pub mod sm_ids {
     pub const YOU_HAVE_OBTAINED_S1: i16 = 30;
     // Item use (G13): `ExtractableItems` (pack/box unpacking).
     pub const THERE_WAS_NOTHING_FOUND_INSIDE: i16 = 1669;
+    pub const YOUR_INVENTORY_IS_FULL: i16 = 129;
     pub const YOU_HAVE_AVOIDED_C1_S_ATTACK: i16 = 42;
     pub const YOU_HAVE_MISSED: i16 = 43;
     pub const CRITICAL_HIT: i16 = 44;

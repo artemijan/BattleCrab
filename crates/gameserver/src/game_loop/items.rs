@@ -140,7 +140,7 @@ pub(crate) fn finish_equip_change(world: &mut World, client_id: u32, object_id: 
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(crate::network::enter_world::inventory_update(inventory, &world.data, changed));
         if let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) {
-            cs.send(crate::network::user_info::user_info(&v, &world.data));
+            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character));
         }
     }
 }
@@ -248,9 +248,8 @@ fn destroy_used_item(world: &mut World, client_id: u32, object_id: i32, item_obj
 /// by "pick one of N" reward boxes) — capped at a generous iteration count
 /// so a misconfigured item (chances that can never sum to the minimum)
 /// can't hang the single-threaded game loop the way it could a Java
-/// per-client thread. Inventory-capacity (`isInventoryUnder80`) and
-/// per-entry enchant rolls are skipped (later milestone; nothing currently
-/// loaded needs either).
+/// per-client thread. Per-entry enchant rolls are skipped (later milestone;
+/// nothing currently loaded needs them).
 fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
     let (capsules, count_min, count_max) = {
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else { return };
@@ -259,6 +258,23 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
         (template.capsuled_items.clone(), template.extractable_count_min.max(0), template.extractable_count_max)
     };
     if capsules.is_empty() {
+        return;
+    }
+
+    // Port of `Player.isInventoryUnder80(false)`, the gate
+    // `ExtractableItems.useItem` checks before touching the item: refuse
+    // (leaving the box and inventory untouched) if the bag is already too
+    // full for the reward roll to have anywhere to go.
+    let race = world.objects.get_component::<crate::model::Player>(&object_id).map(|p| p.race).unwrap_or(0);
+    let normal_limit = world.cfg.character.inventory_limit(race);
+    let under_80 = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .is_some_and(|inv| inv.is_under_80_percent(&world.data.item_data, normal_limit));
+    if !under_80 {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(sm_ids::YOUR_INVENTORY_IS_FULL, &[]));
+        }
         return;
     }
 

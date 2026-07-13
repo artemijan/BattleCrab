@@ -45,7 +45,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
             cs.send(server_packets::acquire_skill_done());
             cs.send(crate::network::enter_world::skill_list(skills, &world.data));
             cs.send(crate::network::enter_world::acquire_skill_list(v.p, skills, &world.data));
-            cs.send(crate::network::user_info::user_info(&v, &world.data));
+            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character));
         }
     }
     // `player.updateShortCuts(_id, _level, 0)` — refresh SKILL slots holding

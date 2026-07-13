@@ -325,7 +325,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // The enter-world packet burst (EnterWorld.runImpl). Inventory real as
     // of G5, skills G6, shortcuts/macros G9.6, friends G10, quest lists
     // G11; henna/mail still empty (TODOs in `enter_world`).
-    session.send(user_info(&view, data));
+    session.send(user_info(&view, data, &world.cfg.character));
     session.send(ew::ex_vitality_effect_info(player));
     session.send(server_packets::ex_ui_setting());
     // `MacroList.sendAllMacros` — one packet per stored macro (or one empty
@@ -346,6 +346,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(ew::ex_subjob_info(player));
     session.send(ew::ex_user_info_inven_weight(player.object_id, &bundle.inventory, data));
     session.send(ew::ex_adena_inven_count(&bundle.inventory));
+    session.send(ew::ex_storage_max_count(player.race, &world.cfg.character));
     session.send(ew::ex_user_info_equip_slot(player.object_id, &bundle.inventory));
     session.send(ew::quest_list(&bundle.quests, &world.quests));
     session.send(ew::ex_rotation(player.object_id, bundle.position.heading));
@@ -354,7 +355,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(server_packets::skill_cool_time(&crate::model::components::Reuses::default(), world.tick));
 
     // Register the player in the world and re-send UserInfo (Java does both).
-    session.send(user_info(&view, data));
+    session.send(user_info(&view, data, &world.cfg.character));
     session.send(ew::ex_set_compass_zone_code(0));
     session.send(ew::move_to_location(player.object_id, &bundle.position));
     for kind in 0..4 {

@@ -40,6 +40,16 @@ pub struct CharacterConfig {
     pub party_xp_cutoff_percent: f64,
     pub party_xp_cutoff_gaps: Vec<(i32, i32)>,
     pub party_xp_cutoff_gap_percents: Vec<i32>,
+    /// `MaximumSlotsForNoDwarf`/`MaximumSlotsForDwarf`: the ordinary
+    /// inventory-slot cap (`Player.getInventoryLimit`). GM/belt bonuses
+    /// aren't wired — no access-level or `Stat.INVENTORY_NORMAL` on the live
+    /// player model yet.
+    pub inventory_max_no_dwarf: i32,
+    pub inventory_max_dwarf: i32,
+    /// `MaximumSlotsForQuestItems` (`Player.getQuestInventoryLimit`): quest
+    /// items are checked against this separate cap, never the ordinary one
+    /// (`PlayerInventory.validateCapacity`'s `questItem` branch).
+    pub inventory_max_quest_items: i32,
 }
 
 impl Default for CharacterConfig {
@@ -63,11 +73,24 @@ impl Default for CharacterConfig {
             party_xp_cutoff_percent: 3.0,
             party_xp_cutoff_gaps: vec![(0, 9), (10, 14), (15, 99)],
             party_xp_cutoff_gap_percents: vec![100, 30, 0],
+            inventory_max_no_dwarf: 80,
+            inventory_max_dwarf: 100,
+            inventory_max_quest_items: 100,
         }
     }
 }
 
 impl CharacterConfig {
+    /// `Player.getInventoryLimit()`, narrowed to the race-based base (dwarves
+    /// get a bigger bag).
+    pub fn inventory_limit(&self, race: i32) -> i32 {
+        if race == crate::enums::Race::Dwarf as i32 {
+            self.inventory_max_dwarf
+        } else {
+            self.inventory_max_no_dwarf
+        }
+    }
+
     pub fn load() -> Self {
         let p = PropertiesParser::load(CHARACTER_CONFIG_FILE);
         let d = Self::default();
@@ -93,6 +116,9 @@ impl CharacterConfig {
                 .split(';')
                 .filter_map(|v| v.trim().parse().ok())
                 .collect(),
+            inventory_max_no_dwarf: p.get_int("MaximumSlotsForNoDwarf", d.inventory_max_no_dwarf),
+            inventory_max_dwarf: p.get_int("MaximumSlotsForDwarf", d.inventory_max_dwarf),
+            inventory_max_quest_items: p.get_int("MaximumSlotsForQuestItems", d.inventory_max_quest_items),
         }
     }
 }

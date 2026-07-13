@@ -1,3 +1,4 @@
+use gameserver::config::CharacterConfig;
 use gameserver::data::GameData;
 use gameserver::model::components::{BaseStats, Collision, CombatStats, PlayerVitals, Position, Speeds, Vitals};
 use gameserver::model::Player;
@@ -71,7 +72,8 @@ async fn user_info_test() {
         inventory: &inventory,
     };
     let gd = GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
-    let packet = user_info(&view, &gd);
+    let cfg = CharacterConfig::default();
+    let packet = user_info(&view, &gd, &cfg);
     assert_eq!(
         vec![
             50, 44, 159, 0, 16, 137, 1, 0, 0, 23, 0, 255, 255, 254, 0, 0, 0, 0, 32, 0, 8, 0, 65, 0,
