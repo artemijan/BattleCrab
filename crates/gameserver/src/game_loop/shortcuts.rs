@@ -208,3 +208,37 @@ pub(crate) fn update_skill_shortcuts(world: &mut World, object_id: i32, skill_id
         }
     }
 }
+
+/// Port of the `Player.removeSkill` shortcut cascade: drop every panel slot
+/// holding `skill_id` as a SKILL shortcut (transform skills 3080–3259 are left
+/// in place, per Java), persist each deletion, and re-send the panel once
+/// (Java's `deleteShortCut` → `ShortCutInit`). Used when a delevel removes a
+/// skill outright.
+pub(crate) fn remove_skill_shortcuts(world: &mut World, object_id: i32, skill_id: i32) {
+    if (3080..=3259).contains(&skill_id) {
+        return;
+    }
+    let Some(shortcuts) = world.objects.get_component::<Shortcuts>(&object_id) else { return };
+    let victims: Vec<(i32, i32)> = shortcuts
+        .0
+        .values()
+        .filter(|sc| sc.kind == ShortcutType::Skill && sc.id == skill_id)
+        .map(|sc| (sc.slot, sc.page))
+        .collect();
+    if victims.is_empty() {
+        return;
+    }
+    if let Some(shortcuts) = world.objects.get_component_mut::<Shortcuts>(&object_id) {
+        for &(slot, page) in &victims {
+            shortcuts.remove(slot, page);
+        }
+    }
+    for &(slot, page) in &victims {
+        let _ = world.db.send(DbCommand::DeleteShortcut { char_id: object_id, slot, page });
+    }
+    if let (Some(client_id), Some(shortcuts)) =
+        (super::helpers::client_for_player(world, object_id), world.objects.get_component::<Shortcuts>(&object_id))
+    {
+        send(world, client_id, server_packets::shortcut_init(shortcuts));
+    }
+}

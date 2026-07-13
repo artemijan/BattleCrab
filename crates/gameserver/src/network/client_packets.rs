@@ -27,6 +27,7 @@ pub mod opcodes {
     pub const REQUEST_RESTART: u8 = 0x57;
     pub const VALIDATE_POSITION: u8 = 0x59;
     pub const REQUEST_ACQUIRE_SKILL: u8 = 0x7C;
+    pub const REQUEST_SKILL_LIST: u8 = 0x50;
     pub const ATTACK_REQUEST: u8 = 0x32;
     pub const APPEARING: u8 = 0x3A;
     pub const REQUEST_RESTART_POINT: u8 = 0x7D;

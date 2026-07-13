@@ -58,6 +58,16 @@ pub struct CharacterConfig {
     /// exceeds the character's expertise level applies the grade-penalty debuff
     /// skills (Java `Player.refreshExpertisePenalty`, gated on this flag).
     pub expertise_penalty: bool,
+    /// `DecreaseSkillOnDelevel`: when true, a skill whose learn level the
+    /// character has dropped below (on delevel, or found out of range at login)
+    /// is downgraded to the highest still-reachable level, or removed if none
+    /// remains (Java `Player.checkPlayerSkills`).
+    pub decrease_skill_level: bool,
+    /// `StrictDelevelSkillRemoval`: drop the 9-level grace Java's
+    /// `checkPlayerSkills` normally applies, so a skill is downgraded/removed
+    /// the moment the character's level falls below its learn level (level-exact
+    /// matching, same rule Java uses for Expertise). Off = Java-faithful grace.
+    pub strict_delevel_skill_removal: bool,
 }
 
 impl Default for CharacterConfig {
@@ -86,6 +96,8 @@ impl Default for CharacterConfig {
             inventory_max_quest_items: 100,
             auto_learn_skills: false,
             expertise_penalty: true,
+            decrease_skill_level: true,
+            strict_delevel_skill_removal: true,
         }
     }
 }
@@ -131,6 +143,8 @@ impl CharacterConfig {
             inventory_max_quest_items: p.get_int("MaximumSlotsForQuestItems", d.inventory_max_quest_items),
             auto_learn_skills: p.get_bool("AutoLearnSkills", d.auto_learn_skills),
             expertise_penalty: p.get_bool("ExpertisePenalty", d.expertise_penalty),
+            decrease_skill_level: p.get_bool("DecreaseSkillOnDelevel", d.decrease_skill_level),
+            strict_delevel_skill_removal: p.get_bool("StrictDelevelSkillRemoval", d.strict_delevel_skill_removal),
         }
     }
 }

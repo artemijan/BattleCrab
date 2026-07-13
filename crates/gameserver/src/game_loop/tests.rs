@@ -653,6 +653,109 @@ fn spellcraft_passive_raises_mystic_cast_speed_in_a_robe() {
     assert_eq!(pcs(&world, 4211).m_atk_spd, 333, "no robe → Spellcraft bonus gone");
 }
 
+/// Delevel skill filtering runs at character *select*, before `from_char`, so
+/// the built `Player` folds only the surviving passives and its enter-world
+/// `UserInfo` is right the first time (the casting-speed-349 bug). A robe
+/// mystic delevelled below 7 loses its getLevel-7 class skill but keeps
+/// Spellcraft (getLevel 1), so casting speed stays 499.
+#[test]
+fn delevel_filter_on_select_keeps_passive_stats() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
+    let mut data = GameData::for_test();
+    data.player_templates = crate::data::player_template::PlayerTemplateData::load_from(DIST);
+    data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
+    data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    data.skill_data = crate::data::skill_data::SkillData::load_from(DIST);
+    data.skill_trees = crate::data::skill_tree::SkillTreeData::load_from(DIST);
+    let world = World::new(link_tx, 7, 3, 0, data, db_tx);
+
+    let paperdoll = |object_id, item_id, slot| crate::character::ItemRow {
+        object_id,
+        item_id,
+        count: 1,
+        enchant_level: 0,
+        loc: "PAPERDOLL".into(),
+        loc_data: slot,
+        custom_type1: 0,
+        custom_type2: 0,
+        mana_left: -1,
+        time: 0,
+    };
+    let mut chr = dummy_char(4213, "Robe");
+    chr.class_id = 10;
+    chr.base_class_id = 10;
+    chr.level = 5; // below the getLevel-7 skills
+    chr.items = vec![paperdoll(1001, 6, 5), paperdoll(1002, 425, 6), paperdoll(1003, 461, 11)];
+    // Spellcraft (163, getLevel 1) + Magician's Movement (118, getLevel 1) +
+    // Shield (1040, getLevel 7) that a level-5 delevel strips.
+    chr.skills = vec![(163, 1), (118, 1), (1040, 1)];
+
+    // The select-time filter (what `filter_skills_on_select` runs).
+    let mut skills: std::collections::HashMap<i32, i32> = chr.skills.iter().copied().collect();
+    let changes = super::death::maybe_skill_remove_on_delevel(&world, chr.object_id, chr.class_id, chr.level, &mut skills);
+    assert!(changes.iter().any(|&(id, a)| id == 1040 && a.is_none()), "Shield stripped at level 5");
+    chr.skills = skills.into_iter().collect();
+
+    // `from_char` on the corrected skills: Shield gone, Spellcraft kept, so the
+    // casting-speed bonus is folded in and the first UserInfo is 499 (not 349).
+    let bundle = Player::from_char(&world.data, &chr);
+    assert!(!bundle.skills.0.contains_key(&1040), "Shield removed from the book");
+    assert!(bundle.skills.0.contains_key(&163), "Spellcraft survives");
+    assert_eq!(bundle.combat.m_atk_spd, 499, "Spellcraft's casting-speed bonus intact");
+}
+
+/// A live level-down (`check_player_skills`) removes a now-too-high passive and
+/// re-folds the stat block: Weapon Mastery (249, getLevel 7, +m.atk) is stripped
+/// at level 5, lowering m.atk, while Spellcraft (getLevel 1) stays and keeps
+/// casting speed at 499. Only passive skills move stats — step 4.
+#[test]
+fn live_delevel_removes_passive_and_recomputes_stats() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
+    let mut data = GameData::for_test();
+    data.player_templates = crate::data::player_template::PlayerTemplateData::load_from(DIST);
+    data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
+    data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    data.skill_data = crate::data::skill_data::SkillData::load_from(DIST);
+    data.skill_trees = crate::data::skill_tree::SkillTreeData::load_from(DIST);
+    let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
+
+    let paperdoll = |object_id, item_id, slot| crate::character::ItemRow {
+        object_id,
+        item_id,
+        count: 1,
+        enchant_level: 0,
+        loc: "PAPERDOLL".into(),
+        loc_data: slot,
+        custom_type1: 0,
+        custom_type2: 0,
+        mana_left: -1,
+        time: 0,
+    };
+    let mut chr = dummy_char(4214, "Mage");
+    chr.class_id = 10;
+    chr.base_class_id = 10;
+    chr.level = 5;
+    chr.items = vec![paperdoll(1001, 6, 5), paperdoll(1002, 425, 6), paperdoll(1003, 461, 11)];
+    // Spellcraft (163, getLevel 1) + Weapon Mastery (249, getLevel 7, passive +m.atk).
+    chr.skills = vec![(163, 1), (249, 1)];
+    let bundle = Player::from_char(&world.data, &chr);
+    let m_atk_with_mastery = bundle.combat.m_atk;
+    bundle.spawn_into(&mut world.objects);
+
+    // Level-down check strips Weapon Mastery (5 < 7) and re-folds the stats.
+    super::death::check_player_skills(&mut world, 4214);
+    assert!(!world.objects.get_component::<SkillBook>(&4214).unwrap().0.contains_key(&249), "Weapon Mastery removed");
+    assert!(world.objects.get_component::<SkillBook>(&4214).unwrap().0.contains_key(&163), "Spellcraft kept");
+    // Weapon Mastery's +m.atk is gone; Spellcraft's casting-speed bonus (499)
+    // is now un-corrupted by 249 and correctly folded from the reduced book.
+    assert!(pcs(&world, 4214).m_atk < m_atk_with_mastery, "removing Weapon Mastery lowered m.atk");
+    assert_eq!(pcs(&world, 4214).m_atk_spd, 499, "recompute re-folds only the surviving passives");
+}
+
 /// `AutoLearnSkills`: `rewardSkills` must grant every reachable class skill,
 /// not just autoGet ones — and only autoGet ones when the flag is off.
 #[test]
@@ -709,6 +812,69 @@ fn auto_learn_grants_all_reachable_class_skills() {
         assert_eq!(book.get(&1000), Some(&1), "autoGet skill granted");
         assert_eq!(book.get(&91), None, "class skill NOT auto-learned when flag is off");
     }
+}
+
+/// `Player.checkPlayerSkills` on delevel: a skill above the `(level − 9)` grace
+/// is downgraded to the highest still-reachable level, then removed once even
+/// level 1 is out of range — and kept untouched when `DecreaseSkillOnDelevel`
+/// is off.
+#[test]
+fn delevel_downgrades_then_removes_skills() {
+    use crate::data::skill_tree::SkillLearn;
+
+    let mk_data = || {
+        let mut data = GameData::for_test();
+        data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![human_fighter_template()]);
+        // Skill 91: level 1 @ getLevel 20, level 2 @ getLevel 40.
+        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 91, skill_level: 1, name: "S1".into(), get_level: 20, level_up_sp: 100, auto_get: false });
+        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 91, skill_level: 2, name: "S2".into(), get_level: 40, level_up_sp: 200, auto_get: false });
+        // Skill 92: a single level @ getLevel 7 — used to show the strict flag
+        // vs the 9-level grace at low character levels.
+        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 92, skill_level: 1, name: "S3".into(), get_level: 7, level_up_sp: 100, auto_get: false });
+        data
+    };
+
+    // Spawn a level-40 character who knows the skills, then force the level down
+    // (a delevel already applied to the model) and run the check.
+    let run = |decrease_flag: bool, strict: bool, new_level: i32, skill_id: i32| -> Option<i32> {
+        let (link_tx, _l) = tokio::sync::mpsc::unbounded_channel();
+        let (db_tx, _d) = tokio::sync::mpsc::unbounded_channel();
+        let mut world = World::new(link_tx, 7, 3, 0, mk_data(), db_tx);
+        world.cfg.character.decrease_skill_level = decrease_flag;
+        world.cfg.character.strict_delevel_skill_removal = strict;
+
+        let mut chr = dummy_char(2001, "Al");
+        chr.level = 40;
+        chr.skills = vec![(91, 2), (92, 1)];
+        let bundle = Player::from_char(&world.data, &chr);
+        let (link_out, _r) = tokio::sync::mpsc::unbounded_channel();
+        let s = Session::new(1, link_out, "127.0.0.1:1".parse().unwrap())
+            .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+            .into_lobby(vec![])
+            .into_entering(bundle);
+        let (_session, bundle) = s.into_ingame();
+        bundle.spawn_into(&mut world.objects);
+
+        world.objects.get_component_mut::<crate::model::Player>(&2001).unwrap().level = new_level;
+        super::death::check_player_skills(&mut world, 2001);
+        world.objects.get_component::<SkillBook>(&2001).unwrap().0.get(&skill_id).copied()
+    };
+
+    // --- Default strict mode (StrictDelevelSkillRemoval = true). ---
+    // 40 → 30: skill 91 @ level 2 (getLevel 40) is out of range → downgrade to
+    // the highest reachable level (1, getLevel 20).
+    assert_eq!(run(true, true, 30, 91), Some(1), "downgraded to the highest reachable level");
+    // 40 → 5: even level 1 (getLevel 20) is out of range → removed.
+    assert_eq!(run(true, true, 5, 91), None, "removed when no level is reachable");
+    // Skill 92 (getLevel 7) at level 1: strict strips it (1 < 7)…
+    assert_eq!(run(true, true, 1, 92), None, "strict removes a getLevel-7 skill at level 1");
+
+    // --- Non-strict (Java 9-level grace). ---
+    // …but the 9-level grace keeps it (1 ≥ 7 − 9).
+    assert_eq!(run(true, false, 1, 92), Some(1), "grace keeps a getLevel-7 skill at level 1");
+
+    // Flag off: kept despite being out of range, regardless of strictness.
+    assert_eq!(run(false, true, 5, 91), Some(2), "kept when DecreaseSkillOnDelevel is off");
 }
 
 fn magic_skill_use_body(magic_id: i32, ctrl: bool) -> Vec<u8> {
@@ -1208,6 +1374,21 @@ fn skill_cool_time_lists_remaining_reuse() {
     assert_eq!(i32::from_le_bytes(pkt[9..13].try_into().unwrap()), 1, "known level");
     assert_eq!(i32::from_le_bytes(pkt[13..17].try_into().unwrap()), 10, "total seconds");
     assert_eq!(i32::from_le_bytes(pkt[17..21].try_into().unwrap()), 6, "remaining seconds");
+}
+
+/// RequestSkillList (0x50): empty body, re-sends the `SkillList` packet
+/// (`player.sendSkillList()`) — the client asks for this when it opens the
+/// skills panel.
+#[test]
+fn request_skill_list_resends_skill_list() {
+    let (mut world, ..) = cast_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0); // 4 known skills
+    drain(&mut a_rx);
+
+    on_packet(&mut world, 1, vec![cop::REQUEST_SKILL_LIST]);
+    let pkt = a_rx.try_recv().unwrap();
+    assert_eq!(pkt[0], 0x5F, "SkillList opcode");
+    assert_eq!(i32::from_le_bytes(pkt[1..5].try_into().unwrap()), 4, "all known skills listed");
 }
 
 /// Skills sharing a positive `reuseDelayGroup` share one cooldown entry
@@ -3004,6 +3185,38 @@ fn restart_stores_player_and_returns_to_lobby() {
     on_characters_loaded(&mut world, 1, "bob".into(), vec![dummy_char(5001, "P5001")], true);
     assert!(matches!(world.clients.get(&1), Some(ClientSession::InLobby(_))));
     assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::CHARACTER_SELECTION_INFO);
+}
+
+/// Server-shutdown save-all: every online player is persisted (level/exp/
+/// position) without being despawned, so a restart doesn't revert them to
+/// their last logout — the bug where a character leveled up, the server was
+/// restarted, and the level was lost (skills, saved eagerly, were not).
+#[test]
+fn shutdown_saves_all_online_players() {
+    let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
+    let _o1 = ingame_player(&mut world, 1, 5001, 100, 200, 0);
+    let _o2 = ingame_player(&mut world, 2, 5002, 300, 400, 0);
+    {
+        let p = world.objects.get_component_mut::<crate::model::Player>(&5001).unwrap();
+        p.level = 7;
+        p.exp = 9999;
+    }
+
+    super::net::save_all_players(&mut world);
+
+    // A StorePlayer snapshot per online player (ECS iteration order isn't
+    // fixed, so collect by object id).
+    let mut snaps = std::collections::HashMap::new();
+    for _ in 0..2 {
+        let s = expect_store_player(&mut db_rx);
+        snaps.insert(s.object_id, s);
+    }
+    assert_eq!(snaps.len(), 2, "both online players saved");
+    assert_eq!(snaps[&5001].level, 7, "the leveled-up character's level is persisted");
+    assert_eq!(snaps[&5001].exp, 9999);
+    assert!(snaps.contains_key(&5002));
+    // Save-all does not despawn — the players are still in the world.
+    assert_eq!(world.objects.count::<Player>(), 2);
 }
 
 /// A second select → enter-world round trip works on the restarted session

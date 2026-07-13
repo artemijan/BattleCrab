@@ -23,16 +23,28 @@ use crate::world::World;
 /// Re-derive the armor-conditioned passive buffs from the player's known
 /// passives versus currently-worn gear and (re)apply them. Resends `UserInfo`
 /// only when the applied set actually changed (a robe swap moving
-/// casting/attack speed). Call after any equip/unequip.
+/// casting/attack speed). Call after any equip/unequip. Sends a fresh
+/// `UserInfo` only when the applied set actually changed — a no-op otherwise.
 pub(crate) fn refresh_conditioned_passives(world: &mut World, object_id: i32) {
+    if recompute_conditioned_passives(world, object_id) {
+        send_user_info(world, object_id);
+    }
+}
+
+/// Re-derive the armor-conditioned passive contributions in place, **without**
+/// sending any packet. Returns whether the applied set actually changed (so a
+/// caller that will broadcast its own stat update — e.g. `set_level`'s
+/// `UserInfo` on a delevel — doesn't send a redundant second one). Callers that
+/// aren't already refreshing the client use [`refresh_conditioned_passives`].
+pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) -> bool {
     // --- read phase: the buffs that should be applied now, and the ones that
     // currently are (passive buffs whose skill is in the book — the expertise
     // penalty buffs 6209/6213 aren't learned skills, so they're left alone). ---
     let Some(book) = world.objects.get_component::<SkillBook>(&object_id) else {
-        return;
+        return false;
     };
     let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
-        return;
+        return false;
     };
     let desired = crate::model::conditioned_passive_buffs(&world.data, book, inventory);
     let desired_pairs: Vec<(i32, Vec<StatModifierEffect>)> =
@@ -49,7 +61,7 @@ pub(crate) fn refresh_conditioned_passives(world: &mut World, object_id: i32) {
         })
         .unwrap_or_default();
     if same_buff_set(&current, &desired_pairs) {
-        return;
+        return false;
     }
 
     // The universe to remove before re-adding: everything currently applied plus
@@ -65,27 +77,29 @@ pub(crate) fn refresh_conditioned_passives(world: &mut World, object_id: i32) {
     // --- apply phase: drop the managed passive buffs, re-add those that apply.
     // `remove_buff`/`apply_buff` rebuild the modifier maps from the remaining
     // buffs, composing with the expertise penalty buffs (distinct skill ids). ---
-    {
-        let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world.objects.get_many_mut::<(
-            &Player,
-            &BaseStats,
-            &mut StatModifiers,
-            &Inventory,
-            &mut Buffs,
-            &mut Speeds,
-            &mut CombatStats,
-        )>(&object_id) else {
-            return;
-        };
-        for &skill_id in &managed_ids {
-            player.remove_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, skill_id);
-        }
-        for buff in desired {
-            player.apply_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, buff);
-        }
+    let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world.objects.get_many_mut::<(
+        &Player,
+        &BaseStats,
+        &mut StatModifiers,
+        &Inventory,
+        &mut Buffs,
+        &mut Speeds,
+        &mut CombatStats,
+    )>(&object_id) else {
+        return false;
+    };
+    for &skill_id in &managed_ids {
+        player.remove_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, skill_id);
     }
+    for buff in desired {
+        player.apply_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, buff);
+    }
+    true
+}
 
-    // The stat change needs a fresh UserInfo (Java's pump → broadcastUserInfo).
+/// Java's stat-pump `broadcastUserInfo` (self only here): a fresh `UserInfo` for
+/// the player's own client.
+fn send_user_info(world: &World, object_id: i32) {
     if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id) {
         if let Some(view) = crate::model::PlayerView::of(&world.objects, object_id) {
             let user_info = crate::network::user_info::user_info(&view, &world.data, &world.cfg.character);

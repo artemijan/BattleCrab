@@ -169,6 +169,9 @@ pub enum DbCommand {
     /// Fire-and-forget skill-learn persistence (`RequestAcquireSkill`), same
     /// upsert query used for creation-time initial skills.
     UpsertSkill { char_id: i32, skill_id: i32, skill_level: i32 },
+    /// Fire-and-forget skill deletion (`Player.removeSkill` →
+    /// `DELETE_SKILL_FROM_CHAR`), used when a delevel drops a skill entirely.
+    DeleteSkill { char_id: i32, skill_id: i32 },
     /// Fire-and-forget `Disconnection.storeMe().deleteMe()`: persist the
     /// character row and mark it offline. Ordered before any following
     /// `LoadCharacters` on this channel, so a restart's re-sent list already
@@ -339,6 +342,15 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                     .bind(char_id)
                     .bind(skill_id)
                     .bind(skill_level),
+                )
+                .await;
+            }
+            DbCommand::DeleteSkill { char_id, skill_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM character_skills WHERE charId = ? AND skill_id = ? AND class_index = 0")
+                        .bind(char_id)
+                        .bind(skill_id),
                 )
                 .await;
             }

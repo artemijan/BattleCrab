@@ -12,7 +12,11 @@ use crate::world::{WaitingClient, World};
 
 /// Port of `RequestCharacterNameCreatable.runImpl`: validate the name, then ask
 /// the DB whether it already exists; the reply is `ExIsCharNameCreatable`.
-pub(crate) fn handle_request_character_name_creatable(world: &mut World, client_id: u32, ex_body: &[u8]) {
+pub(crate) fn handle_request_character_name_creatable(
+    world: &mut World,
+    client_id: u32,
+    ex_body: &[u8],
+) {
     if !matches!(
         world.clients.get(&client_id),
         Some(ClientSession::InLobby(_))
@@ -212,7 +216,13 @@ pub(crate) fn resolve_initial_shortcuts(
             },
             _ => {}
         }
-        shortcuts.push(db::NewShortcut { slot: sc.slot, page: sc.page, kind: sc.kind, id: sc.id, level: sc.level });
+        shortcuts.push(db::NewShortcut {
+            slot: sc.slot,
+            page: sc.page,
+            kind: sc.kind,
+            id: sc.id,
+            level: sc.level,
+        });
     }
     (shortcuts, macros)
 }
@@ -274,19 +284,33 @@ pub(crate) fn handle_character_restore(world: &mut World, client_id: u32, body: 
 /// move to the entering state, and send `CharSelected` (starts the loading
 /// screen; the client then sends `EnterWorld`).
 pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(slot) = cp::read_char_slot(body) else { return };
+    let Some(slot) = cp::read_char_slot(body) else {
+        return;
+    };
     let ClientSession::InLobby(s) = (match world.clients.get(&client_id) {
         Some(cs) => cs,
         None => return,
     }) else {
         return;
     };
-    let Some(chr) = s.char_at(slot).cloned() else { return };
+    let Some(mut chr) = s.char_at(slot).cloned() else {
+        return;
+    };
     // The DB half of `ShortCuts.restoreMe`'s ITEM verification: `from_char`
     // drops shortcuts whose item left the inventory; delete their rows too.
     for (sc_slot, sc_page) in crate::model::Player::stale_item_shortcuts(&chr) {
-        let _ = world.db.send(db::DbCommand::DeleteShortcut { char_id: chr.object_id, slot: sc_slot, page: sc_page });
+        let _ = world.db.send(db::DbCommand::DeleteShortcut {
+            char_id: chr.object_id,
+            slot: sc_slot,
+            page: sc_page,
+        });
     }
+    // Java `restoreCharData` → `checkPlayerSkills`: filter the DB-loaded skill
+    // list against the character's level *before* building the `Player`, so
+    // `from_char` folds the corrected passives (Spellcraft casting speed, etc.)
+    // and the enter-world `UserInfo` is right the first time — no post-spawn
+    // recompute. Panel shortcuts for changed skills are synced to match.
+    filter_skills_on_select(world, &mut chr);
     let bundle = crate::model::Player::from_char(&world.data, &chr);
     let selected = server_packets::char_selected(&bundle.view(), s.play_ok1(), 0);
 
@@ -294,8 +318,58 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
     if let Some(ClientSession::InLobby(s)) = world.clients.remove(&client_id) {
         let s = s.into_entering(bundle);
         s.send(selected);
-        info!("GameLoop: client {client_id} selected character '{}'.", s.player().player.name);
+        info!(
+            "GameLoop: client {client_id} selected character '{}'.",
+            s.player().player.name
+        );
         world.clients.insert(client_id, ClientSession::Entering(s));
+    }
+}
+
+/// Run [`super::death::maybe_skill_remove_on_delevel`] over a just-selected
+/// character's DB-loaded skill list and reconcile its panel shortcuts: matching
+/// SKILL slots follow a downgrade or drop with a removed skill (transform skills
+/// 3080–3259 are kept, per Java `removeSkill`). Both the skill list and the
+/// shortcut edits are persisted; the caller then builds the `Player` from the
+/// corrected `chr`.
+fn filter_skills_on_select(world: &World, chr: &mut crate::character::CharData) {
+    use crate::model::shortcut::ShortcutType;
+    let mut skills: std::collections::HashMap<i32, i32> = chr.skills.iter().copied().collect();
+    let changes = super::death::maybe_skill_remove_on_delevel(world, chr.object_id, chr.class_id, chr.level, &mut skills);
+    if changes.is_empty() {
+        return;
+    }
+    chr.skills = skills.into_iter().collect();
+    for (skill_id, action) in changes {
+        match action {
+            Some(new_level) => {
+                for sc in chr.shortcuts.iter_mut().filter(|sc| sc.kind == ShortcutType::Skill && sc.id == skill_id) {
+                    sc.level = new_level;
+                    let _ = world.db.send(db::DbCommand::UpsertShortcut {
+                        char_id: chr.object_id,
+                        slot: sc.slot,
+                        page: sc.page,
+                        kind: sc.kind.ordinal(),
+                        shortcut_id: sc.id,
+                        level: sc.level,
+                    });
+                }
+            }
+            None if !(3080..=3259).contains(&skill_id) => {
+                chr.shortcuts.retain(|sc| {
+                    let hit = sc.kind == ShortcutType::Skill && sc.id == skill_id;
+                    if hit {
+                        let _ = world.db.send(db::DbCommand::DeleteShortcut {
+                            char_id: chr.object_id,
+                            slot: sc.slot,
+                            page: sc.page,
+                        });
+                    }
+                    !hit
+                });
+            }
+            None => {}
+        }
     }
 }
 
@@ -333,7 +407,11 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         let char_id = bundle.player.object_id;
         for &(id, lvl) in &granted {
             bundle.skills.0.insert(id, lvl);
-            let _ = world.db.send(crate::db::DbCommand::UpsertSkill { char_id, skill_id: id, skill_level: lvl });
+            let _ = world.db.send(crate::db::DbCommand::UpsertSkill {
+                char_id,
+                skill_id: id,
+                skill_level: lvl,
+            });
             for sc in bundle.shortcuts.0.values_mut() {
                 if sc.kind == crate::model::shortcut::ShortcutType::Skill && sc.id == id {
                     sc.level = lvl;
@@ -348,8 +426,16 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
                 }
             }
         }
-        granted.iter().map(|&(id, _)| id).collect::<std::collections::HashSet<_>>().len()
+        granted
+            .iter()
+            .map(|&(id, _)| id)
+            .collect::<std::collections::HashSet<_>>()
+            .len()
     };
+
+    // Delevel skill corrections already ran at character select
+    // (`filter_skills_on_select`), so `bundle` carries the filtered skills and
+    // already-correct passive stats — nothing to redo here.
 
     let view = bundle.view();
     let player = &bundle.player;
@@ -382,15 +468,28 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(ew::etc_status_update(0, 0));
     session.send(ew::ex_pledge_waiting_list_alarm());
     session.send(ew::ex_subjob_info(player));
-    session.send(ew::ex_user_info_inven_weight(player.object_id, &bundle.inventory, data));
+    session.send(ew::ex_user_info_inven_weight(
+        player.object_id,
+        &bundle.inventory,
+        data,
+    ));
     session.send(ew::ex_adena_inven_count(&bundle.inventory));
     session.send(ew::ex_storage_max_count(player.race, &world.cfg.character));
-    session.send(ew::ex_user_info_equip_slot(player.object_id, &bundle.inventory));
+    session.send(ew::ex_user_info_equip_slot(
+        player.object_id,
+        &bundle.inventory,
+    ));
     session.send(ew::quest_list(&bundle.quests, &world.quests));
     session.send(ew::ex_rotation(player.object_id, bundle.position.heading));
     // `L2FriendList` — the real roster (Java sends it at this spot).
-    session.send(super::friends::l2_friend_list_packet(world, &bundle.friends));
-    session.send(server_packets::skill_cool_time(&crate::model::components::Reuses::default(), world.tick));
+    session.send(super::friends::l2_friend_list_packet(
+        world,
+        &bundle.friends,
+    ));
+    session.send(server_packets::skill_cool_time(
+        &crate::model::components::Reuses::default(),
+        world.tick,
+    ));
 
     // Register the player in the world and re-send UserInfo (Java does both).
     session.send(user_info(&view, data, &world.cfg.character));
@@ -399,20 +498,30 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     for kind in 0..4 {
         session.send(ew::ex_auto_soul_shot(0, true, kind));
     }
-    session.send(ew::abnormal_status_update(&crate::model::components::Buffs::default(), world.tick));
+    session.send(ew::abnormal_status_update(
+        &crate::model::components::Buffs::default(),
+        world.tick,
+    ));
     session.send(ew::system_message(ew::SM_WELCOME));
     // `giveAvailableSkills` notice (only the `AutoLearnSkills` path shows it).
     if world.cfg.character.auto_learn_skills && learned > 0 {
         session.send(server_packets::system_message_with(
             server_packets::sm_ids::S1_TEXT,
-            &[server_packets::SmParam::Text(format!("You have learned {learned} new skills."))],
+            &[server_packets::SmParam::Text(format!(
+                "You have learned {learned} new skills."
+            ))],
         ));
     }
 
     let object_id = player.object_id;
     bundle.spawn_into(&mut world.objects);
-    info!("GameLoop: '{name}' entered the world ({} online).", world.objects.count::<crate::model::Player>());
-    world.clients.insert(client_id, ClientSession::InGame(session));
+    info!(
+        "GameLoop: '{name}' entered the world ({} online).",
+        world.objects.count::<crate::model::Player>()
+    );
+    world
+        .clients
+        .insert(client_id, ClientSession::InGame(session));
     // Java `EnterWorld` calls `refreshExpertisePenalty` (via `restoreCharData`
     // → equip listeners): a character wearing over-grade gear logs in already
     // penalized. Runs now that the player is registered; resends
@@ -435,13 +544,16 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
 
     // Java `EnterWorld`: a character that logged out dead comes back dead —
     // re-open the death dialog.
-    if world.objects.get_component::<crate::model::components::Vitals>(&object_id).is_some_and(|v| v.dead) {
+    if world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&object_id)
+        .is_some_and(|v| v.dead)
+    {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(crate::network::server_packets::die(object_id, true));
         }
     }
 }
-
 
 /// Port of `clientpackets/AuthLogin.runImpl`: register the account on this game
 /// server and ask the login server to validate the session key.
@@ -483,4 +595,3 @@ pub(crate) fn handle_auth_login(world: &mut World, client_id: u32, body: &[u8]) 
         .link
         .send(LoginLinkCommand::PlayerAuthRequest { account, key });
 }
-

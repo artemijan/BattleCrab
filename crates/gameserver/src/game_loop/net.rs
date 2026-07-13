@@ -93,6 +93,25 @@ pub(crate) fn store_player_now(world: &mut World, player_object_id: i32) {
     }
 }
 
+/// Server-shutdown save-all (Java `Shutdown` → `GameServer` disconnect-all →
+/// `Disconnection.storeMe()` for every online player). Persists level/exp/
+/// position/vitals for everyone still in the world so a restart doesn't revert
+/// them to their last logout — skills are already saved eagerly at learn time,
+/// but stats live only in memory until a `StorePlayer`. Runs once after the
+/// game loop stops; the DB thread drains these before it's told to shut down
+/// (`main` sends `DbCommand::Shutdown` only after this thread joins).
+pub(crate) fn save_all_players(world: &mut World) {
+    let mut ids = Vec::new();
+    world.objects.for_each_mut::<&crate::model::Player>(|p| ids.push(p.object_id));
+    let count = ids.len();
+    for oid in ids {
+        store_player_now(world, oid);
+    }
+    if count > 0 {
+        info!("GameLoop: saved {count} online player(s) on shutdown.");
+    }
+}
+
 /// Port of `clientpackets/RequestRestart.runImpl`: save + leave the world, drop
 /// the session back to the character-selection lifecycle, and re-send the
 /// character list. Olympiad/instance handling doesn't apply yet; `canLogout`

@@ -200,7 +200,11 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     }
 
     info!("GameLoop: stopped after {} ticks.", world.tick);
-    // Final drain + save-all lands with the DB thread (G3).
+    // Persist every still-online player so level/exp/position survive the
+    // restart (Java `Shutdown` save-all). These `StorePlayer` commands queue
+    // ahead of the `DbCommand::Shutdown` `main` sends only after this thread
+    // joins, so the DB thread drains them first.
+    net::save_all_players(&mut world);
 }
 
 

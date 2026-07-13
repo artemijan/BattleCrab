@@ -17,6 +17,11 @@ use tracing::info;
 
 pub const STARTING_CLASS_DIR: &str = "data/skillTrees/StartingClass";
 
+/// Java `CommonSkill.EXPERTISE` (239): the one skill `checkPlayerSkills`
+/// verifies with no level grace — its level *is* the wearable grade, so it may
+/// not outrank the character even by the usual 9 levels.
+const EXPERTISE_SKILL_ID: i32 = 239;
+
 /// A skill a character knows: `(skill_id, skill_level)`.
 pub type Skill = (i32, i32);
 
@@ -118,6 +123,47 @@ impl SkillTreeData {
             .get(&class_id)?
             .iter()
             .find(|s| s.skill_id == skill_id && s.skill_level == skill_level)
+    }
+
+    /// Java `Player.checkPlayerSkills` + `deacreaseSkillLevel`: given the
+    /// player's current `level` and the skills they `known` (id → level),
+    /// decide the corrective action for every skill whose learn level the
+    /// player has fallen below. Returns, sorted by skill id for determinism:
+    /// `(skill_id, Some(new_level))` to downgrade to the highest still-reachable
+    /// level, or `(skill_id, None)` to remove the skill (no reachable level
+    /// remains). Skills absent from this class tree are left untouched (Java
+    /// `getClassSkill` → null → skip).
+    ///
+    /// `strict` drops the 9-level grace Java normally applies (`StrictDelevel-
+    /// SkillRemoval`): when true, every skill is matched level-exactly (the same
+    /// no-grace rule Java always uses for Expertise); when false, the ordinary
+    /// 9-level buffer applies (0 for Expertise).
+    pub fn delevel_skill_changes(&self, class_id: i32, level: i32, known: &HashMap<i32, i32>, strict: bool) -> Vec<(i32, Option<i32>)> {
+        let Some(entries) = self.trees.get(&class_id) else { return Vec::new() };
+        let level_diff_of = |skill_id: i32| if strict || skill_id == EXPERTISE_SKILL_ID { 0 } else { 9 };
+        let mut out = Vec::new();
+        for (&skill_id, &skill_level) in known {
+            // Java keys the lookup on `getLevel() % 100` — enchanted skills
+            // carry the enchant route in the hundreds digit.
+            let base_level = skill_level % 100;
+            let Some(learn) = entries.iter().find(|s| s.skill_id == skill_id && s.skill_level == base_level) else {
+                continue;
+            };
+            let level_diff = level_diff_of(skill_id);
+            if level >= (learn.get_level - level_diff) {
+                continue; // still within range — keep as is
+            }
+            // deacreaseSkillLevel: highest level of this skill still reachable.
+            let mut next = -1;
+            for s in entries.iter() {
+                if s.skill_id == skill_id && s.skill_level > next && level >= (s.get_level - level_diff) {
+                    next = s.skill_level;
+                }
+            }
+            out.push((skill_id, (next != -1).then_some(next)));
+        }
+        out.sort_by_key(|&(id, _)| id);
+        out
     }
 
     #[doc(hidden)]
@@ -254,5 +300,69 @@ mod tests {
         let mut got: Vec<(i32, i32)> = data.all_available_skills(0, 20, &known);
         got.sort();
         assert_eq!(got, vec![(3, 1), (91, 3)]);
+    }
+
+    #[test]
+    fn delevel_skill_changes_downgrades_or_removes_past_the_grace() {
+        let mut data = SkillTreeData::empty();
+        // Skill 91: level 1 @ getLevel 20, level 2 @ getLevel 40.
+        data.insert_for_test(0, learn(91, 1, 20, 100));
+        data.insert_for_test(0, learn(91, 2, 40, 200));
+        // Expertise (239): level 1 @ getLevel 20 — checked with no 9-lvl grace.
+        data.insert_for_test(0, learn(EXPERTISE_SKILL_ID, 1, 20, 0));
+
+        let known = |pairs: &[(i32, i32)]| pairs.iter().copied().collect::<HashMap<i32, i32>>();
+
+        // Non-strict (Java-faithful) 9-level grace below.
+        // Within the grace (skill-2 getLevel 40, level 31 ≥ 40-9): keep.
+        assert!(data.delevel_skill_changes(0, 31, &known(&[(91, 2)]), false).is_empty());
+
+        // Below grace for level 2 (30 < 40-9) but still fine for level 1
+        // (30 ≥ 20-9): downgrade 91 to level 1.
+        assert_eq!(data.delevel_skill_changes(0, 30, &known(&[(91, 2)]), false), vec![(91, Some(1))]);
+
+        // Below grace even for level 1 (10 < 20-9): remove 91 entirely.
+        assert_eq!(data.delevel_skill_changes(0, 10, &known(&[(91, 2)]), false), vec![(91, None)]);
+
+        // Expertise has no grace even in non-strict mode: at level 19 (< 20)
+        // it's removed, even though a 9-level grace would have kept it.
+        assert_eq!(
+            data.delevel_skill_changes(0, 19, &known(&[(EXPERTISE_SKILL_ID, 1)]), false),
+            vec![(EXPERTISE_SKILL_ID, None)]
+        );
+        assert!(data.delevel_skill_changes(0, 20, &known(&[(EXPERTISE_SKILL_ID, 1)]), false).is_empty());
+
+        // A skill not in this class tree is left untouched.
+        assert!(data.delevel_skill_changes(0, 1, &known(&[(777, 5)]), false).is_empty());
+    }
+
+    #[test]
+    fn delevel_skill_changes_strict_matches_level_exactly() {
+        let mut data = SkillTreeData::empty();
+        // Skill 91: level 1 @ getLevel 20, level 2 @ getLevel 40.
+        data.insert_for_test(0, learn(91, 1, 20, 100));
+        data.insert_for_test(0, learn(91, 2, 40, 200));
+        let known = |pairs: &[(i32, i32)]| pairs.iter().copied().collect::<HashMap<i32, i32>>();
+
+        // Strict mode drops the 9-level grace: at level 31, skill 91 @ level 2
+        // (getLevel 40) is out of range (31 < 40), so it downgrades to level 1
+        // (31 ≥ 20) — where non-strict keeps it (31 ≥ 40 − 9).
+        assert!(data.delevel_skill_changes(0, 31, &known(&[(91, 2)]), false).is_empty());
+        assert_eq!(data.delevel_skill_changes(0, 31, &known(&[(91, 2)]), true), vec![(91, Some(1))]);
+
+        // At level 19 (< 20) even level 1 is out of range → removed.
+        assert_eq!(data.delevel_skill_changes(0, 19, &known(&[(91, 2)]), true), vec![(91, None)]);
+
+        // At level 40 the skill is exactly in range → no change.
+        assert!(data.delevel_skill_changes(0, 40, &known(&[(91, 2)]), true).is_empty());
+
+        // Real HumanMystic case that non-strict keeps but strict strips: Wind
+        // Strike @ level 3 has getLevel 7; a level-1 char in strict mode
+        // downgrades it to the highest reachable level (its autoGet level 1).
+        data.insert_for_test(10, SkillLearn { auto_get: true, ..learn(1177, 1, 1, 0) });
+        data.insert_for_test(10, learn(1177, 2, 7, 240));
+        data.insert_for_test(10, learn(1177, 3, 7, 240));
+        assert!(data.delevel_skill_changes(10, 1, &known(&[(1177, 3)]), false).is_empty());
+        assert_eq!(data.delevel_skill_changes(10, 1, &known(&[(1177, 3)]), true), vec![(1177, Some(1))]);
     }
 }

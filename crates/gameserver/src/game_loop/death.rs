@@ -8,7 +8,9 @@
 //! `RequestRestartPoint`/`Appearing`/`Player.doRevive`.
 
 use crate::data::npc_data::{DropHolder, NpcTemplate};
-use crate::model::components::{BaseStats, Intent, Movement, PlayerVitals, Position, RegionCell, SkillBook, Speeds, StatModifiers, Vitals};
+use crate::model::components::{BaseStats, Buffs, CombatStats, Intent, Movement, PlayerVitals, Position, RegionCell, SkillBook, Speeds, StatModifiers, Vitals};
+use crate::model::inventory::Inventory;
+use crate::model::Player;
 use crate::model::formulas;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, sm_ids, SmParam};
@@ -460,6 +462,11 @@ fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     // `AutoLearnSkills` — every reachable class skill).
     reward_skills(world, player_oid);
 
+    // `Player.checkPlayerSkills` (`PlayableStat.addLevel` on a delevel, and
+    // inside `rewardSkills`): downgrade/remove any skill that now outranks the
+    // level. No-op on a level-up (nothing sits above the higher level).
+    check_player_skills(world, player_oid);
+
     if leveled_up {
         broadcast_including_self(
             world,
@@ -572,6 +579,101 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
             }
         }
     }
+}
+
+/// Java `Player.checkPlayerSkills` + `deacreaseSkillLevel`, as a reusable
+/// filter: downgrade or remove the entries in `skills` that the character's
+/// `level` no longer supports (config `StrictDelevelSkillRemoval` grace),
+/// persisting each change to `character_skills`. Mutates `skills` in place and
+/// returns the applied `(skill_id, Some(new_level) | None)` changes so the
+/// caller can sync panel shortcuts and — for a live player — recompute passive
+/// stats. Empty / no-op when `DecreaseSkillOnDelevel` is off.
+///
+/// The two call sites: character select (filtering the DB-loaded skill list
+/// before the `Player` is built, so `from_char` folds the corrected passives)
+/// and every level-down (`PlayerStat.addLevel`, via [`check_player_skills`]).
+pub(crate) fn maybe_skill_remove_on_delevel(
+    world: &World,
+    char_id: i32,
+    class_id: i32,
+    level: i32,
+    skills: &mut std::collections::HashMap<i32, i32>,
+) -> Vec<(i32, Option<i32>)> {
+    if !world.cfg.character.decrease_skill_level {
+        return Vec::new();
+    }
+    let changes = world.data.skill_trees.delevel_skill_changes(
+        class_id,
+        level,
+        skills,
+        world.cfg.character.strict_delevel_skill_removal,
+    );
+    for &(skill_id, action) in &changes {
+        match action {
+            // `deacreaseSkillLevel` → `addSkill(getSkill(id, nextLevel))`.
+            Some(new_level) => {
+                skills.insert(skill_id, new_level);
+                let _ = world.db.send(crate::db::DbCommand::UpsertSkill { char_id, skill_id, skill_level: new_level });
+            }
+            // `deacreaseSkillLevel` → `removeSkill(skill, true)`.
+            None => {
+                skills.remove(&skill_id);
+                let _ = world.db.send(crate::db::DbCommand::DeleteSkill { char_id, skill_id });
+            }
+        }
+    }
+    changes
+}
+
+/// `Player.checkPlayerSkills` for a live in-world player (a level-down):
+/// [`maybe_skill_remove_on_delevel`] on the `SkillBook`, then roll the changes
+/// into panel shortcuts and re-fold the passive stats (only passive skills move
+/// `UserInfo` stats), broadcasting the fresh stats.
+pub(crate) fn check_player_skills(world: &mut World, player_oid: i32) {
+    let (class_id, level, mut known) = {
+        let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return };
+        let skills = world.objects.get_component::<SkillBook>(&player_oid).cloned().unwrap_or_default();
+        (p.class_id, p.level, skills.0)
+    };
+    let changes = maybe_skill_remove_on_delevel(world, player_oid, class_id, level, &mut known);
+    if changes.is_empty() {
+        return;
+    }
+    // Write the filtered book back, then sync the panel shortcuts.
+    if let Some(book) = world.objects.get_component_mut::<SkillBook>(&player_oid) {
+        book.0 = known;
+    }
+    for &(skill_id, action) in &changes {
+        match action {
+            Some(new_level) => super::shortcuts::update_skill_shortcuts(world, player_oid, skill_id, new_level),
+            None => super::shortcuts::remove_skill_shortcuts(world, player_oid, skill_id),
+        }
+    }
+    recompute_passives_after_skill_change(world, player_oid, &changes);
+}
+
+/// Re-derive a live player's passive-skill stat contributions after a delevel
+/// skill change: drop the removed skills' passive buffs, then re-fold the
+/// armor-conditioned passives (a downgraded passive re-applies at its new
+/// level). Only passive skills carry stat modifiers, so removing/downgrading an
+/// active skill leaves the stats untouched here. Updates the stat components in
+/// place but sends no packet — the caller (`set_level`) already broadcasts a
+/// fresh `UserInfo` for the level change, so this avoids a redundant second one.
+fn recompute_passives_after_skill_change(world: &mut World, player_oid: i32, changes: &[(i32, Option<i32>)]) {
+    let removed: Vec<i32> = changes.iter().filter_map(|&(id, action)| action.is_none().then_some(id)).collect();
+    if !removed.is_empty() {
+        if let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world
+            .objects
+            .get_many_mut::<(&Player, &BaseStats, &mut StatModifiers, &Inventory, &mut Buffs, &mut Speeds, &mut CombatStats)>(&player_oid)
+        {
+            for skill_id in &removed {
+                player.remove_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, *skill_id);
+            }
+        }
+    }
+    // Re-fold conditioned passives from the corrected book (handles downgrades),
+    // component-only — no send.
+    super::passive_skills::recompute_conditioned_passives(world, player_oid);
 }
 
 // ---------------------------------------------------------------------------
