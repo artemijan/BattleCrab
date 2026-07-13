@@ -418,7 +418,7 @@ fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     // Vitals follow the level tables (`getMaxHp` etc. read level).
     {
         let data = &world.data;
-        let Some((p, mut vitals, mut pvitals, base, mods, mut speeds, mut combat)) = world
+        let Some((p, mut vitals, mut pvitals, base, mods, inventory, mut speeds, mut combat)) = world
             .objects
             .get_many_mut::<(
                 &mut crate::model::Player,
@@ -426,6 +426,7 @@ fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
                 &mut PlayerVitals,
                 &BaseStats,
                 &StatModifiers,
+                &crate::model::inventory::Inventory,
                 &mut Speeds,
                 &mut crate::model::components::CombatStats,
             )>(&player_oid)
@@ -438,8 +439,8 @@ fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
             .or_else(|| data.player_templates.get(p.base_class_id))
             .cloned()
             .unwrap_or_default();
-        vitals.max_hp = crate::model::calc_max_hp(data, &t, p.level) as i32;
-        vitals.max_mp = crate::model::calc_max_mp(data, &t, p.level) as i32;
+        vitals.max_hp = crate::model::calc_max_hp(data, &t, p.level, Some(&inventory)) as i32;
+        vitals.max_mp = crate::model::calc_max_mp(data, &t, p.level, Some(&inventory)) as i32;
         pvitals.max_cp = crate::model::calc_max_cp(data, &t, p.level) as i32;
         if leveled_up {
             // Classic level-up: all vitals refill (Mobius Java only refills
@@ -452,7 +453,7 @@ fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
             vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
             pvitals.cur_cp = pvitals.cur_cp.min(pvitals.max_cp as f64);
         }
-        p.recalculate_stats(data, &base, &mods, &mut speeds, &mut combat);
+        p.recalculate_stats(data, &base, &mods, &inventory, &mut speeds, &mut combat);
     }
 
     // `rewardSkills`: grant the skills now reachable (autoGet only, or — with

@@ -1,15 +1,18 @@
 //! Port of `data/xml/ItemData` + `util/DocumentItem`, scoped to what G5 needs:
 //! identity, equip slot, weight, stackability, and the `type1`/`type2` pair the
 //! client needs for `ItemList` sorting/icons, plus (for `UseItem`'s `EtcItem`
-//! branch) the `handler`/`<capsuled_items>` pair `ExtractableItems` reads. The
-//! combat-stat bonuses under `<stats>` (and `<skills>`/`<cond>`) feed the
-//! later stats engine milestone and are not parsed here.
+//! branch) the `handler`/`<capsuled_items>` pair `ExtractableItems` reads, plus
+//! the combat-stat bonuses under `<stats>` (Java `ItemTemplate._funcTemplates`)
+//! the stats engine folds in when the item is equipped ([`ItemStats`], applied
+//! by `Player::recalculate_stats`). `<cond>` is still not parsed.
 
 use std::collections::HashMap;
 
 use quick_xml::events::Event;
 use quick_xml::Reader;
 use tracing::info;
+
+use crate::model::stats::Stat;
 
 pub const ITEMS_DIR: &str = "data/stats/items";
 
@@ -111,6 +114,50 @@ pub enum ItemKind {
     Etc,
 }
 
+/// Port of `model/item/type/ArmorType`, scoped to the armor kinds the
+/// armor-conditioned passive skills (`ConditionUsingItemType`) test against.
+/// `<set name="armor_type" val="..."/>`; absent → `None`. `mask_bit` gives each
+/// type its own bit so a `ConditionUsingItemType` mask (the OR of an effect's
+/// `<armorType>` list) can be intersected against the worn chest/legs.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ArmorType {
+    #[default]
+    None,
+    Light,
+    Heavy,
+    Magic,
+    Sigil,
+    Shield,
+}
+
+impl ArmorType {
+    /// The single-type mask bit (Java `ArmorType.mask()`, reduced to a `u8`
+    /// since only these six kinds are ever masked here).
+    pub const fn mask_bit(self) -> u8 {
+        match self {
+            ArmorType::None => 1,
+            ArmorType::Light => 2,
+            ArmorType::Heavy => 4,
+            ArmorType::Magic => 8,
+            ArmorType::Sigil => 16,
+            ArmorType::Shield => 32,
+        }
+    }
+
+    /// `<set name="armor_type"/>` / `<armorType><item>..</item>` value → variant
+    /// (Java `set.getEnum("armor_type", ArmorType.class, NONE)`). Unknown → `None`.
+    pub fn from_name(name: &str) -> Self {
+        match name.to_ascii_uppercase().as_str() {
+            "LIGHT" => ArmorType::Light,
+            "HEAVY" => ArmorType::Heavy,
+            "MAGIC" => ArmorType::Magic,
+            "SIGIL" => ArmorType::Sigil,
+            "SHIELD" => ArmorType::Shield,
+            _ => ArmorType::None,
+        }
+    }
+}
+
 /// Port of `model/item/type/CrystalType` — an item's grade. `level()` returns
 /// the same ordinal Java's `CrystalType(int level, ...)` uses, which is what
 /// the expertise/grade-penalty check compares against `Player.getExpertiseLevel`
@@ -207,6 +254,31 @@ pub struct CapsuledItem {
     pub chance: i32,
 }
 
+/// Parsed `<stats>` block of an equipable item (Java `ItemTemplate`'s
+/// `_funcTemplates`, all `FuncAdd`). Kept in a side-map on [`ItemData`] rather
+/// than on [`ItemTemplate`] so the (many) template literals stay untouched.
+/// The stats engine distinguishes two application rules when the item is worn
+/// (see `Player::recalculate_stats`), matching the Java stat finalizers:
+///   * **weapon-replace** (`calcWeaponBaseValue`): the equipped weapon's
+///     `pAtk`/`mAtk`/`pAtkSpd`/`rCrit`/`mCritRate` value *replaces* the wearer's
+///     naked class base before the STR/level multipliers apply;
+///   * **sum-add** (`calcWeaponPlusBaseValue` / paperdoll loop): `pDef`/`mDef`/
+///     `accCombat`/`accMagic`/`rEvas`/`mEvas`/`maxHp`/`maxMp` are summed across
+///     every equipped piece and added on top of the computed base.
+#[derive(Debug, Clone, Default)]
+pub struct ItemStats {
+    /// `<stat type="..">` entries mapped to an engine [`Stat`], in document
+    /// order. Types the engine doesn't compute yet (elemental power/res,
+    /// `sDef`, `rShld`, …) are dropped during parse.
+    pub bonuses: Vec<(Stat, f64)>,
+    /// `pAtkRange` — a weapon-only template constant (not a `Stat`); replaces
+    /// `CombatStats.atk_range` while the weapon is equipped.
+    pub atk_range: Option<i32>,
+    /// `randomDamage` — weapon damage spread; replaces `CombatStats.random_dmg`
+    /// (class templates all declare 10) while the weapon is equipped.
+    pub random_damage: Option<i32>,
+}
+
 #[derive(Debug, Clone)]
 pub struct ItemTemplate {
     pub item_id: i32,
@@ -255,6 +327,14 @@ impl ItemTemplate {
 
 pub struct ItemData {
     by_id: HashMap<i32, ItemTemplate>,
+    /// Parsed `<stats>` blocks, keyed by item id. Sparse: only equipable
+    /// items with a non-empty block have an entry.
+    stat_bonuses: HashMap<i32, ItemStats>,
+    /// `<set name="armor_type"/>` by item id, side-mapped (like `stat_bonuses`)
+    /// so the `ItemTemplate` literals stay untouched. Sparse: only items that
+    /// declared a non-`None` armor type have an entry — the armor-conditioned
+    /// passive check (`ConditionUsingItemType`) reads it for the worn chest/legs.
+    armor_types: HashMap<i32, ArmorType>,
 }
 
 impl ItemData {
@@ -264,6 +344,8 @@ impl ItemData {
 
     pub fn load_from(file_path: &str) -> Self {
         let mut by_id = HashMap::new();
+        let mut stat_bonuses = HashMap::new();
+        let mut armor_types = HashMap::new();
         let dir = format!("{file_path}{ITEMS_DIR}");
         if let Ok(entries) = std::fs::read_dir(&dir) {
             let mut paths: Vec<_> = entries
@@ -273,27 +355,53 @@ impl ItemData {
                 .collect();
             paths.sort();
             for path in paths {
-                parse_file(&path, &mut by_id);
+                parse_file(&path, &mut by_id, &mut stat_bonuses, &mut armor_types);
             }
         }
         info!("ItemData: Loaded {} item templates.", by_id.len());
-        Self { by_id }
+        Self { by_id, stat_bonuses, armor_types }
     }
 
     pub fn get(&self, item_id: i32) -> Option<&ItemTemplate> {
         self.by_id.get(&item_id)
     }
 
+    /// The `<stats>` combat bonuses of an equipable item, if it declared any.
+    pub fn item_stats(&self, item_id: i32) -> Option<&ItemStats> {
+        self.stat_bonuses.get(&item_id)
+    }
+
+    /// The item's `<set name="armor_type"/>`, or `ArmorType::None` when
+    /// undeclared/unknown (Java's `ArmorType.NONE` default). Weapons/etc items
+    /// report `None` — the armor condition only inspects chest/legs armor.
+    pub fn armor_type(&self, item_id: i32) -> ArmorType {
+        self.armor_types.get(&item_id).copied().unwrap_or(ArmorType::None)
+    }
+
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { by_id: HashMap::new() }
+        Self { by_id: HashMap::new(), stat_bonuses: HashMap::new(), armor_types: HashMap::new() }
+    }
+
+    /// Attach a `<stats>` block to an already-registered template (tests that
+    /// exercise gear stat contributions without reading `dist/game` XML).
+    #[doc(hidden)]
+    pub fn set_item_stats_for_test(&mut self, item_id: i32, stats: ItemStats) {
+        self.stat_bonuses.insert(item_id, stats);
+    }
+
+    /// Attach an armor type to an already-registered template (tests exercising
+    /// the armor-conditioned passive check without reading `dist/game` XML).
+    #[doc(hidden)]
+    pub fn set_armor_type_for_test(&mut self, item_id: i32, armor_type: ArmorType) {
+        self.armor_types.insert(item_id, armor_type);
     }
 
     /// Synthetic catalog for unit tests that need specific templates without
     /// reading `dist/game` XML.
     #[doc(hidden)]
     pub fn from_templates(templates: Vec<ItemTemplate>) -> Self {
-        Self { by_id: templates.into_iter().map(|t| (t.item_id, t)).collect() }
+        Self { by_id: templates.into_iter().map(|t| (t.item_id, t)).collect(), stat_bonuses: HashMap::new(), armor_types: HashMap::new() }
     }
 
     /// Register one synthetic template (same hook as `NpcData`'s).
@@ -303,7 +411,12 @@ impl ItemData {
     }
 }
 
-fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, ItemTemplate>) {
+fn parse_file(
+    path: &std::path::Path,
+    out: &mut HashMap<i32, ItemTemplate>,
+    stats_out: &mut HashMap<i32, ItemStats>,
+    armor_out: &mut HashMap<i32, ArmorType>,
+) {
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
     };
@@ -317,6 +430,9 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, ItemTemplate>) {
     let mut cur_capsules: Vec<CapsuledItem> = Vec::new();
     let mut in_skills = false;
     let mut cur_item_skills: Vec<(i32, i32)> = Vec::new();
+    let mut in_stats = false;
+    let mut cur_stat_type: Option<String> = None;
+    let mut cur_stats = ItemStats::default();
 
     loop {
         match reader.read_event() {
@@ -331,6 +447,35 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, ItemTemplate>) {
                 attrs.clear();
                 cur_capsules.clear();
                 cur_item_skills.clear();
+                cur_stats = ItemStats::default();
+            }
+            Ok(Event::Start(e)) if e.name().as_ref() == b"stats" => {
+                in_stats = true;
+            }
+            Ok(Event::End(e)) if e.name().as_ref() == b"stats" => {
+                in_stats = false;
+            }
+            Ok(Event::Start(e)) if in_stats && e.name().as_ref() == b"stat" => {
+                cur_stat_type = attr_str(&e, b"type");
+            }
+            Ok(Event::End(e)) if in_stats && e.name().as_ref() == b"stat" => {
+                cur_stat_type = None;
+            }
+            Ok(Event::Text(t)) if in_stats && cur_stat_type.is_some() => {
+                let ty = cur_stat_type.as_deref().unwrap();
+                if let Ok(text) = t.unescape() {
+                    if let Ok(val) = text.trim().parse::<f64>() {
+                        match ty {
+                            "pAtkRange" => cur_stats.atk_range = Some(val as i32),
+                            "randomDamage" => cur_stats.random_damage = Some(val as i32),
+                            _ => {
+                                if let Some(stat) = stat_from_xml(ty) {
+                                    cur_stats.bonuses.push((stat, val));
+                                }
+                            }
+                        }
+                    }
+                }
             }
             Ok(Event::Empty(e)) if e.name().as_ref() == b"set" => {
                 if cur_id.is_none() {
@@ -377,6 +522,15 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, ItemTemplate>) {
                             std::mem::take(&mut cur_item_skills),
                         ),
                     );
+                    let stats = std::mem::take(&mut cur_stats);
+                    if !stats.bonuses.is_empty() || stats.atk_range.is_some() || stats.random_damage.is_some() {
+                        stats_out.insert(item_id, stats);
+                    }
+                    if let Some(at) = attrs.get("armor_type").map(|s| ArmorType::from_name(s)) {
+                        if at != ArmorType::None {
+                            armor_out.insert(item_id, at);
+                        }
+                    }
                 }
             }
             Ok(Event::Eof) => break,
@@ -446,6 +600,31 @@ fn make_template(
     }
 }
 
+/// Map an item `<stat type="..">` name to the engine [`Stat`] it feeds.
+/// Returns `None` for stat kinds the finalizers don't compute yet (elemental
+/// power/resistance, shield defence, `sDef`, `moveSpeed`, …); those are dropped
+/// rather than silently miscredited to a related stat. `pAtkRange`/
+/// `randomDamage` are handled by the caller (they aren't `Stat`s).
+fn stat_from_xml(name: &str) -> Option<Stat> {
+    Some(match name {
+        "pAtk" => Stat::PhysicalAttack,
+        "mAtk" => Stat::MagicalAttack,
+        "pDef" => Stat::PhysicalDefence,
+        "mDef" => Stat::MagicalDefence,
+        "pAtkSpd" => Stat::PhysicalAttackSpeed,
+        "mAtkSpd" => Stat::MagicAttackSpeed,
+        "rCrit" => Stat::CriticalRate,
+        "mCritRate" => Stat::MagicCriticalRate,
+        "accCombat" => Stat::AccuracyCombat,
+        "accMagic" => Stat::AccuracyMagic,
+        "rEvas" => Stat::EvasionRate,
+        "mEvas" => Stat::MagicEvasionRate,
+        "maxHp" => Stat::MaxHp,
+        "maxMp" => Stat::MaxMp,
+        _ => return None,
+    })
+}
+
 fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
     e.attributes()
         .flatten()
@@ -510,5 +689,27 @@ mod tests {
         let box_item = data.get(23762).expect("item 23762 (High-grade Elixir Pack)");
         assert_eq!(box_item.extractable_count_min, 1);
         assert_eq!(box_item.extractable_count_max, 1);
+    }
+
+    #[test]
+    fn parses_weapon_and_armor_stats() {
+        let data = ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+
+        // Short Sword (item 1): pAtk/mAtk/rCrit/pAtkSpd + range/random-damage.
+        let sword = data.item_stats(1).expect("item 1 <stats>");
+        let get = |s: Stat| sword.bonuses.iter().find(|(st, _)| *st == s).map(|(_, v)| *v);
+        assert_eq!(get(Stat::PhysicalAttack), Some(8.0));
+        assert_eq!(get(Stat::MagicalAttack), Some(6.0));
+        assert_eq!(get(Stat::CriticalRate), Some(8.0));
+        assert_eq!(get(Stat::PhysicalAttackSpeed), Some(379.0));
+        assert_eq!(sword.atk_range, Some(40)); // pAtkRange (not a Stat)
+        assert_eq!(sword.random_damage, Some(10)); // randomDamage (not a Stat)
+
+        // Leather Boots (item 40): a single pDef contribution.
+        let boots = data.item_stats(40).expect("item 40 <stats>");
+        assert_eq!(boots.bonuses, vec![(Stat::PhysicalDefence, 19.0)]);
+
+        // Stackable/etc items with no <stats> have no side-map entry.
+        assert!(data.item_stats(ADENA_ID).is_none());
     }
 }

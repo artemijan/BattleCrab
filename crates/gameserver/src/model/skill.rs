@@ -39,11 +39,17 @@ pub enum TargetType {
 /// The Rust counterpart of Java's `AbstractStatAddEffect`/
 /// `AbstractStatPercentEffect` — one generic type instead of the 63 one-line
 /// subclasses Java has (each just names a `Stat` and a fixed mode).
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct StatModifierEffect {
     pub stat: Stat,
     pub mode: StatModifierType,
     pub amount: f64,
+    /// `ConditionUsingItemType` armor mask from the effect's `<armorType>`
+    /// list (OR of `ArmorType::mask_bit`s), or `0` when the effect has no such
+    /// condition and always applies. Only meaningful for passive skills whose
+    /// contribution depends on the worn armor (Spellcraft 163, Magician's
+    /// Movement 118); active-buff effects leave it `0`.
+    pub armor_condition: u8,
 }
 
 /// One entry inside a `RestorationRandom` reward group (Java

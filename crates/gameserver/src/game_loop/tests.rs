@@ -434,6 +434,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
             stat: Stat::PhysicalDefence,
             mode: StatModifierType::Per,
             amount: 8.0,
+            armor_condition: 0,
         })],
     });
 
@@ -446,7 +447,9 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     chr.sp = 200;
     chr.cur_mp = 50.0;
     let bundle = Player::from_char(&world.data, &chr);
-    assert_eq!(bundle.combat.p_def, 80.0, "naked P.Def before any buff");
+    // Naked P.Def = base(80) × levelMod((5+89)/100 = 0.94) = 75.2 (no gear,
+    // so no slot subtraction); stored unrounded, the display truncates to 75.
+    assert!((bundle.combat.p_def - 75.2).abs() < 1e-9, "naked P.Def before any buff: {}", bundle.combat.p_def);
 
     let (out_tx, mut out_rx) = tokio::sync::mpsc::unbounded_channel();
     let s = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
@@ -495,7 +498,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     {
         assert!(!world.objects.has_component::<Casting>(&2001), "coolTime 0 frees the cast slot inline");
         assert_eq!(pbuffs(&world, 2001), 1);
-        assert_eq!(pcs(&world, 2001).p_def, 86.0, "80 * 1.08 (PhysicalDefence +8%), rounded");
+        assert!((pcs(&world, 2001).p_def - 75.2 * 1.08).abs() < 1e-9, "75.2 × 1.08 (PhysicalDefence +8%): {}", pcs(&world, 2001).p_def);
     }
     assert_eq!(pvit(&world, 2001).cur_mp, 45.0, "49 - mpConsume(4)");
 
@@ -508,7 +511,144 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     assert_eq!(&expired[1..3], &[0, 0], "AbnormalStatusUpdate count = 0 once expired");
 
     assert_eq!(pbuffs(&world, 2001), 0);
-    assert_eq!(pcs(&world, 2001).p_def, 80.0, "P.Def restored after the buff expired");
+    assert!((pcs(&world, 2001).p_def - 75.2).abs() < 1e-9, "P.Def restored after the buff expired: {}", pcs(&world, 2001).p_def);
+}
+
+/// Real-data stat parity: a level-1 Human Mystic loaded with the *real* class
+/// starting gear (`initialEquipment.xml`, replayed through the equip-slot logic)
+/// and *all* the class's level-1 autoGet skills (`skillTrees`), computed the
+/// same way enter-world does, must show exactly the numbers the Java client
+/// draws — including the Spellcraft-boosted casting speed of 499. Locks in the
+/// finalizer fixes (pDef levelMod + slot-sub, mDef MEN×levelMod, RunSpeedBoost,
+/// `(int)` truncation) *and* the armor-conditioned passives end to end.
+#[test]
+fn human_mystic_lvl1_full_loadout_matches_java_client() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let mut data = GameData::for_test();
+    data.player_templates = crate::data::player_template::PlayerTemplateData::load_from(DIST);
+    data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
+    data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    data.skill_data = crate::data::skill_data::SkillData::load_from(DIST);
+    data.skill_trees = crate::data::skill_tree::SkillTreeData::load_from(DIST);
+    data.initial_equipment = crate::data::initial_equipment::InitialEquipmentData::load_from(DIST);
+
+    let class_id = 10; // Human Mystic
+
+    // Replay the class starting equipment through the real equip-slot logic
+    // (mirrors `resolve_initial_items`), then hand the resolved paperdoll to
+    // `from_char` as stored `ItemRow`s.
+    let mut inv = crate::model::inventory::Inventory::new();
+    let mut next_oid = 1000;
+    for entry in data.initial_equipment.get(class_id) {
+        let oid = next_oid;
+        next_oid += 1;
+        inv.add_item(&data.item_data, oid, entry.item_id, entry.count);
+        if entry.equipped {
+            inv.equip_item(&data.item_data, oid);
+        }
+    }
+    let items: Vec<crate::character::ItemRow> = inv
+        .items()
+        .iter()
+        .map(|it| {
+            let slot = inv.paperdoll_slot_of(it.object_id);
+            crate::character::ItemRow {
+                object_id: it.object_id,
+                item_id: it.item_id,
+                count: it.count,
+                enchant_level: 0,
+                loc: if slot.is_some() { "PAPERDOLL".into() } else { "INVENTORY".into() },
+                loc_data: slot.map(|s| s as i32).unwrap_or(0),
+                custom_type1: 0,
+                custom_type2: 0,
+                mana_left: -1,
+                time: 0,
+            }
+        })
+        .collect();
+
+    let mut chr = dummy_char(4212, "Mystic");
+    chr.class_id = class_id;
+    chr.base_class_id = class_id;
+    chr.items = items;
+    chr.skills = data.skill_trees.initial_skills(class_id); // 118, 163, 214, 1177, 1216
+
+    let b = Player::from_char(&data, &chr);
+    let c = &b.combat;
+    // Displayed via `(int)`/`as i32` truncation, matching the Java client panel.
+    assert_eq!(c.p_atk as i32, 2, "p.atk");
+    assert_eq!(c.m_atk as i32, 8, "m.atk");
+    assert_eq!(c.p_def as i32, 52, "p.def");
+    assert_eq!(c.accuracy, 31, "p.accuracy");
+    assert_eq!(c.evasion, 23, "p.evasion");
+    assert_eq!(c.crit_hit as i32, 60, "p.critical");
+    assert_eq!(c.p_atk_spd, 384, "atk speed");
+    assert_eq!(b.speeds.run_spd as i32, 159, "run speed");
+    assert_eq!(c.m_def as i32, 54, "m.def");
+    assert_eq!(c.magic_accuracy, 15, "m.accuracy");
+    assert_eq!(c.magic_evasion, 15, "m.evasion");
+    assert_eq!(c.m_crit_hit as i32, 50, "m.critical");
+    assert_eq!(c.m_atk_spd, 499, "cast speed (333 × Spellcraft 1.5 in a robe)");
+
+    // --- Now drive the real enter-world refresh tail (expertise + conditioned
+    // passives, in the order `handle_enter_world` runs them) and confirm the
+    // in-world stats still match — this is where the reported 349 shows up. ---
+    let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
+    let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
+    b.spawn_into(&mut world.objects);
+    super::expertise::refresh_expertise_penalty(&mut world, 4212);
+    super::passive_skills::refresh_conditioned_passives(&mut world, 4212);
+    assert_eq!(pcs(&world, 4212).m_atk_spd, 499, "cast speed after enter-world refresh tail");
+    assert_eq!(pcs(&world, 4212).p_atk as i32, 2, "p.atk after enter-world refresh tail");
+}
+
+/// The armor-conditioned passives close the last gap: Spellcraft (163) multiplies
+/// a robe mystic's casting speed by 1.5 (333 → 499), while Magician's Movement
+/// (118) stays inert (its −20% atk-speed penalty is gated to non-robe armor).
+#[test]
+fn spellcraft_passive_raises_mystic_cast_speed_in_a_robe() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
+    let mut data = GameData::for_test();
+    data.player_templates = crate::data::player_template::PlayerTemplateData::load_from(DIST);
+    data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
+    data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    data.skill_data = crate::data::skill_data::SkillData::load_from(DIST);
+    let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
+
+    let paperdoll = |object_id, item_id, slot| crate::character::ItemRow {
+        object_id,
+        item_id,
+        count: 1,
+        enchant_level: 0,
+        loc: "PAPERDOLL".into(),
+        loc_data: slot,
+        custom_type1: 0,
+        custom_type2: 0,
+        mana_left: -1,
+        time: 0,
+    };
+    let mut chr = dummy_char(4211, "Robe");
+    chr.class_id = 10;
+    chr.base_class_id = 10;
+    chr.items = vec![paperdoll(1001, 6, 5), paperdoll(1002, 425, 6), paperdoll(1003, 461, 11)];
+    // The two autoGet mystic passives.
+    chr.skills = vec![(163, 1), (118, 1)];
+    let bundle = Player::from_char(&world.data, &chr);
+    // `from_char` (Java `restoreCharData`/`addSkill`) already folds the robe
+    // passives in: Spellcraft's MAGIC branch (+50%) applies, while Magician's
+    // Movement stays inert (its −20% atk-speed penalty is gated to non-robe).
+    assert_eq!(bundle.combat.m_atk_spd, 499, "Spellcraft: 333 × 1.5 in a robe");
+    assert_eq!(bundle.combat.p_atk_spd, 384, "Magician's Movement stays inert in a robe");
+    bundle.spawn_into(&mut world.objects);
+
+    // Take the robe legs off: the MAGIC condition now fails (bare legs read as
+    // NONE), so `refresh_conditioned_passives` drops Spellcraft's bonus.
+    world.objects.get_component_mut::<crate::model::inventory::Inventory>(&4211).unwrap().unequip_item(1003);
+    super::passive_skills::refresh_conditioned_passives(&mut world, 4211);
+    assert_eq!(pcs(&world, 4211).m_atk_spd, 333, "no robe → Spellcraft bonus gone");
 }
 
 /// `AutoLearnSkills`: `rewardSkills` must grant every reachable class skill,
@@ -690,6 +830,7 @@ fn cast_test_world() -> (
             stat: Stat::PhysicalAttack,
             mode: StatModifierType::Per,
             amount: 8.0,
+            armor_condition: 0,
         })],
         ..base.clone()
     });
@@ -707,6 +848,7 @@ fn cast_test_world() -> (
             stat: Stat::PhysicalDefence,
             mode: StatModifierType::Per,
             amount: 8.0,
+            armor_condition: 0,
         })],
         ..base
     });
@@ -1555,6 +1697,125 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
     assert!(inv.paperdoll_slot_of(9001).is_none(), "first earring actually unequipped");
 }
 
+/// The bug this guards: equipping gear moved the paperdoll but never recomputed
+/// combat stats, so a freshly-equipped weapon's P.Atk / armor's P.Def never
+/// reached the client's stat panel. `finish_equip_change` now reruns
+/// `recalculate_stats`, and the weapon's stat *replaces* the naked base while
+/// armor's *sums* on top (matching the Java finalizers).
+#[test]
+fn equipping_gear_updates_combat_stats() {
+    use crate::data::item_data::{CrystalType, ItemHandler, ItemKind, ItemStats, ItemTemplate, SLOT_CHEST, SLOT_R_HAND};
+    use crate::model::inventory::Inventory;
+    use crate::model::stats::Stat;
+
+    let (mut world, ..) = cast_test_world();
+    let _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    let template = |item_id: i32, kind: ItemKind, body_part: i32| ItemTemplate {
+        item_id,
+        name: format!("gear{item_id}"),
+        kind,
+        body_part,
+        weight: 0,
+        is_stackable: false,
+        type1: 0,
+        type2: 0,
+        is_quest_item: false,
+        price: 0,
+        handler: ItemHandler::None,
+        crystal_type: CrystalType::None,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+    };
+    // Weapon P.Atk 500 (well above the class base of 100, so equip must raise
+    // P.Atk); chest armor P.Def 30 (class base P.Def is 0, so it must appear).
+    world.data.item_data.insert_for_test(template(500, ItemKind::Weapon, SLOT_R_HAND));
+    world.data.item_data.set_item_stats_for_test(500, ItemStats { bonuses: vec![(Stat::PhysicalAttack, 500.0)], ..Default::default() });
+    world.data.item_data.insert_for_test(template(510, ItemKind::Armor, SLOT_CHEST));
+    world.data.item_data.set_item_stats_for_test(510, ItemStats { bonuses: vec![(Stat::PhysicalDefence, 30.0)], ..Default::default() });
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9001, 500, 1);
+        inv.add_item(&data.item_data, 9002, 510, 1);
+    }
+
+    let base_p_atk = pcs(&world, 3001).p_atk;
+    let base_p_def = pcs(&world, 3001).p_def;
+
+    // Equip the weapon → P.Atk jumps (weapon base 500 replaces the naked 100).
+    items::handle_use_item(&mut world, 1, &use_item_body(9001));
+    assert!(pcs(&world, 3001).p_atk > base_p_atk, "equipping a weapon must raise P.Atk (was {base_p_atk}, now {})", pcs(&world, 3001).p_atk);
+
+    // Equip the armor → P.Def rises by its contribution, P.Atk unchanged.
+    let after_weapon_p_atk = pcs(&world, 3001).p_atk;
+    items::handle_use_item(&mut world, 1, &use_item_body(9002));
+    assert!(pcs(&world, 3001).p_def > base_p_def, "equipping armor must raise P.Def (was {base_p_def}, now {})", pcs(&world, 3001).p_def);
+    assert_eq!(pcs(&world, 3001).p_atk, after_weapon_p_atk, "armor doesn't touch P.Atk");
+
+    // Unequip the weapon → P.Atk falls back to the naked value.
+    items::handle_use_item(&mut world, 1, &use_item_body(9001));
+    assert_eq!(pcs(&world, 3001).p_atk, base_p_atk, "unequipping the weapon restores naked P.Atk");
+}
+
+/// Companion to the combat-stat test: `maxMp` (and `maxHp`) item bonuses live
+/// in `Vitals`, computed on a separate path from `recalculate_stats`. Equipping
+/// +MP jewelry must raise Max MP; unequipping restores it and clamps current MP.
+#[test]
+fn equipping_gear_updates_max_hp_mp() {
+    use crate::data::item_data::{CrystalType, ItemHandler, ItemKind, ItemStats, ItemTemplate, SLOT_NECK};
+    use crate::model::components::Vitals;
+    use crate::model::inventory::Inventory;
+    use crate::model::stats::Stat;
+
+    let (mut world, ..) = cast_test_world();
+    let _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    // A necklace granting +100 Max MP.
+    world.data.item_data.insert_for_test(ItemTemplate {
+        item_id: 520,
+        name: "MP Necklace".into(),
+        kind: ItemKind::Armor,
+        body_part: SLOT_NECK,
+        weight: 0,
+        is_stackable: false,
+        type1: 0,
+        type2: 0,
+        is_quest_item: false,
+        price: 0,
+        handler: ItemHandler::None,
+        crystal_type: CrystalType::None,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+    });
+    world.data.item_data.set_item_stats_for_test(520, ItemStats { bonuses: vec![(Stat::MaxMp, 100.0)], ..Default::default() });
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9003, 520, 1);
+    }
+
+    let base_max_mp = world.objects.get_component::<Vitals>(&3001).unwrap().max_mp;
+
+    // Equip → Max MP rises by exactly the item's flat bonus.
+    items::handle_use_item(&mut world, 1, &use_item_body(9003));
+    assert_eq!(
+        world.objects.get_component::<Vitals>(&3001).unwrap().max_mp,
+        base_max_mp + 100,
+        "equipping +100 MP jewelry raises Max MP by 100"
+    );
+
+    // Unequip → Max MP falls back, and current MP is clamped to the new max.
+    items::handle_use_item(&mut world, 1, &use_item_body(9003));
+    let v = world.objects.get_component::<Vitals>(&3001).unwrap();
+    assert_eq!(v.max_mp, base_max_mp, "unequipping restores base Max MP");
+    assert!(v.cur_mp <= v.max_mp as f64, "current MP clamped to the lowered max");
+}
+
 /// The bug this guards: `UseItem` on a non-equipable `EtcItem` used to be a
 /// silent no-op (`is_equipable() == false` → early return before any handler
 /// dispatch existed), so pack/box items like "Mage Class Equipment Set"
@@ -2330,8 +2591,9 @@ fn action_on_far_npc_walks_in_then_opens_chat_window() {
     );
 }
 
-/// `Action` on a monster tints `MyTargetSelected` with the level gap and the
-/// second click does nothing yet (attack intent is G9) — no chat window.
+/// `Action` on a monster tints `MyTargetSelected` with the level gap; a second
+/// click on the already-targeted (out-of-range) monster starts the attack and
+/// walks toward it (`MoveToPawn`) — never a chat window.
 #[test]
 fn action_on_monster_colors_target_and_never_talks() {
     let (mut world, ..) = test_world();
@@ -2348,8 +2610,15 @@ fn action_on_monster_colors_target_and_never_talks() {
     assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
 
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
-    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
-    assert!(rx.try_recv().is_err(), "no chat window from a monster");
+    let after: Vec<Vec<u8>> = std::iter::from_fn(|| rx.try_recv().ok()).collect();
+    assert!(
+        after.iter().any(|p| p[0] == server_packets::opcodes::MOVE_TO_PAWN),
+        "second click starts the attack and walks the out-of-range monster down"
+    );
+    assert!(
+        !after.iter().any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
+        "no chat window from a monster"
+    );
 }
 
 fn bypass_body(command: &str) -> Vec<u8> {

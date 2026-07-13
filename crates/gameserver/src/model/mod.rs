@@ -160,6 +160,13 @@ pub struct PlayerData {
     pub speeds: Speeds,
     pub collision: Collision,
     pub combat: CombatStats,
+    /// Active buffs/debuffs. At character load this holds only the restored
+    /// armor-conditioned passives (`conditioned_passive_buffs`); timed buffs
+    /// aren't persisted yet.
+    pub buffs: Buffs,
+    /// Modifier maps folded from `buffs` — kept in sync so a spawned player's
+    /// stats already include its passives.
+    pub stat_modifiers: StatModifiers,
     pub inventory: Inventory,
     pub skills: SkillBook,
     pub shortcuts: Shortcuts,
@@ -196,8 +203,8 @@ impl PlayerData {
                     AttackState::default(),
                     TargetRef::default(),
                     ClientPos::default(),
-                    Buffs::default(),
-                    StatModifiers::default(),
+                    self.buffs,
+                    self.stat_modifiers,
                     Reuses::default(),
                     components::ZoneFlags::default(),
                     components::ExpertisePenalty::default(),
@@ -255,6 +262,123 @@ impl PlayerData {
     }
 }
 
+/// Equipped-gear contributions to the combat finalizers, summarized from the
+/// paperdoll once per recompute — Java re-reads item `getStats(...)` inside
+/// each finalizer, but the numbers are the same. Two families, matching the
+/// Java stat finalizers (see [`crate::data::item_data::ItemStats`]):
+///   * **weapon-replace** bases (`None` ⇒ fall back to the class template
+///     base) — `calcWeaponBaseValue`, the equipped weapon only;
+///   * **sum-add** contributions (0.0 when nothing equipped adds them) —
+///     summed across every equipped piece.
+#[derive(Default)]
+struct EquippedBonuses {
+    weapon_p_atk: Option<f64>,
+    weapon_m_atk: Option<f64>,
+    weapon_p_atk_spd: Option<f64>,
+    weapon_crit: Option<f64>,
+    weapon_m_crit: Option<f64>,
+    weapon_atk_range: Option<i32>,
+    weapon_random_dmg: Option<i32>,
+    p_def: f64,
+    m_def: f64,
+    accuracy: f64,
+    magic_accuracy: f64,
+    evasion: f64,
+    magic_evasion: f64,
+    /// Sum of `getBaseDefBySlot` over the *occupied* pDef/mDef slots — the naked
+    /// slot defenses the P/MDefenseFinalizer subtracts so worn gear replaces
+    /// (not stacks on) the class base. See the finalizer loops in Java's
+    /// `PDefenseFinalizer`/`MDefenseFinalizer`.
+    p_def_slot_sub: f64,
+    m_def_slot_sub: f64,
+}
+
+impl EquippedBonuses {
+    fn from_inventory(inventory: &Inventory, data: &GameData, t: &crate::data::player_template::PlayerTemplate) -> Self {
+        use crate::model::inventory::PaperdollSlot;
+        let mut eq = EquippedBonuses::default();
+
+        // P/MDefenseFinalizer's slot loops: for every occupied armor slot,
+        // subtract the class template's naked defense for that slot. The pDef
+        // legs slot also counts when a full-armor chest covers the legs (its
+        // `isPaperdollSlotEmpty(LEGS) || (CHEST is FULL_ARMOR)` guard).
+        let occupied = |slot: PaperdollSlot| inventory.paperdoll_item(slot).is_some();
+        let chest_is_full_armor = inventory
+            .paperdoll_item(PaperdollSlot::Chest)
+            .and_then(|it| data.item_data.get(it.item_id))
+            .map(|tpl| tpl.body_part == crate::data::item_data::SLOT_FULL_ARMOR)
+            .unwrap_or(false);
+        for slot in [
+            PaperdollSlot::Chest,
+            PaperdollSlot::Head,
+            PaperdollSlot::Feet,
+            PaperdollSlot::Gloves,
+            PaperdollSlot::Under,
+            PaperdollSlot::Cloak,
+            PaperdollSlot::Hair,
+        ] {
+            if occupied(slot) {
+                eq.p_def_slot_sub += t.base_def_by_slot(slot as usize) as f64;
+            }
+        }
+        if occupied(PaperdollSlot::Legs) || chest_is_full_armor {
+            eq.p_def_slot_sub += t.base_def_by_slot(PaperdollSlot::Legs as usize) as f64;
+        }
+        for slot in [
+            PaperdollSlot::LFinger,
+            PaperdollSlot::RFinger,
+            PaperdollSlot::LEar,
+            PaperdollSlot::REar,
+            PaperdollSlot::Neck,
+        ] {
+            if occupied(slot) {
+                eq.m_def_slot_sub += t.base_def_by_slot(slot as usize) as f64;
+            }
+        }
+
+        // Weapon-replace stats come from the right-hand slot only (Java
+        // `calcWeaponBaseValue`); a two-handed weapon also lives in RHand.
+        if let Some(weapon) = inventory.paperdoll_item(PaperdollSlot::RHand) {
+            if let Some(stats) = data.item_data.item_stats(weapon.item_id) {
+                for &(stat, val) in &stats.bonuses {
+                    match stat {
+                        Stat::PhysicalAttack => eq.weapon_p_atk = Some(val),
+                        Stat::MagicalAttack => eq.weapon_m_atk = Some(val),
+                        Stat::PhysicalAttackSpeed => eq.weapon_p_atk_spd = Some(val),
+                        Stat::CriticalRate => eq.weapon_crit = Some(val),
+                        Stat::MagicCriticalRate => eq.weapon_m_crit = Some(val),
+                        _ => {}
+                    }
+                }
+                eq.weapon_atk_range = stats.atk_range;
+                eq.weapon_random_dmg = stats.random_damage;
+            }
+        }
+
+        // Sum-add stats are summed across every equipped piece (Java's
+        // finalizer paperdoll loop / `calcWeaponPlusBaseValue`). `accCombat`
+        // lives on weapons too, so this deliberately includes the weapon.
+        for item in inventory.equipped_items() {
+            let Some(stats) = data.item_data.item_stats(item.item_id) else { continue };
+            for &(stat, val) in &stats.bonuses {
+                match stat {
+                    Stat::PhysicalDefence => eq.p_def += val,
+                    Stat::MagicalDefence => eq.m_def += val,
+                    Stat::AccuracyCombat => eq.accuracy += val,
+                    Stat::AccuracyMagic => eq.magic_accuracy += val,
+                    Stat::EvasionRate => eq.evasion += val,
+                    Stat::MagicEvasionRate => eq.magic_evasion += val,
+                    // maxHp/maxMp item bonuses aren't folded in yet — max HP/MP
+                    // are computed by `calc_max_hp`/`calc_max_mp`, a separate
+                    // path from these finalizers. TODO(G13): apply there.
+                    _ => {}
+                }
+            }
+        }
+        eq
+    }
+}
+
 impl Player {
     /// Build a `Player` (+ its extracted components, as a `PlayerData`)
     /// from a stored character row + its class template.
@@ -269,8 +393,11 @@ impl Player {
             .cloned()
             .unwrap_or_default();
 
-        let max_hp = calc_max_hp(data, &t, c.level);
-        let max_mp = calc_max_mp(data, &t, c.level);
+        // Built early so equipped gear feeds every finalizer below — max HP/MP
+        // (item +MP jewelry) as well as the combat recompute further down.
+        let inventory = Inventory::from_rows(&c.items);
+        let max_hp = calc_max_hp(data, &t, c.level, Some(&inventory));
+        let max_mp = calc_max_mp(data, &t, c.level, Some(&inventory));
         let max_cp = calc_max_cp(data, &t, c.level);
 
         let base_stats = BaseStats {
@@ -327,10 +454,20 @@ impl Player {
             pending_revive: false,
             teleporting: false,
         };
-        // Filled in by `recalculate_stats`; atk_range/random_dmg are
-        // template constants the finalizers never touch.
-        let mut combat = CombatStats { atk_range: t.base_atk_range, random_dmg: 10, ..Default::default() };
-        p.recalculate_stats(data, &base_stats, &StatModifiers::default(), &mut speeds, &mut combat);
+        // Filled in by `recalculate_stats` (incl. atk_range/random_dmg, which it
+        // sets from the equipped weapon or the class template).
+        let mut combat = CombatStats::default();
+        let mut mods = StatModifiers::default();
+        let mut buffs = Buffs::default();
+        p.recalculate_stats(data, &base_stats, &mods, &inventory, &mut speeds, &mut combat);
+        // Java `restoreCharData` → `addSkill`: fold the character's known
+        // armor-conditioned passives (Spellcraft/Magician's Movement) into the
+        // stat maps now, so the enter-world `UserInfo` burst already carries them
+        // (no separate post-spawn resend). Timed buffs aren't restored yet.
+        let skills = SkillBook(c.skills.iter().copied().collect());
+        for buff in conditioned_passive_buffs(data, &skills, &inventory) {
+            p.apply_buff(data, &base_stats, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, buff);
+        }
 
         // `ShortCuts.restoreMe`'s verification tail: ITEM shortcuts whose
         // object id left the inventory are dropped (the caller fires the
@@ -368,8 +505,10 @@ impl Player {
             speeds,
             collision,
             combat,
-            inventory: Inventory::from_rows(&c.items),
-            skills: SkillBook(c.skills.iter().copied().collect()),
+            buffs,
+            stat_modifiers: mods,
+            inventory,
+            skills,
             shortcuts: Shortcuts::from_list(shortcuts),
             macros: Macros::from_list(c.macros.clone()),
             friends: components::Friends(c.friends.clone()),
@@ -393,16 +532,20 @@ impl Player {
 
     /// Java `CreatureStat.recalculateStats` narrowed to the combat stats G6
     /// computes. Re-derives from the class template's base values (not from
-    /// `self`, so it's idempotent) × `BaseStat` bonus × level mod, then folds
-    /// in `stats_add`/`stats_mul` (buffs). Call after level/buff/gear changes.
-    /// TODO(G8+): weapon/armor `<stats>` contributions — item stat bonuses
-    /// aren't parsed yet (`data/item_data.rs`), so this is the unarmed/naked
-    /// value, same simplification G5 already made for item stats.
+    /// `self`, so it's idempotent) × `BaseStat` bonus × level mod, folds in the
+    /// equipped gear's `<stats>` contributions, then `stats_add`/`stats_mul`
+    /// (buffs). Call after any level/buff/gear change. Gear applies in two
+    /// ways, matching the Java finalizers (see [`EquippedBonuses`]): the
+    /// weapon's pAtk/mAtk/atk-speed/crit *replace* the naked class base before
+    /// the STR/level multipliers; armor/jewel pDef/mDef/accuracy/evasion are
+    /// *summed* on top. maxHp/maxMp gear bonuses are still TODO (computed on a
+    /// separate path — see `calc_max_hp`).
     pub fn recalculate_stats(
         &self,
         data: &GameData,
         base: &BaseStats,
         mods: &StatModifiers,
+        inventory: &Inventory,
         speeds: &mut Speeds,
         combat: &mut CombatStats,
     ) {
@@ -412,61 +555,74 @@ impl Player {
             .or_else(|| data.player_templates.get(self.base_class_id))
             .cloned()
             .unwrap_or_default();
+        let eq = EquippedBonuses::from_inventory(inventory, data, &t);
         let level_mod = (self.level as f64 + 89.0) / 100.0;
         let sb = &data.stat_bonus;
         let str_bonus = sb.bonus(BaseStat::Str, base.str_);
         let dex_bonus = sb.bonus(BaseStat::Dex, base.dex);
         let int_bonus = sb.bonus(BaseStat::Int, base.int_);
         let wit_bonus = sb.bonus(BaseStat::Wit, base.wit);
+        // Java's stat display getters (`getPAtk`/`getPDef`/…) return `(int)
+        // getValue()` — a truncation toward zero, *not* a round. The engine
+        // stores the finalized double and the packet layer truncates (`as i32`
+        // in `user_info`), so nothing here rounds; the `as i32`/`.trunc()`
+        // casts below match Java's display exactly.
 
-        // PAttackFinalizer / MAttackFinalizer.
-        combat.p_atk = finalize(mods, Stat::PhysicalAttack, t.base_p_atk as f64 * str_bonus * level_mod)
-            .round()
-            .clamp(0.0, MAX_PATK);
-        combat.m_atk = finalize(mods, Stat::MagicalAttack, t.base_m_atk as f64 * (int_bonus * level_mod).powf(2.2072))
-            .round()
-            .clamp(0.0, MAX_MATK);
+        // PAttackFinalizer / MAttackFinalizer: the equipped weapon's pAtk/mAtk
+        // replaces the naked base (`calcWeaponBaseValue`) before STR/level.
+        let p_atk_base = eq.weapon_p_atk.unwrap_or(t.base_p_atk as f64);
+        let m_atk_base = eq.weapon_m_atk.unwrap_or(t.base_m_atk as f64);
+        combat.p_atk = finalize(mods, Stat::PhysicalAttack, p_atk_base * str_bonus * level_mod).clamp(0.0, MAX_PATK);
+        combat.m_atk = finalize(mods, Stat::MagicalAttack, m_atk_base * (int_bonus * level_mod).powf(2.2072)).clamp(0.0, MAX_MATK);
 
-        // P/MDefenseFinalizer, naked value only (see TODO above).
-        combat.p_def = finalize(mods, Stat::PhysicalDefence, t.base_p_def as f64).round().max(0.0);
-        combat.m_def = finalize(mods, Stat::MagicalDefence, t.base_m_def as f64).round().max(0.0);
+        // P/MDefenseFinalizer: (naked base + summed gear def − the naked defense
+        // of every occupied slot) × levelMod (mDef also × MEN bonus), then the
+        // `defaultValue` mul(≥0.5)/add and the `base × 0.2` floor.
+        let p_def_pre = (t.base_p_def as f64 + eq.p_def - eq.p_def_slot_sub) * level_mod;
+        combat.p_def = finalize_def(mods, Stat::PhysicalDefence, p_def_pre, t.base_p_def as f64 * 0.2);
+        let men_bonus = if base.men > 0 { sb.bonus(BaseStat::Men, base.men) } else { 1.0 };
+        let m_def_pre = (t.base_m_def as f64 + eq.m_def - eq.m_def_slot_sub) * men_bonus * level_mod;
+        combat.m_def = finalize_def(mods, Stat::MagicalDefence, m_def_pre, t.base_m_def as f64 * 0.2);
 
-        // P/MAttackSpeedFinalizer: `mul` floors at 0.7, not the usual 1.0.
-        combat.p_atk_spd = finalize_speed(mods, Stat::PhysicalAttackSpeed, t.base_p_atk_spd as f64 * dex_bonus)
-            .round()
+        // P/MAttackSpeedFinalizer: weapon replaces base; `mul` floors at 0.7.
+        let p_atk_spd_base = eq.weapon_p_atk_spd.unwrap_or(t.base_p_atk_spd as f64);
+        combat.p_atk_spd = finalize_speed(mods, Stat::PhysicalAttackSpeed, p_atk_spd_base * dex_bonus)
             .clamp(1.0, MAX_PATK_SPEED) as i32;
         combat.m_atk_spd = finalize_speed(mods, Stat::MagicAttackSpeed, t.base_m_atk_spd as f64 * wit_bonus)
-            .round()
             .clamp(1.0, MAX_MATK_SPEED) as i32;
 
-        // P/MCritRateFinalizer (in per-mille, ×10).
-        combat.crit_hit = finalize(mods, Stat::CriticalRate, t.base_crit_rate as f64 * dex_bonus * 10.0)
-            .round()
-            .clamp(0.0, MAX_PCRIT_RATE);
-        combat.m_crit_hit = finalize(mods, Stat::MagicCriticalRate, t.base_m_crit_rate as f64 * wit_bonus * 10.0)
-            .round()
-            .clamp(0.0, MAX_MCRIT_RATE);
+        // P/MCritRateFinalizer (in per-mille, ×10): weapon replaces base crit.
+        let crit_base = eq.weapon_crit.unwrap_or(t.base_crit_rate as f64);
+        let m_crit_base = eq.weapon_m_crit.unwrap_or(t.base_m_crit_rate as f64);
+        combat.crit_hit = finalize(mods, Stat::CriticalRate, crit_base * dex_bonus * 10.0).clamp(0.0, MAX_PCRIT_RATE);
+        combat.m_crit_hit = finalize(mods, Stat::MagicCriticalRate, m_crit_base * wit_bonus * 10.0).clamp(0.0, MAX_MCRIT_RATE);
 
         // P/MAccuracyFinalizer, P/MEvasionRateFinalizer (high-level +N steps
         // above level 69 skipped — base classes here don't reach that high).
+        // Gear accuracy/evasion sums add on top (`calcWeaponPlusBaseValue`).
+        // `as i32` truncates toward zero, matching Java's `(int)` display getter.
         let level = self.level as f64;
-        combat.accuracy = finalize(mods, Stat::AccuracyCombat, (base.dex as f64).sqrt() * 5.0 + level)
-            .round() as i32;
-        combat.magic_accuracy = finalize(mods, Stat::AccuracyMagic, (base.wit as f64).sqrt() * 3.0 + level * 2.0)
-            .round() as i32;
-        combat.evasion = finalize(mods, Stat::EvasionRate, (base.dex as f64).sqrt() * 5.0 + level)
-            .round()
+        combat.accuracy = finalize(mods, Stat::AccuracyCombat, (base.dex as f64).sqrt() * 5.0 + level + eq.accuracy) as i32;
+        combat.magic_accuracy = finalize(mods, Stat::AccuracyMagic, (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_accuracy) as i32;
+        combat.evasion = finalize(mods, Stat::EvasionRate, (base.dex as f64).sqrt() * 5.0 + level + eq.evasion)
             .clamp(0.0, MAX_EVASION) as i32;
-        combat.magic_evasion = finalize(mods, Stat::MagicEvasionRate, (base.wit as f64).sqrt() * 3.0 + level * 2.0)
-            .round() as i32;
+        combat.magic_evasion = finalize(mods, Stat::MagicEvasionRate, (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_evasion) as i32;
 
-        // Speed: base template value, buffs (Speed effect) apply through the
-        // add/mul maps exactly like the combat stats above. Rounded like the
-        // old i32 fields, stored as f64 (Speeds is shared with NPCs).
-        speeds.run_spd = finalize(mods, Stat::RunSpeed, t.base_run_spd as f64).round();
-        speeds.walk_spd = finalize(mods, Stat::WalkSpeed, t.base_walk_spd as f64).round();
-        speeds.swim_run_spd = finalize(mods, Stat::SwimRunSpeed, t.base_swim_run_spd as f64).round();
-        speeds.swim_walk_spd = finalize(mods, Stat::SwimWalkSpeed, t.base_swim_walk_spd as f64).round();
+        // Weapon range / damage spread replace the class template constants
+        // while a weapon is equipped (`PRangeFinalizer` / `RandomDamageFinalizer`).
+        combat.atk_range = eq.weapon_atk_range.unwrap_or(t.base_atk_range);
+        combat.random_dmg = eq.weapon_random_dmg.unwrap_or(10);
+
+        // SpeedFinalizer: every player speed stat gets `Config.RUN_SPD_BOOST`
+        // added in `getBaseSpeed` (35 on this dist — see `RUN_SPD_BOOST`).
+        // Buffs (Speed effect) apply through the add/mul maps like the combat
+        // stats above; stored as f64 (Speeds is shared with NPCs, whose
+        // templates don't take the player boost). The `as i16` in `user_info`
+        // truncates for display, matching Java's `(int)` getter.
+        speeds.run_spd = finalize(mods, Stat::RunSpeed, t.base_run_spd as f64 + RUN_SPD_BOOST);
+        speeds.walk_spd = finalize(mods, Stat::WalkSpeed, t.base_walk_spd as f64 + RUN_SPD_BOOST);
+        speeds.swim_run_spd = finalize(mods, Stat::SwimRunSpeed, t.base_swim_run_spd as f64 + RUN_SPD_BOOST);
+        speeds.swim_walk_spd = finalize(mods, Stat::SwimWalkSpeed, t.base_swim_walk_spd as f64 + RUN_SPD_BOOST);
     }
 
     /// Fold a landed buff's effects into the modifier maps and recompute.
@@ -477,6 +633,7 @@ impl Player {
         data: &GameData,
         base: &BaseStats,
         mods: &mut StatModifiers,
+        inventory: &Inventory,
         buffs: &mut Buffs,
         speeds: &mut Speeds,
         combat: &mut CombatStats,
@@ -486,7 +643,7 @@ impl Player {
             apply_modifier(&mut mods.add, &mut mods.mul, effect);
         }
         buffs.0.push(buff);
-        self.recalculate_stats(data, base, mods, speeds, combat);
+        self.recalculate_stats(data, base, mods, inventory, speeds, combat);
     }
 
     /// Remove an expired/replaced buff and recompute from scratch (Java just
@@ -498,6 +655,7 @@ impl Player {
         data: &GameData,
         base: &BaseStats,
         mods: &mut StatModifiers,
+        inventory: &Inventory,
         buffs: &mut Buffs,
         speeds: &mut Speeds,
         combat: &mut CombatStats,
@@ -511,7 +669,7 @@ impl Player {
                 apply_modifier(&mut mods.add, &mut mods.mul, effect);
             }
         }
-        self.recalculate_stats(data, base, mods, speeds, combat);
+        self.recalculate_stats(data, base, mods, inventory, speeds, combat);
     }
 
     /// Fraction of the way through the current level (for XP-bar display).
@@ -538,12 +696,28 @@ const MAX_PATK_SPEED: f64 = 1500.0;
 const MAX_MATK_SPEED: f64 = 1999.0;
 const MAX_EVASION: f64 = 250.0;
 
+/// `Character.ini` `RunSpeedBoost` — the flat move-speed bonus `SpeedFinalizer`/
+/// `getBaseSpeed` adds to every player speed stat (35 on this dist; Java's
+/// compiled default is 0). Hardcoded like the `MAX_*` caps above rather than
+/// threaded through `CharacterConfig`, which `recalculate_stats` can't see;
+/// TODO: plumb the real config value if a deployment ever overrides it.
+const RUN_SPD_BOOST: f64 = 35.0;
+
 /// `Stat.defaultValue`: `base * mul + add` from the accumulated modifier
 /// maps (1.0/0.0 when nothing has touched this stat).
 fn finalize(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
     let mul = mods.mul.get(&stat).copied().unwrap_or(1.0);
     let add = mods.add.get(&stat).copied().unwrap_or(0.0);
     base * mul + add
+}
+
+/// `P/MDefenseFinalizer.defaultValue`: `mul` floors at 0.5, and the result is
+/// floored at `base × 0.2` (the class template's naked defense × 0.2) so a
+/// heavy defense debuff can't drop below a fifth of the naked value.
+fn finalize_def(mods: &StatModifiers, stat: Stat, base: f64, floor: f64) -> f64 {
+    let mul = mods.mul.get(&stat).copied().unwrap_or(1.0).max(0.5);
+    let add = mods.add.get(&stat).copied().unwrap_or(0.0);
+    (base * mul + add).max(floor)
 }
 
 /// `P/MAttackSpeedFinalizer.defaultValue`: same shape, but `mul` floors at
@@ -553,6 +727,67 @@ fn finalize_speed(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
     let mul = mods.mul.get(&stat).copied().unwrap_or(1.0).max(0.7);
     let add = mods.add.get(&stat).copied().unwrap_or(0.0);
     base * mul + add
+}
+
+/// Port of `ConditionUsingItemType.testImpl`'s armor branch (the only branch a
+/// robe passive's `<armorType>` mask reaches): the condition passes when the
+/// worn chest — and, unless the chest is full-armor, the worn legs — matches the
+/// mask, treating a bare slot as `ArmorType::NONE`.
+pub(crate) fn armor_condition_passes(mask: u8, inventory: &Inventory, items: &crate::data::item_data::ItemData) -> bool {
+    use crate::data::item_data::{ArmorType, SLOT_FULL_ARMOR};
+    use crate::model::inventory::PaperdollSlot;
+    const NONE_BIT: u8 = ArmorType::None.mask_bit();
+    let Some(chest) = inventory.paperdoll_item(PaperdollSlot::Chest) else {
+        return mask & NONE_BIT != 0;
+    };
+    if mask & items.armor_type(chest.item_id).mask_bit() == 0 {
+        return false;
+    }
+    if items.get(chest.item_id).map(|t| t.body_part == SLOT_FULL_ARMOR).unwrap_or(false) {
+        return true;
+    }
+    let Some(legs) = inventory.paperdoll_item(PaperdollSlot::Legs) else {
+        return mask & NONE_BIT != 0;
+    };
+    mask & items.armor_type(legs.item_id).mask_bit() != 0
+}
+
+/// The armor-conditioned passive buffs currently in effect for a player: for
+/// every known passive skill carrying stat effects, the subset whose
+/// `<armorType>` condition passes against the worn gear, as a hidden permanent
+/// `ActiveBuff` (Java's `Player.addSkill` passive effects, re-evaluated at pump
+/// time). Skills whose effects are all gated out contribute nothing. Shared by
+/// `from_char` (enter-world) and `game_loop::passive_skills` (equip changes).
+pub(crate) fn conditioned_passive_buffs(data: &GameData, skills: &SkillBook, inventory: &Inventory) -> Vec<ActiveBuff> {
+    use crate::model::skill::{OperateType, SkillEffect};
+    let mut out = Vec::new();
+    for (&skill_id, &level) in &skills.0 {
+        let Some(skill) = data.skill_data.get(skill_id, level) else { continue };
+        if skill.operate_type != OperateType::Passive {
+            continue;
+        }
+        let applicable: Vec<StatModifierEffect> = skill
+            .effects
+            .iter()
+            .filter_map(|e| match e {
+                SkillEffect::StatModifier(m) => Some(*m),
+                _ => None,
+            })
+            .filter(|m| m.armor_condition == 0 || armor_condition_passes(m.armor_condition, inventory, &data.item_data))
+            .collect();
+        if applicable.is_empty() {
+            continue;
+        }
+        out.push(ActiveBuff {
+            skill_id,
+            skill_level: level,
+            abnormal_type_client_id: -1,
+            expires_at_tick: u64::MAX,
+            passive: true,
+            effects: applicable,
+        });
+    }
+    out
 }
 
 /// Java `CreatureStat.mergeAdd`/`mergeMul` — accumulate one effect's
@@ -569,18 +804,36 @@ fn apply_modifier(add: &mut HashMap<Stat, f64>, mul: &mut HashMap<Stat, f64>, ef
     }
 }
 
-/// `MaxHpFinalizer`: `baseHpMax(level) * CON bonus`.
-/// TODO(G7): the multiplicative/additive item & buff modifiers (`mul`/`add`).
-pub fn calc_max_hp(data: &GameData, t: &PlayerTemplate, level: i32) -> f64 {
-    t.base_hp_max(level) * data.stat_bonus.con_bonus(t.base_con)
+/// Sum of one `<stat>` across every equipped piece — the flat additive item
+/// term the `MaxHp`/`MaxMp` finalizers apply *after* the CON/MEN multiply
+/// (Java's `for (Item item : inv.getPaperdollItems()) maxHp += getStats(...)`).
+fn equipped_stat_sum(inventory: &Inventory, data: &GameData, stat: Stat) -> f64 {
+    inventory
+        .equipped_items()
+        .iter()
+        .filter_map(|item| data.item_data.item_stats(item.item_id))
+        .flat_map(|s| s.bonuses.iter())
+        .filter(|(st, _)| *st == stat)
+        .map(|(_, v)| *v)
+        .sum()
 }
 
-/// `MaxMpFinalizer`: `baseMpMax(level) * MEN bonus`.
-pub fn calc_max_mp(data: &GameData, t: &PlayerTemplate, level: i32) -> f64 {
-    t.base_mp_max(level) * data.stat_bonus.men_bonus(t.base_men)
+/// `MaxHpFinalizer`: `baseHpMax(level) * CON bonus`, plus each equipped item's
+/// flat `maxHp` bonus (`inventory = None` for the pre-equip char-creation
+/// preview). TODO(G7): the multiplicative/additive *buff* modifiers (`mul`/`add`).
+pub fn calc_max_hp(data: &GameData, t: &PlayerTemplate, level: i32, inventory: Option<&Inventory>) -> f64 {
+    let base = t.base_hp_max(level) * data.stat_bonus.con_bonus(t.base_con);
+    base + inventory.map(|inv| equipped_stat_sum(inv, data, Stat::MaxHp)).unwrap_or(0.0)
 }
 
-/// `MaxCpFinalizer`: `baseCpMax(level) * CON bonus`.
+/// `MaxMpFinalizer`: `baseMpMax(level) * MEN bonus` + equipped `maxMp` bonuses.
+pub fn calc_max_mp(data: &GameData, t: &PlayerTemplate, level: i32, inventory: Option<&Inventory>) -> f64 {
+    let base = t.base_mp_max(level) * data.stat_bonus.men_bonus(t.base_men);
+    base + inventory.map(|inv| equipped_stat_sum(inv, data, Stat::MaxMp)).unwrap_or(0.0)
+}
+
+/// `MaxCpFinalizer`: `baseCpMax(level) * CON bonus`. No item bonus — no item in
+/// this dist carries `maxCp`, and Java's `MaxCpFinalizer` has no paperdoll loop.
 pub fn calc_max_cp(data: &GameData, t: &PlayerTemplate, level: i32) -> f64 {
     t.base_cp_max(level) * data.stat_bonus.con_bonus(t.base_con)
 }

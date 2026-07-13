@@ -67,10 +67,11 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
     // --- apply phase: swap the penalty buffs, recompute stats. Scoped so the
     // entity-store borrow ends before the component/packet work below. ---
     {
-        let Some((player, base, mut mods, mut buffs, mut speeds, mut combat)) = world.objects.get_many_mut::<(
+        let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world.objects.get_many_mut::<(
             &Player,
             &BaseStats,
             &mut StatModifiers,
+            &crate::model::inventory::Inventory,
             &mut Buffs,
             &mut Speeds,
             &mut CombatStats,
@@ -80,13 +81,13 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
         // `remove_buff` rebuilds the modifier maps from the *remaining* buffs,
         // so removing then re-adding at the new level leaves no stale penalty
         // modifiers (a no-op when the penalty wasn't present).
-        player.remove_buff(&world.data, base, &mut mods, &mut buffs, &mut speeds, &mut combat, WEAPON_GRADE_PENALTY);
-        player.remove_buff(&world.data, base, &mut mods, &mut buffs, &mut speeds, &mut combat, ARMOR_GRADE_PENALTY);
+        player.remove_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, WEAPON_GRADE_PENALTY);
+        player.remove_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, ARMOR_GRADE_PENALTY);
         if let Some((level, effects)) = weapon_effects {
-            player.apply_buff(&world.data, base, &mut mods, &mut buffs, &mut speeds, &mut combat, passive_penalty_buff(WEAPON_GRADE_PENALTY, level, effects));
+            player.apply_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, passive_penalty_buff(WEAPON_GRADE_PENALTY, level, effects));
         }
         if let Some((level, effects)) = armor_effects {
-            player.apply_buff(&world.data, base, &mut mods, &mut buffs, &mut speeds, &mut combat, passive_penalty_buff(ARMOR_GRADE_PENALTY, level, effects));
+            player.apply_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, passive_penalty_buff(ARMOR_GRADE_PENALTY, level, effects));
         }
     }
 

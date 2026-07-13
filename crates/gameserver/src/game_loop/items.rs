@@ -209,16 +209,57 @@ pub(crate) fn finish_equip_change(world: &mut World, client_id: u32, object_id: 
     if changed.is_empty() {
         return;
     }
+    // Persist each changed slot's new location (scoped so the read borrow is
+    // released before the stat recompute below takes a mutable one).
+    {
+        let Some(inventory) = world.objects.get_component::<crate::model::inventory::Inventory>(&object_id) else {
+            return;
+        };
+        for &oid in changed {
+            let (loc, loc_data) = match inventory.paperdoll_slot_of(oid) {
+                Some(slot) => ("PAPERDOLL", slot as i32),
+                None => ("INVENTORY", 0),
+            };
+            let _ = world.db.send(db::DbCommand::UpdateItemLocation { object_id: oid, loc, loc_data });
+        }
+    }
+
+    // Recompute combat stats now that the paperdoll changed: a newly equipped
+    // weapon's pAtk / armor's pDef must reach the `UserInfo` below (Java
+    // `Inventory.equipItem`/`unEquipItemInBodySlot` → `Creature.recalculateStats`
+    // before `broadcastUserInfo`). Without it the client shows the item on the
+    // paperdoll but the stat panel never moves.
+    if let Some((player, base, mods, inventory, mut vitals, mut speeds, mut combat)) = world.objects.get_many_mut::<(
+        &crate::model::Player,
+        &crate::model::components::BaseStats,
+        &crate::model::components::StatModifiers,
+        &crate::model::inventory::Inventory,
+        &mut crate::model::components::Vitals,
+        &mut crate::model::components::Speeds,
+        &mut crate::model::components::CombatStats,
+    )>(&object_id)
+    {
+        player.recalculate_stats(&world.data, base, mods, &inventory, &mut speeds, &mut combat);
+        // Max HP/MP can carry item bonuses (e.g. +MP jewelry), which live in
+        // `Vitals` on a separate path from `recalculate_stats`. Recompute them
+        // and clamp current values down if a bonus was just removed (Java's
+        // MaxHp/MaxMp finalizers run inside the same `recalculateStats`).
+        let t = world
+            .data
+            .player_templates
+            .get(player.class_id)
+            .or_else(|| world.data.player_templates.get(player.base_class_id))
+            .cloned()
+            .unwrap_or_default();
+        vitals.max_hp = crate::model::calc_max_hp(&world.data, &t, player.level, Some(&inventory)) as i32;
+        vitals.max_mp = crate::model::calc_max_mp(&world.data, &t, player.level, Some(&inventory)) as i32;
+        vitals.cur_hp = vitals.cur_hp.min(vitals.max_hp as f64);
+        vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
+    }
+
     let Some(inventory) = world.objects.get_component::<crate::model::inventory::Inventory>(&object_id) else {
         return;
     };
-    for &oid in changed {
-        let (loc, loc_data) = match inventory.paperdoll_slot_of(oid) {
-            Some(slot) => ("PAPERDOLL", slot as i32),
-            None => ("INVENTORY", 0),
-        };
-        let _ = world.db.send(db::DbCommand::UpdateItemLocation { object_id: oid, loc, loc_data });
-    }
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(crate::network::enter_world::ex_user_info_equip_slot(object_id, inventory));
         if let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) {
@@ -232,6 +273,10 @@ pub(crate) fn finish_equip_change(world: &mut World, client_id: u32, object_id: 
     // of `inventory` above is released; it sends its own EtcStatusUpdate +
     // UserInfo when the penalty actually changed.
     crate::game_loop::expertise::refresh_expertise_penalty(world, object_id);
+    // Java re-pumps passive skill effects on the same equip listeners: an
+    // armor-conditioned passive (Spellcraft/Magician's Movement) flips as a
+    // robe is worn or removed. Resends its own UserInfo when the set changed.
+    crate::game_loop::passive_skills::refresh_conditioned_passives(world, object_id);
 }
 
 /// The `EtcItem` branch of `UseItem.runImpl` (Java:

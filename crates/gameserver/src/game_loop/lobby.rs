@@ -113,8 +113,10 @@ pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &
         _ => return,
     };
     // Created character starts at full HP/MP (Java: setCurrentHp(getMaxHp())).
-    let max_hp = crate::model::calc_max_hp(&world.data, template, 1) as i32;
-    let max_mp = crate::model::calc_max_mp(&world.data, template, 1) as i32;
+    // No equipped gear yet (initial items are added below, then equipped at
+    // enter-world where `from_char` recomputes max with the paperdoll).
+    let max_hp = crate::model::calc_max_hp(&world.data, template, 1, None) as i32;
+    let max_mp = crate::model::calc_max_mp(&world.data, template, 1, None) as i32;
     // Initial skills for the class (Java: getAvailableSkills at level 1).
     let skills = world.data.skill_trees.initial_skills(pkt.class_id);
     let items = resolve_initial_items(world, pkt.class_id);
@@ -416,6 +418,10 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // penalized. Runs now that the player is registered; resends
     // EtcStatusUpdate + UserInfo only when there's an actual penalty.
     super::expertise::refresh_expertise_penalty(world, object_id);
+    // Java `restoreCharData`/`addSkill` also pumps armor-conditioned passives
+    // (Spellcraft/Magician's Movement) at enter-world: a robe-wearing mystic
+    // logs in with the casting/attack-speed bonus already folded in.
+    super::passive_skills::refresh_conditioned_passives(world, object_id);
     // Java `spawnMe` → `World.addVisibleObject`: mutual CharInfo with every
     // player visible from the spawn region.
     super::visibility::on_enter_world(world, client_id, object_id);

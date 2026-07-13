@@ -360,6 +360,24 @@ fn parse_userinfo_hpmp(ui: &[u8]) -> (i32, i32) {
     (hp, mp)
 }
 
+/// Walk the UserInfo mask blocks to the STATS block and return
+/// `(p_atk, p_def, m_atk_spd)`. STATS layout: len(2) + i16(20 no-weapon) + 13
+/// i32s (p_atk[0], p_atk_spd[1], p_def[2], …, m_atk_spd[7], …).
+fn parse_userinfo_stats(ui: &[u8]) -> (i32, i32, i32) {
+    let block_len = |b: &[u8], p: usize| u16::from_le_bytes([b[p], b[p + 1]]) as usize;
+    let mut pos = 14;
+    pos += 4; // RELATION
+    pos += block_len(ui, pos); // BASIC_INFO
+    pos += block_len(ui, pos); // BASE_STATS
+    pos += block_len(ui, pos); // MAX_HPCPMP
+    pos += block_len(ui, pos); // CURRENT_HPMPCP_EXP_SP
+    pos += block_len(ui, pos); // ENCHANTLEVEL
+    pos += block_len(ui, pos); // APPEARANCE
+    pos += block_len(ui, pos); // STATUS
+    let field = |i: usize| i32::from_le_bytes(ui[pos + 4 + i * 4..pos + 8 + i * 4].try_into().unwrap());
+    (field(0), field(2), field(7)) // p_atk, p_def, m_atk_spd
+}
+
 fn u16str(s: &str) -> Vec<u8> {
     let mut v: Vec<u8> = s.encode_utf16().flat_map(|c| c.to_le_bytes()).collect();
     v.extend_from_slice(&[0, 0]);
@@ -481,16 +499,36 @@ async fn full_login_to_character_create() {
     g2.send(&[0x11]).await; // EnterWorld
     let ui = g2.recv().await;
     assert_eq!(ui[0], 0x32, "UserInfo");
+    // The real enter-world UserInfo STATS block must match the Java client:
+    // p_atk 2, p_def 52, and casting speed 499 (333 × Spellcraft 1.5 in a robe).
+    let (p_atk, p_def, cast_speed) = parse_userinfo_stats(&ui);
+    assert_eq!((p_atk, p_def, cast_speed), (2, 52, 499), "enter-world UserInfo STATS block");
     // Walk the masked blocks to MAX_HPCPMP and check the computed HP/MP match the
     // model (base level-table HP/MP × CON/MEN bonus, truncated like Java).
     let (max_hp, max_mp) = parse_userinfo_hpmp(&ui);
     let data = gameserver::data::GameData::load(); // cwd is dist/game
     let mystic = data.player_templates.get(10).unwrap();
-    let expected_hp = gameserver::model::calc_max_hp(&data, mystic, 1) as i32;
-    let expected_mp = gameserver::model::calc_max_mp(&data, mystic, 1) as i32;
+    // The Human Mystic enters world wearing its initial gear (Apprentice's
+    // Tunic +19 MP, Stockings +10 MP), so the enter-world UserInfo Max MP is
+    // the base finalizer value *plus* those equipped bonuses. Sum them the same
+    // way the server does rather than hardcoding, so the check tracks the data.
+    let gear_bonus = |stat: gameserver::model::stats::Stat| -> f64 {
+        data.initial_equipment
+            .get(10)
+            .iter()
+            .filter(|i| i.equipped)
+            .filter_map(|i| data.item_data.item_stats(i.item_id))
+            .flat_map(|s| s.bonuses.iter())
+            .filter(|(st, _)| *st == stat)
+            .map(|(_, v)| *v)
+            .sum()
+    };
+    let expected_hp = (gameserver::model::calc_max_hp(&data, mystic, 1, None) + gear_bonus(gameserver::model::stats::Stat::MaxHp)) as i32;
+    let expected_mp = (gameserver::model::calc_max_mp(&data, mystic, 1, None) + gear_bonus(gameserver::model::stats::Stat::MaxMp)) as i32;
     assert_eq!(max_hp, expected_hp, "UserInfo max HP matches the calc ({expected_hp})");
-    assert_eq!(max_mp, expected_mp, "UserInfo max MP matches the calc ({expected_mp})");
+    assert_eq!(max_mp, expected_mp, "UserInfo max MP matches the gear-inclusive calc ({expected_mp})");
     assert!(max_hp > 90 && max_hp < 110, "Human Mystic level 1 HP is ~99");
+    assert!(expected_mp > gameserver::model::calc_max_mp(&data, mystic, 1, None) as i32, "equipped gear raised Max MP above the naked value");
 
     // Drain the rest of the enter-world burst, collecting opcodes, until the
     // welcome SystemMessage (0x62) — the last packet Java sends on enter.

@@ -66,6 +66,11 @@ pub struct PlayerTemplate {
     /// Sum of the base armor-slot defenses / jewel defenses.
     pub base_p_def: i32,
     pub base_m_def: i32,
+    /// Per-slot naked defense (Java `PlayerTemplate._baseSlotDef` /
+    /// `getBaseDefBySlot`), keyed by `PaperdollSlot as usize`. The pDef/mDef
+    /// finalizers subtract the occupied slots' entries from the summed base so
+    /// worn gear *replaces* the naked slot defense rather than stacking on it.
+    pub base_def_by_slot: HashMap<usize, i32>,
     // Movement (before the run-speed multiplier).
     pub base_run_spd: i32,
     pub base_walk_spd: i32,
@@ -110,6 +115,35 @@ impl PlayerTemplate {
     pub fn base_cp_regen(&self, level: i32) -> f64 {
         table_get(&self.cp_regen_table, level)
     }
+
+    /// Java `getBaseDefBySlot(slotId)` — the naked defense of an *empty* slot,
+    /// 0 when the slot has no base contribution (`_baseSlotDef`'s `getOrDefault`).
+    pub fn base_def_by_slot(&self, slot: usize) -> i32 {
+        self.base_def_by_slot.get(&slot).copied().unwrap_or(0)
+    }
+}
+
+/// `<basePDef>`/`<baseMDef>` child tag → the `PaperdollSlot as usize` its base
+/// defense belongs to (Java's per-slot `_baseSlotDef` keys). Tags with no
+/// paperdoll slot (none here) are ignored.
+fn def_slot_index(tag: &[u8]) -> Option<usize> {
+    use crate::model::inventory::PaperdollSlot;
+    Some(match tag {
+        b"chest" => PaperdollSlot::Chest,
+        b"legs" => PaperdollSlot::Legs,
+        b"head" => PaperdollSlot::Head,
+        b"feet" => PaperdollSlot::Feet,
+        b"gloves" => PaperdollSlot::Gloves,
+        b"underwear" => PaperdollSlot::Under,
+        b"cloak" => PaperdollSlot::Cloak,
+        b"hair" => PaperdollSlot::Hair,
+        b"rear" => PaperdollSlot::REar,
+        b"lear" => PaperdollSlot::LEar,
+        b"rfinger" => PaperdollSlot::RFinger,
+        b"lfinger" => PaperdollSlot::LFinger,
+        b"neck" => PaperdollSlot::Neck,
+        _ => return None,
+    } as usize)
 }
 
 fn table_get(table: &[f64], level: i32) -> f64 {
@@ -254,10 +288,16 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
                 match section.as_deref() {
                     Some(b"basePDef") => {
                         t.base_p_def += int();
+                        if let Some(slot) = def_slot_index(&cur_tag) {
+                            t.base_def_by_slot.insert(slot, int());
+                        }
                         continue;
                     }
                     Some(b"baseMDef") => {
                         t.base_m_def += int();
+                        if let Some(slot) = def_slot_index(&cur_tag) {
+                            t.base_def_by_slot.insert(slot, int());
+                        }
                         continue;
                     }
                     Some(b"baseMoveSpd") => {

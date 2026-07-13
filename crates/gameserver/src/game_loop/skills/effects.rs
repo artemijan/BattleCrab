@@ -110,18 +110,19 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             passive: false,
             effects: buff_effects,
         };
-        if let Some((target, base, mut mods, mut buffs, mut speeds, mut combat)) = world
+        if let Some((target, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world
             .objects
             .get_many_mut::<(
                 &mut crate::model::Player,
                 &BaseStats,
                 &mut StatModifiers,
+                &crate::model::inventory::Inventory,
                 &mut Buffs,
                 &mut Speeds,
                 &mut CombatStats,
             )>(&target_oid)
         {
-            target.apply_buff(&world.data, &base, &mut mods, &mut buffs, &mut speeds, &mut combat, buff);
+            target.apply_buff(&world.data, &base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, buff);
         }
         world
             .scheduler
@@ -269,18 +270,19 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     if !still_active {
         return;
     }
-    if let Some((player, base, mut mods, mut buffs, mut speeds, mut combat)) = world
+    if let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world
         .objects
         .get_many_mut::<(
             &mut crate::model::Player,
             &BaseStats,
             &mut StatModifiers,
+            &crate::model::inventory::Inventory,
             &mut Buffs,
             &mut Speeds,
             &mut CombatStats,
         )>(&player_object_id)
     {
-        player.remove_buff(&world.data, &base, &mut mods, &mut buffs, &mut speeds, &mut combat, skill_id);
+        player.remove_buff(&world.data, &base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, skill_id);
     }
     let now = world.tick;
     let Some(client_id) = client_for_player(world, player_object_id) else { return };

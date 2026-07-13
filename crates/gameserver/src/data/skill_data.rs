@@ -120,13 +120,16 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
     // Effects collected for the current skill: (xml name, per-level params
     // keyed by param name — `amount` for stat modifiers, `power` for the
     // instant damage/heal handlers —, mode, RestorationRandom groups).
-    let mut effects: Vec<(String, LeveledValues, String, Vec<RestorationGroup>)> = Vec::new();
+    let mut effects: Vec<(String, LeveledValues, String, Vec<RestorationGroup>, u8)> = Vec::new();
     let mut in_effects = false;
     let mut in_conditions = false;
     let mut cur_effect_name: Option<String> = None;
     let mut cur_effect_params: LeveledValues = HashMap::new();
     let mut cur_effect_mode = String::from("DIFF");
     let mut cur_effect_field = String::new();
+    // OR of `ArmorType::mask_bit`s from the current effect's `<armorType>`
+    // list (`ConditionUsingItemType`); 0 = no armor condition. Reset per effect.
+    let mut cur_effect_armor: u8 = 0;
 
     // `RestorationRandom`'s `<items><item chance="30"><item id=".." count=".."
     // /></item></items>` shape doesn't fit the scalar/leveled-value model
@@ -190,6 +193,7 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                     cur_effect_name = attr_str(&e, b"name");
                     cur_effect_params = HashMap::new();
                     cur_effect_mode = String::from("DIFF");
+                    cur_effect_armor = 0;
                     cur_restoration_groups = Vec::new();
                 } else if path.len() == 3 && in_effects {
                     cur_effect_field = name.clone();
@@ -210,6 +214,10 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                 }
                 if in_conditions {
                     // Not parsed (see module docs) — nothing to record.
+                } else if in_effects && cur_effect_field == "armorType" && path.len() == 5 {
+                    // `<effect><armorType><item>MAGIC</item>...` — OR each armor
+                    // kind's bit into the effect's condition mask.
+                    cur_effect_armor |= crate::data::item_data::ArmorType::from_name(text).mask_bit();
                 } else if in_effects {
                     match path.len() {
                         4 if cur_effect_field == "mode" => {
@@ -259,7 +267,7 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                         .push(RestorationGroup { chance: cur_group_chance, items: std::mem::take(&mut cur_group_items) });
                 } else if closed == "effect" && in_effects {
                     if let Some(name) = cur_effect_name.take() {
-                        effects.push((name, cur_effect_params.clone(), cur_effect_mode.clone(), std::mem::take(&mut cur_restoration_groups)));
+                        effects.push((name, cur_effect_params.clone(), cur_effect_mode.clone(), std::mem::take(&mut cur_restoration_groups), cur_effect_armor));
                     }
                 }
             }
@@ -275,7 +283,7 @@ fn finalize_skill(
     name: &str,
     to_level: i32,
     values: &LeveledValues,
-    effects: &[(String, LeveledValues, String, Vec<RestorationGroup>)],
+    effects: &[(String, LeveledValues, String, Vec<RestorationGroup>, u8)],
     out: &mut HashMap<(i32, i32), Skill>,
 ) {
     if id < 0 {
@@ -300,7 +308,7 @@ fn finalize_skill(
 
         let skill_effects = effects
             .iter()
-            .filter_map(|(xml_name, params, mode, groups)| {
+            .filter_map(|(xml_name, params, mode, groups, armor_condition)| {
                 let param = |key: &str| -> Option<f64> { value_at(params, key, level).and_then(|v| v.parse().ok()) };
                 match xml_name.as_str() {
                     "MagicalAttack" => Some(SkillEffect::MagicalAttack { power: param("power")? }),
@@ -314,7 +322,7 @@ fn finalize_skill(
                     _ => {
                         let stat = EFFECT_REGISTRY.iter().find(|(n, _)| n == xml_name).map(|(_, s)| *s)?;
                         let mode = if mode == "PER" { StatModifierType::Per } else { StatModifierType::Diff };
-                        Some(SkillEffect::StatModifier(StatModifierEffect { stat, mode, amount: param("amount")? }))
+                        Some(SkillEffect::StatModifier(StatModifierEffect { stat, mode, amount: param("amount")?, armor_condition: *armor_condition }))
                     }
                 }
             })
@@ -524,7 +532,7 @@ mod tests {
         assert!(matches!(s.effects[0], SkillEffect::Heal { power } if power == 83.0));
         assert!(matches!(
             s.effects[1],
-            SkillEffect::StatModifier(StatModifierEffect { stat: Stat::PhysicalAttack, mode: StatModifierType::Per, amount }) if amount == 10.0
+            SkillEffect::StatModifier(StatModifierEffect { stat: Stat::PhysicalAttack, mode: StatModifierType::Per, amount, .. }) if amount == 10.0
         ));
     }
 }

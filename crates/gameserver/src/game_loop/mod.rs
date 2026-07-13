@@ -21,6 +21,7 @@ mod lobby;
 mod net;
 mod npc_ai;
 mod party;
+mod passive_skills;
 mod position;
 pub mod quests;
 mod regen;
