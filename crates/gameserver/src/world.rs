@@ -152,6 +152,12 @@ pub struct World {
     pub request_seq: u64,
     /// Command channel to the DB thread.
     pub db: db::CmdTx,
+    /// Staggered periodic-autosave schedule (Java `PlayerAutoSaveTaskManager`):
+    /// player object id → the tick its next flush is due. Populated on
+    /// enter-world, drained one-per-cycle by `game_loop::autosave_tick`, and
+    /// cleared on logout (where the final flush happens instead). The
+    /// memory-first model's timer that bounds how much a crash can lose.
+    pub player_autosave_due: HashMap<i32, u64>,
     /// Game RNG (Java `Rnd`) — owned here so handlers roll through `roll()`,
     /// which tests can force (`forced_rolls`) for deterministic combat.
     pub rng: StdRng,
@@ -189,6 +195,7 @@ impl World {
             next_party_id: 1,
             request_seq: 0,
             db,
+            player_autosave_due: HashMap::new(),
             rng: StdRng::from_entropy(),
             #[cfg(test)]
             forced_rolls: std::collections::VecDeque::new(),

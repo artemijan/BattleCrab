@@ -61,45 +61,68 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     }
     // deleteMe → World.removeVisibleObject: DeleteObject to everyone watching.
     super::visibility::on_leave_world(world, player_object_id);
+    // Stop tracking the player for the periodic autosave; the logout flush below
+    // is the final save.
+    world.player_autosave_due.remove(&player_object_id);
     // Gather everything persistence needs before despawn — components drop
     // with the entity (PLAN_ECS_STAGE2 §7 risk 3).
-    let snap = {
-        let p = world.objects.get_component::<crate::model::Player>(&player_object_id);
-        let pos = world.objects.get_component::<crate::model::components::Position>(&player_object_id);
-        let vitals = world.objects.get_component::<crate::model::components::Vitals>(&player_object_id);
-        let pvitals = world.objects.get_component::<crate::model::components::PlayerVitals>(&player_object_id);
-        match (p, pos, vitals, pvitals) {
-            (Some(p), Some(pos), Some(vitals), Some(pvitals)) => Some(db::PlayerSnapshot::of(p, pos, vitals, pvitals)),
-            _ => None,
-        }
-    };
-    if let Some(snap) = snap {
+    if let Some(save) = build_save_data(world, player_object_id) {
         world.objects.despawn(&player_object_id);
-        let _ = world.db.send(db::DbCommand::StorePlayer { snap });
+        let _ = world.db.send(db::DbCommand::StorePlayer { save });
     }
 }
 
-/// One `StorePlayer` snapshot for a player staying in the world — for
-/// changes that shouldn't wait for logout (class transfers).
+/// Gather a player's full persistable state into a [`db::PlayerSaveData`] for a
+/// flush — the char row plus every in-memory child collection (inventory,
+/// skills, shortcuts, macros, quests). `None` when the core components are
+/// missing (not a live player); absent child collections default to empty. This
+/// is the single gather point for all four flush triggers: the periodic
+/// autosave, logout, class-transfer, and shutdown save-all. Because gameplay
+/// only mutates these components (never the DB directly), one flush captures
+/// everything the player did since the last one.
+pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::PlayerSaveData> {
+    use crate::model::components::{Macros, PlayerVitals, Position, Quests, Shortcuts, SkillBook, Vitals};
+    use crate::model::inventory::Inventory;
+
+    let p = world.objects.get_component::<crate::model::Player>(&object_id)?;
+    let pos = world.objects.get_component::<Position>(&object_id)?;
+    let vitals = world.objects.get_component::<Vitals>(&object_id)?;
+    let pvitals = world.objects.get_component::<PlayerVitals>(&object_id)?;
+    let base = db::PlayerSnapshot::of(p, pos, vitals, pvitals);
+
+    let items = world.objects.get_component::<Inventory>(&object_id).map(Inventory::to_rows).unwrap_or_default();
+    let skills = world
+        .objects
+        .get_component::<SkillBook>(&object_id)
+        .map(|s| s.0.iter().map(|(id, lvl)| (*id, *lvl)).collect())
+        .unwrap_or_default();
+    let shortcuts = world
+        .objects
+        .get_component::<Shortcuts>(&object_id)
+        .map(|s| s.0.values().cloned().collect())
+        .unwrap_or_default();
+    let macros = world.objects.get_component::<Macros>(&object_id).map(|m| m.entries.clone()).unwrap_or_default();
+    let quests = world.objects.get_component::<Quests>(&object_id).map(|q| q.0.clone()).unwrap_or_default();
+
+    Some(db::PlayerSaveData { base, items, skills, shortcuts, macros, quests })
+}
+
+/// Flush a player who stays in the world — the periodic autosave and changes
+/// that shouldn't wait for logout (class transfers).
 pub(crate) fn store_player_now(world: &mut World, player_object_id: i32) {
-    let p = world.objects.get_component::<crate::model::Player>(&player_object_id);
-    let pos = world.objects.get_component::<crate::model::components::Position>(&player_object_id);
-    let vitals = world.objects.get_component::<crate::model::components::Vitals>(&player_object_id);
-    let pvitals = world.objects.get_component::<crate::model::components::PlayerVitals>(&player_object_id);
-    if let (Some(p), Some(pos), Some(vitals), Some(pvitals)) = (p, pos, vitals, pvitals) {
-        let _ = world.db.send(db::DbCommand::StorePlayer {
-            snap: db::PlayerSnapshot::of(p, pos, vitals, pvitals),
-        });
+    if let Some(save) = build_save_data(world, player_object_id) {
+        let _ = world.db.send(db::DbCommand::StorePlayer { save });
     }
 }
 
 /// Server-shutdown save-all (Java `Shutdown` → `GameServer` disconnect-all →
-/// `Disconnection.storeMe()` for every online player). Persists level/exp/
-/// position/vitals for everyone still in the world so a restart doesn't revert
-/// them to their last logout — skills are already saved eagerly at learn time,
-/// but stats live only in memory until a `StorePlayer`. Runs once after the
-/// game loop stops; the DB thread drains these before it's told to shut down
-/// (`main` sends `DbCommand::Shutdown` only after this thread joins).
+/// `Disconnection.storeMe()` for every online player). In the memory-first model
+/// all character state (level/exp/position/vitals, items, skills, shortcuts,
+/// macros, quests) lives only in memory between the periodic autosave flushes,
+/// so this final full flush is what keeps a restart from reverting everyone to
+/// their last autosave/logout. Runs once after the game loop stops; the DB
+/// thread drains these before it's told to shut down (`main` sends
+/// `DbCommand::Shutdown` only after this thread joins).
 pub(crate) fn save_all_players(world: &mut World) {
     let mut ids = Vec::new();
     world.objects.for_each_mut::<&crate::model::Player>(|p| ids.push(p.object_id));
@@ -172,9 +195,20 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
             store_and_remove_player(world, s.player_object_id());
         }
         Some(ClientSession::Entering(s)) => {
+            // The Player is still held by the session, not the world store, so
+            // build the full save straight from the loaded `PlayerData`. It must
+            // carry every child collection: `store_player` reconciles them, so an
+            // items/skills-empty save here would wipe the just-loaded character.
             let b = s.player();
             let _ = world.db.send(db::DbCommand::StorePlayer {
-                snap: db::PlayerSnapshot::of(&b.player, &b.position, &b.vitals, &b.player_vitals),
+                save: db::PlayerSaveData {
+                    base: db::PlayerSnapshot::of(&b.player, &b.position, &b.vitals, &b.player_vitals),
+                    items: b.inventory.to_rows(),
+                    skills: b.skills.0.iter().map(|(id, lvl)| (*id, *lvl)).collect(),
+                    shortcuts: b.shortcuts.0.values().cloned().collect(),
+                    macros: b.macros.entries.clone(),
+                    quests: b.quests.0.clone(),
+                },
             });
         }
         _ => {}

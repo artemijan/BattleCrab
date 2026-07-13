@@ -561,8 +561,9 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
         }
     }
     for &(id, lvl) in &granted {
-        let _ = world.db.send(crate::db::DbCommand::UpsertSkill { char_id: player_oid, skill_id: id, skill_level: lvl });
-        // `updateShortCuts` — panel slots holding the skill pick up the level.
+        // Memory-first: the grant already landed in the `SkillBook`; it persists
+        // on the next flush. `updateShortCuts` — panel slots holding the skill
+        // pick up the level (also in-memory).
         super::shortcuts::update_skill_shortcuts(world, player_oid, id, lvl);
     }
     if world.cfg.character.auto_learn_skills {
@@ -608,17 +609,16 @@ pub(crate) fn maybe_skill_remove_on_delevel(
         skills,
         world.cfg.character.strict_delevel_skill_removal,
     );
+    let _ = char_id; // memory-first: the changes below persist on the next flush.
     for &(skill_id, action) in &changes {
         match action {
             // `deacreaseSkillLevel` → `addSkill(getSkill(id, nextLevel))`.
             Some(new_level) => {
                 skills.insert(skill_id, new_level);
-                let _ = world.db.send(crate::db::DbCommand::UpsertSkill { char_id, skill_id, skill_level: new_level });
             }
             // `deacreaseSkillLevel` → `removeSkill(skill, true)`.
             None => {
                 skills.remove(&skill_id);
-                let _ = world.db.send(crate::db::DbCommand::DeleteSkill { char_id, skill_id });
             }
         }
     }

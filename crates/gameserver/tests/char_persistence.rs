@@ -29,6 +29,47 @@ fn new_char(name: &str) -> NewCharacter {
     }
 }
 
+/// Build a full `PlayerSaveData` from a loaded character, mirroring what the
+/// game thread's `build_save_data` gathers — the memory-first flush unit. Tests
+/// mutate the child vecs, then send one `StorePlayer` to exercise the DB
+/// thread's transactional reconcile (adds, in-place updates, and deletions).
+fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
+    db::PlayerSaveData {
+        base: db::PlayerSnapshot {
+            object_id: c.object_id,
+            level: c.level,
+            max_hp: c.max_hp,
+            cur_hp: c.cur_hp,
+            max_cp: 0,
+            cur_cp: 0.0,
+            max_mp: c.max_mp,
+            cur_mp: c.cur_mp,
+            face: c.face,
+            hair_style: c.hair_style,
+            hair_color: c.hair_color,
+            sex: c.sex,
+            heading: 0,
+            x: c.x,
+            y: c.y,
+            z: c.z,
+            exp: c.exp,
+            sp: c.sp,
+            reputation: c.reputation,
+            pvp_kills: c.pvp_kills,
+            pk_kills: c.pk_kills,
+            race: c.race,
+            class_id: c.class_id,
+            base_class_id: c.base_class_id,
+            vitality_points: c.vitality_points,
+        },
+        items: c.items.clone(),
+        skills: c.skills.clone(),
+        shortcuts: c.shortcuts.clone(),
+        macros: c.macros.clone(),
+        quests: c.quests.clone(),
+    }
+}
+
 fn recv(rx: &std::sync::mpsc::Receiver<DbEvent>) -> DbEvent {
     loop {
         match rx.recv_timeout(Duration::from_secs(5)).expect("db event") {
@@ -150,7 +191,10 @@ async fn shortcuts_and_macros_persist() {
     let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "character_skills", "character_shortcuts", "character_macroses"] {
+        // `character_quests` is needed too: the memory-first flush reconciles
+        // every child table, so `store_player` always touches it (even with no
+        // quests, to delete any that were abandoned).
+        for table in ["characters", "items", "character_skills", "character_shortcuts", "character_macroses", "character_quests"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -191,7 +235,7 @@ async fn shortcuts_and_macros_persist() {
         DbEvent::CharacterCreated { result, .. } => assert_eq!(result, CreateResult::Ok),
         _ => panic!("expected CharacterCreated"),
     }
-    let (char_id, item_object_id) = match recv(&event_rx) {
+    let loaded = match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             let c = &chars[0];
             assert_eq!(c.items.len(), 1);
@@ -203,18 +247,25 @@ async fn shortcuts_and_macros_persist() {
             assert!(c.shortcuts.iter().any(|s| s.kind == ShortcutType::Macro && s.id == 10000));
             assert_eq!(c.macros.len(), 1);
             assert_eq!(c.macros[0].commands, preset.commands, "commands column round-trips");
-            (c.object_id, item_oid)
+            c.clone()
         }
         _ => panic!("expected CharactersLoaded"),
     };
-    let _ = item_object_id;
 
-    // Runtime traffic: overwrite a slot, delete one, add + delete a macro.
-    cmd_tx.send(DbCommand::UpsertShortcut { char_id, slot: 0, page: 0, kind: ShortcutType::Skill.ordinal(), shortcut_id: 1177, level: 2 }).unwrap();
-    cmd_tx.send(DbCommand::DeleteShortcut { char_id, slot: 3, page: 0 }).unwrap();
-    let user_macro = Macro { id: 1000, icon: 0, name: "mine".into(), descr: String::new(), acronym: String::new(), commands: vec![] };
-    cmd_tx.send(DbCommand::UpsertMacro { char_id, macro_: user_macro }).unwrap();
-    cmd_tx.send(DbCommand::DeleteMacro { char_id, macro_id: 10000 }).unwrap();
+    // Memory-first flush: the game thread mutates its in-memory copy (overwrite
+    // slot 0, delete slot 3, replace the preset macro with a user macro) and
+    // sends one `StorePlayer`. The DB thread's `store_player` reconciles every
+    // child table in a transaction — in-place updates, deletions, and untouched
+    // rows (the item + skill + surviving shortcuts) all in one write.
+    let mut save = save_from(&loaded);
+    for sc in save.shortcuts.iter_mut().filter(|s| s.slot == 0 && s.page == 0) {
+        sc.kind = ShortcutType::Skill;
+        sc.id = 1177;
+        sc.level = 2;
+    }
+    save.shortcuts.retain(|s| !(s.slot == 3 && s.page == 0));
+    save.macros = vec![Macro { id: 1000, icon: 0, name: "mine".into(), descr: String::new(), acronym: String::new(), commands: vec![] }];
+    cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
     cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
@@ -225,6 +276,9 @@ async fn shortcuts_and_macros_persist() {
             assert!(!c.shortcuts.iter().any(|s| s.slot == 3), "deleted slot gone");
             assert_eq!(c.macros.len(), 1);
             assert_eq!(c.macros[0].id, 1000, "preset deleted, user macro kept");
+            // Untouched child rows survive the reconcile.
+            assert_eq!(c.items.len(), 1, "item preserved");
+            assert!(c.skills.iter().any(|&(id, lvl)| id == 1177 && lvl == 1), "skill preserved");
         }
         _ => panic!("expected CharactersLoaded"),
     }
@@ -314,7 +368,7 @@ async fn friendships_persist() {
 /// orphan-var filter (vars without a `<state>` row don't load).
 #[tokio::test]
 async fn quest_states_persist() {
-    use gameserver::model::quest::{state, STATE_VAR};
+    use gameserver::model::quest::{state, QuestState};
 
     let dir = std::env::temp_dir().join(format!("l2r_g11_{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
@@ -339,36 +393,27 @@ async fn quest_states_persist() {
 
     cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Ques") }).unwrap();
     recv(&event_rx); // CharacterCreated
-    let oid = match recv(&event_rx) {
-        DbEvent::CharactersLoaded { chars, .. } => chars[0].object_id,
+    let loaded = match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => chars[0].clone(),
         _ => panic!("expected CharactersLoaded"),
     };
 
     let quest = "Q00258_BringWolfPelts";
-    let up = |var: &str, value: &str| DbCommand::UpsertQuestVar {
-        char_id: oid,
-        quest: quest.into(),
-        var: var.into(),
-        value: value.into(),
-    };
-    cmd_tx.send(up(STATE_VAR, "Started")).unwrap();
-    cmd_tx.send(up("cond", "1")).unwrap();
-    cmd_tx.send(up("cond", "2")).unwrap(); // upsert path: same PK, new value
-    // Orphan rows (no <state>) must not surface as a quest.
-    cmd_tx
-        .send(DbCommand::UpsertQuestVar {
-            char_id: oid,
-            quest: "Q99999_Ghost".into(),
-            var: "cond".into(),
-            value: "5".into(),
-        })
-        .unwrap();
-
+    // Flush the quest STARTED at cond 2 as one memory-first `StorePlayer`. The DB
+    // thread writes one `<state>` row + a `cond` row inside the reconcile
+    // transaction; the load path rebuilds the `QuestState`.
+    {
+        let mut save = save_from(&loaded);
+        let mut qs = QuestState { state: state::STARTED, ..Default::default() };
+        qs.vars.insert("cond".into(), "2".into());
+        save.quests.insert(quest.into(), qs);
+        cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+    }
     cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             let quests = &chars[0].quests;
-            assert_eq!(quests.len(), 1, "orphan vars must not create a quest");
+            assert_eq!(quests.len(), 1);
             let qs = &quests[quest];
             assert_eq!(qs.state, state::STARTED);
             assert_eq!(qs.cond(), 2);
@@ -376,22 +421,28 @@ async fn quest_states_persist() {
         _ => panic!("expected CharactersLoaded"),
     }
 
-    // Non-repeatable exit: vars deleted, <state> row kept (COMPLETED write
-    // comes through a normal UpsertQuestVar from the engine).
-    cmd_tx.send(up(STATE_VAR, "Completed")).unwrap();
-    cmd_tx.send(DbCommand::DeleteQuest { char_id: oid, quest: quest.into(), keep_state: true }).unwrap();
+    // Non-repeatable exit (COMPLETED, vars cleared): flushing the quest with an
+    // empty var set makes the reconcile drop the old `cond` row and keep only
+    // the `<state>` row — Java's `keep_state` delete, now a consequence of the
+    // full-state rewrite.
+    {
+        let mut save = save_from(&loaded);
+        save.quests.insert(quest.into(), QuestState { state: state::COMPLETED, ..Default::default() });
+        cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+    }
     cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             let qs = &chars[0].quests[quest];
             assert_eq!(qs.state, state::COMPLETED);
-            assert!(qs.vars.is_empty(), "non-repeatable delete keeps only <state>");
+            assert!(qs.vars.is_empty(), "COMPLETED keeps only <state>");
         }
         _ => panic!("expected CharactersLoaded"),
     }
 
-    // Repeatable exit: everything gone.
-    cmd_tx.send(DbCommand::DeleteQuest { char_id: oid, quest: quest.into(), keep_state: false }).unwrap();
+    // Repeatable exit (quest forgotten): flushing with no quest at all makes the
+    // reconcile delete every row for it.
+    cmd_tx.send(DbCommand::StorePlayer { save: save_from(&loaded) }).unwrap();
     cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => assert!(chars[0].quests.is_empty()),

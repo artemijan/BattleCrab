@@ -5,7 +5,6 @@
 //! control point is registration, which is where the no-recurring-macros
 //! deviation lives (see `handle_request_make_macro`).
 
-use crate::db::DbCommand;
 use crate::model::components::{Macros, Shortcuts, SkillBook};
 use crate::model::shortcut::{MacroType, MacroUpdateType, Shortcut, ShortcutType};
 use crate::network::client_packets as cp;
@@ -66,14 +65,6 @@ pub(crate) fn handle_request_short_cut_reg(world: &mut World, client_id: u32, bo
     if store {
         if let Some(shortcuts) = world.objects.get_component_mut::<Shortcuts>(&object_id) {
             shortcuts.put(sc);
-            let _ = world.db.send(DbCommand::UpsertShortcut {
-                char_id: object_id,
-                slot: sc.slot,
-                page: sc.page,
-                kind: sc.kind.ordinal(),
-                shortcut_id: sc.id,
-                level: sc.level,
-            });
         }
     }
 
@@ -105,7 +96,6 @@ fn delete_shortcut(world: &mut World, client_id: u32, object_id: i32, slot: i32,
     if removed.is_none() {
         return;
     }
-    let _ = world.db.send(DbCommand::DeleteShortcut { char_id: object_id, slot, page });
     if let Some(shortcuts) = world.objects.get_component::<Shortcuts>(&object_id) {
         send(world, client_id, server_packets::shortcut_init(shortcuts));
     }
@@ -144,7 +134,6 @@ pub(crate) fn handle_request_make_macro(world: &mut World, client_id: u32, body:
     let Some(macros) = world.objects.get_component_mut::<Macros>(&object_id) else { return };
     let (id, update) = macros.register(pkt.macro_);
     let Some(registered) = macros.get(id).cloned() else { return };
-    let _ = world.db.send(DbCommand::UpsertMacro { char_id: object_id, macro_: registered.clone() });
     send(world, client_id, server_packets::send_macro_list(1, Some(&registered), update));
 }
 
@@ -159,9 +148,6 @@ pub(crate) fn handle_request_delete_macro(world: &mut World, client_id: u32, bod
     let Some(object_id) = ingame_object_id(world, client_id) else { return };
 
     let removed = world.objects.get_component_mut::<Macros>(&object_id).and_then(|m| m.delete(pkt.id));
-    if removed.is_some() {
-        let _ = world.db.send(DbCommand::DeleteMacro { char_id: object_id, macro_id: pkt.id });
-    }
 
     let slots = world
         .objects
@@ -195,14 +181,6 @@ pub(crate) fn update_skill_shortcuts(world: &mut World, object_id: i32, skill_id
     }
     let client_id = super::helpers::client_for_player(world, object_id);
     for sc in updated {
-        let _ = world.db.send(DbCommand::UpsertShortcut {
-            char_id: object_id,
-            slot: sc.slot,
-            page: sc.page,
-            kind: sc.kind.ordinal(),
-            shortcut_id: sc.id,
-            level: sc.level,
-        });
         if let Some(client_id) = client_id {
             send(world, client_id, server_packets::shortcut_register(&sc));
         }
@@ -232,9 +210,6 @@ pub(crate) fn remove_skill_shortcuts(world: &mut World, object_id: i32, skill_id
         for &(slot, page) in &victims {
             shortcuts.remove(slot, page);
         }
-    }
-    for &(slot, page) in &victims {
-        let _ = world.db.send(DbCommand::DeleteShortcut { char_id: object_id, slot, page });
     }
     if let (Some(client_id), Some(shortcuts)) =
         (super::helpers::client_for_player(world, object_id), world.objects.get_component::<Shortcuts>(&object_id))

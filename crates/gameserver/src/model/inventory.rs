@@ -123,6 +123,44 @@ impl Inventory {
         &self.items
     }
 
+    /// Serialize the whole inventory to `items` rows for a persistence flush
+    /// (`PlayerSaveData`) — the inverse of [`from_rows`](Self::from_rows). An
+    /// equipped instance gets `loc="PAPERDOLL"` with `loc_data` = its paperdoll
+    /// slot (the lowest slot it occupies, matching how Java stores a
+    /// slot-spanning item under a single row). Plain inventory items get
+    /// `loc="INVENTORY"` with `loc_data` = their running position, so the
+    /// client's saved arrangement (`RequestSaveInventoryOrder` →
+    /// [`apply_inventory_order`](Self::apply_inventory_order)) survives relog —
+    /// `load_items` restores with `ORDER BY loc_data`.
+    pub fn to_rows(&self) -> Vec<crate::character::ItemRow> {
+        let mut inv_order = 0i32;
+        self.items
+            .iter()
+            .map(|i| {
+                let (loc, loc_data) = match self.paperdoll.iter().position(|p| *p == Some(i.object_id)) {
+                    Some(slot) => ("PAPERDOLL".to_string(), slot as i32),
+                    None => {
+                        let order = inv_order;
+                        inv_order += 1;
+                        ("INVENTORY".to_string(), order)
+                    }
+                };
+                crate::character::ItemRow {
+                    object_id: i.object_id,
+                    item_id: i.item_id,
+                    count: i.count,
+                    enchant_level: i.enchant_level,
+                    loc,
+                    loc_data,
+                    custom_type1: i.custom_type1,
+                    custom_type2: i.custom_type2,
+                    mana_left: i.mana_left,
+                    time: i.time,
+                }
+            })
+            .collect()
+    }
+
     /// The item instances currently occupying a paperdoll slot (Java: the
     /// `isEquipped()` subset of `getItems()`). Each instance is returned once
     /// even if it spans two slots (e.g. full armor covering chest + legs).
@@ -144,6 +182,16 @@ impl Inventory {
 
     fn find(&self, object_id: i32) -> Option<&ItemInstance> {
         self.items.iter().find(|i| i.object_id == object_id)
+    }
+
+    /// Apply a client `RequestSaveInventoryOrder` arrangement: reorder the
+    /// in-memory item list by the given `(object_id, order)` pairs so the new
+    /// order persists to `items.loc_data` on the next flush (memory-first — no
+    /// per-packet DB write). Items not named in `order` (e.g. equipped ones)
+    /// keep their relative position after the arranged ones (stable sort).
+    pub fn apply_inventory_order(&mut self, order: &[(i32, i32)]) {
+        let want: std::collections::HashMap<i32, i32> = order.iter().copied().collect();
+        self.items.sort_by_key(|i| want.get(&i.object_id).copied().unwrap_or(i32::MAX));
     }
 
     /// `PlayerInventory.addItem`: stacks onto an existing instance of the same

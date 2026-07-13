@@ -470,10 +470,12 @@ impl Player {
         }
 
         // `ShortCuts.restoreMe`'s verification tail: ITEM shortcuts whose
-        // object id left the inventory are dropped (the caller fires the
-        // `DeleteShortcut` DB command — see `stale_item_shortcuts`), surviving
-        // *EtcItem* shortcuts pick up the template's shared reuse group
-        // (weapons/armor keep -1 on restore — a Java quirk kept as-is).
+        // object id left the inventory are dropped here, so they never reach the
+        // bundle and the next persistence flush's reconcile removes their rows
+        // (memory-first — no per-select `DeleteShortcut`; see
+        // `stale_item_shortcuts`). Surviving *EtcItem* shortcuts pick up the
+        // template's shared reuse group (weapons/armor keep -1 on restore — a
+        // Java quirk kept as-is).
         let shortcuts = c
             .shortcuts
             .iter()

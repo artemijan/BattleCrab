@@ -62,6 +62,10 @@ pub const TICK: Duration = Duration::from_millis(100);
 /// design, so it must be visible from day one (CONCURRENCY_MODEL §2.6 rule 4).
 const TICK_OVERRUN_WARN: Duration = Duration::from_millis(50);
 
+/// How often the staggered autosave sweep runs — every 1 s (10 ticks), the same
+/// fixed-rate cadence as Java's `PlayerAutoSaveTaskManager`.
+const AUTOSAVE_CHECK_PERIOD: u64 = 10;
+
 
 /// Signal shared with the async side (ctrl-c / scheduled restart) to stop the
 /// loop after the current tick finishes.
@@ -181,6 +185,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         if world.tick.is_multiple_of(REGEN_TICK_PERIOD) {
             run_regen_tick(&mut world);
         }
+        if world.tick.is_multiple_of(AUTOSAVE_CHECK_PERIOD) {
+            autosave_tick(&mut world);
+        }
         // 5. Flush outbound packets / DB commands — added in G3+.
 
         let elapsed = tick_start.elapsed();
@@ -207,6 +214,27 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     net::save_all_players(&mut world);
 }
 
+
+/// Staggered periodic player flush — the port of `PlayerAutoSaveTaskManager.run`
+/// and the timer half of the memory-first model. Flushes **at most one** due
+/// player per sweep (Java's `break; // Prevent SQL flood`) and reschedules it
+/// one `CharacterDataStoreInterval` out. Because gameplay only mutates in-memory
+/// components, this — together with the logout and shutdown flushes — is the
+/// sole writer of character state, so no packet flood can become a DB flood.
+fn autosave_tick(world: &mut World) {
+    let interval = world.cfg.character.character_data_store_interval_ticks;
+    // The single due player this sweep (lowest object id = deterministic).
+    let due = world
+        .player_autosave_due
+        .iter()
+        .filter(|&(_, &due)| world.tick >= due)
+        .map(|(&oid, _)| oid)
+        .min();
+    if let Some(oid) = due {
+        world.player_autosave_due.insert(oid, world.tick + interval);
+        net::store_player_now(world, oid);
+    }
+}
 
 /// Dispatch every `Scheduler`-due task for this tick. Split from
 /// `World::drain_due_tasks` because task handlers need to send packets to

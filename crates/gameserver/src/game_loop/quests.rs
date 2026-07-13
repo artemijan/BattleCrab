@@ -15,10 +15,9 @@ use std::sync::Arc;
 
 use tracing::warn;
 
-use crate::db::DbCommand;
 use crate::model::components::{LastFolkNpc, QuestTimerSeqs, Quests};
-use crate::model::inventory::{Inventory, ItemChange};
-use crate::model::quest::{self, state, QuestState, COND_VAR, FLAGS_VAR, STATE_VAR};
+use crate::model::inventory::Inventory;
+use crate::model::quest::{self, state, QuestState, COND_VAR, FLAGS_VAR};
 use crate::network::enter_world as ew;
 use crate::network::server_packets::{self, quest_sounds, sm_ids, SmParam};
 use crate::scheduler::ScheduledTask;
@@ -297,22 +296,13 @@ impl<'w> QuestCtx<'w> {
         f(quests.0.entry(self.script.name().to_string()).or_default())
     }
 
-    fn db_upsert_var(&self, var: &str, value: &str) {
-        let _ = self.world.db.send(DbCommand::UpsertQuestVar {
-            char_id: self.player,
-            quest: self.script.name().to_string(),
-            var: var.to_string(),
-            value: value.to_string(),
-        });
-    }
-
-    /// `QuestState.set`: store + persist; a `cond` write additionally runs
-    /// the skipped-step flag bookkeeping and pushes `QuestList` +
-    /// `ExShowQuestMark` (Java's private `setCond(cond, old)`).
+    /// `QuestState.set`: store the var (memory-first — it persists on the next
+    /// flush, not per write); a `cond` write additionally runs the skipped-step
+    /// flag bookkeeping and pushes `QuestList` + `ExShowQuestMark` (Java's
+    /// private `setCond(cond, old)`).
     pub fn set_var(&mut self, var: &str, value: impl Into<String>) {
         let value: String = value.into();
         let old = self.with_qs_mut(|qs| qs.vars.insert(var.to_string(), value.clone()));
-        self.db_upsert_var(var, &value);
         if var != COND_VAR {
             return;
         }
@@ -328,7 +318,6 @@ impl<'w> QuestCtx<'w> {
                 Some(flags) => {
                     let s = flags.to_string();
                     self.with_qs_mut(|qs| qs.vars.insert(FLAGS_VAR.to_string(), s.clone()));
-                    self.db_upsert_var(FLAGS_VAR, &s);
                 }
                 None => self.unset(FLAGS_VAR),
             }
@@ -352,22 +341,15 @@ impl<'w> QuestCtx<'w> {
         }
     }
 
-    /// `QuestState.unset`.
+    /// `QuestState.unset` — drop the var in memory (persists on the next flush).
     pub fn unset(&mut self, var: &str) {
-        let removed = self.with_qs_mut(|qs| qs.vars.remove(var));
-        if removed.is_some() {
-            let _ = self.world.db.send(DbCommand::DeleteQuestVar {
-                char_id: self.player,
-                quest: self.script.name().to_string(),
-                var: var.to_string(),
-            });
-        }
+        self.with_qs_mut(|qs| qs.vars.remove(var));
     }
 
-    /// `QuestState.setState`: flip + persist the `<state>` var + `QuestList`.
+    /// `QuestState.setState`: flip the state (memory-first; the `<state>` row is
+    /// written on the next flush) + `QuestList`.
     pub fn set_state(&mut self, new_state: u8) {
         self.with_qs_mut(|qs| qs.state = new_state);
-        self.db_upsert_var(STATE_VAR, state::name(new_state));
         self.send_quest_list();
     }
 
@@ -394,11 +376,10 @@ impl<'w> QuestCtx<'w> {
         for item_id in quest_items {
             self.take_items(item_id, -1);
         }
-        let _ = self.world.db.send(DbCommand::DeleteQuest {
-            char_id: self.player,
-            quest: self.script.name().to_string(),
-            keep_state: !repeatable,
-        });
+        // Memory-first: forgetting the quest (repeatable) or clearing its vars +
+        // marking it COMPLETED (below) is done in memory; the flush reconciles
+        // the `character_quests` rows — dropping all of them, or all but the
+        // `<state>` row, exactly as Java's `DeleteQuest` did.
         if repeatable {
             if let Some(quests) = self.world.objects.get_component_mut::<Quests>(&self.player) {
                 quests.0.remove(self.script.name());
@@ -693,16 +674,8 @@ pub(crate) fn take_items(world: &mut World, client_id: u32, player: i32, item_id
     if changes.is_empty() {
         return false;
     }
-    for change in &changes {
-        match change {
-            ItemChange::Modified(item) => {
-                let _ = world.db.send(DbCommand::UpdateItemCount { object_id: item.object_id, count: item.count });
-            }
-            ItemChange::Removed(item) => {
-                let _ = world.db.send(DbCommand::DeleteItem { object_id: item.object_id });
-            }
-        }
-    }
+    // Memory-first: the count decrements / removals already applied to the
+    // `Inventory` component; they persist on the next flush.
     let is_quest_item = world.data.item_data.get(item_id).is_some_and(|t| t.is_quest_item);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(ew::inventory_update_changes(&world.data, &changes));

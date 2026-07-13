@@ -4,6 +4,8 @@
 use commons::config::PropertiesParser;
 
 pub const CHARACTER_CONFIG_FILE: &str = "config/Character.ini";
+/// `CharacterDataStoreInterval` lives in Java's `General.ini`, not `Character.ini`.
+const GENERAL_CONFIG_FILE: &str = "config/General.ini";
 
 #[derive(Debug, Clone)]
 pub struct CharacterConfig {
@@ -68,6 +70,12 @@ pub struct CharacterConfig {
     /// the moment the character's level falls below its learn level (level-exact
     /// matching, same rule Java uses for Expertise). Off = Java-faithful grace.
     pub strict_delevel_skill_removal: bool,
+    /// `CharacterDataStoreInterval` (General.ini, minutes → game ticks): the
+    /// period of the staggered per-player autosave flush (Java
+    /// `PlayerAutoSaveTaskManager` / `CHAR_DATA_STORE_INTERVAL`). Character state
+    /// is otherwise memory-only until logout/shutdown; this bounds how much a
+    /// crash can lose. Expressed in 100 ms ticks (`minutes * 600`).
+    pub character_data_store_interval_ticks: u64,
 }
 
 impl Default for CharacterConfig {
@@ -98,6 +106,7 @@ impl Default for CharacterConfig {
             expertise_penalty: true,
             decrease_skill_level: true,
             strict_delevel_skill_removal: true,
+            character_data_store_interval_ticks: 15 * 600,
         }
     }
 }
@@ -115,6 +124,7 @@ impl CharacterConfig {
 
     pub fn load() -> Self {
         let p = PropertiesParser::load(CHARACTER_CONFIG_FILE);
+        let general = PropertiesParser::load(GENERAL_CONFIG_FILE);
         let d = Self::default();
         Self {
             delete_days: p.get_int("DeleteCharAfterDays", 1),
@@ -145,6 +155,7 @@ impl CharacterConfig {
             expertise_penalty: p.get_bool("ExpertisePenalty", d.expertise_penalty),
             decrease_skill_level: p.get_bool("DecreaseSkillOnDelevel", d.decrease_skill_level),
             strict_delevel_skill_removal: p.get_bool("StrictDelevelSkillRemoval", d.strict_delevel_skill_removal),
+            character_data_store_interval_ticks: general.get_int("CharacterDataStoreInterval", 15).max(1) as u64 * 600,
         }
     }
 }

@@ -143,6 +143,34 @@ impl PlayerSnapshot {
     }
 }
 
+/// The full persistable state of an online player, gathered on the game thread
+/// and flushed by the DB thread in one transaction (`store_player`). Built by
+/// `game_loop::net::build_save_data` at the four flush points — the staggered
+/// periodic autosave, logout, class-transfer, and shutdown save-all. Between
+/// flushes, gameplay mutations (equip, loot, skill learn, shortcuts, quests)
+/// touch only in-memory ECS components; nothing is written on the packet path,
+/// so no client packet can drive database load (the memory-first model — Java
+/// `Player.store()` gathers the same data, but Java also writes eagerly on many
+/// actions, which is exactly what this port deliberately does not do).
+#[derive(Debug, Clone)]
+pub struct PlayerSaveData {
+    /// The `characters` row (level/exp/vitals/position/appearance).
+    pub base: PlayerSnapshot,
+    /// Every item the character owns — inventory + equipped — serialized from
+    /// the `Inventory` component (`Inventory::to_rows`). The DB thread deletes
+    /// any `items` row for this owner not present here, so this is the whole
+    /// authoritative set, covering pickups, drops, stack changes and equips.
+    pub items: Vec<ItemRow>,
+    /// Learned skills as `(skill_id, skill_level)` (class_index 0).
+    pub skills: Vec<(i32, i32)>,
+    /// Panel/hotbar shortcuts (`Shortcuts` component).
+    pub shortcuts: Vec<crate::model::shortcut::Shortcut>,
+    /// Macro definitions (`Macros` component).
+    pub macros: Vec<crate::model::shortcut::Macro>,
+    /// Quest states + vars (`Quests` component), keyed by quest name.
+    pub quests: std::collections::HashMap<String, crate::model::quest::QuestState>,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CreateResult {
     Ok,
@@ -164,58 +192,24 @@ pub enum DbCommand {
     /// Name availability check for `RequestCharacterNameCreatable` (name already
     /// passed the game thread's validity checks).
     CheckNameCreatable { client_id: u32, name: String },
-    /// Fire-and-forget equip/unequip persistence (`items.loc`/`loc_data`).
-    UpdateItemLocation { object_id: i32, loc: &'static str, loc_data: i32 },
-    /// Fire-and-forget skill-learn persistence (`RequestAcquireSkill`), same
-    /// upsert query used for creation-time initial skills.
-    UpsertSkill { char_id: i32, skill_id: i32, skill_level: i32 },
-    /// Fire-and-forget skill deletion (`Player.removeSkill` →
-    /// `DELETE_SKILL_FROM_CHAR`), used when a delevel drops a skill entirely.
-    DeleteSkill { char_id: i32, skill_id: i32 },
-    /// Fire-and-forget `Disconnection.storeMe().deleteMe()`: persist the
-    /// character row and mark it offline. Ordered before any following
-    /// `LoadCharacters` on this channel, so a restart's re-sent list already
-    /// reflects the save.
-    StorePlayer { snap: PlayerSnapshot },
+    /// Flush a player's full state to the DB (`store_player`) — the memory-first
+    /// model's only character-write path, sent by the staggered periodic
+    /// autosave, on logout (`Disconnection.storeMe().deleteMe()`), on
+    /// class-transfer, and by the shutdown save-all. Ordered before any
+    /// following `LoadCharacters` on this channel, so a restart's re-sent list
+    /// already reflects the save.
+    StorePlayer { save: PlayerSaveData },
     /// Reserve a block of object ids for the game thread (Java `IdManager`
     /// semantics without a cross-thread round trip per item — the DB thread
     /// owns the counter, the game thread allocates out of its block and asks
     /// for another when it runs low). Replied with `DbEvent::IdBlock`.
     ReserveIds { count: i64 },
-    /// Fire-and-forget insert of a runtime-created inventory item (loot). The
-    /// object id comes from the game thread's reserved block.
-    InsertItem { owner_id: i32, object_id: i32, item_id: i32, count: i64 },
-    /// Fire-and-forget count update on an existing stack.
-    UpdateItemCount { object_id: i32, count: i64 },
-    /// Fire-and-forget shortcut registration (`ShortCuts.registerShortCutInDb`
-    /// — Java's delete+insert collapsed to an upsert, the PK makes them
-    /// equivalent). `class_index`/`sub_level` are always 0 (no subclasses).
-    UpsertShortcut { char_id: i32, slot: i32, page: i32, kind: i32, shortcut_id: i32, level: i32 },
-    /// Fire-and-forget `ShortCuts.deleteShortCutFromDb`.
-    DeleteShortcut { char_id: i32, slot: i32, page: i32 },
-    /// Fire-and-forget macro registration (`MacroList.registerMacroInDb`,
-    /// delete+insert collapsed to an upsert on the (charId, id) PK).
-    UpsertMacro { char_id: i32, macro_: crate::model::shortcut::Macro },
     /// Fire-and-forget friendship insert — both directions in one statement
-    /// (Java `RequestAnswerFriendInvite`'s two-row INSERT).
+    /// (Java `RequestAnswerFriendInvite`'s two-row INSERT). Kept immediate:
+    /// needs a consenting second player, so it's not a packet-flood surface.
     InsertFriendPair { a: i32, b: i32 },
-    /// Fire-and-forget friendship delete, both directions
-    /// (`RequestFriendDel`).
+    /// Fire-and-forget friendship delete, both directions (`RequestFriendDel`).
     DeleteFriendPair { a: i32, b: i32 },
-    /// Fire-and-forget `MacroList.deleteMacroFromDb`.
-    DeleteMacro { char_id: i32, macro_id: i32 },
-    /// Fire-and-forget quest-variable write (`Quest.createQuestVarInDb`/
-    /// `updateQuestVarInDb`, collapsed to the `insert_or_update_quest_var`
-    /// upsert both funnel into anyway).
-    UpsertQuestVar { char_id: i32, quest: String, var: String, value: String },
-    /// Fire-and-forget `Quest.deleteQuestVarInDb`.
-    DeleteQuestVar { char_id: i32, quest: String, var: String },
-    /// Fire-and-forget `Quest.deleteQuestInDb`: `keep_state` = the
-    /// non-repeatable variant that leaves the `<state>` row (COMPLETED).
-    DeleteQuest { char_id: i32, quest: String, keep_state: bool },
-    /// Fire-and-forget hard delete of an inventory item row (quest
-    /// `takeItems` exhausting a stack — first item-destruction path).
-    DeleteItem { object_id: i32 },
     /// Fire-and-forget `Clan.store()` — the 13-column `clan_data` INSERT
     /// with everything but id/name/leader at Java's defaults.
     InsertClan { clan_id: i32, name: String, leader_id: i32 },
@@ -321,93 +315,12 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 };
                 let _ = event_tx.send(DbEvent::NameCreatable { client_id, result });
             }
-            DbCommand::UpdateItemLocation { object_id, loc, loc_data } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE items SET loc=?, loc_data=? WHERE object_id=?")
-                        .bind(loc)
-                        .bind(loc_data)
-                        .bind(object_id),
-                )
-                .await;
-            }
-            DbCommand::UpsertSkill { char_id, skill_id, skill_level } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT INTO character_skills (charId, skill_id, skill_level, skill_sub_level, class_index) \
-                         VALUES (?, ?, ?, 0, 0) \
-                         ON CONFLICT(charId, skill_id, class_index) DO UPDATE SET skill_level=excluded.skill_level",
-                    )
-                    .bind(char_id)
-                    .bind(skill_id)
-                    .bind(skill_level),
-                )
-                .await;
-            }
-            DbCommand::DeleteSkill { char_id, skill_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM character_skills WHERE charId = ? AND skill_id = ? AND class_index = 0")
-                        .bind(char_id)
-                        .bind(skill_id),
-                )
-                .await;
-            }
-            DbCommand::StorePlayer { snap } => {
-                store_player(&pool, &snap).await;
+            DbCommand::StorePlayer { save } => {
+                store_player(&pool, &save).await;
             }
             DbCommand::ReserveIds { count } => {
                 let _ = event_tx.send(DbEvent::IdBlock { start: next_id, end: next_id + count });
                 next_id += count;
-            }
-            DbCommand::InsertItem { owner_id, object_id, item_id, count } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT INTO items \
-                         (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, \
-                          custom_type1, custom_type2, mana_left, time) \
-                         VALUES (?, ?, ?, ?, 0, 'INVENTORY', 0, 0, 0, -1, 0)",
-                    )
-                    .bind(owner_id)
-                    .bind(object_id)
-                    .bind(item_id)
-                    .bind(count),
-                )
-                .await;
-            }
-            DbCommand::UpdateItemCount { object_id, count } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE items SET count=? WHERE object_id=?").bind(count).bind(object_id),
-                )
-                .await;
-            }
-            DbCommand::UpsertShortcut { char_id, slot, page, kind, shortcut_id, level } => {
-                upsert_shortcut(&pool, char_id, slot, page, kind, shortcut_id, level).await;
-            }
-            DbCommand::DeleteShortcut { char_id, slot, page } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM character_shortcuts WHERE charId=? AND slot=? AND page=? AND class_index=0")
-                        .bind(char_id)
-                        .bind(slot)
-                        .bind(page),
-                )
-                .await;
-            }
-            DbCommand::UpsertMacro { char_id, macro_ } => {
-                upsert_macro(&pool, char_id, &macro_).await;
-            }
-            DbCommand::DeleteMacro { char_id, macro_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM character_macroses WHERE charId=? AND id=?")
-                        .bind(char_id)
-                        .bind(macro_id),
-                )
-                .await;
             }
             DbCommand::InsertFriendPair { a, b } => {
                 exec(
@@ -430,46 +343,6 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                         .bind(a),
                 )
                 .await;
-            }
-            DbCommand::UpsertQuestVar { char_id, quest, var, value } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT INTO character_quests (charId, name, var, value) VALUES (?, ?, ?, ?) \
-                         ON CONFLICT(charId, name, var) DO UPDATE SET value=excluded.value",
-                    )
-                    .bind(char_id)
-                    .bind(quest)
-                    .bind(var)
-                    .bind(value),
-                )
-                .await;
-            }
-            DbCommand::DeleteQuestVar { char_id, quest, var } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM character_quests WHERE charId=? AND name=? AND var=?")
-                        .bind(char_id)
-                        .bind(quest)
-                        .bind(var),
-                )
-                .await;
-            }
-            DbCommand::DeleteQuest { char_id, quest, keep_state } => {
-                let q = if keep_state {
-                    sqlx::query("DELETE FROM character_quests WHERE charId=? AND name=? AND var!=?")
-                        .bind(char_id)
-                        .bind(quest)
-                        .bind(crate::model::quest::STATE_VAR)
-                } else {
-                    sqlx::query("DELETE FROM character_quests WHERE charId=? AND name=?")
-                        .bind(char_id)
-                        .bind(quest)
-                };
-                exec(&pool, q).await;
-            }
-            DbCommand::DeleteItem { object_id } => {
-                exec(&pool, sqlx::query("DELETE FROM items WHERE object_id=?").bind(object_id)).await;
             }
             DbCommand::InsertClan { clan_id, name, leader_id } => {
                 exec(
@@ -950,43 +823,168 @@ async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: 
 /// Java `Player.storeCharBase` (narrowed to the tracked columns, see
 /// [`PlayerSnapshot`]) + `updateOnlineStatus` — the character leaves the world,
 /// so `online=0` and `lastAccess=now` in the same write.
-async fn store_player(pool: &SqlitePool, s: &PlayerSnapshot) {
-    exec(
-        pool,
-        sqlx::query(
-            "UPDATE characters SET level=?, maxHp=?, curHp=?, maxCp=?, curCp=?, maxMp=?, curMp=?, \
-             face=?, hairStyle=?, hairColor=?, sex=?, heading=?, x=?, y=?, z=?, exp=?, sp=?, \
-             reputation=?, pvpkills=?, pkkills=?, race=?, classid=?, base_class=?, \
-             vitality_points=?, online=0, lastAccess=? WHERE charId=?",
-        )
-        .bind(s.level)
-        .bind(s.max_hp)
-        .bind(s.cur_hp)
-        .bind(s.max_cp)
-        .bind(s.cur_cp)
-        .bind(s.max_mp)
-        .bind(s.cur_mp)
-        .bind(s.face)
-        .bind(s.hair_style)
-        .bind(s.hair_color)
-        .bind(s.sex)
-        .bind(s.heading)
-        .bind(s.x)
-        .bind(s.y)
-        .bind(s.z)
-        .bind(s.exp)
-        .bind(s.sp)
-        .bind(s.reputation)
-        .bind(s.pvp_kills)
-        .bind(s.pk_kills)
-        .bind(s.race)
-        .bind(s.class_id)
-        .bind(s.base_class_id)
-        .bind(s.vitality_points)
-        .bind(now_millis())
-        .bind(s.object_id),
+/// Flush a whole player to the database in one transaction — the only path that
+/// writes character-owned gameplay state (memory-first model). Reconciles the
+/// `characters` row plus every child table (items, skills, shortcuts, macros,
+/// quests) so a single flush captures pickups, drops, equips, skill changes,
+/// shortcut/macro edits and quest progress made since the last flush. Child
+/// tables are rewritten wholesale (delete-this-owner + re-insert), which is
+/// atomic inside the transaction and doubles as the delete path — anything no
+/// longer in memory is gone from the DB after the flush. On any error the
+/// transaction is dropped (rolled back) and logged, leaving the last good save
+/// intact.
+async fn store_player(pool: &SqlitePool, s: &PlayerSaveData) {
+    if let Err(e) = store_player_tx(pool, s).await {
+        error!("store_player: flush for char {} failed (rolled back): {e}", s.base.object_id);
+    }
+}
+
+async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sqlx::Error> {
+    let b = &s.base;
+    let char_id = b.object_id;
+    let mut tx = pool.begin().await?;
+
+    // characters row (Java storeCharBase). online stays 0: the port never sets
+    // it to 1, and char-select doesn't read it — a periodic save of an online
+    // player must not diverge from that.
+    sqlx::query(
+        "UPDATE characters SET level=?, maxHp=?, curHp=?, maxCp=?, curCp=?, maxMp=?, curMp=?, \
+         face=?, hairStyle=?, hairColor=?, sex=?, heading=?, x=?, y=?, z=?, exp=?, sp=?, \
+         reputation=?, pvpkills=?, pkkills=?, race=?, classid=?, base_class=?, \
+         vitality_points=?, online=0, lastAccess=? WHERE charId=?",
     )
-    .await;
+    .bind(b.level)
+    .bind(b.max_hp)
+    .bind(b.cur_hp)
+    .bind(b.max_cp)
+    .bind(b.cur_cp)
+    .bind(b.max_mp)
+    .bind(b.cur_mp)
+    .bind(b.face)
+    .bind(b.hair_style)
+    .bind(b.hair_color)
+    .bind(b.sex)
+    .bind(b.heading)
+    .bind(b.x)
+    .bind(b.y)
+    .bind(b.z)
+    .bind(b.exp)
+    .bind(b.sp)
+    .bind(b.reputation)
+    .bind(b.pvp_kills)
+    .bind(b.pk_kills)
+    .bind(b.race)
+    .bind(b.class_id)
+    .bind(b.base_class_id)
+    .bind(b.vitality_points)
+    .bind(now_millis())
+    .bind(char_id)
+    .execute(&mut *tx)
+    .await?;
+
+    // items (inventory + equipped): `Inventory::to_rows` is the whole owned set.
+    sqlx::query("DELETE FROM items WHERE owner_id=?").bind(char_id).execute(&mut *tx).await?;
+    for it in &s.items {
+        sqlx::query(
+            "INSERT INTO items \
+             (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, \
+              custom_type1, custom_type2, mana_left, time) \
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        )
+        .bind(char_id)
+        .bind(it.object_id)
+        .bind(it.item_id)
+        .bind(it.count)
+        .bind(it.enchant_level)
+        .bind(&it.loc)
+        .bind(it.loc_data)
+        .bind(it.custom_type1)
+        .bind(it.custom_type2)
+        .bind(it.mana_left)
+        .bind(it.time)
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    // learned skills (class_index 0 — no subclasses on this dist).
+    sqlx::query("DELETE FROM character_skills WHERE charId=? AND class_index=0").bind(char_id).execute(&mut *tx).await?;
+    for (skill_id, level) in &s.skills {
+        sqlx::query(
+            "INSERT INTO character_skills (charId, skill_id, skill_level, skill_sub_level, class_index) \
+             VALUES (?, ?, ?, 0, 0)",
+        )
+        .bind(char_id)
+        .bind(skill_id)
+        .bind(level)
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    // shortcuts (Java's delete+insert, here scoped to the transaction).
+    sqlx::query("DELETE FROM character_shortcuts WHERE charId=? AND class_index=0").bind(char_id).execute(&mut *tx).await?;
+    for sc in &s.shortcuts {
+        sqlx::query(
+            "INSERT INTO character_shortcuts (charId, slot, page, type, shortcut_id, level, sub_level, class_index) \
+             VALUES (?, ?, ?, ?, ?, ?, 0, 0)",
+        )
+        .bind(char_id)
+        .bind(sc.slot)
+        .bind(sc.page)
+        .bind(sc.kind.ordinal())
+        .bind(sc.id)
+        .bind(sc.level)
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    // macros.
+    sqlx::query("DELETE FROM character_macroses WHERE charId=?").bind(char_id).execute(&mut *tx).await?;
+    for m in &s.macros {
+        sqlx::query(
+            "INSERT INTO character_macroses (charId, id, icon, name, descr, acronym, commands) \
+             VALUES (?, ?, ?, ?, ?, ?, ?)",
+        )
+        .bind(char_id)
+        .bind(m.id)
+        .bind(m.icon)
+        .bind(&m.name)
+        .bind(&m.descr)
+        .bind(&m.acronym)
+        .bind(crate::model::shortcut::encode_commands(&m.commands))
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    // quests: one `<state>` row per quest + a row per var (the shape
+    // `load_quests` reconstructs). Skip freshly-`CREATED` quests with no vars —
+    // Java never wrote a row for those, and a touched-but-untouched quest state
+    // must not start persisting where Java wouldn't.
+    sqlx::query("DELETE FROM character_quests WHERE charId=?").bind(char_id).execute(&mut *tx).await?;
+    for (name, qs) in &s.quests {
+        use crate::model::quest::{state, STATE_VAR};
+        if qs.state == state::CREATED && qs.vars.is_empty() {
+            continue;
+        }
+        sqlx::query("INSERT INTO character_quests (charId, name, var, value) VALUES (?, ?, ?, ?)")
+            .bind(char_id)
+            .bind(name)
+            .bind(STATE_VAR)
+            .bind(state::name(qs.state))
+            .execute(&mut *tx)
+            .await?;
+        for (var, value) in &qs.vars {
+            sqlx::query("INSERT INTO character_quests (charId, name, var, value) VALUES (?, ?, ?, ?)")
+                .bind(char_id)
+                .bind(name)
+                .bind(var)
+                .bind(value)
+                .execute(&mut *tx)
+                .await?;
+        }
+    }
+
+    tx.commit().await?;
+    Ok(())
 }
 
 async fn count_characters(pool: &SqlitePool, account: &str) -> (u8, Vec<i64>) {

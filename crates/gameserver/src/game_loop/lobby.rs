@@ -296,15 +296,10 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
     let Some(mut chr) = s.char_at(slot).cloned() else {
         return;
     };
-    // The DB half of `ShortCuts.restoreMe`'s ITEM verification: `from_char`
-    // drops shortcuts whose item left the inventory; delete their rows too.
-    for (sc_slot, sc_page) in crate::model::Player::stale_item_shortcuts(&chr) {
-        let _ = world.db.send(db::DbCommand::DeleteShortcut {
-            char_id: chr.object_id,
-            slot: sc_slot,
-            page: sc_page,
-        });
-    }
+    // `ShortCuts.restoreMe`'s ITEM verification: `from_char` drops shortcuts
+    // whose item left the inventory. Memory-first — the dropped shortcuts simply
+    // aren't in the bundle, so the next flush's reconcile removes their rows; no
+    // per-select DB delete.
     // Java `restoreCharData` → `checkPlayerSkills`: filter the DB-loaded skill
     // list against the character's level *before* building the `Player`, so
     // `from_char` folds the corrected passives (Spellcraft casting speed, etc.)
@@ -345,28 +340,10 @@ fn filter_skills_on_select(world: &World, chr: &mut crate::character::CharData) 
             Some(new_level) => {
                 for sc in chr.shortcuts.iter_mut().filter(|sc| sc.kind == ShortcutType::Skill && sc.id == skill_id) {
                     sc.level = new_level;
-                    let _ = world.db.send(db::DbCommand::UpsertShortcut {
-                        char_id: chr.object_id,
-                        slot: sc.slot,
-                        page: sc.page,
-                        kind: sc.kind.ordinal(),
-                        shortcut_id: sc.id,
-                        level: sc.level,
-                    });
                 }
             }
             None if !(3080..=3259).contains(&skill_id) => {
-                chr.shortcuts.retain(|sc| {
-                    let hit = sc.kind == ShortcutType::Skill && sc.id == skill_id;
-                    if hit {
-                        let _ = world.db.send(db::DbCommand::DeleteShortcut {
-                            char_id: chr.object_id,
-                            slot: sc.slot,
-                            page: sc.page,
-                        });
-                    }
-                    !hit
-                });
+                chr.shortcuts.retain(|sc| !(sc.kind == ShortcutType::Skill && sc.id == skill_id));
             }
             None => {}
         }
@@ -404,25 +381,13 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
             bundle.player.level,
             &bundle.skills.0,
         );
-        let char_id = bundle.player.object_id;
         for &(id, lvl) in &granted {
             bundle.skills.0.insert(id, lvl);
-            let _ = world.db.send(crate::db::DbCommand::UpsertSkill {
-                char_id,
-                skill_id: id,
-                skill_level: lvl,
-            });
+            // Memory-first: the grant and any matching shortcut level-bump land
+            // in the in-memory bundle only; they persist on the next flush.
             for sc in bundle.shortcuts.0.values_mut() {
                 if sc.kind == crate::model::shortcut::ShortcutType::Skill && sc.id == id {
                     sc.level = lvl;
-                    let _ = world.db.send(crate::db::DbCommand::UpsertShortcut {
-                        char_id,
-                        slot: sc.slot,
-                        page: sc.page,
-                        kind: sc.kind.ordinal(),
-                        shortcut_id: sc.id,
-                        level: sc.level,
-                    });
                 }
             }
         }
@@ -534,6 +499,10 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // Java `spawnMe` → `World.addVisibleObject`: mutual CharInfo with every
     // player visible from the spawn region.
     super::visibility::on_enter_world(world, client_id, object_id);
+    // Schedule the first periodic autosave (Java `PlayerAutoSaveTaskManager.add`)
+    // one interval out; `game_loop::autosave_tick` flushes and reschedules it.
+    let due = world.tick + world.cfg.character.character_data_store_interval_ticks;
+    world.player_autosave_due.insert(object_id, due);
     // Java `EnterWorld` → `player.revalidateZone(true)` — initial zone set +
     // compass code at the spawn point.
     super::zones::revalidate_zone(world, object_id, true);

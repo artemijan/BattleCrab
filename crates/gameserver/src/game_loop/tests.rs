@@ -2009,7 +2009,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
     use crate::data::item_data::{CapsuledItem, ItemHandler, ItemKind, ItemTemplate};
     use crate::model::inventory::Inventory;
 
-    let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
@@ -2071,13 +2071,9 @@ fn extractable_pack_item_unpacks_into_its_contents() {
     let obtained_count = sm_ids_of(&packets).into_iter().filter(|&id| id == server_packets::sm_ids::YOU_HAVE_OBTAINED_S1).count();
     assert_eq!(obtained_count, 2, "one obtained-message per capsule item");
 
-    let mut saw_delete = false;
-    while let Ok(cmd) = db_rx.try_recv() {
-        if let db::DbCommand::DeleteItem { object_id: 9001 } = cmd {
-            saw_delete = true;
-        }
-    }
-    assert!(saw_delete, "pack instance deleted from DB");
+    // Memory-first: the consumed pack instance (object 9001) is gone from the
+    // Inventory component (asserted above as "pack consumed"); it persists as a
+    // deletion on the next flush, not per use — so no per-action DB write.
 }
 
 /// The bug this guards: a capsule entry with `min == max == 2` on a
@@ -2233,7 +2229,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
     use crate::model::inventory::Inventory;
     use crate::model::skill::SkillEffect;
 
-    let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
     world.data.skill_data.insert_for_test(Skill {
@@ -2300,13 +2296,8 @@ fn item_skill_potion_heals_and_enforces_reuse() {
         packets.iter().any(|p| p[0] == server_packets::opcodes::STATUS_UPDATE),
         "heal must push an HP StatusUpdate"
     );
-    let mut saw_update_count = false;
-    while let Ok(cmd) = db_rx.try_recv() {
-        if let db::DbCommand::UpdateItemCount { object_id: 9001, count: 1 } = cmd {
-            saw_update_count = true;
-        }
-    }
-    assert!(saw_update_count, "remaining stack count persisted");
+    // Memory-first: no per-use DB write; the remaining stack lives in the
+    // Inventory component (asserted below) and persists on the next flush.
 
     // Second use, same tick: reuse still active, no extra heal or consume.
     items::handle_use_item(&mut world, 1, &use_item_body(9001));
@@ -3139,10 +3130,10 @@ fn validate_position_reconciles_client_and_server() {
 }
 
 /// The next queued DB command, which must be a `StorePlayer`; returns its
-/// snapshot.
-fn expect_store_player(db_rx: &mut db::CmdRx) -> db::PlayerSnapshot {
+/// full save payload.
+fn expect_store_player(db_rx: &mut db::CmdRx) -> db::PlayerSaveData {
     match db_rx.try_recv() {
-        Ok(db::DbCommand::StorePlayer { snap }) => snap,
+        Ok(db::DbCommand::StorePlayer { save }) => save,
         _ => panic!("expected a StorePlayer DB command"),
     }
 }
@@ -3164,8 +3155,8 @@ fn restart_stores_player_and_returns_to_lobby() {
 
     // storeMe: the snapshot carries the live (not the loaded) state, and
     // is queued before the character-list reload.
-    let snap = expect_store_player(&mut db_rx);
-    assert_eq!((snap.object_id, snap.exp, snap.x), (5001, 1234, 777));
+    let save = expect_store_player(&mut db_rx);
+    assert_eq!((save.base.object_id, save.base.exp, save.base.x), (5001, 1234, 777));
     match db_rx.try_recv() {
         Ok(db::DbCommand::LoadCharacters { client_id, account }) => {
             assert_eq!((client_id, account.as_str()), (1, "bob"));
@@ -3209,11 +3200,11 @@ fn shutdown_saves_all_online_players() {
     let mut snaps = std::collections::HashMap::new();
     for _ in 0..2 {
         let s = expect_store_player(&mut db_rx);
-        snaps.insert(s.object_id, s);
+        snaps.insert(s.base.object_id, s);
     }
     assert_eq!(snaps.len(), 2, "both online players saved");
-    assert_eq!(snaps[&5001].level, 7, "the leveled-up character's level is persisted");
-    assert_eq!(snaps[&5001].exp, 9999);
+    assert_eq!(snaps[&5001].base.level, 7, "the leveled-up character's level is persisted");
+    assert_eq!(snaps[&5001].base.exp, 9999);
     assert!(snaps.contains_key(&5002));
     // Save-all does not despawn — the players are still in the world.
     assert_eq!(world.objects.count::<Player>(), 2);
@@ -3247,7 +3238,7 @@ fn logout_stores_player_and_sends_leave_world() {
 
     handle_logout(&mut world, 1);
 
-    assert_eq!(expect_store_player(&mut db_rx).object_id, 5002);
+    assert_eq!(expect_store_player(&mut db_rx).base.object_id, 5002);
     assert_eq!(world.objects.count::<Player>(), 0);
     assert!(world.clients.is_empty(), "session dropped → socket closes");
     assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::LOG_OUT_OK);
@@ -3262,9 +3253,42 @@ fn disconnect_stores_ingame_player() {
 
     on_disconnect(&mut world, 1);
 
-    assert_eq!(expect_store_player(&mut db_rx).object_id, 5003);
+    assert_eq!(expect_store_player(&mut db_rx).base.object_id, 5003);
     assert_eq!(world.objects.count::<Player>(), 0);
     assert!(world.clients.is_empty());
+}
+
+/// The staggered periodic autosave (Java `PlayerAutoSaveTaskManager`): a due
+/// player is flushed once and rescheduled one interval out, and at most one
+/// player is flushed per sweep (SQL-flood throttle). The player stays in the
+/// world — this is a live save, not logout.
+#[test]
+fn autosave_flushes_one_due_player_and_reschedules() {
+    let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
+    let _a = ingame_player(&mut world, 1, 5001, 10, 20, 0);
+    let _b = ingame_player(&mut world, 2, 5002, 30, 40, 0);
+    world.cfg.character.character_data_store_interval_ticks = 100;
+    // Both due at the current tick.
+    world.player_autosave_due.insert(5001, world.tick);
+    world.player_autosave_due.insert(5002, world.tick);
+
+    super::autosave_tick(&mut world);
+
+    // Exactly one StorePlayer this sweep (the lowest object id), and both players
+    // are still in the world.
+    let save = expect_store_player(&mut db_rx);
+    assert_eq!(save.base.object_id, 5001, "lowest due object id flushed first");
+    assert!(db_rx.try_recv().is_err(), "only one player flushed per sweep");
+    assert_eq!(world.objects.count::<Player>(), 2, "autosave does not despawn");
+    // 5001 rescheduled one interval out; 5002 still due.
+    assert_eq!(world.player_autosave_due[&5001], world.tick + 100);
+    assert_eq!(world.player_autosave_due[&5002], world.tick);
+
+    // Next sweep flushes the other player; a third finds nothing due.
+    super::autosave_tick(&mut world);
+    assert_eq!(expect_store_player(&mut db_rx).base.object_id, 5002);
+    super::autosave_tick(&mut world);
+    assert!(db_rx.try_recv().is_err(), "nothing due after both rescheduled");
 }
 
 // ---- region-scoped visibility (Java World regions / knownlist) ----
@@ -3516,11 +3540,12 @@ fn attack_request_body(object_id: i32) -> Vec<u8> {
 /// The full melee kill: AttackRequest → Attack packet + combat stance, the
 /// scheduled hit lands with `Formulas` damage, the monster dies (Die), the
 /// killer gets XP/SP (level-up: SocialAction 2122 + SM 96), auto-loot adena
-/// (SM 28 + InventoryUpdate + DB insert), and the corpse decays
-/// (DeleteObject) with no respawn for a respawn-less spawn line.
+/// (SM 28 + InventoryUpdate; memory-first — the loot persists on the next
+/// flush, not on pickup), and the corpse decays (DeleteObject) with no respawn
+/// for a respawn-less spawn line.
 #[test]
 fn melee_kill_rewards_and_decay() {
-    let (mut world, mut db_rx, _link_rx) = combat_test_world();
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     {
         // Level 5 exactly at its threshold +500 (table: L5 = 4000, L6 = 5000).
@@ -3604,14 +3629,8 @@ fn melee_kill_rewards_and_decay() {
             && sm_id(p) == server_packets::sm_ids::YOU_HAVE_OBTAINED_S1_ADENA),
         "obtained-adena message"
     );
-    let mut saw_insert = false;
-    while let Ok(cmd) = db_rx.try_recv() {
-        if let db::DbCommand::InsertItem { owner_id, item_id, count, .. } = cmd {
-            assert_eq!((owner_id, item_id, count), (3001, 57, 5));
-            saw_insert = true;
-        }
-    }
-    assert!(saw_insert, "loot persisted");
+    // Memory-first: loot lands in the Inventory component (adena count asserted
+    // above); it persists on the next flush, not on pickup.
 
     // The attack intent drops on the next combat tick (dead target).
     advance_world(&mut world, 1);
@@ -4150,10 +4169,9 @@ fn register_and_delete_shortcut_round_trip() {
     let scs = player_shortcuts(&world, 3001);
     assert_eq!(scs.len(), 1);
     assert_eq!((scs[0].slot, scs[0].page, scs[0].id, scs[0].level), (1, 1, 1177, 1));
-    assert!(matches!(
-        drain_db(&mut db_rx).as_slice(),
-        [db::DbCommand::UpsertShortcut { char_id: 3001, slot: 1, page: 1, kind: 2, shortcut_id: 1177, level: 1 }]
-    ));
+    // Memory-first: the shortcut lives in the Shortcuts component; no per-action
+    // DB write (it persists on the next flush).
+    assert!(drain_db(&mut db_rx).is_empty(), "shortcut register does not touch the DB");
 
     super::shortcuts::handle_request_short_cut_del(&mut world, 1, &{
         let mut w = PacketWriter::new();
@@ -4165,10 +4183,7 @@ fn register_and_delete_shortcut_round_trip() {
     assert_eq!(packets[0][0], server_packets::opcodes::SHORT_CUT_INIT);
     assert_eq!(i32::from_le_bytes([packets[0][1], packets[0][2], packets[0][3], packets[0][4]]), 0, "panel now empty");
     assert!(player_shortcuts(&world, 3001).is_empty());
-    assert!(matches!(
-        drain_db(&mut db_rx).as_slice(),
-        [db::DbCommand::DeleteShortcut { char_id: 3001, slot: 1, page: 1 }]
-    ));
+    assert!(drain_db(&mut db_rx).is_empty(), "shortcut delete does not touch the DB");
 }
 
 /// An ITEM shortcut referencing an object id not in the inventory isn't
@@ -4240,10 +4255,8 @@ fn make_macro_validations_and_recurring_rejection() {
     let stored = world.objects.get_component::<Macros>(&3001).unwrap().get(1000).unwrap().clone();
     assert_eq!(stored.commands.len(), 2);
     assert_eq!(stored.commands[1].cmd, "/sit");
-    assert!(matches!(
-        drain_db(&mut db_rx).as_slice(),
-        [db::DbCommand::UpsertMacro { char_id: 3001, macro_ }] if macro_.id == 1000
-    ));
+    // Memory-first: the macro lives in the Macros component; no per-action write.
+    assert!(drain_db(&mut db_rx).is_empty(), "macro create does not touch the DB");
 
     // Editing it (real id) → MODIFY echo, still one macro.
     super::shortcuts::handle_request_make_macro(&mut world, 1, &make_macro_body(1000, "buffs2", "d", &[(1, 1177, 1, "")]));
@@ -4278,9 +4291,9 @@ fn delete_macro_cascades_panel_slots() {
     assert_eq!(packets[0][0], server_packets::opcodes::SHORT_CUT_INIT, "cascade re-sends the panel");
     assert_eq!(packets[1][0], server_packets::opcodes::MACRO_LIST);
     assert_eq!(packets[1][1], 0, "DELETE");
-    let cmds = drain_db(&mut db_rx);
-    assert!(matches!(cmds[0], db::DbCommand::DeleteMacro { char_id: 3001, macro_id: 1000 }));
-    assert!(matches!(cmds[1], db::DbCommand::DeleteShortcut { char_id: 3001, slot: 5, page: 0 }));
+    // Memory-first: the macro removal + shortcut cascade are in-memory (asserted
+    // above); nothing is written per action.
+    assert!(drain_db(&mut db_rx).is_empty(), "macro delete cascade does not touch the DB");
 }
 
 /// A skill upgrade rewrites the SKILL slots holding it: new level in the
@@ -4303,10 +4316,8 @@ fn skill_upgrade_updates_matching_shortcuts() {
     let packets = drain(&mut rx);
     assert_eq!(packets.len(), 1);
     assert_eq!(packets[0][0], server_packets::opcodes::SHORT_CUT_REGISTER);
-    assert!(matches!(
-        drain_db(&mut db_rx).as_slice(),
-        [db::DbCommand::UpsertShortcut { shortcut_id: 1177, level: 2, .. }]
-    ));
+    // Memory-first: the level bump is in the Shortcuts component; no per-action write.
+    assert!(drain_db(&mut db_rx).is_empty(), "shortcut level bump does not touch the DB");
 
     // No matching slot → no traffic.
     super::shortcuts::update_skill_shortcuts(&mut world, 3001, 9999, 1);
@@ -4315,8 +4326,9 @@ fn skill_upgrade_updates_matching_shortcuts() {
 }
 
 /// `from_char` restores the panel and macros; ITEM shortcuts whose object
-/// id left the inventory are pruned (`ShortCuts.restoreMe`'s verification)
-/// and reported by `stale_item_shortcuts` for the DB delete.
+/// id left the inventory are pruned (`ShortCuts.restoreMe`'s verification),
+/// so they never reach the bundle and the next flush's reconcile drops their
+/// rows (`stale_item_shortcuts` identifies them).
 #[test]
 fn from_char_restores_and_prunes_shortcuts() {
     let (world, ..) = test_world();
@@ -5240,17 +5252,14 @@ fn quest_q00258_accept_collect_turn_in() {
         pkts.iter().any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
         ".html result uses the plain window"
     );
-    let cmds = drain_db(&mut db_rx);
-    assert!(
-        cmds.iter().any(|c| matches!(c, db::DbCommand::UpsertQuestVar { char_id: 3001, quest, var, value }
-            if quest == "Q00258_BringWolfPelts" && var == "cond" && value == "1")),
-        "cond persisted"
-    );
-    assert!(
-        cmds.iter().any(|c| matches!(c, db::DbCommand::UpsertQuestVar { char_id: 3001, quest, var, value }
-            if quest == "Q00258_BringWolfPelts" && var == "<state>" && value == "Started")),
-        "state persisted"
-    );
+    // Memory-first: cond + state land in the Quests component (they persist on
+    // the next flush, not per set).
+    {
+        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let qs = &quests.0["Q00258_BringWolfPelts"];
+        assert_eq!(qs.cond(), 1, "cond set in memory");
+        assert_eq!(qs.state, crate::model::quest::state::STARTED, "state Started in memory");
+    }
 
     // First wolf kill: one pelt, earned-SM, quest-tab refresh, itemget sound.
     let wolf = NPC_OID + 1;
@@ -5312,13 +5321,9 @@ fn quest_q00258_accept_collect_turn_in() {
         pkts.iter().any(|p| p[0] == 0x21 && i16::from_le_bytes([p[3], p[4]]) == 3),
         "InventoryUpdate with change type 3 (removed)"
     );
-    let cmds = drain_db(&mut db_rx);
-    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::DeleteItem { .. })), "pelt row deleted");
-    assert!(
-        cmds.iter().any(|c| matches!(c, db::DbCommand::DeleteQuest { char_id: 3001, quest, keep_state: false }
-            if quest == "Q00258_BringWolfPelts")),
-        "repeatable delete"
-    );
+    // Memory-first: the pelts are gone from the Inventory component and the
+    // quest from the Quests component (both asserted above); the flush reconcile
+    // deletes their rows — no per-action DB write.
 
     // Re-talk: the quest is takeable again (CREATED intro window).
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
@@ -5444,8 +5449,8 @@ fn quest_abort_wipes_state_and_items() {
     );
     assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::QUEST_LIST), "QuestList refresh");
     assert!(!sound_names(&pkts).contains(&"ItemSound.quest_finish".to_string()), "no finish sound on abort");
-    let cmds = drain_db(&mut db_rx);
-    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::DeleteQuest { keep_state: false, .. })));
+    // Memory-first: the quest is forgotten in the Quests component (asserted
+    // above); the flush reconcile drops its rows — no per-action DB write.
 }
 
 /// Quest-timer groundwork: a synthetic script starts a 500 ms timer via an
@@ -6438,7 +6443,7 @@ fn orc_change1_first_class_transfer() {
     // The change persisted immediately.
     let cmds = drain_db(&mut db_rx);
     assert!(
-        cmds.iter().any(|c| matches!(c, db::DbCommand::StorePlayer { snap } if snap.class_id == 45)),
+        cmds.iter().any(|c| matches!(c, db::DbCommand::StorePlayer { save } if save.base.class_id == 45)),
         "StorePlayer with the new class"
     );
     // A UserInfo re-broadcast reached the player.

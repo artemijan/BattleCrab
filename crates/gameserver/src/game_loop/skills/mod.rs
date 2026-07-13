@@ -4,7 +4,6 @@
 pub(crate) mod cast;
 pub(crate) mod effects;
 
-use crate::db;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::session::ClientSession;
@@ -32,9 +31,10 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
         player.sp -= level_up_sp;
     }
     if let Some(book) = world.objects.get_component_mut::<crate::model::components::SkillBook>(&object_id) {
+        // Memory-first: the learned skill (and the SP spend above) live in memory
+        // and persist on the next flush.
         book.0.insert(skill_id, skill_level);
     }
-    let _ = world.db.send(db::DbCommand::UpsertSkill { char_id: object_id, skill_id, skill_level });
 
     if let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) {
         if let Some(cs) = world.clients.get(&client_id) {

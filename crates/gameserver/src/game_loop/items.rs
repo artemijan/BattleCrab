@@ -4,8 +4,7 @@
 use tracing::warn;
 
 use crate::data::item_data::ItemHandler;
-use crate::db;
-use crate::model::inventory::{Inventory, ItemChange};
+use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::enter_world as ew;
 use crate::network::server_packets::{self, sm_ids, SmParam};
@@ -36,21 +35,18 @@ pub(crate) fn add_inventory_item(world: &mut World, player_oid: i32, item_id: i3
             .and_then(|inv| inv.items().iter().find(|i| i.item_id == item_id).map(|i| i.object_id));
 
         if let Some(stack_oid) = existing_stack {
-            let new_count = {
-                let inv = world
-                    .objects
-                    .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)
-                    .expect("checked");
-                inv.add_item(&world.data.item_data, stack_oid, item_id, count);
-                inv.items().iter().find(|i| i.object_id == stack_oid).map(|i| i.count).unwrap_or(count)
-            };
-            let _ = world.db.send(db::DbCommand::UpdateItemCount { object_id: stack_oid, count: new_count });
+            // Memory-first: the stack grows in memory; the new count persists on
+            // the next flush, not here.
+            let inv = world
+                .objects
+                .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)
+                .expect("checked");
+            inv.add_item(&world.data.item_data, stack_oid, item_id, count);
             return Some(vec![stack_oid]);
         }
         let new_oid = world.alloc_object_id()?;
         let inv = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
         inv.add_item(&world.data.item_data, new_oid, item_id, count);
-        let _ = world.db.send(db::DbCommand::InsertItem { owner_id: player_oid, object_id: new_oid, item_id, count });
         return Some(vec![new_oid]);
     }
 
@@ -59,7 +55,6 @@ pub(crate) fn add_inventory_item(world: &mut World, player_oid: i32, item_id: i3
         let new_oid = world.alloc_object_id()?;
         let inv = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
         inv.add_item(&world.data.item_data, new_oid, item_id, 1);
-        let _ = world.db.send(db::DbCommand::InsertItem { owner_id: player_oid, object_id: new_oid, item_id, count: 1 });
         created.push(new_oid);
     }
     Some(created)
@@ -169,22 +164,21 @@ pub(crate) fn handle_request_save_inventory_order(world: &mut World, client_id: 
     let Some(pkt) = cp::RequestSaveInventoryOrder::read(body) else { return };
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
-    let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
+    let Some(inventory) = world.objects.get_component_mut::<Inventory>(&object_id) else {
         return;
     };
-    for (item_object_id, order) in pkt.order {
-        // Only reorder items that are actually in the inventory grid — an
-        // equipped item occupies a paperdoll slot and keeps its slot index.
-        let in_inventory = inventory.items().iter().any(|i| i.object_id == item_object_id)
-            && inventory.paperdoll_slot_of(item_object_id).is_none();
-        if in_inventory {
-            let _ = world.db.send(db::DbCommand::UpdateItemLocation {
-                object_id: item_object_id,
-                loc: "INVENTORY",
-                loc_data: order,
-            });
-        }
-    }
+    // Keep only the pairs naming an item actually in the inventory grid — an
+    // equipped item occupies a paperdoll slot and keeps its slot index. Applied
+    // to the in-memory order (memory-first); it persists to `loc_data` on the
+    // next flush, not here.
+    let order: Vec<(i32, i32)> = pkt
+        .order
+        .into_iter()
+        .filter(|&(oid, _)| {
+            inventory.items().iter().any(|i| i.object_id == oid) && inventory.paperdoll_slot_of(oid).is_none()
+        })
+        .collect();
+    inventory.apply_inventory_order(&order);
 }
 
 /// Shared tail of the equip/unequip handlers: persist each changed slot
@@ -209,20 +203,10 @@ pub(crate) fn finish_equip_change(world: &mut World, client_id: u32, object_id: 
     if changed.is_empty() {
         return;
     }
-    // Persist each changed slot's new location (scoped so the read borrow is
-    // released before the stat recompute below takes a mutable one).
-    {
-        let Some(inventory) = world.objects.get_component::<crate::model::inventory::Inventory>(&object_id) else {
-            return;
-        };
-        for &oid in changed {
-            let (loc, loc_data) = match inventory.paperdoll_slot_of(oid) {
-                Some(slot) => ("PAPERDOLL", slot as i32),
-                None => ("INVENTORY", 0),
-            };
-            let _ = world.db.send(db::DbCommand::UpdateItemLocation { object_id: oid, loc, loc_data });
-        }
-    }
+    // Memory-first: the paperdoll change already lives in the `Inventory`
+    // component; the new `loc`/`loc_data` of each changed slot persists on the
+    // next flush (`Inventory::to_rows`), so equip/unequip spam can't drive DB
+    // writes.
 
     // Recompute combat stats now that the paperdoll changed: a newly equipped
     // weapon's pAtk / armor's pDef must reach the `UserInfo` below (Java
@@ -361,14 +345,8 @@ fn destroy_used_item(world: &mut World, client_id: u32, object_id: i32, item_obj
     }) else {
         return;
     };
-    match &destroyed {
-        ItemChange::Modified(item) => {
-            let _ = world.db.send(db::DbCommand::UpdateItemCount { object_id: item.object_id, count: item.count });
-        }
-        ItemChange::Removed(item) => {
-            let _ = world.db.send(db::DbCommand::DeleteItem { object_id: item.object_id });
-        }
-    }
+    // Memory-first: the count decrement / removal already applied to the
+    // `Inventory` component; it persists on the next flush.
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(ew::inventory_update_changes(&world.data, std::slice::from_ref(&destroyed)));
     }
