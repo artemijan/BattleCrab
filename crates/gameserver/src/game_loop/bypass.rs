@@ -66,8 +66,68 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
         {
             npc_bypass(world, client_id, object_id, npc_object_id, &command);
         }
+    } else if let Some(html_path) = command.strip_prefix("Link ") {
+        handle_link(world, client_id, object_id, html_path.trim());
     } else {
         warn!("Bypass: client {client_id} sent unhandled bypass [{command}].");
+    }
+}
+
+/// The `Link.java` whitelist: only these files may be served through the
+/// generic `Link <file>` bypass (everything else answers the empty-html
+/// window, like Java's null content).
+const VALID_LINKS: &[&str] = &[
+    "common/craft_01.htm",
+    "common/craft_02.htm",
+    "common/skill_enchant_help_01.htm",
+    "common/skill_enchant_help_02.htm",
+    "common/skill_enchant_help_03.htm",
+    "common/weapon_sa_01.htm",
+    "default/BlessingOfProtection.htm",
+    "default/SupportMagic.htm",
+    "fisherman/exchange_old_items.htm",
+    "fisherman/fish_appearance_exchange.htm",
+    "fisherman/fishing_manual001.htm",
+    "fisherman/fishing_manual002.htm",
+    "fisherman/fishing_manual003.htm",
+    "fisherman/fishing_manual004.htm",
+    "fisherman/fishing_manual008.htm",
+    "fisherman/fishing_manual009.htm",
+    "fisherman/fishing_manual010.htm",
+    "fortress/foreman.htm",
+    "petmanager/evolve.htm",
+    "petmanager/exchange.htm",
+    "petmanager/instructions.htm",
+    "warehouse/clanwh.htm",
+    "warehouse/privatewh.htm",
+];
+
+/// Port of `bypasshandlers/Link.java`: serve a whitelisted `data/html/`
+/// page through a plain `NpcHtmlMessage`. The dialog anchor (`%objectId%`
+/// and the html window's owner) is the last clicked NPC — Java passes the
+/// `validateHtmlAction` origin, 0 when there is none. The teleporter
+/// precaution is skipped (no teleporter pages are in the whitelist).
+fn handle_link(world: &mut World, client_id: u32, object_id: i32, html_path: &str) {
+    if html_path.is_empty() || html_path.contains("..") {
+        warn!("Bypass: client {client_id} sent invalid link html [{html_path}].");
+        return;
+    }
+    let npc_object_id = world
+        .objects
+        .get_component::<LastFolkNpc>(&object_id)
+        .map(|&LastFolkNpc(id)| id)
+        .filter(|id| world.objects.has_component::<crate::model::npc::Npc>(id))
+        .unwrap_or(0);
+    let content = if VALID_LINKS.contains(&html_path) {
+        std::fs::read_to_string(format!("{}data/html/{html_path}", world.data.root)).ok()
+    } else {
+        None
+    };
+    let html = content
+        .map(|c| c.replace("%objectId%", &npc_object_id.to_string()))
+        .unwrap_or_default();
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::npc_html_message(npc_object_id, &html));
     }
 }
 
@@ -84,6 +144,14 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
         "create_clan" if is_village_master(world, npc_object_id) => {
             let args = command.strip_prefix("create_clan").unwrap_or("").trim();
             super::clans::handle_create_clan(world, client_id, object_id, args);
+        }
+        // `bypasshandlers/Buy.java`: merchants only.
+        "Buy" if super::shop::is_merchant(world, npc_object_id) => {
+            if let Some(list_id) =
+                command.strip_prefix("Buy").and_then(|s| s.trim().parse::<i32>().ok())
+            {
+                super::shop::show_buy_window(world, client_id, object_id, npc_object_id, list_id);
+            }
         }
         _ => {
             warn!("Bypass: unhandled npc bypass verb [{verb}] in [{command}].");

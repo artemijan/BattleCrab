@@ -30,7 +30,7 @@ fn ex(sub: i16) -> PacketWriter {
 /// mask (always 0 — augmentation/elemental/enchant-effect/visual-id are later
 /// milestones), object id, item id, T1, count, type2, customType1, equipped,
 /// body part, enchant level, customType2, mana, time, available.
-fn write_item_entry(w: &mut PacketWriter, item: &ItemInstance, template: &ItemTemplate, equipped: bool) {
+pub(crate) fn write_item_entry(w: &mut PacketWriter, item: &ItemInstance, template: &ItemTemplate, equipped: bool) {
     w.write_u8(0); // mask
     w.write_i32(item.object_id);
     w.write_i32(item.item_id);

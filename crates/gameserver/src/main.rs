@@ -41,9 +41,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Java: print_section("Geodata") → GeoEngine.getInstance() (scans
     // GeoDataPath for `{x}_{y}.l2j` regions; missing files just stay null).
     print_section("Geodata");
-    let geo = Arc::new(gameserver::geo::GeoEngine::load(std::path::Path::new(
-        &config.geoengine.geodata_path,
-    )));
+    let mut geo_engine =
+        gameserver::geo::GeoEngine::load(std::path::Path::new(&config.geoengine.geodata_path));
+    // Door collision polygons register before the engine is shared — the
+    // path worker sees closed doors through the same queries (Java
+    // `checkIfDoorsBetween` inside canSeeTarget/canMoveToTarget). The door
+    // *entities* spawn on the game thread (`model::door::spawn_doors`).
+    for t in &data.door_data.doors {
+        geo_engine.doors.register(t.id, t.node_x, t.node_y, t.z_min(), t.z_max(), t.open_by_default);
+    }
+    let geo = Arc::new(geo_engine);
 
     // Channels between the network / login-link / DB tasks and the game thread.
     let (net_tx, net_rx) = std::sync::mpsc::channel::<NetEvent>();

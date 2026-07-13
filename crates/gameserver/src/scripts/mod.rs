@@ -5,8 +5,20 @@
 //! only the content.
 
 pub mod clan_master;
+pub mod orc_change1;
+pub mod q00109_in_search_of_the_nest;
 pub mod q00258_bring_wolf_pelts;
+pub mod q00260_orc_hunting;
+pub mod q00263_orc_subjugation;
+pub mod q00265_bonds_of_slavery;
+pub mod q00273_invaders_of_the_holy_land;
+pub mod q00303_collect_arrowheads;
+pub mod q00313_collect_spores;
+pub mod q00316_destroy_plague_carriers;
+pub mod q00317_catch_the_wind;
 pub mod q00320_bones_tell_the_future;
+pub mod q00324_sweetest_venom;
+pub mod teleport_with_charm;
 
 use std::sync::Arc;
 
@@ -16,9 +28,21 @@ use crate::game_loop::quests::{QuestRegistry, QuestScript};
 /// constructor self-registration, collapsed into one boot-time list.
 pub fn build_registry() -> QuestRegistry {
     let scripts: Vec<Arc<dyn QuestScript>> = vec![
+        Arc::new(q00109_in_search_of_the_nest::Q00109InSearchOfTheNest),
         Arc::new(q00258_bring_wolf_pelts::Q00258BringWolfPelts),
+        Arc::new(q00260_orc_hunting::Q00260OrcHunting),
+        Arc::new(q00263_orc_subjugation::Q00263OrcSubjugation),
+        Arc::new(q00265_bonds_of_slavery::Q00265BondsOfSlavery),
+        Arc::new(q00273_invaders_of_the_holy_land::Q00273InvadersOfTheHolyLand),
+        Arc::new(q00303_collect_arrowheads::Q00303CollectArrowheads),
+        Arc::new(q00313_collect_spores::Q00313CollectSpores),
+        Arc::new(q00316_destroy_plague_carriers::Q00316DestroyPlagueCarriers),
+        Arc::new(q00317_catch_the_wind::Q00317CatchTheWind),
         Arc::new(q00320_bones_tell_the_future::Q00320BonesTellTheFuture),
+        Arc::new(q00324_sweetest_venom::Q00324SweetestVenom),
         Arc::new(clan_master::ClanMaster),
+        Arc::new(orc_change1::OrcChange1),
+        Arc::new(teleport_with_charm::TeleportWithCharm),
     ];
     QuestRegistry::new(scripts)
 }

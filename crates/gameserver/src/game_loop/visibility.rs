@@ -69,6 +69,21 @@ pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
     for npc_id in world.npcs_visible_from(my_region) {
         send_npc_info(world, my_session, npc_id);
     }
+    // Doors render like NPCs (Java `Door.sendInfo`: StaticObjectInfo +
+    // DoorStatusUpdate).
+    for door_id in world.doors_visible_from(my_region) {
+        super::doors::send_door_info(world, my_session, door_id);
+    }
+    for so_id in world.statics_visible_from(my_region) {
+        send_static_object_info(world, my_session, so_id);
+    }
+}
+
+/// `StaticObject.sendInfo(player)`.
+fn send_static_object_info(world: &World, session: &ClientSession, object_id: i32) {
+    if let Some(so) = world.objects.get_component::<crate::model::static_object::StaticObj>(&object_id) {
+        session.send(server_packets::static_object_info(so.static_id, so.object_id));
+    }
 }
 
 /// Java `updateWorldRegion` → `World.switchRegion`: re-derive the region cell
@@ -130,6 +145,31 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             let Some(npc_region) = world.objects.get_component::<RegionCell>(&npc_id) else { continue };
             if !regions_adjacent(new, npc_region.0) {
                 cs.send(server_packets::delete_object(npc_id));
+            }
+        }
+        // Door/static-object deltas, same shape as the NPC ones.
+        for door_id in world.doors_visible_from(new) {
+            let Some(door_region) = world.objects.get_component::<RegionCell>(&door_id) else { continue };
+            if !regions_adjacent(old, door_region.0) {
+                super::doors::send_door_info(world, cs, door_id);
+            }
+        }
+        for door_id in world.doors_visible_from(old) {
+            let Some(door_region) = world.objects.get_component::<RegionCell>(&door_id) else { continue };
+            if !regions_adjacent(new, door_region.0) {
+                cs.send(server_packets::delete_object(door_id));
+            }
+        }
+        for so_id in world.statics_visible_from(new) {
+            let Some(so_region) = world.objects.get_component::<RegionCell>(&so_id) else { continue };
+            if !regions_adjacent(old, so_region.0) {
+                send_static_object_info(world, cs, so_id);
+            }
+        }
+        for so_id in world.statics_visible_from(old) {
+            let Some(so_region) = world.objects.get_component::<RegionCell>(&so_id) else { continue };
+            if !regions_adjacent(new, so_region.0) {
+                cs.send(server_packets::delete_object(so_id));
             }
         }
     }
@@ -263,6 +303,9 @@ pub(crate) fn movement_tick(world: &mut World) {
     world.objects.for_each_mut::<&Player>(|p| ids.push(p.object_id));
     for id in ids {
         update_region(world, id);
+        // Java couples `updatePosition` with `revalidateZone(false)` — the
+        // 100-unit `last_validate` filter inside makes this cheap per tick.
+        super::zones::revalidate_zone(world, id, false);
     }
     for id in outcome.moved_npcs {
         update_npc_region(world, id);

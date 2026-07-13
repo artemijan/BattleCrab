@@ -682,6 +682,8 @@ pub(crate) fn handle_appearing(world: &mut World, client_id: u32) {
     }
     // `spawnMe`-equivalent visibility exchange at the new position.
     super::visibility::on_enter_world(world, client_id, object_id);
+    // Java `onTeleported` → `revalidateZone(true)`.
+    super::zones::revalidate_zone(world, object_id, true);
     if let (Some(v), Some(cs)) =
         (crate::model::PlayerView::of(&world.objects, object_id), world.clients.get(&client_id))
     {

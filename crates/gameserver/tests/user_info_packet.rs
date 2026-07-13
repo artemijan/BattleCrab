@@ -54,6 +54,7 @@ async fn user_info_test() {
         swim_walk_spd: 0.0,
         move_multiplier: 1.0,
         running: true,
+        swimming: false,
     };
     let collision = Collision { radius: 0.0, height: 0.0 };
     let combat = CombatStats { accuracy: 31, magic_accuracy: 31, ..Default::default() };

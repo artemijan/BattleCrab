@@ -121,6 +121,9 @@ pub struct ItemTemplate {
     pub type1: i32,
     pub type2: i32,
     pub is_quest_item: bool,
+    /// `<set name="price">` — the reference price (sell value = half of it;
+    /// the `CorrectPrices` buylist floor uses it too). 0 when undeclared.
+    pub price: i64,
 }
 
 impl ItemTemplate {
@@ -260,6 +263,7 @@ fn make_template(item_id: i32, name: String, kind: ItemKind, attrs: &HashMap<Str
         type1,
         type2,
         is_quest_item,
+        price: attrs.get("price").and_then(|v| v.parse().ok()).unwrap_or(0),
     }
 }
 

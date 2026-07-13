@@ -327,6 +327,8 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
     }
 
     // The out-of-sync snap above may have moved the player across a region
-    // boundary (Java `setXYZ` → `updateWorldRegion`).
+    // boundary (Java `setXYZ` → `updateWorldRegion`), and Java's
+    // `ValidatePosition` ends with `player.revalidateZone(false)`.
     super::visibility::update_region(world, object_id);
+    super::zones::revalidate_zone(world, object_id, false);
 }

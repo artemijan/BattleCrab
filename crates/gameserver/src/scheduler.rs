@@ -61,6 +61,11 @@ pub enum ScheduledTask {
     /// entry for `(quest, name)` — cancelling a timer is bumping that seq
     /// (the cast_seq pattern). `npc` is 0 when the timer has no NPC.
     QuestTimer { quest: &'static str, name: String, player: i32, npc: i32, seq: u64 },
+    /// `Door.AutoClose`: a script-opened door's `closeTime` elapsed. Stale
+    /// (superseded by a newer open/close → `auto_close_seq` mismatch) = no-op.
+    DoorAutoClose { door_object_id: i32, seq: u64 },
+    /// `Door.TimerOpen`: a BY_TIME door's cycle toggle; reschedules itself.
+    DoorTimerToggle { door_object_id: i32 },
 }
 
 struct Entry {

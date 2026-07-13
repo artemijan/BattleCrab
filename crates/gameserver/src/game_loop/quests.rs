@@ -46,6 +46,24 @@ pub trait QuestScript: Send + Sync {
     fn kill_npcs(&self) -> &[i32] {
         &[]
     }
+    /// Monsters whose taking damage notifies this quest (`addAttackId`).
+    fn attack_npcs(&self) -> &[i32] {
+        &[]
+    }
+    /// NPCs whose (re)spawn notifies this quest (`addSpawnId`).
+    fn spawn_npcs(&self) -> &[i32] {
+        &[]
+    }
+    /// Utility scripts (id ≤ 0) opting in to run `on_talk` from the bare
+    /// `Quest` (quest-window) bypass — the `ai/others` behaviors whose talk
+    /// *is* the behavior (TeleportWithCharm). Deliberate deviation: this
+    /// Mobius build's chooser short-circuits utility scripts out
+    /// (`getId() > 0 && … && onTalk(...)`), leaving them unreachable even
+    /// though the dist htmls point their buttons at the bare `Quest`
+    /// bypass.
+    fn bare_talk(&self) -> bool {
+        false
+    }
     /// Items removed from the inventory when the quest exits
     /// (`registerQuestItems`).
     fn quest_items(&self) -> &[i32] {
@@ -69,6 +87,18 @@ pub trait QuestScript: Send + Sync {
     fn on_kill(&self, ctx: &mut QuestCtx) {
         let _ = ctx;
     }
+    /// A registered monster took damage from a player (`onAttack`). Fired
+    /// per damage application, including the killing blow (before
+    /// `on_kill`).
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        let _ = ctx;
+    }
+    /// A registered NPC (re)spawned (`onSpawn`). **No player is involved**:
+    /// `ctx.player`/`ctx.client_id` are 0 and the player-touching ctx
+    /// methods must not be called.
+    fn on_spawn(&self, ctx: &mut QuestCtx) {
+        let _ = ctx;
+    }
     fn on_timer(&self, ctx: &mut QuestCtx, name: &str) {
         let _ = (ctx, name);
     }
@@ -83,6 +113,8 @@ pub struct QuestRegistry {
     start: HashMap<i32, Vec<usize>>,
     talk: HashMap<i32, Vec<usize>>,
     kill: HashMap<i32, Vec<usize>>,
+    attack: HashMap<i32, Vec<usize>>,
+    spawn: HashMap<i32, Vec<usize>>,
 }
 
 impl QuestRegistry {
@@ -91,6 +123,8 @@ impl QuestRegistry {
         let mut start: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut talk: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut kill: HashMap<i32, Vec<usize>> = HashMap::new();
+        let mut attack: HashMap<i32, Vec<usize>> = HashMap::new();
+        let mut spawn: HashMap<i32, Vec<usize>> = HashMap::new();
         for (idx, s) in scripts.iter().enumerate() {
             by_name.insert(s.name(), idx);
             for &id in s.start_npcs() {
@@ -102,8 +136,14 @@ impl QuestRegistry {
             for &id in s.kill_npcs() {
                 kill.entry(id).or_default().push(idx);
             }
+            for &id in s.attack_npcs() {
+                attack.entry(id).or_default().push(idx);
+            }
+            for &id in s.spawn_npcs() {
+                spawn.entry(id).or_default().push(idx);
+            }
         }
-        Self { scripts, by_name, start, talk, kill }
+        Self { scripts, by_name, start, talk, kill, attack, spawn }
     }
 
     pub fn by_name(&self, name: &str) -> Option<Arc<dyn QuestScript>> {
@@ -126,6 +166,16 @@ impl QuestRegistry {
     /// Scripts listing `npc_id` as a kill NPC.
     pub fn kill_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
         self.kill.get(&npc_id).map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect()).unwrap_or_default()
+    }
+
+    /// Scripts listing `npc_id` as an attack NPC.
+    pub fn attack_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
+        self.attack.get(&npc_id).map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect()).unwrap_or_default()
+    }
+
+    /// Scripts listing `npc_id` as a spawn NPC.
+    pub fn spawn_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
+        self.spawn.get(&npc_id).map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect()).unwrap_or_default()
     }
 
     /// Whether `npc_id` is a start NPC of the named script (the
@@ -483,6 +533,68 @@ impl<'w> QuestCtx<'w> {
             .is_some_and(|p| p.clan_leader)
     }
 
+    pub fn player_class_id(&self) -> i32 {
+        self.world.objects.get_component::<crate::model::Player>(&self.player).map(|p| p.class_id).unwrap_or(-1)
+    }
+
+    /// `Player.isInCategory(CategoryType.X)` against `CategoryData.xml`.
+    pub fn is_in_category(&self, category: &str) -> bool {
+        self.world.data.categories.contains(category, self.player_class_id())
+    }
+
+    /// The village-master class transfer (`setClassId` + `setBaseClass` +
+    /// `broadcastUserInfo`), narrowed to base-class changes — no subclasses
+    /// exist, so both ids move together. Persisted immediately through the
+    /// regular `StorePlayer` snapshot.
+    pub fn set_class_id(&mut self, class_id: i32) {
+        if let Some(p) = self.world.objects.get_component_mut::<crate::model::Player>(&self.player) {
+            p.class_id = class_id;
+            p.base_class_id = class_id;
+        }
+        super::net::store_player_now(self.world, self.player);
+        super::party::broadcast_user_info(self.world, self.player);
+    }
+
+    /// `player.teleToLocation(loc)` (TeleportWithCharm and friends).
+    pub fn teleport_to(&mut self, x: i32, y: i32, z: i32) {
+        super::death::teleport_player(self.world, self.player, x, y, z);
+    }
+
+    /// The involved NPC's per-instance scratch value (Java
+    /// `Npc.isScriptValue`/`setScriptValue` — reset on respawn because the
+    /// respawned NPC is a fresh instance).
+    pub fn npc_script_value(&self) -> i32 {
+        self.world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&self.npc)
+            .map(|n| n.script_value)
+            .unwrap_or(0)
+    }
+
+    pub fn set_npc_script_value(&mut self, value: i32) {
+        if let Some(n) = self.world.objects.get_component_mut::<crate::model::npc::Npc>(&self.npc) {
+            n.script_value = value;
+        }
+    }
+
+    /// `npc.broadcastPacket(new NpcSay(npc, NPC_GENERAL, npcStringId))`.
+    pub fn npc_say(&mut self, npc_string_id: i32) {
+        let Some(npc) = self.world.objects.get_component::<crate::model::npc::Npc>(&self.npc) else { return };
+        let Some(region) =
+            self.world.objects.get_component::<crate::model::components::RegionCell>(&self.npc).map(|r| r.0)
+        else {
+            return;
+        };
+        let pkt = server_packets::npc_say(self.npc, npc.npc_id, npc_string_id);
+        super::helpers::broadcast_near_region(self.world, region, &pkt);
+    }
+
+    /// `Quest.getAlreadyCompletedMsg` (`data/html/alreadycompleted.htm`).
+    pub fn already_completed_html(&self) -> String {
+        std::fs::read_to_string(format!("{}data/html/alreadycompleted.htm", self.world.data.root))
+            .unwrap_or_else(|_| "<html><body>This quest has already been completed.</body></html>".to_string())
+    }
+
     /// `Quest.startQuestTimer(name, time, npc, player)` — non-repeating
     /// only. Starting a timer with a live same-key predecessor supersedes it
     /// (Java refuses duplicates instead; superseding is the safer default
@@ -629,6 +741,22 @@ pub(crate) fn quest_link(world: &mut World, client_id: u32, player: i32, npc_oid
 fn show_quest_window_all(world: &mut World, client_id: u32, player: i32, npc_oid: i32) {
     let npc_id = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).map(|n| n.npc_id).unwrap_or(0);
     let registry = world.quests.clone();
+    // Opted-in utility scripts (`bare_talk`, e.g. TeleportWithCharm) run
+    // their `on_talk` from the bare quest-window route; a returned html
+    // ends the interaction (see the trait method's deviation note).
+    for script in registry.talk_quests(npc_id) {
+        if script.id() > 0 || !script.bare_talk() {
+            continue;
+        }
+        let html = {
+            let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
+            script.on_talk(&mut ctx)
+        };
+        if let Some(html) = html {
+            show_result(world, client_id, npc_oid, &script, Some(html));
+            return;
+        }
+    }
     let quests: Vec<_> = registry
         .talk_quests(npc_id)
         .into_iter()
@@ -775,6 +903,32 @@ pub(crate) fn notify_kill(world: &mut World, killer_oid: i32, npc_oid: i32, npc_
     for script in scripts {
         let mut ctx = QuestCtx::new(world, client_id, killer_oid, npc_oid, script.clone());
         script.on_kill(&mut ctx);
+    }
+}
+
+/// The `onAttack` notification: a registered monster took damage from a
+/// player (fired from `combat::npc_receive_damage`, killing blow included).
+pub(crate) fn notify_attack(world: &mut World, attacker_oid: i32, npc_oid: i32, npc_id: i32) {
+    let registry = world.quests.clone();
+    let scripts = registry.attack_quests(npc_id);
+    if scripts.is_empty() {
+        return;
+    }
+    let Some(client_id) = client_for_player(world, attacker_oid) else { return };
+    for script in scripts {
+        let mut ctx = QuestCtx::new(world, client_id, attacker_oid, npc_oid, script.clone());
+        script.on_attack(&mut ctx);
+    }
+}
+
+/// The `onSpawn` notification: a registered NPC just (re)spawned. No player
+/// is involved — the ctx carries player/client 0 (see `QuestScript::on_spawn`).
+pub(crate) fn notify_spawn(world: &mut World, npc_oid: i32, npc_id: i32) {
+    let registry = world.quests.clone();
+    let scripts = registry.spawn_quests(npc_id);
+    for script in scripts {
+        let mut ctx = QuestCtx::new(world, 0, 0, npc_oid, script.clone());
+        script.on_spawn(&mut ctx);
     }
 }
 

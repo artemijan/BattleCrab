@@ -12,6 +12,7 @@ mod clans;
 mod combat;
 mod death;
 mod dispatch;
+mod doors;
 mod friends;
 mod helpers;
 mod items;
@@ -22,12 +23,14 @@ mod party;
 mod position;
 pub mod quests;
 mod regen;
+mod shop;
 mod shortcuts;
 mod skills;
 mod target;
 #[cfg(test)]
 mod tests;
 mod visibility;
+mod zones;
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -136,6 +139,11 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // Java `GameServer`: SpawnData.getInstance().init() — place the static
     // world content before accepting anyone in.
     crate::model::npc::spawn_all(&mut world);
+    // DoorData's boot spawn (entities + BY_TIME cycles; the collision grid
+    // was registered into the GeoEngine in main.rs, before it was shared).
+    crate::model::door::spawn_doors(&mut world);
+    doors::start_time_cycles(&mut world);
+    crate::model::static_object::spawn_static_objects(&mut world);
 
     info!("GameLoop: started ({} ms tick).", TICK.as_millis());
 
@@ -235,6 +243,12 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::QuestTimer { quest, name, player, npc, seq } => {
                 quests::handle_quest_timer(world, quest, &name, player, npc, seq);
+            }
+            ScheduledTask::DoorAutoClose { door_object_id, seq } => {
+                doors::handle_door_auto_close(world, door_object_id, seq);
+            }
+            ScheduledTask::DoorTimerToggle { door_object_id } => {
+                doors::handle_door_timer_toggle(world, door_object_id);
             }
         }
     }

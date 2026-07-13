@@ -33,7 +33,18 @@ pub(crate) fn resolve_cast_target(
     use server_packets::sm_ids;
 
     let resolved = match skill.target_type {
-        TargetType::Self_ => return Ok(caster.object_id),
+        // `Self.java`: a bad (offensive) self-target skill is refused inside
+        // a peace zone — SM 2167.
+        TargetType::Self_ => {
+            let in_peace = world
+                .objects
+                .get_component::<crate::model::components::ZoneFlags>(&caster.object_id)
+                .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace));
+            if in_peace && skill.is_bad() {
+                return Err(sm_ids::YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE);
+            }
+            return Ok(caster.object_id);
+        }
         // `Target.java`: the selected target, friend or foe; self allowed
         // (and self skips the LOS check — "you can always target yourself").
         TargetType::Target => {
@@ -71,6 +82,14 @@ pub(crate) fn resolve_cast_target(
     // handler ends with `GeoEngine.canSeeTarget` → CANNOT_SEE_TARGET.
     if !world.geo.can_see_target(caster_pos.x, caster_pos.y, caster_pos.z, tx, ty, tz) {
         return Err(sm_ids::CANNOT_SEE_TARGET);
+    }
+    // `Enemy`/`EnemyOnly.java`: "Skills with this target type cannot be used
+    // by playables on playables in peace zone, but can be used by and on
+    // NPCs" — SM 2167 (after the LOS check, matching the handlers' order).
+    if matches!(skill.target_type, TargetType::Enemy | TargetType::EnemyOnly)
+        && crate::game_loop::zones::is_inside_peace_zone(world, caster.object_id, resolved)
+    {
+        return Err(sm_ids::YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE);
     }
     Ok(resolved)
 }

@@ -5,6 +5,7 @@
 
 pub mod clan;
 pub mod components;
+pub mod door;
 pub mod formulas;
 pub mod inventory;
 pub mod movement;
@@ -13,6 +14,7 @@ pub mod party;
 pub mod quest;
 pub mod shortcut;
 pub mod skill;
+pub mod static_object;
 pub mod stats;
 
 use std::collections::HashMap;
@@ -197,6 +199,7 @@ impl PlayerData {
                     Buffs::default(),
                     StatModifiers::default(),
                     Reuses::default(),
+                    components::ZoneFlags::default(),
                 ),
             ),
         );
@@ -292,6 +295,7 @@ impl Player {
             swim_walk_spd: t.base_swim_walk_spd as f64,
             move_multiplier: 1.0,
             running: true,
+            swimming: false,
         };
         let collision = Collision { radius: t.collision_radius, height: t.collision_height };
         let p = Player {

@@ -33,7 +33,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G9.6 Macros & panel shortcuts                               | ✅ (plan: [PLAN_MACROS_SHORTCUTS.md](PLAN_MACROS_SHORTCUTS.md)) |
 | Game  | G10 Social systems                                          | ✅ vertical slice (chat, party, friends — clans/mail/BBS deferred) |
 | Game  | G11 Scripting engine + quests (+ clans via bypass)          | ✅ vertical slice (bypass routing, quest engine, Q00258/Q00320, clan creation — plan: [PLAN_G11_QUESTS_CLANS.md](PLAN_G11_QUESTS_CLANS.md)) |
-| Game  | G12 Script/content breadth                                  | ⏳ |
+| Game  | G12 Static world + script/content breadth                   | ✅ vertical slice (zones peace/water/no-restart, all 1180 doors + geo collision, static objects, Link/Buy bypasses, +10 quests with on_attack/on_spawn hooks, OrcChange1, TeleportWithCharm — plan: [PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md](PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md)) |
 | Game  | G13 Long tail & parity sweep                                | ⏳ |
 
 **Verified end-to-end:** a scripted client does the real login crypto → server
@@ -960,13 +960,105 @@ creation through the ClanMaster dialog. Script breadth is G12.
   clan guard matrix + creation packet trio + persistence, ClanMaster
   leader gating against the real dist htmls, and roster/chat scoping.
 
-### G12–G13 — ⏳ not started
-See [PLAN_GAME_SERVER.md §6](PLAN_GAME_SERVER.md). Next natural gates:
-script/content breadth (more quests, `ai/` scripts, the other bypass
-families) or the remaining static-world scope
-(zones/doors/`StaticObjectData`). New object kinds (doors,
-items-on-ground, …) should become component bundles in `World.objects`,
-not new bare `HashMap` fields.
+### G12 — Static world + script/content breadth ✅ vertical slice
+Plan: [PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md](PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md).
+Both plan areas landed as vertical slices; the long tail (33 more zone
+types, multisell/sell/warehouse, ~188 more quests, ~81 `ai/` scripts, admin
+commands) stays G13.
+
+**Zones** (`data/zone_data.rs`, `game_loop/zones.rs`):
+- `ZoneManager` port narrowed to the three files with live consumers —
+  `peace.xml`/`water.xml`/`no_restart.xml` (590 zones), reusing the spawn
+  territories' `ZoneForm` geometry, indexed into Java's `SHIFT_BY = 15`
+  zone-grid cells (bounding-box overlap registration, point query walks
+  the cell's zones).
+- `ZoneFlags` component (mask + `_lastZoneValidateLocation` 100-unit filter
+  + `_lastCompassZone`), revalidated from the movement tick, enter world,
+  teleports (`Appearing`) and the `ValidatePosition` snap — Java's
+  `revalidateZone` call graph. `ExSetCompassZoneCode` (FE:0x33) pushes the
+  peace icon on change (deviation: the initial no-op GENERAL push is
+  suppressed — a fresh client already displays general).
+- **Peace gate** where Java actually has it (playable-vs-playable only):
+  `resolve_cast_target`'s `Enemy`/`EnemyOnly` arm → SM 2167 after the LOS
+  check, and `Self.java`'s bad-self-skill branch. Auto-attack needs no gate
+  (player targets aren't attackable until PvP exists).
+- **Water**: `Speeds.swimming` flips on enter/exit (`getMoveSpeed`'s swim
+  branch) + `broadcastUserInfo`; breath/drowning deferred. NO_RESTART only
+  tracks membership — nothing reads the flag in this Mobius version.
+
+**Doors** (`data/door_data.rs`, `geo/doors.rs`, `model/door.rs`,
+`game_loop/doors.rs`):
+- All **1180** `DoorData.xml` doors parse (Java's flattened child-attribute
+  StatSet) and spawn as ECS entities; `masterClose`/`isWall` and the unused
+  group/child/emitter machinery are not carried.
+- Collision is Java's real shape — **doors don't carve geodata**: a
+  `DoorGrid` inside `GeoEngine` (registered before the `Arc` is shared, so
+  the path worker sees it; open flags are atomics) runs the
+  `checkIfDoorsBetween` segment-vs-polygon test at the head of
+  `can_see_target` (double-face), `get_valid_location` and
+  `can_move_to_target` — closed doors block LOS, movement and pathfinding.
+- `StaticObjectInfo` (0x9F) + `DoorStatusUpdate` (0x4D) render doors on
+  enter world/region cross; `open_door`/`close_door` broadcast state flips,
+  with the auto-close task (seq-guarded) and the BY_TIME cycle
+  (`startTimerOpen`/`TimerOpen` verbatim, 111 doors self-toggling). BY_CLICK
+  is intentionally inert — `isOpenableByClick` has no consumer in this
+  Mobius version either (clan-hall dialogs are its only route).
+- **Static objects**: 86 of the 159 `StaticObjects.xml` entries (73 are
+  commented out) spawn and render via `StaticObjectInfo`; click behavior
+  (town map, thrones) is gated on community board/castles.
+
+**Bypasses/shop** (`game_loop/bypass.rs`, `game_loop/shop.rs`,
+`data/buy_list_data.rs`, `network/trade.rs`):
+- `Link <file>`: `Link.java`'s whitelist (23 pages) served from
+  `data/html/` as plain `NpcHtmlMessage`; `..`-escapes dropped.
+- `Buy <listId>` on `Merchant`/`Fisherman` templates →
+  `Merchant.showBuyWindow`: all **338** buylists load (file name = list id,
+  `CorrectPrices = True` floors prices to sell value at load; limited stock
+  treated as unlimited — 3 lists), `BuyList` + `ExBuySellList` (FE:0xB8 both)
+  with the shared `AbstractItemPacket` item block, and `RequestBuyItem`
+  (0x40) with Java's validation ladder (off-list/unstackable-quantity/
+  MAX_ADENA/adena shortfall) → charge, deliver, `ExUserInfoInvenWeight` +
+  sell-refresh + SM 4358. Weight/slot capacity gates wait for encumbrance;
+  Sell/multisell deferred. `ItemTemplate` grew the reference `price`.
+
+**Quest/script breadth** (`game_loop/quests.rs`, `src/scripts/`):
+- `QuestScript` grew `on_attack`/`attack_npcs` (fired from
+  `npc_receive_damage`, killing blow included) and `on_spawn`/`spawn_npcs`
+  (fired from `spawn_one` — boot pass and respawns; no player in the ctx),
+  plus `Npc.script_value` (Java's per-instance scratch, reset by respawn),
+  `NpcSay` (0x30), and ctx primitives: category checks
+  (`data/category_data.rs` — full `CategoryData.xml`), `set_class_id`
+  (immediate `StorePlayer` + `broadcastUserInfo`), `teleport_to`,
+  `already_completed_html`.
+- **+10 quests** picked for shape variety: Q00303/Q00313 (single-kill
+  collect), Q00260/Q00263/Q00265/Q00273 (multi-kill-target with per-monster
+  drop tables), Q00317 (uncapped drops, pay-out-and-continue turn-in),
+  Q00324 (10th-item cond bump), **Q00316** (the `on_attack` consumer —
+  Varool Foulclaw's one-shot NpcSay via script value + his one-only fang),
+  **Q00109** (multi-step cond 1→2→3 across three NPCs, **one-time** —
+  first COMPLETED-state quest, already-completed page included).
+- **OrcChange1** (village master #2): the full first-transfer matrix
+  (category gates, proof marks, level 20, 15 shadow coupons, class change
+  persisted immediately) through the dist htmls' `Quest OrcChange1 <event>`
+  bypasses.
+- **TeleportWithCharm** (first `ai/others` script): token-consuming
+  teleport, registered through the same `QuestRegistry` — resolved plan
+  question #1: utility scripts fit the existing registry; a new opt-in
+  `bare_talk()` routes their `on_talk` from the bare `Quest` bypass
+  (deviation: this Mobius build's chooser short-circuit leaves such
+  scripts unreachable even though the dist htmls point at that button).
+- Resolved plan question #4: ClanMaster keeps its ad hoc page loading —
+  retrofitting onto `Link` risked the working G11 gate for no visible gain.
+- **Tests**: zone loader/grid units + peace/water/filter world tests; door
+  grid + engine-level geo units, enter-world door burst, LOS-until-opened,
+  auto-close staleness, BY_TIME cycling; static-object loader/burst; Link
+  whitelist round trip; buylist loader vs dist (CorrectPrices floor
+  verified globally), Buy window + purchase/guards; per-shape quest loops
+  (Q00303, Q00316 incl. the shout + fang cap, Q00109 incl. the completed
+  mask), OrcChange1 transfer + category refusal, TeleportWithCharm, and a
+  synthetic `on_spawn` script. `e2e_create` runs against the full boot
+  (zones + doors + statics + 15 scripts); its skip-unsolicited helper now
+  also skips the compass code (the mage-start spawn lies in a peace zone).
 
 ---
 
@@ -1002,10 +1094,9 @@ Empty/placeholder now, to be filled in the owning milestone:
 - **Movement/targeting (post-G7.8):** NPC pathfinding (player moves path
   via the G7.85 worker; NPC chase/return-home moves are still straight-line,
   and the Attackable closest-reachable-point grid scan is unported);
-  zones (`ZoneManager` — peace/water/
-  siege/town zones, none exist; `isInsideZone` is the missing gate for
-  several Java checks G7.8 skipped); door/fence LOS + `DoorData` checks
-  (`ValidatePosition`'s door-exploit tail, LOS occlusion); the rest of
+  ~~zones~~/~~door LOS+movement checks~~ (✅ G12 — peace/water/no-restart
+  zones and all 1180 doors; the other 33 zone types, fence checks, and
+  `ValidatePosition`'s door-exploit tail remain); the rest of
   `isMovementDisabled()`
   (rooted/overloaded/immobilized/dead/teleporting); cursor-key movement
   (`_cursorKeyMovement` path incl. `canMoveToTarget` front-cell check and
@@ -1019,22 +1110,20 @@ Empty/placeholder now, to be filled in the owning milestone:
   split + overhit; Java's teleport-home on attack timeout (we walk);
   elemental attributes (template parse skips them); `dbSave` raid
   persistence (`DBSpawnManager` — spawned statically at full HP);
-  `HtmCache` (dialog `.htm`s are read per interaction) + bypass handling
-  (`RequestBypassToServer` — dialog buttons do nothing yet); server-side
-  `Say2` chat around NPCs; zones/doors/`StaticObjectData`
-  (the plan's remaining static-world scope; `MapRegionManager` now exists
-  for town respawns); `NpcNameLocalisationData`/multilang; the death
+  `HtmCache` (dialog `.htm`s are read per interaction);
+  ~~zones/doors/`StaticObjectData`~~ (✅ G12 vertical slice);
+  `NpcNameLocalisationData`/multilang; the death
   dialog's non-village restart points (clan hall/castle/fixed-feather).
-- **Quests/scripts (post-G11):** party quest sharing
+- **Quests/scripts (post-G11/G12):** party quest sharing
   (`getRandomPartyMemberState` — kill credit is killer-only); daily quests
-  (`restartTime`/reset hour); `onFirstTalk`/`onAttack`/`onSpawn` hooks
-  (no trait slots yet — add with the first consumer); tutorial (Q00255);
+  (`restartTime`/reset hour); `onFirstTalk` hook (~~onAttack/onSpawn~~ ✅
+  G12); tutorial (Q00255);
   `ExQuestNpcLogList`; the quest-window weight/inventory-90%/40-quest
   guards; the chooser's simulated-`onTalk` pre-filter; `validateHtmlAction`
-  (bare bypasses resolve via `LastFolkNpc` + distance); the remaining ~198
-  quests and all `ai/` scripts; other bypass families (`Link`,
-  `multisell`, `learn_clan_skills`, `item_`, `admin_`, `_bbs`, menu/manor
-  selects).
+  (bare bypasses resolve via `LastFolkNpc` + distance); the remaining ~188
+  quests, ~14 village-master scripts and ~81 `ai/` scripts; other bypass
+  families (~~`Link`~~/~~`Buy`~~ ✅ G12; `multisell`, sell,
+  `learn_clan_skills`, `item_`, `admin_`, `_bbs`, menu/manor selects).
 - **Social (post-G10/G11):** clans past creation (invite/leave/dissolve/
   level-up/wars/ally/academy/sub-pledges, clan skills +
   `PledgeSkillList`, crests, notices, warehouse, `PledgeInfo`/

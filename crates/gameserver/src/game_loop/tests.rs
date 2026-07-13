@@ -184,6 +184,11 @@ async fn character_create_inserts_into_real_schema() {
         hit_condition_bonus: crate::data::HitConditionBonusData::default(),
         xp_lost: crate::data::PlayerXpPercentLostData::empty(),
         map_region: crate::data::MapRegionData::empty(),
+        zone_data: crate::data::ZoneData::empty(),
+        door_data: crate::data::DoorData::empty(),
+        static_object_data: crate::data::StaticObjectData::empty(),
+        buy_lists: crate::data::BuyListData::empty(),
+        categories: crate::data::CategoryData::empty(),
     };
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
@@ -1367,6 +1372,7 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
         type1: 0,
         type2: 0,
         is_quest_item: false,
+        price: 0,
     });
     {
         let World { objects, data, .. } = &mut world;
@@ -2292,6 +2298,7 @@ fn combat_test_world() -> (
         type1: 4,
         type2: 5,
         is_quest_item: false,
+        price: 0,
     });
     let mut t = crate::data::npc_data::default_template(40001);
     t.type_name = "Monster".into();
@@ -3754,6 +3761,7 @@ fn party_loot_split_and_rotation() {
         type1: 4,
         type2: 5,
         is_quest_item: false,
+        price: 0,
     });
     drain(&mut a_rx);
     drain(&mut b_rx);
@@ -3985,6 +3993,7 @@ fn quest_test_world() -> (
             type1: 4,
             type2: if is_quest_item { 3 } else { 5 },
             is_quest_item,
+            price: 0,
         });
     }
     for npc_id in [20120i32, 20517] {
@@ -4513,4 +4522,818 @@ fn clan_roster_notifications_and_chat() {
         .expect("offline ping to A");
     // Online-status byte is the packet tail.
     assert_eq!(*upd.last().unwrap(), 0, "offline");
+}
+
+// ---------------------------------------------------------------------------
+// Zones (G12): peace-zone gates, water swim state, compass codes
+// ---------------------------------------------------------------------------
+
+/// A synthetic zone cuboid registered into `world.data.zone_data`.
+fn insert_zone(world: &mut World, kind: crate::data::zone_data::ZoneKind, x1: i32, x2: i32, y1: i32, y2: i32) {
+    world.data.zone_data.insert(crate::data::zone_data::Zone {
+        name: format!("test_{kind:?}"),
+        kind,
+        territory: crate::data::spawn_data::Territory {
+            form: crate::data::spawn_data::ZoneForm::Cuboid { x1, x2, y1, y2 },
+            min_z: -1000,
+            max_z: 1000,
+        },
+    });
+}
+
+fn compass_code(pkt: &[u8]) -> Option<i32> {
+    (pkt[0] == server_packets::opcodes::EX
+        && i16::from_le_bytes(pkt[1..3].try_into().unwrap()) == server_packets::opcodes::EX_SET_COMPASS_ZONE_CODE)
+        .then(|| i32::from_le_bytes(pkt[3..7].try_into().unwrap()))
+}
+
+/// Hostile casts between players are refused while either side stands in a
+/// peace zone (`Enemy`/`EnemyOnly.java` → SM 2167), while friendly skills
+/// still land; revalidation pushes the peace compass code.
+#[test]
+fn peace_zone_blocks_hostile_casts_between_players() {
+    let (mut world, ..) = cast_test_world();
+    insert_zone(&mut world, crate::data::zone_data::ZoneKind::Peace, -500, 500, -500, 500);
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+    super::zones::revalidate_zone(&mut world, 3001, true);
+    super::zones::revalidate_zone(&mut world, 3002, true);
+
+    // The initial revalidate reports the peace compass code.
+    let a_pkts = drain(&mut a_rx);
+    assert_eq!(
+        a_pkts.iter().filter_map(|p| compass_code(p)).collect::<Vec<_>>(),
+        vec![server_packets::compass_zone::PEACE]
+    );
+
+    handle_action(&mut world, 1, &action_body(3002, 0));
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    // Force-use nuke on the player target: refused with SM 2167 and no cast.
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+    assert_eq!(
+        sm_id(&a_rx.try_recv().unwrap()),
+        server_packets::sm_ids::YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE
+    );
+    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert!(!world.objects.has_component::<Casting>(&3001));
+    assert!(b_rx.try_recv().is_err(), "the target hears nothing about the refused cast");
+
+    // A friendly skill (Battle Heal, TARGET type) is not gated.
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1015, false));
+    assert!(world.objects.has_component::<Casting>(&3001), "heal must start casting in a peace zone");
+}
+
+/// The peace gate only guards playable-vs-playable: with only the *attacker*
+/// outside, hitting a player inside the zone is still refused; and once
+/// both stand outside, the same cast goes through.
+#[test]
+fn peace_zone_gate_checks_both_sides() {
+    let (mut world, ..) = cast_test_world();
+    insert_zone(&mut world, crate::data::zone_data::ZoneKind::Peace, 60, 200, -500, 500);
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0); // outside
+    let _b_rx = ingame_caster(&mut world, 2, 3002, 100, 0); // inside
+    super::zones::revalidate_zone(&mut world, 3001, true);
+    super::zones::revalidate_zone(&mut world, 3002, true);
+
+    handle_action(&mut world, 1, &action_body(3002, 0));
+    drain(&mut a_rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+    assert_eq!(
+        sm_id(&a_rx.try_recv().unwrap()),
+        server_packets::sm_ids::YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE
+    );
+    assert!(!world.objects.has_component::<Casting>(&3001));
+
+    // Move the target out of the zone and revalidate: the cast now starts.
+    world.objects.get_component_mut::<Position>(&3002).unwrap().x = 30;
+    super::zones::revalidate_zone(&mut world, 3002, true);
+    drain(&mut a_rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+    assert!(world.objects.has_component::<Casting>(&3001));
+}
+
+/// Entering/leaving a `WaterZone` flips the swim-speed branch
+/// (`Creature.getMoveSpeed`'s water case) and re-broadcasts `UserInfo`,
+/// with the compass staying GENERAL.
+#[test]
+fn water_zone_flips_swim_state_and_speeds() {
+    let (mut world, ..) = cast_test_world();
+    insert_zone(&mut world, crate::data::zone_data::ZoneKind::Water, 5000, 6000, -500, 500);
+    let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    {
+        let speeds = world.objects.get_component_mut::<Speeds>(&3001).unwrap();
+        speeds.run_spd = 120.0;
+        speeds.swim_run_spd = 50.0;
+    }
+    super::zones::revalidate_zone(&mut world, 3001, true);
+    let pkts = drain(&mut rx);
+    assert!(
+        pkts.iter().all(|p| compass_code(p).is_none()),
+        "no compass push outside a peace zone (GENERAL is the client default)"
+    );
+    assert_eq!(world.objects.get_component::<Speeds>(&3001).unwrap().move_speed(), 120.0);
+
+    // Wade in: swim speeds take over and a fresh UserInfo goes out.
+    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 5500;
+    super::zones::revalidate_zone(&mut world, 3001, false);
+    let speeds = *world.objects.get_component::<Speeds>(&3001).unwrap();
+    assert!(speeds.swimming);
+    assert_eq!(speeds.move_speed(), 50.0);
+    let pkts = drain(&mut rx);
+    assert!(pkts.iter().any(|p| p[0] == 0x32), "UserInfo re-broadcast on water enter");
+    assert!(pkts.iter().all(|p| compass_code(p).is_none()), "water does not change the compass");
+
+    // Wade out: ground speeds return.
+    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 0;
+    super::zones::revalidate_zone(&mut world, 3001, false);
+    let speeds = *world.objects.get_component::<Speeds>(&3001).unwrap();
+    assert!(!speeds.swimming);
+    assert_eq!(speeds.move_speed(), 120.0);
+    assert!(drain(&mut rx).iter().any(|p| p[0] == 0x32));
+}
+
+/// The 100-unit revalidation filter: a small drift does not re-run the zone
+/// query (the water flag stays stale until a real move), a forced call does.
+#[test]
+fn zone_revalidation_distance_filter() {
+    let (mut world, ..) = cast_test_world();
+    insert_zone(&mut world, crate::data::zone_data::ZoneKind::Water, 5000, 6000, -500, 500);
+    let _rx = ingame_caster(&mut world, 1, 3001, 5990, 0);
+    super::zones::revalidate_zone(&mut world, 3001, true);
+    assert!(world.objects.get_component::<Speeds>(&3001).unwrap().swimming);
+
+    // A 50-unit drift out of the zone edge: unforced revalidate is skipped.
+    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 6040;
+    super::zones::revalidate_zone(&mut world, 3001, false);
+    assert!(world.objects.get_component::<Speeds>(&3001).unwrap().swimming, "filtered — still stale");
+    super::zones::revalidate_zone(&mut world, 3001, true);
+    assert!(!world.objects.get_component::<Speeds>(&3001).unwrap().swimming, "forced — recomputed");
+}
+
+// ---------------------------------------------------------------------------
+// Doors (G12)
+// ---------------------------------------------------------------------------
+
+fn test_door(door_id: i32, method: crate::data::door_data::DoorOpenMethod) -> crate::data::door_data::DoorTemplate {
+    crate::data::door_data::DoorTemplate {
+        id: door_id,
+        name: "test_door".into(),
+        // A thin wall crossing the x axis at x≈100, like the geo unit tests.
+        node_x: [98, 102, 102, 98],
+        node_y: [-50, -50, 50, 50],
+        node_z: -100,
+        height: 200,
+        x: 100,
+        y: 0,
+        z: -100,
+        hp_max: 1000,
+        p_def: 100,
+        m_def: 100,
+        targetable: false,
+        show_hp: false,
+        open_by_default: false,
+        open_method: method,
+        open_time: 3,
+        close_time: 2,
+        random_time: 0,
+    }
+}
+
+fn is_static_object_info(p: &[u8]) -> bool {
+    p[0] == server_packets::opcodes::STATIC_OBJECT
+}
+fn is_door_status(p: &[u8]) -> bool {
+    p[0] == server_packets::opcodes::DOOR_STATUS_UPDATE
+}
+/// The "isClosed" int of either door packet (offsets: StaticObjectInfo has
+/// it at byte 1+4*5, DoorStatusUpdate at 1+4).
+fn door_packet_closed(p: &[u8]) -> i32 {
+    let off = if is_static_object_info(p) { 1 + 4 * 5 } else { 1 + 4 };
+    i32::from_le_bytes(p[off..off + 4].try_into().unwrap())
+}
+
+/// Enter-world burst includes StaticObjectInfo + DoorStatusUpdate for a
+/// nearby door (and nothing for a far one).
+#[test]
+fn enter_world_sends_door_info_for_nearby_doors() {
+    let (mut world, ..) = test_world();
+    crate::model::door::spawn_door_for_test(&mut world, test_door(9001, crate::data::door_data::DoorOpenMethod::None));
+    let mut far = test_door(9002, crate::data::door_data::DoorOpenMethod::None);
+    far.x = 50_000;
+    far.node_x = [49_998, 50_002, 50_002, 49_998];
+    crate::model::door::spawn_door_for_test(&mut world, far);
+
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    visibility::on_enter_world(&world, 1, 3001);
+    let pkts = drain(&mut rx);
+    let so: Vec<_> = pkts.iter().filter(|p| is_static_object_info(p)).collect();
+    let dsu: Vec<_> = pkts.iter().filter(|p| is_door_status(p)).collect();
+    assert_eq!(so.len(), 1, "only the nearby door renders");
+    assert_eq!(dsu.len(), 1);
+    assert_eq!(door_packet_closed(so[0]), 1, "closed by default");
+    // StaticObjectInfo leads with the door template id.
+    assert_eq!(i32::from_le_bytes(so[0][1..5].try_into().unwrap()), 9001);
+}
+
+/// A closed door refuses casts through it (SM 181 via `can_see_target`);
+/// opening it broadcasts the state change and un-blocks the cast.
+#[test]
+fn closed_door_blocks_cast_los_until_opened() {
+    let (mut world, ..) = cast_test_world();
+    let door_oid =
+        crate::model::door::spawn_door_for_test(&mut world, test_door(9001, crate::data::door_data::DoorOpenMethod::None));
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let _b_rx = ingame_caster(&mut world, 2, 3002, 200, 0);
+
+    handle_action(&mut world, 1, &action_body(3002, 0));
+    drain(&mut a_rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+    assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::CANNOT_SEE_TARGET);
+    assert!(!world.objects.has_component::<Casting>(&3001));
+
+    // Open the door: both nearby players get the status packets…
+    super::doors::open_door(&mut world, door_oid);
+    let pkts = drain(&mut a_rx);
+    assert!(pkts.iter().any(|p| is_static_object_info(p) && door_packet_closed(p) == 0));
+    assert!(pkts.iter().any(|p| is_door_status(p) && door_packet_closed(p) == 0));
+
+    // …and the cast now starts.
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+    assert!(world.objects.has_component::<Casting>(&3001));
+}
+
+/// A script-opened door with a `closeTime` shuts itself (`AutoClose`), and
+/// a re-close before the timer makes the stale task a no-op.
+#[test]
+fn opened_door_auto_closes_after_close_time() {
+    let (mut world, ..) = test_world();
+    let door_oid =
+        crate::model::door::spawn_door_for_test(&mut world, test_door(9001, crate::data::door_data::DoorOpenMethod::None));
+
+    super::doors::open_door(&mut world, door_oid);
+    assert!(world.geo.doors.is_open(9001));
+    // closeTime = 2 s = 20 ticks.
+    advance_ticks(&mut world, 19);
+    assert!(world.geo.doors.is_open(9001));
+    advance_ticks(&mut world, 1);
+    assert!(!world.geo.doors.is_open(9001), "auto-closed");
+
+    // Re-open, close by hand, then let the (stale) auto-close fire: no flip.
+    super::doors::open_door(&mut world, door_oid);
+    super::doors::close_door(&mut world, door_oid);
+    super::doors::open_door(&mut world, door_oid);
+    super::doors::close_door(&mut world, door_oid);
+    assert!(!world.geo.doors.is_open(9001));
+    advance_ticks(&mut world, 40);
+    assert!(!world.geo.doors.is_open(9001), "stale auto-close is a no-op");
+}
+
+/// BY_TIME doors cycle on their own: closed → open after `closeTime`,
+/// open → closed after `openTime` (Java `TimerOpen`), forever.
+#[test]
+fn by_time_door_cycles() {
+    let (mut world, ..) = test_world();
+    crate::model::door::spawn_door_for_test(&mut world, test_door(9001, crate::data::door_data::DoorOpenMethod::ByTime));
+    super::doors::start_time_cycles(&mut world);
+
+    assert!(!world.geo.doors.is_open(9001));
+    // Initial delay while closed = closeTime (2 s).
+    advance_ticks(&mut world, 20);
+    assert!(world.geo.doors.is_open(9001), "opened by the cycle");
+    // Now open: next toggle after closeTime (2 s) per TimerOpen's delay pick.
+    advance_ticks(&mut world, 20);
+    assert!(!world.geo.doors.is_open(9001), "closed again");
+    // Closed: next toggle after openTime (3 s).
+    advance_ticks(&mut world, 30);
+    assert!(world.geo.doors.is_open(9001), "cycle keeps running");
+}
+
+/// Static objects (town maps/thrones) render on enter world with the Java
+/// `StaticObjectInfo(StaticObject)` field shape, scoped by region.
+#[test]
+fn enter_world_sends_static_object_info_nearby() {
+    let (mut world, ..) = test_world();
+    world.data.static_object_data.objects.push(crate::data::static_object_data::StaticObjectTemplate {
+        id: 17250001,
+        name: "town_map".into(),
+        kind: 0,
+        x: 100,
+        y: 100,
+        z: 0,
+    });
+    world.data.static_object_data.objects.push(crate::data::static_object_data::StaticObjectTemplate {
+        id: 17250002,
+        name: "far_map".into(),
+        kind: 0,
+        x: 60_000,
+        y: 60_000,
+        z: 0,
+    });
+    crate::model::static_object::spawn_static_objects(&mut world);
+
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    visibility::on_enter_world(&world, 1, 3001);
+    let pkts = drain(&mut rx);
+    let so: Vec<_> = pkts.iter().filter(|p| is_static_object_info(p)).collect();
+    assert_eq!(so.len(), 1, "only the nearby panel renders");
+    assert_eq!(i32::from_le_bytes(so[0][1..5].try_into().unwrap()), 17250001);
+    // type field (offset 9..13) is 0, targetable (13..17) is 1.
+    assert_eq!(i32::from_le_bytes(so[0][9..13].try_into().unwrap()), 0);
+    assert_eq!(i32::from_le_bytes(so[0][13..17].try_into().unwrap()), 1);
+}
+
+// ---------------------------------------------------------------------------
+// Link bypass (G12)
+// ---------------------------------------------------------------------------
+
+/// The generic `Link <file>` bypass: whitelisted pages are served from
+/// `data/html/` through a plain `NpcHtmlMessage` anchored at the last
+/// clicked NPC; non-whitelisted or path-escaping requests answer an empty
+/// html (Java's null content) or drop.
+#[test]
+fn link_bypass_serves_whitelisted_html_only() {
+    let (mut world, ..) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.add_components(&3001, LastFolkNpc(NPC_OID));
+
+    // Whitelisted page (real dist file).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Link common/craft_01.htm"));
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("html window");
+    assert!(html.contains("Dualsword"), "served the real page: {html}");
+
+    // Non-whitelisted page: empty html window, not the file.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Link merchant/30001.htm"));
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("empty html window");
+    assert!(html.is_empty());
+
+    // Path traversal: dropped outright.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Link ../config/Server.ini"));
+    assert!(drain(&mut rx).is_empty());
+}
+
+// ---------------------------------------------------------------------------
+// Buy shop (G12)
+// ---------------------------------------------------------------------------
+
+fn buy_body(list_id: i32, lines: &[(i32, i64)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(list_id);
+    w.write_i32(lines.len() as i32);
+    for &(item_id, count) in lines {
+        w.write_i32(item_id);
+        w.write_i64(count);
+    }
+    w.into_bytes()
+}
+
+/// A merchant + a two-product buylist on top of `quest_test_world`; the
+/// player holds 1000 adena and targets the merchant.
+fn shop_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+) {
+    let (mut world, db_rx, _link_rx) = quest_test_world();
+    // A stackable potion the shop sells in bulk.
+    world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+        item_id: 1061,
+        name: "Greater Healing Potion".into(),
+        kind: crate::data::item_data::ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: true,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        price: 0,
+    });
+    world.data.buy_lists.insert_for_test(crate::data::buy_list_data::BuyList {
+        list_id: 3,
+        npcs: vec![30001],
+        products: vec![
+            crate::data::buy_list_data::Product { item_id: 41, price: 100, base_tax: 0 },
+            crate::data::buy_list_data::Product { item_id: 1061, price: 10, base_tax: 0 },
+        ],
+    });
+    add_test_npc(&mut world, NPC_OID, 30001, "Merchant", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    super::items::add_inventory_item(&mut world, 3001, 57, 1000);
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    drain(&mut rx);
+    (world, db_rx, rx)
+}
+
+fn adena_of(world: &World, oid: i32) -> i64 {
+    world.objects.get_component::<crate::model::inventory::Inventory>(&oid).unwrap().adena()
+}
+fn count_of_item(world: &World, oid: i32, item_id: i32) -> i64 {
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&oid)
+        .unwrap()
+        .items()
+        .iter()
+        .filter(|i| i.item_id == item_id)
+        .map(|i| i.count)
+        .sum()
+}
+
+/// The `Buy <listId>` bypass opens the buy window: the BUY tab (type 0,
+/// list id + adena + both products) and the SELL tab (type 1).
+#[test]
+fn buy_bypass_opens_buy_and_sell_tabs() {
+    let (mut world, _db_rx, mut rx) = shop_world();
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Buy 3")));
+    let pkts = drain(&mut rx);
+    let tabs: Vec<_> = pkts.iter().filter(|p| is_ex(p, crate::network::trade::EX_BUY_SELL_LIST)).collect();
+    assert_eq!(tabs.len(), 2, "buy + sell tab");
+    // BUY tab: type 0, money 1000, list id 3, then the product table.
+    let buy = tabs[0];
+    assert_eq!(i32::from_le_bytes(buy[3..7].try_into().unwrap()), 0);
+    assert_eq!(i64::from_le_bytes(buy[7..15].try_into().unwrap()), 1000);
+    assert_eq!(i32::from_le_bytes(buy[15..19].try_into().unwrap()), 3);
+    // SELL tab leads with type 1.
+    assert_eq!(i32::from_le_bytes(tabs[1][3..7].try_into().unwrap()), 1);
+
+    // A non-merchant NPC refuses the same bypass.
+    add_test_npc(&mut world, NPC_OID + 1, 30002, "Folk", 5, 120, 0, 0);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{}_Buy 3", NPC_OID + 1)));
+    let pkts = drain(&mut rx);
+    assert!(!pkts.iter().any(|p| is_ex(p, crate::network::trade::EX_BUY_SELL_LIST)));
+}
+
+/// A purchase debits adena, adds the items, and answers with the
+/// InventoryUpdate/inven-weight/sell-refresh/SM-4358 tail; the guards
+/// (wrong quantity, empty purse, no merchant target) refuse cleanly.
+#[test]
+fn request_buy_item_purchases_and_guards() {
+    let (mut world, _db_rx, mut rx) = shop_world();
+
+    // 1 Cloth Cap (100) + 5 potions (50) = 150 adena.
+    shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(41, 1), (1061, 5)]));
+    assert_eq!(adena_of(&world, 3001), 850);
+    assert_eq!(count_of_item(&world, 3001, 41), 1);
+    assert_eq!(count_of_item(&world, 3001, 1061), 5);
+    let pkts = drain(&mut rx);
+    assert!(pkts.iter().any(|p| p[0] == 0x21), "InventoryUpdate");
+    assert!(pkts.iter().any(|p| is_ex(p, 0x166)), "ExUserInfoInvenWeight");
+    let sell_done = pkts.iter().find(|p| is_ex(p, crate::network::trade::EX_BUY_SELL_LIST)).expect("sell refresh");
+    assert_eq!(*sell_done.last().unwrap(), 1, "done flag");
+    assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::EXCHANGE_IS_SUCCESSFUL));
+
+    // Non-stackable quantity > 1: SM 1036, nothing purchased.
+    shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(41, 2)]));
+    assert!(sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED));
+    assert_eq!(adena_of(&world, 3001), 850);
+
+    // Too expensive: SM 279.
+    shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(1061, 100)]));
+    assert!(sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA));
+    assert_eq!(adena_of(&world, 3001), 850);
+
+    // Off-list item: dropped, no charge.
+    shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(702, 1)]));
+    assert!(drain(&mut rx).is_empty());
+    assert_eq!(adena_of(&world, 3001), 850);
+
+    // No merchant targeted: ActionFailed.
+    handle_request_target_canceld(&mut world, 1, &target_canceld_body(true));
+    drain(&mut rx);
+    shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(1061, 1)]));
+    let pkts = drain(&mut rx);
+    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::ACTION_FAIL));
+    assert_eq!(adena_of(&world, 3001), 850);
+}
+
+// ---------------------------------------------------------------------------
+// G12 quest/script breadth
+// ---------------------------------------------------------------------------
+
+/// Register extra quest-item templates on top of `quest_test_world`.
+fn add_quest_items(world: &mut World, ids: &[(i32, &str, bool)]) {
+    for &(item_id, name, is_quest_item) in ids {
+        world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+            item_id,
+            name: name.into(),
+            kind: crate::data::item_data::ItemKind::Etc,
+            body_part: 0,
+            weight: 0,
+            is_stackable: true,
+            type1: 4,
+            type2: if is_quest_item { 3 } else { 5 },
+            is_quest_item,
+            price: 0,
+        });
+    }
+}
+
+fn quest_cond(world: &World, player: i32, quest: &str) -> Option<i32> {
+    world
+        .objects
+        .get_component::<crate::model::components::Quests>(&player)
+        .and_then(|q| q.0.get(quest).map(|qs| qs.cond()))
+}
+
+fn item_count(world: &World, player: i32, item_id: i32) -> i64 {
+    world.objects.get_component::<crate::model::inventory::Inventory>(&player).unwrap().count_of(item_id)
+}
+
+/// Q00303 Collect Arrowheads: accept → 40%-chance drops to the 10-arrowhead
+/// cap (cond 2) → turn-in pays 500 adena and exits repeatably.
+#[test]
+fn quest_q00303_collect_arrowheads_loop() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(963, "Orcish Arrowhead", true)]);
+    let mut t = crate::data::npc_data::default_template(20361);
+    t.type_name = "Monster".into();
+    t.level = 11;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30029, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 10;
+    drain_db(&mut db_rx);
+
+    // Accept.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00303_CollectArrowheads")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00303_CollectArrowheads 30029-04.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, "Q00303_CollectArrowheads"), Some(1));
+    drain(&mut rx);
+
+    // Kill 10 marksmen with the 40% roll forced to hit each time.
+    let mob = NPC_OID + 1;
+    for i in 0..10 {
+        add_test_npc(&mut world, mob + i, 20361, "Monster", 11, 30, 0, 0);
+        world.forced_rolls.push_back(0); // roll_f64 → 0.0 ≤ 0.4
+        death::npc_do_die(&mut world, mob + i, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, 963), 10);
+    assert_eq!(quest_cond(&world, 3001, "Q00303_CollectArrowheads"), Some(2));
+    drain(&mut rx);
+
+    // Turn-in.
+    let adena_before = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00303_CollectArrowheads")));
+    assert_eq!(item_count(&world, 3001, 57), adena_before + 500);
+    assert_eq!(item_count(&world, 3001, 963), 0, "quest items removed on exit");
+    assert!(quest_cond(&world, 3001, "Q00303_CollectArrowheads").is_none(), "repeatable exit");
+}
+
+/// Q00316 Destroy Plague Carriers: the first hit on Varool Foulclaw makes
+/// him shout (`on_attack` + script value), his fang drops at most once, and
+/// the turn-in pays the fang/wererat ladder.
+#[test]
+fn quest_q00316_on_attack_say_and_limited_fang() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1042, "Wererat Fang", true), (1043, "Varool Foulclaw Fang", true)]);
+    for id in [27020, 20040] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 20;
+        t.base_hp_max = 1000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30155, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 20;
+        p.race = 1; // Elf
+    }
+    drain_db(&mut db_rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00316_DestroyPlagueCarriers")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00316_DestroyPlagueCarriers 30155-04.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, "Q00316_DestroyPlagueCarriers"), Some(1));
+    drain(&mut rx);
+
+    // First hit on Varool: exactly one NpcSay; further hits stay quiet.
+    let varool = NPC_OID + 1;
+    add_test_npc(&mut world, varool, 27020, "Monster", 20, 30, 0, 0);
+    combat::npc_receive_damage(&mut world, varool, 3001, 10.0);
+    let pkts = drain(&mut rx);
+    let says: Vec<_> = pkts.iter().filter(|p| p[0] == server_packets::opcodes::NPC_SAY).collect();
+    assert_eq!(says.len(), 1, "one shout on the first hit");
+    assert_eq!(i32::from_le_bytes(says[0][13..17].try_into().unwrap()), 31603, "WHY_DO_YOU_OPPRESS_US_SO");
+    combat::npc_receive_damage(&mut world, varool, 3001, 10.0);
+    assert!(
+        !drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::NPC_SAY),
+        "script value keeps him quiet"
+    );
+
+    // His fang drops once (chance 10/7 ≥ 1 → guaranteed), never twice.
+    death::npc_do_die(&mut world, varool, 3001);
+    assert_eq!(item_count(&world, 3001, 1043), 1);
+    let varool2 = NPC_OID + 2;
+    add_test_npc(&mut world, varool2, 27020, "Monster", 20, 30, 0, 0);
+    death::npc_do_die(&mut world, varool2, 3001);
+    assert_eq!(item_count(&world, 3001, 1043), 1, "only one Varool fang ever");
+
+    // Wererats drop fangs freely (chance 2.0 → always).
+    for i in 0..10 {
+        let rat = NPC_OID + 3 + i;
+        add_test_npc(&mut world, rat, 20040, "Monster", 20, 30, 0, 0);
+        death::npc_do_die(&mut world, rat, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, 1042), 10);
+    drain(&mut rx);
+
+    // Turn-in: 10×5 + 1×1000 + 5000 bonus.
+    let adena_before = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00316_DestroyPlagueCarriers")));
+    assert_eq!(item_count(&world, 3001, 57), adena_before + 50 + 1000 + 5000);
+    assert_eq!(item_count(&world, 3001, 1042), 0);
+    assert_eq!(item_count(&world, 3001, 1043), 0);
+}
+
+/// Q00109 In Search of the Nest: the three-NPC cond 1→2→3 chain ends in a
+/// one-time completion — the quest survives as COMPLETED and answers with
+/// the already-completed page.
+#[test]
+fn quest_q00109_multi_cond_one_time() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(14858, "Scout's Note", true)]);
+    let (pierce, corpse, kahman) = (NPC_OID, NPC_OID + 1, NPC_OID + 2);
+    add_test_npc(&mut world, pierce, 31553, "Folk", 5, 100, 0, 0);
+    add_test_npc(&mut world, corpse, 32015, "Folk", 5, 120, 0, 0);
+    add_test_npc(&mut world, kahman, 31554, "Folk", 5, 140, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 81;
+    drain_db(&mut db_rx);
+
+    let q = "Q00109_InSearchOfTheNest";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierce}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierce}_Quest {q} 31553-0.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+
+    // The corpse: cond 2 + the note.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{corpse}_Quest {q} 32015-2.html")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    assert_eq!(item_count(&world, 3001, 14858), 1);
+
+    // Back to Pierce: cond 3, note taken.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierce}_Quest {q} 31553-3.html")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    assert_eq!(item_count(&world, 3001, 14858), 0);
+
+    // Kahman pays out; one-time exit keeps the COMPLETED state.
+    let (adena, exp) = (
+        item_count(&world, 3001, 57),
+        world.objects.get_component::<Player>(&3001).unwrap().exp,
+    );
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{kahman}_Quest {q} 31554-2.html")));
+    assert_eq!(item_count(&world, 3001, 57), adena + 161500);
+    assert!(world.objects.get_component::<Player>(&3001).unwrap().exp > exp);
+    {
+        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        assert!(quests.0[q].is_completed(), "one-time quest stays COMPLETED");
+    }
+
+    // Talking to Pierce again answers the already-completed page.
+    drain(&mut rx);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierce}_Quest {q}")));
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("html");
+    assert!(
+        html.contains("already completed") || html.contains("already been completed"),
+        "already-completed message, got: {html}"
+    );
+}
+
+/// OrcChange1: an eligible Orc Fighter with the Mark of Raider becomes an
+/// Orc Raider — proof consumed, 15 coupons paid, class persisted; the
+/// category gates refuse a player who already transferred.
+#[test]
+fn orc_change1_first_class_transfer() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1592, "Mark of Raider", true), (8869, "Shadow Coupon (D)", false)]);
+    world.data.categories.insert_for_test("FIGHTER_GROUP", &[44, 45]);
+    world.data.categories.insert_for_test("MAGE_GROUP", &[49]);
+    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[45]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30500, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 20;
+        p.race = 3; // Orc
+        p.class_id = 44; // Orc Fighter
+        p.base_class_id = 44;
+    }
+    super::items::add_inventory_item(&mut world, 3001, 1592, 1);
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    // The named bypass shows the fighter class list.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange1")));
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("class list");
+    assert!(html.contains("45") || !html.is_empty());
+
+    // Transfer to Orc Raider (45).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange1 45")));
+    {
+        let p = world.objects.get_component::<Player>(&3001).unwrap();
+        assert_eq!(p.class_id, 45);
+        assert_eq!(p.base_class_id, 45);
+    }
+    assert_eq!(item_count(&world, 3001, 1592), 0, "proof consumed");
+    assert_eq!(item_count(&world, 3001, 8869), 15, "shadow coupons");
+    // The change persisted immediately.
+    let cmds = drain_db(&mut db_rx);
+    assert!(
+        cmds.iter().any(|c| matches!(c, db::DbCommand::StorePlayer { snap } if snap.class_id == 45)),
+        "StorePlayer with the new class"
+    );
+    // A UserInfo re-broadcast reached the player.
+    assert!(drain(&mut rx).iter().any(|p| p[0] == 0x32), "UserInfo after transfer");
+
+    // Now in SECOND_CLASS_GROUP: another transfer attempt is refused.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange1 45")));
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("refusal page");
+    assert!(html.contains("class transfer") || !html.is_empty());
+    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().class_id, 45, "unchanged");
+}
+
+/// TeleportWithCharm: the bare `Quest` click consumes the token and
+/// teleports; without a token it shows the "come back with one" page.
+#[test]
+fn teleport_with_charm_consumes_token() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1659, "Gatekeeper Token", false)]);
+    add_test_npc(&mut world, NPC_OID, 30540, "Teleporter", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain_db(&mut db_rx);
+
+    // No token: the explain page.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("no-token page");
+    assert!(html.contains("Token") || html.contains("token"), "got: {html}");
+
+    // With a token: teleport + consumption.
+    super::items::add_inventory_item(&mut world, 3001, 1659, 1);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+    assert_eq!(item_count(&world, 3001, 1659), 0, "token consumed");
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (-80826, 149775, -3043));
+    assert!(world.objects.get_component::<Player>(&3001).unwrap().teleporting);
+    assert!(
+        drain(&mut rx).iter().any(|p| p[0] == 0x22),
+        "TeleportToLocation sent"
+    );
+}
+
+/// The `on_spawn` hook fires for registered NPCs on every (re)spawn — a
+/// synthetic script stamps the NPC's script value at spawn.
+#[test]
+fn on_spawn_hook_fires_for_registered_npcs() {
+    struct SpawnStamp;
+    impl crate::game_loop::quests::QuestScript for SpawnStamp {
+        fn id(&self) -> i32 {
+            -1
+        }
+        fn name(&self) -> &'static str {
+            "SpawnStamp"
+        }
+        fn html_dir(&self) -> &'static str {
+            ""
+        }
+        fn start_npcs(&self) -> &[i32] {
+            &[]
+        }
+        fn talk_npcs(&self) -> &[i32] {
+            &[]
+        }
+        fn spawn_npcs(&self) -> &[i32] {
+            &[40001]
+        }
+        fn on_talk(&self, _ctx: &mut crate::game_loop::quests::QuestCtx) -> Option<String> {
+            None
+        }
+        fn on_spawn(&self, ctx: &mut crate::game_loop::quests::QuestCtx) {
+            ctx.set_npc_script_value(7);
+        }
+    }
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    world.quests = std::sync::Arc::new(crate::game_loop::quests::QuestRegistry::new(vec![
+        std::sync::Arc::new(SpawnStamp),
+    ]));
+    // Spawn through the real spawn line (template 40001 registered by
+    // combat_test_world's spawn_data? — spawn directly via spawn_one needs
+    // a spawn line; use notify path through add_test_npc + explicit call).
+    add_test_npc(&mut world, NPC_OID, 40001, "Monster", 5, 30, 0, 0);
+    crate::game_loop::quests::notify_spawn(&mut world, NPC_OID, 40001);
+    assert_eq!(
+        world.objects.get_component::<crate::model::npc::Npc>(&NPC_OID).unwrap().script_value,
+        7
+    );
 }

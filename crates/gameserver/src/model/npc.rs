@@ -58,6 +58,9 @@ pub struct Npc {
     /// Indices into `GameData.spawn_data` (spawn/group/npc) so death can
     /// schedule a respawn of the same spawn line.
     pub spawn_ref: (usize, usize, usize),
+    /// Java `Npc._scriptValue` — per-instance scratch slot for scripts
+    /// (fresh instance on respawn resets it, like Java).
+    pub script_value: i32,
 }
 
 /// `AttackableAI`'s think state (G9), NPC-only.
@@ -193,6 +196,7 @@ impl Npc {
             respawn_random_secs: 0,
             spawn_loc: (x, y, z),
             spawn_ref: (0, 0, 0),
+            script_value: 0,
         };
         let extra = (
             Position { x, y, z, heading: 0 },
@@ -206,6 +210,7 @@ impl Npc {
                 swim_walk_spd: 0.0,
                 move_multiplier: 1.0,
                 running: false,
+                swimming: false,
             },
             Collision { radius: 8.0, height: 15.0 },
             AttackState::default(),
@@ -340,6 +345,7 @@ pub(crate) fn spawn_one(world: &mut World, spawn_idx: usize, group_idx: usize, n
         respawn_random_secs,
         spawn_loc: (x, y, z),
         spawn_ref: (spawn_idx, group_idx, npc_idx),
+        script_value: 0,
     };
     let object_id = npc.object_id;
     let region = region_of(x, y);
@@ -367,6 +373,7 @@ pub(crate) fn spawn_one(world: &mut World, spawn_idx: usize, group_idx: usize, n
                 swim_walk_spd: 0.0,
                 move_multiplier: 1.0,
                 running: false,
+                swimming: false,
             },
             crate::model::components::Collision { radius: t.collision_radius, height: t.collision_height },
             npc_combat_stats(t, &world.data.stat_bonus),
@@ -375,6 +382,9 @@ pub(crate) fn spawn_one(world: &mut World, spawn_idx: usize, group_idx: usize, n
             AggroList::default(),
         ),
     );
+    // `onSpawn` hook (Java `Quest.notifySpawn` via `addSpawnId`) — fires for
+    // the boot pass and every respawn alike.
+    crate::game_loop::quests::notify_spawn(world, object_id, npc_id);
     Some(object_id)
 }
 

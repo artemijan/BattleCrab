@@ -406,11 +406,11 @@ mod tests {
     use crate::data::item_data::ItemTemplate;
 
     fn armor(id: i32, body_part: i32) -> ItemTemplate {
-        ItemTemplate { item_id: id, name: format!("armor{id}"), kind: ItemKind::Armor, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false }
+        ItemTemplate { item_id: id, name: format!("armor{id}"), kind: ItemKind::Armor, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0 }
     }
 
     fn weapon(id: i32, body_part: i32) -> ItemTemplate {
-        ItemTemplate { item_id: id, name: format!("weapon{id}"), kind: ItemKind::Weapon, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false }
+        ItemTemplate { item_id: id, name: format!("weapon{id}"), kind: ItemKind::Weapon, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0 }
     }
 
     #[test]
@@ -511,6 +511,7 @@ mod tests {
             type1: 0,
             type2: 0,
             is_quest_item: false,
+            price: 0,
         }]);
         let mut inv = Inventory::new();
         let oid = inv.add_item(&catalog, 1, 57, 100);

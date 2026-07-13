@@ -4,9 +4,12 @@
 //! `getValidLocation`, spawn heights).
 //!
 //! Pathfinding (`CellPathFinding`) lives in [`path`] and runs on the
-//! dedicated [`worker`] thread. Not ported yet: door/fence LOS carve-outs
-//! (no doors or fences exist on the Rust side yet) and runtime NSWE editing.
+//! dedicated [`worker`] thread. Door collision lives in [`doors`] — closed
+//! doors block LOS/movement via the segment checks Java runs at the head of
+//! these queries (G12). Not ported yet: fence checks (no fences exist on
+//! the Rust side) and runtime NSWE editing.
 
+pub mod doors;
 pub mod line;
 pub mod path;
 pub mod region;
@@ -57,12 +60,15 @@ pub struct GeoEngine {
     /// 32×32 grid; `None` = no geodata (Java `NullRegion`: everything passable
     /// and `worldZ` echoed back).
     regions: Vec<Option<Region>>,
+    /// Door collision polygons + open flags (registered at boot before the
+    /// engine is shared; open flags are atomics, flipped through `&self`).
+    pub doors: doors::DoorGrid,
 }
 
 impl GeoEngine {
     /// No geodata at all — every query behaves like Java's `NullRegion`.
     pub fn empty() -> Self {
-        Self { regions: (0..GEO_REGIONS).map(|_| None).collect() }
+        Self { regions: (0..GEO_REGIONS).map(|_| None).collect(), doors: doors::DoorGrid::default() }
     }
 
     /// Java `GeoEngine()` constructor: scan `geodata_path` for
@@ -206,8 +212,12 @@ impl GeoEngine {
 
     /// Java `canSeeTarget(x, y, z, tx, ty, tz)` — line of sight along the
     /// geo-cell bee line, allowing sight over obstacles up to 48 units above
-    /// the line. Door/fence occlusion is not ported (none exist yet).
+    /// the line. Closed doors occlude first (`checkIfDoorsBetween`, the
+    /// double-face variant); fence checks are not ported (none exist yet).
     pub fn can_see_target(&self, x: i32, y: i32, z: i32, tx: i32, ty: i32, tz: i32) -> bool {
+        if self.doors.check_doors_between(x, y, z, tx, ty, tz, true) {
+            return false;
+        }
         let mut geo_x = self.get_geo_x(x);
         let mut geo_y = self.get_geo_y(y);
         let mut t_geo_x = self.get_geo_x(tx);
@@ -300,9 +310,10 @@ impl GeoEngine {
         true
     }
 
-    /// Java `getValidLocation` (door/fence checks omitted — none exist yet):
+    /// Java `getValidLocation` (fence checks omitted — none exist yet):
     /// walk the cell line towards the destination and return the last
-    /// walkable location — the destination itself if nothing blocks.
+    /// walkable location — the destination itself if nothing blocks. A
+    /// closed door across the line keeps the mover at the origin.
     pub fn get_valid_location(&self, x: i32, y: i32, z: i32, tx: i32, ty: i32, tz: i32) -> (i32, i32, i32) {
         let geo_x = self.get_geo_x(x);
         let geo_y = self.get_geo_y(y);
@@ -310,6 +321,10 @@ impl GeoEngine {
         let t_geo_x = self.get_geo_x(tx);
         let t_geo_y = self.get_geo_y(ty);
         let nearest_to_z = self.get_nearest_z(t_geo_x, t_geo_y, tz);
+
+        if self.doors.check_doors_between(x, y, nearest_from_z, tx, ty, nearest_to_z, false) {
+            return (x, y, self.get_height(x, y, nearest_from_z));
+        }
 
         let mut iter = LinePointIterator::new(geo_x, geo_y, t_geo_x, t_geo_y);
         iter.next(); // first point is our own cell
@@ -344,8 +359,10 @@ impl GeoEngine {
         }
     }
 
-    /// Java `canMoveToTarget` (door/fence checks omitted): can a character
-    /// walk the straight cell line from one location to the other?
+    /// Java `canMoveToTarget` (fence checks omitted): can a character walk
+    /// the straight cell line from one location to the other? Closed doors
+    /// block (this is also the path worker's postfilter, so routes never
+    /// thread a closed door).
     pub fn can_move_to_target(&self, x: i32, y: i32, z: i32, tx: i32, ty: i32, tz: i32) -> bool {
         let geo_x = self.get_geo_x(x);
         let geo_y = self.get_geo_y(y);
@@ -353,6 +370,10 @@ impl GeoEngine {
         let t_geo_x = self.get_geo_x(tx);
         let t_geo_y = self.get_geo_y(ty);
         let nearest_to_z = self.get_nearest_z(t_geo_x, t_geo_y, tz);
+
+        if self.doors.check_doors_between(x, y, nearest_from_z, tx, ty, nearest_to_z, false) {
+            return false;
+        }
 
         let mut iter = LinePointIterator::new(geo_x, geo_y, t_geo_x, t_geo_y);
         iter.next();

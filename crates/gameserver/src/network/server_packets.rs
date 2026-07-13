@@ -76,6 +76,9 @@ pub mod opcodes {
     pub const PLEDGE_SHOW_MEMBER_LIST_ALL: u8 = 0x5A;
     pub const PLEDGE_SHOW_MEMBER_LIST_UPDATE: u8 = 0x5B;
     pub const PLEDGE_SHOW_INFO_UPDATE: u8 = 0x8E;
+    pub const DOOR_STATUS_UPDATE: u8 = 0x4D;
+    pub const STATIC_OBJECT: u8 = 0x9F;
+    pub const NPC_SAY: u8 = 0x30;
 
     /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
     pub const EX: u8 = 0xFE;
@@ -87,6 +90,7 @@ pub mod opcodes {
     pub const EX_SHOW_QUEST_MARK: i16 = 0x21;
     pub const EX_NPC_QUEST_HTML_MESSAGE: i16 = 0x8E;
     pub const EX_QUEST_ITEM_LIST: i16 = 0xC7;
+    pub const EX_SET_COMPASS_ZONE_CODE: i16 = 0x33;
 }
 
 /// Port of `serverpackets/PledgeShowInfoUpdate` — the clan-info refresh
@@ -228,6 +232,93 @@ pub fn ex_npc_quest_html_message(npc_object_id: i32, html: &str, quest_id: i32) 
     w.write_i32(npc_object_id);
     w.write_string(html);
     w.write_i32(quest_id);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/DoorStatusUpdate`. `enemy` (siege-active doors)
+/// and the HP-damage grade are always their idle values — no sieges, and
+/// nothing damages doors yet.
+pub fn door_status_update(door: &crate::model::door::Door, t: &crate::data::door_data::DoorTemplate, open: bool) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::DOOR_STATUS_UPDATE);
+    w.write_i32(door.object_id);
+    w.write_i32(!open as i32); // "isClosed"
+    w.write_i32(0); // damage grade (getDamage)
+    w.write_i32(0); // isEnemy
+    w.write_i32(door.door_id);
+    w.write_i32(t.hp_max); // current HP (always full)
+    w.write_i32(t.hp_max);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/StaticObjectInfo`'s door constructor
+/// (`type = 1`, mesh index 1 — `Door._meshindex` default; the GM
+/// forced-targetable variant is not ported).
+pub fn static_object_info_door(door: &crate::model::door::Door, t: &crate::data::door_data::DoorTemplate, open: bool) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::STATIC_OBJECT);
+    w.write_i32(door.door_id); // staticObjectId
+    w.write_i32(door.object_id);
+    w.write_i32(1); // type: door
+    w.write_i32(t.targetable as i32);
+    w.write_i32(1); // mesh index
+    w.write_i32(!open as i32); // isClosed
+    w.write_i32(0); // isEnemy
+    w.write_i32(t.hp_max); // current HP
+    w.write_i32(t.hp_max); // max HP
+    w.write_i32(t.show_hp as i32);
+    w.write_i32(0); // damage grade
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/NpcSay`'s npc-string shape (`new NpcSay(npc,
+/// NPC_GENERAL, npcStringId)`): chat bubble over an NPC with a client-side
+/// localized string (no parameters).
+pub fn npc_say(npc_object_id: i32, npc_id: i32, npc_string_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::NPC_SAY);
+    w.write_i32(npc_object_id);
+    w.write_i32(22); // ChatType.NPC_GENERAL client id
+    w.write_i32(1_000_000 + npc_id);
+    w.write_i32(npc_string_id);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/StaticObjectInfo`'s StaticObject constructor —
+/// Java hardcodes type 0/targetable/mesh 0/no HP for the decoration kind
+/// regardless of the template's `type` attribute.
+pub fn static_object_info(static_id: i32, object_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::STATIC_OBJECT);
+    w.write_i32(static_id);
+    w.write_i32(object_id);
+    w.write_i32(0); // type
+    w.write_i32(1); // targetable
+    w.write_i32(0); // mesh index
+    w.write_i32(0); // isClosed
+    w.write_i32(0); // isEnemy
+    w.write_i32(0); // current HP
+    w.write_i32(0); // max HP
+    w.write_i32(0); // showHp
+    w.write_i32(0); // damage grade
+    w.into_bytes()
+}
+
+/// `ExSetCompassZoneCode` values this slice can produce (Java declares
+/// seven; the siege/PvP/altered codes wait for their zone types).
+pub mod compass_zone {
+    pub const PEACE: i32 = 0x0C;
+    pub const GENERAL: i32 = 0x0F;
+}
+
+/// Port of `serverpackets/ExSetCompassZoneCode` — the client's compass zone
+/// indicator (peace icon vs general), sent by `Player.revalidateZone` when
+/// the code changes.
+pub fn ex_set_compass_zone_code(code: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SET_COMPASS_ZONE_CODE);
+    w.write_i32(code);
     w.into_bytes()
 }
 
@@ -986,6 +1077,13 @@ pub mod sm_ids {
     pub const S1_IS_NOT_AVAILABLE_REUSE: i16 = 48;
     pub const INVALID_TARGET: i16 = 109;
     pub const CANNOT_SEE_TARGET: i16 = 181;
+    // Zones (G12)
+    pub const YOU_MAY_NOT_ATTACK_THIS_TARGET_IN_A_PEACEFUL_ZONE: i16 = 85;
+    pub const YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE: i16 = 2167;
+    // Shop (G12)
+    pub const YOU_DO_NOT_HAVE_ENOUGH_ADENA: i16 = 279;
+    pub const YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED: i16 = 1036;
+    pub const EXCHANGE_IS_SUCCESSFUL: i16 = 4358;
     pub const DISTANCE_TOO_FAR_CASTING_CANCELLED: i16 = 748;
     pub const S1_HP_HAS_BEEN_RESTORED: i16 = 1066;
     pub const S2_HP_HAS_BEEN_RESTORED_BY_C1: i16 = 1067;

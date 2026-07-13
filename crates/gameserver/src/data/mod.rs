@@ -3,6 +3,9 @@
 //! set (experience table + player templates).
 
 pub mod action_data;
+pub mod buy_list_data;
+pub mod category_data;
+pub mod door_data;
 pub mod experience;
 pub mod hit_condition_bonus;
 pub mod initial_equipment;
@@ -15,9 +18,14 @@ pub mod skill_data;
 pub mod skill_tree;
 pub mod spawn_data;
 pub mod stat_bonus;
+pub mod static_object_data;
 pub mod xp_lost;
+pub mod zone_data;
 
 pub use action_data::ActionData;
+pub use buy_list_data::BuyListData;
+pub use category_data::CategoryData;
+pub use door_data::DoorData;
 pub use experience::ExperienceData;
 pub use hit_condition_bonus::HitConditionBonusData;
 pub use initial_equipment::InitialEquipmentData;
@@ -30,7 +38,9 @@ pub use skill_data::SkillData;
 pub use skill_tree::SkillTreeData;
 pub use spawn_data::SpawnData;
 pub use stat_bonus::StatBonus;
+pub use static_object_data::StaticObjectData;
 pub use xp_lost::PlayerXpPercentLostData;
+pub use zone_data::ZoneData;
 
 /// The static game data bundle owned by the game thread (Java: the swarm of
 /// `*Data.getInstance()` singletons, here a plain struct — decision #4).
@@ -49,6 +59,11 @@ pub struct GameData {
     pub hit_condition_bonus: HitConditionBonusData,
     pub xp_lost: PlayerXpPercentLostData,
     pub map_region: MapRegionData,
+    pub zone_data: ZoneData,
+    pub door_data: DoorData,
+    pub static_object_data: StaticObjectData,
+    pub buy_lists: BuyListData,
+    pub categories: CategoryData,
     /// Datapack root prefix (`""` when running from `dist/game`) — for the
     /// odd loose file read at runtime (NPC dialog `.htm`s, which Java streams
     /// through `HtmCache` rather than a boot-time loader).
@@ -57,6 +72,10 @@ pub struct GameData {
 
 impl GameData {
     pub fn load_from(file_path: &str) -> Self {
+        // Buy lists read item reference prices (`CorrectPrices`), so items
+        // load first.
+        let item_data = ItemData::load_from(file_path);
+        let buy_lists = BuyListData::load_from(file_path, &item_data);
         Self {
             root: file_path.to_string(),
             experience: ExperienceData::load_from(file_path),
@@ -64,7 +83,7 @@ impl GameData {
             skill_trees: SkillTreeData::load_from(file_path),
             stat_bonus: StatBonus::load_from(file_path),
             action_data: ActionData::load_from(file_path),
-            item_data: ItemData::load_from(file_path),
+            item_data,
             initial_equipment: InitialEquipmentData::load_from(file_path),
             initial_shortcuts: InitialShortcutData::load_from(file_path),
             skill_data: SkillData::load_from(file_path),
@@ -73,26 +92,15 @@ impl GameData {
             hit_condition_bonus: HitConditionBonusData::load_from(file_path),
             xp_lost: PlayerXpPercentLostData::load_from(file_path),
             map_region: MapRegionData::load_from(file_path),
+            zone_data: ZoneData::load_from(file_path),
+            door_data: DoorData::load_from(file_path),
+            static_object_data: StaticObjectData::load_from(file_path),
+            buy_lists,
+            categories: CategoryData::load_from(file_path),
         }
     }
     pub fn load() -> Self {
-        Self {
-            root: String::new(),
-            experience: ExperienceData::load(),
-            player_templates: PlayerTemplateData::load(),
-            skill_trees: SkillTreeData::load(),
-            stat_bonus: StatBonus::load(),
-            action_data: ActionData::load(),
-            item_data: ItemData::load(),
-            initial_equipment: InitialEquipmentData::load(),
-            initial_shortcuts: InitialShortcutData::load(),
-            skill_data: SkillData::load(),
-            npc_data: NpcData::load(),
-            spawn_data: SpawnData::load(),
-            hit_condition_bonus: HitConditionBonusData::load(),
-            xp_lost: PlayerXpPercentLostData::load(),
-            map_region: MapRegionData::load(),
-        }
+        Self::load_from("")
     }
 
     /// Empty data bundle for tests that don't exercise the loaders.
@@ -115,6 +123,11 @@ impl GameData {
             hit_condition_bonus: HitConditionBonusData::default(),
             xp_lost: PlayerXpPercentLostData::empty(),
             map_region: MapRegionData::empty(),
+            zone_data: ZoneData::empty(),
+            door_data: DoorData::empty(),
+            static_object_data: StaticObjectData::empty(),
+            buy_lists: BuyListData::empty(),
+            categories: CategoryData::empty(),
         }
     }
 }

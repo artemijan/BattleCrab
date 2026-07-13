@@ -79,6 +79,20 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     }
 }
 
+/// One `StorePlayer` snapshot for a player staying in the world — for
+/// changes that shouldn't wait for logout (class transfers).
+pub(crate) fn store_player_now(world: &mut World, player_object_id: i32) {
+    let p = world.objects.get_component::<crate::model::Player>(&player_object_id);
+    let pos = world.objects.get_component::<crate::model::components::Position>(&player_object_id);
+    let vitals = world.objects.get_component::<crate::model::components::Vitals>(&player_object_id);
+    let pvitals = world.objects.get_component::<crate::model::components::PlayerVitals>(&player_object_id);
+    if let (Some(p), Some(pos), Some(vitals), Some(pvitals)) = (p, pos, vitals, pvitals) {
+        let _ = world.db.send(db::DbCommand::StorePlayer {
+            snap: db::PlayerSnapshot::of(p, pos, vitals, pvitals),
+        });
+    }
+}
+
 /// Port of `clientpackets/RequestRestart.runImpl`: save + leave the world, drop
 /// the session back to the character-selection lifecycle, and re-send the
 /// character list. Olympiad/instance handling doesn't apply yet; `canLogout`

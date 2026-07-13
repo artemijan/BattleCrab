@@ -93,6 +93,11 @@ pub struct World {
     /// is built once at spawn; players keep using the cheap per-player
     /// adjacency compare instead (see `regions_adjacent`).
     pub npc_regions: HashMap<(i32, i32), Vec<i32>>,
+    /// Region cell → door object ids in it — same shape as `npc_regions`
+    /// (doors are static; built once by `model::door::spawn_doors`).
+    pub door_regions: HashMap<(i32, i32), Vec<i32>>,
+    /// Region cell → static-object (town map/throne) object ids.
+    pub static_regions: HashMap<(i32, i32), Vec<i32>>,
     /// Next transient NPC object id (see `model::npc::FIRST_NPC_OBJECT_ID`).
     pub next_npc_object_id: i32,
     /// Persistent object-id block `[start, end)` reserved from the DB
@@ -164,6 +169,8 @@ impl World {
             clients: HashMap::new(),
             objects: EntityStore::new(),
             npc_regions: HashMap::new(),
+            door_regions: HashMap::new(),
+            static_regions: HashMap::new(),
             next_npc_object_id: crate::model::npc::FIRST_NPC_OBJECT_ID,
             id_pool: 0..0,
             login: LoginState::new(link),
@@ -208,6 +215,33 @@ impl World {
         for dx in -1..=1 {
             for dy in -1..=1 {
                 if let Some(ids) = self.npc_regions.get(&(region.0 + dx, region.1 + dy)) {
+                    out.extend_from_slice(ids);
+                }
+            }
+        }
+        out
+    }
+
+    /// Door object ids visible from a region's 3×3 block (the door half of
+    /// `npcs_visible_from`).
+    pub fn doors_visible_from(&self, region: (i32, i32)) -> Vec<i32> {
+        let mut out = Vec::new();
+        for dx in -1..=1 {
+            for dy in -1..=1 {
+                if let Some(ids) = self.door_regions.get(&(region.0 + dx, region.1 + dy)) {
+                    out.extend_from_slice(ids);
+                }
+            }
+        }
+        out
+    }
+
+    /// Static-object ids visible from a region's 3×3 block.
+    pub fn statics_visible_from(&self, region: (i32, i32)) -> Vec<i32> {
+        let mut out = Vec::new();
+        for dx in -1..=1 {
+            for dy in -1..=1 {
+                if let Some(ids) = self.static_regions.get(&(region.0 + dx, region.1 + dy)) {
                     out.extend_from_slice(ids);
                 }
             }

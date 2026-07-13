@@ -80,12 +80,18 @@ pub struct Speeds {
     /// `Creature._isRunning` — players spawn running; NPCs walk until AI
     /// flips to run on aggro.
     pub running: bool,
+    /// In a `WaterZone` (`isInsideZone(ZoneId.WATER)`) — flipped by zone
+    /// revalidation; `move_speed` switches to the swim speeds while set.
+    pub swimming: bool,
 }
 
 impl Speeds {
-    /// The ground speed movement math uses (`Creature.getMoveSpeed`).
+    /// The ground speed movement math uses (`Creature.getMoveSpeed`, incl.
+    /// its "in water → swim speeds" branch).
     pub fn move_speed(&self) -> f64 {
-        (if self.running { self.run_spd } else { self.walk_spd }) * self.move_multiplier
+        let (run, walk) =
+            if self.swimming { (self.swim_run_spd, self.swim_walk_spd) } else { (self.run_spd, self.walk_spd) };
+        (if self.running { run } else { walk }) * self.move_multiplier
     }
 }
 
@@ -243,6 +249,44 @@ pub struct TargetRef(pub Option<i32>);
 /// use time is the guard either way. Player-only.
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
 pub struct LastFolkNpc(pub i32);
+
+/// Zone membership (Java `Creature._zones` narrowed to the loaded
+/// `ZoneKind`s) + the revalidation bookkeeping `Creature`/`Player` keep
+/// alongside it. Player-only for now: the peace gate only ever checks
+/// playables, and NPC water/no-restart behavior has no consumer yet.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct ZoneFlags {
+    /// OR of `ZoneKind::bit()`s the player currently stands in.
+    pub mask: u8,
+    /// `Creature._lastZoneValidateLocation` — revalidation is skipped while
+    /// within 100 units of the last validated spot (movement calls it every
+    /// tick).
+    pub last_validate: (i32, i32, i32),
+    /// `Player._lastCompassZone` (`ExSetCompassZoneCode` value last sent).
+    /// Starts at GENERAL, not Java's 0: the client already displays the
+    /// general zone after login, so Java's initial no-op GENERAL push is
+    /// suppressed (deliberate deviation — a login inside a peace zone still
+    /// sends PEACE).
+    pub last_compass: i32,
+}
+
+impl Default for ZoneFlags {
+    fn default() -> Self {
+        // A fresh player has no validated location yet — `i32::MIN` keeps the
+        // first revalidate from being skipped by the distance filter.
+        Self {
+            mask: 0,
+            last_validate: (i32::MIN, i32::MIN, i32::MIN),
+            last_compass: crate::network::server_packets::compass_zone::GENERAL,
+        }
+    }
+}
+
+impl ZoneFlags {
+    pub fn contains(&self, kind: crate::data::zone_data::ZoneKind) -> bool {
+        self.mask & kind.bit() != 0
+    }
+}
 
 /// Last position/heading the client reported via `ValidatePosition`
 /// (Java `Player._clientX/_clientY/_clientZ/_clientHeading`).

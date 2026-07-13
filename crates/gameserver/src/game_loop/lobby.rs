@@ -370,6 +370,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // Java `spawnMe` → `World.addVisibleObject`: mutual CharInfo with every
     // player visible from the spawn region.
     super::visibility::on_enter_world(world, client_id, object_id);
+    // Java `EnterWorld` → `player.revalidateZone(true)` — initial zone set +
+    // compass code at the spawn point.
+    super::zones::revalidate_zone(world, object_id, true);
     // "Your friend just logged in" + FriendStatus(ONLINE) to online friends.
     super::friends::on_enter_world(world, object_id);
     // Pledge window to the member + online ping to the rest of the clan.

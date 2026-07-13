@@ -14,6 +14,7 @@ pub mod enter_world;
 pub mod game_client;
 pub mod masks;
 pub mod server_packets;
+pub mod trade;
 pub mod user_info;
 
 pub use connection_state::ConnectionState;

@@ -661,6 +661,13 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
         }
         (vitals.cur_hp as i32, vitals.max_hp)
     };
+    // Quest `onAttack` (Java `addAttackId` scripts, notified from
+    // `Attackable.reduceCurrentHp` before any death processing). Only
+    // players drive quests.
+    if world.objects.has_component::<crate::model::Player>(&attacker_oid) {
+        let npc_id = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).map(|n| n.npc_id).unwrap_or(0);
+        super::quests::notify_attack(world, attacker_oid, npc_oid, npc_id);
+    }
     let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
 
     if became_running {

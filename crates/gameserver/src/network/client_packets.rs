@@ -36,6 +36,7 @@ pub mod opcodes {
     pub const SAY2: u8 = 0x49;
     pub const REQUEST_BYPASS_TO_SERVER: u8 = 0x23;
     pub const REQUEST_QUEST_ABORT: u8 = 0x63;
+    pub const REQUEST_BUY_ITEM: u8 = 0x40;
     pub const REQUEST_JOIN_PARTY: u8 = 0x42;
     pub const REQUEST_ANSWER_JOIN_PARTY: u8 = 0x43;
     pub const REQUEST_WITH_DRAWAL_PARTY: u8 = 0x44;
@@ -146,6 +147,43 @@ impl CharacterCreate {
 /// reuses this reader too.
 pub fn read_char_slot(body_after_opcode: &[u8]) -> Option<i32> {
     PacketReader::new(body_after_opcode).read_i32()
+}
+
+/// One purchase line of `RequestBuyItem`.
+pub struct BuyLine {
+    pub item_id: i32,
+    pub count: i64,
+}
+
+/// Port of `clientpackets/RequestBuyItem.readImpl`: list id + item lines;
+/// any non-positive id/count invalidates the whole request (Java nulls
+/// `_items` and the handler answers ActionFailed — here the packet just
+/// fails to parse, same net effect as the guards re-run in the handler).
+pub struct RequestBuyItem {
+    pub list_id: i32,
+    pub items: Vec<BuyLine>,
+}
+
+impl RequestBuyItem {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let list_id = r.read_i32()?;
+        let size = r.read_i32()?;
+        // Java: `(size > 500) || ((size * 12) != remaining)` drops the packet.
+        if size <= 0 || size > 500 {
+            return None;
+        }
+        let mut items = Vec::with_capacity(size as usize);
+        for _ in 0..size {
+            let item_id = r.read_i32()?;
+            let count = r.read_i64()?;
+            if item_id < 1 || count < 1 {
+                return None;
+            }
+            items.push(BuyLine { item_id, count });
+        }
+        Some(Self { list_id, items })
+    }
 }
 
 /// Port of `clientpackets/UseItem` (`cdc`): the target item's object id, plus
