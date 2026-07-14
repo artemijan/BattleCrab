@@ -154,16 +154,19 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_setinvul" => toggle_flag_on_target(world, client_id, object_id, GmFlag::Invul),
         "admin_undying" => toggle_flag(world, client_id, object_id, GmFlag::Undying),
         "admin_setundying" => toggle_flag_on_target(world, client_id, object_id, GmFlag::Undying),
+        // Toggle the GM's visibility to other players.
+        "admin_hide" => admin_hide(world, client_id, object_id),
         _ => return false,
     }
     true
 }
 
-/// The GM combat flags togglable by `//invul`/`//undying`.
+/// The GM flags togglable via `AdminFlags`.
 #[derive(Clone, Copy)]
 enum GmFlag {
     Invul,
     Undying,
+    Hidden,
 }
 
 impl GmFlag {
@@ -171,6 +174,7 @@ impl GmFlag {
         match self {
             GmFlag::Invul => "Invulnerability",
             GmFlag::Undying => "Undying",
+            GmFlag::Hidden => "Hide",
         }
     }
 }
@@ -187,9 +191,28 @@ fn set_flag(world: &mut World, target: i32, flag: GmFlag) -> bool {
             flags.undying = !flags.undying;
             flags.undying
         }
+        GmFlag::Hidden => {
+            flags.hidden = !flags.hidden;
+            flags.hidden
+        }
     };
     world.objects.add_components(&target, flags);
     now
+}
+
+/// `AdminHide`'s `//hide` — toggle the GM's visibility to other players (Java
+/// `setInvisible` + `decayMe`/`spawnMe`). Hiding sends `DeleteObject` to nearby
+/// players; unhiding re-runs the visibility exchange. While hidden, the
+/// visibility system won't describe the GM to anyone (see `send_char_info`).
+fn admin_hide(world: &mut World, client_id: u32, object_id: i32) {
+    let hidden = set_flag(world, object_id, GmFlag::Hidden);
+    if hidden {
+        super::helpers::broadcast_to_others(world, object_id, &server_packets::delete_object(object_id));
+        send_message(world, client_id, "You are now hidden.");
+    } else {
+        super::visibility::on_enter_world(world, client_id, object_id);
+        send_message(world, client_id, "You are now visible.");
+    }
 }
 
 /// `//invul` / `//undying` — toggle the flag on the GM.

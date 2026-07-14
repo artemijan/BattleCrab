@@ -8284,3 +8284,29 @@ fn admin_setinvul_targets_a_player() {
     on_packet(&mut world, 1, build_admin("setinvul"));
     assert!(world.objects.get_component::<crate::model::components::AdminFlags>(&7804).unwrap().invul);
 }
+
+/// `//hide` removes the GM from nearby players' view (DeleteObject) and toggling
+/// it off re-introduces them (CharInfo).
+#[test]
+fn admin_hide_toggles_visibility() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7901, 100);
+    let mut obs_rx = ingame_player_access(&mut world, 2, 7902, 0);
+    drain(&mut gm_rx);
+    drain(&mut obs_rx);
+
+    on_packet(&mut world, 1, build_admin("hide"));
+    assert!(world.objects.get_component::<crate::model::components::AdminFlags>(&7901).unwrap().hidden);
+    assert!(
+        drain(&mut obs_rx).iter().any(|p| p[0] == server_packets::opcodes::DELETE_OBJECT
+            && i32::from_le_bytes([p[1], p[2], p[3], p[4]]) == 7901),
+        "observer got DeleteObject for the hidden GM"
+    );
+
+    on_packet(&mut world, 1, build_admin("hide"));
+    assert!(!world.objects.get_component::<crate::model::components::AdminFlags>(&7901).unwrap().hidden);
+    assert!(
+        drain(&mut obs_rx).iter().any(|p| p[0] == server_packets::opcodes::CHAR_INFO),
+        "observer got CharInfo when the GM reappeared"
+    );
+}

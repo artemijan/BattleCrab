@@ -27,7 +27,16 @@ fn describe_state(observer: &ClientSession, p: &Player, pos: &Position, movement
 }
 
 /// `CharInfo` + follow-up state for one player, to one observer session.
+/// A GM with `//hide` on (`AdminFlags.hidden`) is not described to others —
+/// Java's `isInvisible()` filter in `Creature.broadcastInfo`/knownlist.
 fn send_char_info(world: &World, observer: &ClientSession, player_id: i32) {
+    if world
+        .objects
+        .get_component::<crate::model::components::AdminFlags>(&player_id)
+        .is_some_and(|f| f.hidden)
+    {
+        return;
+    }
     let Some(v) = crate::model::PlayerView::of(&world.objects, player_id) else { return };
     observer.send(server_packets::char_info(&v));
     describe_state(observer, v.p, v.pos, world.objects.get_component::<Movement>(&player_id));
