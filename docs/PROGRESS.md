@@ -1115,7 +1115,7 @@ command bodies (G13.B) are next.
   - Enchant: 15 per-slot `//set*` commands (weapon/armor/jewelry).
   - EditChar: `//setreputation`, `//nokarma`, `//setfame`, `//setpk`,
     `//setpvp`, `//settitle`, `//setcolor`/`//settcolor`, `//setsex`,
-    `//set_hp`/`//set_mp`/`//set_cp`.
+    `//set_hp`/`//set_mp`/`//set_cp`, `//setclass` (recompute + class skills).
   - GM/session: `//serverinfo`, `//gmchat`, `//announce`, `//target`,
     `//changelvl` (access + persist), `//gm` (session GM-off), `//kick`,
     `//character_disconnect`.
@@ -1123,13 +1123,12 @@ command bodies (G13.B) are next.
     `death::introduce_npc`/`despawn_npc`, a `SetAccessLevel` DB command, and an
     `AdminFlags` component (invul/undying/hidden) guarded in
     `player_receive_damage` + `send_char_info`.
-- Tests: 5 `admin_data` units + 45 synthetic-world dispatch/handler tests
+- Tests: 5 `admin_data` units + 47 synthetic-world dispatch/handler tests
   (gating, confirm round-trip, colors, and one+ per handler group).
-- **Still to port in G13.B**: the rest of `//editchar` (setclass, setnoble,
-  find/info/summon/pet subcommands), `//effects` (35 visual/abnormal toggles),
-  `//social`, the `//admin` HTML menu, and the G12-world commands (`//zone`,
-  `//doors`). **G13.C** (sieges/olympiad/instances/events/…) stays
-  gated-but-bodiless.
+- **Still to port in G13.B**: the rest of `//editchar` (setnoble, find/info/
+  summon/pet subcommands), `//effects` (35 visual/abnormal toggles), `//social`,
+  the `//admin` HTML menu, and the G12-world commands (`//zone`, `//doors`).
+  **G13.C** (sieges/olympiad/instances/events/…) stays gated-but-bodiless.
 
 ---
 
