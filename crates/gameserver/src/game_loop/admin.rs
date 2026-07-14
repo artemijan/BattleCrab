@@ -180,6 +180,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_buff" => admin_buff(world, client_id, object_id, &args),
         // List the target's active buffs.
         "admin_getbuffs" => admin_getbuffs(world, client_id, object_id),
+        // Remove one / all buffs from the target.
+        "admin_stopbuff" => admin_stopbuff(world, client_id, object_id, &args),
+        "admin_stopallbuffs" => admin_stopallbuffs(world, client_id, object_id),
         // EditChar field setters (target player or self).
         "admin_setreputation" => set_int_field(world, client_id, object_id, IntField::Reputation, &args),
         "admin_nokarma" => set_field_value(world, client_id, object_id, IntField::Reputation, 0),
@@ -840,6 +843,35 @@ fn set_vital(world: &mut World, client_id: u32, object_id: i32, vital: Vital, ar
         }
     }
     super::party::notify_party_vitals(world, target);
+}
+
+/// `AdminBuffs`'s `//stopbuff <skillId>` — remove a single buff from the target
+/// (reuses the buff-expiry path: stat revert + rebroadcast).
+fn admin_stopbuff(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(skill_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //stopbuff <skillId>");
+        return;
+    };
+    let target = current_target(world, object_id).unwrap_or(object_id);
+    crate::game_loop::skills::effects::handle_buff_expire(world, target, skill_id);
+    send_message(world, client_id, &format!("Removed buff {skill_id}."));
+}
+
+/// `AdminBuffs`'s `//stopallbuffs` (confirmDlg) — remove every timed buff from
+/// the target (passive grade-penalty pumps are kept). Each removal reverts its
+/// stat contribution through the buff-expiry path.
+fn admin_stopallbuffs(world: &mut World, client_id: u32, object_id: i32) {
+    let target = current_target(world, object_id).unwrap_or(object_id);
+    let skill_ids: Vec<i32> = world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&target)
+        .map(|b| b.0.iter().filter(|x| !x.passive).map(|x| x.skill_id).collect())
+        .unwrap_or_default();
+    let count = skill_ids.len();
+    for skill_id in skill_ids {
+        crate::game_loop::skills::effects::handle_buff_expire(world, target, skill_id);
+    }
+    send_message(world, client_id, &format!("Removed {count} buff(s)."));
 }
 
 /// `AdminBuffs`'s `//getbuffs` — list the target player's active (non-passive)

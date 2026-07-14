@@ -8486,3 +8486,47 @@ fn admin_getbuffs_lists_active_buffs() {
     on_packet(&mut world, 1, build_admin("getbuffs"));
     assert!(count_system_messages(&drain(&mut gm_rx)) >= 2, "header + at least one buff line");
 }
+
+/// `//stopbuff <id>` removes that one buff.
+#[test]
+fn admin_stopbuff_removes_one() {
+    let (mut world, ..) = admin_world();
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8501, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("buff 1068 1"));
+    let has = |w: &World| {
+        w.objects
+            .get_component::<crate::model::components::Buffs>(&8501)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 1068))
+    };
+    assert!(has(&world), "Might applied");
+    on_packet(&mut world, 1, build_admin("stopbuff 1068"));
+    assert!(!has(&world), "Might removed by //stopbuff");
+}
+
+/// `//stopallbuffs` prompts (confirmDlg) and clears every buff on confirm.
+#[test]
+fn admin_stopallbuffs_clears_after_confirm() {
+    let (mut world, ..) = admin_world();
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8502, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("buff 1068 1"));
+    assert!(pbuffs(&world, 8502) >= 1, "a buff is active");
+
+    // confirmDlg="true": prompts first, no clear yet.
+    on_packet(&mut world, 1, build_admin("stopallbuffs"));
+    assert!(pbuffs(&world, 8502) >= 1, "not cleared until confirmed");
+
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::DLG_ANSWER], dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0)].concat(),
+    );
+    assert_eq!(pbuffs(&world, 8502), 0, "all buffs cleared after confirm");
+}
