@@ -266,8 +266,9 @@ pub struct Macros {
 pub struct TargetRef(pub Option<i32>);
 
 /// GM-toggled state on a player (Java `Creature._isInvul`, `_isUndying`,
-/// `Player.setInvisible`). Presence-based: absent = every flag `false`, added
-/// on the first `//invul`/`//undying`/`//hide` toggle.
+/// `Player.setInvisible`/`setSilenceMode`/`setDietMode`). Presence-based:
+/// absent = every flag `false`, added on the first toggle or by the GM-startup
+/// block at enter-world.
 #[derive(Component, Debug, Clone, Copy, Default)]
 pub struct AdminFlags {
     /// `isInvul` — incoming damage is ignored entirely.
@@ -276,6 +277,12 @@ pub struct AdminFlags {
     pub undying: bool,
     /// `isInvisible` — hidden from other players (`//hide`).
     pub hidden: bool,
+    /// `isSilenceMode` — GM refuses incoming whispers/PMs. Set by
+    /// `GMStartupSilence`; TODO(G14): honored once whisper delivery exists.
+    pub silence: bool,
+    /// `isInDietMode` — weight overload is ignored. Set by `GMStartupDietMode`;
+    /// TODO(G14): honored once the overload calc exists.
+    pub diet: bool,
 }
 
 /// Object id of the last NPC this player clicked/talked to (Java

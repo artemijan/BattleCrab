@@ -23,6 +23,7 @@ mod character;
 mod effects;
 mod flags;
 mod items;
+mod menu;
 mod moderation;
 mod skills;
 mod spawn;
@@ -34,6 +35,11 @@ mod vitals;
 use character::*;
 use effects::*;
 use flags::*;
+use menu::*;
+
+// The enter-world GM startup block (`EnterWorld.runImpl`) is driven from
+// `lobby::handle_enter_world`, so re-export it out of the admin module.
+pub(crate) use flags::apply_gm_startup;
 use items::*;
 use moderation::*;
 use skills::*;
@@ -134,6 +140,10 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
     // Arguments = the whitespace-delimited tokens after the command word.
     let args: Vec<&str> = full.split_whitespace().skip(1).collect();
     match command {
+        // The `//admin` GM menu (`AdminAdmin.showMainPage`): main + the six
+        // sub-panels. Their buttons route back through the `admin_` bypass.
+        "admin_admin" | "admin_admin1" | "admin_admin2" | "admin_admin3" | "admin_admin4"
+        | "admin_admin5" | "admin_admin6" | "admin_admin7" => admin_admin(world, client_id, command),
         "admin_serverinfo" => admin_serverinfo(world, client_id),
         "admin_heal" => admin_heal(world, object_id),
         "admin_kill" => admin_kill(world, client_id, object_id),

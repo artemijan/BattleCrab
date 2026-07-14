@@ -5,6 +5,7 @@
 //! incrementally: each milestone adds the ini files / keys its subsystem needs.
 
 pub mod character;
+pub mod general;
 pub mod geoengine;
 pub mod hexid;
 pub mod ipconfig;
@@ -13,6 +14,7 @@ pub mod rates;
 pub mod server;
 
 pub use character::CharacterConfig;
+pub use general::GeneralConfig;
 pub use geoengine::GeoEngineConfig;
 pub use hexid::HexId;
 pub use ipconfig::IpConfig;
@@ -36,6 +38,7 @@ pub struct CombatConfig {
 pub struct Config {
     pub server: ServerConfig,
     pub character: CharacterConfig,
+    pub general: GeneralConfig,
     pub geoengine: GeoEngineConfig,
     pub npc: NpcConfig,
     pub rates: RatesConfig,
@@ -59,6 +62,7 @@ impl Config {
     pub fn load() -> Self {
         let server = ServerConfig::load();
         let character = CharacterConfig::load();
+        let general = GeneralConfig::load();
         let geoengine = GeoEngineConfig::load();
         let npc = NpcConfig::load();
         let rates = RatesConfig::load();
@@ -67,6 +71,7 @@ impl Config {
         Self {
             server,
             character,
+            general,
             geoengine,
             npc,
             rates,

@@ -178,7 +178,7 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
     w.write_u8(v.pvp_flag); // pvp flag
     w.write_i32(p.reputation);
     w.write_u8(0); // noble
-    w.write_u8(0); // hero
+    w.write_u8(p.hero_aura as u8); // hero (isHero || (isGM && GMHeroAura))
     w.write_u8(0); // pledge class
     w.write_i32(p.pk_kills);
     w.write_i32(p.pvp_kills);

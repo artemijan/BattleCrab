@@ -107,6 +107,10 @@ pub struct Player {
     /// client does not send, and a real UserInfo capture uses the defaults.
     pub name_color: i32,
     pub title_color: i32,
+    /// Hero glow shown in CharInfo/UserInfo: `isHero() || (isGM() &&
+    /// GMHeroAura)`, resolved at load (Java `CharInfo`/`UserInfo`). `isHero()`
+    /// is always `false` for now — TODO(Olympiad): real hero status.
+    pub hero_aura: bool,
 
     pub level: i32,
     pub class_id: i32,
@@ -547,6 +551,10 @@ impl Player {
         } else {
             (DEFAULT_NAME_COLOR, DEFAULT_TITLE_COLOR)
         };
+        // Java `CharInfo`/`UserInfo`: hero glow = `isHero() || (isGM() &&
+        // GM_HERO_AURA)`. `isHero()` is unported (TODO: Olympiad), so this is
+        // purely the GM-aura branch for now.
+        let hero_aura = access.is_gm && data.gm.hero_aura;
         let p = Player {
             object_id: c.object_id,
             name: c.name.clone(),
@@ -555,6 +563,7 @@ impl Player {
             access_level: c.access_level,
             name_color,
             title_color,
+            hero_aura,
             level: c.level,
             class_id: c.class_id,
             base_class_id: c.base_class_id,

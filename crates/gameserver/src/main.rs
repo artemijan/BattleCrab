@@ -49,6 +49,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         max_m_atk_speed: config.character.max_m_atk_speed,
         max_evasion: config.character.max_evasion,
     };
+    // GM login-state / hero-aura settings live in General.ini; fold them into
+    // the same data bundle the enter-world flow and UserInfo read.
+    data.gm = gameserver::data::GmSettings {
+        hero_aura: config.general.gm_hero_aura,
+        startup_builder_hide: config.general.gm_startup_builder_hide,
+        startup_invulnerable: config.general.gm_startup_invulnerable,
+        startup_invisible: config.general.gm_startup_invisible,
+        startup_silence: config.general.gm_startup_silence,
+        startup_auto_list: config.general.gm_startup_auto_list,
+        startup_diet_mode: config.general.gm_startup_diet_mode,
+    };
 
     // Java: print_section("Geodata") → GeoEngine.getInstance() (scans
     // GeoDataPath for `{x}_{y}.l2j` regions; missing files just stay null).

@@ -192,6 +192,7 @@ async fn character_create_inserts_into_real_schema() {
         categories: crate::data::CategoryData::empty(),
         admin: crate::data::AdminData::empty(),
         combat_caps: crate::data::CombatCaps::default(),
+        gm: crate::data::GmSettings::default(),
     };
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
@@ -8025,6 +8026,100 @@ fn admin_confirm_dialog_declined() {
     drain(&mut rx);
     on_packet(&mut world, 1, [vec![cop::DLG_ANSWER], dlg_answer_body(S1_3, 0, 0)].concat());
     assert!(drain(&mut rx).is_empty(), "declined command does not run");
+}
+
+// ------------------------------------------------ admin (G13.B-login)
+
+/// Hero glow resolves from config: a GM gets it only when `GMHeroAura` is on;
+/// a normal player never does. (`isHero()` is always false — no Olympiad yet.)
+#[test]
+fn hero_aura_resolves_from_gm_config() {
+    let (mut world, ..) = admin_world();
+    world.data.gm.hero_aura = true;
+
+    // Master GM (level 100) with the aura on → hero glow.
+    let _gm = ingame_player_access(&mut world, 1, 6401, 100);
+    assert!(world.objects.get_component::<Player>(&6401).unwrap().hero_aura);
+
+    // Normal player, aura on → still no glow (not a GM).
+    let _user = ingame_player_access(&mut world, 2, 6402, 0);
+    assert!(!world.objects.get_component::<Player>(&6402).unwrap().hero_aura);
+
+    // Same GM with the aura off → no glow.
+    world.data.gm.hero_aura = false;
+    let _gm2 = ingame_player_access(&mut world, 3, 6403, 100);
+    assert!(!world.objects.get_component::<Player>(&6403).unwrap().hero_aura);
+}
+
+/// The GM startup block (`EnterWorld` GM branch) sets invul + invisible from
+/// config, each gated by the `admin_invul`/`admin_invisible` access right.
+#[test]
+fn gm_startup_applies_invul_and_invisible() {
+    let (mut world, ..) = admin_world();
+    world.data.gm.startup_invulnerable = true;
+    world.data.gm.startup_invisible = true;
+
+    let mut rx = ingame_player_access(&mut world, 1, 6411, 100);
+    drain(&mut rx);
+    super::admin::apply_gm_startup(&mut world, 1, 6411);
+
+    let f = world
+        .objects
+        .get_component::<crate::model::components::AdminFlags>(&6411)
+        .copied()
+        .unwrap_or_default();
+    assert!(f.invul, "GMStartupInvulnerable applied");
+    assert!(f.hidden, "GMStartupInvisible applied");
+    assert!(!f.silence && !f.diet, "unset startup flags stay off");
+}
+
+/// `GMStartupBuilderHide` hides the GM and **breaks** the startup process, so
+/// the invul/invisible/silence/diet flags below the break are not applied
+/// (Java's `break gmStartupProcess`). The three "…default for builder" notices
+/// are sent.
+#[test]
+fn gm_startup_builder_hide_short_circuits() {
+    let (mut world, ..) = admin_world();
+    world.data.gm.startup_builder_hide = true;
+    world.data.gm.startup_invulnerable = true; // would apply if not short-circuited
+
+    let mut rx = ingame_player_access(&mut world, 1, 6421, 100);
+    drain(&mut rx);
+    super::admin::apply_gm_startup(&mut world, 1, 6421);
+
+    let f = world
+        .objects
+        .get_component::<crate::model::components::AdminFlags>(&6421)
+        .copied()
+        .unwrap_or_default();
+    assert!(f.hidden, "builder hide set");
+    assert!(!f.invul, "builder hide broke before the invul flag");
+    assert_eq!(count_system_messages(&drain(&mut rx)), 3, "three builder notices");
+}
+
+/// `//admin` opens the main menu page — the real `main_menu.htm` is served (not
+/// the missing-file placeholder) through an `NpcHtmlMessage`.
+#[test]
+fn admin_menu_serves_main_page() {
+    let (mut world, ..) = admin_world();
+    // Point the datapack root at dist/game so the html file resolves.
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut rx = ingame_player_access(&mut world, 1, 6431, 100);
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("admin")].concat());
+    let pkts = drain(&mut rx);
+    let html = pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
+        .expect("an NpcHtmlMessage was sent");
+
+    // Decode: object_id (0) then the UTF-16 html string.
+    let mut r = commons::network::PacketReader::new(&html[1..]);
+    assert_eq!(r.read_i32().unwrap(), 0, "admin menu is not NPC-scoped");
+    let content = r.read_string().unwrap();
+    assert!(!content.contains("My text is missing"), "main_menu.htm was found");
+    assert!(content.contains("admin_admin"), "menu links back through the admin_ bypass");
 }
 
 /// `//heal` on a targeted, damaged player fully restores HP/MP/CP and pushes a

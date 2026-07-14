@@ -496,6 +496,12 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // (Spellcraft/Magician's Movement) at enter-world: a robe-wearing mystic
     // logs in with the casting/attack-speed bonus already folded in.
     super::passive_skills::refresh_conditioned_passives(world, object_id);
+    // Java `EnterWorld.runImpl`'s GM branch: apply the configured default GM
+    // state (builder-hide / invul / invis / silence / diet) before the spawn
+    // broadcast, so an invisible GM is never described to nearby players.
+    if world.objects.get_component::<crate::model::Player>(&object_id).is_some_and(|p| p.is_gm(&world.data)) {
+        super::admin::apply_gm_startup(world, client_id, object_id);
+    }
     // Java `spawnMe` → `World.addVisibleObject`: mutual CharInfo with every
     // player visible from the spawn region.
     super::visibility::on_enter_world(world, client_id, object_id);

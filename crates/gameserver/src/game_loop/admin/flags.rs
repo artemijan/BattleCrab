@@ -69,6 +69,64 @@ pub(super) fn toggle_flag(world: &mut World, client_id: u32, object_id: i32, fla
     send_message(world, client_id, &format!("{} {}.", flag.label(), if on { "enabled" } else { "disabled" }));
 }
 
+/// Java `EnterWorld.runImpl`'s GM startup block (the `gmStartupProcess:`
+/// label): apply the configured default GM state on login, each gated by the
+/// matching `admin_*` access right — exactly as Java gates `admin_hide`,
+/// `admin_invul`, `admin_invisible`, `admin_silence`, `admin_diet`. Runs once,
+/// just before the enter-world visibility broadcast, so an invisible GM is
+/// never described to nearby players in the first place (no `DeleteObject`
+/// needed, unlike the runtime `//hide`).
+///
+/// The caller has already confirmed the player is a GM.
+pub(crate) fn apply_gm_startup(world: &mut World, client_id: u32, object_id: i32) {
+    let gm = world.data.gm;
+    let Some(access_level) = world.objects.get_component::<Player>(&object_id).map(|p| p.access_level)
+    else {
+        return;
+    };
+    let mut flags = world.objects.get_component::<AdminFlags>(&object_id).copied().unwrap_or_default();
+
+    // `GMStartupBuilderHide`: hide + the three retail "…is default for builder"
+    // notices, then **break** — Java deliberately skips the rest so the custom
+    // L2J invul/invis/silence/diet flags aren't stacked on the builder default.
+    if gm.startup_builder_hide && world.data.admin.has_access("admin_hide", access_level) {
+        flags.hidden = true;
+        world.objects.add_components(&object_id, flags);
+        send_message(world, client_id, "hide is default for builder.");
+        send_message(world, client_id, "FriendAddOff is default for builder.");
+        send_message(world, client_id, "whisperoff is default for builder.");
+        register_gm(world, object_id, access_level);
+        return;
+    }
+
+    if gm.startup_invulnerable && world.data.admin.has_access("admin_invul", access_level) {
+        flags.invul = true;
+    }
+    if gm.startup_invisible && world.data.admin.has_access("admin_invisible", access_level) {
+        flags.hidden = true;
+    }
+    if gm.startup_silence && world.data.admin.has_access("admin_silence", access_level) {
+        flags.silence = true;
+    }
+    if gm.startup_diet_mode && world.data.admin.has_access("admin_diet", access_level) {
+        flags.diet = true;
+    }
+    world.objects.add_components(&object_id, flags);
+    register_gm(world, object_id, access_level);
+}
+
+/// Java `AdminData.addGm(player, hidden)`: register the live GM with a
+/// hidden-from-`//gmlist` flag of
+/// `!GMStartupAutoList || !hasAccess("admin_gmliston")`. There is no `//gmlist`
+/// consumer yet (GMs are derived on demand from `is_gm` — see
+/// `admin::moderation::admin_gmchat`), so nothing tracks the flag today.
+/// TODO(G14): keep the hidden flag once `//gmlist`/`//gmliston` land.
+fn register_gm(world: &World, _object_id: i32, access_level: i32) {
+    let _hidden = !world.data.gm.startup_auto_list
+        || !world.data.admin.has_access("admin_gmliston", access_level);
+    // No-op until the GM list exists.
+}
+
 /// `//setinvul` / `//setundying` — toggle the flag on the targeted player.
 pub(super) fn toggle_flag_on_target(world: &mut World, client_id: u32, object_id: i32, flag: GmFlag) {
     let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))

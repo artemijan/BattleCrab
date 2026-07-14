@@ -126,7 +126,7 @@ pub fn char_info(v: &crate::model::PlayerView) -> Vec<u8> {
     w.write_u8(0); // team id
     w.write_i32(0); // clan crest large id
     w.write_u8(0); // noble
-    w.write_u8(0); // hero
+    w.write_u8(p.hero_aura as u8); // hero (isHero || (isGM && GMHeroAura))
     w.write_u8(0); // fishing
     w.write_i32(0); // bait x
     w.write_i32(0); // bait y

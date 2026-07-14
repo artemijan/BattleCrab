@@ -81,6 +81,24 @@ impl Default for CombatCaps {
     }
 }
 
+/// GM login-state / hero-aura settings from `General.ini` (`Config.GM_*`).
+/// Carried on `GameData` the same way as [`CombatCaps`] so the enter-world
+/// flow and packet builders (`Player::from_char` hero aura, `UserInfo`) read
+/// them off `world.data` without threading `GeneralConfig` through the
+/// pipeline. Defaults are the Java `Config` fallbacks (all `false`);
+/// production overwrites them from the parsed config at boot (`main.rs`),
+/// tests keep the defaults.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct GmSettings {
+    pub hero_aura: bool,
+    pub startup_builder_hide: bool,
+    pub startup_invulnerable: bool,
+    pub startup_invisible: bool,
+    pub startup_silence: bool,
+    pub startup_auto_list: bool,
+    pub startup_diet_mode: bool,
+}
+
 pub struct GameData {
     pub experience: ExperienceData,
     pub player_templates: PlayerTemplateData,
@@ -105,6 +123,8 @@ pub struct GameData {
     pub admin: AdminData,
     /// Stat ceilings + run-speed boost, from `Character.ini` (see [`CombatCaps`]).
     pub combat_caps: CombatCaps,
+    /// GM login-state / hero-aura settings, from `General.ini` (see [`GmSettings`]).
+    pub gm: GmSettings,
     /// Datapack root prefix (`""` when running from `dist/game`) — for the
     /// odd loose file read at runtime (NPC dialog `.htm`s, which Java streams
     /// through `HtmCache` rather than a boot-time loader).
@@ -142,6 +162,8 @@ impl GameData {
             // Overwritten from the parsed `CharacterConfig` at boot (`main.rs`);
             // the default is this dist's Character.ini values.
             combat_caps: CombatCaps::default(),
+            // Overwritten from the parsed `GeneralConfig` at boot (`main.rs`).
+            gm: GmSettings::default(),
         }
     }
     pub fn load() -> Self {
@@ -175,6 +197,7 @@ impl GameData {
             categories: CategoryData::empty(),
             admin: AdminData::empty(),
             combat_caps: CombatCaps::default(),
+            gm: GmSettings::default(),
         }
     }
 }
