@@ -1100,16 +1100,26 @@ command bodies (G13.B) are next.
 - **Confirm round-trip**: `ConfirmDlg` (0xF3, distinct wire format) + a pending
   command on the `InGame` session + `DlgAnswer` (0xC6); `confirmDlg="true"`
   commands prompt and only run on "yes".
-- **First commands (G13.B started)**: `//serverinfo` (text-line simplification
-  of Java's HTML window) proves the pipeline; `//heal` (full HP/MP/CP restore of
-  the targeted player or self) and `//kill` (`doDie` on the targeted player/NPC)
-  are the first real effect-handlers, driving live game state through the
-  existing vitals/death systems.
-- Tests: 5 `admin_data` units (load counts, negatives, child-chain gating,
-  master auto-grant, confirm flag) + 9 synthetic-world tests (GM run, non-GM
-  ignored, insufficient-level refusal, unknown vs. unimplemented, confirm
-  accept/decline, color resolution, heal-restores-target, kill-slays-target,
-  kill-without-target).
+- **Commands (G13.B, in progress)** — each drives live game state through the
+  existing systems, no new bypasses:
+  - Vitals/combat: `//heal`, `//res`, `//kill`.
+  - Movement: `//teleport` (+`move_to`/`tele`/`instant_move`), `//recall`,
+    `//teleto` (+`teleportto`/`teleport_to_character`), `//gmspeed`.
+  - Items: `//create_item`, `//give_item_target`, `//give_item_to_all`.
+  - Progression: `//add_exp_sp`, `//add_level`, `//set_level`.
+  - Spawns: `//spawn` (runtime NPC spawn at the GM), `//delete`.
+  - GM/session: `//serverinfo`, `//gmchat`, `//announce`, `//target`,
+    `//changelvl` (access + persist), `//gm` (session GM-off), `//kick`,
+    `//character_disconnect`.
+  - New infra for the above: `spawn_npc_at`/`spawn_npc_entity` (runtime spawn),
+    `death::introduce_npc`/`despawn_npc`, and a `SetAccessLevel` DB command.
+- Tests: 5 `admin_data` units + 30 synthetic-world dispatch/handler tests
+  (gating, confirm round-trip, colors, and one per handler group).
+- **Still to port in G13.B**: `//invul`/`//undying` (needs an invul flag +
+  combat guard), `//enchant`, `//editchar` (37 subcommands), `//effects` (35),
+  `//buff`/`//getbuffs`, `//skill`, `//hide`, `//social`, the `//admin` HTML
+  menu, and the G12-world commands (`//zone`, `//doors`). **G13.C**
+  (sieges/olympiad/instances/events/…) stays gated-but-bodiless per the plan.
 
 ---
 
