@@ -1,7 +1,7 @@
 //! Port of `instancemanager/ZoneManager` narrowed to the G12 slice: only
 //! `data/zones/peace.xml`, `water.xml` and `no_restart.xml` load (the three
 //! zone families whose consumers exist — the other ~37 files/32 types are
-//! gated on systems like sieges/castles/olympiad and stay in G13). Shapes
+//! gated on systems like sieges/castles/olympiad and stay in G14). Shapes
 //! reuse the `ZoneForm`/`Territory` geometry already ported for spawn
 //! territories (Java shares `ZoneForm` between `ZoneManager` and `SpawnData`
 //! the same way).

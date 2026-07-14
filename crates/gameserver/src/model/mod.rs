@@ -428,7 +428,7 @@ impl EquippedBonuses {
                     Stat::MagicEvasionRate => eq.magic_evasion += val,
                     // maxHp/maxMp item bonuses aren't folded in yet — max HP/MP
                     // are computed by `calc_max_hp`/`calc_max_mp`, a separate
-                    // path from these finalizers. TODO(G13): apply there.
+                    // path from these finalizers. TODO(G14): apply there.
                     _ => {}
                 }
             }

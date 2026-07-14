@@ -2,7 +2,7 @@
 
 Living status tracker for the Java→Rust rewrite. Plans:
 [PLAN_LOGIN_SERVER.md](PLAN_LOGIN_SERVER.md) (login, M0–M5) and
-[PLAN_GAME_SERVER.md](PLAN_GAME_SERVER.md) (game, G0–G12). Architecture:
+[PLAN_GAME_SERVER.md](PLAN_GAME_SERVER.md) (game, G0–G14). Architecture:
 [CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md),
 [JAVA_TO_RUST_CHALLENGES.md](JAVA_TO_RUST_CHALLENGES.md).
 
@@ -34,7 +34,8 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G10 Social systems                                          | ✅ vertical slice (chat, party, friends — clans/mail/BBS deferred) |
 | Game  | G11 Scripting engine + quests (+ clans via bypass)          | ✅ vertical slice (bypass routing, quest engine, Q00258/Q00320, clan creation — plan: [PLAN_G11_QUESTS_CLANS.md](PLAN_G11_QUESTS_CLANS.md)) |
 | Game  | G12 Static world + script/content breadth                   | ✅ vertical slice (zones peace/water/no-restart, all 1180 doors + geo collision, static objects, Link/Buy bypasses, +10 quests with on_attack/on_spawn hooks, OrcChange1, TeleportWithCharm — plan: [PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md](PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md)) |
-| Game  | G13 Long tail & parity sweep                                | ⏳ |
+| Game  | G13 Admin / GM command system                               | ⏳ (framework + all subsystem-backed handlers; siege/olympiad/instance/event handlers deferred — plan: [PLAN_G13_ADMIN.md](PLAN_G13_ADMIN.md)) |
+| Game  | G14 Long tail & parity sweep                                | ⏳ |
 
 **Verified end-to-end:** a scripted client does the real login crypto → server
 select → game `AuthLogin` → char list → **create** (with initial skills) →
@@ -963,8 +964,9 @@ creation through the ClanMaster dialog. Script breadth is G12.
 ### G12 — Static world + script/content breadth ✅ vertical slice
 Plan: [PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md](PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md).
 Both plan areas landed as vertical slices; the long tail (33 more zone
-types, multisell/sell/warehouse, ~188 more quests, ~81 `ai/` scripts, admin
-commands) stays G13.
+types, multisell/sell/warehouse, ~188 more quests, ~81 `ai/` scripts) stays
+G14; admin commands are carved out as their own G13
+([PLAN_G13_ADMIN.md](PLAN_G13_ADMIN.md)).
 
 **Zones** (`data/zone_data.rs`, `game_loop/zones.rs`):
 - `ZoneManager` port narrowed to the three files with live consumers —

@@ -2,7 +2,7 @@
 //! entries: town map panels, castle thrones/chairs, and a few flagpoles).
 //! Pure decoration in this slice: they spawn, render via `StaticObjectInfo`,
 //! and do nothing on click (the town-map dialog needs the community-board
-//! plumbing, thrones need castles — both G13+). The `texture`/`map_x/y`
+//! plumbing, thrones need castles — both G14+). The `texture`/`map_x/y`
 //! attributes only feed that click behavior, so they are not stored.
 
 use quick_xml::events::Event;

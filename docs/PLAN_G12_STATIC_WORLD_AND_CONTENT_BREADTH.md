@@ -28,9 +28,9 @@ Following the precedent set by every breadth milestone so far (G9 combat, G10
 social, G11 quests+clans): **G12 is cut to a vertical slice of each area** —
 enough new framework + a handful of concrete instances to prove the pattern
 end-to-end against the live client — with the long tail explicitly deferred
-to G13 ("long tail & parity sweep", already the catch-all for
+to G14 ("long tail & parity sweep", already the catch-all for
 `instancemanager/*` sieges/castles/olympiad, remaining packets, admin
-commands, and the rest of the 57 data loaders). **G13 absorbs everything this
+commands, and the rest of the 57 data loaders). **G14 absorbs everything this
 doc doesn't ship**, including the bulk of the 199 quests / 83 `ai/` scripts /
 24 bypass handlers — G12 does not attempt to clear that backlog, only to stop
 blocking on the framework gaps.
@@ -139,7 +139,7 @@ Full table gathered in the scoping survey; the two chosen for this slice:
   `NoRestart` — **not** all 35 Java types. `ZoneManager`-equivalent: boot-time
   load of `data/zones/peace.xml`, `water.xml`, `no_restart.xml` only (the
   three files that back the gate); everything else (siege/castle/clanhall/
-  tax/fishing/olympiad/jail/…) deferred to G13, since none of their owning
+  tax/fishing/olympiad/jail/…) deferred to G14, since none of their owning
   systems (siege, castle, olympiad) exist yet either.
 - Spatial index: reuse the existing region-grid pattern from G7.9
   (`World`'s 3×3-region visibility grid) rather than porting `ZoneRegion`
@@ -216,14 +216,14 @@ Full table gathered in the scoping survey; the two chosen for this slice:
     beyond G11's single-step cases.
   - 1 `onAttack`-driven quest (simple one, **not** a Saga — the 9 Saga class-
     change quests are 400-1265 lines each with heavy branching and belong in
-    G13's long tail, not this slice).
+    G14's long tail, not this slice).
   - 1 non-repeatable one-time quest, to exercise the completed-mask bit in
     `QuestList` (G11 tested via cond math, not an actual completed quest end
     to end).
 - Port **1-2 more `village_master/` class-change scripts** (from the 16
   siblings of `ClanMaster` — e.g. one `OrcChange1`/`ElfHumanFighterChange1`
   — structurally identical dialog-navigation shape) as breadth proof; the
-  remaining ~14 go to G13.
+  remaining ~14 go to G14.
 - Port **1 `ai/others` script** — pick the simplest standalone behavior
   (`RandomWalkingGuards.java` or `FleeMonsters.java`, not a boss/instance/
   manager) to prove an `ai/`-shaped script (no quest state, pure periodic
@@ -232,7 +232,7 @@ Full table gathered in the scoping survey; the two chosen for this slice:
   design open question to resolve during implementation, not pre-decided
   here.
 
-## 3. Explicitly deferred to G13 (or later)
+## 3. Explicitly deferred to G14 (or later)
 
 - 33 of 35 zone types (siege/castle/clanhall/tax/fishing/olympiad/jail/…) —
   all gated on systems (siege, castle, olympiad) that don't exist.
@@ -260,7 +260,7 @@ Full table gathered in the scoping survey; the two chosen for this slice:
 1. Does `ai/others` content register through the same `QuestRegistry` (with
    empty quest-shaped fields) or does it want its own `AiScriptRegistry`
    alongside `World.quests`? Bears directly on how much of the ~82 remaining
-   `ai/` scripts cost per-script in G13.
+   `ai/` scripts cost per-script in G14.
 2. Is `ZoneForm` worth extracting to a shared module now (touching
    `spawn_data.rs`), or should zones duplicate the three shape variants
    short-term to avoid churn in G8-era code during this slice?
