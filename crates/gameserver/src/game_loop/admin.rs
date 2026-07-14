@@ -139,6 +139,10 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_changelvl" => admin_changelvl(world, client_id, object_id, &args),
         // Deactivate the caller's own GM access for this session.
         "admin_gm" => admin_gm(world, client_id, object_id),
+        // Disconnect the targeted player.
+        "admin_character_disconnect" => admin_character_disconnect(world, client_id, object_id),
+        // Broadcast a message to every online player.
+        "admin_announce" => admin_announce(world, client_id, &args),
         _ => return false,
     }
     true
@@ -330,10 +334,47 @@ fn admin_kick(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) 
         send_message(world, client_id, "Usage: //kick <player name>");
         return;
     };
+    disconnect_player(world, target);
+}
+
+/// `AdminDisconnect`'s `//character_disconnect` — disconnect the targeted
+/// player.
+fn admin_character_disconnect(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
+        send_message(world, client_id, "Select a player first.");
+        return;
+    };
+    disconnect_player(world, target);
+}
+
+/// The clean logout teardown for a player (Java `Disconnection.of`): persist,
+/// despawn, and drop the session.
+fn disconnect_player(world: &mut World, target: i32) {
     let Some(tcid) = super::helpers::client_for_player(world, target) else { return };
     if let Some(ClientSession::InGame(session)) = world.clients.remove(&tcid) {
         super::net::store_and_remove_player(world, target);
         session.send(server_packets::leave_world());
+    }
+}
+
+/// `AdminAnnouncements`'s `//announce <message>` — broadcast to every online
+/// player. Java sends a `ChatType.ANNOUNCEMENT` `CreatureSay`; we send it as a
+/// system-message text line (documented simplification — the announce chat
+/// type isn't wired yet).
+fn admin_announce(world: &mut World, client_id: u32, args: &[&str]) {
+    if args.is_empty() {
+        send_message(world, client_id, "Usage: //announce <message>");
+        return;
+    }
+    let packet = server_packets::system_message_with(
+        sm_ids::S1_TEXT,
+        &[server_packets::SmParam::Text(args.join(" "))],
+    );
+    for cs in world.clients.values() {
+        if matches!(cs, ClientSession::InGame(_)) {
+            cs.send(packet.clone());
+        }
     }
 }
 

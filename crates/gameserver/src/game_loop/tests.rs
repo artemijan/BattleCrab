@@ -8100,3 +8100,34 @@ fn admin_gm_deactivates_own_access() {
     assert_eq!(p.access_level, 0, "demoted to user");
     assert!(!p.is_gm(&world.data), "no longer GM");
 }
+
+/// `//announce` reaches every online player.
+#[test]
+fn admin_announce_reaches_all_players() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7501, 100);
+    let mut u1 = ingame_player_access(&mut world, 2, 7502, 0);
+    let mut u2 = ingame_player_access(&mut world, 3, 7503, 0);
+    drain(&mut gm_rx);
+    drain(&mut u1);
+    drain(&mut u2);
+
+    on_packet(&mut world, 1, build_admin("announce server restart soon"));
+    assert_eq!(count_system_messages(&drain(&mut u1)), 1, "player 1 got the announce");
+    assert_eq!(count_system_messages(&drain(&mut u2)), 1, "player 2 got the announce");
+}
+
+/// `//character_disconnect` disconnects the targeted player.
+#[test]
+fn admin_character_disconnect_kicks_target() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7504, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 7505, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+
+    world.objects.add_components(&7504, crate::model::components::TargetRef(Some(7505)));
+    on_packet(&mut world, 1, build_admin("character_disconnect"));
+    assert!(!world.clients.contains_key(&2), "victim disconnected");
+    assert!(world.objects.get_component::<Player>(&7505).is_none(), "victim despawned");
+}
