@@ -1120,16 +1120,26 @@ command bodies (G13.B) are next.
   - GM/session: `//serverinfo`, `//gmchat`, `//announce`, `//target`,
     `//changelvl` (access + persist), `//gm` (session GM-off), `//kick`,
     `//character_disconnect`.
+  - AdminEffects (broadcast subset): `//social` (gesture on self/target/named
+    player/radius, with Java's action-id range gating), `//effect` /
+    `//npc_use_skill` (cosmetic `MagicSkillUse`), `//earthquake`,
+    `//atmosphere` (`sky day|night|red` → SunRise/SunSet/ExRedSky, to all
+    online), `//play_sound`. New env packets in `server_packets/effect.rs`
+    (`earthquake`/`sun_rise`/`sun_set`/`ex_red_sky`/`magic_skill_use_raw`).
   - New infra for the above: `spawn_npc_at`/`spawn_npc_entity` (runtime spawn),
     `death::introduce_npc`/`despawn_npc`, a `SetAccessLevel` DB command, and an
     `AdminFlags` component (invul/undying/hidden) guarded in
     `player_receive_damage` + `send_char_info`.
-- Tests: 5 `admin_data` units + 47 synthetic-world dispatch/handler tests
+- Tests: 5 `admin_data` units + 54 synthetic-world dispatch/handler tests
   (gating, confirm round-trip, colors, and one+ per handler group).
 - **Still to port in G13.B**: the rest of `//editchar` (setnoble, find/info/
-  summon/pet subcommands), `//effects` (35 visual/abnormal toggles), `//social`,
-  the `//admin` HTML menu, and the G12-world commands (`//zone`, `//doors`).
-  **G13.C** (sieges/olympiad/instances/events/…) stays gated-but-bodiless.
+  summon/pet subcommands), the AdminEffects **abnormal-visual-effect** subset
+  (`//invis`/`//vis`/`//para`/`//bighead`/…, `//setteam`/`//clearteams`,
+  `//settargetable`, `//playmovie`, `//event_trigger`, `//set_displayeffect` —
+  all blocked on a per-creature AVE-list / Team / targetable runtime state this
+  server does not model yet), the `//admin` HTML menu, and the G12-world
+  commands (`//zone`, `//doors`). **G13.C** (sieges/olympiad/instances/events/…)
+  stays gated-but-bodiless.
 
 ---
 

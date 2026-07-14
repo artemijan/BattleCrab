@@ -54,6 +54,7 @@ pub mod sm_ids {
     pub const YOU_USE_S1: i16 = 46;
     pub const S1_IS_NOT_AVAILABLE_REUSE: i16 = 48;
     pub const INVALID_TARGET: i16 = 109;
+    pub const NOTHING_HAPPENED: i16 = 61;
     pub const CANNOT_SEE_TARGET: i16 = 181;
     // Zones (G12)
     pub const YOU_MAY_NOT_ATTACK_THIS_TARGET_IN_A_PEACEFUL_ZONE: i16 = 85;

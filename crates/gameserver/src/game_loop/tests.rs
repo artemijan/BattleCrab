@@ -8788,3 +8788,121 @@ fn admin_setclass_rejects_unknown() {
     on_packet(&mut world, 1, build_admin("setclass 99999"));
     assert_eq!(world.objects.get_component::<Player>(&8702).unwrap().class_id, 0, "unchanged");
 }
+
+/// `//social <id>` broadcasts a `SocialAction` on the GM (self, no target).
+#[test]
+fn admin_social_broadcasts_gesture() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8801, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("social 3"));
+    let pkts = drain(&mut gm_rx);
+    let social = pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION)
+        .expect("a SocialAction was broadcast");
+    assert_eq!(i32::from_le_bytes(social[1..5].try_into().unwrap()), 8801, "on the GM");
+    assert_eq!(i32::from_le_bytes(social[5..9].try_into().unwrap()), 3, "action id 3");
+}
+
+/// A player-invalid social id (< 2) is rejected with `NOTHING_HAPPENED` and no
+/// gesture is sent.
+#[test]
+fn admin_social_rejects_out_of_range_action() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8802, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("social 1"));
+    let pkts = drain(&mut gm_rx);
+    assert!(
+        !pkts.iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION),
+        "no gesture for an out-of-range action"
+    );
+    assert!(count_system_messages(&pkts) >= 1, "NOTHING_HAPPENED sent");
+}
+
+/// `//social <id> <radius>` affects other creatures within the radius.
+#[test]
+fn admin_social_radius_affects_nearby_player() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8803, 100);
+    let mut other_rx = ingame_player_access(&mut world, 2, 8804, 0);
+    drain(&mut gm_rx);
+    drain(&mut other_rx);
+    // Place both at the same spot so the other is in range and region-adjacent.
+    let pos = *world.objects.get_component::<crate::model::components::Position>(&8803).unwrap();
+    if let Some(p) = world.objects.get_component_mut::<crate::model::components::Position>(&8804) {
+        *p = pos;
+    }
+
+    on_packet(&mut world, 1, build_admin("social 3 500"));
+    assert!(
+        drain(&mut other_rx).iter().any(|p| {
+            p[0] == server_packets::opcodes::SOCIAL_ACTION
+                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == 8804
+        }),
+        "the nearby player got the gesture"
+    );
+}
+
+/// `//earthquake <intensity> <duration>` broadcasts an Earthquake to the GM.
+#[test]
+fn admin_earthquake_broadcasts() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8805, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("earthquake 20 10"));
+    assert!(
+        drain(&mut gm_rx).iter().any(|p| p[0] == server_packets::opcodes::EARTHQUAKE),
+        "Earthquake broadcast"
+    );
+}
+
+/// `//atmosphere sky day` sends `SunRise` to every online player.
+#[test]
+fn admin_atmosphere_broadcasts_to_all() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8806, 100);
+    let mut other_rx = ingame_player_access(&mut world, 2, 8807, 0);
+    drain(&mut gm_rx);
+    drain(&mut other_rx);
+
+    on_packet(&mut world, 1, build_admin("atmosphere sky day 0"));
+    assert!(
+        drain(&mut other_rx).iter().any(|p| p[0] == server_packets::opcodes::SUN_RISE),
+        "SunRise reached an unrelated online player"
+    );
+}
+
+/// `//play_sound <name>` plays the sound and confirms to the GM.
+#[test]
+fn admin_play_sound_plays() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8808, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("play_sound ItemSound.quest_middle"));
+    let pkts = drain(&mut gm_rx);
+    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::PLAY_SOUND), "PlaySound sent");
+    assert!(count_system_messages(&pkts) >= 1, "confirmation line");
+}
+
+/// `//effect <skill>` broadcasts a cosmetic `MagicSkillUse` (self animation).
+#[test]
+fn admin_effect_broadcasts_msu() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8809, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("effect 1177 1 1"));
+    let pkts = drain(&mut gm_rx);
+    let msu = pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE)
+        .expect("MagicSkillUse broadcast");
+    // caster object id is at [5..9] (after the leading casting-bar int at [1..5]).
+    assert_eq!(i32::from_le_bytes(msu[5..9].try_into().unwrap()), 8809, "GM is the animation source");
+}

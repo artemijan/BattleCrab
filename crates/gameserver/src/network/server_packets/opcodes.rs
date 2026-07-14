@@ -67,6 +67,9 @@ pub const PLEDGE_SHOW_INFO_UPDATE: u8 = 0x8E;
 pub const DOOR_STATUS_UPDATE: u8 = 0x4D;
 pub const STATIC_OBJECT: u8 = 0x9F;
 pub const NPC_SAY: u8 = 0x30;
+pub const SUN_RISE: u8 = 0x12;
+pub const SUN_SET: u8 = 0x13;
+pub const EARTHQUAKE: u8 = 0xD3;
 
 /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
 pub const EX: u8 = 0xFE;
@@ -81,3 +84,4 @@ pub const EX_NPC_QUEST_HTML_MESSAGE: i16 = 0x8E;
 pub const EX_QUEST_ITEM_LIST: i16 = 0xC7;
 pub const EX_SET_COMPASS_ZONE_CODE: i16 = 0x33;
 pub const EX_AUTO_SOUL_SHOT: i16 = 0x0C;
+pub const EX_RED_SKY: i16 = 0x42;
