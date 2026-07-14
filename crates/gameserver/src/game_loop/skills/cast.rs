@@ -794,6 +794,17 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         apply_skill_effects(world, player_object_id, cast.target_object_id, &skill);
     }
 
+    // Start attack stance (`SkillCaster` finalizer, right after `callSkill`): a
+    // bad skill with an action draws the caster's weapon and starts the 15 s
+    // combat timer, exactly like a melee swing — so `canLogout` refuses a
+    // relogin for 15 s after nuking/debuffing a mob. Java also excludes
+    // `isWithoutAction()` skills and `DOOR_TREASURE` targets; neither is modeled
+    // in the cast pipeline (every bad skill it resolves has an action and
+    // targets a creature), so `is_bad()` is the whole gate here.
+    if skill.is_bad() {
+        crate::game_loop::combat::refresh_attack_stance(world, player_object_id);
+    }
+
     // Hold the cast slot for the cool phase (`stopCasting(false)` after
     // `_coolTime`), freeing inline when there's nothing to wait out.
     let cool_ticks = ms_to_ticks(cast.cool_ms);

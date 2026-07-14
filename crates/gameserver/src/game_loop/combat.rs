@@ -154,6 +154,16 @@ pub(crate) fn stance_tick(world: &mut World) {
     }
 }
 
+/// Port of `AttackStanceTaskManager.hasAttackStanceTask` — the actor is in
+/// combat stance (sword drawn), i.e. within 15 s of its last swing/hit. This is
+/// the state `Player.canLogout` uses to refuse a restart/logout while fighting.
+pub(crate) fn has_attack_stance(world: &World, object_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<AttackState>(&object_id)
+        .is_some_and(|st| st.stance_until_tick > world.tick)
+}
+
 // ---------------------------------------------------------------------------
 // AttackRequest + player attack think
 // ---------------------------------------------------------------------------

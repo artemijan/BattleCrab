@@ -135,14 +135,27 @@ pub(crate) fn save_all_players(world: &mut World) {
     }
 }
 
+/// Port of `Player.canLogout`: refuse a restart/logout while the player is
+/// fighting. Java also blocks on a pending item request, a subclass-change lock,
+/// and event registration — none of those systems are ported yet, so combat
+/// stance (`AttackStanceTaskManager.hasAttackStanceTask`) is the only guard.
+fn can_logout(world: &World, object_id: i32) -> bool {
+    !super::combat::has_attack_stance(world, object_id)
+}
+
 /// Port of `clientpackets/RequestRestart.runImpl`: save + leave the world, drop
 /// the session back to the character-selection lifecycle, and re-send the
-/// character list. Olympiad/instance handling doesn't apply yet; `canLogout`
-/// guards (attack stance, NO_RESTART zones, events) are TODO with combat (G9).
+/// character list. Olympiad/instance handling doesn't apply yet.
 pub(crate) fn handle_request_restart(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(_)) = world.clients.get(&client_id) else {
+    let Some(ClientSession::InGame(s)) = world.clients.get(&client_id) else {
         return; // Java gates by IN_GAME
     };
+    // `!canLogout()` → RestartResponse.FALSE + ActionFailed, keep the player in.
+    if !can_logout(world, s.player_object_id()) {
+        s.send(server_packets::restart_response(false));
+        s.send(server_packets::action_failed());
+        return;
+    }
     let Some(ClientSession::InGame(s)) = world.clients.remove(&client_id) else {
         unreachable!("checked above");
     };
@@ -162,11 +175,16 @@ pub(crate) fn handle_request_restart(world: &mut World, client_id: u32) {
 
 /// Port of `clientpackets/Logout.runImpl`: save + leave the world, acknowledge
 /// with `LeaveWorld`, and close. Valid from the lobby too (Java gates by
-/// AUTHENTICATED + IN_GAME), where it just disconnects. `canLogout` guards are
-/// TODO with combat (G9), same as `handle_request_restart`.
+/// AUTHENTICATED + IN_GAME), where it just disconnects. In-game, `canLogout`
+/// gates it the same way as `handle_request_restart`.
 pub(crate) fn handle_logout(world: &mut World, client_id: u32) {
     match world.clients.get(&client_id) {
-        Some(ClientSession::InGame(_)) => {
+        Some(ClientSession::InGame(s)) => {
+            // `!canLogout()` → just ActionFailed, no LeaveWorld, stay in-game.
+            if !can_logout(world, s.player_object_id()) {
+                s.send(server_packets::action_failed());
+                return;
+            }
             let Some(ClientSession::InGame(s)) = world.clients.remove(&client_id) else {
                 unreachable!("checked above");
             };

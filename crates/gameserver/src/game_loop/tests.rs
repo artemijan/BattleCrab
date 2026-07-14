@@ -1231,11 +1231,20 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
     // clientStartAutoAttack broadcast), then B's CP/HP status.
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::AUTO_ATTACK_START);
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE); // B's CP/HP
+    // The caster also enters stance now (SkillCaster finalizer: bad skill →
+    // clientStartAutoAttack), broadcast last — object 3001, seen by both.
+    let a_stance = a_rx.try_recv().unwrap();
+    assert_eq!(a_stance[0], server_packets::opcodes::AUTO_ATTACK_START);
+    assert_eq!(i32::from_le_bytes(a_stance[1..5].try_into().unwrap()), 3001, "caster's own stance");
     assert!(a_rx.try_recv().is_err());
     assert_eq!(sm_id(&b_rx.try_recv().unwrap()), server_packets::sm_ids::C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2);
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::AUTO_ATTACK_START);
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
+    let b_sees_a = b_rx.try_recv().unwrap();
+    assert_eq!(b_sees_a[0], server_packets::opcodes::AUTO_ATTACK_START);
+    assert_eq!(i32::from_le_bytes(b_sees_a[1..5].try_into().unwrap()), 3001, "B sees the caster's stance");
     assert!(b_rx.try_recv().is_err());
+    assert!(world.objects.get_component::<crate::model::components::AttackState>(&3001).is_some_and(|st| st.stance_until_tick > world.tick), "caster is in combat stance → canLogout refuses relogin");
     assert!(!world.objects.has_component::<Casting>(&3001), "coolTime 0 frees the slot");
 
     // Immediate re-cast: 10 s reuse still has 6 s left → SM 2303 + fail.
@@ -3383,6 +3392,44 @@ fn logout_stores_player_and_sends_leave_world() {
     assert_eq!(world.objects.count::<Player>(), 0);
     assert!(world.clients.is_empty(), "session dropped → socket closes");
     assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::LOG_OUT_OK);
+}
+
+/// `Player.canLogout` refuses a restart while the player is in combat stance:
+/// the client gets `RestartResponse.FALSE` + `ActionFailed`, the player stays
+/// in the world, the session stays `InGame`, and nothing is persisted.
+#[test]
+fn restart_blocked_while_in_combat_stance() {
+    let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
+    let mut out_rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
+    // In stance until 15 s from now (AttackStanceTaskManager.addAttackStanceTask).
+    world.objects.get_component_mut::<crate::model::components::AttackState>(&5001).unwrap().stance_until_tick = world.tick + 1;
+
+    handle_request_restart(&mut world, 1);
+
+    assert_eq!(world.objects.count::<Player>(), 1, "player stays in the world");
+    assert!(matches!(world.clients.get(&1), Some(ClientSession::InGame(_))), "still in game");
+    assert!(db_rx.try_recv().is_err(), "no store/reload while refused");
+    let pkt = out_rx.try_recv().unwrap();
+    assert_eq!(pkt[0], server_packets::opcodes::RESTART_RESPONSE);
+    assert_eq!(pkt[1], 0, "RestartResponse.FALSE");
+    assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+}
+
+/// `Player.canLogout` refuses a logout while in combat stance: `ActionFailed`
+/// only, no `LeaveWorld`, and the player stays in the world.
+#[test]
+fn logout_blocked_while_in_combat_stance() {
+    let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
+    let mut out_rx = ingame_player(&mut world, 1, 5002, 100, 200, 0);
+    world.objects.get_component_mut::<crate::model::components::AttackState>(&5002).unwrap().stance_until_tick = world.tick + 1;
+
+    handle_logout(&mut world, 1);
+
+    assert_eq!(world.objects.count::<Player>(), 1, "player stays in the world");
+    assert!(matches!(world.clients.get(&1), Some(ClientSession::InGame(_))), "still in game");
+    assert!(db_rx.try_recv().is_err(), "no store while refused");
+    assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert!(out_rx.try_recv().is_err(), "no LeaveWorld");
 }
 
 /// An unexpected disconnect while in game persists the player too (Java
