@@ -429,6 +429,13 @@ mod tests {
         assert_eq!(ws.reuse_delay_group, -1, "no <reuseDelayGroup> must stay -1, never 0");
         assert_eq!(ws.reuse_key(), 1177);
 
+        // Skill 1011 "Heal": the datapack once had a corrupt `<item>power</item>`
+        // effect body (no per-level power), which parsed to an effect list with
+        // no `Heal` at all — so casting Heal did nothing to HP. Guard the real
+        // per-level `<power>` block: level 3 → 67 power.
+        let heal = sd.get(1011, 3).expect("Heal lvl 3");
+        assert!(matches!(heal.effects.as_slice(), [SkillEffect::Heal { power }] if *power == 67.0));
+
         // "Knight - Individual" shares reuse group 10008 with its siblings.
         let ki = sd.get(10248, 1).expect("Knight - Individual lvl 1");
         assert_eq!(ki.reuse_delay_group, 10008);

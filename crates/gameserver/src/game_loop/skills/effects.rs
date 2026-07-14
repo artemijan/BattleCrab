@@ -2,7 +2,7 @@
 //! effects, and buff expiry.
 
 use crate::game_loop::helpers::client_for_player;
-use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers, Vitals};
+use crate::model::components::{BaseStats, Buffs, CombatStats, RegionCell, Speeds, StatModifiers, Vitals};
 use crate::model::formulas;
 use crate::model::skill::{abnormal_type_client_id, ActiveBuff, RestorationGroup, Skill, SkillEffect};
 use crate::network::server_packets;
@@ -42,10 +42,36 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 if crate::game_loop::combat::is_npc_oid(target_oid) {
                     // Healing an NPC: clamp and update, no system messages
                     // (nobody to send them to).
-                    if let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid) {
-                        if !vitals.dead {
-                            vitals.cur_hp = (vitals.cur_hp + amount).min(vitals.max_hp as f64);
+                    let hp = {
+                        let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid)
+                        else {
+                            continue;
+                        };
+                        if vitals.dead {
+                            continue;
                         }
+                        vitals.cur_hp = (vitals.cur_hp + amount).min(vitals.max_hp as f64);
+                        (vitals.cur_hp as i32, vitals.max_hp)
+                    };
+                    // `broadcastStatusUpdate` — refresh the HP bar for everyone
+                    // watching the mob; without this the server-side heal is
+                    // invisible to clients (the bar never moves).
+                    if let Some(region) = world
+                        .objects
+                        .get_component::<RegionCell>(&target_oid)
+                        .map(|r| r.0)
+                    {
+                        crate::game_loop::helpers::broadcast_near_region(
+                            world,
+                            region,
+                            &server_packets::status_update(
+                                target_oid,
+                                &[
+                                    (server_packets::status_update_type::MAX_HP, hp.1),
+                                    (server_packets::status_update_type::CUR_HP, hp.0),
+                                ],
+                            ),
+                        );
                     }
                     continue;
                 }
