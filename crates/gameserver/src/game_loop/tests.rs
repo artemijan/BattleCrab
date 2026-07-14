@@ -8204,3 +8204,24 @@ fn admin_spawn_creates_npc_at_gm() {
         "GM was shown the NPC"
     );
 }
+
+/// `//target <name>` selects that player (MyTargetSelected + TargetRef set).
+#[test]
+fn admin_target_selects_named_player() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7701, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 7702, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+
+    on_packet(&mut world, 1, build_admin("target P7702"));
+    assert_eq!(
+        world.objects.get_component::<crate::model::components::TargetRef>(&7701).and_then(|t| t.0),
+        Some(7702),
+        "GM now targets the named player"
+    );
+    assert!(
+        drain(&mut gm_rx).iter().any(|p| p[0] == server_packets::opcodes::MY_TARGET_SELECTED),
+        "GM got MyTargetSelected"
+    );
+}

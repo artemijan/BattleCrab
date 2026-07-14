@@ -147,6 +147,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_spawn" => admin_spawn(world, client_id, object_id, &args),
         // Despawn the targeted NPC.
         "admin_delete" => admin_delete(world, client_id, object_id),
+        // Target a player by name.
+        "admin_target" => admin_target(world, client_id, object_id, &args),
         _ => return false,
     }
     true
@@ -545,6 +547,20 @@ fn admin_delete(world: &mut World, client_id: u32, object_id: i32) {
         return;
     };
     super::death::despawn_npc(world, target, region);
+}
+
+/// `AdminTarget`'s `//target <name>` — select a player by name (reuses the
+/// normal targeting flow, including its Z-distance guard).
+fn admin_target(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(name) = args.first() else {
+        send_message(world, client_id, "Usage: //target <player name>");
+        return;
+    };
+    let Some(target) = find_online_player(world, name) else {
+        send_message(world, client_id, &format!("Player '{name}' is not online."));
+        return;
+    };
+    super::target::set_target(world, client_id, object_id, Some(target));
 }
 
 /// `World.getPlayer(name)` — case-insensitive scan over in-game players.
