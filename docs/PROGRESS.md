@@ -34,7 +34,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G10 Social systems                                          | ✅ vertical slice (chat, party, friends — clans/mail/BBS deferred) |
 | Game  | G11 Scripting engine + quests (+ clans via bypass)          | ✅ vertical slice (bypass routing, quest engine, Q00258/Q00320, clan creation — plan: [PLAN_G11_QUESTS_CLANS.md](PLAN_G11_QUESTS_CLANS.md)) |
 | Game  | G12 Static world + script/content breadth                   | ✅ vertical slice (zones peace/water/no-restart, all 1180 doors + geo collision, static objects, Link/Buy bypasses, +10 quests with on_attack/on_spawn hooks, OrcChange1, TeleportWithCharm — plan: [PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md](PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md)) |
-| Game  | G13 Admin / GM command system                               | ⏳ (framework + all subsystem-backed handlers; siege/olympiad/instance/event handlers deferred — plan: [PLAN_G13_ADMIN.md](PLAN_G13_ADMIN.md)) |
+| Game  | G13 Admin / GM command system                               | 🚧 G13.A framework done (access levels, `//command` + `admin_` dispatch, gating, confirm round-trip, name colors); G13.B handlers next — plan: [PLAN_G13_ADMIN.md](PLAN_G13_ADMIN.md) |
 | Game  | G14 Long tail & parity sweep                                | ⏳ |
 
 **Verified end-to-end:** a scripted client does the real login crypto → server
@@ -1074,6 +1074,42 @@ G14; admin commands are carved out as their own G13
   `ShortCutInit` + "learned N skills" (`SystemMessageId.S1_2`) notice. FS /
   divine-inspiration / removeSkills paths stay out of scope (absent from base
   trees). Unit + level-up/enter-world grant tests.
+
+### G13 — Admin / GM command system 🚧 (framework landed)
+Plan: [PLAN_G13_ADMIN.md](PLAN_G13_ADMIN.md). **G13.A (the framework) is done**;
+command bodies (G13.B) are next.
+
+- **Access data** (`data/admin_data.rs`): ports `AccessLevel` +
+  `AdminCommandAccessRight` + `AdminData`, loading `config/AccessLevels.xml`
+  (10 tiers, Banned −1 … Master 100) and `config/AdminCommands.xml` (458
+  rights) into `GameData.admin`. Faithful `has_access` (exact match or the
+  `childAccess` chain walk), `require_confirm`, and the undefined-command
+  master auto-grant. Negatives collapse to Banned; a miss returns the level-0
+  User fallback.
+- **Player state**: `Player.access_level` (from `characters.accesslevel` via
+  `from_char`), `Player::is_gm` / `access_level_def`, and name/title colors
+  resolved from the tier (Java `setAccessLevel` → `_appearance`). A level-0
+  player keeps the client-default colors so the real UserInfo capture still
+  matches — the datapack `User` row's `ECF9A2` title is a Mobius quirk the
+  retail client doesn't send.
+- **Dispatch** (`game_loop/admin.rs`): `SendBypassBuildCmd` (0x74, the
+  `//command` bar) and the `admin_` `RequestBypassToServer` branch both reach
+  `use_admin_command` → `isGM` gate → known-command check → `has_access` →
+  optional confirm → run. A gated-but-unported command (G13.C) answers a
+  not-implemented line instead of crashing. GMAudit is a log line.
+- **Confirm round-trip**: `ConfirmDlg` (0xF3, distinct wire format) + a pending
+  command on the `InGame` session + `DlgAnswer` (0xC6); `confirmDlg="true"`
+  commands prompt and only run on "yes".
+- **First commands (G13.B started)**: `//serverinfo` (text-line simplification
+  of Java's HTML window) proves the pipeline; `//heal` (full HP/MP/CP restore of
+  the targeted player or self) and `//kill` (`doDie` on the targeted player/NPC)
+  are the first real effect-handlers, driving live game state through the
+  existing vitals/death systems.
+- Tests: 5 `admin_data` units (load counts, negatives, child-chain gating,
+  master auto-grant, confirm flag) + 9 synthetic-world tests (GM run, non-GM
+  ignored, insufficient-level refusal, unknown vs. unimplemented, confirm
+  accept/decline, color resolution, heal-restores-target, kill-slays-target,
+  kill-without-target).
 
 ---
 

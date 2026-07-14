@@ -20,8 +20,14 @@ pub mod stats;
 use std::collections::HashMap;
 
 use crate::character::CharData;
+use crate::data::admin_data::AccessLevel;
 use crate::data::player_template::PlayerTemplate;
 use crate::data::GameData;
+
+/// Client-default name/title colors for a normal (level-0) player, matching a
+/// real UserInfo capture. See [`Player::name_color`].
+pub const DEFAULT_NAME_COLOR: i32 = 0x00FF_FFFF;
+pub const DEFAULT_TITLE_COLOR: i32 = 0x00FF_FF77;
 use components::{AttackState, BaseStats, Buffs, ClientPos, Collision, CombatStats, Macros, PlayerVitals, Position, RegionCell, Reuses, Shortcuts, SkillBook, Speeds, StatModifiers, TargetRef, Vitals};
 use inventory::Inventory;
 use skill::{ActiveBuff, StatModifierEffect};
@@ -89,6 +95,18 @@ pub struct Player {
     pub name: String,
     pub account: String,
     pub title: String,
+
+    /// `characters.accesslevel` — GM tier, indexing the [`AdminData`] table
+    /// (0 = normal player). Drives [`Player::is_gm`], admin-command gating, and
+    /// the name/title colors below.
+    pub access_level: i32,
+    /// Name/title colors resolved from the access level at load (Java sets
+    /// these on `_appearance` in `setAccessLevel`). A level-0 player keeps the
+    /// client defaults ([`DEFAULT_NAME_COLOR`]/[`DEFAULT_TITLE_COLOR`]) — the
+    /// datapack's `User` row (`ECF9A2` title) is a Mobius quirk the retail
+    /// client does not send, and a real UserInfo capture uses the defaults.
+    pub name_color: i32,
+    pub title_color: i32,
 
     pub level: i32,
     pub class_id: i32,
@@ -176,6 +194,16 @@ impl ShotType {
 }
 
 impl Player {
+    /// Java `Player.isGM()` — `getAccessLevel().isGm()`.
+    pub fn is_gm(&self, data: &GameData) -> bool {
+        data.admin.is_gm(self.access_level)
+    }
+
+    /// The player's resolved [`AccessLevel`] (Java `Player.getAccessLevel()`).
+    pub fn access_level_def<'a>(&self, data: &'a GameData) -> &'a AccessLevel {
+        data.admin.access_level(self.access_level)
+    }
+
     /// `Creature.isChargedShot(type)`.
     pub fn is_charged_shot(&self, shot: ShotType) -> bool {
         (self.charged_shots & shot.mask()) != 0
@@ -484,11 +512,23 @@ impl Player {
             swimming: false,
         };
         let collision = Collision { radius: t.collision_radius, height: t.collision_height };
+        // Java `setAccessLevel` folds the tier's name/title color into the
+        // appearance; a level-0 player keeps the client defaults (see
+        // `Player::name_color`).
+        let access = data.admin.access_level(c.access_level);
+        let (name_color, title_color) = if c.access_level != 0 {
+            (access.name_color, access.title_color)
+        } else {
+            (DEFAULT_NAME_COLOR, DEFAULT_TITLE_COLOR)
+        };
         let p = Player {
             object_id: c.object_id,
             name: c.name.clone(),
             account: c.account_name.clone(),
             title: String::new(),
+            access_level: c.access_level,
+            name_color,
+            title_color,
             level: c.level,
             class_id: c.class_id,
             base_class_id: c.base_class_id,

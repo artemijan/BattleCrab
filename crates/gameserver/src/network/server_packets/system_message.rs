@@ -202,3 +202,27 @@ pub fn system_message_with(message_id: i16, params: &[SmParam]) -> Vec<u8> {
     }
     w.into_bytes()
 }
+
+/// `SystemMessageId.S1_3` (id 1987, `"$s1"`) — the id the admin `ConfirmDlg`
+/// uses, echoed back by the client in `DlgAnswer` so the reply can be matched
+/// to its request.
+pub const S1_3_MESSAGE_ID: i32 = 1987;
+
+/// Port of `serverpackets/ConfirmDlg` for the admin-confirm case: an
+/// `S1_3` message with a single text param (the "Are you sure…?" prompt).
+///
+/// Wire format differs from `SystemMessage`: the message id and parameter
+/// count are 32-bit, each param's type tag is 32-bit (here `TYPE_TEXT` = 0),
+/// and the packet ends with `time` then `requesterId` (both 0 for admin
+/// confirms — no auto-decline timer, no requester object).
+pub fn confirm_dlg_text(text: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::CONFIRM_DLG);
+    w.write_i32(S1_3_MESSAGE_ID);
+    w.write_i32(1); // parameter count
+    w.write_i32(0); // TYPE_TEXT
+    w.write_string(text);
+    w.write_i32(0); // time
+    w.write_i32(0); // requesterId
+    w.into_bytes()
+}

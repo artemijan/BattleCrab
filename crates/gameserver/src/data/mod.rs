@@ -3,6 +3,7 @@
 //! set (experience table + player templates).
 
 pub mod action_data;
+pub mod admin_data;
 pub mod buy_list_data;
 pub mod category_data;
 pub mod door_data;
@@ -23,6 +24,7 @@ pub mod xp_lost;
 pub mod zone_data;
 
 pub use action_data::ActionData;
+pub use admin_data::AdminData;
 pub use buy_list_data::BuyListData;
 pub use category_data::CategoryData;
 pub use door_data::DoorData;
@@ -64,6 +66,8 @@ pub struct GameData {
     pub static_object_data: StaticObjectData,
     pub buy_lists: BuyListData,
     pub categories: CategoryData,
+    /// GM access-level table + per-command access rights (G13).
+    pub admin: AdminData,
     /// Datapack root prefix (`""` when running from `dist/game`) — for the
     /// odd loose file read at runtime (NPC dialog `.htm`s, which Java streams
     /// through `HtmCache` rather than a boot-time loader).
@@ -97,6 +101,7 @@ impl GameData {
             static_object_data: StaticObjectData::load_from(file_path),
             buy_lists,
             categories: CategoryData::load_from(file_path),
+            admin: AdminData::load_from(file_path),
         }
     }
     pub fn load() -> Self {
@@ -128,6 +133,7 @@ impl GameData {
             static_object_data: StaticObjectData::empty(),
             buy_lists: BuyListData::empty(),
             categories: CategoryData::empty(),
+            admin: AdminData::empty(),
         }
     }
 }

@@ -42,6 +42,10 @@ pub mod opcodes {
     pub const REQUEST_DELETE_MACRO: u8 = 0xCE;
     pub const SAY2: u8 = 0x49;
     pub const REQUEST_BYPASS_TO_SERVER: u8 = 0x23;
+    /// `SendBypassBuildCmd` — the `//command` GM bar (admin commands).
+    pub const SEND_BYPASS_BUILD_CMD: u8 = 0x74;
+    /// `DlgAnswer` — reply to a `ConfirmDlg` (used by the admin-confirm flow).
+    pub const DLG_ANSWER: u8 = 0xC6;
     pub const REQUEST_QUEST_ABORT: u8 = 0x63;
     pub const REQUEST_BUY_ITEM: u8 = 0x40;
     pub const REQUEST_JOIN_PARTY: u8 = 0x42;
@@ -527,6 +531,31 @@ impl Say2 {
 /// `bypass -h ` prefix is stripped client-side; the command arrives bare).
 pub fn read_bypass_command(body_after_opcode: &[u8]) -> Option<String> {
     PacketReader::new(body_after_opcode).read_string()
+}
+
+/// Port of `clientpackets/SendBypassBuildCmd.readImpl` — one command string for
+/// the `//command` GM bar, trimmed. The `admin_` prefix is added by the caller
+/// (Java's `useAdminCommand(player, "admin_" + cmd, true)`).
+pub fn read_build_command(body_after_opcode: &[u8]) -> Option<String> {
+    PacketReader::new(body_after_opcode).read_string().map(|s| s.trim().to_string())
+}
+
+/// Port of `clientpackets/DlgAnswer` — the client's reply to a `ConfirmDlg`:
+/// the echoed message id, the answer (1 = yes, 0 = no), and the requester id.
+pub struct DlgAnswer {
+    pub message_id: i32,
+    pub answer: i32,
+    pub requester_id: i32,
+}
+
+impl DlgAnswer {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let message_id = r.read_i32()?;
+        let answer = r.read_i32()?;
+        let requester_id = r.read_i32()?;
+        Some(Self { message_id, answer, requester_id })
+    }
 }
 
 /// Port of `clientpackets/RequestQuestAbort` — the quest UI's Abandon button.

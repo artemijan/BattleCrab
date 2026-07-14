@@ -1,6 +1,7 @@
 # G13 — Admin / GM command system
 
-Status: **planned**. This doc is the plan of record; the G13 section of
+Status: **in progress** — G13.A (framework) landed; G13.B (command bodies)
+next. This doc is the plan of record; the G13 section of
 [PROGRESS.md](PROGRESS.md) records what actually shipped as phases land.
 
 Carved out of the old G13 "long tail & parity sweep" catch-all (which named

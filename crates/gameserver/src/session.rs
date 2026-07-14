@@ -143,6 +143,10 @@ pub struct InGame {
     pub account: String,
     pub session_key: SessionKey,
     pub player_object_id: i32,
+    /// Java `Player._adminConfirmCmd` + `PlayerAction.ADMIN_COMMAND`: the full
+    /// admin command awaiting a `ConfirmDlg` "yes" (`None` = no pending
+    /// confirm). Consumed by the `DlgAnswer` reply.
+    pub pending_admin_confirm: Option<String>,
 }
 
 impl Session<Entering> {
@@ -167,6 +171,7 @@ impl Session<Entering> {
                 account: self.state.account,
                 session_key: self.state.session_key,
                 player_object_id: object_id,
+                pending_admin_confirm: None,
             },
         };
         (session, self.state.player)
@@ -179,6 +184,17 @@ impl Session<InGame> {
     }
     pub fn player_object_id(&self) -> i32 {
         self.state.player_object_id
+    }
+
+    /// Java `Player.setAdminConfirmCmd` — stash a command awaiting confirm.
+    pub fn set_admin_confirm(&mut self, command: String) {
+        self.state.pending_admin_confirm = Some(command);
+    }
+
+    /// Take the pending confirm command (clears it), like Java
+    /// `removeAction(ADMIN_COMMAND)` + `getAdminConfirmCmd()`.
+    pub fn take_admin_confirm(&mut self) -> Option<String> {
+        self.state.pending_admin_confirm.take()
     }
 
     /// `RequestRestart`: back to the character-selection lifecycle (Java

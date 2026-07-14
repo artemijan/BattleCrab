@@ -6,6 +6,7 @@
 //! tick systems (G4+) → flush. Packet dispatch and login handoff land here on
 //! the game thread, keeping handler code sequential and 1:1 with Java `run()`.
 
+mod admin;
 mod bypass;
 mod chat;
 mod clans;

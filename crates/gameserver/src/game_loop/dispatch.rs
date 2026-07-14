@@ -97,6 +97,21 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_DELETE_MACRO => handle_request_delete_macro(world, client_id, body),
         cop::SAY2 => handle_say2(world, client_id, body),
         cop::REQUEST_BYPASS_TO_SERVER => handle_request_bypass_to_server(world, client_id, body),
+        // SendBypassBuildCmd (IN_GAME): the `//command` GM bar → admin command
+        // with the `admin_` prefix Java prepends.
+        cop::SEND_BYPASS_BUILD_CMD => {
+            if let Some(cmd) = cp::read_build_command(body) {
+                if !cmd.is_empty() {
+                    super::admin::use_admin_command(world, client_id, &format!("admin_{cmd}"), true);
+                }
+            }
+        }
+        // DlgAnswer (IN_GAME): reply to a ConfirmDlg — the admin-confirm flow.
+        cop::DLG_ANSWER => {
+            if let Some(answer) = cp::DlgAnswer::read(body) {
+                super::admin::handle_dlg_answer(world, client_id, answer);
+            }
+        }
         cop::REQUEST_BUY_ITEM => super::shop::handle_request_buy_item(world, client_id, body),
         cop::REQUEST_QUEST_ABORT => super::quests::handle_request_quest_abort(world, client_id, body),
         cop::REQUEST_JOIN_PARTY => handle_request_join_party(world, client_id, body),

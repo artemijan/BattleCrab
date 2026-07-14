@@ -200,8 +200,8 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
 
     // COLOR
     w.write_i16(UserInfoType::Color.block_length() as i16);
-    w.write_i32(0xFFFFFF); // name color
-    w.write_i32(0xFFFF77); // title color
+    w.write_i32(v.p.name_color); // name color (from access level)
+    w.write_i32(v.p.title_color); // title color (from access level)
 
     // INVENTORY_LIMIT
     w.write_i16(UserInfoType::InventoryLimit.block_length() as i16);

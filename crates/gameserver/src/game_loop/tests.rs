@@ -189,6 +189,7 @@ async fn character_create_inserts_into_real_schema() {
         static_object_data: crate::data::StaticObjectData::empty(),
         buy_lists: crate::data::BuyListData::empty(),
         categories: crate::data::CategoryData::empty(),
+        admin: crate::data::AdminData::empty(),
     };
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
@@ -7623,4 +7624,227 @@ fn auto_soulshot_toggle_activates_and_recharges() {
         8,
         "activation + one auto-recharge consumed two shots"
     );
+}
+
+// --------------------------------------------------------------- admin (G13.A)
+
+/// A datapack-backed world (real `AdminData`) so `is_gm`/access gating and the
+/// name colors resolve; the synthetic `test_world` otherwise loads empty admin.
+fn admin_world() -> (World, db::CmdTx, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+    let (mut world, db_tx, db_rx, link_rx) = test_world();
+    world.data.admin =
+        crate::data::AdminData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    (world, db_tx, db_rx, link_rx)
+}
+
+/// Like [`ingame_player`] but with a chosen access level (0 = user).
+fn ingame_player_access(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    access_level: i32,
+) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>> {
+    let mut chr = dummy_char(object_id, &format!("P{object_id}"));
+    chr.access_level = access_level;
+    let bundle = Player::from_char(&world.data, &chr);
+    let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
+    let s = Session::new(client_id, out_tx, "127.0.0.1:1".parse().unwrap())
+        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+        .into_lobby(vec![])
+        .into_entering(bundle);
+    let (session, bundle) = s.into_ingame();
+    bundle.spawn_into(&mut world.objects);
+    world.clients.insert(client_id, ClientSession::InGame(session));
+    out_rx
+}
+
+/// `SendBypassBuildCmd` (0x74) body — the raw `//command` text (no `admin_`).
+fn build_cmd_body(command: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_string(command);
+    w.into_bytes()
+}
+
+fn count_system_messages(pkts: &[Vec<u8>]) -> usize {
+    pkts.iter().filter(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE).count()
+}
+
+/// A GM's `//serverinfo` runs and answers with server-info text lines.
+#[test]
+fn admin_serverinfo_runs_for_gm() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 5001, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("serverinfo")].concat());
+    let pkts = drain(&mut gm_rx);
+    assert_eq!(count_system_messages(&pkts), 3, "three server-info lines");
+}
+
+/// A non-GM issuing an admin command is silently ignored (Java `isGM` gate).
+#[test]
+fn admin_command_ignored_for_non_gm() {
+    let (mut world, ..) = admin_world();
+    let mut user_rx = ingame_player_access(&mut world, 1, 5002, 0);
+    drain(&mut user_rx);
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("serverinfo")].concat());
+    assert!(drain(&mut user_rx).is_empty(), "non-GM gets no reply at all");
+}
+
+/// A GM whose tier lacks the required access level is refused with the Java
+/// message. We synthesize a right the master tier's childAccess cannot reach by
+/// using a real command but a mid-tier GM: `admin_serverinfo` needs level 100,
+/// and a level-70 Admin's chain descends (never ascends) so it is denied.
+#[test]
+fn admin_command_access_denied_for_insufficient_level() {
+    let (mut world, ..) = admin_world();
+    // Level 70 ("Admin") is a GM (isGM=true) but its childAccess chain runs
+    // 70→60→…→0, never reaching 100, so a level-100 command is refused.
+    let mut rx = ingame_player_access(&mut world, 1, 5003, 70);
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("serverinfo")].concat());
+    let pkts = drain(&mut rx);
+    // One system message: the "no access rights" refusal, not the 3 info lines.
+    assert_eq!(count_system_messages(&pkts), 1, "single refusal line, command not run");
+}
+
+/// An unknown command answers "does not exist"; a known-but-unimplemented
+/// command (gated in AdminCommands.xml, no body yet — G13.C) answers the
+/// not-implemented path. Both for a master GM.
+#[test]
+fn admin_unknown_vs_unimplemented() {
+    let (mut world, ..) = admin_world();
+    let mut rx = ingame_player_access(&mut world, 1, 5004, 100);
+    drain(&mut rx);
+
+    // Not in AdminCommands.xml → "does not exist".
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("totally_made_up")].concat());
+    assert_eq!(count_system_messages(&drain(&mut rx)), 1, "does-not-exist line");
+
+    // In AdminCommands.xml (admin_debug, level 100) but no body yet (G13.B) →
+    // not-implemented path, does not crash.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("debug")].concat());
+    assert_eq!(count_system_messages(&drain(&mut rx)), 1, "not-implemented line");
+}
+
+/// A GM's name/title color comes from the access-level table; a normal player
+/// keeps the client defaults.
+#[test]
+fn access_level_colors_applied() {
+    let (world, ..) = admin_world();
+    // Level 70 "Admin": nameColor/titleColor 0FF000 in AccessLevels.xml.
+    let mut chr = dummy_char(6001, "Gm");
+    chr.access_level = 70;
+    let gm = Player::from_char(&world.data, &chr);
+    assert_eq!(gm.player.name_color, 0x0F_F000);
+    assert_eq!(gm.player.title_color, 0x0F_F000);
+
+    // Level 0 keeps the client defaults (real-capture parity).
+    let user = Player::from_char(&world.data, &dummy_char(6002, "Joe"));
+    assert_eq!(user.player.name_color, crate::model::DEFAULT_NAME_COLOR);
+    assert_eq!(user.player.title_color, crate::model::DEFAULT_TITLE_COLOR);
+}
+
+fn dlg_answer_body(message_id: i32, answer: i32, requester_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(message_id);
+    w.write_i32(answer);
+    w.write_i32(requester_id);
+    w.into_bytes()
+}
+
+/// A `confirmDlg` command (admin_givehero) prompts with a ConfirmDlg and does
+/// NOT execute; the DlgAnswer "yes" re-runs it (reaching dispatch — here the
+/// not-implemented path), while "no" drops it silently.
+#[test]
+fn admin_confirm_dialog_round_trip() {
+    const S1_3: i32 = server_packets::S1_3_MESSAGE_ID;
+
+    let (mut world, ..) = admin_world();
+    let mut rx = ingame_player_access(&mut world, 1, 5005, 100);
+    drain(&mut rx);
+
+    // //givehero → a single ConfirmDlg (0xF3), no execution yet.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("givehero")].concat());
+    let pkts = drain(&mut rx);
+    assert_eq!(pkts.len(), 1, "only the ConfirmDlg is sent");
+    assert_eq!(pkts[0][0], server_packets::opcodes::CONFIRM_DLG, "it's a ConfirmDlg");
+    assert_eq!(count_system_messages(&pkts), 0, "command did not execute yet");
+
+    // Answer "yes" → the stored command re-runs and reaches dispatch (givehero
+    // has no body yet → the not-implemented reply proves re-execution).
+    on_packet(&mut world, 1, [vec![cop::DLG_ANSWER], dlg_answer_body(S1_3, 1, 0)].concat());
+    assert_eq!(count_system_messages(&drain(&mut rx)), 1, "re-ran on confirm");
+
+    // A second "yes" does nothing — the pending command was consumed.
+    on_packet(&mut world, 1, [vec![cop::DLG_ANSWER], dlg_answer_body(S1_3, 1, 0)].concat());
+    assert!(drain(&mut rx).is_empty(), "no pending command to re-run");
+}
+
+/// Answering "no" to the confirm drops the command without executing it.
+#[test]
+fn admin_confirm_dialog_declined() {
+    const S1_3: i32 = server_packets::S1_3_MESSAGE_ID;
+
+    let (mut world, ..) = admin_world();
+    let mut rx = ingame_player_access(&mut world, 1, 5006, 100);
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("givehero")].concat());
+    drain(&mut rx);
+    on_packet(&mut world, 1, [vec![cop::DLG_ANSWER], dlg_answer_body(S1_3, 0, 0)].concat());
+    assert!(drain(&mut rx).is_empty(), "declined command does not run");
+}
+
+/// `//heal` on a targeted, damaged player fully restores HP/MP/CP and pushes a
+/// StatusUpdate to that player.
+#[test]
+fn admin_heal_restores_targeted_player() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7001, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 7002, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&7002) {
+        v.cur_hp = 1.0;
+    }
+    world.objects.add_components(&7001, crate::model::components::TargetRef(Some(7002)));
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("heal")].concat());
+
+    let v = pvit(&world, 7002);
+    assert_eq!(v.cur_hp, v.max_hp as f64, "victim fully healed");
+    assert!(
+        drain(&mut victim_rx).iter().any(|p| p[0] == server_packets::opcodes::STATUS_UPDATE),
+        "victim got a StatusUpdate"
+    );
+}
+
+/// `//kill` on a targeted player kills them (Java `doDie` path).
+#[test]
+fn admin_kill_slays_targeted_player() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7003, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 7004, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+
+    world.objects.add_components(&7003, crate::model::components::TargetRef(Some(7004)));
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("kill")].concat());
+
+    assert!(pvit(&world, 7004).dead, "victim is dead after //kill");
+}
+
+/// `//kill` with no target tells the GM to select one and kills nothing.
+#[test]
+fn admin_kill_without_target_warns() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7005, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("kill")].concat());
+    assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "one 'select a target' line");
 }

@@ -73,6 +73,10 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
         // buttons (Show Drop / pages). Java resolves the target by object id
         // with no range check, so no `can_interact` gate here.
         super::npc_view::handle_npc_view_bypass(world, client_id, object_id, &command);
+    } else if command.starts_with("admin_") {
+        // Admin HTML-menu buttons (Java `RequestBypassToServer`'s `admin_`
+        // branch) → the same entry as the `//command` bar, confirm enabled.
+        super::admin::use_admin_command(world, client_id, &command, true);
     } else {
         warn!("Bypass: client {client_id} sent unhandled bypass [{command}].");
     }

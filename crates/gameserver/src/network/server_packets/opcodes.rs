@@ -24,6 +24,7 @@ pub const MAGIC_SKILL_USE: u8 = 0x48;
 pub const MAGIC_SKILL_CANCELED: u8 = 0x49;
 pub const MAGIC_SKILL_LAUNCHED: u8 = 0x54;
 pub const SYSTEM_MESSAGE: u8 = 0x62;
+pub const CONFIRM_DLG: u8 = 0xF3;
 pub const RESTART_RESPONSE: u8 = 0x71;
 pub const LOG_OUT_OK: u8 = 0x84;
 pub const SETUP_GAUGE: u8 = 0x6B;

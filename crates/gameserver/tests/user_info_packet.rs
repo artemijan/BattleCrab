@@ -17,6 +17,10 @@ async fn user_info_test() {
         account: "Adelante".to_string(), // Maps to m.user_id
         title: "".to_string(),
 
+        access_level: 0,
+        name_color: gameserver::model::DEFAULT_NAME_COLOR,
+        title_color: gameserver::model::DEFAULT_TITLE_COLOR,
+
         level: 1,
         class_id: 10,
         base_class_id: 10, // Defaulting to class_id
