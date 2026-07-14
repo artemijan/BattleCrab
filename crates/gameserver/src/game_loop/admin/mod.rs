@@ -27,6 +27,7 @@ mod flags;
 mod items;
 mod menu;
 mod moderation;
+mod mounts;
 mod skills;
 mod spawn;
 mod teleport;
@@ -47,6 +48,7 @@ use menu::*;
 pub(crate) use flags::apply_gm_startup;
 use items::*;
 use moderation::*;
+use mounts::*;
 use skills::*;
 use spawn::*;
 use teleport::*;
@@ -176,8 +178,15 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_show_moves" | "admin_show_moves_other" | "admin_show_teleport" => {
             admin_teleport_menu(world, client_id, command)
         }
-        // Transform HTML menu (the transform bodies + mounts need the
-        // transform/mount subsystems — deferred, see PLAN_G13_ADMIN §B4).
+        // AdminRide mounts (the transform-based ride_horse/ride_bike and
+        // AdminTransform bodies stay deferred — they need the transform runtime).
+        "admin_ride_strider" => admin_ride(world, client_id, object_id, mounts::Mount::Strider),
+        "admin_ride_wolf" => admin_ride(world, client_id, object_id, mounts::Mount::Wolf),
+        "admin_ride_wyvern" => admin_ride(world, client_id, object_id, mounts::Mount::Wyvern),
+        "admin_unride" | "admin_unride_strider" | "admin_unride_wolf" | "admin_unride_wyvern" => {
+            admin_unride(world, object_id)
+        }
+        // Transform HTML menu (the transform bodies need the transform runtime).
         "admin_transform_menu" => menu::show_admin_html(world, client_id, "gm_menu.htm"),
         // Self-teleport to explicit coordinates.
         "admin_teleport" | "admin_move_to" | "admin_tele" | "admin_instant_move" => {

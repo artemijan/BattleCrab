@@ -121,7 +121,7 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
 
     // STATUS
     w.write_i16(UserInfoType::Status.block_length() as i16);
-    w.write_u8(0); // mount type
+    w.write_u8(p.mount_type); // mount type (0 none, 1 strider, 2 wyvern, 3 wolf)
     w.write_u8(0); // private store type
     w.write_u8(0); // dwarven craft / crafting
     w.write_u8(0);

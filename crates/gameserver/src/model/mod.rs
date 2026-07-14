@@ -178,6 +178,14 @@ pub struct Player {
     /// use (`RequestAutoSoulShot`); re-charged before each attack/cast. Not
     /// persisted in this slice (Java saves them to `character_variables`).
     pub auto_shots: Vec<i32>,
+
+    /// `Player._mountType` ordinal (Java `MountType`): 0 none, 1 strider,
+    /// 2 wyvern, 3 great wolf. Drives the mount byte in UserInfo/CharInfo and
+    /// the `Ride` broadcast. Transient (admin `//ride*`), not persisted.
+    pub mount_type: u8,
+    /// `Player._mountNpcId` — the ridden creature's npc id (0 when unmounted).
+    /// CharInfo/`Ride` send it as `+ 1_000_000`.
+    pub mount_npc_id: i32,
 }
 
 /// Port of `enums/ShotType`, narrowed to the kinds this slice charges. The
@@ -589,6 +597,8 @@ impl Player {
             quest_zone_id: -1,
             charged_shots: 0,
             auto_shots: Vec::new(),
+            mount_type: 0,
+            mount_npc_id: 0,
         };
         // Filled in by `recalculate_stats` (incl. atk_range/random_dmg, which it
         // sets from the equipped weapon or the class template).

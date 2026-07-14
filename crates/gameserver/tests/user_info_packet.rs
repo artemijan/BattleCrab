@@ -51,6 +51,8 @@ async fn user_info_test() {
         quest_zone_id: 0,
         charged_shots: 0,
         auto_shots: Vec::new(),
+        mount_type: 0,
+        mount_npc_id: 0,
     };
     let position = Position { x: -90939, y: 248_138, z: -3563, heading: 0 };
     let vitals = Vitals { max_hp: 98, cur_hp: 98.0, max_mp: 59, cur_mp: 59.0, dead: false };

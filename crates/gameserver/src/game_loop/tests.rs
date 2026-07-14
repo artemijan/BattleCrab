@@ -9248,3 +9248,28 @@ fn admin_spawnat_creates_npc_at_coords() {
     let pos = world.objects.get_component::<crate::model::components::Position>(&npc_oid).unwrap();
     assert_eq!((pos.x, pos.y, pos.z), (-84000, 244000, -3700), "spawned at the coords");
 }
+
+/// `//ride_strider` mounts the GM (durable `mount_type`/`mount_npc_id` + a Ride
+/// broadcast); `//unride` clears it.
+#[test]
+fn admin_ride_and_unride() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8920, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("ride_strider"));
+    let p = world.objects.get_component::<Player>(&8920).unwrap();
+    assert_eq!(p.mount_type, 1, "strider = MountType 1");
+    assert_eq!(p.mount_npc_id, 12526, "strider npc id");
+    assert!(
+        drain(&mut gm_rx).iter().any(|pk| pk[0] == server_packets::opcodes::RIDE),
+        "Ride broadcast sent"
+    );
+
+    // Re-riding while mounted is refused (Java "already have a summon").
+    on_packet(&mut world, 1, build_admin("ride_wolf"));
+    assert_eq!(world.objects.get_component::<Player>(&8920).unwrap().mount_type, 1, "still on the strider");
+
+    on_packet(&mut world, 1, build_admin("unride"));
+    assert_eq!(world.objects.get_component::<Player>(&8920).unwrap().mount_type, 0, "dismounted");
+}

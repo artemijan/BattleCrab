@@ -85,6 +85,22 @@ pub fn teleport_to_location(object_id: i32, x: i32, y: i32, z: i32, heading: i32
     w.into_bytes()
 }
 
+/// Port of `serverpackets/Ride` — mount / dismount broadcast. `ride_type` is the
+/// `MountType` ordinal (0 none, 1 strider, 2 wyvern, 3 wolf); `mount_npc_id` is
+/// sent as `+ 1_000_000` (0 stays 0), matching Java.
+pub fn ride(object_id: i32, mounted: bool, ride_type: u8, mount_npc_id: i32, x: i32, y: i32, z: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::RIDE);
+    w.write_i32(object_id);
+    w.write_i32(mounted as i32);
+    w.write_i32(ride_type as i32);
+    w.write_i32(if mount_npc_id == 0 { 0 } else { mount_npc_id + 1_000_000 });
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/MoveToLocation` with an explicit destination —
 /// unlike `enter_world::move_to_location` (which always sends dest==current
 /// for the enter-world burst), this is the real move-start packet, broadcast

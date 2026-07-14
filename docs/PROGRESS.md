@@ -1146,13 +1146,19 @@ command bodies (G13.B) are next.
     (`//res_monster`), `creatures_in_range` (radius commands),
     `SkillData::max_level`, plus the earlier `spawn_npc_at`, `SetAccessLevel`
     DB command, and `AdminFlags`.
-- Tests: 5 `admin_data` units + 71 synthetic-world dispatch/handler tests
-  (gating, confirm round-trip, colors, and one+ per handler group).
-- **Deferred (own subsystem work, not handler bodies)**: **B9 mounts +
-  transforms** — `AdminRide`/`AdminTransform` need a Ride packet + MountType +
-  UserInfo/CharInfo mount serialization and a transform runtime with
-  ChangeTransform + stat recalc (both touch the byte-verified UserInfo/CharInfo;
-  `//transform_menu` HTML is in). **B8** — `AdminMobGroup` (controllable-mob
+- **Mounts** (`admin/mounts.rs`): `//ride_strider`/`//ride_wolf`/`//ride_wyvern`
+  + `//unride*`. `Player.mount_type`/`mount_npc_id` are durable state serialized
+  into UserInfo/CharInfo (mount byte identical to the old hardcoded 0 when
+  unmounted — the real-capture byte test still passes) plus a `Ride` (0x8C)
+  broadcast. Mount speed/collision swap is a documented TODO (needs mount stat
+  data); the visual mount is complete.
+- Tests: 5 `admin_data` units + 72 synthetic-world dispatch/handler tests
+  (gating, confirm round-trip, colors, one+ per handler group, mount round-trip).
+- **Deferred (own subsystem work, not handler bodies)**: **transforms** —
+  `AdminRide`'s `//ride_horse`/`//ride_bike` and `AdminTransform` need a
+  transform runtime (transform templates + stats, `ChangeTransform`, stat
+  recalc, CharInfo transform id); `//transform_menu` HTML is in. **B8** —
+  `AdminMobGroup` (controllable-mob
   group AI) and the `AdminGeodata` *editor/grid/save* commands. Also blocked:
   clan-skill grants (no clan-skill system), `AdminFence` (no spawnable fence),
   the AdminEffects **abnormal-visual-effect / team / targetable** subset,

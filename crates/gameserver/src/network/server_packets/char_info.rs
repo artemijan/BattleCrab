@@ -113,13 +113,13 @@ pub fn char_info(v: &crate::model::PlayerView) -> Vec<u8> {
     w.write_u8(0); // in combat
     w.write_u8(0); // alike dead
     w.write_u8(0); // invisible
-    w.write_u8(0); // mount type
+    w.write_u8(p.mount_type); // mount type (1 strider, 2 wyvern, 3 wolf, 0 none)
     w.write_u8(0); // private store type
     w.write_i16(0); // cubic count (+ cubic ids)
     w.write_u8(0); // in matching room
-    w.write_u8(0); // 1 water, 2 flying mount
+    w.write_u8(if p.mount_type == 2 { 2 } else { 0 }); // 1 water, 2 flying mount (wyvern)
     w.write_i16(0); // recom have
-    w.write_i32(0); // mount npc id
+    w.write_i32(if p.mount_npc_id == 0 { 0 } else { p.mount_npc_id + 1_000_000 }); // mount npc id
     w.write_i32(p.class_id);
     w.write_i32(0); // TODO: Find me! (Java unknown)
     w.write_u8(inventory.paperdoll_enchant_level(PaperdollSlot::RHand) as u8); // weapon enchant
