@@ -22,8 +22,10 @@ const SKILL_LAUNCH_TIME_MS: f64 = 500.0;
 /// `ALT_GAME_MAGICFAILURES` resist branch is deferred (equivalent to running
 /// with `MagicFailures = False`) — it needs `calcMagicSuccess`' magic-level
 /// vs target-level table, which nothing else uses yet.
-pub fn calc_magic_dam(m_atk: f64, m_def: f64, power: f64, mcrit: bool) -> f64 {
-    (77.0 * power * m_atk.sqrt() / m_def.max(1.0)) * if mcrit { 2.0 } else { 1.0 }
+/// `shots_bonus` is Java's `bss ? 4 : sps ? 2 : 1` (times the `SHOTS_BONUS`
+/// stat, 1.0 here) applied to the base magic damage.
+pub fn calc_magic_dam(m_atk: f64, m_def: f64, power: f64, mcrit: bool, shots_bonus: f64) -> f64 {
+    (77.0 * power * m_atk.sqrt() / m_def.max(1.0)) * shots_bonus * if mcrit { 2.0 } else { 1.0 }
 }
 
 /// `Formulas.calcCrit`'s magic branch for both-below-level-78 actors (base
@@ -130,13 +132,27 @@ pub fn calc_cast_times(
     (hit, cancel as i32, cool)
 }
 
-/// `handlers/effecthandlers/Heal.java` `instant()`, unarmed/shotless
-/// narrowing: `staticShotBonus = 0`, `mAtkMul = 1 + 1 = 2` (no-grade weapon +
-/// shot dynamic bonus), `HEAL_EFFECT`/`HEAL_EFFECT_ADD` stats absent (×1/+0),
-/// healing-skill config multiplier 1.0. Magic crit triples the heal. The
-/// overheal clamp is the caller's job (it needs the target's HP).
-pub fn calc_heal(power: f64, m_atk: f64, mcrit: bool) -> f64 {
-    (power + (2.0 * m_atk).sqrt()) * if mcrit { 3.0 } else { 1.0 }
+/// `handlers/effecthandlers/Heal.java` `instant()`, narrowed to the player
+/// caster path: `HEAL_EFFECT`/`HEAL_EFFECT_ADD` stats absent (×1/+0),
+/// healing-skill config multiplier 1.0, `SHOTS_BONUS` stat 1.0. Magic crit
+/// triples the heal; the overheal clamp is the caller's job.
+///
+/// Spiritshots (`sps`/`bss`): the `sqrt` multiplier is `bss ? 4 : 2` (Java's
+/// `mAtkMul` collapses to this for both the mage and no-grade-weapon branches),
+/// and the mage branch adds a static bonus from the skill's MP consume
+/// (`bss ? mpConsume*2.4 : mpConsume`). `is_mage_caster` gates that static
+/// bonus — Java's `isMageClass()`; approximated as "the caster is a player"
+/// (every Interlude heal-casting class is a mage class, and NPC heals don't
+/// reach this fn). Shotless (`sps == bss == false`) reproduces the old
+/// `sqrt(2·mAtk)`.
+pub fn calc_heal(power: f64, m_atk: f64, mcrit: bool, sps: bool, bss: bool, mp_consume: i32, is_mage_caster: bool) -> f64 {
+    let m_atk_mul = if bss { 4.0 } else { 2.0 };
+    let static_bonus = if (sps || bss) && is_mage_caster {
+        mp_consume as f64 * if bss { 2.4 } else { 1.0 }
+    } else {
+        0.0
+    };
+    (power + static_bonus + (m_atk_mul * m_atk).sqrt()) * if mcrit { 3.0 } else { 1.0 }
 }
 
 // ---------------------------------------------------------------------------
@@ -207,13 +223,16 @@ pub fn random_damage_multiplier(roll_neg_r_to_r: i32) -> f64 {
 /// (`calcCritDamage` = 2 with default crit-damage stats), over the target's
 /// `pDef`. `position` is the attacker's position relative to the target
 /// (front 0, side +5%, back +20% of pAtk).
-pub fn calc_auto_attack_damage(p_atk: f64, random_mul: f64, position: Position, p_def: f64, crit: bool) -> f64 {
+pub fn calc_auto_attack_damage(p_atk: f64, random_mul: f64, position: Position, p_def: f64, crit: bool, ss: bool) -> f64 {
     let prox_bonus = match position {
         Position::Front => 0.0,
         Position::Side => 0.05,
         Position::Back => 0.2,
     } * p_atk;
-    let attack = (p_atk * random_mul + prox_bonus) * if crit { 2.0 } else { 1.0 } * 77.0;
+    // `ssBonus` = `ss ? 2 : 1` (blessed soulshots — 2.15 — don't exist in
+    // Interlude; times `SHOTS_BONUS`, 1.0 here).
+    let ss_bonus = if ss { 2.0 } else { 1.0 };
+    let attack = (p_atk * random_mul + prox_bonus) * ss_bonus * if crit { 2.0 } else { 1.0 } * 77.0;
     (attack / p_def.max(1.0)).max(0.0)
 }
 
@@ -261,16 +280,19 @@ mod tests {
     /// magic crit doubles it.
     #[test]
     fn magic_dam_matches_java_formula() {
-        let dmg = calc_magic_dam(100.0, 60.0, 12.0, false);
+        let dmg = calc_magic_dam(100.0, 60.0, 12.0, false, 1.0);
         assert!((dmg - 154.0).abs() < 1e-9);
-        let crit = calc_magic_dam(100.0, 60.0, 12.0, true);
+        let crit = calc_magic_dam(100.0, 60.0, 12.0, true, 1.0);
         assert!((crit - 308.0).abs() < 1e-9);
+        // Spiritshot doubles, blessed spiritshot quadruples the base.
+        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 2.0) - 308.0).abs() < 1e-9);
+        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 4.0) - 616.0).abs() < 1e-9);
     }
 
     /// mDef is floored at 1 so a zero-defence target can't divide by zero.
     #[test]
     fn magic_dam_survives_zero_mdef() {
-        assert!(calc_magic_dam(100.0, 0.0, 12.0, false).is_finite());
+        assert!(calc_magic_dam(100.0, 0.0, 12.0, false, 1.0).is_finite());
     }
 
     /// Good skills cap the per-mille rate at 320, bad skills at 200; the
@@ -287,8 +309,13 @@ mod tests {
     /// Heal: power 83, mAtk 50 → 83 + √100 = 93; crit triples.
     #[test]
     fn heal_matches_java_formula() {
-        assert!((calc_heal(83.0, 50.0, false) - 93.0).abs() < 1e-9);
-        assert!((calc_heal(83.0, 50.0, true) - 279.0).abs() < 1e-9);
+        assert!((calc_heal(83.0, 50.0, false, false, false, 0, false) - 93.0).abs() < 1e-9);
+        assert!((calc_heal(83.0, 50.0, true, false, false, 0, false) - 279.0).abs() < 1e-9);
+        // Spiritshot on a mage caster adds the MP-consume static bonus (sqrt
+        // term unchanged at ×2): 83 + 40 + √100 = 133.
+        assert!((calc_heal(83.0, 50.0, false, true, false, 40, true) - 133.0).abs() < 1e-9);
+        // Blessed spiritshot: sqrt term ×4 (√200) and static ×2.4: 83 + 96 + √200.
+        assert!((calc_heal(83.0, 50.0, false, false, true, 40, true) - (83.0 + 96.0 + 200.0_f64.sqrt())).abs() < 1e-9);
     }
 
     use crate::model::movement::Position;
@@ -337,11 +364,13 @@ mod tests {
     /// crit doubles; back position adds 20% of pAtk before the ×77.
     #[test]
     fn auto_attack_damage_matches_java() {
-        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false) - 154.0).abs() < 1e-9);
-        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, true) - 308.0).abs() < 1e-9);
-        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Back, 50.0, false) - 184.8).abs() < 1e-9);
+        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false, false) - 154.0).abs() < 1e-9);
+        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, true, false) - 308.0).abs() < 1e-9);
+        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Back, 50.0, false, false) - 184.8).abs() < 1e-9);
+        // A soulshot doubles the swing (×2 ssBonus): 154 → 308.
+        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false, true) - 308.0).abs() < 1e-9);
         // pDef floors at 1.
-        assert!(calc_auto_attack_damage(100.0, 1.0, Position::Front, 0.0, false).is_finite());
+        assert!(calc_auto_attack_damage(100.0, 1.0, Position::Front, 0.0, false, false).is_finite());
     }
 
     /// The level-gap XP table: full through +2, tapering to 5%.

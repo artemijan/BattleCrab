@@ -708,6 +708,17 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         pos.heading = heading;
     }
 
+    // Java `doAttack`: "Always try to charge soulshots" before the swing —
+    // the auto-use toggle re-charges the physical shot if the player set one.
+    if !is_npc_oid(attacker_oid)
+        && !world
+            .objects
+            .get_component::<crate::model::Player>(&attacker_oid)
+            .is_some_and(|p| p.is_charged_shot(crate::model::ShotType::Soulshots))
+    {
+        super::items::recharge_shots(world, attacker_oid, true, false);
+    }
+
     // Roll the hit (`generateHit`): miss → everything else skipped.
     let position = get_position(attacker.x, attacker.y, target.x, target.y, target.heading);
     let condition = world
@@ -716,9 +727,15 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         .condition_bonus(attacker.z, target.z, position);
     let miss_roll = world.roll(1000);
     let miss = formulas::calc_hit_miss(attacker.accuracy, target.evasion, condition, miss_roll);
-    let (crit, damage) = if miss {
-        (false, 0)
+    let (crit, damage, ss) = if miss {
+        (false, 0, false)
     } else {
+        // `generateHit`: a charged soulshot is spent on a non-miss and doubles
+        // the swing (`unchargeShot(SOULSHOTS)` → `ss` into `calcAutoAttackDamage`).
+        let ss = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&attacker_oid)
+            .is_some_and(|p| p.uncharge_shot(crate::model::ShotType::Soulshots));
         let crit_roll = world.roll(100);
         let crit = formulas::calc_auto_attack_crit(
             attacker.crit_stat,
@@ -735,8 +752,22 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
             position,
             target.p_def,
             crit,
+            ss,
         );
-        (crit, dmg as i32)
+        (crit, dmg as i32, ss)
+    };
+    // `Hit.getGrade()`: the equipped weapon's crystal-grade ordinal, only when
+    // a soulshot was actually spent.
+    let ss_grade = if ss {
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&attacker_oid)
+            .map(|inv| inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand))
+            .and_then(|w| world.data.item_data.get(w))
+            .map(|t| t.crystal_type.level())
+            .unwrap_or(0)
+    } else {
+        0
     };
 
     let now = world.tick;
@@ -773,6 +804,8 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         damage,
         miss,
         crit,
+        soulshot: ss,
+        ss_grade,
     };
     let pkt = server_packets::attack(
         attacker_oid,

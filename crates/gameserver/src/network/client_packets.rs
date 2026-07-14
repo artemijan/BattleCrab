@@ -70,6 +70,7 @@ pub mod ex_opcodes {
     pub const REQUEST_SAVE_INVENTORY_ORDER: u16 = 0x24;
     pub const REQUEST_STOP_MOVE: u16 = 0xED;
     pub const EX_SEND_SELECTED_QUEST_ZONE_ID: u16 = 0xFF;
+    pub const REQUEST_AUTO_SOULSHOT: u16 = 0x0D;
 }
 
 /// Split an extended-packet body (after the `0xD0` opcode) into its 2-byte LE

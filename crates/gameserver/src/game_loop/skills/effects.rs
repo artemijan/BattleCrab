@@ -22,6 +22,28 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     let crit_roll = world.roll(1000);
     let mcrit = skill.magic_type == 1 && formulas::calc_magic_crit(m_crit_rate, skill.is_bad(), crit_roll);
 
+    // Spiritshots (magic skills only, `useSpiritShot() == _magic == 1`): read
+    // the charged flag once per cast for the damage/heal bonus; the shot is
+    // spent below after every effect has been applied (Java `Skill` uncharges
+    // post-`applyEffects`). `caster_is_player` stands in for `isMageClass()` in
+    // the heal static bonus — this fn's caster is always a player.
+    let caster_is_player = world.objects.get_component::<crate::model::Player>(&caster_oid).is_some();
+    let (sps, bss) = if skill.magic_type == 1 {
+        world
+            .objects
+            .get_component::<crate::model::Player>(&caster_oid)
+            .map(|p| {
+                (
+                    p.is_charged_shot(crate::model::ShotType::Spiritshots),
+                    p.is_charged_shot(crate::model::ShotType::BlessedSpiritshots),
+                )
+            })
+            .unwrap_or((false, false))
+    } else {
+        (false, false)
+    };
+    let magic_shots_bonus = if bss { 4.0 } else if sps { 2.0 } else { 1.0 };
+
     for effect in &skill.effects {
         match effect {
             SkillEffect::MagicalAttack { power } => {
@@ -32,13 +54,13 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     (m_atk, world.objects.get_component::<crate::model::Player>(&caster_oid).expect("player").name.clone())
                 };
                 let m_def = target_m_def(world, target_oid);
-                let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit);
+                let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit, magic_shots_bonus);
                 apply_magic_damage(world, caster_oid, target_oid, damage, mcrit, &caster_name);
             }
             SkillEffect::Heal { power } => {
                 let power = *power;
                 let m_atk = world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
-                let amount = formulas::calc_heal(power, m_atk, mcrit);
+                let amount = formulas::calc_heal(power, m_atk, mcrit, sps, bss, skill.mp_consume, caster_is_player);
                 if crate::game_loop::combat::is_npc_oid(target_oid) {
                     // Healing an NPC: clamp and update, no system messages
                     // (nobody to send them to).
@@ -116,6 +138,15 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 give_item_random(world, target_oid, groups);
             }
             SkillEffect::StatModifier(_) => {} // collected below
+        }
+    }
+
+    // Spend the spiritshot now that every effect has been applied (Java
+    // `Skill`: `unchargeShot(isChargedShot(BLESSED_SPIRITSHOTS) ? BLESSED : SPIRITSHOTS)`).
+    if skill.magic_type == 1 && (sps || bss) {
+        let shot = if bss { crate::model::ShotType::BlessedSpiritshots } else { crate::model::ShotType::Spiritshots };
+        if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&caster_oid) {
+            p.uncharge_shot(shot);
         }
     }
 

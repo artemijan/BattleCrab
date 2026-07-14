@@ -147,6 +147,53 @@ pub struct Player {
     /// selected (`ExSendSelectedQuestZoneID`), read by quest teleports
     /// (`TeleportHolder`). Transient — not persisted.
     pub quest_zone_id: i32,
+
+    /// `Creature._chargedShots` — a bitset of [`ShotType`] masks currently
+    /// charged on the equipped weapon (consumed by the next attack/cast for a
+    /// damage bonus). Transient.
+    pub charged_shots: u8,
+    /// `Player._activeSoulShots` — item ids the player toggled for automatic
+    /// use (`RequestAutoSoulShot`); re-charged before each attack/cast. Not
+    /// persisted in this slice (Java saves them to `character_variables`).
+    pub auto_shots: Vec<i32>,
+}
+
+/// Port of `enums/ShotType`, narrowed to the kinds this slice charges. The
+/// mask is `1 << ordinal`, matching Java's `ShotType._mask` so a single `u8`
+/// on [`Player::charged_shots`] mirrors `Creature._chargedShots`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ShotType {
+    Soulshots = 0,
+    Spiritshots = 1,
+    BlessedSpiritshots = 3,
+}
+
+impl ShotType {
+    /// `ShotType.getMask()` (`1 << ordinal`).
+    pub fn mask(self) -> u8 {
+        1 << (self as u8)
+    }
+}
+
+impl Player {
+    /// `Creature.isChargedShot(type)`.
+    pub fn is_charged_shot(&self, shot: ShotType) -> bool {
+        (self.charged_shots & shot.mask()) != 0
+    }
+
+    /// `Creature.chargeShot(type)` — returns whether the flag flipped on.
+    pub fn charge_shot(&mut self, shot: ShotType) -> bool {
+        let was = self.is_charged_shot(shot);
+        self.charged_shots |= shot.mask();
+        !was
+    }
+
+    /// `Creature.unchargeShot(type)` — returns whether the flag flipped off.
+    pub fn uncharge_shot(&mut self, shot: ShotType) -> bool {
+        let was = self.is_charged_shot(shot);
+        self.charged_shots &= !shot.mask();
+        was
+    }
 }
 
 /// The player's full component set, together *outside* the ECS world — the
@@ -465,6 +512,8 @@ impl Player {
             pending_revive: false,
             teleporting: false,
             quest_zone_id: -1,
+            charged_shots: 0,
+            auto_shots: Vec::new(),
         };
         // Filled in by `recalculate_stats` (incl. atk_range/random_dmg, which it
         // sets from the equipped weapon or the class template).

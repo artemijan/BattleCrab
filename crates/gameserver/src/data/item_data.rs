@@ -257,6 +257,17 @@ pub enum CrystalType {
 }
 
 impl CrystalType {
+    /// `ItemTemplate.getCrystalTypePlus`: collapses the split top grades
+    /// (S80/S84→S, R95/R99→R) so a shot matches any weapon of the same base
+    /// grade. Identity for every grade Interlude actually uses (≤ S).
+    pub fn plus(self) -> CrystalType {
+        match self {
+            CrystalType::S80 | CrystalType::S84 => CrystalType::S,
+            CrystalType::R95 | CrystalType::R99 => CrystalType::R,
+            other => other,
+        }
+    }
+
     /// Java `CrystalType.getLevel()` (the first enum-constructor arg).
     pub fn level(self) -> i32 {
         match self {
@@ -313,6 +324,29 @@ pub enum ItemHandler {
     /// classes collapse to one variant: the only difference between them is
     /// an Olympiad-mode guard, and there's no Olympiad here.
     ItemSkills,
+    /// `handlers/itemhandlers/SoulShots` — charges the physical-attack shot on
+    /// the equipped weapon (`ShotType::SOULSHOTS`).
+    SoulShots,
+    /// `handlers/itemhandlers/SpiritShot` — charges the magic-attack shot
+    /// (`ShotType::SPIRITSHOTS`).
+    SpiritShot,
+    /// `handlers/itemhandlers/BlessedSpiritShot` — the blessed magic shot
+    /// (`ShotType::BLESSED_SPIRITSHOTS`, ×4 magic bonus vs. ×2).
+    BlessedSpiritShot,
+}
+
+impl ItemHandler {
+    /// Whether this handler charges a physical (soulshot) shot — the
+    /// `rechargeShots(physical=…)` category (Java `ActionType.SOULSHOT`).
+    pub fn is_soulshot(self) -> bool {
+        matches!(self, ItemHandler::SoulShots)
+    }
+
+    /// Whether this handler charges a magic (spirit/blessed) shot — the
+    /// `rechargeShots(magic=…)` category (Java `ActionType.SPIRITSHOT`).
+    pub fn is_spiritshot(self) -> bool {
+        matches!(self, ItemHandler::SpiritShot | ItemHandler::BlessedSpiritShot)
+    }
 }
 
 /// One `<capsuled_items><item .../></capsuled_items>` entry (Java
@@ -415,6 +449,11 @@ pub struct ItemData {
     /// Sparse: only weapons with a non-`None` type. Read for the equipped weapon
     /// by the weapon-conditioned passive check (skill effect `<weaponType>`).
     weapon_types: HashMap<i32, WeaponType>,
+    /// `Weapon._soulShotCount` / `_spiritShotCount` (`<set name="soulshots"/>`
+    /// / `<set name="spiritshots"/>`) by weapon item id — how many shots one
+    /// charge consumes, and (non-zero ⇒) whether the weapon can use that shot
+    /// kind at all. Sparse: only weapons that declared a non-zero count.
+    weapon_shots: HashMap<i32, (i32, i32)>,
 }
 
 impl ItemData {
@@ -427,6 +466,7 @@ impl ItemData {
         let mut stat_bonuses = HashMap::new();
         let mut armor_types = HashMap::new();
         let mut weapon_types = HashMap::new();
+        let mut weapon_shots = HashMap::new();
         let dir = format!("{file_path}{ITEMS_DIR}");
         if let Ok(entries) = std::fs::read_dir(&dir) {
             let mut paths: Vec<_> = entries
@@ -436,11 +476,11 @@ impl ItemData {
                 .collect();
             paths.sort();
             for path in paths {
-                parse_file(&path, &mut by_id, &mut stat_bonuses, &mut armor_types, &mut weapon_types);
+                parse_file(&path, &mut by_id, &mut stat_bonuses, &mut armor_types, &mut weapon_types, &mut weapon_shots);
             }
         }
         info!("ItemData: Loaded {} item templates.", by_id.len());
-        Self { by_id, stat_bonuses, armor_types, weapon_types }
+        Self { by_id, stat_bonuses, armor_types, weapon_types, weapon_shots }
     }
 
     pub fn get(&self, item_id: i32) -> Option<&ItemTemplate> {
@@ -466,9 +506,26 @@ impl ItemData {
         self.weapon_types.get(&item_id).copied().unwrap_or(WeaponType::None)
     }
 
+    /// `Weapon.getSoulShotCount()` — shots consumed per soulshot charge; 0 when
+    /// the weapon can't take soulshots (Java's default `_soulShotCount = 0`).
+    pub fn soulshot_count(&self, weapon_item_id: i32) -> i32 {
+        self.weapon_shots.get(&weapon_item_id).map(|s| s.0).unwrap_or(0)
+    }
+
+    /// `Weapon.getSpiritShotCount()` — shots consumed per spiritshot charge.
+    pub fn spiritshot_count(&self, weapon_item_id: i32) -> i32 {
+        self.weapon_shots.get(&weapon_item_id).map(|s| s.1).unwrap_or(0)
+    }
+
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { by_id: HashMap::new(), stat_bonuses: HashMap::new(), armor_types: HashMap::new(), weapon_types: HashMap::new() }
+        Self {
+            by_id: HashMap::new(),
+            stat_bonuses: HashMap::new(),
+            armor_types: HashMap::new(),
+            weapon_types: HashMap::new(),
+            weapon_shots: HashMap::new(),
+        }
     }
 
     /// Attach a `<stats>` block to an already-registered template (tests that
@@ -492,11 +549,24 @@ impl ItemData {
         self.weapon_types.insert(item_id, weapon_type);
     }
 
+    /// Attach weapon soulshot/spiritshot counts (tests exercising shot charging
+    /// without reading `dist/game` XML).
+    #[doc(hidden)]
+    pub fn set_weapon_shots_for_test(&mut self, weapon_item_id: i32, soulshots: i32, spiritshots: i32) {
+        self.weapon_shots.insert(weapon_item_id, (soulshots, spiritshots));
+    }
+
     /// Synthetic catalog for unit tests that need specific templates without
     /// reading `dist/game` XML.
     #[doc(hidden)]
     pub fn from_templates(templates: Vec<ItemTemplate>) -> Self {
-        Self { by_id: templates.into_iter().map(|t| (t.item_id, t)).collect(), stat_bonuses: HashMap::new(), armor_types: HashMap::new(), weapon_types: HashMap::new() }
+        Self {
+            by_id: templates.into_iter().map(|t| (t.item_id, t)).collect(),
+            stat_bonuses: HashMap::new(),
+            armor_types: HashMap::new(),
+            weapon_types: HashMap::new(),
+            weapon_shots: HashMap::new(),
+        }
     }
 
     /// Register one synthetic template (same hook as `NpcData`'s).
@@ -512,6 +582,7 @@ fn parse_file(
     stats_out: &mut HashMap<i32, ItemStats>,
     armor_out: &mut HashMap<i32, ArmorType>,
     weapon_out: &mut HashMap<i32, WeaponType>,
+    weapon_shots_out: &mut HashMap<i32, (i32, i32)>,
 ) {
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
@@ -632,6 +703,13 @@ fn parse_file(
                             weapon_out.insert(item_id, wt);
                         }
                     }
+                    // `Weapon._soulShotCount`/`_spiritShotCount` — only weapons
+                    // declaring a non-zero count can charge that shot kind.
+                    let ss = attrs.get("soulshots").and_then(|v| v.parse().ok()).unwrap_or(0);
+                    let sps = attrs.get("spiritshots").and_then(|v| v.parse().ok()).unwrap_or(0);
+                    if ss != 0 || sps != 0 {
+                        weapon_shots_out.insert(item_id, (ss, sps));
+                    }
                 }
             }
             Ok(Event::Eof) => break,
@@ -678,6 +756,9 @@ fn make_template(
     let handler = match attrs.get("handler").map(|s| s.as_str()) {
         Some("ExtractableItems") => ItemHandler::ExtractableItems,
         Some("ItemSkills") | Some("ItemSkillsTemplate") => ItemHandler::ItemSkills,
+        Some("SoulShots") => ItemHandler::SoulShots,
+        Some("SpiritShot") => ItemHandler::SpiritShot,
+        Some("BlessedSpiritShot") => ItemHandler::BlessedSpiritShot,
         _ => ItemHandler::None,
     };
 
@@ -770,6 +851,17 @@ mod tests {
         assert!(adena.is_stackable);
         assert_eq!(adena.type2, TYPE2_MONEY);
         assert!(!adena.is_equipable());
+
+        // Shots: the D-grade soulshot (1463) resolves to the SoulShots handler
+        // and carries its NORMAL visual skill; a graded weapon declares a shot
+        // count so it can charge (Java `Weapon._soulShotCount`).
+        let soulshot = data.get(1463).expect("item 1463 (Soulshot D)");
+        assert_eq!(soulshot.handler, ItemHandler::SoulShots);
+        assert!(soulshot.item_skills.iter().any(|&(id, _)| id == 2150));
+        assert_eq!(soulshot.crystal_type, CrystalType::D);
+        // Some real weapon must declare soulshots/spiritshots.
+        assert!(data.weapon_shots.values().any(|&(ss, _)| ss > 0), "a weapon declares a soulshot count");
+        assert!(data.weapon_shots.values().any(|&(_, sps)| sps > 0), "a weapon declares a spiritshot count");
 
         assert!(data.by_id.len() > 5000);
     }

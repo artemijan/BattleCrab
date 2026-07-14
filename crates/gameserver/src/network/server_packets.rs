@@ -93,6 +93,7 @@ pub mod opcodes {
     pub const EX_NPC_QUEST_HTML_MESSAGE: i16 = 0x8E;
     pub const EX_QUEST_ITEM_LIST: i16 = 0xC7;
     pub const EX_SET_COMPASS_ZONE_CODE: i16 = 0x33;
+    pub const EX_AUTO_SOUL_SHOT: i16 = 0x0C;
 }
 
 /// Port of `serverpackets/PledgeShowInfoUpdate` — the clan-info refresh
@@ -396,6 +397,19 @@ pub fn ex_ui_setting() -> Vec<u8> {
     w.write_u8(opcodes::EX);
     w.write_i16(opcodes::EX_UI_SETTING);
     w.write_i32(0); // no stored key-mapping
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExAutoSoulShot`: acks a `RequestAutoSoulShot`
+/// toggle so the client updates the shortcut's auto-use glow (`itemId`,
+/// `enable` 1/0, `type`).
+pub fn ex_auto_soul_shot(item_id: i32, enable: bool, shot_type: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_AUTO_SOUL_SHOT);
+    w.write_i32(item_id);
+    w.write_i32(if enable { 1 } else { 0 });
+    w.write_i32(shot_type);
     w.into_bytes()
 }
 
@@ -886,20 +900,26 @@ pub struct AttackHit {
     pub damage: i32,
     pub miss: bool,
     pub crit: bool,
+    /// A charged soulshot was spent on this hit (`SHOT_USED` flag + `getGrade`):
+    /// the client plays the soulshot swing animation.
+    pub soulshot: bool,
+    /// `Hit.getGrade()` — the weapon's crystal-grade ordinal, sent only with a
+    /// soulshot hit (0 otherwise).
+    pub ss_grade: i32,
 }
 
 /// Java `enums/AttackType` masks folded by `Hit`'s constructor: `MISSED` =
 /// 0x01, `BLOCKED` = 0x02 (never set — no shield defence), `CRITICAL` = 0x04,
-/// `SHOT_USED` = 0x08 (never — no soulshots).
+/// `SHOT_USED` = 0x08 (a charged soulshot was spent).
 fn hit_flags(hit: &AttackHit) -> i32 {
     if hit.miss {
         return 0x01;
     }
-    if hit.crit {
-        0x04
-    } else {
-        0
+    let mut flags = if hit.crit { 0x04 } else { 0 };
+    if hit.soulshot {
+        flags |= 0x08;
     }
+    flags
 }
 
 /// Port of `serverpackets/Attack` (single-hit melee shape — the trailing
@@ -912,7 +932,7 @@ pub fn attack(attacker_object_id: i32, hit: &AttackHit, ax: i32, ay: i32, az: i3
     w.write_i32(0); // soulshot visual substitute (brooch jewels)
     w.write_i32(hit.damage);
     w.write_i32(hit_flags(hit));
-    w.write_i32(0); // ss grade
+    w.write_i32(hit.ss_grade); // Hit.getGrade() — weapon crystal grade on a soulshot hit
     w.write_i32(ax);
     w.write_i32(ay);
     w.write_i32(az);
@@ -1235,6 +1255,19 @@ pub mod sm_ids {
     pub const YOU_ARE_NOT_IN_A_PARTY: i16 = 4201;
     pub const YOU_ARE_NOT_IN_A_CLAN: i16 = 4202;
     pub const YOU_ARE_NOT_IN_AN_ALLIANCE: i16 = 4203;
+    // Soulshots / spiritshots
+    pub const THE_SOULSHOT_YOU_ARE_ATTEMPTING_TO_USE_DOES_NOT_MATCH_THE_GRADE_OF_YOUR_EQUIPPED_WEAPON: i16 = 337;
+    pub const YOU_DO_NOT_HAVE_ENOUGH_SOULSHOTS_FOR_THAT: i16 = 338;
+    pub const CANNOT_USE_SOULSHOTS: i16 = 339;
+    pub const YOUR_SOULSHOTS_ARE_ENABLED: i16 = 342;
+    pub const YOUR_SPIRITSHOT_DOES_NOT_MATCH_THE_WEAPON_S_GRADE: i16 = 530;
+    pub const YOU_DO_NOT_HAVE_ENOUGH_SPIRITSHOT_FOR_THAT: i16 = 531;
+    pub const YOU_MAY_NOT_USE_SPIRITSHOTS: i16 = 532;
+    pub const YOUR_SPIRITSHOT_HAS_BEEN_ENABLED: i16 = 533;
+    pub const THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_ACTIVATED: i16 = 1433;
+    pub const THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_DEACTIVATED: i16 = 1434;
+    pub const DUE_TO_INSUFFICIENT_S1_THE_AUTOMATIC_USE_FUNCTION_HAS_BEEN_DEACTIVATED: i16 = 1435;
+    pub const DUE_TO_INSUFFICIENT_S1_THE_AUTOMATIC_USE_FUNCTION_CANNOT_BE_ACTIVATED: i16 = 1436;
 }
 
 /// One `SystemMessage` parameter (Java `SystemMessage.SMParam`), scoped to the

@@ -1217,7 +1217,7 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
 
     let m_atk = pcs(&world, 3001).m_atk;
     let m_def = pcs(&world, 3002).m_def;
-    let damage = formulas::calc_magic_dam(m_atk, m_def, 12.0, false);
+    let damage = formulas::calc_magic_dam(m_atk, m_def, 12.0, false, 1.0);
     assert!(damage > 100.0, "sanity: the nuke must overflow B's CP ({damage})");
     {
         let b = pvit(&world, 3002);
@@ -1392,7 +1392,7 @@ fn heal_on_other_restores_hp_with_formula() {
 
     advance_ticks(&mut world, 10); // hit 500 ms + cancel 500 ms
 
-    let heal = formulas::calc_heal(83.0, pcs(&world, 3001).m_atk, false);
+    let heal = formulas::calc_heal(83.0, pcs(&world, 3001).m_atk, false, false, false, 0, false);
     assert!(heal > 50.0, "sanity: heal ({heal}) overflows the missing 50 HP");
     assert_eq!(pvit(&world, 3002).cur_hp, 100.0, "overheal clamped at max HP");
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_LAUNCHED);
@@ -3966,6 +3966,7 @@ fn melee_kill_rewards_and_decay() {
         1.0,
         crate::model::movement::Position::Back,
         p_def,
+        false,
         false,
     );
     assert!(expected > 100.0, "sanity: one swing must kill the 100 HP monster ({expected})");
@@ -7342,5 +7343,247 @@ fn on_spawn_hook_fires_for_registered_npcs() {
     assert_eq!(
         world.objects.get_component::<crate::model::npc::Npc>(&NPC_OID).unwrap().script_value,
         7
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Soulshots / spiritshots
+// ---------------------------------------------------------------------------
+
+/// A `<set name="handler">` shot item template (soulshot/spiritshot).
+fn shot_template(item_id: i32, grade: crate::data::item_data::CrystalType, handler: crate::data::item_data::ItemHandler, skill_id: i32) -> crate::data::item_data::ItemTemplate {
+    crate::data::item_data::ItemTemplate {
+        item_id,
+        name: format!("shot{item_id}"),
+        kind: crate::data::item_data::ItemKind::Etc,
+        crystal_type: grade,
+        body_part: crate::data::item_data::SLOT_NONE,
+        weight: 0,
+        is_stackable: true,
+        type1: 0,
+        type2: 0,
+        is_quest_item: false,
+        price: 0,
+        handler,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: vec![(skill_id, 1)],
+    }
+}
+
+/// A graded weapon template that consumes `ss`/`sps` shots per charge.
+fn shot_weapon(world: &mut World, item_id: i32, grade: crate::data::item_data::CrystalType, ss: i32, sps: i32) {
+    world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+        item_id,
+        name: format!("weapon{item_id}"),
+        kind: crate::data::item_data::ItemKind::Weapon,
+        crystal_type: grade,
+        body_part: crate::data::item_data::SLOT_R_HAND,
+        weight: 0,
+        is_stackable: false,
+        type1: 0,
+        type2: 0,
+        is_quest_item: false,
+        price: 0,
+        handler: crate::data::item_data::ItemHandler::None,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+    });
+    world.data.item_data.set_weapon_shots_for_test(item_id, ss, sps);
+}
+
+/// Equip a freshly granted item and return its object id.
+fn grant_and_equip(world: &mut World, player_oid: i32, client_id: u32, item_id: i32) -> i32 {
+    let oid = super::items::add_inventory_item(world, player_oid, item_id, 1).unwrap()[0];
+    super::items::use_equipable_item(world, client_id, player_oid, oid);
+    oid
+}
+
+/// Using a soulshot with a matching-grade weapon charges the shot, consumes
+/// `weapon.soulShotCount` from the stack, and plays the shot's `<skills>`
+/// visual (`SoulShots.useItem`).
+#[test]
+fn soulshot_charges_consumes_and_plays_visual() {
+    use crate::data::item_data::{CrystalType, ItemHandler};
+    use crate::model::inventory::Inventory;
+    use crate::model::{Player, ShotType};
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    shot_weapon(&mut world, 9500, CrystalType::D, 2, 2);
+    world.data.item_data.insert_for_test(shot_template(1463, CrystalType::D, ItemHandler::SoulShots, 2150));
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    grant_and_equip(&mut world, 3001, 1, 9500);
+    let shot_oid = super::items::add_inventory_item(&mut world, 3001, 1463, 10).unwrap()[0];
+    drain(&mut a_rx);
+
+    super::items::use_equipable_item(&mut world, 1, 3001, shot_oid);
+
+    assert!(world.objects.get_component::<Player>(&3001).unwrap().is_charged_shot(ShotType::Soulshots), "soulshot charged");
+    assert_eq!(world.objects.get_component::<Inventory>(&3001).unwrap().count_of(1463), 8, "weapon.soulShotCount (2) consumed");
+    let packets = drain(&mut a_rx);
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE), "enable message sent");
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE
+            && i32::from_le_bytes(p[13..17].try_into().unwrap()) == 2150),
+        "shot visual (skill 2150) broadcast"
+    );
+}
+
+/// A soulshot whose grade doesn't match the equipped weapon is refused.
+#[test]
+fn soulshot_wrong_grade_is_refused() {
+    use crate::data::item_data::{CrystalType, ItemHandler};
+    use crate::model::{Player, ShotType};
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    shot_weapon(&mut world, 9500, CrystalType::D, 2, 2);
+    // A C-grade soulshot on a D-grade weapon.
+    world.data.item_data.insert_for_test(shot_template(1464, CrystalType::C, ItemHandler::SoulShots, 2151));
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    grant_and_equip(&mut world, 3001, 1, 9500);
+    let shot_oid = super::items::add_inventory_item(&mut world, 3001, 1464, 10).unwrap()[0];
+    drain(&mut a_rx);
+
+    super::items::use_equipable_item(&mut world, 1, 3001, shot_oid);
+
+    assert!(!world.objects.get_component::<Player>(&3001).unwrap().is_charged_shot(ShotType::Soulshots), "wrong-grade shot not charged");
+    assert_eq!(world.objects.get_component::<crate::model::inventory::Inventory>(&3001).unwrap().count_of(1464), 10, "nothing consumed");
+}
+
+/// A charged soulshot is spent on the next non-miss melee swing, doubles its
+/// damage, and sets the `SHOT_USED` flag (`generateHit`).
+#[test]
+fn soulshot_consumed_on_hit_doubles_melee_damage() {
+    use crate::model::{Player, ShotType};
+
+    fn attack_damage_and_flags(packets: &[Vec<u8>]) -> (i32, i32) {
+        let atk = packets.iter().find(|p| p[0] == server_packets::opcodes::ATTACK).expect("Attack broadcast");
+        (
+            i32::from_le_bytes(atk[13..17].try_into().unwrap()),
+            i32::from_le_bytes(atk[17..21].try_into().unwrap()),
+        )
+    }
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 9;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+    drain(&mut a_rx);
+
+    // Control swing (no shot): plain hit, no crit.
+    world.forced_rolls.extend([0, 99, 10]);
+    combat::do_auto_attack(&mut world, 3001, npc_oid);
+    let (base_dmg, base_flags) = attack_damage_and_flags(&drain(&mut a_rx));
+    assert_eq!(base_flags & 0x08, 0, "no soulshot flag without a charge");
+
+    // Charged swing: identical rolls → exactly double, flag set, shot spent.
+    world.objects.get_component_mut::<Player>(&3001).unwrap().charge_shot(ShotType::Soulshots);
+    world.forced_rolls.extend([0, 99, 10]);
+    combat::do_auto_attack(&mut world, 3001, npc_oid);
+    let (ss_dmg, ss_flags) = attack_damage_and_flags(&drain(&mut a_rx));
+
+    assert_eq!(ss_dmg, base_dmg * 2, "soulshot doubles the swing");
+    assert_ne!(ss_flags & 0x08, 0, "SHOT_USED flag set");
+    assert!(!world.objects.get_component::<Player>(&3001).unwrap().is_charged_shot(ShotType::Soulshots), "shot consumed");
+}
+
+/// A charged spiritshot doubles a magic attack's damage and is spent
+/// (`calcMagicDam` `sps` bonus + `Skill` uncharge).
+#[test]
+fn spiritshot_doubles_magic_damage_and_is_consumed() {
+    use crate::model::components::Vitals;
+    use crate::model::{Player, ShotType};
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 9;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+    let skill = world.data.skill_data.get(1177, 1).expect("Wind Strike").clone();
+    assert_eq!(skill.magic_type, 1, "test skill must be magic");
+    drain(&mut a_rx);
+
+    let start_hp = nvit(&world, npc_oid).cur_hp;
+    // Control cast (no shot), non-crit.
+    world.forced_rolls.push_back(999_999);
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    let base = start_hp - nvit(&world, npc_oid).cur_hp;
+    assert!(base > 0.0, "control nuke dealt damage");
+    world.objects.get_component_mut::<Vitals>(&npc_oid).unwrap().cur_hp = start_hp;
+
+    // Charged spiritshot cast, identical crit roll.
+    world.objects.get_component_mut::<Player>(&3001).unwrap().charge_shot(ShotType::Spiritshots);
+    world.forced_rolls.push_back(999_999);
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    let ss = start_hp - nvit(&world, npc_oid).cur_hp;
+
+    assert!((ss - base * 2.0).abs() < 1e-6, "spiritshot doubles magic damage ({ss} vs {base})");
+    assert!(!world.objects.get_component::<Player>(&3001).unwrap().is_charged_shot(ShotType::Spiritshots), "spiritshot consumed");
+}
+
+/// Toggling auto-use (`RequestAutoSoulShot`) with a matching weapon activates
+/// the shot: `ExAutoSoulShot` ack, the auto-set records the item, and it's
+/// charged immediately; a following attack keeps it topped up.
+#[test]
+fn auto_soulshot_toggle_activates_and_recharges() {
+    use crate::data::item_data::{CrystalType, ItemHandler};
+    use crate::model::{Player, ShotType};
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    shot_weapon(&mut world, 9500, CrystalType::D, 1, 1);
+    world.data.item_data.insert_for_test(shot_template(1463, CrystalType::D, ItemHandler::SoulShots, 2150));
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    grant_and_equip(&mut world, 3001, 1, 9500);
+    super::items::add_inventory_item(&mut world, 3001, 1463, 10);
+    drain(&mut a_rx);
+
+    // itemId=1463, enable=1, type=0.
+    let mut body = Vec::new();
+    body.extend_from_slice(&1463i32.to_le_bytes());
+    body.extend_from_slice(&1i32.to_le_bytes());
+    body.extend_from_slice(&0i32.to_le_bytes());
+    super::items::handle_request_auto_soul_shot(&mut world, 1, &body);
+
+    assert!(world.objects.get_component::<Player>(&3001).unwrap().auto_shots.contains(&1463), "item recorded for auto-use");
+    assert!(world.objects.get_component::<Player>(&3001).unwrap().is_charged_shot(ShotType::Soulshots), "charged on activation");
+    let packets = drain(&mut a_rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::EX && i16::from_le_bytes(p[1..3].try_into().unwrap()) == server_packets::opcodes::EX_AUTO_SOUL_SHOT),
+        "ExAutoSoulShot ack sent"
+    );
+
+    // The charge is spent on a hit, and the next attack auto-recharges it.
+    let npc_oid = NPC_OID + 9;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+    drain(&mut a_rx);
+
+    // Swing 1 spends the activation charge (no item, just the flag).
+    world.forced_rolls.extend([0, 99, 10]);
+    combat::do_auto_attack(&mut world, 3001, npc_oid);
+    drain(&mut a_rx);
+    // Swing 2 finds no charge, auto-recharges (spends an item), then spends it:
+    // the `SHOT_USED` flag on this swing proves the recharge fed it.
+    world.forced_rolls.extend([0, 99, 10]);
+    combat::do_auto_attack(&mut world, 3001, npc_oid);
+    let atk = drain(&mut a_rx).into_iter().find(|p| p[0] == server_packets::opcodes::ATTACK).expect("Attack");
+    assert_ne!(i32::from_le_bytes(atk[17..21].try_into().unwrap()) & 0x08, 0, "auto-shot re-charged and was spent on the 2nd swing");
+    assert_eq!(
+        world.objects.get_component::<crate::model::inventory::Inventory>(&3001).unwrap().count_of(1463),
+        8,
+        "activation + one auto-recharge consumed two shots"
     );
 }

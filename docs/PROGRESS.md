@@ -1092,17 +1092,24 @@ Empty/placeholder now, to be filled in the owning milestone:
   list immediately via the existing skill-effect pipeline, `Heal`/
   `MagicalAttack`/`StatModifier` only since that's all `EFFECT_REGISTRY`
   covers so far; reuse shared with `game_loop::skills::cast::{check,set}
-  _skill_reuse`, also extracted for `use_magic_on`) are ported — soulshots/
-  dyes/enchant scrolls and the rest of Java's `handlers/itemhandlers/*` are
-  still no-ops (`game_loop/items.rs::use_etc_item`'s `ItemHandler::None`
-  arm), as is `<cond>`-gating and the `itemConsumeId`/
-  `SKILL_REDUCE_ON_SKILL_SUCCESS` non-consume case (every `ItemSkills` use is
-  treated as consume-on-success).
+  _skill_reuse`, also extracted for `use_magic_on`) are ported — the
+  `SoulShots`/`SpiritShot`/`BlessedSpiritShot` handlers are ported too (charge
+  on manual use + auto-use toggle via `RequestAutoSoulShot`/`ExAutoSoulShot`,
+  grade check, `rechargeShots` before attack/cast, melee ×2 / magic ×2/×4 /
+  heal static bonus, consume-on-hit/cast). Dyes/enchant scrolls and the rest
+  of Java's `handlers/itemhandlers/*` are still no-ops
+  (`game_loop/items.rs::use_etc_item`'s `ItemHandler::None` arm), as is
+  `<cond>`-gating and the `itemConsumeId`/`SKILL_REDUCE_ON_SKILL_SUCCESS`
+  non-consume case (every `ItemSkills` use is treated as consume-on-success).
+  Not ported: NPC/summon soulshots, the `reducedSoulshot` weapon perk, and the
+  ruby/sapphire brooch visual swap (no jewels).
 - **Skills/combat (post-G9):** `PhysicalAttack`-type *skills* (auto-attack
   damage is done; skill-based physical hits reuse `apply_physical_damage`);
   bows/crossbows (reuse gauge, arrows), dual-weapon split hits, polearm
-  sweeps, soulshots (`SHOTS_BONUS`), shield defence (`calcShldUse` — needs
-  item `<stats>` parsing), PvP auto-attack (needs PvP flags/karma); AoE
+  sweeps, the `SHOTS_BONUS` stat itself (soulshots/spiritshots are ported —
+  see the items note above — but that dynamic-bonus stat stays 1.0), shield
+  defence (`calcShldUse` — needs item `<stats>` parsing), PvP auto-attack
+  (needs PvP flags/karma); AoE
   affect scopes (only `SINGLE` resolves); `ALT_GAME_MAGICFAILURES`
   magic-resist rolls (`calcMagicSuccess`); ~~queued skills +
   walk-into-cast-range AI~~ (both done: `QueuedAction` slot + `PlayerIntent::Cast`

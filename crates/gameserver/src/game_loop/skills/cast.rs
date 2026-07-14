@@ -488,6 +488,14 @@ pub(crate) fn start_casting(
         formulas::calc_cast_times(player, base, mods, combat, &world.data, skill);
     let displayed_cast_time = hit_ms + cancel_ms;
 
+    // `SkillCaster`: recharge shots before the cast so the spiritshot bonus is
+    // in effect when the effects land (`rechargeShots(useSoulShot, useSpiritShot)`
+    // — magic skills use the spiritshot; physical-skill soulshots aren't wired,
+    // only the melee auto-attack path charges soulshots).
+    if skill.magic_type == 1 {
+        crate::game_loop::items::recharge_shots(world, object_id, false, true);
+    }
+
     // Register the reuse (skipped when trivially short, like Java's `> 10`),
     // under the shared group id when the skill has one.
     set_skill_reuse(world, object_id, skill);

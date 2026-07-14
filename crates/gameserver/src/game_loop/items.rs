@@ -277,7 +277,244 @@ fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
     match handler {
         ItemHandler::ExtractableItems => extract_item(world, client_id, object_id, item_object_id),
         ItemHandler::ItemSkills => use_item_skills(world, client_id, object_id, item_object_id),
+        ItemHandler::SoulShots | ItemHandler::SpiritShot | ItemHandler::BlessedSpiritShot => {
+            let item_id = world
+                .objects
+                .get_component::<Inventory>(&object_id)
+                .and_then(|inv| inv.items().iter().find(|i| i.object_id == item_object_id).map(|i| i.item_id));
+            if let Some(item_id) = item_id {
+                charge_shot(world, object_id, item_id, handler, false);
+            }
+        }
         ItemHandler::None => {}
+    }
+}
+
+/// Port of `handlers/itemhandlers/{SoulShots,SpiritShot,BlessedSpiritShot}.useItem`:
+/// charge the matching shot on the equipped weapon. `auto` = true is the
+/// `rechargeShots` re-entry (an item toggled for auto-use): it suppresses the
+/// enable/error chat and the not-enough message, exactly like Java gating those
+/// on `!getAutoSoulShot().contains(itemId)`. Returns whether a shot was charged.
+///
+/// Narrowing vs. Java: the `reducedSoulshot`/`reducedSoulshotChance` weapon
+/// perk (a chance to spend fewer shots) isn't modelled — no Interlude weapon in
+/// the dist declares it — and the ruby/sapphire brooch visual swap doesn't
+/// exist (no jewels), so the shot's own `<skills>` visual always plays.
+pub(crate) fn charge_shot(world: &mut World, object_id: i32, shot_item_id: i32, handler: ItemHandler, auto: bool) -> bool {
+    use crate::model::{Player, ShotType};
+
+    let physical = handler.is_soulshot();
+    let shot_type = match handler {
+        ItemHandler::SoulShots => ShotType::Soulshots,
+        ItemHandler::SpiritShot => ShotType::Spiritshots,
+        ItemHandler::BlessedSpiritShot => ShotType::BlessedSpiritshots,
+        _ => return false,
+    };
+    let client_id = crate::game_loop::helpers::client_for_player(world, object_id);
+    let send = |world: &World, msg: i16| {
+        if !auto {
+            if let Some(cid) = client_id {
+                if let Some(cs) = world.clients.get(&cid) {
+                    cs.send(server_packets::system_message_with(msg, &[]));
+                }
+            }
+        }
+    };
+
+    // Equipped weapon + its per-charge shot count / grade.
+    let (weapon_item_id, shot_visual) = {
+        let Some(inv) = world.objects.get_component::<Inventory>(&object_id) else { return false };
+        let weapon = inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand);
+        let visual = world.data.item_data.get(shot_item_id).map(|t| t.item_skills.clone()).unwrap_or_default();
+        (weapon, visual)
+    };
+    let shot_count = if physical {
+        world.data.item_data.soulshot_count(weapon_item_id)
+    } else {
+        world.data.item_data.spiritshot_count(weapon_item_id)
+    };
+
+    // No weapon, or a weapon that can't take this shot kind.
+    if weapon_item_id == 0 || shot_count == 0 {
+        send(world, if physical { sm_ids::CANNOT_USE_SOULSHOTS } else { sm_ids::YOU_MAY_NOT_USE_SPIRITSHOTS });
+        return false;
+    }
+
+    // Grade must match (`getCrystalTypePlus`).
+    let weapon_grade = world.data.item_data.get(weapon_item_id).map(|t| t.crystal_type.plus());
+    let shot_grade = world.data.item_data.get(shot_item_id).map(|t| t.crystal_type.plus());
+    if weapon_grade != shot_grade {
+        send(world, if physical { sm_ids::THE_SOULSHOT_YOU_ARE_ATTEMPTING_TO_USE_DOES_NOT_MATCH_THE_GRADE_OF_YOUR_EQUIPPED_WEAPON } else { sm_ids::YOUR_SPIRITSHOT_DOES_NOT_MATCH_THE_WEAPON_S_GRADE });
+        return false;
+    }
+
+    // Already charged → no-op (also how the auto path avoids re-spending).
+    if world.objects.get_component::<Player>(&object_id).is_some_and(|p| p.is_charged_shot(shot_type)) {
+        return false;
+    }
+
+    // Consume the shots; not enough → drop auto-use for this item.
+    let have = world.objects.get_component::<Inventory>(&object_id).map(|inv| inv.count_of(shot_item_id)).unwrap_or(0);
+    if have < shot_count as i64 {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+            p.auto_shots.retain(|&id| id != shot_item_id);
+        }
+        send(world, if physical { sm_ids::YOU_DO_NOT_HAVE_ENOUGH_SOULSHOTS_FOR_THAT } else { sm_ids::YOU_DO_NOT_HAVE_ENOUGH_SPIRITSHOT_FOR_THAT });
+        return false;
+    }
+    let changes = world
+        .objects
+        .get_component_mut::<Inventory>(&object_id)
+        .map(|inv| inv.remove_item(shot_item_id, shot_count as i64))
+        .unwrap_or_default();
+
+    // Charge, notify, replay the count change, play the visual.
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+        p.charge_shot(shot_type);
+    }
+    if !changes.is_empty() {
+        if let Some(cid) = client_id {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(ew::inventory_update_changes(&world.data, &changes));
+            }
+        }
+    }
+    send(world, if physical { sm_ids::YOUR_SOULSHOTS_ARE_ENABLED } else { sm_ids::YOUR_SPIRITSHOT_HAS_BEEN_ENABLED });
+    broadcast_shot_visual(world, object_id, &shot_visual);
+    true
+}
+
+/// Port of `clientpackets/RequestAutoSoulShot.runImpl` (player-shot branch —
+/// summon shots aren't in scope): toggle a shot item into the auto-use set.
+/// Body: `itemId:i32, enable:i32(1/0), type:i32`.
+pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, ex_body: &[u8]) {
+    use crate::model::Player;
+
+    if ex_body.len() < 12 {
+        return;
+    }
+    let item_id = i32::from_le_bytes(ex_body[0..4].try_into().unwrap());
+    let enable = i32::from_le_bytes(ex_body[4..8].try_into().unwrap()) == 1;
+    let shot_type = i32::from_le_bytes(ex_body[8..12].try_into().unwrap());
+
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+    // `!player.isDead()` — a dead player can't toggle shots.
+    if world.objects.get_component::<crate::model::components::Vitals>(&object_id).is_none_or(|v| v.dead) {
+        return;
+    }
+    // The item must be in the inventory, and be a player shot we handle.
+    let handler = {
+        let Some(inv) = world.objects.get_component::<Inventory>(&object_id) else { return };
+        if inv.count_of(item_id) == 0 {
+            return;
+        }
+        world.data.item_data.get(item_id).map(|t| t.handler).unwrap_or_default()
+    };
+    if !handler.is_soulshot() && !handler.is_spiritshot() {
+        return;
+    }
+
+    let send = |world: &World, msg: i16, params: &[SmParam]| {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(msg, params));
+        }
+    };
+
+    if enable {
+        // Grade check (`item.getCrystalType() != weapon.getCrystalTypePlus()`,
+        // or no weapon at all — fists).
+        let weapon_item_id = world
+            .objects
+            .get_component::<Inventory>(&object_id)
+            .map(|inv| inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand))
+            .unwrap_or(0);
+        let weapon_grade = world.data.item_data.get(weapon_item_id).map(|t| t.crystal_type.plus());
+        let shot_grade = world.data.item_data.get(item_id).map(|t| t.crystal_type);
+        if weapon_item_id == 0 || weapon_grade != shot_grade {
+            send(
+                world,
+                if handler.is_soulshot() {
+                    sm_ids::THE_SOULSHOT_YOU_ARE_ATTEMPTING_TO_USE_DOES_NOT_MATCH_THE_GRADE_OF_YOUR_EQUIPPED_WEAPON
+                } else {
+                    sm_ids::YOUR_SPIRITSHOT_DOES_NOT_MATCH_THE_WEAPON_S_GRADE
+                },
+                &[],
+            );
+            return;
+        }
+        // Activate.
+        if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+            if !p.auto_shots.contains(&item_id) {
+                p.auto_shots.push(item_id);
+            }
+        }
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::ex_auto_soul_shot(item_id, true, shot_type));
+        }
+        send(world, sm_ids::THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_ACTIVATED, &[SmParam::ItemName(item_id)]);
+        // Charge immediately (Java `player.rechargeShots(...)`).
+        recharge_shots(world, object_id, handler.is_soulshot(), handler.is_spiritshot());
+    } else {
+        // Deactivate.
+        if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+            p.auto_shots.retain(|&id| id != item_id);
+        }
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::ex_auto_soul_shot(item_id, false, shot_type));
+        }
+        send(world, sm_ids::THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_DEACTIVATED, &[SmParam::ItemName(item_id)]);
+    }
+}
+
+/// Port of `Player.rechargeShots(physical, magic, fish)`: for each shot item
+/// the player toggled for auto-use, if its category matches the requested one,
+/// (re)charge it. Java runs this at the start of every attack (`physical`) and
+/// cast (`magic`). A toggled item that's no longer in the inventory is dropped
+/// from the auto set (Java's `removeAutoSoulShot` on `getItemByItemId == null`).
+pub(crate) fn recharge_shots(world: &mut World, object_id: i32, physical: bool, magic: bool) {
+    let auto = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .map(|p| p.auto_shots.clone())
+        .unwrap_or_default();
+    for item_id in auto {
+        if world.objects.get_component::<Inventory>(&object_id).map(|inv| inv.count_of(item_id)).unwrap_or(0) == 0 {
+            if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&object_id) {
+                p.auto_shots.retain(|&id| id != item_id);
+            }
+            continue;
+        }
+        let handler = world.data.item_data.get(item_id).map(|t| t.handler).unwrap_or_default();
+        if (magic && handler.is_spiritshot()) || (physical && handler.is_soulshot()) {
+            charge_shot(world, object_id, item_id, handler, true);
+        }
+    }
+}
+
+/// `Broadcast.toSelfAndKnownPlayersInRadius(player, new MagicSkillUse(...))`:
+/// the shot's `<skills>` (NORMAL) entries as a self-targeted, zero-time
+/// `MagicSkillUse` — the client renders the charge glow off it.
+fn broadcast_shot_visual(world: &mut World, object_id: i32, skills: &[(i32, i32)]) {
+    let Some((player, pos)) = ({
+        let p = world.objects.get_component::<crate::model::Player>(&object_id).cloned();
+        let pos = world.objects.get_component::<crate::model::components::Position>(&object_id).copied();
+        p.zip(pos)
+    }) else {
+        return;
+    };
+    for &(skill_id, skill_level) in skills {
+        let pkt = server_packets::magic_skill_use(
+            &player,
+            &pos,
+            (object_id, pos.x, pos.y, pos.z),
+            skill_id,
+            skill_level,
+            0,
+            0,
+            0,
+        );
+        crate::game_loop::helpers::broadcast_including_self(world, object_id, &pkt);
     }
 }
 

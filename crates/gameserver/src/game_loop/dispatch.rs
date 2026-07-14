@@ -149,6 +149,7 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::EX_SEND_SELECTED_QUEST_ZONE_ID => {
             handle_ex_send_selected_quest_zone_id(world, client_id, ex_body)
         }
+        exop::REQUEST_AUTO_SOULSHOT => super::items::handle_request_auto_soul_shot(world, client_id, ex_body),
         exop::REQUEST_CHANGE_PARTY_LEADER => handle_request_change_party_leader(world, client_id, ex_body),
         exop::REQUEST_PARTY_LOOT_MODIFICATION => handle_request_party_loot_modification(world, client_id, ex_body),
         exop::ANSWER_PARTY_LOOT_MODIFICATION => handle_answer_party_loot_modification(world, client_id, ex_body),
