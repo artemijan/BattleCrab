@@ -262,6 +262,19 @@ pub struct Macros {
 #[derive(Component, Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct TargetRef(pub Option<i32>);
 
+/// GM-toggled state on a player (Java `Creature._isInvul`, `_isUndying`,
+/// `Player.setInvisible`). Presence-based: absent = every flag `false`, added
+/// on the first `//invul`/`//undying`/`//hide` toggle.
+#[derive(Component, Debug, Clone, Copy, Default)]
+pub struct AdminFlags {
+    /// `isInvul` — incoming damage is ignored entirely.
+    pub invul: bool,
+    /// `isUndying` — damage applies but HP never drops below 1 (no death).
+    pub undying: bool,
+    /// `isInvisible` — hidden from other players (`//hide`).
+    pub hidden: bool,
+}
+
 /// Object id of the last NPC this player clicked/talked to (Java
 /// `Player._lastFolkNpc`, set by `NpcAction.action`). Bare (non-`npc_`-
 /// prefixed) HTML bypasses like `Quest ClanMaster 9000-02.htm` resolve their

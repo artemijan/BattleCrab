@@ -8225,3 +8225,62 @@ fn admin_target_selects_named_player() {
         "GM got MyTargetSelected"
     );
 }
+
+/// `//invul` toggles invulnerability; incoming damage is ignored while on.
+#[test]
+fn admin_invul_blocks_damage() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7801, 100);
+    drain(&mut gm_rx);
+    // The synthetic template has no HP table; give the player real HP.
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&7801) {
+        v.max_hp = 1000;
+        v.cur_hp = 1000.0;
+        v.dead = false;
+    }
+
+    on_packet(&mut world, 1, build_admin("invul"));
+    assert!(world.objects.get_component::<crate::model::components::AdminFlags>(&7801).unwrap().invul);
+
+    let hp_before = pvit(&world, 7801).cur_hp;
+    super::combat::player_receive_damage(&mut world, 7801, 12345, 50.0);
+    assert_eq!(pvit(&world, 7801).cur_hp, hp_before, "invul: no damage taken");
+
+    // Toggle off → damage lands.
+    on_packet(&mut world, 1, build_admin("invul"));
+    super::combat::player_receive_damage(&mut world, 7801, 12345, 50.0);
+    assert!(pvit(&world, 7801).cur_hp < hp_before, "damage applies once invul is off");
+}
+
+/// `//undying` lets damage apply but never kills — HP floors at 1.
+#[test]
+fn admin_undying_floors_hp_at_one() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7802, 100);
+    drain(&mut gm_rx);
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&7802) {
+        v.max_hp = 1000;
+        v.cur_hp = 1000.0;
+        v.dead = false;
+    }
+
+    on_packet(&mut world, 1, build_admin("undying"));
+    super::combat::player_receive_damage(&mut world, 7802, 12345, 100_000.0);
+    let v = pvit(&world, 7802);
+    assert_eq!(v.cur_hp, 1.0, "undying floors HP at 1");
+    assert!(!v.dead, "undying player does not die");
+}
+
+/// `//setinvul` toggles invulnerability on the targeted player.
+#[test]
+fn admin_setinvul_targets_a_player() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7803, 100);
+    let mut other_rx = ingame_player_access(&mut world, 2, 7804, 0);
+    drain(&mut gm_rx);
+    drain(&mut other_rx);
+
+    world.objects.add_components(&7803, crate::model::components::TargetRef(Some(7804)));
+    on_packet(&mut world, 1, build_admin("setinvul"));
+    assert!(world.objects.get_component::<crate::model::components::AdminFlags>(&7804).unwrap().invul);
+}

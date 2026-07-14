@@ -12,7 +12,7 @@
 
 use tracing::{info, warn};
 
-use crate::model::components::{PlayerVitals, Position, Speeds, TargetRef, Vitals};
+use crate::model::components::{AdminFlags, PlayerVitals, Position, Speeds, TargetRef, Vitals};
 use crate::model::Player;
 use crate::network::server_packets::{self, sm_ids, status_update_type as sut};
 use crate::session::ClientSession;
@@ -149,9 +149,64 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_delete" => admin_delete(world, client_id, object_id),
         // Target a player by name.
         "admin_target" => admin_target(world, client_id, object_id, &args),
+        // Invulnerability / undying toggles (self or targeted player).
+        "admin_invul" => toggle_flag(world, client_id, object_id, GmFlag::Invul),
+        "admin_setinvul" => toggle_flag_on_target(world, client_id, object_id, GmFlag::Invul),
+        "admin_undying" => toggle_flag(world, client_id, object_id, GmFlag::Undying),
+        "admin_setundying" => toggle_flag_on_target(world, client_id, object_id, GmFlag::Undying),
         _ => return false,
     }
     true
+}
+
+/// The GM combat flags togglable by `//invul`/`//undying`.
+#[derive(Clone, Copy)]
+enum GmFlag {
+    Invul,
+    Undying,
+}
+
+impl GmFlag {
+    fn label(self) -> &'static str {
+        match self {
+            GmFlag::Invul => "Invulnerability",
+            GmFlag::Undying => "Undying",
+        }
+    }
+}
+
+/// Flip a GM flag on `target`, returning its new state.
+fn set_flag(world: &mut World, target: i32, flag: GmFlag) -> bool {
+    let mut flags = world.objects.get_component::<AdminFlags>(&target).copied().unwrap_or_default();
+    let now = match flag {
+        GmFlag::Invul => {
+            flags.invul = !flags.invul;
+            flags.invul
+        }
+        GmFlag::Undying => {
+            flags.undying = !flags.undying;
+            flags.undying
+        }
+    };
+    world.objects.add_components(&target, flags);
+    now
+}
+
+/// `//invul` / `//undying` — toggle the flag on the GM.
+fn toggle_flag(world: &mut World, client_id: u32, object_id: i32, flag: GmFlag) {
+    let on = set_flag(world, object_id, flag);
+    send_message(world, client_id, &format!("{} {}.", flag.label(), if on { "enabled" } else { "disabled" }));
+}
+
+/// `//setinvul` / `//setundying` — toggle the flag on the targeted player.
+fn toggle_flag_on_target(world: &mut World, client_id: u32, object_id: i32, flag: GmFlag) {
+    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
+        send_message(world, client_id, "Select a player first.");
+        return;
+    };
+    let on = set_flag(world, target, flag);
+    send_message(world, client_id, &format!("Target {} {}.", flag.label().to_lowercase(), if on { "enabled" } else { "disabled" }));
 }
 
 /// The GM's current target object id, or `None` if nothing is selected.

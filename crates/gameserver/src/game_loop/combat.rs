@@ -1072,6 +1072,16 @@ pub(crate) fn player_receive_damage(
     damage: f64,
 ) {
     let attacker_is_playable = !is_npc_oid(attacker_oid);
+    // GM `//invul`/`//undying` (Java `isInvul`/`isUndying`): invul ignores the
+    // hit entirely; undying lets damage apply but floors HP at 1.
+    let flags = world
+        .objects
+        .get_component::<crate::model::components::AdminFlags>(&player_oid)
+        .copied()
+        .unwrap_or_default();
+    if flags.invul {
+        return;
+    }
     let mut died = false;
     let (cp_after, hp_after) = {
         let Some((mut vitals, mut pvitals)) = world
@@ -1091,8 +1101,12 @@ pub(crate) fn player_receive_damage(
         }
         vitals.cur_hp -= remaining;
         if vitals.cur_hp <= 0.0 {
-            vitals.cur_hp = 0.0;
-            died = true;
+            if flags.undying {
+                vitals.cur_hp = 1.0;
+            } else {
+                vitals.cur_hp = 0.0;
+                died = true;
+            }
         }
         (pvitals.cur_cp as i32, vitals.cur_hp as i32)
     };
