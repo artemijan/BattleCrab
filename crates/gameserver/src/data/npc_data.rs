@@ -143,6 +143,12 @@ impl NpcTemplate {
     pub fn is_auto_attackable(&self) -> bool {
         self.is_monster()
     }
+
+    /// `Npc.isRaid()` — `instanceof RaidBoss` (which `GrandBoss` extends).
+    /// Used by the `NpcViewMod` drop-list preview to pick the raid rate.
+    pub fn is_raid(&self) -> bool {
+        matches!(self.type_name.as_str(), "RaidBoss" | "GrandBoss")
+    }
 }
 
 pub struct NpcData {
@@ -279,6 +285,12 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
     let mut cur_group: Option<DropGroup> = None;
     // `<corpseTime>` carries its value as element text.
     let mut in_corpse_time = false;
+    // `<parameters>` can nest `<minions><npc .../></minions>` (and skill/param
+    // rows). Those inner `<npc>` tags are minion references, NOT new templates:
+    // treating them as template starts overwrites the parent's `cur` and drops
+    // its whole body (stats + dropLists come after `<parameters>`). Suppress
+    // all `<npc>` start/end handling while inside this block.
+    let mut in_parameters = false;
 
     while let Ok(event) = reader.read_event() {
         let (e, self_closing) = match event {
@@ -296,7 +308,10 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             }
             Event::End(e) => {
                 match e.name().as_ref().to_ascii_lowercase().as_slice() {
-                    b"npc" => {
+                    b"parameters" => in_parameters = false,
+                    // A minion's `</npc>` inside `<parameters>` must not flush
+                    // the parent template.
+                    b"npc" if !in_parameters => {
                         if let Some(t) = cur.take() {
                             finish_template(t, out);
                         }
@@ -318,6 +333,9 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
         };
         let name = e.name().as_ref().to_ascii_lowercase();
         match name.as_slice() {
+                    b"parameters" => in_parameters = !self_closing,
+                    // Minion references inside `<parameters>` are not templates.
+                    b"npc" if in_parameters => continue,
                     b"npc" => {
                         let Some(id) = attr_i32(&e, b"id") else { continue };
                         let mut t = default_template(id);
@@ -591,5 +609,28 @@ mod tests {
         let t = data.get(101).expect("npc 101");
         assert!(!t.attackable);
         assert!(!t.can_move);
+    }
+
+    /// An NPC whose `<parameters>` nests `<minions><npc .../></minions>` must
+    /// still parse fully: the minion references are not templates, so they must
+    /// not overwrite the parent's `cur` (which used to swallow the parent's
+    /// whole body — stats *and* the `<dropLists>` that follow `<parameters>`).
+    /// Raid boss 3404 (Tracker Captain Sharuk) declares minions 3405/3406 then
+    /// a 15-line drop list.
+    #[test]
+    fn npc_with_nested_minions_keeps_its_body_and_drops() {
+        let data = NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+
+        let boss = data.get(3404).expect("npc 3404 must load despite nested minions");
+        assert_eq!(boss.type_name, "RaidBoss");
+        assert_eq!(boss.level, 23);
+        assert_eq!(boss.drop_list_death.len(), 15, "all 15 death drops parsed");
+        assert!(boss.drop_list_death.iter().any(|d| d.item_id == 955), "D-grade enchant scroll drop");
+
+        // The minion ref must not have created/corrupted 3405: its own later
+        // `<npc>` block is the real definition (a level-22 Monster).
+        let minion = data.get(3405).expect("npc 3405 real block");
+        assert_eq!(minion.type_name, "Monster");
+        assert_eq!(minion.level, 22);
     }
 }

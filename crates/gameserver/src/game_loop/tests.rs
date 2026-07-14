@@ -2873,6 +2873,43 @@ fn action_on_npc_selects_then_second_click_opens_chat_window() {
     assert!(rx.try_recv().is_err());
 }
 
+/// With `AltGameViewNpc` on, a shift-click (`Action`, action_id 1) on an NPC
+/// opens the `NpcViewMod` info window instead of interacting — Java `Action`
+/// case 1 → `Npc.onActionShift` → `NpcActionShift`'s `ALT_GAME_VIEWNPC`
+/// branch, which sets the target first, then sends the html.
+#[test]
+fn shift_click_npc_opens_view_window_when_alt_game_view_npc() {
+    let (mut world, ..) = test_world();
+    world.cfg.npc.alt_game_view_npc = true;
+    add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    handle_action(&mut world, 1, &action_body(NPC_OID, 1));
+
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(NPC_OID), "target set like NpcActionShift");
+    let pkts = drain(&mut rx);
+    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::MY_TARGET_SELECTED), "target selected");
+    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE), "info window opened");
+    assert!(!world.objects.has_component::<Intent>(&3001), "the info window must not start an attack/interact");
+}
+
+/// Without `AltGameViewNpc` (the default), a shift-click on an NPC is just a
+/// plain select (Java `onAction(player, false)`) — no info window.
+#[test]
+fn shift_click_npc_without_alt_game_view_npc_only_selects() {
+    let (mut world, ..) = test_world();
+    add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    handle_action(&mut world, 1, &action_body(NPC_OID, 1));
+
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(NPC_OID));
+    assert!(
+        !drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
+        "no info window without the config flag"
+    );
+}
+
 /// `Action` on a talkable NPC outside `INTERACTION_DISTANCE`: the second
 /// click can't open the dialog immediately (`Npc.canInteract` fails), so the
 /// player walks in first (`AI_INTENTION_INTERACT` / `Interact` intent) —

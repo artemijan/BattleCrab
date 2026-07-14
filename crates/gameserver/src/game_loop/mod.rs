@@ -20,6 +20,7 @@ mod items;
 mod lobby;
 mod net;
 mod npc_ai;
+mod npc_view;
 mod party;
 mod passive_skills;
 mod position;

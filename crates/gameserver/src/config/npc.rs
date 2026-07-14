@@ -23,6 +23,10 @@ pub struct NpcConfig {
     /// `Min/MaxMonsterAnimation` (seconds) — same, for attackable NPCs.
     pub min_monster_animation: i32,
     pub max_monster_animation: i32,
+    /// `AltGameViewNpc` — when set, a *non-GM* player shift-clicking an NPC
+    /// opens the `NpcViewMod` info window (Java `Action` case 1 →
+    /// `Npc.onActionShift`) instead of a plain re-target.
+    pub alt_game_view_npc: bool,
 }
 
 impl Default for NpcConfig {
@@ -34,6 +38,7 @@ impl Default for NpcConfig {
             max_npc_animation: 60,
             min_monster_animation: 5,
             max_monster_animation: 60,
+            alt_game_view_npc: false,
         }
     }
 }
@@ -50,6 +55,7 @@ impl NpcConfig {
             max_npc_animation: g.get_int("MaxNpcAnimation", d.max_npc_animation),
             min_monster_animation: g.get_int("MinMonsterAnimation", d.min_monster_animation),
             max_monster_animation: g.get_int("MaxMonsterAnimation", d.max_monster_animation),
+            alt_game_view_npc: p.get_bool("AltGameViewNpc", d.alt_game_view_npc),
         }
     }
 }

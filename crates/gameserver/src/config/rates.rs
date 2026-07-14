@@ -26,6 +26,12 @@ pub struct RatesConfig {
     /// per-item overrides (the dist boosts adena ×50 chance / ×30 amount).
     pub drop_chance_by_id: HashMap<i32, f64>,
     pub drop_amount_by_id: HashMap<i32, f64>,
+    /// `RaidDropChanceMultiplier` / `RaidDropAmountMultiplier` — the drop
+    /// multipliers for raid/grand bosses (`Npc.isRaid()`). Currently consumed
+    /// only by the `NpcViewMod` drop-list preview; the death-drop roll itself
+    /// still applies the death multipliers to raids (raid loot is deferred).
+    pub raid_drop_chance_multiplier: f64,
+    pub raid_drop_amount_multiplier: f64,
 
     /// `DropMaxOccurrencesNormal` — how many sub-100%-chance drop rolls one
     /// kill can award (raid variant deferred with raids).
@@ -66,6 +72,8 @@ impl Default for RatesConfig {
             death_drop_amount_multiplier: 1.0,
             drop_chance_by_id: HashMap::new(),
             drop_amount_by_id: HashMap::new(),
+            raid_drop_chance_multiplier: 1.0,
+            raid_drop_amount_multiplier: 1.0,
             drop_max_occurrences_normal: 2,
             rate_quest_drop: 1.0,
             rate_quest_reward: 1.0,
@@ -93,6 +101,8 @@ impl RatesConfig {
             rate_party_sp: p.get_float("RatePartySp", 1.0) as f64,
             death_drop_chance_multiplier: p.get_float("DeathDropChanceMultiplier", 1.0) as f64,
             death_drop_amount_multiplier: p.get_float("DeathDropAmountMultiplier", 1.0) as f64,
+            raid_drop_chance_multiplier: p.get_float("RaidDropChanceMultiplier", 1.0) as f64,
+            raid_drop_amount_multiplier: p.get_float("RaidDropAmountMultiplier", 1.0) as f64,
             drop_chance_by_id: parse_id_multiplier_list(&p.get_string("DropChanceMultiplierByItemId", "")),
             drop_amount_by_id: parse_id_multiplier_list(&p.get_string("DropAmountMultiplierByItemId", "")),
             drop_max_occurrences_normal: p.get_int("DropMaxOccurrencesNormal", d.drop_max_occurrences_normal),

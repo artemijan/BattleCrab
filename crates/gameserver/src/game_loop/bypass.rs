@@ -68,6 +68,11 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
         }
     } else if let Some(html_path) = command.strip_prefix("Link ") {
         handle_link(world, client_id, object_id, html_path.trim());
+    } else if command == "NpcViewMod" || command.starts_with("NpcViewMod ") {
+        // `bypasshandlers/NpcViewMod`: the shift-click NPC info window's own
+        // buttons (Show Drop / pages). Java resolves the target by object id
+        // with no range check, so no `can_interact` gate here.
+        super::npc_view::handle_npc_view_bypass(world, client_id, object_id, &command);
     } else {
         warn!("Bypass: client {client_id} sent unhandled bypass [{command}].");
     }

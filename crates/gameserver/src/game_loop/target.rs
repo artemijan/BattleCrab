@@ -32,10 +32,15 @@ pub(crate) fn can_interact(world: &World, player_object_id: i32, npc_object_id: 
 /// Java's dispatch: a click on something that isn't your target selects it
 /// (`Player.setTarget`); a second click on an NPC target interacts
 /// (`NpcAction` — attack for monsters (G9), chat window for the rest).
-/// `action_id == 1` is a shift-click: the client's *dontMove* modifier, so an
-/// attack it starts refuses to chase (Java routes this to `onActionShift` for
-/// GM/info instead, which we don't model — we treat it as "attack in place").
-/// Always terminates with `ActionFailed`, matching `WorldObject.onAction`.
+///
+/// `action_id == 1` is a **shift-click**. Java's `Action` case 1 routes it to
+/// `onActionShift` (info) only for a GM, or for a real NPC when
+/// `ALT_GAME_VIEWNPC` is set; otherwise it degrades to a plain select
+/// (`onAction(player, false)` — target, no interact). We have no GM state on
+/// the live player yet, so we take the `ALT_GAME_VIEWNPC` branch: shift-click
+/// an NPC → the `NpcViewMod` info window (`npc_view::send_npc_view`), else a
+/// plain select. Always terminates with `ActionFailed`, matching
+/// `WorldObject.onAction`.
 pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::Action::read(body) else { return };
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
@@ -51,12 +56,23 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
             // `NpcAction.action`: every click on an NPC records it as the
             // player's last folk NPC (bare-bypass origin resolution).
             world.objects.add_components(&object_id, crate::model::components::LastFolkNpc(pkt.object_id));
-            let already_targeted =
-                world.objects.get_component::<TargetRef>(&object_id).copied().unwrap_or_default().0 == Some(pkt.object_id);
-            if already_targeted {
-                interact_with_npc(world, client_id, object_id, pkt.object_id, shift);
-            } else {
+            if shift && world.cfg.npc.alt_game_view_npc {
+                // `NpcActionShift`: set the target, then open the info window.
                 set_target(world, client_id, object_id, Some(pkt.object_id));
+                super::npc_view::send_npc_view(world, client_id, pkt.object_id);
+            } else {
+                let already_targeted = world
+                    .objects
+                    .get_component::<TargetRef>(&object_id)
+                    .copied()
+                    .unwrap_or_default()
+                    .0
+                    == Some(pkt.object_id);
+                if already_targeted {
+                    interact_with_npc(world, client_id, object_id, pkt.object_id, shift);
+                } else {
+                    set_target(world, client_id, object_id, Some(pkt.object_id));
+                }
             }
         }
     }
