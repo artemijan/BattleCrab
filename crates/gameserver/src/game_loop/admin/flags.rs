@@ -52,8 +52,11 @@ fn set_flag(world: &mut World, target: i32, flag: GmFlag) -> bool {
 /// invisible state is actually rendered on the character (the STEALTH glow),
 /// or cleared when visible again (Java sends it on every invis toggle).
 fn send_invisible_visual(world: &World, client_id: u32, object_id: i32, invisible: bool) {
+    // Keep the current transform id in the packet so toggling invisibility on a
+    // transformed GM doesn't drop the transform model.
+    let transform = world.objects.get_component::<Player>(&object_id).map_or(0, |p| p.transform_display_id);
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::user_info::ex_user_info_abnormal_visual_effect(object_id, invisible));
+        cs.send(crate::network::user_info::ex_user_info_abnormal_visual_effect(object_id, invisible, transform));
     }
 }
 

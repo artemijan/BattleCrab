@@ -34,7 +34,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G10 Social systems                                          | ✅ vertical slice (chat, party, friends — clans/mail/BBS deferred) |
 | Game  | G11 Scripting engine + quests (+ clans via bypass)          | ✅ vertical slice (bypass routing, quest engine, Q00258/Q00320, clan creation — plan: [PLAN_G11_QUESTS_CLANS.md](PLAN_G11_QUESTS_CLANS.md)) |
 | Game  | G12 Static world + script/content breadth                   | ✅ vertical slice (zones peace/water/no-restart, all 1180 doors + geo collision, static objects, Link/Buy bypasses, +10 quests with on_attack/on_spawn hooks, OrcChange1, TeleportWithCharm — plan: [PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md](PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md)) |
-| Game  | G13 Admin / GM command system                               | 🚧 G13.A framework done; **G13.B ~220 portable handlers landed** (B1–B7: character/skill/item/spawn/movement/GM-util/world/vitality + geo queries + `//admin` menu); deferred: mounts/transforms (B9), mob-group AI + geo-editor (B8), and subsystem-blocked C-group — plans: [PLAN_G13_ADMIN.md](PLAN_G13_ADMIN.md), [PLAN_G13_B_LOGIN.md](PLAN_G13_B_LOGIN.md) |
+| Game  | G13 Admin / GM command system                               | 🚧 G13.A framework done; **G13.B portable handlers landed** (B1–B7 + mounts + transform runtime: character/skill/item/spawn/movement/GM-util/world/vitality/ride/transform + geo queries + `//admin` menu); deferred: mob-group AI + geo-editor (B8) and subsystem-blocked C-group — plans: [PLAN_G13_ADMIN.md](PLAN_G13_ADMIN.md), [PLAN_G13_B_LOGIN.md](PLAN_G13_B_LOGIN.md) |
 | Game  | G13.9 TODO parity sweep                                     | ✅ UserInfo weapon-enchant + party/clan relation; skill-acquire SMs; restoration enchant roll; stat-cap/run-speed config plumbing; skill-cooldown persistence (`character_skills_save`) — plan: [PLAN_G13_9_TODO_SWEEP.md](PLAN_G13_9_TODO_SWEEP.md) |
 | Game  | G14 Long tail & parity sweep                                | ⏳ |
 
@@ -1152,12 +1152,21 @@ command bodies (G13.B) are next.
   unmounted — the real-capture byte test still passes) plus a `Ride` (0x8C)
   broadcast. Mount speed/collision swap is a documented TODO (needs mount stat
   data); the visual mount is complete.
-- Tests: 5 `admin_data` units + 72 synthetic-world dispatch/handler tests
-  (gating, confirm round-trip, colors, one+ per handler group, mount round-trip).
-- **Deferred (own subsystem work, not handler bodies)**: **transforms** —
-  `AdminRide`'s `//ride_horse`/`//ride_bike` and `AdminTransform` need a
-  transform runtime (transform templates + stats, `ChangeTransform`, stat
-  recalc, CharInfo transform id); `//transform_menu` HTML is in. **B8** —
+- **Transforms** (`data/transform_data.rs` + `admin/transforms.rs`): a
+  `TransformData` loader (174 `data/stats/transformations/*.xml`) →
+  `Player.transform_id`/`transform_display_id`, serialized into CharInfo
+  (transform display id, identical to the old hardcoded 0 when untransformed —
+  byte test green) and the self-view abnormal-visual packet. `recalculate_stats`
+  overrides run/walk from the template's `<moving>`; collision + the template's
+  transform skills are applied/reverted. Commands: `//transform`/`//untransform`
+  + `AdminRide`'s transform-based `//ride_horse` (106) / `//ride_bike` (20001),
+  with `//unride*` routing to dismount-or-untransform. Base-stat/action-list/
+  additional-item overrides are a documented TODO (model + speed + collision +
+  skills are complete).
+- Tests: 5 `admin_data` units + 73 synthetic-world dispatch/handler tests
+  (gating, confirm round-trip, colors, one+ per handler group, mount +
+  transform round-trips).
+- **Deferred (own subsystem work, not handler bodies)**: **B8** —
   `AdminMobGroup` (controllable-mob
   group AI) and the `AdminGeodata` *editor/grid/save* commands. Also blocked:
   clan-skill grants (no clan-skill system), `AdminFence` (no spawnable fence),

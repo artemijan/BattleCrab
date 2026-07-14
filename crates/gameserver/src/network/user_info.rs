@@ -19,17 +19,17 @@ const OPCODE_USER_INFO: u8 = 0x32;
 /// glow the client renders on the character.
 const STEALTH_CLIENT_ID: i16 = 21;
 
-/// Port of `serverpackets/ExUserInfoAbnormalVisualEffect`. The GM-invisibility
-/// STEALTH effect is the only abnormal visual we model, so the effect list is
-/// `[STEALTH]` when invisible and empty otherwise (Java appends STEALTH to the
-/// real effect set whenever `isInvisible()`). Sent to the GM's own client so
-/// the invisible state is actually shown on the character.
-pub fn ex_user_info_abnormal_visual_effect(object_id: i32, invisible: bool) -> Vec<u8> {
+/// Port of `serverpackets/ExUserInfoAbnormalVisualEffect`. Carries the
+/// transformation id (so the GM sees their own transformed model — UserInfo has
+/// no transform field) and the abnormal-effect list, of which STEALTH
+/// (GM invisibility) is the only one we model (Java appends STEALTH whenever
+/// `isInvisible()`). Sent to the player's own client.
+pub fn ex_user_info_abnormal_visual_effect(object_id: i32, invisible: bool, transform_display_id: i32) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::EX);
     w.write_i16(opcodes::EX_USER_INFO_ABNORMAL_VISUAL_EFFECT);
     w.write_i32(object_id);
-    w.write_i32(0); // transformation id
+    w.write_i32(transform_display_id); // transformation id
     w.write_i32(if invisible { 1 } else { 0 }); // effect count
     if invisible {
         w.write_i16(STEALTH_CLIENT_ID);

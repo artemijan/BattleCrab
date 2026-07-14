@@ -138,7 +138,7 @@ pub fn char_info(v: &crate::model::PlayerView) -> Vec<u8> {
     w.write_i32(p.title_color); // title color (from access level)
     w.write_u8(0); // cursed weapon level
     w.write_i32(0); // clan reputation score
-    w.write_i32(0); // transformation display id
+    w.write_i32(p.transform_display_id); // transformation display id
     w.write_i32(0); // agathion id
     w.write_u8(0); // nPvPRestrainStatus
     w.write_i32(pvitals.cur_cp.round() as i32);

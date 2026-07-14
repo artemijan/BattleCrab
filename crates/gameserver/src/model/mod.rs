@@ -186,6 +186,15 @@ pub struct Player {
     /// `Player._mountNpcId` — the ridden creature's npc id (0 when unmounted).
     /// CharInfo/`Ride` send it as `+ 1_000_000`.
     pub mount_npc_id: i32,
+
+    /// `Player._transformation` id (0 = not transformed). Drives the transform
+    /// speed/collision override in `recalculate_stats` and the untransform
+    /// logic (`AdminRide` checks the id). Transient (admin `//transform`).
+    pub transform_id: i32,
+    /// The transform's display id (Java `getTransformationDisplayId()`) — the
+    /// model shown in UserInfo/CharInfo. Equals `transform_id` on this dist (no
+    /// template overrides `displayId`); 0 when not transformed.
+    pub transform_display_id: i32,
 }
 
 /// Port of `enums/ShotType`, narrowed to the kinds this slice charges. The
@@ -599,6 +608,8 @@ impl Player {
             auto_shots: Vec::new(),
             mount_type: 0,
             mount_npc_id: 0,
+            transform_id: 0,
+            transform_display_id: 0,
         };
         // Filled in by `recalculate_stats` (incl. atk_range/random_dmg, which it
         // sets from the equipped weapon or the class template).
@@ -775,6 +786,22 @@ impl Player {
         speeds.walk_spd = finalize(mods, Stat::WalkSpeed, t.base_walk_spd as f64 + caps.run_spd_boost);
         speeds.swim_run_spd = finalize(mods, Stat::SwimRunSpeed, t.base_swim_run_spd as f64 + caps.run_spd_boost);
         speeds.swim_walk_spd = finalize(mods, Stat::SwimWalkSpeed, t.base_swim_walk_spd as f64 + caps.run_spd_boost);
+
+        // A transform replaces the class base run/walk with the template's
+        // `<moving>` values (Java's transform move-speed override), still folding
+        // the buff modifiers on top. Absolute template speeds — the class
+        // `RUN_SPD_BOOST` is not re-added (the transform values are self-tuned).
+        if self.transform_id != 0 {
+            if let Some(tf) = data.transforms.get(self.transform_id) {
+                let tmpl = tf.template(self.is_female);
+                if let Some(run) = tmpl.run_spd {
+                    speeds.run_spd = finalize(mods, Stat::RunSpeed, run);
+                }
+                if let Some(walk) = tmpl.walk_spd {
+                    speeds.walk_spd = finalize(mods, Stat::WalkSpeed, walk);
+                }
+            }
+        }
     }
 
     /// Fold a landed buff's effects into the modifier maps and recompute.

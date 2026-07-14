@@ -66,9 +66,10 @@ pub(super) fn admin_ride(world: &mut World, client_id: u32, object_id: i32, moun
     super::party::broadcast_user_info(world, target);
 }
 
-/// `AdminRide`'s `//unride*` — dismount the ride target.
-pub(super) fn admin_unride(world: &mut World, object_id: i32) {
-    let target = ride_target(world, object_id);
+/// Clear the mount on `target` (Java `Player.dismount`) and broadcast. No-op if
+/// not mounted. The `//unride*` commands route here through the transform
+/// module's combined dismount-or-untransform path.
+pub(super) fn dismount(world: &mut World, target: i32) {
     if !world.objects.get_component::<Player>(&target).is_some_and(|p| p.mount_type != 0) {
         return;
     }

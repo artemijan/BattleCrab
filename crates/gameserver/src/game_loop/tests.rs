@@ -190,6 +190,7 @@ async fn character_create_inserts_into_real_schema() {
         static_object_data: crate::data::StaticObjectData::empty(),
         buy_lists: crate::data::BuyListData::empty(),
         categories: crate::data::CategoryData::empty(),
+        transforms: crate::data::TransformData::empty(),
         admin: crate::data::AdminData::empty(),
         combat_caps: crate::data::CombatCaps::default(),
         gm: crate::data::GmSettings::default(),
@@ -9272,4 +9273,44 @@ fn admin_ride_and_unride() {
 
     on_packet(&mut world, 1, build_admin("unride"));
     assert_eq!(world.objects.get_component::<Player>(&8920).unwrap().mount_type, 0, "dismounted");
+}
+
+/// `//ride_bike` transforms the GM (transform 20001): durable transform id +
+/// display id, the run speed overridden to the template's, and the transform's
+/// skills granted; `//unride` reverts all of it.
+#[test]
+fn admin_ride_bike_transforms_and_reverts() {
+    let (mut world, ..) = admin_world();
+    world.data.transforms =
+        crate::data::TransformData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    // Jet bike (20001) exists in the dist with run=170 + a Dismount skill.
+    let bike = world.data.transforms.get(20001).expect("jet bike transform loaded");
+    let bike_run = bike.template(false).run_spd.expect("bike has a run speed");
+    let bike_skill = bike.template(false).skills.first().map(|(id, _)| *id).expect("bike grants a skill");
+
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8930, 100);
+    drain(&mut gm_rx);
+    let base_run = world.objects.get_component::<Speeds>(&8930).unwrap().run_spd;
+
+    on_packet(&mut world, 1, build_admin("ride_bike"));
+    {
+        let p = world.objects.get_component::<Player>(&8930).unwrap();
+        assert_eq!(p.transform_id, 20001, "transformed into the bike");
+        assert_eq!(p.transform_display_id, 20001, "display id == id on this dist");
+    }
+    assert_eq!(world.objects.get_component::<Speeds>(&8930).unwrap().run_spd, bike_run, "run speed overridden by the transform");
+    assert!(world.objects.get_component::<SkillBook>(&8930).unwrap().0.contains_key(&bike_skill), "transform skill granted");
+
+    // Re-transforming while transformed is refused (Java polymorph message).
+    on_packet(&mut world, 1, build_admin("ride_horse"));
+    assert_eq!(world.objects.get_component::<Player>(&8930).unwrap().transform_id, 20001, "still the bike");
+
+    on_packet(&mut world, 1, build_admin("unride"));
+    let p = world.objects.get_component::<Player>(&8930).unwrap();
+    assert_eq!(p.transform_id, 0, "reverted");
+    assert_eq!(p.transform_display_id, 0, "display cleared");
+    assert_eq!(world.objects.get_component::<Speeds>(&8930).unwrap().run_spd, base_run, "run speed restored");
+    assert!(!world.objects.get_component::<SkillBook>(&8930).unwrap().0.contains_key(&bike_skill), "transform skill removed");
 }

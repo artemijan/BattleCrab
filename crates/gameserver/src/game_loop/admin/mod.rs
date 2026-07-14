@@ -31,6 +31,7 @@ mod mounts;
 mod skills;
 mod spawn;
 mod teleport;
+mod transforms;
 mod vitals;
 mod world_cmds;
 
@@ -52,6 +53,7 @@ use mounts::*;
 use skills::*;
 use spawn::*;
 use teleport::*;
+use transforms::*;
 use vitals::*;
 use world_cmds::*;
 
@@ -178,15 +180,18 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_show_moves" | "admin_show_moves_other" | "admin_show_teleport" => {
             admin_teleport_menu(world, client_id, command)
         }
-        // AdminRide mounts (the transform-based ride_horse/ride_bike and
-        // AdminTransform bodies stay deferred — they need the transform runtime).
+        // AdminRide — strider/wolf/wyvern are mounts; horse/bike are transforms.
         "admin_ride_strider" => admin_ride(world, client_id, object_id, mounts::Mount::Strider),
         "admin_ride_wolf" => admin_ride(world, client_id, object_id, mounts::Mount::Wolf),
         "admin_ride_wyvern" => admin_ride(world, client_id, object_id, mounts::Mount::Wyvern),
+        "admin_ride_horse" => admin_ride_transform(world, client_id, object_id, 106),
+        "admin_ride_bike" => admin_ride_transform(world, client_id, object_id, 20001),
         "admin_unride" | "admin_unride_strider" | "admin_unride_wolf" | "admin_unride_wyvern" => {
-            admin_unride(world, object_id)
+            admin_dismount_or_untransform(world, object_id)
         }
-        // Transform HTML menu (the transform bodies need the transform runtime).
+        // AdminTransform.
+        "admin_transform" => admin_transform(world, client_id, object_id, &args),
+        "admin_untransform" => admin_untransform(world, object_id),
         "admin_transform_menu" => menu::show_admin_html(world, client_id, "gm_menu.htm"),
         // Self-teleport to explicit coordinates.
         "admin_teleport" | "admin_move_to" | "admin_tele" | "admin_instant_move" => {

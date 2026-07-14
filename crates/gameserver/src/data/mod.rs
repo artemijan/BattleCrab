@@ -20,6 +20,7 @@ pub mod skill_tree;
 pub mod spawn_data;
 pub mod stat_bonus;
 pub mod static_object_data;
+pub mod transform_data;
 pub mod xp_lost;
 pub mod zone_data;
 
@@ -41,6 +42,7 @@ pub use skill_tree::SkillTreeData;
 pub use spawn_data::SpawnData;
 pub use stat_bonus::StatBonus;
 pub use static_object_data::StaticObjectData;
+pub use transform_data::TransformData;
 pub use xp_lost::PlayerXpPercentLostData;
 pub use zone_data::ZoneData;
 
@@ -119,6 +121,7 @@ pub struct GameData {
     pub static_object_data: StaticObjectData,
     pub buy_lists: BuyListData,
     pub categories: CategoryData,
+    pub transforms: TransformData,
     /// GM access-level table + per-command access rights (G13).
     pub admin: AdminData,
     /// Stat ceilings + run-speed boost, from `Character.ini` (see [`CombatCaps`]).
@@ -158,6 +161,7 @@ impl GameData {
             static_object_data: StaticObjectData::load_from(file_path),
             buy_lists,
             categories: CategoryData::load_from(file_path),
+            transforms: TransformData::load_from(file_path),
             admin: AdminData::load_from(file_path),
             // Overwritten from the parsed `CharacterConfig` at boot (`main.rs`);
             // the default is this dist's Character.ini values.
@@ -195,6 +199,7 @@ impl GameData {
             static_object_data: StaticObjectData::empty(),
             buy_lists: BuyListData::empty(),
             categories: CategoryData::empty(),
+            transforms: TransformData::empty(),
             admin: AdminData::empty(),
             combat_caps: CombatCaps::default(),
             gm: GmSettings::default(),

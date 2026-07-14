@@ -1,0 +1,170 @@
+//! Port of `data/xml/TransformData` (`data/stats/transformations/*.xml`, 174
+//! templates on this dist). A transform swaps the player's model (display id),
+//! collision, move speed, and grants the template's transform skills.
+//!
+//! Scope: the fields the runtime consumes — display id (always == the transform
+//! id here; no template carries a `displayId` attribute), the `FLYING` flag,
+//! and per-gender `collision` / `moving` (walk+run) / `skills`. The deeper
+//! `<base>`/`<stats>`/`<defense>`/`<magicDefense>` combat overrides, the
+//! action-list swap, and additional-item inventory blocks are not applied yet
+//! (documented TODO — the visual model, speed, collision and skills are the
+//! parts the admin `//transform`/`//ride_horse` path needs).
+
+use std::collections::HashMap;
+
+use quick_xml::events::Event;
+use quick_xml::Reader;
+use tracing::info;
+
+pub const TRANSFORM_DIR: &str = "data/stats/transformations";
+
+/// Per-gender transform template (Java `TransformTemplate`), narrowed to the
+/// consumed fields.
+#[derive(Debug, Clone, Default)]
+pub struct TransformTemplate {
+    pub collision_radius: f64,
+    pub collision_height: f64,
+    /// `<moving run=…>` — the transform's run speed, replacing the player's
+    /// while transformed. `None` when the template omits `<moving>`.
+    pub run_spd: Option<f64>,
+    pub walk_spd: Option<f64>,
+    /// `<skills>` granted on transform (Java `addTransformSkill`), `(id, level)`.
+    pub skills: Vec<(i32, i32)>,
+}
+
+/// A transform (`Transform`): id, display id, flying flag, and the two gender
+/// templates.
+#[derive(Debug, Clone)]
+pub struct Transform {
+    pub id: i32,
+    /// Java `_displayId = getInt("displayId", _id)`; no template on this dist
+    /// sets `displayId`, so this equals `id`.
+    pub display_id: i32,
+    pub flying: bool,
+    pub male: TransformTemplate,
+    pub female: TransformTemplate,
+}
+
+impl Transform {
+    /// The gender-appropriate template (Java `getTemplate(creature)`).
+    pub fn template(&self, is_female: bool) -> &TransformTemplate {
+        if is_female {
+            &self.female
+        } else {
+            &self.male
+        }
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct TransformData {
+    by_id: HashMap<i32, Transform>,
+}
+
+impl TransformData {
+    pub fn load() -> Self {
+        Self::load_from("")
+    }
+
+    pub fn load_from(file_path: &str) -> Self {
+        let mut by_id = HashMap::new();
+        if let Ok(dir) = std::fs::read_dir(format!("{file_path}{TRANSFORM_DIR}")) {
+            for entry in dir.flatten() {
+                let path = entry.path();
+                if path.extension().and_then(|e| e.to_str()) != Some("xml") {
+                    continue;
+                }
+                if let Ok(content) = std::fs::read_to_string(&path) {
+                    if let Some(t) = parse(&content) {
+                        by_id.insert(t.id, t);
+                    }
+                }
+            }
+        }
+        info!("TransformData: Loaded {} transforms.", by_id.len());
+        Self { by_id }
+    }
+
+    pub fn empty() -> Self {
+        Self { by_id: HashMap::new() }
+    }
+
+    pub fn get(&self, id: i32) -> Option<&Transform> {
+        self.by_id.get(&id)
+    }
+}
+
+fn attr<'a>(e: &'a quick_xml::events::BytesStart, key: &str) -> Option<String> {
+    e.attributes().flatten().find(|a| a.key.as_ref() == key.as_bytes()).and_then(|a| String::from_utf8(a.value.into_owned()).ok())
+}
+
+/// Parse one `<transform>` file. Returns `None` if the id is missing.
+fn parse(content: &str) -> Option<Transform> {
+    let mut reader = Reader::from_str(content);
+    let mut id = None;
+    let mut flying = false;
+    let mut male = TransformTemplate::default();
+    let mut female = TransformTemplate::default();
+    // 0 = male, 1 = female; which gender block we're inside.
+    let mut gender = 0usize;
+    let mut in_skills = false;
+
+    let handle = |e: &quick_xml::events::BytesStart, tmpl: &mut TransformTemplate, in_skills: &mut bool| {
+        match e.name().as_ref() {
+            b"collision" => {
+                if let Some(r) = attr(e, "radius").and_then(|s| s.parse().ok()) {
+                    tmpl.collision_radius = r;
+                }
+                if let Some(h) = attr(e, "height").and_then(|s| s.parse().ok()) {
+                    tmpl.collision_height = h;
+                }
+            }
+            b"moving" => {
+                tmpl.run_spd = attr(e, "run").and_then(|s| s.parse().ok());
+                tmpl.walk_spd = attr(e, "walk").and_then(|s| s.parse().ok());
+            }
+            b"skills" => *in_skills = true,
+            b"skill" if *in_skills => {
+                if let (Some(sid), level) = (
+                    attr(e, "id").and_then(|s| s.parse().ok()),
+                    attr(e, "level").and_then(|s| s.parse().ok()).unwrap_or(1),
+                ) {
+                    tmpl.skills.push((sid, level));
+                }
+            }
+            _ => {}
+        }
+    };
+
+    let mut buf = Vec::new();
+    loop {
+        match reader.read_event_into(&mut buf) {
+            Ok(Event::Start(e)) | Ok(Event::Empty(e)) => match e.name().as_ref() {
+                b"transform" => {
+                    id = attr(&e, "id").and_then(|s| s.parse().ok());
+                    flying = attr(&e, "type").as_deref() == Some("FLYING");
+                }
+                b"Male" => {
+                    gender = 0;
+                    in_skills = false;
+                }
+                b"Female" => {
+                    gender = 1;
+                    in_skills = false;
+                }
+                _ => {
+                    let tmpl = if gender == 0 { &mut male } else { &mut female };
+                    handle(&e, tmpl, &mut in_skills);
+                }
+            },
+            Ok(Event::End(e)) if e.name().as_ref() == b"skills" => in_skills = false,
+            Ok(Event::Eof) => break,
+            Err(_) => break,
+            _ => {}
+        }
+        buf.clear();
+    }
+
+    let id = id?;
+    Some(Transform { id, display_id: id, flying, male, female })
+}
