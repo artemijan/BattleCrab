@@ -94,6 +94,9 @@ pub struct GameThreadChannels {
     pub net_rx: NetEventRx,
     pub login_rx: LoginLinkEventRx,
     pub link_tx: CommandTx,
+    /// Released once all boot data (incl. clans) is loaded, letting the
+    /// login-link task begin connecting to the login server.
+    pub login_ready_tx: tokio::sync::oneshot::Sender<()>,
     pub db_rx: DbEventRx,
     pub db_tx: db::CmdTx,
     pub data: GameData,
@@ -121,6 +124,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         net_rx,
         login_rx,
         link_tx,
+        login_ready_tx,
         db_rx,
         db_tx,
         data,
@@ -145,6 +149,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     world.path = path_tx;
     world.path_finding = path_finding;
     world.cfg = cfg;
+    // Held until `DbEvent::ClansLoaded` arrives; then the login-link task is
+    // released to connect (Java: `LoginServerThread.start()` after `ClanTable`).
+    world.login.ready = Some(login_ready_tx);
 
     // Java `GameServer`: SpawnData.getInstance().init() — place the static
     // world content before accepting anyone in.

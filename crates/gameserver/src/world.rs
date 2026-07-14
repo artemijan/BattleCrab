@@ -62,6 +62,12 @@ pub struct LoginState {
     /// Assigned once the login server registers us.
     pub server_id: Option<i32>,
     pub server_name: Option<String>,
+    /// Fired once all boot data is loaded (static datapack synchronously at
+    /// startup, then clans from the DB) to release the login-link task into its
+    /// connect loop — Java runs `LoginServerThread.start()` dead-last, after
+    /// `ClanTable`. Taken and signalled when `DbEvent::ClansLoaded` is
+    /// processed; `None` in tests (nothing gates them).
+    pub ready: Option<tokio::sync::oneshot::Sender<()>>,
 }
 
 impl LoginState {
@@ -72,6 +78,7 @@ impl LoginState {
             accounts_in_gameserver: HashMap::new(),
             server_id: None,
             server_name: None,
+            ready: None,
         }
     }
 }

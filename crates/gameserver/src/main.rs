@@ -72,6 +72,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (db_event_tx, db_rx) = std::sync::mpsc::channel::<DbEvent>();
     let (path_tx, path_req_rx) = std::sync::mpsc::channel();
     let (path_event_tx, path_rx) = std::sync::mpsc::channel();
+    // Released by the game thread once all boot data (incl. clans) is loaded,
+    // gating the login-link connect so the login server can't route players to
+    // a half-populated world (Java: `LoginServerThread.start()` after all data).
+    let (login_ready_tx, login_ready_rx) = tokio::sync::oneshot::channel::<()>();
 
     // Path-worker thread (Java: CellPathFinding, run synchronously there —
     // here the game thread talks to it through the channels above). Shares
@@ -102,6 +106,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             net_rx,
             login_rx,
             link_tx: link_tx.clone(),
+            login_ready_tx,
             db_rx,
             db_tx: db_tx.clone(),
             data,
@@ -134,7 +139,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         server_list_age: config.server.server_list_age,
         gmonly: config.server_gmonly,
     };
-    tokio::spawn(loginlink::run(link_cfg, link_rx, login_tx));
+    tokio::spawn(loginlink::run(link_cfg, link_rx, login_tx, login_ready_rx));
 
     // Client connection handler (Java: ConnectionBuilder(...).build().start()).
     let net_cfg = Arc::new(NetworkConfig {

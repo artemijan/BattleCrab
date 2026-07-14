@@ -82,7 +82,24 @@ pub type EventTx = std::sync::mpsc::Sender<LoginLinkEvent>;
 pub type LoginLinkEventRx = std::sync::mpsc::Receiver<LoginLinkEvent>;
 
 /// The link task: connect / handshake / relay, reconnecting forever.
-pub async fn run(cfg: LoginLinkConfig, mut cmd_rx: CommandRx, event_tx: EventTx) {
+///
+/// `ready` fires once the game thread has loaded all boot data (including clans
+/// from the DB); the task blocks on it before its first connect so the login
+/// server never registers us — and thus never routes players to us — before the
+/// world is fully populated. Mirrors Java running `LoginServerThread.start()`
+/// dead-last in `GameServer`, after `ClanTable`.
+pub async fn run(
+    cfg: LoginLinkConfig,
+    mut cmd_rx: CommandRx,
+    event_tx: EventTx,
+    ready: tokio::sync::oneshot::Receiver<()>,
+) {
+    // If the game thread drops the sender without signalling (e.g. DB open
+    // failed and the server is going down anyway), give up rather than connect.
+    if ready.await.is_err() {
+        warn!("LoginServerThread: data load never completed; not connecting to login.");
+        return;
+    }
     loop {
         info!("LoginServerThread: Connecting to login on {}:{}", cfg.host, cfg.port);
         match TcpStream::connect((cfg.host.as_str(), cfg.port)).await {

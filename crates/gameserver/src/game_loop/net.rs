@@ -402,6 +402,12 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
             DbEvent::ClansLoaded { clans } => {
                 tracing::info!("GameLoop: loaded {} clans.", clans.len());
                 world.clans = clans.into_iter().map(|c| (c.id, c)).collect();
+                // Clans are the last boot-load data (static datapack already
+                // loaded synchronously at startup); release the login-link task
+                // to connect now that the world is fully populated.
+                if let Some(ready) = world.login.ready.take() {
+                    let _ = ready.send(());
+                }
             }
         }
     }

@@ -242,12 +242,14 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
     gameserver::geo::worker::spawn(geo.clone(), Default::default(), path_req_rx, path_event_tx);
 
     let data = gameserver::data::GameData::load();
+    let (login_ready_tx, login_ready_rx) = tokio::sync::oneshot::channel::<()>();
     let _game = game_loop::spawn(
         Shutdown::new(),
         GameThreadChannels {
             net_rx,
             login_rx,
             link_tx: link_tx.clone(),
+            login_ready_tx,
             db_rx,
             db_tx,
             data,
@@ -279,7 +281,7 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
         server_list_age: 0,
         gmonly: false,
     };
-    tokio::spawn(loginlink::run(link_cfg, link_rx, login_tx));
+    tokio::spawn(loginlink::run(link_cfg, link_rx, login_tx, login_ready_rx));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();
