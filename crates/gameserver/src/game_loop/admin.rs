@@ -178,9 +178,29 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_setbe" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Belt, &args),
         // Apply a skill's effects (buff) to the target.
         "admin_buff" => admin_buff(world, client_id, object_id, &args),
+        // EditChar field setters (target player or self).
+        "admin_setreputation" => set_int_field(world, client_id, object_id, IntField::Reputation, &args),
+        "admin_nokarma" => set_field_value(world, client_id, object_id, IntField::Reputation, 0),
+        "admin_setfame" => set_int_field(world, client_id, object_id, IntField::Fame, &args),
+        "admin_setpk" => set_int_field(world, client_id, object_id, IntField::Pk, &args),
+        "admin_setpvp" => set_int_field(world, client_id, object_id, IntField::Pvp, &args),
+        "admin_settitle" => admin_set_title(world, client_id, object_id, &args),
+        "admin_setcolor" => admin_set_color(world, client_id, object_id, &args, false),
+        "admin_settcolor" => admin_set_color(world, client_id, object_id, &args, true),
+        "admin_setsex" => admin_set_sex(world, client_id, object_id),
+        "admin_set_hp" => set_vital(world, client_id, object_id, Vital::Hp, &args),
+        "admin_set_mp" => set_vital(world, client_id, object_id, Vital::Mp, &args),
+        "admin_set_cp" => set_vital(world, client_id, object_id, Vital::Cp, &args),
         _ => return false,
     }
     true
+}
+
+/// EditChar target = the current target if it's a player, else the GM.
+fn target_player(world: &World, object_id: i32) -> i32 {
+    current_target(world, object_id)
+        .filter(|oid| world.objects.has_component::<Player>(oid))
+        .unwrap_or(object_id)
 }
 
 /// The GM flags togglable via `AdminFlags`.
@@ -687,6 +707,137 @@ fn admin_remove_skill(world: &mut World, client_id: u32, object_id: i32, args: &
     }
     refresh_skill_list(world, target);
     send_message(world, client_id, &format!("Removed skill {skill_id}."));
+}
+
+/// The integer `Player` fields `//editchar` can set directly.
+#[derive(Clone, Copy)]
+enum IntField {
+    Reputation,
+    Fame,
+    Pk,
+    Pvp,
+}
+
+impl IntField {
+    fn label(self) -> &'static str {
+        match self {
+            IntField::Reputation => "Reputation",
+            IntField::Fame => "Fame",
+            IntField::Pk => "PK count",
+            IntField::Pvp => "PvP count",
+        }
+    }
+}
+
+/// `//setreputation`/`//setfame`/`//setpk`/`//setpvp <n>` — set an integer field
+/// on the target player (or self).
+fn set_int_field(world: &mut World, client_id: u32, object_id: i32, field: IntField, args: &[&str]) {
+    let Some(value) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, &format!("Usage: //set{} <value>", field.label().to_lowercase()));
+        return;
+    };
+    set_field_value(world, client_id, object_id, field, value);
+}
+
+fn set_field_value(world: &mut World, client_id: u32, object_id: i32, field: IntField, value: i32) {
+    let target = target_player(world, object_id);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
+        match field {
+            IntField::Reputation => p.reputation = value,
+            IntField::Fame => p.fame = value,
+            IntField::Pk => p.pk_kills = value,
+            IntField::Pvp => p.pvp_kills = value,
+        }
+    }
+    super::party::broadcast_user_info(world, target);
+    send_message(world, client_id, &format!("{} set to {value}.", field.label()));
+}
+
+/// `//settitle <text>` — set the target player's title.
+fn admin_set_title(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let title = args.join(" ");
+    let target = target_player(world, object_id);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
+        p.title = title;
+    }
+    super::party::broadcast_user_info(world, target);
+    send_message(world, client_id, "Title changed.");
+}
+
+/// `//setcolor`/`//settcolor <hex>` — set the target player's name/title color.
+fn admin_set_color(world: &mut World, client_id: u32, object_id: i32, args: &[&str], title: bool) {
+    let Some(color) = args.first().and_then(|s| i32::from_str_radix(s.trim_start_matches("0x"), 16).ok()) else {
+        send_message(world, client_id, "Usage: //setcolor <hex, e.g. FF0000>");
+        return;
+    };
+    let target = target_player(world, object_id);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
+        if title {
+            p.title_color = color;
+        } else {
+            p.name_color = color;
+        }
+    }
+    super::party::broadcast_user_info(world, target);
+    send_message(world, client_id, "Color changed.");
+}
+
+/// `//setsex` — flip the target player's gender.
+fn admin_set_sex(world: &mut World, client_id: u32, object_id: i32) {
+    let target = target_player(world, object_id);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
+        p.is_female = !p.is_female;
+    }
+    super::party::broadcast_user_info(world, target);
+    send_message(world, client_id, "Gender flipped.");
+}
+
+/// The vitals `//editchar` can set directly.
+#[derive(Clone, Copy)]
+enum Vital {
+    Hp,
+    Mp,
+    Cp,
+}
+
+/// `//set_hp`/`//set_mp`/`//set_cp <n>` — set a vital on the target player (or
+/// self), clamped to its max, with a `StatusUpdate`.
+fn set_vital(world: &mut World, client_id: u32, object_id: i32, vital: Vital, args: &[&str]) {
+    let Some(value) = args.first().and_then(|s| s.parse::<f64>().ok()) else {
+        send_message(world, client_id, "Usage: //set_hp <value>");
+        return;
+    };
+    let target = target_player(world, object_id);
+    let update = {
+        match vital {
+            Vital::Hp | Vital::Mp => {
+                let Some(v) = world.objects.get_component_mut::<Vitals>(&target) else { return };
+                match vital {
+                    Vital::Hp => {
+                        v.cur_hp = value.clamp(0.0, v.max_hp as f64);
+                        v.dead = v.cur_hp < 0.5;
+                        (sut::CUR_HP, v.cur_hp as i32)
+                    }
+                    _ => {
+                        v.cur_mp = value.clamp(0.0, v.max_mp as f64);
+                        (sut::CUR_MP, v.cur_mp as i32)
+                    }
+                }
+            }
+            Vital::Cp => {
+                let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&target) else { return };
+                pv.cur_cp = value.clamp(0.0, pv.max_cp as f64);
+                (sut::CUR_CP, pv.cur_cp as i32)
+            }
+        }
+    };
+    let packet = server_packets::status_update(target, &[update]);
+    if let Some(cid) = super::helpers::client_for_player(world, target) {
+        if let Some(cs) = world.clients.get(&cid) {
+            cs.send(packet);
+        }
+    }
+    super::party::notify_party_vitals(world, target);
 }
 
 /// `AdminBuffs`'s `//buff <skillId> [level]` — apply a skill's effects to the

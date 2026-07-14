@@ -8421,3 +8421,53 @@ fn admin_buff_rejects_unknown_skill() {
     on_packet(&mut world, 1, build_admin("buff 99999999 1"));
     assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "does-not-exist line");
 }
+
+/// The `//editchar` field setters mutate the targeted player and broadcast.
+#[test]
+fn admin_editchar_field_setters() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8301, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 8302, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+    world.objects.add_components(&8301, crate::model::components::TargetRef(Some(8302)));
+
+    let p = |w: &World| w.objects.get_component::<Player>(&8302).unwrap().clone();
+
+    on_packet(&mut world, 1, build_admin("setreputation -500"));
+    assert_eq!(p(&world).reputation, -500);
+    on_packet(&mut world, 1, build_admin("nokarma"));
+    assert_eq!(p(&world).reputation, 0);
+    on_packet(&mut world, 1, build_admin("setpk 7"));
+    assert_eq!(p(&world).pk_kills, 7);
+    on_packet(&mut world, 1, build_admin("setpvp 9"));
+    assert_eq!(p(&world).pvp_kills, 9);
+    on_packet(&mut world, 1, build_admin("setfame 42"));
+    assert_eq!(p(&world).fame, 42);
+    on_packet(&mut world, 1, build_admin("settitle Hello World"));
+    assert_eq!(p(&world).title, "Hello World");
+    on_packet(&mut world, 1, build_admin("setcolor FF0000"));
+    assert_eq!(p(&world).name_color, 0xFF_0000);
+    assert!(!p(&world).is_female);
+    on_packet(&mut world, 1, build_admin("setsex"));
+    assert!(p(&world).is_female, "gender flipped");
+}
+
+/// `//set_hp <n>` sets the caster's current HP (clamped to max).
+#[test]
+fn admin_set_hp_sets_current_hp() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8303, 100);
+    drain(&mut gm_rx);
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&8303) {
+        v.max_hp = 500;
+        v.cur_hp = 500.0;
+        v.dead = false;
+    }
+
+    on_packet(&mut world, 1, build_admin("set_hp 100"));
+    assert_eq!(pvit(&world, 8303).cur_hp, 100.0, "HP set to 100");
+    // Clamps above max.
+    on_packet(&mut world, 1, build_admin("set_hp 99999"));
+    assert_eq!(pvit(&world, 8303).cur_hp, 500.0, "clamped to max");
+}
