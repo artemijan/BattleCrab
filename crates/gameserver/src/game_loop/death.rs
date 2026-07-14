@@ -141,13 +141,9 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
             }
         }
     }
-    // NPCs (and any non-player creatures) that had it targeted still get the
-    // plain server-side clear — no client, so no packet.
-    world.objects.for_each_mut::<&mut crate::model::components::TargetRef>(|mut t| {
-        if t.0 == Some(npc_oid) {
-            t.0 = None;
-        }
-    });
+    // Only players carry `TargetRef` (NPC targeting goes through the aggro
+    // list), so the sweep above already cleared every creature that had the
+    // corpse selected — no second server-side pass is needed.
 
     // `Spawn.decreaseCount`: respawn only when the spawn line asked for it
     // (`_doRespawn = respawnMinDelay > 0`), with the ± random spread.
