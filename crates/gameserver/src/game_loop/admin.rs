@@ -196,6 +196,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_set_hp" => set_vital(world, client_id, object_id, Vital::Hp, &args),
         "admin_set_mp" => set_vital(world, client_id, object_id, Vital::Mp, &args),
         "admin_set_cp" => set_vital(world, client_id, object_id, Vital::Cp, &args),
+        "admin_setclass" => admin_setclass(world, client_id, object_id, &args),
         _ => return false,
     }
     true
@@ -756,6 +757,32 @@ fn set_field_value(world: &mut World, client_id: u32, object_id: i32, field: Int
     }
     super::party::broadcast_user_info(world, target);
     send_message(world, client_id, &format!("{} set to {value}.", field.label()));
+}
+
+/// `AdminEditChar`'s `//setclass <id>` — change the target player's (or self's)
+/// class. Reuses `set_level` at the current level to recompute vitals/stats and
+/// grant the new class's skills, then rebroadcasts. The old class's skills are
+/// not pruned yet (Java's full class-transfer cleanup is TODO).
+fn admin_setclass(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(class_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //setclass <classId>");
+        return;
+    };
+    if world.data.player_templates.get(class_id).is_none() {
+        send_message(world, client_id, &format!("Class id {class_id} does not exist."));
+        return;
+    }
+    let target = target_player(world, object_id);
+    let Some(level) = world.objects.get_component::<Player>(&target).map(|p| p.level) else { return };
+    if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
+        p.class_id = class_id;
+        p.base_class_id = class_id;
+    }
+    // Recompute HP/MP/stats + grant the new class's reachable skills, with the
+    // status/UserInfo/SkillList refresh; then CharInfo to nearby (new class).
+    super::death::set_level(world, target, level);
+    super::party::broadcast_user_info(world, target);
+    send_message(world, client_id, &format!("Class set to {class_id}."));
 }
 
 /// `//settitle <text>` — set the target player's title.

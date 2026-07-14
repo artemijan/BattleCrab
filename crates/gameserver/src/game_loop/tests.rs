@@ -8530,3 +8530,32 @@ fn admin_stopallbuffs_clears_after_confirm() {
     );
     assert_eq!(pbuffs(&world, 8502), 0, "all buffs cleared after confirm");
 }
+
+/// `//setclass <id>` changes the target's class and recomputes their template.
+#[test]
+fn admin_setclass_changes_class() {
+    let (mut world, ..) = admin_world();
+    world.data.player_templates =
+        crate::data::PlayerTemplateData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8701, 100);
+    drain(&mut gm_rx);
+    assert_eq!(world.objects.get_component::<Player>(&8701).unwrap().class_id, 0);
+
+    on_packet(&mut world, 1, build_admin("setclass 1"));
+    let p = world.objects.get_component::<Player>(&8701).unwrap();
+    assert_eq!(p.class_id, 1, "class changed to 1");
+    assert_eq!(p.base_class_id, 1);
+}
+
+/// `//setclass` with an unknown class id is refused.
+#[test]
+fn admin_setclass_rejects_unknown() {
+    let (mut world, ..) = admin_world();
+    world.data.player_templates =
+        crate::data::PlayerTemplateData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8702, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("setclass 99999"));
+    assert_eq!(world.objects.get_component::<Player>(&8702).unwrap().class_id, 0, "unchanged");
+}
