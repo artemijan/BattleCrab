@@ -63,12 +63,70 @@ pub struct GeoEngine {
     /// Door collision polygons + open flags (registered at boot before the
     /// engine is shared; open flags are atomics, flipped through `&self`).
     pub doors: doors::DoorGrid,
+    /// Runtime NSWE edits (admin `//geoenable*`/`//geodisable*`), keyed by
+    /// `(geo_x, geo_y, nearest_z)` → the cell's overridden NSWE bits. The base
+    /// regions are immutable (mmap/shared), so edits layer on top here.
+    /// [`has_overrides`](Self::has_overrides) gates the query hot path so an
+    /// unedited engine never touches the lock.
+    nswe_overrides: std::sync::RwLock<std::collections::HashMap<(i32, i32, i32), u8>>,
+    has_overrides: std::sync::atomic::AtomicBool,
 }
 
 impl GeoEngine {
     /// No geodata at all — every query behaves like Java's `NullRegion`.
     pub fn empty() -> Self {
-        Self { regions: (0..GEO_REGIONS).map(|_| None).collect(), doors: doors::DoorGrid::default() }
+        Self {
+            regions: (0..GEO_REGIONS).map(|_| None).collect(),
+            doors: doors::DoorGrid::default(),
+            nswe_overrides: std::sync::RwLock::new(std::collections::HashMap::new()),
+            has_overrides: std::sync::atomic::AtomicBool::new(false),
+        }
+    }
+
+    /// The effective NSWE bits of the cell nearest `world_z` (runtime override
+    /// if edited, else the base region; `NSWE_ALL` on unloaded geodata).
+    pub fn nearest_nswe(&self, geo_x: i32, geo_y: i32, world_z: i32) -> u8 {
+        if self.has_overrides.load(std::sync::atomic::Ordering::Relaxed) {
+            let nz = self.get_nearest_z(geo_x, geo_y, world_z);
+            if let Some(&ov) = self.nswe_overrides.read().unwrap().get(&(geo_x, geo_y, nz)) {
+                return ov;
+            }
+        }
+        self.region(geo_x, geo_y).map_or(NSWE_ALL, |r| r.nearest_nswe(geo_x, geo_y, world_z))
+    }
+
+    /// Admin `//geoenable<dir>` — OR `nswe` into the nearest cell's flags.
+    pub fn set_nearest_nswe(&self, geo_x: i32, geo_y: i32, world_z: i32, nswe: u8) {
+        self.edit_nswe(geo_x, geo_y, world_z, |cur| cur | nswe);
+    }
+
+    /// Admin `//geodisable<dir>` — clear `nswe` from the nearest cell's flags.
+    pub fn unset_nearest_nswe(&self, geo_x: i32, geo_y: i32, world_z: i32, nswe: u8) {
+        self.edit_nswe(geo_x, geo_y, world_z, |cur| cur & !nswe);
+    }
+
+    fn edit_nswe(&self, geo_x: i32, geo_y: i32, world_z: i32, f: impl FnOnce(u8) -> u8) {
+        let cur = self.nearest_nswe(geo_x, geo_y, world_z);
+        let nz = self.get_nearest_z(geo_x, geo_y, world_z);
+        self.nswe_overrides.write().unwrap().insert((geo_x, geo_y, nz), f(cur));
+        self.has_overrides.store(true, std::sync::atomic::Ordering::Relaxed);
+    }
+
+    /// Number of runtime NSWE edits currently applied (admin `//geosave`).
+    pub fn override_count(&self) -> usize {
+        self.nswe_overrides.read().unwrap().len()
+    }
+
+    /// Admin `//geomap` — the geodata tile (region file) coords a world position
+    /// falls in, plus that tile's world bounds: `((tile_x, tile_y), (min_x,
+    /// min_y), (max_x, max_y))`.
+    pub fn geomap_tile(&self, world_x: i32, world_y: i32) -> ((i32, i32), (i32, i32), (i32, i32)) {
+        let tile_x = self.get_geo_x(world_x) / REGION_CELLS_X;
+        let tile_y = self.get_geo_y(world_y) / REGION_CELLS_Y;
+        let (size_x, size_y) = (REGION_CELLS_X * 16, REGION_CELLS_Y * 16);
+        let min_x = tile_x * size_x + WORLD_MIN_X;
+        let min_y = tile_y * size_y + WORLD_MIN_Y;
+        ((tile_x, tile_y), (min_x, min_y), (min_x + size_x - 1, min_y + size_y - 1))
     }
 
     /// Java `GeoEngine()` constructor: scan `geodata_path` for
@@ -135,6 +193,12 @@ impl GeoEngine {
     }
 
     pub fn check_nearest_nswe(&self, geo_x: i32, geo_y: i32, world_z: i32, nswe: u8) -> bool {
+        if self.has_overrides.load(std::sync::atomic::Ordering::Relaxed) {
+            let nz = self.get_nearest_z(geo_x, geo_y, world_z);
+            if let Some(&ov) = self.nswe_overrides.read().unwrap().get(&(geo_x, geo_y, nz)) {
+                return (ov & nswe) == nswe;
+            }
+        }
         self.region(geo_x, geo_y).is_none_or(|r| r.check_nearest_nswe(geo_x, geo_y, world_z, nswe))
     }
 
@@ -462,6 +526,29 @@ mod tests {
     /// World coords of the centre of local cell (cx, cy) of the test region.
     fn world(g: &GeoEngine, cx: i32, cy: i32) -> (i32, i32) {
         (g.get_world_x(BASE_GEO_X + cx), g.get_world_y(BASE_GEO_Y + cy))
+    }
+
+    /// Runtime NSWE edits (admin `//geodisable*`/`//geoenable*`) layer over the
+    /// immutable base region and change what `check_nearest_nswe` reports — so a
+    /// disabled direction actually blocks movement.
+    #[test]
+    fn runtime_nswe_override_edits_passability() {
+        let g = engine_with(|_, _| (0, NSWE_ALL));
+        let (gx, gy, z) = (BASE_GEO_X + 5, BASE_GEO_Y + 5, 0);
+        assert!(g.has_geo_pos(gx, gy));
+        assert!(g.check_nearest_nswe(gx, gy, z, NSWE_NORTH), "open before edit");
+
+        g.unset_nearest_nswe(gx, gy, z, NSWE_NORTH);
+        assert!(!g.check_nearest_nswe(gx, gy, z, NSWE_NORTH), "north blocked after //geodisablenorth");
+        assert!(g.check_nearest_nswe(gx, gy, z, NSWE_SOUTH), "other directions untouched");
+        assert_eq!(g.override_count(), 1, "one cell edited");
+
+        g.set_nearest_nswe(gx, gy, z, NSWE_NORTH);
+        assert!(g.check_nearest_nswe(gx, gy, z, NSWE_NORTH), "north re-enabled after //geoenablenorth");
+
+        // An unedited cell still reads from the base region (no override lookup
+        // false-positives).
+        assert!(g.check_nearest_nswe(gx + 1, gy, z, NSWE_ALL), "neighbour cell unaffected");
     }
 
     #[test]

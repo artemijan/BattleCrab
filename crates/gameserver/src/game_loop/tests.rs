@@ -7954,10 +7954,10 @@ fn admin_unknown_vs_unimplemented() {
     on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("totally_made_up")].concat());
     assert_eq!(count_system_messages(&drain(&mut rx)), 1, "does-not-exist line");
 
-    // In AdminCommands.xml (admin_geogrid, level 100, no confirm) but no body
-    // yet (the geodata editor is a deferred subsystem) → not-implemented path,
-    // does not crash.
-    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("geogrid")].concat());
+    // In AdminCommands.xml (admin_instance, level 100, no confirm) but no body
+    // yet (the instance system is not ported) → not-implemented path, does not
+    // crash.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("instance")].concat());
     assert_eq!(count_system_messages(&drain(&mut rx)), 1, "not-implemented line");
 }
 

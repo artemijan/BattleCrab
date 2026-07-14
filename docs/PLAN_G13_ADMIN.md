@@ -8,9 +8,10 @@ runtime** now landed (`AdminRide` + `AdminTransform`; durable mount/transform
 state serialized into the byte-verified UserInfo/CharInfo, transform speed via
 `recalculate_stats`), and the **mob-group AI** (`AdminMobGroup`, 17 cmds — a
 `MobGroupTable` + `Controllable` component driven by `npc_ai::controllable_think`
-reusing the wild scan/attack/chase). Remaining: the `AdminGeodata` editor/save
-mutating commands, plus the enumerated blocked subcommands (clan-skills, fences,
-the
+reusing the wild scan/attack/chase), and the **geodata editor** (`AdminGeodata`
+tile/cell reports + runtime NSWE editing via a `GeoEngine` override map;
+`//geosave` binary serializer + client-viz stay stubbed). Remaining is the
+enumerated blocked subcommands (clan-skills, fences, the
 AVE/team/targetable effect subset, IP/dualbox, premium/prime/pc-cafe, and the
 G13.C sieges/olympiad/instances/… families). This doc is the plan of record;
 the G13 section of [PROGRESS.md](PROGRESS.md) records what actually shipped.

@@ -34,7 +34,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G10 Social systems                                          | ✅ vertical slice (chat, party, friends — clans/mail/BBS deferred) |
 | Game  | G11 Scripting engine + quests (+ clans via bypass)          | ✅ vertical slice (bypass routing, quest engine, Q00258/Q00320, clan creation — plan: [PLAN_G11_QUESTS_CLANS.md](PLAN_G11_QUESTS_CLANS.md)) |
 | Game  | G12 Static world + script/content breadth                   | ✅ vertical slice (zones peace/water/no-restart, all 1180 doors + geo collision, static objects, Link/Buy bypasses, +10 quests with on_attack/on_spawn hooks, OrcChange1, TeleportWithCharm — plan: [PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md](PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md)) |
-| Game  | G13 Admin / GM command system                               | 🚧 G13.A framework done; **G13.B portable handlers landed** (B1–B7 + mounts + transform runtime: character/skill/item/spawn/movement/GM-util/world/vitality/ride/transform + geo queries + `//admin` menu); deferred: geo-editor commands (B8 read-only queries + mob-group AI done) and subsystem-blocked C-group — plans: [PLAN_G13_ADMIN.md](PLAN_G13_ADMIN.md), [PLAN_G13_B_LOGIN.md](PLAN_G13_B_LOGIN.md) |
+| Game  | G13 Admin / GM command system                               | 🚧 G13.A framework done; **G13.B portable handlers landed** (B1–B7 + mounts + transform runtime: character/skill/item/spawn/movement/GM-util/world/vitality/ride/transform + geo queries + `//admin` menu); remaining: only subsystem-blocked C-group (sieges/olympiad/instances/…) + a few field-less/serializer stubs — plans: [PLAN_G13_ADMIN.md](PLAN_G13_ADMIN.md), [PLAN_G13_B_LOGIN.md](PLAN_G13_B_LOGIN.md) |
 | Game  | G13.9 TODO parity sweep                                     | ✅ UserInfo weapon-enchant + party/clan relation; skill-acquire SMs; restoration enchant roll; stat-cap/run-speed config plumbing; skill-cooldown persistence (`character_skills_save`) — plan: [PLAN_G13_9_TODO_SWEEP.md](PLAN_G13_9_TODO_SWEEP.md) |
 | Game  | G14 Long tail & parity sweep                                | ⏳ |
 
@@ -1173,16 +1173,25 @@ command bodies (G13.B) are next.
   (create/spawn/unspawn/kill/remove/teleport/list/menu) + invul + the state
   setters all land; the deeper `ControllableMobAI` nuances (formation offsets,
   skill selection for cast) are simplified.
+- **Geodata editor** (`admin/world_cmds.rs` + `geo`): `//geomap`/`//geocell`
+  (tile + cell/Z report), and runtime NSWE editing — `//geoenable*`/
+  `//geodisable*` set/clear a passability bit on the GM's nearest cell through a
+  `GeoEngine` override map (`RwLock<HashMap>` gated by an `AtomicBool` so the
+  pathfinding hot path is one relaxed load when nothing is edited); edits apply
+  immediately to movement/pathfinding. `//geosave*` reports the pending edit
+  count (the L2 binary region serializer isn't ported — edits are in-memory);
+  `//geoedit`/`//geogrid` client-viz stays a stub (no `ExServerPrimitive`
+  overlay).
 - Tests: 5 `admin_data` units + 74 synthetic-world dispatch/handler tests
   (gating, confirm round-trip, colors, one+ per handler group, mount +
-  transform round-trips, mob-group lifecycle).
-- **Deferred (own subsystem work, not handler bodies)**: the `AdminGeodata`
-  *editor/grid/save* mutating commands (read-only geo queries shipped). Also
-  blocked: clan-skill grants (no clan-skill system), `AdminFence` (no spawnable
-  fence), the AdminEffects **abnormal-visual-effect / team / targetable** subset,
-  `//setnoble`/`//rec`/premium/prime/pc-cafe (fields not modelled), and the
-  IP/dualbox tools (no per-client IP). **G13.C** (sieges/olympiad/instances/
-  events/petitions/punishment/…) stays gated-but-bodiless.
+  transform round-trips, mob-group lifecycle) + a geo NSWE-override unit test.
+- **Deferred**: only the `//geosave` binary-region serializer + the geo
+  client-viz overlay remain simplified. Still blocked: clan-skill grants (no
+  clan-skill system), `AdminFence` (no spawnable fence), the AdminEffects
+  **abnormal-visual-effect / team / targetable** subset, `//setnoble`/`//rec`/
+  premium/prime/pc-cafe (fields not modelled), and the IP/dualbox tools (no
+  per-client IP). **G13.C** (sieges/olympiad/instances/events/petitions/
+  punishment/…) stays gated-but-bodiless.
 
 ---
 

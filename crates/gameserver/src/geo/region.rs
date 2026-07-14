@@ -142,6 +142,21 @@ impl Region {
         }
     }
 
+    /// The raw NSWE bits of the cell nearest to `world_z` (flat blocks are open
+    /// in every direction). Used by the admin geo-editor to read the current
+    /// value before OR/AND-ing an edited bit.
+    pub fn nearest_nswe(&self, geo_x: i32, geo_y: i32, world_z: i32) -> u8 {
+        let pos = self.block_offset(geo_x, geo_y);
+        match self.bytes.as_slice()[pos] {
+            TYPE_FLAT => super::NSWE_ALL,
+            TYPE_COMPLEX => cell_nswe(self.i16_at(pos + 1 + Self::cell_index(geo_x, geo_y) * 2)),
+            _ => {
+                let cell = self.multilayer_cell_offset(pos + 1, geo_x, geo_y);
+                cell_nswe(self.nearest_layer(cell, world_z))
+            }
+        }
+    }
+
     /// Java `getNearestZ` — the height of the cell/layer closest to `world_z`.
     pub fn nearest_z(&self, geo_x: i32, geo_y: i32, world_z: i32) -> i32 {
         let pos = self.block_offset(geo_x, geo_y);

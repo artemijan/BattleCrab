@@ -140,3 +140,68 @@ pub(super) fn admin_geo_can_see(world: &mut World, client_id: u32, object_id: i3
     let visible = world.geo.can_see_target(a.x, a.y, a.z, b.x, b.y, b.z);
     send_message(world, client_id, if visible { "Can see target." } else { "Cannot see target." });
 }
+
+/// `AdminGeodata`'s `//geomap` — the geodata tile (region file) the GM stands in
+/// plus that tile's world bounds.
+pub(super) fn admin_geomap(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+    let ((tx, ty), (min_x, min_y), (max_x, max_y)) = world.geo.geomap_tile(pos.x, pos.y);
+    send_message(world, client_id, &format!("GeoMap: {tx}_{ty} ({min_x},{min_y} to {max_x},{max_y})"));
+}
+
+/// `AdminGeodata`'s `//geocell` — the geo cell (geoX/geoY), its nearest Z and
+/// the cell-center world coords at the GM's position.
+pub(super) fn admin_geocell(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+    let geo = &world.geo;
+    let (gx, gy) = (geo.get_geo_x(pos.x), geo.get_geo_y(pos.y));
+    let gz = geo.get_nearest_z(gx, gy, pos.z);
+    let (wx, wy) = (geo.get_world_x(gx), geo.get_world_y(gy));
+    send_message(world, client_id, &format!("GeoCell: {gx}, {gy}. XYZ ({wx}, {wy}, {gz})"));
+}
+
+/// `AdminGeodata`'s `//geoenable<dir>` / `//geodisable<dir>` — set or clear one
+/// NSWE passability bit on the GM's nearest cell (Java `setNearestNswe` /
+/// `unsetNearestNswe`). The edit layers over the immutable base geodata and
+/// takes effect immediately for movement/pathfinding.
+pub(super) fn admin_geo_nswe(world: &mut World, client_id: u32, object_id: i32, nswe: u8, enable: bool) {
+    let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+    let (gx, gy) = (world.geo.get_geo_x(pos.x), world.geo.get_geo_y(pos.y));
+    if !world.geo.has_geo_pos(gx, gy) {
+        send_message(world, client_id, "There is no geodata at this position.");
+        return;
+    }
+    if enable {
+        world.geo.set_nearest_nswe(gx, gy, pos.z, nswe);
+    } else {
+        world.geo.unset_nearest_nswe(gx, gy, pos.z, nswe);
+    }
+    send_message(world, client_id, &format!("Cell {gx},{gy}: {} {}.", dir_name(nswe), if enable { "enabled" } else { "disabled" }));
+}
+
+fn dir_name(nswe: u8) -> &'static str {
+    match nswe {
+        crate::geo::NSWE_NORTH => "north",
+        crate::geo::NSWE_SOUTH => "south",
+        crate::geo::NSWE_EAST => "east",
+        crate::geo::NSWE_WEST => "west",
+        _ => "direction",
+    }
+}
+
+/// `AdminGeodata`'s `//geosave` / `//geosaveall` — Java writes the edited region
+/// back to the geoedit output dir in the L2 binary format. That serializer is
+/// not ported; runtime edits live in memory (`GeoEngine` override map) and
+/// apply until restart. Reports how many edits are pending.
+pub(super) fn admin_geosave(world: &mut World, client_id: u32) {
+    let n = world.geo.override_count();
+    send_message(world, client_id, &format!("{n} runtime geo edit(s) active (in memory; binary region save is not ported)."));
+}
+
+/// `AdminGeodata`'s `//geoedit` / `//geogrid` — Java toggles a client-side
+/// geo-edit mode / debug grid overlay (`GeoUtils.debugGrid`, `ExServerPrimitive`
+/// packets). That client visualization is not ported; the NSWE edit commands
+/// work directly.
+pub(super) fn admin_geo_clientviz(world: &mut World, client_id: u32) {
+    send_message(world, client_id, "The geo grid overlay / edit mode is not available; use //geoenable*/geodisable* directly.");
+}

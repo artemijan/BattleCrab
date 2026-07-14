@@ -384,6 +384,19 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_geo_pos" => admin_geo_pos(world, client_id, object_id, false),
         "admin_geo_spawn_pos" => admin_geo_pos(world, client_id, object_id, true),
         "admin_geo_can_move" | "admin_geo_can_see" => admin_geo_can_see(world, client_id, object_id),
+        // AdminGeodata editor: tile/cell info, NSWE editing, save/mode stubs.
+        "admin_geomap" => admin_geomap(world, client_id, object_id),
+        "admin_geocell" => admin_geocell(world, client_id, object_id),
+        "admin_geoenablenorth" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_NORTH, true),
+        "admin_geoenablesouth" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_SOUTH, true),
+        "admin_geoenableeast" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_EAST, true),
+        "admin_geoenablewest" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_WEST, true),
+        "admin_geodisablenorth" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_NORTH, false),
+        "admin_geodisablesouth" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_SOUTH, false),
+        "admin_geodisableeast" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_EAST, false),
+        "admin_geodisablewest" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_WEST, false),
+        "admin_geosave" | "admin_geosaveall" => admin_geosave(world, client_id),
+        "admin_geoedit" | "admin_geogrid" => admin_geo_clientviz(world, client_id),
 
         // --- AdminMobGroup (B8) ---
         "admin_mobmenu" => admin_mobmenu(world, client_id),
