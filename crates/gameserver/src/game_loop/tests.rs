@@ -8394,3 +8394,30 @@ fn admin_setew_without_weapon_warns() {
     on_packet(&mut world, 1, build_admin("setew 10"));
     assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "no-item-in-slot line");
 }
+
+/// `//buff <id>` applies the skill's effects (a buff) to the GM.
+#[test]
+fn admin_buff_applies_skill_to_self() {
+    let (mut world, ..) = admin_world();
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8201, 100);
+    drain(&mut gm_rx);
+
+    let before = pbuffs(&world, 8201);
+    on_packet(&mut world, 1, build_admin("buff 1068 1")); // Might
+    assert!(pbuffs(&world, 8201) > before, "//buff applied a buff");
+}
+
+/// `//buff` with an unknown skill is refused.
+#[test]
+fn admin_buff_rejects_unknown_skill() {
+    let (mut world, ..) = admin_world();
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8202, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("buff 99999999 1"));
+    assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "does-not-exist line");
+}

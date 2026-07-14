@@ -176,6 +176,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_setun" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Under, &args),
         "admin_setba" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Cloak, &args),
         "admin_setbe" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Belt, &args),
+        // Apply a skill's effects (buff) to the target.
+        "admin_buff" => admin_buff(world, client_id, object_id, &args),
         _ => return false,
     }
     true
@@ -685,6 +687,23 @@ fn admin_remove_skill(world: &mut World, client_id: u32, object_id: i32, args: &
     }
     refresh_skill_list(world, target);
     send_message(world, client_id, &format!("Removed skill {skill_id}."));
+}
+
+/// `AdminBuffs`'s `//buff <skillId> [level]` — apply a skill's effects to the
+/// target (any creature) or self, exactly as a cast would (reuses the cast
+/// effect pipeline, so buffs/heals broadcast correctly).
+fn admin_buff(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(skill_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //buff <skillId> [level]");
+        return;
+    };
+    let level = args.get(1).and_then(|s| s.parse::<i32>().ok()).unwrap_or(1).max(1);
+    let Some(skill) = world.data.skill_data.get(skill_id, level).cloned() else {
+        send_message(world, client_id, &format!("Skill {skill_id} level {level} does not exist."));
+        return;
+    };
+    let target = current_target(world, object_id).unwrap_or(object_id);
+    crate::game_loop::skills::effects::apply_skill_effects(world, object_id, target, &skill);
 }
 
 /// `AdminEnchant`'s per-slot `//set<slot> <value>` — set the enchant level of
