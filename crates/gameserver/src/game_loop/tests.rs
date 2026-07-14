@@ -8348,3 +8348,49 @@ fn admin_add_skill_rejects_unknown() {
     on_packet(&mut world, 1, build_admin("add_skill 99999999 1"));
     assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "does-not-exist line");
 }
+
+/// `//setew <n>` sets the enchant level of the equipped weapon.
+#[test]
+fn admin_setew_enchants_equipped_weapon() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8101, 100);
+    drain(&mut gm_rx);
+    // Equip a weapon (item 1, the starter gloves aside — any weapon id) in RHand.
+    let weapon = crate::character::ItemRow {
+        object_id: 50000,
+        item_id: 1,
+        count: 1,
+        enchant_level: 0,
+        loc: "PAPERDOLL".into(),
+        loc_data: crate::model::inventory::PaperdollSlot::RHand as i32,
+        custom_type1: 0,
+        custom_type2: 0,
+        mana_left: -1,
+        time: 0,
+    };
+    world.objects.add_components(&8101, crate::model::inventory::Inventory::from_rows(&[weapon]));
+
+    on_packet(&mut world, 1, build_admin("setew 10"));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&8101)
+            .unwrap()
+            .paperdoll_enchant_level(crate::model::inventory::PaperdollSlot::RHand),
+        10,
+        "weapon enchanted to +10"
+    );
+}
+
+/// `//setew` with no weapon equipped warns.
+#[test]
+fn admin_setew_without_weapon_warns() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8102, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("setew 10"));
+    assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "no-item-in-slot line");
+}

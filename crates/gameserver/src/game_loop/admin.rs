@@ -13,6 +13,7 @@
 use tracing::{info, warn};
 
 use crate::model::components::{AdminFlags, PlayerVitals, Position, Speeds, TargetRef, Vitals};
+use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::Player;
 use crate::network::server_packets::{self, sm_ids, status_update_type as sut};
 use crate::session::ClientSession;
@@ -159,6 +160,22 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // Grant / remove a skill on the targeted player (or self).
         "admin_add_skill" => admin_add_skill(world, client_id, object_id, &args),
         "admin_remove_skill" => admin_remove_skill(world, client_id, object_id, &args),
+        // Per-slot enchant (`AdminEnchant`): //set<slot> <0..127>.
+        "admin_seteh" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Head, &args),
+        "admin_setec" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Chest, &args),
+        "admin_seteg" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Gloves, &args),
+        "admin_setel" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Legs, &args),
+        "admin_seteb" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Feet, &args),
+        "admin_setew" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::RHand, &args),
+        "admin_setes" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::LHand, &args),
+        "admin_setle" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::LEar, &args),
+        "admin_setre" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::REar, &args),
+        "admin_setlf" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::LFinger, &args),
+        "admin_setrf" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::RFinger, &args),
+        "admin_seten" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Neck, &args),
+        "admin_setun" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Under, &args),
+        "admin_setba" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Cloak, &args),
+        "admin_setbe" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Belt, &args),
         _ => return false,
     }
     true
@@ -668,6 +685,39 @@ fn admin_remove_skill(world: &mut World, client_id: u32, object_id: i32, args: &
     }
     refresh_skill_list(world, target);
     send_message(world, client_id, &format!("Removed skill {skill_id}."));
+}
+
+/// `AdminEnchant`'s per-slot `//set<slot> <value>` — set the enchant level of
+/// the item equipped in `slot` on the targeted player (or self). Enchant *stat*
+/// bonuses aren't applied yet (item stats are a later milestone); this sets the
+/// stored level, refreshes the inventory, and rebroadcasts UserInfo (glow).
+fn admin_set_enchant(world: &mut World, client_id: u32, object_id: i32, slot: PaperdollSlot, args: &[&str]) {
+    let Some(value) = args.first().and_then(|s| s.parse::<i32>().ok()).filter(|v| (0..=127).contains(v))
+    else {
+        send_message(world, client_id, "Usage: //set<slot> <0..127>");
+        return;
+    };
+    let target = current_target(world, object_id)
+        .filter(|oid| world.objects.has_component::<Player>(oid))
+        .unwrap_or(object_id);
+    let changed = world
+        .objects
+        .get_component_mut::<Inventory>(&target)
+        .and_then(|inv| inv.set_paperdoll_enchant(slot, value));
+    let Some(item_oid) = changed else {
+        send_message(world, client_id, "No item equipped in that slot.");
+        return;
+    };
+    if let Some(cid) = super::helpers::client_for_player(world, target) {
+        if let Some(inv) = world.objects.get_component::<Inventory>(&target) {
+            let packet = crate::network::enter_world::inventory_update(inv, &world.data, &[item_oid]);
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(packet);
+            }
+        }
+    }
+    super::party::broadcast_user_info(world, target);
+    send_message(world, client_id, &format!("Enchant set to +{value}."));
 }
 
 /// Resend a player's `SkillList` after a skill-book change.

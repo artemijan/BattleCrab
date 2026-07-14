@@ -499,6 +499,15 @@ impl Inventory {
         self.paperdoll_item(slot).map_or(0, |i| i.enchant_level)
     }
 
+    /// Set the enchant level of the item equipped in `slot`, returning its
+    /// object id (or `None` when the slot is empty). Admin `//set*` enchant.
+    pub fn set_paperdoll_enchant(&mut self, slot: PaperdollSlot, level: i32) -> Option<i32> {
+        let oid = self.paperdoll[slot as usize]?;
+        let item = self.items.iter_mut().find(|i| i.object_id == oid)?;
+        item.enchant_level = level;
+        Some(oid)
+    }
+
     /// Sum of `count` for adena (`Inventory.getAdena`).
     pub fn adena(&self) -> i64 {
         self.items.iter().filter(|i| i.item_id == item_data::ADENA_ID).map(|i| i.count).sum()
