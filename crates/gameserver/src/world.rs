@@ -154,6 +154,8 @@ pub struct World {
     /// exist through member references; an id-keyed map is the Rust shape).
     pub parties: HashMap<u32, crate::model::party::Party>,
     pub next_party_id: u32,
+    /// GM mob groups (`MobGroupTable`), keyed by group id — `//mobgroup_*`.
+    pub mob_groups: HashMap<i32, crate::model::mob_group::MobGroup>,
     /// Generation counter for `PendingRequest`s (stale `RequestTimeout`
     /// tasks no-op on mismatch, like `path_seq`).
     pub request_seq: u64,
@@ -200,6 +202,7 @@ impl World {
             clans: HashMap::new(),
             parties: HashMap::new(),
             next_party_id: 1,
+            mob_groups: HashMap::new(),
             request_seq: 0,
             db,
             player_autosave_due: HashMap::new(),

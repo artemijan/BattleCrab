@@ -26,6 +26,7 @@ mod gm_util;
 mod flags;
 mod items;
 mod menu;
+mod mobgroup;
 mod moderation;
 mod mounts;
 mod skills;
@@ -48,6 +49,7 @@ use menu::*;
 // `lobby::handle_enter_world`, so re-export it out of the admin module.
 pub(crate) use flags::apply_gm_startup;
 use items::*;
+use mobgroup::*;
 use moderation::*;
 use mounts::*;
 use skills::*;
@@ -382,6 +384,25 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_geo_pos" => admin_geo_pos(world, client_id, object_id, false),
         "admin_geo_spawn_pos" => admin_geo_pos(world, client_id, object_id, true),
         "admin_geo_can_move" | "admin_geo_can_see" => admin_geo_can_see(world, client_id, object_id),
+
+        // --- AdminMobGroup (B8) ---
+        "admin_mobmenu" => admin_mobmenu(world, client_id),
+        "admin_mobgroup_list" => admin_mobgroup_list(world, client_id),
+        "admin_mobgroup_create" => admin_mobgroup_create(world, client_id, &args),
+        "admin_mobgroup_remove" | "admin_mobgroup_delete" => admin_mobgroup_remove(world, client_id, object_id, &args),
+        "admin_mobgroup_spawn" => admin_mobgroup_spawn(world, client_id, object_id, &args),
+        "admin_mobgroup_unspawn" => admin_mobgroup_unspawn(world, client_id, &args),
+        "admin_mobgroup_kill" => admin_mobgroup_kill(world, client_id, object_id, &args),
+        "admin_mobgroup_teleport" => admin_mobgroup_teleport(world, client_id, object_id, &args),
+        "admin_mobgroup_invul" => admin_mobgroup_invul(world, client_id, &args),
+        "admin_mobgroup_idle" => admin_mobgroup_state(world, client_id, object_id, "idle", &args),
+        "admin_mobgroup_rnd" => admin_mobgroup_state(world, client_id, object_id, "rnd", &args),
+        "admin_mobgroup_nomove" => admin_mobgroup_state(world, client_id, object_id, "nomove", &args),
+        "admin_mobgroup_attack" => admin_mobgroup_state(world, client_id, object_id, "attack", &args),
+        "admin_mobgroup_attackgrp" => admin_mobgroup_state(world, client_id, object_id, "attackgrp", &args),
+        "admin_mobgroup_follow" => admin_mobgroup_state(world, client_id, object_id, "follow", &args),
+        "admin_mobgroup_return" => admin_mobgroup_state(world, client_id, object_id, "return", &args),
+        "admin_mobgroup_casting" => admin_mobgroup_state(world, client_id, object_id, "casting", &args),
 
         "admin_social" | "admin_social_menu" => admin_social(world, client_id, object_id, &args),
         "admin_effect" | "admin_npc_use_skill" => admin_effect(world, client_id, object_id, &args),

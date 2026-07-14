@@ -6,9 +6,11 @@ vitality, plus read-only geo queries and the `//admin` HTML menu). Remaining is
 dedicated subsystem work, not handler bodies. **Mounts** and the **transform
 runtime** now landed (`AdminRide` + `AdminTransform`; durable mount/transform
 state serialized into the byte-verified UserInfo/CharInfo, transform speed via
-`recalculate_stats`). Remaining: `AdminMobGroup` (controllable-mob group AI),
-the `AdminGeodata` editor/save commands, plus the enumerated blocked
-subcommands (clan-skills, fences, the
+`recalculate_stats`), and the **mob-group AI** (`AdminMobGroup`, 17 cmds — a
+`MobGroupTable` + `Controllable` component driven by `npc_ai::controllable_think`
+reusing the wild scan/attack/chase). Remaining: the `AdminGeodata` editor/save
+mutating commands, plus the enumerated blocked subcommands (clan-skills, fences,
+the
 AVE/team/targetable effect subset, IP/dualbox, premium/prime/pc-cafe, and the
 G13.C sieges/olympiad/instances/… families). This doc is the plan of record;
 the G13 section of [PROGRESS.md](PROGRESS.md) records what actually shipped.

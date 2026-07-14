@@ -8,6 +8,7 @@ pub mod components;
 pub mod door;
 pub mod formulas;
 pub mod inventory;
+pub mod mob_group;
 pub mod movement;
 pub mod npc;
 pub mod party;

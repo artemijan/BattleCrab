@@ -7954,10 +7954,10 @@ fn admin_unknown_vs_unimplemented() {
     on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("totally_made_up")].concat());
     assert_eq!(count_system_messages(&drain(&mut rx)), 1, "does-not-exist line");
 
-    // In AdminCommands.xml (admin_mobgroup_list, level 100, no confirm) but no
-    // body yet (mob-group AI is a deferred subsystem) → not-implemented path,
+    // In AdminCommands.xml (admin_geogrid, level 100, no confirm) but no body
+    // yet (the geodata editor is a deferred subsystem) → not-implemented path,
     // does not crash.
-    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("mobgroup_list")].concat());
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("geogrid")].concat());
     assert_eq!(count_system_messages(&drain(&mut rx)), 1, "not-implemented line");
 }
 
@@ -9313,4 +9313,53 @@ fn admin_ride_bike_transforms_and_reverts() {
     assert_eq!(p.transform_display_id, 0, "display cleared");
     assert_eq!(world.objects.get_component::<Speeds>(&8930).unwrap().run_spd, base_run, "run speed restored");
     assert!(!world.objects.get_component::<SkillBook>(&8930).unwrap().0.contains_key(&bike_skill), "transform skill removed");
+}
+
+/// `//mobgroup` lifecycle: create → spawn (members tagged Controllable) →
+/// set a state → invul → kill → remove.
+#[test]
+fn admin_mobgroup_lifecycle() {
+    let (mut world, ..) = admin_world();
+    world.data.npc_data =
+        crate::data::NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8940, 100);
+    drain(&mut gm_rx);
+
+    // create (no spawn yet)
+    on_packet(&mut world, 1, build_admin("mobgroup_create 1 20001 3"));
+    assert_eq!(world.mob_groups.get(&1).map(|g| g.max_count), Some(3), "group registered");
+    assert!(world.mob_groups.get(&1).unwrap().members.is_empty(), "not spawned yet");
+
+    // spawn at the GM → 3 Controllable NPCs
+    on_packet(&mut world, 1, build_admin("mobgroup_spawn 1"));
+    let members: Vec<i32> = world.mob_groups.get(&1).unwrap().members.clone();
+    assert_eq!(members.len(), 3, "three mobs spawned");
+    for &m in &members {
+        assert_eq!(
+            world.objects.get_component::<crate::model::mob_group::Controllable>(&m).map(|c| c.group_id),
+            Some(1),
+            "member tagged Controllable"
+        );
+    }
+
+    // state: follow the GM
+    on_packet(&mut world, 1, build_admin("mobgroup_follow 1"));
+    assert!(matches!(world.mob_groups.get(&1).unwrap().state, crate::model::mob_group::MobGroupState::Follow(8940)));
+
+    // invul on → each member gets the invul flag
+    on_packet(&mut world, 1, build_admin("mobgroup_invul 1 on"));
+    assert!(world.mob_groups.get(&1).unwrap().invul, "group invul set");
+    assert!(world.objects.get_component::<AdminFlags>(&members[0]).is_some_and(|f| f.invul), "member invul");
+
+    // kill → members become corpses (dead)
+    on_packet(&mut world, 1, build_admin("mobgroup_kill 1"));
+    assert!(
+        members.iter().all(|m| world.objects.get_component::<Vitals>(m).is_some_and(|v| v.dead)),
+        "all members killed"
+    );
+
+    // remove → group gone, members despawned
+    on_packet(&mut world, 1, build_admin("mobgroup_remove 1"));
+    assert!(!world.mob_groups.contains_key(&1), "group removed");
+    assert!(members.iter().all(|m| !world.objects.has_component::<crate::model::npc::Npc>(m)), "members despawned");
 }
