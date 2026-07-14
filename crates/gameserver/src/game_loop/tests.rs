@@ -8002,3 +8002,53 @@ fn admin_kick_disconnects_target() {
     assert!(!world.clients.contains_key(&2), "victim session removed after confirm");
     assert!(world.objects.get_component::<Player>(&7203).is_none(), "victim despawned");
 }
+
+/// `//add_exp_sp <exp> <sp>` grants exp and sp (driving level-up).
+#[test]
+fn admin_add_exp_sp_grants_to_self() {
+    let (mut world, ..) = admin_world();
+    world.data.experience =
+        crate::data::ExperienceData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7301, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("add_exp_sp 1000 500"));
+    let p = world.objects.get_component::<Player>(&7301).unwrap();
+    assert!(p.exp >= 1000, "exp granted");
+    assert_eq!(p.sp, 500, "sp granted");
+}
+
+/// `//set_level N` sets the target's level; `//add_level N` adds to it.
+#[test]
+fn admin_set_and_add_level() {
+    let (mut world, ..) = admin_world();
+    world.data.experience =
+        crate::data::ExperienceData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7305, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("set_level 20"));
+    assert_eq!(world.objects.get_component::<Player>(&7305).unwrap().level, 20, "set to 20");
+
+    on_packet(&mut world, 1, build_admin("add_level 5"));
+    assert_eq!(world.objects.get_component::<Player>(&7305).unwrap().level, 25, "added 5");
+}
+
+/// `//gmchat` reaches every online GM (including the sender) but no normal
+/// player.
+#[test]
+fn admin_gmchat_broadcasts_to_gms_only() {
+    let (mut world, ..) = admin_world();
+    let mut gm1 = ingame_player_access(&mut world, 1, 7302, 100);
+    let mut gm2 = ingame_player_access(&mut world, 2, 7303, 100);
+    let mut user = ingame_player_access(&mut world, 3, 7304, 0);
+    drain(&mut gm1);
+    drain(&mut gm2);
+    drain(&mut user);
+
+    on_packet(&mut world, 1, build_admin("gmchat hello gms"));
+    let say = server_packets::opcodes::SAY2;
+    assert!(drain(&mut gm1).iter().any(|p| p[0] == say), "sender GM sees it");
+    assert!(drain(&mut gm2).iter().any(|p| p[0] == say), "other GM sees it");
+    assert!(drain(&mut user).iter().all(|p| p[0] != say), "normal player does not");
+}

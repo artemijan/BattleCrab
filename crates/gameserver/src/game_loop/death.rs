@@ -451,7 +451,7 @@ fn level_for_exp(world: &World, exp: i64, max_level: i32) -> i32 {
 
 /// `PlayerStat.addLevel` (up or down): recompute vitals/stats, grant new
 /// autoGet skills, broadcast the level-up flourish.
-fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
+pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     let leveled_up = {
         let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&player_oid) else { return };
         let up = new_level > p.level;

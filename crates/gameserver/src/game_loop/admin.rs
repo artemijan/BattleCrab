@@ -128,6 +128,13 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_give_item_to_all" => admin_give_item_to_all(world, client_id, &args),
         // Disconnect a player (named or targeted).
         "admin_kick" => admin_kick(world, client_id, object_id, &args),
+        // Add exp/sp to the targeted player (or self).
+        "admin_add_exp_sp" => admin_add_exp_sp(world, client_id, object_id, &args),
+        // Add N levels to / set the level of the targeted player (or self).
+        "admin_add_level" => admin_change_level(world, client_id, object_id, &args, false),
+        "admin_set_level" => admin_change_level(world, client_id, object_id, &args, true),
+        // Broadcast a message to all online GMs.
+        "admin_gmchat" => admin_gmchat(world, client_id, object_id, &args),
         _ => return false,
     }
     true
@@ -323,6 +330,66 @@ fn admin_kick(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) 
     if let Some(ClientSession::InGame(session)) = world.clients.remove(&tcid) {
         super::net::store_and_remove_player(world, target);
         session.send(server_packets::leave_world());
+    }
+}
+
+/// `AdminExpSp`'s `//add_exp_sp <exp> <sp>` — grant exp+sp to the targeted
+/// player (or self), driving the level-up path.
+fn admin_add_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let (Some(exp), Some(sp)) = (
+        args.first().and_then(|s| s.parse::<i64>().ok()),
+        args.get(1).and_then(|s| s.parse::<i64>().ok()),
+    ) else {
+        send_message(world, client_id, "Usage: //add_exp_sp <exp> <sp>");
+        return;
+    };
+    let target = current_target(world, object_id)
+        .filter(|oid| world.objects.has_component::<Player>(oid))
+        .unwrap_or(object_id);
+    super::death::add_exp_and_sp(world, target, exp, sp);
+}
+
+/// `AdminLevel`'s `//add_level <n>` / `//set_level <n>` — add levels to, or set
+/// the level of, the targeted player (or self). `set` chooses between the two.
+fn admin_change_level(world: &mut World, client_id: u32, object_id: i32, args: &[&str], set: bool) {
+    let Some(value) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, if set { "Usage: //set_level <level>" } else { "Usage: //add_level <levels>" });
+        return;
+    };
+    let target = current_target(world, object_id)
+        .filter(|oid| world.objects.has_component::<Player>(oid))
+        .unwrap_or(object_id);
+    let Some(current) = world.objects.get_component::<Player>(&target).map(|p| p.level) else { return };
+    let max_level = world.data.experience.max_level as i32;
+    let new_level = if set { value } else { current + value }.clamp(1, max_level);
+    // Set exp to the level's threshold so the exp bar and future exp math stay
+    // consistent (Java `PlayerStat.setLevel` → `setExp(getExpForLevel(level))`).
+    let exp = world.data.experience.exp_for_level(new_level);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
+        p.exp = exp;
+    }
+    super::death::set_level(world, target, new_level);
+}
+
+/// `AdminGmChat`'s `//gmchat <message>` — broadcast to every online GM
+/// (`AdminData.broadcastToGMs`, `ChatType.ALLIANCE`).
+fn admin_gmchat(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    if args.is_empty() {
+        send_message(world, client_id, "Usage: //gmchat <message>");
+        return;
+    }
+    let text = args.join(" ");
+    let Some(name) = world.objects.get_component::<Player>(&object_id).map(|p| p.name.clone()) else {
+        return;
+    };
+    // Java passes a null sender (object id 0); the name carries the display.
+    let say = server_packets::creature_say(0, crate::enums::ChatType::Alliance, &name, &text, None);
+    for cs in world.clients.values() {
+        if let ClientSession::InGame(s) = cs {
+            if world.objects.get_component::<Player>(&s.player_object_id()).is_some_and(|p| p.is_gm(&world.data)) {
+                cs.send(say.clone());
+            }
+        }
     }
 }
 
