@@ -158,6 +158,82 @@ impl ArmorType {
     }
 }
 
+/// `<set name="weapon_type" val="..."/>` — the weapon's kind (Java
+/// `WeaponType`). `mask_bit` gives each kind its own bit so a skill effect's
+/// `<weaponType>` list (an OR of these bits) can be intersected against the
+/// currently equipped weapon — the weapon-gated counterpart of [`ArmorType`],
+/// e.g. Weapon Mastery 249's `-30% MagicalAttackSpeed` for BOW/POLE only.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum WeaponType {
+    /// No weapon / not a real combat type (fists count as unarmed, `Etc`, …) —
+    /// never matches a `<weaponType>` condition (bit 0).
+    #[default]
+    None,
+    Sword,
+    Blunt,
+    Dagger,
+    Bow,
+    Crossbow,
+    Pole,
+    Fist,
+    Dual,
+    DualBlunt,
+    DualDagger,
+    DualFist,
+    Rapier,
+    AncientSword,
+    TwoHandCrossbow,
+    FishingRod,
+}
+
+impl WeaponType {
+    /// The single-type mask bit; `None` is 0 so it never intersects any
+    /// `<weaponType>` condition mask (a bare hand can't satisfy "BOW or POLE").
+    pub const fn mask_bit(self) -> u32 {
+        match self {
+            WeaponType::None => 0,
+            WeaponType::Sword => 1 << 0,
+            WeaponType::Blunt => 1 << 1,
+            WeaponType::Dagger => 1 << 2,
+            WeaponType::Bow => 1 << 3,
+            WeaponType::Crossbow => 1 << 4,
+            WeaponType::Pole => 1 << 5,
+            WeaponType::Fist => 1 << 6,
+            WeaponType::Dual => 1 << 7,
+            WeaponType::DualBlunt => 1 << 8,
+            WeaponType::DualDagger => 1 << 9,
+            WeaponType::DualFist => 1 << 10,
+            WeaponType::Rapier => 1 << 11,
+            WeaponType::AncientSword => 1 << 12,
+            WeaponType::TwoHandCrossbow => 1 << 13,
+            WeaponType::FishingRod => 1 << 14,
+        }
+    }
+
+    /// `<set name="weapon_type"/>` / `<weaponType><item>..</item>` value →
+    /// variant (Java `WeaponType.valueOf`). Unknown/`ETC` → `None`.
+    pub fn from_name(name: &str) -> Self {
+        match name.to_ascii_uppercase().as_str() {
+            "SWORD" => WeaponType::Sword,
+            "BLUNT" => WeaponType::Blunt,
+            "DAGGER" => WeaponType::Dagger,
+            "BOW" => WeaponType::Bow,
+            "CROSSBOW" => WeaponType::Crossbow,
+            "POLE" => WeaponType::Pole,
+            "FIST" => WeaponType::Fist,
+            "DUAL" => WeaponType::Dual,
+            "DUALBLUNT" => WeaponType::DualBlunt,
+            "DUALDAGGER" => WeaponType::DualDagger,
+            "DUALFIST" => WeaponType::DualFist,
+            "RAPIER" => WeaponType::Rapier,
+            "ANCIENTSWORD" => WeaponType::AncientSword,
+            "TWOHANDCROSSBOW" => WeaponType::TwoHandCrossbow,
+            "FISHINGROD" => WeaponType::FishingRod,
+            _ => WeaponType::None,
+        }
+    }
+}
+
 /// Port of `model/item/type/CrystalType` — an item's grade. `level()` returns
 /// the same ordinal Java's `CrystalType(int level, ...)` uses, which is what
 /// the expertise/grade-penalty check compares against `Player.getExpertiseLevel`
@@ -335,6 +411,10 @@ pub struct ItemData {
     /// declared a non-`None` armor type have an entry — the armor-conditioned
     /// passive check (`ConditionUsingItemType`) reads it for the worn chest/legs.
     armor_types: HashMap<i32, ArmorType>,
+    /// `<set name="weapon_type"/>` by item id, side-mapped like `armor_types`.
+    /// Sparse: only weapons with a non-`None` type. Read for the equipped weapon
+    /// by the weapon-conditioned passive check (skill effect `<weaponType>`).
+    weapon_types: HashMap<i32, WeaponType>,
 }
 
 impl ItemData {
@@ -346,6 +426,7 @@ impl ItemData {
         let mut by_id = HashMap::new();
         let mut stat_bonuses = HashMap::new();
         let mut armor_types = HashMap::new();
+        let mut weapon_types = HashMap::new();
         let dir = format!("{file_path}{ITEMS_DIR}");
         if let Ok(entries) = std::fs::read_dir(&dir) {
             let mut paths: Vec<_> = entries
@@ -355,11 +436,11 @@ impl ItemData {
                 .collect();
             paths.sort();
             for path in paths {
-                parse_file(&path, &mut by_id, &mut stat_bonuses, &mut armor_types);
+                parse_file(&path, &mut by_id, &mut stat_bonuses, &mut armor_types, &mut weapon_types);
             }
         }
         info!("ItemData: Loaded {} item templates.", by_id.len());
-        Self { by_id, stat_bonuses, armor_types }
+        Self { by_id, stat_bonuses, armor_types, weapon_types }
     }
 
     pub fn get(&self, item_id: i32) -> Option<&ItemTemplate> {
@@ -378,9 +459,16 @@ impl ItemData {
         self.armor_types.get(&item_id).copied().unwrap_or(ArmorType::None)
     }
 
+    /// The item's `<set name="weapon_type"/>`, or `WeaponType::None` when
+    /// undeclared/unknown (non-weapons report `None`). Read for the equipped
+    /// weapon by the weapon-conditioned passive check.
+    pub fn weapon_type(&self, item_id: i32) -> WeaponType {
+        self.weapon_types.get(&item_id).copied().unwrap_or(WeaponType::None)
+    }
+
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { by_id: HashMap::new(), stat_bonuses: HashMap::new(), armor_types: HashMap::new() }
+        Self { by_id: HashMap::new(), stat_bonuses: HashMap::new(), armor_types: HashMap::new(), weapon_types: HashMap::new() }
     }
 
     /// Attach a `<stats>` block to an already-registered template (tests that
@@ -397,11 +485,18 @@ impl ItemData {
         self.armor_types.insert(item_id, armor_type);
     }
 
+    /// Attach a weapon type to an already-registered template (tests exercising
+    /// the weapon-conditioned passive check without reading `dist/game` XML).
+    #[doc(hidden)]
+    pub fn set_weapon_type_for_test(&mut self, item_id: i32, weapon_type: WeaponType) {
+        self.weapon_types.insert(item_id, weapon_type);
+    }
+
     /// Synthetic catalog for unit tests that need specific templates without
     /// reading `dist/game` XML.
     #[doc(hidden)]
     pub fn from_templates(templates: Vec<ItemTemplate>) -> Self {
-        Self { by_id: templates.into_iter().map(|t| (t.item_id, t)).collect(), stat_bonuses: HashMap::new(), armor_types: HashMap::new() }
+        Self { by_id: templates.into_iter().map(|t| (t.item_id, t)).collect(), stat_bonuses: HashMap::new(), armor_types: HashMap::new(), weapon_types: HashMap::new() }
     }
 
     /// Register one synthetic template (same hook as `NpcData`'s).
@@ -416,6 +511,7 @@ fn parse_file(
     out: &mut HashMap<i32, ItemTemplate>,
     stats_out: &mut HashMap<i32, ItemStats>,
     armor_out: &mut HashMap<i32, ArmorType>,
+    weapon_out: &mut HashMap<i32, WeaponType>,
 ) {
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
@@ -529,6 +625,11 @@ fn parse_file(
                     if let Some(at) = attrs.get("armor_type").map(|s| ArmorType::from_name(s)) {
                         if at != ArmorType::None {
                             armor_out.insert(item_id, at);
+                        }
+                    }
+                    if let Some(wt) = attrs.get("weapon_type").map(|s| WeaponType::from_name(s)) {
+                        if wt != WeaponType::None {
+                            weapon_out.insert(item_id, wt);
                         }
                     }
                 }

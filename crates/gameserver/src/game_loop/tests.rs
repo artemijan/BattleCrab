@@ -435,6 +435,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
             mode: StatModifierType::Per,
             amount: 8.0,
             armor_condition: 0,
+            weapon_condition: 0,
         })],
     });
 
@@ -651,6 +652,96 @@ fn spellcraft_passive_raises_mystic_cast_speed_in_a_robe() {
     world.objects.get_component_mut::<crate::model::inventory::Inventory>(&4211).unwrap().unequip_item(1003);
     super::passive_skills::refresh_conditioned_passives(&mut world, 4211);
     assert_eq!(pcs(&world, 4211).m_atk_spd, 333, "no robe → Spellcraft bonus gone");
+}
+
+/// Reproduction of the reported "casting speed 349 at level 7" bug: a Human
+/// Mystic learns Weapon Mastery (249) at getLevel 7, whose `-30%
+/// MagicalAttackSpeed` is gated to `<weaponType>BOW/POLE`. Wielding a (non
+/// bow/pole) staff in a no-grade robe, that effect must NOT apply, so casting
+/// speed stays Spellcraft's 499 — but before the `<weaponType>` gate was
+/// honored it dropped to 349 (499 × 0.7). Driven through the real relogin path
+/// (delevel filter → `from_char` → enter-world refresh tail); the no-grade robe
+/// keeps the armor grade-penalty out of it, isolating the weapon-condition bug.
+#[test]
+fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let mut data = GameData::for_test();
+    data.player_templates = crate::data::player_template::PlayerTemplateData::load_from(DIST);
+    data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
+    data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    data.skill_data = crate::data::skill_data::SkillData::load_from(DIST);
+    data.skill_trees = crate::data::skill_tree::SkillTreeData::load_from(DIST);
+    data.initial_equipment = crate::data::initial_equipment::InitialEquipmentData::load_from(DIST);
+
+    let class_id = 10; // Human Mystic
+
+    // No-grade MAGIC robe (chest/legs/gloves → Spellcraft applies, no grade
+    // penalty) plus a D-grade BLUNT staff (15149) — a weapon that is NOT
+    // bow/pole, equipped through the real slot logic.
+    let mut inv = crate::model::inventory::Inventory::new();
+    let mut next_oid = 2000;
+    for item_id in [6, 425, 461, 15149] {
+        let oid = next_oid;
+        next_oid += 1;
+        inv.add_item(&data.item_data, oid, item_id, 1);
+        inv.equip_item(&data.item_data, oid);
+    }
+    let items: Vec<crate::character::ItemRow> = inv
+        .items()
+        .iter()
+        .map(|it| {
+            let slot = inv.paperdoll_slot_of(it.object_id);
+            crate::character::ItemRow {
+                object_id: it.object_id,
+                item_id: it.item_id,
+                count: it.count,
+                enchant_level: 0,
+                loc: if slot.is_some() { "PAPERDOLL".into() } else { "INVENTORY".into() },
+                loc_data: slot.map(|s| s as i32).unwrap_or(0),
+                custom_type1: 0,
+                custom_type2: 0,
+                mana_left: -1,
+                time: 0,
+            }
+        })
+        .collect();
+
+    let mut chr = dummy_char(4213, "Mystic7");
+    chr.class_id = class_id;
+    chr.base_class_id = class_id;
+    chr.level = 7;
+    chr.items = items;
+    // Every skill a level-7 mystic can reach (autoGet + learnable), i.e. what the
+    // character would have after "reaching level 7 and getting skills".
+    chr.skills = data.skill_trees.all_available_skills(class_id, 7, &std::collections::HashMap::new());
+    assert!(chr.skills.iter().any(|&(id, _)| id == 163), "level-7 mystic has Spellcraft (163)");
+    assert!(chr.skills.iter().any(|&(id, _)| id == 249), "level-7 mystic has Weapon Mastery (249)");
+
+    let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
+    let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
+
+    // 1. Character select: the delevel filter (`filter_skills_on_select` →
+    // `maybe_skill_remove_on_delevel`), replicated on `chr.skills`.
+    let skills_before = chr.skills.len();
+    {
+        let mut skills_map: std::collections::HashMap<i32, i32> = chr.skills.iter().copied().collect();
+        super::death::maybe_skill_remove_on_delevel(&world, chr.object_id, chr.class_id, chr.level, &mut skills_map);
+        chr.skills = skills_map.into_iter().collect();
+    }
+    assert!(chr.skills.iter().any(|&(id, _)| id == 163), "delevel filter kept Spellcraft (163)");
+    assert_eq!(chr.skills.len(), skills_before, "delevel filter removed no skills at level 7");
+
+    // 2. Build the player from the (filtered) select data.
+    let b = Player::from_char(&world.data, &chr);
+    assert_eq!(b.combat.m_atk_spd, 499, "cast speed after from_char (Spellcraft ×1.5 in a robe)");
+    b.spawn_into(&mut world.objects);
+
+    // 3. Enter-world refresh tail, in `handle_enter_world` order.
+    super::expertise::refresh_expertise_penalty(&mut world, 4213);
+    assert_eq!(pcs(&world, 4213).m_atk_spd, 499, "cast speed after expertise refresh");
+    super::passive_skills::refresh_conditioned_passives(&mut world, 4213);
+    assert_eq!(pcs(&world, 4213).m_atk_spd, 499, "cast speed after conditioned-passive refresh");
 }
 
 /// Delevel skill filtering runs at character *select*, before `from_char`, so
@@ -999,6 +1090,7 @@ fn cast_test_world() -> (
             mode: StatModifierType::Per,
             amount: 8.0,
             armor_condition: 0,
+            weapon_condition: 0,
         })],
         ..base.clone()
     });
@@ -1017,6 +1109,7 @@ fn cast_test_world() -> (
             mode: StatModifierType::Per,
             amount: 8.0,
             armor_condition: 0,
+            weapon_condition: 0,
         })],
         ..base
     });

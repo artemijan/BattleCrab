@@ -754,6 +754,18 @@ pub(crate) fn armor_condition_passes(mask: u8, inventory: &Inventory, items: &cr
     mask & items.armor_type(legs.item_id).mask_bit() != 0
 }
 
+/// Whether a skill effect's `<weaponType>` condition (`mask`, an OR of
+/// `WeaponType::mask_bit`s) is satisfied by the currently equipped weapon. No
+/// weapon (or a type not in the mask) → `false`, so e.g. Weapon Mastery 249's
+/// `-30% MagicalAttackSpeed` only bites a BOW/POLE user, not a staff caster.
+pub(crate) fn weapon_condition_passes(mask: u32, inventory: &Inventory, items: &crate::data::item_data::ItemData) -> bool {
+    use crate::model::inventory::PaperdollSlot;
+    let Some(weapon) = inventory.paperdoll_item(PaperdollSlot::RHand) else {
+        return false;
+    };
+    mask & items.weapon_type(weapon.item_id).mask_bit() != 0
+}
+
 /// The armor-conditioned passive buffs currently in effect for a player: for
 /// every known passive skill carrying stat effects, the subset whose
 /// `<armorType>` condition passes against the worn gear, as a hidden permanent
@@ -775,7 +787,10 @@ pub(crate) fn conditioned_passive_buffs(data: &GameData, skills: &SkillBook, inv
                 SkillEffect::StatModifier(m) => Some(*m),
                 _ => None,
             })
-            .filter(|m| m.armor_condition == 0 || armor_condition_passes(m.armor_condition, inventory, &data.item_data))
+            .filter(|m| {
+                (m.armor_condition == 0 || armor_condition_passes(m.armor_condition, inventory, &data.item_data))
+                    && (m.weapon_condition == 0 || weapon_condition_passes(m.weapon_condition, inventory, &data.item_data))
+            })
             .collect();
         if applicable.is_empty() {
             continue;

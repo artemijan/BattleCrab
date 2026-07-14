@@ -50,6 +50,12 @@ pub struct StatModifierEffect {
     /// contribution depends on the worn armor (Spellcraft 163, Magician's
     /// Movement 118); active-buff effects leave it `0`.
     pub armor_condition: u8,
+    /// OR of `WeaponType::mask_bit`s from the effect's `<weaponType>` list, or
+    /// `0` when the effect has no such condition and always applies. Gates the
+    /// effect on the *equipped weapon* (e.g. Weapon Mastery 249's
+    /// `-30% MagicalAttackSpeed` applies only with a BOW/POLE in hand) — the
+    /// weapon-side counterpart of `armor_condition`.
+    pub weapon_condition: u32,
 }
 
 /// One entry inside a `RestorationRandom` reward group (Java
