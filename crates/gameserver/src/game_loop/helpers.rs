@@ -14,6 +14,19 @@ pub(crate) fn client_for_player(world: &World, player_object_id: i32) -> Option<
     })
 }
 
+/// Send a fresh `EtcStatusUpdate` to one player, built from their current state
+/// (expertise grade penalties + silence/message-refusal), mirroring Java's
+/// `sendPacket(new EtcStatusUpdate(this))` which reads it all off the player.
+/// This is what redraws the grade-penalty and chat-block icons.
+pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i32) {
+    use crate::model::components::{AdminFlags, ExpertisePenalty};
+    let ep = world.objects.get_component::<ExpertisePenalty>(&object_id).copied().unwrap_or_default();
+    let silence = world.objects.get_component::<AdminFlags>(&object_id).is_some_and(|f| f.silence);
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(crate::network::enter_world::etc_status_update(ep.weapon, ep.armor, silence));
+    }
+}
+
 /// Send `packet` to every in-game player that can see `from_object_id`,
 /// excluding the broadcaster — Java `Creature.broadcastPacket(packet)` via
 /// `World.forEachVisibleObject`: only players whose world region is in the

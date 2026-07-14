@@ -1,8 +1,15 @@
 # G13 — Admin / GM command system
 
-Status: **in progress** — G13.A (framework) landed; G13.B (command bodies)
-next. This doc is the plan of record; the G13 section of
-[PROGRESS.md](PROGRESS.md) records what actually shipped as phases land.
+Status: **in progress** — G13.A (framework) landed; **G13.B ~220 portable
+handlers landed** (B1–B7: character/skill/item/spawn/movement/GM-util/world/
+vitality, plus read-only geo queries and the `//admin` HTML menu). Remaining is
+dedicated subsystem work, not handler bodies: mounts + transforms
+(`AdminRide`/`AdminTransform` — touch byte-verified UserInfo/CharInfo),
+`AdminMobGroup` (controllable-mob group AI), the `AdminGeodata` editor/save
+commands, plus the enumerated blocked subcommands (clan-skills, fences, the
+AVE/team/targetable effect subset, IP/dualbox, premium/prime/pc-cafe, and the
+G13.C sieges/olympiad/instances/… families). This doc is the plan of record;
+the G13 section of [PROGRESS.md](PROGRESS.md) records what actually shipped.
 
 Carved out of the old G13 "long tail & parity sweep" catch-all (which named
 "admin commands" as one of its absorbed items). The catch-all is renumbered to

@@ -47,6 +47,136 @@ pub(super) fn admin_remove_skill(world: &mut World, client_id: u32, object_id: i
     send_message(world, client_id, &format!("Removed skill {skill_id}."));
 }
 
+/// `AdminSkill`'s `//setskill <id> <level>` — add a skill to the GM
+/// themselves (Java always targets `activeChar`), then refresh their list.
+pub(super) fn admin_setskill(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let (Some(id), Some(level)) = (
+        args.first().and_then(|s| s.parse::<i32>().ok()),
+        args.get(1).and_then(|s| s.parse::<i32>().ok()),
+    ) else {
+        send_message(world, client_id, "Usage: //setskill <id> <level>");
+        return;
+    };
+    if world.data.skill_data.get(id, level).is_none() {
+        send_message(world, client_id, &format!("No such skill found. Id: {id} Level: {level}"));
+        return;
+    }
+    if let Some(book) = world.objects.get_component_mut::<SkillBook>(&object_id) {
+        book.0.insert(id, level);
+    }
+    refresh_skill_list(world, object_id);
+    send_message(world, client_id, &format!("You added yourself skill {id} level {level}."));
+}
+
+/// `AdminSkill`'s `//give_all_skills` / `//give_all_skills_fs` — grant the
+/// targeted player every skill their class can learn at their level (Java
+/// `giveAvailableSkills`). Reuses the class-tree grant path. The `_fs`
+/// (forgotten-scroll) variant is identical here — forgotten-scroll skills
+/// aren't modelled separately yet.
+pub(super) fn admin_give_all_skills(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
+        super::send_sm(world, client_id, crate::network::server_packets::sm_ids::INVALID_TARGET);
+        return;
+    };
+    super::death::reward_skills(world, target);
+    refresh_skill_list(world, target);
+    let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+    send_message(world, client_id, &format!("Gave available skills to {name}."));
+}
+
+/// `AdminSkill`'s `//remove_all_skills` — strip every skill from the targeted
+/// player.
+pub(super) fn admin_remove_all_skills(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
+        super::send_sm(world, client_id, crate::network::server_packets::sm_ids::INVALID_TARGET);
+        return;
+    };
+    if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
+        book.0.clear();
+    }
+    refresh_skill_list(world, target);
+    let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+    send_message(world, client_id, &format!("You have removed all skills from {name}."));
+}
+
+/// `AdminSkill`'s `//get_skills` — copy the targeted player's skills onto the
+/// GM (Java saves the GM's own skills first so `//reset_skills` can restore
+/// them; here the copy is additive and `//reset_skills` re-derives class skills,
+/// a documented simplification).
+pub(super) fn admin_get_skills(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
+        super::send_sm(world, client_id, crate::network::server_packets::sm_ids::INVALID_TARGET);
+        return;
+    };
+    if target == object_id {
+        send_message(world, client_id, "You cannot use this on yourself.");
+        return;
+    }
+    let src = world.objects.get_component::<SkillBook>(&target).cloned().unwrap_or_default();
+    if let Some(book) = world.objects.get_component_mut::<SkillBook>(&object_id) {
+        for (&id, &lvl) in &src.0 {
+            book.0.insert(id, lvl);
+        }
+    }
+    refresh_skill_list(world, object_id);
+    let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+    send_message(world, client_id, &format!("You now have all the skills of {name}."));
+}
+
+/// `AdminSkill`'s `//reset_skills` — restore the targeted player's class skills
+/// (Java pairs this with `//get_skills`; here it re-grants the class-tree
+/// skills the character should have at its level, a documented simplification).
+pub(super) fn admin_reset_skills(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
+        super::send_sm(world, client_id, crate::network::server_packets::sm_ids::INVALID_TARGET);
+        return;
+    };
+    if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
+        book.0.clear();
+    }
+    super::death::reward_skills(world, target);
+    refresh_skill_list(world, target);
+    send_message(world, client_id, "Skills reset to class defaults.");
+}
+
+/// `AdminSkill`'s `//cast` / `//castnow <id> [level]` — apply a skill's effects
+/// to the GM's current target (or self). Java's `//cast` runs the full cast
+/// (with animation delay) and `//castnow` applies instantly to every affected
+/// target; both land on the same effect pipeline here (documented
+/// simplification — no cast bar for the admin path).
+pub(super) fn admin_cast(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //cast <skillId> <skillLevel>");
+        return;
+    };
+    let level = args.get(1).and_then(|s| s.parse::<i32>().ok()).unwrap_or_else(|| world.data.skill_data.max_level(id));
+    let Some(skill) = world.data.skill_data.get(id, level).cloned() else {
+        send_message(world, client_id, &format!("Skill with id: {id}, level: {level} not found."));
+        return;
+    };
+    let target = current_target(world, object_id).unwrap_or(object_id);
+    send_message(world, client_id, &format!("Admin casting {} ({id},{level})", skill.name));
+    crate::game_loop::skills::effects::apply_skill_effects(world, object_id, target, &skill);
+}
+
+/// `AdminSkill`'s HTML-menu commands (`//show_skills`, `//skill_list`,
+/// `//skill_index <n>`, `//remove_skills [page]`) — open the corresponding
+/// admin HTML page.
+pub(super) fn admin_skill_menu(world: &mut World, client_id: u32, command: &str, args: &[&str]) {
+    let path = match command {
+        "admin_skill_list" | "admin_show_skills" => "skills.htm".to_string(),
+        "admin_skill_index" => format!("skills/{}.htm", args.first().copied().unwrap_or("1")),
+        // `//remove_skills` is a generated char-skill list in Java; we fall back
+        // to the static skills page (the per-char generated page is TODO).
+        _ => "skills.htm".to_string(),
+    };
+    super::menu::show_admin_html(world, client_id, &path);
+}
+
 /// Resend a player's `SkillList` after a skill-book change.
 fn refresh_skill_list(world: &World, target: i32) {
     let Some(cid) = super::helpers::client_for_player(world, target) else { return };
@@ -99,6 +229,81 @@ pub(super) fn admin_getbuffs(world: &mut World, client_id: u32, object_id: i32) 
     for line in lines {
         send_message(world, client_id, &line);
     }
+}
+
+/// `AdminBuffs`'s `//getbuffs_ps` — list the target's passive effects (Java's
+/// passive page of the buff window). Sibling of [`admin_getbuffs`].
+pub(super) fn admin_getbuffs_ps(world: &mut World, client_id: u32, object_id: i32) {
+    let target = target_player(world, object_id);
+    let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+    let lines: Vec<String> = world
+        .objects
+        .get_component::<Buffs>(&target)
+        .map(|b| {
+            b.0.iter()
+                .filter(|x| x.passive)
+                .map(|x| format!("  skill {} lvl {} (passive)", x.skill_id, x.skill_level))
+                .collect()
+        })
+        .unwrap_or_default();
+    send_message(world, client_id, &format!("=== Passive effects on {name} ({}) ===", lines.len()));
+    for line in lines {
+        send_message(world, client_id, &line);
+    }
+}
+
+/// `AdminBuffs`'s `//areacancel <radius>` — clear every timed buff from all
+/// players within `radius` (Java `Creature::stopAllEffects`).
+pub(super) fn admin_areacancel(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(radius) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //areacancel <radius>");
+        return;
+    };
+    for oid in super::creatures_in_range(world, object_id, radius, true, false) {
+        let skill_ids: Vec<i32> = world
+            .objects
+            .get_component::<Buffs>(&oid)
+            .map(|b| b.0.iter().filter(|x| !x.passive).map(|x| x.skill_id).collect())
+            .unwrap_or_default();
+        for skill_id in skill_ids {
+            crate::game_loop::skills::effects::handle_buff_expire(world, oid, skill_id);
+        }
+    }
+    send_message(world, client_id, &format!("All effects canceled within radius {radius}"));
+}
+
+/// `AdminBuffs`'s `//removereuse [name]` — clear all skill reuse timers for the
+/// targeted or named player and resend `SkillCoolTime`.
+pub(super) fn admin_removereuse(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let target = match args.first() {
+        Some(name) => match super::find_online_player(world, name) {
+            Some(t) => t,
+            None => {
+                send_message(world, client_id, &format!("The player {name} is not online."));
+                return;
+            }
+        },
+        None => match current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid)) {
+            Some(t) => t,
+            None => {
+                super::send_sm(world, client_id, crate::network::server_packets::sm_ids::INVALID_TARGET);
+                return;
+            }
+        },
+    };
+    if let Some(reuses) = world.objects.get_component_mut::<crate::model::components::Reuses>(&target) {
+        reuses.0.clear();
+    }
+    if let Some(cid) = super::helpers::client_for_player(world, target) {
+        if let Some(reuses) = world.objects.get_component::<crate::model::components::Reuses>(&target) {
+            let packet = crate::network::server_packets::skill_cool_time(reuses, world.tick);
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(packet);
+            }
+        }
+    }
+    let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+    send_message(world, client_id, &format!("Skill reuse was removed from {name}."));
 }
 
 /// `AdminBuffs`'s `//stopbuff <skillId>` — remove a single buff from the target

@@ -100,9 +100,13 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
     // addSkill/removeSkill → broadcastUserInfo) also needs a fresh `UserInfo`.
     if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id) {
         if let Some(view) = crate::model::PlayerView::of(&world.objects, object_id) {
+            let silence = world
+                .objects
+                .get_component::<crate::model::components::AdminFlags>(&object_id)
+                .is_some_and(|f| f.silence);
             let user_info = crate::network::user_info::user_info(&view, &world.data, &world.cfg.character, super::party::calculate_relation(world, view.p));
             if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(crate::network::enter_world::etc_status_update(weapon_penalty, armor_penalty));
+                cs.send(crate::network::enter_world::etc_status_update(weapon_penalty, armor_penalty, silence));
                 cs.send(user_info);
             }
         }

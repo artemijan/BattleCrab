@@ -14,7 +14,7 @@ use crate::db::DbEvent;
 use crate::loginlink::LoginLinkCommand;
 use crate::model::formulas;
 use crate::model::skill::{OperateType, Skill, TargetType};
-use crate::model::components::{Buffs, Casting, ClientPos, CombatStats, Intent, LastFolkNpc, Movement, PlayerVitals, Position, Reuses, SkillBook, Speeds, TargetRef, Vitals};
+use crate::model::components::{AdminFlags, Buffs, Casting, ClientPos, CombatStats, Intent, LastFolkNpc, Movement, PlayerVitals, Position, Reuses, SkillBook, Speeds, TargetRef, Vitals};
 use crate::model::Player;
 use crate::network::client_packets::{self as cp, opcodes as cop};
 use crate::network::server_packets;
@@ -7953,9 +7953,10 @@ fn admin_unknown_vs_unimplemented() {
     on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("totally_made_up")].concat());
     assert_eq!(count_system_messages(&drain(&mut rx)), 1, "does-not-exist line");
 
-    // In AdminCommands.xml (admin_debug, level 100) but no body yet (G13.B) →
-    // not-implemented path, does not crash.
-    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("debug")].concat());
+    // In AdminCommands.xml (admin_mobgroup_list, level 100, no confirm) but no
+    // body yet (mob-group AI is a deferred subsystem) → not-implemented path,
+    // does not crash.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("mobgroup_list")].concat());
     assert_eq!(count_system_messages(&drain(&mut rx)), 1, "not-implemented line");
 }
 
@@ -8121,6 +8122,125 @@ fn admin_menu_serves_main_page() {
     assert!(!content.contains("My text is missing"), "main_menu.htm was found");
     assert!(content.contains("admin_admin"), "menu links back through the admin_ bypass");
 }
+
+/// UserInfo's BASIC_INFO `isGM` byte is `player.isGM()` (Java `UserInfo` L147).
+/// This is what tells the client to enable the `//command` bar — with a
+/// hardcoded 0 the client never sends `SendBypassBuildCmd`, so no `//` command
+/// ever reaches the server. A GM's UserInfo must carry `isGM=1`.
+#[test]
+fn user_info_isgm_byte_reflects_access_level() {
+    let (mut world, ..) = admin_world();
+
+    // Offset to the isGM byte: opcode(1) + object_id(4) + init_size(4) +
+    // mask-count(2) + mask(3) + relation(4) + basic_info-len(2) +
+    // name-len(2) + name(2·units) — the next byte is isGM.
+    let isgm_byte = |world: &World, oid: i32, name: &str| -> u8 {
+        let view = crate::model::PlayerView::of(&world.objects, oid).unwrap();
+        let pkt = crate::network::user_info::user_info(&view, &world.data, &world.cfg.character, 0);
+        let off = 1 + 4 + 4 + 2 + 3 + 4 + 2 + 2 + name.encode_utf16().count() * 2;
+        pkt[off]
+    };
+
+    // Master GM (level 100) → isGM = 1.
+    let _gm = ingame_player_access(&mut world, 1, 6461, 100);
+    assert_eq!(isgm_byte(&world, 6461, "P6461"), 1, "GM UserInfo enables the //command bar");
+
+    // Normal player (level 0) → isGM = 0.
+    let _user = ingame_player_access(&mut world, 2, 6462, 0);
+    assert_eq!(isgm_byte(&world, 6462, "P6462"), 0, "non-GM stays isGM=0");
+}
+
+/// `true` if any packet is a SystemMessage with the given id.
+fn has_system_message(pkts: &[Vec<u8>], id: i16) -> bool {
+    pkts.iter().any(|p| {
+        p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+            && p.len() >= 3
+            && i16::from_le_bytes([p[1], p[2]]) == id
+    })
+}
+
+/// The effect count in an `ExUserInfoAbnormalVisualEffect` packet (0xFE:0x158),
+/// or `None` if not present. Layout: opcode(1)+sub(2)+objId(4)+transform(4)+count(4).
+fn ave_effect_count(pkts: &[Vec<u8>]) -> Option<i32> {
+    pkts.iter()
+        .find(|p| {
+            p[0] == server_packets::opcodes::EX
+                && p.len() >= 15
+                && i16::from_le_bytes([p[1], p[2]])
+                    == server_packets::opcodes::EX_USER_INFO_ABNORMAL_VISUAL_EFFECT
+        })
+        .map(|p| i32::from_le_bytes([p[11], p[12], p[13], p[14]]))
+}
+
+/// The `EtcStatusUpdate` mask byte (0xF9), or `None` if not present. The mask
+/// is the packet's last byte; bit 0x01 = message-refusal / silence.
+fn etc_status_mask(pkts: &[Vec<u8>]) -> Option<u8> {
+    pkts.iter().find(|p| p[0] == 0xF9).map(|p| p[p.len() - 1])
+}
+
+/// `//silence` toggles message-refusal mode: on → MESSAGE_REFUSAL_MODE (177),
+/// flag set, and an `EtcStatusUpdate` with the refusal bit so the client draws
+/// the chat-block icon; a second toggle → MESSAGE_ACCEPTANCE_MODE (178), flag
+/// cleared, and the bit cleared.
+#[test]
+fn admin_silence_toggles_refusal_mode() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut rx = ingame_player_access(&mut world, 1, 6471, 100);
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("silence")].concat());
+    let pkts = drain(&mut rx);
+    assert!(world.objects.get_component::<AdminFlags>(&6471).unwrap().silence, "silence on");
+    assert!(has_system_message(&pkts, 177), "MESSAGE_REFUSAL_MODE");
+    assert_eq!(etc_status_mask(&pkts).map(|m| m & 1), Some(1), "EtcStatusUpdate refusal bit set");
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("silence")].concat());
+    let pkts = drain(&mut rx);
+    assert!(!world.objects.get_component::<AdminFlags>(&6471).unwrap().silence, "silence off");
+    assert!(has_system_message(&pkts, 178), "MESSAGE_ACCEPTANCE_MODE");
+    assert_eq!(etc_status_mask(&pkts).map(|m| m & 1), Some(0), "EtcStatusUpdate refusal bit cleared");
+}
+
+/// A whisper to a player in silence mode is refused — the sender gets the
+/// refusal notice and nothing is delivered to the receiver.
+#[test]
+fn whisper_to_silenced_player_is_refused() {
+    let (mut world, ..) = admin_world();
+    let mut sender_rx = ingame_player_access(&mut world, 1, 6481, 0);
+    let mut recv_rx = ingame_player_access(&mut world, 2, 6482, 100);
+    drain(&mut sender_rx);
+    drain(&mut recv_rx);
+    let mut f = world.objects.get_component::<AdminFlags>(&6482).copied().unwrap_or_default();
+    f.silence = true;
+    world.objects.add_components(&6482, f);
+
+    // Whisper (chat type 2) to "P6482".
+    on_packet(&mut world, 1, [vec![cop::SAY2], say2_body("hi", 2, Some("P6482"))].concat());
+    let sender_pkts = drain(&mut sender_rx);
+    assert!(has_system_message(&sender_pkts, 176), "sender told: person in refusal mode");
+    assert!(
+        drain(&mut recv_rx).iter().all(|p| p[0] != server_packets::opcodes::SAY2),
+        "silenced receiver got no whisper"
+    );
+}
+
+/// `//hide` sends the GM's own client an `ExUserInfoAbnormalVisualEffect` with
+/// the STEALTH effect present (so the invisible state renders), and clears it
+/// on unhide.
+#[test]
+fn admin_hide_sends_stealth_visual() {
+    let (mut world, ..) = admin_world();
+    let mut rx = ingame_player_access(&mut world, 1, 6491, 100);
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("hide")].concat());
+    assert_eq!(ave_effect_count(&drain(&mut rx)), Some(1), "STEALTH present when hidden");
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("hide")].concat());
+    assert_eq!(ave_effect_count(&drain(&mut rx)), Some(0), "no effects when visible again");
+}
+
 
 /// `//heal` on a targeted, damaged player fully restores HP/MP/CP and pushes a
 /// StatusUpdate to that player.
@@ -9000,4 +9120,131 @@ fn admin_effect_broadcasts_msu() {
         .expect("MagicSkillUse broadcast");
     // caster object id is at [5..9] (after the leading casting-bar int at [1..5]).
     assert_eq!(i32::from_le_bytes(msu[5..9].try_into().unwrap()), 8809, "GM is the animation source");
+}
+
+// --- G13.B breadth (B1–B7) command coverage ---
+
+/// `//remove_exp_sp <exp> <sp>` subtracts from the self target.
+#[test]
+fn admin_remove_exp_sp_reduces() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8901, 100);
+    drain(&mut gm_rx);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&8901) {
+        p.exp = 1000;
+        p.sp = 500;
+    }
+    on_packet(&mut world, 1, build_admin("remove_exp_sp 400 200"));
+    let p = world.objects.get_component::<Player>(&8901).unwrap();
+    assert_eq!(p.exp, 600, "exp reduced");
+    assert_eq!(p.sp, 300, "sp reduced");
+}
+
+/// `//setskill <id> <lvl>` grants the skill to the GM themselves.
+#[test]
+fn admin_setskill_adds_to_self() {
+    let (mut world, ..) = admin_world();
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8902, 100);
+    drain(&mut gm_rx);
+    on_packet(&mut world, 1, build_admin("setskill 1177 1"));
+    assert_eq!(
+        world.objects.get_component::<SkillBook>(&8902).unwrap().0.get(&1177),
+        Some(&1),
+        "skill added to the GM"
+    );
+}
+
+/// `//changename` renames the targeted player; a collision with an online name
+/// is rejected.
+#[test]
+fn admin_changename_renames_target() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8903, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 8904, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+    world.objects.add_components(&8903, crate::model::components::TargetRef(Some(8904)));
+    on_packet(&mut world, 1, build_admin("changename Renamed"));
+    assert_eq!(world.objects.get_component::<Player>(&8904).unwrap().name, "Renamed");
+}
+
+/// `//kick_non_gm` disconnects every non-GM but leaves the GM connected.
+#[test]
+fn admin_kick_non_gm_disconnects_players() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8905, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 8906, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+    on_packet(&mut world, 1, build_admin("kick_non_gm"));
+    assert!(!world.clients.contains_key(&2), "non-GM disconnected");
+    assert!(world.clients.contains_key(&1), "GM stays connected");
+}
+
+/// `//set_vitality <n>` sets the targeted player's vitality points (clamped).
+#[test]
+fn admin_set_vitality_sets_points() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8907, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 8908, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+    world.objects.add_components(&8907, crate::model::components::TargetRef(Some(8908)));
+    on_packet(&mut world, 1, build_admin("set_vitality 5000"));
+    assert_eq!(world.objects.get_component::<Player>(&8908).unwrap().vitality_points, 5000);
+    on_packet(&mut world, 1, build_admin("full_vitality"));
+    assert_eq!(world.objects.get_component::<Player>(&8908).unwrap().vitality_points, 140_000, "clamped to max");
+}
+
+/// `//gonorth <offset>` moves the GM north (-y) by the offset.
+#[test]
+fn admin_gonorth_moves_gm() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8909, 100);
+    drain(&mut gm_rx);
+    let y0 = world.objects.get_component::<Position>(&8909).unwrap().y;
+    on_packet(&mut world, 1, build_admin("gonorth 200"));
+    assert_eq!(world.objects.get_component::<Position>(&8909).unwrap().y, y0 - 200);
+}
+
+/// `//geo_pos` with no geodata loaded answers the "no geodata" line (does not
+/// crash on the empty geo engine).
+#[test]
+fn admin_geo_pos_no_geodata() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8910, 100);
+    drain(&mut gm_rx);
+    on_packet(&mut world, 1, build_admin("geo_pos"));
+    assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "one geo status line");
+}
+
+/// `//create_coin adena <n>` gives adena (item 57) to the GM.
+#[test]
+fn admin_create_coin_gives_adena() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8911, 100);
+    drain(&mut gm_rx);
+    on_packet(&mut world, 1, build_admin("create_coin adena 100"));
+    let inv = world.objects.get_component::<crate::model::inventory::Inventory>(&8911).unwrap();
+    assert_eq!(inv.count_of(57), 100, "adena added");
+}
+
+/// `//spawnat <id> <x> <y> <z>` spawns an NPC at explicit coordinates.
+#[test]
+fn admin_spawnat_creates_npc_at_coords() {
+    let (mut world, ..) = admin_world();
+    world.data.npc_data =
+        crate::data::NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8912, 100);
+    drain(&mut gm_rx);
+    let npc_oid = world.next_npc_object_id;
+    on_packet(&mut world, 1, build_admin("spawnat 30001 -84000 244000 -3700"));
+    assert_eq!(world.next_npc_object_id, npc_oid + 1, "one NPC spawned");
+    let pos = world.objects.get_component::<crate::model::components::Position>(&npc_oid).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (-84000, 244000, -3700), "spawned at the coords");
 }

@@ -98,6 +98,16 @@ flag must be reachable from `GameData` — see 3.3).
   immediately before it, so there is no window in which an invisible GM is ever
   broadcast. The char-select application is redundant and is not ported.
 
+### 3.3b UserInfo `isGM` byte (gates the client `//` command bar)
+**Critical, non-obvious:** the client only sends `//command` as
+`SendBypassBuildCmd` (0x74) when the **`isGM` byte in UserInfo's BASIC_INFO
+block** (`UserInfo.java` L147 `writeByte(_player.isGM())`) is `1`. We hardcoded
+it to `0`, so the client never entered GM command mode and *no* `//` packet was
+ever sent — `//admin` did nothing with nothing reaching the server. Fixed in
+`user_info.rs` to write `p.is_gm(data)`. Without this, every other piece of the
+admin system is unreachable from the client. Regression-guarded by
+`user_info_isgm_byte_reflects_access_level`.
+
 ### 3.3 Hero aura byte
 Resolve `hero_aura = is_hero || (is_gm && GMHeroAura)` once, on `Player` at
 `from_char` (mirroring how `name_color` is pre-resolved), reading `gm_hero_aura`
@@ -148,12 +158,31 @@ status, unaffected by the GM aura.
 
 Recorded on the G13 line in [PROGRESS.md](PROGRESS.md).
 
+## 5a. Invisibility visual + silence (follow-up)
+
+- **Invisibility now renders on the char.** `//hide` and the GM-startup hide
+  send `ExUserInfoAbnormalVisualEffect` (0xFE:0x158) to the GM's own client with
+  the STEALTH effect (client id 21) when hidden, cleared when visible — Java
+  `setInvisible` + `startAbnormalVisualEffect(STEALTH)`. Without this packet the
+  GM was hidden to others but showed no invisible state on their own screen.
+- **`//silence` (message-refusal / chat block).** Toggles `AdminFlags.silence`,
+  sends MESSAGE_REFUSAL_MODE (177) / MESSAGE_ACCEPTANCE_MODE (178), **plus
+  `EtcStatusUpdate` with the refusal mask bit 0x01** so the client draws the
+  chat-block icon (Java `setSilenceMode` → `new EtcStatusUpdate`), and re-shows
+  `gm_menu.htm`. `etc_status_update` gained a `message_refusal` param; a shared
+  `helpers::send_etc_status_update` rebuilds the packet from the player's stored
+  state (expertise penalties + silence), and it's resent on `//silence`, on
+  GM-startup silence, and on expertise-penalty change. Consumer: the whisper
+  handler refuses PMs to a silenced player with
+  THAT_PERSON_IS_IN_MESSAGE_REFUSAL_MODE (176), matching `ChatWhisper`.
+- Tests: `admin_silence_toggles_refusal_mode`, `whisper_to_silenced_player_is_refused`,
+  `admin_hide_sends_stealth_visual`.
+
 ## 6. Deferred (TODO, noted in code)
 
 - GM-list registration (`AdminData.addGm` hidden flag) — no `//gmlist` consumer
   yet; `register_gm` computes the flag but stores nothing.
 - `GMGiveSpecialSkills` / `GMGiveSpecialAuraSkills` — special-skill trees
   unported.
-- `silence` / `diet` consumers (whisper delivery / overload calc) — flags set,
-  not yet honored.
+- `diet` consumer (weight-overload calc) — flag set, not yet honored.
 - `isHero()` real status — needs Olympiad.

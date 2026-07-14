@@ -103,6 +103,17 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                 send_sm(world, client_id, sm_ids::THAT_PLAYER_IS_NOT_ONLINE);
                 return;
             };
+            // Java `ChatWhisper`: a receiver in silence/message-refusal mode
+            // refuses the PM — the sender gets the refusal notice, nothing is
+            // delivered.
+            if world
+                .objects
+                .get_component::<crate::model::components::AdminFlags>(&receiver_oid)
+                .is_some_and(|f| f.silence)
+            {
+                send_sm(world, client_id, sm_ids::THAT_PERSON_IS_IN_MESSAGE_REFUSAL_MODE);
+                return;
+            }
             // Relation mask: bit 0x01 = sender on the receiver's friend list
             // (wired with the friend system); other bits need clans/mentors.
             let mask = whisper_relation_mask(world, sender_oid, receiver_oid);

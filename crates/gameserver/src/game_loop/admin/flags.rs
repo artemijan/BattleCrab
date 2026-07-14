@@ -7,7 +7,7 @@ use crate::model::Player;
 use crate::network::server_packets;
 use crate::world::World;
 
-use super::{current_target, send_message};
+use super::{current_target, send_message, send_sm};
 
 /// The GM flags togglable via `AdminFlags`.
 #[derive(Clone, Copy)]
@@ -48,10 +48,21 @@ fn set_flag(world: &mut World, target: i32, flag: GmFlag) -> bool {
     now
 }
 
+/// Send `ExUserInfoAbnormalVisualEffect` to the GM's own client so the
+/// invisible state is actually rendered on the character (the STEALTH glow),
+/// or cleared when visible again (Java sends it on every invis toggle).
+fn send_invisible_visual(world: &World, client_id: u32, object_id: i32, invisible: bool) {
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(crate::network::user_info::ex_user_info_abnormal_visual_effect(object_id, invisible));
+    }
+}
+
 /// `AdminHide`'s `//hide` — toggle the GM's visibility to other players (Java
 /// `setInvisible` + `decayMe`/`spawnMe`). Hiding sends `DeleteObject` to nearby
 /// players; unhiding re-runs the visibility exchange. While hidden, the
 /// visibility system won't describe the GM to anyone (see `send_char_info`).
+/// Either way the GM's own client gets the STEALTH abnormal-visual update so
+/// the invisible state shows on the character.
 pub(super) fn admin_hide(world: &mut World, client_id: u32, object_id: i32) {
     let hidden = set_flag(world, object_id, GmFlag::Hidden);
     if hidden {
@@ -61,6 +72,26 @@ pub(super) fn admin_hide(world: &mut World, client_id: u32, object_id: i32) {
         super::visibility::on_enter_world(world, client_id, object_id);
         send_message(world, client_id, "You are now visible.");
     }
+    send_invisible_visual(world, client_id, object_id, hidden);
+}
+
+/// `AdminAdmin`'s `//silence` — toggle message-refusal (chat block) mode on the
+/// GM. Java `setSilenceMode` + the MESSAGE_REFUSAL/ACCEPTANCE_MODE system
+/// message; the whisper handler refuses PMs to a silenced player.
+pub(super) fn admin_silence(world: &mut World, client_id: u32, object_id: i32) {
+    let mut flags = world.objects.get_component::<AdminFlags>(&object_id).copied().unwrap_or_default();
+    flags.silence = !flags.silence;
+    let on = flags.silence;
+    world.objects.add_components(&object_id, flags);
+    send_sm(
+        world,
+        client_id,
+        if on { server_packets::sm_ids::MESSAGE_REFUSAL_MODE } else { server_packets::sm_ids::MESSAGE_ACCEPTANCE_MODE },
+    );
+    // Java `setSilenceMode` → `EtcStatusUpdate`: redraw the chat-block icon.
+    super::helpers::send_etc_status_update(world, client_id, object_id);
+    // Java re-shows the GM menu after toggling.
+    super::menu::show_admin_html(world, client_id, "gm_menu.htm");
 }
 
 /// `//invul` / `//undying` — toggle the flag on the GM.
@@ -95,6 +126,7 @@ pub(crate) fn apply_gm_startup(world: &mut World, client_id: u32, object_id: i32
         send_message(world, client_id, "hide is default for builder.");
         send_message(world, client_id, "FriendAddOff is default for builder.");
         send_message(world, client_id, "whisperoff is default for builder.");
+        send_invisible_visual(world, client_id, object_id, true);
         register_gm(world, object_id, access_level);
         return;
     }
@@ -112,6 +144,13 @@ pub(crate) fn apply_gm_startup(world: &mut World, client_id: u32, object_id: i32
         flags.diet = true;
     }
     world.objects.add_components(&object_id, flags);
+    if flags.hidden {
+        send_invisible_visual(world, client_id, object_id, true);
+    }
+    if flags.silence {
+        // Redraw the chat-block icon for a GM that logs in silenced.
+        super::helpers::send_etc_status_update(world, client_id, object_id);
+    }
     register_gm(world, object_id, access_level);
 }
 

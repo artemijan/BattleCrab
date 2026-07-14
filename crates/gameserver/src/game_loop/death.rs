@@ -102,6 +102,12 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
 /// `DecayTaskManager` firing → `Npc.onDecay` + `Spawn.decreaseCount`: remove
 /// the corpse from the world and schedule the respawn.
 pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
+    // A corpse revived in the meantime (admin `//res_monster`) is alive again;
+    // its pending decay task is a no-op, mirroring Java `DecayTaskManager.cancel`
+    // on revive.
+    if world.objects.get_component::<Vitals>(&npc_oid).is_some_and(|v| !v.dead) {
+        return;
+    }
     let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
     // Gather the respawn bookkeeping before despawn (components drop with
     // the entity).
@@ -432,6 +438,30 @@ pub(crate) fn add_exp_and_sp(world: &mut World, player_oid: i32, exp: i64, sp: i
         set_level(world, player_oid, new_level);
     } else if let Some(client_id) = client_for_player(world, player_oid) {
         // Exp bar refresh (`player.updateUserInfo()`).
+        if let (Some(v), Some(cs)) =
+            (crate::model::PlayerView::of(&world.objects, player_oid), world.clients.get(&client_id))
+        {
+            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, super::party::calculate_relation(world, v.p)));
+        }
+    }
+}
+
+/// Java `Player.removeExpAndSp` — subtract exp/sp (each floored at 0) and
+/// delevel if the exp total now falls under the current level's threshold. The
+/// mirror of [`add_exp_and_sp`]; used by the `//remove_exp_sp` admin command.
+pub(crate) fn remove_exp_and_sp(world: &mut World, player_oid: i32, exp: i64, sp: i64) {
+    let max_level = world.data.experience.max_level as i32;
+    let (old_level, new_exp) = {
+        let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&player_oid) else { return };
+        p.exp = (p.exp - exp.max(0)).max(0);
+        p.sp = (p.sp - sp.max(0)).max(0);
+        (p.level, p.exp)
+    };
+    let new_level = level_for_exp(world, new_exp, max_level);
+    if new_level != old_level {
+        set_level(world, player_oid, new_level);
+    } else if let Some(client_id) = client_for_player(world, player_oid) {
+        // Exp bar refresh (`player.updateUserInfo()`), no level change.
         if let (Some(v), Some(cs)) =
             (crate::model::PlayerView::of(&world.objects, player_oid), world.clients.get(&client_id))
         {

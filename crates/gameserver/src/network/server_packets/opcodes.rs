@@ -83,5 +83,8 @@ pub const EX_SHOW_QUEST_MARK: i16 = 0x21;
 pub const EX_NPC_QUEST_HTML_MESSAGE: i16 = 0x8E;
 pub const EX_QUEST_ITEM_LIST: i16 = 0xC7;
 pub const EX_SET_COMPASS_ZONE_CODE: i16 = 0x33;
+/// `ExUserInfoAbnormalVisualEffect` — the abnormal-visual list (incl. GM
+/// invisibility's STEALTH glow).
+pub const EX_USER_INFO_ABNORMAL_VISUAL_EFFECT: i16 = 0x158;
 pub const EX_AUTO_SOUL_SHOT: i16 = 0x0C;
 pub const EX_RED_SKY: i16 = 0x42;

@@ -56,6 +56,10 @@ pub mod sm_ids {
     pub const INVALID_TARGET: i16 = 109;
     pub const NOTHING_HAPPENED: i16 = 61;
     pub const CANNOT_SEE_TARGET: i16 = 181;
+    // GM silence / message refusal (G13.B)
+    pub const THAT_PERSON_IS_IN_MESSAGE_REFUSAL_MODE: i16 = 176;
+    pub const MESSAGE_REFUSAL_MODE: i16 = 177;
+    pub const MESSAGE_ACCEPTANCE_MODE: i16 = 178;
     // Zones (G12)
     pub const YOU_MAY_NOT_ATTACK_THIS_TARGET_IN_A_PEACEFUL_ZONE: i16 = 85;
     pub const YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE: i16 = 2167;

@@ -22,6 +22,42 @@ pub(super) fn admin_add_exp_sp(world: &mut World, client_id: u32, object_id: i32
         .filter(|oid| world.objects.has_component::<Player>(oid))
         .unwrap_or(object_id);
     super::death::add_exp_and_sp(world, target, exp, sp);
+    if let Some(name) = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()) {
+        send_message(world, client_id, &format!("Added {exp} xp and {sp} sp to {name}."));
+    }
+}
+
+/// `AdminExpSp`'s `//remove_exp_sp <exp> <sp>` — subtract exp+sp from the
+/// targeted player (or self), deleveling as needed.
+pub(super) fn admin_remove_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let (Some(exp), Some(sp)) = (
+        args.first().and_then(|s| s.parse::<i64>().ok()),
+        args.get(1).and_then(|s| s.parse::<i64>().ok()),
+    ) else {
+        send_message(world, client_id, "Usage: //remove_exp_sp exp sp");
+        return;
+    };
+    let target = current_target(world, object_id)
+        .filter(|oid| world.objects.has_component::<Player>(oid))
+        .unwrap_or(object_id);
+    super::death::remove_exp_and_sp(world, target, exp, sp);
+    if let Some(name) = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()) {
+        send_message(world, client_id, &format!("Removed {exp} xp and {sp} sp from {name}."));
+    }
+}
+
+/// `AdminExpSp`'s `//add_exp_sp_to_character` — Java opens `expsp.htm`; we send
+/// the same figures (level/exp/sp) as text for the current player target.
+pub(super) fn admin_add_exp_sp_menu(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
+        super::send_sm(world, client_id, crate::network::server_packets::sm_ids::INVALID_TARGET);
+        return;
+    };
+    let Some(p) = world.objects.get_component::<Player>(&target) else { return };
+    send_message(world, client_id, &format!("=== {} (level {}) ===", p.name, p.level));
+    send_message(world, client_id, &format!("XP: {}  SP: {}", p.exp, p.sp));
+    send_message(world, client_id, "Usage: //add_exp_sp <exp> <sp> | //remove_exp_sp <exp> <sp>");
 }
 
 /// `AdminLevel`'s `//add_level <n>` / `//set_level <n>` — add levels to, or set
@@ -88,6 +124,45 @@ pub(super) fn set_field_value(world: &mut World, client_id: u32, object_id: i32,
     }
     super::party::broadcast_user_info(world, target);
     send_message(world, client_id, &format!("{} set to {value}.", field.label()));
+}
+
+/// Java `PlayerStat.MAX_VITALITY_POINTS` / `MIN_VITALITY_POINTS`.
+const MAX_VITALITY_POINTS: i32 = 140_000;
+const MIN_VITALITY_POINTS: i32 = 0;
+
+/// `AdminVitality`'s `//set_vitality <n>` / `//full_vitality` / `//empty_vitality`
+/// / `//get_vitality` — read or set the *targeted player's* vitality points
+/// (Java requires a player target). Setting rebroadcasts UserInfo (the vitality
+/// block).
+pub(super) fn admin_vitality(world: &mut World, client_id: u32, object_id: i32, mode: &str, args: &[&str]) {
+    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid)) else {
+        send_message(world, client_id, "Target not found or not a player");
+        return;
+    };
+    match mode {
+        "get" => {
+            let v = world.objects.get_component::<Player>(&target).map_or(0, |p| p.vitality_points);
+            send_message(world, client_id, &format!("Player vitality points: {v}"));
+            return;
+        }
+        "set" => {
+            let Some(value) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+                send_message(world, client_id, "Incorrect vitality");
+                return;
+            };
+            set_vitality_points(world, target, value);
+        }
+        "full" => set_vitality_points(world, target, MAX_VITALITY_POINTS),
+        "empty" => set_vitality_points(world, target, MIN_VITALITY_POINTS),
+        _ => {}
+    }
+    super::party::broadcast_user_info(world, target);
+}
+
+fn set_vitality_points(world: &mut World, target: i32, value: i32) {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
+        p.vitality_points = value.clamp(MIN_VITALITY_POINTS, MAX_VITALITY_POINTS);
+    }
 }
 
 /// `AdminEditChar`'s `//setclass <id>` — change the target player's (or self's)

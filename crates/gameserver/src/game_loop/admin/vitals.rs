@@ -3,11 +3,12 @@
 //! target (or the GM) and push the resulting `StatusUpdate`.
 
 use crate::model::components::{PlayerVitals, Vitals};
+use crate::model::npc::Npc;
 use crate::model::Player;
 use crate::network::server_packets::{self, status_update_type as sut};
 use crate::world::World;
 
-use super::{current_target, send_message, target_player};
+use super::{current_target, find_online_player, send_message, send_sm, target_player};
 
 /// `AdminHeal` (first slice): fully restore the targeted player's HP/MP/CP, or
 /// the GM's own if no *player* is targeted. NPC targets and the `<name>` form
@@ -19,16 +20,75 @@ pub(super) fn admin_heal(world: &mut World, object_id: i32) {
     full_restore(world, target);
 }
 
-/// `AdminRes` (first slice): revive the targeted player (or self) and fully
-/// restore them. `admin_res_monster` (NPC) is TODO.
-pub(super) fn admin_res(world: &mut World, object_id: i32) {
+/// `AdminRes`'s `//res [name|radius]` — revive the targeted player (or self);
+/// with a `<name>` argument the named online player; with a numeric argument
+/// every player within that radius.
+pub(super) fn admin_res(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    if let Some(arg) = args.first() {
+        if let Some(named) = find_online_player(world, arg) {
+            res_creature(world, named);
+            return;
+        }
+        let Some(radius) = arg.parse::<i32>().ok() else {
+            send_message(world, client_id, "Enter a valid player name or radius.");
+            return;
+        };
+        for oid in super::creatures_in_range(world, object_id, radius, true, false) {
+            res_creature(world, oid);
+        }
+        send_message(world, client_id, &format!("Resurrected all players within a {radius} unit radius."));
+        return;
+    }
     let target = current_target(world, object_id)
         .filter(|oid| world.objects.has_component::<Player>(oid))
         .unwrap_or(object_id);
-    if world.objects.get_component::<Vitals>(&target).is_some_and(|v| v.dead) {
-        super::death::do_revive(world, target);
+    res_creature(world, target);
+}
+
+/// `AdminRes`'s `//res_monster [radius]` — revive the targeted NPC, or every
+/// non-player creature within `radius`.
+pub(super) fn admin_res_monster(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    if let Some(radius) = args.first().and_then(|s| s.parse::<i32>().ok()) {
+        for oid in super::creatures_in_range(world, object_id, radius, false, true) {
+            res_creature(world, oid);
+        }
+        send_message(world, client_id, &format!("Resurrected all non-players within a {radius} unit radius."));
+        return;
     }
-    full_restore(world, target);
+    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Npc>(oid)) else {
+        send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
+        return;
+    };
+    res_creature(world, target);
+}
+
+/// Java `AdminRes.doResurrect` — revive one dead creature. For a player: revive
+/// + restore vitals (Java restores 100% of lost death-exp). For an NPC corpse:
+/// cancel its pending decay (via the `!dead` guard) and revive it in place with
+/// a `Revive` broadcast and refilled HP.
+fn res_creature(world: &mut World, target: i32) {
+    if !world.objects.get_component::<Vitals>(&target).is_some_and(|v| v.dead) {
+        return;
+    }
+    if world.objects.has_component::<Player>(&target) {
+        super::death::do_revive(world, target);
+        full_restore(world, target);
+    } else if world.objects.has_component::<Npc>(&target) {
+        if let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&target).map(|r| r.0) {
+            let max_hp = {
+                let Some(v) = world.objects.get_component_mut::<Vitals>(&target) else { return };
+                v.dead = false;
+                v.cur_hp = v.max_hp as f64;
+                v.max_hp
+            };
+            super::helpers::broadcast_near_region(world, region, &server_packets::revive(target));
+            super::helpers::broadcast_near_region(
+                world,
+                region,
+                &server_packets::status_update(target, &[(sut::MAX_HP, max_hp), (sut::CUR_HP, max_hp)]),
+            );
+        }
+    }
 }
 
 /// Set a player's HP/MP/CP to full (clearing death) and push the resulting
@@ -103,16 +163,56 @@ pub(super) fn set_vital(world: &mut World, client_id: u32, object_id: i32, vital
     super::party::notify_party_vitals(world, target);
 }
 
-/// `AdminKill` (first slice): kill the current target (player or NPC) with the
-/// GM as the killer. The `<name>` / radius forms are TODO (G13.B breadth).
-pub(super) fn admin_kill(world: &mut World, client_id: u32, object_id: i32) {
+/// `AdminKill`'s `//kill [name|radius]` — kill the current target (player or
+/// NPC), the named online player, or (numeric arg) every creature in radius. The
+/// `monster` flavour (`//kill_monster`) restricts the radius/target to
+/// non-players.
+pub(super) fn admin_kill(world: &mut World, client_id: u32, object_id: i32, args: &[&str], monster: bool) {
+    if let Some(arg) = args.first() {
+        // `//kill <name>` — a named online player (not for `//kill_monster`).
+        if !monster {
+            if let Some(named) = find_online_player(world, arg) {
+                // `//kill <name> <radius>` kills players around that player.
+                if let Some(radius) = args.get(1).and_then(|s| s.parse::<i32>().ok()) {
+                    for oid in super::creatures_in_range(world, named, radius, true, false) {
+                        kill_creature(world, oid, object_id);
+                    }
+                    send_message(world, client_id, &format!("Killed all characters within a {radius} unit radius."));
+                    return;
+                }
+                kill_creature(world, named, object_id);
+                return;
+            }
+        }
+        let Some(radius) = arg.parse::<i32>().ok() else {
+            send_message(world, client_id, if monster { "Usage: //kill_monster <radius>" } else { "Usage: //kill <player_name | radius>" });
+            return;
+        };
+        for oid in super::creatures_in_range(world, object_id, radius, !monster, true) {
+            kill_creature(world, oid, object_id);
+        }
+        send_message(world, client_id, &format!("Killed all characters within a {radius} unit radius."));
+        return;
+    }
     let Some(target) = current_target(world, object_id) else {
-        send_message(world, client_id, "Select a target first.");
+        send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
         return;
     };
+    if monster && world.objects.has_component::<Player>(&target) {
+        send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
+        return;
+    }
+    kill_creature(world, target, object_id);
+}
+
+/// Java `AdminKill.kill` — deal lethal damage. Players lose their effects first
+/// (unless a GM); we route straight through the death path (`reduceCurrentHp`
+/// with a huge value in Java), which the admin invul flag on the direct-kill
+/// path does not block.
+fn kill_creature(world: &mut World, target: i32, killer_oid: i32) {
     if world.objects.has_component::<Player>(&target) {
-        super::death::player_do_die(world, target, object_id);
-    } else if world.objects.has_component::<crate::model::npc::Npc>(&target) {
-        super::death::npc_do_die(world, target, object_id);
+        super::death::player_do_die(world, target, killer_oid);
+    } else if world.objects.has_component::<Npc>(&target) {
+        super::death::npc_do_die(world, target, killer_oid);
     }
 }

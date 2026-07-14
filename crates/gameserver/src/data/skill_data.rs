@@ -78,6 +78,12 @@ impl SkillData {
         self.skills.get(&(id, level))
     }
 
+    /// Java `SkillData.getMaxLevel(id)` — the highest loaded level for a skill
+    /// id (0 if the id is unknown). Used by `//cast` when no level is given.
+    pub fn max_level(&self, id: i32) -> i32 {
+        self.skills.keys().filter(|(sid, _)| *sid == id).map(|(_, lvl)| *lvl).max().unwrap_or(0)
+    }
+
     #[doc(hidden)]
     pub fn empty() -> Self {
         Self { skills: HashMap::new() }

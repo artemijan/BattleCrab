@@ -34,7 +34,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G10 Social systems                                          | ✅ vertical slice (chat, party, friends — clans/mail/BBS deferred) |
 | Game  | G11 Scripting engine + quests (+ clans via bypass)          | ✅ vertical slice (bypass routing, quest engine, Q00258/Q00320, clan creation — plan: [PLAN_G11_QUESTS_CLANS.md](PLAN_G11_QUESTS_CLANS.md)) |
 | Game  | G12 Static world + script/content breadth                   | ✅ vertical slice (zones peace/water/no-restart, all 1180 doors + geo collision, static objects, Link/Buy bypasses, +10 quests with on_attack/on_spawn hooks, OrcChange1, TeleportWithCharm — plan: [PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md](PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md)) |
-| Game  | G13 Admin / GM command system                               | 🚧 G13.A framework done (access levels, `//command` + `admin_` dispatch, gating, confirm round-trip, name colors); G13.B handlers in progress + **G13.B-login done** (GM startup state, hero aura, `//admin` menu) — plans: [PLAN_G13_ADMIN.md](PLAN_G13_ADMIN.md), [PLAN_G13_B_LOGIN.md](PLAN_G13_B_LOGIN.md) |
+| Game  | G13 Admin / GM command system                               | 🚧 G13.A framework done; **G13.B ~220 portable handlers landed** (B1–B7: character/skill/item/spawn/movement/GM-util/world/vitality + geo queries + `//admin` menu); deferred: mounts/transforms (B9), mob-group AI + geo-editor (B8), and subsystem-blocked C-group — plans: [PLAN_G13_ADMIN.md](PLAN_G13_ADMIN.md), [PLAN_G13_B_LOGIN.md](PLAN_G13_B_LOGIN.md) |
 | Game  | G13.9 TODO parity sweep                                     | ✅ UserInfo weapon-enchant + party/clan relation; skill-acquire SMs; restoration enchant roll; stat-cap/run-speed config plumbing; skill-cooldown persistence (`character_skills_save`) — plan: [PLAN_G13_9_TODO_SWEEP.md](PLAN_G13_9_TODO_SWEEP.md) |
 | Game  | G14 Long tail & parity sweep                                | ⏳ |
 
@@ -1101,45 +1101,64 @@ command bodies (G13.B) are next.
 - **Confirm round-trip**: `ConfirmDlg` (0xF3, distinct wire format) + a pending
   command on the `InGame` session + `DlgAnswer` (0xC6); `confirmDlg="true"`
   commands prompt and only run on "yes".
-- **Commands (G13.B, in progress)** — each drives live game state through the
-  existing systems, no new bypasses:
-  - Vitals/combat: `//heal`, `//res`, `//kill`.
-  - Movement: `//teleport` (+`move_to`/`tele`/`instant_move`), `//recall`,
-    `//teleto` (+`teleportto`/`teleport_to_character`), `//gmspeed`.
-  - Items: `//create_item`, `//give_item_target`, `//give_item_to_all`.
-  - Progression: `//add_exp_sp`, `//add_level`, `//set_level`.
-  - Spawns: `//spawn` (runtime NPC spawn at the GM), `//delete`.
-  - Combat state: `//invul`/`//undying` (+`setinvul`/`setundying`), `//hide`.
-  - Skills/buffs: `//add_skill`, `//remove_skill`, `//buff` (applies a skill's
-    effects via the cast pipeline), `//getbuffs`, `//stopbuff`,
-    `//stopallbuffs` (clear-buffs path, reuses buff-expiry).
-  - Enchant: 15 per-slot `//set*` commands (weapon/armor/jewelry).
-  - EditChar: `//setreputation`, `//nokarma`, `//setfame`, `//setpk`,
-    `//setpvp`, `//settitle`, `//setcolor`/`//settcolor`, `//setsex`,
-    `//set_hp`/`//set_mp`/`//set_cp`, `//setclass` (recompute + class skills).
-  - GM/session: `//serverinfo`, `//gmchat`, `//announce`, `//target`,
-    `//changelvl` (access + persist), `//gm` (session GM-off), `//kick`,
-    `//character_disconnect`.
-  - AdminEffects (broadcast subset): `//social` (gesture on self/target/named
-    player/radius, with Java's action-id range gating), `//effect` /
-    `//npc_use_skill` (cosmetic `MagicSkillUse`), `//earthquake`,
-    `//atmosphere` (`sky day|night|red` → SunRise/SunSet/ExRedSky, to all
-    online), `//play_sound`. New env packets in `server_packets/effect.rs`
-    (`earthquake`/`sun_rise`/`sun_set`/`ex_red_sky`/`magic_skill_use_raw`).
-  - New infra for the above: `spawn_npc_at`/`spawn_npc_entity` (runtime spawn),
-    `death::introduce_npc`/`despawn_npc`, a `SetAccessLevel` DB command, and an
-    `AdminFlags` component (invul/undying/hidden) guarded in
-    `player_receive_damage` + `send_char_info`.
-- Tests: 5 `admin_data` units + 54 synthetic-world dispatch/handler tests
+- **Commands (G13.B, ~220 portable handlers landed)** — each drives live game
+  state through the existing systems, no new bypasses. Grouped by the handler
+  family they port (`game_loop/admin/*`):
+  - **B1 character/skill** (`character`/`editchar`/`skills`/`vitals`):
+    `//heal`, `//res`(+`//res_monster`, name/radius forms), `//kill`
+    (+`//kill_monster`, name/radius forms), `//add_exp_sp`/`//remove_exp_sp`/
+    `//add_exp_sp_to_character`, `//add_level`/`//set_level`, the 8 `//set*`
+    field setters + `//settitle`/`//setcolor`/`//setsex`/`//setclass`,
+    `//set_hp`/`//set_mp`/`//set_cp`, the 15 per-slot enchant `//set*`,
+    `//add_skill`/`//remove_skill`/`//setskill`/`//give_all_skills`(`_fs`)/
+    `//remove_all_skills`/`//reset_skills`/`//get_skills`/`//cast`(`now`)/skill
+    HTML menus, `//buff`/`//getbuffs`(`_ps`)/`//stopbuff`/`//stopallbuffs`/
+    `//areacancel`/`//removereuse`, `//invul`/`//undying`/`//hide`.
+  - **EditChar breadth**: `//current_player`/`//character_info`/
+    `//character_list`/`//show_characters`/`//find_character`/`//find_account`/
+    `//edit_character`/`//changename`/`//set_pvp_flag`/`//partyinfo`/
+    `//remove_clan_penalty`.
+  - **B2 items** (`items`): `//create_item`/`//give_item_target`/
+    `//give_item_to_all`/`//create_coin`/`//itemcreate`/`//enchant` menus,
+    `//destroy_items`/`//destroy_all_items` (+`destroyitems`/`destroyallitems`).
+  - **B3 spawns** (`spawn`): `//spawn`/`//spawn_monster`/`//spawn_once`/
+    `//spawnat`, spawn+npc HTML menus, `//list_spawns`/`//list_positions`/
+    `//top_spawn_count`/`//spawn_debug_print`/`//scan`, `//summon`, `//delete`.
+  - **B4 movement** (`teleport`): `//teleport`/`//recall`/`//teleto`,
+    directional `//go*`, `//walk`/`//sendhome`/`//teleport_character`/
+    `//recall_npc`, teleport HTML menus, `//gmspeed`/`//superhaste`/`//speed`.
+  - **B5 GM utility & comms** (`gm_util`/`moderation`/`menu`): `//serverinfo`,
+    `//gmchat`/`//announce`/`//announce_crit`/`//announce_screen`/`//worldchat`,
+    `//target`/`//changelvl`/`//gm`/`//gmliston`/`//gmlistoff`/`//diet`/
+    `//online`/`//targetsay`/`//msg`/`//kick`/`//kick_non_gm`/
+    `//character_disconnect`, `//html`/`//loadhtml`/`//showdoors`/`//debug`/
+    `//stats`, the `//admin` menu + AdminMenu action buttons (goto/recall
+    char/party/clan, kick/kill menu).
+  - **B6 world** (`world_cmds`): `//open`/`//close`/`//openall`/`//closeall`,
+    `//zones`/`//zone_check`, `//buy`/`//gmshop`, `//clan_info`, and the
+    read-only geo queries `//geo_pos`/`//geo_spawn_pos`/`//geo_can_move`/
+    `//geo_can_see`.
+  - **B7 player-vars** (`character`): `//set_vitality`/`//full_vitality`/
+    `//empty_vitality`/`//get_vitality`.
+  - **AdminEffects (broadcast subset)**: `//social`, `//effect`/
+    `//npc_use_skill`, `//earthquake`, `//atmosphere`, `//play_sound`.
+  - New infra: `remove_exp_and_sp`, an NPC-decay `!dead` revive guard
+    (`//res_monster`), `creatures_in_range` (radius commands),
+    `SkillData::max_level`, plus the earlier `spawn_npc_at`, `SetAccessLevel`
+    DB command, and `AdminFlags`.
+- Tests: 5 `admin_data` units + 71 synthetic-world dispatch/handler tests
   (gating, confirm round-trip, colors, and one+ per handler group).
-- **Still to port in G13.B**: the rest of `//editchar` (setnoble, find/info/
-  summon/pet subcommands), the AdminEffects **abnormal-visual-effect** subset
-  (`//invis`/`//vis`/`//para`/`//bighead`/…, `//setteam`/`//clearteams`,
-  `//settargetable`, `//playmovie`, `//event_trigger`, `//set_displayeffect` —
-  all blocked on a per-creature AVE-list / Team / targetable runtime state this
-  server does not model yet), the `//admin` HTML menu, and the G12-world
-  commands (`//zone`, `//doors`). **G13.C** (sieges/olympiad/instances/events/…)
-  stays gated-but-bodiless.
+- **Deferred (own subsystem work, not handler bodies)**: **B9 mounts +
+  transforms** — `AdminRide`/`AdminTransform` need a Ride packet + MountType +
+  UserInfo/CharInfo mount serialization and a transform runtime with
+  ChangeTransform + stat recalc (both touch the byte-verified UserInfo/CharInfo;
+  `//transform_menu` HTML is in). **B8** — `AdminMobGroup` (controllable-mob
+  group AI) and the `AdminGeodata` *editor/grid/save* commands. Also blocked:
+  clan-skill grants (no clan-skill system), `AdminFence` (no spawnable fence),
+  the AdminEffects **abnormal-visual-effect / team / targetable** subset,
+  `//setnoble`/`//rec`/premium/prime/pc-cafe (fields not modelled), and the
+  IP/dualbox tools (no per-client IP). **G13.C** (sieges/olympiad/instances/
+  events/petitions/punishment/…) stays gated-but-bodiless.
 
 ---
 

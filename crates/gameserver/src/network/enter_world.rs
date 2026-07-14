@@ -181,7 +181,7 @@ pub fn henna_info() -> Vec<u8> {
 /// `EtcStatusUpdate` (0xF9). Charges/weight/death-penalty/souls are still 0
 /// (not modeled yet); the weapon/armor grade-penalty bytes carry the levels
 /// computed by `refresh_expertise_penalty`.
-pub fn etc_status_update(weapon_grade_penalty: i32, armor_grade_penalty: i32) -> Vec<u8> {
+pub fn etc_status_update(weapon_grade_penalty: i32, armor_grade_penalty: i32, message_refusal: bool) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0xF9);
     w.write_u8(0); // charges
@@ -190,7 +190,10 @@ pub fn etc_status_update(weapon_grade_penalty: i32, armor_grade_penalty: i32) ->
     w.write_u8(armor_grade_penalty as u8); // armor grade penalty [1-4]
     w.write_u8(0); // death penalty
     w.write_u8(0); // charged souls
-    w.write_u8(0); // mask
+    // Mask (Java `EtcStatusUpdate._mask`): bit 0x01 = message-refusal / silence
+    // / chat-ban, 0x02 = danger area, 0x04 = charm of courage. Only silence is
+    // modeled; this is what draws the chat-block icon.
+    w.write_u8(if message_refusal { 1 } else { 0 });
     w.into_bytes()
 }
 

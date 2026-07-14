@@ -11,8 +11,31 @@ use crate::data::GameData;
 use crate::enums::UserInfoType;
 use crate::model::inventory::PaperdollSlot;
 use crate::network::masks::build_mask;
+use crate::network::server_packets::opcodes;
 
 const OPCODE_USER_INFO: u8 = 0x32;
+
+/// `AbnormalVisualEffect.STEALTH.getClientId()` — the translucent GM-invisible
+/// glow the client renders on the character.
+const STEALTH_CLIENT_ID: i16 = 21;
+
+/// Port of `serverpackets/ExUserInfoAbnormalVisualEffect`. The GM-invisibility
+/// STEALTH effect is the only abnormal visual we model, so the effect list is
+/// `[STEALTH]` when invisible and empty otherwise (Java appends STEALTH to the
+/// real effect set whenever `isInvisible()`). Sent to the GM's own client so
+/// the invisible state is actually shown on the character.
+pub fn ex_user_info_abnormal_visual_effect(object_id: i32, invisible: bool) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_USER_INFO_ABNORMAL_VISUAL_EFFECT);
+    w.write_i32(object_id);
+    w.write_i32(0); // transformation id
+    w.write_i32(if invisible { 1 } else { 0 }); // effect count
+    if invisible {
+        w.write_i16(STEALTH_CLIENT_ID);
+    }
+    w.into_bytes()
+}
 
 pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::config::CharacterConfig, relation: i32) -> Vec<u8> {
     let crate::model::PlayerView { p, pos, vitals, pvitals, base, speeds, collision, combat, inventory, .. } = v;
@@ -49,7 +72,7 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
     // BASIC_INFO (+ name*2)
     w.write_i16((UserInfoType::BasicInfo.block_length() + name_units * 2) as i16);
     w.write_sized_string(&p.name);
-    w.write_u8(0); // isGM
+    w.write_u8(p.is_gm(data) as u8); // isGM — enables the client's `//command` bar
     w.write_u8(p.race as u8);
     w.write_u8(p.is_female as u8);
     w.write_i32(p.base_class_id); // root class id
