@@ -637,7 +637,7 @@ impl<'w> QuestCtx<'w> {
 /// `Player.addItem("Quest", …)` + `sendItemGetMessage`: SM 52/53/54 ("You
 /// have earned …") + `InventoryUpdate`, and an `ExQuestItemList` refresh
 /// when the item lives in the quest tab.
-fn give_item_with_earned_message(world: &mut World, client_id: u32, player: i32, item_id: i32, count: i64) {
+pub(crate) fn give_item_with_earned_message(world: &mut World, client_id: u32, player: i32, item_id: i32, count: i64) {
     let Some(changed_oids) = super::items::add_inventory_item(world, player, item_id, count) else {
         warn!("quest give_items: object-id pool exhausted, dropping {item_id}×{count}");
         return;

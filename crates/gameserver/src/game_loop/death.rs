@@ -881,7 +881,7 @@ pub(crate) fn handle_appearing(world: &mut World, client_id: u32) {
 
 /// `Player.doRevive`: restore the configured percentages (`RespawnRestoreHP`
 /// = 65% on the stock config) and broadcast `Revive`.
-fn do_revive(world: &mut World, player_oid: i32) {
+pub(crate) fn do_revive(world: &mut World, player_oid: i32) {
     {
         let Some((mut p, mut vitals, mut pvitals)) = world
             .objects

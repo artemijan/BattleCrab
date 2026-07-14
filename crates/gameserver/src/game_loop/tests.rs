@@ -7848,3 +7848,157 @@ fn admin_kill_without_target_warns() {
     on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("kill")].concat());
     assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "one 'select a target' line");
 }
+
+/// Build a `//command` (SendBypassBuildCmd) packet from a full command line.
+fn build_admin(command_line: &str) -> Vec<u8> {
+    [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body(command_line)].concat()
+}
+
+/// `//res` revives a dead targeted player and fully restores them.
+#[test]
+fn admin_res_revives_and_restores_target() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7101, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 7102, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&7102) {
+        v.cur_hp = 0.0;
+        v.dead = true;
+    }
+    world.objects.add_components(&7101, crate::model::components::TargetRef(Some(7102)));
+    on_packet(&mut world, 1, build_admin("res"));
+
+    let v = pvit(&world, 7102);
+    assert!(!v.dead, "victim revived");
+    assert_eq!(v.cur_hp, v.max_hp as f64, "victim fully restored");
+}
+
+/// `//gmspeed N` sets the move multiplier to `1 + N` (0 resets) and rebroadcasts
+/// UserInfo.
+#[test]
+fn admin_gmspeed_sets_move_multiplier() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7103, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("gmspeed 3"));
+    assert_eq!(
+        world.objects.get_component::<crate::model::components::Speeds>(&7103).unwrap().move_multiplier,
+        4.0,
+        "1 + boost"
+    );
+    assert!(drain(&mut gm_rx).iter().any(|p| p[0] == 0x32), "UserInfo (0x32) rebroadcast");
+
+    on_packet(&mut world, 1, build_admin("gmspeed 0"));
+    assert_eq!(
+        world.objects.get_component::<crate::model::components::Speeds>(&7103).unwrap().move_multiplier,
+        1.0,
+        "boost 0 resets"
+    );
+}
+
+/// `//gmspeed` out of range answers the usage line and changes nothing.
+#[test]
+fn admin_gmspeed_rejects_out_of_range() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7107, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("gmspeed 99"));
+    assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "usage line");
+    assert_eq!(
+        world.objects.get_component::<crate::model::components::Speeds>(&7107).unwrap().move_multiplier,
+        1.0,
+        "unchanged"
+    );
+}
+
+/// `//teleport x y z` moves the GM to those coordinates and broadcasts a
+/// TeleportToLocation.
+#[test]
+fn admin_teleport_moves_gm_to_coords() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7104, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("teleport 100 200 300"));
+    let pos = *world.objects.get_component::<crate::model::components::Position>(&7104).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (100, 200, 300), "moved to coords");
+    assert!(
+        drain(&mut gm_rx).iter().any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION),
+        "TeleportToLocation broadcast"
+    );
+}
+
+/// `//recall <name>` brings the named online player to the GM's location.
+#[test]
+fn admin_recall_brings_player_to_gm() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7105, 100);
+    let mut other_rx = ingame_player_access(&mut world, 2, 7106, 0);
+    drain(&mut gm_rx);
+    drain(&mut other_rx);
+
+    if let Some(p) = world.objects.get_component_mut::<crate::model::components::Position>(&7105) {
+        p.x = 500;
+        p.y = 600;
+        p.z = 700;
+    }
+    on_packet(&mut world, 1, build_admin("recall P7106"));
+    let pos = *world.objects.get_component::<crate::model::components::Position>(&7106).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (500, 600, 700), "recalled to GM position");
+}
+
+/// `//create_item 57 1000` puts 1000 adena in the GM's inventory.
+#[test]
+fn admin_create_item_adds_to_gm_inventory() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7201, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("create_item 57 1000"));
+    assert_eq!(
+        world.objects.get_component::<crate::model::inventory::Inventory>(&7201).unwrap().count_of(57),
+        1000,
+        "1000 adena created"
+    );
+}
+
+/// `//create_item` with a bogus id answers "does not exist" and adds nothing.
+#[test]
+fn admin_create_item_rejects_unknown_id() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7204, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("create_item 99999999 5"));
+    assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "does-not-exist line");
+}
+
+/// `//kick <name>` persists + despawns the target and drops their session.
+#[test]
+fn admin_kick_disconnects_target() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7202, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 7203, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+
+    // admin_kick carries confirmDlg="true", so it prompts first; answer "yes".
+    on_packet(&mut world, 1, build_admin("kick P7203"));
+    assert!(world.clients.contains_key(&2), "not kicked until confirmed");
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::DLG_ANSWER], dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0)].concat(),
+    );
+    assert!(!world.clients.contains_key(&2), "victim session removed after confirm");
+    assert!(world.objects.get_component::<Player>(&7203).is_none(), "victim despawned");
+}

@@ -12,7 +12,7 @@
 
 use tracing::{info, warn};
 
-use crate::model::components::{PlayerVitals, TargetRef, Vitals};
+use crate::model::components::{PlayerVitals, Position, Speeds, TargetRef, Vitals};
 use crate::model::Player;
 use crate::network::server_packets::{self, sm_ids, status_update_type as sut};
 use crate::session::ClientSession;
@@ -101,11 +101,33 @@ pub(crate) fn handle_dlg_answer(world: &mut World, client_id: u32, answer: crate
 
 /// Route a resolved + authorized command to its body. Returns `false` when the
 /// command has no body yet (gated but unported — G13.C).
-fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, _full: &str) -> bool {
+fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, full: &str) -> bool {
+    // Arguments = the whitespace-delimited tokens after the command word.
+    let args: Vec<&str> = full.split_whitespace().skip(1).collect();
     match command {
         "admin_serverinfo" => admin_serverinfo(world, client_id),
         "admin_heal" => admin_heal(world, object_id),
         "admin_kill" => admin_kill(world, client_id, object_id),
+        "admin_res" => admin_res(world, object_id),
+        "admin_gmspeed" => admin_gmspeed(world, client_id, object_id, &args),
+        // Self-teleport to explicit coordinates.
+        "admin_teleport" | "admin_move_to" | "admin_tele" | "admin_instant_move" => {
+            admin_teleport_coords(world, client_id, object_id, &args)
+        }
+        // Bring a player to the GM.
+        "admin_recall" => admin_recall(world, client_id, object_id, &args),
+        // Send the GM to the current target.
+        "admin_teleto" | "admin_teleportto" | "admin_teleport_to_character" => {
+            admin_teleto(world, client_id, object_id)
+        }
+        // Create an item on the GM.
+        "admin_create_item" => admin_create_item(world, client_id, object_id, &args),
+        // Give an item to the targeted player.
+        "admin_give_item_target" => admin_give_item_target(world, client_id, object_id, &args),
+        // Give an item to every online player.
+        "admin_give_item_to_all" => admin_give_item_to_all(world, client_id, &args),
+        // Disconnect a player (named or targeted).
+        "admin_kick" => admin_kick(world, client_id, object_id, &args),
         _ => return false,
     }
     true
@@ -123,7 +145,24 @@ fn admin_heal(world: &mut World, object_id: i32) {
     let target = current_target(world, object_id)
         .filter(|oid| world.objects.has_component::<Player>(oid))
         .unwrap_or(object_id);
-    // Mutate under a scoped borrow so the vitals guards drop before the send.
+    full_restore(world, target);
+}
+
+/// `AdminRes` (first slice): revive the targeted player (or self) and fully
+/// restore them. `admin_res_monster` (NPC) is TODO.
+fn admin_res(world: &mut World, object_id: i32) {
+    let target = current_target(world, object_id)
+        .filter(|oid| world.objects.has_component::<Player>(oid))
+        .unwrap_or(object_id);
+    if world.objects.get_component::<Vitals>(&target).is_some_and(|v| v.dead) {
+        super::death::do_revive(world, target);
+    }
+    full_restore(world, target);
+}
+
+/// Set a player's HP/MP/CP to full (clearing death) and push the resulting
+/// `StatusUpdate` to that player + their party. Shared by `//heal` and `//res`.
+fn full_restore(world: &mut World, target: i32) {
     let updates = {
         let Some((mut vitals, mut pvitals)) =
             world.objects.get_many_mut::<(&mut Vitals, &mut PlayerVitals)>(&target)
@@ -143,6 +182,163 @@ fn admin_heal(world: &mut World, object_id: i32) {
         }
     }
     super::party::notify_party_vitals(world, target);
+}
+
+/// `AdminGmSpeed` — scale the target player's (or self's) movement speed. Java
+/// adds `baseSpeed * boost` as a fixed value to each speed stat, i.e. total =
+/// `baseSpeed * (1 + boost)`; the Rust move model already carries a
+/// `move_multiplier`, so `1 + boost` is the exact equivalent (boost 0 resets).
+/// Range 0..=10, matching Java's custom clamp. NPC targets are TODO.
+fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(boost) = args.first().and_then(|s| s.parse::<f64>().ok()).filter(|b| (0.0..=10.0).contains(b))
+    else {
+        send_message(world, client_id, "//gmspeed [0...10]");
+        return;
+    };
+    let target = current_target(world, object_id)
+        .filter(|oid| world.objects.has_component::<Player>(oid))
+        .unwrap_or(object_id);
+    if let Some(speeds) = world.objects.get_component_mut::<Speeds>(&target) {
+        speeds.move_multiplier = 1.0 + boost;
+    }
+    super::party::broadcast_user_info(world, target);
+}
+
+/// `AdminTeleport`'s coordinate form (`//teleport x y z`) — send the GM to an
+/// explicit location. The menu/target-teleport variants are TODO.
+fn admin_teleport_coords(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let coords = (
+        args.first().and_then(|s| s.parse::<i32>().ok()),
+        args.get(1).and_then(|s| s.parse::<i32>().ok()),
+        args.get(2).and_then(|s| s.parse::<i32>().ok()),
+    );
+    let (Some(x), Some(y), Some(z)) = coords else {
+        send_message(world, client_id, "Usage: //teleport <x> <y> <z>");
+        return;
+    };
+    super::death::teleport_player(world, object_id, x, y, z);
+}
+
+/// `AdminTeleport`'s `//recall <name>` — bring an online player to the GM's
+/// location (or, with no name, the currently targeted player).
+fn admin_recall(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let target = match args.first() {
+        Some(name) => find_online_player(world, name),
+        None => current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid)),
+    };
+    let Some(target) = target else {
+        send_message(world, client_id, "Usage: //recall <player name>");
+        return;
+    };
+    let Some(&pos) = world.objects.get_component::<Position>(&object_id) else { return };
+    super::death::teleport_player(world, target, pos.x, pos.y, pos.z);
+}
+
+/// `AdminTeleport`'s `//teleto` — send the GM to the current target's position.
+fn admin_teleto(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(target) = current_target(world, object_id) else {
+        send_message(world, client_id, "Select a target first.");
+        return;
+    };
+    let Some(&pos) = world.objects.get_component::<Position>(&target) else { return };
+    super::death::teleport_player(world, object_id, pos.x, pos.y, pos.z);
+}
+
+/// `AdminCreateItem`'s `//create_item <id> [count]` — create an item on the GM.
+fn admin_create_item(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let (Some(item_id), count) = parse_item_args(args) else {
+        send_message(world, client_id, "Usage: //create_item <id> [count]");
+        return;
+    };
+    if world.data.item_data.get(item_id).is_none() {
+        send_message(world, client_id, &format!("Item id {item_id} does not exist."));
+        return;
+    }
+    super::quests::give_item_with_earned_message(world, client_id, object_id, item_id, count);
+}
+
+/// `AdminCreateItem`'s `//give_item_target <id> [count]` — give to the targeted
+/// player (or the GM if none is selected).
+fn admin_give_item_target(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let (Some(item_id), count) = parse_item_args(args) else {
+        send_message(world, client_id, "Usage: //give_item_target <id> [count]");
+        return;
+    };
+    if world.data.item_data.get(item_id).is_none() {
+        send_message(world, client_id, &format!("Item id {item_id} does not exist."));
+        return;
+    }
+    let target = current_target(world, object_id)
+        .filter(|oid| world.objects.has_component::<Player>(oid))
+        .unwrap_or(object_id);
+    let Some(tcid) = super::helpers::client_for_player(world, target) else { return };
+    super::quests::give_item_with_earned_message(world, tcid, target, item_id, count);
+}
+
+/// `AdminCreateItem`'s `//give_item_to_all <id> [count]` — give to every online
+/// player.
+fn admin_give_item_to_all(world: &mut World, client_id: u32, args: &[&str]) {
+    let (Some(item_id), count) = parse_item_args(args) else {
+        send_message(world, client_id, "Usage: //give_item_to_all <id> [count]");
+        return;
+    };
+    if world.data.item_data.get(item_id).is_none() {
+        send_message(world, client_id, &format!("Item id {item_id} does not exist."));
+        return;
+    }
+    let recipients: Vec<(u32, i32)> = world
+        .clients
+        .iter()
+        .filter_map(|(&cid, cs)| match cs {
+            ClientSession::InGame(s) => Some((cid, s.player_object_id())),
+            _ => None,
+        })
+        .collect();
+    let count_given = recipients.len();
+    for (cid, oid) in recipients {
+        super::quests::give_item_with_earned_message(world, cid, oid, item_id, count);
+    }
+    send_message(world, client_id, &format!("Gave item {item_id} to {count_given} player(s)."));
+}
+
+/// Parse `<id> [count]` — item id (required) and count (default 1, min 1).
+fn parse_item_args(args: &[&str]) -> (Option<i32>, i64) {
+    let item_id = args.first().and_then(|s| s.parse::<i32>().ok());
+    let count = args.get(1).and_then(|s| s.parse::<i64>().ok()).unwrap_or(1).max(1);
+    (item_id, count)
+}
+
+/// `AdminKick`'s `//kick <name>` (or the targeted player) — the clean logout
+/// teardown: persist, despawn, and drop the session (Java `Disconnection.of`).
+fn admin_kick(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let target = match args.first() {
+        Some(name) => find_online_player(world, name),
+        None => current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid)),
+    };
+    let Some(target) = target else {
+        send_message(world, client_id, "Usage: //kick <player name>");
+        return;
+    };
+    let Some(tcid) = super::helpers::client_for_player(world, target) else { return };
+    if let Some(ClientSession::InGame(session)) = world.clients.remove(&tcid) {
+        super::net::store_and_remove_player(world, target);
+        session.send(server_packets::leave_world());
+    }
+}
+
+/// `World.getPlayer(name)` — case-insensitive scan over in-game players.
+fn find_online_player(world: &World, name: &str) -> Option<i32> {
+    world.clients.values().find_map(|cs| match cs {
+        ClientSession::InGame(s) => {
+            let oid = s.player_object_id();
+            world
+                .objects
+                .get_component::<Player>(&oid)
+                .filter(|p| p.name.eq_ignore_ascii_case(name))
+                .map(|_| oid)
+        }
+        _ => None,
+    })
 }
 
 /// `AdminKill` (first slice): kill the current target (player or NPC) with the
