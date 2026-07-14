@@ -76,6 +76,24 @@ pub struct CharacterConfig {
     /// is otherwise memory-only until logout/shutdown; this bounds how much a
     /// crash can lose. Expressed in 100 ms ticks (`minutes * 600`).
     pub character_data_store_interval_ticks: u64,
+    /// Stat finalizer ceilings + the flat `RunSpeedBoost` (`MaxPAtk`,
+    /// `MaxMAtk`, `MaxPCritRate`, `MaxMCritRate`, `MaxPAtkSpeed`,
+    /// `MaxMAtkSpeed`, `MaxEvasion`, `RunSpeedBoost`). Consumed at boot into
+    /// `GameData::combat_caps`, which the stat engine clamps/offsets with.
+    /// Defaults are this dist's Character.ini values.
+    pub run_spd_boost: f64,
+    pub max_p_atk: f64,
+    pub max_m_atk: f64,
+    pub max_p_crit_rate: f64,
+    pub max_m_crit_rate: f64,
+    pub max_p_atk_speed: f64,
+    pub max_m_atk_speed: f64,
+    pub max_evasion: f64,
+    /// `StoreSkillCooltime`: persist skill reuse cooldowns to
+    /// `character_skills_save` on flush and restore them on login (Java
+    /// `Player.storeEffect`/`restoreEffects`, skill-reuse half; buff restore is
+    /// still deferred). True on this dist.
+    pub store_skill_cooltime: bool,
 }
 
 impl Default for CharacterConfig {
@@ -107,6 +125,15 @@ impl Default for CharacterConfig {
             decrease_skill_level: true,
             strict_delevel_skill_removal: true,
             character_data_store_interval_ticks: 15 * 600,
+            run_spd_boost: 35.0,
+            max_p_atk: 999_999.0,
+            max_m_atk: 999_999.0,
+            max_p_crit_rate: 500.0,
+            max_m_crit_rate: 200.0,
+            max_p_atk_speed: 1500.0,
+            max_m_atk_speed: 1999.0,
+            max_evasion: 250.0,
+            store_skill_cooltime: true,
         }
     }
 }
@@ -156,6 +183,15 @@ impl CharacterConfig {
             decrease_skill_level: p.get_bool("DecreaseSkillOnDelevel", d.decrease_skill_level),
             strict_delevel_skill_removal: p.get_bool("StrictDelevelSkillRemoval", d.strict_delevel_skill_removal),
             character_data_store_interval_ticks: general.get_int("CharacterDataStoreInterval", 15).max(1) as u64 * 600,
+            run_spd_boost: p.get_float("RunSpeedBoost", 35.0) as f64,
+            max_p_atk: p.get_float("MaxPAtk", 999_999.0) as f64,
+            max_m_atk: p.get_float("MaxMAtk", 999_999.0) as f64,
+            max_p_crit_rate: p.get_float("MaxPCritRate", 500.0) as f64,
+            max_m_crit_rate: p.get_float("MaxMCritRate", 200.0) as f64,
+            max_p_atk_speed: p.get_float("MaxPAtkSpeed", 1500.0) as f64,
+            max_m_atk_speed: p.get_float("MaxMAtkSpeed", 1999.0) as f64,
+            max_evasion: p.get_float("MaxEvasion", 250.0) as f64,
+            store_skill_cooltime: p.get_bool("StoreSkillCooltime", d.store_skill_cooltime),
         }
     }
 }

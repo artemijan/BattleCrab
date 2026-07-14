@@ -252,10 +252,36 @@ pub struct PlayerData {
     pub macros: Macros,
     pub friends: components::Friends,
     pub quests: components::Quests,
+    /// Live skill-reuse cooldowns. Empty out of `from_char`; the real select
+    /// path fills it from the DB via [`PlayerData::restore_reuses`] (buffs are
+    /// not restored — a later milestone).
+    pub reuses: Reuses,
 }
 
 
 impl PlayerData {
+    /// Java `restoreEffects` (skill-reuse half): rebuild the live cooldown map
+    /// from the `character_skills_save` rows the DB loaded. Each row's absolute
+    /// `systime_ms` becomes an `until_tick` off the current game tick, using the
+    /// real remaining time (`systime - now`), so a cooldown decays across the
+    /// offline gap. Rows already expired at restore are skipped.
+    pub fn restore_reuses(&mut self, c: &CharData, now_tick: u64, now_wallclock_ms: i64) {
+        for r in &c.skill_reuses {
+            let remaining_ms = r.systime_ms - now_wallclock_ms;
+            if remaining_ms <= 0 {
+                continue;
+            }
+            self.reuses.0.insert(
+                r.reuse_key,
+                SkillReuse {
+                    skill_level: r.skill_level,
+                    until_tick: now_tick + (remaining_ms as u64).div_ceil(100),
+                    total_ms: r.reuse_delay,
+                },
+            );
+        }
+    }
+
     /// Spawn into the world registry (Java `World.addObject` at EnterWorld).
     pub fn spawn_into(self, objects: &mut crate::store::EntityStore) {
         objects.spawn(
@@ -284,7 +310,7 @@ impl PlayerData {
                     ClientPos::default(),
                     self.buffs,
                     self.stat_modifiers,
-                    Reuses::default(),
+                    self.reuses,
                     components::ZoneFlags::default(),
                     components::ExpertisePenalty::default(),
                     components::PvpState::default(),
@@ -616,6 +642,9 @@ impl Player {
             macros: Macros::from_list(c.macros.clone()),
             friends: components::Friends(c.friends.clone()),
             quests: components::Quests(c.quests.clone()),
+            // Filled by the select path via `restore_reuses` (needs the game
+            // tick); empty here keeps the many test callers unchanged.
+            reuses: Reuses::default(),
         }
     }
 
@@ -675,8 +704,9 @@ impl Player {
         // replaces the naked base (`calcWeaponBaseValue`) before STR/level.
         let p_atk_base = eq.weapon_p_atk.unwrap_or(t.base_p_atk as f64);
         let m_atk_base = eq.weapon_m_atk.unwrap_or(t.base_m_atk as f64);
-        combat.p_atk = finalize(mods, Stat::PhysicalAttack, p_atk_base * str_bonus * level_mod).clamp(0.0, MAX_PATK);
-        combat.m_atk = finalize(mods, Stat::MagicalAttack, m_atk_base * (int_bonus * level_mod).powf(2.2072)).clamp(0.0, MAX_MATK);
+        let caps = &data.combat_caps;
+        combat.p_atk = finalize(mods, Stat::PhysicalAttack, p_atk_base * str_bonus * level_mod).clamp(0.0, caps.max_p_atk);
+        combat.m_atk = finalize(mods, Stat::MagicalAttack, m_atk_base * (int_bonus * level_mod).powf(2.2072)).clamp(0.0, caps.max_m_atk);
 
         // P/MDefenseFinalizer: (naked base + summed gear def − the naked defense
         // of every occupied slot) × levelMod (mDef also × MEN bonus), then the
@@ -690,15 +720,15 @@ impl Player {
         // P/MAttackSpeedFinalizer: weapon replaces base; `mul` floors at 0.7.
         let p_atk_spd_base = eq.weapon_p_atk_spd.unwrap_or(t.base_p_atk_spd as f64);
         combat.p_atk_spd = finalize_speed(mods, Stat::PhysicalAttackSpeed, p_atk_spd_base * dex_bonus)
-            .clamp(1.0, MAX_PATK_SPEED) as i32;
+            .clamp(1.0, caps.max_p_atk_speed) as i32;
         combat.m_atk_spd = finalize_speed(mods, Stat::MagicAttackSpeed, t.base_m_atk_spd as f64 * wit_bonus)
-            .clamp(1.0, MAX_MATK_SPEED) as i32;
+            .clamp(1.0, caps.max_m_atk_speed) as i32;
 
         // P/MCritRateFinalizer (in per-mille, ×10): weapon replaces base crit.
         let crit_base = eq.weapon_crit.unwrap_or(t.base_crit_rate as f64);
         let m_crit_base = eq.weapon_m_crit.unwrap_or(t.base_m_crit_rate as f64);
-        combat.crit_hit = finalize(mods, Stat::CriticalRate, crit_base * dex_bonus * 10.0).clamp(0.0, MAX_PCRIT_RATE);
-        combat.m_crit_hit = finalize(mods, Stat::MagicCriticalRate, m_crit_base * wit_bonus * 10.0).clamp(0.0, MAX_MCRIT_RATE);
+        combat.crit_hit = finalize(mods, Stat::CriticalRate, crit_base * dex_bonus * 10.0).clamp(0.0, caps.max_p_crit_rate);
+        combat.m_crit_hit = finalize(mods, Stat::MagicCriticalRate, m_crit_base * wit_bonus * 10.0).clamp(0.0, caps.max_m_crit_rate);
 
         // P/MAccuracyFinalizer, P/MEvasionRateFinalizer (high-level +N steps
         // above level 69 skipped — base classes here don't reach that high).
@@ -708,7 +738,7 @@ impl Player {
         combat.accuracy = finalize(mods, Stat::AccuracyCombat, (base.dex as f64).sqrt() * 5.0 + level + eq.accuracy) as i32;
         combat.magic_accuracy = finalize(mods, Stat::AccuracyMagic, (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_accuracy) as i32;
         combat.evasion = finalize(mods, Stat::EvasionRate, (base.dex as f64).sqrt() * 5.0 + level + eq.evasion)
-            .clamp(0.0, MAX_EVASION) as i32;
+            .clamp(0.0, caps.max_evasion) as i32;
         combat.magic_evasion = finalize(mods, Stat::MagicEvasionRate, (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_evasion) as i32;
 
         // Weapon range / damage spread replace the class template constants
@@ -717,15 +747,15 @@ impl Player {
         combat.random_dmg = eq.weapon_random_dmg.unwrap_or(10);
 
         // SpeedFinalizer: every player speed stat gets `Config.RUN_SPD_BOOST`
-        // added in `getBaseSpeed` (35 on this dist — see `RUN_SPD_BOOST`).
+        // added in `getBaseSpeed` (35 on this dist — see `CombatCaps`).
         // Buffs (Speed effect) apply through the add/mul maps like the combat
         // stats above; stored as f64 (Speeds is shared with NPCs, whose
         // templates don't take the player boost). The `as i16` in `user_info`
         // truncates for display, matching Java's `(int)` getter.
-        speeds.run_spd = finalize(mods, Stat::RunSpeed, t.base_run_spd as f64 + RUN_SPD_BOOST);
-        speeds.walk_spd = finalize(mods, Stat::WalkSpeed, t.base_walk_spd as f64 + RUN_SPD_BOOST);
-        speeds.swim_run_spd = finalize(mods, Stat::SwimRunSpeed, t.base_swim_run_spd as f64 + RUN_SPD_BOOST);
-        speeds.swim_walk_spd = finalize(mods, Stat::SwimWalkSpeed, t.base_swim_walk_spd as f64 + RUN_SPD_BOOST);
+        speeds.run_spd = finalize(mods, Stat::RunSpeed, t.base_run_spd as f64 + caps.run_spd_boost);
+        speeds.walk_spd = finalize(mods, Stat::WalkSpeed, t.base_walk_spd as f64 + caps.run_spd_boost);
+        speeds.swim_run_spd = finalize(mods, Stat::SwimRunSpeed, t.base_swim_run_spd as f64 + caps.run_spd_boost);
+        speeds.swim_walk_spd = finalize(mods, Stat::SwimWalkSpeed, t.base_swim_walk_spd as f64 + caps.run_spd_boost);
     }
 
     /// Fold a landed buff's effects into the modifier maps and recompute.
@@ -787,25 +817,6 @@ impl Player {
     }
 }
 
-/// `Character.ini` stat-cap defaults (`MaxPAtk`/`MaxPCritRate`/…). These are
-/// effectively always left at their defaults in practice; TODO: thread real
-/// `CharacterConfig` values through `World`/`GameData` if a deployment ever
-/// needs to override them (no subsystem currently plumbs that far).
-const MAX_PATK: f64 = 999_999.0;
-const MAX_MATK: f64 = 999_999.0;
-const MAX_PCRIT_RATE: f64 = 500.0;
-const MAX_MCRIT_RATE: f64 = 200.0;
-const MAX_PATK_SPEED: f64 = 1500.0;
-const MAX_MATK_SPEED: f64 = 1999.0;
-const MAX_EVASION: f64 = 250.0;
-
-/// `Character.ini` `RunSpeedBoost` — the flat move-speed bonus `SpeedFinalizer`/
-/// `getBaseSpeed` adds to every player speed stat (35 on this dist; Java's
-/// compiled default is 0). Hardcoded like the `MAX_*` caps above rather than
-/// threaded through `CharacterConfig`, which `recalculate_stats` can't see;
-/// TODO: plumb the real config value if a deployment ever overrides it.
-const RUN_SPD_BOOST: f64 = 35.0;
-
 /// `Stat.defaultValue`: `base * mul + add` from the accumulated modifier
 /// maps (1.0/0.0 when nothing has touched this stat).
 fn finalize(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
@@ -842,6 +853,7 @@ fn finalize_speed(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
 pub(crate) fn recompute_npc_stats_from_buffs(
     t: &crate::data::npc_data::NpcTemplate,
     sb: &crate::data::stat_bonus::StatBonus,
+    caps: &crate::data::CombatCaps,
     buffs: &Buffs,
     combat: &mut CombatStats,
     speeds: &mut Speeds,
@@ -853,19 +865,19 @@ pub(crate) fn recompute_npc_stats_from_buffs(
             apply_modifier(&mut mods.add, &mut mods.mul, effect);
         }
     }
-    combat.p_atk = finalize(&mods, Stat::PhysicalAttack, base.p_atk).clamp(0.0, MAX_PATK);
-    combat.m_atk = finalize(&mods, Stat::MagicalAttack, base.m_atk).clamp(0.0, MAX_MATK);
+    combat.p_atk = finalize(&mods, Stat::PhysicalAttack, base.p_atk).clamp(0.0, caps.max_p_atk);
+    combat.m_atk = finalize(&mods, Stat::MagicalAttack, base.m_atk).clamp(0.0, caps.max_m_atk);
     // NPCs carry no naked-base/gear split, so the defense floor is a fifth of
     // the template value (mirrors the player's `base × 0.2`).
     combat.p_def = finalize_def(&mods, Stat::PhysicalDefence, base.p_def, base.p_def * 0.2);
     combat.m_def = finalize_def(&mods, Stat::MagicalDefence, base.m_def, base.m_def * 0.2);
     combat.p_atk_spd =
-        finalize_speed(&mods, Stat::PhysicalAttackSpeed, base.p_atk_spd as f64).clamp(1.0, MAX_PATK_SPEED) as i32;
+        finalize_speed(&mods, Stat::PhysicalAttackSpeed, base.p_atk_spd as f64).clamp(1.0, caps.max_p_atk_speed) as i32;
     combat.m_atk_spd =
-        finalize_speed(&mods, Stat::MagicAttackSpeed, base.m_atk_spd as f64).clamp(1.0, MAX_MATK_SPEED) as i32;
-    combat.crit_hit = finalize(&mods, Stat::CriticalRate, base.crit_hit).clamp(0.0, MAX_PCRIT_RATE);
+        finalize_speed(&mods, Stat::MagicAttackSpeed, base.m_atk_spd as f64).clamp(1.0, caps.max_m_atk_speed) as i32;
+    combat.crit_hit = finalize(&mods, Stat::CriticalRate, base.crit_hit).clamp(0.0, caps.max_p_crit_rate);
     combat.accuracy = finalize(&mods, Stat::AccuracyCombat, base.accuracy as f64) as i32;
-    combat.evasion = finalize(&mods, Stat::EvasionRate, base.evasion as f64).clamp(0.0, MAX_EVASION) as i32;
+    combat.evasion = finalize(&mods, Stat::EvasionRate, base.evasion as f64).clamp(0.0, caps.max_evasion) as i32;
     // Range / random-damage aren't buffable here — keep the template values.
     combat.atk_range = base.atk_range;
     combat.random_dmg = base.random_dmg;

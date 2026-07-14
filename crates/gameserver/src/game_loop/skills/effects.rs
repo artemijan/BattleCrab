@@ -131,8 +131,8 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     crate::game_loop::party::notify_party_vitals(world, target_oid);
                 }
             }
-            SkillEffect::GiveItem { item_id, item_count, item_enchant_level: _ } => {
-                give_item(world, target_oid, *item_id, *item_count);
+            SkillEffect::GiveItem { item_id, item_count, item_enchant_level } => {
+                give_item(world, target_oid, *item_id, *item_count, *item_enchant_level);
             }
             SkillEffect::GiveItemRandom { groups } => {
                 give_item_random(world, target_oid, groups);
@@ -215,7 +215,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
 /// was ported, such skills loaded with an empty effect list, so the item was
 /// still consumed (`items::use_item_skills` destroys it once any skill
 /// "lands") but granted nothing.
-fn give_item(world: &mut World, target_oid: i32, item_id: i32, item_count: i64) {
+fn give_item(world: &mut World, target_oid: i32, item_id: i32, item_count: i64, item_enchant_level: i32) {
     use server_packets::sm_ids;
 
     if item_id <= 0 || item_count <= 0 {
@@ -226,7 +226,8 @@ fn give_item(world: &mut World, target_oid: i32, item_id: i32, item_count: i64) 
         }
         return;
     }
-    grant_and_notify(world, target_oid, &[(item_id, item_count)]);
+    // Java `Restoration`: `if (_itemEnchantmentLevel > 0) setEnchantLevel(...)`.
+    grant_and_notify(world, target_oid, &[(item_id, item_count, item_enchant_level.max(0))]);
 }
 
 /// `handlers/effecthandlers/RestorationRandom.java` — one weighted roulette
@@ -255,25 +256,53 @@ fn give_item_random(world: &mut World, target_oid: i32, groups: &[RestorationGro
         }
         return;
     };
-    let grants: Vec<(i32, i64)> = items.iter().filter(|i| i.item_id > 0 && i.count > 0).map(|i| (i.item_id, i.count)).collect();
+    // Java `RestorationRandom`: roll `Rnd.get(minEnchant, maxEnchant)` (inclusive)
+    // per created item when `maxEnchant > 0`, else no enchant.
+    let grants: Vec<(i32, i64, i32)> = items
+        .iter()
+        .filter(|i| i.item_id > 0 && i.count > 0)
+        .map(|i| {
+            let enchant = if i.max_enchant > 0 {
+                i.min_enchant + world.roll(i.max_enchant - i.min_enchant + 1)
+            } else {
+                0
+            };
+            (i.item_id, i.count, enchant)
+        })
+        .collect();
     grant_and_notify(world, target_oid, &grants);
 }
 
 /// Shared grant + `InventoryUpdate` + "You have obtained…" messaging tail for
 /// `give_item`/`give_item_random` (Java: `Player.addItem` plus the
 /// `sendMessage` helper both `Restoration` variants duplicate).
-fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i32, i64)]) {
+fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i32, i64, i32)]) {
+    use crate::model::inventory::Inventory;
     use server_packets::{sm_ids, SmParam};
 
-    for &(item_id, amount) in grants {
+    for &(item_id, amount, enchant) in grants {
         let Some(changed_oids) = crate::game_loop::items::add_inventory_item(world, target_oid, item_id, amount) else {
             continue;
         };
-        let Some(inventory) = world.objects.get_component::<crate::model::inventory::Inventory>(&target_oid) else { continue };
+        // Stamp the rolled/fixed enchant onto the freshly created item(s). Only
+        // non-stackable items carry an enchant; a stackable grant returns an
+        // existing stack's oid, which must not be touched.
+        if enchant > 0 && !world.data.item_data.get(item_id).map(|t| t.is_stackable).unwrap_or(false) {
+            if let Some(inv) = world.objects.get_component_mut::<Inventory>(&target_oid) {
+                for &oid in &changed_oids {
+                    inv.set_item_enchant(oid, enchant);
+                }
+            }
+        }
+        let Some(inventory) = world.objects.get_component::<Inventory>(&target_oid) else { continue };
         if let Some(client_id) = client_for_player(world, target_oid) {
             if let Some(cs) = world.clients.get(&client_id) {
+                // Java `RestorationRandom.sendMessage`: count>1 → "obtained S2 S1";
+                // single enchanted → "obtained a +S1 S2"; else "obtained S1".
                 let sm = if amount > 1 {
                     server_packets::system_message_with(sm_ids::YOU_HAVE_OBTAINED_S2_S1, &[SmParam::ItemName(item_id), SmParam::Long(amount)])
+                } else if enchant > 0 {
+                    server_packets::system_message_with(sm_ids::YOU_HAVE_OBTAINED_A_S1_S2, &[SmParam::Int(enchant), SmParam::ItemName(item_id)])
                 } else {
                     server_packets::system_message_with(sm_ids::YOU_HAVE_OBTAINED_S1, &[SmParam::ItemName(item_id)])
                 };
@@ -387,11 +416,12 @@ fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
     };
     let Some(t) = world.data.npc_data.get(npc_id) else { return };
     let sb = &world.data.stat_bonus;
+    let caps = &world.data.combat_caps;
     if let Some((buffs, mut combat, mut speeds)) = world
         .objects
         .get_many_mut::<(&Buffs, &mut CombatStats, &mut Speeds)>(&target_oid)
     {
-        crate::model::recompute_npc_stats_from_buffs(t, sb, buffs, &mut combat, &mut speeds);
+        crate::model::recompute_npc_stats_from_buffs(t, sb, caps, buffs, &mut combat, &mut speeds);
     }
 }
 

@@ -247,7 +247,7 @@ pub(crate) fn finish_equip_change(world: &mut World, client_id: u32, object_id: 
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(crate::network::enter_world::ex_user_info_equip_slot(object_id, inventory));
         if let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) {
-            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character));
+            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, super::party::calculate_relation(world, v.p)));
         }
         cs.send(crate::network::enter_world::inventory_update(inventory, &world.data, changed));
     }

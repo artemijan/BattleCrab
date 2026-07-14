@@ -59,10 +59,9 @@ pub struct StatModifierEffect {
 }
 
 /// One entry inside a `RestorationRandom` reward group (Java
-/// `RestorationItemHolder`). `min_enchant`/`max_enchant` are carried but not
-/// yet applied when granting — parity with `ExtractableItems`'s enchant-roll
-/// gap (`game_loop::items::extract_item`'s doc comment): nothing currently
-/// loaded needs it.
+/// `RestorationItemHolder`). `min_enchant`/`max_enchant` drive the grant-time
+/// enchant roll (`game_loop::skills::effects::give_item_random`: when
+/// `max_enchant > 0`, the created item gets `Rnd.get(min_enchant, max_enchant)`).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct RestorationItem {
     pub item_id: i32,

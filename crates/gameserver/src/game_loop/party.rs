@@ -89,12 +89,36 @@ pub(crate) fn broadcast_to_party(world: &World, party_id: u32, packet: &[u8], ex
     }
 }
 
+/// Java `UserInfo.calculateRelation` — the party/clan relation bitmask the
+/// `UserInfo` RELATION block carries. Party membership comes off the
+/// `PartyRef` component (absent → not in a party), clan off the `Player`.
+/// The siege bit (`0x80`) is unported. Takes `&Player` so the clan bits are
+/// correct even before the object is registered (the enter-world burst).
+pub(crate) fn calculate_relation(world: &World, player: &Player) -> i32 {
+    let mut relation = 0;
+    if let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&player.object_id).copied() {
+        if let Some(party) = world.parties.get(&pid) {
+            relation |= 0x08; // party member
+            if party.is_leader(player.object_id) {
+                relation |= 0x10; // party leader
+            }
+        }
+    }
+    if player.clan_id > 0 {
+        relation |= 0x20; // clan member
+        if player.clan_leader {
+            relation |= 0x40; // clan leader
+        }
+    }
+    relation
+}
+
 /// `Player.broadcastUserInfo()` — fresh `UserInfo` to self, `CharInfo` to
-/// everyone who can see them (the party windows read relation bits off
-/// these; the packets themselves carry no party fields yet).
+/// everyone who can see them.
 pub(crate) fn broadcast_user_info(world: &World, object_id: i32) {
     let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) else { return };
-    send_to_player(world, object_id, crate::network::user_info::user_info(&v, &world.data, &world.cfg.character));
+    let relation = calculate_relation(world, v.p);
+    send_to_player(world, object_id, crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, relation));
     let char_info = server_packets::char_info(&v);
     broadcast_to_others(world, object_id, &char_info);
 }

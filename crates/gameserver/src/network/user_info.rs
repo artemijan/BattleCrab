@@ -9,12 +9,13 @@ use commons::network::PacketWriter;
 
 use crate::data::GameData;
 use crate::enums::UserInfoType;
+use crate::model::inventory::PaperdollSlot;
 use crate::network::masks::build_mask;
 
 const OPCODE_USER_INFO: u8 = 0x32;
 
-pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::config::CharacterConfig) -> Vec<u8> {
-    let crate::model::PlayerView { p, pos, vitals, pvitals, base, speeds, collision, combat, .. } = v;
+pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::config::CharacterConfig, relation: i32) -> Vec<u8> {
+    let crate::model::PlayerView { p, pos, vitals, pvitals, base, speeds, collision, combat, inventory, .. } = v;
     let name_units = p.name.encode_utf16().count() as i32;
     let title_units = p.title.encode_utf16().count() as i32;
 
@@ -40,8 +41,10 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
     w.write_i16(UserInfoType::VALUES.len() as i16); // number of mask bits
     w.write_bytes(&build_mask::<3>(UserInfoType::VALUES.iter().map(|t| t.mask())));
 
-    // RELATION — TODO(G9): party/clan relation.
-    w.write_i32(0);
+    // RELATION — party/clan bitmask (Java `calculateRelation`); the caller
+    // computes it via `game_loop::party::calculate_relation`. Siege (0x80) is
+    // unported and stays clear.
+    w.write_i32(relation);
 
     // BASIC_INFO (+ name*2)
     w.write_i16((UserInfoType::BasicInfo.block_length() + name_units * 2) as i16);
@@ -79,9 +82,11 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
     w.write_i64(p.exp);
     w.write_f64(p.exp_percent(data));
 
-    // ENCHANTLEVEL — TODO(G6): weapon/armor enchant from inventory.
+    // ENCHANTLEVEL — weapon enchant (R-hand). The armor min-enchant byte stays
+    // 0 until ArmorSetData is ported: Java's `getArmorMinEnchant` is the
+    // paperdoll cache's max *set* enchant, which is 0 with no recognized set.
     w.write_i16(UserInfoType::EnchantLevel.block_length() as i16);
-    w.write_u8(0);
+    w.write_u8(inventory.paperdoll_enchant_level(PaperdollSlot::RHand) as u8);
     w.write_u8(0);
 
     // APPAREANCE (sic)

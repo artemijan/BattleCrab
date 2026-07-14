@@ -46,6 +46,41 @@ pub use zone_data::ZoneData;
 
 /// The static game data bundle owned by the game thread (Java: the swarm of
 /// `*Data.getInstance()` singletons, here a plain struct — decision #4).
+/// `Character.ini` stat ceilings + the flat run-speed boost — the tuning values
+/// the stat finalizers clamp/offset with (`MaxPAtk`/`MaxEvasion`/…,
+/// `RunSpeedBoost`). Carried on `GameData` so the stat engine
+/// (`Player::recalculate_stats`, `recompute_npc_stats_from_buffs`) reads them
+/// without threading `CharacterConfig` through the whole pipeline. Defaults are
+/// this dist's Character.ini values (which the finalizers used to hardcode);
+/// production overwrites them from the parsed config at boot (`main.rs`), tests
+/// keep the defaults.
+#[derive(Debug, Clone, Copy)]
+pub struct CombatCaps {
+    pub run_spd_boost: f64,
+    pub max_p_atk: f64,
+    pub max_m_atk: f64,
+    pub max_p_crit_rate: f64,
+    pub max_m_crit_rate: f64,
+    pub max_p_atk_speed: f64,
+    pub max_m_atk_speed: f64,
+    pub max_evasion: f64,
+}
+
+impl Default for CombatCaps {
+    fn default() -> Self {
+        Self {
+            run_spd_boost: 35.0,
+            max_p_atk: 999_999.0,
+            max_m_atk: 999_999.0,
+            max_p_crit_rate: 500.0,
+            max_m_crit_rate: 200.0,
+            max_p_atk_speed: 1500.0,
+            max_m_atk_speed: 1999.0,
+            max_evasion: 250.0,
+        }
+    }
+}
+
 pub struct GameData {
     pub experience: ExperienceData,
     pub player_templates: PlayerTemplateData,
@@ -68,6 +103,8 @@ pub struct GameData {
     pub categories: CategoryData,
     /// GM access-level table + per-command access rights (G13).
     pub admin: AdminData,
+    /// Stat ceilings + run-speed boost, from `Character.ini` (see [`CombatCaps`]).
+    pub combat_caps: CombatCaps,
     /// Datapack root prefix (`""` when running from `dist/game`) — for the
     /// odd loose file read at runtime (NPC dialog `.htm`s, which Java streams
     /// through `HtmCache` rather than a boot-time loader).
@@ -102,6 +139,9 @@ impl GameData {
             buy_lists,
             categories: CategoryData::load_from(file_path),
             admin: AdminData::load_from(file_path),
+            // Overwritten from the parsed `CharacterConfig` at boot (`main.rs`);
+            // the default is this dist's Character.ini values.
+            combat_caps: CombatCaps::default(),
         }
     }
     pub fn load() -> Self {
@@ -134,6 +174,7 @@ impl GameData {
             buy_lists: BuyListData::empty(),
             categories: CategoryData::empty(),
             admin: AdminData::empty(),
+            combat_caps: CombatCaps::default(),
         }
     }
 }

@@ -80,4 +80,7 @@ pub struct CharData {
     /// `character_quests` rows grouped by quest name (Java
     /// `Quest.playerEnter`); only quests with a `<state>` row count.
     pub quests: std::collections::HashMap<String, crate::model::quest::QuestState>,
+    /// `character_skills_save` reuse rows (Java `restoreEffects`, skill-reuse
+    /// half). Non-expired only; converted to live `Reuses` at enter-world.
+    pub skill_reuses: Vec<crate::db::SkillReuseRow>,
 }

@@ -169,6 +169,27 @@ pub struct PlayerSaveData {
     pub macros: Vec<crate::model::shortcut::Macro>,
     /// Quest states + vars (`Quests` component), keyed by quest name.
     pub quests: std::collections::HashMap<String, crate::model::quest::QuestState>,
+    /// Live skill reuse cooldowns (`Reuses` component) as `character_skills_save`
+    /// rows — empty when `StoreSkillCooltime` is off. See [`SkillReuseRow`].
+    pub skill_reuses: Vec<SkillReuseRow>,
+}
+
+/// One `character_skills_save` reuse row (Java `Player.storeEffect`'s
+/// `restore_type = 1` half). `systime_ms` is the **absolute** wall-clock end
+/// time (Java `TimeStamp.getStamp()`), so cooldowns decay by real elapsed time
+/// across a relog/restart; the game side converts it to/from a game tick.
+#[derive(Debug, Clone, Copy)]
+pub struct SkillReuseRow {
+    /// The reuse-map key (Java `getReuseHashCode()`): the reuse group id, or the
+    /// skill id when the skill has no group. Stored in the `skill_id` column —
+    /// Java-schema-compatible for the (common) ungrouped case, and the value the
+    /// `Reuses` map is re-keyed by on restore.
+    pub reuse_key: i32,
+    pub skill_level: i32,
+    /// Full reuse duration ms (`reuse_delay` column / `SkillReuse::total_ms`).
+    pub reuse_delay: i32,
+    /// Absolute wall-clock instant the cooldown ends (`systime` column, ms).
+    pub systime_ms: i64,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -439,6 +460,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
         let macros = load_macros(pool, object_id).await;
         let friends = load_friends(pool, object_id).await;
         let quests = load_quests(pool, object_id).await;
+        let skill_reuses = load_skill_reuses(pool, object_id).await;
         out.push(CharData {
             object_id,
             name: gets(row, "char_name"),
@@ -478,6 +500,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             macros,
             friends,
             quests,
+            skill_reuses,
         });
     }
     // Characters marked for deletion are listed last in the lobby; the stable
@@ -500,6 +523,34 @@ async fn load_skills(pool: &SqlitePool, owner_id: i32) -> Vec<(i32, i32)> {
         .await
         .unwrap_or_default();
     rows.iter().map(|r| (geti(r, "skill_id") as i32, geti(r, "skill_level") as i32)).collect()
+}
+
+/// A character's `character_skills_save` reuse rows (Java `restoreEffects`,
+/// `restore_type = 1` half). Already-expired rows (`systime <= now`) are
+/// dropped here; the survivors carry the absolute `systime` and the game side
+/// converts it to a game tick when the character enters the world. Buff rows
+/// (restore_type 0) are ignored — buff restore is a later milestone.
+async fn load_skill_reuses(pool: &SqlitePool, owner_id: i32) -> Vec<SkillReuseRow> {
+    let now = now_millis();
+    let rows = sqlx::query(
+        "SELECT skill_id, skill_level, reuse_delay, systime FROM character_skills_save \
+         WHERE charId=? AND class_index=0 AND restore_type=1",
+    )
+    .bind(owner_id)
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    rows.iter()
+        .filter_map(|r| {
+            let systime_ms = geti(r, "systime");
+            (systime_ms > now).then_some(SkillReuseRow {
+                reuse_key: geti(r, "skill_id") as i32,
+                skill_level: geti(r, "skill_level") as i32,
+                reuse_delay: geti(r, "reuse_delay") as i32,
+                systime_ms,
+            })
+        })
+        .collect()
 }
 
 /// A character's `character_shortcuts` rows (Java `ShortCuts.restoreMe` —
@@ -993,6 +1044,31 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
                 .execute(&mut *tx)
                 .await?;
         }
+    }
+
+    // skill reuse cooldowns (`character_skills_save`, restore_type 1). Always
+    // delete first so an emptied set (or `StoreSkillCooltime` turned off, which
+    // makes `skill_reuses` empty) clears stale rows; `remaining_time` is -1 like
+    // Java's reuse rows (only `systime` is read back). buff rows (restore_type 0)
+    // are a later milestone and never written here.
+    sqlx::query("DELETE FROM character_skills_save WHERE charId=? AND class_index=0")
+        .bind(char_id)
+        .execute(&mut *tx)
+        .await?;
+    for (i, r) in s.skill_reuses.iter().enumerate() {
+        sqlx::query(
+            "INSERT INTO character_skills_save \
+             (charId, skill_id, skill_level, skill_sub_level, remaining_time, reuse_delay, systime, restore_type, class_index, buff_index) \
+             VALUES (?, ?, ?, 0, -1, ?, ?, 1, 0, ?)",
+        )
+        .bind(char_id)
+        .bind(r.reuse_key)
+        .bind(r.skill_level)
+        .bind(r.reuse_delay)
+        .bind(r.systime_ms)
+        .bind(i as i32 + 1)
+        .execute(&mut *tx)
+        .await?;
     }
 
     tx.commit().await?;

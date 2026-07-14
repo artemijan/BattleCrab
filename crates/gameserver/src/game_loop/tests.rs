@@ -110,6 +110,7 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         macros: vec![],
         friends: vec![],
         quests: Default::default(),
+        skill_reuses: vec![],
     }
 }
 
@@ -190,6 +191,7 @@ async fn character_create_inserts_into_real_schema() {
         buy_lists: crate::data::BuyListData::empty(),
         categories: crate::data::CategoryData::empty(),
         admin: crate::data::AdminData::empty(),
+        combat_caps: crate::data::CombatCaps::default(),
     };
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
@@ -2666,6 +2668,107 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
     let arrows = inv.items().iter().find(|i| i.item_id == 1344).expect("arrows granted");
     assert_eq!(arrows.count, 1400, "roll 60 lands in the 30..80 (second) slice");
     let _ = &mut rx;
+}
+
+/// `RestorationRandom` with `maxEnchant > 0` rolls `Rnd.get(min, max)` (inclusive)
+/// onto the created non-stackable item and sends the "obtained a +S1 S2" message.
+#[test]
+fn item_skill_give_item_random_rolls_enchant_on_created_item() {
+    use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
+    use crate::model::inventory::Inventory;
+    use crate::model::skill::{RestorationGroup, RestorationItem, SkillEffect};
+
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain(&mut rx);
+    // Forced rolls, in consumption order: crit check (0), roulette `roll_f64`
+    // (500_000 -> 0.5 -> 50, inside the single 0..100 slice), then the enchant
+    // `roll(max-min+1)` = `roll(3)`; forcing 1 -> enchant = min(3) + 1 = 4.
+    world.forced_rolls.push_back(0);
+    world.forced_rolls.push_back(500_000);
+    world.forced_rolls.push_back(1);
+
+    world.data.skill_data.insert_for_test(Skill {
+        id: 324,
+        level: 1,
+        name: "Enchanted Reward".into(),
+        operate_type: OperateType::Active,
+        target_type: TargetType::Self_,
+        magic_type: 2,
+        effect_point: 0,
+        cast_range: 0,
+        effect_range: 0,
+        hit_time: 0,
+        hit_cancel_time: 0.0,
+        cool_time: 0,
+        reuse_delay: 0,
+        reuse_delay_group: -1,
+        mp_consume: 0,
+        mp_initial_consume: 0,
+        hp_consume: 0,
+        abnormal_time: 0,
+        abnormal_level: 0,
+        abnormal_type: "NONE".into(),
+        effects: vec![SkillEffect::GiveItemRandom {
+            groups: vec![RestorationGroup {
+                chance: 100.0,
+                items: vec![RestorationItem { item_id: 6001, count: 1, min_enchant: 3, max_enchant: 5 }],
+            }],
+        }],
+    });
+    // The reward is a non-stackable weapon so it carries an enchant.
+    world.data.item_data.insert_for_test(ItemTemplate {
+        item_id: 6001,
+        name: "Enchanted Blade".into(),
+        kind: ItemKind::Weapon,
+        body_part: 0,
+        weight: 0,
+        is_stackable: false,
+        type1: 0,
+        type2: 0,
+        is_quest_item: false,
+        price: 0,
+        handler: ItemHandler::None,
+        crystal_type: crate::data::item_data::CrystalType::None,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+    });
+    world.data.item_data.insert_for_test(ItemTemplate {
+        item_id: 9998,
+        name: "Enchanted Reward scroll".into(),
+        kind: ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: true,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        price: 0,
+        handler: ItemHandler::ItemSkills,
+        crystal_type: crate::data::item_data::CrystalType::None,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: vec![(324, 1)],
+    });
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9001, 9998, 1);
+    }
+
+    items::handle_use_item(&mut world, 1, &use_item_body(9001));
+
+    let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+    let blade = inv.items().iter().find(|i| i.item_id == 6001).expect("blade granted");
+    assert_eq!(blade.enchant_level, 4, "Rnd.get(3, 5) with forced roll 1 -> +4");
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_HAVE_OBTAINED_A_S1_S2),
+        "enchanted single grant uses the +S1 S2 message",
+    );
 }
 
 /// Puts a bare `Player` (built from `dummy_char`) straight into `InGame`,
@@ -5432,6 +5535,132 @@ fn make_party(world: &mut World, members: &[i32], rule: LootRule) -> u32 {
         world.objects.add_components(&m, PartyRef(id));
     }
     id
+}
+
+/// `RequestAcquireSkill.checkPlayerSkill` gates: an under-level request sends
+/// `YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS`, an unaffordable one sends
+/// `YOU_DO_NOT_HAVE_ENOUGH_SP_TO_LEARN_THIS_SKILL` — instead of silently dropping.
+#[test]
+fn skill_acquire_gates_send_system_messages() {
+    use crate::data::skill_tree::SkillLearn;
+
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0); // dummy_char: class 0, level 1, sp 0
+    drain(&mut rx);
+
+    // Under-level: get_level 10 > player level 1.
+    world.data.skill_trees.insert_for_test(0, SkillLearn {
+        skill_id: 1001,
+        skill_level: 1,
+        name: "Too High".into(),
+        get_level: 10,
+        level_up_sp: 0,
+        auto_get: false,
+    });
+    // Reachable level, but costs more SP than the player has (sp 0).
+    world.data.skill_trees.insert_for_test(0, SkillLearn {
+        skill_id: 1002,
+        skill_level: 1,
+        name: "Too Pricey".into(),
+        get_level: 1,
+        level_up_sp: 100,
+        auto_get: false,
+    });
+
+    handle_request_acquire_skill(&mut world, 1, &acquire_skill_body(1001, 1, cp::RequestAcquireSkill::CLASS));
+    assert_eq!(
+        sm_ids_of(&drain(&mut rx)),
+        vec![server_packets::sm_ids::YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS],
+    );
+
+    handle_request_acquire_skill(&mut world, 1, &acquire_skill_body(1002, 1, cp::RequestAcquireSkill::CLASS));
+    assert_eq!(
+        sm_ids_of(&drain(&mut rx)),
+        vec![server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_SP_TO_LEARN_THIS_SKILL],
+    );
+
+    // Neither gate learned the skill.
+    let book = world.objects.get_component::<crate::model::components::SkillBook>(&3001).unwrap();
+    assert!(!book.0.contains_key(&1001) && !book.0.contains_key(&1002));
+}
+
+fn acquire_skill_body(skill_id: i32, skill_level: i32, acquire_type: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(skill_id);
+    w.write_i32(skill_level);
+    w.write_i32(acquire_type);
+    w.into_bytes()
+}
+
+/// `UserInfo.calculateRelation` (via `party::calculate_relation`): the party
+/// and clan bits, driven off the `PartyRef` component and the `Player`'s clan
+/// fields. The siege bit (0x80) is unported, so it never sets.
+#[test]
+fn relation_reflects_party_and_clan() {
+    let (mut world, ..) = test_world();
+    let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    let snapshot = |w: &World, oid: i32| w.objects.get_component::<Player>(&oid).unwrap().clone();
+
+    // Solo, clanless → 0.
+    assert_eq!(super::party::calculate_relation(&world, &snapshot(&world, 3001)), 0);
+
+    // Clan member + leader → 0x20 | 0x40.
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.clan_id = 7;
+        p.clan_leader = true;
+    }
+    assert_eq!(super::party::calculate_relation(&world, &snapshot(&world, 3001)), 0x20 | 0x40);
+
+    // Clan member, not leader → 0x20.
+    world.objects.get_component_mut::<Player>(&3001).unwrap().clan_leader = false;
+    assert_eq!(super::party::calculate_relation(&world, &snapshot(&world, 3001)), 0x20);
+
+    // Party leader (3001 first) → adds 0x08 | 0x10; the non-leader member
+    // (3002, clanless) gets 0x08 only.
+    make_party(&mut world, &[3001, 3002], LootRule::FindersKeepers);
+    assert_eq!(super::party::calculate_relation(&world, &snapshot(&world, 3001)), 0x20 | 0x08 | 0x10);
+    assert_eq!(super::party::calculate_relation(&world, &snapshot(&world, 3002)), 0x08);
+}
+
+/// `StoreSkillCooltime` round-trip: a live cooldown is captured into the save
+/// (as an absolute wall-clock end time) and, on relog, `restore_reuses` re-arms
+/// it against the current game tick — the cooldown survives the trip.
+#[test]
+fn skill_reuse_cooldown_survives_relog() {
+    use crate::model::components::Reuses;
+    use crate::model::SkillReuse;
+
+    let (mut world, ..) = test_world();
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    // A cooldown on reuse-key 1177, ending 500 ticks (50 s) out.
+    world.objects.get_component_mut::<Reuses>(&3001).unwrap().0.insert(
+        1177,
+        SkillReuse { skill_level: 3, until_tick: world.tick + 500, total_ms: 300_000 },
+    );
+
+    // The save captures it (config default = on) as an absolute systime.
+    let save = super::net::build_save_data(&world, 3001).expect("save data");
+    assert_eq!(save.skill_reuses.len(), 1);
+    let row = save.skill_reuses[0];
+    assert_eq!((row.reuse_key, row.skill_level, row.reuse_delay), (1177, 3, 300_000));
+
+    // Relog: a fresh bundle from a CharData carrying that row, restored against
+    // the current tick + wall clock.
+    let mut chr = dummy_char(3002, "Relog");
+    chr.skill_reuses = vec![row];
+    let mut bundle = Player::from_char(&world.data, &chr);
+    bundle.restore_reuses(&chr, world.tick, commons::util::now_millis());
+
+    let restored = bundle.reuses.0.get(&1177).expect("cooldown restored");
+    assert_eq!((restored.skill_level, restored.total_ms), (3, 300_000));
+    let remaining = restored.until_tick - world.tick;
+    assert!((498..=500).contains(&remaining), "≈500 ticks left, got {remaining}");
+
+    // With the config off, nothing is persisted (and the DB rows get cleared).
+    world.cfg.character.store_skill_cooltime = false;
+    assert!(super::net::build_save_data(&world, 3001).unwrap().skill_reuses.is_empty());
 }
 
 /// The invite → accept happy path: SM 105 + AskJoinParty, then JoinParty(1),

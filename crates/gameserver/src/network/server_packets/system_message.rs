@@ -28,6 +28,9 @@ pub mod sm_ids {
     pub const YOU_HAVE_OBTAINED_S1_ADENA: i16 = 28;
     pub const YOU_HAVE_OBTAINED_S2_S1: i16 = 29;
     pub const YOU_HAVE_OBTAINED_S1: i16 = 30;
+    /// "You have obtained a +$s1 $s2." — the enchant-carrying grant message
+    /// (`Restoration`/`RestorationRandom` when the created item is enchanted).
+    pub const YOU_HAVE_OBTAINED_A_S1_S2: i16 = 369;
     // Item use (G14): `ExtractableItems` (pack/box unpacking).
     pub const THERE_WAS_NOTHING_FOUND_INSIDE: i16 = 1669;
     pub const YOUR_INVENTORY_IS_FULL: i16 = 129;
@@ -55,6 +58,9 @@ pub mod sm_ids {
     // Zones (G12)
     pub const YOU_MAY_NOT_ATTACK_THIS_TARGET_IN_A_PEACEFUL_ZONE: i16 = 85;
     pub const YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE: i16 = 2167;
+    // Skill acquisition (G13.9)
+    pub const YOU_DO_NOT_HAVE_ENOUGH_SP_TO_LEARN_THIS_SKILL: i16 = 278;
+    pub const YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS: i16 = 2208;
     // Shop (G12)
     pub const YOU_DO_NOT_HAVE_ENOUGH_ADENA: i16 = 279;
     pub const YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED: i16 = 1036;

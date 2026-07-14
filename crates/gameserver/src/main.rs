@@ -36,7 +36,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::load();
 
     print_section("Data");
-    let data = GameData::load();
+    let mut data = GameData::load();
+    // Stat ceilings + run-speed boost live in Character.ini; fold them into the
+    // read-only data bundle the stat finalizers read (`GameData::combat_caps`).
+    data.combat_caps = gameserver::data::CombatCaps {
+        run_spd_boost: config.character.run_spd_boost,
+        max_p_atk: config.character.max_p_atk,
+        max_m_atk: config.character.max_m_atk,
+        max_p_crit_rate: config.character.max_p_crit_rate,
+        max_m_crit_rate: config.character.max_m_crit_rate,
+        max_p_atk_speed: config.character.max_p_atk_speed,
+        max_m_atk_speed: config.character.max_m_atk_speed,
+        max_evasion: config.character.max_evasion,
+    };
 
     // Java: print_section("Geodata") → GeoEngine.getInstance() (scans
     // GeoDataPath for `{x}_{y}.l2j` regions; missing files just stay null).

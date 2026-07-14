@@ -224,8 +224,11 @@ pub struct ExpertisePenalty {
 }
 
 /// Live cooldowns (Java `_reuseTimeStampsSkills` + `_disabledSkills`,
-/// unified), keyed by `Skill::reuse_key()`. Checked lazily — no expiry
-/// tasks. TODO: persist across relog like Java's `character_skills_save`.
+/// unified), keyed by `Skill::reuse_key()`. Checked lazily — no expiry tasks.
+/// Persisted across relog via `character_skills_save` (Java `storeEffect`/
+/// `restoreEffects`, reuse half; gated by `StoreSkillCooltime`) — see
+/// `db::SkillReuseRow` + `PlayerData::restore_reuses`. Buff restore (the
+/// `restore_type = 0` half) is still deferred.
 #[derive(Component, Debug, Clone, Default)]
 pub struct Reuses(pub HashMap<i32, crate::model::SkillReuse>);
 

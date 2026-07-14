@@ -22,8 +22,26 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
 
     let Some(player) = world.objects.get_component::<crate::model::Player>(&object_id) else { return };
     let Some(learn) = world.data.skill_trees.skill_learn(player.class_id, pkt.skill_id, pkt.skill_level) else { return };
-    if learn.get_level > player.level || learn.level_up_sp > player.sp {
-        return; // TODO: SystemMessage (level/SP gate)
+    // `RequestAcquireSkill.checkPlayerSkill` gates, in Java's order: minimum
+    // level first, then SP (the SP gate only bites a skill that actually costs
+    // SP). Each failure sends its own SystemMessage and stops.
+    if learn.get_level > player.level {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                server_packets::sm_ids::YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS,
+                &[],
+            ));
+        }
+        return;
+    }
+    if learn.level_up_sp > 0 && learn.level_up_sp > player.sp {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_SP_TO_LEARN_THIS_SKILL,
+                &[],
+            ));
+        }
+        return;
     }
     let (skill_id, skill_level, level_up_sp) = (learn.skill_id, learn.skill_level, learn.level_up_sp);
 
@@ -45,7 +63,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
             cs.send(server_packets::acquire_skill_done());
             cs.send(crate::network::enter_world::skill_list(skills, &world.data));
             cs.send(crate::network::enter_world::acquire_skill_list(v.p, skills, &world.data));
-            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character));
+            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, crate::game_loop::party::calculate_relation(world, v.p)));
         }
     }
     // `player.updateShortCuts(_id, _level, 0)` — refresh SKILL slots holding

@@ -508,6 +508,15 @@ impl Inventory {
         Some(oid)
     }
 
+    /// Stamp an enchant level onto a specific item instance by object id —
+    /// Java `Item.setEnchantLevel` on a freshly created item (the
+    /// `Restoration`/`RestorationRandom` enchant-roll grants).
+    pub fn set_item_enchant(&mut self, object_id: i32, level: i32) {
+        if let Some(item) = self.items.iter_mut().find(|i| i.object_id == object_id) {
+            item.enchant_level = level;
+        }
+    }
+
     /// Sum of `count` for adena (`Inventory.getAdena`).
     pub fn adena(&self) -> i64 {
         self.items.iter().filter(|i| i.item_id == item_data::ADENA_ID).map(|i| i.count).sum()

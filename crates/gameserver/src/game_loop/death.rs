@@ -435,7 +435,7 @@ pub(crate) fn add_exp_and_sp(world: &mut World, player_oid: i32, exp: i64, sp: i
         if let (Some(v), Some(cs)) =
             (crate::model::PlayerView::of(&world.objects, player_oid), world.clients.get(&client_id))
         {
-            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character));
+            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, super::party::calculate_relation(world, v.p)));
         }
     }
 }
@@ -552,7 +552,7 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
             if leveled_up {
                 cs.send(server_packets::system_message_with(sm_ids::YOUR_LEVEL_HAS_INCREASED, &[]));
             }
-            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character));
+            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, super::party::calculate_relation(world, v.p)));
             let Some(skills) = world.objects.get_component::<SkillBook>(&player_oid) else { return };
             cs.send(crate::network::enter_world::skill_list(skills, &world.data));
         }
@@ -880,7 +880,7 @@ pub(crate) fn handle_appearing(world: &mut World, client_id: u32) {
     if let (Some(v), Some(cs)) =
         (crate::model::PlayerView::of(&world.objects, object_id), world.clients.get(&client_id))
     {
-        cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character));
+        cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, super::party::calculate_relation(world, v.p)));
     }
 }
 

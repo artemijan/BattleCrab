@@ -67,6 +67,7 @@ fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
         shortcuts: c.shortcuts.clone(),
         macros: c.macros.clone(),
         quests: c.quests.clone(),
+        skill_reuses: c.skill_reuses.clone(),
     }
 }
 
@@ -194,7 +195,7 @@ async fn shortcuts_and_macros_persist() {
         // `character_quests` is needed too: the memory-first flush reconciles
         // every child table, so `store_player` always touches it (even with no
         // quests, to delete any that were abandoned).
-        for table in ["characters", "items", "character_skills", "character_shortcuts", "character_macroses", "character_quests"] {
+        for table in ["characters", "items", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_quests"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -301,7 +302,7 @@ async fn friendships_persist() {
     let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "character_skills", "character_shortcuts", "character_macroses", "character_friends"] {
+        for table in ["characters", "items", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_friends"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -378,7 +379,7 @@ async fn quest_states_persist() {
     let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "character_skills", "character_shortcuts", "character_macroses", "character_friends", "character_quests"] {
+        for table in ["characters", "items", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_friends", "character_quests"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -446,6 +447,71 @@ async fn quest_states_persist() {
     cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => assert!(chars[0].quests.is_empty()),
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    cmd_tx.send(DbCommand::Shutdown).unwrap();
+    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// G13.9: skill reuse cooldowns round-trip through `character_skills_save`
+/// (Java `storeEffect`/`restoreEffects`, reuse half). A cooldown ending in the
+/// future survives the reload; one that already elapsed while offline is
+/// filtered out; and a flush with no cooldowns clears the table.
+#[tokio::test]
+async fn skill_reuse_cooldowns_persist() {
+    let dir = std::env::temp_dir().join(format!("l2r_g139_{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let db_path = dir.join("test.db");
+    let url = format!("jdbc:sqlite:{}", db_path.display());
+
+    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    {
+        let pool = commons::db::init(&url, 1).await.unwrap();
+        for table in ["characters", "items", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_quests"] {
+            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
+            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
+                sqlx::query(stmt).execute(&pool).await.unwrap();
+            }
+        }
+        pool.close().await;
+    }
+
+    let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (event_tx, event_rx) = std::sync::mpsc::channel();
+    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
+
+    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Cooldown") }).unwrap();
+    recv(&event_rx); // CharacterCreated
+    let loaded = match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => chars[0].clone(),
+        _ => panic!("expected CharactersLoaded"),
+    };
+
+    let now = commons::util::now_millis();
+    let mut save = save_from(&loaded);
+    save.skill_reuses = vec![
+        db::SkillReuseRow { reuse_key: 1177, skill_level: 3, reuse_delay: 300_000, systime_ms: now + 120_000 },
+        db::SkillReuseRow { reuse_key: 1178, skill_level: 1, reuse_delay: 10_000, systime_ms: now - 5_000 },
+    ];
+    cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            let r = &chars[0].skill_reuses;
+            assert_eq!(r.len(), 1, "the already-elapsed cooldown is filtered on load");
+            assert_eq!((r[0].reuse_key, r[0].skill_level, r[0].reuse_delay), (1177, 3, 300_000));
+            assert!(r[0].systime_ms >= now + 120_000 - 5_000, "future systime preserved");
+        }
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    // A flush with no live cooldowns clears the table (the reconcile always deletes).
+    cmd_tx.send(DbCommand::StorePlayer { save: save_from(&loaded) }).unwrap();
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => assert!(chars[0].skill_reuses.is_empty()),
         _ => panic!("expected CharactersLoaded"),
     }
 

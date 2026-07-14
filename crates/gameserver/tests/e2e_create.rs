@@ -326,20 +326,24 @@ impl GameClient {
         self.crypt.decrypt(&mut d);
         d
     }
-    /// Like `recv`, but skips unsolicited packets a live world can push at
-    /// any time: `StatusUpdate` (0x18, the 3 s passive-regen tick since G6 —
-    /// e.g. this character's CP regenerating from its post-creation 0),
-    /// `NpcInfo` (0x0C, since G8 the starting village's NPCs are described
-    /// on/after enter-world), and `ExSetCompassZoneCode` (FE:0x33, since
-    /// G12 zone revalidation reports the peace-zone compass icon — the
-    /// mage-start spawn point lies in a peace zone). A reply-then-assert
-    /// exchange isn't guaranteed to be the very next frame on the wire.
+    /// Like `recv`, but skips unsolicited packets a live world can push at any
+    /// time, so a reply-then-assert exchange isn't derailed by background world
+    /// activity that happens to land on the wire first:
+    /// - `StatusUpdate` (0x18) — the 3 s passive-regen tick since G6.
+    /// - the starting village's NPCs, described and *animated* around the
+    ///   mage-start spawn: `NpcInfo` (0x0C) as they enter the region grid,
+    ///   `DeleteObject` (0x08) as they leave it, and — since G9 wander AI —
+    ///   `MoveToLocation` (0x2F) / `StopMove` (0x47) as a nearby NPC walks and
+    ///   arrives. (These are for *NPC* object ids; the player is idle here.)
+    /// - `ExSetCompassZoneCode` (FE:0x33) — G12 zone revalidation reporting the
+    ///   spawn point's peace-zone compass icon.
     async fn recv_skip_status_update(&mut self) -> Vec<u8> {
+        const SKIP: &[u8] = &[0x18, 0x0C, 0x08, 0x2F, 0x47];
         loop {
             let pkt = self.recv().await;
             let compass =
                 pkt[0] == 0xFE && pkt.len() >= 3 && u16::from_le_bytes([pkt[1], pkt[2]]) == 0x33;
-            if pkt[0] != 0x18 && pkt[0] != 0x0C && !compass {
+            if !SKIP.contains(&pkt[0]) && !compass {
                 return pkt;
             }
         }

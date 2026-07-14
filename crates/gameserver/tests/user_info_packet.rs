@@ -81,7 +81,9 @@ async fn user_info_test() {
     };
     let gd = GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
     let cfg = CharacterConfig::default();
-    let packet = user_info(&view, &gd, &cfg);
+    // clan_id 0 + empty inventory → relation 0 and weapon-enchant 0, so the
+    // golden bytes below are unchanged by the ENCHANTLEVEL/RELATION fills.
+    let packet = user_info(&view, &gd, &cfg, 0);
     assert_eq!(
         vec![
             50, 44, 159, 0, 16, 137, 1, 0, 0, 23, 0, 255, 255, 254, 0, 0, 0, 0, 32, 0, 8, 0, 65, 0,

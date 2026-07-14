@@ -104,7 +104,35 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     let macros = world.objects.get_component::<Macros>(&object_id).map(|m| m.entries.clone()).unwrap_or_default();
     let quests = world.objects.get_component::<Quests>(&object_id).map(|q| q.0.clone()).unwrap_or_default();
 
-    Some(db::PlayerSaveData { base, items, skills, shortcuts, macros, quests })
+    let skill_reuses = reuses_to_save(world, world.objects.get_component::<crate::model::components::Reuses>(&object_id));
+
+    Some(db::PlayerSaveData { base, items, skills, shortcuts, macros, quests, skill_reuses })
+}
+
+/// Skill reuse cooldowns → `character_skills_save` rows (Java `storeEffect`,
+/// reuse half), gated by `StoreSkillCooltime`. `until_tick` is server-uptime
+/// relative, so persist an absolute wall-clock end time that survives a
+/// relog/restart; only cooldowns with time still left are written. Empty (which
+/// clears the DB rows on flush) when the config is off or there's no map.
+fn reuses_to_save(world: &World, reuses: Option<&crate::model::components::Reuses>) -> Vec<db::SkillReuseRow> {
+    let Some(reuses) = reuses.filter(|_| world.cfg.character.store_skill_cooltime) else {
+        return Vec::new();
+    };
+    let now_tick = world.tick;
+    let now_ms = commons::util::now_millis();
+    reuses
+        .0
+        .iter()
+        .filter_map(|(&reuse_key, sr)| {
+            let remaining_ticks = sr.until_tick.saturating_sub(now_tick);
+            (remaining_ticks > 0).then_some(db::SkillReuseRow {
+                reuse_key,
+                skill_level: sr.skill_level,
+                reuse_delay: sr.total_ms,
+                systime_ms: now_ms + remaining_ticks as i64 * 100,
+            })
+        })
+        .collect()
 }
 
 /// Flush a player who stays in the world — the periodic autosave and changes
@@ -226,6 +254,7 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
                     shortcuts: b.shortcuts.0.values().cloned().collect(),
                     macros: b.macros.entries.clone(),
                     quests: b.quests.0.clone(),
+                    skill_reuses: reuses_to_save(world, Some(&b.reuses)),
                 },
             });
         }

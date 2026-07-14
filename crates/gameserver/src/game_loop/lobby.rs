@@ -306,7 +306,10 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
     // and the enter-world `UserInfo` is right the first time — no post-spawn
     // recompute. Panel shortcuts for changed skills are synced to match.
     filter_skills_on_select(world, &mut chr);
-    let bundle = crate::model::Player::from_char(&world.data, &chr);
+    let mut bundle = crate::model::Player::from_char(&world.data, &chr);
+    // Java `restoreEffects` (skill-reuse half): re-arm persisted cooldowns off
+    // the current game tick before the bundle enters the world.
+    bundle.restore_reuses(&chr, world.tick, commons::util::now_millis());
     let selected = server_packets::char_selected(&bundle.view(), s.play_ok1(), 0);
 
     // Transition InLobby → Entering, holding the built Player bundle.
@@ -412,7 +415,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // The enter-world packet burst (EnterWorld.runImpl). Inventory real as
     // of G5, skills G6, shortcuts/macros G9.6, friends G10, quest lists
     // G11; henna/mail still empty (TODOs in `enter_world`).
-    session.send(user_info(&view, data, &world.cfg.character));
+    session.send(user_info(&view, data, &world.cfg.character, super::party::calculate_relation(world, view.p)));
     session.send(ew::ex_vitality_effect_info(player));
     session.send(server_packets::ex_ui_setting());
     // `MacroList.sendAllMacros` — one packet per stored macro (or one empty
@@ -451,13 +454,10 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         world,
         &bundle.friends,
     ));
-    session.send(server_packets::skill_cool_time(
-        &crate::model::components::Reuses::default(),
-        world.tick,
-    ));
+    session.send(server_packets::skill_cool_time(&bundle.reuses, world.tick));
 
     // Register the player in the world and re-send UserInfo (Java does both).
-    session.send(user_info(&view, data, &world.cfg.character));
+    session.send(user_info(&view, data, &world.cfg.character, super::party::calculate_relation(world, view.p)));
     session.send(ew::ex_set_compass_zone_code(0));
     session.send(ew::move_to_location(player.object_id, &bundle.position));
     for kind in 0..4 {
