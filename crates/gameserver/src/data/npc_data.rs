@@ -103,6 +103,9 @@ pub struct NpcTemplate {
     pub show_name: bool,
     pub can_move: bool,
     pub random_walk: bool,
+    /// Java `isRandomAnimationEnabled` (`randomAnimation`, default true) — the
+    /// NPC plays idle social animations while standing around.
+    pub random_animation: bool,
 
     // <ai>
     /// Java `isAggressive` (default false). `aggroRange` alone is *not*
@@ -247,6 +250,7 @@ pub fn default_template(id: i32) -> NpcTemplate {
         show_name: true,
         can_move: true,
         random_walk: false,
+        random_animation: true,
         is_aggressive: false,
         aggro_range: 0,
         clan_help_range: 0,
@@ -407,6 +411,9 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                             t.can_move = attr_bool(&e, b"canMove").unwrap_or(true);
                             if let Some(v) = attr_bool(&e, b"randomWalk") {
                                 t.random_walk = v;
+                            }
+                            if let Some(v) = attr_bool(&e, b"randomAnimation") {
+                                t.random_animation = v;
                             }
                         }
                     }

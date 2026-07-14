@@ -74,12 +74,25 @@ pub struct NpcAi {
     /// `AttackableAI._attackTimeout` (absolute world tick): give up chasing
     /// when it passes without landing/receiving a hit.
     pub attack_timeout_tick: u64,
+    /// `RandomAnimationTaskManager` pending time (absolute world tick) for the
+    /// next idle social animation. `None` until first scheduled (lazily, on the
+    /// NPC's first active-region think — like Java's `add()` on spawn).
+    pub next_animation_tick: Option<u64>,
+    /// `Npc._lastSocialBroadcast` (absolute world tick): the 6 s throttle floor
+    /// shared by all social broadcasts.
+    pub last_social_tick: u64,
 }
 
 impl Default for NpcAi {
     fn default() -> Self {
         // Java seeds _globalAggro = -10: no aggro for ~10 think seconds.
-        Self { intention: NpcIntention::Active, global_aggro: -10, attack_timeout_tick: 0 }
+        Self {
+            intention: NpcIntention::Active,
+            global_aggro: -10,
+            attack_timeout_tick: 0,
+            next_animation_tick: None,
+            last_social_tick: 0,
+        }
     }
 }
 

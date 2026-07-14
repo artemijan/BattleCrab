@@ -1,13 +1,16 @@
 //! `AttackableAI` (G9 slice): the 1 s think tick over monsters in active
 //! regions — aggro-range scans, chasing, swinging back, drift-return.
 //!
-//! Not ported yet (see PROGRESS): random walk / `randomAnimation`, guard
-//! aggro (karma players don't exist), clan/faction help calls, minions, NPC
-//! skill casting (`AISkillScope` lists aren't parsed), the archer kite and
+//! Idle random walk and random social animations
+//! (`RandomAnimationTaskManager`) are ported. Not ported yet (see PROGRESS):
+//! guard aggro (karma players don't exist), clan/faction help calls, minions,
+//! NPC skill casting (`AISkillScope` lists aren't parsed), the archer kite and
 //! raid target-chaos moves, and Java's teleport-home on attack timeout
 //! (walking home is used instead — no teleport plumbing for NPCs).
 
 use std::collections::HashSet;
+
+use rand::Rng;
 
 use crate::model::components::{AttackState, Movement, Position, RegionCell, Speeds, Vitals};
 use crate::model::movement::{self, MoveData};
@@ -21,6 +24,17 @@ use super::helpers::broadcast_near_region;
 
 /// `AttackableThinkTaskManager.TASK_DELAY`: think once per second.
 pub(crate) const NPC_THINK_PERIOD: u64 = 10;
+
+/// `AttackableAI.RANDOM_WALK_RATE`: an idle mob rolls a 1-in-30 chance each
+/// think (≈ once every 30 s) to wander to a new spot near its spawn.
+const RANDOM_WALK_RATE: i32 = 30;
+
+/// 100 ms game ticks per second — animation intervals are configured in
+/// seconds (`Min/MaxNpcAnimation`).
+const TICKS_PER_SECOND: u64 = 10;
+
+/// `Npc.MINIMUM_SOCIAL_INTERVAL` (6000 ms): floor between social broadcasts.
+const SOCIAL_THROTTLE_TICKS: u64 = 60;
 
 /// One AI pass over every living monster in an active region (Java gates
 /// `onEvtThink` on `WorldRegion.areNeighborsActive()`; regions are "active"
@@ -52,7 +66,79 @@ pub(crate) fn npc_ai_tick(world: &mut World) {
         .collect();
     for npc_oid in candidates {
         think(world, npc_oid);
+        // Idle social animations run for every NPC in an active region, not
+        // just the monster AI subtree (Java's `RandomAnimationTaskManager` is
+        // independent of `AttackableAI`).
+        random_animation_think(world, npc_oid);
     }
+}
+
+/// `RandomAnimationTaskManager.run`: while an NPC stands idle in an active
+/// region, occasionally broadcast a `SocialAction` (idle animation 2 or 3),
+/// then reschedule the next attempt a random 5–60 s out.
+///
+/// Timing is drawn from `world.rng` directly (not `world.roll`) so it never
+/// disturbs the shared forced-roll queue combat tests depend on.
+fn random_animation_think(world: &mut World, npc_oid: i32) {
+    // `hasRandomAnimation`: template flag + a positive Max*Animation bound.
+    // (Java also excludes `AIType.CORPSE`; that enum isn't modelled, but such
+    // NPCs — chests — carry `randomAnimation="false"` in the datapack anyway.)
+    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) else { return };
+    let Some(t) = npc.template(world) else { return };
+    let attackable = t.attackable;
+    let enabled = t.random_animation;
+    let (min_s, max_s) = if attackable {
+        (world.cfg.npc.min_monster_animation, world.cfg.npc.max_monster_animation)
+    } else {
+        (world.cfg.npc.min_npc_animation, world.cfg.npc.max_npc_animation)
+    };
+    if !enabled || max_s <= 0 {
+        return;
+    }
+
+    let now = world.tick;
+    // First visit: set the initial pending time and wait (Java `add()`).
+    let Some(next) = world.objects.get_component::<NpcAi>(&npc_oid).and_then(|ai| ai.next_animation_tick) else {
+        let delay = animation_delay_ticks(world, min_s, max_s);
+        if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
+            ai.next_animation_tick = Some(now + delay);
+        }
+        return;
+    };
+    if now <= next {
+        return;
+    }
+
+    // Due: play an animation if idle (alive, not in combat, not moving),
+    // honouring the 6 s social throttle; then reschedule regardless.
+    let idle = world.objects.get_component::<Vitals>(&npc_oid).is_some_and(|v| !v.dead)
+        && world.objects.get_component::<NpcAi>(&npc_oid).is_some_and(|ai| ai.intention != NpcIntention::Attack)
+        && !world.objects.has_component::<Movement>(&npc_oid);
+    if idle {
+        let throttled = world
+            .objects
+            .get_component::<NpcAi>(&npc_oid)
+            .is_some_and(|ai| now.saturating_sub(ai.last_social_tick) <= SOCIAL_THROTTLE_TICKS);
+        if !throttled {
+            let action_id = world.rng.gen_range(2..=3); // Rnd.get(2, 3)
+            if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
+                ai.last_social_tick = now;
+            }
+            if let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) {
+                broadcast_near_region(world, region, &server_packets::social_action(npc_oid, action_id));
+            }
+        }
+    }
+    let delay = animation_delay_ticks(world, min_s, max_s);
+    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
+        ai.next_animation_tick = Some(now + delay);
+    }
+}
+
+/// `Rnd.get(min, max) * 1000` ms as ticks (inclusive of `max`).
+fn animation_delay_ticks(world: &mut World, min_s: i32, max_s: i32) -> u64 {
+    let secs = world.rng.gen_range(min_s.max(0)..=max_s.max(min_s).max(0));
+    secs as u64 * TICKS_PER_SECOND
 }
 
 fn think(world: &mut World, npc_oid: i32) {
@@ -144,20 +230,52 @@ fn think_active(world: &mut World, npc_oid: i32) {
         return;
     }
 
-    // No target: return to the spawn anchor when drifted too far
-    // (`Config.MAX_DRIFT_RANGE`); random walk stays unported.
+    // No target: either return to the spawn anchor when drifted too far
+    // (`Config.MAX_DRIFT_RANGE`), or — while inside that radius — take an
+    // occasional random walk (`AttackableAI.thinkActive`'s two idle branches).
     let max_drift = world.cfg.npc.max_drift_range as f64;
-    let (x, y, spawn, moving, can_move) = {
+    let (x, y, z, spawn, moving, can_move, random_walk) = {
         let npc = &world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).expect("npc");
         let pos = world.objects.get_component::<Position>(&npc_oid).expect("caller checked");
-        let can_move = npc.template(world).map(|t| t.can_move).unwrap_or(false);
-        (pos.x, pos.y, npc.spawn_loc, world.objects.has_component::<Movement>(&npc_oid), can_move)
+        let t = npc.template(world);
+        let can_move = t.map(|t| t.can_move).unwrap_or(false);
+        // Java `isRandomWalkingEnabled()`: the template flag (minions/walking-
+        // route targets that clear it at runtime aren't in the monster slice).
+        let random_walk = t.map(|t| t.random_walk).unwrap_or(false);
+        (pos.x, pos.y, pos.z, npc.spawn_loc, world.objects.has_component::<Movement>(&npc_oid), can_move, random_walk)
     };
-    if can_move && !moving {
-        let dist = (((spawn.0 - x) as f64).powi(2) + ((spawn.1 - y) as f64).powi(2)).sqrt();
-        if dist > max_drift {
-            move_npc_to(world, npc_oid, spawn.0, spawn.1, spawn.2);
-        }
+    if !can_move || moving {
+        return;
+    }
+    let dist = (((spawn.0 - x) as f64).powi(2) + ((spawn.1 - y) as f64).powi(2)).sqrt();
+    if dist > max_drift {
+        // Drifted out of range with nothing to chase: walk back home.
+        move_npc_to(world, npc_oid, spawn.0, spawn.1, spawn.2);
+    } else if random_walk && world.roll(RANDOM_WALK_RATE) == 0 {
+        random_walk_move(world, npc_oid, (x, y, z), spawn);
+    }
+}
+
+/// `AttackableAI.thinkActive`'s random-walk branch: pick a point within
+/// `MAX_DRIFT_RANGE` of the spawn anchor, geo-clamp the straight line to it,
+/// and walk there — but only if the clamped spot is still within drift range.
+fn random_walk_move(world: &mut World, npc_oid: i32, cur: (i32, i32, i32), spawn: (i32, i32, i32)) {
+    let drift = world.cfg.npc.max_drift_range;
+    // Java: deltaX ∈ [0, 2·drift); deltaY ∈ [deltaX, 2·drift] (Rnd.get(min,max)
+    // is inclusive of max); then deltaY = √(deltaY² − deltaX²) so the offset
+    // lands on a quarter arc of the drift circle around the spawn point.
+    let delta_x = world.roll(drift * 2);
+    let delta_y = delta_x + world.roll(drift * 2 - delta_x + 1);
+    let delta_y = (((delta_y as f64).powi(2) - (delta_x as f64).powi(2)).max(0.0)).sqrt() as i32;
+    let x1 = (delta_x + spawn.0) - drift;
+    let y1 = (delta_y + spawn.1) - drift;
+    let z1 = cur.2; // Java uses the NPC's current z, not the spawn z.
+
+    let (vx, vy, vz) = world.geo.get_valid_location(cur.0, cur.1, cur.2, x1, y1, z1);
+    // `Util.calculateDistance(spawn, moveLoc) <= MAX_DRIFT_RANGE`.
+    let from_spawn = (((vx - spawn.0) as f64).powi(2) + ((vy - spawn.1) as f64).powi(2)).sqrt();
+    if from_spawn <= drift as f64 {
+        move_npc_to(world, npc_oid, vx, vy, vz);
     }
 }
 

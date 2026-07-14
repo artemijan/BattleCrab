@@ -1126,8 +1126,8 @@ Empty/placeholder now, to be filled in the owning milestone:
   (rooted/overloaded/immobilized/dead/teleporting); cursor-key movement
   (`_cursorKeyMovement` path incl. `canMoveToTarget` front-cell check and
   `getLastServerPosition` stop); falling damage/state (`isFalling`).
-- **NPCs/world content (post-G9):** random walk / `randomAnimation`; guard
-  aggro (needs karma), clan/faction help calls (`<clanList>` unparsed),
+- **NPCs/world content (post-G9):** guard aggro (needs karma), clan/faction
+  help calls (`<clanList>` unparsed),
   minions, raid/grand-boss behaviours (chaos target swaps, raid curse,
   raid points); NPC skill casting (`AISkillScope` lists unparsed) + NPC
   buffs/effect list; NPC regen; ground drops + pickup (`AutoLoot = False`
