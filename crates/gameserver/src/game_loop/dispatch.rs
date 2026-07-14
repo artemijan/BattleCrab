@@ -85,7 +85,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_MAGIC_SKILL_USE => handle_request_magic_skill_use(world, client_id, body),
         cop::REQUEST_ACQUIRE_SKILL => handle_request_acquire_skill(world, client_id, body),
         cop::ACTION => handle_action(world, client_id, body),
-        cop::ATTACK_REQUEST => handle_attack_request(world, client_id, body),
+        cop::ATTACK | cop::ATTACK_REQUEST => handle_attack_request(world, client_id, body),
         cop::APPEARING => handle_appearing(world, client_id),
         cop::REQUEST_RESTART_POINT => handle_request_restart_point(world, client_id, body),
         cop::REQUEST_TARGET_CANCELD => handle_request_target_canceld(world, client_id, body),

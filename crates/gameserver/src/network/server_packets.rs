@@ -1177,6 +1177,7 @@ pub mod sm_ids {
     pub const YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED: i16 = 1036;
     pub const EXCHANGE_IS_SUCCESSFUL: i16 = 4358;
     pub const DISTANCE_TOO_FAR_CASTING_CANCELLED: i16 = 748;
+    pub const YOUR_TARGET_IS_OUT_OF_RANGE: i16 = 22;
     pub const S1_HP_HAS_BEEN_RESTORED: i16 = 1066;
     pub const S2_HP_HAS_BEEN_RESTORED_BY_C1: i16 = 1067;
     pub const M_CRITICAL: i16 = 1280;

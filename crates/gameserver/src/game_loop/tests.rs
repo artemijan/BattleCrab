@@ -1729,6 +1729,52 @@ fn skill_queued_during_cast_replays_on_current_target() {
     assert!(pvit(&world, 3003).cur_hp > 50.0, "heal landed on the new target");
 }
 
+/// A Ctrl-click (force attack) mid-cast on a *new* target must record the
+/// attack as the next intention, so the swing starts once the cast ends —
+/// Java's `onForcedAttack` → `setIntention(ATTACK)` (deferred to
+/// `_nextIntention` while casting). Regression for the "it changes the target
+/// but forgets to put the next intention, so when the cast finishes it doesn't
+/// start a new action" report: a single ctrl-click used to only select.
+#[test]
+fn force_attack_mid_cast_engages_new_target_after_cast() {
+    let (mut world, ..) = cast_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    // Nuke victim + the mob we force-attack next (in melee reach at x=20).
+    add_test_npc(&mut world, NPC_OID + 90, 45001, "Monster", 5, 60, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 91, 45002, "Monster", 5, 20, 0, 0);
+    let cast_target = NPC_OID + 90;
+    let next = NPC_OID + 91;
+
+    // Start a nuke on the first monster.
+    handle_action(&mut world, 1, &action_body(cast_target, 0));
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    assert!(world.objects.has_component::<Casting>(&3001), "nuke is casting");
+    drain(&mut a_rx);
+
+    // A SINGLE Ctrl-click on the second monster mid-cast: switches target AND
+    // parks the attack as the intention (it can't swing yet — still casting).
+    on_packet(&mut world, 1, [vec![cop::ATTACK], attack_request_body(next)].concat());
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        Some(next),
+        "target switched to the ctrl-clicked mob"
+    );
+    assert!(
+        matches!(
+            world.objects.get_component::<Intent>(&3001),
+            Some(Intent(crate::model::PlayerIntent::Attack { target_object_id })) if *target_object_id == next
+        ),
+        "the force-attack is remembered as the next intention"
+    );
+    assert!(world.objects.has_component::<Casting>(&3001), "the running nuke is untouched");
+
+    // When the nuke finishes, the parked attack engages the new mob.
+    let hp_before = nvit(&world, next).cur_hp;
+    world.forced_rolls.extend(std::iter::repeat([0i32, 99, 10]).take(12).flatten());
+    advance_world(&mut world, 55);
+    assert!(nvit(&world, next).cur_hp < hp_before, "the new target took melee damage after the cast");
+}
+
 /// The queue slot is last-click-wins, both ways: a skill click supersedes a
 /// queued move (Java: the `stopCasting` skill launch makes the new cast
 /// forget `_nextIntention`), and a later move click wipes a queued skill
@@ -3534,7 +3580,7 @@ fn melee_player_in_peace_zone_is_refused() {
     world.objects.get_component_mut::<ZoneFlags>(&5002).unwrap().mask =
         crate::data::zone_data::ZoneKind::Peace.bit();
     // Select first, then the attack-click.
-    super::combat::start_attack_intent(&mut world, 1, 5001, 5002);
+    super::combat::start_attack_intent(&mut world, 1, 5001, 5002, false);
 
     assert!(!world.objects.has_component::<Intent>(&5001), "no attack intent in a peace zone");
     assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::YOU_MAY_NOT_ATTACK_THIS_TARGET_IN_A_PEACEFUL_ZONE);
@@ -3551,7 +3597,7 @@ fn melee_player_outside_peace_zone_starts_attack() {
     let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     let _b = ingame_player(&mut world, 2, 5002, 30, 0, 0);
 
-    super::combat::start_attack_intent(&mut world, 1, 5001, 5002);
+    super::combat::start_attack_intent(&mut world, 1, 5001, 5002, false);
 
     assert!(
         matches!(world.objects.get_component::<Intent>(&5001).map(|i| i.0),
@@ -3864,12 +3910,16 @@ fn advance_world(world: &mut World, n: u64) {
 }
 
 fn attack_request_body(object_id: i32) -> Vec<u8> {
+    attack_request_body_shift(object_id, false)
+}
+
+fn attack_request_body_shift(object_id: i32, shift: bool) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_i32(object_id);
     w.write_i32(0); // origin x
     w.write_i32(0); // origin y
     w.write_i32(0); // origin z
-    w.write_u8(0); // simple click
+    w.write_u8(if shift { 1 } else { 0 }); // 0 simple / 1 shift click
     w.into_bytes()
 }
 
@@ -3982,6 +4032,127 @@ fn melee_kill_rewards_and_decay() {
         "corpse DeleteObject"
     );
     assert!(world.scheduler.is_empty(), "no respawn for a respawn-less spawn line");
+}
+
+/// Regression: the Ctrl-click force-attack. Java's `ClientPackets` binds *both*
+/// `ATTACK` (0x01) and `ATTACK_REQUEST` (0x32) to `AttackRequest`; the Interlude
+/// client sends 0x01 on a Ctrl-click. It must route through `on_packet` to the
+/// attack handler, and — since a Ctrl-click is a *force attack* — one click both
+/// selects the target (`MyTargetSelected`) and engages it (`Attack` intent +
+/// broadcast), without waiting for a second click. Before the 0x01 arm existed
+/// the packet fell through to the unhandled branch and nothing happened.
+#[test]
+fn ctrl_click_opcode_0x01_switches_target_and_attacks() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 30;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 20, 0, 0, 100_000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+
+    // A single Ctrl-click with no current target: routes to the handler,
+    // switches the target AND engages the attack in one click (force attack).
+    world.forced_rolls.extend([0, 99, 10]);
+    let ctrl_click = [vec![cop::ATTACK], attack_request_body(npc_oid)].concat();
+    on_packet(&mut world, 1, ctrl_click);
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        Some(npc_oid),
+        "0x01 selects the clicked target"
+    );
+    let packets = drain(&mut a_rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::MY_TARGET_SELECTED),
+        "target switch sends MyTargetSelected"
+    );
+    assert!(
+        matches!(world.objects.get_component::<Intent>(&3001), Some(Intent(crate::model::PlayerIntent::Attack { .. }))),
+        "one Ctrl-click engages the attack intent"
+    );
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::ATTACK), "Attack broadcast on the same click");
+}
+
+/// Shift-click is `dontMove`: an out-of-reach shift-attack refuses to chase and
+/// fails with "your target is out of range" (SM 22) + `ActionFailed`, leaving no
+/// attack intent and no movement. A plain (non-shift) attack on the same mob
+/// chases instead — the contrast the shift flag controls. (Java discards the
+/// byte; this is a deliberate enhancement.)
+#[test]
+fn shift_attack_out_of_reach_fails_instead_of_chasing() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 33;
+    // 200 units away — beyond reach 20 + 0 + 10 = 30.
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 200, 0, 0, 5000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+
+    // Shift-attack the far mob: selects it, but refuses to move.
+    on_packet(&mut world, 1, [vec![cop::ATTACK], attack_request_body_shift(npc_oid, true)].concat());
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        Some(npc_oid),
+        "shift-attack still selects the target"
+    );
+    assert!(!world.objects.has_component::<Intent>(&3001), "no attack intent — dontMove");
+    assert!(!world.objects.has_component::<Movement>(&3001), "no chase — dontMove");
+    let packets = drain(&mut a_rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+            && sm_id(p) == server_packets::sm_ids::YOUR_TARGET_IS_OUT_OF_RANGE),
+        "out-of-range system message"
+    );
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::ACTION_FAIL), "ActionFailed");
+
+    // Contrast: a plain (non-shift) attack on the same mob DOES chase.
+    on_packet(&mut world, 1, [vec![cop::ATTACK], attack_request_body(npc_oid)].concat());
+    assert!(
+        matches!(world.objects.get_component::<Intent>(&3001), Some(Intent(crate::model::PlayerIntent::Attack { .. }))),
+        "a non-shift attack engages (and will chase)"
+    );
+}
+
+/// dontMove is independent of the force modifier: a shift-click arrives on the
+/// `Action` packet (`action_id == 1`), not `AttackRequest`, so the shift flag
+/// has to be honoured there too. An out-of-reach shift-click on the current
+/// monster target refuses to chase (SM 22 + no intent/movement); a plain click
+/// on the same target chases. Regression for "dontMove only worked with
+/// ctrl+shift" — ctrl routes to `AttackRequest`, shift alone routes to `Action`.
+#[test]
+fn shift_click_via_action_packet_does_not_move() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 34;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 200, 0, 0, 5000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+
+    // Select the far monster (plain click just targets it).
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    drain(&mut a_rx);
+
+    // Shift-click it (Action, action_id = 1) — dontMove: no chase, "out of range".
+    handle_action(&mut world, 1, &action_body(npc_oid, 1));
+    assert!(!world.objects.has_component::<Intent>(&3001), "no attack intent — dontMove");
+    assert!(!world.objects.has_component::<Movement>(&3001), "no chase — dontMove");
+    assert!(
+        drain(&mut a_rx).iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+            && sm_id(p) == server_packets::sm_ids::YOUR_TARGET_IS_OUT_OF_RANGE),
+        "out-of-range system message"
+    );
+
+    // A plain click on the same target chases instead.
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    assert!(
+        matches!(world.objects.get_component::<Intent>(&3001), Some(Intent(crate::model::PlayerIntent::Attack { .. }))),
+        "a non-shift click engages (and will chase)"
+    );
 }
 
 /// Chasing: an `AttackRequest` from out of melee reach walks the player

@@ -199,6 +199,14 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
     }
 
     let _ = player;
+    // A Ctrl-click (force attack) both selects *and* engages the target. When
+    // switching target the client may send only this packet — no preceding
+    // `Action` — so selecting without engaging drops the "attack this next"
+    // order (Java gets the select via a separate `Action` first, then
+    // `onForcedAttack`; we can't rely on that ordering). While casting or
+    // mid-swing, `start_attack_intent` parks the attack as the intention that
+    // fires when the cast/swing ends — Java's `onForcedAttack` →
+    // `setIntention(ATTACK)`, deferred to `_nextIntention` while busy.
     let current = world
         .objects
         .get_component::<crate::model::components::TargetRef>(&object_id)
@@ -207,13 +215,9 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
         .0;
     if current != Some(pkt.object_id) {
         super::target::set_target(world, client_id, object_id, Some(pkt.object_id));
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
-        return;
     }
 
-    start_attack_intent(world, client_id, object_id, pkt.object_id);
+    start_attack_intent(world, client_id, object_id, pkt.object_id, pkt.shift);
 }
 
 /// Shared entry for "the player wants to auto-attack this NPC" (from
@@ -225,6 +229,7 @@ pub(crate) fn start_attack_intent(
     client_id: u32,
     object_id: i32,
     target_object_id: i32,
+    shift: bool,
 ) {
     let target_is_player = world
         .objects
@@ -269,6 +274,26 @@ pub(crate) fn start_attack_intent(
                 cs.send(server_packets::action_failed());
             }
             return;
+        }
+    }
+    // Shift-click is Java's `dontMove`: refuse to walk into reach. If the
+    // target is beyond melee reach, fail with "out of range" instead of
+    // starting a chase (Java discards the flag; we honour it). The player is
+    // stationary here — a chase leg or manual move ends before this — so the
+    // current position is the right thing to range-check.
+    if shift {
+        if let (Some(attacker), Some(target)) =
+            (combatant(world, object_id), combatant(world, target_object_id))
+        {
+            if distance_2d(&attacker, &target) > attack_reach(&attacker, &target) {
+                super::helpers::send_sm_and_action_failed(
+                    world,
+                    client_id,
+                    server_packets::sm_ids::YOUR_TARGET_IS_OUT_OF_RANGE,
+                    &[],
+                );
+                return;
+            }
         }
     }
     world.objects.add_components(
@@ -615,7 +640,10 @@ fn player_interact_think(world: &mut World, object_id: i32) {
     let Some(client_id) = client_for_player(world, object_id) else {
         return;
     };
-    super::target::interact_with_npc(world, client_id, object_id, target_object_id);
+    // Re-entry after walking into interaction range: only the chat/interact
+    // branch reaches here (attackable targets chase via the attack loop, not
+    // this walk-to-interact path), so the dontMove flag is moot.
+    super::target::interact_with_npc(world, client_id, object_id, target_object_id, false);
 }
 
 // ---------------------------------------------------------------------------

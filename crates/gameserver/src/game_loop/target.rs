@@ -28,18 +28,19 @@ pub(crate) fn can_interact(world: &World, player_object_id: i32, npc_object_id: 
     dx * dx + dy * dy + dz * dz <= INTERACTION_DISTANCE * INTERACTION_DISTANCE
 }
 
-/// Port of `clientpackets/Action.runImpl` for the single-click case
-/// (`action_id == 0`), now resolving both players and NPCs. Java's dispatch:
-/// a click on something that isn't your target selects it
+/// Port of `clientpackets/Action.runImpl`, now resolving both players and NPCs.
+/// Java's dispatch: a click on something that isn't your target selects it
 /// (`Player.setTarget`); a second click on an NPC target interacts
 /// (`NpcAction` — attack for monsters (G9), chat window for the rest).
-/// Shift-click (`action_id == 1`) and the flood/bot/trade guards stay out of
-/// scope. Always terminates with `ActionFailed`, matching
-/// `WorldObject.onAction`'s convention.
+/// `action_id == 1` is a shift-click: the client's *dontMove* modifier, so an
+/// attack it starts refuses to chase (Java routes this to `onActionShift` for
+/// GM/info instead, which we don't model — we treat it as "attack in place").
+/// Always terminates with `ActionFailed`, matching `WorldObject.onAction`.
 pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::Action::read(body) else { return };
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
+    let shift = pkt.action_id == 1;
 
     if world.objects.has_component::<crate::model::Player>(&pkt.object_id) {
         set_target(world, client_id, object_id, Some(pkt.object_id));
@@ -53,7 +54,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
             let already_targeted =
                 world.objects.get_component::<TargetRef>(&object_id).copied().unwrap_or_default().0 == Some(pkt.object_id);
             if already_targeted {
-                interact_with_npc(world, client_id, object_id, pkt.object_id);
+                interact_with_npc(world, client_id, object_id, pkt.object_id, shift);
             } else {
                 set_target(world, client_id, object_id, Some(pkt.object_id));
             }
@@ -217,7 +218,7 @@ pub(crate) fn set_target(world: &mut World, client_id: u32, object_id: i32, new_
 /// player walks in first (`combat::start_interact_intent`, Java's
 /// `AI_INTENTION_INTERACT`) and this function is re-entered on arrival —
 /// matching Java's `Player.doInteract` re-dispatching `onAction`.
-pub(crate) fn interact_with_npc(world: &mut World, client_id: u32, object_id: i32, npc_object_id: i32) {
+pub(crate) fn interact_with_npc(world: &mut World, client_id: u32, object_id: i32, npc_object_id: i32, shift: bool) {
     if world.objects.get_component::<crate::model::Player>(&object_id).is_none() {
         return;
     }
@@ -226,7 +227,8 @@ pub(crate) fn interact_with_npc(world: &mut World, client_id: u32, object_id: i3
     if t.is_auto_attackable() {
         let dead = world.objects.get_component::<Vitals>(&object_id).is_some_and(|v| v.dead);
         if !dead {
-            super::combat::start_attack_intent(world, client_id, object_id, npc_object_id);
+            // Shift-click carries the dontMove modifier into the attack.
+            super::combat::start_attack_intent(world, client_id, object_id, npc_object_id, shift);
         }
         return;
     }

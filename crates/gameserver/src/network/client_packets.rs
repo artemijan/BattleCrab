@@ -28,6 +28,11 @@ pub mod opcodes {
     pub const VALIDATE_POSITION: u8 = 0x59;
     pub const REQUEST_ACQUIRE_SKILL: u8 = 0x7C;
     pub const REQUEST_SKILL_LIST: u8 = 0x50;
+    /// Force attack / target switch (Ctrl-click). Java's `ClientPackets`
+    /// binds both this and `ATTACK_REQUEST` (0x32) to `AttackRequest`; the
+    /// Interlude client sends this one on a Ctrl-click, so both must route to
+    /// the same handler.
+    pub const ATTACK: u8 = 0x01;
     pub const ATTACK_REQUEST: u8 = 0x32;
     pub const APPEARING: u8 = 0x3A;
     pub const REQUEST_RESTART_POINT: u8 = 0x7D;
@@ -306,17 +311,24 @@ impl Action {
 }
 
 /// Port of `clientpackets/AttackRequest` (`cddddc`) — the client clicking an
-/// already-targeted attackable creature. The origin coordinates and the
-/// shift-click byte are read and discarded, like Java's unused fields.
+/// attackable creature. The origin coordinates are read and discarded like
+/// Java's unused fields; the trailing `attackId` byte (`0` = simple click, `1`
+/// = shift-click) is Java's `dontMove` flag — Java ignores it, but we honour it
+/// so a shift-attack refuses to chase (see `start_attack_intent`).
 pub struct AttackRequest {
     pub object_id: i32,
+    pub shift: bool,
 }
 
 impl AttackRequest {
     pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
         let mut r = PacketReader::new(body_after_opcode);
         let object_id = r.read_i32()?;
-        Some(Self { object_id })
+        r.read_i32()?; // origin_x — unused
+        r.read_i32()?; // origin_y — unused
+        r.read_i32()?; // origin_z — unused
+        let shift = r.read_u8()? == 1;
+        Some(Self { object_id, shift })
     }
 }
 
