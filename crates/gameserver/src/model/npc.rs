@@ -168,6 +168,7 @@ pub type NpcExtra = (
     crate::model::components::AttackState,
     NpcAi,
     AggroList,
+    crate::model::components::Buffs,
 );
 
 impl Npc {
@@ -216,6 +217,7 @@ impl Npc {
             AttackState::default(),
             NpcAi::default(),
             AggroList::default(),
+            crate::model::components::Buffs::default(),
         );
         (npc, extra)
     }
@@ -380,6 +382,10 @@ pub(crate) fn spawn_one(world: &mut World, spawn_idx: usize, group_idx: usize, n
             crate::model::components::AttackState::default(),
             NpcAi::default(),
             AggroList::default(),
+            // NPCs can now carry buffs (e.g. a player casting Might on a mob);
+            // their stats recompute from template + these via
+            // `recompute_npc_stats_from_buffs`.
+            crate::model::components::Buffs::default(),
         ),
     );
     // `onSpawn` hook (Java `Quest.notifySpawn` via `addSpawnId`) — fires for

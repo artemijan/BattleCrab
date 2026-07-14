@@ -184,6 +184,15 @@ pub(crate) fn set_target(world: &mut World, client_id: u32, object_id: i32, new_
                     (server_packets::status_update_type::CUR_HP, info.cur_hp),
                 ],
             ));
+            // Populate the target window's buff row if the new target already
+            // carries (non-passive) buffs — Java sends this on the next
+            // `updateEffectIcons`; we send it up front on select.
+            let now = world.tick;
+            if let Some(buffs) = world.objects.get_component::<crate::model::components::Buffs>(&t) {
+                if buffs.0.iter().any(|b| !b.passive) {
+                    cs.send(crate::network::enter_world::ex_abnormal_status_update_from_target(t, buffs, now));
+                }
+            }
         }
         broadcast_to_others(world, object_id, &server_packets::target_selected(object_id, t, px, py, pz));
     } else {

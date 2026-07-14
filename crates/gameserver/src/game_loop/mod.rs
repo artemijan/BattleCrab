@@ -23,6 +23,7 @@ mod npc_ai;
 mod party;
 mod passive_skills;
 mod position;
+mod pvp;
 pub mod quests;
 mod regen;
 mod shop;
@@ -181,6 +182,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
             // timeouts, checked at the same 1 s cadence as Java).
             npc_ai::npc_ai_tick(&mut world);
             combat::stance_tick(&mut world);
+            pvp::pvp_flag_tick(&mut world);
         }
         if world.tick.is_multiple_of(REGEN_TICK_PERIOD) {
             run_regen_tick(&mut world);

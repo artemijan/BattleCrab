@@ -94,22 +94,30 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     }
 
     // Continuous effects → one ActiveBuff on the target (`applyEffects`).
-    // NPCs have no effect list yet (their stats are template-derived), so
-    // buffs on NPC targets are dropped — G9 monsters cast nothing anyway.
-    if crate::game_loop::combat::is_npc_oid(target_oid) {
+    let buff_effects = skill.stat_modifier_effects();
+    if buff_effects.is_empty() {
         return;
     }
-    let buff_effects = skill.stat_modifier_effects();
-    if !buff_effects.is_empty() {
-        let expires_at_tick = world.tick + (skill.abnormal_time.max(0) as u64) * 10;
-        let buff = ActiveBuff {
-            skill_id: skill.id,
-            skill_level: skill.level,
-            abnormal_type_client_id: abnormal_type_client_id(&skill.abnormal_type),
-            expires_at_tick,
-            passive: false,
-            effects: buff_effects,
-        };
+    let expires_at_tick = world.tick + (skill.abnormal_time.max(0) as u64) * 10;
+    let buff = ActiveBuff {
+        skill_id: skill.id,
+        skill_level: skill.level,
+        abnormal_type_client_id: abnormal_type_client_id(&skill.abnormal_type),
+        expires_at_tick,
+        passive: false,
+        effects: buff_effects,
+    };
+    // NPC target: buffs modify the mob's server-side stats (no buff icons —
+    // those are self-only — and no NpcInfo re-broadcast, so a speed change
+    // isn't reflected client-side until respawn; the combat math uses it now).
+    if crate::game_loop::combat::is_npc_oid(target_oid) {
+        apply_buff_to_npc(world, target_oid, buff, skill.id);
+        world
+            .scheduler
+            .schedule(expires_at_tick, ScheduledTask::BuffExpire { player_object_id: target_oid, skill_id: skill.id });
+        return;
+    }
+    {
         if let Some((target, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world
             .objects
             .get_many_mut::<(
@@ -264,6 +272,72 @@ pub(crate) fn apply_magic_damage(world: &mut World, caster_oid: i32, target_oid:
     crate::game_loop::combat::apply_physical_damage(world, caster_oid, target_oid, damage);
 }
 
+/// Land a buff on an NPC: store it (a re-cast of the same skill replaces the
+/// old instance, like `EffectList`'s per-skill slot), recompute its stats, and
+/// refresh the buff row in the target window of anyone watching it.
+fn apply_buff_to_npc(world: &mut World, target_oid: i32, buff: ActiveBuff, skill_id: i32) {
+    match world.objects.get_component_mut::<Buffs>(&target_oid) {
+        Some(b) => {
+            b.0.retain(|x| x.skill_id != skill_id);
+            b.0.push(buff);
+        }
+        None => return,
+    }
+    recompute_npc_buffed_stats(world, target_oid);
+    broadcast_target_buffs(world, target_oid);
+}
+
+/// Push a creature's current buffs to every player who has it targeted (Java
+/// `EffectList.updateEffectIcons` → `ExAbnormalStatusUpdateFromTarget` to the
+/// status listeners) — this is what draws the buff icons under a target's HP
+/// bar. Used for NPC targets; players get their own self bar separately.
+pub(crate) fn broadcast_target_buffs(world: &mut World, target_oid: i32) {
+    let now = world.tick;
+    let pkt = match world.objects.get_component::<Buffs>(&target_oid) {
+        Some(buffs) => {
+            crate::network::enter_world::ex_abnormal_status_update_from_target(target_oid, buffs, now)
+        }
+        None => return,
+    };
+    let mut observers: Vec<i32> = Vec::new();
+    world
+        .objects
+        .for_each_mut::<(&crate::model::Player, &crate::model::components::TargetRef)>(|(p, t)| {
+            if t.0 == Some(target_oid) {
+                observers.push(p.object_id);
+            }
+        });
+    for oid in observers {
+        if let Some(cid) = client_for_player(world, oid) {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(pkt.clone());
+            }
+        }
+    }
+}
+
+/// Rebuild an NPC's combat stats from its template + current buffs (see
+/// `model::recompute_npc_stats_from_buffs`). `world.data` and `world.objects`
+/// are disjoint fields, so the template ref and the mutable component borrow
+/// coexist.
+fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
+    let Some(npc_id) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&target_oid)
+        .map(|n| n.npc_id)
+    else {
+        return;
+    };
+    let Some(t) = world.data.npc_data.get(npc_id) else { return };
+    let sb = &world.data.stat_bonus;
+    if let Some((buffs, mut combat, mut speeds)) = world
+        .objects
+        .get_many_mut::<(&Buffs, &mut CombatStats, &mut Speeds)>(&target_oid)
+    {
+        crate::model::recompute_npc_stats_from_buffs(t, sb, buffs, &mut combat, &mut speeds);
+    }
+}
+
 /// `BuffFinishTask`, fired when a buff's `abnormalTime` elapses
 /// (`ScheduledTask::BuffExpire`). A buff already gone (re-cast/replaced) is a
 /// no-op, matching the scheduler's dead-id contract.
@@ -273,6 +347,15 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         .get_component::<Buffs>(&player_object_id)
         .is_some_and(|b| b.0.iter().any(|b| b.skill_id == skill_id));
     if !still_active {
+        return;
+    }
+    // NPC: drop the buff and recompute from the template (no icons/broadcast).
+    if crate::game_loop::combat::is_npc_oid(player_object_id) {
+        if let Some(b) = world.objects.get_component_mut::<Buffs>(&player_object_id) {
+            b.0.retain(|x| x.skill_id != skill_id);
+        }
+        recompute_npc_buffed_stats(world, player_object_id);
+        broadcast_target_buffs(world, player_object_id);
         return;
     }
     if let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world

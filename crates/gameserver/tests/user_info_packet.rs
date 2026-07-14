@@ -71,6 +71,7 @@ async fn user_info_test() {
         collision: &collision,
         combat: &combat,
         inventory: &inventory,
+        pvp_flag: 0,
     };
     let gd = GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
     let cfg = CharacterConfig::default();

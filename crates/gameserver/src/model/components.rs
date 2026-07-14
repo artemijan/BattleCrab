@@ -141,6 +141,18 @@ pub struct AttackState {
     pub stance_until_tick: u64,
 }
 
+/// PvP flag state (Java `Player._pvpFlag` + `_pvpFlagLasts`), runtime-only —
+/// never persisted, so it lives in its own component rather than on the stored
+/// `Player`. `flag` is the broadcast value: 0 = clean, 1 = solid purple,
+/// 2 = blinking (the last 20 s before it clears). `expires_tick` is when the
+/// flag drops back to 0; `PvpFlagTaskManager`'s 1 s sweep drives the 1→2→0
+/// transitions.
+#[derive(Component, Debug, Clone, Copy, Default)]
+pub struct PvpState {
+    pub flag: u8,
+    pub expires_tick: u64,
+}
+
 /// An in-flight move — **present only while moving** (the stage-2 shape of
 /// Java's nullable `Creature._move`). Presence is the movement tick's sweep
 /// filter: the interpolation query visits only entities that carry this,

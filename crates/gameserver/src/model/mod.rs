@@ -212,6 +212,7 @@ impl PlayerData {
                     Reuses::default(),
                     components::ZoneFlags::default(),
                     components::ExpertisePenalty::default(),
+                    components::PvpState::default(),
                 ),
             ),
         );
@@ -232,6 +233,8 @@ pub struct PlayerView<'a> {
     pub collision: &'a Collision,
     pub combat: &'a CombatStats,
     pub inventory: &'a Inventory,
+    /// Runtime PvP flag (0/1/2) for the SOCIAL block; 0 pre-spawn.
+    pub pvp_flag: u8,
 }
 
 impl<'a> PlayerView<'a> {
@@ -246,6 +249,9 @@ impl<'a> PlayerView<'a> {
             collision: objects.get_component::<Collision>(&object_id)?,
             combat: objects.get_component::<CombatStats>(&object_id)?,
             inventory: objects.get_component::<Inventory>(&object_id)?,
+            pvp_flag: objects
+                .get_component::<components::PvpState>(&object_id)
+                .map_or(0, |s| s.flag),
         })
     }
 }
@@ -262,6 +268,7 @@ impl PlayerData {
             collision: &self.collision,
             combat: &self.combat,
             inventory: &self.inventory,
+            pvp_flag: 0,
         }
     }
 }
@@ -734,6 +741,48 @@ fn finalize_speed(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
     let mul = mods.mul.get(&stat).copied().unwrap_or(1.0).max(0.7);
     let add = mods.add.get(&stat).copied().unwrap_or(0.0);
     base * mul + add
+}
+
+/// Rebuild an NPC's `CombatStats`/`Speeds` from its template plus its active
+/// buffs (the NPC counterpart of `Player::recalculate_stats` +
+/// `apply_buff`/`remove_buff`). NPCs have no gear or base-stat components, so
+/// the template-derived values (`npc_combat_stats`) are the finalizer bases;
+/// each active buff's modifiers fold in through the same add/mul maps and
+/// `finalize*` the player uses. Called on every buff apply/expire, so it starts
+/// from a clean base each time and can't drift.
+pub(crate) fn recompute_npc_stats_from_buffs(
+    t: &crate::data::npc_data::NpcTemplate,
+    sb: &crate::data::stat_bonus::StatBonus,
+    buffs: &Buffs,
+    combat: &mut CombatStats,
+    speeds: &mut Speeds,
+) {
+    let base = npc::npc_combat_stats(t, sb);
+    let mut mods = StatModifiers::default();
+    for buff in &buffs.0 {
+        for effect in &buff.effects {
+            apply_modifier(&mut mods.add, &mut mods.mul, effect);
+        }
+    }
+    combat.p_atk = finalize(&mods, Stat::PhysicalAttack, base.p_atk).clamp(0.0, MAX_PATK);
+    combat.m_atk = finalize(&mods, Stat::MagicalAttack, base.m_atk).clamp(0.0, MAX_MATK);
+    // NPCs carry no naked-base/gear split, so the defense floor is a fifth of
+    // the template value (mirrors the player's `base × 0.2`).
+    combat.p_def = finalize_def(&mods, Stat::PhysicalDefence, base.p_def, base.p_def * 0.2);
+    combat.m_def = finalize_def(&mods, Stat::MagicalDefence, base.m_def, base.m_def * 0.2);
+    combat.p_atk_spd =
+        finalize_speed(&mods, Stat::PhysicalAttackSpeed, base.p_atk_spd as f64).clamp(1.0, MAX_PATK_SPEED) as i32;
+    combat.m_atk_spd =
+        finalize_speed(&mods, Stat::MagicAttackSpeed, base.m_atk_spd as f64).clamp(1.0, MAX_MATK_SPEED) as i32;
+    combat.crit_hit = finalize(&mods, Stat::CriticalRate, base.crit_hit).clamp(0.0, MAX_PCRIT_RATE);
+    combat.accuracy = finalize(&mods, Stat::AccuracyCombat, base.accuracy as f64) as i32;
+    combat.evasion = finalize(&mods, Stat::EvasionRate, base.evasion as f64).clamp(0.0, MAX_EVASION) as i32;
+    // Range / random-damage aren't buffable here — keep the template values.
+    combat.atk_range = base.atk_range;
+    combat.random_dmg = base.random_dmg;
+    // Speeds: no `RUN_SPD_BOOST` for NPCs (that's a player-only base add).
+    speeds.run_spd = finalize(&mods, Stat::RunSpeed, t.base_run_spd);
+    speeds.walk_spd = finalize(&mods, Stat::WalkSpeed, t.base_walk_spd);
 }
 
 /// Port of `ConditionUsingItemType.testImpl`'s armor branch (the only branch a

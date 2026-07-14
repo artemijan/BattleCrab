@@ -125,21 +125,38 @@ pub(crate) fn resolve_cast_target(
             if t == caster.object_id {
                 return Ok(t);
             }
+            // Casting on a monster requires force (Ctrl). Java's `Target.java`
+            // is permissive and leans on the client to demand Ctrl for a good
+            // skill on a hostile creature; we enforce it server-side so buffing
+            // a mob needs a deliberate force-pick, matching the real client.
+            let is_monster = world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&t)
+                .and_then(|n| n.template(world))
+                .is_some_and(|tm| tm.is_auto_attackable());
+            if is_monster && !ctrl {
+                return Err(sm_ids::INVALID_TARGET);
+            }
             t
         }
         // `Enemy.java`/`EnemyOnly.java`: not self, and `isAutoAttackable ||
-        // forceUse` — monsters are auto-attackable; players carry no PvP
-        // flag/karma yet, so hitting one still needs ctrl (force-use).
+        // forceUse`. Monsters are always auto-attackable; a player is only when
+        // flagged/PK (`isAutoAttackable` relation), so hitting a clean player
+        // still needs Ctrl (force-use), but a flagged one doesn't.
         TargetType::Enemy | TargetType::EnemyOnly => {
             let t = caster_target.ok_or(sm_ids::INVALID_TARGET)?;
             if t == caster.object_id {
                 return Err(sm_ids::INVALID_TARGET);
             }
-            let auto_attackable = world
-                .objects
-                .get_component::<crate::model::npc::Npc>(&t)
-                .and_then(|n| n.template(world))
-                .is_some_and(|tm| tm.is_auto_attackable());
+            let auto_attackable = if world.objects.has_component::<Player>(&t) {
+                crate::game_loop::pvp::is_player_auto_attackable(world, caster.object_id, t)
+            } else {
+                world
+                    .objects
+                    .get_component::<crate::model::npc::Npc>(&t)
+                    .and_then(|n| n.template(world))
+                    .is_some_and(|tm| tm.is_auto_attackable())
+            };
             if !auto_attackable && !ctrl {
                 return Err(sm_ids::INVALID_TARGET);
             }
@@ -794,15 +811,46 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         apply_skill_effects(world, player_object_id, cast.target_object_id, &skill);
     }
 
-    // Start attack stance (`SkillCaster` finalizer, right after `callSkill`): a
-    // bad skill with an action draws the caster's weapon and starts the 15 s
-    // combat timer, exactly like a melee swing — so `canLogout` refuses a
-    // relogin for 15 s after nuking/debuffing a mob. Java also excludes
-    // `isWithoutAction()` skills and `DOOR_TREASURE` targets; neither is modeled
-    // in the cast pipeline (every bad skill it resolves has an action and
-    // targets a creature), so `is_bad()` is the whole gate here.
+    // `SkillCaster` flagging + stance, per target (single-target pipeline).
+    let target_oid = cast.target_object_id;
+    let target_is_player = world.objects.has_component::<Player>(&target_oid);
+    // Monster proxy: an NPC whose template is auto-attackable (same test the
+    // targeting code uses for "is this a monster").
+    let target_is_monster = !target_is_player
+        && world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&target_oid)
+            .and_then(|n| n.template(world))
+            .is_some_and(|t| t.is_auto_attackable());
     if skill.is_bad() {
+        // Bad skill on a player → flag the caster against that target
+        // (`updatePvPStatus(target)`). Monsters just take hate, no flag.
+        if target_is_player {
+            crate::game_loop::pvp::update_pvp_status_target(world, player_object_id, target_oid);
+        }
+        // Start attack stance (finalizer, right after `callSkill`): a bad skill
+        // with an action draws the weapon and starts the 15 s combat timer, so
+        // `canLogout` refuses a relogin. Java also excludes `isWithoutAction()`
+        // skills and `DOOR_TREASURE` targets; neither is modeled here, so
+        // `is_bad()` is the whole gate.
         crate::game_loop::combat::refresh_attack_stance(world, player_object_id);
+    } else if target_oid != player_object_id {
+        // Good/support skill (not self-cast): "supporting monsters or players
+        // results in pvpflag" — buffing a monster, or a flagged/PK player,
+        // self-flags the caster (`updatePvPStatus()`).
+        let target_is_flagged = world
+            .objects
+            .get_component::<crate::model::components::PvpState>(&target_oid)
+            .is_some_and(|s| s.flag > 0)
+            || world
+                .objects
+                .get_component::<Player>(&target_oid)
+                .is_some_and(|p| p.reputation < 0);
+        let flag_self = (skill.effect_point > 0 && target_is_monster)
+            || (target_is_player && target_is_flagged);
+        if flag_self {
+            crate::game_loop::pvp::update_pvp_status(world, player_object_id);
+        }
     }
 
     // Hold the cast slot for the cool phase (`stopCasting(false)` after

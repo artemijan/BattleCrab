@@ -33,6 +33,9 @@ pub enum ZoneKind {
     Peace,
     Water,
     NoRestart,
+    /// Java `ArenaZone` → `ZoneId.PVP`: free-for-all areas where players are
+    /// auto-attackable and hostile actions don't raise a flag.
+    Pvp,
 }
 
 impl ZoneKind {
@@ -42,6 +45,7 @@ impl ZoneKind {
             ZoneKind::Peace => 1,
             ZoneKind::Water => 2,
             ZoneKind::NoRestart => 4,
+            ZoneKind::Pvp => 8,
         }
     }
 }
@@ -70,12 +74,16 @@ impl ZoneData {
             ("peace.xml", ZoneKind::Peace),
             ("water.xml", ZoneKind::Water),
             ("no_restart.xml", ZoneKind::NoRestart),
+            // `pvp.xml` is uniformly `ArenaZone`, so the filename→kind mapping
+            // is correct. `underground_coliseum.xml` mixes zone types and needs
+            // per-zone `type=` parsing before it can be loaded — deferred.
+            ("pvp.xml", ZoneKind::Pvp),
         ] {
             parse_file(&format!("{file_path}data/zones/{file}"), kind, &mut zones);
         }
         let mut data = Self { zones, grid: Default::default() };
         data.build_grid();
-        info!("ZoneData: Loaded {} zones (peace/water/no_restart).", data.zones.len());
+        info!("ZoneData: Loaded {} zones (peace/water/no_restart/pvp).", data.zones.len());
         data
     }
 
@@ -216,8 +224,8 @@ mod tests {
     #[test]
     fn loads_real_dist_files() {
         let data = ZoneData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
-        // 127 peace + 423 water + 40 no_restart.
-        assert_eq!(data.zones.len(), 590);
+        // 127 peace + 423 water + 40 no_restart + 6 pvp.
+        assert_eq!(data.zones.len(), 596);
 
         // Talking Island town center sits in talking_island_town_peace_zone1
         // (NPoly, z band [-3966, -3466]).
@@ -234,6 +242,10 @@ mod tests {
         // Zaken's deck is a no-restart NPoly.
         let mask = data.mask_at(54000, 217000, -3000);
         assert_eq!(mask & ZoneKind::NoRestart.bit(), ZoneKind::NoRestart.bit());
+
+        // gludin_pvp ArenaZone (NPoly, z band [-3752, -352]).
+        let mask = data.mask_at(-88000, 142000, -1000);
+        assert_eq!(mask & ZoneKind::Pvp.bit(), ZoneKind::Pvp.bit());
     }
 
     #[test]

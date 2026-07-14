@@ -1231,8 +1231,12 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
     // clientStartAutoAttack broadcast), then B's CP/HP status.
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::AUTO_ATTACK_START);
     assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE); // B's CP/HP
-    // The caster also enters stance now (SkillCaster finalizer: bad skill →
-    // clientStartAutoAttack), broadcast last — object 3001, seen by both.
+    // Nuking a player flags the caster (SkillCaster: bad skill on a playable →
+    // updatePvPStatus(target)): a PVP_FLAG StatusUpdate for object 3001, then
+    // the caster's own stance — both broadcast, object 3001.
+    let a_flag = a_rx.try_recv().unwrap();
+    assert_eq!(a_flag[0], server_packets::opcodes::STATUS_UPDATE);
+    assert_eq!(i32::from_le_bytes(a_flag[1..5].try_into().unwrap()), 3001, "caster's own pvp-flag update");
     let a_stance = a_rx.try_recv().unwrap();
     assert_eq!(a_stance[0], server_packets::opcodes::AUTO_ATTACK_START);
     assert_eq!(i32::from_le_bytes(a_stance[1..5].try_into().unwrap()), 3001, "caster's own stance");
@@ -1240,11 +1244,15 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
     assert_eq!(sm_id(&b_rx.try_recv().unwrap()), server_packets::sm_ids::C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2);
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::AUTO_ATTACK_START);
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
+    // B also sees A's flag: the PVP_FLAG StatusUpdate + a RelationChanged.
+    assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE, "B sees A's pvp-flag update");
+    assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::RELATION_CHANGED, "B sees A's relation change");
     let b_sees_a = b_rx.try_recv().unwrap();
     assert_eq!(b_sees_a[0], server_packets::opcodes::AUTO_ATTACK_START);
     assert_eq!(i32::from_le_bytes(b_sees_a[1..5].try_into().unwrap()), 3001, "B sees the caster's stance");
     assert!(b_rx.try_recv().is_err());
     assert!(world.objects.get_component::<crate::model::components::AttackState>(&3001).is_some_and(|st| st.stance_until_tick > world.tick), "caster is in combat stance → canLogout refuses relogin");
+    assert_eq!(world.objects.get_component::<crate::model::components::PvpState>(&3001).unwrap().flag, 1, "caster is now flagged for attacking a player");
     assert!(!world.objects.has_component::<Casting>(&3001), "coolTime 0 frees the slot");
 
     // Immediate re-cast: 10 s reuse still has 6 s left → SM 2303 + fail.
@@ -3432,6 +3440,146 @@ fn logout_blocked_while_in_combat_stance() {
     assert!(out_rx.try_recv().is_err(), "no LeaveWorld");
 }
 
+/// PvP flag lifecycle (`Player.updatePvPStatus` + `PvpFlagTaskManager`): a
+/// hostile action flags the player solid (1), the 1 s sweep blinks it (2) in
+/// the final 20 s, then clears it (0) past expiry.
+#[test]
+fn pvp_flag_starts_blinks_and_expires() {
+    use crate::game_loop::pvp;
+    use crate::model::components::PvpState;
+    let (mut world, ..) = test_world();
+    let _rx = ingame_player(&mut world, 1, 5001, 0, 0, 0);
+    let start = world.tick;
+
+    pvp::update_pvp_status(&mut world, 5001);
+    let st = *world.objects.get_component::<PvpState>(&5001).unwrap();
+    assert_eq!(st.flag, 1, "flagged solid");
+    assert_eq!(st.expires_tick, start + 1200, "PVP_NORMAL_TIME = 120 s @ 100 ms ticks");
+
+    // Mid-life (before the last 20 s) stays solid.
+    world.tick = start + 900;
+    pvp::pvp_flag_tick(&mut world);
+    assert_eq!(world.objects.get_component::<PvpState>(&5001).unwrap().flag, 1);
+
+    // Final 20 s (200 ticks) → blinking (2).
+    world.tick = start + 1100;
+    pvp::pvp_flag_tick(&mut world);
+    assert_eq!(world.objects.get_component::<PvpState>(&5001).unwrap().flag, 2, "blinks in the last 20 s");
+
+    // Past expiry → cleared.
+    world.tick = start + 1200;
+    pvp::pvp_flag_tick(&mut world);
+    assert_eq!(world.objects.get_component::<PvpState>(&5001).unwrap().flag, 0, "cleared past expiry");
+}
+
+/// `updatePvPStatus(target)`: attacking a clean player flags for
+/// `PVP_NORMAL_TIME`; attacking an already-flagged/PK player flags for the
+/// shorter `PVP_PVP_TIME` (`checkIfPvP`). Attacking a PK doesn't flag at all.
+#[test]
+fn pvp_flag_duration_depends_on_target_state() {
+    use crate::game_loop::pvp;
+    use crate::model::components::PvpState;
+    let (mut world, ..) = test_world();
+    let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, 5002, 50, 0, 0);
+    let start = world.tick;
+
+    // A attacks a clean B → 120 s.
+    pvp::update_pvp_status_target(&mut world, 5001, 5002);
+    assert_eq!(world.objects.get_component::<PvpState>(&5001).unwrap().expires_tick, start + 1200);
+
+    // B (clean) attacks the now-flagged A → 60 s (checkIfPvP true).
+    world.tick = start + 10;
+    pvp::update_pvp_status_target(&mut world, 5002, 5001);
+    assert_eq!(world.objects.get_component::<PvpState>(&5002).unwrap().expires_tick, start + 10 + 600, "PVP time vs a flagged target");
+
+    // Attacking a PK doesn't flag the attacker (target freely attackable).
+    world.objects.get_component_mut::<Player>(&5002).unwrap().reputation = -1;
+    world.objects.get_component_mut::<PvpState>(&5001).unwrap().flag = 0;
+    world.objects.get_component_mut::<PvpState>(&5001).unwrap().expires_tick = 0;
+    pvp::update_pvp_status_target(&mut world, 5001, 5002);
+    assert_eq!(world.objects.get_component::<PvpState>(&5001).unwrap().flag, 0, "no flag for attacking a PK");
+}
+
+/// `isAutoAttackable` relation for players: a clean player needs Ctrl (not
+/// auto-attackable), a flagged or PK one does not.
+#[test]
+fn flagged_or_pk_player_is_auto_attackable() {
+    use crate::game_loop::pvp;
+    let (mut world, ..) = test_world();
+    let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, 5002, 50, 0, 0);
+
+    assert!(!pvp::is_player_auto_attackable(&world, 5001, 5002), "clean player needs force");
+
+    pvp::update_pvp_status(&mut world, 5002);
+    assert!(pvp::is_player_auto_attackable(&world, 5001, 5002), "flagged player is attackable");
+
+    world.objects.get_component_mut::<crate::model::components::PvpState>(&5002).unwrap().flag = 0;
+    world.objects.get_component_mut::<Player>(&5002).unwrap().reputation = -1;
+    assert!(pvp::is_player_auto_attackable(&world, 5001, 5002), "PK is attackable");
+}
+
+/// Melee-attacking a player inside a peace zone is refused with the peaceful-
+/// zone message (`Creature.onForcedAttack`), and no attack intent is set.
+#[test]
+fn melee_player_in_peace_zone_is_refused() {
+    use crate::model::components::{Intent, ZoneFlags};
+    let (mut world, ..) = test_world();
+    let mut a_rx = ingame_player(&mut world, 1, 5001, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, 5002, 30, 0, 0);
+    // Both inside a peace zone.
+    world.objects.get_component_mut::<ZoneFlags>(&5001).unwrap().mask =
+        crate::data::zone_data::ZoneKind::Peace.bit();
+    world.objects.get_component_mut::<ZoneFlags>(&5002).unwrap().mask =
+        crate::data::zone_data::ZoneKind::Peace.bit();
+    // Select first, then the attack-click.
+    super::combat::start_attack_intent(&mut world, 1, 5001, 5002);
+
+    assert!(!world.objects.has_component::<Intent>(&5001), "no attack intent in a peace zone");
+    assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::YOU_MAY_NOT_ATTACK_THIS_TARGET_IN_A_PEACEFUL_ZONE);
+    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+}
+
+/// Melee-attacking a player outside a peace zone sets the attack intent (the
+/// swing then flags the attacker on landing, covered by the combat path).
+#[test]
+fn melee_player_outside_peace_zone_starts_attack() {
+    use crate::model::components::Intent;
+    use crate::model::PlayerIntent;
+    let (mut world, ..) = test_world();
+    let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, 5002, 30, 0, 0);
+
+    super::combat::start_attack_intent(&mut world, 1, 5001, 5002);
+
+    assert!(
+        matches!(world.objects.get_component::<Intent>(&5001).map(|i| i.0),
+            Some(PlayerIntent::Attack { target_object_id: 5002 })),
+        "attack intent against the player target",
+    );
+}
+
+/// Arena (`ArenaZone`/`ZoneId.PVP`): both players in a PVP zone are freely
+/// auto-attackable, and hostile actions there don't raise a flag.
+#[test]
+fn arena_players_attackable_without_flagging() {
+    use crate::game_loop::pvp;
+    use crate::model::components::{PvpState, ZoneFlags};
+    let (mut world, ..) = test_world();
+    let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, 5002, 30, 0, 0);
+    let pvp_bit = crate::data::zone_data::ZoneKind::Pvp.bit();
+    world.objects.get_component_mut::<ZoneFlags>(&5001).unwrap().mask = pvp_bit;
+    world.objects.get_component_mut::<ZoneFlags>(&5002).unwrap().mask = pvp_bit;
+
+    // Freely attackable (no Ctrl) while both are in the arena.
+    assert!(pvp::is_player_auto_attackable(&world, 5001, 5002));
+    // Attacking there does not flag the attacker.
+    pvp::update_pvp_status_target(&mut world, 5001, 5002);
+    assert_eq!(world.objects.get_component::<PvpState>(&5001).unwrap().flag, 0, "no flag inside an arena");
+}
+
 /// An unexpected disconnect while in game persists the player too (Java
 /// `GameClient.onDisconnection` → `Disconnection.storeMe().deleteMe()`).
 #[test]
@@ -3941,6 +4089,74 @@ fn cast_out_of_range_walks_into_range_then_casts() {
     // Launch (35 ticks) + finish (5): the nuke lands on the walked-to monster.
     advance_world(&mut world, 45);
     assert!(nvit(&world, npc_oid).cur_hp < 5000.0, "nuke landed after the walk");
+}
+
+/// Bug fix: casting a beneficial (`Target`-type) skill on a monster requires
+/// Ctrl (force). Without it the cast is refused (INVALID_TARGET); with it, it
+/// proceeds.
+#[test]
+fn buff_on_monster_requires_ctrl() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 20;
+    spawn_targeted_monster(&mut world, &mut a_rx, npc_oid, 50);
+
+    // No Ctrl → refused, no cast.
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1068, false));
+    assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::INVALID_TARGET);
+    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert!(!world.objects.has_component::<Casting>(&3001), "no cast on a mob without force");
+
+    // Ctrl (force) → the cast starts.
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1068, true));
+    assert!(world.objects.has_component::<Casting>(&3001), "ctrl force-targets the mob");
+}
+
+/// Bug fix: a buff cast on a monster modifies the mob's stats (like on a
+/// character) and reverts on expiry.
+#[test]
+fn buff_on_monster_modifies_stats_and_reverts() {
+    use crate::model::components::{Buffs, CombatStats};
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 21;
+    spawn_targeted_monster(&mut world, &mut a_rx, npc_oid, 50);
+    let base_p_atk = world.objects.get_component::<CombatStats>(&npc_oid).unwrap().p_atk;
+    assert!(base_p_atk > 0.0, "sanity: the mob has a base pAtk");
+
+    // Might (+8% pAtk), forced onto the mob; lands after hit_time (10 ticks).
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1068, true));
+    advance_ticks(&mut world, 12);
+    let buffed = world.objects.get_component::<CombatStats>(&npc_oid).unwrap().p_atk;
+    assert!((buffed - base_p_atk * 1.08).abs() < 1e-6, "Might raises the mob pAtk 8% ({base_p_atk} -> {buffed})");
+    assert_eq!(world.objects.get_component::<Buffs>(&npc_oid).unwrap().0.len(), 1, "buff tracked on the mob");
+
+    // abnormal_time 20 s = 200 ticks → expiry reverts the stat.
+    advance_ticks(&mut world, 205);
+    let reverted = world.objects.get_component::<CombatStats>(&npc_oid).unwrap().p_atk;
+    assert!((reverted - base_p_atk).abs() < 1e-6, "expiry reverts the mob pAtk");
+    assert!(world.objects.get_component::<Buffs>(&npc_oid).unwrap().0.is_empty(), "buff removed on expiry");
+}
+
+/// Bug fix: a buff cast on a monster is shown in the target window of players
+/// who have it selected (`ExAbnormalStatusUpdateFromTarget`, 0xFE:0xE6).
+#[test]
+fn buff_on_monster_shows_in_target_window() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 22;
+    spawn_targeted_monster(&mut world, &mut a_rx, npc_oid, 50); // caster now targets the mob
+
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1068, true));
+    advance_ticks(&mut world, 12);
+
+    let pkt = drain(&mut a_rx)
+        .into_iter()
+        .find(|p| p.len() >= 13 && p[0] == 0xFE && p[1] == 0xE6 && p[2] == 0x00)
+        .expect("ExAbnormalStatusUpdateFromTarget sent to the observer");
+    assert_eq!(i32::from_le_bytes(pkt[3..7].try_into().unwrap()), npc_oid, "for the buffed mob");
+    assert_eq!(i16::from_le_bytes(pkt[7..9].try_into().unwrap()), 1, "one buff shown");
+    assert_eq!(i32::from_le_bytes(pkt[9..13].try_into().unwrap()), 1068, "Might listed in the target window");
 }
 
 /// A move click while walking to cast abandons the cast intention (Java: the

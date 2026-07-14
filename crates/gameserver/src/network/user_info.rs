@@ -170,7 +170,7 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
 
     // SOCIAL
     w.write_i16(UserInfoType::Social.block_length() as i16);
-    w.write_u8(0); // pvp flag
+    w.write_u8(v.pvp_flag); // pvp flag
     w.write_i32(p.reputation);
     w.write_u8(0); // noble
     w.write_u8(0); // hero

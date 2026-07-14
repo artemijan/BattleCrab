@@ -226,20 +226,50 @@ pub(crate) fn start_attack_intent(
     object_id: i32,
     target_object_id: i32,
 ) {
-    let attackable = world
+    let target_is_player = world
         .objects
-        .get_component::<crate::model::npc::Npc>(&target_object_id)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.is_auto_attackable());
+        .has_component::<crate::model::Player>(&target_object_id);
     let target_dead = world
         .objects
         .get_component::<Vitals>(&target_object_id)
         .is_none_or(|v| v.dead);
-    if !attackable || target_dead {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
+    if target_is_player {
+        // `Creature.onForcedAttack` (the Ctrl/force melee path): the client only
+        // sends an AttackRequest against a player when it means to — either
+        // Ctrl-forced or a target it already knows is attackable (from our
+        // RelationChanged). The server just refuses inside a peace zone; the
+        // clean-player "needs Ctrl" gate is enforced client-side.
+        if target_dead {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
+            return;
         }
-        return;
+        if super::zones::is_inside_peace_zone(world, object_id, target_object_id) {
+            if let Some(client_id) = client_for_player(world, object_id) {
+                super::helpers::send_sm_and_action_failed(
+                    world,
+                    client_id,
+                    server_packets::sm_ids::YOU_MAY_NOT_ATTACK_THIS_TARGET_IN_A_PEACEFUL_ZONE,
+                    &[],
+                );
+            }
+            return;
+        }
+    } else {
+        // NPCs: only monsters (auto-attackable template) — guards/folk aren't
+        // attackable without the karma/siege systems.
+        let attackable = world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&target_object_id)
+            .and_then(|n| n.template(world))
+            .is_some_and(|t| t.is_auto_attackable());
+        if !attackable || target_dead {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
+            return;
+        }
     }
     world.objects.add_components(
         &object_id,
@@ -737,7 +767,10 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         broadcast_near_region(world, region, &pkt);
     } else {
         broadcast_including_self(world, attacker_oid, &pkt);
+        // `Creature.doAttack` tail: outside a PVP zone, and not self-targeting,
+        // the attacker enters stance and flags against a player target.
         refresh_attack_stance(world, attacker_oid);
+        super::pvp::update_pvp_status_target(world, attacker_oid, target_oid);
     }
 }
 

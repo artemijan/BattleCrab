@@ -248,6 +248,44 @@ pub fn abnormal_status_update(buffs: &crate::model::components::Buffs, now_tick:
     w.into_bytes()
 }
 
+/// `ExAbnormalStatusUpdateFromTarget` (0xFE:0xE6): the buff/debuff row shown in
+/// the *target window* — sent to every player who has `object_id` selected when
+/// its effects change (Java `EffectList.updateEffectIcons` → the status
+/// listeners). Toggles/passives are excluded, like the self bar. The effector
+/// (caster) id is written as 0 — `ActiveBuff` doesn't track it, and it only
+/// feeds the "cast by" tooltip.
+pub fn ex_abnormal_status_update_from_target(
+    object_id: i32,
+    buffs: &crate::model::components::Buffs,
+    now_tick: u64,
+) -> Vec<u8> {
+    let mut w = ex(0xE6);
+    w.write_i32(object_id);
+    let shown: Vec<_> = buffs.0.iter().filter(|b| !b.passive).collect();
+    w.write_i16(shown.len() as i16);
+    for buff in shown {
+        let remaining_secs = (buff.expires_at_tick.saturating_sub(now_tick) / 10) as i32;
+        w.write_i32(buff.skill_id); // displayId
+        w.write_i16(buff.skill_level as i16); // displayLevel
+        w.write_i16(0); // subLevel
+        w.write_i16(buff.abnormal_type_client_id as i16); // abnormalType (short here)
+        write_optional_int(&mut w, remaining_secs); // writeOptionalInt(time)
+        w.write_i32(0); // effectorObjectId
+    }
+    w.into_bytes()
+}
+
+/// Java `ServerPacket.writeOptionalInt`: a value below `Short.MAX_VALUE` is one
+/// short; otherwise a `Short.MAX_VALUE` marker short followed by the full int.
+fn write_optional_int(w: &mut PacketWriter, value: i32) {
+    if value >= i16::MAX as i32 {
+        w.write_i16(i16::MAX);
+        w.write_i32(value);
+    } else {
+        w.write_i16(value as i16);
+    }
+}
+
 /// `MoveToLocation` (0x2F): destination == current position (Java sends this on
 /// enter so the client fixes the character's position).
 pub fn move_to_location(object_id: i32, pos: &crate::model::components::Position) -> Vec<u8> {
