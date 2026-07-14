@@ -8310,3 +8310,41 @@ fn admin_hide_toggles_visibility() {
         "observer got CharInfo when the GM reappeared"
     );
 }
+
+/// `//add_skill <id> <lvl>` puts the skill in the target's book and refreshes
+/// their SkillList; `//remove_skill` takes it back out.
+#[test]
+fn admin_add_and_remove_skill() {
+    let (mut world, ..) = admin_world();
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8001, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("add_skill 1177 1"));
+    assert_eq!(
+        world.objects.get_component::<crate::model::components::SkillBook>(&8001).unwrap().0.get(&1177),
+        Some(&1),
+        "skill added to the book"
+    );
+    assert!(drain(&mut gm_rx).iter().any(|p| p[0] == 0x5F), "SkillList refresh sent");
+
+    on_packet(&mut world, 1, build_admin("remove_skill 1177"));
+    assert!(
+        !world.objects.get_component::<crate::model::components::SkillBook>(&8001).unwrap().0.contains_key(&1177),
+        "skill removed"
+    );
+}
+
+/// `//add_skill` with an unknown id is refused.
+#[test]
+fn admin_add_skill_rejects_unknown() {
+    let (mut world, ..) = admin_world();
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8002, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("add_skill 99999999 1"));
+    assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "does-not-exist line");
+}
