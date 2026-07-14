@@ -8471,3 +8471,18 @@ fn admin_set_hp_sets_current_hp() {
     on_packet(&mut world, 1, build_admin("set_hp 99999"));
     assert_eq!(pvit(&world, 8303).cur_hp, 500.0, "clamped to max");
 }
+
+/// `//getbuffs` lists the target's active buffs (header + one line per buff).
+#[test]
+fn admin_getbuffs_lists_active_buffs() {
+    let (mut world, ..) = admin_world();
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8401, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("buff 1068 1")); // Might
+    drain(&mut gm_rx);
+    on_packet(&mut world, 1, build_admin("getbuffs"));
+    assert!(count_system_messages(&drain(&mut gm_rx)) >= 2, "header + at least one buff line");
+}

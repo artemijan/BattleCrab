@@ -178,6 +178,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_setbe" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Belt, &args),
         // Apply a skill's effects (buff) to the target.
         "admin_buff" => admin_buff(world, client_id, object_id, &args),
+        // List the target's active buffs.
+        "admin_getbuffs" => admin_getbuffs(world, client_id, object_id),
         // EditChar field setters (target player or self).
         "admin_setreputation" => set_int_field(world, client_id, object_id, IntField::Reputation, &args),
         "admin_nokarma" => set_field_value(world, client_id, object_id, IntField::Reputation, 0),
@@ -838,6 +840,31 @@ fn set_vital(world: &mut World, client_id: u32, object_id: i32, vital: Vital, ar
         }
     }
     super::party::notify_party_vitals(world, target);
+}
+
+/// `AdminBuffs`'s `//getbuffs` — list the target player's active (non-passive)
+/// buffs as text (Java shows an HTML window; documented simplification).
+fn admin_getbuffs(world: &mut World, client_id: u32, object_id: i32) {
+    let target = target_player(world, object_id);
+    let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+    let now = world.tick;
+    let lines: Vec<String> = world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&target)
+        .map(|b| {
+            b.0.iter()
+                .filter(|x| !x.passive)
+                .map(|x| {
+                    let secs = x.expires_at_tick.saturating_sub(now) / 10;
+                    format!("  skill {} lvl {} — {secs}s left", x.skill_id, x.skill_level)
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+    send_message(world, client_id, &format!("=== Buffs on {name} ({} active) ===", lines.len()));
+    for line in lines {
+        send_message(world, client_id, &line);
+    }
 }
 
 /// `AdminBuffs`'s `//buff <skillId> [level]` — apply a skill's effects to the
