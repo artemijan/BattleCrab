@@ -1110,7 +1110,8 @@ command bodies (G13.B) are next.
   - Spawns: `//spawn` (runtime NPC spawn at the GM), `//delete`.
   - Combat state: `//invul`/`//undying` (+`setinvul`/`setundying`), `//hide`.
   - Skills/buffs: `//add_skill`, `//remove_skill`, `//buff` (applies a skill's
-    effects via the cast pipeline), `//getbuffs`.
+    effects via the cast pipeline), `//getbuffs`, `//stopbuff`,
+    `//stopallbuffs` (clear-buffs path, reuses buff-expiry).
   - Enchant: 15 per-slot `//set*` commands (weapon/armor/jewelry).
   - EditChar: `//setreputation`, `//nokarma`, `//setfame`, `//setpk`,
     `//setpvp`, `//settitle`, `//setcolor`/`//settcolor`, `//setsex`,
@@ -1122,13 +1123,13 @@ command bodies (G13.B) are next.
     `death::introduce_npc`/`despawn_npc`, a `SetAccessLevel` DB command, and an
     `AdminFlags` component (invul/undying/hidden) guarded in
     `player_receive_damage` + `send_char_info`.
-- Tests: 5 `admin_data` units + 43 synthetic-world dispatch/handler tests
+- Tests: 5 `admin_data` units + 45 synthetic-world dispatch/handler tests
   (gating, confirm round-trip, colors, and one+ per handler group).
 - **Still to port in G13.B**: the rest of `//editchar` (setclass, setnoble,
   find/info/summon/pet subcommands), `//effects` (35 visual/abnormal toggles),
-  `//stopbuff`/`//stopallbuffs` (needs a clear-buffs path), `//social`, the
-  `//admin` HTML menu, and the G12-world commands (`//zone`, `//doors`).
-  **G13.C** (sieges/olympiad/instances/events/…) stays gated-but-bodiless.
+  `//social`, the `//admin` HTML menu, and the G12-world commands (`//zone`,
+  `//doors`). **G13.C** (sieges/olympiad/instances/events/…) stays
+  gated-but-bodiless.
 
 ---
 
