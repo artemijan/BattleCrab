@@ -8131,3 +8131,76 @@ fn admin_character_disconnect_kicks_target() {
     assert!(!world.clients.contains_key(&2), "victim disconnected");
     assert!(world.objects.get_component::<Player>(&7505).is_none(), "victim despawned");
 }
+
+/// `//delete` despawns the targeted NPC and broadcasts DeleteObject.
+#[test]
+fn admin_delete_despawns_targeted_npc() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7601, 100);
+    drain(&mut gm_rx);
+
+    let npc_oid = crate::model::npc::FIRST_NPC_OBJECT_ID + 1;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 1, 2, 3, 100, 50);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    world.objects.add_components(&7601, crate::model::components::TargetRef(Some(npc_oid)));
+
+    on_packet(&mut world, 1, build_admin("delete"));
+    assert!(
+        world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).is_none(),
+        "npc despawned by //delete"
+    );
+    assert!(
+        drain(&mut gm_rx).iter().any(|p| p[0] == server_packets::opcodes::DELETE_OBJECT),
+        "GM got DeleteObject"
+    );
+}
+
+/// `//delete` with a non-NPC target (or none) warns and deletes nothing.
+#[test]
+fn admin_delete_without_npc_target_warns() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7603, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("delete"));
+    assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "select-an-npc line");
+}
+
+/// `//spawn` with an unknown NPC id is refused.
+#[test]
+fn admin_spawn_rejects_unknown_npc() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7602, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("spawn 99999"));
+    assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "does-not-exist line");
+}
+
+/// `//spawn <npcId>` creates the NPC at the GM's location and shows it to them.
+#[test]
+fn admin_spawn_creates_npc_at_gm() {
+    let (mut world, ..) = admin_world();
+    world.data.npc_data =
+        crate::data::NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7604, 100);
+    drain(&mut gm_rx);
+    if let Some(p) = world.objects.get_component_mut::<crate::model::components::Position>(&7604) {
+        p.x = 100;
+        p.y = 200;
+        p.z = 300;
+    }
+
+    let npc_oid = world.next_npc_object_id;
+    on_packet(&mut world, 1, build_admin("spawn 30001")); // Lector, a Merchant (non-monster)
+    assert_eq!(world.next_npc_object_id, npc_oid + 1, "one NPC spawned");
+    let npc = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).expect("npc entity exists");
+    assert_eq!(npc.npc_id, 30001);
+    let pos = world.objects.get_component::<crate::model::components::Position>(&npc_oid).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (100, 200, 300), "spawned at the GM");
+    assert!(
+        drain(&mut gm_rx).iter().any(|p| p[0] == server_packets::opcodes::NPC_INFO),
+        "GM was shown the NPC"
+    );
+}

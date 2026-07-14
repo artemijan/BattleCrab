@@ -143,6 +143,10 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_character_disconnect" => admin_character_disconnect(world, client_id, object_id),
         // Broadcast a message to every online player.
         "admin_announce" => admin_announce(world, client_id, &args),
+        // Spawn an NPC at the GM's location.
+        "admin_spawn" => admin_spawn(world, client_id, object_id, &args),
+        // Despawn the targeted NPC.
+        "admin_delete" => admin_delete(world, client_id, object_id),
         _ => return false,
     }
     true
@@ -507,6 +511,40 @@ fn set_access(world: &mut World, target: i32, level: i32, persist: bool) {
         let _ = world.db.send(crate::db::DbCommand::SetAccessLevel { char_id: target, level });
     }
     super::party::broadcast_user_info(world, target);
+}
+
+/// `AdminSpawn`'s `//spawn <npcId>` — spawn one NPC at the GM's location with
+/// no respawn (the permanent/respawn forms are TODO).
+fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(npc_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //spawn <npcId>");
+        return;
+    };
+    if world.data.npc_data.get(npc_id).is_none() {
+        send_message(world, client_id, &format!("NPC id {npc_id} does not exist."));
+        return;
+    }
+    let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+    if let Some(spawned) = crate::model::npc::spawn_npc_at(world, npc_id, pos.x, pos.y, pos.z, pos.heading) {
+        super::death::introduce_npc(world, spawned);
+    }
+}
+
+/// `AdminDelete`'s `//delete` — despawn the targeted NPC.
+fn admin_delete(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(target) = current_target(world, object_id) else {
+        send_message(world, client_id, "Select an NPC first.");
+        return;
+    };
+    if !world.objects.has_component::<crate::model::npc::Npc>(&target) {
+        send_message(world, client_id, "Target is not an NPC.");
+        return;
+    }
+    let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&target).map(|r| r.0)
+    else {
+        return;
+    };
+    super::death::despawn_npc(world, target, region);
 }
 
 /// `World.getPlayer(name)` — case-insensitive scan over in-game players.

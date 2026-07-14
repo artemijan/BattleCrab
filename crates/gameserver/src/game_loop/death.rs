@@ -106,20 +106,33 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
     // Gather the respawn bookkeeping before despawn (components drop with
     // the entity).
     let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).cloned() else { return };
+    despawn_npc(world, npc_oid, region);
+
+    // `Spawn.decreaseCount`: respawn only when the spawn line asked for it
+    // (`_doRespawn = respawnMinDelay > 0`), with the ± random spread.
+    if npc.respawn_secs > 0 {
+        let min = (npc.respawn_secs - npc.respawn_random_secs).max(0);
+        let max = npc.respawn_secs + npc.respawn_random_secs;
+        let delay_secs = if max > min { min + world.roll(max - min + 1) } else { min };
+        let (spawn_idx, group_idx, npc_idx) = npc.spawn_ref;
+        world
+            .scheduler
+            .schedule(world.tick + delay_secs as u64 * 10, ScheduledTask::NpcRespawn { spawn_idx, group_idx, npc_idx });
+    }
+}
+
+/// Remove an NPC from the world: despawn the entity, drop it from the region
+/// index, broadcast `DeleteObject`, and clear it as a target for every player
+/// still holding it (each gets its own `TargetUnselected` so the selection ring
+/// clears — our client keeps a deleted target locked otherwise). Shared by
+/// corpse decay and the admin `//delete` path.
+pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
     world.objects.despawn(&npc_oid);
     if let Some(ids) = world.npc_regions.get_mut(&region) {
         ids.retain(|&id| id != npc_oid);
     }
     broadcast_near_region(world, region, &server_packets::delete_object(npc_oid));
 
-    // Drop the corpse as a target for every player still holding it, sending
-    // each its own `TargetUnselected` so the ground selection ring clears. Our
-    // client keeps a dead/deleted target locked without this packet (unlike
-    // Java's, which drops it on the object removal) — see `target::set_target`'s
-    // clear path: "the deselecting client must get TargetUnselected too, or its
-    // UI keeps the target locked". This is the decay counterpart of that: the
-    // mob stayed selected the whole corpse window (for sweep/loot) and is only
-    // released now.
     let mut watchers: Vec<i32> = Vec::new();
     world
         .objects
@@ -141,27 +154,19 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
             }
         }
     }
-    // Only players carry `TargetRef` (NPC targeting goes through the aggro
-    // list), so the sweep above already cleared every creature that had the
-    // corpse selected — no second server-side pass is needed.
-
-    // `Spawn.decreaseCount`: respawn only when the spawn line asked for it
-    // (`_doRespawn = respawnMinDelay > 0`), with the ± random spread.
-    if npc.respawn_secs > 0 {
-        let min = (npc.respawn_secs - npc.respawn_random_secs).max(0);
-        let max = npc.respawn_secs + npc.respawn_random_secs;
-        let delay_secs = if max > min { min + world.roll(max - min + 1) } else { min };
-        let (spawn_idx, group_idx, npc_idx) = npc.spawn_ref;
-        world
-            .scheduler
-            .schedule(world.tick + delay_secs as u64 * 10, ScheduledTask::NpcRespawn { spawn_idx, group_idx, npc_idx });
-    }
 }
 
 /// `RespawnTaskManager` firing → `Spawn.respawnNpc`: re-run the spawn line
 /// and introduce the fresh NPC to nearby players.
 pub(crate) fn handle_npc_respawn(world: &mut World, spawn_idx: usize, group_idx: usize, npc_idx: usize) {
     let Some(object_id) = crate::model::npc::spawn_one(world, spawn_idx, group_idx, npc_idx) else { return };
+    introduce_npc(world, object_id);
+}
+
+/// Broadcast a freshly spawned NPC's `NpcInfo` to nearby players (Java
+/// `Spawn.respawnNpc` → `npc.spawnMe()` visibility). Shared by respawn and the
+/// admin `//spawn` path.
+pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
     let Some(v) = crate::model::npc::NpcView::of(&world.objects, object_id) else { return };
     let Some(region) = world.objects.get_component::<RegionCell>(&object_id).map(|r| r.0) else { return };
     let Some(t) = v.npc.template(world) else { return };

@@ -340,9 +340,35 @@ pub(crate) fn spawn_one(world: &mut World, spawn_idx: usize, group_idx: usize, n
         let loc = resolve_location(&mut world.rng, &world.geo, template, &template.groups[group_idx], def);
         (def.npc_id, loc, def.respawn_secs, def.respawn_random_secs)
     };
-    let Some((x, y, mut z, heading)) = loc else { return None };
+    let Some((x, y, z, heading)) = loc else { return None };
+    spawn_npc_entity(world, npc_id, x, y, z, heading, respawn_secs, respawn_random_secs, (spawn_idx, group_idx, npc_idx))
+}
 
-    let t = world.data.npc_data.get(npc_id).expect("checked in spawnable");
+/// Runtime spawn of a single NPC at an explicit location with no respawn and no
+/// spawn-definition backing — the admin `//spawn` path (Java `AdminSpawn`'s
+/// non-permanent spawn). The sentinel `spawn_ref` is never read because
+/// `respawn_secs == 0` (see `handle_npc_decay`). Returns the object id, or
+/// `None` if `npc_id` is unknown.
+pub(crate) fn spawn_npc_at(world: &mut World, npc_id: i32, x: i32, y: i32, z: i32, heading: i32) -> Option<i32> {
+    spawn_npc_entity(world, npc_id, x, y, z, heading, 0, 0, (0, 0, 0))
+}
+
+/// Assemble one NPC entity (components, region index, `onSpawn` hook). Shared
+/// by the data-driven [`spawn_one`] and the runtime [`spawn_npc_at`]. Does not
+/// broadcast `NpcInfo` — the caller introduces it (boot relies on the
+/// enter-world exchange; respawn/admin call [`crate::game_loop::death::introduce_npc`]).
+fn spawn_npc_entity(
+    world: &mut World,
+    npc_id: i32,
+    x: i32,
+    y: i32,
+    mut z: i32,
+    heading: i32,
+    respawn_secs: i32,
+    respawn_random_secs: i32,
+    spawn_ref: (usize, usize, usize),
+) -> Option<i32> {
+    let t = world.data.npc_data.get(npc_id)?;
     // `initializeNpc`: monsters snap to the geodata surface unless it's more
     // than 300 units away (broken geodata / intended overhang).
     if t.is_monster() {
@@ -359,7 +385,7 @@ pub(crate) fn spawn_one(world: &mut World, spawn_idx: usize, group_idx: usize, n
         respawn_secs,
         respawn_random_secs,
         spawn_loc: (x, y, z),
-        spawn_ref: (spawn_idx, group_idx, npc_idx),
+        spawn_ref,
         script_value: 0,
     };
     let object_id = npc.object_id;
