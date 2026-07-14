@@ -1,5 +1,5 @@
-//! Movement/position handlers (`MoveBackwardToLocation`, `ValidatePosition`)
-//! and the path-worker reply handler (`handle_path_result`).
+//! Movement/position handlers (`MoveBackwardToLocation`, `RequestStopMove`,
+//! `ValidatePosition`) and the path-worker reply handler (`handle_path_result`).
 
 use crate::geo::worker::{PathEvent, PathRequest};
 use crate::model::components::{AttackState, Casting, ClientPos, Intent, Movement, PathWait, Position, QueuedAction, Speeds, Vitals};
@@ -10,7 +10,7 @@ use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::World;
 
-use super::helpers::broadcast_to_others;
+use super::helpers::{broadcast_including_self, broadcast_to_others};
 
 /// Port of `clientpackets/MoveBackwardToLocation.runImpl` +
 /// `Creature.moveToLocation`'s geodata movement checks: the requested
@@ -74,6 +74,41 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     }
 
     intention_move_to(world, client_id, object_id, cur, (pkt.target_x, pkt.target_y, pkt.target_z));
+}
+
+/// Port of `clientpackets/RequestStopMove.runImpl`:
+/// `player.stopMove(player.getLocation())`. Deletes the in-flight move (Java
+/// `_move = null`) — and any pending path-worker request, so a still-in-flight
+/// reply lands stale in `handle_path_result` rather than restarting the walk —
+/// keeps the player at its current (tick-advanced) location, then broadcasts
+/// `StopMove` (`Player.broadcastPacket` includes self). The `setXYZ`/
+/// `revalidateZone` in Java are no-ops here: the location passed is the
+/// player's own current position, so nothing moves and no zone boundary is
+/// crossed.
+pub(crate) fn handle_request_stop_move(world: &mut World, client_id: u32) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+    let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+
+    world.objects.remove_component::<Movement>(&object_id);
+    world.objects.remove_component::<PathWait>(&object_id);
+
+    broadcast_including_self(
+        world,
+        object_id,
+        &server_packets::stop_move(object_id, cur.x, cur.y, cur.z, cur.heading),
+    );
+}
+
+/// Port of `clientpackets/ExSendSelectedQuestZoneID.runImpl`: store the quest
+/// zone the client selected on `Player` (read later by quest teleports).
+pub(crate) fn handle_ex_send_selected_quest_zone_id(world: &mut World, client_id: u32, ex_body: &[u8]) {
+    let Some(quest_zone_id) = cp::read_selected_quest_zone_id(ex_body) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+    if let Some(player) = world.objects.get_component_mut::<Player>(&object_id) {
+        player.quest_zone_id = quest_zone_id;
+    }
 }
 
 /// The movement pipeline behind the intention gates — geodata clamping,

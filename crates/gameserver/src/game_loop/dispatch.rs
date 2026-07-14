@@ -33,7 +33,10 @@ use super::party::{
     handle_request_change_party_leader, handle_request_join_party, handle_request_oust_party_member,
     handle_request_party_loot_modification, handle_request_withdrawal_party,
 };
-use super::position::{handle_move_backward_to_location, handle_validate_position};
+use super::position::{
+    handle_ex_send_selected_quest_zone_id, handle_move_backward_to_location, handle_request_stop_move,
+    handle_validate_position,
+};
 use super::shortcuts::{
     handle_request_delete_macro, handle_request_make_macro, handle_request_short_cut_del,
     handle_request_short_cut_reg,
@@ -140,6 +143,12 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // tolerates no reply, so consume it silently. TODO: ExUserBanInfo.
         exop::REQUEST_USER_BAN_INFO => {}
         exop::REQUEST_SAVE_INVENTORY_ORDER => handle_request_save_inventory_order(world, client_id, ex_body),
+        // RequestStopMove (IN_GAME): empty body; stop the walk at the current spot.
+        exop::REQUEST_STOP_MOVE => handle_request_stop_move(world, client_id),
+        // ExSendSelectedQuestZoneID (IN_GAME): store the selected quest zone id.
+        exop::EX_SEND_SELECTED_QUEST_ZONE_ID => {
+            handle_ex_send_selected_quest_zone_id(world, client_id, ex_body)
+        }
         exop::REQUEST_CHANGE_PARTY_LEADER => handle_request_change_party_leader(world, client_id, ex_body),
         exop::REQUEST_PARTY_LOOT_MODIFICATION => handle_request_party_loot_modification(world, client_id, ex_body),
         exop::ANSWER_PARTY_LOOT_MODIFICATION => handle_answer_party_loot_modification(world, client_id, ex_body),

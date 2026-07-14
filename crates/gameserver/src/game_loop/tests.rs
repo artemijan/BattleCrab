@@ -2995,6 +2995,54 @@ fn move_backward_to_location_same_origin_and_target_sends_stop_move() {
     assert!(!world.objects.has_component::<Movement>(&5001));
 }
 
+/// `RequestStopMove` (`player.stopMove(getLocation())`): the in-flight move
+/// and any pending path request are dropped, and `StopMove` is broadcast to
+/// the mover (Player `broadcastPacket` includes self) at the current spot.
+#[test]
+fn request_stop_move_clears_movement_and_pending_path() {
+    use crate::model::components::PathWait;
+    use crate::model::movement::MoveData;
+
+    let (mut world, ..) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 5001, 700, 800, 0);
+
+    // Simulate an in-flight move plus a still-outstanding path request.
+    world.objects.add_components(
+        &5001,
+        Movement(MoveData {
+            start_x: 700,
+            start_y: 800,
+            start_z: 0,
+            dest_x: 2000,
+            dest_y: 800,
+            dest_z: 0,
+            start_tick: world.tick,
+            total_ticks: 100,
+            geo_path: None,
+        }),
+    );
+    world.objects.add_components(&5001, PathWait { seq: 42 });
+
+    handle_request_stop_move(&mut world, 1);
+
+    assert!(!world.objects.has_component::<Movement>(&5001), "move data deleted");
+    assert!(!world.objects.has_component::<PathWait>(&5001), "pending path dropped");
+    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::STOP_MOVE);
+}
+
+/// `ExSendSelectedQuestZoneID` stores the selected zone id on the player
+/// (default -1 → the client's choice), read later by quest teleports.
+#[test]
+fn ex_send_selected_quest_zone_id_sets_field() {
+    let (mut world, ..) = test_world();
+    let _rx = ingame_player(&mut world, 1, 5001, 10, 20, 30);
+    assert_eq!(world.objects.get_component::<Player>(&5001).unwrap().quest_zone_id, -1);
+
+    handle_ex_send_selected_quest_zone_id(&mut world, 1, &int_body(7));
+
+    assert_eq!(world.objects.get_component::<Player>(&5001).unwrap().quest_zone_id, 7);
+}
+
 /// Region 20_18 covers world x,y ∈ [0, 32768): flat ground at z = 0 with
 /// a north-south wall at local cell x == 10 (world x 160..176) — 200
 /// units tall, not enterable, and the approach cells block their east

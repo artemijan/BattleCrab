@@ -143,6 +143,10 @@ pub struct Player {
     /// Java `Creature._isTeleporting`: position pushed server-side, waiting
     /// for the client's `Appearing`.
     pub teleporting: bool,
+    /// `Player._questZoneId` (default -1): the quest zone the client last
+    /// selected (`ExSendSelectedQuestZoneID`), read by quest teleports
+    /// (`TeleportHolder`). Transient — not persisted.
+    pub quest_zone_id: i32,
 }
 
 /// The player's full component set, together *outside* the ECS world — the
@@ -453,6 +457,7 @@ impl Player {
             cast_seq: 0,
             pending_revive: false,
             teleporting: false,
+            quest_zone_id: -1,
         };
         // Filled in by `recalculate_stats` (incl. atk_range/random_dmg, which it
         // sets from the equipped weapon or the class template).
