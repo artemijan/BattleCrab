@@ -67,6 +67,15 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         }
     }
 
+    // `Creature.doDie` → `stopMove(null)`: freeze the corpse at the death
+    // spot on every client (Java broadcasts `StopMove` unconditionally, before
+    // the StatusUpdate/Die below). A mob killed mid-chase otherwise keeps
+    // sliding toward its last `MoveToPawn` destination client-side, since the
+    // client never learns the movement ended.
+    if let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied() {
+        broadcast_near_region(world, region, &server_packets::stop_move(npc_oid, pos.x, pos.y, pos.z, pos.heading));
+    }
+
     // `setCurrentHp(0)` broadcasts the final StatusUpdate before `Die` —
     // without it the target window keeps the last non-zero HP.
     broadcast_near_region(
@@ -81,6 +90,10 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         ),
     );
     broadcast_near_region(world, region, &server_packets::die(npc_oid, false));
+
+    // The mob stays *selected* while its corpse lasts — a player keeps it in
+    // target so corpse actions (sweep/spoil, looting) can act on it. The
+    // selection is dropped only when the corpse decays; see `handle_npc_decay`.
     world
         .scheduler
         .schedule(world.tick + corpse_secs.max(0) as u64 * 10, ScheduledTask::NpcDecay { npc_object_id: npc_oid });
@@ -98,6 +111,38 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
         ids.retain(|&id| id != npc_oid);
     }
     broadcast_near_region(world, region, &server_packets::delete_object(npc_oid));
+
+    // Drop the corpse as a target for every player still holding it, sending
+    // each its own `TargetUnselected` so the ground selection ring clears. Our
+    // client keeps a dead/deleted target locked without this packet (unlike
+    // Java's, which drops it on the object removal) — see `target::set_target`'s
+    // clear path: "the deselecting client must get TargetUnselected too, or its
+    // UI keeps the target locked". This is the decay counterpart of that: the
+    // mob stayed selected the whole corpse window (for sweep/loot) and is only
+    // released now.
+    let mut watchers: Vec<i32> = Vec::new();
+    world
+        .objects
+        .for_each_mut::<(&crate::model::Player, &crate::model::components::TargetRef)>(|(p, t)| {
+            if t.0 == Some(npc_oid) {
+                watchers.push(p.object_id);
+            }
+        });
+    for watcher_oid in watchers {
+        if let Some(t) = world.objects.get_component_mut::<crate::model::components::TargetRef>(&watcher_oid) {
+            t.0 = None;
+        }
+        if let (Some(client_id), Some(pos)) = (
+            client_for_player(world, watcher_oid),
+            world.objects.get_component::<Position>(&watcher_oid).copied(),
+        ) {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::target_unselected(watcher_oid, pos.x, pos.y, pos.z));
+            }
+        }
+    }
+    // NPCs (and any non-player creatures) that had it targeted still get the
+    // plain server-side clear — no client, so no packet.
     world.objects.for_each_mut::<&mut crate::model::components::TargetRef>(|mut t| {
         if t.0 == Some(npc_oid) {
             t.0 = None;

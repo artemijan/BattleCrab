@@ -4034,6 +4034,105 @@ fn melee_kill_rewards_and_decay() {
     assert!(world.scheduler.is_empty(), "no respawn for a respawn-less spawn line");
 }
 
+/// The dead mob stays *selected* for its whole corpse window (so future
+/// sweep/loot logic can act on the selected corpse); the target is released
+/// only when it decays. At decay, `TargetUnselected` goes to *every* player who
+/// still had it selected — not just the killer — clearing each ground ring (our
+/// client keeps a dead/deleted target locked without the packet). Each
+/// server-side `TargetRef` is cleared too.
+#[test]
+fn decaying_mob_sends_target_unselected_to_all_holders() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    // A second player nearby who also has the mob targeted but did not kill it.
+    let mut b_rx = ingame_caster(&mut world, 2, 3002, 20, 0);
+    let npc_oid = NPC_OID + 11;
+    add_test_npc(&mut world, npc_oid, 40001, "Monster", 5, 40, 0, 0);
+
+    // Both players select the mob (each client now shows its target ring).
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    handle_action(&mut world, 2, &action_body(npc_oid, 0));
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(npc_oid));
+    assert_eq!(world.objects.get_component::<TargetRef>(&3002).unwrap().0, Some(npc_oid));
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    // Player 1 lands the kill — the corpse stays selected (sweep window).
+    death::npc_do_die(&mut world, npc_oid, 3001);
+    let got_unselect = |packets: &[Vec<u8>], player_oid: i32| {
+        packets.iter().any(|p| p[0] == server_packets::opcodes::TARGET_UNSELECTED
+            && i32::from_le_bytes(p[1..5].try_into().unwrap()) == player_oid)
+    };
+    assert!(!got_unselect(&drain(&mut a_rx), 3001), "no TargetUnselected at death");
+    assert!(!got_unselect(&drain(&mut b_rx), 3002), "no TargetUnselected at death");
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        Some(npc_oid),
+        "corpse stays selected while it lasts (for sweep/loot)"
+    );
+    assert_eq!(world.objects.get_component::<TargetRef>(&3002).unwrap().0, Some(npc_oid));
+
+    // Corpse decays → both clients get their own TargetUnselected (payload
+    // carries the *deselecting* player's id) and both server-side targets clear.
+    death::handle_npc_decay(&mut world, npc_oid);
+    assert!(got_unselect(&drain(&mut a_rx), 3001), "killer's ring clears at decay");
+    assert!(got_unselect(&drain(&mut b_rx), 3002), "onlooker's ring clears at decay");
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, None);
+    assert_eq!(world.objects.get_component::<TargetRef>(&3002).unwrap().0, None);
+}
+
+/// A mob that dies **mid-chase** must broadcast `StopMove` (Java `doDie` →
+/// `stopMove(null)`) so the client freezes the corpse at the death spot instead
+/// of sliding it toward its last move destination — the lingering selection/
+/// target decal "where the mob died". The `StopMove` carries the mob's current
+/// position and comes before the `Die` broadcast.
+#[test]
+fn moving_mob_death_broadcasts_stop_move() {
+    use crate::model::components::Movement;
+    use crate::model::movement::MoveData;
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 9;
+    add_test_npc(&mut world, npc_oid, 40001, "Monster", 5, 40, 0, 0);
+    // Give it an in-flight chase move (client is interpolating it toward 400,0).
+    world.objects.add_components(
+        &npc_oid,
+        Movement(MoveData {
+            start_x: 40,
+            start_y: 0,
+            start_z: 0,
+            dest_x: 400,
+            dest_y: 0,
+            dest_z: 0,
+            start_tick: world.tick,
+            total_ticks: 100,
+            geo_path: None,
+        }),
+    );
+    drain(&mut a_rx);
+
+    death::npc_do_die(&mut world, npc_oid, 3001);
+
+    let packets = drain(&mut a_rx);
+    let stop_idx = packets
+        .iter()
+        .position(|p| p[0] == server_packets::opcodes::STOP_MOVE
+            && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid)
+        .expect("StopMove broadcast for the dying mob");
+    // Frozen at the death spot (40,0), not the move destination (400,0).
+    let stop = &packets[stop_idx];
+    assert_eq!(i32::from_le_bytes(stop[5..9].try_into().unwrap()), 40, "StopMove at death x");
+    assert_eq!(i32::from_le_bytes(stop[9..13].try_into().unwrap()), 0, "StopMove at death y");
+    // Ordering: StopMove precedes Die (Java doDie order).
+    let die_idx = packets
+        .iter()
+        .position(|p| p[0] == server_packets::opcodes::DIE
+            && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid)
+        .expect("Die broadcast");
+    assert!(stop_idx < die_idx, "StopMove is sent before Die");
+}
+
 /// Regression: the Ctrl-click force-attack. Java's `ClientPackets` binds *both*
 /// `ATTACK` (0x01) and `ATTACK_REQUEST` (0x32) to `AttackRequest`; the Interlude
 /// client sends 0x01 on a Ctrl-click. It must route through `on_packet` to the
