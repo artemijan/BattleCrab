@@ -217,6 +217,9 @@ pub enum DbCommand {
     /// (`ClanTable.createClan` side effects; `StorePlayer`'s UPDATE doesn't
     /// touch these columns).
     UpdateCharClan { char_id: i32, clan_id: i32, clan_privs: i32 },
+    /// Java `Player.setAccessLevel(updateInDb=true)` — persist a GM access-level
+    /// change immediately (the memory-first autosave doesn't carry accesslevel).
+    SetAccessLevel { char_id: i32, level: i32 },
     Shutdown,
 }
 
@@ -365,6 +368,15 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                     sqlx::query("UPDATE characters SET clanid=?, clan_privs=? WHERE charId=?")
                         .bind(clan_id)
                         .bind(clan_privs)
+                        .bind(char_id),
+                )
+                .await;
+            }
+            DbCommand::SetAccessLevel { char_id, level } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE characters SET accesslevel=? WHERE charId=?")
+                        .bind(level)
                         .bind(char_id),
                 )
                 .await;

@@ -8052,3 +8052,51 @@ fn admin_gmchat_broadcasts_to_gms_only() {
     assert!(drain(&mut gm2).iter().any(|p| p[0] == say), "other GM sees it");
     assert!(drain(&mut user).iter().all(|p| p[0] != say), "normal player does not");
 }
+
+/// `//changelvl <name> <level>` promotes a player, updates colors/is_gm, and
+/// queues the persisting DB update.
+#[test]
+fn admin_changelvl_sets_access_and_persists() {
+    let (mut world, _db_tx, mut db_rx, _link) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7401, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 7402, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+
+    on_packet(&mut world, 1, build_admin("changelvl P7402 70"));
+    let p = world.objects.get_component::<Player>(&7402).unwrap();
+    assert_eq!(p.access_level, 70, "promoted to 70");
+    assert!(p.is_gm(&world.data), "now a GM");
+    assert_eq!(p.name_color, 0x0F_F000, "tier color applied");
+    assert!(
+        drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, db::DbCommand::SetAccessLevel { char_id: 7402, level: 70 })),
+        "access-level UPDATE queued"
+    );
+}
+
+/// `//changelvl` to an undefined level is refused and changes nothing.
+#[test]
+fn admin_changelvl_rejects_unknown_level() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7404, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("changelvl 55"));
+    assert_eq!(world.objects.get_component::<Player>(&7404).unwrap().access_level, 100, "unchanged");
+}
+
+/// `//gm` deactivates the caller's own GM access for the session (not persisted).
+#[test]
+fn admin_gm_deactivates_own_access() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7403, 100);
+    drain(&mut gm_rx);
+    assert!(world.objects.get_component::<Player>(&7403).unwrap().is_gm(&world.data));
+
+    on_packet(&mut world, 1, build_admin("gm"));
+    let p = world.objects.get_component::<Player>(&7403).unwrap();
+    assert_eq!(p.access_level, 0, "demoted to user");
+    assert!(!p.is_gm(&world.data), "no longer GM");
+}

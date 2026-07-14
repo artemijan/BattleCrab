@@ -135,6 +135,10 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_set_level" => admin_change_level(world, client_id, object_id, &args, true),
         // Broadcast a message to all online GMs.
         "admin_gmchat" => admin_gmchat(world, client_id, object_id, &args),
+        // Set a player's access level (persisted).
+        "admin_changelvl" => admin_changelvl(world, client_id, object_id, &args),
+        // Deactivate the caller's own GM access for this session.
+        "admin_gm" => admin_gm(world, client_id, object_id),
         _ => return false,
     }
     true
@@ -391,6 +395,77 @@ fn admin_gmchat(world: &mut World, client_id: u32, object_id: i32, args: &[&str]
             }
         }
     }
+}
+
+/// `AdminChangeAccessLevel`'s `//changelvl <level>` (target/self) or
+/// `//changelvl <name> <level>` — set a character's GM access level. The
+/// change is applied in memory (colors + is_gm) and persisted immediately (Java
+/// `setAccessLevel(updateInDb=true)`). The login-server `ChangeAccessLevel`
+/// relay (account-level access) is not ported.
+fn admin_changelvl(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let (target, level) = match args {
+        [level_str] => {
+            let Some(level) = level_str.parse::<i32>().ok() else {
+                send_message(world, client_id, "Usage: //changelvl <level> | //changelvl <name> <level>");
+                return;
+            };
+            let target = current_target(world, object_id)
+                .filter(|oid| world.objects.has_component::<Player>(oid))
+                .unwrap_or(object_id);
+            (target, level)
+        }
+        [name, level_str] => {
+            let Some(target) = find_online_player(world, name) else {
+                send_message(world, client_id, &format!("Player '{name}' is not online."));
+                return;
+            };
+            let Some(level) = level_str.parse::<i32>().ok() else {
+                send_message(world, client_id, "Usage: //changelvl <name> <level>");
+                return;
+            };
+            (target, level)
+        }
+        _ => {
+            send_message(world, client_id, "Usage: //changelvl <level> | //changelvl <name> <level>");
+            return;
+        }
+    };
+    // Java `AdminData.getAccessLevel(level) != null` — the tier must exist.
+    if world.data.admin.access_level(level).level != level {
+        send_message(world, client_id, &format!("Access level {level} does not exist."));
+        return;
+    }
+    set_access(world, target, level, true);
+    send_message(world, client_id, &format!("Access level set to {level}."));
+}
+
+/// `AdminGm`'s `//gm` — deactivate the caller's own GM access for this session
+/// (Java `setAccessLevel(0, broadcast=true, updateInDb=false)`), not persisted.
+fn admin_gm(world: &mut World, client_id: u32, object_id: i32) {
+    set_access(world, object_id, 0, false);
+    send_message(world, client_id, "GM access deactivated for this session.");
+}
+
+/// Apply an access-level change: level + name/title colors in memory, an
+/// optional immediate DB persist, and a UserInfo rebroadcast (colors changed).
+fn set_access(world: &mut World, target: i32, level: i32, persist: bool) {
+    let (name_color, title_color) = {
+        let al = world.data.admin.access_level(level);
+        if level != 0 {
+            (al.name_color, al.title_color)
+        } else {
+            (crate::model::DEFAULT_NAME_COLOR, crate::model::DEFAULT_TITLE_COLOR)
+        }
+    };
+    if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
+        p.access_level = level;
+        p.name_color = name_color;
+        p.title_color = title_color;
+    }
+    if persist {
+        let _ = world.db.send(crate::db::DbCommand::SetAccessLevel { char_id: target, level });
+    }
+    super::party::broadcast_user_info(world, target);
 }
 
 /// `World.getPlayer(name)` — case-insensitive scan over in-game players.
