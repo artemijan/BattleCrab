@@ -1108,17 +1108,20 @@ command bodies (G13.B) are next.
   - Items: `//create_item`, `//give_item_target`, `//give_item_to_all`.
   - Progression: `//add_exp_sp`, `//add_level`, `//set_level`.
   - Spawns: `//spawn` (runtime NPC spawn at the GM), `//delete`.
+  - Combat state: `//invul`/`//undying` (+`setinvul`/`setundying`), `//hide`.
+  - Skills: `//add_skill`, `//remove_skill`.
   - GM/session: `//serverinfo`, `//gmchat`, `//announce`, `//target`,
     `//changelvl` (access + persist), `//gm` (session GM-off), `//kick`,
     `//character_disconnect`.
   - New infra for the above: `spawn_npc_at`/`spawn_npc_entity` (runtime spawn),
-    `death::introduce_npc`/`despawn_npc`, and a `SetAccessLevel` DB command.
-- Tests: 5 `admin_data` units + 30 synthetic-world dispatch/handler tests
-  (gating, confirm round-trip, colors, and one per handler group).
-- **Still to port in G13.B**: `//invul`/`//undying` (needs an invul flag +
-  combat guard), `//enchant`, `//editchar` (37 subcommands), `//effects` (35),
-  `//buff`/`//getbuffs`, `//skill`, `//hide`, `//social`, the `//admin` HTML
-  menu, and the G12-world commands (`//zone`, `//doors`). **G13.C**
+    `death::introduce_npc`/`despawn_npc`, a `SetAccessLevel` DB command, and an
+    `AdminFlags` component (invul/undying/hidden) guarded in
+    `player_receive_damage` + `send_char_info`.
+- Tests: 5 `admin_data` units + 36 synthetic-world dispatch/handler tests
+  (gating, confirm round-trip, colors, and one+ per handler group).
+- **Still to port in G13.B**: `//enchant`, `//editchar` (37 subcommands),
+  `//effects` (35), `//buff`/`//getbuffs`, `//social`, the `//admin` HTML menu,
+  and the G12-world commands (`//zone`, `//doors`). **G13.C**
   (sieges/olympiad/instances/events/…) stays gated-but-bodiless per the plan.
 
 ---
