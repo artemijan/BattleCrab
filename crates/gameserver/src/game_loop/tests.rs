@@ -192,6 +192,7 @@ async fn character_create_inserts_into_real_schema() {
         categories: crate::data::CategoryData::empty(),
         transforms: crate::data::TransformData::empty(),
         enchant: crate::data::EnchantData::empty(),
+        variations: crate::data::VariationData::empty(),
         admin: crate::data::AdminData::empty(),
         combat_caps: crate::data::CombatCaps::default(),
         gm: crate::data::GmSettings::default(),

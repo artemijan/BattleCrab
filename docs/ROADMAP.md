@@ -156,11 +156,27 @@ Test: seed the freight, `package_withdraw`, withdraw part, confirm the
 the in-game session doesn't hold) → `RequestPackageSendableItemList` /
 `RequestPackageSend` (writes to a possibly-offline recipient's freight rows).
 
-**Next slices — each a dedicated milestone:** augmentation (Variations.xml +
-the 390k-line option-effect set + the refine Ex-packet flow — its own
-milestone), the freight send half (needs account-char enumeration plumbing),
-enchant support items. Remaining ground-item TODOs: enchant carried
-through pickup (stackables only for now), owner-based loot protection.
+✅ **Augmentation roll engine** (`data/variation_data.rs`) — ports
+`VariationData` (`Variations.xml`): per-mineral `<optionGroup>` (warrior/mage ×
+order 0/1) of weighted `<optionCategory>` → `<option>`/`<optionRange>` pools,
+plus the `<itemGroups>`/`<fees>` cost map. `generate(mineral, is_magic, rng)`
+mirrors `generateRandomVariation`: a weighted category pick then an option pick
+per group (`OptionDataGroup`/`OptionDataCategory.getRandom*`), producing the two
+option ids; `fee`/`cancel_fee` give the gemstone/adena costs. Tests against real
+dist data: load count, deterministic-roll option ids for warrior vs mage routes,
+fee lookup, unknown-mineral `None`. **Remaining for the full feature:** what each
+rolled option *does* — the 390k-line `stats/augmentation/options/*` effect set
+(stat bonuses / granted skills), which ties into the stat+skill systems — and
+the refine Ex-packet client flow (`Augment` bypass → `ExShowVariationMakeWindow`
+→ `RequestConfirmRefinerItem`/`RequestRefine`/`RequestRefineCancel` +
+`ExVariationResult`), the `VariationInstance` on the item, and the augment
+display bytes in the item packets.
+
+**Next slices — each a dedicated milestone:** augmentation option effects +
+refine flow (on the engine above), the freight send half (needs account-char
+enumeration plumbing), enchant support items. Remaining ground-item TODOs:
+enchant carried through pickup (stackables only for now), owner-based loot
+protection.
 
 The itemcontainer breadth G5 deferred: private/clan warehouse + freight; private
 stores (sell/buy/manufacture/package) + offline stores; player-to-player trade;

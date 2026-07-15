@@ -22,6 +22,7 @@ pub mod spawn_data;
 pub mod stat_bonus;
 pub mod static_object_data;
 pub mod transform_data;
+pub mod variation_data;
 pub mod xp_lost;
 pub mod zone_data;
 
@@ -45,6 +46,7 @@ pub use spawn_data::SpawnData;
 pub use stat_bonus::StatBonus;
 pub use static_object_data::StaticObjectData;
 pub use transform_data::TransformData;
+pub use variation_data::VariationData;
 pub use xp_lost::PlayerXpPercentLostData;
 pub use zone_data::ZoneData;
 
@@ -126,6 +128,9 @@ pub struct GameData {
     pub transforms: TransformData,
     /// Enchant chance engine (rate groups + branded scrolls), see [`EnchantData`].
     pub enchant: EnchantData,
+    /// Augmentation roll engine (life stone → option pair + fees), see
+    /// [`VariationData`].
+    pub variations: VariationData,
     /// GM access-level table + per-command access rights (G13).
     pub admin: AdminData,
     /// Stat ceilings + run-speed boost, from `Character.ini` (see [`CombatCaps`]).
@@ -167,6 +172,7 @@ impl GameData {
             categories: CategoryData::load_from(file_path),
             transforms: TransformData::load_from(file_path),
             enchant: EnchantData::load_from(file_path),
+            variations: VariationData::load_from(file_path),
             admin: AdminData::load_from(file_path),
             // Overwritten from the parsed `CharacterConfig` at boot (`main.rs`);
             // the default is this dist's Character.ini values.
@@ -206,6 +212,7 @@ impl GameData {
             categories: CategoryData::empty(),
             transforms: TransformData::empty(),
             enchant: EnchantData::empty(),
+            variations: VariationData::empty(),
             admin: AdminData::empty(),
             combat_caps: CombatCaps::default(),
             gm: GmSettings::default(),
