@@ -23,6 +23,8 @@ pub mod opcodes {
     pub const REQUEST_DROP_ITEM: u8 = 0x17;
     pub const USE_ITEM: u8 = 0x19;
     pub const REQUEST_DESTROY_ITEM: u8 = 0x60;
+    pub const SEND_WARE_HOUSE_DEPOSIT_LIST: u8 = 0x3B;
+    pub const SEND_WARE_HOUSE_WITH_DRAW_LIST: u8 = 0x3C;
     pub const ACTION: u8 = 0x1F;
     pub const REQUEST_MAGIC_SKILL_USE: u8 = 0x39;
     pub const REQUEST_TARGET_CANCELD: u8 = 0x48;
@@ -264,6 +266,33 @@ impl RequestDestroyItem {
         let object_id = r.read_i32()?;
         let count = r.read_i64()?;
         Some(Self { object_id, count })
+    }
+}
+
+/// Port of `SendWareHouseDepositList` / `SendWareHouseWithDrawList` (`d[dq]`):
+/// a count-prefixed list of `(object_id, count)` pairs — the items to move into
+/// or out of the warehouse.
+pub struct WarehouseItemList {
+    pub items: Vec<(i32, i64)>,
+}
+
+impl WarehouseItemList {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let count = r.read_i32()?;
+        if count <= 0 || count > 500 {
+            return None;
+        }
+        let mut items = Vec::with_capacity(count as usize);
+        for _ in 0..count {
+            let object_id = r.read_i32()?;
+            let cnt = r.read_i64()?;
+            if object_id < 1 || cnt < 0 {
+                return None;
+            }
+            items.push((object_id, cnt));
+        }
+        Some(Self { items })
     }
 }
 

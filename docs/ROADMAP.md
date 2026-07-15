@@ -79,9 +79,12 @@ unused in the ported set). **G14 done.**
 `DropItem`/`GetItem` packets, `RequestDropItem` (0x17), pickup via `Action`,
 visibility on enter + region-change deltas, the **auto-loot=false** death path
 drops onto the ground, and **decay** (`ItemsOnGroundManager`, 600 s lifetime).
-**Next slices — each a substantial multi-part feature warranting a focused pass:**
-warehouse (a DB-persisted second container + 2 window packets + 2 move packets
-+ the keeper bypass), private stores + trade, enchant scrolls (an
+✅ **Personal warehouse** — a `Warehouse` container (newtype over `Inventory`,
+persisted alongside it via `loc="WAREHOUSE"`), the `WareHouseDepositList`/
+`WithdrawalList` windows, `SendWareHouse*List` (0x3B/0x3C) deposit/withdraw
+(enchant-preserving transfers), and the `DepositP`/`WithdrawP` keeper bypass.
+**Next slices — each a substantial multi-part feature:** clan warehouse +
+freight (reuse the container), private stores + trade, enchant scrolls (an
 `EnchantItemData`/`EnchantItemGroups` loader + a multi-packet `EnchantItemRequest`
 state machine), crystallization (needs `crystal_count` + the crystallize-skill
 gate + crystal-item mapping), augmentation. Remaining ground-item TODOs: enchant

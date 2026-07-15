@@ -154,6 +154,10 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
             let args = command.strip_prefix("create_clan").unwrap_or("").trim();
             super::clans::handle_create_clan(world, client_id, object_id, args);
         }
+        // `bypasshandlers/PrivateWarehouse.java`: the keeper's deposit/withdraw
+        // windows (the bypass only appears on warehouse-keeper htmls).
+        "WithdrawP" => super::warehouse::open_withdraw_window(world, client_id),
+        "DepositP" => super::warehouse::open_deposit_window(world, client_id),
         // `bypasshandlers/Buy.java`: merchants only.
         "Buy" if super::shop::is_merchant(world, npc_object_id) => {
             if let Some(list_id) =

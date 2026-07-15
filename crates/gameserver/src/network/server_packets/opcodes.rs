@@ -40,6 +40,9 @@ pub const RIDE: u8 = 0x8C;
 pub const SPAWN_ITEM: u8 = 0x05;
 pub const DROP_ITEM: u8 = 0x16;
 pub const GET_ITEM: u8 = 0x17;
+/// Personal/clan warehouse deposit + withdraw list windows.
+pub const WAREHOUSE_DEPOSIT_LIST: u8 = 0x41;
+pub const WAREHOUSE_WITHDRAW_LIST: u8 = 0x42;
 pub const AUTO_ATTACK_START: u8 = 0x25;
 pub const AUTO_ATTACK_STOP: u8 = 0x26;
 pub const RELATION_CHANGED: u8 = 0xCE;

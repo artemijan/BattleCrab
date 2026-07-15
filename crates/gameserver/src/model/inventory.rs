@@ -211,6 +211,23 @@ impl Inventory {
         object_id
     }
 
+    /// Insert an item preserving its enchant level (warehouse deposit/withdraw
+    /// transfers), stacking into an existing same-id stack when stackable. Unlike
+    /// [`add_item`](Self::add_item) — which always starts enchant 0 — this keeps
+    /// the moved instance's enchant.
+    pub fn insert_instance(&mut self, catalog: &ItemData, object_id: i32, item_id: i32, count: i64, enchant: i32) {
+        let stackable = catalog.get(item_id).map(|t| t.is_stackable).unwrap_or(false);
+        if stackable {
+            if let Some(existing) = self.items.iter_mut().find(|i| i.item_id == item_id) {
+                existing.count += count;
+                return;
+            }
+        }
+        let mut inst = ItemInstance::new(object_id, item_id, count);
+        inst.enchant_level = enchant;
+        self.items.push(inst);
+    }
+
     /// Total count of an item id across all instances
     /// (`Inventory.getInventoryItemCount` narrowed to no-enchant matching —
     /// what `AbstractScript.getQuestItemsCount` calls).
@@ -717,5 +734,36 @@ mod tests {
         let changed = inv.equip_item(&catalog, oid);
         assert!(changed.is_empty());
         assert_eq!(inv.paperdoll_slot_of(oid), None);
+    }
+}
+
+/// Port of the player's personal `Warehouse` (an `ItemContainer` at
+/// `ItemLocation.WAREHOUSE`). A flat item list — no paperdoll — so it reuses
+/// [`Inventory`]'s stacking add / remove / lookup logic. Persisted alongside the
+/// inventory (its rows carry `loc="WAREHOUSE"`), loaded by [`from_rows`].
+#[derive(Debug, Clone, Default, bevy_ecs::component::Component)]
+pub struct Warehouse(pub Inventory);
+
+impl Warehouse {
+    /// Build from the character's `WAREHOUSE`-location item rows (non-paperdoll,
+    /// so they land in the flat list).
+    pub fn from_rows(rows: &[crate::character::ItemRow]) -> Self {
+        Self(Inventory::from_rows(rows))
+    }
+
+    /// Serialize to `items` rows with `loc="WAREHOUSE"` (nothing is equipped in a
+    /// warehouse, so [`Inventory::to_rows`] yields `INVENTORY`; remap the loc).
+    pub fn to_rows(&self) -> Vec<crate::character::ItemRow> {
+        let mut rows = self.0.to_rows();
+        for r in &mut rows {
+            r.loc = "WAREHOUSE".to_string();
+            r.loc_data = 0;
+        }
+        rows
+    }
+
+    /// Current item count (Java `ItemContainer.getSize`).
+    pub fn size(&self) -> usize {
+        self.0.items().len()
     }
 }

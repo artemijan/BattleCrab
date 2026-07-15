@@ -9529,3 +9529,48 @@ fn ground_item_decays_after_lifetime() {
     assert!(!world.objects.has_component::<crate::model::components::GroundItem>(&item_oid), "decayed");
     assert!(!world.ground_item_regions.values().flatten().any(|&id| id == item_oid), "de-indexed");
 }
+
+/// Warehouse deposit → the item moves inventory→warehouse; withdraw moves it
+/// back; and the save gathers both containers with the right `loc`s (so a
+/// deposit survives relog).
+#[test]
+fn warehouse_deposit_withdraw_and_persist() {
+    use crate::model::inventory::{Inventory, Warehouse};
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9400, 0);
+    drain(&mut rx);
+    super::items::add_inventory_item(&mut world, 9400, 57, 1000).expect("adena");
+    let inv_adena = |w: &World| w.objects.get_component::<Inventory>(&9400).unwrap().count_of(57);
+    let wh_adena = |w: &World| w.objects.get_component::<Warehouse>(&9400).unwrap().0.count_of(57);
+    let adena_oid = world.objects.get_component::<Inventory>(&9400).unwrap().items().iter().find(|it| it.item_id == 57).unwrap().object_id;
+
+    // Deposit 400.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::SEND_WARE_HOUSE_DEPOSIT_LIST);
+    w.write_i32(1);
+    w.write_i32(adena_oid);
+    w.write_i64(400);
+    on_packet(&mut world, 1, w.into_bytes());
+    assert_eq!(inv_adena(&world), 600, "400 left inventory");
+    assert_eq!(wh_adena(&world), 400, "400 in warehouse");
+
+    // The whole persisted set carries both containers with distinct locs.
+    let save = super::net::build_save_data(&world, 9400).expect("save");
+    let inv_row = save.items.iter().find(|r| r.item_id == 57 && r.loc == "INVENTORY").expect("inv adena row");
+    let wh_row = save.items.iter().find(|r| r.item_id == 57 && r.loc == "WAREHOUSE").expect("wh adena row");
+    assert_eq!((inv_row.count, wh_row.count), (600, 400));
+
+    // Withdraw 150 back.
+    let wh_oid = world.objects.get_component::<Warehouse>(&9400).unwrap().0.items().iter().find(|it| it.item_id == 57).unwrap().object_id;
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::SEND_WARE_HOUSE_WITH_DRAW_LIST);
+    w.write_i32(1);
+    w.write_i32(wh_oid);
+    w.write_i64(150);
+    on_packet(&mut world, 1, w.into_bytes());
+    assert_eq!(wh_adena(&world), 250, "150 withdrawn");
+    assert_eq!(inv_adena(&world), 750, "back in inventory");
+}

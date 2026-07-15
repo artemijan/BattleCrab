@@ -269,6 +269,7 @@ pub struct PlayerData {
     /// stats already include its passives.
     pub stat_modifiers: StatModifiers,
     pub inventory: Inventory,
+    pub warehouse: inventory::Warehouse,
     pub skills: SkillBook,
     pub shortcuts: Shortcuts,
     pub macros: Macros,
@@ -337,6 +338,7 @@ impl PlayerData {
                     components::ExpertisePenalty::default(),
                     components::PvpState::default(),
                 ),
+                (self.warehouse,),
             ),
         );
     }
@@ -527,9 +529,14 @@ impl Player {
             .cloned()
             .unwrap_or_default();
 
+        // Split stored items by location: warehouse rows go to the warehouse
+        // container, everything else (inventory + paperdoll) to the inventory.
+        let (wh_rows, inv_rows): (Vec<_>, Vec<_>) = c.items.iter().cloned().partition(|r| r.loc == "WAREHOUSE");
+        let warehouse = inventory::Warehouse::from_rows(&wh_rows);
+
         // Built early so equipped gear feeds every finalizer below — max HP/MP
         // (item +MP jewelry) as well as the combat recompute further down.
-        let inventory = Inventory::from_rows(&c.items);
+        let inventory = Inventory::from_rows(&inv_rows);
         let max_hp = calc_max_hp(data, &t, c.level, Some(&inventory));
         let max_mp = calc_max_mp(data, &t, c.level, Some(&inventory));
         let max_cp = calc_max_cp(data, &t, c.level);
@@ -668,6 +675,7 @@ impl Player {
             buffs,
             stat_modifiers: mods,
             inventory,
+            warehouse,
             skills,
             shortcuts: Shortcuts::from_list(shortcuts),
             macros: Macros::from_list(c.macros.clone()),
