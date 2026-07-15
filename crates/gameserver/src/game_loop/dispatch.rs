@@ -205,6 +205,11 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             super::enchant::handle_put_target(world, client_id, ex_body)
         }
         exop::REQUEST_EX_CANCEL_ENCHANT_ITEM => super::enchant::handle_cancel(world, client_id),
+        exop::REQUEST_CONFIRM_REFINER_ITEM => {
+            super::augment::handle_confirm_refiner(world, client_id, ex_body)
+        }
+        exop::REQUEST_REFINE => super::augment::handle_refine(world, client_id, ex_body),
+        exop::REQUEST_REFINE_CANCEL => super::augment::handle_refine_cancel(world, client_id, ex_body),
         exop::REQUEST_CHANGE_PARTY_LEADER => {
             handle_request_change_party_leader(world, client_id, ex_body)
         }

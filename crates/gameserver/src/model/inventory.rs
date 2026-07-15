@@ -50,9 +50,9 @@ pub enum PaperdollSlot {
 /// `Inventory.PAPERDOLL_TOTALSLOTS`.
 pub const PAPERDOLL_TOTAL_SLOTS: usize = 32;
 
-/// A stored item, as it lives in `Inventory.items` (Java: `Item`). Augmentation,
-/// elemental attributes, and enchant-effect ids are later milestones — every
-/// item reports "none" for those until then.
+/// A stored item, as it lives in `Inventory.items` (Java: `Item`). Elemental
+/// attributes and enchant-effect ids are later milestones — every item reports
+/// "none" for those until then.
 #[derive(Debug, Clone, Copy)]
 pub struct ItemInstance {
     pub object_id: i32,
@@ -63,11 +63,35 @@ pub struct ItemInstance {
     pub custom_type2: i32,
     pub mana_left: i32,
     pub time: i32,
+    /// Augmentation (Java `VariationInstance` on the item): the life stone
+    /// ("mineral") id and the two rolled option ids. All `0` when unaugmented.
+    /// Stat effects of the options aren't applied yet (a later milestone); the
+    /// ids drive `isAugmented`, the display, and cancellation.
+    pub augment_mineral: i32,
+    pub augment_option1: i32,
+    pub augment_option2: i32,
 }
 
 impl ItemInstance {
     fn new(object_id: i32, item_id: i32, count: i64) -> Self {
-        Self { object_id, item_id, count, enchant_level: 0, custom_type1: 0, custom_type2: 0, mana_left: -1, time: 0 }
+        Self {
+            object_id,
+            item_id,
+            count,
+            enchant_level: 0,
+            custom_type1: 0,
+            custom_type2: 0,
+            mana_left: -1,
+            time: 0,
+            augment_mineral: 0,
+            augment_option1: 0,
+            augment_option2: 0,
+        }
+    }
+
+    /// Java `Item.isAugmented` — has a variation attached.
+    pub fn is_augmented(&self) -> bool {
+        self.augment_option1 != 0 || self.augment_option2 != 0
     }
 }
 
@@ -110,6 +134,11 @@ impl Inventory {
                 custom_type2: r.custom_type2,
                 mana_left: r.mana_left,
                 time: r.time,
+                // Augmentation is stored in a separate table (`item_variations`),
+                // not yet loaded — unaugmented on restore for now.
+                augment_mineral: 0,
+                augment_option1: 0,
+                augment_option2: 0,
             };
             inv.items.push(inst);
             if r.loc == "PAPERDOLL" && (r.loc_data as usize) < PAPERDOLL_TOTAL_SLOTS {
@@ -506,10 +535,45 @@ impl Inventory {
         0
     }
 
-    /// `getPaperdollAugmentation` — always `None` (augmentation is a later
-    /// milestone).
-    pub fn paperdoll_augmentation(&self, _slot: PaperdollSlot) -> Option<(i32, i32)> {
-        None
+    /// `getPaperdollAugmentation` — the option ids of the item equipped in
+    /// `slot`, or `None` when the slot is empty / unaugmented.
+    pub fn paperdoll_augmentation(&self, slot: PaperdollSlot) -> Option<(i32, i32)> {
+        let item = self.paperdoll_item(slot)?;
+        item.is_augmented().then_some((item.augment_option1, item.augment_option2))
+    }
+
+    /// The augment option ids of an item by object id, if augmented.
+    pub fn augmentation_of(&self, object_id: i32) -> Option<(i32, i32)> {
+        let item = self.items.iter().find(|i| i.object_id == object_id)?;
+        item.is_augmented().then_some((item.augment_option1, item.augment_option2))
+    }
+
+    /// Whether the item `object_id` is augmented (Java `Item.isAugmented`).
+    pub fn is_augmented(&self, object_id: i32) -> bool {
+        self.items.iter().any(|i| i.object_id == object_id && i.is_augmented())
+    }
+
+    /// Attach a variation to an item (Java `Item.setAugmentation`).
+    pub fn set_augmentation(&mut self, object_id: i32, mineral: i32, option1: i32, option2: i32) {
+        if let Some(item) = self.items.iter_mut().find(|i| i.object_id == object_id) {
+            item.augment_mineral = mineral;
+            item.augment_option1 = option1;
+            item.augment_option2 = option2;
+        }
+    }
+
+    /// The life stone id an item was augmented with (for the cancel fee).
+    pub fn augment_mineral(&self, object_id: i32) -> Option<i32> {
+        self.items.iter().find(|i| i.object_id == object_id && i.is_augmented()).map(|i| i.augment_mineral)
+    }
+
+    /// Remove an item's variation (Java `Item.removeAugmentation`).
+    pub fn remove_augmentation(&mut self, object_id: i32) {
+        if let Some(item) = self.items.iter_mut().find(|i| i.object_id == object_id) {
+            item.augment_mineral = 0;
+            item.augment_option1 = 0;
+            item.augment_option2 = 0;
+        }
     }
 
     pub fn paperdoll_enchant_level(&self, slot: PaperdollSlot) -> i32 {

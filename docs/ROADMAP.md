@@ -172,11 +172,26 @@ the refine Ex-packet client flow (`Augment` bypass → `ExShowVariationMakeWindo
 `ExVariationResult`), the `VariationInstance` on the item, and the augment
 display bytes in the item packets.
 
-**Next slices — each a dedicated milestone:** augmentation option effects +
-refine flow (on the engine above), the freight send half (needs account-char
-enumeration plumbing), enchant support items. Remaining ground-item TODOs:
-enchant carried through pickup (stackables only for now), owner-based loot
-protection.
+✅ **Augmentation refine flow** (`game_loop/augment.rs`) — the make/cancel
+vertical on the roll engine: `Augment 1`/`2` bypass → `ExShowVariation{Make,
+Cancel}Window` → `RequestConfirmRefinerItem` (validate weapon + life stone,
+echo the gemstone fee via `ExPutIntensiveResultForVariationMake`) →
+`RequestRefine` (roll the two options through `World::roll_augment`, consume the
+life stone + gemstones, stamp the variation, `ExVariationResult`) →
+`RequestRefineCancel` (charge the adena cancel fee, strip the augment). Augment
+is stored on `ItemInstance` (mineral + two option ids) and shown via
+`paperdoll_augmentation` → `ExUserInfoEquipSlot`. Test: augment a Crimson Sword
+(confirm → refine → options rolled, materials consumed) then cancel (adena fee
+charged, augment removed). **Not yet:** the option *effects* (the 390k-line
+`stats/augmentation/options/*` stat/skill bonuses — a dedicated milestone),
+`item_variations` DB persistence (augments are session-only for now), and the
+item-list mask display bit.
+
+**Next slices — each a dedicated milestone:** augmentation option effects (the
+stat/skill bonuses each option grants) + `item_variations` persistence, the
+freight send half (needs account-char enumeration plumbing), enchant support
+items. Remaining ground-item TODOs: enchant carried through pickup (stackables
+only for now), owner-based loot protection.
 
 The itemcontainer breadth G5 deferred: private/clan warehouse + freight; private
 stores (sell/buy/manufacture/package) + offline stores; player-to-player trade;

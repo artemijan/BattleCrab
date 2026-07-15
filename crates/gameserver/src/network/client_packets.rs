@@ -98,6 +98,14 @@ pub mod ex_opcodes {
     /// `RequestExAddEnchantScrollItem` — scroll + target selection
     /// (`scrollObjectId`, `enchantObjectId`).
     pub const REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM: u16 = 0xE3;
+    /// `RequestConfirmRefinerItem` — augment: pick the life stone (`targetObjId`,
+    /// `refinerObjId`).
+    pub const REQUEST_CONFIRM_REFINER_ITEM: u16 = 0x27;
+    /// `RequestRefine` — augment: apply (`targetObjId`, `mineralObjId`,
+    /// `feeObjId`, `feeCount:long`).
+    pub const REQUEST_REFINE: u16 = 0x3E;
+    /// `RequestRefineCancel` — remove an augment (`targetObjId`).
+    pub const REQUEST_REFINE_CANCEL: u16 = 0x40;
 }
 
 /// Split an extended-packet body (after the `0xD0` opcode) into its 2-byte LE

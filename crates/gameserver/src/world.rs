@@ -315,6 +315,31 @@ impl World {
         self.roll(1_000_000) as f64 / 1_000_000.0
     }
 
+    /// Roll an augmentation's two option ids (Java `generateRandomVariation`).
+    /// Lives here so the split borrow — `data.variations` (read) vs. the RNG
+    /// draw — stays disjoint; the closure mirrors [`roll_f64`] so tests can
+    /// force it via `forced_rolls`.
+    pub fn roll_augment(&mut self, mineral_id: i32, is_magic_weapon: bool) -> Option<(i32, i32)> {
+        use rand::Rng;
+        #[cfg(test)]
+        {
+            let World { data, forced_rolls, rng, .. } = self;
+            let mut roll = || {
+                if let Some(v) = forced_rolls.pop_front() {
+                    return v as f64 / 1_000_000.0;
+                }
+                rng.gen_range(0..1_000_000) as f64 / 1_000_000.0
+            };
+            data.variations.generate(mineral_id, is_magic_weapon, &mut roll)
+        }
+        #[cfg(not(test))]
+        {
+            let World { data, rng, .. } = self;
+            let mut roll = || rng.gen_range(0..1_000_000) as f64 / 1_000_000.0;
+            data.variations.generate(mineral_id, is_magic_weapon, &mut roll)
+        }
+    }
+
     /// Every task the scheduler says is due this tick, drained for the caller
     /// to dispatch (`game_loop::apply_due_tasks`) — task handlers need to send
     /// packets to `self.clients`, so dispatch lives on the game-loop side

@@ -9891,3 +9891,53 @@ fn freight_withdraw_and_persist() {
     assert_eq!(fr_row.count, 180);
     assert!(save.items.iter().any(|r| r.item_id == 57 && r.loc == "INVENTORY" && r.count == 120), "inventory row");
 }
+
+/// Augmentation: confirm the life stone, refine (roll + consume + stamp), then
+/// cancel for the adena fee.
+#[test]
+fn augment_make_and_cancel() {
+    use crate::model::inventory::Inventory;
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.variations =
+        crate::data::VariationData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0200;
+    let mut rx = ingame_player_access(&mut world, 1, 9900, 0);
+    drain(&mut rx);
+
+    // Crimson Sword (2551, augmentable D weapon), Life Stone Lv.46 (8723),
+    // Gemstone D (2130) ×20, and adena for the cancel fee (95000).
+    super::items::add_inventory_item(&mut world, 9900, 2551, 1).unwrap();
+    super::items::add_inventory_item(&mut world, 9900, 8723, 1).unwrap();
+    super::items::add_inventory_item(&mut world, 9900, 2130, 20).unwrap();
+    super::items::add_inventory_item(&mut world, 9900, 57, 200_000).unwrap();
+    let oid = |w: &World, item: i32| w.objects.get_component::<Inventory>(&9900).unwrap().items().iter().find(|it| it.item_id == item).unwrap().object_id;
+    let (weapon, lifestone, gem) = (oid(&world, 2551), oid(&world, 8723), oid(&world, 2130));
+
+    // Confirm the refiner → the make window echoes the gemstone fee.
+    let mut confirm = PacketWriter::new(); confirm.write_i32(weapon); confirm.write_i32(lifestone);
+    drain(&mut rx);
+    on_packet(&mut world, 1, ex_packet(cp::ex_opcodes::REQUEST_CONFIRM_REFINER_ITEM, &confirm.into_bytes()));
+    let confirm_out = drain(&mut rx);
+    assert!(confirm_out.iter().any(|p| p.len() >= 3 && p[0] == 0xFE && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_PUT_INTENSIVE_RESULT_FOR_VARIATION_MAKE), "confirm echoes fee");
+
+    // Refine: force low rolls so the augment always resolves.
+    world.forced_rolls.extend(std::iter::repeat(0).take(8));
+    let mut refine = PacketWriter::new(); refine.write_i32(weapon); refine.write_i32(lifestone); refine.write_i32(gem); refine.write_i64(20);
+    on_packet(&mut world, 1, ex_packet(cp::ex_opcodes::REQUEST_REFINE, &refine.into_bytes()));
+
+    let inv = world.objects.get_component::<Inventory>(&9900).unwrap();
+    assert!(inv.is_augmented(weapon), "weapon augmented");
+    assert_eq!(inv.count_of(8723), 0, "life stone consumed");
+    assert_eq!(inv.count_of(2130), 0, "20 gemstones consumed");
+    let (o1, o2) = inv.augmentation_of(weapon).unwrap();
+    assert!(o1 != 0 && o2 != 0, "two options rolled");
+
+    // Cancel: pays the adena fee and strips the augment.
+    let mut cancel = PacketWriter::new(); cancel.write_i32(weapon);
+    on_packet(&mut world, 1, ex_packet(cp::ex_opcodes::REQUEST_REFINE_CANCEL, &cancel.into_bytes()));
+    let inv = world.objects.get_component::<Inventory>(&9900).unwrap();
+    assert!(!inv.is_augmented(weapon), "augment removed");
+    assert_eq!(inv.count_of(57), 200_000 - 95_000, "adena cancel fee charged");
+}

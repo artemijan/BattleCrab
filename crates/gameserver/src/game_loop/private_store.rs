@@ -26,7 +26,7 @@ fn adena(world: &World, oid: i32) -> i64 {
 }
 
 fn instance(object_id: i32, item_id: i32, count: i64, enchant: i32) -> ItemInstance {
-    ItemInstance { object_id, item_id, count, enchant_level: enchant, custom_type1: 0, custom_type2: 0, mana_left: -1, time: 0 }
+    ItemInstance { object_id, item_id, count, enchant_level: enchant, custom_type1: 0, custom_type2: 0, mana_left: -1, time: 0, augment_mineral: 0, augment_option1: 0, augment_option2: 0 }
 }
 
 /// `RequestPrivateStoreManageSell` (0x30): open the setup window — the owner's

@@ -171,6 +171,12 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
         // the withdraw half is wired; `package_deposit` (the cross-character
         // send) needs the account char list and offline freight writes.
         "package_withdraw" => super::warehouse::open_freight_withdraw(world, client_id),
+        // `bypasshandlers/Augment.java`: `Augment 1` = make window, `Augment 2`
+        // = cancel window.
+        "Augment" => {
+            let make = command.split(' ').nth(1).map(|a| a.trim() != "2").unwrap_or(true);
+            super::augment::open_window(world, client_id, make);
+        }
         // `bypasshandlers/Buy.java`: merchants only.
         "Buy" if super::shop::is_merchant(world, npc_object_id) => {
             if let Some(list_id) =

@@ -11,6 +11,7 @@ mod bypass;
 mod chat;
 mod clans;
 mod combat;
+mod augment;
 mod death;
 mod dispatch;
 mod doors;

@@ -113,7 +113,7 @@ pub(crate) fn handle_add_item(world: &mut World, client_id: u32, body: &[u8]) {
         }
     }
     if let Some(t) = world.data.item_data.get(item_id) {
-        let inst = ItemInstance { object_id: pkt.object_id, item_id, count: add, enchant_level: enchant, custom_type1: 0, custom_type2: 0, mana_left: -1, time: 0 };
+        let inst = ItemInstance { object_id: pkt.object_id, item_id, count: add, enchant_level: enchant, custom_type1: 0, custom_type2: 0, mana_left: -1, time: 0, augment_mineral: 0, augment_option1: 0, augment_option2: 0 };
         send(world, me, sp::trade_add(true, &inst, t));
         send(world, partner, sp::trade_add(false, &inst, t));
     }
