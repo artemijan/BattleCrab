@@ -133,6 +133,10 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::SET_PRIVATE_STORE_LIST_SELL => super::private_store::handle_set_list(world, client_id, body),
         cop::REQUEST_PRIVATE_STORE_QUIT_SELL => super::private_store::handle_quit(world, client_id),
         cop::REQUEST_PRIVATE_STORE_BUY => super::private_store::handle_buy(world, client_id, body),
+        cop::TRADE_REQUEST => super::trade::handle_request(world, client_id, body),
+        cop::ANSWER_TRADE_REQUEST => super::trade::handle_answer(world, client_id, body),
+        cop::ADD_TRADE_ITEM => super::trade::handle_add_item(world, client_id, body),
+        cop::TRADE_DONE => super::trade::handle_done(world, client_id, body),
         cop::REQUEST_QUEST_ABORT => {
             super::quests::handle_request_quest_abort(world, client_id, body)
         }

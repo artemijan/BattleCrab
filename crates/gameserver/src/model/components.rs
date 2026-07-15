@@ -58,6 +58,23 @@ pub struct PrivateStore {
     pub title: String,
 }
 
+/// An in-progress player-to-player trade (Java `Player._activeTradeList`).
+/// Present on both partners while the trade window is open; `items` are this
+/// player's offered lines (`price` unused), `confirmed` is their "OK" press.
+#[derive(Component, Debug, Clone, Default)]
+pub struct Trade {
+    pub partner: i32,
+    pub items: Vec<StoreItem>,
+    pub confirmed: bool,
+}
+
+/// A pending trade *request* on the target (Java `Player._activeRequester`):
+/// `from` asked to trade; cleared on answer/timeout.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct PendingTrade {
+    pub from: i32,
+}
+
 /// The world-region cell this object is registered in (Java
 /// `WorldObject._worldRegion`). Kept in sync with `Position` by the
 /// visibility/movement systems (Java `updateWorldRegion`/`switchRegion`) —

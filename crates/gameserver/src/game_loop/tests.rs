@@ -9701,3 +9701,46 @@ fn private_store_sell_and_buy() {
     // Store emptied of its offered stock → closed.
     assert_eq!(world.objects.get_component::<crate::model::Player>(&9600).unwrap().store_type, 0, "store closed when sold out");
 }
+
+/// A full player-to-player trade: request → accept → both add items → both
+/// confirm → the offered items swap.
+#[test]
+fn player_trade_swaps_items() {
+    use crate::model::inventory::Inventory;
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0200;
+    let mut a_rx = ingame_player_access(&mut world, 1, 9700, 0);
+    let mut b_rx = ingame_player_access(&mut world, 2, 9701, 0);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+    super::items::add_inventory_item(&mut world, 9700, 1458, 10).unwrap(); // A: Crystal D
+    super::items::add_inventory_item(&mut world, 9701, 1459, 10).unwrap(); // B: Crystal C
+    let a_oid = world.objects.get_component::<Inventory>(&9700).unwrap().items().iter().find(|it| it.item_id == 1458).unwrap().object_id;
+    let b_oid = world.objects.get_component::<Inventory>(&9701).unwrap().items().iter().find(|it| it.item_id == 1459).unwrap().object_id;
+    let one_int = |op: u8, v: i32| { let mut w = PacketWriter::new(); w.write_u8(op); w.write_i32(v); w.into_bytes() };
+    let add = |oid: i32, n: i64| { let mut w = PacketWriter::new(); w.write_u8(cop::ADD_TRADE_ITEM); w.write_i32(0); w.write_i32(oid); w.write_i64(n); w.into_bytes() };
+
+    // A requests, B accepts → both in a trade.
+    on_packet(&mut world, 1, one_int(cop::TRADE_REQUEST, 9701));
+    assert_eq!(world.objects.get_component::<crate::model::components::PendingTrade>(&9701).map(|p| p.from), Some(9700));
+    on_packet(&mut world, 2, one_int(cop::ANSWER_TRADE_REQUEST, 1));
+    assert_eq!(world.objects.get_component::<crate::model::components::Trade>(&9700).unwrap().partner, 9701);
+
+    // A offers 4 Crystal D, B offers 3 Crystal C.
+    on_packet(&mut world, 1, add(a_oid, 4));
+    on_packet(&mut world, 2, add(b_oid, 3));
+    assert_eq!(world.objects.get_component::<crate::model::components::Trade>(&9700).unwrap().items[0].count, 4);
+
+    // Both confirm → swap.
+    on_packet(&mut world, 1, one_int(cop::TRADE_DONE, 1));
+    on_packet(&mut world, 2, one_int(cop::TRADE_DONE, 1));
+
+    let a_inv = |w: &World, id: i32| w.objects.get_component::<Inventory>(&9700).unwrap().count_of(id);
+    let b_inv = |w: &World, id: i32| w.objects.get_component::<Inventory>(&9701).unwrap().count_of(id);
+    assert_eq!((a_inv(&world, 1458), a_inv(&world, 1459)), (6, 3), "A: -4 D, +3 C");
+    assert_eq!((b_inv(&world, 1458), b_inv(&world, 1459)), (4, 7), "B: +4 D, -3 C");
+    assert!(!world.objects.has_component::<crate::model::components::Trade>(&9700), "trade closed");
+    assert!(!world.objects.has_component::<crate::model::components::Trade>(&9701), "trade closed");
+}

@@ -42,7 +42,7 @@ single "G14 Long tail" is broken into per-subsystem milestones; each unblocks a
 gated-but-bodiless admin handler, so admin parity == Java parity.
 
 | Game  | G14 Item stats & equipment combat accuracy                  | ✅ item `<stats>`/weapon+armor bonuses (earlier) + **shields (`calcShldUse`)** + **`//setparam`/`//unsetparam`** (fixed-stat override); armor sets → G19; `SHOTS_BONUS` stat a noted micro-gap (only `reducedSoulshot` weapons) |
-| Game  | G15 Economy & item actions                                  | 🚧 destroy + **ground items** (drop/pickup/visibility/auto-loot=false/decay) + **personal warehouse** (deposit/withdraw+persist) + **crystallization** + **merchant sell** + **private sell store** landed; trade/clan-wh/enchant/augment pending |
+| Game  | G15 Economy & item actions                                  | 🚧 destroy + **ground items** (drop/pickup/visibility/auto-loot=false/decay) + **personal warehouse** (deposit/withdraw+persist) + **crystallization** + **merchant sell** + **private sell store** + **player trade** landed; clan-wh/enchant/augment pending |
 | Game  | G16 Character variables, premium & vitality                 | ⏳ `character_variables` → premium/pc-cafe/prime/vitality/henna |
 | Game  | G17 Sub-classes, class change & nobless                     | ⏳ occupation/subclass/nobless — `//setnoble`/`//setsubclass` |
 | Game  | G18 Clans — full                                            | ⏳ invite/level/skills/crests/warehouse/wars/ally — `//clan_*`/`//pledge` |

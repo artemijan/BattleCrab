@@ -95,8 +95,13 @@ existed; this completes the merchant shop).
 buyer view (0xA1) on click, `PrivateStoreMsgSell` (0xA2) title, buy transaction
 (0x83, items seller→buyer + adena buyer→seller, store closes when sold out),
 quit (0x96). Buy/manufacture stores + package sell deferred.
-**Next slices — each a substantial multi-part feature:** player-to-player trade,
-clan warehouse + freight (reuse the container), enchant scrolls (an
+✅ **Player-to-player trade** — `Trade`/`PendingTrade` components; request (0x1A)
+→ `SendTradeRequest` (0x70), answer (0x55) → `TradeStart` (0x14) both sides, add
+item (0x1B) → `TradeOwnAdd`/`TradeOtherAdd` (resets confirms), confirm/cancel
+(0x1C) → press-ok echoes (0x53/0x82), and on both-confirm the offered items swap
+(`TradeDone`). One active trade per player; enchant preserved.
+**Next slices — each a substantial multi-part feature:** clan warehouse +
+freight (reuse the container), enchant scrolls (an
 `EnchantItemData`/`EnchantItemGroups` loader + a multi-packet `EnchantItemRequest`
 state machine), augmentation. Remaining ground-item TODOs: enchant carried
 through pickup (stackables only for now), owner-based loot protection.

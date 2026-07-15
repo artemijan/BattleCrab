@@ -29,6 +29,10 @@ pub mod opcodes {
     pub const SET_PRIVATE_STORE_LIST_SELL: u8 = 0x31;
     pub const REQUEST_PRIVATE_STORE_QUIT_SELL: u8 = 0x96;
     pub const REQUEST_PRIVATE_STORE_BUY: u8 = 0x83;
+    pub const TRADE_REQUEST: u8 = 0x1A;
+    pub const ADD_TRADE_ITEM: u8 = 0x1B;
+    pub const TRADE_DONE: u8 = 0x1C;
+    pub const ANSWER_TRADE_REQUEST: u8 = 0x55;
     pub const SEND_WARE_HOUSE_DEPOSIT_LIST: u8 = 0x3B;
     pub const SEND_WARE_HOUSE_WITH_DRAW_LIST: u8 = 0x3C;
     pub const ACTION: u8 = 0x1F;
@@ -299,6 +303,23 @@ impl WarehouseItemList {
             items.push((object_id, cnt));
         }
         Some(Self { items })
+    }
+}
+
+/// Port of `clientpackets/AddTradeItem` (`ddq`): the trade id, the inventory
+/// item object id, and how many to add.
+pub struct AddTradeItem {
+    pub object_id: i32,
+    pub count: i64,
+}
+
+impl AddTradeItem {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        r.read_i32()?; // trade id — unused (one active trade per player)
+        let object_id = r.read_i32()?;
+        let count = r.read_i64()?;
+        Some(Self { object_id, count })
     }
 }
 
