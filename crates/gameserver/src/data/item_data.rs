@@ -71,6 +71,12 @@ pub const TYPE2_MONEY: i32 = 4;
 pub const TYPE2_OTHER: i32 = 5;
 
 /// `ItemData.SLOTS` — the `bodypart` XML attribute string → slot bitmask table.
+/// Public wrapper for callers outside this module (e.g. the enchant loader,
+/// which resolves `<item slot=…>` strings the same way).
+pub(crate) fn slot_mask(name: &str) -> i32 {
+    body_part(name)
+}
+
 fn body_part(name: &str) -> i32 {
     match name {
         "shirt" | "underwear" => SLOT_UNDERWEAR,
@@ -308,7 +314,7 @@ impl CrystalType {
 
     /// `<set name="crystal_type" val="..."/>` → variant (Java
     /// `CrystalType.valueOf(name.toUpperCase())`). Unknown/absent → `None`.
-    fn from_name(name: Option<&str>) -> Self {
+    pub(crate) fn from_name(name: Option<&str>) -> Self {
         match name.map(|s| s.to_ascii_uppercase()).as_deref() {
             Some("D") => CrystalType::D,
             Some("C") => CrystalType::C,

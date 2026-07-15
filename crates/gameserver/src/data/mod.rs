@@ -7,6 +7,7 @@ pub mod admin_data;
 pub mod buy_list_data;
 pub mod category_data;
 pub mod door_data;
+pub mod enchant_data;
 pub mod experience;
 pub mod hit_condition_bonus;
 pub mod initial_equipment;
@@ -29,6 +30,7 @@ pub use admin_data::AdminData;
 pub use buy_list_data::BuyListData;
 pub use category_data::CategoryData;
 pub use door_data::DoorData;
+pub use enchant_data::EnchantData;
 pub use experience::ExperienceData;
 pub use hit_condition_bonus::HitConditionBonusData;
 pub use initial_equipment::InitialEquipmentData;
@@ -122,6 +124,8 @@ pub struct GameData {
     pub buy_lists: BuyListData,
     pub categories: CategoryData,
     pub transforms: TransformData,
+    /// Enchant chance engine (rate groups + branded scrolls), see [`EnchantData`].
+    pub enchant: EnchantData,
     /// GM access-level table + per-command access rights (G13).
     pub admin: AdminData,
     /// Stat ceilings + run-speed boost, from `Character.ini` (see [`CombatCaps`]).
@@ -162,6 +166,7 @@ impl GameData {
             buy_lists,
             categories: CategoryData::load_from(file_path),
             transforms: TransformData::load_from(file_path),
+            enchant: EnchantData::load_from(file_path),
             admin: AdminData::load_from(file_path),
             // Overwritten from the parsed `CharacterConfig` at boot (`main.rs`);
             // the default is this dist's Character.ini values.
@@ -200,6 +205,7 @@ impl GameData {
             buy_lists: BuyListData::empty(),
             categories: CategoryData::empty(),
             transforms: TransformData::empty(),
+            enchant: EnchantData::empty(),
             admin: AdminData::empty(),
             combat_caps: CombatCaps::default(),
             gm: GmSettings::default(),

@@ -100,10 +100,26 @@ quit (0x96). Buy/manufacture stores + package sell deferred.
 item (0x1B) → `TradeOwnAdd`/`TradeOtherAdd` (resets confirms), confirm/cancel
 (0x1C) → press-ok echoes (0x53/0x82), and on both-confirm the offered items swap
 (`TradeDone`). One active trade per player; enchant preserved.
+
+✅ **Enchant chance engine** (`data/enchant_data.rs`) — ports
+`EnchantItemGroupsData` + `EnchantItemData`: the `<enchantRateGroup>` chance
+ladders, the scroll group `0` rate-item bindings (slot mask + magic-weapon +
+item-id whitelist → named rate group), and the branded scrolls
+(`targetGrade`/`maxEnchant`/`safeEnchant`/`bonusRate`/whitelist). `base_chance`
+mirrors `EnchantScroll.getChance`: scroll-group resolution → `EnchantItemGroup`
+ladder → `safeEnchant` short-circuit to 100 → `+bonusRate` capped at 100 (7
+tests against real dist data covering armor vs full-armor divergence, the weapon
+ladder, safe/bonus, and the `-1` error sentinel). **Remaining for the full
+feature:** the client Ex-packet flow (`RequestExAddEnchantScrollItem` /
+`RequestExTryToPutEnchant{Target,Support}Item` / `RequestEnchantItem` + their
+`ExPutEnchant*Result`/`EnchantResult` responses), the `EnchantItemRequest`
+per-player state, the item EtcItemType/`isMagicWeapon` parse (scroll
+weapon/blessed/safe classification + faithful fighter-vs-mage group split), and
+the success/fail mutation (+1 / crystallize / blessed reset).
+
 **Next slices — each a substantial multi-part feature:** clan warehouse +
-freight (reuse the container), enchant scrolls (an
-`EnchantItemData`/`EnchantItemGroups` loader + a multi-packet `EnchantItemRequest`
-state machine), augmentation. Remaining ground-item TODOs: enchant carried
+freight (reuse the container), the enchant Ex-packet client flow (on the engine
+above), augmentation. Remaining ground-item TODOs: enchant carried
 through pickup (stackables only for now), owner-based loot protection.
 
 The itemcontainer breadth G5 deferred: private/clan warehouse + freight; private
