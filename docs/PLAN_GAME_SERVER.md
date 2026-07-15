@@ -238,6 +238,13 @@ modules) but keep method names for traceability.
 Ordered so every step is verifiable against the real client and the live Java
 server. G0–G4 are the **vertical slice** (architecture proof); G5+ are breadth.
 
+> **Note.** This section's coarse G5–G12 grouping predates the finer numbering
+> the work actually followed (G0–G13 + sub-milestones — see
+> [PROGRESS.md](PROGRESS.md)). The remaining subsystem breadth (what §6's
+> "G12 Long tail" gestured at) is now planned milestone-by-milestone in
+> **[ROADMAP.md](ROADMAP.md) (G14→G33)**, which is the authoritative post-G13
+> plan.
+
 ### Vertical slice
 
 - **G0 — Scaffold & boot.** `gameserver` crate; `Config` port reading the

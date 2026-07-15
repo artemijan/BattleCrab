@@ -36,7 +36,32 @@ Living status tracker for the Java→Rust rewrite. Plans:
 | Game  | G12 Static world + script/content breadth                   | ✅ vertical slice (zones peace/water/no-restart, all 1180 doors + geo collision, static objects, Link/Buy bypasses, +10 quests with on_attack/on_spawn hooks, OrcChange1, TeleportWithCharm — plan: [PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md](PLAN_G12_STATIC_WORLD_AND_CONTENT_BREADTH.md)) |
 | Game  | G13 Admin / GM command system                               | 🚧 G13.A framework done; **G13.B portable handlers landed** (B1–B7 + mounts + transform runtime: character/skill/item/spawn/movement/GM-util/world/vitality/ride/transform + geo queries + `//admin` menu); remaining: only subsystem-blocked C-group (sieges/olympiad/instances/…) + a few field-less/serializer stubs — plans: [PLAN_G13_ADMIN.md](PLAN_G13_ADMIN.md), [PLAN_G13_B_LOGIN.md](PLAN_G13_B_LOGIN.md) |
 | Game  | G13.9 TODO parity sweep                                     | ✅ UserInfo weapon-enchant + party/clan relation; skill-acquire SMs; restoration enchant roll; stat-cap/run-speed config plumbing; skill-cooldown persistence (`character_skills_save`) — plan: [PLAN_G13_9_TODO_SWEEP.md](PLAN_G13_9_TODO_SWEEP.md) |
-| Game  | G14 Long tail & parity sweep                                | ⏳ |
+
+**Remaining subsystem breadth — [ROADMAP.md](ROADMAP.md) (G14→G33).** The old
+single "G14 Long tail" is broken into per-subsystem milestones; each unblocks a
+gated-but-bodiless admin handler, so admin parity == Java parity.
+
+| Game  | G14 Item stats & equipment combat accuracy                  | ⏳ unblocks accurate P/M-Atk/Def, shields, armor sets, `//setparam` |
+| Game  | G15 Economy & item actions                                  | ⏳ warehouse/stores/trade/drop-pickup/enchant/augment/crystallize |
+| Game  | G16 Character variables, premium & vitality                 | ⏳ `character_variables` → premium/pc-cafe/prime/vitality/henna |
+| Game  | G17 Sub-classes, class change & nobless                     | ⏳ occupation/subclass/nobless — `//setnoble`/`//setsubclass` |
+| Game  | G18 Clans — full                                            | ⏳ invite/level/skills/crests/warehouse/wars/ally — `//clan_*`/`//pledge` |
+| Game  | G19 Skills & effects breadth                                | ⏳ effect/Stat breadth, toggles, AoE, AVE runtime — AdminEffects AVE |
+| Game  | G20 Combat breadth                                          | ⏳ physical skills, bows, dual/polearm, PvP auto-attack, overhit |
+| Game  | G21 NPC AI & world-content breadth                          | ⏳ NPC casting/minions/aggro/pathfinding/drops/zones breadth |
+| Game  | G22 Quest & script breadth                                  | ⏳ remaining quests/village-masters/ai + reload — `//quest_*`/`//reload` |
+| Game  | G23 Grand bosses & raid bosses                              | ⏳ boss zones/respawn/AI/persistence — `//grandboss` |
+| Game  | G24 Castles, sieges, clan halls & territory war             | ⏳ AdminFortSiege/`//castle`/`//clanhall`/territory war |
+| Game  | G25 Olympiad & hero                                         | ⏳ AdminOlympiad/`//sethero`/`//saveolymp`/`//endolympiad` |
+| Game  | G26 Seven Signs, Manor & Mammon                             | ⏳ `//manor`/`//mammon_*` |
+| Game  | G27 Instances                                              | ⏳ AdminInstance/AdminInstanceZone |
+| Game  | G28 Events engine & cursed weapons                          | ⏳ AdminEvents/`//tvt_*`/AdminCursedWeapons |
+| Game  | G29 Summons, pets, servitors, cubics, agathions             | ⏳ editchar summon/pet subcommands |
+| Game  | G30 Mail, community board & party matching                  | ⏳ AdminBBS |
+| Game  | G31 Moderation, accounts, petitions & HWID                  | ⏳ AdminPunishment/AdminLogin/AdminHwid/AdminPetition |
+| Game  | G32 Fishing                                                 | ⏳ |
+| Game  | G33 Misc parity & finishing sweep                           | ⏳ game-clock/autosave/geosave/fightcalc/repairchar + parity checklist |
+| Game  | (out of scope) Gracia/Hellbound/elemental, `tools/`, MariaDB/Postgres, Swing UI | ⛔ non-Interlude / per PLAN §11 |
 
 **Verified end-to-end:** a scripted client does the real login crypto → server
 select → game `AuthLogin` → char list → **create** (with initial skills) →
