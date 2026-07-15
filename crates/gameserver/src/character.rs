@@ -19,6 +19,11 @@ pub struct ItemRow {
     pub custom_type2: i32,
     pub mana_left: i32,
     pub time: i32,
+    /// Augmentation from `item_variations` (life stone id + two option ids);
+    /// all `0` when unaugmented.
+    pub augment_mineral: i32,
+    pub augment_option1: i32,
+    pub augment_option2: i32,
 }
 
 /// One `character_friends` row joined with the friend's character row

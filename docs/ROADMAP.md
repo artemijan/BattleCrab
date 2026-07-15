@@ -182,16 +182,21 @@ life stone + gemstones, stamp the variation, `ExVariationResult`) →
 is stored on `ItemInstance` (mineral + two option ids) and shown via
 `paperdoll_augmentation` → `ExUserInfoEquipSlot`. Test: augment a Crimson Sword
 (confirm → refine → options rolled, materials consumed) then cancel (adena fee
-charged, augment removed). **Not yet:** the option *effects* (the 390k-line
-`stats/augmentation/options/*` stat/skill bonuses — a dedicated milestone),
-`item_variations` DB persistence (augments are session-only for now), and the
-item-list mask display bit.
+charged, augment removed).
+
+✅ **Augmentation persistence** (`item_variations`) — the augment now rides the
+item rows: `ItemRow` carries the mineral + two option ids, `Inventory::to_rows`/
+`from_rows` round-trip them, `load_items` populates them from `item_variations`,
+and `store_player` delete-then-reinserts the owner's augmented rows (in the save
+transaction). Verified via a `build_save_data` → `from_rows` round-trip. **Not
+yet:** the option *effects* (the 390k-line `stats/augmentation/options/*`
+stat/skill bonuses — a dedicated milestone) and the item-list mask display bit.
 
 **Next slices — each a dedicated milestone:** augmentation option effects (the
-stat/skill bonuses each option grants) + `item_variations` persistence, the
-freight send half (needs account-char enumeration plumbing), enchant support
-items. Remaining ground-item TODOs: enchant carried through pickup (stackables
-only for now), owner-based loot protection.
+stat/skill bonuses each option grants), the freight send half (needs
+account-char enumeration plumbing), enchant support items. Remaining ground-item
+TODOs: enchant carried through pickup (stackables only for now), owner-based
+loot protection.
 
 The itemcontainer breadth G5 deferred: private/clan warehouse + freight; private
 stores (sell/buy/manufacture/package) + offline stores; player-to-player trade;

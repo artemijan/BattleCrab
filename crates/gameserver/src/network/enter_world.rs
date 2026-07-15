@@ -597,6 +597,9 @@ mod tests {
             custom_type2: 0,
             mana_left: -1,
             time: 0,
+            augment_mineral: 0,
+            augment_option1: 0,
+            augment_option2: 0,
         }
     }
 

@@ -765,18 +765,38 @@ async fn load_items(pool: &SqlitePool, owner_id: i32) -> Vec<ItemRow> {
         .fetch_all(pool)
         .await
         .unwrap_or_default();
+    // Augmentations (Java `Item.restoreAttributes`): object_id → (mineral, o1, o2).
+    let var_rows = sqlx::query(
+        "SELECT mineralId, option1, option2, itemId FROM item_variations WHERE itemId IN \
+         (SELECT object_id FROM items WHERE owner_id=?)",
+    )
+    .bind(owner_id)
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    let variations: std::collections::HashMap<i32, (i32, i32, i32)> = var_rows
+        .iter()
+        .map(|r| (geti(r, "itemId") as i32, (geti(r, "mineralId") as i32, geti(r, "option1") as i32, geti(r, "option2") as i32)))
+        .collect();
     rows.iter()
-        .map(|r| ItemRow {
-            object_id: geti(r, "object_id") as i32,
-            item_id: geti(r, "item_id") as i32,
-            count: geti(r, "count"),
-            enchant_level: geti(r, "enchant_level") as i32,
-            loc: gets(r, "loc"),
-            loc_data: geti(r, "loc_data") as i32,
-            custom_type1: geti(r, "custom_type1") as i32,
-            custom_type2: geti(r, "custom_type2") as i32,
-            mana_left: geti(r, "mana_left") as i32,
-            time: geti(r, "time") as i32,
+        .map(|r| {
+            let object_id = geti(r, "object_id") as i32;
+            let (augment_mineral, augment_option1, augment_option2) = variations.get(&object_id).copied().unwrap_or((0, 0, 0));
+            ItemRow {
+                object_id,
+                item_id: geti(r, "item_id") as i32,
+                count: geti(r, "count"),
+                enchant_level: geti(r, "enchant_level") as i32,
+                loc: gets(r, "loc"),
+                loc_data: geti(r, "loc_data") as i32,
+                custom_type1: geti(r, "custom_type1") as i32,
+                custom_type2: geti(r, "custom_type2") as i32,
+                mana_left: geti(r, "mana_left") as i32,
+                time: geti(r, "time") as i32,
+                augment_mineral,
+                augment_option1,
+                augment_option2,
+            }
         })
         .collect()
 }
@@ -1000,6 +1020,22 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
         .bind(it.time)
         .execute(&mut *tx)
         .await?;
+    }
+
+    // Augmentations (`item_variations`, keyed by item object id). Scoped to the
+    // just-reinserted owner items, then reinsert the augmented ones.
+    sqlx::query("DELETE FROM item_variations WHERE itemId IN (SELECT object_id FROM items WHERE owner_id=?)")
+        .bind(char_id)
+        .execute(&mut *tx)
+        .await?;
+    for it in s.items.iter().filter(|it| it.augment_option1 != 0 || it.augment_option2 != 0) {
+        sqlx::query("INSERT INTO item_variations (itemId, mineralId, option1, option2) VALUES (?, ?, ?, ?)")
+            .bind(it.object_id)
+            .bind(it.augment_mineral)
+            .bind(it.augment_option1)
+            .bind(it.augment_option2)
+            .execute(&mut *tx)
+            .await?;
     }
 
     // learned skills (class_index 0 — no subclasses on this dist).

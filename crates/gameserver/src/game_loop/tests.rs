@@ -573,6 +573,9 @@ fn human_mystic_lvl1_full_loadout_matches_java_client() {
                 custom_type2: 0,
                 mana_left: -1,
                 time: 0,
+                augment_mineral: 0,
+                augment_option1: 0,
+                augment_option2: 0,
             }
         })
         .collect();
@@ -639,6 +642,9 @@ fn spellcraft_passive_raises_mystic_cast_speed_in_a_robe() {
         custom_type2: 0,
         mana_left: -1,
         time: 0,
+        augment_mineral: 0,
+        augment_option1: 0,
+        augment_option2: 0,
     };
     let mut chr = dummy_char(4211, "Robe");
     chr.class_id = 10;
@@ -709,6 +715,9 @@ fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
                 custom_type2: 0,
                 mana_left: -1,
                 time: 0,
+                augment_mineral: 0,
+                augment_option1: 0,
+                augment_option2: 0,
             }
         })
         .collect();
@@ -780,6 +789,9 @@ fn delevel_filter_on_select_keeps_passive_stats() {
         custom_type2: 0,
         mana_left: -1,
         time: 0,
+        augment_mineral: 0,
+        augment_option1: 0,
+        augment_option2: 0,
     };
     let mut chr = dummy_char(4213, "Robe");
     chr.class_id = 10;
@@ -832,6 +844,9 @@ fn live_delevel_removes_passive_and_recomputes_stats() {
         custom_type2: 0,
         mana_left: -1,
         time: 0,
+        augment_mineral: 0,
+        augment_option1: 0,
+        augment_option2: 0,
     };
     let mut chr = dummy_char(4214, "Mage");
     chr.class_id = 10;
@@ -5305,6 +5320,9 @@ fn from_char_restores_and_prunes_shortcuts() {
         custom_type2: 0,
         mana_left: -1,
         time: 0,
+        augment_mineral: 0,
+        augment_option1: 0,
+        augment_option2: 0,
     }];
     let sc = |slot: i32, kind: ShortcutType, id: i32| Shortcut { slot, page: 0, kind, id, level: 1, character_type: 1, shared_reuse_group: -1 };
     chr.shortcuts = vec![sc(0, ShortcutType::Item, 500), sc(1, ShortcutType::Item, 999), sc(2, ShortcutType::Skill, 1177)];
@@ -8817,6 +8835,9 @@ fn admin_setew_enchants_equipped_weapon() {
         custom_type2: 0,
         mana_left: -1,
         time: 0,
+        augment_mineral: 0,
+        augment_option1: 0,
+        augment_option2: 0,
     };
     world.objects.add_components(&8101, crate::model::inventory::Inventory::from_rows(&[weapon]));
 
@@ -9933,6 +9954,14 @@ fn augment_make_and_cancel() {
     assert_eq!(inv.count_of(2130), 0, "20 gemstones consumed");
     let (o1, o2) = inv.augmentation_of(weapon).unwrap();
     assert!(o1 != 0 && o2 != 0, "two options rolled");
+
+    // Persistence round-trip: the augment rides the item rows (→ item_variations)
+    // and restores through `from_rows`.
+    let save = super::net::build_save_data(&world, 9900).expect("save");
+    let wrow = save.items.iter().find(|r| r.object_id == weapon).expect("weapon row");
+    assert_eq!((wrow.augment_mineral, wrow.augment_option1, wrow.augment_option2), (8723, o1, o2), "augment persisted on the row");
+    let restored = crate::model::inventory::Inventory::from_rows(&save.items);
+    assert_eq!(restored.augmentation_of(weapon), Some((o1, o2)), "augment restored on reload");
 
     // Cancel: pays the adena fee and strips the augment.
     let mut cancel = PacketWriter::new(); cancel.write_i32(weapon);

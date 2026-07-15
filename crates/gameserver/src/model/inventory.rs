@@ -134,11 +134,9 @@ impl Inventory {
                 custom_type2: r.custom_type2,
                 mana_left: r.mana_left,
                 time: r.time,
-                // Augmentation is stored in a separate table (`item_variations`),
-                // not yet loaded — unaugmented on restore for now.
-                augment_mineral: 0,
-                augment_option1: 0,
-                augment_option2: 0,
+                augment_mineral: r.augment_mineral,
+                augment_option1: r.augment_option1,
+                augment_option2: r.augment_option2,
             };
             inv.items.push(inst);
             if r.loc == "PAPERDOLL" && (r.loc_data as usize) < PAPERDOLL_TOTAL_SLOTS {
@@ -185,6 +183,9 @@ impl Inventory {
                     custom_type2: i.custom_type2,
                     mana_left: i.mana_left,
                     time: i.time,
+                    augment_mineral: i.augment_mineral,
+                    augment_option1: i.augment_option1,
+                    augment_option2: i.augment_option2,
                 }
             })
             .collect()
