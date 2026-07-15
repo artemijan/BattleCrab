@@ -6751,6 +6751,7 @@ fn clan_roster_notifications_and_chat() {
             leader_id: 3001,
             level: 0,
             members: vec![member(3001, "P3001"), member(3002, "P3002")],
+            warehouse: Default::default(),
         },
     );
     for oid in [3001, 3002] {
@@ -9801,4 +9802,56 @@ fn enchant_scroll_success_and_failure() {
     let expected_crystals = (sword_cc - (sword_cc + 1) / 2).max(0) as i64;
     assert_eq!(inv.count_of(crystal_id), expected_crystals, "crystals returned on break");
     assert_eq!(inv.count_of(955), 3, "second scroll consumed");
+}
+
+/// Clan warehouse: a shared container. The leader deposits (persisted), an
+/// unprivileged member is denied the withdraw window, and the leader withdraws.
+#[test]
+fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::inventory::Inventory;
+    let (mut world, _tx, mut db_rx, _lrx) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0200;
+    let mut leader_rx = ingame_player_access(&mut world, 1, 3001, 0);
+    let mut member_rx = ingame_player_access(&mut world, 2, 3002, 0);
+    drain(&mut leader_rx);
+    drain(&mut member_rx);
+
+    // A level-1 clan: 3001 leader, 3002 plain member (no privileges).
+    let clan_id = 0x7000_0001;
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0 };
+    world.clans.insert(clan_id, Clan { id: clan_id, name: "WhClan".into(), leader_id: 3001, level: 1, members: vec![cm(3001), cm(3002)], warehouse: Default::default() });
+    for oid in [3001, 3002] {
+        world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
+    }
+    world.objects.get_component_mut::<Player>(&3001).unwrap().clan_privs = crate::model::clan::ALL_CLAN_PRIVILEGES;
+    world.objects.get_component_mut::<Player>(&3002).unwrap().clan_privs = 0;
+
+    // Leader deposits 500 adena into the shared clan warehouse.
+    super::items::add_inventory_item(&mut world, 3001, 57, 500).unwrap();
+    let adena_oid = world.objects.get_component::<Inventory>(&3001).unwrap().items().iter().find(|it| it.item_id == 57).unwrap().object_id;
+    super::warehouse::open_clan(&mut world, 1, 3001, false); // keeper bypass → active = clan
+    let deposit = { let mut w = PacketWriter::new(); w.write_u8(cop::SEND_WARE_HOUSE_DEPOSIT_LIST); w.write_i32(1); w.write_i32(adena_oid); w.write_i64(500); w.into_bytes() };
+    on_packet(&mut world, 1, deposit);
+    assert_eq!(world.clans[&clan_id].warehouse.0.count_of(57), 500, "deposited into clan warehouse");
+    assert_eq!(world.objects.get_component::<Inventory>(&3001).unwrap().count_of(57), 0, "left leader inventory");
+    // Persistence flush emitted for the clan.
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::StoreClanWarehouse { clan_id: cid, items } if *cid == clan_id && items.iter().any(|r| r.item_id == 57 && r.count == 500 && r.loc == "CLANWH"))), "clan warehouse persisted");
+
+    // An unprivileged member cannot open the withdraw window.
+    drain(&mut member_rx);
+    super::warehouse::open_clan(&mut world, 2, 3002, true);
+    let denied = drain(&mut member_rx);
+    assert!(!denied.iter().any(|p| p[0] == server_packets::opcodes::WAREHOUSE_WITHDRAW_LIST), "member without CL_VIEW_WAREHOUSE is denied");
+
+    // The leader withdraws 200 back — the shared container drops to 300.
+    let wh_oid = world.clans[&clan_id].warehouse.0.items().iter().find(|it| it.item_id == 57).unwrap().object_id;
+    super::warehouse::open_clan(&mut world, 1, 3001, true);
+    let withdraw = { let mut w = PacketWriter::new(); w.write_u8(cop::SEND_WARE_HOUSE_WITH_DRAW_LIST); w.write_i32(1); w.write_i32(wh_oid); w.write_i64(200); w.into_bytes() };
+    on_packet(&mut world, 1, withdraw);
+    assert_eq!(world.clans[&clan_id].warehouse.0.count_of(57), 300, "300 remains in clan warehouse");
+    assert_eq!(world.objects.get_component::<Inventory>(&3001).unwrap().count_of(57), 200, "200 withdrawn to leader");
 }

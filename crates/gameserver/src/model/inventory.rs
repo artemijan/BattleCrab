@@ -762,6 +762,17 @@ impl Warehouse {
         rows
     }
 
+    /// Serialize to `items` rows with `loc="CLANWH"` — the clan warehouse's
+    /// persistence location (`owner_id` = clan id, bound by the DB layer).
+    pub fn to_rows_clan(&self) -> Vec<crate::character::ItemRow> {
+        let mut rows = self.0.to_rows();
+        for r in &mut rows {
+            r.loc = "CLANWH".to_string();
+            r.loc_data = 0;
+        }
+        rows
+    }
+
     /// Current item count (Java `ItemContainer.getSize`).
     pub fn size(&self) -> usize {
         self.0.items().len()

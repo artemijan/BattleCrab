@@ -85,7 +85,7 @@ pub(crate) fn handle_create_clan(world: &mut World, client_id: u32, player_oid: 
             race: p.race,
         }
     };
-    let clan = Clan { id: clan_id, name: name.clone(), leader_id: player_oid, level: 0, members: vec![leader] };
+    let clan = Clan { id: clan_id, name: name.clone(), leader_id: player_oid, level: 0, members: vec![leader], warehouse: Default::default() };
     let _ = world.db.send(DbCommand::InsertClan { clan_id, name: name.clone(), leader_id: player_oid });
     let _ = world.db.send(DbCommand::UpdateCharClan {
         char_id: player_oid,

@@ -75,6 +75,17 @@ pub struct PendingTrade {
     pub from: i32,
 }
 
+/// Which warehouse the player currently has open (Java
+/// `Player._activeWarehouse`), set by the warehouse-keeper bypass. The
+/// deposit/withdraw client packets carry no warehouse type, so the handlers
+/// read this to route items to the right container.
+#[derive(Component, Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum ActiveWarehouse {
+    #[default]
+    Private,
+    Clan,
+}
+
 /// An open enchant window (Java `EnchantItemRequest`, held as a `Player`
 /// request). Present from the `EnchantScrolls` handler's `ChooseInventoryItem`
 /// until the enchant completes or is cancelled. Object ids are `0` (none) until

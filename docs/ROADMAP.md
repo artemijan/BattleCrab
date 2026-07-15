@@ -132,9 +132,22 @@ success, then a forced fail at +4 destroys the sword and returns crystals.
 the 2-second anti-autoenchant timestamp guard, milestone announce/firework, and
 on-enchant armor skills.
 
-**Next slices — each a substantial multi-part feature:** clan warehouse +
-freight (reuse the container), enchant support items (on the flow above),
-augmentation. Remaining ground-item TODOs: enchant carried
+✅ **Clan warehouse** (`game_loop/warehouse.rs` refactor + `ClanWarehouse`
+bypass) — a shared container on `Clan` in `world.clans` (vs. the per-player
+personal one), routed by a new `ActiveWarehouse` component the keeper bypass
+sets (`depositc`/`withdrawc`, since the deposit/withdraw client packets carry no
+type). Gates ported from `ClanWarehouse.useBypass`: clan membership + clan level
+≥ 1, and `CL_VIEW_WAREHOUSE` (leader-short-circuit) for withdraw; deposit needs
+membership only. `whType = CLAN(2)` in the list packets. **Persisted**: loaded at
+boot in `load_clans` (`owner_id = clan_id`, `loc = "CLANWH"`) and flushed on
+every change via the fire-and-forget `StoreClanWarehouse` DB command
+(delete-then-reinsert, like the player item save). Test: leader deposits
+(persist asserted), an unprivileged member is denied the withdraw window, the
+leader withdraws — shared container throughout.
+
+**Next slices — each a substantial multi-part feature:** freight (the
+cross-character package warehouse, reuse the container), enchant support items
+(on the flow above), augmentation. Remaining ground-item TODOs: enchant carried
 through pickup (stackables only for now), owner-based loot protection.
 
 The itemcontainer breadth G5 deferred: private/clan warehouse + freight; private

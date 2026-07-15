@@ -11,15 +11,17 @@ use crate::data::item_data::ItemTemplate;
 use crate::model::inventory::ItemInstance;
 use crate::network::enter_world::write_item_entry;
 
-const WH_TYPE_PRIVATE: i16 = 1;
+/// `WareHouseDepositList`/`WareHouseWithdrawalList` `whType` values.
+pub const WH_TYPE_PRIVATE: i16 = 1;
+pub const WH_TYPE_CLAN: i16 = 2;
 
 /// `serverpackets/WareHouseDepositList` — the deposit window: the inventory
 /// items that can go into the warehouse, the player's adena, and the current
-/// warehouse fill (`warehouse_size`).
-pub fn warehouse_deposit_list(adena: i64, warehouse_size: i32, items: &[(&ItemInstance, &ItemTemplate)]) -> Vec<u8> {
+/// warehouse fill (`warehouse_size`). `wh_type` is `WH_TYPE_PRIVATE`/`_CLAN`.
+pub fn warehouse_deposit_list(wh_type: i16, adena: i64, warehouse_size: i32, items: &[(&ItemInstance, &ItemTemplate)]) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::WAREHOUSE_DEPOSIT_LIST);
-    w.write_i16(WH_TYPE_PRIVATE);
+    w.write_i16(wh_type);
     w.write_i64(adena);
     w.write_i32(warehouse_size);
     let stackable: Vec<i32> = items.iter().filter(|(_, t)| t.is_stackable).map(|(it, _)| it.item_id).collect();
@@ -37,10 +39,10 @@ pub fn warehouse_deposit_list(adena: i64, warehouse_size: i32, items: &[(&ItemIn
 
 /// `serverpackets/WareHouseWithdrawalList` — the withdraw window: the warehouse
 /// contents, the player's adena, and the current inventory fill (`inv_size`).
-pub fn warehouse_withdrawal_list(adena: i64, inv_size: i32, items: &[(&ItemInstance, &ItemTemplate)]) -> Vec<u8> {
+pub fn warehouse_withdrawal_list(wh_type: i16, adena: i64, inv_size: i32, items: &[(&ItemInstance, &ItemTemplate)]) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::WAREHOUSE_WITHDRAW_LIST);
-    w.write_i16(WH_TYPE_PRIVATE);
+    w.write_i16(wh_type);
     w.write_i64(adena);
     w.write_i16(items.len() as i16);
     let stackable: Vec<i32> = items.iter().filter(|(_, t)| t.is_stackable).map(|(it, _)| it.item_id).collect();

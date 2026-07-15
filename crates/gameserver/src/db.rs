@@ -238,6 +238,10 @@ pub enum DbCommand {
     /// (`ClanTable.createClan` side effects; `StorePlayer`'s UPDATE doesn't
     /// touch these columns).
     UpdateCharClan { char_id: i32, clan_id: i32, clan_privs: i32 },
+    /// Fire-and-forget clan-warehouse flush — delete every `owner_id = clan_id`
+    /// item row (`loc = "CLANWH"`) and reinsert the current set (the same
+    /// delete-then-reinsert the player item save uses).
+    StoreClanWarehouse { clan_id: i32, items: Vec<ItemRow> },
     /// Java `Player.setAccessLevel(updateInDb=true)` — persist a GM access-level
     /// change immediately (the memory-first autosave doesn't carry accesslevel).
     SetAccessLevel { char_id: i32, level: i32 },
@@ -392,6 +396,32 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                         .bind(char_id),
                 )
                 .await;
+            }
+            DbCommand::StoreClanWarehouse { clan_id, items } => {
+                exec(&pool, sqlx::query("DELETE FROM items WHERE owner_id=?").bind(clan_id)).await;
+                for it in &items {
+                    exec(
+                        &pool,
+                        sqlx::query(
+                            "INSERT INTO items \
+                             (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, \
+                              custom_type1, custom_type2, mana_left, time) \
+                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        )
+                        .bind(clan_id)
+                        .bind(it.object_id)
+                        .bind(it.item_id)
+                        .bind(it.count)
+                        .bind(it.enchant_level)
+                        .bind(&it.loc)
+                        .bind(it.loc_data)
+                        .bind(it.custom_type1)
+                        .bind(it.custom_type2)
+                        .bind(it.mana_left)
+                        .bind(it.time),
+                    )
+                    .await;
+                }
             }
             DbCommand::SetAccessLevel { char_id, level } => {
                 exec(
@@ -641,11 +671,14 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             .fetch_all(pool)
             .await
             .unwrap_or_default();
+        // Clan warehouse contents (`owner_id = clan_id`, `loc = "CLANWH"`).
+        let wh_rows = load_items(pool, clan_id).await;
         out.push(crate::model::clan::Clan {
             id: clan_id,
             name: gets(row, "clan_name"),
             leader_id: geti(row, "leader_id") as i32,
             level: geti(row, "clan_level") as i32,
+            warehouse: crate::model::inventory::Warehouse::from_rows(&wh_rows),
             members: member_rows
                 .iter()
                 .map(|m| crate::model::clan::ClanMember {

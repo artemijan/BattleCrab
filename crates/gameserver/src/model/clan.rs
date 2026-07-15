@@ -25,6 +25,9 @@ pub struct Clan {
     pub leader_id: i32,
     pub level: i32,
     pub members: Vec<ClanMember>,
+    /// The shared clan warehouse (Java `Clan._warehouse`, a `ClanWarehouse`
+    /// container). Persisted with `owner_id = clan id`, `loc = "CLANWH"`.
+    pub warehouse: crate::model::inventory::Warehouse,
 }
 
 impl Clan {
@@ -41,3 +44,16 @@ impl Clan {
 /// ClanPrivilege.class, true)` over the 24-entry enum (ordinal = bit index,
 /// DUMMY included) = bits 0..24.
 pub const ALL_CLAN_PRIVILEGES: i32 = (1 << 24) - 1;
+
+/// `ClanPrivilege.CL_VIEW_WAREHOUSE` (ordinal 3) — required to withdraw from
+/// the clan warehouse.
+pub const CL_VIEW_WAREHOUSE: i32 = 1 << 3;
+
+impl Clan {
+    /// Whether `char_id` holds `privilege` (a `CL_*` bit): the leader always
+    /// does (Java `Player.hasClanPrivilege` short-circuits for the leader),
+    /// otherwise it's tested against the member's stored `clan_privs`.
+    pub fn has_privilege(&self, char_id: i32, member_privs: i32, privilege: i32) -> bool {
+        char_id == self.leader_id || (member_privs & privilege) != 0
+    }
+}
