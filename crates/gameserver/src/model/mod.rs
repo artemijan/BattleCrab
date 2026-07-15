@@ -276,6 +276,7 @@ pub struct PlayerData {
     pub stat_modifiers: StatModifiers,
     pub inventory: Inventory,
     pub warehouse: inventory::Warehouse,
+    pub freight: inventory::Freight,
     pub skills: SkillBook,
     pub shortcuts: Shortcuts,
     pub macros: Macros,
@@ -344,7 +345,7 @@ impl PlayerData {
                     components::ExpertisePenalty::default(),
                     components::PvpState::default(),
                 ),
-                (self.warehouse,),
+                (self.warehouse, self.freight),
             ),
         );
     }
@@ -535,10 +536,12 @@ impl Player {
             .cloned()
             .unwrap_or_default();
 
-        // Split stored items by location: warehouse rows go to the warehouse
-        // container, everything else (inventory + paperdoll) to the inventory.
-        let (wh_rows, inv_rows): (Vec<_>, Vec<_>) = c.items.iter().cloned().partition(|r| r.loc == "WAREHOUSE");
+        // Split stored items by location: warehouse / freight rows go to their
+        // own containers, everything else (inventory + paperdoll) to inventory.
+        let (wh_rows, rest): (Vec<_>, Vec<_>) = c.items.iter().cloned().partition(|r| r.loc == "WAREHOUSE");
+        let (freight_rows, inv_rows): (Vec<_>, Vec<_>) = rest.into_iter().partition(|r| r.loc == "FREIGHT");
         let warehouse = inventory::Warehouse::from_rows(&wh_rows);
+        let freight = inventory::Freight::from_rows(&freight_rows);
 
         // Built early so equipped gear feeds every finalizer below — max HP/MP
         // (item +MP jewelry) as well as the combat recompute further down.
@@ -683,6 +686,7 @@ impl Player {
             stat_modifiers: mods,
             inventory,
             warehouse,
+            freight,
             skills,
             shortcuts: Shortcuts::from_list(shortcuts),
             macros: Macros::from_list(c.macros.clone()),

@@ -145,9 +145,21 @@ every change via the fire-and-forget `StoreClanWarehouse` DB command
 (persist asserted), an unprivileged member is denied the withdraw window, the
 leader withdraws — shared container throughout.
 
-**Next slices — each a substantial multi-part feature:** freight (the
-cross-character package warehouse, reuse the container), enchant support items
-(on the flow above), augmentation. Remaining ground-item TODOs: enchant carried
+✅ **Freight — withdraw side** (`Freight` container + `package_withdraw`
+bypass) — the account-package warehouse, a per-player `Freight` component (like
+`Warehouse`) persisted in the player rows (`loc="FREIGHT"`). Completes the
+warehouse family: `ActiveWarehouse` now routes three targets (private/clan/
+freight) through one `container_ref`/`transfer`, whType per Java (FREIGHT=1).
+Test: seed the freight, `package_withdraw`, withdraw part, confirm the
+`loc="FREIGHT"` persistence. **Remaining (the send half):** `package_deposit`
+→ `PackageToList` (needs the account's character list, an async DB enumeration
+the in-game session doesn't hold) → `RequestPackageSendableItemList` /
+`RequestPackageSend` (writes to a possibly-offline recipient's freight rows).
+
+**Next slices — each a dedicated milestone:** augmentation (Variations.xml +
+the 390k-line option-effect set + the refine Ex-packet flow — its own
+milestone), the freight send half (needs account-char enumeration plumbing),
+enchant support items. Remaining ground-item TODOs: enchant carried
 through pickup (stackables only for now), owner-based loot protection.
 
 The itemcontainer breadth G5 deferred: private/clan warehouse + freight; private

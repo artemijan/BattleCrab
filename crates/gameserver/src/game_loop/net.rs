@@ -90,11 +90,14 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     let pvitals = world.objects.get_component::<PlayerVitals>(&object_id)?;
     let base = db::PlayerSnapshot::of(p, pos, vitals, pvitals);
 
-    // The whole persisted item set = inventory + warehouse (the save deletes
-    // any `items` row not present, so the warehouse must be included).
+    // The whole persisted item set = inventory + warehouse + freight (the save
+    // deletes any `items` row not present, so every container must be included).
     let mut items = world.objects.get_component::<Inventory>(&object_id).map(Inventory::to_rows).unwrap_or_default();
     if let Some(wh) = world.objects.get_component::<crate::model::inventory::Warehouse>(&object_id) {
         items.extend(wh.to_rows());
+    }
+    if let Some(fr) = world.objects.get_component::<crate::model::inventory::Freight>(&object_id) {
+        items.extend(fr.to_rows());
     }
     let skills = world
         .objects
@@ -254,7 +257,7 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
             let _ = world.db.send(db::DbCommand::StorePlayer {
                 save: db::PlayerSaveData {
                     base: db::PlayerSnapshot::of(&b.player, &b.position, &b.vitals, &b.player_vitals),
-                    items: b.inventory.to_rows().into_iter().chain(b.warehouse.to_rows()).collect(),
+                    items: b.inventory.to_rows().into_iter().chain(b.warehouse.to_rows()).chain(b.freight.to_rows()).collect(),
                     skills: b.skills.0.iter().map(|(id, lvl)| (*id, *lvl)).collect(),
                     shortcuts: b.shortcuts.0.values().cloned().collect(),
                     macros: b.macros.entries.clone(),

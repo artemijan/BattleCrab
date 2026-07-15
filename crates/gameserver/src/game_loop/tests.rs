@@ -9855,3 +9855,38 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
     assert_eq!(world.clans[&clan_id].warehouse.0.count_of(57), 300, "300 remains in clan warehouse");
     assert_eq!(world.objects.get_component::<Inventory>(&3001).unwrap().count_of(57), 200, "200 withdrawn to leader");
 }
+
+/// Freight (the account-package warehouse): the `package_withdraw` half. Seed
+/// the container as if another character had sent items, withdraw part of it,
+/// and confirm it persists with `loc="FREIGHT"`.
+#[test]
+fn freight_withdraw_and_persist() {
+    use crate::model::inventory::{Freight, Inventory};
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9600, 0);
+    drain(&mut rx);
+
+    // Seed 300 adena into the freight (as if sent by another character).
+    let fr_oid = world.alloc_object_id().unwrap();
+    {
+        let World { objects, data, .. } = &mut world;
+        objects.get_component_mut::<Freight>(&9600).unwrap().0.add_item(&data.item_data, fr_oid, 57, 300);
+    }
+
+    // package_withdraw → active = freight, window opens.
+    super::warehouse::open_freight_withdraw(&mut world, 1);
+    let withdraw = { let mut w = PacketWriter::new(); w.write_u8(cop::SEND_WARE_HOUSE_WITH_DRAW_LIST); w.write_i32(1); w.write_i32(fr_oid); w.write_i64(120); w.into_bytes() };
+    on_packet(&mut world, 1, withdraw);
+
+    assert_eq!(world.objects.get_component::<Freight>(&9600).unwrap().0.count_of(57), 180, "180 left in freight");
+    assert_eq!(world.objects.get_component::<Inventory>(&9600).unwrap().count_of(57), 120, "120 withdrawn to inventory");
+
+    // Persisted with its own loc alongside inventory + warehouse.
+    let save = super::net::build_save_data(&world, 9600).expect("save");
+    let fr_row = save.items.iter().find(|r| r.item_id == 57 && r.loc == "FREIGHT").expect("freight row");
+    assert_eq!(fr_row.count, 180);
+    assert!(save.items.iter().any(|r| r.item_id == 57 && r.loc == "INVENTORY" && r.count == 120), "inventory row");
+}

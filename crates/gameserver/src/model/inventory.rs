@@ -778,3 +778,32 @@ impl Warehouse {
         self.0.items().len()
     }
 }
+
+/// The character's freight (Java `PlayerFreight` / `ItemLocation.FREIGHT`) —
+/// the account-package warehouse other characters send items *to*. Like
+/// [`Warehouse`] it's a flat, per-owner container persisted in the player's
+/// `items` rows (`loc="FREIGHT"`, `owner_id` = char id).
+#[derive(Debug, Clone, Default, bevy_ecs::component::Component)]
+pub struct Freight(pub Inventory);
+
+impl Freight {
+    /// Build from the character's `FREIGHT`-location item rows.
+    pub fn from_rows(rows: &[crate::character::ItemRow]) -> Self {
+        Self(Inventory::from_rows(rows))
+    }
+
+    /// Serialize to `items` rows with `loc="FREIGHT"`.
+    pub fn to_rows(&self) -> Vec<crate::character::ItemRow> {
+        let mut rows = self.0.to_rows();
+        for r in &mut rows {
+            r.loc = "FREIGHT".to_string();
+            r.loc_data = 0;
+        }
+        rows
+    }
+
+    /// Current item count (Java `ItemContainer.getSize`).
+    pub fn size(&self) -> usize {
+        self.0.items().len()
+    }
+}

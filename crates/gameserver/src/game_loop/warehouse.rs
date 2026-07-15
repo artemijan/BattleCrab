@@ -11,7 +11,7 @@
 //! change.
 
 use crate::model::components::ActiveWarehouse;
-use crate::model::inventory::{Inventory, ItemInstance, Warehouse};
+use crate::model::inventory::{Freight, Inventory, ItemInstance, Warehouse};
 use crate::model::Player;
 use crate::network::client_packets as cp;
 use crate::network::server_packets as sp;
@@ -19,6 +19,16 @@ use crate::session::ClientSession;
 use crate::world::World;
 
 const ADENA_ID: i32 = 57;
+
+/// The container the player's [`ActiveWarehouse`] currently points at — the
+/// personal warehouse (a player component), the shared clan warehouse (in
+/// `world.clans`), or the freight (another player component).
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum WhTarget {
+    Private,
+    Clan(i32),
+    Freight,
+}
 
 fn player_of(world: &World, client_id: u32) -> Option<i32> {
     match world.clients.get(&client_id) {
@@ -31,29 +41,36 @@ fn adena(world: &World, player_oid: i32) -> i64 {
     world.objects.get_component::<Inventory>(&player_oid).map(|inv| inv.count_of(ADENA_ID)).unwrap_or(0)
 }
 
-/// The clan id whose warehouse `player_oid` is currently using, if their
-/// active warehouse is the clan one and they're in a clan.
-fn active_clan_id(world: &World, player_oid: i32) -> Option<i32> {
-    let active = world.objects.get_component::<ActiveWarehouse>(&player_oid).copied().unwrap_or_default();
-    if active != ActiveWarehouse::Clan {
-        return None;
-    }
-    world.objects.get_component::<Player>(&player_oid).map(|p| p.clan_id).filter(|&c| c != 0)
-}
-
-/// Read-only view of the player's active warehouse container.
-fn warehouse_ref(world: &World, player_oid: i32, clan_id: Option<i32>) -> Option<&Warehouse> {
-    match clan_id {
-        Some(clan_id) => world.clans.get(&clan_id).map(|c| &c.warehouse),
-        None => world.objects.get_component::<Warehouse>(&player_oid),
+/// Resolve the active-warehouse target. A `Clan` selection with no (valid) clan
+/// falls back to the personal warehouse.
+fn target(world: &World, player_oid: i32) -> WhTarget {
+    match world.objects.get_component::<ActiveWarehouse>(&player_oid).copied().unwrap_or_default() {
+        ActiveWarehouse::Private => WhTarget::Private,
+        ActiveWarehouse::Freight => WhTarget::Freight,
+        ActiveWarehouse::Clan => world
+            .objects
+            .get_component::<Player>(&player_oid)
+            .map(|p| p.clan_id)
+            .filter(|&c| c != 0 && world.clans.contains_key(&c))
+            .map(WhTarget::Clan)
+            .unwrap_or(WhTarget::Private),
     }
 }
 
-fn wh_type(clan_id: Option<i32>) -> i16 {
-    if clan_id.is_some() {
-        sp::WH_TYPE_CLAN
-    } else {
-        sp::WH_TYPE_PRIVATE
+/// Read-only view of the target container's inner item list.
+fn container_ref(world: &World, player_oid: i32, target: WhTarget) -> Option<&Inventory> {
+    match target {
+        WhTarget::Private => world.objects.get_component::<Warehouse>(&player_oid).map(|w| &w.0),
+        WhTarget::Clan(clan_id) => world.clans.get(&clan_id).map(|c| &c.warehouse.0),
+        WhTarget::Freight => world.objects.get_component::<Freight>(&player_oid).map(|f| &f.0),
+    }
+}
+
+/// `whType` in the list packets (Java: `PRIVATE=1`, `CLAN=2`, `FREIGHT=1`).
+fn wh_type(target: WhTarget) -> i16 {
+    match target {
+        WhTarget::Clan(_) => sp::WH_TYPE_CLAN,
+        WhTarget::Private | WhTarget::Freight => sp::WH_TYPE_PRIVATE,
     }
 }
 
@@ -94,8 +111,8 @@ pub(crate) fn open_clan(world: &mut World, client_id: u32, player_oid: i32, with
 /// can go in).
 pub(crate) fn open_deposit_window(world: &mut World, client_id: u32) {
     let Some(player_oid) = player_of(world, client_id) else { return };
-    let clan_id = active_clan_id(world, player_oid);
-    let wh_size = warehouse_ref(world, player_oid, clan_id).map(Warehouse::size).unwrap_or(0) as i32;
+    let tgt = target(world, player_oid);
+    let wh_size = container_ref(world, player_oid, tgt).map(|c| c.items().len()).unwrap_or(0) as i32;
     let Some(inv) = world.objects.get_component::<Inventory>(&player_oid) else { return };
     // Depositable = not equipped (Java `getAvailableItems`).
     let items: Vec<(&ItemInstance, &crate::data::item_data::ItemTemplate)> = inv
@@ -104,28 +121,39 @@ pub(crate) fn open_deposit_window(world: &mut World, client_id: u32) {
         .filter(|it| inv.paperdoll_slot_of(it.object_id).is_none())
         .filter_map(|it| world.data.item_data.get(it.item_id).map(|t| (it, t)))
         .collect();
-    let packet = sp::warehouse_deposit_list(wh_type(clan_id), adena(world, player_oid), wh_size, &items);
+    let packet = sp::warehouse_deposit_list(wh_type(tgt), adena(world, player_oid), wh_size, &items);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(packet);
     }
 }
 
-/// `WithdrawP`/`WithdrawC` — show the withdraw window (the warehouse contents).
+/// `WithdrawP`/`WithdrawC`/`package_withdraw` — show the withdraw window (the
+/// active container's contents).
 pub(crate) fn open_withdraw_window(world: &mut World, client_id: u32) {
     let Some(player_oid) = player_of(world, client_id) else { return };
-    let clan_id = active_clan_id(world, player_oid);
+    let tgt = target(world, player_oid);
     let inv_size = world.objects.get_component::<Inventory>(&player_oid).map(|i| i.items().len()).unwrap_or(0) as i32;
-    let Some(wh) = warehouse_ref(world, player_oid, clan_id) else { return };
-    let items: Vec<(&ItemInstance, &crate::data::item_data::ItemTemplate)> = wh
-        .0
+    let Some(container) = container_ref(world, player_oid, tgt) else { return };
+    let items: Vec<(&ItemInstance, &crate::data::item_data::ItemTemplate)> = container
         .items()
         .iter()
         .filter_map(|it| world.data.item_data.get(it.item_id).map(|t| (it, t)))
         .collect();
-    let packet = sp::warehouse_withdrawal_list(wh_type(clan_id), adena(world, player_oid), inv_size, &items);
+    let packet = sp::warehouse_withdrawal_list(wh_type(tgt), adena(world, player_oid), inv_size, &items);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(packet);
     }
+}
+
+/// `Freight` bypass (`package_withdraw`): set the active warehouse to the
+/// player's freight and open the withdraw window (Java `Freight.useBypass`,
+/// the withdraw half). The send half — `package_deposit` → `PackageToList` →
+/// `RequestPackageSend`, which needs the account's character list and writes to
+/// a possibly-offline recipient's freight — is not yet wired.
+pub(crate) fn open_freight_withdraw(world: &mut World, client_id: u32) {
+    let Some(player_oid) = player_of(world, client_id) else { return };
+    set_active(world, player_oid, ActiveWarehouse::Freight);
+    open_withdraw_window(world, client_id);
 }
 
 /// `SendWareHouseDepositList` (0x3B): move the named items inventory → warehouse.
@@ -137,7 +165,7 @@ pub(crate) fn handle_deposit(world: &mut World, client_id: u32, body: &[u8]) {
         moved |= transfer(world, player_oid, obj_id, count, true);
     }
     if moved {
-        maybe_persist_clan(world, player_oid);
+        persist_target(world, player_oid);
     }
     send_inventory(world, client_id, player_oid);
     open_deposit_window(world, client_id);
@@ -152,7 +180,7 @@ pub(crate) fn handle_withdraw(world: &mut World, client_id: u32, body: &[u8]) {
         moved |= transfer(world, player_oid, obj_id, count, false);
     }
     if moved {
-        maybe_persist_clan(world, player_oid);
+        persist_target(world, player_oid);
     }
     send_inventory(world, client_id, player_oid);
     open_withdraw_window(world, client_id);
@@ -166,14 +194,14 @@ fn transfer(world: &mut World, player_oid: i32, obj_id: i32, count: i64, deposit
     if count <= 0 {
         return false;
     }
-    let clan_id = active_clan_id(world, player_oid);
+    let tgt = target(world, player_oid);
 
     // Read the source instance's facts from whichever container it's in.
     let src_facts = {
         let src: Option<&Inventory> = if deposit {
             world.objects.get_component::<Inventory>(&player_oid)
         } else {
-            warehouse_ref(world, player_oid, clan_id).map(|w| &w.0)
+            container_ref(world, player_oid, tgt)
         };
         src.and_then(|c| c.items().iter().find(|it| it.object_id == obj_id).map(|it| (it.item_id, it.count, it.enchant_level)))
     };
@@ -192,7 +220,7 @@ fn transfer(world: &mut World, player_oid: i32, obj_id: i32, count: i64, deposit
     let dst_has_stack = {
         let has = |c: &Inventory| c.items().iter().any(|it| it.item_id == item_id);
         if deposit {
-            warehouse_ref(world, player_oid, clan_id).is_some_and(|w| has(&w.0))
+            container_ref(world, player_oid, tgt).is_some_and(has)
         } else {
             world.objects.get_component::<Inventory>(&player_oid).is_some_and(has)
         }
@@ -208,43 +236,54 @@ fn transfer(world: &mut World, player_oid: i32, obj_id: i32, count: i64, deposit
 
     // Apply: remove from source, insert into destination. The clan warehouse
     // lives in `world.clans` (a different field from `world.objects`), so its
-    // borrow splits cleanly from the inventory's; the personal warehouse is a
-    // component on the same object, needing `get_many_mut`.
-    match clan_id {
-        Some(clan_id) => {
+    // borrow splits cleanly from the inventory's; the personal warehouse and
+    // freight are components on the same object, needing `get_many_mut`.
+    match tgt {
+        WhTarget::Clan(clan_id) => {
             let World { objects, clans, data, .. } = world;
             let (Some(inv), Some(clan)) = (objects.get_component_mut::<Inventory>(&player_oid), clans.get_mut(&clan_id)) else {
                 return false;
             };
-            apply_move(inv, &mut clan.warehouse, &data.item_data, obj_id, item_id, move_count, enchant, dst_oid, deposit);
+            apply_move(inv, &mut clan.warehouse.0, &data.item_data, obj_id, item_id, move_count, enchant, dst_oid, deposit);
         }
-        None => {
+        WhTarget::Private => {
             let catalog = &world.data.item_data;
             let Some((mut inv, mut wh)) = world.objects.get_many_mut::<(&mut Inventory, &mut Warehouse)>(&player_oid) else {
                 return false;
             };
-            apply_move(&mut inv, &mut wh, catalog, obj_id, item_id, move_count, enchant, dst_oid, deposit);
+            apply_move(&mut inv, &mut wh.0, catalog, obj_id, item_id, move_count, enchant, dst_oid, deposit);
+        }
+        WhTarget::Freight => {
+            let catalog = &world.data.item_data;
+            let Some((mut inv, mut fr)) = world.objects.get_many_mut::<(&mut Inventory, &mut Freight)>(&player_oid) else {
+                return false;
+            };
+            apply_move(&mut inv, &mut fr.0, catalog, obj_id, item_id, move_count, enchant, dst_oid, deposit);
         }
     }
     true
 }
 
 /// Remove `move_count` of `obj_id` from the source container and insert it into
-/// the destination (enchant preserved), directed by `deposit`.
+/// the destination (enchant preserved), directed by `deposit`. `container` is
+/// the warehouse/freight side; the inventory is always the other side.
 #[allow(clippy::too_many_arguments)]
-fn apply_move(inv: &mut Inventory, wh: &mut Warehouse, catalog: &crate::data::item_data::ItemData, obj_id: i32, item_id: i32, move_count: i64, enchant: i32, dst_oid: i32, deposit: bool) {
+fn apply_move(inv: &mut Inventory, container: &mut Inventory, catalog: &crate::data::item_data::ItemData, obj_id: i32, item_id: i32, move_count: i64, enchant: i32, dst_oid: i32, deposit: bool) {
     if deposit {
         inv.remove_by_object_id(obj_id, move_count);
-        wh.0.insert_instance(catalog, dst_oid, item_id, move_count, enchant);
+        container.insert_instance(catalog, dst_oid, item_id, move_count, enchant);
     } else {
-        wh.0.remove_by_object_id(obj_id, move_count);
+        container.remove_by_object_id(obj_id, move_count);
         inv.insert_instance(catalog, dst_oid, item_id, move_count, enchant);
     }
 }
 
-/// After a clan-warehouse change, flush its contents to the DB.
-fn maybe_persist_clan(world: &World, player_oid: i32) {
-    if let Some(clan_id) = active_clan_id(world, player_oid) {
+/// Flush the active container after a change. The clan warehouse persists on
+/// its own DB path (a shared, possibly-offline owner); the personal warehouse
+/// and freight ride the player's memory-first autosave, so they need no
+/// immediate flush here.
+fn persist_target(world: &World, player_oid: i32) {
+    if let WhTarget::Clan(clan_id) = target(world, player_oid) {
         persist_clan_warehouse(world, clan_id);
     }
 }

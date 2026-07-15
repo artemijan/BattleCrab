@@ -84,6 +84,7 @@ pub enum ActiveWarehouse {
     #[default]
     Private,
     Clan,
+    Freight,
 }
 
 /// An open enchant window (Java `EnchantItemRequest`, held as a `Player`

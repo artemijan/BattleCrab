@@ -167,6 +167,10 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
         // `bypasshandlers/ClanWarehouse.java`: the shared clan warehouse.
         "WithdrawC" => super::warehouse::open_clan(world, client_id, object_id, true),
         "DepositC" => super::warehouse::open_clan(world, client_id, object_id, false),
+        // `bypasshandlers/Freight.java`: the account-package warehouse. Only
+        // the withdraw half is wired; `package_deposit` (the cross-character
+        // send) needs the account char list and offline freight writes.
+        "package_withdraw" => super::warehouse::open_freight_withdraw(world, client_id),
         // `bypasshandlers/Buy.java`: merchants only.
         "Buy" if super::shop::is_merchant(world, npc_object_id) => {
             if let Some(list_id) =
