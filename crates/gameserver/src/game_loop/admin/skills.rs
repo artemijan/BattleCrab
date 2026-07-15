@@ -206,50 +206,53 @@ pub(super) fn admin_buff(world: &mut World, client_id: u32, object_id: i32, args
     crate::game_loop::skills::effects::apply_skill_effects(world, object_id, target, &skill);
 }
 
-/// `AdminBuffs`'s `//getbuffs` — list the target player's active (non-passive)
-/// buffs as text (Java shows an HTML window; documented simplification).
+/// `AdminBuffs`'s `//getbuffs` — the target's active buffs as the `getbuffs.htm`
+/// window (Java `showBuffs`), each row carrying an `X` cancel button.
 pub(super) fn admin_getbuffs(world: &mut World, client_id: u32, object_id: i32) {
+    show_buffs(world, client_id, object_id, false);
+}
+
+/// `AdminBuffs`'s `//getbuffs_ps` — the passive page of the same window.
+pub(super) fn admin_getbuffs_ps(world: &mut World, client_id: u32, object_id: i32) {
+    show_buffs(world, client_id, object_id, true);
+}
+
+/// Render `getbuffs.htm` for the target (Java `showBuffs`): a table of the
+/// active (or passive) effects with per-row `admin_stopbuff` buttons.
+fn show_buffs(world: &mut World, client_id: u32, object_id: i32, passive: bool) {
     let target = target_player(world, object_id);
     let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
     let now = world.tick;
-    let lines: Vec<String> = world
-        .objects
-        .get_component::<Buffs>(&target)
-        .map(|b| {
-            b.0.iter()
-                .filter(|x| !x.passive)
-                .map(|x| {
-                    let secs = x.expires_at_tick.saturating_sub(now) / 10;
-                    format!("  skill {} lvl {} — {secs}s left", x.skill_id, x.skill_level)
-                })
-                .collect()
-        })
-        .unwrap_or_default();
-    send_message(world, client_id, &format!("=== Buffs on {name} ({} active) ===", lines.len()));
-    for line in lines {
-        send_message(world, client_id, &line);
+    let mut rows = String::new();
+    let mut count = 0;
+    if let Some(buffs) = world.objects.get_component::<Buffs>(&target) {
+        for b in buffs.0.iter().filter(|x| x.passive == passive) {
+            count += 1;
+            let skill = world.data.skill_data.get(b.skill_id, b.skill_level);
+            let sname = skill.map(|s| s.name.clone()).unwrap_or_else(|| format!("Skill {}", b.skill_id));
+            let time = if passive {
+                "P".to_string()
+            } else {
+                format!("{}s", b.expires_at_tick.saturating_sub(now) / 10)
+            };
+            rows.push_str(&format!(
+                "<tr><td>{sname} Lv {}</td><td>{time}</td>\
+                 <td><button value=\"X\" action=\"bypass -h admin_stopbuff {target} {}\" \
+                 width=30 height=21 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td></tr>",
+                b.skill_level, b.skill_id
+            ));
+        }
     }
-}
-
-/// `AdminBuffs`'s `//getbuffs_ps` — list the target's passive effects (Java's
-/// passive page of the buff window). Sibling of [`admin_getbuffs`].
-pub(super) fn admin_getbuffs_ps(world: &mut World, client_id: u32, object_id: i32) {
-    let target = target_player(world, object_id);
-    let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
-    let lines: Vec<String> = world
-        .objects
-        .get_component::<Buffs>(&target)
-        .map(|b| {
-            b.0.iter()
-                .filter(|x| x.passive)
-                .map(|x| format!("  skill {} lvl {} (passive)", x.skill_id, x.skill_level))
-                .collect()
-        })
-        .unwrap_or_default();
-    send_message(world, client_id, &format!("=== Passive effects on {name} ({}) ===", lines.len()));
-    for line in lines {
-        send_message(world, client_id, &line);
-    }
+    let r: Vec<(&str, String)> = vec![
+        ("targetName", name),
+        ("targetObjId", target.to_string()),
+        ("buffs", rows),
+        ("effectSize", count.to_string()),
+        ("buffsText", if passive { "Hide Passives".into() } else { "Show Passives".into() }),
+        ("passives", if passive { String::new() } else { "_ps".into() }),
+        ("pages", String::new()),
+    ];
+    super::menu::show_admin_html_replace(world, client_id, "getbuffs.htm", &r);
 }
 
 /// `AdminBuffs`'s `//areacancel <radius>` — clear every timed buff from all

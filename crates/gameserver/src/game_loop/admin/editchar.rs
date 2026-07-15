@@ -294,18 +294,25 @@ pub(super) fn admin_partyinfo(world: &mut World, client_id: u32, object_id: i32,
             }
         },
     };
+    let target_name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
     let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&target).copied() else {
-        send_message(world, client_id, "Not in party.");
+        // Java: not-in-party still opens the window (empty party table).
+        super::menu::show_admin_html_replace(world, client_id, "partyinfo.htm", &[("player", target_name), ("party", String::new())]);
         return;
     };
     let members = world.parties.get(&pid).map(|p| p.members.clone()).unwrap_or_default();
-    send_message(world, client_id, &format!("=== Party ({} members) ===", members.len()));
+    let mut rows = String::new();
     for oid in members {
         if let Some(p) = world.objects.get_component::<Player>(&oid) {
-            let hp = world.objects.get_component::<Vitals>(&oid).map_or(0, |v| v.cur_hp as i32);
-            send_message(world, client_id, &format!("  {} (Lv {}, HP {})", p.name, p.level, hp));
+            rows.push_str(&format!(
+                "<tr><td><table width=270 border=0 cellpadding=2><tr><td width=30 align=right>{}</td>\
+                 <td width=130><a action=\"bypass -h admin_character_info {}\">{}</a></td>\
+                 <td width=110 align=right>{}</td></tr></table></td></tr>",
+                p.level, p.name, p.name, p.class_id
+            ));
         }
     }
+    super::menu::show_admin_html_replace(world, client_id, "partyinfo.htm", &[("player", target_name), ("party", rows)]);
 }
 
 /// `AdminEditChar`'s `//setparam <stat> <value>` / `//unsetparam <stat>` — set

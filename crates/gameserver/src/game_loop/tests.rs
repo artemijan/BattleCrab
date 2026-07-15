@@ -8975,13 +8975,18 @@ fn admin_getbuffs_lists_active_buffs() {
     let (mut world, ..) = admin_world();
     world.data.skill_data =
         crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8401, 100);
     drain(&mut gm_rx);
 
     on_packet(&mut world, 1, build_admin("buff 1068 1")); // Might
     drain(&mut gm_rx);
+    // Java `showBuffs` renders the `getbuffs.htm` window with a per-buff row +
+    // an `X` cancel button (not sysmessage lines).
     on_packet(&mut world, 1, build_admin("getbuffs"));
-    assert!(count_system_messages(&drain(&mut gm_rx)) >= 2, "header + at least one buff line");
+    let html = drain(&mut gm_rx).iter().find_map(|p| decode_npc_html(p)).expect("getbuffs html");
+    assert!(!html.contains("My text is missing"), "getbuffs.htm found");
+    assert!(html.contains("admin_stopbuff 8401 1068"), "buff row carries a cancel button");
 }
 
 /// `//stopbuff <id>` removes that one buff.

@@ -150,14 +150,23 @@ pub(super) fn admin_spawn_debug_print(world: &mut World, client_id: u32, object_
 pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32) {
     let Some(region) = world.objects.get_component::<RegionCell>(&object_id).map(|r| r.0) else { return };
     let ids = world.npcs_visible_from(region);
-    send_message(world, client_id, &format!("=== NPCs in view ({}) ===", ids.len()));
+    // `scan.htm` (Java `AdminScan.getScanResult`): each NPC is a `move_to` link
+    // plus a Delete link (`admin_deletenpcbyobjectid`).
+    let mut rows = String::new();
     for oid in ids {
         if let Some(npc) = world.objects.get_component::<Npc>(&oid) {
             let name = world.data.npc_data.get(npc.npc_id).map(|t| t.name.clone()).unwrap_or_default();
+            let name = if name.is_empty() { "No name NPC".to_string() } else { name };
             let pos = world.objects.get_component::<Position>(&oid).copied().unwrap_or(Position { x: 0, y: 0, z: 0, heading: 0 });
-            send_message(world, client_id, &format!("  {name} ({}) @ {},{},{}", npc.npc_id, pos.x, pos.y, pos.z));
+            rows.push_str(&format!(
+                "<tr><td width=\"45\">{}</td>\
+                 <td><a action=\"bypass -h admin_move_to {} {} {}\">{name}</a></td>\
+                 <td width=\"54\"><a action=\"bypass -h admin_deletenpcbyobjectid objectId={oid}\"><font color=\"LEVEL\">Delete</font></a></td></tr>",
+                npc.npc_id, pos.x, pos.y, pos.z
+            ));
         }
     }
+    super::menu::show_admin_html_replace(world, client_id, "scan.htm", &[("data", rows), ("pages", String::new())]);
 }
 
 /// `AdminSummon`'s `//summon <id> [count]` — Java delegates: `id < 1000000` is

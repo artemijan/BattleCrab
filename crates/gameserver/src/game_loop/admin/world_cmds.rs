@@ -94,16 +94,30 @@ pub(super) fn admin_clan_info(world: &mut World, client_id: u32, object_id: i32)
         super::send_sm(world, client_id, crate::network::server_packets::sm_ids::INVALID_TARGET);
         return;
     };
+    let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
     let Some(clan_id) = world.objects.get_component::<Player>(&target).map(|p| p.clan_id).filter(|&c| c != 0) else {
-        send_message(world, client_id, "Target is not in a clan.");
+        // Java sends THE_TARGET_MUST_BE_A_CLAN_MEMBER; that sysstring id isn't
+        // in the ported table yet, so fall back to INVALID_TARGET.
+        super::send_sm(world, client_id, crate::network::server_packets::sm_ids::INVALID_TARGET);
         return;
     };
-    let Some(clan) = world.clans.get(&clan_id) else {
-        send_message(world, client_id, "Clan not found.");
-        return;
-    };
-    send_message(world, client_id, &format!("=== Clan {} ({}) ===", clan.name, clan.id));
-    send_message(world, client_id, &format!("Leader: {}  Level: {}  Members: {}", clan.leader_name(), clan.level, clan.members.len()));
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    // `claninfo.htm` (Java `AdminClan.admin_clan_info`). Castle/clanhall/fort/
+    // reputation/ally aren't modelled yet → the Java "None"/0 defaults.
+    let r: Vec<(&str, String)> = vec![
+        ("clan_name", clan.name.clone()),
+        ("clan_leader", clan.leader_name().to_string()),
+        ("clan_level", clan.level.to_string()),
+        ("clan_has_castle", "No".into()),
+        ("clan_has_clanhall", "No".into()),
+        ("clan_has_fortress", "No".into()),
+        ("clan_points", "0".into()),
+        ("clan_players_count", clan.members.len().to_string()),
+        ("clan_ally", "Not in ally".into()),
+        ("current_player_objectId", target.to_string()),
+        ("current_player_name", name),
+    ];
+    super::menu::show_admin_html_replace(world, client_id, "claninfo.htm", &r);
 }
 
 /// `AdminGeodata`'s read-only queries: `//geo_pos` / `//geo_spawn_pos` (report
