@@ -273,6 +273,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::AttackFinish { object_id } => {
                 helpers::run_queued_action(world, object_id);
             }
+            ScheduledTask::GroundItemDecay { item_object_id } => {
+                ground_items::handle_ground_item_decay(world, item_object_id);
+            }
             ScheduledTask::NpcDecay { npc_object_id } => {
                 death::handle_npc_decay(world, npc_object_id);
             }

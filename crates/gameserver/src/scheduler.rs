@@ -42,6 +42,9 @@ pub enum ScheduledTask {
     AttackFinish { object_id: i32 },
     /// `DecayTaskManager` firing for a dead NPC: the corpse disappears.
     NpcDecay { npc_object_id: i32 },
+    /// `ItemsOnGroundManager` cleanup: a dropped ground item auto-destroys after
+    /// its lifetime elapses.
+    GroundItemDecay { item_object_id: i32 },
     /// `RespawnTaskManager` → `Spawn.respawnNpc`: re-run the spawn line the
     /// dead NPC came from (indices into `GameData.spawn_data`).
     NpcRespawn { spawn_idx: usize, group_idx: usize, npc_idx: usize },

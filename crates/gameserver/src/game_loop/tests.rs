@@ -9490,3 +9490,42 @@ fn drop_and_pickup_ground_item() {
         "ground item de-indexed"
     );
 }
+
+/// A ground item left un-picked-up auto-destroys after its lifetime
+/// (`ItemsOnGroundManager` cleanup).
+#[test]
+fn ground_item_decays_after_lifetime() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
+    drain(&mut rx);
+    super::items::add_inventory_item(&mut world, 9300, 57, 100).expect("adena");
+    let adena_oid = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&9300)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|it| it.item_id == 57)
+        .unwrap()
+        .object_id;
+
+    let item_oid = world.next_npc_object_id;
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_DROP_ITEM);
+    w.write_i32(adena_oid);
+    w.write_i64(100);
+    w.write_i32(100);
+    w.write_i32(200);
+    w.write_i32(-3000);
+    on_packet(&mut world, 1, w.into_bytes());
+    assert!(world.objects.has_component::<crate::model::components::GroundItem>(&item_oid), "dropped");
+
+    // Jump past the 600 s lifetime and fire the scheduled decay.
+    world.tick += 600 * 10 + 1;
+    apply_due_tasks(&mut world);
+    assert!(!world.objects.has_component::<crate::model::components::GroundItem>(&item_oid), "decayed");
+    assert!(!world.ground_item_regions.values().flatten().any(|&id| id == item_oid), "de-indexed");
+}

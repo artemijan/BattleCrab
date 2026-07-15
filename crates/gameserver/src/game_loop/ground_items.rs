@@ -9,8 +9,13 @@ use crate::model::components::{GroundItem, Position, RegionCell};
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, GroundItemView};
+use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::{region_of, World};
+
+/// `Config.AUTODESTROY_ITEM_AFTER` — a dropped ground item auto-destroys after
+/// this many seconds (Java default 600).
+const GROUND_ITEM_DECAY_SECS: u64 = 600;
 
 /// Build a ground item's wire view (display id = item id — no disguised items;
 /// stackable from the template).
@@ -53,7 +58,20 @@ pub(crate) fn spawn_ground_item(
     if let Some(view) = ground_item_view(world, object_id) {
         super::helpers::broadcast_near_region(world, region, &server_packets::drop_item(dropper_oid, &view));
     }
+    world
+        .scheduler
+        .schedule(world.tick + GROUND_ITEM_DECAY_SECS * 10, ScheduledTask::GroundItemDecay { item_object_id: object_id });
     object_id
+}
+
+/// `ItemsOnGroundManager` cleanup task: remove a ground item that has lain past
+/// its lifetime (no-op if it was already picked up).
+pub(crate) fn handle_ground_item_decay(world: &mut World, item_object_id: i32) {
+    let Some(region) = world.objects.get_component::<RegionCell>(&item_object_id).map(|r| r.0) else { return };
+    if !world.objects.has_component::<GroundItem>(&item_object_id) {
+        return;
+    }
+    despawn_ground_item(world, item_object_id, region);
 }
 
 /// Remove a ground item from the world (despawn + drop from the region index +

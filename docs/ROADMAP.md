@@ -77,12 +77,15 @@ unused in the ported set). **G14 done.**
 🚧 **In progress.** ✅ `RequestDestroyItem` (0x60). ✅ **Ground items** — a
 `GroundItem` world-object kind (`World.ground_item_regions`), `SpawnItem`/
 `DropItem`/`GetItem` packets, `RequestDropItem` (0x17), pickup via `Action`,
-visibility on enter + region-change deltas, and the **auto-loot=false** death
-path now drops onto the ground. **Next slices** (each independently testable):
-warehouse (deposit/withdraw), private stores + trade, enchant scrolls,
-crystallization, augmentation. Ground-item TODOs: enchant not carried through
-pickup (stackables only for now), owner-based loot-window protection, item
-decay (`ItemsOnGroundManager` cleanup).
+visibility on enter + region-change deltas, the **auto-loot=false** death path
+drops onto the ground, and **decay** (`ItemsOnGroundManager`, 600 s lifetime).
+**Next slices — each a substantial multi-part feature warranting a focused pass:**
+warehouse (a DB-persisted second container + 2 window packets + 2 move packets
++ the keeper bypass), private stores + trade, enchant scrolls (an
+`EnchantItemData`/`EnchantItemGroups` loader + a multi-packet `EnchantItemRequest`
+state machine), crystallization (needs `crystal_count` + the crystallize-skill
+gate + crystal-item mapping), augmentation. Remaining ground-item TODOs: enchant
+carried through pickup (stackables only for now), owner-based loot protection.
 
 The itemcontainer breadth G5 deferred: private/clan warehouse + freight; private
 stores (sell/buy/manufacture/package) + offline stores; player-to-player trade;
