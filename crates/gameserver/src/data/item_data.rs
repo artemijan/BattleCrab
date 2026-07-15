@@ -286,6 +286,26 @@ impl CrystalType {
         }
     }
 
+    /// `CrystalType.getCrystalItemId()` — the crystal item the grade yields on
+    /// crystallization (`Crystal (D-grade)` 1458 … `S-grade` 1462). `None` for
+    /// un-crystallizable grades (NONE and R+, which the ported set doesn't use).
+    pub fn crystal_item_id(self) -> Option<i32> {
+        Some(match self {
+            CrystalType::D => 1458,
+            CrystalType::C => 1459,
+            CrystalType::B => 1460,
+            CrystalType::A => 1461,
+            CrystalType::S | CrystalType::S80 | CrystalType::S84 => 1462,
+            _ => return None,
+        })
+    }
+
+    /// The minimum `CRYSTALLIZE` (skill 248) level needed to crystallize this
+    /// grade (Java's `RequestCrystallizeItem` per-grade gate): D→1 … S→5.
+    pub fn required_crystallize_level(self) -> i32 {
+        self.plus().level().min(5)
+    }
+
     /// `<set name="crystal_type" val="..."/>` → variant (Java
     /// `CrystalType.valueOf(name.toUpperCase())`). Unknown/absent → `None`.
     fn from_name(name: Option<&str>) -> Self {
@@ -403,6 +423,9 @@ pub struct ItemTemplate {
     /// `<set name="crystal_type"/>` — the item's grade, `None` when undeclared.
     /// Drives the expertise/grade penalty (`refresh_expertise_penalty`).
     pub crystal_type: CrystalType,
+    /// `<set name="crystal_count"/>` — crystals yielded on crystallization (0 =
+    /// not crystallizable).
+    pub crystal_count: i32,
     pub body_part: i32,
     pub weight: i32,
     pub is_stackable: bool,
@@ -775,6 +798,7 @@ fn make_template(
         name,
         kind,
         crystal_type: CrystalType::from_name(attrs.get("crystal_type").map(|s| s.as_str())),
+        crystal_count: attrs.get("crystal_count").and_then(|s| s.parse().ok()).unwrap_or(0),
         body_part: part,
         weight,
         is_stackable,

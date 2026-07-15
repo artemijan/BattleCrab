@@ -83,12 +83,15 @@ drops onto the ground, and **decay** (`ItemsOnGroundManager`, 600 s lifetime).
 persisted alongside it via `loc="WAREHOUSE"`), the `WareHouseDepositList`/
 `WithdrawalList` windows, `SendWareHouse*List` (0x3B/0x3C) deposit/withdraw
 (enchant-preserving transfers), and the `DepositP`/`WithdrawP` keeper bypass.
+✅ **Crystallization** (`RequestCrystallizeItem` 0x2F) — `crystal_count` parsed,
+`CrystalType::crystal_item_id`/`required_crystallize_level`; destroy a
+crystallizable item + award its grade's crystals (1458–1462), gated on the
+`Crystallize` skill (248) level vs grade (D→1 … S→5), unequip-first.
 **Next slices — each a substantial multi-part feature:** clan warehouse +
 freight (reuse the container), private stores + trade, enchant scrolls (an
 `EnchantItemData`/`EnchantItemGroups` loader + a multi-packet `EnchantItemRequest`
-state machine), crystallization (needs `crystal_count` + the crystallize-skill
-gate + crystal-item mapping), augmentation. Remaining ground-item TODOs: enchant
-carried through pickup (stackables only for now), owner-based loot protection.
+state machine), augmentation. Remaining ground-item TODOs: enchant carried
+through pickup (stackables only for now), owner-based loot protection.
 
 The itemcontainer breadth G5 deferred: private/clan warehouse + freight; private
 stores (sell/buy/manufacture/package) + offline stores; player-to-player trade;

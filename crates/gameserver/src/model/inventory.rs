@@ -566,11 +566,11 @@ mod tests {
     use crate::data::item_data::ItemTemplate;
 
     fn armor(id: i32, body_part: i32) -> ItemTemplate {
-        ItemTemplate { item_id: id, name: format!("armor{id}"), kind: ItemKind::Armor, crystal_type: item_data::CrystalType::None, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new() }
+        ItemTemplate { item_id: id, name: format!("armor{id}"), kind: ItemKind::Armor, crystal_type: item_data::CrystalType::None, crystal_count: 0, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new() }
     }
 
     fn weapon(id: i32, body_part: i32) -> ItemTemplate {
-        ItemTemplate { item_id: id, name: format!("weapon{id}"), kind: ItemKind::Weapon, crystal_type: item_data::CrystalType::None, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new() }
+        ItemTemplate { item_id: id, name: format!("weapon{id}"), kind: ItemKind::Weapon, crystal_type: item_data::CrystalType::None, crystal_count: 0, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new() }
     }
 
     #[test]
@@ -674,7 +674,7 @@ mod tests {
                 is_quest_item: true,
                 price: 0,
                 handler: item_data::ItemHandler::None,
-                crystal_type: crate::data::item_data::CrystalType::None,
+                crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
                 capsuled_items: Vec::new(),
                 extractable_count_min: 0,
                 extractable_count_max: 0,
@@ -692,7 +692,7 @@ mod tests {
                 is_quest_item: false,
                 price: 0,
                 handler: item_data::ItemHandler::None,
-                crystal_type: crate::data::item_data::CrystalType::None,
+                crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
                 capsuled_items: Vec::new(),
                 extractable_count_min: 0,
                 extractable_count_max: 0,
@@ -723,7 +723,7 @@ mod tests {
             is_quest_item: false,
             price: 0,
             handler: item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
+            crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,

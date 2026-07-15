@@ -23,6 +23,7 @@ pub mod opcodes {
     pub const REQUEST_DROP_ITEM: u8 = 0x17;
     pub const USE_ITEM: u8 = 0x19;
     pub const REQUEST_DESTROY_ITEM: u8 = 0x60;
+    pub const REQUEST_CRYSTALLIZE_ITEM: u8 = 0x2F;
     pub const SEND_WARE_HOUSE_DEPOSIT_LIST: u8 = 0x3B;
     pub const SEND_WARE_HOUSE_WITH_DRAW_LIST: u8 = 0x3C;
     pub const ACTION: u8 = 0x1F;

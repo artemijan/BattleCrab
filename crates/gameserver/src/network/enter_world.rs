@@ -507,7 +507,7 @@ mod tests {
             is_quest_item: false,
             price: 0,
             handler: item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
+            crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,

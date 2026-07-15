@@ -1918,7 +1918,7 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
         is_quest_item: false,
         price: 0,
         handler: crate::data::item_data::ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -1978,7 +1978,7 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
             is_quest_item: false,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
+            crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,
@@ -2067,7 +2067,7 @@ fn equipping_gear_updates_combat_stats() {
         is_quest_item: false,
         price: 0,
         handler: ItemHandler::None,
-        crystal_type: CrystalType::None,
+        crystal_type: CrystalType::None, crystal_count: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -2130,7 +2130,7 @@ fn equipping_gear_updates_max_hp_mp() {
         is_quest_item: false,
         price: 0,
         handler: ItemHandler::None,
-        crystal_type: CrystalType::None,
+        crystal_type: CrystalType::None, crystal_count: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -2186,7 +2186,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
         is_quest_item: false,
         price: 0,
         handler: ItemHandler::ExtractableItems,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: vec![
             CapsuledItem { item_id: 15230, min: 1, max: 1, chance: 100_000 },
             CapsuledItem { item_id: 15270, min: 1, max: 1, chance: 100_000 },
@@ -2208,7 +2208,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
             is_quest_item: false,
             price: 0,
             handler: ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
+            crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,
@@ -2267,7 +2267,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         is_quest_item: false,
         price: 0,
         handler: ItemHandler::ExtractableItems,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: vec![CapsuledItem { item_id: 14966, min: 2, max: 2, chance: 100_000 }],
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -2285,7 +2285,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         is_quest_item: false,
         price: 0,
         handler: ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -2352,7 +2352,7 @@ fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
         is_quest_item: false,
         price: 0,
         handler: ItemHandler::ExtractableItems,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: vec![CapsuledItem { item_id: 15230, min: 1, max: 1, chance: 100_000 }],
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -2428,7 +2428,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
         is_quest_item: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -2518,7 +2518,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         is_quest_item: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -2536,7 +2536,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         is_quest_item: false,
         price: 0,
         handler: ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -2634,7 +2634,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         is_quest_item: false,
         price: 0,
         handler: ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -2652,7 +2652,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         is_quest_item: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -2732,7 +2732,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         is_quest_item: false,
         price: 0,
         handler: ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -2750,7 +2750,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         is_quest_item: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -4006,7 +4006,7 @@ fn combat_test_world() -> (
         is_quest_item: false,
         price: 0,
         handler: crate::data::item_data::ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -6023,7 +6023,7 @@ fn party_loot_split_and_rotation() {
         is_quest_item: false,
         price: 0,
         handler: crate::data::item_data::ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -6261,7 +6261,7 @@ fn quest_test_world() -> (
             is_quest_item,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
+            crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,
@@ -7175,7 +7175,7 @@ fn shop_world() -> (
         is_quest_item: false,
         price: 0,
         handler: crate::data::item_data::ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -7298,7 +7298,7 @@ fn add_quest_items(world: &mut World, ids: &[(i32, &str, bool)]) {
             is_quest_item,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
+            crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,
@@ -7625,7 +7625,7 @@ fn shot_template(item_id: i32, grade: crate::data::item_data::CrystalType, handl
         item_id,
         name: format!("shot{item_id}"),
         kind: crate::data::item_data::ItemKind::Etc,
-        crystal_type: grade,
+        crystal_type: grade, crystal_count: 0,
         body_part: crate::data::item_data::SLOT_NONE,
         weight: 0,
         is_stackable: true,
@@ -7647,7 +7647,7 @@ fn shot_weapon(world: &mut World, item_id: i32, grade: crate::data::item_data::C
         item_id,
         name: format!("weapon{item_id}"),
         kind: crate::data::item_data::ItemKind::Weapon,
-        crystal_type: grade,
+        crystal_type: grade, crystal_count: 0,
         body_part: crate::data::item_data::SLOT_R_HAND,
         weight: 0,
         is_stackable: false,
@@ -9573,4 +9573,41 @@ fn warehouse_deposit_withdraw_and_persist() {
     on_packet(&mut world, 1, w.into_bytes());
     assert_eq!(wh_adena(&world), 250, "150 withdrawn");
     assert_eq!(inv_adena(&world), 750, "back in inventory");
+}
+
+/// Crystallizing a D-grade item destroys it and yields its `crystal_count` of
+/// Crystal (D-grade) (1458) — but only with the Crystallize skill.
+#[test]
+fn crystallize_item_yields_crystals_when_skilled() {
+    use crate::model::inventory::Inventory;
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    // Leather Boots (40): D-grade with a crystal count.
+    let cc = world.data.item_data.get(40).unwrap().crystal_count;
+    assert!(cc > 0, "test item is crystallizable");
+
+    let mut rx = ingame_player_access(&mut world, 1, 9500, 0);
+    drain(&mut rx);
+    super::items::add_inventory_item(&mut world, 9500, 40, 1).expect("boots");
+    let boots_oid = world.objects.get_component::<Inventory>(&9500).unwrap().items().iter().find(|it| it.item_id == 40).unwrap().object_id;
+    let crystallize = |oid: i32| -> Vec<u8> {
+        let mut w = PacketWriter::new();
+        w.write_u8(cop::REQUEST_CRYSTALLIZE_ITEM);
+        w.write_i32(oid);
+        w.write_i64(1);
+        w.into_bytes()
+    };
+
+    // No skill → refused, boots keep.
+    on_packet(&mut world, 1, crystallize(boots_oid));
+    assert_eq!(world.objects.get_component::<Inventory>(&9500).unwrap().count_of(40), 1, "no skill, no crystallize");
+
+    // Grant Crystallize (248) level 1, then crystallize.
+    world.objects.get_component_mut::<crate::model::components::SkillBook>(&9500).unwrap().0.insert(248, 1);
+    on_packet(&mut world, 1, crystallize(boots_oid));
+    let inv = world.objects.get_component::<Inventory>(&9500).unwrap();
+    assert_eq!(inv.count_of(40), 0, "boots crystallized away");
+    assert_eq!(inv.count_of(1458), cc as i64, "got crystal_count Crystal (D-grade)");
 }

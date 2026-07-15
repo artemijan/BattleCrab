@@ -208,6 +208,73 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     }
 }
 
+/// The `Crystallize` common skill (`CommonSkill.CRYSTALLIZE`).
+const CRYSTALLIZE_SKILL_ID: i32 = 248;
+
+/// Port of `clientpackets/RequestCrystallizeItem.runImpl` (narrowed): destroy a
+/// crystallizable item and yield its grade's crystals. Gated on the player's
+/// `Crystallize` (248) skill level vs the item grade (D→1 … S→5). With no
+/// `ItemCrystallizationData`, Java's fallback is `crystalCount` of the grade's
+/// crystal at 100% — that's what we award. Hero/shadow/augment guards skipped.
+pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = cp::RequestDestroyItem::read(body) else { return }; // same layout (objectId, count)
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player_oid = session.player_object_id();
+    if pkt.count <= 0 {
+        return;
+    }
+    // Locate the item + its crystallization facts.
+    let Some((item_id, held, is_stackable)) = world
+        .objects
+        .get_component::<Inventory>(&player_oid)
+        .and_then(|inv| inv.items().iter().find(|it| it.object_id == pkt.object_id).map(|it| (it.item_id, it.count)))
+        .map(|(id, cnt)| (id, cnt, world.data.item_data.get(id).map(|t| t.is_stackable).unwrap_or(false)))
+    else {
+        return;
+    };
+    let Some(t) = world.data.item_data.get(item_id) else { return };
+    let (Some(crystal_item), crystal_count) = (t.crystal_type.crystal_item_id(), t.crystal_count) else {
+        send_item_message(world, client_id, "This item cannot be crystallized.");
+        return;
+    };
+    if crystal_count <= 0 {
+        send_item_message(world, client_id, "This item cannot be crystallized.");
+        return;
+    }
+    let required = t.crystal_type.required_crystallize_level();
+    let skill_level = world.objects.get_component::<crate::model::components::SkillBook>(&player_oid).and_then(|b| b.0.get(&CRYSTALLIZE_SKILL_ID).copied()).unwrap_or(0);
+    if skill_level < required {
+        send_item_message(world, client_id, "Your crystallization skill level is too low.");
+        return;
+    }
+    if !is_stackable && pkt.count > 1 {
+        return;
+    }
+    let count = pkt.count.min(held);
+
+    // Unequip first if worn, then destroy, then award the crystals.
+    if world.objects.get_component::<Inventory>(&player_oid).is_some_and(|inv| inv.paperdoll_slot_of(pkt.object_id).is_some()) {
+        let changed = world.objects.get_component_mut::<Inventory>(&player_oid).map(|inv| inv.unequip_item(pkt.object_id)).unwrap_or_default();
+        finish_equip_change(world, client_id, player_oid, &changed);
+    }
+    let Some(removed) = world.objects.get_component_mut::<Inventory>(&player_oid).and_then(|inv| inv.remove_by_object_id(pkt.object_id, count)) else {
+        return;
+    };
+    let total = crystal_count as i64 * count;
+    add_inventory_item(world, player_oid, crystal_item, total);
+    // InventoryUpdate: the destroyed item + the crystal stack (as a modify).
+    let mut changes = vec![removed];
+    if let Some(inv) = world.objects.get_component::<Inventory>(&player_oid) {
+        if let Some(stack) = inv.items().iter().find(|it| it.item_id == crystal_item) {
+            changes.push(crate::model::inventory::ItemChange::Modified(*stack));
+        }
+    }
+    let packet = ew::inventory_update_changes(&world.data, &changes);
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(packet);
+    }
+}
+
 /// Send a bare `$s1` system-message line to one client.
 fn send_item_message(world: &World, client_id: u32, text: &str) {
     if let Some(cs) = world.clients.get(&client_id) {

@@ -88,6 +88,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::USE_ITEM => handle_use_item(world, client_id, body),
         cop::REQUEST_UN_EQUIP_ITEM => handle_request_un_equip_item(world, client_id, body),
         cop::REQUEST_DESTROY_ITEM => super::items::handle_request_destroy_item(world, client_id, body),
+        cop::REQUEST_CRYSTALLIZE_ITEM => super::items::handle_request_crystallize_item(world, client_id, body),
         cop::REQUEST_DROP_ITEM => super::ground_items::handle_request_drop_item(world, client_id, body),
         cop::SEND_WARE_HOUSE_DEPOSIT_LIST => super::warehouse::handle_deposit(world, client_id, body),
         cop::SEND_WARE_HOUSE_WITH_DRAW_LIST => super::warehouse::handle_withdraw(world, client_id, body),
