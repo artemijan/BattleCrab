@@ -43,6 +43,11 @@ pub const GET_ITEM: u8 = 0x17;
 /// Personal/clan warehouse deposit + withdraw list windows.
 pub const WAREHOUSE_DEPOSIT_LIST: u8 = 0x41;
 pub const WAREHOUSE_WITHDRAW_LIST: u8 = 0x42;
+/// Private store: the owner's manage window, a buyer's view, and the title
+/// message shown above a store owner.
+pub const PRIVATE_STORE_MANAGE_LIST: u8 = 0xA0;
+pub const PRIVATE_STORE_LIST: u8 = 0xA1;
+pub const PRIVATE_STORE_MSG: u8 = 0xA2;
 pub const AUTO_ATTACK_START: u8 = 0x25;
 pub const AUTO_ATTACK_STOP: u8 = 0x26;
 pub const RELATION_CHANGED: u8 = 0xCE;

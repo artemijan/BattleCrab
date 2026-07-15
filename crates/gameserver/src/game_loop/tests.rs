@@ -9653,3 +9653,51 @@ fn request_sell_item_pays_adena() {
     assert_eq!(adena_of(&world, 3001), 1000 + 400, "paid 4 × (200/2)");
     assert!(drain(&mut rx).iter().any(|p| p[0] == 0x21), "InventoryUpdate sent");
 }
+
+/// A private sell store: the owner sets a list (store activates + store byte),
+/// and a buyer purchases — items move seller→buyer, adena buyer→seller.
+#[test]
+fn private_store_sell_and_buy() {
+    use crate::model::inventory::Inventory;
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0200;
+    let mut seller_rx = ingame_player_access(&mut world, 1, 9600, 0);
+    let mut buyer_rx = ingame_player_access(&mut world, 2, 9601, 0);
+    drain(&mut seller_rx);
+    drain(&mut buyer_rx);
+    // Seller has 10 Crystal (D); buyer has 1000 adena.
+    super::items::add_inventory_item(&mut world, 9600, 1458, 10).unwrap();
+    super::items::add_inventory_item(&mut world, 9601, 57, 1000).unwrap();
+    let crystal_oid = world.objects.get_component::<Inventory>(&9600).unwrap().items().iter().find(|it| it.item_id == 1458).unwrap().object_id;
+
+    // Seller sets the store: sell 4 crystals at 100 adena each.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::SET_PRIVATE_STORE_LIST_SELL);
+    w.write_i32(0); // not package
+    w.write_i32(1); // one line
+    w.write_i32(crystal_oid);
+    w.write_i64(4);
+    w.write_i64(100);
+    on_packet(&mut world, 1, w.into_bytes());
+    assert_eq!(world.objects.get_component::<crate::model::Player>(&9600).unwrap().store_type, 1, "store active");
+    assert_eq!(world.objects.get_component::<crate::model::components::PrivateStore>(&9600).unwrap().items.len(), 1);
+
+    // Buyer buys all 4.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PRIVATE_STORE_BUY);
+    w.write_i32(9600); // seller
+    w.write_i32(1);
+    w.write_i32(crystal_oid);
+    w.write_i64(4);
+    w.write_i64(100);
+    on_packet(&mut world, 2, w.into_bytes());
+
+    assert_eq!(world.objects.get_component::<Inventory>(&9601).unwrap().count_of(1458), 4, "buyer got 4 crystals");
+    assert_eq!(world.objects.get_component::<Inventory>(&9601).unwrap().count_of(57), 600, "buyer paid 400");
+    assert_eq!(world.objects.get_component::<Inventory>(&9600).unwrap().count_of(1458), 6, "seller has 6 left");
+    assert_eq!(world.objects.get_component::<Inventory>(&9600).unwrap().count_of(57), 400, "seller earned 400");
+    // Store emptied of its offered stock → closed.
+    assert_eq!(world.objects.get_component::<crate::model::Player>(&9600).unwrap().store_type, 0, "store closed when sold out");
+}

@@ -129,6 +129,10 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         }
         cop::REQUEST_BUY_ITEM => super::shop::handle_request_buy_item(world, client_id, body),
         cop::REQUEST_SELL_ITEM => super::shop::handle_request_sell_item(world, client_id, body),
+        cop::REQUEST_PRIVATE_STORE_MANAGE_SELL => super::private_store::open_manage(world, client_id),
+        cop::SET_PRIVATE_STORE_LIST_SELL => super::private_store::handle_set_list(world, client_id, body),
+        cop::REQUEST_PRIVATE_STORE_QUIT_SELL => super::private_store::handle_quit(world, client_id),
+        cop::REQUEST_PRIVATE_STORE_BUY => super::private_store::handle_buy(world, client_id, body),
         cop::REQUEST_QUEST_ABORT => {
             super::quests::handle_request_quest_abort(world, client_id, body)
         }

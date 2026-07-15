@@ -90,8 +90,13 @@ crystallizable item + award its grade's crystals (1458–1462), gated on the
 ✅ **Sell to merchant** (`RequestSellItem` 0x37) — sell inventory items to a
 targeted merchant for reference-price/2 adena (the buy side + sell tab already
 existed; this completes the merchant shop).
-**Next slices — each a substantial multi-part feature:** clan warehouse +
-freight (reuse the container), private stores + trade, enchant scrolls (an
+✅ **Private sell store** — `PrivateStore` component + `Player.store_type`
+(CharInfo/UserInfo byte, byte-test safe); manage window (0xA0), set-list (0x31),
+buyer view (0xA1) on click, `PrivateStoreMsgSell` (0xA2) title, buy transaction
+(0x83, items seller→buyer + adena buyer→seller, store closes when sold out),
+quit (0x96). Buy/manufacture stores + package sell deferred.
+**Next slices — each a substantial multi-part feature:** player-to-player trade,
+clan warehouse + freight (reuse the container), enchant scrolls (an
 `EnchantItemData`/`EnchantItemGroups` loader + a multi-packet `EnchantItemRequest`
 state machine), augmentation. Remaining ground-item TODOs: enchant carried
 through pickup (stackables only for now), owner-based loot protection.

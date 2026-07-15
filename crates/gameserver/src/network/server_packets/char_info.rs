@@ -114,7 +114,7 @@ pub fn char_info(v: &crate::model::PlayerView) -> Vec<u8> {
     w.write_u8(0); // alike dead
     w.write_u8(0); // invisible
     w.write_u8(p.mount_type); // mount type (1 strider, 2 wyvern, 3 wolf, 0 none)
-    w.write_u8(0); // private store type
+    w.write_u8(p.store_type); // private store type
     w.write_i16(0); // cubic count (+ cubic ids)
     w.write_u8(0); // in matching room
     w.write_u8(if p.mount_type == 2 { 2 } else { 0 }); // 1 water, 2 flying mount (wyvern)

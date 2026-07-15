@@ -52,7 +52,14 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         // walk-to-item approach path is a simplification).
         super::ground_items::pickup_ground_item(world, client_id, object_id, pkt.object_id);
     } else if world.objects.has_component::<crate::model::Player>(&pkt.object_id) {
-        set_target(world, client_id, object_id, Some(pkt.object_id));
+        // A player running a private store, clicked while already targeted, opens
+        // their store window for the customer (Java `Player.onAction`).
+        let already_targeted = world.objects.get_component::<TargetRef>(&object_id).copied().unwrap_or_default().0 == Some(pkt.object_id);
+        if already_targeted && pkt.object_id != object_id && super::private_store::is_store_owner(world, pkt.object_id) {
+            super::private_store::open_buyer_view(world, client_id, object_id, pkt.object_id);
+        } else {
+            set_target(world, client_id, object_id, Some(pkt.object_id));
+        }
     } else if let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&pkt.object_id) {
         // Java `Npc.canTarget` → `WorldObject.isTargetable` (template flag).
         let targetable = npc.template(world).is_none_or(|t| t.targetable);

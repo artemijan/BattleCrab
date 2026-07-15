@@ -196,6 +196,12 @@ pub struct Player {
     /// model shown in UserInfo/CharInfo. Equals `transform_id` on this dist (no
     /// template overrides `displayId`); 0 when not transformed.
     pub transform_display_id: i32,
+
+    /// `Player._privateStoreType` (Java `PrivateStoreType`): 0 none, 1 sell,
+    /// 3 buy, … The CharInfo/UserInfo store byte; a non-zero value makes the
+    /// client sit the character with the store title above it. The sell list
+    /// itself lives in the `PrivateStore` component.
+    pub store_type: u8,
 }
 
 /// Port of `enums/ShotType`, narrowed to the kinds this slice charges. The
@@ -618,6 +624,7 @@ impl Player {
             mount_npc_id: 0,
             transform_id: 0,
             transform_display_id: 0,
+            store_type: 0,
         };
         // Filled in by `recalculate_stats` (incl. atk_range/random_dmg, which it
         // sets from the equipped weapon or the class template).

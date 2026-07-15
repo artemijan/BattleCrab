@@ -55,6 +55,7 @@ async fn user_info_test() {
         mount_npc_id: 0,
         transform_id: 0,
         transform_display_id: 0,
+        store_type: 0,
     };
     let position = Position { x: -90939, y: 248_138, z: -3563, heading: 0 };
     let vitals = Vitals { max_hp: 98, cur_hp: 98.0, max_mp: 59, cur_mp: 59.0, dead: false };

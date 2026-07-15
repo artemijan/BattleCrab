@@ -18,6 +18,7 @@ mod expertise;
 mod friends;
 mod ground_items;
 mod helpers;
+mod private_store;
 mod warehouse;
 mod items;
 mod lobby;

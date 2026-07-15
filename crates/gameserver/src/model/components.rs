@@ -38,6 +38,26 @@ pub struct GroundItem {
     pub enchant: i32,
 }
 
+/// One line in a player's private sell store (Java `TradeItem`): the inventory
+/// instance offered, how many, and the asking price per unit.
+#[derive(Debug, Clone, Copy)]
+pub struct StoreItem {
+    pub object_id: i32,
+    pub item_id: i32,
+    pub count: i64,
+    pub price: i64,
+    pub enchant: i32,
+}
+
+/// A player's active private sell store (Java `Player._sellList` + store title).
+/// Present only while the store is open; the store *type* (the CharInfo byte)
+/// lives on [`Player::store_type`](crate::model::Player::store_type).
+#[derive(Component, Debug, Clone, Default)]
+pub struct PrivateStore {
+    pub items: Vec<StoreItem>,
+    pub title: String,
+}
+
 /// The world-region cell this object is registered in (Java
 /// `WorldObject._worldRegion`). Kept in sync with `Position` by the
 /// visibility/movement systems (Java `updateWorldRegion`/`switchRegion`) —

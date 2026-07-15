@@ -25,6 +25,10 @@ pub mod opcodes {
     pub const REQUEST_DESTROY_ITEM: u8 = 0x60;
     pub const REQUEST_CRYSTALLIZE_ITEM: u8 = 0x2F;
     pub const REQUEST_SELL_ITEM: u8 = 0x37;
+    pub const REQUEST_PRIVATE_STORE_MANAGE_SELL: u8 = 0x30;
+    pub const SET_PRIVATE_STORE_LIST_SELL: u8 = 0x31;
+    pub const REQUEST_PRIVATE_STORE_QUIT_SELL: u8 = 0x96;
+    pub const REQUEST_PRIVATE_STORE_BUY: u8 = 0x83;
     pub const SEND_WARE_HOUSE_DEPOSIT_LIST: u8 = 0x3B;
     pub const SEND_WARE_HOUSE_WITH_DRAW_LIST: u8 = 0x3C;
     pub const ACTION: u8 = 0x1F;
@@ -295,6 +299,49 @@ impl WarehouseItemList {
             items.push((object_id, cnt));
         }
         Some(Self { items })
+    }
+}
+
+/// Port of `SetPrivateStoreListSell` (`dd [dqq]`): the items to offer —
+/// `(object_id, count, price)`. `RequestPrivateStoreBuy` (`dd [dqq]`) shares the
+/// same trailing layout but leads with the seller's object id.
+pub struct PrivateStoreItemList {
+    /// `RequestPrivateStoreBuy` only: the seller's object id (`0` for a set-list).
+    pub target_object_id: i32,
+    pub items: Vec<(i32, i64, i64)>,
+}
+
+impl PrivateStoreItemList {
+    /// `SetPrivateStoreListSell`: `packageSale(int)` then the item lines.
+    pub fn read_set_list(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let _package = r.read_i32()?;
+        Self::read_lines(&mut r, 0)
+    }
+
+    /// `RequestPrivateStoreBuy`: `storePlayerId(int)` then the item lines.
+    pub fn read_buy(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let seller = r.read_i32()?;
+        Self::read_lines(&mut r, seller)
+    }
+
+    fn read_lines(r: &mut PacketReader, target: i32) -> Option<Self> {
+        let count = r.read_i32()?;
+        if count < 1 || count > 500 {
+            return None;
+        }
+        let mut items = Vec::with_capacity(count as usize);
+        for _ in 0..count {
+            let object_id = r.read_i32()?;
+            let cnt = r.read_i64()?;
+            let price = r.read_i64()?;
+            if object_id < 1 || cnt < 1 || price < 0 {
+                return None;
+            }
+            items.push((object_id, cnt, price));
+        }
+        Some(Self { target_object_id: target, items })
     }
 }
 
