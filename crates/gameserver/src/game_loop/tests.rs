@@ -8145,6 +8145,34 @@ fn admin_menu_serves_main_page() {
     assert!(content.contains("admin_admin"), "menu links back through the admin_ bypass");
 }
 
+/// `//show_characters` and `//character_info` render HTML windows (Java
+/// `listCharacters`/`showCharacterInfo`), not text lines: the regression the
+/// user flagged.
+#[test]
+fn admin_editchar_info_commands_use_html() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut rx = ingame_player_access(&mut world, 1, 6432, 100);
+    drain(&mut rx);
+
+    // //show_characters → charlist.htm (with the caller's own row).
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("show_characters")].concat());
+    let pkts = drain(&mut rx);
+    let list = pkts.iter().find_map(|p| decode_npc_html(p)).expect("charlist html");
+    assert!(!list.contains("My text is missing"), "charlist.htm found");
+    assert!(list.contains("Character Selection"), "charlist body");
+    assert!(list.contains("admin_character_info P6432"), "roster links to character_info");
+    assert!(!has_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE), "no sysmessage fallback");
+
+    // //character_info (self via target) → charinfo.htm filled with the name.
+    world.objects.add_components(&6432, crate::model::components::TargetRef(Some(6432)));
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("character_info")].concat());
+    let info = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("charinfo html");
+    assert!(!info.contains("My text is missing"), "charinfo.htm found");
+    assert!(info.contains("P6432"), "charinfo shows the character name");
+    assert!(!info.contains("%name%") && !info.contains("%level%"), "charinfo tokens replaced");
+}
+
 /// UserInfo's BASIC_INFO `isGM` byte is `player.isGM()` (Java `UserInfo` L147).
 /// This is what tells the client to enable the `//command` bar — with a
 /// hardcoded 0 the client never sends `SendBypassBuildCmd`, so no `//` command

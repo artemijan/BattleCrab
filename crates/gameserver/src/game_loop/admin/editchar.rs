@@ -1,14 +1,16 @@
 //! `AdminEditChar` breadth — the character info/search, rename, party info,
 //! pvp-flag and clan-penalty subcommands whose backing state exists in the
-//! port. Java renders most of these as HTML windows; here the info/search
-//! commands answer as text lines (the documented G13 simplification also used
-//! by `//serverinfo`/`//getbuffs`). The pet/summon subcommands (`//fullfood`,
+//! port. The info/search commands (`//character_info`, `//character_list`/
+//! `//show_characters`, `//find_character`, `//edit_character`) render the same
+//! HTML windows as Java (`charinfo`/`charlist`/`charfind`/`charedit.htm`), with
+//! stats not yet computed in the port defaulted. The pet/summon subcommands
+//! (`//fullfood`,
 //! `//summon_info`, `//show_pet_inv`, `//summon_setlvl`, `//unsummon`), the
 //! IP/dualbox tools (`//find_ip`, `//find_dualbox`, `//tracert` — no per-client
 //! IP is tracked), `//setparam`/`//unsetparam` (no fixed-stat API) and
 //! `//setnoble`/`//rec` (fields not modelled) stay on the not-implemented path.
 
-use crate::model::components::{PartyRef, Position, PvpState, Vitals};
+use crate::model::components::{CombatStats, PartyRef, PlayerVitals, Position, PvpState, Speeds, Vitals};
 use crate::model::Player;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -54,47 +56,135 @@ pub(super) fn admin_character_info(world: &mut World, client_id: u32, object_id:
     };
     let Some(p) = world.objects.get_component::<Player>(&target).cloned() else { return };
     let pos = world.objects.get_component::<Position>(&target).copied().unwrap_or(Position { x: 0, y: 0, z: 0, heading: 0 });
-    send_message(world, client_id, &format!("=== {} ===", p.name));
-    send_message(world, client_id, &format!("Account: {}  Level: {}  Class: {}", p.account, p.level, p.class_id));
-    send_message(world, client_id, &format!("XP: {}  SP: {}", p.exp, p.sp));
-    send_message(world, client_id, &format!("Reputation: {}  Fame: {}  PvP: {}  PK: {}", p.reputation, p.fame, p.pvp_kills, p.pk_kills));
-    send_message(world, client_id, &format!("Clan: {}  Loc: {},{},{}", p.clan_id, pos.x, pos.y, pos.z));
+    let vit = world.objects.get_component::<Vitals>(&target).copied().unwrap_or(Vitals { max_hp: 0, cur_hp: 0.0, max_mp: 0, cur_mp: 0.0, dead: false });
+    let cp = world.objects.get_component::<PlayerVitals>(&target).copied().unwrap_or(PlayerVitals { max_cp: 0, cur_cp: 0.0 });
+    let cs = world.objects.get_component::<CombatStats>(&target).copied().unwrap_or_default();
+    let spd = world.objects.get_component::<Speeds>(&target).map(|s| s.run_spd).unwrap_or(0.0);
+    let pvp_flag = world.objects.get_component::<PvpState>(&target).map(|s| s.flag).unwrap_or(0);
+    let clan = if p.clan_id == 0 { "None".to_string() } else { p.clan_id.to_string() };
+    // Fill `charinfo.htm`. Stats not computed in the port yet (regen/load/hwid/
+    // ai/instance) default to `0`/`N/A`; class is the numeric id (no client-code
+    // table ported).
+    let r: Vec<(&str, String)> = vec![
+        ("name", p.name.clone()),
+        ("account", p.account.clone()),
+        ("ip", "N/A".into()),
+        ("hwid", "N/A".into()),
+        ("protocol", "0".into()),
+        ("level", p.level.to_string()),
+        ("class", p.class_id.to_string()),
+        ("baseclass", p.base_class_id.to_string()),
+        ("xp", p.exp.to_string()),
+        ("sp", p.sp.to_string()),
+        ("reputation", p.reputation.to_string()),
+        ("pvpflag", pvp_flag.to_string()),
+        ("pvpkills", p.pvp_kills.to_string()),
+        ("pkkills", p.pk_kills.to_string()),
+        ("clan", clan),
+        ("noblesse", "false".into()),
+        ("currenthp", (vit.cur_hp as i64).to_string()),
+        ("maxhp", vit.max_hp.to_string()),
+        ("currentmp", (vit.cur_mp as i64).to_string()),
+        ("maxmp", vit.max_mp.to_string()),
+        ("currentcp", (cp.cur_cp as i64).to_string()),
+        ("maxcp", cp.max_cp.to_string()),
+        ("patk", (cs.p_atk as i64).to_string()),
+        ("pdef", (cs.p_def as i64).to_string()),
+        ("matk", (cs.m_atk as i64).to_string()),
+        ("mdef", (cs.m_def as i64).to_string()),
+        ("patkspd", cs.p_atk_spd.to_string()),
+        ("matkspd", cs.m_atk_spd.to_string()),
+        ("critical", (cs.crit_hit as i64).to_string()),
+        ("accuracy", cs.accuracy.to_string()),
+        ("evasion", cs.evasion.to_string()),
+        ("runspeed", (spd as i64).to_string()),
+        ("hpregen", "0".into()),
+        ("mpregen", "0".into()),
+        ("cpregen", "0".into()),
+        ("currentload", "0".into()),
+        ("maxload", "0".into()),
+        ("ai", "N/A".into()),
+        ("inst", "0".into()),
+        ("x", pos.x.to_string()),
+        ("y", pos.y.to_string()),
+        ("z", pos.z.to_string()),
+        ("heading", pos.heading.to_string()),
+    ];
+    super::menu::show_admin_html_replace(world, client_id, "charinfo.htm", &r);
 }
 
-/// `//character_list` / `//show_characters <page>` — paginated online roster
-/// (20 per page, matching Java's page size).
+/// One `charlist`/`charfind` table row (Java `listCharacters`/`findCharacter`
+/// body): a name link to `admin_character_info`, class id and level.
+fn char_row(name: &str, class_id: i32, level: i32) -> String {
+    format!(
+        "<tr><td width=80><a action=\"bypass -h admin_character_info {name}\">{name}</a></td>\
+         <td width=110>{class_id}</td><td width=40>{level}</td></tr>"
+    )
+}
+
+/// `//character_list` / `//show_characters <page>` — the paginated online roster
+/// as `charlist.htm` (Java `listCharacters`, 20 per page).
 pub(super) fn admin_character_list(world: &mut World, client_id: u32, args: &[&str]) {
     const PER_PAGE: usize = 20;
     let page = args.first().and_then(|s| s.parse::<usize>().ok()).unwrap_or(0);
     let ids = online_players(world);
     let pages = ids.len().div_ceil(PER_PAGE).max(1);
     let page = page.min(pages.saturating_sub(1));
-    send_message(world, client_id, &format!("=== Online players ({}) — page {}/{} ===", ids.len(), page + 1, pages));
-    for oid in ids.iter().skip(page * PER_PAGE).take(PER_PAGE) {
-        if let Some(p) = world.objects.get_component::<Player>(oid) {
-            send_message(world, client_id, &format!("  {} (Lv {}, class {})", p.name, p.level, p.class_id));
-        }
-    }
+    let players: String = ids
+        .iter()
+        .skip(page * PER_PAGE)
+        .take(PER_PAGE)
+        .filter_map(|oid| world.objects.get_component::<Player>(oid))
+        .map(|p| char_row(&p.name, p.class_id, p.level))
+        .collect();
+    // Pager (Java `PageBuilder`): a link per page when there's more than one.
+    let pager = if pages > 1 {
+        (0..pages)
+            .map(|i| format!("<td><a action=\"bypass -h admin_show_characters {i}\">{}</a></td>", i + 1))
+            .collect::<String>()
+    } else {
+        String::new()
+    };
+    let pages_block = if pager.is_empty() {
+        String::new()
+    } else {
+        format!("<table width=280 cellspacing=0><tr>{pager}</tr></table>")
+    };
+    super::menu::show_admin_html_replace(
+        world,
+        client_id,
+        "charlist.htm",
+        &[("players", players), ("pages", pages_block)],
+    );
 }
 
-/// `//find_character <name>` — case-insensitive substring match over the online
-/// roster.
+/// `//find_character <name>` — case-insensitive substring match rendered as
+/// `charfind.htm` (Java `findCharacter`, capped at 20 rows).
 pub(super) fn admin_find_character(world: &mut World, client_id: u32, args: &[&str]) {
     let Some(needle) = args.first().map(|s| s.to_lowercase()) else {
+        // Java: empty name → usage sysmsg, then the full character list.
         send_message(world, client_id, "Usage: //find_character <character_name>");
+        admin_character_list(world, client_id, &[]);
         return;
     };
     let ids = online_players(world);
-    let matches: Vec<String> = ids
-        .iter()
-        .filter_map(|oid| world.objects.get_component::<Player>(oid))
-        .filter(|p| p.name.to_lowercase().contains(&needle))
-        .map(|p| p.name.clone())
-        .collect();
-    send_message(world, client_id, &format!("Characters found: {}", matches.len()));
-    for name in matches {
-        send_message(world, client_id, &format!("  {name}"));
+    let mut rows = String::new();
+    let mut found = 0;
+    for p in ids.iter().filter_map(|oid| world.objects.get_component::<Player>(oid)) {
+        if p.name.to_lowercase().contains(&needle) {
+            rows.push_str(&char_row(&p.name, p.class_id, p.level));
+            found += 1;
+            if found > 20 {
+                break;
+            }
+        }
     }
+    super::menu::show_admin_html_replace(
+        world,
+        client_id,
+        "charfind.htm",
+        &[("results", rows), ("number", found.to_string()), ("end", String::new())],
+    );
 }
 
 /// `//find_account <name>` — list every online character on the named player's
@@ -121,8 +211,36 @@ pub(super) fn admin_find_account(world: &mut World, client_id: u32, args: &[&str
 
 /// `//edit_character [name]` — Java opens the char-edit HTML panel; we route to
 /// the admin `charedit.htm` (falls back to the retail missing-text placeholder).
-pub(super) fn admin_edit_character(world: &mut World, client_id: u32) {
-    super::menu::show_admin_html(world, client_id, "charedit.htm");
+/// `//edit_character` — the `charedit.htm` field-editor for the current target
+/// (Java `editCharacter`). Falls back to `INVALID_TARGET` with no player target.
+pub(super) fn admin_edit_character(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid)) else {
+        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        return;
+    };
+    let Some(p) = world.objects.get_component::<Player>(&target).cloned() else { return };
+    let vit = world.objects.get_component::<Vitals>(&target).copied().unwrap_or(Vitals { max_hp: 0, cur_hp: 0.0, max_mp: 0, cur_mp: 0.0, dead: false });
+    let cp = world.objects.get_component::<PlayerVitals>(&target).copied().unwrap_or(PlayerVitals { max_cp: 0, cur_cp: 0.0 });
+    let percent = if vit.max_hp > 0 { (vit.cur_hp / vit.max_hp as f64 * 100.0) as i64 } else { 0 };
+    let r: Vec<(&str, String)> = vec![
+        ("name", p.name.clone()),
+        ("access", p.access_level.to_string()),
+        ("class", p.class_id.to_string()),
+        ("currenthp", (vit.cur_hp as i64).to_string()),
+        ("maxhp", vit.max_hp.to_string()),
+        ("currentmp", (vit.cur_mp as i64).to_string()),
+        ("maxmp", vit.max_mp.to_string()),
+        ("currentcp", (cp.cur_cp as i64).to_string()),
+        ("maxcp", cp.max_cp.to_string()),
+        ("currentload", "0".into()),
+        ("maxload", "0".into()),
+        ("percent", percent.to_string()),
+        ("reputation", p.reputation.to_string()),
+        ("pvpkills", p.pvp_kills.to_string()),
+        ("pkkills", p.pk_kills.to_string()),
+        ("noblesse", "false".into()),
+    ];
+    super::menu::show_admin_html_replace(world, client_id, "charedit.htm", &r);
 }
 
 /// `//changename <newname>` — rename the targeted player. Rejected if the name

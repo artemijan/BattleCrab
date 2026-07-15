@@ -30,10 +30,19 @@ pub(super) fn admin_admin(world: &mut World, client_id: u32, command: &str) {
 /// `NpcHtmlMessage(0, …)` (the admin menus are not NPC-scoped). A missing file
 /// shows the retail "text is missing" placeholder rather than nothing.
 pub(super) fn show_admin_html(world: &World, client_id: u32, path: &str) {
+    show_admin_html_replace(world, client_id, path, &[]);
+}
+
+/// As [`show_admin_html`] but substitutes `%token%` placeholders first (Java
+/// `NpcHtmlMessage.replace`). Each `(token, value)` replaces every `%token%`.
+pub(super) fn show_admin_html_replace(world: &World, client_id: u32, path: &str, replacements: &[(&str, String)]) {
     let full = format!("{}data/html/admin/{path}", world.data.root);
-    let content = std::fs::read_to_string(&full).unwrap_or_else(|_| {
+    let mut content = std::fs::read_to_string(&full).unwrap_or_else(|_| {
         format!("<html><body>My text is missing:<br>data/html/admin/{path}</body></html>")
     });
+    for (token, value) in replacements {
+        content = content.replace(&format!("%{token}%"), value);
+    }
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::npc_html_message(0, &content));
     }

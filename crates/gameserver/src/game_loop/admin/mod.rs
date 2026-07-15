@@ -331,7 +331,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_character_list" | "admin_show_characters" => admin_character_list(world, client_id, &args),
         "admin_find_character" => admin_find_character(world, client_id, &args),
         "admin_find_account" => admin_find_account(world, client_id, &args),
-        "admin_edit_character" => admin_edit_character(world, client_id),
+        "admin_edit_character" => admin_edit_character(world, client_id, object_id),
         "admin_changename" => admin_changename(world, client_id, object_id, &args),
         "admin_set_pvp_flag" => admin_set_pvp_flag(world, client_id, object_id),
         "admin_partyinfo" => admin_partyinfo(world, client_id, object_id, &args),
