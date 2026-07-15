@@ -86,6 +86,11 @@ pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
     for so_id in world.statics_visible_from(my_region) {
         send_static_object_info(world, my_session, so_id);
     }
+    for item_id in world.ground_items_visible_from(my_region) {
+        if let Some(view) = super::ground_items::ground_item_view(world, item_id) {
+            my_session.send(server_packets::spawn_item(&view));
+        }
+    }
 }
 
 /// `StaticObject.sendInfo(player)`.
@@ -179,6 +184,21 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             let Some(so_region) = world.objects.get_component::<RegionCell>(&so_id) else { continue };
             if !regions_adjacent(new, so_region.0) {
                 cs.send(server_packets::delete_object(so_id));
+            }
+        }
+        // Ground-item deltas, same shape (SpawnItem in / DeleteObject out).
+        for item_id in world.ground_items_visible_from(new) {
+            let Some(r) = world.objects.get_component::<RegionCell>(&item_id) else { continue };
+            if !regions_adjacent(old, r.0) {
+                if let Some(view) = super::ground_items::ground_item_view(world, item_id) {
+                    cs.send(server_packets::spawn_item(&view));
+                }
+            }
+        }
+        for item_id in world.ground_items_visible_from(old) {
+            let Some(r) = world.objects.get_component::<RegionCell>(&item_id) else { continue };
+            if !regions_adjacent(new, r.0) {
+                cs.send(server_packets::delete_object(item_id));
             }
         }
     }

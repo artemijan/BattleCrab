@@ -9434,3 +9434,59 @@ fn destroy_item_removes_from_inventory() {
     on_packet(&mut world, 1, destroy(adena_oid, 600));
     assert_eq!(inv(&world), 0, "all adena gone");
 }
+
+/// Drop → the item leaves the inventory and becomes a `GroundItem` world entity
+/// (DropItem broadcast); a click (`Action`) picks it back up.
+#[test]
+fn drop_and_pickup_ground_item() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9200, 0);
+    drain(&mut rx);
+    super::items::add_inventory_item(&mut world, 9200, 57, 1000).expect("adena");
+    let count_of = |w: &World| w.objects.get_component::<crate::model::inventory::Inventory>(&9200).unwrap().count_of(57);
+    let adena_oid = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&9200)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|it| it.item_id == 57)
+        .unwrap()
+        .object_id;
+
+    // Drop 400 adena.
+    let item_oid = world.next_npc_object_id;
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_DROP_ITEM);
+    w.write_i32(adena_oid);
+    w.write_i64(400);
+    w.write_i32(100);
+    w.write_i32(200);
+    w.write_i32(-3000);
+    on_packet(&mut world, 1, w.into_bytes());
+
+    assert_eq!(count_of(&world), 600, "400 left the inventory");
+    let g = world.objects.get_component::<crate::model::components::GroundItem>(&item_oid).expect("ground item spawned");
+    assert_eq!((g.item_id, g.count), (57, 400));
+    assert!(drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::DROP_ITEM), "DropItem broadcast");
+
+    // Click the ground item to pick it up (Action: objectId + origin xyz + action).
+    let mut a = PacketWriter::new();
+    a.write_u8(cop::ACTION);
+    a.write_i32(item_oid);
+    a.write_i32(0);
+    a.write_i32(0);
+    a.write_i32(0);
+    a.write_u8(0);
+    on_packet(&mut world, 1, a.into_bytes());
+
+    assert_eq!(count_of(&world), 1000, "adena back in the inventory");
+    assert!(!world.objects.has_component::<crate::model::components::GroundItem>(&item_oid), "ground item removed");
+    assert!(
+        !world.ground_item_regions.values().flatten().any(|&id| id == item_oid),
+        "ground item de-indexed"
+    );
+}

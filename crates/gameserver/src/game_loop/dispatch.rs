@@ -88,6 +88,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::USE_ITEM => handle_use_item(world, client_id, body),
         cop::REQUEST_UN_EQUIP_ITEM => handle_request_un_equip_item(world, client_id, body),
         cop::REQUEST_DESTROY_ITEM => super::items::handle_request_destroy_item(world, client_id, body),
+        cop::REQUEST_DROP_ITEM => super::ground_items::handle_request_drop_item(world, client_id, body),
         cop::REQUEST_MAGIC_SKILL_USE => handle_request_magic_skill_use(world, client_id, body),
         cop::REQUEST_ACQUIRE_SKILL => handle_request_acquire_skill(world, client_id, body),
         cop::ACTION => handle_action(world, client_id, body),

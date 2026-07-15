@@ -267,6 +267,28 @@ impl RequestDestroyItem {
     }
 }
 
+/// Port of `clientpackets/RequestDropItem` (`dqddd`): item object id, count,
+/// and the requested drop location.
+pub struct RequestDropItem {
+    pub object_id: i32,
+    pub count: i64,
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+}
+
+impl RequestDropItem {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let object_id = r.read_i32()?;
+        let count = r.read_i64()?;
+        let x = r.read_i32()?;
+        let y = r.read_i32()?;
+        let z = r.read_i32()?;
+        Some(Self { object_id, count, x, y, z })
+    }
+}
+
 /// Port of `clientpackets/RequestMagicSkillUse` (`cdc`). `shift_pressed` is
 /// Java's `dontMove`: an out-of-range shift-cast is cancelled (SM 748)
 /// instead of walking into range. Ground targeting still waits on a later

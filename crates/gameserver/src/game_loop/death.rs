@@ -192,9 +192,9 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
     let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) else { return };
     let Some(t) = npc.template(world).cloned() else { return };
     let Some(npc_region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
-    let (nx, ny) = {
+    let (nx, ny, nz) = {
         let Some(pos) = world.objects.get_component::<Position>(&npc_oid) else { return };
-        (pos.x, pos.y)
+        (pos.x, pos.y, pos.z)
     };
 
     // Damage shares (players only, > 1 damage, still within reward range —
@@ -227,7 +227,14 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
     if let Some(looter) = looter {
         let drops = roll_drops(world, &t, looter);
         let party_id = world.objects.get_component::<crate::model::components::PartyRef>(&looter).map(|r| r.0);
+        let auto_loot = world.cfg.character.auto_loot;
         for (item_id, count) in drops {
+            if !auto_loot {
+                // Drop onto the ground for anyone to pick up (Java's owner-based
+                // loot-window protection is simplified away).
+                super::ground_items::spawn_ground_item(world, item_id, count, 0, nx, ny, nz, npc_oid);
+                continue;
+            }
             match party_id {
                 Some(pid) => super::party::distribute_item(world, pid, looter, item_id, count, (nx, ny)),
                 None => give_item(world, looter, item_id, count),

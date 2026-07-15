@@ -26,6 +26,18 @@ impl Position {
     }
 }
 
+/// An item lying on the ground (Java `Item` in `ItemLocation.VOID`, tracked by
+/// `ItemsOnGroundManager`). A world entity with [`Position`]/[`RegionCell`];
+/// indexed in `World::ground_item_regions`. Dropped by players (`//` drop) or
+/// monster death (auto-loot off), picked up via a click (`Action`).
+#[derive(Component, Debug, Clone)]
+pub struct GroundItem {
+    pub object_id: i32,
+    pub item_id: i32,
+    pub count: i64,
+    pub enchant: i32,
+}
+
 /// The world-region cell this object is registered in (Java
 /// `WorldObject._worldRegion`). Kept in sync with `Position` by the
 /// visibility/movement systems (Java `updateWorldRegion`/`switchRegion`) —

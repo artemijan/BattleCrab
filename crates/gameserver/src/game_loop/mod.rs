@@ -16,6 +16,7 @@ mod dispatch;
 mod doors;
 mod expertise;
 mod friends;
+mod ground_items;
 mod helpers;
 mod items;
 mod lobby;

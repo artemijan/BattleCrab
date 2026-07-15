@@ -156,6 +156,9 @@ pub struct World {
     pub next_party_id: u32,
     /// GM mob groups (`MobGroupTable`), keyed by group id — `//mobgroup_*`.
     pub mob_groups: HashMap<i32, crate::model::mob_group::MobGroup>,
+    /// Region cell → ground-item object ids in it (same shape as `npc_regions`;
+    /// `ItemsOnGroundManager` visibility index).
+    pub ground_item_regions: HashMap<(i32, i32), Vec<i32>>,
     /// Generation counter for `PendingRequest`s (stale `RequestTimeout`
     /// tasks no-op on mismatch, like `path_seq`).
     pub request_seq: u64,
@@ -203,6 +206,7 @@ impl World {
             parties: HashMap::new(),
             next_party_id: 1,
             mob_groups: HashMap::new(),
+            ground_item_regions: HashMap::new(),
             request_seq: 0,
             db,
             player_autosave_due: HashMap::new(),
@@ -232,6 +236,20 @@ impl World {
         for dx in -1..=1 {
             for dy in -1..=1 {
                 if let Some(ids) = self.npc_regions.get(&(region.0 + dx, region.1 + dy)) {
+                    out.extend_from_slice(ids);
+                }
+            }
+        }
+        out
+    }
+
+    /// Ground-item object ids visible from a region's 3×3 block (same shape as
+    /// `npcs_visible_from`).
+    pub fn ground_items_visible_from(&self, region: (i32, i32)) -> Vec<i32> {
+        let mut out = Vec::new();
+        for dx in -1..=1 {
+            for dy in -1..=1 {
+                if let Some(ids) = self.ground_item_regions.get(&(region.0 + dx, region.1 + dy)) {
                     out.extend_from_slice(ids);
                 }
             }

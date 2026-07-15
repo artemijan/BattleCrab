@@ -47,7 +47,11 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
     let object_id = session.player_object_id();
     let shift = pkt.action_id == 1;
 
-    if world.objects.has_component::<crate::model::Player>(&pkt.object_id) {
+    if world.objects.has_component::<crate::model::components::GroundItem>(&pkt.object_id) {
+        // `Item.onAction` → `Player.doPickupItem`: pick it straight up (the
+        // walk-to-item approach path is a simplification).
+        super::ground_items::pickup_ground_item(world, client_id, object_id, pkt.object_id);
+    } else if world.objects.has_component::<crate::model::Player>(&pkt.object_id) {
         set_target(world, client_id, object_id, Some(pkt.object_id));
     } else if let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&pkt.object_id) {
         // Java `Npc.canTarget` → `WorldObject.isTargetable` (template flag).

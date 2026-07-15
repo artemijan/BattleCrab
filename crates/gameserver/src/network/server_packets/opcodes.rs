@@ -35,6 +35,11 @@ pub const DIE: u8 = 0x00;
 pub const REVIVE: u8 = 0x01;
 pub const TELEPORT_TO_LOCATION: u8 = 0x22;
 pub const RIDE: u8 = 0x8C;
+/// Ground items: an item already lying in view (`SpawnItem`), a fresh drop with
+/// the toss animation (`DropItem`), and the pickup animation (`GetItem`).
+pub const SPAWN_ITEM: u8 = 0x05;
+pub const DROP_ITEM: u8 = 0x16;
+pub const GET_ITEM: u8 = 0x17;
 pub const AUTO_ATTACK_START: u8 = 0x25;
 pub const AUTO_ATTACK_STOP: u8 = 0x26;
 pub const RELATION_CHANGED: u8 = 0xCE;
