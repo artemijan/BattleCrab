@@ -20,7 +20,9 @@ pub mod opcodes {
     pub const REQUEST_SKILL_COOL_TIME: u8 = 0xA6;
     pub const CHARACTER_RESTORE: u8 = 0x7B;
     pub const REQUEST_UN_EQUIP_ITEM: u8 = 0x16;
+    pub const REQUEST_DROP_ITEM: u8 = 0x17;
     pub const USE_ITEM: u8 = 0x19;
+    pub const REQUEST_DESTROY_ITEM: u8 = 0x60;
     pub const ACTION: u8 = 0x1F;
     pub const REQUEST_MAGIC_SKILL_USE: u8 = 0x39;
     pub const REQUEST_TARGET_CANCELD: u8 = 0x48;
@@ -246,6 +248,22 @@ impl RequestSaveInventoryOrder {
             order.push((object_id, slot));
         }
         Some(Self { order })
+    }
+}
+
+/// Port of `clientpackets/RequestDestroyItem` (`dq`): the inventory item object
+/// id and the count to destroy.
+pub struct RequestDestroyItem {
+    pub object_id: i32,
+    pub count: i64,
+}
+
+impl RequestDestroyItem {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let object_id = r.read_i32()?;
+        let count = r.read_i64()?;
+        Some(Self { object_id, count })
     }
 }
 

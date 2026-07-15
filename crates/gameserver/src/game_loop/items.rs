@@ -153,6 +153,68 @@ pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, bo
     finish_equip_change(world, client_id, object_id, &changed);
 }
 
+/// Port of `clientpackets/RequestDestroyItem.runImpl`: destroy `count` of an
+/// inventory item. Quest items are protected (Java's non-`isDestroyable` +
+/// `DESTROY_ALL_ITEMS=false` guard, narrowed to the flag the port models); an
+/// equipped item is unequipped first. The cursed-weapon / hero-item / pet /
+/// enchant-transaction guards are skipped (those subsystems aren't ported).
+pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = cp::RequestDestroyItem::read(body) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+    if pkt.count <= 0 {
+        return;
+    }
+    // Locate the item + its template facts.
+    let Some((item_id, held, is_stackable, is_quest)) = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .and_then(|inv| inv.items().iter().find(|it| it.object_id == pkt.object_id).map(|it| (it.item_id, it.count)))
+        .map(|(id, cnt)| {
+            let t = world.data.item_data.get(id);
+            (id, cnt, t.map(|t| t.is_stackable).unwrap_or(false), t.map(|t| t.is_quest_item).unwrap_or(false))
+        })
+    else {
+        send_item_message(world, client_id, "This item cannot be destroyed.");
+        return;
+    };
+    let _ = item_id;
+    if is_quest {
+        send_item_message(world, client_id, "This item cannot be destroyed.");
+        return;
+    }
+    // A non-stackable item can only be destroyed one at a time (Java returns).
+    if !is_stackable && pkt.count > 1 {
+        return;
+    }
+    let count = pkt.count.min(held);
+
+    // Unequip first if it's worn (Java unequips, sending its own InventoryUpdate).
+    if world.objects.get_component::<Inventory>(&object_id).is_some_and(|inv| inv.paperdoll_slot_of(pkt.object_id).is_some()) {
+        let changed = world
+            .objects
+            .get_component_mut::<Inventory>(&object_id)
+            .map(|inv| inv.unequip_item(pkt.object_id))
+            .unwrap_or_default();
+        finish_equip_change(world, client_id, object_id, &changed);
+    }
+
+    let Some(change) = world.objects.get_component_mut::<Inventory>(&object_id).and_then(|inv| inv.remove_by_object_id(pkt.object_id, count)) else {
+        return;
+    };
+    let packet = ew::inventory_update_changes(&world.data, &[change]);
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(packet);
+    }
+}
+
+/// Send a bare `$s1` system-message line to one client.
+fn send_item_message(world: &World, client_id: u32, text: &str) {
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::system_message_with(sm_ids::S1_TEXT, &[SmParam::Text(text.to_string())]));
+    }
+}
+
 /// Port of `clientpackets/RequestSaveInventoryOrder.runImpl`: persist the
 /// client's custom inventory arrangement. For each `(object_id, order)` pair,
 /// Java sets `item.setItemLocation(INVENTORY, order)` — but only for items

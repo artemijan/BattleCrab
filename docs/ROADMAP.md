@@ -74,6 +74,12 @@ finalizers honor (and buff recomputes preserve). **Deferred:** `ArmorSetData`
 unused in the ported set). **G14 done.**
 
 ### G15 — Economy & item actions
+🚧 **In progress.** ✅ `RequestDestroyItem` (0x60) — destroy N of an item
+(quest-item protected, unequip-first). **Next slices** (each independently
+testable): ground items (drop/pickup — a new world-object kind + `SpawnItem`/
+`DropItem`/`GetItem` + the auto-loot=false path), warehouse (deposit/withdraw),
+private stores + trade, enchant scrolls, crystallization, augmentation.
+
 The itemcontainer breadth G5 deferred: private/clan warehouse + freight; private
 stores (sell/buy/manufacture/package) + offline stores; player-to-player trade;
 ground drop/pickup (`ItemsOnGroundManager`, herbs); `multisell`/`sell` bypasses;

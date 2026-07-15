@@ -9390,3 +9390,47 @@ fn admin_setparam_fixes_and_clears_a_stat() {
     on_packet(&mut world, 1, build_admin("setparam bogus 5"));
     assert!(world.objects.get_component::<crate::model::components::StatModifiers>(&8951).unwrap().fixed.is_empty());
 }
+
+/// `RequestDestroyItem` (0x60) removes `count` of a stackable item and sends an
+/// `InventoryUpdate`; a bad object id is a no-op.
+#[test]
+fn destroy_item_removes_from_inventory() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9100, 0);
+    drain(&mut rx);
+
+    super::items::add_inventory_item(&mut world, 9100, 57, 1000).expect("adena added");
+    let inv = |w: &World| w.objects.get_component::<crate::model::inventory::Inventory>(&9100).unwrap().count_of(57);
+    let adena_oid = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&9100)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|it| it.item_id == 57)
+        .unwrap()
+        .object_id;
+
+    let destroy = |oid: i32, count: i64| -> Vec<u8> {
+        let mut w = PacketWriter::new();
+        w.write_u8(cop::REQUEST_DESTROY_ITEM);
+        w.write_i32(oid);
+        w.write_i64(count);
+        w.into_bytes()
+    };
+
+    on_packet(&mut world, 1, destroy(adena_oid, 400));
+    assert_eq!(inv(&world), 600, "400 adena destroyed");
+    assert!(drain(&mut rx).iter().any(|p| p[0] == 0x21), "InventoryUpdate sent");
+
+    // A bogus object id changes nothing.
+    on_packet(&mut world, 1, destroy(0x7fff_ffff, 1));
+    assert_eq!(inv(&world), 600, "unchanged");
+
+    // Destroy the rest.
+    on_packet(&mut world, 1, destroy(adena_oid, 600));
+    assert_eq!(inv(&world), 0, "all adena gone");
+}
