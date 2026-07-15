@@ -41,6 +41,8 @@ pub mod opcodes {
     pub const REQUEST_RESTART: u8 = 0x57;
     pub const VALIDATE_POSITION: u8 = 0x59;
     pub const REQUEST_ACQUIRE_SKILL: u8 = 0x7C;
+    /// `RequestEnchantItem` — perform the enchant (`objectId`, `supportId`).
+    pub const REQUEST_ENCHANT_ITEM: u8 = 0x5F;
     pub const REQUEST_SKILL_LIST: u8 = 0x50;
     /// Force attack / target switch (Ctrl-click). Java's `ClientPackets`
     /// binds both this and `ATTACK_REQUEST` (0x32) to `AttackRequest`; the
@@ -89,6 +91,13 @@ pub mod ex_opcodes {
     pub const REQUEST_STOP_MOVE: u16 = 0xED;
     pub const EX_SEND_SELECTED_QUEST_ZONE_ID: u16 = 0xFF;
     pub const REQUEST_AUTO_SOULSHOT: u16 = 0x0D;
+    /// `RequestExTryToPutEnchantTargetItem` — pick the item to enchant (`objectId`).
+    pub const REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM: u16 = 0x49;
+    /// `RequestExCancelEnchantItem` — close the enchant window (empty body).
+    pub const REQUEST_EX_CANCEL_ENCHANT_ITEM: u16 = 0x4B;
+    /// `RequestExAddEnchantScrollItem` — scroll + target selection
+    /// (`scrollObjectId`, `enchantObjectId`).
+    pub const REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM: u16 = 0xE3;
 }
 
 /// Split an extended-packet body (after the `0xD0` opcode) into its 2-byte LE

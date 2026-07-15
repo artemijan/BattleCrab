@@ -109,17 +109,32 @@ item-id whitelist → named rate group), and the branded scrolls
 mirrors `EnchantScroll.getChance`: scroll-group resolution → `EnchantItemGroup`
 ladder → `safeEnchant` short-circuit to 100 → `+bonusRate` capped at 100 (7
 tests against real dist data covering armor vs full-armor divergence, the weapon
-ladder, safe/bonus, and the `-1` error sentinel). **Remaining for the full
-feature:** the client Ex-packet flow (`RequestExAddEnchantScrollItem` /
-`RequestExTryToPutEnchant{Target,Support}Item` / `RequestEnchantItem` + their
-`ExPutEnchant*Result`/`EnchantResult` responses), the `EnchantItemRequest`
-per-player state, the item EtcItemType/`isMagicWeapon` parse (scroll
-weapon/blessed/safe classification + faithful fighter-vs-mage group split), and
-the success/fail mutation (+1 / crystallize / blessed reset).
+ladder, safe/bonus, and the `-1` error sentinel).
+
+✅ **Enchant scroll client flow** (`game_loop/enchant.rs`) — the full Ex-packet
+handshake on the engine above: `EnchantScrolls` item handler opens the window
+(`EnchantRequest` component + `ChooseInventoryItem`) →
+`RequestExAddEnchantScrollItem` (0xE3) → `ExPutEnchantScrollItemResult` →
+`RequestExTryToPutEnchantTargetItem` (0x49) validates & acks
+`ExPutEnchantTargetItemResult` → `RequestEnchantItem` (0x5F) destroys the
+scroll, rolls (`base_chance` + `roll_f64`), and applies the outcome —
+`+1` on success, and on failure safe-retain / blessed-reset / blessed-down-1 /
+destroy+crystallize, each with the right `EnchantResult` code;
+`RequestExCancelEnchantItem` (0x4B) closes it. Item side gained the
+`etcitem_type` parse (`EtcItemType`: weapon/blessed/blessed-down/safe
+classification), `enchant_enabled`/`enchant_limit`/`is_magic_weapon`, and
+`ItemTemplate::is_enchantable`. `EnchantData::is_target_valid` ports
+`EnchantScroll.isValid` + `AbstractEnchantItem.isValid` (whitelist / other-scroll
+claim / type2 / grade / range). End-to-end test: use scroll → +0→+1 guaranteed
+success, then a forced fail at +4 destroys the sword and returns crystals.
+**Not modelled (documented TODOs):** support items
+(`RequestExTryToPutEnchantSupportItem` + random-enchant ranges + support bonus),
+the 2-second anti-autoenchant timestamp guard, milestone announce/firework, and
+on-enchant armor skills.
 
 **Next slices — each a substantial multi-part feature:** clan warehouse +
-freight (reuse the container), the enchant Ex-packet client flow (on the engine
-above), augmentation. Remaining ground-item TODOs: enchant carried
+freight (reuse the container), enchant support items (on the flow above),
+augmentation. Remaining ground-item TODOs: enchant carried
 through pickup (stackables only for now), owner-based loot protection.
 
 The itemcontainer breadth G5 deferred: private/clan warehouse + freight; private

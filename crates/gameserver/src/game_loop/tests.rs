@@ -1923,7 +1923,7 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     {
         let World { objects, data, .. } = &mut world;
@@ -1983,7 +1983,7 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,
-            item_skills: Vec::new(),
+            item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
         });
     }
     {
@@ -2072,7 +2072,7 @@ fn equipping_gear_updates_combat_stats() {
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     };
     // Weapon P.Atk 500 (well above the class base of 100, so equip must raise
     // P.Atk); chest armor P.Def 30 (class base P.Def is 0, so it must appear).
@@ -2135,7 +2135,7 @@ fn equipping_gear_updates_max_hp_mp() {
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     world.data.item_data.set_item_stats_for_test(520, ItemStats { bonuses: vec![(Stat::MaxMp, 100.0)], ..Default::default() });
     {
@@ -2194,7 +2194,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
         ],
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     for item_id in [15230, 15270] {
         world.data.item_data.insert_for_test(ItemTemplate {
@@ -2213,7 +2213,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,
-            item_skills: Vec::new(),
+            item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
         });
     }
     {
@@ -2272,7 +2272,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         capsuled_items: vec![CapsuledItem { item_id: 14966, min: 2, max: 2, chance: 100_000 }],
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     world.data.item_data.insert_for_test(ItemTemplate {
         item_id: 14966,
@@ -2290,7 +2290,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     {
         let World { objects, data, .. } = &mut world;
@@ -2357,7 +2357,7 @@ fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
         capsuled_items: vec![CapsuledItem { item_id: 15230, min: 1, max: 1, chance: 100_000 }],
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
 
     {
@@ -2433,7 +2433,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: vec![(2031, 1)],
+        item_skills: vec![(2031, 1)], etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     if let Some(vitals) = world.objects.get_component_mut::<Vitals>(&3001) {
         vitals.max_hp = 100;
@@ -2523,7 +2523,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: vec![(22490, 5)],
+        item_skills: vec![(22490, 5)], etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     world.data.item_data.insert_for_test(ItemTemplate {
         item_id: 21852,
@@ -2541,7 +2541,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     {
         let World { objects, data, .. } = &mut world;
@@ -2639,7 +2639,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     world.data.item_data.insert_for_test(ItemTemplate {
         item_id: 9999,
@@ -2657,7 +2657,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: vec![(323, 1)],
+        item_skills: vec![(323, 1)], etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     {
         let World { objects, data, .. } = &mut world;
@@ -2737,7 +2737,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     world.data.item_data.insert_for_test(ItemTemplate {
         item_id: 9998,
@@ -2755,7 +2755,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: vec![(324, 1)],
+        item_skills: vec![(324, 1)], etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     {
         let World { objects, data, .. } = &mut world;
@@ -4011,7 +4011,7 @@ fn combat_test_world() -> (
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     let mut t = crate::data::npc_data::default_template(40001);
     t.type_name = "Monster".into();
@@ -6028,7 +6028,7 @@ fn party_loot_split_and_rotation() {
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     drain(&mut a_rx);
     drain(&mut b_rx);
@@ -6266,7 +6266,7 @@ fn quest_test_world() -> (
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,
-            item_skills: Vec::new(),
+            item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
         });
     }
     for npc_id in [20120i32, 20517] {
@@ -7180,7 +7180,7 @@ fn shop_world() -> (
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     world.data.buy_lists.insert_for_test(crate::data::buy_list_data::BuyList {
         list_id: 3,
@@ -7303,7 +7303,7 @@ fn add_quest_items(world: &mut World, ids: &[(i32, &str, bool)]) {
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,
-            item_skills: Vec::new(),
+            item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
         });
     }
 }
@@ -7638,7 +7638,7 @@ fn shot_template(item_id: i32, grade: crate::data::item_data::CrystalType, handl
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: vec![(skill_id, 1)],
+        item_skills: vec![(skill_id, 1)], etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     }
 }
 
@@ -7660,7 +7660,7 @@ fn shot_weapon(world: &mut World, item_id: i32, grade: crate::data::item_data::C
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     world.data.item_data.set_weapon_shots_for_test(item_id, ss, sps);
 }
@@ -9635,7 +9635,7 @@ fn request_sell_item_pays_adena() {
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: Vec::new(),
+        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     super::items::add_inventory_item(&mut world, 3001, 5000, 10).expect("trophies");
     let oid = world.objects.get_component::<crate::model::inventory::Inventory>(&3001).unwrap().items().iter().find(|it| it.item_id == 5000).unwrap().object_id;
@@ -9744,4 +9744,61 @@ fn player_trade_swaps_items() {
     assert_eq!((b_inv(&world, 1458), b_inv(&world, 1459)), (4, 7), "B: +4 D, -3 C");
     assert!(!world.objects.has_component::<crate::model::components::Trade>(&9700), "trade closed");
     assert!(!world.objects.has_component::<crate::model::components::Trade>(&9701), "trade closed");
+}
+
+/// Full enchant flow with real data: use scroll → add scroll → put target →
+/// enchant. Success bumps +1; a forced failure at +4 destroys the weapon and
+/// returns crystals.
+#[test]
+fn enchant_scroll_success_and_failure() {
+    use crate::model::components::EnchantRequest;
+    use crate::model::inventory::Inventory;
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (mut world, ..) = admin_world();
+    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    world.data.enchant = crate::data::EnchantData::load_from(DIST);
+    world.id_pool = 0x4000_0000..0x4000_0200;
+
+    // Scroll: Enchant Weapon (D-grade) 955; Bastard Sword 69 (D weapon, enchantable).
+    let sword_cc = world.data.item_data.get(69).unwrap().crystal_count;
+    let crystal_id = world.data.item_data.get(69).unwrap().crystal_type.crystal_item_id().unwrap();
+
+    let mut rx = ingame_player_access(&mut world, 1, 9800, 0);
+    drain(&mut rx);
+    super::items::add_inventory_item(&mut world, 9800, 955, 5).unwrap();
+    super::items::add_inventory_item(&mut world, 9800, 69, 1).unwrap();
+    let find = |w: &World, item: i32| w.objects.get_component::<Inventory>(&9800).unwrap().items().iter().find(|it| it.item_id == item).map(|it| it.object_id);
+    let scroll_oid = find(&world, 955).unwrap();
+    let sword_oid = find(&world, 69).unwrap();
+
+    // Use the scroll → opens the enchant request.
+    let use_item = { let mut w = PacketWriter::new(); w.write_u8(cop::USE_ITEM); w.write_i32(scroll_oid); w.write_i32(0); w.into_bytes() };
+    on_packet(&mut world, 1, use_item);
+    assert!(world.objects.has_component::<EnchantRequest>(&9800), "enchant window opened");
+
+    let add_scroll = { let mut w = PacketWriter::new(); w.write_i32(scroll_oid); w.write_i32(sword_oid); w.into_bytes() };
+    on_packet(&mut world, 1, ex_packet(cp::ex_opcodes::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM, &add_scroll));
+    let put_target = { let mut w = PacketWriter::new(); w.write_i32(sword_oid); w.into_bytes() };
+    on_packet(&mut world, 1, ex_packet(cp::ex_opcodes::REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM, &put_target));
+
+    // +0 weapon is a guaranteed (100%) success → +1.
+    let do_enchant = |oid: i32| { let mut w = PacketWriter::new(); w.write_u8(cop::REQUEST_ENCHANT_ITEM); w.write_i32(oid); w.write_i32(0); w.into_bytes() };
+    world.forced_rolls.push_back(0); // roll_f64 = 0.0 < 100
+    on_packet(&mut world, 1, do_enchant(sword_oid));
+    let level = |w: &World| w.objects.get_component::<Inventory>(&9800).unwrap().items().iter().find(|it| it.object_id == sword_oid).map(|it| it.enchant_level);
+    assert_eq!(level(&world), Some(1), "success: +0 → +1");
+    assert_eq!(world.objects.get_component::<Inventory>(&9800).unwrap().count_of(955), 4, "one scroll consumed");
+
+    // Bump to +4 (66.67% group chance), then force a failing roll (90%) →
+    // weapon destroyed, crystals returned.
+    world.objects.get_component_mut::<Inventory>(&9800).unwrap().set_item_enchant(sword_oid, 4);
+    on_packet(&mut world, 1, ex_packet(cp::ex_opcodes::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM, &add_scroll));
+    on_packet(&mut world, 1, ex_packet(cp::ex_opcodes::REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM, &put_target));
+    world.forced_rolls.push_back(900_000); // roll_f64 = 90.0 > 66.67 → fail
+    on_packet(&mut world, 1, do_enchant(sword_oid));
+    let inv = world.objects.get_component::<Inventory>(&9800).unwrap();
+    assert_eq!(inv.count_of(69), 0, "failed enchant destroyed the sword");
+    let expected_crystals = (sword_cc - (sword_cc + 1) / 2).max(0) as i64;
+    assert_eq!(inv.count_of(crystal_id), expected_crystals, "crystals returned on break");
+    assert_eq!(inv.count_of(955), 3, "second scroll consumed");
 }

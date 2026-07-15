@@ -213,6 +213,67 @@ impl EnchantData {
         (chance + bonus_rate).min(100.0)
     }
 
+    /// Whether `scroll` may enchant `target` at its current level, mirroring
+    /// `EnchantScroll.isValid` + `AbstractEnchantItem.isValid` for the
+    /// no-support case:
+    ///
+    /// - if the scroll has an item whitelist, the target must be in it;
+    /// - otherwise the target must not be whitelisted by some *other* scroll;
+    /// - the target must be enchantable and not at its enchant limit;
+    /// - a weapon scroll only fits weapons, an armor scroll only fits
+    ///   armor/accessories (`isValidItemType` on `type2`);
+    /// - the target's current level must be within `[minEnchant, maxEnchant)`;
+    /// - the scroll's `targetGrade` must equal the target's `crystalTypePlus`.
+    ///
+    /// `scroll_is_weapon` is the scroll template's `EtcItemType::is_enchant_weapon`.
+    pub fn is_target_valid(
+        &self,
+        scroll: &EnchantScroll,
+        scroll_is_weapon: bool,
+        target: &ItemTemplate,
+        target_enchant: i32,
+    ) -> bool {
+        if !scroll.item_ids.is_empty() {
+            if !scroll.item_ids.contains(&target.item_id) {
+                return false;
+            }
+        } else if self
+            .scrolls
+            .values()
+            .any(|s| s.id != scroll.id && !s.item_ids.is_empty() && s.item_ids.contains(&target.item_id))
+        {
+            // An item claimed by a branded scroll's whitelist can't be
+            // enchanted by a generic scroll.
+            return false;
+        }
+
+        if !target.is_enchantable() {
+            return false;
+        }
+        if target.enchant_limit != 0 && target_enchant == target.enchant_limit {
+            return false;
+        }
+
+        // isValidItemType(type2): weapon scroll ↔ weapon; armor scroll ↔
+        // armor/accessory.
+        let type_ok = match target.type2 {
+            super::item_data::TYPE2_WEAPON => scroll_is_weapon,
+            super::item_data::TYPE2_SHIELD_ARMOR | super::item_data::TYPE2_ACCESSORY => !scroll_is_weapon,
+            _ => false,
+        };
+        if !type_ok {
+            return false;
+        }
+
+        if (scroll.min_enchant != 0 && target_enchant < scroll.min_enchant)
+            || (scroll.max_enchant != 0 && target_enchant >= scroll.max_enchant)
+        {
+            return false;
+        }
+
+        scroll.target_grade == target.crystal_type.plus()
+    }
+
     // ---- parsing -------------------------------------------------------
 
     fn parse_groups(&mut self, content: &str) {
@@ -387,7 +448,7 @@ mod tests {
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,
-            item_skills: Vec::new(),
+            item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
         }
     }
 

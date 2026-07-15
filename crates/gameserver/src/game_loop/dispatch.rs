@@ -92,6 +92,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_DROP_ITEM => super::ground_items::handle_request_drop_item(world, client_id, body),
         cop::SEND_WARE_HOUSE_DEPOSIT_LIST => super::warehouse::handle_deposit(world, client_id, body),
         cop::SEND_WARE_HOUSE_WITH_DRAW_LIST => super::warehouse::handle_withdraw(world, client_id, body),
+        cop::REQUEST_ENCHANT_ITEM => super::enchant::handle_enchant(world, client_id, body),
         cop::REQUEST_MAGIC_SKILL_USE => handle_request_magic_skill_use(world, client_id, body),
         cop::REQUEST_ACQUIRE_SKILL => handle_request_acquire_skill(world, client_id, body),
         cop::ACTION => handle_action(world, client_id, body),
@@ -197,6 +198,13 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_AUTO_SOULSHOT => {
             super::items::handle_request_auto_soul_shot(world, client_id, ex_body)
         }
+        exop::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM => {
+            super::enchant::handle_add_scroll(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM => {
+            super::enchant::handle_put_target(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_CANCEL_ENCHANT_ITEM => super::enchant::handle_cancel(world, client_id),
         exop::REQUEST_CHANGE_PARTY_LEADER => {
             handle_request_change_party_leader(world, client_id, ex_body)
         }

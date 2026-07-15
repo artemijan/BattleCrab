@@ -75,6 +75,23 @@ pub struct PendingTrade {
     pub from: i32,
 }
 
+/// An open enchant window (Java `EnchantItemRequest`, held as a `Player`
+/// request). Present from the `EnchantScrolls` handler's `ChooseInventoryItem`
+/// until the enchant completes or is cancelled. Object ids are `0` (none) until
+/// the client fills them via the Ex-packet handshake.
+#[derive(Component, Debug, Clone, Copy, Default)]
+pub struct EnchantRequest {
+    /// The scroll's inventory object id (set when the window opens).
+    pub scroll_oid: i32,
+    /// The item being enchanted (set by `RequestExTryToPutEnchantTargetItem`).
+    pub item_oid: i32,
+    /// The support item, if any (`0` = none). Support items are not yet wired.
+    pub support_oid: i32,
+    /// `_isProcessing` — set once `RequestEnchantItem` starts, to reject
+    /// re-entrant packets mid-roll.
+    pub processing: bool,
+}
+
 /// The world-region cell this object is registered in (Java
 /// `WorldObject._worldRegion`). Kept in sync with `Position` by the
 /// visibility/movement systems (Java `updateWorldRegion`/`switchRegion`) —

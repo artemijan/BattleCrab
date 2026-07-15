@@ -14,6 +14,7 @@ mod combat;
 mod death;
 mod dispatch;
 mod doors;
+mod enchant;
 mod expertise;
 mod friends;
 mod ground_items;

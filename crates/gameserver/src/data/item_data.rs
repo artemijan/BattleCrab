@@ -359,6 +359,9 @@ pub enum ItemHandler {
     /// `handlers/itemhandlers/BlessedSpiritShot` — the blessed magic shot
     /// (`ShotType::BLESSED_SPIRITSHOTS`, ×4 magic bonus vs. ×2).
     BlessedSpiritShot,
+    /// `handlers/itemhandlers/EnchantScrolls` — opens the enchant window for an
+    /// enchant scroll (adds an `EnchantRequest` + `ChooseInventoryItem`).
+    EnchantScrolls,
 }
 
 impl ItemHandler {
@@ -372,6 +375,86 @@ impl ItemHandler {
     /// `rechargeShots(magic=…)` category (Java `ActionType.SPIRITSHOT`).
     pub fn is_spiritshot(self) -> bool {
         matches!(self, ItemHandler::SpiritShot | ItemHandler::BlessedSpiritShot)
+    }
+}
+
+/// `<set name="etcitem_type">`, narrowed to the enchant-scroll kinds the
+/// enchant flow branches on (Java `EtcItemType`, used through
+/// `AbstractEnchantItem.ENCHANT_TYPES` + `EnchantScroll`'s type flags). Every
+/// other value collapses to [`EtcItemType::Other`]. The `is_*` helpers mirror
+/// `EnchantScroll`'s `_isWeapon`/`_isBlessed`/`_isBlessedDown`/`_isSafe`/
+/// `_isGiant` classification.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum EtcItemType {
+    #[default]
+    Other,
+    EnchtWp,
+    EnchtAm,
+    BlessEnchtWp,
+    BlessEnchtAm,
+    BlessEnchtAmDown,
+    GiantEnchtWp,
+    GiantEnchtAm,
+    EnchtAttrCrystalEnchantWp,
+    EnchtAttrCrystalEnchantAm,
+    EnchtAttrAncientCrystalEnchantWp,
+    EnchtAttrAncientCrystalEnchantAm,
+}
+
+impl EtcItemType {
+    fn from_name(name: Option<&str>) -> Self {
+        match name {
+            Some("ENCHT_WP") => EtcItemType::EnchtWp,
+            Some("ENCHT_AM") => EtcItemType::EnchtAm,
+            Some("BLESS_ENCHT_WP") => EtcItemType::BlessEnchtWp,
+            Some("BLESS_ENCHT_AM") => EtcItemType::BlessEnchtAm,
+            Some("BLESS_ENCHT_AM_DOWN") => EtcItemType::BlessEnchtAmDown,
+            Some("GIANT_ENCHT_WP") => EtcItemType::GiantEnchtWp,
+            Some("GIANT_ENCHT_AM") => EtcItemType::GiantEnchtAm,
+            Some("ENCHT_ATTR_CRYSTAL_ENCHANT_WP") => EtcItemType::EnchtAttrCrystalEnchantWp,
+            Some("ENCHT_ATTR_CRYSTAL_ENCHANT_AM") => EtcItemType::EnchtAttrCrystalEnchantAm,
+            Some("ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP") => EtcItemType::EnchtAttrAncientCrystalEnchantWp,
+            Some("ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_AM") => EtcItemType::EnchtAttrAncientCrystalEnchantAm,
+            _ => EtcItemType::Other,
+        }
+    }
+
+    /// Any of the enchant-scroll kinds (Java `AbstractEnchantItem.isEnchantScroll`,
+    /// narrowed to the scroll — not attribute/support — types).
+    pub fn is_enchant_scroll(self) -> bool {
+        self != EtcItemType::Other
+    }
+
+    /// `EnchantScroll._isWeapon`.
+    pub fn is_enchant_weapon(self) -> bool {
+        matches!(
+            self,
+            EtcItemType::EnchtWp
+                | EtcItemType::BlessEnchtWp
+                | EtcItemType::GiantEnchtWp
+                | EtcItemType::EnchtAttrAncientCrystalEnchantWp
+        )
+    }
+
+    /// `EnchantScroll._isBlessed` — item survives a failure, enchant resets to 0.
+    pub fn is_blessed(self) -> bool {
+        matches!(self, EtcItemType::BlessEnchtWp | EtcItemType::BlessEnchtAm)
+    }
+
+    /// `EnchantScroll._isBlessedDown` — item survives, enchant drops by 1.
+    pub fn is_blessed_down(self) -> bool {
+        self == EtcItemType::BlessEnchtAmDown
+    }
+
+    /// `EnchantScroll._isSafe` — enchant level is retained on failure.
+    pub fn is_safe(self) -> bool {
+        matches!(
+            self,
+            EtcItemType::EnchtAttrCrystalEnchantWp
+                | EtcItemType::EnchtAttrCrystalEnchantAm
+                | EtcItemType::EnchtAttrAncientCrystalEnchantWp
+                | EtcItemType::EnchtAttrAncientCrystalEnchantAm
+        )
     }
 }
 
@@ -461,12 +544,29 @@ pub struct ItemTemplate {
     /// `getSkills(ItemSkillType.NORMAL)`) — `(skill_id, skill_level)` pairs,
     /// in document order.
     pub item_skills: Vec<(i32, i32)>,
+    /// `<set name="etcitem_type">`, narrowed to enchant classification.
+    pub etc_item_type: EtcItemType,
+    /// `<set name="enchant_enabled">` (Java `_enchantable`) — whether this item
+    /// can be enchanted at all.
+    pub enchant_enabled: bool,
+    /// `<set name="enchant_limit">` (Java `_enchantLimit`, 0 = no limit) — the
+    /// cap an enchant scroll may not push past.
+    pub enchant_limit: i32,
+    /// `<set name="is_magic_weapon">` (Java `Weapon._isMagicWeapon`; false for
+    /// non-weapons) — splits the fighter/mage enchant rate groups.
+    pub is_magic_weapon: bool,
 }
 
 impl ItemTemplate {
     /// `ItemTemplate.isEquipable`: has a body part and isn't an `EtcItem`.
     pub fn is_equipable(&self) -> bool {
         self.kind != ItemKind::Etc && self.body_part != SLOT_NONE
+    }
+
+    /// `ItemTemplate.isEnchantable` — narrowed to the `enchant_enabled` flag
+    /// (the `Config.ENCHANT_BLACKLIST` check isn't modelled).
+    pub fn is_enchantable(&self) -> bool {
+        self.enchant_enabled
     }
 }
 
@@ -796,6 +896,7 @@ fn make_template(
         Some("SoulShots") => ItemHandler::SoulShots,
         Some("SpiritShot") => ItemHandler::SpiritShot,
         Some("BlessedSpiritShot") => ItemHandler::BlessedSpiritShot,
+        Some("EnchantScrolls") => ItemHandler::EnchantScrolls,
         _ => ItemHandler::None,
     };
 
@@ -817,6 +918,10 @@ fn make_template(
         extractable_count_min: attrs.get("extractableCountMin").and_then(|v| v.parse().ok()).unwrap_or(0),
         extractable_count_max: attrs.get("extractableCountMax").and_then(|v| v.parse().ok()).unwrap_or(0),
         item_skills,
+        etc_item_type: EtcItemType::from_name(attrs.get("etcitem_type").map(|s| s.as_str())),
+        enchant_enabled: attrs.get("enchant_enabled").map(|v| v == "true").unwrap_or(false),
+        enchant_limit: attrs.get("enchant_limit").and_then(|v| v.parse().ok()).unwrap_or(0),
+        is_magic_weapon: kind == ItemKind::Weapon && attrs.get("is_magic_weapon").map(|v| v == "true").unwrap_or(false),
     }
 }
 

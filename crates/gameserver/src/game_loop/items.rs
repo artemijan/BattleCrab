@@ -415,6 +415,9 @@ fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
                 charge_shot(world, object_id, item_id, handler, false);
             }
         }
+        ItemHandler::EnchantScrolls => {
+            super::enchant::open(world, client_id, object_id, item_object_id)
+        }
         ItemHandler::None => {}
     }
 }
