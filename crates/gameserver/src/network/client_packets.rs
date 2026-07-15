@@ -24,6 +24,7 @@ pub mod opcodes {
     pub const USE_ITEM: u8 = 0x19;
     pub const REQUEST_DESTROY_ITEM: u8 = 0x60;
     pub const REQUEST_CRYSTALLIZE_ITEM: u8 = 0x2F;
+    pub const REQUEST_SELL_ITEM: u8 = 0x37;
     pub const SEND_WARE_HOUSE_DEPOSIT_LIST: u8 = 0x3B;
     pub const SEND_WARE_HOUSE_WITH_DRAW_LIST: u8 = 0x3C;
     pub const ACTION: u8 = 0x1F;
@@ -294,6 +295,35 @@ impl WarehouseItemList {
             items.push((object_id, cnt));
         }
         Some(Self { items })
+    }
+}
+
+/// Port of `clientpackets/RequestSellItem` (`dd [dq]`... actually `ddd q` per
+/// entry): the buy-list id and the items to sell — `(object_id, item_id, count)`.
+pub struct RequestSellItem {
+    pub list_id: i32,
+    pub items: Vec<(i32, i32, i64)>,
+}
+
+impl RequestSellItem {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let list_id = r.read_i32()?;
+        let size = r.read_i32()?;
+        if size <= 0 || size > 500 {
+            return None;
+        }
+        let mut items = Vec::with_capacity(size as usize);
+        for _ in 0..size {
+            let object_id = r.read_i32()?;
+            let item_id = r.read_i32()?;
+            let count = r.read_i64()?;
+            if object_id < 1 || item_id < 1 || count < 1 {
+                return None;
+            }
+            items.push((object_id, item_id, count));
+        }
+        Some(Self { list_id, items })
     }
 }
 

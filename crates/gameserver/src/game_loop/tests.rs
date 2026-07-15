@@ -9611,3 +9611,45 @@ fn crystallize_item_yields_crystals_when_skilled() {
     assert_eq!(inv.count_of(40), 0, "boots crystallized away");
     assert_eq!(inv.count_of(1458), cc as i64, "got crystal_count Crystal (D-grade)");
 }
+
+/// `RequestSellItem` (0x37) sells inventory items to the targeted merchant for
+/// reference-price/2 adena each.
+#[test]
+fn request_sell_item_pays_adena() {
+    let (mut world, _db_rx, mut rx) = shop_world();
+    world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+        item_id: 5000,
+        name: "Trophy".into(),
+        kind: crate::data::item_data::ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: true,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        price: 200, // sells for 100 each
+        handler: crate::data::item_data::ItemHandler::None,
+        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_count: 0,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+    });
+    super::items::add_inventory_item(&mut world, 3001, 5000, 10).expect("trophies");
+    let oid = world.objects.get_component::<crate::model::inventory::Inventory>(&3001).unwrap().items().iter().find(|it| it.item_id == 5000).unwrap().object_id;
+    drain(&mut rx);
+
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_SELL_ITEM);
+    w.write_i32(3); // list id
+    w.write_i32(1); // one line
+    w.write_i32(oid);
+    w.write_i32(5000);
+    w.write_i64(4);
+    on_packet(&mut world, 1, w.into_bytes());
+
+    assert_eq!(count_of_item(&world, 3001, 5000), 6, "4 sold");
+    assert_eq!(adena_of(&world, 3001), 1000 + 400, "paid 4 × (200/2)");
+    assert!(drain(&mut rx).iter().any(|p| p[0] == 0x21), "InventoryUpdate sent");
+}

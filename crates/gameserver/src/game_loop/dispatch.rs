@@ -128,6 +128,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             }
         }
         cop::REQUEST_BUY_ITEM => super::shop::handle_request_buy_item(world, client_id, body),
+        cop::REQUEST_SELL_ITEM => super::shop::handle_request_sell_item(world, client_id, body),
         cop::REQUEST_QUEST_ABORT => {
             super::quests::handle_request_quest_abort(world, client_id, body)
         }

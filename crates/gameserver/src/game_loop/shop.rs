@@ -1,7 +1,7 @@
-//! The Buy shop slice (G12): `Merchant.showBuyWindow` behind the `Buy`
-//! bypass, and `RequestBuyItem` (0x40) actually purchasing. Sell
-//! (`RequestSellItem`), multisell, limited stock, castle tax, and the
-//! weight/capacity gates (no `maxLoad`/slot enforcement exists yet — a G5
+//! Merchant shop: `Merchant.showBuyWindow` behind the `Buy` bypass,
+//! `RequestBuyItem` (0x40) purchasing, and `RequestSellItem` (0x37) selling
+//! back at reference-price/2 (G15). Multisell, limited stock, castle tax, and
+//! the weight/capacity gates (no `maxLoad`/slot enforcement exists yet — a G5
 //! deferral) are out of scope.
 
 use tracing::warn;
@@ -147,5 +147,64 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
         cs.send(crate::network::enter_world::ex_user_info_inven_weight(player, inventory, &world.data));
         cs.send(trade::ex_buy_sell_list_sell(inventory, &world.data, true));
         cs.send(crate::network::enter_world::system_message(sm_ids::EXCHANGE_IS_SUCCESSFUL));
+    }
+}
+
+/// Port of `clientpackets/RequestSellItem.runImpl`: sell inventory items to the
+/// targeted merchant for adena (reference price / 2 each). The buy-list gate is
+/// skipped (a merchant buys anything sellable); quest/equipped items and
+/// price-0 items are refused.
+pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = cp::RequestSellItem::read(body) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+
+    let target = world.objects.get_component::<TargetRef>(&player).copied().unwrap_or_default().0;
+    if target.filter(|&t| is_merchant(world, t) && can_interact(world, player, t)).is_none() {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
+
+    let mut total_price: i64 = 0;
+    let mut changes: Vec<crate::model::inventory::ItemChange> = Vec::new();
+    for (obj_id, item_id, count) in pkt.items {
+        // The instance must exist, match the claimed item id, and be unequipped.
+        let Some((held, equipped)) = world.objects.get_component::<Inventory>(&player).and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|it| it.object_id == obj_id && it.item_id == item_id)
+                .map(|it| (it.count, inv.paperdoll_slot_of(obj_id).is_some()))
+        }) else {
+            continue;
+        };
+        let t = world.data.item_data.get(item_id);
+        let price = t.map(|t| t.price).unwrap_or(0);
+        let quest = t.map(|t| t.is_quest_item).unwrap_or(false);
+        if equipped || quest || price <= 0 {
+            continue;
+        }
+        let sell = count.min(held);
+        total_price = total_price.saturating_add((price / 2) * sell).min(MAX_ADENA);
+        if let Some(change) = world.objects.get_component_mut::<Inventory>(&player).and_then(|inv| inv.remove_by_object_id(obj_id, sell)) {
+            changes.push(change);
+        }
+    }
+
+    if total_price > 0 {
+        super::items::add_inventory_item(world, player, ADENA_ID, total_price);
+        // Fold the (grown) adena stack into the same InventoryUpdate.
+        if let Some(adena) = world.objects.get_component::<Inventory>(&player).and_then(|inv| inv.items().iter().find(|it| it.item_id == ADENA_ID).copied()) {
+            changes.push(crate::model::inventory::ItemChange::Modified(adena));
+        }
+    }
+    if changes.is_empty() {
+        return;
+    }
+    let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
+    if let Some((cs, inv)) = world.clients.get(&client_id).zip(world.objects.get_component::<Inventory>(&player)) {
+        cs.send(iu);
+        cs.send(trade::ex_buy_sell_list_sell(inv, &world.data, true));
     }
 }

@@ -87,6 +87,9 @@ persisted alongside it via `loc="WAREHOUSE"`), the `WareHouseDepositList`/
 `CrystalType::crystal_item_id`/`required_crystallize_level`; destroy a
 crystallizable item + award its grade's crystals (1458–1462), gated on the
 `Crystallize` skill (248) level vs grade (D→1 … S→5), unequip-first.
+✅ **Sell to merchant** (`RequestSellItem` 0x37) — sell inventory items to a
+targeted merchant for reference-price/2 adena (the buy side + sell tab already
+existed; this completes the merchant shop).
 **Next slices — each a substantial multi-part feature:** clan warehouse +
 freight (reuse the container), private stores + trade, enchant scrolls (an
 `EnchantItemData`/`EnchantItemGroups` loader + a multi-packet `EnchantItemRequest`
