@@ -8906,6 +8906,37 @@ fn admin_buff_applies_skill_to_self() {
     assert!(pbuffs(&world, 8201) > before, "//buff applied a buff");
 }
 
+/// `//superhaste` applies and **persists**: Super Haste (7029) is a toggle with
+/// no `abnormalTime`, so the buff must be permanent (Java `EffectList` never
+/// schedules its stop) — it previously expired the same tick it landed.
+#[test]
+fn admin_superhaste_applies_and_persists() {
+    use crate::model::components::{Buffs, Speeds};
+    let (mut world, ..) = admin_world();
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8202, 100);
+    drain(&mut gm_rx);
+
+    let base_spd = world.objects.get_component::<Speeds>(&8202).unwrap().run_spd;
+    on_packet(&mut world, 1, build_admin("superhaste 2"));
+
+    // The buff is present, permanent, and raised run speed.
+    let buff = world.objects.get_component::<Buffs>(&8202).unwrap().0.iter().find(|b| b.skill_id == 7029).cloned();
+    let buff = buff.expect("super-haste buff applied");
+    assert_eq!(buff.expires_at_tick, u64::MAX, "toggle buff is permanent");
+    assert!(world.objects.get_component::<Speeds>(&8202).unwrap().run_spd > base_spd, "run speed increased");
+
+    // No BuffExpire was scheduled, so advancing the world keeps it.
+    world.tick += 100;
+    crate::game_loop::apply_due_tasks(&mut world);
+    assert!(world.objects.get_component::<Buffs>(&8202).unwrap().0.iter().any(|b| b.skill_id == 7029), "still active after ticks");
+
+    // //superhaste 0 clears it.
+    on_packet(&mut world, 1, build_admin("superhaste 0"));
+    assert!(!world.objects.get_component::<Buffs>(&8202).unwrap().0.iter().any(|b| b.skill_id == 7029), "cleared by level 0");
+}
+
 /// `//buff` with an unknown skill is refused.
 #[test]
 fn admin_buff_rejects_unknown_skill() {

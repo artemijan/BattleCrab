@@ -241,7 +241,13 @@ pub fn abnormal_status_update(buffs: &crate::model::components::Buffs, now_tick:
     let shown = buffs.0.iter().filter(|b| !b.passive);
     w.write_i16(shown.clone().count() as i16);
     for buff in shown {
-        let remaining_secs = buff.expires_at_tick.saturating_sub(now_tick) / 10;
+        // Permanent (toggle / 0-`abnormalTime`) buffs carry a `u64::MAX`
+        // sentinel expiry → Java's `-1` "infinite" duration.
+        let remaining_secs = if buff.expires_at_tick == u64::MAX {
+            -1
+        } else {
+            (buff.expires_at_tick.saturating_sub(now_tick) / 10) as i32
+        };
         w.write_i32(buff.skill_id);
         w.write_i16(buff.skill_level as i16);
         w.write_i16(0); // sub-level

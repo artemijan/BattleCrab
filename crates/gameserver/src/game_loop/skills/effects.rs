@@ -155,7 +155,13 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     if buff_effects.is_empty() {
         return;
     }
-    let expires_at_tick = world.tick + (skill.abnormal_time.max(0) as u64) * 10;
+    // Java `EffectList` only schedules a stop task when the effect's time is
+    // positive; a toggle or a 0-`abnormalTime` buff (e.g. Super Haste 7029,
+    // `operateType=T`) persists until it's toggled/removed. Model that as a
+    // sentinel expiry with no `BuffExpire` schedule, else it would vanish the
+    // same tick it lands.
+    let permanent = skill.abnormal_time <= 0;
+    let expires_at_tick = if permanent { u64::MAX } else { world.tick + skill.abnormal_time as u64 * 10 };
     let buff = ActiveBuff {
         skill_id: skill.id,
         skill_level: skill.level,
@@ -169,9 +175,11 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     // isn't reflected client-side until respawn; the combat math uses it now).
     if crate::game_loop::combat::is_npc_oid(target_oid) {
         apply_buff_to_npc(world, target_oid, buff, skill.id);
-        world
-            .scheduler
-            .schedule(expires_at_tick, ScheduledTask::BuffExpire { player_object_id: target_oid, skill_id: skill.id });
+        if !permanent {
+            world
+                .scheduler
+                .schedule(expires_at_tick, ScheduledTask::BuffExpire { player_object_id: target_oid, skill_id: skill.id });
+        }
         return;
     }
     {
@@ -189,9 +197,11 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         {
             target.apply_buff(&world.data, &base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, buff);
         }
-        world
-            .scheduler
-            .schedule(expires_at_tick, ScheduledTask::BuffExpire { player_object_id: target_oid, skill_id: skill.id });
+        if !permanent {
+            world
+                .scheduler
+                .schedule(expires_at_tick, ScheduledTask::BuffExpire { player_object_id: target_oid, skill_id: skill.id });
+        }
         let now = world.tick;
         if let Some(client_id) = client_for_player(world, target_oid) {
             if let Some(buffs) = world.objects.get_component::<Buffs>(&target_oid) {
