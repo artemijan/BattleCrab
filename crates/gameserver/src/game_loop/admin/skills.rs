@@ -28,6 +28,7 @@ pub(super) fn admin_add_skill(world: &mut World, client_id: u32, object_id: i32,
     }
     refresh_skill_list(world, target);
     send_message(world, client_id, &format!("Added skill {skill_id} (level {level})."));
+    show_char_skills(world, client_id, target);
 }
 
 /// `AdminSkill`'s `//remove_skill <id>` — remove a skill from the targeted
@@ -45,6 +46,7 @@ pub(super) fn admin_remove_skill(world: &mut World, client_id: u32, object_id: i
     }
     refresh_skill_list(world, target);
     send_message(world, client_id, &format!("Removed skill {skill_id}."));
+    show_char_skills(world, client_id, target);
 }
 
 /// `AdminSkill`'s `//setskill <id> <level>` — add a skill to the GM
@@ -83,6 +85,7 @@ pub(super) fn admin_give_all_skills(world: &mut World, client_id: u32, object_id
     refresh_skill_list(world, target);
     let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
     send_message(world, client_id, &format!("Gave available skills to {name}."));
+    show_char_skills(world, client_id, target);
 }
 
 /// `AdminSkill`'s `//remove_all_skills` — strip every skill from the targeted
@@ -99,12 +102,13 @@ pub(super) fn admin_remove_all_skills(world: &mut World, client_id: u32, object_
     refresh_skill_list(world, target);
     let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
     send_message(world, client_id, &format!("You have removed all skills from {name}."));
+    show_char_skills(world, client_id, target);
 }
 
-/// `AdminSkill`'s `//get_skills` — copy the targeted player's skills onto the
-/// GM (Java saves the GM's own skills first so `//reset_skills` can restore
-/// them; here the copy is additive and `//reset_skills` re-derives class skills,
-/// a documented simplification).
+/// `AdminSkill`'s `//get_skills` — replace the GM's skill set with the targeted
+/// player's (Java `adminGetSkills`: removes the GM's own skills, then adds the
+/// target's; `//reset_skills` re-derives class skills). Ends on the char-skills
+/// window (Java `showMainPage`).
 pub(super) fn admin_get_skills(world: &mut World, client_id: u32, object_id: i32) {
     let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
     else {
@@ -117,6 +121,8 @@ pub(super) fn admin_get_skills(world: &mut World, client_id: u32, object_id: i32
     }
     let src = world.objects.get_component::<SkillBook>(&target).cloned().unwrap_or_default();
     if let Some(book) = world.objects.get_component_mut::<SkillBook>(&object_id) {
+        // Java removes the GM's own skills first, then adds the target's.
+        book.0.clear();
         for (&id, &lvl) in &src.0 {
             book.0.insert(id, lvl);
         }
@@ -124,6 +130,23 @@ pub(super) fn admin_get_skills(world: &mut World, client_id: u32, object_id: i32
     refresh_skill_list(world, object_id);
     let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
     send_message(world, client_id, &format!("You now have all the skills of {name}."));
+    show_char_skills(world, client_id, target);
+}
+
+/// Java `AdminSkill.showMainPage` — the `charskills.htm` management window for
+/// the GM's current target (name / level / class). Several skill commands end
+/// by refreshing it.
+pub(super) fn show_char_skills(world: &mut World, client_id: u32, target: i32) {
+    let Some(p) = world.objects.get_component::<Player>(&target).cloned() else {
+        super::send_sm(world, client_id, crate::network::server_packets::sm_ids::INVALID_TARGET);
+        return;
+    };
+    let r: Vec<(&str, String)> = vec![
+        ("name", p.name.clone()),
+        ("level", p.level.to_string()),
+        ("class", p.class_id.to_string()),
+    ];
+    super::menu::show_admin_html_replace(world, client_id, "charskills.htm", &r);
 }
 
 /// `AdminSkill`'s `//reset_skills` — restore the targeted player's class skills
@@ -141,6 +164,7 @@ pub(super) fn admin_reset_skills(world: &mut World, client_id: u32, object_id: i
     super::death::reward_skills(world, target);
     refresh_skill_list(world, target);
     send_message(world, client_id, "Skills reset to class defaults.");
+    show_char_skills(world, client_id, target);
 }
 
 /// `AdminSkill`'s `//cast` / `//castnow <id> [level]` — apply a skill's effects

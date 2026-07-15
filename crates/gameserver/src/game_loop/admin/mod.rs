@@ -279,8 +279,16 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_get_skills" => admin_get_skills(world, client_id, object_id),
         // Cast a skill's effects onto the current target (or self).
         "admin_cast" | "admin_castnow" => admin_cast(world, client_id, object_id, &args),
-        // Skill HTML menus.
-        "admin_skill_list" | "admin_skill_index" | "admin_show_skills" | "admin_remove_skills" => {
+        // `//show_skills` opens the target's char-skills window (Java
+        // `showMainPage` → `charskills.htm`), not the skill catalog.
+        "admin_show_skills" => {
+            let target = current_target(world, object_id)
+                .filter(|oid| world.objects.has_component::<crate::model::Player>(oid))
+                .unwrap_or(object_id);
+            skills::show_char_skills(world, client_id, target)
+        }
+        // Skill catalog HTML menus (browse skills to add).
+        "admin_skill_list" | "admin_skill_index" | "admin_remove_skills" => {
             admin_skill_menu(world, client_id, command, &args)
         }
         // Per-slot enchant (`AdminEnchant`): //set<slot> <0..127>.
