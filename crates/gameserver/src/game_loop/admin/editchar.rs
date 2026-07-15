@@ -190,6 +190,76 @@ pub(super) fn admin_partyinfo(world: &mut World, client_id: u32, object_id: i32,
     }
 }
 
+/// `AdminEditChar`'s `//setparam <stat> <value>` / `//unsetparam <stat>` — set
+/// or clear a fixed-value override on one of the target's combat stats (Java
+/// `CreatureStat.addFixedValue`/`removeFixedValue`), then recompute + broadcast.
+/// `maxHp`/`maxMp` compute on a separate path and aren't overridable here.
+pub(super) fn admin_setparam(world: &mut World, client_id: u32, object_id: i32, args: &[&str], set: bool) {
+    let Some(stat) = args.first().and_then(|s| stat_from_name(s)) else {
+        send_message(world, client_id, if set { "Syntax: //setparam <stat> <value>" } else { "Syntax: //unsetparam <stat>" });
+        if args.first().is_some() {
+            send_message(world, client_id, "Couldn't find such stat!");
+        }
+        return;
+    };
+    let target = current_target(world, object_id)
+        .filter(|oid| world.objects.has_component::<crate::model::components::StatModifiers>(oid))
+        .unwrap_or(object_id);
+    if set {
+        let Some(value) = args.get(1).and_then(|s| s.parse::<f64>().ok()) else {
+            send_message(world, client_id, "Syntax: //setparam <stat> <value>");
+            return;
+        };
+        if let Some(m) = world.objects.get_component_mut::<crate::model::components::StatModifiers>(&target) {
+            m.fixed.insert(stat, value);
+        }
+        send_message(world, client_id, &format!("Fixed stat {} set to {value}.", args[0]));
+    } else {
+        if let Some(m) = world.objects.get_component_mut::<crate::model::components::StatModifiers>(&target) {
+            m.fixed.remove(&stat);
+        }
+        send_message(world, client_id, &format!("Fixed stat {} has been removed.", args[0]));
+    }
+    recompute_combat_stats(world, target);
+    super::party::broadcast_user_info(world, target);
+}
+
+/// Map a `//setparam` stat token (the XML `getValue()` name) to the engine
+/// [`Stat`]. Only the combat stats the finalizers compute are settable.
+fn stat_from_name(name: &str) -> Option<crate::model::stats::Stat> {
+    use crate::model::stats::Stat;
+    Some(match name {
+        "pAtk" => Stat::PhysicalAttack,
+        "pDef" => Stat::PhysicalDefence,
+        "mAtk" => Stat::MagicalAttack,
+        "mDef" => Stat::MagicalDefence,
+        "pAtkSpd" => Stat::PhysicalAttackSpeed,
+        "mAtkSpd" => Stat::MagicAttackSpeed,
+        "rCrit" => Stat::CriticalRate,
+        "mCritRate" => Stat::MagicCriticalRate,
+        "accCombat" => Stat::AccuracyCombat,
+        "accMagic" => Stat::AccuracyMagic,
+        "rEvas" => Stat::EvasionRate,
+        "mEvas" => Stat::MagicEvasionRate,
+        "runSpd" => Stat::RunSpeed,
+        "walkSpd" => Stat::WalkSpeed,
+        _ => return None,
+    })
+}
+
+/// Re-run `recalculate_stats` (which folds `StatModifiers.fixed`) and push the
+/// new `CombatStats`/`Speeds` into the entity.
+fn recompute_combat_stats(world: &mut World, target: i32) {
+    use crate::model::components::{BaseStats, CombatStats, Speeds, StatModifiers};
+    use crate::model::inventory::Inventory;
+    let data = &world.data;
+    if let Some((p, base, mods, inventory, mut speeds, mut combat)) =
+        world.objects.get_many_mut::<(&Player, &BaseStats, &StatModifiers, &Inventory, &mut Speeds, &mut CombatStats)>(&target)
+    {
+        p.recalculate_stats(data, &base, &mods, &inventory, &mut speeds, &mut combat);
+    }
+}
+
 /// `//remove_clan_penalty create|join <name>` — clear a clan cooldown. Only the
 /// `create` cooldown is modelled (`clan_create_expiry_time`); `join` reports it
 /// isn't tracked. Applies to an online target in memory.

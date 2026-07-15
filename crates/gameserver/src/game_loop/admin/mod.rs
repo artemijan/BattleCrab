@@ -336,6 +336,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_set_pvp_flag" => admin_set_pvp_flag(world, client_id, object_id),
         "admin_partyinfo" => admin_partyinfo(world, client_id, object_id, &args),
         "admin_remove_clan_penalty" => admin_remove_clan_penalty(world, client_id, &args),
+        "admin_setparam" => admin_setparam(world, client_id, object_id, &args, true),
+        "admin_unsetparam" => admin_setparam(world, client_id, object_id, &args, false),
 
         // --- AdminAdmin / GM utility & comms (B5) ---
         "admin_gmliston" => admin_gmlist(world, client_id, true),

@@ -27,7 +27,7 @@ gate met. Same vertical-slice-then-breadth discipline used through G13.
 
 | # | Milestone | Track | Unblocks (admin) | Depends on |
 |---|-----------|-------|------------------|------------|
-| G14 | Item stats & equipment combat accuracy | Foundations | `//setparam` | — |
+| G14 | Item stats & equipment combat accuracy ✅ | Foundations | `//setparam` ✅ | — |
 | G15 | Economy & item actions | Foundations | — | G14 |
 | G16 | Character variables, premium & vitality | Foundations | `//premium*` `//pccafepoints` `//primepoints` `//set_vitality_level` | — |
 | G17 | Sub-classes, class change & nobless | Progression | `//setnoble` `//setsubclass` (editchar) | G22¹ |
@@ -67,9 +67,11 @@ earlier commit (the `ItemStats` side-map + `EquippedBonuses` in
 `Player::recalculate_stats`). ✅ **Shields** (`calcShldUse`) now landed —
 `sDef`/`rShld` parse, block rate (× CON, ×1.3 for bows, back-arc gated), normal
 block adds shield def to pDef, perfect block → 1 dmg, "shield defense succeeded"
-SM. **Remaining:** `ArmorSetData` (set bonuses + `getArmorMinEnchant` for the
-UserInfo enchant byte) — folds into **G19** since armor sets grant *skills*; and
-the `SHOTS_BONUS` dynamic stat. **Unblocks:** `//setparam` (fixed-stat editing).
+SM. ✅ **`//setparam`/`//unsetparam`** — a `StatModifiers.fixed` override map the
+finalizers honor (and buff recomputes preserve). **Deferred:** `ArmorSetData`
+(set bonuses + `getArmorMinEnchant`) → **G19** (sets grant *skills*); the
+`SHOTS_BONUS` dynamic stat (matters only for the `reducedSoulshot` weapon perk,
+unused in the ported set). **G14 done.**
 
 ### G15 — Economy & item actions
 The itemcontainer breadth G5 deferred: private/clan warehouse + freight; private

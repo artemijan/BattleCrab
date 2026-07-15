@@ -243,6 +243,11 @@ pub struct Buffs(pub Vec<crate::model::skill::ActiveBuff>);
 pub struct StatModifiers {
     pub add: HashMap<crate::model::stats::Stat, f64>,
     pub mul: HashMap<crate::model::stats::Stat, f64>,
+    /// Admin fixed-value overrides (`//setparam` → Java
+    /// `CreatureStat.addFixedValue`): when present, the stat's finalizer
+    /// returns this value verbatim, ignoring base/buffs. Persists across buff
+    /// recomputes (not cleared with `add`/`mul`); cleared by `//unsetparam`.
+    pub fixed: HashMap<crate::model::stats::Stat, f64>,
 }
 
 /// Panel shortcuts (Java `Player._shortCuts`), keyed by

@@ -9363,3 +9363,30 @@ fn admin_mobgroup_lifecycle() {
     assert!(!world.mob_groups.contains_key(&1), "group removed");
     assert!(members.iter().all(|m| !world.objects.has_component::<crate::model::npc::Npc>(m)), "members despawned");
 }
+
+/// `//setparam pAtk <v>` fixes the target's P.Atk to `v` (Java `addFixedValue`);
+/// `//unsetparam pAtk` restores the computed value.
+#[test]
+fn admin_setparam_fixes_and_clears_a_stat() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8950, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 8951, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+    world.objects.add_components(&8950, crate::model::components::TargetRef(Some(8951)));
+    let base_p_atk = world.objects.get_component::<CombatStats>(&8951).unwrap().p_atk;
+
+    on_packet(&mut world, 1, build_admin("setparam pAtk 9999"));
+    assert_eq!(world.objects.get_component::<CombatStats>(&8951).unwrap().p_atk, 9999.0, "P.Atk fixed");
+    assert_eq!(
+        world.objects.get_component::<crate::model::components::StatModifiers>(&8951).unwrap().fixed.get(&crate::model::stats::Stat::PhysicalAttack),
+        Some(&9999.0)
+    );
+
+    on_packet(&mut world, 1, build_admin("unsetparam pAtk"));
+    assert_eq!(world.objects.get_component::<CombatStats>(&8951).unwrap().p_atk, base_p_atk, "P.Atk restored");
+
+    // An unknown stat name is rejected without touching the overrides.
+    on_packet(&mut world, 1, build_admin("setparam bogus 5"));
+    assert!(world.objects.get_component::<crate::model::components::StatModifiers>(&8951).unwrap().fixed.is_empty());
+}

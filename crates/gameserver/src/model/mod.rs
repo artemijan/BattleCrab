@@ -867,6 +867,9 @@ impl Player {
 /// `Stat.defaultValue`: `base * mul + add` from the accumulated modifier
 /// maps (1.0/0.0 when nothing has touched this stat).
 fn finalize(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
+    if let Some(&fixed) = mods.fixed.get(&stat) {
+        return fixed;
+    }
     let mul = mods.mul.get(&stat).copied().unwrap_or(1.0);
     let add = mods.add.get(&stat).copied().unwrap_or(0.0);
     base * mul + add
@@ -876,6 +879,9 @@ fn finalize(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
 /// floored at `base × 0.2` (the class template's naked defense × 0.2) so a
 /// heavy defense debuff can't drop below a fifth of the naked value.
 fn finalize_def(mods: &StatModifiers, stat: Stat, base: f64, floor: f64) -> f64 {
+    if let Some(&fixed) = mods.fixed.get(&stat) {
+        return fixed;
+    }
     let mul = mods.mul.get(&stat).copied().unwrap_or(1.0).max(0.5);
     let add = mods.add.get(&stat).copied().unwrap_or(0.0);
     (base * mul + add).max(floor)
@@ -885,6 +891,9 @@ fn finalize_def(mods: &StatModifiers, stat: Stat, base: f64, floor: f64) -> f64 
 /// 0.7 instead of applying whatever's in the map directly (so an absent or
 /// tiny buff doesn't produce a slower-than-0.7x cast/attack speed).
 fn finalize_speed(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
+    if let Some(&fixed) = mods.fixed.get(&stat) {
+        return fixed;
+    }
     let mul = mods.mul.get(&stat).copied().unwrap_or(1.0).max(0.7);
     let add = mods.add.get(&stat).copied().unwrap_or(0.0);
     base * mul + add

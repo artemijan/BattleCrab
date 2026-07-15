@@ -41,7 +41,7 @@ Living status tracker for the Java→Rust rewrite. Plans:
 single "G14 Long tail" is broken into per-subsystem milestones; each unblocks a
 gated-but-bodiless admin handler, so admin parity == Java parity.
 
-| Game  | G14 Item stats & equipment combat accuracy                  | 🚧 item `<stats>`/weapon+armor bonuses done (earlier); **shields (`calcShldUse`) landed**; armor sets → G19, `//setparam` pending |
+| Game  | G14 Item stats & equipment combat accuracy                  | ✅ item `<stats>`/weapon+armor bonuses (earlier) + **shields (`calcShldUse`)** + **`//setparam`/`//unsetparam`** (fixed-stat override); armor sets → G19; `SHOTS_BONUS` stat a noted micro-gap (only `reducedSoulshot` weapons) |
 | Game  | G15 Economy & item actions                                  | ⏳ warehouse/stores/trade/drop-pickup/enchant/augment/crystallize |
 | Game  | G16 Character variables, premium & vitality                 | ⏳ `character_variables` → premium/pc-cafe/prime/vitality/henna |
 | Game  | G17 Sub-classes, class change & nobless                     | ⏳ occupation/subclass/nobless — `//setnoble`/`//setsubclass` |
