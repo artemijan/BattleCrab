@@ -9826,6 +9826,55 @@ fn enchant_scroll_success_and_failure() {
     assert_eq!(inv.count_of(955), 3, "second scroll consumed");
 }
 
+/// Enchant with a support item: its +20 bonus rate flips a roll that would miss
+/// the bare 66.67% group chance at +3, and the support is consumed.
+#[test]
+fn enchant_support_item_bonus_and_consume() {
+    use crate::model::inventory::Inventory;
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.enchant =
+        crate::data::EnchantData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9850, 0);
+    drain(&mut rx);
+
+    // Bastard Sword 69 (D weapon), Enchant Weapon D scroll 955, and the D-grade
+    // weapon support "Lucky Enchant Stone" 12362 (+20 bonus, valid at +3..9).
+    super::items::add_inventory_item(&mut world, 9850, 955, 1).unwrap();
+    super::items::add_inventory_item(&mut world, 9850, 69, 1).unwrap();
+    super::items::add_inventory_item(&mut world, 9850, 12362, 1).unwrap();
+    let find = |w: &World, item: i32| w.objects.get_component::<Inventory>(&9850).unwrap().items().iter().find(|it| it.item_id == item).map(|it| it.object_id);
+    let (scroll, sword, support) = (find(&world, 955).unwrap(), find(&world, 69).unwrap(), find(&world, 12362).unwrap());
+    // The support requires the target already at +3.
+    world.objects.get_component_mut::<Inventory>(&9850).unwrap().set_item_enchant(sword, 3);
+
+    let use_scroll = { let mut w = PacketWriter::new(); w.write_u8(cop::USE_ITEM); w.write_i32(scroll); w.write_i32(0); w.into_bytes() };
+    on_packet(&mut world, 1, use_scroll);
+    let add_scroll = { let mut w = PacketWriter::new(); w.write_i32(scroll); w.write_i32(sword); w.into_bytes() };
+    on_packet(&mut world, 1, ex_packet(cp::ex_opcodes::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM, &add_scroll));
+    let put_target = { let mut w = PacketWriter::new(); w.write_i32(sword); w.into_bytes() };
+    on_packet(&mut world, 1, ex_packet(cp::ex_opcodes::REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM, &put_target));
+    // Support: body is (supportObjId, enchantObjId).
+    let put_support = { let mut w = PacketWriter::new(); w.write_i32(support); w.write_i32(sword); w.into_bytes() };
+    drain(&mut rx);
+    on_packet(&mut world, 1, ex_packet(cp::ex_opcodes::REQUEST_EX_TRY_TO_PUT_ENCHANT_SUPPORT_ITEM, &put_support));
+    let put_out = drain(&mut rx);
+    assert!(put_out.iter().any(|p| p.len() >= 3 && p[0] == 0xFE && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_PUT_ENCHANT_SUPPORT_ITEM_RESULT), "support accepted");
+
+    // Roll 80%: bare chance 66.67 would fail, but +20 support → 86.67 succeeds.
+    world.forced_rolls.push_back(800_000);
+    let enchant = { let mut w = PacketWriter::new(); w.write_u8(cop::REQUEST_ENCHANT_ITEM); w.write_i32(sword); w.write_i32(support); w.into_bytes() };
+    on_packet(&mut world, 1, enchant);
+
+    let inv = world.objects.get_component::<Inventory>(&9850).unwrap();
+    let level = inv.items().iter().find(|it| it.object_id == sword).unwrap().enchant_level;
+    assert_eq!(level, 4, "support bonus carried the +3 → +4 enchant");
+    assert_eq!(inv.count_of(12362), 0, "support consumed");
+    assert_eq!(inv.count_of(955), 0, "scroll consumed");
+}
+
 /// Clan warehouse: a shared container. The leader deposits (persisted), an
 /// unprivileged member is denied the withdraw window, and the leader withdraws.
 #[test]

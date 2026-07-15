@@ -130,6 +130,71 @@ pub(crate) fn handle_cancel(world: &mut World, client_id: u32) {
     world.objects.remove_component::<EnchantRequest>(&player);
 }
 
+/// `RequestExTryToPutEnchantSupportItem` (Ex 0x4A): attach a support item;
+/// validate it against the scroll + target and ack with
+/// `ExPutEnchantSupportItemResult` (Java `RequestExTryToPutEnchantSupportItem`).
+pub(crate) fn handle_put_support(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(player) = player_of(world, client_id) else { return };
+    let mut r = PacketReader::new(body);
+    let (Some(support_oid), Some(item_oid)) = (r.read_i32(), r.read_i32()) else { return };
+
+    let Some(q) = world.objects.get_component::<EnchantRequest>(&player) else { return };
+    if q.processing || q.scroll_oid == 0 {
+        return;
+    }
+    let scroll_oid = q.scroll_oid;
+
+    if !support_valid(world, player, scroll_oid, item_oid, support_oid) {
+        if let Some(q) = world.objects.get_component_mut::<EnchantRequest>(&player) {
+            q.support_oid = 0;
+        }
+        send(world, client_id, sp::ex_put_enchant_support_item_result(0));
+        return;
+    }
+    if let Some(q) = world.objects.get_component_mut::<EnchantRequest>(&player) {
+        q.item_oid = item_oid;
+        q.support_oid = support_oid;
+    }
+    send(world, client_id, sp::ex_put_enchant_support_item_result(support_oid));
+}
+
+/// `RequestExRemoveEnchantSupportItem` (Ex 0xE4): clear the support.
+pub(crate) fn handle_remove_support(world: &mut World, client_id: u32) {
+    let Some(player) = player_of(world, client_id) else { return };
+    if let Some(q) = world.objects.get_component_mut::<EnchantRequest>(&player) {
+        q.support_oid = 0;
+    }
+    send(world, client_id, sp::ex_remove_enchant_support_item_result());
+}
+
+/// Whether the support at `support_oid` is compatible with the scroll + target.
+fn support_valid(world: &World, player: i32, scroll_oid: i32, item_oid: i32, support_oid: i32) -> bool {
+    let (Some((scroll_item_id, _)), Some((item_id, enchant)), Some((support_item_id, _))) = (
+        item_facts(world, player, scroll_oid),
+        item_facts(world, player, item_oid),
+        item_facts(world, player, support_oid),
+    ) else {
+        return false;
+    };
+    let (Some(scroll_tpl), Some(target), Some(support_tpl), Some(support)) = (
+        world.data.item_data.get(scroll_item_id),
+        world.data.item_data.get(item_id),
+        world.data.item_data.get(support_item_id),
+        world.data.enchant.support(support_item_id),
+    ) else {
+        return false;
+    };
+    let s = scroll_tpl.etc_item_type;
+    let sup = support_tpl.etc_item_type;
+    world.data.enchant.is_support_valid(
+        (s.is_enchant_weapon(), s.is_blessed(), s.is_blessed_down(), s.is_giant()),
+        support,
+        (sup.support_is_weapon(), sup.support_is_blessed(), sup.support_is_giant()),
+        target,
+        enchant,
+    )
+}
+
 /// Whether the scroll at `scroll_oid` can enchant the item at `item_oid`
 /// (resolves both templates, then defers to `EnchantData::is_target_valid`).
 fn validity(world: &World, player: i32, scroll_oid: i32, item_oid: i32) -> bool {
@@ -149,14 +214,18 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(player) = player_of(world, client_id) else { return };
     let mut r = PacketReader::new(body);
     let Some(item_oid) = r.read_i32() else { return };
-    let _support_id = r.read_i32().unwrap_or(0);
+    let support_id = r.read_i32().unwrap_or(0);
 
     // Must have a non-processing request; mark it processing.
     match world.objects.get_component::<EnchantRequest>(&player).map(|q| q.processing) {
         Some(false) => {}
         _ => return,
     }
-    let scroll_oid = world.objects.get_component::<EnchantRequest>(&player).map(|q| q.scroll_oid).unwrap_or(0);
+    let (scroll_oid, support_oid) = world
+        .objects
+        .get_component::<EnchantRequest>(&player)
+        .map(|q| (q.scroll_oid, q.support_oid))
+        .unwrap_or((0, 0));
     if let Some(q) = world.objects.get_component_mut::<EnchantRequest>(&player) {
         q.item_oid = item_oid;
         q.processing = true;
@@ -187,6 +256,29 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     }
 
+    // Optional support item (Java `RequestEnchantItem` support branch): must
+    // match the stored request, be a real support, and pass `isValid` with the
+    // scroll. `None` = no support (the common case).
+    if support_oid != 0 && support_id != support_oid {
+        err(world);
+        return;
+    }
+    let support = match support_oid {
+        0 => None,
+        oid => {
+            let Some((sid, _)) = item_facts(world, player, oid) else { err(world); return };
+            let Some(sup) = world.data.enchant.support(sid).copied() else { err(world); return };
+            let sup_etc = world.data.item_data.get(sid).map(|t| t.etc_item_type).unwrap_or_default();
+            let scroll_flags = (etc.is_enchant_weapon(), etc.is_blessed(), etc.is_blessed_down(), etc.is_giant());
+            let support_flags = (sup_etc.support_is_weapon(), sup_etc.support_is_blessed(), sup_etc.support_is_giant());
+            if !world.data.enchant.is_support_valid(scroll_flags, &sup, support_flags, &target_tpl, current) {
+                err(world);
+                return;
+            }
+            Some(sup)
+        }
+    };
+
     // Consume one scroll (Java destroyItem). If it's gone, error out.
     let removed = world
         .objects
@@ -196,6 +288,12 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
     if !removed {
         err(world);
         return;
+    }
+    // Consume the support item too, if present.
+    if support.is_some() {
+        if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) {
+            inv.remove_by_object_id(support_oid, 1);
+        }
     }
 
     // Roll. `chance_no_bonus` is the group chance with the safe-enchant
@@ -213,11 +311,25 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
         err(world);
         return;
     }
-    let final_chance = (chance_no_bonus + scroll.bonus_rate).min(100.0);
+    let support_bonus = support.map(|s| s.bonus_rate).unwrap_or(0.0);
+    let final_chance = (chance_no_bonus + scroll.bonus_rate + support_bonus).min(100.0);
     let success = world.roll_f64() * 100.0 < final_chance;
 
     if success {
-        apply_success(world, client_id, player, item_oid, current, chance_no_bonus, &scroll);
+        // Success step: a support widens it (its `randomEnchant` range, capped
+        // at the support's max), else the scroll's default +1.
+        let (cap, step) = match &support {
+            Some(s) => {
+                let step = if s.random_max > s.random_min {
+                    s.random_min + world.roll(s.random_max - s.random_min + 1)
+                } else {
+                    s.random_min
+                };
+                (s.max_enchant, step)
+            }
+            None => (scroll.max_enchant, 1),
+        };
+        apply_success(world, client_id, player, item_oid, current, chance_no_bonus, step, cap);
     } else {
         apply_failure(world, client_id, player, item_oid, current, etc, &target_tpl);
     }
@@ -230,11 +342,13 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
     refresh_items(world, client_id, player);
 }
 
-/// Success: bump the enchant level by 1 (Java's `Rnd.get(randomMin, randomMax)`
-/// with the default 1/1 range), capped at the scroll's max, and refresh.
-fn apply_success(world: &mut World, client_id: u32, player: i32, item_oid: i32, current: i32, chance_no_bonus: f64, scroll: &crate::data::enchant_data::EnchantScroll) {
+/// Success: raise the enchant by `step` (Java's `Rnd.get(randomMin, randomMax)`,
+/// default 1; a support widens it) capped at `cap`, then refresh. The guard on
+/// `chance_no_bonus > 0` matches Java (a 0%-group enchant can't step up).
+#[allow(clippy::too_many_arguments)]
+fn apply_success(world: &mut World, client_id: u32, player: i32, item_oid: i32, current: i32, chance_no_bonus: f64, step: i32, cap: i32) {
     let new_level = if chance_no_bonus > 0.0 {
-        (current + 1).min(scroll.max_enchant)
+        (current + step).min(cap)
     } else {
         current
     };

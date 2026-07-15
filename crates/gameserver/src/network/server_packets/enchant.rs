@@ -46,6 +46,25 @@ pub fn ex_put_enchant_target_item_result(result: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Port of `serverpackets/ExPutEnchantSupportItemResult` — acks the support
+/// selection (`result` = support object id on success, 0 on failure).
+pub fn ex_put_enchant_support_item_result(result: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PUT_ENCHANT_SUPPORT_ITEM_RESULT);
+    w.write_i32(result);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExRemoveEnchantSupportItemResult` — acks clearing the
+/// support (empty body, Java `STATIC_PACKET`).
+pub fn ex_remove_enchant_support_item_result() -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_REMOVE_ENCHANT_SUPPORT_ITEM_RESULT);
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/EnchantResult` — the enchant outcome. `crystal`/
 /// `count` carry the crystals returned on a destroying failure; `enchant_level`
 /// the item's resulting level (success/safe/blessed). The three trailing shorts

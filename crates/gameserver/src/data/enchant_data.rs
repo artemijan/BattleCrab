@@ -126,11 +126,30 @@ pub struct EnchantScroll {
     pub item_ids: HashSet<i32>,
 }
 
+/// A support item from `EnchantItemData.xml` `<support>` (Java
+/// `EnchantSupportItem`): raises the success chance and can widen the success
+/// step. Weapon/blessed/giant classification comes from the item's
+/// `EtcItemType` at use time (like scrolls).
+#[derive(Debug, Clone, Copy)]
+pub struct EnchantSupport {
+    pub id: i32,
+    pub target_grade: CrystalType,
+    pub min_enchant: i32,
+    pub max_enchant: i32,
+    /// `bonusRate` — added to the scroll chance.
+    pub bonus_rate: f64,
+    /// `randomEnchantMin`/`Max` (default 1) — the success step this support
+    /// grants instead of the scroll's.
+    pub random_min: i32,
+    pub random_max: i32,
+}
+
 #[derive(Debug, Default)]
 pub struct EnchantData {
     item_groups: HashMap<String, EnchantItemGroup>,
     scroll_groups: HashMap<i32, EnchantScrollGroup>,
     scrolls: HashMap<i32, EnchantScroll>,
+    supports: HashMap<i32, EnchantSupport>,
 }
 
 impl EnchantData {
@@ -147,10 +166,11 @@ impl EnchantData {
             data.parse_scrolls(&content);
         }
         info!(
-            "EnchantData: Loaded {} rate groups, {} scroll groups, {} scrolls.",
+            "EnchantData: Loaded {} rate groups, {} scroll groups, {} scrolls, {} supports.",
             data.item_groups.len(),
             data.scroll_groups.len(),
-            data.scrolls.len()
+            data.scrolls.len(),
+            data.supports.len()
         );
         data
     }
@@ -162,6 +182,11 @@ impl EnchantData {
     /// A branded scroll's definition, if `item_id` is one.
     pub fn scroll(&self, item_id: i32) -> Option<&EnchantScroll> {
         self.scrolls.get(&item_id)
+    }
+
+    /// A support item's definition, if `item_id` is one.
+    pub fn support(&self, item_id: i32) -> Option<&EnchantSupport> {
+        self.supports.get(&item_id)
     }
 
     /// Resolve the named rate group for an item under a scroll group
@@ -274,6 +299,56 @@ impl EnchantData {
         scroll.target_grade == target.crystal_type.plus()
     }
 
+    /// Whether a support item is compatible with the scroll + target (Java
+    /// `EnchantScroll.isValid`'s support branch + `AbstractEnchantItem.isValid`
+    /// on the support). The `*_flags` tuples are `(is_weapon, is_blessed,
+    /// is_giant)` from each item's `EtcItemType`; a standard scroll + a plain
+    /// `INC_PROP` support reduces to matching weapon/armor and the grade/range.
+    #[allow(clippy::too_many_arguments)]
+    pub fn is_support_valid(
+        &self,
+        scroll_flags: (bool, bool, bool, bool), // (is_weapon, is_blessed, is_blessed_down, is_giant)
+        support: &EnchantSupport,
+        support_flags: (bool, bool, bool), // (is_weapon, is_blessed, is_giant)
+        target: &ItemTemplate,
+        target_enchant: i32,
+    ) -> bool {
+        let (scroll_weapon, scroll_blessed, scroll_blessed_down, scroll_giant) = scroll_flags;
+        let (support_weapon, support_blessed, support_giant) = support_flags;
+        // Blessed/giant flags must agree between scroll and support.
+        if scroll_blessed != support_blessed
+            || scroll_blessed_down != support_blessed
+            || scroll_giant != support_giant
+        {
+            return false;
+        }
+        // A weapon support only fits a weapon scroll and vice-versa.
+        if support_weapon != scroll_weapon {
+            return false;
+        }
+        // AbstractEnchantItem.isValid(item) for the support itself.
+        if !target.is_enchantable() {
+            return false;
+        }
+        if target.enchant_limit != 0 && target_enchant == target.enchant_limit {
+            return false;
+        }
+        let type_ok = match target.type2 {
+            super::item_data::TYPE2_WEAPON => support_weapon,
+            super::item_data::TYPE2_SHIELD_ARMOR | super::item_data::TYPE2_ACCESSORY => !support_weapon,
+            _ => false,
+        };
+        if !type_ok {
+            return false;
+        }
+        if (support.min_enchant != 0 && target_enchant < support.min_enchant)
+            || (support.max_enchant != 0 && target_enchant >= support.max_enchant)
+        {
+            return false;
+        }
+        support.target_grade == target.crystal_type.plus()
+    }
+
     // ---- parsing -------------------------------------------------------
 
     fn parse_groups(&mut self, content: &str) {
@@ -378,12 +453,33 @@ impl EnchantData {
                         self.scrolls.insert(c.id, c);
                     }
                 }
+                // `<support .../>` — always self-closing.
+                Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == b"support" => {
+                    if let Some(s) = build_support(&e) {
+                        self.supports.insert(s.id, s);
+                    }
+                }
                 Ok(Event::Eof) => break,
                 Err(_) => break,
                 _ => {}
             }
         }
     }
+}
+
+/// Build an [`EnchantSupport`] from a `<support …>` element's attributes.
+fn build_support(e: &quick_xml::events::BytesStart) -> Option<EnchantSupport> {
+    let id = attr(e, "id").and_then(|s| s.parse().ok())?;
+    let min = attr(e, "randomEnchantMin").and_then(|s| s.parse().ok()).unwrap_or(1);
+    Some(EnchantSupport {
+        id,
+        target_grade: CrystalType::from_name(attr(e, "targetGrade").as_deref()),
+        min_enchant: attr(e, "minEnchant").and_then(|s| s.parse().ok()).unwrap_or(0),
+        max_enchant: attr(e, "maxEnchant").and_then(|s| s.parse().ok()).unwrap_or(127),
+        bonus_rate: attr(e, "bonusRate").and_then(|s| s.parse().ok()).unwrap_or(0.0),
+        random_min: min,
+        random_max: attr(e, "randomEnchantMax").and_then(|s| s.parse().ok()).unwrap_or(min),
+    })
 }
 
 /// Build an [`EnchantScroll`] from an `<enchant …>` element's attributes

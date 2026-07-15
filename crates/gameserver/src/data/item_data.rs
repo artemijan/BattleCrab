@@ -399,6 +399,16 @@ pub enum EtcItemType {
     EnchtAttrCrystalEnchantAm,
     EnchtAttrAncientCrystalEnchantWp,
     EnchtAttrAncientCrystalEnchantAm,
+    // Support items (`EnchantSupportItem`) — raise the chance and can widen the
+    // success step. `ENCHT_ATTR_INC_PROP_*` plus their blessed/giant variants.
+    EnchtAttrIncPropEnchtWp,
+    EnchtAttrIncPropEnchtAm,
+    BlessedEnchtAttrIncPropEnchtWp,
+    BlessedEnchtAttrIncPropEnchtAm,
+    GiantEnchtAttrIncPropEnchtWp,
+    GiantEnchtAttrIncPropEnchtAm,
+    BlessedGiantEnchtAttrIncPropEnchtWp,
+    BlessedGiantEnchtAttrIncPropEnchtAm,
 }
 
 impl EtcItemType {
@@ -415,14 +425,70 @@ impl EtcItemType {
             Some("ENCHT_ATTR_CRYSTAL_ENCHANT_AM") => EtcItemType::EnchtAttrCrystalEnchantAm,
             Some("ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP") => EtcItemType::EnchtAttrAncientCrystalEnchantWp,
             Some("ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_AM") => EtcItemType::EnchtAttrAncientCrystalEnchantAm,
+            Some("ENCHT_ATTR_INC_PROP_ENCHT_WP") => EtcItemType::EnchtAttrIncPropEnchtWp,
+            Some("ENCHT_ATTR_INC_PROP_ENCHT_AM") => EtcItemType::EnchtAttrIncPropEnchtAm,
+            Some("BLESSED_ENCHT_ATTR_INC_PROP_ENCHT_WP") => EtcItemType::BlessedEnchtAttrIncPropEnchtWp,
+            Some("BLESSED_ENCHT_ATTR_INC_PROP_ENCHT_AM") => EtcItemType::BlessedEnchtAttrIncPropEnchtAm,
+            Some("GIANT_ENCHT_ATTR_INC_PROP_ENCHT_WP") => EtcItemType::GiantEnchtAttrIncPropEnchtWp,
+            Some("GIANT_ENCHT_ATTR_INC_PROP_ENCHT_AM") => EtcItemType::GiantEnchtAttrIncPropEnchtAm,
+            Some("BLESSED_GIANT_ENCHT_ATTR_INC_PROP_ENCHT_WP") => EtcItemType::BlessedGiantEnchtAttrIncPropEnchtWp,
+            Some("BLESSED_GIANT_ENCHT_ATTR_INC_PROP_ENCHT_AM") => EtcItemType::BlessedGiantEnchtAttrIncPropEnchtAm,
             _ => EtcItemType::Other,
         }
     }
 
     /// Any of the enchant-scroll kinds (Java `AbstractEnchantItem.isEnchantScroll`,
-    /// narrowed to the scroll — not attribute/support — types).
+    /// narrowed to the scroll — not the support — types).
     pub fn is_enchant_scroll(self) -> bool {
-        self != EtcItemType::Other
+        self != EtcItemType::Other && !self.is_enchant_support()
+    }
+
+    /// An `EnchantSupportItem` type (the `INC_PROP` family).
+    pub fn is_enchant_support(self) -> bool {
+        matches!(
+            self,
+            EtcItemType::EnchtAttrIncPropEnchtWp
+                | EtcItemType::EnchtAttrIncPropEnchtAm
+                | EtcItemType::BlessedEnchtAttrIncPropEnchtWp
+                | EtcItemType::BlessedEnchtAttrIncPropEnchtAm
+                | EtcItemType::GiantEnchtAttrIncPropEnchtWp
+                | EtcItemType::GiantEnchtAttrIncPropEnchtAm
+                | EtcItemType::BlessedGiantEnchtAttrIncPropEnchtWp
+                | EtcItemType::BlessedGiantEnchtAttrIncPropEnchtAm
+        )
+    }
+
+    /// `EnchantSupportItem._isWeapon`.
+    pub fn support_is_weapon(self) -> bool {
+        matches!(
+            self,
+            EtcItemType::EnchtAttrIncPropEnchtWp
+                | EtcItemType::BlessedEnchtAttrIncPropEnchtWp
+                | EtcItemType::GiantEnchtAttrIncPropEnchtWp
+                | EtcItemType::BlessedGiantEnchtAttrIncPropEnchtWp
+        )
+    }
+
+    /// `EnchantSupportItem._isBlessed`.
+    pub fn support_is_blessed(self) -> bool {
+        matches!(
+            self,
+            EtcItemType::BlessedEnchtAttrIncPropEnchtWp
+                | EtcItemType::BlessedEnchtAttrIncPropEnchtAm
+                | EtcItemType::BlessedGiantEnchtAttrIncPropEnchtWp
+                | EtcItemType::BlessedGiantEnchtAttrIncPropEnchtAm
+        )
+    }
+
+    /// `EnchantSupportItem._isGiant`.
+    pub fn support_is_giant(self) -> bool {
+        matches!(
+            self,
+            EtcItemType::GiantEnchtAttrIncPropEnchtWp
+                | EtcItemType::GiantEnchtAttrIncPropEnchtAm
+                | EtcItemType::BlessedGiantEnchtAttrIncPropEnchtWp
+                | EtcItemType::BlessedGiantEnchtAttrIncPropEnchtAm
+        )
     }
 
     /// `EnchantScroll._isWeapon`.
@@ -444,6 +510,11 @@ impl EtcItemType {
     /// `EnchantScroll._isBlessedDown` — item survives, enchant drops by 1.
     pub fn is_blessed_down(self) -> bool {
         self == EtcItemType::BlessEnchtAmDown
+    }
+
+    /// `EnchantScroll._isGiant`.
+    pub fn is_giant(self) -> bool {
+        matches!(self, EtcItemType::GiantEnchtWp | EtcItemType::GiantEnchtAm)
     }
 
     /// `EnchantScroll._isSafe` — enchant level is retained on failure.

@@ -192,11 +192,21 @@ transaction). Verified via a `build_save_data` → `from_rows` round-trip. **Not
 yet:** the option *effects* (the 390k-line `stats/augmentation/options/*`
 stat/skill bonuses — a dedicated milestone) and the item-list mask display bit.
 
+✅ **Enchant support items** (`RequestExTryToPutEnchantSupportItem` /
+`RequestExRemoveEnchantSupportItem`) — the `<support>` half of the enchant flow:
+`EnchantData` now loads `EnchantSupport` (grade/min/max/bonusRate/randomEnchant
+range) and validates them (`is_support_valid` ports `EnchantScroll.isValid`'s
+support branch — weapon/blessed/giant agreement + grade/range); `EtcItemType`
+gained the `INC_PROP` support classification. Put-support (0x4A) validates &
+acks `ExPutEnchantSupportItemResult`; remove (0xE4) clears it. `RequestEnchantItem`
+consumes the support, adds its bonus to the chance, and (on success) applies its
+`randomEnchant` step instead of the scroll's +1. Test: a +20 support flips a
+66.67% roll to success at +3 and is consumed.
+
 **Next slices — each a dedicated milestone:** augmentation option effects (the
 stat/skill bonuses each option grants), the freight send half (needs
-account-char enumeration plumbing), enchant support items. Remaining ground-item
-TODOs: enchant carried through pickup (stackables only for now), owner-based
-loot protection.
+account-char enumeration plumbing). Remaining ground-item TODOs: enchant carried
+through pickup (stackables only for now), owner-based loot protection.
 
 The itemcontainer breadth G5 deferred: private/clan warehouse + freight; private
 stores (sell/buy/manufacture/package) + offline stores; player-to-player trade;

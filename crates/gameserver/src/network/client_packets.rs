@@ -95,6 +95,11 @@ pub mod ex_opcodes {
     pub const REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM: u16 = 0x49;
     /// `RequestExCancelEnchantItem` — close the enchant window (empty body).
     pub const REQUEST_EX_CANCEL_ENCHANT_ITEM: u16 = 0x4B;
+    /// `RequestExTryToPutEnchantSupportItem` — add a support item
+    /// (`supportObjId`, `enchantObjId`).
+    pub const REQUEST_EX_TRY_TO_PUT_ENCHANT_SUPPORT_ITEM: u16 = 0x4A;
+    /// `RequestExRemoveEnchantSupportItem` — clear the support (empty body).
+    pub const REQUEST_EX_REMOVE_ENCHANT_SUPPORT_ITEM: u16 = 0xE4;
     /// `RequestExAddEnchantScrollItem` — scroll + target selection
     /// (`scrollObjectId`, `enchantObjectId`).
     pub const REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM: u16 = 0xE3;
