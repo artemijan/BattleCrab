@@ -387,6 +387,12 @@ pub struct ItemStats {
     /// `randomDamage` — weapon damage spread; replaces `CombatStats.random_dmg`
     /// (class templates all declare 10) while the weapon is equipped.
     pub random_damage: Option<i32>,
+    /// `sDef` — a shield's block defence (added to the wearer's pDef on a
+    /// successful shield block, Java `getShldDef`). Shield-only.
+    pub shield_def: Option<i32>,
+    /// `rShld` — a shield's base block *rate* (percent, before the CON bonus),
+    /// Java `Stat.SHIELD_DEFENCE_RATE`. Shield-only.
+    pub shield_rate: Option<i32>,
 }
 
 #[derive(Debug, Clone)]
@@ -635,6 +641,8 @@ fn parse_file(
                         match ty {
                             "pAtkRange" => cur_stats.atk_range = Some(val as i32),
                             "randomDamage" => cur_stats.random_damage = Some(val as i32),
+                            "sDef" => cur_stats.shield_def = Some(val as i32),
+                            "rShld" => cur_stats.shield_rate = Some(val as i32),
                             _ => {
                                 if let Some(stat) = stat_from_xml(ty) {
                                     cur_stats.bonuses.push((stat, val));
@@ -901,6 +909,16 @@ mod tests {
         // Leather Boots (item 40): a single pDef contribution.
         let boots = data.item_stats(40).expect("item 40 <stats>");
         assert_eq!(boots.bonuses, vec![(Stat::PhysicalDefence, 19.0)]);
+
+        // Hoplon (item 628): a shield — sDef/rShld parsed into the shield fields
+        // (not the Stat bonus list), rEvas into the sum-add bonuses.
+        let hoplon = data.item_stats(628).expect("item 628 <stats>");
+        assert_eq!(hoplon.shield_def, Some(128));
+        assert_eq!(hoplon.shield_rate, Some(20));
+        assert_eq!(
+            hoplon.bonuses.iter().find(|(s, _)| *s == Stat::EvasionRate).map(|(_, v)| *v),
+            Some(-8.0)
+        );
 
         // Stackable/etc items with no <stats> have no side-map entry.
         assert!(data.item_stats(ADENA_ID).is_none());

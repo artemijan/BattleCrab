@@ -66,6 +66,14 @@ pub(crate) struct Combatant {
     pub p_atk_spd: i32,
     pub random_dmg: i32,
     pub atk_range: i32,
+    /// Shield block defence (`getShldDef`, added to pDef on a normal block) —
+    /// 0 when no shield is equipped in the left hand.
+    pub shield_def: f64,
+    /// Shield block *rate* already multiplied by this actor's CON bonus
+    /// (`SHIELD_DEFENCE_RATE × CON.calcBonus`); 0 when no shield.
+    pub shield_rate: f64,
+    /// This actor's CON bonus (for the perfect-block roll).
+    pub con_bonus: f64,
 }
 
 pub(crate) fn combatant(world: &World, object_id: i32) -> Option<Combatant> {
@@ -76,6 +84,7 @@ pub(crate) fn combatant(world: &World, object_id: i32) -> Option<Combatant> {
     let collision = world.objects.get_component::<Collision>(&object_id)?;
     let vitals = world.objects.get_component::<Vitals>(&object_id)?;
     let cs = world.objects.get_component::<CombatStats>(&object_id)?;
+    let (shield_def, shield_rate, con_bonus) = shield_stats(world, object_id);
     Some(Combatant {
         x: pos.x,
         y: pos.y,
@@ -91,7 +100,31 @@ pub(crate) fn combatant(world: &World, object_id: i32) -> Option<Combatant> {
         p_atk_spd: cs.p_atk_spd,
         random_dmg: cs.random_dmg,
         atk_range: cs.atk_range,
+        shield_def,
+        shield_rate,
+        con_bonus,
     })
+}
+
+/// A creature's shield block stats: `(shieldDef, shieldRate×CON, conBonus)`.
+/// Only players carry an inventory/shield here; NPCs return no shield with a
+/// neutral CON bonus.
+fn shield_stats(world: &World, object_id: i32) -> (f64, f64, f64) {
+    use crate::model::components::BaseStats;
+    use crate::model::inventory::{Inventory, PaperdollSlot};
+    let Some(base) = world.objects.get_component::<BaseStats>(&object_id) else {
+        return (0.0, 0.0, 1.0);
+    };
+    let con_bonus = world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Con, base.con);
+    let shield = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .and_then(|inv| inv.paperdoll_item(PaperdollSlot::LHand).map(|it| it.item_id))
+        .and_then(|id| world.data.item_data.item_stats(id));
+    let (def, rate) = shield
+        .map(|s| (s.shield_def.unwrap_or(0) as f64, s.shield_rate.unwrap_or(0) as f64))
+        .unwrap_or((0.0, 0.0));
+    (def, rate * con_bonus, con_bonus)
 }
 
 /// 2D center-to-center distance between two combat actors.
@@ -727,8 +760,8 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         .condition_bonus(attacker.z, target.z, position);
     let miss_roll = world.roll(1000);
     let miss = formulas::calc_hit_miss(attacker.accuracy, target.evasion, condition, miss_roll);
-    let (crit, damage, ss) = if miss {
-        (false, 0, false)
+    let (crit, damage, ss, shield) = if miss {
+        (false, 0, false, formulas::SHIELD_NONE)
     } else {
         // `generateHit`: a charged soulshot is spent on a non-miss and doubles
         // the swing (`unchargeShot(SOULSHOTS)` → `ss` into `calcAutoAttackDamage`).
@@ -736,6 +769,17 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
             .objects
             .get_component_mut::<crate::model::Player>(&attacker_oid)
             .is_some_and(|p| p.uncharge_shot(crate::model::ShotType::Soulshots));
+        // Shield block (`calcShldUse`): a back attack (attacker outside the 120°
+        // front arc) can't be blocked; melee only until bows land (G20).
+        let from_behind = matches!(position, crate::model::movement::Position::Back);
+        let shield = formulas::calc_shield_use(
+            target.shield_rate,
+            target.con_bonus,
+            false,
+            from_behind,
+            world.roll(100),
+            world.roll(100),
+        );
         let crit_roll = world.roll(100);
         let crit = formulas::calc_auto_attack_crit(
             attacker.crit_stat,
@@ -746,16 +790,32 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         );
         let r = attacker.random_dmg;
         let rand_roll = if r > 0 { world.roll(2 * r + 1) - r } else { 0 };
-        let dmg = formulas::calc_auto_attack_damage(
-            attacker.p_atk,
-            formulas::random_damage_multiplier(rand_roll),
-            position,
-            target.p_def,
-            crit,
-            ss,
-        );
-        (crit, dmg as i32, ss)
+        // A normal block adds the shield's defence to pDef; a perfect block
+        // reduces the hit to 1 (Java `SHIELD_DEFENSE_PERFECT_BLOCK`).
+        let eff_pdef = target.p_def + if shield == formulas::SHIELD_SUCCEED { target.shield_def } else { 0.0 };
+        let dmg = if shield == formulas::SHIELD_PERFECT {
+            1.0
+        } else {
+            formulas::calc_auto_attack_damage(
+                attacker.p_atk,
+                formulas::random_damage_multiplier(rand_roll),
+                position,
+                eff_pdef,
+                crit,
+                ss,
+            )
+        };
+        (crit, dmg as i32, ss, shield)
     };
+    // Notify a shielding player their block landed (Interlude has only the
+    // "succeeded" message; the perfect block reuses it).
+    if shield != formulas::SHIELD_NONE {
+        if let Some(cid) = client_for_player(world, target_oid) {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(server_packets::system_message_with(sm_ids::SHIELD_DEFENSE_SUCCEEDED, &[]));
+            }
+        }
+    }
     // `Hit.getGrade()`: the equipped weapon's crystal-grade ordinal, only when
     // a soulshot was actually spent.
     let ss_grade = if ss {

@@ -218,6 +218,34 @@ pub fn random_damage_multiplier(roll_neg_r_to_r: i32) -> f64 {
     1.0 + roll_neg_r_to_r as f64 / 100.0
 }
 
+/// `Formulas.calcShldUse` result: no block / normal block (shield def added to
+/// pDef) / perfect block (damage reduced to 1).
+pub const SHIELD_NONE: u8 = 0;
+pub const SHIELD_SUCCEED: u8 = 1;
+pub const SHIELD_PERFECT: u8 = 2;
+
+/// `Formulas.calcShldUse` (melee narrowing). `shield_rate` is the shield's base
+/// `rShld` × the target's CON bonus (Java `SHIELD_DEFENCE_RATE × CON.calcBonus`);
+/// `con_bonus` is that CON bonus (for the perfect-block roll). `from_behind` is
+/// the attacker outside the 120° shield arc (Java's `degreeside` check — a back
+/// attack can't be blocked). `rate_roll`/`perfect_roll` are `Rnd.get(100)`.
+pub fn calc_shield_use(shield_rate: f64, con_bonus: f64, ranged: bool, from_behind: bool, rate_roll: i32, perfect_roll: i32) -> u8 {
+    if shield_rate <= 0.0 || from_behind {
+        return SHIELD_NONE;
+    }
+    // A bow attacker raises the block rate by 30% (Java).
+    let rate = if ranged { shield_rate * 1.3 } else { shield_rate };
+    if rate > rate_roll as f64 {
+        if (100.0 - (2.0 * con_bonus)) < perfect_roll as f64 {
+            SHIELD_PERFECT
+        } else {
+            SHIELD_SUCCEED
+        }
+    } else {
+        SHIELD_NONE
+    }
+}
+
 /// `Formulas.calcAutoAttackDamage`, melee/shotless narrowing (see the module
 /// note): `attack = pAtk·randomMul + proxBonus`, ×77, doubled by a crit
 /// (`calcCritDamage` = 2 with default crit-damage stats), over the target's
@@ -371,6 +399,27 @@ mod tests {
         assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false, true) - 308.0).abs() < 1e-9);
         // pDef floors at 1.
         assert!(calc_auto_attack_damage(100.0, 1.0, Position::Front, 0.0, false, false).is_finite());
+    }
+
+    /// `calcShldUse`: no shield → never blocks; a back attack can't be blocked;
+    /// the block rate is `rate > Rnd(100)`; a low perfect-roll upgrades to a
+    /// perfect block.
+    #[test]
+    fn shield_block_rolls() {
+        // No shield equipped (rate 0) → never a block.
+        assert_eq!(calc_shield_use(0.0, 1.2, false, false, 0, 0), SHIELD_NONE);
+        // Rate 30 blocks a roll of 20, not a roll of 40 (low perfect-roll keeps
+        // it a normal block).
+        assert_eq!(calc_shield_use(30.0, 1.0, false, false, 20, 50), SHIELD_SUCCEED);
+        assert_eq!(calc_shield_use(30.0, 1.0, false, false, 40, 50), SHIELD_NONE);
+        // A back attack is never blocked even at a high rate.
+        assert_eq!(calc_shield_use(90.0, 1.0, false, true, 0, 0), SHIELD_NONE);
+        // Perfect block when `100 - 2·conBonus < perfectRoll` (conBonus 1.0 →
+        // threshold 98): a perfect-roll of 99 upgrades, 98 does not.
+        assert_eq!(calc_shield_use(90.0, 1.0, false, false, 0, 99), SHIELD_PERFECT);
+        assert_eq!(calc_shield_use(90.0, 1.0, false, false, 0, 98), SHIELD_SUCCEED);
+        // A bow attacker raises the rate 30% (rate 30 → 39, blocks a roll of 35).
+        assert_eq!(calc_shield_use(30.0, 1.0, true, false, 35, 50), SHIELD_SUCCEED);
     }
 
     /// The level-gap XP table: full through +2, tapering to 5%.

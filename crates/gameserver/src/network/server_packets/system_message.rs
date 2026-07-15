@@ -54,6 +54,9 @@ pub mod sm_ids {
     pub const YOU_USE_S1: i16 = 46;
     pub const S1_IS_NOT_AVAILABLE_REUSE: i16 = 48;
     pub const INVALID_TARGET: i16 = 109;
+    /// "Your shield defense has succeeded." (Interlude has no separate perfect-
+    /// block message; the perfect block reuses this.)
+    pub const SHIELD_DEFENSE_SUCCEEDED: i16 = 111;
     pub const NOTHING_HAPPENED: i16 = 61;
     pub const CANNOT_SEE_TARGET: i16 = 181;
     // GM silence / message refusal (G13.B)
