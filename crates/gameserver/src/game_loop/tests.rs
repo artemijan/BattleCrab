@@ -194,6 +194,7 @@ async fn character_create_inserts_into_real_schema() {
         static_object_data: crate::data::StaticObjectData::empty(),
         buy_lists: crate::data::BuyListData::empty(),
         categories: crate::data::CategoryData::empty(),
+        cursed_weapons: crate::data::CursedWeaponData::empty(),
         teleporters: crate::data::TeleporterData::empty(),
         transforms: crate::data::TransformData::empty(),
         enchant: crate::data::EnchantData::empty(),
@@ -221,7 +222,8 @@ async fn character_create_inserts_into_real_schema() {
             DbEvent::IdBlock { .. }
             | DbEvent::ClansLoaded { .. }
             | DbEvent::PremiumLoaded { .. }
-            | DbEvent::GrandBossesLoaded { .. } => continue,
+            | DbEvent::GrandBossesLoaded { .. }
+            | DbEvent::CursedWeaponsLoaded { .. } => continue,
             other => return other,
         }
     };
@@ -8376,6 +8378,81 @@ fn admin_grandboss_status_panel_and_actions() {
     let m = drain(&mut rx);
     assert!(m.iter().filter_map(|p| sysmsg_text(p)).any(|t| t.contains("NullPointerException")), "unported AI reproduces the dist NPE");
     assert!(!has_opcode(&m, server_packets::opcodes::NPC_HTML_MESSAGE), "NPE path shows no status page");
+}
+
+/// `//cw_info` lists both cursed weapons; `//cw_add` activates one on the GM
+/// (item + karma swap + cursed-weapon flag + DB persist + world announce);
+/// `//cw_remove` reverses it. Port of `AdminCursedWeapons`.
+#[test]
+fn admin_cursed_weapons_info_add_remove() {
+    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (mut world, _db_tx, mut db_rx, _link) = admin_world();
+    world.data.root = ROOT.to_string();
+    // Boot-equivalent: load config, then build the runtime list (as net.rs does).
+    world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(ROOT);
+    world.cursed_weapons = world
+        .data
+        .cursed_weapons
+        .weapons
+        .iter()
+        .cloned()
+        .map(|mut cw| {
+            cw.skill_max_level =
+                (1..=100).take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some()).last().unwrap_or(1);
+            cw
+        })
+        .collect();
+    assert_eq!(world.cursed_weapons.len(), 2, "Zariche + Akamanah loaded from XML");
+
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 7001, 100);
+    drain(&mut rx);
+    let original_rep = world.objects.get_component::<Player>(&7001).unwrap().reputation;
+
+    // //cw_info — both weapons inactive.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("cw_info")].concat());
+    let info: Vec<String> = drain(&mut rx).iter().filter_map(|p| sysmsg_text(p)).collect();
+    assert!(info.iter().any(|t| t.contains("Demonic Sword Zariche (8190)")), "lists Zariche");
+    assert!(info.iter().any(|t| t.contains("Don't exist in the world.")), "inactive status");
+
+    // //cw_add 8190 — Java marks it confirmDlg, so it prompts first; the "yes"
+    // reply then activates it on the GM (no target).
+    drain_db(&mut db_rx);
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("cw_add 8190")].concat());
+    let prompt = drain(&mut rx);
+    assert_eq!(prompt.iter().filter(|p| p[0] == server_packets::opcodes::CONFIRM_DLG).count(), 1, "confirm prompt");
+    on_packet(&mut world, 1, [vec![cop::DLG_ANSWER], dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0)].concat());
+    let add_pkts = drain(&mut rx);
+    let p = world.objects.get_component::<Player>(&7001).unwrap();
+    assert_eq!(p.cursed_weapon_equipped_id, 8190, "cursed-weapon flag set");
+    assert_eq!(p.reputation, -9_999_999, "karma slammed to the cursed value");
+    let cw = world.cursed_weapons.iter().find(|c| c.item_id == 8190).unwrap();
+    assert!(cw.is_activated && cw.player_id == 7001, "weapon activated on the wielder");
+    assert_eq!(cw.player_reputation, original_rep, "saved the wielder's real karma");
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::StoreCursedWeapon { item_id: 8190, char_id: 7001, .. })), "persisted");
+    assert!(
+        sm_ids_of(&add_pkts).contains(&server_packets::sm_ids::THE_OWNER_OF_S2_HAS_APPEARED_IN_THE_S1_REGION),
+        "appearance announced"
+    );
+
+    // //cw_info now shows the wielder.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("cw_info")].concat());
+    let info: Vec<String> = drain(&mut rx).iter().filter_map(|p| sysmsg_text(p)).collect();
+    assert!(info.iter().any(|t| t.contains("Player holding: P7001")), "shows the holder");
+
+    // //cw_remove 8190 — end of life restores the wielder + resets state.
+    drain_db(&mut db_rx);
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("cw_remove 8190")].concat());
+    let rm_pkts = drain(&mut rx);
+    let p = world.objects.get_component::<Player>(&7001).unwrap();
+    assert_eq!(p.cursed_weapon_equipped_id, 0, "flag cleared");
+    assert_eq!(p.reputation, original_rep, "karma restored");
+    let cw = world.cursed_weapons.iter().find(|c| c.item_id == 8190).unwrap();
+    assert!(!cw.is_active(), "weapon reset to not-in-world");
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::RemoveCursedWeapon { item_id: 8190 })), "db row dropped");
+    assert!(sm_ids_of(&rm_pkts).contains(&server_packets::sm_ids::S1_HAS_DISAPPEARED), "disappearance announced");
 }
 
 /// UserInfo's BASIC_INFO `isGM` byte is `player.isGM()` (Java `UserInfo` L147).

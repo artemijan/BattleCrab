@@ -21,6 +21,11 @@ pub mod sm_ids {
     pub const YOU_MUST_WAIT_10_DAYS_BEFORE_CREATING_A_NEW_CLAN: i16 = 230;
     pub const CLAN_NAME_IS_INVALID: i16 = 261;
     pub const CLAN_NAME_S_LENGTH_IS_INCORRECT: i16 = 262;
+    // Cursed weapons (`//cw_*`)
+    pub const YOU_HAVE_EQUIPPED_YOUR_S1: i16 = 49;
+    pub const EMPTY_3: i16 = 490;
+    pub const THE_OWNER_OF_S2_HAS_APPEARED_IN_THE_S1_REGION: i16 = 1816;
+    pub const S1_HAS_DISAPPEARED: i16 = 1818;
     // Clan admin (`//pledge`)
     pub const S1_IS_NOT_A_CLAN_LEADER: i16 = 9;
     pub const CLAN_HAS_DISPERSED: i16 = 193;

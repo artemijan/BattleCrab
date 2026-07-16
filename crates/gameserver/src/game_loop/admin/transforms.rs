@@ -77,7 +77,7 @@ fn ride_target(world: &World, object_id: i32) -> i32 {
 
 /// Apply a transform: set the display state, override collision, grant the
 /// template's transform skills, recompute speed, and broadcast.
-fn apply_transform(world: &mut World, target: i32, transform_id: i32) {
+pub(super) fn apply_transform(world: &mut World, target: i32, transform_id: i32) {
     let is_female = world.objects.get_component::<Player>(&target).is_some_and(|p| p.is_female);
     let Some(tf) = world.data.transforms.get(transform_id) else { return };
     let display_id = tf.display_id;
@@ -103,7 +103,7 @@ fn apply_transform(world: &mut World, target: i32, transform_id: i32) {
 
 /// Remove a transform: clear the display state, restore the class collision,
 /// drop the template's transform skills, recompute, and broadcast.
-fn remove_transform(world: &mut World, target: i32) {
+pub(super) fn remove_transform(world: &mut World, target: i32) {
     let transform_id = world.objects.get_component::<Player>(&target).map_or(0, |p| p.transform_id);
     if transform_id == 0 {
         return;

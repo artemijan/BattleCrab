@@ -156,6 +156,11 @@ pub struct World {
     /// template. Backs the read-only `//grandboss` admin panel.
     pub grand_bosses: HashMap<i32, crate::model::grand_boss::GrandBoss>,
 
+    /// The cursed weapons (Java `CursedWeaponsManager._cursedWeapons`), built at
+    /// boot from `CursedWeapons.xml` config + the `cursed_weapons` state table
+    /// (`DbEvent::CursedWeaponsLoaded`). Two on this dist (Zariche/Akamanah).
+    pub cursed_weapons: Vec<crate::model::cursed_weapon::CursedWeapon>,
+
     /// Account premium expirations (`account_name` lowercase → enddate millis),
     /// the in-memory mirror of `account_premium` (Java `PremiumManager._premiumData`).
     /// Boot-loaded from the whole table (`DbEvent::PremiumLoaded`) rather than
@@ -219,6 +224,7 @@ impl World {
             quests: std::sync::Arc::new(crate::scripts::build_registry()),
             clans: HashMap::new(),
             grand_bosses: HashMap::new(),
+            cursed_weapons: Vec::new(),
             premium: HashMap::new(),
             parties: HashMap::new(),
             next_party_id: 1,

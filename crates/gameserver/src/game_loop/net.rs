@@ -422,6 +422,28 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                     .collect();
                 tracing::info!("GameLoop: loaded {} grand bosses.", world.grand_bosses.len());
             }
+            DbEvent::CursedWeaponsLoaded { rows } => {
+                // Build from the XML config, compute each skill's max level, then
+                // overlay the persisted wielder state (Java `restore` →
+                // `reActivate`). The default table is empty, so both usually
+                // start inactive.
+                let mut weapons = world.data.cursed_weapons.weapons.clone();
+                for cw in &mut weapons {
+                    cw.skill_max_level =
+                        (1..=100).take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some()).last().unwrap_or(1);
+                    if let Some(row) = rows.iter().find(|r| r.item_id == cw.item_id) {
+                        cw.player_id = row.char_id;
+                        cw.player_reputation = row.player_reputation;
+                        cw.player_pk_kills = row.player_pk_kills;
+                        cw.nb_kills = row.nb_kills;
+                        cw.end_time = row.end_time;
+                        // Java `reActivate()`; the decay/expiry task is deferred (G21).
+                        cw.is_activated = true;
+                    }
+                }
+                tracing::info!("GameLoop: loaded {} cursed weapons.", weapons.len());
+                world.cursed_weapons = weapons;
+            }
             DbEvent::ClansLoaded { clans } => {
                 tracing::info!("GameLoop: loaded {} clans.", clans.len());
                 world.clans = clans.into_iter().map(|c| (c.id, c)).collect();

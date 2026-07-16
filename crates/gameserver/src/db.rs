@@ -244,6 +244,10 @@ pub enum DbCommand {
     /// (`ClanTable.createClan` side effects; `StorePlayer`'s UPDATE doesn't
     /// touch these columns).
     UpdateCharClan { char_id: i32, clan_id: i32, clan_privs: i32 },
+    /// `CursedWeapon.saveData` — upsert the weapon's wielder state row.
+    StoreCursedWeapon { item_id: i32, char_id: i32, reputation: i32, pk_kills: i32, nb_kills: i32, end_time: i64 },
+    /// `CursedWeaponsManager.removeFromDb` — drop the weapon's state row.
+    RemoveCursedWeapon { item_id: i32 },
     /// Fire-and-forget clan level persist (`Clan.changeLevel`'s single UPDATE).
     UpdateClanLevel { clan_id: i32, level: i32 },
     /// Fire-and-forget clan reputation persist (`Clan.setReputationScore`, which
@@ -301,6 +305,20 @@ pub enum DbEvent {
     /// The `grandboss_data` table (Java `GrandBossManager.init`), pushed
     /// unprompted at boot. Filtered to known NPC templates on the game thread.
     GrandBossesLoaded { bosses: Vec<crate::model::grand_boss::GrandBoss> },
+    /// The `cursed_weapons` state table (Java `CursedWeaponsManager.restore`),
+    /// pushed unprompted at boot; overlaid onto the XML config on the game thread.
+    CursedWeaponsLoaded { rows: Vec<CursedWeaponRow> },
+}
+
+/// One `cursed_weapons` row — the persisted wielder state of a cursed weapon.
+#[derive(Debug, Clone)]
+pub struct CursedWeaponRow {
+    pub item_id: i32,
+    pub char_id: i32,
+    pub player_reputation: i32,
+    pub player_pk_kills: i32,
+    pub nb_kills: i32,
+    pub end_time: i64,
 }
 
 pub type CmdTx = tokio::sync::mpsc::UnboundedSender<DbCommand>;
@@ -343,6 +361,9 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
 
     // `GrandBossManager.init` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::GrandBossesLoaded { bosses: load_grandboss_data(&pool).await });
+
+    // `CursedWeaponsManager.restore` — likewise unprompted, before `ClansLoaded`.
+    let _ = event_tx.send(DbEvent::CursedWeaponsLoaded { rows: load_cursed_weapons(&pool).await });
 
     // `ClanTable`'s boot restore, likewise unprompted.
     let _ = event_tx.send(DbEvent::ClansLoaded { clans: load_clans(&pool).await });
@@ -440,6 +461,26 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                         .bind(char_id),
                 )
                 .await;
+            }
+            DbCommand::StoreCursedWeapon { item_id, char_id, reputation, pk_kills, nb_kills, end_time } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT OR REPLACE INTO cursed_weapons \
+                         (itemId, charId, playerReputation, playerPkKills, nbKills, endTime) \
+                         VALUES (?, ?, ?, ?, ?, ?)",
+                    )
+                    .bind(item_id)
+                    .bind(char_id)
+                    .bind(reputation)
+                    .bind(pk_kills)
+                    .bind(nb_kills)
+                    .bind(end_time),
+                )
+                .await;
+            }
+            DbCommand::RemoveCursedWeapon { item_id } => {
+                exec(&pool, sqlx::query("DELETE FROM cursed_weapons WHERE itemId=?").bind(item_id)).await;
             }
             DbCommand::UpdateClanLevel { clan_id, level } => {
                 exec(
@@ -834,6 +875,26 @@ async fn load_grandboss_data(pool: &SqlitePool) -> Vec<crate::model::grand_boss:
             current_hp: getf(r, "currentHP"),
             current_mp: getf(r, "currentMP"),
             status: geti(r, "status") as i32,
+        })
+        .collect()
+}
+
+/// `CursedWeaponsManager.restore`: every `cursed_weapons` state row.
+async fn load_cursed_weapons(pool: &SqlitePool) -> Vec<CursedWeaponRow> {
+    let rows = sqlx::query(
+        "SELECT itemId, charId, playerReputation, playerPkKills, nbKills, endTime FROM cursed_weapons",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    rows.iter()
+        .map(|r| CursedWeaponRow {
+            item_id: geti(r, "itemId") as i32,
+            char_id: geti(r, "charId") as i32,
+            player_reputation: geti(r, "playerReputation") as i32,
+            player_pk_kills: geti(r, "playerPkKills") as i32,
+            nb_kills: geti(r, "nbKills") as i32,
+            end_time: geti(r, "endTime"),
         })
         .collect()
 }

@@ -6,6 +6,7 @@ pub mod action_data;
 pub mod admin_data;
 pub mod buy_list_data;
 pub mod category_data;
+pub mod cursed_weapon_data;
 pub mod door_data;
 pub mod enchant_data;
 pub mod experience;
@@ -31,6 +32,7 @@ pub use action_data::ActionData;
 pub use admin_data::AdminData;
 pub use buy_list_data::BuyListData;
 pub use category_data::CategoryData;
+pub use cursed_weapon_data::CursedWeaponData;
 pub use door_data::DoorData;
 pub use enchant_data::EnchantData;
 pub use experience::ExperienceData;
@@ -129,6 +131,7 @@ pub struct GameData {
     pub static_object_data: StaticObjectData,
     pub buy_lists: BuyListData,
     pub categories: CategoryData,
+    pub cursed_weapons: CursedWeaponData,
     /// Gatekeeper teleport lists (G15.5), see [`TeleporterData`].
     pub teleporters: TeleporterData,
     pub transforms: TransformData,
@@ -176,6 +179,7 @@ impl GameData {
             static_object_data: StaticObjectData::load_from(file_path),
             buy_lists,
             categories: CategoryData::load_from(file_path),
+            cursed_weapons: CursedWeaponData::load_from(file_path),
             teleporters: TeleporterData::load_from(file_path),
             transforms: TransformData::load_from(file_path),
             enchant: EnchantData::load_from(file_path),
@@ -217,6 +221,7 @@ impl GameData {
             static_object_data: StaticObjectData::empty(),
             buy_lists: BuyListData::empty(),
             categories: CategoryData::empty(),
+            cursed_weapons: CursedWeaponData::empty(),
             teleporters: TeleporterData::empty(),
             transforms: TransformData::empty(),
             enchant: EnchantData::empty(),

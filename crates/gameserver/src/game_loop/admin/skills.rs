@@ -202,7 +202,7 @@ pub(super) fn admin_skill_menu(world: &mut World, client_id: u32, command: &str,
 }
 
 /// Resend a player's `SkillList` after a skill-book change.
-fn refresh_skill_list(world: &World, target: i32) {
+pub(super) fn refresh_skill_list(world: &World, target: i32) {
     let Some(cid) = super::helpers::client_for_player(world, target) else { return };
     let Some(book) = world.objects.get_component::<SkillBook>(&target) else {
         return;

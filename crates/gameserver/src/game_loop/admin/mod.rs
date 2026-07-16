@@ -20,6 +20,7 @@ use crate::session::ClientSession;
 use crate::world::World;
 
 mod character;
+mod cursed_weapons;
 mod editchar;
 mod effects;
 mod gm_util;
@@ -43,6 +44,7 @@ mod world_cmds;
 // The command bodies and the small enums the dispatch table names live in the
 // modules above; glob them in so `dispatch` reads as one flat routing table.
 use character::*;
+use cursed_weapons::*;
 use editchar::*;
 use effects::*;
 use gm_util::*;
@@ -424,6 +426,13 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_grandboss" => admin_grandboss(world, client_id, &args),
         "admin_grandboss_skip" | "admin_grandboss_respawn" | "admin_grandboss_minions"
         | "admin_grandboss_abort" => admin_grandboss_action(world, client_id, command, &args),
+        // AdminCursedWeapons — the Game panel's "Cursed Weapons" buttons.
+        "admin_cw_info" => admin_cw_info(world, client_id),
+        "admin_cw_info_menu" => admin_cw_info_menu(world, client_id),
+        "admin_cw_reload" => admin_cw_reload(world),
+        "admin_cw_add" => admin_cw_add(world, client_id, object_id, &args),
+        "admin_cw_remove" => admin_cw_remove(world, client_id, &args),
+        "admin_cw_goto" => admin_cw_goto(world, client_id, object_id, &args),
         // AdminVitality (player vitality points).
         "admin_set_vitality" => admin_vitality(world, client_id, object_id, "set", &args),
         "admin_full_vitality" => admin_vitality(world, client_id, object_id, "full", &args),

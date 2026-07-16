@@ -5,6 +5,7 @@
 
 pub mod clan;
 pub mod components;
+pub mod cursed_weapon;
 pub mod door;
 pub mod formulas;
 pub mod grand_boss;
@@ -129,6 +130,10 @@ pub struct Player {
     pub reputation: i32,
     pub pk_kills: i32,
     pub pvp_kills: i32,
+    /// Java `Player._cursedWeaponEquippedId` — the cursed weapon item id the
+    /// player currently wields (0 = none). Set by `CursedWeapon.activate`,
+    /// cleared by `endOfLife`; suppresses karma decay and gates un-equip.
+    pub cursed_weapon_equipped_id: i32,
     pub vitality_points: i32,
     /// `characters.pccafe_points` — PC-cafe loyalty points (`//pccafepoints`).
     pub pccafe_points: i32,
@@ -629,6 +634,9 @@ impl Player {
             reputation: c.reputation,
             pk_kills: c.pk_kills,
             pvp_kills: c.pvp_kills,
+            // Restored by CursedWeaponsManager at enter-world if held (TODO(G21):
+            // cursedOnLogin); a fresh session starts unowned.
+            cursed_weapon_equipped_id: 0,
             vitality_points: c.vitality_points,
             pccafe_points: c.pccafe_points,
             prime_points: c.prime_points,
