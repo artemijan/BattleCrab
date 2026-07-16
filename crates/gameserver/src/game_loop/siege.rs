@@ -259,6 +259,29 @@ pub(crate) fn damage_door(world: &mut World, door_oid: i32, damage: i32) -> bool
     breached
 }
 
+/// The throne-room Holy Artifact capture (Java `Artefact.onAction` →
+/// `Castle.setOwner` → `Siege.midVictory`): an attacker clan member touching the
+/// artifact during an active siege takes the castle. No-op otherwise.
+pub(crate) fn try_capture_artifact(world: &mut World, player_oid: i32, artifact_oid: i32) {
+    let Some(pos) = world.objects.get_component::<Position>(&artifact_oid).copied() else { return };
+    let Some(castle_id) = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) else { return };
+    if !world.sieges.get(&castle_id).is_some_and(|s| s.in_progress) {
+        return;
+    }
+    let clan_id = world.objects.get_component::<Player>(&player_oid).map(|p| p.clan_id).unwrap_or(0);
+    if clan_id == 0 {
+        return;
+    }
+    // Only a registered attacker can seize the castle.
+    let is_attacker = world
+        .sieges
+        .get(&castle_id)
+        .is_some_and(|s| s.clans.iter().any(|c| c.clan_id == clan_id && c.kind == SiegeClanType::Attacker));
+    if is_attacker {
+        capture(world, castle_id, clan_id);
+    }
+}
+
 /// The clan id owning `castle_id` (0 = NPC/none).
 fn owner_clan_id(world: &World, castle_id: i32) -> i32 {
     owner_clan_id_opt(world, castle_id).unwrap_or(0)

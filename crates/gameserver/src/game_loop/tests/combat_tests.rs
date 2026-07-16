@@ -998,3 +998,46 @@ fn siege_door_can_be_targeted_and_breached_by_attack() {
     assert_eq!(world.objects.get_component::<Door>(&door).unwrap().current_hp, 0, "gate destroyed");
     assert!(world.geo.doors.is_open(24190001), "breached gate is open");
 }
+
+/// Touching the throne-room Holy Artifact (an Artefact NPC) as a registered
+/// attacker during a siege seizes the castle — the artifact trigger for the
+/// capture engine. Port of Artefact.onAction → Castle.setOwner → midVictory.
+#[test]
+fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
+    use crate::model::castle::{Castle, CastleSide};
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::siege::{Siege, SiegeClanType};
+    let (mut world, ..) = test_world();
+    insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000);
+    world.castles = vec![Castle { id: 3, name: "Giran".into(), side: CastleSide::Neutral }];
+    let mut siege = Siege::new(3);
+    siege.in_progress = true;
+    siege.add_clan(700, SiegeClanType::Attacker);
+    world.sieges.insert(3, siege);
+    world.clans.insert(
+        700,
+        Clan {
+            id: 700,
+            name: "Attackers".into(),
+            leader_id: 8003,
+            level: 5,
+            reputation_score: 0,
+            castle_id: 0,
+            members: vec![ClanMember { char_id: 8003, name: "P8003".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
+            warehouse: Default::default(),
+        },
+    );
+    // The Giran Holy Artifact (type Artefact) at (100, 0) inside the siege zone.
+    add_test_npc(&mut world, NPC_OID + 20, 35147, "Artefact", 20, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 8003, 90, 0, 0); // attacker clan member, next to it
+    world.objects.get_component_mut::<Player>(&8003).unwrap().clan_id = 700;
+
+    // Touch the artifact → the attacker seizes the castle.
+    interact_with_npc(&mut world, 1, 8003, NPC_OID + 20, false);
+    assert_eq!(world.clans[&700].castle_id, 3, "attacker seized the castle");
+    assert_eq!(
+        world.sieges[&3].clans.iter().find(|c| c.clan_id == 700).map(|c| c.kind),
+        Some(SiegeClanType::Owner),
+        "captor becomes the owner side"
+    );
+}

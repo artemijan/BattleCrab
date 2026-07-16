@@ -306,6 +306,12 @@ pub(crate) fn interact_with_npc(world: &mut World, client_id: u32, object_id: i3
         super::combat::start_interact_intent(world, object_id, npc_object_id);
         return;
     }
+    // `Artefact.onAction`: the throne-room Holy Artifact — an attacker touching
+    // it during a siege captures the castle.
+    if t.type_name == "Artefact" {
+        super::siege::try_capture_artifact(world, object_id, npc_object_id);
+        return;
+    }
     // `Npc.showChatWindow(player, 0)`.
     if !t.talkable {
         return;
