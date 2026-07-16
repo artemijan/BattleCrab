@@ -40,6 +40,20 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         return;
     }
 
+    // Java `MoveBackwardToLocation`: "Correcting targetZ from floor level to
+    // head level." The client sends the destination z at *floor* level, which
+    // does not resolve to the right geodata layer (on stacked terrain — bridges
+    // — the raw floor z can snap to the surface *under* the deck). Bumping it up
+    // by the player's collision height gives head level, matching what
+    // `ValidatePosition` reports and what the geodata queries expect. Applied
+    // before the intention/geodata logic, exactly like Java (after the
+    // origin==target stop check, before `setIntention`).
+    let collision_height = world
+        .objects
+        .get_component::<crate::model::components::Collision>(&object_id)
+        .map_or(0.0, |c| c.height);
+    let target_z = (pkt.target_z as f64 + collision_height) as i32;
+
     // Dead players can't move at all (`isMovementDisabled`).
     if world.objects.get_component::<Vitals>(&object_id).is_some_and(|v| v.dead) {
         if let Some(cs) = world.clients.get(&client_id) {
@@ -62,7 +76,7 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         world.objects.remove_component::<Intent>(&object_id);
         world
             .objects
-            .add_components(&object_id, QueuedAction::Move { x: pkt.target_x, y: pkt.target_y, z: pkt.target_z });
+            .add_components(&object_id, QueuedAction::Move { x: pkt.target_x, y: pkt.target_y, z: target_z });
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -73,7 +87,7 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         world.objects.remove_component::<Intent>(&object_id);
     }
 
-    intention_move_to(world, client_id, object_id, cur, (pkt.target_x, pkt.target_y, pkt.target_z));
+    intention_move_to(world, client_id, object_id, cur, (pkt.target_x, pkt.target_y, target_z));
 }
 
 /// Port of `clientpackets/RequestStopMove.runImpl`:
