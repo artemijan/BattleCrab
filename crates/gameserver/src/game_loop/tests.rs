@@ -8937,6 +8937,56 @@ fn admin_superhaste_applies_and_persists() {
     assert!(!world.objects.get_component::<Buffs>(&8202).unwrap().0.iter().any(|b| b.skill_id == 7029), "cleared by level 0");
 }
 
+/// `Speeds::client_move_multiplier` is Java's `getMovementSpeedMultiplier`
+/// (moveSpeed ÷ raw template base) — the leg-animation rate. A stat speed buff
+/// raises `run_spd` and must raise the multiplier proportionally; a bare
+/// `move_multiplier` there left buffed characters gliding with base-cadence legs
+/// (the reported Super Haste "slow legs" symptom). `//gmspeed` keeps working
+/// because it scales through `move_multiplier`, which folds in via `move_speed`.
+#[test]
+fn client_move_multiplier_tracks_speed_buffs() {
+    use crate::model::components::Speeds;
+    // base template run 132, +35 RunSpeedBoost folded into run_spd → 167 at rest.
+    let mut s = Speeds {
+        run_spd: 167.0,
+        walk_spd: 90.0,
+        swim_run_spd: 0.0,
+        swim_walk_spd: 0.0,
+        move_multiplier: 1.0,
+        base_run_spd: 132.0,
+        running: true,
+        swimming: false,
+    };
+    // At rest it matches Java exactly: 167 / 132.
+    assert!((s.client_move_multiplier() - 167.0 / 132.0).abs() < 1e-9);
+    // Super Haste ×4 on run_spd → the multiplier quadruples with it.
+    s.run_spd = 668.0;
+    assert!((s.client_move_multiplier() - 668.0 / 132.0).abs() < 1e-9);
+    // //gmspeed (move_multiplier) still folds through move_speed().
+    s.run_spd = 167.0;
+    s.move_multiplier = 4.0;
+    assert!((s.client_move_multiplier() - 167.0 * 4.0 / 132.0).abs() < 1e-9);
+    // Unknown base (0) is a safe no-op multiplier.
+    s.base_run_spd = 0.0;
+    assert_eq!(s.client_move_multiplier(), 1.0);
+}
+
+/// `CombatStats::client_atk_speed_multiplier` is Java's `getAttackSpeedMultiplier`
+/// (`Formulas.calcAtkSpdMultiplier` = `pAtkSpd / 333`) — the swing-animation rate,
+/// the haste counterpart of the move multiplier. Super Haste ×4 on `p_atk_spd`
+/// must scale the swing animation with it; the old hardcoded `1.0` left it at
+/// base cadence.
+#[test]
+fn client_atk_speed_multiplier_tracks_haste() {
+    use crate::model::components::CombatStats;
+    let mut c = CombatStats { p_atk_spd: 300, ..Default::default() };
+    // Base p_atk_spd 300 → 300 / 333 (matches Java calcAtkSpdMultiplier).
+    assert!((c.client_atk_speed_multiplier() - 300.0 / 333.0).abs() < 1e-9);
+    // Super Haste ×4 on p_atk_spd → the multiplier quadruples with it.
+    c.p_atk_spd = 1200;
+    assert!((c.client_atk_speed_multiplier() - 1200.0 / 333.0).abs() < 1e-9);
+}
+
 /// `//buff` with an unknown skill is refused.
 #[test]
 fn admin_buff_rejects_unknown_skill() {

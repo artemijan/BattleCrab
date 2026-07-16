@@ -96,8 +96,8 @@ pub fn char_info(v: &crate::model::PlayerView) -> Vec<u8> {
     w.write_i16(0); // fly walk
     w.write_i16(0); // fly run (repeat)
     w.write_i16(0); // fly walk (repeat)
-    w.write_f64(speeds.move_multiplier);
-    w.write_f64(1.0); // attack speed multiplier
+    w.write_f64(speeds.client_move_multiplier()); // Java getMovementSpeedMultiplier (leg-anim rate)
+    w.write_f64(combat.client_atk_speed_multiplier()); // Java getAttackSpeedMultiplier (swing-anim rate)
     w.write_f64(collision.radius);
     w.write_f64(collision.height);
     w.write_i32(p.hair_style); // visual hair

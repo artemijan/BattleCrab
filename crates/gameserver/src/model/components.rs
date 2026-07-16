@@ -155,6 +155,11 @@ pub struct Speeds {
     pub swim_run_spd: f64,
     pub swim_walk_spd: f64,
     pub move_multiplier: f64,
+    /// Raw template base run speed (Java `getTemplate().getBaseValue(RUN_SPEED,
+    /// 0)`) — the *unboosted, unbuffed* class/NPC template value. Constant for
+    /// the object's lifetime; used only as the denominator of
+    /// [`Speeds::client_move_multiplier`], never in the movement math.
+    pub base_run_spd: f64,
     /// `Creature._isRunning` — players spawn running; NPCs walk until AI
     /// flips to run on aggro.
     pub running: bool,
@@ -170,6 +175,21 @@ impl Speeds {
         let (run, walk) =
             if self.swimming { (self.swim_run_spd, self.swim_walk_spd) } else { (self.run_spd, self.walk_spd) };
         (if self.running { run } else { walk }) * self.move_multiplier
+    }
+
+    /// Java `CreatureStat.getMovementSpeedMultiplier`: current move speed ÷ the
+    /// raw template base speed. This is the value the client uses to set the
+    /// **leg-animation playback rate**, so it must be *derived* from the
+    /// finalized speed — not a standalone field. Stat-based speed buffs (Super
+    /// Haste, Wind Walk, …) raise `run_spd` without touching `move_multiplier`;
+    /// sending a bare `move_multiplier` there made the character glide at the
+    /// buffed speed while its legs animated at the base cadence. Falls back to
+    /// `1.0` if the base is unknown (0), so a zero-template object is unchanged.
+    pub fn client_move_multiplier(&self) -> f64 {
+        if self.base_run_spd <= 0.0 {
+            return 1.0;
+        }
+        self.move_speed() *(1.0 / self.base_run_spd)
     }
 }
 
@@ -205,6 +225,20 @@ pub struct CombatStats {
     /// Weapon `randomDamage` (class templates all declare `baseRndDam = 10`;
     /// NPC templates carry their own).
     pub random_dmg: i32,
+}
+
+impl CombatStats {
+    /// Java `CreatureStat.getAttackSpeedMultiplier` (`Formulas.calcAtkSpdMultiplier`):
+    /// the client uses this to set the **attack-animation playback rate**, the
+    /// haste counterpart of [`Speeds::client_move_multiplier`]. Java's formula
+    /// `dexBonus × (weaponBaseAtkSpd / 333) × mul + add / 333` reduces exactly to
+    /// `pAtkSpd / 333` (the finalized `p_atk_spd` is `weaponBase × dexBonus × mul
+    /// + add`) whenever `mul ≥ 0.7` and there is no move-type term — the case for
+    /// every player here. Sending a bare `1.0` (the old value) left the swing
+    /// animation at base cadence while Super Haste quadrupled the actual p_atk_spd.
+    pub fn client_atk_speed_multiplier(&self) -> f64 {
+        self.p_atk_spd as f64 / 333.0
+    }
 }
 
 /// Swing/stance timing (Java `_attackEndTime` + `AttackStanceTaskManager`

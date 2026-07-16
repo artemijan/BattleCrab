@@ -169,8 +169,8 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
 
     // MULTIPLIER
     w.write_i16(UserInfoType::Multiplier.block_length() as i16);
-    w.write_f64(speeds.move_multiplier);
-    w.write_f64(1.0); // attack speed multiplier
+    w.write_f64(speeds.client_move_multiplier()); // Java getMovementSpeedMultiplier (leg-anim rate)
+    w.write_f64(combat.client_atk_speed_multiplier()); // Java getAttackSpeedMultiplier (swing-anim rate)
 
     // COL_RADIUS_HEIGHT
     w.write_i16(UserInfoType::ColRadiusHeight.block_length() as i16);

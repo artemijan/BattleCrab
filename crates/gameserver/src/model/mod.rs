@@ -572,6 +572,7 @@ impl Player {
             swim_run_spd: t.base_swim_run_spd as f64,
             swim_walk_spd: t.base_swim_walk_spd as f64,
             move_multiplier: 1.0,
+            base_run_spd: t.base_run_spd as f64,
             running: true,
             swimming: false,
         };
