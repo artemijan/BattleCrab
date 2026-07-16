@@ -766,3 +766,27 @@ fn on_spawn_hook_fires_for_registered_npcs() {
         7
     );
 }
+
+/// A `SiegeZone` makes the players inside it mutually auto-attackable — but only
+/// while that castle's siege is in progress (Java `SiegeZone` active state).
+#[test]
+fn siege_zone_makes_participants_attackable_only_during_siege() {
+    let (mut world, ..) = test_world();
+    // Siege zone for castle 3 covering (0,0)..(1000,1000).
+    insert_siege_zone(&mut world, 3, 0, 1000, 0, 1000);
+    world.sieges.insert(3, crate::model::siege::Siege::new(3));
+    let _a = ingame_player(&mut world, 1, 4001, 500, 500, 0);
+    let _b = ingame_player(&mut world, 2, 4002, 510, 510, 0);
+    let attackable = |w: &World| crate::game_loop::pvp::is_player_auto_attackable(w, 4001, 4002);
+
+    // Zone loaded but siege idle → two unflagged players aren't attackable.
+    assert!(!attackable(&world), "no siege PvP while the siege is idle");
+
+    // Siege in progress → both stand in the battlefield → freely attackable.
+    world.sieges.get_mut(&3).unwrap().in_progress = true;
+    assert!(attackable(&world), "siege PvP once the siege starts");
+
+    // A player outside the siege zone is not part of it (position-based check).
+    world.objects.get_component_mut::<Position>(&4002).unwrap().x = 5000;
+    assert!(!attackable(&world), "outside the siege zone → not attackable");
+}

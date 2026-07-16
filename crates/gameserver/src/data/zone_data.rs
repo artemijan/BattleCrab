@@ -36,6 +36,10 @@ pub enum ZoneKind {
     /// Java `ArenaZone` → `ZoneId.PVP`: free-for-all areas where players are
     /// auto-attackable and hostile actions don't raise a flag.
     Pvp,
+    /// Java `SiegeZone` → `ZoneId.SIEGE`: a castle's battlefield. Only "active"
+    /// (auto-attackable) while that castle's siege is in progress; the
+    /// [`Zone::castle_id`] ties the zone to its siege.
+    Siege,
 }
 
 impl ZoneKind {
@@ -46,6 +50,7 @@ impl ZoneKind {
             ZoneKind::Water => 2,
             ZoneKind::NoRestart => 4,
             ZoneKind::Pvp => 8,
+            ZoneKind::Siege => 16,
         }
     }
 }
@@ -54,6 +59,8 @@ pub struct Zone {
     pub name: String,
     pub kind: ZoneKind,
     pub territory: Territory,
+    /// `<stat name="castleId">` for `SiegeZone`s; 0 otherwise.
+    pub castle_id: i32,
 }
 
 #[derive(Default)]
@@ -78,12 +85,15 @@ impl ZoneData {
             // is correct. `underground_coliseum.xml` mixes zone types and needs
             // per-zone `type=` parsing before it can be loaded — deferred.
             ("pvp.xml", ZoneKind::Pvp),
+            // `castle_siege.xml` is uniformly `SiegeZone`; each zone's `castleId`
+            // stat ties it to its castle's siege.
+            ("castle_siege.xml", ZoneKind::Siege),
         ] {
             parse_file(&format!("{file_path}data/zones/{file}"), kind, &mut zones);
         }
         let mut data = Self { zones, grid: Default::default() };
         data.build_grid();
-        info!("ZoneData: Loaded {} zones (peace/water/no_restart/pvp).", data.zones.len());
+        info!("ZoneData: Loaded {} zones (peace/water/no_restart/pvp/siege).", data.zones.len());
         data
     }
 
@@ -127,6 +137,12 @@ impl ZoneData {
     pub fn mask_at(&self, x: i32, y: i32, z: i32) -> u8 {
         self.zones_at(x, y, z).fold(0, |m, zn| m | zn.kind.bit())
     }
+
+    /// The castle id of the `SiegeZone` covering the point, if any (Java
+    /// `getZone(x, y, z, SiegeZone.class).getSiege().getCastle()`).
+    pub fn siege_castle_at(&self, x: i32, y: i32, z: i32) -> Option<i32> {
+        self.zones_at(x, y, z).find(|zn| zn.kind == ZoneKind::Siege).map(|zn| zn.castle_id)
+    }
 }
 
 fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
@@ -141,6 +157,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
         rad: Option<i32>,
         xs: Vec<i32>,
         ys: Vec<i32>,
+        castle_id: i32,
     }
     let mut cur: Option<Pending> = None;
 
@@ -155,6 +172,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                                 name: p.name,
                                 kind,
                                 territory: Territory { form, min_z: p.min_z, max_z: p.max_z },
+                                castle_id: p.castle_id,
                             });
                         }
                     }
@@ -174,6 +192,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                     rad: attr_i32(&e, b"rad"),
                     xs: Vec::new(),
                     ys: Vec::new(),
+                    castle_id: 0,
                 });
             }
             // Zone files capitalize the node attributes (`X`/`Y`), unlike
@@ -184,7 +203,14 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                     p.ys.push(attr_i32(&e, b"Y").or_else(|| attr_i32(&e, b"y")).unwrap_or(0));
                 }
             }
-            _ => {} // `<stat>` params skipped (see module docs)
+            // `SiegeZone`s carry `<stat name="castleId" val="N"/>`; other zone
+            // stats are still skipped (see module docs).
+            b"stat" if attr_str(&e, b"name").as_deref() == Some("castleId") => {
+                if let Some(p) = cur.as_mut() {
+                    p.castle_id = attr_i32(&e, b"val").unwrap_or(0);
+                }
+            }
+            _ => {}
         }
     }
 }
@@ -224,8 +250,8 @@ mod tests {
     #[test]
     fn loads_real_dist_files() {
         let data = ZoneData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
-        // 127 peace + 423 water + 40 no_restart + 6 pvp.
-        assert_eq!(data.zones.len(), 596);
+        // 127 peace + 423 water + 40 no_restart + 6 pvp + 9 castle_siege.
+        assert_eq!(data.zones.len(), 605);
 
         // Talking Island town center sits in talking_island_town_peace_zone1
         // (NPoly, z band [-3966, -3466]).
@@ -259,6 +285,7 @@ mod tests {
                 min_z: -100,
                 max_z: 100,
             },
+            castle_id: 0,
         });
         assert_eq!(data.mask_at(500, 500, 0), ZoneKind::Peace.bit());
         assert_eq!(data.mask_at(1500, 500, 0), 0);

@@ -53,6 +53,24 @@ fn in_pvp_zone(world: &World, oid: i32) -> bool {
         .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Pvp))
 }
 
+/// The castle id of the active siege zone the creature stands in, if any. A
+/// `SiegeZone` is only "active" (PvP) while its castle's siege runs, so — unlike
+/// the static arena flag — this is a position + siege-state lookup.
+fn active_siege_castle(world: &World, oid: i32) -> Option<i32> {
+    let pos = world.objects.get_component::<crate::model::components::Position>(&oid)?;
+    let castle_id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z)?;
+    world.sieges.get(&castle_id).filter(|s| s.in_progress).map(|_| castle_id)
+}
+
+/// Both creatures stand in the *same* castle's active siege zone (Java
+/// `SiegeZone` active → siege PvP).
+fn in_active_siege_together(world: &World, a_oid: i32, b_oid: i32) -> bool {
+    matches!(
+        (active_siege_castle(world, a_oid), active_siege_castle(world, b_oid)),
+        (Some(a), Some(b)) if a == b
+    )
+}
+
 /// Java `Playable.checkIfPvP(target)` reduced to the ported state: the target
 /// is already "in PvP" (a PK or currently flagged), which shortens the
 /// attacker's own flag to `PVP_PVP_TIME`. Party/clan-war/dark-side branches
@@ -79,8 +97,14 @@ pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target
         return false;
     }
     // Arena: both in a PVP zone → freely attackable (Java's `isInsideZone(PVP)`
-    // pair check, minus the siege carve-out).
+    // pair check).
     if in_pvp_zone(world, attacker_oid) && in_pvp_zone(world, target_oid) {
+        return true;
+    }
+    // Siege: both in the same castle's active siege zone → freely attackable.
+    // TODO(G24): exempt same-side (attacker/attacker, defender/defender) clans
+    // once siege-side relations land; for now the whole battlefield is hostile.
+    if in_active_siege_together(world, attacker_oid, target_oid) {
         return true;
     }
     is_pk(world, target_oid) || flag_of(world, target_oid) > 0
@@ -89,8 +113,9 @@ pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target
 /// Java `Player.updatePvPStatus()` (no target): self-flag from a "supporting"
 /// action (buffing a monster or a flagged/PK player). No-op inside a PVP zone.
 pub(crate) fn update_pvp_status(world: &mut World, object_id: i32) {
-    // `if (isInsideZone(ZoneId.PVP)) return;` — no flag inside an arena.
-    if in_pvp_zone(world, object_id) {
+    // `if (isInsideZone(ZoneId.PVP)) return;` — no flag inside an arena, nor in
+    // an active siege zone (siege participants use siege relations, not flags).
+    if in_pvp_zone(world, object_id) || active_siege_castle(world, object_id).is_some() {
         return;
     }
     set_flag_lasts(world, object_id, PVP_NORMAL_TICKS);
@@ -108,6 +133,10 @@ pub(crate) fn update_pvp_status_target(world: &mut World, object_id: i32, target
     // no flag when both stand in an arena, and no flag for attacking a PK
     // (a PK is freely attackable).
     if in_pvp_zone(world, object_id) && in_pvp_zone(world, target_oid) {
+        return;
+    }
+    // Same carve-out for a shared active siege zone.
+    if in_active_siege_together(world, object_id, target_oid) {
         return;
     }
     if is_pk(world, target_oid) {

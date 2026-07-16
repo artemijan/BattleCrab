@@ -1018,6 +1018,21 @@ fn insert_zone(world: &mut World, kind: crate::data::zone_data::ZoneKind, x1: i3
             min_z: -1000,
             max_z: 1000,
         },
+        castle_id: 0,
+    });
+}
+
+/// A synthetic siege-zone cuboid tied to `castle_id`.
+fn insert_siege_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i32, y2: i32) {
+    world.data.zone_data.insert(crate::data::zone_data::Zone {
+        name: format!("test_siege_{castle_id}"),
+        kind: crate::data::zone_data::ZoneKind::Siege,
+        territory: crate::data::spawn_data::Territory {
+            form: crate::data::spawn_data::ZoneForm::Cuboid { x1, x2, y1, y2 },
+            min_z: -1000,
+            max_z: 1000,
+        },
+        castle_id,
     });
 }
 
