@@ -90,7 +90,7 @@ mod tests {
         assert!(g.gm_hero_aura, "GMHeroAura=True");
         assert!(g.gm_startup_builder_hide, "GMStartupBuilderHide=True");
         assert!(g.gm_startup_invulnerable, "GMStartupInvulnerable=True");
-        assert!(g.gm_startup_invisible, "GMStartupInvisible=True");
+        assert!(!g.gm_startup_invisible, "GMStartupInvisible=False");
         assert!(!g.gm_startup_silence, "GMStartupSilence=False");
         assert!(!g.gm_startup_auto_list, "GMStartupAutoList=False");
         assert!(!g.gm_startup_diet_mode, "GMStartupDietMode=False");

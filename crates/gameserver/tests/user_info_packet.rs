@@ -33,6 +33,7 @@ async fn user_info_test() {
         reputation: 0,
         pk_kills: 0,
         pvp_kills: 0,
+        cursed_weapon_equipped_id: 0,
         vitality_points: 0,
         pccafe_points: 0,
         prime_points: 0,
