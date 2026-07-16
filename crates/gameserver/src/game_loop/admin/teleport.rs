@@ -118,7 +118,12 @@ pub(super) fn admin_sendhome(world: &mut World, client_id: u32, object_id: i32, 
         },
     };
     let Some(pos) = world.objects.get_component::<Position>(&target).copied() else { return };
-    if let Some((x, y, z)) = world.data.map_region.town_respawn(pos.x, pos.y, 0) {
+    let race = world
+        .objects
+        .get_component::<Player>(&target)
+        .and_then(|p| crate::enums::Race::from_ordinal(p.race))
+        .unwrap_or(crate::enums::Race::Human);
+    if let Some((x, y, z)) = world.data.map_region.town_respawn(pos.x, pos.y, pos.z, race, 0) {
         super::death::teleport_player(world, target, x, y, z);
     }
 }

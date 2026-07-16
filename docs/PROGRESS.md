@@ -20,6 +20,14 @@ often hide in overrides (`Player.setTarget(null)` broadcasts `TargetUnselected`
 includeSelf) — check the `Player`/`Creature` override chain, not just the
 method named at the call site.
 
+**The Java repo's `dist/` data and config are the source of truth — assume they
+are 100% correct.** The XML/SQL/`.ini` datapack is retail-faithful; when Rust
+behavior diverges from what that data implies, the bug is in the port, not the
+data. Read the dist data as the spec and fix the Rust side — never edit the
+datapack to match the port, and never write off a datapack value as "wrong"
+(e.g. the Elven Ruins "to village" → Giran Harbour bug was a missing RespawnZone
+port, not a bad `respawn.xml`).
+
 ---
 
 ## Snapshot
@@ -718,7 +726,10 @@ consciously stayed out.
   without a per-item round trip); new `InsertItem`/`UpdateItemCount`
   persistence.
 - **Die → revive loop**: `RequestRestartPoint` (0x7D, TO_VILLAGE) → map
-  region town respawn → `teleport_player` (`TeleportToLocation` 0x22 +
+  region town respawn (`RespawnZone` override from `zones/respawn.xml` first —
+  per-race target region, the layer that keeps Elven Ruins on Talking Island
+  despite sharing Giran Harbour's coarse map tile — then the map-tile
+  fallback) → `teleport_player` (`TeleportToLocation` 0x22 +
   `decayMe`-style DeleteObject) → client `Appearing` (0x3A) → `doRevive`
   (65% HP restore, `Revive` 0x01) + `spawnMe` visibility exchange + fresh
   UserInfo. Dead-on-login characters get their death dialog back

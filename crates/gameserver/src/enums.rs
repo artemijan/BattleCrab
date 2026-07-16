@@ -3,7 +3,7 @@
 use crate::model::inventory::PaperdollSlot;
 
 /// Port of `enums/Race` (ordinals matter — sent on the wire).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[repr(i32)]
 pub enum Race {
     Human = 0,
@@ -18,6 +18,36 @@ pub enum Race {
 impl Race {
     pub fn ordinal(self) -> i32 {
         self as i32
+    }
+
+    /// Inverse of [`Race::ordinal`] — the stored `Player.race` byte back to the
+    /// enum (`None` on an out-of-range value).
+    pub fn from_ordinal(o: i32) -> Option<Race> {
+        Some(match o {
+            0 => Race::Human,
+            1 => Race::Elf,
+            2 => Race::DarkElf,
+            3 => Race::Orc,
+            4 => Race::Dwarf,
+            5 => Race::Kamael,
+            6 => Race::Ertheia,
+            _ => return None,
+        })
+    }
+
+    /// The XML/`Race.valueOf` name (`"DARK_ELF"`, …) → enum, as used by the
+    /// `<race name=…>` attributes in `respawn.xml`.
+    pub fn from_name(name: &str) -> Option<Race> {
+        Some(match name {
+            "HUMAN" => Race::Human,
+            "ELF" => Race::Elf,
+            "DARK_ELF" => Race::DarkElf,
+            "ORC" => Race::Orc,
+            "DWARF" => Race::Dwarf,
+            "KAMAEL" => Race::Kamael,
+            "ERTHEIA" => Race::Ertheia,
+            _ => return None,
+        })
     }
 }
 

@@ -851,16 +851,21 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
     let Some(_pkt) = cp::RequestRestartPoint::read(body) else { return };
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
-    let (px, py, dead) = {
+    let (px, py, pz, dead) = {
         let Some(pos) = world.objects.get_component::<Position>(&object_id) else { return };
         let Some(vitals) = world.objects.get_component::<Vitals>(&object_id) else { return };
-        (pos.x, pos.y, vitals.dead)
+        (pos.x, pos.y, pos.z, vitals.dead)
     };
     if !dead {
         return;
     }
+    let race = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .and_then(|p| crate::enums::Race::from_ordinal(p.race))
+        .unwrap_or(crate::enums::Race::Human);
     let pick = if world.cfg.character.random_respawn_in_town { world.roll(64) as usize } else { 0 };
-    let Some((x, y, z)) = world.data.map_region.town_respawn(px, py, pick) else { return };
+    let Some((x, y, z)) = world.data.map_region.town_respawn(px, py, pz, race, pick) else { return };
     if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&object_id) {
         p.pending_revive = true;
     }

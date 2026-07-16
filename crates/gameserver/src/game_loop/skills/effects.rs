@@ -142,7 +142,11 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 // the enclosing map region's town respawn, random point when
                 // `RandomRespawnInTownEnabled` (players only — NPCs never carry
                 // this effect).
-                if world.objects.get_component::<crate::model::Player>(&target_oid).is_some() {
+                if let Some(race) = world
+                    .objects
+                    .get_component::<crate::model::Player>(&target_oid)
+                    .map(|p| crate::enums::Race::from_ordinal(p.race).unwrap_or(crate::enums::Race::Human))
+                {
                     let pos = world
                         .objects
                         .get_component::<crate::model::components::Position>(&target_oid)
@@ -153,7 +157,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                         } else {
                             0
                         };
-                        if let Some((x, y, z)) = world.data.map_region.town_respawn(pos.x, pos.y, pick) {
+                        if let Some((x, y, z)) = world.data.map_region.town_respawn(pos.x, pos.y, pos.z, race, pick) {
                             crate::game_loop::death::teleport_player(world, target_oid, x, y, z);
                         }
                     }

@@ -335,8 +335,15 @@ fn finalize_skill(
                     })
                 };
                 match xml_name.as_str() {
-                    "MagicalAttack" => param("power").map(|power| SkillEffect::MagicalAttack { power }).into_iter().collect::<Vec<_>>(),
-                    "Heal" => param("power").map(|power| SkillEffect::Heal { power }).into_iter().collect(),
+                    // Java instantiates these handlers whenever the `<effect>` is
+                    // present and reads `params.getDouble("power", 0)` — the
+                    // effect is always created, `power` defaulting to 0 when the
+                    // param is absent (e.g. skills 1011/4717/4718, whose
+                    // `<item>power</item>` parses to the param key `item`, not
+                    // `power`). Mirror that default here; do NOT drop the effect,
+                    // or the skill becomes a silent no-op.
+                    "MagicalAttack" => vec![SkillEffect::MagicalAttack { power: param("power").unwrap_or(0.0) }],
+                    "Heal" => vec![SkillEffect::Heal { power: param("power").unwrap_or(0.0) }],
                     "Restoration" => match (param("itemId"), param("itemCount")) {
                         (Some(item_id), Some(item_count)) => vec![SkillEffect::GiveItem {
                             item_id: item_id as i32,
@@ -440,12 +447,13 @@ mod tests {
         assert_eq!(ws.reuse_delay_group, -1, "no <reuseDelayGroup> must stay -1, never 0");
         assert_eq!(ws.reuse_key(), 1177);
 
-        // Skill 1011 "Heal": the datapack once had a corrupt `<item>power</item>`
-        // effect body (no per-level power), which parsed to an effect list with
-        // no `Heal` at all — so casting Heal did nothing to HP. Guard the real
-        // per-level `<power>` block: level 3 → 67 power.
+        // Skill 1011 "Heal": the reference datapack's effect body is
+        // `<item>power</item>`, which parses to the param key `item` — so the
+        // `power` param is absent. Java still creates the Heal effect with
+        // `getDouble("power", 0)` = 0 (healing via the mAtk term); the effect
+        // must NOT be dropped. Guard that the effect exists with power 0.
         let heal = sd.get(1011, 3).expect("Heal lvl 3");
-        assert!(matches!(heal.effects.as_slice(), [SkillEffect::Heal { power }] if *power == 67.0));
+        assert!(matches!(heal.effects.as_slice(), [SkillEffect::Heal { power }] if *power == 0.0));
 
         // "Knight - Individual" shares reuse group 10008 with its siblings.
         let ki = sd.get(10248, 1).expect("Knight - Individual lvl 1");
