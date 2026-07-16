@@ -10,7 +10,7 @@
 use crate::db::DbCommand;
 use crate::model::components::{Position, RegionCell};
 use crate::model::door::Door;
-use crate::model::siege::SiegeClanType;
+use crate::model::siege::{SiegeClanType, SiegeSpawn};
 use crate::model::Player;
 use crate::network::server_packets::{self, sm_ids, SmParam};
 use crate::scheduler::ScheduledTask;
@@ -51,12 +51,16 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
 
     // `_castle.spawnDoor()` — close the castle gates at full HP for the battle.
     spawn_castle_doors(world, castle_id, false);
-    // `spawnSiegeGuard()` — the defender's stationed garrison.
-    spawn_siege_guards(world, castle_id);
+    // `spawnControlTower()` / `spawnFlameTower()` + `spawnSiegeGuard()`.
+    let towers = world.data.siege_towers.get(&castle_id).cloned().unwrap_or_default();
+    spawn_siege_npcs(world, castle_id, &towers);
+    let guards = world.siege_guards.get(&castle_id).cloned().unwrap_or_default();
+    spawn_siege_npcs(world, castle_id, &guards);
 
-    // TODO(G24): updatePlayerSiegeStateFlags, spawn control/flame towers
-    // (Castle.getZone().setActive is modelled by the in-progress flag the
-    // siege-zone PvP check reads).
+    // TODO(G24): updatePlayerSiegeStateFlags; the control-tower destruction
+    // mechanic (destroying towers weakens the defenders' respawn). The
+    // Castle.getZone().setActive is modelled by the in-progress flag the
+    // siege-zone PvP check reads.
 }
 
 /// `Siege.endSiege` — announce the finish, declare the winner (or a draw), and
@@ -157,11 +161,10 @@ pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
     spawn_castle_doors(world, castle_id, true);
 }
 
-/// `Siege.spawnSiegeGuard` — spawn the castle's stationed garrison onto the
-/// battlefield; their object ids are tracked on the siege for despawn at the end.
-/// Guards carry their template AI, so aggressive ones engage attackers.
-fn spawn_siege_guards(world: &mut World, castle_id: i32) {
-    let spawns = world.siege_guards.get(&castle_id).cloned().unwrap_or_default();
+/// Spawn a set of siege NPCs (the stationed guards / control + flame towers)
+/// onto the battlefield, tracking their object ids on the siege for despawn at
+/// the end. NPCs carry their template AI, so aggressive guards engage attackers.
+fn spawn_siege_npcs(world: &mut World, castle_id: i32, spawns: &[SiegeSpawn]) {
     for s in spawns {
         if let Some(oid) = crate::model::npc::spawn_npc_at(world, s.npc_id, s.x, s.y, s.z, s.heading) {
             super::death::introduce_npc(world, oid);

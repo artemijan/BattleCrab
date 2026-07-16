@@ -224,6 +224,7 @@ async fn character_create_inserts_into_real_schema() {
         buy_lists: crate::data::BuyListData::empty(),
         categories: crate::data::CategoryData::empty(),
         cursed_weapons: crate::data::CursedWeaponData::empty(),
+        siege_towers: std::collections::HashMap::new(),
         teleporters: crate::data::TeleporterData::empty(),
         transforms: crate::data::TransformData::empty(),
         enchant: crate::data::EnchantData::empty(),

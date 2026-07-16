@@ -8,6 +8,7 @@ pub mod buy_list_data;
 pub mod category_data;
 pub mod cursed_weapon_data;
 pub mod door_data;
+pub mod siege_data;
 pub mod enchant_data;
 pub mod experience;
 pub mod hit_condition_bonus;
@@ -132,6 +133,8 @@ pub struct GameData {
     pub buy_lists: BuyListData,
     pub categories: CategoryData,
     pub cursed_weapons: CursedWeaponData,
+    /// Control/flame tower spawns per castle, from `Siege.ini`.
+    pub siege_towers: std::collections::HashMap<i32, Vec<crate::model::siege::SiegeSpawn>>,
     /// Gatekeeper teleport lists (G15.5), see [`TeleporterData`].
     pub teleporters: TeleporterData,
     pub transforms: TransformData,
@@ -180,6 +183,7 @@ impl GameData {
             buy_lists,
             categories: CategoryData::load_from(file_path),
             cursed_weapons: CursedWeaponData::load_from(file_path),
+            siege_towers: siege_data::load_siege_towers(file_path),
             teleporters: TeleporterData::load_from(file_path),
             transforms: TransformData::load_from(file_path),
             enchant: EnchantData::load_from(file_path),
@@ -222,6 +226,7 @@ impl GameData {
             buy_lists: BuyListData::empty(),
             categories: CategoryData::empty(),
             cursed_weapons: CursedWeaponData::empty(),
+            siege_towers: std::collections::HashMap::new(),
             teleporters: TeleporterData::empty(),
             transforms: TransformData::empty(),
             enchant: EnchantData::empty(),
