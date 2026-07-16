@@ -14,6 +14,7 @@ pub mod inventory;
 pub mod mob_group;
 pub mod movement;
 pub mod npc;
+pub mod siege;
 pub mod party;
 pub mod quest;
 pub mod shortcut;

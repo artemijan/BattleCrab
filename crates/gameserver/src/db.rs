@@ -253,6 +253,10 @@ pub enum DbCommand {
     /// Castle ownership on the clan side (`Castle.setOwner`/`removeOwner` →
     /// `clan_data.hasCastle`).
     UpdateClanCastle { clan_id: i32, castle_id: i32 },
+    /// `Siege.saveSiegeClan` — register a clan for a castle's siege.
+    SaveSiegeClan { castle_id: i32, clan_id: i32, kind: i32 },
+    /// `Siege.removeSiegeClan` — drop a clan's `siege_clans` row.
+    RemoveSiegeClan { castle_id: i32, clan_id: i32 },
     /// Fire-and-forget clan level persist (`Clan.changeLevel`'s single UPDATE).
     UpdateClanLevel { clan_id: i32, level: i32 },
     /// Fire-and-forget clan reputation persist (`Clan.setReputationScore`, which
@@ -315,6 +319,17 @@ pub enum DbEvent {
     CursedWeaponsLoaded { rows: Vec<CursedWeaponRow> },
     /// The `castle` table (Java `CastleManager.load`), pushed unprompted at boot.
     CastlesLoaded { castles: Vec<crate::model::castle::Castle> },
+    /// The `siege_clans` table (Java `Siege.loadSiegeClan`), pushed unprompted at
+    /// boot after `CastlesLoaded`. Grouped into per-castle sieges on the game thread.
+    SiegesLoaded { rows: Vec<SiegeClanRow> },
+}
+
+/// One `siege_clans` row — a clan registered for a castle's siege.
+#[derive(Debug, Clone)]
+pub struct SiegeClanRow {
+    pub castle_id: i32,
+    pub clan_id: i32,
+    pub kind: i32,
 }
 
 /// One `cursed_weapons` row — the persisted wielder state of a cursed weapon.
@@ -374,6 +389,9 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
 
     // `CastleManager.load` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::CastlesLoaded { castles: load_castles(&pool).await });
+
+    // `Siege.loadSiegeClan` — after castles (the game loop keys sieges off them).
+    let _ = event_tx.send(DbEvent::SiegesLoaded { rows: load_siege_clans(&pool).await });
 
     // `ClanTable`'s boot restore, likewise unprompted.
     let _ = event_tx.send(DbEvent::ClansLoaded { clans: load_clans(&pool).await });
@@ -499,6 +517,25 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 exec(
                     &pool,
                     sqlx::query("UPDATE clan_data SET hasCastle=? WHERE clan_id=?").bind(castle_id).bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::SaveSiegeClan { castle_id, clan_id, kind } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT OR REPLACE INTO siege_clans (clan_id, castle_id, type, castle_owner) VALUES (?, ?, ?, 0)",
+                    )
+                    .bind(clan_id)
+                    .bind(castle_id)
+                    .bind(kind),
+                )
+                .await;
+            }
+            DbCommand::RemoveSiegeClan { castle_id, clan_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM siege_clans WHERE castle_id=? AND clan_id=?").bind(castle_id).bind(clan_id),
                 )
                 .await;
             }
@@ -921,6 +958,18 @@ async fn load_cursed_weapons(pool: &SqlitePool) -> Vec<CursedWeaponRow> {
 
 /// `ClanTable`'s boot restore: every `clan_data` row + its member roster
 /// from `characters WHERE clanid=?` (Java `Clan.restore`).
+/// `Siege.loadSiegeClan`: every `siege_clans` row.
+async fn load_siege_clans(pool: &SqlitePool) -> Vec<SiegeClanRow> {
+    let rows = sqlx::query("SELECT castle_id, clan_id, type FROM siege_clans").fetch_all(pool).await.unwrap_or_default();
+    rows.iter()
+        .map(|r| SiegeClanRow {
+            castle_id: geti(r, "castle_id") as i32,
+            clan_id: geti(r, "clan_id") as i32,
+            kind: geti(r, "type") as i32,
+        })
+        .collect()
+}
+
 /// `CastleManager.load`: every `castle` row (id/name/side).
 async fn load_castles(pool: &SqlitePool) -> Vec<crate::model::castle::Castle> {
     let rows = sqlx::query("SELECT id, name, side FROM castle ORDER BY id").fetch_all(pool).await.unwrap_or_default();

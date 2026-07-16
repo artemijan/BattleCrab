@@ -166,6 +166,11 @@ pub struct World {
     /// against `clans` (the owning clan's `castle_id`).
     pub castles: Vec<crate::model::castle::Castle>,
 
+    /// Each castle's siege (Java `Castle.getSiege()`), keyed by residence id.
+    /// One per castle, built at boot (`DbEvent::SiegesLoaded`) from the
+    /// `siege_clans` table. In-progress state is runtime-only.
+    pub sieges: HashMap<i32, crate::model::siege::Siege>,
+
     /// Account premium expirations (`account_name` lowercase → enddate millis),
     /// the in-memory mirror of `account_premium` (Java `PremiumManager._premiumData`).
     /// Boot-loaded from the whole table (`DbEvent::PremiumLoaded`) rather than
@@ -231,6 +236,7 @@ impl World {
             grand_bosses: HashMap::new(),
             cursed_weapons: Vec::new(),
             castles: Vec::new(),
+            sieges: HashMap::new(),
             premium: HashMap::new(),
             parties: HashMap::new(),
             next_party_id: 1,

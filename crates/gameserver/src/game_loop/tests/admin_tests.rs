@@ -1760,8 +1760,70 @@ fn admin_castlemanage_ownership_and_side() {
     drain(&mut rx);
     assert_eq!(world.clans[&500].castle_id, 0, "ownership removed");
 
-    // //castlemanage 3 startSiege → siege engine unported.
+    // //castlemanage 3 startSiege → no attackers registered.
+    world.sieges.insert(3, crate::model::siege::Siege::new(3));
     on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3 startSiege")].concat());
     let msgs: Vec<String> = drain(&mut rx).iter().filter_map(|p| sysmsg_text(p)).collect();
-    assert!(msgs.iter().any(|t| t.contains("not available")), "siege deferred");
+    assert!(msgs.iter().any(|t| t.contains("not registered any clan")), "siege needs an attacker");
+}
+
+/// The `//castlemanage <id>` siege actions: register/remove attackers &
+/// defenders (`siege_clans`), and the start/stop state transition. Port of
+/// AdminCastle's siege branch over the model/siege slice.
+#[test]
+fn admin_castlemanage_siege_registration_and_state() {
+    use crate::model::castle::{Castle, CastleSide};
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::siege::Siege;
+    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (mut world, _db_tx, mut db_rx, _link) = admin_world();
+    world.data.root = ROOT.to_string();
+    world.castles = vec![Castle { id: 3, name: "Giran".into(), side: CastleSide::Neutral }];
+    world.sieges.insert(3, Siege::new(3));
+    world.clans.insert(
+        700,
+        Clan {
+            id: 700,
+            name: "Besiegers".into(),
+            leader_id: 8102,
+            level: 5,
+            reputation_score: 0,
+            castle_id: 0,
+            members: vec![ClanMember { char_id: 8102, name: "P8102".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
+            warehouse: Default::default(),
+        },
+    );
+    let mut rx = ingame_player_access(&mut world, 1, 8101, 100);
+    let _t = ingame_player_access(&mut world, 2, 8102, 0);
+    world.objects.get_component_mut::<Player>(&8102).unwrap().clan_id = 700;
+    world.objects.add_components(&8101, TargetRef(Some(8102)));
+    drain(&mut rx);
+
+    // addAttacker → clan 700 registered + persisted.
+    drain_db(&mut db_rx);
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3 addAttacker")].concat());
+    assert!(world.sieges[&3].has_attackers() && world.sieges[&3].is_registered(700), "attacker registered");
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::SaveSiegeClan { castle_id: 3, clan_id: 700, kind: 1 })), "persisted attacker");
+
+    // addAttacker again → already requested.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3 addAttacker")].concat());
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_HAVE_ALREADY_REQUESTED_A_CASTLE_SIEGE),
+        "duplicate registration refused"
+    );
+
+    // startSiege → in progress; stopSiege → ended.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3 startSiege")].concat());
+    assert!(world.sieges[&3].in_progress, "siege started");
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3 stopSiege")].concat());
+    assert!(!world.sieges[&3].in_progress, "siege stopped");
+
+    // removeDeffender strips the target's clan (Java quirk) + persists.
+    drain(&mut rx);
+    drain_db(&mut db_rx);
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3 removeDeffender")].concat());
+    assert!(!world.sieges[&3].is_registered(700), "clan removed from the siege");
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::RemoveSiegeClan { castle_id: 3, clan_id: 700 })), "persisted removal");
 }

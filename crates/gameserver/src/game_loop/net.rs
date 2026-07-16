@@ -448,6 +448,22 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 tracing::info!("GameLoop: loaded {} castles.", castles.len());
                 world.castles = castles;
             }
+            DbEvent::SiegesLoaded { rows } => {
+                // One Siege per castle (Java creates a Siege for every castle),
+                // then attach the registered clans from `siege_clans`.
+                use crate::model::siege::{Siege, SiegeClanType};
+                let mut sieges: std::collections::HashMap<i32, Siege> =
+                    world.castles.iter().map(|c| (c.id, Siege::new(c.id))).collect();
+                for row in &rows {
+                    if let (Some(siege), Some(kind)) =
+                        (sieges.get_mut(&row.castle_id), SiegeClanType::from_db(row.kind))
+                    {
+                        siege.add_clan(row.clan_id, kind);
+                    }
+                }
+                tracing::info!("GameLoop: loaded sieges for {} castles ({} registered clans).", sieges.len(), rows.len());
+                world.sieges = sieges;
+            }
             DbEvent::ClansLoaded { clans } => {
                 tracing::info!("GameLoop: loaded {} clans.", clans.len());
                 world.clans = clans.into_iter().map(|c| (c.id, c)).collect();

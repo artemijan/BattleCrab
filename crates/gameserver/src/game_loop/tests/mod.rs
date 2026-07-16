@@ -253,7 +253,8 @@ async fn character_create_inserts_into_real_schema() {
             | DbEvent::PremiumLoaded { .. }
             | DbEvent::GrandBossesLoaded { .. }
             | DbEvent::CursedWeaponsLoaded { .. }
-            | DbEvent::CastlesLoaded { .. } => continue,
+            | DbEvent::CastlesLoaded { .. }
+            | DbEvent::SiegesLoaded { .. } => continue,
             other => return other,
         }
     };

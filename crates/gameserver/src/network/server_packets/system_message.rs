@@ -26,6 +26,8 @@ pub mod sm_ids {
     pub const EMPTY_3: i16 = 490;
     pub const THE_OWNER_OF_S2_HAS_APPEARED_IN_THE_S1_REGION: i16 = 1816;
     pub const S1_HAS_DISAPPEARED: i16 = 1818;
+    // Castle sieges (`//castlemanage`)
+    pub const YOU_HAVE_ALREADY_REQUESTED_A_CASTLE_SIEGE: i16 = 638;
     // Clan admin (`//pledge`)
     pub const S1_IS_NOT_A_CLAN_LEADER: i16 = 9;
     pub const CLAN_HAS_DISPERSED: i16 = 193;
