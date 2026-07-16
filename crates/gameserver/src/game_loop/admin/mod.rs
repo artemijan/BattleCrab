@@ -29,6 +29,7 @@ mod menu;
 mod mobgroup;
 mod moderation;
 mod points;
+mod premium;
 mod mounts;
 mod skills;
 mod spawn;
@@ -53,6 +54,7 @@ use items::*;
 use mobgroup::*;
 use moderation::*;
 use points::*;
+use premium::*;
 use mounts::*;
 use skills::*;
 use spawn::*;
@@ -252,6 +254,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_pccafepoints" => admin_pccafepoints(world, client_id, object_id, &args),
         // Prime (NCoin) points — account-scoped — + the primepoints.htm menu.
         "admin_primepoints" => admin_primepoints(world, client_id, object_id, &args),
+        // Premium account management (menu + add/info/remove by account name).
+        "admin_premium_menu" | "admin_premium_add1" | "admin_premium_add2" | "admin_premium_add3"
+        | "admin_premium_info" | "admin_premium_remove" => admin_premium(world, client_id, command, &args),
         // Spawn-line inspection + teleport-to-index (`goSpawn`/`goPosition`).
         "admin_list_spawns" => admin_list_spawns(world, client_id, object_id, &args, false),
         "admin_list_positions" => admin_list_spawns(world, client_id, object_id, &args, true),

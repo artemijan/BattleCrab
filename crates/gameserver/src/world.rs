@@ -150,6 +150,12 @@ pub struct World {
     /// at boot (`DbEvent::ClansLoaded`); `create_clan` inserts.
     pub clans: HashMap<i32, crate::model::clan::Clan>,
 
+    /// Account premium expirations (`account_name` lowercase → enddate millis),
+    /// the in-memory mirror of `account_premium` (Java `PremiumManager._premiumData`).
+    /// Boot-loaded from the whole table (`DbEvent::PremiumLoaded`) rather than
+    /// Java's lazy per-login load, so `//premium_*` works for any account.
+    pub premium: HashMap<String, i64>,
+
     /// Live parties (`Party` objects have no Java-side registry — they only
     /// exist through member references; an id-keyed map is the Rust shape).
     pub parties: HashMap<u32, crate::model::party::Party>,
@@ -203,6 +209,7 @@ impl World {
             cfg: crate::config::CombatConfig::default(),
             quests: std::sync::Arc::new(crate::scripts::build_registry()),
             clans: HashMap::new(),
+            premium: HashMap::new(),
             parties: HashMap::new(),
             next_party_id: 1,
             mob_groups: HashMap::new(),

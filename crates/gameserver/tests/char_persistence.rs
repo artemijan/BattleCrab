@@ -77,7 +77,7 @@ fn recv(rx: &std::sync::mpsc::Receiver<DbEvent>) -> DbEvent {
         match rx.recv_timeout(Duration::from_secs(5)).expect("db event") {
             // Boot-time pushes (id reservation, clan table), not part of
             // any exchange.
-            DbEvent::IdBlock { .. } | DbEvent::ClansLoaded { .. } => continue,
+            DbEvent::IdBlock { .. } | DbEvent::ClansLoaded { .. } | DbEvent::PremiumLoaded { .. } => continue,
             other => return other,
         }
     }

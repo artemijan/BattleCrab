@@ -216,7 +216,7 @@ async fn character_create_inserts_into_real_schema() {
     // skip them.
     let next_event = || loop {
         match db_event_rx.recv_timeout(std::time::Duration::from_secs(5)).unwrap() {
-            DbEvent::IdBlock { .. } | DbEvent::ClansLoaded { .. } => continue,
+            DbEvent::IdBlock { .. } | DbEvent::ClansLoaded { .. } | DbEvent::PremiumLoaded { .. } => continue,
             other => return other,
         }
     };

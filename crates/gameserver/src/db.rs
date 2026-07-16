@@ -251,6 +251,10 @@ pub enum DbCommand {
     /// write-through). Used by `//primepoints` for the account-scoped
     /// "PRIME_POINTS" variable.
     StoreAccountVar { account_name: String, var: String, value: String },
+    /// Upsert / delete an `account_premium` row (Java `PremiumManager`
+    /// UPDATE/DELETE). Used by `//premium_*`.
+    StorePremium { account_name: String, enddate: i64 },
+    DeletePremium { account_name: String },
     Shutdown,
 }
 
@@ -270,6 +274,9 @@ pub enum DbEvent {
     /// The full clan table (`ClanTable` boot load), pushed unprompted at
     /// boot like the first `IdBlock`.
     ClansLoaded { clans: Vec<crate::model::clan::Clan> },
+    /// The whole `account_premium` table (Java `PremiumManager` cache),
+    /// pushed unprompted at boot. `(account_name lowercase, enddate millis)`.
+    PremiumLoaded { entries: Vec<(String, i64)> },
 }
 
 pub type CmdTx = tokio::sync::mpsc::UnboundedSender<DbCommand>;
@@ -305,6 +312,10 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
     // ask before it knows the DB thread is up; see `DbCommand::ReserveIds`).
     let _ = event_tx.send(DbEvent::IdBlock { start: next_id, end: next_id + ID_BLOCK_SIZE });
     next_id += ID_BLOCK_SIZE;
+
+    // Premium table cache, before clans so `ClansLoaded` stays the last boot
+    // event (the game loop releases the login link on it).
+    let _ = event_tx.send(DbEvent::PremiumLoaded { entries: load_premium(&pool).await });
 
     // `ClanTable`'s boot restore, likewise unprompted.
     let _ = event_tx.send(DbEvent::ClansLoaded { clans: load_clans(&pool).await });
@@ -448,6 +459,18 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
+            DbCommand::StorePremium { account_name, enddate } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT OR REPLACE INTO account_premium (account_name, enddate) VALUES (?, ?)")
+                        .bind(account_name)
+                        .bind(enddate),
+                )
+                .await;
+            }
+            DbCommand::DeletePremium { account_name } => {
+                exec(&pool, sqlx::query("DELETE FROM account_premium WHERE account_name=?").bind(account_name)).await;
+            }
             DbCommand::Shutdown => break,
         }
     }
@@ -473,6 +496,16 @@ async fn load_account_var(pool: &SqlitePool, account: &str, var: &str) -> Option
         .await
         .ok()
         .flatten()
+}
+
+/// Best-effort boot load of the whole `account_premium` table (Java
+/// `PremiumManager` has no table-wide load; this port caches all rows so the
+/// admin `//premium_*` commands work for offline accounts). Missing table → empty.
+async fn load_premium(pool: &SqlitePool) -> Vec<(String, i64)> {
+    match sqlx::query("SELECT account_name, enddate FROM account_premium").fetch_all(pool).await {
+        Ok(rows) => rows.iter().map(|r| (gets(r, "account_name").to_lowercase(), geti(r, "enddate"))).collect(),
+        Err(_) => Vec::new(),
+    }
 }
 
 /// Java's `IdManager` hands out ids from a single pool shared by every

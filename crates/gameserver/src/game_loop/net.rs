@@ -407,6 +407,10 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
             DbEvent::IdBlock { start, end } => {
                 world.id_pool = start..end;
             }
+            DbEvent::PremiumLoaded { entries } => {
+                tracing::info!("GameLoop: loaded {} premium accounts.", entries.len());
+                world.premium = entries.into_iter().collect();
+            }
             DbEvent::ClansLoaded { clans } => {
                 tracing::info!("GameLoop: loaded {} clans.", clans.len());
                 world.clans = clans.into_iter().map(|c| (c.id, c)).collect();
