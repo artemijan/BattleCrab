@@ -455,6 +455,8 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         &bundle.friends,
     ));
     session.send(server_packets::skill_cool_time(&bundle.reuses, world.tick));
+    // `EnterWorld`: the recommendation panel state.
+    session.send(server_packets::ex_vote_system_info(player.rec_left, player.rec_have));
 
     // Register the player in the world and re-send UserInfo (Java does both).
     session.send(user_info(&view, data, &world.cfg.character, super::party::calculate_relation(world, view.p)));
@@ -512,6 +514,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // one interval out; `game_loop::autosave_tick` flushes and reschedules it.
     let due = world.tick + world.cfg.character.character_data_store_interval_ticks;
     world.player_autosave_due.insert(object_id, due);
+    // Java `restore` → `startRecoGiveTask`: the per-player fixed-rate task that
+    // hands out recommendations-to-give (10 after 2 h, then 1 hourly).
+    super::reco::start_reco_give_task(world, object_id);
     // Java `EnterWorld` → `player.revalidateZone(true)` — initial zone set +
     // compass code at the spawn point.
     super::zones::revalidate_zone(world, object_id, true);

@@ -19,7 +19,7 @@ pub fn pledge_show_info_update(clan: &crate::model::clan::Clan) -> Vec<u8> {
     w.write_i32(0); // hideout id
     w.write_i32(0); // fort id
     w.write_i32(0); // rank
-    w.write_i32(0); // reputation score
+    w.write_i32(clan.reputation_score); // reputation score
     w.write_i32(0);
     w.write_i32(0);
     w.write_i32(0); // ally id
@@ -67,7 +67,7 @@ pub fn pledge_show_member_list_all(
     w.write_i32(0); // hideout id
     w.write_i32(0); // fort id
     w.write_i32(0); // rank
-    w.write_i32(0); // reputation score
+    w.write_i32(clan.reputation_score); // reputation score
     w.write_i32(0);
     w.write_i32(0);
     w.write_i32(0); // ally id
@@ -109,5 +109,60 @@ pub fn pledge_show_member_list_update(m: &crate::model::clan::ClanMember, online
     }
     w.write_i32(0); // has sponsor
     w.write_u8(online as u8);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeShowMemberListDeleteAll` — the opcode-only
+/// packet that tells the client to close/clear its clan window. Sent to each
+/// member when their clan is dissolved (`//pledge dismiss`).
+pub fn pledge_show_member_list_delete_all() -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLEDGE_SHOW_MEMBER_LIST_DELETE_ALL);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/GMViewPledgeInfo` — the GM `//pledge info` clan dump.
+/// `viewer_name` is Java's `_player.getName()` (the inspected clan member the GM
+/// targeted). Castle/hideout/fort/rank/ally/war stay zero (their systems are
+/// later milestones); reputation and level are live.
+pub fn gm_view_pledge_info(
+    clan: &crate::model::clan::Clan,
+    viewer_name: &str,
+    objects: &crate::store::EntityStore,
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::GM_VIEW_PLEDGE_INFO);
+    w.write_i32(0);
+    w.write_string(viewer_name);
+    w.write_i32(clan.id);
+    w.write_i32(0);
+    w.write_string(&clan.name);
+    w.write_string(clan.leader_name());
+    w.write_i32(0); // crest id
+    w.write_i32(clan.level);
+    w.write_i32(0); // castle id
+    w.write_i32(0); // hideout id
+    w.write_i32(0); // fort id
+    w.write_i32(0); // rank (reputation-derived; RankManager unported)
+    w.write_i32(clan.reputation_score);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(0); // ally id
+    w.write_string(""); // ally name
+    w.write_i32(0); // ally crest id
+    w.write_i32(0); // at war
+    w.write_i32(0); // T3 unknown
+    w.write_i32(clan.members.len() as i32);
+    for m in &clan.members {
+        let online = objects.has_component::<crate::model::Player>(&m.char_id);
+        w.write_string(&m.name);
+        w.write_i32(m.level);
+        w.write_i32(m.class_id);
+        w.write_i32(m.sex);
+        w.write_i32(m.race);
+        w.write_i32(if online { m.char_id } else { 0 });
+        w.write_i32(0); // has sponsor
+    }
     w.into_bytes()
 }

@@ -168,6 +168,9 @@ pub struct World {
     /// Generation counter for `PendingRequest`s (stale `RequestTimeout`
     /// tasks no-op on mismatch, like `path_seq`).
     pub request_seq: u64,
+    /// Generation counter for the per-player `RecoGive` task (stale firings
+    /// left over from a previous session no-op on mismatch).
+    pub reco_give_seq: u64,
     /// Command channel to the DB thread.
     pub db: db::CmdTx,
     /// Staggered periodic-autosave schedule (Java `PlayerAutoSaveTaskManager`):
@@ -215,6 +218,7 @@ impl World {
             mob_groups: HashMap::new(),
             ground_item_regions: HashMap::new(),
             request_seq: 0,
+            reco_give_seq: 0,
             db,
             player_autosave_due: HashMap::new(),
             rng: StdRng::from_entropy(),
@@ -233,6 +237,12 @@ impl World {
     pub fn next_request_seq(&mut self) -> u64 {
         self.request_seq += 1;
         self.request_seq
+    }
+
+    /// Next `RecoGive` task generation (see `reco_give_seq`).
+    pub fn next_reco_give_seq(&mut self) -> u64 {
+        self.reco_give_seq += 1;
+        self.reco_give_seq
     }
 
     /// Object ids of every NPC whose region cell lies in `region`'s 3×3

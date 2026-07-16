@@ -122,6 +122,8 @@ pub mod ex_opcodes {
     pub const REQUEST_REFINE: u16 = 0x3E;
     /// `RequestRefineCancel` — remove an augment (`targetObjId`).
     pub const REQUEST_REFINE_CANCEL: u16 = 0x40;
+    /// `RequestVoteNew` — recommend the currently-targeted player (`targetId`).
+    pub const REQUEST_VOTE_NEW: u16 = 0x7B;
 }
 
 /// Split an extended-packet body (after the `0xD0` opcode) into its 2-byte LE

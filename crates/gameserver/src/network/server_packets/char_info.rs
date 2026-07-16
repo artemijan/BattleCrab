@@ -5,6 +5,21 @@ use commons::network::PacketWriter;
 use crate::model::inventory::PaperdollSlot;
 use super::opcodes;
 
+/// Port of `serverpackets/ExVoteSystemInfo` — the recommendation panel state.
+/// The bonus fields (`bonusTime`/`bonusVal`/`bonusType`) are always 0 in
+/// Interlude Classic, matching Java's hardcoded ctor.
+pub fn ex_vote_system_info(rec_left: i32, rec_have: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_VOTE_SYSTEM_INFO);
+    w.write_i32(rec_left);
+    w.write_i32(rec_have);
+    w.write_i32(0); // bonus time
+    w.write_i32(0); // bonus value
+    w.write_i32(0); // bonus type
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/DeleteObject` — removes an object from the client's
 /// screen when it leaves the observer's known area.
 pub fn delete_object(object_id: i32) -> Vec<u8> {
@@ -119,7 +134,7 @@ pub fn char_info(v: &crate::model::PlayerView) -> Vec<u8> {
     w.write_i16(0); // cubic count (+ cubic ids)
     w.write_u8(0); // in matching room
     w.write_u8(if p.mount_type == 2 { 2 } else { 0 }); // 1 water, 2 flying mount (wyvern)
-    w.write_i16(0); // recom have
+    w.write_i16(p.rec_have as i16); // recom have
     w.write_i32(if p.mount_npc_id == 0 { 0 } else { p.mount_npc_id + 1_000_000 }); // mount npc id
     w.write_i32(p.class_id);
     w.write_i32(0); // TODO: Find me! (Java unknown)

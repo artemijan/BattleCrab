@@ -87,6 +87,8 @@ pub const PLEDGE_SHOW_MEMBER_LIST_ALL: u8 = 0x5A;
 pub const PLEDGE_SHOW_MEMBER_LIST_UPDATE: u8 = 0x5B;
 pub const PLEDGE_SHOW_INFO_UPDATE: u8 = 0x8E;
 pub const PLEDGE_INFO: u8 = 0x89;
+pub const PLEDGE_SHOW_MEMBER_LIST_DELETE_ALL: u8 = 0x88;
+pub const GM_VIEW_PLEDGE_INFO: u8 = 0x96;
 pub const DOOR_STATUS_UPDATE: u8 = 0x4D;
 pub const STATIC_OBJECT: u8 = 0x9F;
 pub const NPC_SAY: u8 = 0x30;
@@ -112,6 +114,7 @@ pub const EX_NPC_QUEST_HTML_MESSAGE: i16 = 0x8E;
 pub const EX_QUEST_ITEM_LIST: i16 = 0xC7;
 pub const EX_SET_COMPASS_ZONE_CODE: i16 = 0x33;
 pub const EX_PCCAFE_POINT_INFO: i16 = 0x32;
+pub const EX_VOTE_SYSTEM_INFO: i16 = 0xCA;
 /// `ExTeleportToLocationActivate` — the "teleport finished" packet; the
 /// client stays on the loading screen until it arrives.
 pub const EX_TELEPORT_TO_LOCATION_ACTIVATE: i16 = 0x14A;

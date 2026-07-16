@@ -92,6 +92,8 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         reputation: 0,
         pk_kills: 0,
         pvp_kills: 0,
+        rec_have: 0,
+        rec_left: 20,
         clan_id: 0,
         clan_privs: 0,
         clan_create_expiry_time: 0,
@@ -6899,6 +6901,7 @@ fn clan_roster_notifications_and_chat() {
             name: "Testers".into(),
             leader_id: 3001,
             level: 0,
+            reputation_score: 0,
             members: vec![member(3001, "P3001"), member(3002, "P3002")],
             warehouse: Default::default(),
         },
@@ -10139,7 +10142,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
     // A level-1 clan: 3001 leader, 3002 plain member (no privileges).
     let clan_id = 0x7000_0001;
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0 };
-    world.clans.insert(clan_id, Clan { id: clan_id, name: "WhClan".into(), leader_id: 3001, level: 1, members: vec![cm(3001), cm(3002)], warehouse: Default::default() });
+    world.clans.insert(clan_id, Clan { id: clan_id, name: "WhClan".into(), leader_id: 3001, level: 1, reputation_score: 0, members: vec![cm(3001), cm(3002)], warehouse: Default::default() });
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
     }

@@ -59,6 +59,11 @@ pub struct CharData {
     pub reputation: i32,
     pub pk_kills: i32,
     pub pvp_kills: i32,
+    /// `character_reco_bonus.rec_have` / `.rec_left` (a separate table, not
+    /// `characters`). Loaded by `db::load_reco_bonus`; 0/0 when the row is
+    /// absent (Java `Player.loadRecommendations` leaves the field defaults).
+    pub rec_have: i32,
+    pub rec_left: i32,
     pub clan_id: i32,
     /// `characters.clan_privs` (the leader's is the all-bits mask).
     pub clan_privs: i32,

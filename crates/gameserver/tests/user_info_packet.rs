@@ -37,6 +37,11 @@ async fn user_info_test() {
         pccafe_points: 0,
         prime_points: 0,
         fame: 0,
+        // The golden packet below was captured with recom-left/have = 0.
+        rec_have: 0,
+        rec_left: 0,
+        reco_two_hours_given: false,
+        reco_give_seq: 0,
 
         // Extracted from your m.variables JSON string / sample fields
         clan_id: 0,

@@ -163,6 +163,9 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     }
                 }
             }
+            SkillEffect::GiveRecommendation { amount } => {
+                crate::game_loop::reco::apply_give_recommendation(world, caster_oid, target_oid, *amount);
+            }
             SkillEffect::StatModifier(_) => {} // collected below
         }
     }

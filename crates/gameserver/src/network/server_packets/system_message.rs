@@ -21,6 +21,11 @@ pub mod sm_ids {
     pub const YOU_MUST_WAIT_10_DAYS_BEFORE_CREATING_A_NEW_CLAN: i16 = 230;
     pub const CLAN_NAME_IS_INVALID: i16 = 261;
     pub const CLAN_NAME_S_LENGTH_IS_INCORRECT: i16 = 262;
+    // Clan admin (`//pledge`)
+    pub const S1_IS_NOT_A_CLAN_LEADER: i16 = 9;
+    pub const CLAN_HAS_DISPERSED: i16 = 193;
+    pub const YOUR_CLAN_S_LEVEL_HAS_INCREASED: i16 = 274;
+    pub const NOW_THAT_YOUR_CLAN_LEVEL_IS_ABOVE_LEVEL_5_IT_CAN_ACCUMULATE_CLAN_REPUTATION: i16 = 1771;
     // Quests (G11): "earned" for quest gives, vs the loot "obtained" trio.
     pub const YOU_HAVE_EARNED_S1_ADENA: i16 = 52;
     pub const YOU_HAVE_EARNED_S2_S1_S: i16 = 53;
@@ -149,6 +154,15 @@ pub mod sm_ids {
     pub const THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_DEACTIVATED: i16 = 1434;
     pub const DUE_TO_INSUFFICIENT_S1_THE_AUTOMATIC_USE_FUNCTION_HAS_BEEN_DEACTIVATED: i16 = 1435;
     pub const DUE_TO_INSUFFICIENT_S1_THE_AUTOMATIC_USE_FUNCTION_CANNOT_BE_ACTIVATED: i16 = 1436;
+    // Recommendations (RequestVoteNew / RecoGiveTask / GiveRecommendation)
+    pub const SELECT_TARGET: i16 = 242;
+    pub const THAT_IS_AN_INCORRECT_TARGET: i16 = 144;
+    pub const YOU_CANNOT_RECOMMEND_YOURSELF: i16 = 829;
+    pub const YOU_HAVE_RECOMMENDED_C1_YOU_HAVE_S2_RECOMMENDATIONS_LEFT: i16 = 830;
+    pub const YOU_HAVE_BEEN_RECOMMENDED_BY_C1: i16 = 831;
+    pub const YOUR_SELECTED_TARGET_CAN_NO_LONGER_RECEIVE_A_RECOMMENDATION: i16 = 1188;
+    pub const YOU_ARE_OUT_OF_RECOMMENDATIONS_TRY_AGAIN_LATER: i16 = 3206;
+    pub const YOU_OBTAINED_S1_RECOMMENDATION_S: i16 = 3207;
 }
 
 /// One `SystemMessage` parameter (Java `SystemMessage.SMParam`), scoped to the

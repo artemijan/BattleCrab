@@ -57,6 +57,8 @@ fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
             reputation: c.reputation,
             pvp_kills: c.pvp_kills,
             pk_kills: c.pk_kills,
+            rec_have: c.rec_have,
+            rec_left: c.rec_left,
             race: c.race,
             class_id: c.class_id,
             base_class_id: c.base_class_id,
@@ -196,7 +198,7 @@ async fn shortcuts_and_macros_persist() {
         // `character_quests` is needed too: the memory-first flush reconciles
         // every child table, so `store_player` always touches it (even with no
         // quests, to delete any that were abandoned).
-        for table in ["characters", "items", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_quests"] {
+        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -306,7 +308,7 @@ async fn friendships_persist() {
     let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_friends"] {
+        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_friends", "character_reco_bonus"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -383,7 +385,7 @@ async fn quest_states_persist() {
     let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_friends", "character_quests"] {
+        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_friends", "character_reco_bonus", "character_quests"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -459,6 +461,75 @@ async fn quest_states_persist() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+/// Recommendations round-trip through `character_reco_bonus` (Java
+/// `Player.create` seed → `loadRecommendations` → `storeRecommendations`): a new
+/// character loads with rec_left=20/rec_have=0, and a flush persists updated
+/// counts.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn recommendations_persist() {
+    let dir = std::env::temp_dir().join(format!("l2r_reco_{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let db_path = dir.join("test.db");
+    let url = format!("jdbc:sqlite:{}", db_path.display());
+
+    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    {
+        let pool = commons::db::init(&url, 1).await.unwrap();
+        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests"] {
+            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
+            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
+                sqlx::query(stmt).execute(&pool).await.unwrap();
+            }
+        }
+        pool.close().await;
+    }
+
+    let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (event_tx, event_rx) = std::sync::mpsc::channel();
+    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
+
+    // Create → the seed row grants 20 recommendations to give.
+    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Recruit") }).unwrap();
+    assert!(matches!(recv(&event_rx), DbEvent::CharacterCreated { result: CreateResult::Ok, .. }));
+    let loaded = match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            assert_eq!((chars[0].rec_have, chars[0].rec_left), (0, 20), "new character seed");
+            chars[0].clone()
+        }
+        _ => panic!("expected CharactersLoaded"),
+    };
+
+    // Flush updated counts (recommended a few players, received one).
+    let mut save = save_from(&loaded);
+    save.base.rec_have = 7;
+    save.base.rec_left = 13;
+    cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+
+    // Reload → the flushed counts survive.
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            assert_eq!((chars[0].rec_have, chars[0].rec_left), (7, 13), "flushed counts persist");
+        }
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    // The daily reset command zeroes rec_left and decays rec_have for the
+    // offline row (rec_have 7 <= 20 → 0).
+    cmd_tx.send(DbCommand::ResetRecommends).unwrap();
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            assert_eq!((chars[0].rec_have, chars[0].rec_left), (0, 0), "daily reset");
+        }
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    cmd_tx.send(DbCommand::Shutdown).unwrap();
+    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 /// G13.9: skill reuse cooldowns round-trip through `character_skills_save`
 /// (Java `storeEffect`/`restoreEffects`, reuse half). A cooldown ending in the
 /// future survives the reload; one that already elapsed while offline is
@@ -473,7 +544,7 @@ async fn skill_reuse_cooldowns_persist() {
     let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_quests"] {
+        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();

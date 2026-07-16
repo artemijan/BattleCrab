@@ -69,6 +69,15 @@ pub enum ScheduledTask {
     DoorAutoClose { door_object_id: i32, seq: u64 },
     /// `Door.TimerOpen`: a BY_TIME door's cycle toggle; reschedules itself.
     DoorTimerToggle { door_object_id: i32 },
+    /// `RecoGiveTask` (Java's per-player `scheduleAtFixedRate`): hand out
+    /// recommendations-to-give over time — 10 after the first 2 h online, then 1
+    /// every hour. Reschedules itself while the player is online; `seq` must
+    /// match the player's `reco_give_seq` or the firing is stale (logout /
+    /// relogin) and no-ops.
+    RecoGive { player_object_id: i32, seq: u64 },
+    /// Java `DailyTaskManager.resetRecommends`, fired daily at 06:30: zero every
+    /// player's rec_left and decay rec_have. Reschedules itself 24 h out.
+    DailyRecoReset,
 }
 
 struct Entry {

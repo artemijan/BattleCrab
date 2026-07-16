@@ -28,6 +28,7 @@ mod items;
 mod menu;
 mod mobgroup;
 mod moderation;
+mod pledge;
 mod points;
 mod premium;
 mod mounts;
@@ -53,6 +54,7 @@ pub(crate) use flags::apply_gm_startup;
 use items::*;
 use mobgroup::*;
 use moderation::*;
+use pledge::*;
 use points::*;
 use premium::*;
 use mounts::*;
@@ -410,6 +412,10 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_buy" => admin_buy(world, client_id, object_id, &args),
         "admin_gmshop" => menu::show_admin_html(world, client_id, "gmshops.htm"),
         "admin_clan_info" => admin_clan_info(world, client_id, object_id),
+        // AdminPledge — the Game panel's "Clan Related" buttons (create / info /
+        // setlevel / dismiss / rep), plus AdminClan's pending-leader listing.
+        "admin_pledge" => admin_pledge(world, client_id, object_id, &args),
+        "admin_clan_show_pending" => admin_clan_show_pending(world, client_id),
         // AdminVitality (player vitality points).
         "admin_set_vitality" => admin_vitality(world, client_id, object_id, "set", &args),
         "admin_full_vitality" => admin_vitality(world, client_id, object_id, "full", &args),

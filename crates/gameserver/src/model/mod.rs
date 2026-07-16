@@ -135,6 +135,20 @@ pub struct Player {
     /// `//primepoints`). Mirror of the account var, loaded at enter-world.
     pub prime_points: i32,
     pub fame: i32,
+    /// Recommendations received / left to give (Java `Player.getRecomHave` /
+    /// `getRecomLeft`). Persisted in the `character_reco_bonus` table — loaded
+    /// in `from_char`, flushed by the memory-first autosave.
+    pub rec_have: i32,
+    pub rec_left: i32,
+    /// Java `Player._recoTwoHoursGiven` — a transient, per-session flag (never
+    /// persisted, always `false` at login) that makes the first `RecoGiveTask`
+    /// firing hand out 10 recommendations instead of 1.
+    pub reco_two_hours_given: bool,
+    /// Guard for the self-rescheduling `RecoGiveTask` (Java's per-player
+    /// `scheduleAtFixedRate` future): a fresh value is stamped at enter-world so
+    /// a stale task left over from a previous session no-ops. See
+    /// `World::next_reco_give_seq`.
+    pub reco_give_seq: u64,
 
     // Clan membership (G11 — creation/display slice). The `Clan` itself
     // lives in `World.clans`; these are the per-player fields the
@@ -618,6 +632,14 @@ impl Player {
             pccafe_points: c.pccafe_points,
             prime_points: c.prime_points,
             fame: 0,
+            // `character_reco_bonus` row (Java `Player.loadRecommendations`).
+            // A new character's row is seeded with rec_left=20 at creation
+            // (`Player.create` → `setRecomLeft(20)`); `db::load_reco_bonus`
+            // returns those two values (or 0/0 when the row is absent).
+            rec_have: c.rec_have,
+            rec_left: c.rec_left,
+            reco_two_hours_given: false,
+            reco_give_seq: 0,
             clan_id: c.clan_id,
             clan_privs: c.clan_privs,
             clan_leader: false, // fixed up at enter-world from World.clans

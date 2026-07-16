@@ -353,6 +353,15 @@ fn finalize_skill(
                         _ => Vec::new(),
                     },
                     "RestorationRandom" => vec![SkillEffect::GiveItemRandom { groups: groups.clone() }],
+                    // Java throws if amount is 0/missing; we drop the effect
+                    // (silent no-op) to match how other bad effect bodies fall
+                    // through, rather than panicking at data-load.
+                    "GiveRecommendation" => match param("amount") {
+                        Some(amount) if amount != 0.0 => {
+                            vec![SkillEffect::GiveRecommendation { amount: amount as i32 }]
+                        }
+                        _ => Vec::new(),
+                    },
                     // Only the TOWN escape is portable (see `SkillEffect::EscapeToTown`);
                     // CASTLE/CLANHALL/FORTRESS variants drop like unregistered names.
                     "Escape" if value_at(params, "escapeType", level) == Some("TOWN") => {

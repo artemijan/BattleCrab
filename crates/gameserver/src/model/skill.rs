@@ -109,6 +109,10 @@ pub enum SkillEffect {
     /// target to its map-region town respawn on landing. The CASTLE/CLANHALL/
     /// FORTRESS variants wait for their residence systems (G24).
     EscapeToTown,
+    /// `handlers/effecthandlers/GiveRecommendation.java` — grant the target
+    /// `amount` recommendations received (`rec_have`), capped at 255. Backs the
+    /// "recommendation certificate" self-target skills.
+    GiveRecommendation { amount: i32 },
 }
 
 /// `dist/game/data/stats/skills/*.xml` → `Skill.java`, scoped to G6.

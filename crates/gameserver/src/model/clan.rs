@@ -24,6 +24,10 @@ pub struct Clan {
     pub name: String,
     pub leader_id: i32,
     pub level: i32,
+    /// Java `Clan._reputationScore`. Above level 5 a clan accumulates it;
+    /// clamped to ±[`MAX_REPUTATION`]. Reputation-gated clan skills are a later
+    /// milestone, so nothing consumes it yet beyond the pledge windows.
+    pub reputation_score: i32,
     pub members: Vec<ClanMember>,
     /// The shared clan warehouse (Java `Clan._warehouse`, a `ClanWarehouse`
     /// container). Persisted with `owner_id = clan id`, `loc = "CLANWH"`.
@@ -37,6 +41,20 @@ impl Clan {
 
     pub fn member(&self, char_id: i32) -> Option<&ClanMember> {
         self.members.iter().find(|m| m.char_id == char_id)
+    }
+}
+
+/// Java `setReputationScore` clamp bound (±100M).
+pub const MAX_REPUTATION: i32 = 100_000_000;
+
+impl Clan {
+    /// Java `Clan.addReputationScore` → `setReputationScore`: add `value`
+    /// (signed) and clamp to ±[`MAX_REPUTATION`]; returns the new score. The
+    /// zero-crossing clan-skill (de)activation and the `PledgeShowInfoUpdate`
+    /// broadcast are the caller's job (clan skills are a later milestone).
+    pub fn add_reputation_score(&mut self, value: i32) -> i32 {
+        self.reputation_score = self.reputation_score.saturating_add(value).clamp(-MAX_REPUTATION, MAX_REPUTATION);
+        self.reputation_score
     }
 }
 

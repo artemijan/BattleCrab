@@ -100,6 +100,8 @@ pub struct PlayerSnapshot {
     pub reputation: i32,
     pub pvp_kills: i32,
     pub pk_kills: i32,
+    pub rec_have: i32,
+    pub rec_left: i32,
     pub race: i32,
     pub class_id: i32,
     pub base_class_id: i32,
@@ -136,6 +138,8 @@ impl PlayerSnapshot {
             reputation: p.reputation,
             pvp_kills: p.pvp_kills,
             pk_kills: p.pk_kills,
+            rec_have: p.rec_have,
+            rec_left: p.rec_left,
             race: p.race,
             class_id: p.class_id,
             base_class_id: p.base_class_id,
@@ -240,6 +244,17 @@ pub enum DbCommand {
     /// (`ClanTable.createClan` side effects; `StorePlayer`'s UPDATE doesn't
     /// touch these columns).
     UpdateCharClan { char_id: i32, clan_id: i32, clan_privs: i32 },
+    /// Fire-and-forget clan level persist (`Clan.changeLevel`'s single UPDATE).
+    UpdateClanLevel { clan_id: i32, level: i32 },
+    /// Fire-and-forget clan reputation persist (`Clan.setReputationScore`, which
+    /// Java writes via `updateClanScoreInDb`).
+    UpdateClanReputation { clan_id: i32, reputation: i32 },
+    /// `ClanTable.destroyClan` — delete the `clan_data` row and reset every
+    /// member's `characters` clan columns (online *and* offline, since the
+    /// memory-first autosave never touches those columns). `leader_id` also gets
+    /// the 10-day recreate cooldown stamped at `leader_expiry` (Java sets it on
+    /// the leader during `removeClanMember`).
+    DestroyClan { clan_id: i32, leader_id: i32, leader_expiry: i64 },
     /// Fire-and-forget clan-warehouse flush — delete every `owner_id = clan_id`
     /// item row (`loc = "CLANWH"`) and reinsert the current set (the same
     /// delete-then-reinsert the player item save uses).
@@ -255,6 +270,12 @@ pub enum DbCommand {
     /// UPDATE/DELETE). Used by `//premium_*`.
     StorePremium { account_name: String, enddate: i64 },
     DeletePremium { account_name: String },
+    /// Fire-and-forget daily recommendation reset for offline characters
+    /// (Java `DailyTaskManager.resetRecommends`'s two UPDATE statements).
+    /// Online players are reset in memory on the game thread; their rows get
+    /// rewritten from memory by the next autosave, so this only needs to fix
+    /// the offline population.
+    ResetRecommends,
     Shutdown,
 }
 
@@ -414,6 +435,35 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
+            DbCommand::UpdateClanLevel { clan_id, level } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET clan_level=? WHERE clan_id=?").bind(level).bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateClanReputation { clan_id, reputation } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET reputation_score=? WHERE clan_id=?").bind(reputation).bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::DestroyClan { clan_id, leader_id, leader_expiry } => {
+                exec(&pool, sqlx::query("DELETE FROM clan_data WHERE clan_id=?").bind(clan_id)).await;
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE characters SET clanid=0, clan_privs=0 WHERE clanid=?").bind(clan_id),
+                )
+                .await;
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE characters SET clan_create_expiry_time=? WHERE charId=?")
+                        .bind(leader_expiry)
+                        .bind(leader_id),
+                )
+                .await;
+            }
             DbCommand::StoreClanWarehouse { clan_id, items } => {
                 exec(&pool, sqlx::query("DELETE FROM items WHERE owner_id=?").bind(clan_id)).await;
                 for it in &items {
@@ -470,6 +520,16 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
             }
             DbCommand::DeletePremium { account_name } => {
                 exec(&pool, sqlx::query("DELETE FROM account_premium WHERE account_name=?").bind(account_name)).await;
+            }
+            DbCommand::ResetRecommends => {
+                // Java `DailyTaskManager.resetRecommends`: rec_left → 0 for
+                // everyone; rec_have → 0 for those at/under 20, else -20.
+                exec(&pool, sqlx::query("UPDATE character_reco_bonus SET rec_left = 0, rec_have = 0 WHERE rec_have <= 20")).await;
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE character_reco_bonus SET rec_left = 0, rec_have = MAX(rec_have - 20, 0) WHERE rec_have > 20"),
+                )
+                .await;
             }
             DbCommand::Shutdown => break,
         }
@@ -561,6 +621,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
         let friends = load_friends(pool, object_id).await;
         let quests = load_quests(pool, object_id).await;
         let skill_reuses = load_skill_reuses(pool, object_id).await;
+        let (rec_have, rec_left) = load_reco_bonus(pool, object_id).await;
         out.push(CharData {
             object_id,
             name: gets(row, "char_name"),
@@ -582,6 +643,8 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             reputation: geti(row, "reputation") as i32,
             pk_kills: geti(row, "pkkills") as i32,
             pvp_kills: geti(row, "pvpkills") as i32,
+            rec_have,
+            rec_left,
             clan_id: geti(row, "clanid") as i32,
             clan_privs: geti(row, "clan_privs") as i32,
             clan_create_expiry_time: geti(row, "clan_create_expiry_time"),
@@ -653,6 +716,21 @@ async fn load_skill_reuses(pool: &SqlitePool, owner_id: i32) -> Vec<SkillReuseRo
             })
         })
         .collect()
+}
+
+/// A character's recommendation counters (Java `Player.loadRecommendations`).
+/// Returns `(rec_have, rec_left)`; `(0, 0)` when the row is absent, matching
+/// Java's field defaults for a character whose `character_reco_bonus` row
+/// hasn't been written yet.
+async fn load_reco_bonus(pool: &SqlitePool, owner_id: i32) -> (i32, i32) {
+    match sqlx::query("SELECT rec_have, rec_left FROM character_reco_bonus WHERE charId=?")
+        .bind(owner_id)
+        .fetch_optional(pool)
+        .await
+    {
+        Ok(Some(row)) => (geti(&row, "rec_have") as i32, geti(&row, "rec_left") as i32),
+        _ => (0, 0),
+    }
 }
 
 /// A character's `character_shortcuts` rows (Java `ShortCuts.restoreMe` —
@@ -731,7 +809,7 @@ async fn load_quests(pool: &SqlitePool, owner_id: i32) -> std::collections::Hash
 /// `ClanTable`'s boot restore: every `clan_data` row + its member roster
 /// from `characters WHERE clanid=?` (Java `Clan.restore`).
 async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
-    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, leader_id FROM clan_data")
+    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, leader_id FROM clan_data")
         .fetch_all(pool)
         .await
         .unwrap_or_default();
@@ -750,6 +828,7 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             name: gets(row, "clan_name"),
             leader_id: geti(row, "leader_id") as i32,
             level: geti(row, "clan_level") as i32,
+            reputation_score: geti(row, "reputation_score") as i32,
             warehouse: crate::model::inventory::Warehouse::from_rows(&wh_rows),
             members: member_rows
                 .iter()
@@ -929,6 +1008,15 @@ async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: 
 
     match res {
         Ok(_) => {
+            // Seed the recommendation row: Java `Player.create` grants
+            // rec_left=20, persisted to `character_reco_bonus` when the
+            // freshly-created character disconnects back to the lobby.
+            exec(
+                pool,
+                sqlx::query("INSERT INTO character_reco_bonus (charId, rec_have, rec_left, time_left) VALUES (?, 0, 20, 0)")
+                    .bind(char_id),
+            )
+            .await;
             // Initial skills (character_skills).
             for (skill_id, skill_level) in &data.skills {
                 exec(
@@ -1068,6 +1156,21 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     .bind(b.pccafe_points)
     .bind(now_millis())
     .bind(char_id)
+    .execute(&mut *tx)
+    .await?;
+
+    // character_reco_bonus (Java `Player.storeRecommendations`, an
+    // insert-or-update on charId). `time_left` is always 0 here — the reco
+    // bonus timer (bonusTime/bonusVal/bonusType in ExVoteSystemInfo) isn't
+    // used in Interlude Classic. The unique index on charId makes this an
+    // upsert.
+    sqlx::query(
+        "INSERT INTO character_reco_bonus (charId, rec_have, rec_left, time_left) VALUES (?, ?, ?, 0) \
+         ON CONFLICT(charId) DO UPDATE SET rec_have=excluded.rec_have, rec_left=excluded.rec_left, time_left=excluded.time_left",
+    )
+    .bind(char_id)
+    .bind(b.rec_have)
+    .bind(b.rec_left)
     .execute(&mut *tx)
     .await?;
 

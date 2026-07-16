@@ -271,6 +271,7 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::ANSWER_PARTY_LOOT_MODIFICATION => {
             handle_answer_party_loot_modification(world, client_id, ex_body)
         }
+        exop::REQUEST_VOTE_NEW => super::reco::handle_request_vote_new(world, client_id, ex_body),
         exop::REQUEST_GOTO_LOBBY => {
             let maybe_session = world.clients.get(&client_id);
             if let Some(ClientSession::InLobby(session)) = maybe_session {

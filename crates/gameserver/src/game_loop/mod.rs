@@ -33,6 +33,7 @@ mod passive_skills;
 mod position;
 mod pvp;
 pub mod quests;
+mod reco;
 mod regen;
 mod shop;
 mod shortcuts;
@@ -169,6 +170,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     crate::model::door::spawn_doors(&mut world);
     doors::start_time_cycles(&mut world);
     crate::model::static_object::spawn_static_objects(&mut world);
+    // Java `DailyTaskManager`: the daily 06:30 reset (recommendations only, so
+    // far). Scheduled once here; the task reschedules itself every 24 h.
+    reco::schedule_initial_daily_reset(&mut world);
 
     info!("GameLoop: started ({} ms tick).", TICK.as_millis());
 
@@ -306,6 +310,12 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::DoorTimerToggle { door_object_id } => {
                 doors::handle_door_timer_toggle(world, door_object_id);
+            }
+            ScheduledTask::RecoGive { player_object_id, seq } => {
+                reco::handle_reco_give(world, player_object_id, seq);
+            }
+            ScheduledTask::DailyRecoReset => {
+                reco::handle_daily_reco_reset(world);
             }
         }
     }

@@ -205,8 +205,8 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
     w.write_u8(0); // pledge class
     w.write_i32(p.pk_kills);
     w.write_i32(p.pvp_kills);
-    w.write_i16(0); // recom left
-    w.write_i16(0); // recom have
+    w.write_i16(p.rec_left as i16); // recom left
+    w.write_i16(p.rec_have as i16); // recom have
 
     // VITA_FAME
     w.write_i16(UserInfoType::VitaFame.block_length() as i16);
