@@ -191,6 +191,18 @@ impl Speeds {
         }
         self.move_speed() *(1.0 / self.base_run_spd)
     }
+
+    /// The four speed shorts `UserInfo`/`CharInfo` carry, in wire order. Java
+    /// sends `Math.round(speed / moveMultiplier)` and the client multiplies
+    /// [`Speeds::client_move_multiplier`] back in for display and movement —
+    /// so the finalized speeds must be sent *divided*, or the buff scale is
+    /// counted twice (Super Haste 4 showed ~3100 on the client while the
+    /// server moved at ~630).
+    pub fn client_speed_fields(&self) -> [i16; 4] {
+        let mult = self.client_move_multiplier();
+        let div = |v: f64| if mult > 0.0 { (v / mult).round() as i16 } else { v as i16 };
+        [div(self.run_spd), div(self.walk_spd), div(self.swim_run_spd), div(self.swim_walk_spd)]
+    }
 }
 
 /// Collision cylinder (template `collision_radius`/`collision_height`) —
@@ -424,10 +436,10 @@ pub struct ZoneFlags {
     /// tick).
     pub last_validate: (i32, i32, i32),
     /// `Player._lastCompassZone` (`ExSetCompassZoneCode` value last sent).
-    /// Starts at GENERAL, not Java's 0: the client already displays the
-    /// general zone after login, so Java's initial no-op GENERAL push is
-    /// suppressed (deliberate deviation — a login inside a peace zone still
-    /// sends PEACE).
+    /// Starts at 0 like Java's field default — 0 is not a valid zone code
+    /// (they run 0x08–0x0F), so the first revalidate always pushes the real
+    /// code. The client needs that initial push: without a valid code it
+    /// treats the zone as unknown and refuses to open the world map.
     pub last_compass: i32,
 }
 
@@ -438,7 +450,7 @@ impl Default for ZoneFlags {
         Self {
             mask: 0,
             last_validate: (i32::MIN, i32::MIN, i32::MIN),
-            last_compass: crate::network::server_packets::compass_zone::GENERAL,
+            last_compass: 0,
         }
     }
 }

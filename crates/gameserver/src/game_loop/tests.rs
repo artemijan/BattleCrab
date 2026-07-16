@@ -1509,6 +1509,45 @@ fn skill_cool_time_lists_remaining_reuse() {
     assert_eq!(i32::from_le_bytes(pkt[17..21].try_into().unwrap()), 6, "remaining seconds");
 }
 
+/// RequestShowMiniMap (0x6C): empty body, answered with `ShowMiniMap` —
+/// map id 0 (base world map) plus the Seven Signs state byte.
+#[test]
+fn request_show_mini_map_opens_world_map() {
+    let (mut world, ..) = cast_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    drain(&mut a_rx);
+
+    on_packet(&mut world, 1, vec![cop::REQUEST_SHOW_MINI_MAP]);
+    let pkt = a_rx.try_recv().unwrap();
+    assert_eq!(pkt[0], server_packets::opcodes::SHOW_MINI_MAP);
+    assert_eq!(i32::from_le_bytes(pkt[1..5].try_into().unwrap()), 0, "base world map");
+    assert_eq!(pkt[5], 0, "Seven Signs state");
+    assert_eq!(pkt.len(), 6);
+}
+
+/// The world map's data requests: `RequestAllCastleInfo` (0xD0:0x39) and
+/// `RequestAllFortressInfo` (0xD0:0x3A) are answered with the static
+/// residence lists — 9 castles and 21 forts, all unowned.
+#[test]
+fn map_castle_and_fortress_info_requests_answered() {
+    let (mut world, ..) = cast_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    drain(&mut a_rx);
+
+    on_packet(&mut world, 1, vec![cop::EX_PACKET, 0x39, 0x00]);
+    let pkt = a_rx.try_recv().unwrap();
+    assert_eq!(pkt[0], server_packets::opcodes::EX);
+    assert_eq!(i16::from_le_bytes(pkt[1..3].try_into().unwrap()), server_packets::opcodes::EX_SHOW_CASTLE_INFO);
+    assert_eq!(i32::from_le_bytes(pkt[3..7].try_into().unwrap()), 9, "nine castles");
+    assert!(a_rx.try_recv().is_err(), "no PartyMemberPosition when solo");
+
+    on_packet(&mut world, 1, vec![cop::EX_PACKET, 0x3A, 0x00]);
+    let pkt = a_rx.try_recv().unwrap();
+    assert_eq!(pkt[0], server_packets::opcodes::EX);
+    assert_eq!(i16::from_le_bytes(pkt[1..3].try_into().unwrap()), server_packets::opcodes::EX_SHOW_FORTRESS_INFO);
+    assert_eq!(i32::from_le_bytes(pkt[3..7].try_into().unwrap()), 21, "twenty-one forts");
+}
+
 /// RequestSkillList (0x50): empty body, re-sends the `SkillList` packet
 /// (`player.sendSkillList()`) — the client asks for this when it opens the
 /// skills panel.
@@ -3471,6 +3510,10 @@ fn validate_position_reconciles_client_and_server() {
         speeds.run_spd = 600.0;
         speeds.running = true;
     }
+    // The enter-world revalidate pushes the initial compass code; do it here
+    // so the reconciliation branches below are packet-exact.
+    super::zones::revalidate_zone(&mut world, 4001, true);
+    drain(&mut rx);
 
     // Climb: z 0 → 300 with matching client-z history — trusted, silent.
     handle_validate_position(&mut world, 1, &validate_position_body(1000, 1000, 300, 0));
@@ -3492,6 +3535,44 @@ fn validate_position_reconciles_client_and_server() {
     assert_eq!((pos.x, pos.y, pos.z), (3000, 1000, 0), "snapped, z on the geodata floor");
     let c = world.objects.get_component::<ClientPos>(&4001).unwrap();
     assert_eq!((c.x, c.y, c.z), (3000, 1000, 0));
+}
+
+/// `ValidatePosition` is ignored while teleporting (Java's `isTeleporting()`
+/// bail): during a far teleport the client keeps reporting its OLD position
+/// until the destination region loads — without the bail the desync snap
+/// reverts the teleport and the client hangs on the loading screen
+/// (gatekeeper → Elven Ruins regression).
+#[test]
+fn validate_position_ignored_while_teleporting() {
+    let (mut world, ..) = test_world();
+    install_wall_region(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 4001, 1000, 1000, 0);
+    super::death::teleport_player(&mut world, 4001, 48765, 248461, -6160);
+    // The "teleport finished" packet must reach the player, or the client
+    // never leaves the loading screen.
+    assert!(
+        drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::EX
+            && i16::from_le_bytes(p[1..3].try_into().unwrap())
+                == server_packets::opcodes::EX_TELEPORT_TO_LOCATION_ACTIVATE),
+        "ExTeleportToLocationActivate sent to the teleporting player"
+    );
+
+    // The stale in-flight report from the old spot must not move the server.
+    handle_validate_position(&mut world, 1, &validate_position_body(1000, 1000, 0, 0));
+    let pos = *world.objects.get_component::<Position>(&4001).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (48765, 248461, -6155), "teleport destination kept (z lifted by 5)");
+    assert!(rx.try_recv().is_err(), "no correction packet while teleporting");
+
+    // Appearing completes the teleport; afterwards reports count again.
+    super::death::handle_appearing(&mut world, 1);
+    assert!(!world.objects.get_component::<Player>(&4001).unwrap().teleporting);
+    handle_validate_position(
+        &mut world,
+        1,
+        &validate_position_body(48765, 248461, -6160, 0),
+    );
+    let c = world.objects.get_component::<ClientPos>(&4001).unwrap();
+    assert_eq!((c.x, c.y, c.z), (48765, 248461, -6160), "client pos tracked again");
 }
 
 /// The next queued DB command, which must be a `StorePlayer`; returns its
@@ -4975,7 +5056,7 @@ fn player_death_penalty_and_revive_to_village() {
         w.into_bytes()
     });
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (1000, 1000, 7));
+    assert_eq!((pos.x, pos.y, pos.z), (1000, 1000, 12), "respawn point z lifted by 5 (teleToLocation)");
     let p = &world.objects.get_component::<crate::model::Player>(&3001).expect("player");
     assert!(p.teleporting && p.pending_revive && pvit(&world, 3001).dead);
     let packets = drain(&mut a_rx);
@@ -6917,9 +6998,11 @@ fn water_zone_flips_swim_state_and_speeds() {
     }
     super::zones::revalidate_zone(&mut world, 3001, true);
     let pkts = drain(&mut rx);
-    assert!(
-        pkts.iter().all(|p| compass_code(p).is_none()),
-        "no compass push outside a peace zone (GENERAL is the client default)"
+    assert_eq!(
+        pkts.iter().filter_map(|p| compass_code(p)).collect::<Vec<_>>(),
+        vec![server_packets::compass_zone::GENERAL],
+        "the first revalidate pushes GENERAL (Java's _lastCompassZone starts at 0; \
+         without a valid code the client won't open the world map)"
     );
     assert_eq!(world.objects.get_component::<Speeds>(&3001).unwrap().move_speed(), 120.0);
 
@@ -7584,7 +7667,7 @@ fn teleport_with_charm_consumes_token() {
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
     assert_eq!(item_count(&world, 3001, 1659), 0, "token consumed");
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (-80826, 149775, -3043));
+    assert_eq!((pos.x, pos.y, pos.z), (-80826, 149775, -3038), "destination z lifted by 5 (teleToLocation)");
     assert!(world.objects.get_component::<Player>(&3001).unwrap().teleporting);
     assert!(
         drain(&mut rx).iter().any(|p| p[0] == 0x22),
@@ -8421,7 +8504,7 @@ fn admin_teleport_moves_gm_to_coords() {
 
     on_packet(&mut world, 1, build_admin("teleport 100 200 300"));
     let pos = *world.objects.get_component::<crate::model::components::Position>(&7104).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (100, 200, 300), "moved to coords");
+    assert_eq!((pos.x, pos.y, pos.z), (100, 200, 305), "moved to coords (z lifted by 5)");
     assert!(
         drain(&mut gm_rx).iter().any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION),
         "TeleportToLocation broadcast"
@@ -10241,7 +10324,7 @@ fn teleporter_charges_fee_and_teleports() {
     assert_eq!(adena_of(&world, 3001), 600, "9400 adena fee charged");
     assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (1000, 2000, -30));
+    assert_eq!((pos.x, pos.y, pos.z), (1000, 2000, -25));
 
     // Free: level 1 ≤ 40 → no charge.
     let (mut world, mut rx) = teleporter_world(10_000);
@@ -10249,7 +10332,7 @@ fn teleporter_charges_fee_and_teleports() {
     drain(&mut rx);
     assert_eq!(adena_of(&world, 3001), 10_000, "free below MaxFreeTeleportLevel");
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (1000, 2000, -30));
+    assert_eq!((pos.x, pos.y, pos.z), (1000, 2000, -25));
 
     // Shortfall: SM 279, no movement, adena untouched.
     let (mut world, mut rx) = teleporter_world(100);
@@ -10354,7 +10437,7 @@ fn unstuck_casts_escape_and_teleports_to_town() {
     // 30 s (300 ticks) to launch + the 500 ms finish floor.
     advance_ticks(&mut world, 310);
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (5000, 6000, -30), "escaped to the town respawn");
+    assert_eq!((pos.x, pos.y, pos.z), (5000, 6000, -25), "escaped to the town respawn (z lifted by 5)");
     assert!(drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
 }
 

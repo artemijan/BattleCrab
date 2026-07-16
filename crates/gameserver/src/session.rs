@@ -42,6 +42,17 @@ impl<S> Session<S> {
     /// Queue a serialized packet body for this client (the connection task
     /// encrypts + frames it). Silently dropped if the connection is gone.
     pub fn send(&self, body: Vec<u8>) {
+        tracing::trace!(
+            "client {} ← opcode 0x{:02x}{} ({} B)",
+            self.client_id,
+            body.first().copied().unwrap_or(0),
+            if body.first() == Some(&0xFE) && body.len() >= 3 {
+                format!(":0x{:04x}", u16::from_le_bytes([body[1], body[2]]))
+            } else {
+                String::new()
+            },
+            body.len()
+        );
         let _ = self.out.send(body);
     }
 }

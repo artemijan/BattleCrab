@@ -874,6 +874,9 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     if world.objects.get_component::<crate::model::Player>(&player_oid).is_none() {
         return;
     }
+    // Java grounds the z on the geodata (`GeoEngine.getHeight`, non-flying)
+    // and then lifts it "a bit" (`z += 5`).
+    let z = world.geo.get_height(x, y, z) + 5;
     world.objects.remove_component::<Movement>(&player_oid);
     world.objects.remove_component::<Intent>(&player_oid);
     world.objects.remove_component::<crate::model::components::QueuedAction>(&player_oid);
@@ -892,6 +895,14 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     }
     if let Some(region) = world.objects.get_component_mut::<RegionCell>(&player_oid) {
         region.0 = crate::world::region_of(x, y);
+    }
+    // "Send teleport finished packet to player" (Java, right after `setXYZ`):
+    // the client sits on the black loading screen until this arrives, then
+    // loads the destination and answers with `Appearing`.
+    if let Some(cs) =
+        client_for_player(world, player_oid).and_then(|cid| world.clients.get(&cid))
+    {
+        cs.send(server_packets::ex_teleport_to_location_activate(player_oid, x, y, z, heading));
     }
 }
 

@@ -305,8 +305,15 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
     let World { clients, objects, geo, .. } = world;
     let Some(ClientSession::InGame(session)) = clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
-    // Java: also bails while teleporting / in observer mode (states we lack).
-    if objects.has_component::<Casting>(&object_id) {
+    // Java bails while casting, teleporting, or in observer mode (no observer
+    // mode yet). The teleporting bail is load-bearing: during a far teleport
+    // the client keeps reporting its OLD position until it finishes loading
+    // and sends Appearing — without the bail, the out-of-sync snap below
+    // reverts the server position to the pre-teleport spot and the client
+    // hangs on the black loading screen.
+    if objects.has_component::<Casting>(&object_id)
+        || objects.get_component::<Player>(&object_id).is_none_or(|p| p.teleporting)
+    {
         return;
     }
     let Some((player, mut pos, speeds, mut client)) =

@@ -72,6 +72,8 @@ pub mod opcodes {
     pub const REQUEST_WITH_DRAWAL_PARTY: u8 = 0x44;
     pub const REQUEST_OUST_PARTY_MEMBER: u8 = 0x45;
     pub const REQUEST_SEND_FRIEND_MSG: u8 = 0x6B;
+    /// `RequestShowMiniMap` — the client's map button (empty body).
+    pub const REQUEST_SHOW_MINI_MAP: u8 = 0x6C;
     pub const REQUEST_FRIEND_INVITE: u8 = 0x77;
     pub const REQUEST_ANSWER_FRIEND_INVITE: u8 = 0x78;
     pub const REQUEST_FRIEND_LIST: u8 = 0x79;
@@ -94,6 +96,10 @@ pub mod ex_opcodes {
     pub const REQUEST_STOP_MOVE: u16 = 0xED;
     pub const EX_SEND_SELECTED_QUEST_ZONE_ID: u16 = 0xFF;
     pub const REQUEST_AUTO_SOULSHOT: u16 = 0x0D;
+    /// `RequestAllCastleInfo` / `RequestAllFortressInfo` — sent by the world
+    /// map window when it opens (empty bodies).
+    pub const REQUEST_ALL_CASTLE_INFO: u16 = 0x39;
+    pub const REQUEST_ALL_FORTRESS_INFO: u16 = 0x3A;
     /// `RequestExTryToPutEnchantTargetItem` — pick the item to enchant (`objectId`).
     pub const REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM: u16 = 0x49;
     /// `RequestExCancelEnchantItem` — close the enchant window (empty body).

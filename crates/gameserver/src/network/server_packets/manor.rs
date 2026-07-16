@@ -1,5 +1,5 @@
-//! Manor / crop packets plus the compass-zone, UI-setting and auto-soulshot
-//! extended packets.
+//! Manor / crop packets plus the compass-zone, UI-setting, auto-soulshot and
+//! world-map UI packets.
 
 use commons::network::PacketWriter;
 
@@ -95,6 +95,17 @@ pub fn ex_ui_setting() -> Vec<u8> {
     w.write_u8(opcodes::EX);
     w.write_i16(opcodes::EX_UI_SETTING);
     w.write_i32(0); // no stored key-mapping
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ShowMiniMap` — opens the world-map window.
+/// `map_id` 0 = the base world map (1665 = the Seven Signs variant, unused).
+/// The trailing byte is the Seven Signs period state (always 0 here).
+pub fn show_mini_map(map_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::SHOW_MINI_MAP);
+    w.write_i32(map_id);
+    w.write_u8(0); // Seven Signs state
     w.into_bytes()
 }
 

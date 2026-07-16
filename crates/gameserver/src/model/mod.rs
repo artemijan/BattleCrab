@@ -756,8 +756,14 @@ impl Player {
         let p_atk_base = eq.weapon_p_atk.unwrap_or(t.base_p_atk as f64);
         let m_atk_base = eq.weapon_m_atk.unwrap_or(t.base_m_atk as f64);
         let caps = &data.combat_caps;
-        combat.p_atk = finalize(mods, Stat::PhysicalAttack, p_atk_base * str_bonus * level_mod).clamp(0.0, caps.max_p_atk);
-        combat.m_atk = finalize(mods, Stat::MagicalAttack, m_atk_base * (int_bonus * level_mod).powf(2.2072)).clamp(0.0, caps.max_m_atk);
+        // Every max cap below goes through Java's `validateValue`, which skips
+        // the ceiling for creatures with the MAX_STATS_VALUE cond override —
+        // granted to GMs on login (Player.restore). Floors still apply.
+        let cap = |max: f64| if self.is_gm(data) { f64::MAX } else { max };
+        combat.p_atk = finalize(mods, Stat::PhysicalAttack, p_atk_base * str_bonus * level_mod)
+            .clamp(0.0, cap(caps.max_p_atk));
+        combat.m_atk = finalize(mods, Stat::MagicalAttack, m_atk_base * (int_bonus * level_mod).powf(2.2072))
+            .clamp(0.0, cap(caps.max_m_atk));
 
         // P/MDefenseFinalizer: (naked base + summed gear def − the naked defense
         // of every occupied slot) × levelMod (mDef also × MEN bonus), then the
@@ -771,15 +777,17 @@ impl Player {
         // P/MAttackSpeedFinalizer: weapon replaces base; `mul` floors at 0.7.
         let p_atk_spd_base = eq.weapon_p_atk_spd.unwrap_or(t.base_p_atk_spd as f64);
         combat.p_atk_spd = finalize_speed(mods, Stat::PhysicalAttackSpeed, p_atk_spd_base * dex_bonus)
-            .clamp(1.0, caps.max_p_atk_speed) as i32;
+            .clamp(1.0, cap(caps.max_p_atk_speed)) as i32;
         combat.m_atk_spd = finalize_speed(mods, Stat::MagicAttackSpeed, t.base_m_atk_spd as f64 * wit_bonus)
-            .clamp(1.0, caps.max_m_atk_speed) as i32;
+            .clamp(1.0, cap(caps.max_m_atk_speed)) as i32;
 
         // P/MCritRateFinalizer (in per-mille, ×10): weapon replaces base crit.
         let crit_base = eq.weapon_crit.unwrap_or(t.base_crit_rate as f64);
         let m_crit_base = eq.weapon_m_crit.unwrap_or(t.base_m_crit_rate as f64);
-        combat.crit_hit = finalize(mods, Stat::CriticalRate, crit_base * dex_bonus * 10.0).clamp(0.0, caps.max_p_crit_rate);
-        combat.m_crit_hit = finalize(mods, Stat::MagicCriticalRate, m_crit_base * wit_bonus * 10.0).clamp(0.0, caps.max_m_crit_rate);
+        combat.crit_hit =
+            finalize(mods, Stat::CriticalRate, crit_base * dex_bonus * 10.0).clamp(0.0, cap(caps.max_p_crit_rate));
+        combat.m_crit_hit =
+            finalize(mods, Stat::MagicCriticalRate, m_crit_base * wit_bonus * 10.0).clamp(0.0, cap(caps.max_m_crit_rate));
 
         // P/MAccuracyFinalizer, P/MEvasionRateFinalizer (high-level +N steps
         // above level 69 skipped — base classes here don't reach that high).
@@ -789,7 +797,7 @@ impl Player {
         combat.accuracy = finalize(mods, Stat::AccuracyCombat, (base.dex as f64).sqrt() * 5.0 + level + eq.accuracy) as i32;
         combat.magic_accuracy = finalize(mods, Stat::AccuracyMagic, (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_accuracy) as i32;
         combat.evasion = finalize(mods, Stat::EvasionRate, (base.dex as f64).sqrt() * 5.0 + level + eq.evasion)
-            .clamp(0.0, caps.max_evasion) as i32;
+            .clamp(0.0, cap(caps.max_evasion)) as i32;
         combat.magic_evasion = finalize(mods, Stat::MagicEvasionRate, (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_evasion) as i32;
 
         // Weapon range / damage spread replace the class template constants
@@ -822,6 +830,13 @@ impl Player {
                     speeds.walk_spd = finalize(mods, Stat::WalkSpeed, walk);
                 }
             }
+        }
+
+        // SpeedFinalizer's `validateValue`: players clamp to [1, MaxRunSpeed]
+        // (300 on this dist).
+        let speed_cap = cap(caps.max_run_speed);
+        for spd in [&mut speeds.run_spd, &mut speeds.walk_spd, &mut speeds.swim_run_spd, &mut speeds.swim_walk_spd] {
+            *spd = spd.clamp(1.0, speed_cap);
         }
     }
 

@@ -458,7 +458,10 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
 
     // Register the player in the world and re-send UserInfo (Java does both).
     session.send(user_info(&view, data, &world.cfg.character, super::party::calculate_relation(world, view.p)));
-    session.send(ew::ex_set_compass_zone_code(0));
+    // No ExSetCompassZoneCode here: Java's EnterWorld never sends one — the
+    // first revalidateZone below pushes the real code (0x08–0x0F). Sending an
+    // out-of-range code (e.g. 0) leaves the client in an unknown zone state
+    // where it refuses to open the world map.
     session.send(ew::move_to_location(player.object_id, &bundle.position));
     for kind in 0..4 {
         session.send(ew::ex_auto_soul_shot(0, true, kind));

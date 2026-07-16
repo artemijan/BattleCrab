@@ -478,13 +478,6 @@ pub fn ex_rotation(object_id: i32, heading: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `ExSetCompassZoneCode` (0x33).
-pub fn ex_set_compass_zone_code(code: i32) -> Vec<u8> {
-    let mut w = ex(0x33);
-    w.write_i32(code);
-    w.into_bytes()
-}
-
 /// `ExAutoSoulShot` (0x0C).
 pub fn ex_auto_soul_shot(item_id: i32, enable: bool, kind: i32) -> Vec<u8> {
     let mut w = ex(0x0C);

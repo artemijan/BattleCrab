@@ -72,6 +72,7 @@ pub struct CombatCaps {
     pub max_p_atk_speed: f64,
     pub max_m_atk_speed: f64,
     pub max_evasion: f64,
+    pub max_run_speed: f64,
 }
 
 impl Default for CombatCaps {
@@ -85,6 +86,7 @@ impl Default for CombatCaps {
             max_p_atk_speed: 1500.0,
             max_m_atk_speed: 1999.0,
             max_evasion: 250.0,
+            max_run_speed: 300.0,
         }
     }
 }

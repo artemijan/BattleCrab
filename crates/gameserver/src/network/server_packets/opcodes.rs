@@ -91,6 +91,7 @@ pub const STATIC_OBJECT: u8 = 0x9F;
 pub const NPC_SAY: u8 = 0x30;
 pub const CHOOSE_INVENTORY_ITEM: u8 = 0x7C;
 pub const ENCHANT_RESULT: u8 = 0x87;
+pub const SHOW_MINI_MAP: u8 = 0xA3;
 pub const SUN_RISE: u8 = 0x12;
 pub const SUN_SET: u8 = 0x13;
 pub const EARTHQUAKE: u8 = 0xD3;
@@ -99,6 +100,8 @@ pub const EARTHQUAKE: u8 = 0xD3;
 pub const EX: u8 = 0xFE;
 pub const EX_IS_CHAR_NAME_CREATABLE: i16 = 0x10B;
 pub const EX_SEND_MANOR_LIST: i16 = 0x22;
+pub const EX_SHOW_CASTLE_INFO: i16 = 0x14;
+pub const EX_SHOW_FORTRESS_INFO: i16 = 0x15;
 pub const EX_SHOW_CROP_INFO: i16 = 0x24;
 pub const EX_UI_SETTING: i16 = 0x71;
 pub const EX_ASK_MODIFY_PARTY_LOOTING: i16 = 0xC0;
@@ -107,6 +110,9 @@ pub const EX_SHOW_QUEST_MARK: i16 = 0x21;
 pub const EX_NPC_QUEST_HTML_MESSAGE: i16 = 0x8E;
 pub const EX_QUEST_ITEM_LIST: i16 = 0xC7;
 pub const EX_SET_COMPASS_ZONE_CODE: i16 = 0x33;
+/// `ExTeleportToLocationActivate` — the "teleport finished" packet; the
+/// client stays on the loading screen until it arrives.
+pub const EX_TELEPORT_TO_LOCATION_ACTIVATE: i16 = 0x14A;
 /// `ExUserInfoAbnormalVisualEffect` — the abnormal-visual list (incl. GM
 /// invisibility's STEALTH glow).
 pub const EX_USER_INFO_ABNORMAL_VISUAL_EFFECT: i16 = 0x158;

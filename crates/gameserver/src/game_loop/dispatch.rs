@@ -3,7 +3,7 @@
 //! `network/clientpackets` registry. Handlers small enough not to warrant a
 //! module of their own live inline here.
 
-use tracing::error;
+use tracing::{error, trace};
 
 use crate::network::client_packets::{self as cp, ex_opcodes as exop, opcodes as cop};
 use crate::network::server_packets;
@@ -52,6 +52,7 @@ use super::target::{handle_action, handle_request_target_canceld};
 pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
     let Some(&opcode) = data.first() else { return };
     let body = &data[1..];
+    trace!("client {client_id} → opcode 0x{opcode:02x} ({} B)", data.len());
     match opcode {
         cop::AUTH_LOGIN => handle_auth_login(world, client_id, body),
         cop::NEW_CHARACTER => handle_new_character(world, client_id),
@@ -157,6 +158,12 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_FRIEND_LIST => handle_request_friend_list(world, client_id),
         cop::REQUEST_FRIEND_DEL => handle_request_friend_del(world, client_id, body),
         cop::REQUEST_SEND_FRIEND_MSG => handle_request_send_friend_msg(world, client_id, body),
+        // RequestShowMiniMap (IN_GAME): empty body; open the world map.
+        cop::REQUEST_SHOW_MINI_MAP => {
+            if let Some(cs @ ClientSession::InGame(_)) = world.clients.get(&client_id) {
+                cs.send(server_packets::show_mini_map(0));
+            }
+        }
         cop::LOGOUT => handle_logout(world, client_id),
         cop::REQUEST_RESTART => handle_request_restart(world, client_id),
         cop::EX_PACKET => on_ex_packet(world, client_id, body),
@@ -169,6 +176,7 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
     let Some((sub, ex_body)) = cp::read_ex_opcode(body) else {
         return;
     };
+    trace!("client {client_id} → ex-opcode 0x{sub:04x} ({} B)", ex_body.len());
     match sub {
         exop::REQUEST_CHARACTER_NAME_CREATABLE => {
             handle_request_character_name_creatable(world, client_id, ex_body)
@@ -199,6 +207,38 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // ExSendSelectedQuestZoneID (IN_GAME): store the selected quest zone id.
         exop::EX_SEND_SELECTED_QUEST_ZONE_ID => {
             handle_ex_send_selected_quest_zone_id(world, client_id, ex_body)
+        }
+        // RequestAllCastleInfo / RequestAllFortressInfo (IN_GAME): the world
+        // map window asking for the ownership overlays. Java also refreshes
+        // the requester's PartyMemberPosition on the castle request (the map
+        // shows party member dots).
+        exop::REQUEST_ALL_CASTLE_INFO => {
+            if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id) {
+                cs.send(server_packets::ex_show_castle_info());
+                let player_id = session.player_object_id();
+                if let Some(&crate::model::components::PartyRef(party_id)) =
+                    world.objects.get_component(&player_id)
+                {
+                    if let Some(party) = world.parties.get(&party_id) {
+                        let locations: Vec<(i32, i32, i32, i32)> = party
+                            .members
+                            .iter()
+                            .filter_map(|&m| {
+                                world
+                                    .objects
+                                    .get_component::<crate::model::components::Position>(&m)
+                                    .map(|p| (m, p.x, p.y, p.z))
+                            })
+                            .collect();
+                        cs.send(server_packets::party_member_position(&locations));
+                    }
+                }
+            }
+        }
+        exop::REQUEST_ALL_FORTRESS_INFO => {
+            if let Some(cs @ ClientSession::InGame(_)) = world.clients.get(&client_id) {
+                cs.send(server_packets::ex_show_fortress_info());
+            }
         }
         exop::REQUEST_AUTO_SOULSHOT => {
             super::items::handle_request_auto_soul_shot(world, client_id, ex_body)

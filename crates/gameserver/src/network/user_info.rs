@@ -156,12 +156,12 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
     w.write_i32(pos.z);
     w.write_i32(0); // vehicle object id
 
-    // SPEED
+    // SPEED — sent divided by the move multiplier (Java `_runSpd = round(
+    // getRunSpeed() / _moveMultiplier)`); the client multiplies it back.
     w.write_i16(UserInfoType::Speed.block_length() as i16);
-    w.write_i16(speeds.run_spd as i16);
-    w.write_i16(speeds.walk_spd as i16);
-    w.write_i16(speeds.swim_run_spd as i16);
-    w.write_i16(speeds.swim_walk_spd as i16);
+    for spd in speeds.client_speed_fields() {
+        w.write_i16(spd);
+    }
     w.write_i16(0); // fly run
     w.write_i16(0); // fly walk
     w.write_i16(0); // fly run (mount)

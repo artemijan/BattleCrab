@@ -88,10 +88,11 @@ pub fn char_info(v: &crate::model::PlayerView) -> Vec<u8> {
     w.write_i32(p.reputation);
     w.write_i32(combat.m_atk_spd);
     w.write_i32(combat.p_atk_spd);
-    w.write_i16(speeds.run_spd as i16);
-    w.write_i16(speeds.walk_spd as i16);
-    w.write_i16(speeds.swim_run_spd as i16);
-    w.write_i16(speeds.swim_walk_spd as i16);
+    // Sent divided by the move multiplier (Java `_runSpd = round(getRunSpeed()
+    // / _moveMultiplier)`); the client multiplies it back.
+    for spd in speeds.client_speed_fields() {
+        w.write_i16(spd);
+    }
     w.write_i16(0); // fly run
     w.write_i16(0); // fly walk
     w.write_i16(0); // fly run (repeat)
