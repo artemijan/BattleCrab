@@ -30,6 +30,42 @@ pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, a
     super::party::broadcast_user_info(world, target);
 }
 
+/// `AdminTeleport`'s `//move_to <x> <y> <z>` (the main-menu "Teleport" button,
+/// `admin_move_to $qbox`) — a faithful port of `AdminTeleport`'s `admin_move_to`
+/// + `teleportTo`. Empty coordinates (blank QuickBox) open `teleports.htm`
+/// (Java's `StringIndexOutOfBoundsException` branch); a non-numeric token sends
+/// the usage line and opens `teleports.htm` (`NumberFormatException`); too few
+/// tokens sends "Wrong or no Coordinates given." (`teleportTo`'s
+/// `NoSuchElementException`); valid coordinates teleport the GM and confirm.
+pub(super) fn admin_move_to(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    if args.is_empty() {
+        super::menu::show_admin_html(world, client_id, "teleports.htm");
+        return;
+    }
+    // Emulate `teleportTo`'s sequential tokenizer parse of exactly three ints.
+    let mut coords = [0i32; 3];
+    for (i, slot) in coords.iter_mut().enumerate() {
+        match args.get(i) {
+            // Fewer than three tokens → `NoSuchElementException`.
+            None => {
+                send_message(world, client_id, "Wrong or no Coordinates given.");
+                return;
+            }
+            // Non-numeric token → `NumberFormatException` (outer catch).
+            Some(tok) => match tok.parse::<i32>() {
+                Ok(v) => *slot = v,
+                Err(_) => {
+                    send_message(world, client_id, "Usage: //move_to <x> <y> <z>");
+                    super::menu::show_admin_html(world, client_id, "teleports.htm");
+                    return;
+                }
+            },
+        }
+    }
+    super::death::teleport_player(world, object_id, coords[0], coords[1], coords[2]);
+    send_message(world, client_id, &format!("You have been teleported to {}", args.join(" ")));
+}
+
 /// `AdminTeleport`'s coordinate form (`//teleport x y z`) — send the GM to an
 /// explicit location. The menu/target-teleport variants are TODO.
 pub(super) fn admin_teleport_coords(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {

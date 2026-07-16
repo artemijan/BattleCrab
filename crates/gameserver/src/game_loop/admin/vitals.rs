@@ -10,14 +10,62 @@ use crate::world::World;
 
 use super::{current_target, find_online_player, send_message, send_sm, target_player};
 
-/// `AdminHeal` (first slice): fully restore the targeted player's HP/MP/CP, or
-/// the GM's own if no *player* is targeted. NPC targets and the `<name>` form
-/// are TODO (G13.B breadth).
-pub(super) fn admin_heal(world: &mut World, object_id: i32) {
-    let target = current_target(world, object_id)
-        .filter(|oid| world.objects.has_component::<Player>(oid))
-        .unwrap_or(object_id);
-    full_restore(world, target);
+/// `AdminHeal`'s `//heal [name|radius]` — port of `AdminHeal.handleHeal`. With no
+/// argument, heal the current target (or the GM if nothing is selected). A
+/// `<name>` heals that online player; a numeric `<radius>` heals every visible
+/// creature (players *and* NPCs) within it. Healing sets HP/MP to max (and CP to
+/// max for players) but does **not** revive — Java `setCurrentHpMp` leaves the
+/// death state untouched. A non-creature target replies `INVALID_TARGET`.
+pub(super) fn admin_heal(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let mut obj = current_target(world, object_id);
+    if let Some(&arg) = args.first() {
+        if let Some(named) = find_online_player(world, arg) {
+            obj = Some(named);
+        } else if let Ok(radius) = arg.parse::<i32>() {
+            for oid in super::creatures_in_range(world, object_id, radius, true, true) {
+                heal_creature(world, oid);
+            }
+            send_message(world, client_id, &format!("Healed within {radius} unit radius."));
+            return;
+        }
+        // A non-name, non-numeric argument falls through to the target/self.
+    }
+    let target = obj.unwrap_or(object_id);
+    if world.objects.has_component::<Vitals>(&target) {
+        heal_creature(world, target);
+    } else {
+        send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
+    }
+}
+
+/// Java `//heal` on one creature: HP/MP → max (CP → max for players), no revive.
+/// StatusUpdate goes to the player (+ party), or is broadcast near an NPC.
+fn heal_creature(world: &mut World, target: i32) {
+    let is_player = world.objects.has_component::<Player>(&target);
+    let (max_hp, max_mp) = {
+        let Some(v) = world.objects.get_component_mut::<Vitals>(&target) else { return };
+        v.cur_hp = v.max_hp as f64;
+        v.cur_mp = v.max_mp as f64;
+        (v.max_hp, v.max_mp)
+    };
+    let mut updates = vec![(sut::CUR_HP, max_hp), (sut::CUR_MP, max_mp)];
+    if is_player {
+        if let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&target) {
+            pv.cur_cp = pv.max_cp as f64;
+            updates.push((sut::CUR_CP, pv.max_cp));
+        }
+    }
+    let packet = server_packets::status_update(target, &updates);
+    if is_player {
+        if let Some(cid) = super::helpers::client_for_player(world, target) {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(packet);
+            }
+        }
+        super::party::notify_party_vitals(world, target);
+    } else if let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&target).map(|r| r.0) {
+        super::helpers::broadcast_near_region(world, region, &packet);
+    }
 }
 
 /// `AdminRes`'s `//res [name|radius]` — revive the targeted player (or self);

@@ -15,37 +15,41 @@ use crate::world::World;
 
 use super::{current_target, send_message};
 
-/// Position to spawn at — the current target's if one is selected (any object),
-/// else the GM's own (Java `target == null ? activeChar : target`).
-fn spawn_anchor(world: &World, object_id: i32) -> Option<Position> {
+/// `AdminSpawn`'s `//spawn` / `//spawn_monster` / `//spawn_once
+/// <npcId> [count] [respawn]` (the main-menu "Spawn" button is
+/// `admin_spawn_monster $qbox`) — port of `AdminSpawn.spawnMonster`. A missing or
+/// unknown npc id opens `spawns.htm` (Java's `catch`/NPE-on-null-template path);
+/// otherwise `count` (default 1) NPCs spawn at the current target's location (or
+/// the GM's), facing the GM's heading, and the GM gets "Created <name> on
+/// <targetObjectId>". Respawn is not persisted for runtime spawns (module note);
+/// npc-name search (Java `getTemplateByName`) is not ported — numeric id only.
+pub(super) fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let npc_id = args.first().and_then(|s| s.parse::<i32>().ok()).filter(|id| world.data.npc_data.get(*id).is_some());
+    let Some(npc_id) = npc_id else {
+        super::menu::show_admin_html(world, client_id, "spawns.htm");
+        return;
+    };
+    let template_name = world.data.npc_data.get(npc_id).map(|t| t.name.clone()).unwrap_or_default();
+    let count = args.get(1).and_then(|s| s.parse::<i32>().ok()).unwrap_or(1);
+    // Anchor object = current target (any object) or the GM (Java
+    // `target == null ? activeChar : target`); the message reports its id.
     let anchor = current_target(world, object_id).unwrap_or(object_id);
-    world
+    let Some(pos) = world
         .objects
         .get_component::<Position>(&anchor)
         .or_else(|| world.objects.get_component::<Position>(&object_id))
         .copied()
-}
-
-/// `AdminSpawn`'s `//spawn` / `//spawn_monster` / `//spawn_once
-/// <npcId> [count] [respawn]` — spawn `count` NPCs at the anchor (target or GM).
-/// Respawn is not persisted for runtime spawns (see the module note).
-pub(super) fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(npc_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
-        send_message(world, client_id, "Usage: //spawn <npcId> [count] [respawn]");
+    else {
         return;
     };
-    let count = args.get(1).and_then(|s| s.parse::<i32>().ok()).unwrap_or(1).clamp(1, 100);
-    let Some(template_name) = world.data.npc_data.get(npc_id).map(|t| t.name.clone()) else {
-        send_message(world, client_id, &format!("NPC id {npc_id} does not exist."));
-        return;
-    };
-    let Some(pos) = spawn_anchor(world, object_id) else { return };
-    for _ in 0..count {
-        if let Some(spawned) = crate::model::npc::spawn_npc_at(world, npc_id, pos.x, pos.y, pos.z, pos.heading) {
+    // Heading = the GM's heading (Java `spawn.setHeading(activeChar.getHeading())`).
+    let heading = world.objects.get_component::<Position>(&object_id).map_or(0, |p| p.heading);
+    for _ in 0..count.max(0) {
+        if let Some(spawned) = crate::model::npc::spawn_npc_at(world, npc_id, pos.x, pos.y, pos.z, heading) {
             super::death::introduce_npc(world, spawned);
         }
     }
-    send_message(world, client_id, &format!("Created {template_name} x{count}."));
+    send_message(world, client_id, &format!("Created {template_name} on {anchor}"));
 }
 
 /// `AdminSpawn`'s `//spawnat <npcId> <x> <y> <z> [heading]` — spawn one NPC at
@@ -159,16 +163,18 @@ pub(super) fn admin_list_spawns(world: &mut World, client_id: u32, object_id: i3
         return;
     }
 
+    if entries.is_empty() {
+        // Java `findNpcs`: `getClass().getSimpleName() + ": No current spawns found."`.
+        send_message(world, client_id, "AdminSpawn: No current spawns found.");
+        return;
+    }
     let name = world.data.npc_data.get(npc_id).map(|t| t.name.clone()).unwrap_or_default();
-    send_message(world, client_id, &format!("=== Spawns of {name} ({npc_id}) ==="));
     for (i, &entry) in entries.iter().enumerate() {
         let (x, y, z) = resolve(entry);
-        send_message(world, client_id, &format!("  {} - {},{},{}", i + 1, x, y, z));
-    }
-    if entries.is_empty() {
-        send_message(world, client_id, "No current spawns found.");
-    } else {
-        send_message(world, client_id, &format!("{} spawn(s) found.", entries.len()));
+        // Java line: `index + " - " + name + " (" + spawn + "): " + x + " " + y + " " + z`.
+        // The `spawn` token is the Java `Spawn.toString()` (an internal handle),
+        // omitted here as it has no faithful port.
+        send_message(world, client_id, &format!("{} - {name}: {x} {y} {z}", i + 1));
     }
 }
 

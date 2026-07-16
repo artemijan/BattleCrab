@@ -24,15 +24,11 @@ const PC_CAFE_MAX_POINTS: i32 = 200_000;
 /// With no action it just (re)opens the menu.
 pub(super) fn admin_pccafepoints(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     if let Some(&action) = args.first() {
-        if action == "rewardOnline" {
-            reward_online_cmd(world, client_id, object_id, args);
-            show_pccafe_menu(world, client_id, object_id);
-            return;
-        }
-
         let target = target_player(world, object_id);
-        // Java: a missing/invalid value re-shows the menu with "Invalid Value!".
-        let Some(value) = args.get(1).and_then(|s| s.parse::<i32>().ok()) else {
+        // Java: no value token after the action → `return false` (no menu, no
+        // message); a present-but-non-numeric value → menu + "Invalid Value!".
+        let Some(value_tok) = args.get(1) else { return };
+        let Some(value) = value_tok.parse::<i32>().ok() else {
             show_pccafe_menu(world, client_id, object_id);
             send_message(world, client_id, "Invalid Value!");
             return;
@@ -76,21 +72,26 @@ pub(super) fn admin_pccafepoints(world: &mut World, client_id: u32, object_id: i
                 send_message(world, client_id, &format!("You decreased PC Cafe point(s) of {name} by {value}"));
                 send_pccafe_packet(world, target, points_of(world, target), -value);
             }
+            "rewardOnline" => {
+                // Java `rewardOnline`: the parsed `value` is the amount; the
+                // optional next token is the range (default 0 = all online).
+                let range = args.get(2).and_then(|s| s.parse::<i32>().ok()).unwrap_or(0);
+                let count = reward_online_pccafe(world, object_id, value, range);
+                if range <= 0 {
+                    send_message(world, client_id, &format!("You increased PC Cafe point(s) of all online players ({count}) by {value}."));
+                } else {
+                    send_message(world, client_id, &format!("You increased PC Cafe point(s) of all players ({count}) in range {range} by {value}."));
+                }
+            }
             _ => {}
         }
     }
     show_pccafe_menu(world, client_id, object_id);
 }
 
-/// `//pccafepoints rewardOnline <value> [range]` — increase every online player
-/// (range ≤ 0) or every player within `range` of the GM.
-fn reward_online_cmd(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(value) = args.get(1).and_then(|s| s.parse::<i32>().ok()) else {
-        show_pccafe_menu(world, client_id, object_id);
-        send_message(world, client_id, "Invalid Value!");
-        return;
-    };
-    let range = args.get(2).and_then(|s| s.parse::<i32>().ok()).unwrap_or(0);
+/// Java `AdminPcCafePoints.increaseForAll` — raise every online player's (or
+/// every in-range player's) PC-cafe points by `value`; returns how many.
+fn reward_online_pccafe(world: &mut World, gm_oid: i32, value: i32, range: i32) -> i32 {
     let targets: Vec<i32> = if range <= 0 {
         world
             .clients
@@ -101,7 +102,7 @@ fn reward_online_cmd(world: &mut World, client_id: u32, object_id: i32, args: &[
             })
             .collect()
     } else {
-        super::creatures_in_range(world, object_id, range, true, false)
+        super::creatures_in_range(world, gm_oid, range, true, false)
     };
     let mut count = 0;
     for t in targets {
@@ -112,11 +113,7 @@ fn reward_online_cmd(world: &mut World, client_id: u32, object_id: i32, args: &[
         send_pccafe_packet(world, t, new_count, value);
         count += 1;
     }
-    if range <= 0 {
-        send_message(world, client_id, &format!("You increased PC Cafe point(s) of all online players ({count}) by {value}."));
-    } else {
-        send_message(world, client_id, &format!("You increased PC Cafe point(s) of all players ({count}) in range {range} by {value}."));
-    }
+    count
 }
 
 /// `AdminPrimePoints` — `//primepoints [action] [value] [range]` and the
@@ -129,14 +126,11 @@ fn reward_online_cmd(world: &mut World, client_id: u32, object_id: i32, args: &[
 /// per-player mirror is a documented multi-box simplification.
 pub(super) fn admin_primepoints(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     if let Some(&action) = args.first() {
-        if action == "rewardOnline" {
-            reward_online_prime(world, client_id, object_id, args);
-            show_primepoints_menu(world, client_id, object_id);
-            return;
-        }
-
         let target = target_player(world, object_id);
-        let Some(value) = args.get(1).and_then(|s| s.parse::<i32>().ok()) else {
+        // Java: no value token → `return false` (no menu); non-numeric → menu +
+        // "Invalid Value!".
+        let Some(value_tok) = args.get(1) else { return };
+        let Some(value) = value_tok.parse::<i32>().ok() else {
             show_primepoints_menu(world, client_id, object_id);
             send_message(world, client_id, "Invalid Value!");
             return;
@@ -172,21 +166,24 @@ pub(super) fn admin_primepoints(world: &mut World, client_id: u32, object_id: i3
                 send_player_message(world, target, &format!("Admin decreased your Prime Point(s) by {value}!"));
                 send_message(world, client_id, &format!("You decreased Prime Point(s) of {name} by {value}"));
             }
+            "rewardOnline" => {
+                let range = args.get(2).and_then(|s| s.parse::<i32>().ok()).unwrap_or(0);
+                let count = reward_online_prime(world, object_id, value, range);
+                if range <= 0 {
+                    send_message(world, client_id, &format!("You increased Prime Point(s) of all online players ({count}) by {value}."));
+                } else {
+                    send_message(world, client_id, &format!("You increased Prime Point(s) of all players ({count}) in range {range} by {value}."));
+                }
+            }
             _ => {}
         }
     }
     show_primepoints_menu(world, client_id, object_id);
 }
 
-/// `//primepoints rewardOnline <value> [range]` — increase every online player
-/// (range ≤ 0) or every player within `range` of the GM.
-fn reward_online_prime(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(value) = args.get(1).and_then(|s| s.parse::<i32>().ok()) else {
-        show_primepoints_menu(world, client_id, object_id);
-        send_message(world, client_id, "Invalid Value!");
-        return;
-    };
-    let range = args.get(2).and_then(|s| s.parse::<i32>().ok()).unwrap_or(0);
+/// Java `AdminPrimePoints.increaseForAll` — raise every online (or in-range)
+/// player's prime points by `value`; returns how many were affected.
+fn reward_online_prime(world: &mut World, gm_oid: i32, value: i32, range: i32) -> i32 {
     let targets: Vec<i32> = if range <= 0 {
         world
             .clients
@@ -197,7 +194,7 @@ fn reward_online_prime(world: &mut World, client_id: u32, object_id: i32, args: 
             })
             .collect()
     } else {
-        super::creatures_in_range(world, object_id, range, true, false)
+        super::creatures_in_range(world, gm_oid, range, true, false)
     };
     let mut count = 0;
     for t in targets {
@@ -207,11 +204,7 @@ fn reward_online_prime(world: &mut World, client_id: u32, object_id: i32, args: 
         send_player_message(world, t, &format!("Admin increase your Prime Point(s) by {value}!"));
         count += 1;
     }
-    if range <= 0 {
-        send_message(world, client_id, &format!("You increased Prime Point(s) of all online players ({count}) by {value}."));
-    } else {
-        send_message(world, client_id, &format!("You increased Prime Point(s) of all players ({count}) in range {range} by {value}."));
-    }
+    count
 }
 
 fn show_primepoints_menu(world: &World, client_id: u32, object_id: i32) {

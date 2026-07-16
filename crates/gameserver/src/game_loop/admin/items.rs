@@ -9,17 +9,68 @@ use crate::world::World;
 
 use super::{current_target, send_message};
 
-/// `AdminCreateItem`'s `//create_item <id> [count]` — create an item on the GM.
+/// `AdminCreateItem`'s `//create_item [id] [num]` — create `num` (default 1) of
+/// item `id` on the GM, then (always, exactly like Java) reopen
+/// `itemcreation.htm`. Java tokenizes `command.substring(17)`: 1 token → count 1,
+/// 2 tokens → given count, 0 or 3+ tokens → nothing created and no error (the
+/// "Item" main-menu button with an empty QuickBox sends 0 tokens, so it just
+/// opens the menu). A non-numeric id/count → "Specify a valid number.".
 pub(super) fn admin_create_item(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let (Some(item_id), count) = parse_item_args(args) else {
-        send_message(world, client_id, "Usage: //create_item <id> [count]");
+    if matches!(args.len(), 1 | 2) {
+        match parse_id_count(args) {
+            Some((id, num)) => create_item(world, client_id, object_id, object_id, id, num),
+            None => send_message(world, client_id, "Specify a valid number."),
+        }
+    }
+    super::menu::show_admin_html(world, client_id, "itemcreation.htm");
+}
+
+/// Java `AdminCreateItem.createItem` — give `num` of `id` to `target`, message
+/// the GM (and the target if it isn't the GM), and refresh the target's item
+/// list + adena counter.
+fn create_item(world: &mut World, gm_client: u32, gm_oid: i32, target: i32, id: i32, num: i64) {
+    let Some(template) = world.data.item_data.get(id) else {
+        send_message(world, gm_client, "This item doesn't exist.");
         return;
     };
-    if world.data.item_data.get(item_id).is_none() {
-        send_message(world, client_id, &format!("Item id {item_id} does not exist."));
+    let name = template.name.clone();
+    if num > 10 && !template.is_stackable {
+        send_message(world, gm_client, "This item does not stack - Creation aborted.");
         return;
     }
-    super::quests::give_item_with_earned_message(world, client_id, object_id, item_id, count);
+    if crate::game_loop::items::add_inventory_item(world, target, id, num).is_none() {
+        return;
+    }
+    // target.sendMessage(...) only when the target is another player.
+    if target != gm_oid {
+        if let Some(tcid) = super::helpers::client_for_player(world, target) {
+            send_message(world, tcid, &format!("Admin spawned {num} {name} in your inventory."));
+        }
+    }
+    // target.sendItemList(false) + ExAdenaInvenCount.
+    if let Some(tcid) = super::helpers::client_for_player(world, target) {
+        if let Some(inv) = world.objects.get_component::<Inventory>(&target) {
+            let list = crate::network::enter_world::item_list(inv, &world.data, false);
+            let adena = crate::network::enter_world::ex_adena_inven_count(inv);
+            if let Some(cs) = world.clients.get(&tcid) {
+                cs.send(list);
+                cs.send(adena);
+            }
+        }
+    }
+    let target_name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+    send_message(world, gm_client, &format!("You have spawned {num} {name}({id}) in {target_name} inventory."));
+}
+
+/// Parse Java's `<id> [num]` tokens (1 or 2). `None` on any non-numeric token
+/// (Java `NumberFormatException` → "Specify a valid number.").
+fn parse_id_count(args: &[&str]) -> Option<(i32, i64)> {
+    let id = args.first()?.parse::<i32>().ok()?;
+    let num = match args.get(1) {
+        Some(s) => s.parse::<i64>().ok()?,
+        None => 1,
+    };
+    Some((id, num))
 }
 
 /// `AdminCreateItem`'s `//give_item_target <id> [count]` — give to the targeted

@@ -161,7 +161,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_admin" | "admin_admin1" | "admin_admin2" | "admin_admin3" | "admin_admin4"
         | "admin_admin5" | "admin_admin6" | "admin_admin7" => admin_admin(world, client_id, command),
         "admin_serverinfo" => admin_serverinfo(world, client_id),
-        "admin_heal" => admin_heal(world, object_id),
+        "admin_heal" => admin_heal(world, client_id, object_id, &args),
         "admin_kill" => admin_kill(world, client_id, object_id, &args, false),
         "admin_kill_monster" => admin_kill(world, client_id, object_id, &args, true),
         "admin_res" => admin_res(world, client_id, object_id, &args),
@@ -199,8 +199,10 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_transform" => admin_transform(world, client_id, object_id, &args),
         "admin_untransform" => admin_untransform(world, object_id),
         "admin_transform_menu" => menu::show_admin_html(world, client_id, "gm_menu.htm"),
+        // "Teleport" main-menu button: coords → teleport, empty → teleports.htm.
+        "admin_move_to" => admin_move_to(world, client_id, object_id, &args),
         // Self-teleport to explicit coordinates.
-        "admin_teleport" | "admin_move_to" | "admin_tele" | "admin_instant_move" => {
+        "admin_teleport" | "admin_tele" | "admin_instant_move" => {
             admin_teleport_coords(world, client_id, object_id, &args)
         }
         // Bring a player to the GM.
