@@ -91,26 +91,85 @@ fn all_npc_ids(world: &World) -> Vec<i32> {
     world.npc_regions.values().flatten().copied().collect()
 }
 
-/// `AdminSpawn`'s `//list_spawns` / `//list_positions <npcId>` — list the live
-/// positions of every spawned NPC with that id (Java opens an HTML window; text
-/// here).
-pub(super) fn admin_list_spawns(world: &mut World, client_id: u32, args: &[&str]) {
+/// `AdminSpawn.findNpcs` — the `//list_spawns` / `//list_positions
+/// <npcId> [tele_index]` commands. Lists every configured spawn line of `npcId`
+/// 1-indexed; with a numeric `tele_index` it teleports the GM to that line
+/// instead of listing. `show_position` (`//list_positions`) reports the current
+/// location of the nearest live NPC of that id when one exists, else the
+/// configured point; `//list_spawns` always reports the configured point.
+///
+/// Java keys this off `SpawnTable.getSpawns(npcId)` (one entry per registered
+/// spawn line, each with `getLastSpawn()`). This port enumerates the loaded
+/// fixed-location spawn definitions in file order; territory-only lines (no
+/// single configured point) and the per-line `count` multiplier are collapsed
+/// to one entry — documented deviations, immaterial to the teleport use this
+/// command exists for. NPC-name search (Java `getTemplateByName`) is not ported;
+/// like the other admin spawn commands this takes a numeric id only.
+pub(super) fn admin_list_spawns(world: &mut World, client_id: u32, object_id: i32, args: &[&str], show_position: bool) {
     let Some(npc_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
         send_message(world, client_id, "Command format is //list_spawns <npcId> [tele_index]");
         return;
     };
-    let name = world.data.npc_data.get(npc_id).map(|t| t.name.clone()).unwrap_or_default();
-    let mut n = 0;
-    send_message(world, client_id, &format!("=== Spawns of {name} ({npc_id}) ==="));
-    for oid in all_npc_ids(world) {
-        if world.objects.get_component::<Npc>(&oid).map(|npc| npc.npc_id) == Some(npc_id) {
-            if let Some(p) = world.objects.get_component::<Position>(&oid) {
-                n += 1;
-                send_message(world, client_id, &format!("  {},{},{}", p.x, p.y, p.z));
+    let tele_index = args.get(1).and_then(|s| s.parse::<i32>().ok());
+
+    // Configured spawn points for this id, in file order — the 1-based index
+    // space shared by both listing and the teleport form.
+    let entries: Vec<(i32, i32, i32)> = world
+        .data
+        .spawn_data
+        .spawns
+        .iter()
+        .flat_map(|t| t.groups.iter())
+        .flat_map(|g| g.npcs.iter())
+        .filter(|def| def.npc_id == npc_id)
+        .filter_map(|def| def.loc.map(|l| (l.x, l.y, l.z)))
+        .collect();
+
+    // Live NPCs of this id (for `//list_positions` current-location reporting).
+    let live: Vec<(i32, i32, i32)> = all_npc_ids(world)
+        .into_iter()
+        .filter(|oid| world.objects.get_component::<Npc>(oid).map(|n| n.npc_id) == Some(npc_id))
+        .filter_map(|oid| world.objects.get_component::<Position>(&oid).map(|p| (p.x, p.y, p.z)))
+        .collect();
+
+    // For `//list_positions`, resolve an entry to the nearest live NPC's current
+    // position (Java's `spawn.getLastSpawn()`); fall back to the configured
+    // point when none is alive or for `//list_spawns`.
+    let resolve = |(ex, ey, ez): (i32, i32, i32)| -> (i32, i32, i32) {
+        if show_position {
+            if let Some(&(x, y, z)) = live.iter().min_by_key(|(x, y, z)| {
+                let (dx, dy, dz) = ((x - ex) as i64, (y - ey) as i64, (z - ez) as i64);
+                dx * dx + dy * dy + dz * dz
+            }) {
+                return (x, y, z);
             }
         }
+        (ex, ey, ez)
+    };
+
+    if let Some(idx) = tele_index {
+        let entry = if idx >= 1 { entries.get((idx - 1) as usize).copied() } else { None };
+        match entry {
+            Some(e) => {
+                let (x, y, z) = resolve(e);
+                super::death::teleport_player(world, object_id, x, y, z);
+            }
+            None => send_message(world, client_id, "No spawn found at that index."),
+        }
+        return;
     }
-    send_message(world, client_id, &format!("{n} spawn(s) found."));
+
+    let name = world.data.npc_data.get(npc_id).map(|t| t.name.clone()).unwrap_or_default();
+    send_message(world, client_id, &format!("=== Spawns of {name} ({npc_id}) ==="));
+    for (i, &entry) in entries.iter().enumerate() {
+        let (x, y, z) = resolve(entry);
+        send_message(world, client_id, &format!("  {} - {},{},{}", i + 1, x, y, z));
+    }
+    if entries.is_empty() {
+        send_message(world, client_id, "No current spawns found.");
+    } else {
+        send_message(world, client_id, &format!("{} spawn(s) found.", entries.len()));
+    }
 }
 
 /// `AdminSpawn`'s `//top_spawn_count [n]` — the `n` most-spawned NPC ids in the

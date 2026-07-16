@@ -246,8 +246,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_show_spawns" | "admin_show_npcs" | "admin_spawn_debug_menu" | "admin_spawn_index" | "admin_npc_index" => {
             admin_spawn_menu(world, client_id, command)
         }
-        // Live-spawn inspection.
-        "admin_list_spawns" | "admin_list_positions" => admin_list_spawns(world, client_id, &args),
+        // Spawn-line inspection + teleport-to-index (`goSpawn`/`goPosition`).
+        "admin_list_spawns" => admin_list_spawns(world, client_id, object_id, &args, false),
+        "admin_list_positions" => admin_list_spawns(world, client_id, object_id, &args, true),
         "admin_top_spawn_count" | "admin_topspawncount" => admin_top_spawn_count(world, client_id, &args),
         "admin_spawn_debug_print" | "admin_spawn_debug_print_menu" => admin_spawn_debug_print(world, client_id, object_id),
         // List NPCs visible from the GM.
