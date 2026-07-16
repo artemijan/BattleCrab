@@ -144,9 +144,24 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             }
         }
     }
-    // NPC deltas: NpcInfo for NPCs entering the 3×3 block, DeleteObject (and
-    // a dangling-target drop) for NPCs leaving it. The npc_regions index makes
-    // this a walk over the (at most) 12 cells whose adjacency changed.
+    // Dangling-target drop first: Java `switchRegion` runs `setTarget(null)`
+    // *before* the target's `DeleteObject`, and `Player.setTarget(null)`
+    // broadcasts `TargetUnselected` including the owner's own client — without
+    // that packet our client keeps the object id selected and the ground ring
+    // re-attaches when the same id re-enters via `NpcInfo`/`CharInfo`.
+    // TODO(G9): Java also fires `EVT_FORGET_OBJECT` at both sides' AI here so
+    // NPCs drop aggro/follow on objects leaving their block — wire up when NPC
+    // AI can hold references.
+    if let Some(TargetRef(Some(target))) = world.objects.get_component::<TargetRef>(&object_id).copied() {
+        let target_region = world.objects.get_component::<RegionCell>(&target).map(|r| r.0);
+        if target_region.is_some_and(|r| !regions_adjacent(new, r)) {
+            super::target::drop_target_notify(world, object_id);
+        }
+    }
+
+    // NPC deltas: NpcInfo for NPCs entering the 3×3 block, DeleteObject for
+    // NPCs leaving it. The npc_regions index makes this a walk over the (at
+    // most) 12 cells whose adjacency changed.
     let my_client = client_for_player(world, object_id);
     if let Some(cs) = my_client.and_then(|cid| world.clients.get(&cid)) {
         for npc_id in world.npcs_visible_from(new) {
@@ -202,14 +217,6 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             }
         }
     }
-    if let Some(TargetRef(Some(target))) = world.objects.get_component::<TargetRef>(&object_id).copied() {
-        if let Some(npc_region) = world.objects.get_component::<RegionCell>(&target) {
-            if !regions_adjacent(new, npc_region.0) {
-                world.objects.get_component_mut::<TargetRef>(&object_id).expect("checked above").0 = None;
-            }
-        }
-    }
-
     for (other_id, other_client, appeared) in deltas {
         if appeared {
             if let Some(cs) = world.clients.get(&other_client) {
@@ -219,21 +226,20 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
                 send_char_info(world, cs, other_id);
             }
         } else {
+            // Target drops (with their TargetUnselected) precede the
+            // DeleteObject, as in Java. The mover's own target was already
+            // handled above; the guard makes a second call a no-op anyway.
+            if world.objects.get_component::<TargetRef>(&other_id).copied().is_some_and(|t| t.0 == Some(object_id)) {
+                super::target::drop_target_notify(world, other_id);
+            }
+            if world.objects.get_component::<TargetRef>(&object_id).copied().is_some_and(|t| t.0 == Some(other_id)) {
+                super::target::drop_target_notify(world, object_id);
+            }
             if let Some(cs) = world.clients.get(&other_client) {
                 cs.send(server_packets::delete_object(object_id));
             }
             if let Some(cs) = my_client.and_then(|cid| world.clients.get(&cid)) {
                 cs.send(server_packets::delete_object(other_id));
-            }
-            if let Some(other) = world.objects.get_component_mut::<TargetRef>(&other_id) {
-                if other.0 == Some(object_id) {
-                    other.0 = None;
-                }
-            }
-            if let Some(me) = world.objects.get_component_mut::<TargetRef>(&object_id) {
-                if me.0 == Some(other_id) {
-                    me.0 = None;
-                }
             }
         }
     }
@@ -248,8 +254,8 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
 /// `world.objects`.
 pub(crate) fn on_leave_world(world: &mut World, object_id: i32) {
     let Some(region) = player_region(world, object_id) else { return };
-    let mut observers: Vec<i32> = Vec::new();
-    for cs in world.clients.values() {
+    let mut observers: Vec<(u32, i32)> = Vec::new();
+    for (&cid, cs) in &world.clients {
         if let ClientSession::InGame(s) = cs {
             let other_id = s.player_object_id();
             if other_id == object_id {
@@ -257,16 +263,18 @@ pub(crate) fn on_leave_world(world: &mut World, object_id: i32) {
             }
             let Some(other_region) = player_region(world, other_id) else { continue };
             if regions_adjacent(region, other_region) {
-                cs.send(server_packets::delete_object(object_id));
-                observers.push(other_id);
+                observers.push((cid, other_id));
             }
         }
     }
-    for other_id in observers {
-        if let Some(other) = world.objects.get_component_mut::<TargetRef>(&other_id) {
-            if other.0 == Some(object_id) {
-                other.0 = None;
-            }
+    for (cid, other_id) in observers {
+        // TargetUnselected before DeleteObject (Java `removeVisibleObject`
+        // runs `setTarget(null)` first) — see `drop_target_notify`.
+        if world.objects.get_component::<TargetRef>(&other_id).copied().is_some_and(|t| t.0 == Some(object_id)) {
+            super::target::drop_target_notify(world, other_id);
+        }
+        if let Some(cs) = world.clients.get(&cid) {
+            cs.send(server_packets::delete_object(object_id));
         }
     }
 }
@@ -298,25 +306,32 @@ pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
     }
     world.npc_regions.entry(new).or_default().push(npc_object_id);
 
-    let mut lost_watchers: Vec<i32> = Vec::new();
-    for cs in world.clients.values() {
+    // Deltas are collected first so the target drop (which needs `&mut World`
+    // for its TargetUnselected broadcast) can run before the DeleteObject
+    // send, matching Java `switchRegion` order.
+    let mut deltas: Vec<(u32, i32, bool)> = Vec::new(); // (client_id, player_id, appeared)
+    for (&cid, cs) in &world.clients {
         if let ClientSession::InGame(s) = cs {
             let player_id = s.player_object_id();
             let Some(player_region) = player_region(world, player_id) else { continue };
             let was = regions_adjacent(old, player_region);
             let now = regions_adjacent(new, player_region);
-            if !was && now {
-                send_npc_info(world, cs, npc_object_id);
-            } else if was && !now {
-                cs.send(server_packets::delete_object(npc_object_id));
-                lost_watchers.push(player_id);
+            if was != now {
+                deltas.push((cid, player_id, now));
             }
         }
     }
-    for player_id in lost_watchers {
-        if let Some(p) = world.objects.get_component_mut::<TargetRef>(&player_id) {
-            if p.0 == Some(npc_object_id) {
-                p.0 = None;
+    for (cid, player_id, appeared) in deltas {
+        if appeared {
+            if let Some(cs) = world.clients.get(&cid) {
+                send_npc_info(world, cs, npc_object_id);
+            }
+        } else {
+            if world.objects.get_component::<TargetRef>(&player_id).copied().is_some_and(|t| t.0 == Some(npc_object_id)) {
+                super::target::drop_target_notify(world, player_id);
+            }
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(server_packets::delete_object(npc_object_id));
             }
         }
     }

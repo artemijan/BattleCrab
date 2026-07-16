@@ -8,6 +8,18 @@ Living status tracker for the Java→Rust rewrite. Plans:
 
 **Legend:** ✅ done · 🚧 in progress · ⏳ not started.
 
+**Porting convention — scoped-out behavior gets a TODO at the site.** When a
+port intentionally skips part of the Java behavior (side effect deferred to a
+later milestone, branch needing state we don't have yet), leave a
+`TODO(G<N>): …` comment at the exact spot in the Rust code, naming what the
+Java source does (e.g. "Java also fires `EVT_FORGET_OBJECT` at the AI here").
+Never silently drop a Java side effect — that's how parity bugs like the
+missing `TargetUnselected`-on-visibility-drop happen. The G13.9-style TODO
+sweeps rely on these markers being greppable. Also: Java packet side effects
+often hide in overrides (`Player.setTarget(null)` broadcasts `TargetUnselected`
+includeSelf) — check the `Player`/`Creature` override chain, not just the
+method named at the call site.
+
 ---
 
 ## Snapshot

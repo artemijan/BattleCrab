@@ -239,6 +239,29 @@ pub(crate) fn set_target(world: &mut World, client_id: u32, object_id: i32, new_
     }
 }
 
+/// Server-initiated `Player.setTarget(null)` (target left the 3×3 visibility
+/// block, logged out, …): clear `TargetRef` and broadcast `TargetUnselected`
+/// **including the holder's own client** — Java's `broadcastPacket` defaults
+/// to includeSelf, and the self-directed copy is load-bearing: our client
+/// keeps a deleted object id locked as its selection, so the ground ring
+/// re-attaches when the same id comes back via `NpcInfo`/`CharInfo`. Callers
+/// must invoke this *before* sending the target's `DeleteObject`, matching
+/// Java `World.switchRegion` (`setTarget(null)` runs first).
+pub(crate) fn drop_target_notify(world: &mut World, holder_object_id: i32) {
+    if !world.objects.get_component::<TargetRef>(&holder_object_id).copied().is_some_and(|t| t.0.is_some()) {
+        return;
+    }
+    if let Some(t) = world.objects.get_component_mut::<TargetRef>(&holder_object_id) {
+        t.0 = None;
+    }
+    let Some(pos) = world.objects.get_component::<Position>(&holder_object_id).copied() else { return };
+    let pkt = server_packets::target_unselected(holder_object_id, pos.x, pos.y, pos.z);
+    if let Some(cs) = super::helpers::client_for_player(world, holder_object_id).and_then(|cid| world.clients.get(&cid)) {
+        cs.send(pkt.clone());
+    }
+    broadcast_to_others(world, holder_object_id, &pkt);
+}
+
 /// The `NpcAction` interact branch (second click on the current NPC target):
 /// monsters start the auto-attack loop (G9); everything else in interaction
 /// range opens its chat window (`Npc.showChatWindow`). Out of range, the

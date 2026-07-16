@@ -2996,15 +2996,47 @@ fn region_cross_sends_npc_deltas_and_drops_npc_target() {
         "NpcInfo on entering visibility range"
     );
 
-    // Target it, then step back to region (0, 0): DeleteObject + target drop.
+    // Target it, then step back to region (0, 0): the dangling target is
+    // released with an explicit TargetUnselected *before* the DeleteObject
+    // (Java `switchRegion` runs `setTarget(null)` first, and the self-directed
+    // TargetUnselected is what clears this client's ground ring).
     world.objects.get_component_mut::<TargetRef>(&3001).unwrap().0 = Some(NPC_OID);
     world.objects.get_component_mut::<Position>(&3001).unwrap().x = 10;
     visibility::update_region(&mut world, 3001);
     let packets = drain(&mut rx);
-    let del: Vec<_> = packets.iter().filter(|p| p[0] == server_packets::opcodes::DELETE_OBJECT).collect();
-    assert_eq!(del.len(), 1, "DeleteObject for the NPC leaving range");
-    assert_eq!(i32::from_le_bytes(del[0][1..5].try_into().unwrap()), NPC_OID);
+    let unselect_at = packets
+        .iter()
+        .position(|p| p[0] == server_packets::opcodes::TARGET_UNSELECTED)
+        .expect("TargetUnselected for the dropped target");
+    let delete_at = packets
+        .iter()
+        .position(|p| p[0] == server_packets::opcodes::DELETE_OBJECT)
+        .expect("DeleteObject for the NPC leaving range");
+    assert!(unselect_at < delete_at, "TargetUnselected must precede DeleteObject");
+    assert_eq!(
+        i32::from_le_bytes(packets[unselect_at][1..5].try_into().unwrap()),
+        3001,
+        "payload carries the deselecting player"
+    );
+    assert_eq!(i32::from_le_bytes(packets[delete_at][1..5].try_into().unwrap()), NPC_OID);
     assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, None, "dangling NPC target dropped");
+
+    // Walk back into range: the NPC re-enters via NpcInfo only — no selection
+    // packets, and the target stays dropped (the walk-away-and-back ring bug).
+    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 2 * 2048 + 10;
+    visibility::update_region(&mut world, 3001);
+    let packets = drain(&mut rx);
+    assert!(
+        packets.iter().any(|p| p[0] == server_packets::opcodes::NPC_INFO),
+        "NpcInfo on re-entering visibility range"
+    );
+    assert!(
+        !packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::TARGET_UNSELECTED || p[0] == server_packets::opcodes::MY_TARGET_SELECTED),
+        "coming back must not touch target state"
+    );
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, None, "target stays dropped after returning");
 }
 
 /// `Action` on an NPC: first click selects (`ValidateLocation` +
@@ -4020,10 +4052,21 @@ fn region_crossing_exchanges_delete_object_and_char_info() {
     }
     assert!(!world.objects.has_component::<Movement>(&6201), "move must have finished");
 
-    let to_watcher = drain(&mut watcher_rx);
-    assert_eq!(to_watcher.len(), 1, "exactly one packet after the move start");
-    assert_eq!(delete_object_id(&to_watcher[0]), 6201);
-    assert_eq!(delete_object_id(&drain(&mut mover_rx).pop().unwrap()), 6202);
+    // The first movement tick also fires the watcher's initial zone
+    // revalidate (ExSetCompassZoneCode) — unrelated to visibility, drop it.
+    let to_watcher: Vec<_> =
+        drain(&mut watcher_rx).into_iter().filter(|p| p[0] != server_packets::opcodes::EX).collect();
+    assert_eq!(
+        to_watcher.len(),
+        2,
+        "TargetUnselected then DeleteObject after the move; got opcodes {:02x?}",
+        to_watcher.iter().map(|p| p[0]).collect::<Vec<_>>()
+    );
+    assert_eq!(to_watcher[0][0], server_packets::opcodes::TARGET_UNSELECTED, "ring released before the delete");
+    assert_eq!(delete_object_id(&to_watcher[1]), 6201);
+    let to_mover: Vec<_> =
+        drain(&mut mover_rx).into_iter().filter(|p| p[0] != server_packets::opcodes::EX).collect();
+    assert_eq!(delete_object_id(to_mover.last().unwrap()), 6202);
     assert_eq!(world.objects.get_component::<TargetRef>(&6202).unwrap().0, None, "dangling target dropped");
 
     // Walk back east: crossing into region 0 re-enters the watcher's block —
@@ -4056,7 +4099,9 @@ fn leave_world_sends_delete_object_to_watchers() {
 
     handle_logout(&mut world, 1);
 
-    assert_eq!(delete_object_id(&near_rx.try_recv().unwrap()), 6301);
+    let to_near = drain(&mut near_rx);
+    assert_eq!(to_near[0][0], server_packets::opcodes::TARGET_UNSELECTED, "ring released before the delete");
+    assert_eq!(delete_object_id(&to_near[1]), 6301);
     assert_eq!(world.objects.get_component::<TargetRef>(&6302).unwrap().0, None, "dangling target dropped");
     assert!(far_rx.try_recv().is_err());
 }
