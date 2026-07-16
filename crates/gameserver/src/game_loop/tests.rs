@@ -218,7 +218,10 @@ async fn character_create_inserts_into_real_schema() {
     // skip them.
     let next_event = || loop {
         match db_event_rx.recv_timeout(std::time::Duration::from_secs(5)).unwrap() {
-            DbEvent::IdBlock { .. } | DbEvent::ClansLoaded { .. } | DbEvent::PremiumLoaded { .. } => continue,
+            DbEvent::IdBlock { .. }
+            | DbEvent::ClansLoaded { .. }
+            | DbEvent::PremiumLoaded { .. }
+            | DbEvent::GrandBossesLoaded { .. } => continue,
             other => return other,
         }
     };
@@ -5668,6 +5671,17 @@ fn sm_ids_of(pkts: &[Vec<u8>]) -> Vec<i16> {
         .collect()
 }
 
+/// The string of a `SystemMessage` whose first parameter is `Text` (the shape
+/// `Player.sendMessage(String)` / `send_message` produces). `None` for other
+/// packets or non-text messages. Layout: opcode, id(i16), count(u8),
+/// type(u8=0 Text), then the UTF-16 string.
+fn sysmsg_text(p: &[u8]) -> Option<String> {
+    if p.first() != Some(&server_packets::opcodes::SYSTEM_MESSAGE) || p.len() < 5 || p[3] == 0 || p[4] != 0 {
+        return None;
+    }
+    commons::network::PacketReader::new(&p[5..]).read_string()
+}
+
 fn ex_subs_of(pkts: &[Vec<u8>]) -> Vec<i16> {
     pkts.iter()
         .filter(|p| p[0] == server_packets::opcodes::EX)
@@ -8306,6 +8320,62 @@ fn admin_editchar_info_commands_use_html() {
     assert!(!info.contains("My text is missing"), "charinfo.htm found");
     assert!(info.contains("P6432"), "charinfo shows the character name");
     assert!(!info.contains("%name%") && !info.contains("%level%"), "charinfo tokens replaced");
+}
+
+/// `//grandboss` opens the boss menu; `//grandboss <id>` shows one boss's live
+/// status/respawn from `world.grand_bosses`; the per-boss action buttons hit the
+/// unported boss AI (Java NPEs on the null AI, reproduced here). Port of
+/// `AdminGrandBoss`.
+#[test]
+fn admin_grandboss_status_panel_and_actions() {
+    use crate::model::grand_boss::GrandBoss;
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    // Queen Ant alive (status 0); Antharas dead (status 3) with a known respawn.
+    world.grand_bosses.insert(
+        29001,
+        GrandBoss { boss_id: 29001, loc_x: 0, loc_y: 0, loc_z: 0, heading: 0, respawn_time: 0, current_hp: 1.0, current_mp: 1.0, status: 0 },
+    );
+    world.grand_bosses.insert(
+        29068,
+        GrandBoss { boss_id: 29068, loc_x: 0, loc_y: 0, loc_z: 0, heading: 0, respawn_time: 1_700_000_000_000, current_hp: 1.0, current_mp: 1.0, status: 3 },
+    );
+    let mut rx = ingame_player_access(&mut world, 1, 6440, 100);
+    drain(&mut rx);
+
+    // Menu: the six-boss list.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("grandboss")].concat());
+    let menu = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("grandboss menu html");
+    assert!(!menu.contains("My text is missing"), "grandboss.htm found");
+    assert!(menu.contains("admin_grandboss 29001"), "menu links to each boss");
+
+    // Queen Ant: alive → green, not-yet-respawned label.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("grandboss 29001")].concat());
+    let qa = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("queenant html");
+    assert!(qa.contains("Alive") && qa.contains("00FF00"), "alive status + green color");
+    assert!(qa.contains("Already respawned!"), "alive boss is not awaiting respawn");
+
+    // Antharas: dead → red, formatted respawn date (UTC), zone count unported.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("grandboss 29068")].concat());
+    let an = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("antharas html");
+    assert!(an.contains("Dead") && an.contains("FF0000"), "dead status + red color");
+    assert!(an.contains("2023-11-14 22:13:20"), "formatted respawn time");
+    assert!(an.contains("Zone not found!"), "boss-zone player count unported (G21)");
+
+    // Action buttons: no arg → Usage; unsupported id → Wrong ID; supported id →
+    // the dist's null-AI NPE, with no status page.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("grandboss_skip")].concat());
+    let m = drain(&mut rx);
+    assert!(m.iter().filter_map(|p| sysmsg_text(p)).any(|t| t == "Usage: //grandboss_skip Id"));
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("grandboss_skip 29014")].concat());
+    let m = drain(&mut rx);
+    assert!(m.iter().filter_map(|p| sysmsg_text(p)).any(|t| t == "Wrong ID!"), "skip is Antharas-only");
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("grandboss_skip 29068")].concat());
+    let m = drain(&mut rx);
+    assert!(m.iter().filter_map(|p| sysmsg_text(p)).any(|t| t.contains("NullPointerException")), "unported AI reproduces the dist NPE");
+    assert!(!has_opcode(&m, server_packets::opcodes::NPC_HTML_MESSAGE), "NPE path shows no status page");
 }
 
 /// UserInfo's BASIC_INFO `isGM` byte is `player.isGM()` (Java `UserInfo` L147).

@@ -150,6 +150,12 @@ pub struct World {
     /// at boot (`DbEvent::ClansLoaded`); `create_clan` inserts.
     pub clans: HashMap<i32, crate::model::clan::Clan>,
 
+    /// Grand-boss spawn/status records, keyed by boss NPC id (Java
+    /// `GrandBossManager._storedInfo`/`_bossStatus`). Loaded once at boot
+    /// (`DbEvent::GrandBossesLoaded`), filtered to bosses with a known NPC
+    /// template. Backs the read-only `//grandboss` admin panel.
+    pub grand_bosses: HashMap<i32, crate::model::grand_boss::GrandBoss>,
+
     /// Account premium expirations (`account_name` lowercase → enddate millis),
     /// the in-memory mirror of `account_premium` (Java `PremiumManager._premiumData`).
     /// Boot-loaded from the whole table (`DbEvent::PremiumLoaded`) rather than
@@ -212,6 +218,7 @@ impl World {
             cfg: crate::config::CombatConfig::default(),
             quests: std::sync::Arc::new(crate::scripts::build_registry()),
             clans: HashMap::new(),
+            grand_bosses: HashMap::new(),
             premium: HashMap::new(),
             parties: HashMap::new(),
             next_party_id: 1,

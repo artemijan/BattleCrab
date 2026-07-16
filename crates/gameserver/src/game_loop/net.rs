@@ -411,6 +411,17 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 tracing::info!("GameLoop: loaded {} premium accounts.", entries.len());
                 world.premium = entries.into_iter().collect();
             }
+            DbEvent::GrandBossesLoaded { bosses } => {
+                // Java skips rows whose NPC template is missing (`NpcData
+                // .getTemplate(bossId) != null`); the datapack lives here on the
+                // game thread, so the filter runs at insert time.
+                world.grand_bosses = bosses
+                    .into_iter()
+                    .filter(|b| world.data.npc_data.get(b.boss_id).is_some())
+                    .map(|b| (b.boss_id, b))
+                    .collect();
+                tracing::info!("GameLoop: loaded {} grand bosses.", world.grand_bosses.len());
+            }
             DbEvent::ClansLoaded { clans } => {
                 tracing::info!("GameLoop: loaded {} clans.", clans.len());
                 world.clans = clans.into_iter().map(|c| (c.id, c)).collect();

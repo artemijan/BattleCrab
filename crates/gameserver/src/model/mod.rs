@@ -7,6 +7,7 @@ pub mod clan;
 pub mod components;
 pub mod door;
 pub mod formulas;
+pub mod grand_boss;
 pub mod inventory;
 pub mod mob_group;
 pub mod movement;

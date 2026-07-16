@@ -298,6 +298,9 @@ pub enum DbEvent {
     /// The whole `account_premium` table (Java `PremiumManager` cache),
     /// pushed unprompted at boot. `(account_name lowercase, enddate millis)`.
     PremiumLoaded { entries: Vec<(String, i64)> },
+    /// The `grandboss_data` table (Java `GrandBossManager.init`), pushed
+    /// unprompted at boot. Filtered to known NPC templates on the game thread.
+    GrandBossesLoaded { bosses: Vec<crate::model::grand_boss::GrandBoss> },
 }
 
 pub type CmdTx = tokio::sync::mpsc::UnboundedSender<DbCommand>;
@@ -337,6 +340,9 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
     // Premium table cache, before clans so `ClansLoaded` stays the last boot
     // event (the game loop releases the login link on it).
     let _ = event_tx.send(DbEvent::PremiumLoaded { entries: load_premium(&pool).await });
+
+    // `GrandBossManager.init` — likewise unprompted, before `ClansLoaded`.
+    let _ = event_tx.send(DbEvent::GrandBossesLoaded { bosses: load_grandboss_data(&pool).await });
 
     // `ClanTable`'s boot restore, likewise unprompted.
     let _ = event_tx.send(DbEvent::ClansLoaded { clans: load_clans(&pool).await });
@@ -804,6 +810,32 @@ async fn load_quests(pool: &SqlitePool, owner_id: i32) -> std::collections::Hash
         }
     }
     out
+}
+
+/// `GrandBossManager.init`: every `grandboss_data` row. The NPC-template
+/// filter (`NpcData.getTemplate != null`) runs on the game thread, which owns
+/// the datapack; here we just read the table.
+async fn load_grandboss_data(pool: &SqlitePool) -> Vec<crate::model::grand_boss::GrandBoss> {
+    let rows = sqlx::query(
+        "SELECT boss_id, loc_x, loc_y, loc_z, heading, respawn_time, currentHP, currentMP, status \
+         FROM grandboss_data ORDER BY boss_id",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    rows.iter()
+        .map(|r| crate::model::grand_boss::GrandBoss {
+            boss_id: geti(r, "boss_id") as i32,
+            loc_x: geti(r, "loc_x") as i32,
+            loc_y: geti(r, "loc_y") as i32,
+            loc_z: geti(r, "loc_z") as i32,
+            heading: geti(r, "heading") as i32,
+            respawn_time: geti(r, "respawn_time"),
+            current_hp: getf(r, "currentHP"),
+            current_mp: getf(r, "currentMP"),
+            status: geti(r, "status") as i32,
+        })
+        .collect()
 }
 
 /// `ClanTable`'s boot restore: every `clan_data` row + its member roster

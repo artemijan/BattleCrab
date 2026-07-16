@@ -24,6 +24,7 @@ mod editchar;
 mod effects;
 mod gm_util;
 mod flags;
+mod grand_boss;
 mod items;
 mod menu;
 mod mobgroup;
@@ -46,6 +47,7 @@ use editchar::*;
 use effects::*;
 use gm_util::*;
 use flags::*;
+use grand_boss::*;
 use menu::*;
 
 // The enter-world GM startup block (`EnterWorld.runImpl`) is driven from
@@ -416,6 +418,12 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // setlevel / dismiss / rep), plus AdminClan's pending-leader listing.
         "admin_pledge" => admin_pledge(world, client_id, object_id, &args),
         "admin_clan_show_pending" => admin_clan_show_pending(world, client_id),
+        // AdminGrandBoss — the Game panel's "Grand Boss Info" button. Status
+        // display is live; the skip/respawn/minions/abort actions await the
+        // grand-boss AI (G21).
+        "admin_grandboss" => admin_grandboss(world, client_id, &args),
+        "admin_grandboss_skip" | "admin_grandboss_respawn" | "admin_grandboss_minions"
+        | "admin_grandboss_abort" => admin_grandboss_action(world, client_id, command, &args),
         // AdminVitality (player vitality points).
         "admin_set_vitality" => admin_vitality(world, client_id, object_id, "set", &args),
         "admin_full_vitality" => admin_vitality(world, client_id, object_id, "full", &args),
