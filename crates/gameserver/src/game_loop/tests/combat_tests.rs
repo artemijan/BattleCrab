@@ -890,3 +890,37 @@ fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
         "victor announced"
     );
 }
+
+/// Castle doors during a siege: start closes the gates (full HP), a breach
+/// (damage to 0) swings a door open, and endSiege revives + closes them. Port
+/// of Castle.spawnDoor + the door-breach engine.
+#[test]
+fn siege_doors_close_on_start_and_breach_on_damage() {
+    use crate::data::door_data::DoorOpenMethod;
+    use crate::model::door::Door;
+    use crate::model::siege::Siege;
+    let (mut world, ..) = test_world();
+    insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000); // covers the door at (100, 0)
+    world.sieges.insert(3, Siege::new(3));
+    let door = crate::model::door::spawn_door_for_test(&mut world, test_door(24190001, DoorOpenMethod::None)); // closed, hp 1000
+    crate::game_loop::doors::open_door(&mut world, door);
+    assert!(world.geo.doors.is_open(24190001), "door starts open");
+
+    // start_siege → the castle gate is closed at full HP.
+    crate::game_loop::siege::start_siege(&mut world, 3);
+    assert!(!world.geo.doors.is_open(24190001), "siege closes the gate");
+    assert_eq!(world.objects.get_component::<Door>(&door).unwrap().current_hp, 1000, "gate at full HP");
+
+    // Breach: damage to 0 → the gate is destroyed and swings open.
+    assert!(crate::game_loop::siege::damage_door(&mut world, door, 1000), "breached this hit");
+    assert_eq!(world.objects.get_component::<Door>(&door).unwrap().current_hp, 0, "gate destroyed");
+    assert!(world.geo.doors.is_open(24190001), "breached gate swings open");
+    // A second hit on the dead gate does nothing.
+    assert!(!crate::game_loop::siege::damage_door(&mut world, door, 500), "already breached");
+
+    // endSiege → spawnDoor revives the gate to full HP + closes it.
+    crate::game_loop::siege::end_siege(&mut world, 3);
+    let d = world.objects.get_component::<Door>(&door).unwrap();
+    assert_eq!(d.current_hp, 1000, "revived to full HP");
+    assert!(!world.geo.doors.is_open(24190001), "and closed");
+}

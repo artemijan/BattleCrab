@@ -24,6 +24,9 @@ pub struct Door {
     /// Generation guard for the auto-close task (bumped by every open/close,
     /// like Java cancelling `_autoCloseTask`).
     pub auto_close_seq: u64,
+    /// Java `Door._currentHp`. Only siege (castle) doors take damage; the rest
+    /// sit at `baseHpMax` forever. 0 = breached (open + `isDead`).
+    pub current_hp: i32,
 }
 
 /// Spawn every loaded door template as a world entity (Java `DoorData`'s
@@ -34,7 +37,7 @@ pub fn spawn_doors(world: &mut World) -> usize {
     let mut placed = 0;
     for i in 0..world.data.door_data.doors.len() {
         let t = &world.data.door_data.doors[i];
-        let (door_id, x, y, z) = (t.id, t.x, t.y, t.z);
+        let (door_id, x, y, z, hp) = (t.id, t.x, t.y, t.z, t.hp_max);
         let object_id = world.next_npc_object_id;
         world.next_npc_object_id += 1;
 
@@ -42,7 +45,7 @@ pub fn spawn_doors(world: &mut World) -> usize {
         world.objects.spawn(
             object_id,
             (
-                Door { object_id, door_id, auto_close_seq: 0 },
+                Door { object_id, door_id, auto_close_seq: 0, current_hp: hp },
                 Position { x, y, z, heading: 0 },
                 RegionCell(region),
             ),
@@ -73,13 +76,13 @@ pub fn spawn_door_for_test(world: &mut World, template: crate::data::door_data::
     world.data.door_data.insert_for_test(template);
     let idx = world.data.door_data.doors.len() - 1;
     let t = &world.data.door_data.doors[idx];
-    let (door_id, x, y, z) = (t.id, t.x, t.y, t.z);
+    let (door_id, x, y, z, hp) = (t.id, t.x, t.y, t.z, t.hp_max);
     let object_id = world.next_npc_object_id;
     world.next_npc_object_id += 1;
     let region = region_of(x, y);
     world.objects.spawn(
         object_id,
-        (Door { object_id, door_id, auto_close_seq: 0 }, Position { x, y, z, heading: 0 }, RegionCell(region)),
+        (Door { object_id, door_id, auto_close_seq: 0, current_hp: hp }, Position { x, y, z, heading: 0 }, RegionCell(region)),
     );
     world.door_regions.entry(region).or_default().push(object_id);
     object_id

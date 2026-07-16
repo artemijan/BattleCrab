@@ -9,6 +9,7 @@
 
 use crate::db::DbCommand;
 use crate::model::components::Position;
+use crate::model::door::Door;
 use crate::model::siege::SiegeClanType;
 use crate::model::Player;
 use crate::network::server_packets::{self, sm_ids, SmParam};
@@ -48,9 +49,12 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
     // siege HQ / flags (unported), so for now they're simply evicted too.
     teleport_non_owners(world, castle_id);
 
-    // TODO(G24): updatePlayerSiegeStateFlags, spawn control/flame towers +
-    // castle doors + siege guards (Castle.getZone().setActive is modelled by the
-    // in-progress flag the siege-zone PvP check reads).
+    // `_castle.spawnDoor()` — close the castle gates at full HP for the battle.
+    spawn_castle_doors(world, castle_id, false);
+
+    // TODO(G24): updatePlayerSiegeStateFlags, spawn control/flame towers + siege
+    // guards (Castle.getZone().setActive is modelled by the in-progress flag the
+    // siege-zone PvP check reads).
 }
 
 /// `Siege.endSiege` — announce the finish, declare the winner (or a draw), and
@@ -88,6 +92,8 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
 
     // `teleportPlayer(NotOwner, TOWN)` — clear the battlefield at the end too.
     teleport_non_owners(world, castle_id);
+    // `_castle.spawnDoor()` — restore the gates to full HP + closed.
+    spawn_castle_doors(world, castle_id, false);
     // TODO(G24): despawn control/flame towers + siege guards.
 }
 
@@ -143,6 +149,70 @@ pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
     for (clan_id, kind) in changed {
         let _ = world.db.send(DbCommand::SaveSiegeClan { castle_id, clan_id, kind });
     }
+
+    // `_castle.spawnDoor(true)` — respawn the (now the captor's) gates at 50% HP.
+    spawn_castle_doors(world, castle_id, true);
+}
+
+/// The object ids of a castle's doors — the doors standing inside its siege
+/// zone (Java `Door.getCastle()` is region-based; the siege-zone polygon is the
+/// port's proxy for the castle grounds).
+fn castle_door_oids(world: &World, castle_id: i32) -> Vec<i32> {
+    world
+        .door_regions
+        .values()
+        .flatten()
+        .copied()
+        .filter(|&oid| {
+            world
+                .objects
+                .get_component::<Position>(&oid)
+                .and_then(|p| world.data.zone_data.siege_castle_at(p.x, p.y, p.z))
+                == Some(castle_id)
+        })
+        .collect()
+}
+
+/// Java `Castle.spawnDoor(isDoorWeak)`: revive breached doors to full (or half)
+/// HP and close any open ones. Called at siege start/end (full) and on capture
+/// (weak, 50%).
+fn spawn_castle_doors(world: &mut World, castle_id: i32, weak: bool) {
+    for oid in castle_door_oids(world, castle_id) {
+        let (door_id, dead) = match world.objects.get_component::<Door>(&oid) {
+            Some(d) => (d.door_id, d.current_hp <= 0),
+            None => continue,
+        };
+        if dead {
+            let max_hp = world.data.door_data.get(door_id).map(|t| t.hp_max).unwrap_or(1);
+            if let Some(d) = world.objects.get_component_mut::<Door>(&oid) {
+                d.current_hp = if weak { (max_hp / 2).max(1) } else { max_hp };
+            }
+        }
+        if world.geo.doors.is_open(door_id) {
+            super::doors::close_door(world, oid);
+        }
+    }
+}
+
+/// Apply siege damage to a castle door; at 0 HP it's breached (opens). Returns
+/// whether it broke on this hit. TODO(G24): the attack trigger — `DoorAction`
+/// click-to-target + the melee/skill path against a door — is unported, so
+/// nothing reaches this in production yet.
+#[allow(dead_code)]
+pub(crate) fn damage_door(world: &mut World, door_oid: i32, damage: i32) -> bool {
+    let breached = {
+        let Some(d) = world.objects.get_component_mut::<Door>(&door_oid) else { return false };
+        if d.current_hp <= 0 {
+            return false; // already breached
+        }
+        d.current_hp = (d.current_hp - damage).max(0);
+        d.current_hp == 0
+    };
+    if breached {
+        super::doors::open_door(world, door_oid); // breach — the gate swings open
+        // TODO(G24): broadcast the reduced HP too (DoorStatusUpdate showHp).
+    }
+    breached
 }
 
 /// The clan id owning `castle_id` (0 = NPC/none).
