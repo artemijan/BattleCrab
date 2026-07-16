@@ -15,16 +15,33 @@ use crate::world::World;
 
 use super::{current_target, send_message};
 
+/// Resolve a spawn-menu "Id/Name" token to an npc id. All-digit tokens are npc
+/// ids (Java `monsterId.matches("[0-9]*")`); anything else is a name — `_` maps
+/// to a space and lookup is case-insensitive (Java `getTemplateByName`). Returns
+/// `None` when the id/name is unknown (Java's null-template → `spawns.htm`).
+fn resolve_npc_id(world: &World, token: &str) -> Option<i32> {
+    if !token.is_empty() && token.bytes().all(|b| b.is_ascii_digit()) {
+        let id = token.parse::<i32>().ok()?;
+        return world.data.npc_data.get(id).map(|_| id);
+    }
+    world.data.npc_data.get_by_name(&token.replace('_', " ")).map(|t| t.id)
+}
+
 /// `AdminSpawn`'s `//spawn` / `//spawn_monster` / `//spawn_once
 /// <npcId> [count] [respawn]` (the main-menu "Spawn" button is
 /// `admin_spawn_monster $qbox`) — port of `AdminSpawn.spawnMonster`. A missing or
 /// unknown npc id opens `spawns.htm` (Java's `catch`/NPE-on-null-template path);
 /// otherwise `count` (default 1) NPCs spawn at the current target's location (or
 /// the GM's), facing the GM's heading, and the GM gets "Created <name> on
-/// <targetObjectId>". Respawn is not persisted for runtime spawns (module note);
-/// npc-name search (Java `getTemplateByName`) is not ported — numeric id only.
+/// <targetObjectId>". Respawn is not persisted for runtime spawns (module note).
+///
+/// The first token is an npc id when all-numeric (Java `monsterId.matches("[0-9]*")`);
+/// otherwise it is an npc name — `_` becomes a space and the template is looked
+/// up case-insensitively (Java `getTemplateByName`), which is what the spawn
+/// menu's "Id/Name" input relies on. Multi-word name search (Java's token-walk)
+/// is not ported: the menu passes a single underscore-joined token.
 pub(super) fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let npc_id = args.first().and_then(|s| s.parse::<i32>().ok()).filter(|id| world.data.npc_data.get(*id).is_some());
+    let npc_id = args.first().and_then(|token| resolve_npc_id(world, token));
     let Some(npc_id) = npc_id else {
         super::menu::show_admin_html(world, client_id, "spawns.htm");
         return;
@@ -78,16 +95,94 @@ pub(super) fn admin_spawnat(world: &mut World, client_id: u32, object_id: i32, a
     }
 }
 
-/// `AdminSpawn`'s HTML menu commands (`//show_spawns`, `//show_npcs`,
-/// `//spawn_debug_menu`, `//spawn_index`, `//npc_index`) — open the matching
-/// admin HTML page.
+/// `AdminSpawn`'s static HTML menu commands (`//show_spawns`, `//show_npcs`,
+/// `//spawn_debug_menu`) — open the matching admin HTML page. The dynamic
+/// listings (`//spawn_index`, `//npc_index`) have their own handlers below.
 pub(super) fn admin_spawn_menu(world: &mut World, client_id: u32, command: &str) {
     let page = match command {
-        "admin_show_npcs" | "admin_npc_index" => "npcs.htm",
+        "admin_show_npcs" => "npcs.htm",
         "admin_spawn_debug_menu" => "spawns_debug.htm",
         _ => "spawns.htm",
     };
     super::menu::show_admin_html(world, client_id, page);
+}
+
+/// Number of rows one listing page shows before the `Next` button (Java's
+/// `j < 50` loop bound in `showMonsters`/`showNpcs`).
+const LISTING_PAGE_SIZE: usize = 50;
+
+/// `AdminSpawn.showMonsters` — the spawn menu's "Spawn by Level" **List** buttons
+/// (`admin_spawn_index <level> [from]`). Lists every `Monster`-type NPC of that
+/// exact level as `admin_spawn_monster <id>` links, 50 per page, with a `Next`
+/// button carrying the running offset and a `Back` to the spawn menu. A missing
+/// or non-numeric level falls back to `spawns.htm` (Java's `catch`).
+pub(super) fn admin_spawn_index(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(level) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        super::menu::show_admin_html(world, client_id, "spawns.htm");
+        return;
+    };
+    let from = args.get(1).and_then(|s| s.parse::<usize>().ok()).unwrap_or(0);
+    let mobs = world.data.npc_data.monsters_of_level(level);
+    let total = mobs.len();
+
+    let mut html = format!(
+        "<html><title>Spawn Monster:</title><body><p> Level : {level}<br>Total NPCs : {total}<br>"
+    );
+    let mut i = from;
+    for t in mobs.iter().skip(from).take(LISTING_PAGE_SIZE) {
+        html.push_str(&format!(
+            "<a action=\"bypass -h admin_spawn_monster {}\">{}</a><br1>",
+            t.id, t.name
+        ));
+        i += 1;
+    }
+    if i >= total {
+        html.push_str(
+            "<br><center><button value=\"Back\" action=\"bypass -h admin_show_spawns\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></center></body></html>",
+        );
+    } else {
+        html.push_str(&format!(
+            "<br><center><button value=\"Next\" action=\"bypass -h admin_spawn_index {level} {i}\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"><button value=\"Back\" action=\"bypass -h admin_show_spawns\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></center></body></html>"
+        ));
+    }
+    super::menu::send_admin_html_content(world, client_id, &html);
+}
+
+/// `AdminSpawn.showNpcs` — the NPC menu's A–Z **letter** buttons
+/// (`admin_npc_index <letter> [from]`). Lists `Folk`-type NPCs whose name starts
+/// with `letter` (case-sensitive prefix, as Java) as `admin_spawn_monster <id>`
+/// links, paged like [`admin_spawn_index`]. A missing letter falls back to
+/// `npcs.htm` (Java's `catch`).
+pub(super) fn admin_npc_index(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(&starting) = args.first() else {
+        super::menu::show_admin_html(world, client_id, "npcs.htm");
+        return;
+    };
+    let from = args.get(1).and_then(|s| s.parse::<usize>().ok()).unwrap_or(0);
+    let mobs = world.data.npc_data.folk_starting_with(starting);
+    let total = mobs.len();
+
+    let mut html = format!(
+        "<html><title>Spawn Monster:</title><body><p> There are {total} Npcs whose name starts with {starting}:<br>"
+    );
+    let mut i = from;
+    for t in mobs.iter().skip(from).take(LISTING_PAGE_SIZE) {
+        html.push_str(&format!(
+            "<a action=\"bypass -h admin_spawn_monster {}\">{}</a><br1>",
+            t.id, t.name
+        ));
+        i += 1;
+    }
+    if i >= total {
+        html.push_str(
+            "<br><center><button value=\"Back\" action=\"bypass -h admin_show_npcs\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></center></body></html>",
+        );
+    } else {
+        html.push_str(&format!(
+            "<br><center><button value=\"Next\" action=\"bypass -h admin_npc_index {starting} {i}\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"><button value=\"Back\" action=\"bypass -h admin_show_npcs\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></center></body></html>"
+        ));
+    }
+    super::menu::send_admin_html_content(world, client_id, &html);
 }
 
 /// All NPC object ids currently in the world (across every region index).
@@ -232,6 +327,51 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32) {
         }
     }
     super::menu::show_admin_html_replace(world, client_id, "scan.htm", &[("data", rows), ("pages", String::new())]);
+}
+
+/// `AdminScan`'s `//deleteNpcByObjectId objectId=<id>` — the scan list's
+/// **Delete** links. Port of `AdminScan.useAdminCommand`'s
+/// `admin_deletenpcbyobjectid` case: resolve the object id (a `key=value` bypass
+/// param), despawn the NPC if it is one, message the GM, then re-render the scan
+/// list. Runtime spawns carry no persisted respawn here, so `deleteMe` maps to
+/// [`despawn_npc`] with no spawn-table bookkeeping (documented module note).
+pub(super) fn admin_delete_npc_by_object_id(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    // Java: no token after the command → usage message.
+    if args.is_empty() {
+        send_message(world, client_id, "Usage: //deletenpcbyobjectid objectId=<object_id>");
+        return;
+    }
+    // `BypassParser.getInt("objectId", 0)` over the `key=value` tokens.
+    let target_oid = bypass_param(args, "objectId").and_then(|v| v.parse::<i32>().ok()).unwrap_or(0);
+    if target_oid == 0 {
+        // Java sends this but does not return; it falls through to the
+        // not-an-NPC branch below (findObject(0) == null).
+        send_message(world, client_id, "objectId is not set!");
+    }
+    let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&target_oid)
+        .map(|r| r.0)
+        .filter(|_| world.objects.has_component::<Npc>(&target_oid))
+    else {
+        send_message(world, client_id, "NPC does not exist or object_id does not belong to an NPC");
+        return;
+    };
+    let npc_id = world.objects.get_component::<Npc>(&target_oid).map_or(0, |n| n.npc_id);
+    let name = world.data.npc_data.get(npc_id).map(|t| t.name.clone()).unwrap_or_default();
+    super::death::despawn_npc(world, target_oid, region);
+    send_message(world, client_id, &format!("{name} have been deleted."));
+    // Java `processBypass` re-renders the scan list.
+    admin_scan(world, client_id, object_id);
+}
+
+/// Extract a `key=value` bypass parameter (Java `BypassParser`). The key is
+/// matched case-insensitively; the first match wins.
+fn bypass_param<'a>(args: &[&'a str], key: &str) -> Option<&'a str> {
+    args.iter().find_map(|tok| {
+        let (k, v) = tok.split_once('=')?;
+        k.eq_ignore_ascii_case(key).then_some(v)
+    })
 }
 
 /// `AdminSummon`'s `//summon <id> [count]` — Java delegates: `id < 1000000` is

@@ -86,8 +86,11 @@ pub(crate) fn use_admin_command(world: &mut World, client_id: u32, full: &str, u
     let access_level = player.access_level;
 
     // Command word = the first whitespace-delimited token (Java
-    // `fullCommand.split(" ")[0]`); the rest are arguments.
-    let command = full.split_whitespace().next().unwrap_or(full).to_string();
+    // `fullCommand.split(" ")[0]`); the rest are arguments. Lowercased so both
+    // the access table and the dispatch below are case-insensitive, matching
+    // L2J's `switch (actualCommand.toLowerCase())` (camelCase commands like
+    // `admin_deleteNpcByObjectId` otherwise miss the lowercase dispatch arms).
+    let command = full.split_whitespace().next().unwrap_or(full).to_ascii_lowercase();
     let display = command.strip_prefix("admin_").unwrap_or(&command).to_string();
 
     // Handler existence (Java `getHandler(command) == null`). The "known" set
@@ -249,9 +252,13 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // Spawn one NPC at explicit coordinates.
         "admin_spawnat" => admin_spawnat(world, client_id, object_id, &args),
         // Spawn/NPC HTML menus.
-        "admin_show_spawns" | "admin_show_npcs" | "admin_spawn_debug_menu" | "admin_spawn_index" | "admin_npc_index" => {
+        "admin_show_spawns" | "admin_show_npcs" | "admin_spawn_debug_menu" => {
             admin_spawn_menu(world, client_id, command)
         }
+        // "Spawn by Level" List buttons → Monster-type NPCs of that level.
+        "admin_spawn_index" => admin_spawn_index(world, client_id, &args),
+        // A–Z letter buttons → Folk-type NPCs whose name starts with the letter.
+        "admin_npc_index" => admin_npc_index(world, client_id, &args),
         // PC-cafe loyalty points (target player or self) + the pccafe.htm menu.
         "admin_pccafepoints" => admin_pccafepoints(world, client_id, object_id, &args),
         // Prime (NCoin) points — account-scoped — + the primepoints.htm menu.
@@ -266,6 +273,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_spawn_debug_print" | "admin_spawn_debug_print_menu" => admin_spawn_debug_print(world, client_id, object_id),
         // List NPCs visible from the GM.
         "admin_scan" => admin_scan(world, client_id, object_id),
+        // Delete an NPC by object id (the scan list's Delete links).
+        "admin_deletenpcbyobjectid" => admin_delete_npc_by_object_id(world, client_id, object_id, &args),
         // Create item / one-off spawn by combined id.
         "admin_summon" => admin_summon(world, client_id, object_id, &args),
         // Despawn the targeted NPC.

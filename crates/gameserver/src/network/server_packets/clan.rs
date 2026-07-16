@@ -31,6 +31,20 @@ pub fn pledge_show_info_update(clan: &crate::model::clan::Clan) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Port of `serverpackets/PledgeInfo` — the compact clan name/ally answer
+/// to `RequestPledgeInfo`, sent when the client needs a clan's display names
+/// (e.g. rendering another player's pledge). Ally name is empty until the
+/// alliance system lands (a later milestone).
+pub fn pledge_info(clan: &crate::model::clan::Clan) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLEDGE_INFO);
+    w.write_i32(1); // Config.SERVER_ID
+    w.write_i32(clan.id);
+    w.write_string(&clan.name);
+    w.write_string(""); // ally name
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/PledgeShowMemberListAll` for the main pledge
 /// (`_pledgeId` 0): the full roster with per-member online status resolved
 /// live against the world registry.

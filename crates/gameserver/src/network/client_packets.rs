@@ -66,6 +66,8 @@ pub mod opcodes {
     /// `DlgAnswer` — reply to a `ConfirmDlg` (used by the admin-confirm flow).
     pub const DLG_ANSWER: u8 = 0xC6;
     pub const REQUEST_QUEST_ABORT: u8 = 0x63;
+    /// `RequestPledgeInfo` — asks for a clan's name/ally name by clan id.
+    pub const REQUEST_PLEDGE_INFO: u8 = 0x65;
     pub const REQUEST_BUY_ITEM: u8 = 0x40;
     pub const REQUEST_JOIN_PARTY: u8 = 0x42;
     pub const REQUEST_ANSWER_JOIN_PARTY: u8 = 0x43;

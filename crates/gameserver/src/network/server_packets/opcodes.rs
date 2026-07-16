@@ -86,6 +86,7 @@ pub const QUEST_LIST: u8 = 0x86;
 pub const PLEDGE_SHOW_MEMBER_LIST_ALL: u8 = 0x5A;
 pub const PLEDGE_SHOW_MEMBER_LIST_UPDATE: u8 = 0x5B;
 pub const PLEDGE_SHOW_INFO_UPDATE: u8 = 0x8E;
+pub const PLEDGE_INFO: u8 = 0x89;
 pub const DOOR_STATUS_UPDATE: u8 = 0x4D;
 pub const STATIC_OBJECT: u8 = 0x9F;
 pub const NPC_SAY: u8 = 0x30;

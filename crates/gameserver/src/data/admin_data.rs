@@ -186,8 +186,14 @@ impl AdminData {
             let access_level = attr(b"accessLevel").and_then(|v| v.parse::<i32>().ok()).unwrap_or(7);
             let require_confirm =
                 attr(b"confirmDlg").map(|v| v.eq_ignore_ascii_case("true")).unwrap_or(false);
+            // Key on the lowercased command: L2J's handlers dispatch on
+            // `actualCommand.toLowerCase()`, and some XML entries are camelCase
+            // (e.g. `admin_deleteNpcByObjectId`, the `admin_chsiege_*` family)
+            // while the bypass/`//` bar that triggers them may use any case.
+            // Lookups (`has_command`/`has_access`/`require_confirm`) match the
+            // already-lowercased incoming command word.
             self.command_rights
-                .insert(command.clone(), AdminCommandAccessRight { command, access_level, require_confirm });
+                .insert(command.to_ascii_lowercase(), AdminCommandAccessRight { command, access_level, require_confirm });
         }
     }
 
@@ -326,5 +332,17 @@ mod tests {
         assert!(data.require_confirm("admin_givehero"));
         assert!(!data.require_confirm("admin_heal"));
         assert!(!data.require_confirm("admin_undefined"));
+    }
+
+    #[test]
+    fn camelcase_commands_resolve_case_insensitively() {
+        let data = real();
+        // AdminCommands.xml registers `admin_deleteNpcByObjectId` (camelCase,
+        // confirmDlg="true"), but the scan list's Delete link and the dispatch
+        // arm are lowercase. The table keys on the lowercased command so all
+        // three agree — otherwise the command would be unreachable.
+        assert!(data.has_command("admin_deletenpcbyobjectid"));
+        assert!(data.has_access("admin_deletenpcbyobjectid", 100));
+        assert!(data.require_confirm("admin_deletenpcbyobjectid"));
     }
 }

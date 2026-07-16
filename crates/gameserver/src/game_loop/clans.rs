@@ -3,6 +3,7 @@
 //! the enter/leave-world roster notifications. Invites/wars/levels/crests
 //! and everything else clan stay deferred (see the G11 plan).
 
+use commons::network::PacketReader;
 use tracing::warn;
 
 use crate::db::DbCommand;
@@ -111,6 +112,21 @@ pub(crate) fn handle_create_clan(world: &mut World, client_id: u32, player_oid: 
     // `broadcastUserInfo(RELATION, CLAN)` — the full re-send stands in
     // (same G10 substitution for RelationChanged).
     super::party::broadcast_user_info(world, player_oid);
+}
+
+/// `RequestPledgeInfo.runImpl`: answer with the clan's name/ally names for a
+/// clan id (Java resolves through `ClanTable.getClan`; unknown ids are
+/// silently dropped, matching the "should not happen" early return).
+pub(crate) fn handle_request_pledge_info(world: &World, client_id: u32, body: &[u8]) {
+    // Java guards on a logged-in player before touching the clan table.
+    if !matches!(world.clients.get(&client_id), Some(crate::session::ClientSession::InGame(_))) {
+        return;
+    }
+    let Some(clan_id) = PacketReader::new(body).read_i32() else { return };
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::pledge_info(clan));
+    }
 }
 
 /// `EnterWorld.runImpl`'s clan section (narrowed): fix the leader flag from

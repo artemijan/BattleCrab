@@ -182,6 +182,34 @@ impl NpcData {
         self.by_id.get(&npc_id)
     }
 
+    /// Java `NpcData.getTemplateByName` — first template whose name matches
+    /// `name` case-insensitively (linear scan, as in Java). Used by the admin
+    /// spawn commands, whose "Id/Name" input accepts a name in place of an id.
+    pub fn get_by_name(&self, name: &str) -> Option<&NpcTemplate> {
+        self.by_id.values().find(|t| t.name.eq_ignore_ascii_case(name))
+    }
+
+    /// Java `NpcData.getAllMonstersOfLevel(level)` — templates of exactly
+    /// `level` whose type is `Monster` (Java `isType`, case-insensitive). Sorted
+    /// by id so the admin spawn-by-level menu's `Next` pagination is stable
+    /// across calls (Java relies on unspecified HashMap order).
+    pub fn monsters_of_level(&self, level: i32) -> Vec<&NpcTemplate> {
+        let mut v: Vec<&NpcTemplate> =
+            self.by_id.values().filter(|t| t.level == level && t.type_name.eq_ignore_ascii_case("Monster")).collect();
+        v.sort_by_key(|t| t.id);
+        v
+    }
+
+    /// Java `NpcData.getAllNpcStartingWith(text)` — `Folk`-type templates whose
+    /// name has `text` as a (case-sensitive) prefix. Sorted by id for stable
+    /// pagination, as with [`monsters_of_level`].
+    pub fn folk_starting_with(&self, text: &str) -> Vec<&NpcTemplate> {
+        let mut v: Vec<&NpcTemplate> =
+            self.by_id.values().filter(|t| t.type_name.eq_ignore_ascii_case("Folk") && t.name.starts_with(text)).collect();
+        v.sort_by_key(|t| t.id);
+        v
+    }
+
     pub fn len(&self) -> usize {
         self.by_id.len()
     }
@@ -588,6 +616,27 @@ mod tests {
         // <corpseTime> element text (npc 103, Holiday Santa); absent = None.
         assert_eq!(data.get(103).unwrap().corpse_time, Some(3));
         assert_eq!(g.corpse_time, None);
+
+        // getTemplateByName (admin spawn "Id/Name" input): case-insensitive
+        // exact-name match. "Gremlin" is a real name; several ids share it, so
+        // (like Java) which one is returned is unspecified — assert on the name.
+        assert_eq!(data.get_by_name("Gremlin").map(|t| t.name.as_str()), Some("Gremlin"));
+        assert_eq!(data.get_by_name("gremlin").map(|t| t.name.as_str()), Some("Gremlin"));
+        assert!(data.get_by_name("NoSuchNpcName").is_none());
+
+        // getAllMonstersOfLevel (spawn-by-level "List" buttons): exact level +
+        // Monster type, id-sorted. Gremlin (20001) is level 1, type Monster.
+        let lvl1 = data.monsters_of_level(1);
+        assert!(lvl1.iter().any(|t| t.id == 20001), "Gremlin should be a level-1 Monster");
+        assert!(lvl1.iter().all(|t| t.level == 1 && t.type_name.eq_ignore_ascii_case("Monster")));
+        assert!(lvl1.windows(2).all(|w| w[0].id <= w[1].id), "monsters_of_level sorted by id");
+        // Folk 100 (Thomas D. Turkey) is not a monster of any level.
+        assert!(!data.monsters_of_level(80).iter().any(|t| t.id == 100));
+
+        // getAllNpcStartingWith (A–Z letter buttons): Folk type + name prefix.
+        let t_folk = data.folk_starting_with("T");
+        assert!(t_folk.iter().any(|t| t.id == 100), "Thomas D. Turkey should list under 'T'");
+        assert!(t_folk.iter().all(|t| t.type_name.eq_ignore_ascii_case("Folk") && t.name.starts_with('T')));
     }
 
     /// The one dist file with `<group chance>` drops (Primeval Isle mobs).
