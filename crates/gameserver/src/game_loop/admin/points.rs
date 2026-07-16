@@ -1,8 +1,9 @@
-//! Loyalty/currency point commands — `AdminPcCafePoints` (`//pccafepoints`).
-//! `AdminPrimePoints` (`//primepoints`) joins here once the account-variable
-//! store lands (Stage 3). Both operate on the current target player (or the GM
-//! when nothing/no player is targeted) and re-render their HTML menu after every
-//! action, exactly like the Java handlers.
+//! Loyalty/currency point commands — `AdminPcCafePoints` (`//pccafepoints`,
+//! character-scoped `characters.pccafe_points`) and `AdminPrimePoints`
+//! (`//primepoints`, account-scoped `account_gsdata` "PRIME_POINTS"). Both
+//! operate on the current target player (or the GM when nothing/no player is
+//! targeted) and re-render their HTML menu after every action, exactly like the
+//! Java handlers.
 
 use crate::model::Player;
 use crate::network::server_packets;
@@ -116,6 +117,132 @@ fn reward_online_cmd(world: &mut World, client_id: u32, object_id: i32, args: &[
     } else {
         send_message(world, client_id, &format!("You increased PC Cafe point(s) of all players ({count}) in range {range} by {value}."));
     }
+}
+
+/// `AdminPrimePoints` — `//primepoints [action] [value] [range]` and the
+/// `primepoints.htm` menu. Prime (NCoin) points are account-scoped: Java stores
+/// them in the `account_gsdata` "PRIME_POINTS" variable via
+/// `AccountVariables.setPrimePoints`/`storeMe` (always `max(value, 0)`, capped
+/// at `Integer.MAX_VALUE`). This port keeps a per-player mirror
+/// (`Player.prime_points`, loaded at enter-world) and write-throughs each change
+/// to the DB immediately. One account has one online character here, so the
+/// per-player mirror is a documented multi-box simplification.
+pub(super) fn admin_primepoints(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    if let Some(&action) = args.first() {
+        if action == "rewardOnline" {
+            reward_online_prime(world, client_id, object_id, args);
+            show_primepoints_menu(world, client_id, object_id);
+            return;
+        }
+
+        let target = target_player(world, object_id);
+        let Some(value) = args.get(1).and_then(|s| s.parse::<i32>().ok()) else {
+            show_primepoints_menu(world, client_id, object_id);
+            send_message(world, client_id, "Invalid Value!");
+            return;
+        };
+        let name = name_of(world, target);
+        let cur = prime_of(world, target);
+        match action {
+            "set" => {
+                set_prime(world, target, value);
+                let stored = value.max(0);
+                send_player_message(world, target, &format!("Admin set your Prime Point(s) to {stored}!"));
+                send_message(world, client_id, &format!("You set {stored} Prime Point(s) to player {name}"));
+            }
+            "increase" => {
+                if cur == i32::MAX {
+                    show_primepoints_menu(world, client_id, object_id);
+                    send_message(world, client_id, &format!("{name} already have max count of Prime Points!"));
+                    return;
+                }
+                let new_count = (cur as i64 + value as i64).clamp(0, i32::MAX as i64) as i32;
+                set_prime(world, target, new_count);
+                send_player_message(world, target, &format!("Admin increase your Prime Point(s) by {value}!"));
+                send_message(world, client_id, &format!("You increased Prime Point(s) of {name} by {value}"));
+            }
+            "decrease" => {
+                if cur == 0 {
+                    show_primepoints_menu(world, client_id, object_id);
+                    send_message(world, client_id, &format!("{name} already have min count of Prime Points!"));
+                    return;
+                }
+                let new_count = (cur - value).max(0);
+                set_prime(world, target, new_count);
+                send_player_message(world, target, &format!("Admin decreased your Prime Point(s) by {value}!"));
+                send_message(world, client_id, &format!("You decreased Prime Point(s) of {name} by {value}"));
+            }
+            _ => {}
+        }
+    }
+    show_primepoints_menu(world, client_id, object_id);
+}
+
+/// `//primepoints rewardOnline <value> [range]` — increase every online player
+/// (range ≤ 0) or every player within `range` of the GM.
+fn reward_online_prime(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(value) = args.get(1).and_then(|s| s.parse::<i32>().ok()) else {
+        show_primepoints_menu(world, client_id, object_id);
+        send_message(world, client_id, "Invalid Value!");
+        return;
+    };
+    let range = args.get(2).and_then(|s| s.parse::<i32>().ok()).unwrap_or(0);
+    let targets: Vec<i32> = if range <= 0 {
+        world
+            .clients
+            .values()
+            .filter_map(|cs| match cs {
+                ClientSession::InGame(s) => Some(s.player_object_id()),
+                _ => None,
+            })
+            .collect()
+    } else {
+        super::creatures_in_range(world, object_id, range, true, false)
+    };
+    let mut count = 0;
+    for t in targets {
+        let Some(cur) = world.objects.get_component::<Player>(&t).map(|p| p.prime_points) else { continue };
+        let new_count = (cur as i64 + value as i64).clamp(0, i32::MAX as i64) as i32;
+        set_prime(world, t, new_count);
+        send_player_message(world, t, &format!("Admin increase your Prime Point(s) by {value}!"));
+        count += 1;
+    }
+    if range <= 0 {
+        send_message(world, client_id, &format!("You increased Prime Point(s) of all online players ({count}) by {value}."));
+    } else {
+        send_message(world, client_id, &format!("You increased Prime Point(s) of all players ({count}) in range {range} by {value}."));
+    }
+}
+
+fn show_primepoints_menu(world: &World, client_id: u32, object_id: i32) {
+    let target = target_player(world, object_id);
+    let points = format_adena(prime_of(world, target));
+    let name = name_of(world, target);
+    show_admin_html_replace(world, client_id, "primepoints.htm", &[("points", points), ("targetName", name)]);
+}
+
+fn prime_of(world: &World, target: i32) -> i32 {
+    world.objects.get_component::<Player>(&target).map_or(0, |p| p.prime_points)
+}
+
+/// Java `Player.setPrimePoints` — store `max(value, 0)` on the account var,
+/// with immediate write-through to `account_gsdata` (Java `storeMe`).
+fn set_prime(world: &mut World, target: i32, value: i32) {
+    let value = value.max(0);
+    let Some(account) = ({
+        let p = world.objects.get_component_mut::<Player>(&target);
+        p.map(|p| {
+            p.prime_points = value;
+            p.account.clone()
+        })
+    }) else {
+        return;
+    };
+    let _ = world.db.send(crate::db::DbCommand::StoreAccountVar {
+        account_name: account,
+        var: "PRIME_POINTS".to_string(),
+        value: value.to_string(),
+    });
 }
 
 fn show_pccafe_menu(world: &World, client_id: u32, object_id: i32) {

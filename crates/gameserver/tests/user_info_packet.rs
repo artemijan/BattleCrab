@@ -35,6 +35,7 @@ async fn user_info_test() {
         pvp_kills: 0,
         vitality_points: 0,
         pccafe_points: 0,
+        prime_points: 0,
         fame: 0,
 
         // Extracted from your m.variables JSON string / sample fields

@@ -131,6 +131,9 @@ pub struct Player {
     pub vitality_points: i32,
     /// `characters.pccafe_points` — PC-cafe loyalty points (`//pccafepoints`).
     pub pccafe_points: i32,
+    /// Account-scoped NCoin balance (`account_gsdata` "PRIME_POINTS",
+    /// `//primepoints`). Mirror of the account var, loaded at enter-world.
+    pub prime_points: i32,
     pub fame: i32,
 
     // Clan membership (G11 — creation/display slice). The `Clan` itself
@@ -613,6 +616,7 @@ impl Player {
             pvp_kills: c.pvp_kills,
             vitality_points: c.vitality_points,
             pccafe_points: c.pccafe_points,
+            prime_points: c.prime_points,
             fame: 0,
             clan_id: c.clan_id,
             clan_privs: c.clan_privs,

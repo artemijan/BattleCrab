@@ -73,6 +73,9 @@ pub struct CharData {
     /// `characters.pccafe_points` (PC bang loyalty points; capped by
     /// `PC_CAFE_MAX_POINTS`). Character-scoped like vitality.
     pub pccafe_points: i32,
+    /// Account-scoped `account_gsdata` "PRIME_POINTS" (NCoin balance). Loaded at
+    /// selection alongside the character row; not a `characters` column.
+    pub prime_points: i32,
     pub access_level: i32,
     pub noble: bool,
     pub char_slot: i32,

@@ -247,6 +247,10 @@ pub enum DbCommand {
     /// Java `Player.setAccessLevel(updateInDb=true)` — persist a GM access-level
     /// change immediately (the memory-first autosave doesn't carry accesslevel).
     SetAccessLevel { char_id: i32, level: i32 },
+    /// Upsert one `account_gsdata` row (Java `AccountVariables.storeMe`,
+    /// write-through). Used by `//primepoints` for the account-scoped
+    /// "PRIME_POINTS" variable.
+    StoreAccountVar { account_name: String, var: String, value: String },
     Shutdown,
 }
 
@@ -434,6 +438,16 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
+            DbCommand::StoreAccountVar { account_name, var, value } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT OR REPLACE INTO account_gsdata (account_name, var, value) VALUES (?, ?, ?)")
+                        .bind(account_name)
+                        .bind(var)
+                        .bind(value),
+                )
+                .await;
+            }
             DbCommand::Shutdown => break,
         }
     }
@@ -445,6 +459,20 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
 async fn reload(pool: &SqlitePool, event_tx: &EventTx, client_id: u32, account: String, send_list: bool) {
     let chars = load_characters(pool, &account).await;
     let _ = event_tx.send(DbEvent::CharactersLoaded { client_id, account, chars, send_list });
+}
+
+/// Best-effort read of one `account_gsdata` variable (Java
+/// `AccountVariables.restoreMe`). Returns `None` on a missing row or any error
+/// (e.g. the table absent in a minimal test schema), mirroring Java's
+/// catch-and-default-empty behaviour.
+async fn load_account_var(pool: &SqlitePool, account: &str, var: &str) -> Option<String> {
+    sqlx::query_scalar::<_, String>("SELECT value FROM account_gsdata WHERE account_name=? AND var=?")
+        .bind(account)
+        .bind(var)
+        .fetch_optional(pool)
+        .await
+        .ok()
+        .flatten()
 }
 
 /// Java's `IdManager` hands out ids from a single pool shared by every
@@ -476,6 +504,13 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             return Vec::new();
         }
     };
+
+    // Account-scoped prime (NCoin) balance — same for every char on the
+    // account. Best-effort: absent table/row → 0 (Java `restoreMe` catch).
+    let prime_points = load_account_var(pool, account, "PRIME_POINTS")
+        .await
+        .and_then(|v| v.parse::<i32>().ok())
+        .unwrap_or(0);
 
     let now = now_millis();
     let mut out = Vec::new();
@@ -524,6 +559,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             last_access: geti(row, "lastAccess"),
             vitality_points: geti(row, "vitality_points") as i32,
             pccafe_points: geti(row, "pccafe_points") as i32,
+            prime_points,
             access_level: geti(row, "accesslevel") as i32,
             noble: geti(row, "nobless") == 1,
             char_slot: slot as i32,

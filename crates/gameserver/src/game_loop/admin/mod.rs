@@ -250,6 +250,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         }
         // PC-cafe loyalty points (target player or self) + the pccafe.htm menu.
         "admin_pccafepoints" => admin_pccafepoints(world, client_id, object_id, &args),
+        // Prime (NCoin) points — account-scoped — + the primepoints.htm menu.
+        "admin_primepoints" => admin_primepoints(world, client_id, object_id, &args),
         // Spawn-line inspection + teleport-to-index (`goSpawn`/`goPosition`).
         "admin_list_spawns" => admin_list_spawns(world, client_id, object_id, &args, false),
         "admin_list_positions" => admin_list_spawns(world, client_id, object_id, &args, true),
