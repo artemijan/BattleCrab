@@ -1,0 +1,79 @@
+//! `AdminAdmin`'s hero commands — the Game panel's "Set Hero" / "Give unclaimed
+//! Hero" buttons. `//sethero` toggles hero status on the target (grant/remove
+//! the hero skill tree + refresh the aura). `//givehero` is the Olympiad claim
+//! path: with no unclaimed-hero list (Olympiad crowning is unported, G25) the
+//! target can never claim — Java's own outcome on a server with no crowned hero.
+
+use crate::model::components::SkillBook;
+use crate::model::Player;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
+
+use super::{current_target, send_message, send_sm};
+
+/// Target = the current target if it's a player, else the GM (Java falls back to
+/// `activeChar`). `None` only when nothing is targeted at all (Java's
+/// `getTarget() == null` → INVALID_TARGET).
+fn hero_target(world: &World, gm_object_id: i32) -> Option<i32> {
+    let target = current_target(world, gm_object_id)?;
+    Some(if world.objects.has_component::<Player>(&target) { target } else { gm_object_id })
+}
+
+/// `//sethero` — toggle the target's hero status.
+pub(super) fn admin_sethero(world: &mut World, client_id: u32, gm_object_id: i32) {
+    let Some(target) = hero_target(world, gm_object_id) else {
+        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        return;
+    };
+    let now = world.objects.get_component::<Player>(&target).is_some_and(|p| p.is_hero);
+    set_hero(world, target, !now);
+}
+
+/// `//givehero` (confirmDlg) — the Olympiad hero-claim path.
+pub(super) fn admin_givehero(world: &mut World, client_id: u32, gm_object_id: i32) {
+    let Some(target) = hero_target(world, gm_object_id) else {
+        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        return;
+    };
+    // Java: `Hero.isHero(objectId)` → already claimed.
+    if world.objects.get_component::<Player>(&target).is_some_and(|p| p.is_hero) {
+        send_message(world, client_id, "This player has already claimed the hero status.");
+        return;
+    }
+    // Java: `!Hero.isUnclaimedHero(objectId)` → cannot claim. The unclaimed-hero
+    // list is Olympiad-crowned (unported, G25), so it is always empty and this
+    // branch always fires — the same result Java gives with no crowned hero.
+    // TODO(G25): `Hero.claimHero(target)` once the Olympiad hero list exists.
+    send_message(world, client_id, "This player cannot claim the hero status.");
+}
+
+/// Java `Player.setHero`: grant the hero skill tree when turning hero on while
+/// on the base class (removed in every other case), set the flag, refresh the
+/// hero aura, and resend the skill list + UserInfo.
+fn set_hero(world: &mut World, target: i32, hero: bool) {
+    let on_base = world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.base_class_id == p.class_id);
+    let hero_skills: Vec<(i32, i32)> = world.data.skill_trees.hero_skills().to_vec();
+    if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
+        if hero && on_base {
+            for (id, level) in &hero_skills {
+                book.0.insert(*id, *level);
+            }
+        } else {
+            for (id, _) in &hero_skills {
+                book.0.remove(id);
+            }
+        }
+    }
+    // Hero glow = isHero || (isGM && GM_HERO_AURA).
+    let gm_aura = world.data.gm.hero_aura;
+    let is_gm = world.objects.get_component::<Player>(&target).is_some_and(|p| p.is_gm(&world.data));
+    if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
+        p.is_hero = hero;
+        p.hero_aura = hero || (is_gm && gm_aura);
+    }
+    super::skills::refresh_skill_list(world, target);
+    crate::game_loop::party::broadcast_user_info(world, target);
+}

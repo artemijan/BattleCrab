@@ -26,6 +26,7 @@ mod effects;
 mod gm_util;
 mod flags;
 mod grand_boss;
+mod hero;
 mod items;
 mod menu;
 mod mobgroup;
@@ -50,6 +51,7 @@ use effects::*;
 use gm_util::*;
 use flags::*;
 use grand_boss::*;
+use hero::*;
 use menu::*;
 
 // The enter-world GM startup block (`EnterWorld.runImpl`) is driven from
@@ -433,6 +435,10 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_cw_add" => admin_cw_add(world, client_id, object_id, &args),
         "admin_cw_remove" => admin_cw_remove(world, client_id, &args),
         "admin_cw_goto" => admin_cw_goto(world, client_id, object_id, &args),
+        // AdminAdmin hero commands — the Game panel's "Set Hero" / "Give
+        // unclaimed Hero" buttons.
+        "admin_sethero" => admin_sethero(world, client_id, object_id),
+        "admin_givehero" => admin_givehero(world, client_id, object_id),
         // AdminVitality (player vitality points).
         "admin_set_vitality" => admin_vitality(world, client_id, object_id, "set", &args),
         "admin_full_vitality" => admin_vitality(world, client_id, object_id, "full", &args),

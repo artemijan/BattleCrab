@@ -16,6 +16,7 @@ use quick_xml::Reader;
 use tracing::info;
 
 pub const STARTING_CLASS_DIR: &str = "data/skillTrees/StartingClass";
+pub const HERO_SKILL_TREE_FILE: &str = "data/skillTrees/heroSkillTree.xml";
 
 /// Java `CommonSkill.EXPERTISE` (239): the one skill `checkPlayerSkills`
 /// verifies with no level grace — its level *is* the wearable grade, so it may
@@ -42,6 +43,9 @@ pub struct SkillLearn {
 pub struct SkillTreeData {
     /// Every `<skill>` entry per base class id, in document order.
     trees: HashMap<i32, Vec<SkillLearn>>,
+    /// The hero skill tree (Java `getHeroSkillTree`) — a flat `(id, level)`
+    /// list from `heroSkillTree.xml`, granted/removed by `//sethero`.
+    hero_skills: Vec<Skill>,
 }
 
 impl SkillTreeData {
@@ -59,12 +63,20 @@ impl SkillTreeData {
                 parse_tree(&path, &mut trees);
             }
         }
+        let hero_skills = parse_hero_tree(&format!("{file_path}{HERO_SKILL_TREE_FILE}"));
         let total: usize = trees.values().map(|v| v.len()).sum();
         info!(
-            "SkillTreeData: Loaded skill trees for {} classes ({total} skill levels).",
-            trees.len()
+            "SkillTreeData: Loaded skill trees for {} classes ({total} skill levels), {} hero skills.",
+            trees.len(),
+            hero_skills.len()
         );
-        Self { trees }
+        Self { trees, hero_skills }
+    }
+
+    /// Java `SkillTreeData.getHeroSkillTree` — the `(skill_id, level)` list
+    /// granted while a player holds hero status.
+    pub fn hero_skills(&self) -> &[Skill] {
+        &self.hero_skills
     }
 
     /// The skills a freshly created character of `class_id` starts with
@@ -168,7 +180,7 @@ impl SkillTreeData {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { trees: HashMap::new() }
+        Self { trees: HashMap::new(), hero_skills: Vec::new() }
     }
 
     #[doc(hidden)]
@@ -217,6 +229,30 @@ fn parse_tree(path: &std::path::Path, out: &mut HashMap<i32, Vec<SkillLearn>>) {
             _ => {}
         }
     }
+}
+
+/// Parse `heroSkillTree.xml` (Java `getHeroSkillTree`): a flat `<skill>` list.
+fn parse_hero_tree(path: &str) -> Vec<Skill> {
+    let Ok(content) = std::fs::read_to_string(path) else {
+        return Vec::new();
+    };
+    let mut reader = Reader::from_str(&content);
+    let mut out = Vec::new();
+    loop {
+        match reader.read_event() {
+            Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == b"skill" => {
+                let id = attr_i32(&e, b"skillId").unwrap_or(-1);
+                let level = attr_i32(&e, b"skillLevel").unwrap_or(1);
+                if id > 0 {
+                    out.push((id, level));
+                }
+            }
+            Ok(Event::Eof) => break,
+            Err(_) => break,
+            _ => {}
+        }
+    }
+    out
 }
 
 fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {

@@ -1669,3 +1669,38 @@ fn admin_setparam_fixes_and_clears_a_stat() {
     on_packet(&mut world, 1, build_admin("setparam bogus 5"));
     assert!(world.objects.get_component::<crate::model::components::StatModifiers>(&8951).unwrap().fixed.is_empty());
 }
+
+/// `//sethero` toggles hero status on the target: grants/removes the hero skill
+/// tree and flips the aura; `//givehero` can't claim without an Olympiad-crowned
+/// hero list. Port of AdminAdmin's hero commands.
+#[test]
+fn admin_sethero_toggles_status_skills_and_aura() {
+    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (mut world, ..) = admin_world();
+    world.data.root = ROOT.to_string();
+    world.data.skill_trees = crate::data::SkillTreeData::load_from(ROOT);
+    let mut rx = ingame_player_access(&mut world, 1, 7301, 100);
+    drain(&mut rx);
+    // Target self (a player) so sethero applies to the GM.
+    world.objects.add_components(&7301, TargetRef(Some(7301)));
+    assert!(!world.data.skill_trees.hero_skills().is_empty(), "hero skill tree loaded from XML");
+
+    // //sethero → hero on: flag, aura, and the hero skills granted.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("sethero")].concat());
+    let p = world.objects.get_component::<Player>(&7301).unwrap();
+    assert!(p.is_hero && p.hero_aura, "hero status + aura on");
+    assert!(world.objects.get_component::<SkillBook>(&7301).unwrap().0.contains_key(&395), "Heroic Miracle granted");
+
+    // //sethero again → hero off, skills removed.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("sethero")].concat());
+    let p = world.objects.get_component::<Player>(&7301).unwrap();
+    assert!(!p.is_hero, "hero status off");
+    assert!(!world.objects.get_component::<SkillBook>(&7301).unwrap().0.contains_key(&395), "hero skill removed");
+
+    // //givehero (confirmDlg) → yes → cannot claim (no Olympiad hero list).
+    drain(&mut rx);
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("givehero")].concat());
+    on_packet(&mut world, 1, [vec![cop::DLG_ANSWER], dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0)].concat());
+    let msgs: Vec<String> = drain(&mut rx).iter().filter_map(|p| sysmsg_text(p)).collect();
+    assert!(msgs.iter().any(|t| t.contains("cannot claim the hero status")), "givehero blocked without a crowned hero");
+}
