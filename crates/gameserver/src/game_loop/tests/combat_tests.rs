@@ -400,8 +400,13 @@ fn attack_out_of_reach_chases_and_monster_retaliates() {
     assert!(!packets.iter().any(|p| p[0] == server_packets::opcodes::ATTACK));
 
     // Player run speed 115 u/s over ~170 units ⇒ in reach in ~1.5 s. Force
-    // every swing in the window (player ×2, monster ×1) to a plain hit.
-    world.forced_rolls.extend([0, 99, 10, 0, 99, 10, 0, 99, 10]);
+    // every swing in the window to a plain hit: each non-miss swing rolls
+    // miss(1000), shield-rate(100), shield-perfect(100), crit(100), random(2r+1)
+    // — [0, 0, 0, 99, 10] = hit / no shield / no crit / random mul 1.0. Repeated
+    // generously so all swings (player + monster) in the window stay deterministic.
+    for _ in 0..8 {
+        world.forced_rolls.extend([0, 0, 0, 99, 10]);
+    }
     let hp_before = pvit(&world, 3001).cur_hp;
     let cp_before = pcp(&world, 3001).cur_cp;
     advance_world(&mut world, 45);
