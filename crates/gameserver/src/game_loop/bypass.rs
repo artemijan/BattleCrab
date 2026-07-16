@@ -177,6 +177,14 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
             let make = command.split(' ').nth(1).map(|a| a.trim() != "2").unwrap_or(true);
             super::augment::open_window(world, client_id, make);
         }
+        // `Teleporter.onBypassFeedback` (G15.5): the gatekeeper verbs —
+        // list windows + the actual teleport, gated on the instance class
+        // like Java's subclass override.
+        "showTeleports" | "showTeleportsHunting" | "teleport" | "showNoblesSelect"
+            if super::teleporter::is_teleporter(world, npc_object_id) =>
+        {
+            super::teleporter::handle_bypass(world, client_id, object_id, npc_object_id, command);
+        }
         // `bypasshandlers/Buy.java`: merchants only.
         "Buy" if super::shop::is_merchant(world, npc_object_id) => {
             if let Some(list_id) =

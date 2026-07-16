@@ -39,29 +39,39 @@ Living status tracker for the Java→Rust rewrite. Plans:
 
 **Remaining subsystem breadth — [ROADMAP.md](ROADMAP.md) (G14→G33).** The old
 single "G14 Long tail" is broken into per-subsystem milestones; each unblocks a
-gated-but-bodiless admin handler, so admin parity == Java parity.
+gated-but-bodiless admin handler, so admin parity == Java parity. A 2026-07
+audit of the Java surface added six milestones the breakdown missed (G15.5
+teleporters/user-commands, G15.7 crafting, G20.5 recommendations, G24.5 boats,
+G26.5 lottery/monster-race, G30.5 item auction), per-milestone audit
+additions, and a Classic/custom scope gate — see ROADMAP.md.
 
 | Game  | G14 Item stats & equipment combat accuracy                  | ✅ item `<stats>`/weapon+armor bonuses (earlier) + **shields (`calcShldUse`)** + **`//setparam`/`//unsetparam`** (fixed-stat override); armor sets → G19; `SHOTS_BONUS` stat a noted micro-gap (only `reducedSoulshot` weapons) |
 | Game  | G15 Economy & item actions                                  | 🚧 destroy + **ground items** (drop/pickup/visibility/auto-loot=false/decay) + **personal warehouse** (deposit/withdraw+persist) + **crystallization** + **merchant sell** + **private sell store** + **player trade** landed; **enchant** (chance engine `EnchantData` + full Ex-packet scroll flow: use→add→put-target→enchant, success +1 / safe / blessed / destroy+crystallize; item `etcitem_type`/`enchant_enabled` parse) + **clan warehouse** (shared container on `Clan`, `depositc`/`withdrawc` bypass + `ActiveWarehouse` routing + `CL_VIEW_WAREHOUSE` gate, persisted via `StoreClanWarehouse`) + **freight withdraw** (`Freight` container, `package_withdraw`, `loc="FREIGHT"` persist; unified 3-way `ActiveWarehouse` routing) + **augmentation** (`VariationData` roll engine + refine flow: confirm→refine→cancel, life stone rolls two options, consumes gemstones, stamps `ItemInstance` augment, adena cancel fee; shown via `paperdoll_augmentation`, persisted via `item_variations`) + **enchant support items** (`EnchantSupport` load + validate, put/remove 0x4A/0xE4, bonus-rate + random-step on the roll) landed — augment option effects, freight send half pending |
+| Game  | G15.5 Teleporters & user commands                           | 🚧 **gatekeepers live** (`TeleporterData` — all dist lists; `showTeleports`/`showTeleportsHunting`/`teleport` bypasses gated on the Teleporter class; fee suffix + adena charge, free ≤ `MaxFreeTeleportLevel` (40), karma gate) + **`/unstuck`** (`BypassUserCmd` 0xB3 → 30 s escape cast of 2099 via forced hit-time, GM 2100; new `Escape TOWN` skill effect → map-region town respawn) + **`/loc`** (region `locId` SM + coords). Pending: teleport bookmarks, remaining user commands (`/time` needs game clock), Mon/Tue fee discount (wall clock), nobles lists (G17), siege gates (G24) |
+| Game  | G15.7 Crafting & recipes                                    | ⏳ recipe book, craft rolls, manufacture stores (`CraftingEnabled = True`) |
 | Game  | G16 Character variables, premium & vitality                 | ⏳ `character_variables` → premium/pc-cafe/prime/vitality/henna |
 | Game  | G17 Sub-classes, class change & nobless                     | ⏳ occupation/subclass/nobless — `//setnoble`/`//setsubclass` |
 | Game  | G18 Clans — full                                            | ⏳ invite/level/skills/crests/warehouse/wars/ally — `//clan_*`/`//pledge` |
 | Game  | G19 Skills & effects breadth                                | ⏳ effect/Stat breadth, toggles, AoE, AVE runtime — AdminEffects AVE |
 | Game  | G20 Combat breadth                                          | ⏳ physical skills, bows, dual/polearm, PvP auto-attack, overhit |
+| Game  | G20.5 Recommendations                                       | ⏳ rec counters + daily reset (`TaskRecom`, `RequestVoteNew`) |
 | Game  | G21 NPC AI & world-content breadth                          | ⏳ NPC casting/minions/aggro/pathfinding/drops/zones breadth |
 | Game  | G22 Quest & script breadth                                  | ⏳ remaining quests/village-masters/ai + reload — `//quest_*`/`//reload` |
 | Game  | G23 Grand bosses & raid bosses                              | ⏳ boss zones/respawn/AI/persistence — `//grandboss` |
 | Game  | G24 Castles, sieges, clan halls & territory war             | ⏳ AdminFortSiege/`//castle`/`//clanhall`/territory war |
+| Game  | G24.5 Boats                                                 | ⏳ `BoatManager` + 4 ferry routes (`AllowBoat = True`) |
 | Game  | G25 Olympiad & hero                                         | ⏳ AdminOlympiad/`//sethero`/`//saveolymp`/`//endolympiad` |
 | Game  | G26 Seven Signs, Manor & Mammon                             | ⏳ `//manor`/`//mammon_*` |
+| Game  | G26.5 Lottery & Monster Race                                | ⏳ `games/` managers (Lottery, Race Track betting) |
 | Game  | G27 Instances                                              | ⏳ AdminInstance/AdminInstanceZone |
 | Game  | G28 Events engine & cursed weapons                          | ⏳ AdminEvents/`//tvt_*`/AdminCursedWeapons |
 | Game  | G29 Summons, pets, servitors, cubics, agathions             | ⏳ editchar summon/pet subcommands |
 | Game  | G30 Mail, community board & party matching                  | ⏳ AdminBBS |
+| Game  | G30.5 Item auction                                          | ⏳ `ItemAuctionManager` + bid packets |
 | Game  | G31 Moderation, accounts, petitions & HWID                  | ⏳ AdminPunishment/AdminLogin/AdminHwid/AdminPetition |
 | Game  | G32 Fishing                                                 | ⏳ |
 | Game  | G33 Misc parity & finishing sweep                           | ⏳ game-clock/autosave/geosave/fightcalc/repairchar + parity checklist |
-| Game  | (out of scope) Gracia/Hellbound/elemental, `tools/`, MariaDB/Postgres, Swing UI | ⛔ non-Interlude / per PLAN §11 |
+| Game  | (out of scope) Gracia/Hellbound/elemental, sayune/shuttle/airship, `tools/`, MariaDB/Postgres, Swing UI, Mobius `Custom/*` | ⛔ non-Interlude / per PLAN §11 + ROADMAP scope gate |
 
 **Verified end-to-end:** a scripted client does the real login crypto → server
 select → game `AuthLogin` → char list → **create** (with initial skills) →

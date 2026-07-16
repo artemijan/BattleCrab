@@ -122,6 +122,11 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
                 }
             }
         }
+        // BypassUserCmd (IN_GAME): the client `/command` bar (`/loc`,
+        // `/unstuck`, …).
+        cop::BYPASS_USER_CMD => {
+            super::user_commands::handle_bypass_user_cmd(world, client_id, body)
+        }
         // DlgAnswer (IN_GAME): reply to a ConfirmDlg — the admin-confirm flow.
         cop::DLG_ANSWER => {
             if let Some(answer) = cp::DlgAnswer::read(body) {

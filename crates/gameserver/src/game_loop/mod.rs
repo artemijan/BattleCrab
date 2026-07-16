@@ -38,6 +38,8 @@ mod shop;
 mod shortcuts;
 mod skills;
 mod target;
+mod teleporter;
+mod user_commands;
 #[cfg(test)]
 mod tests;
 mod visibility;

@@ -104,6 +104,11 @@ pub enum SkillEffect {
     /// roulette pick among reward groups (each group can grant multiple
     /// items at once). Used by "pick one of N" reward boxes.
     GiveItemRandom { groups: Vec<RestorationGroup> },
+    /// `handlers/effecthandlers/Escape.java`, `escapeType=TOWN` only — the
+    /// `/unstuck` skills (2099/2100) and scrolls of escape: teleport the
+    /// target to its map-region town respawn on landing. The CASTLE/CLANHALL/
+    /// FORTRESS variants wait for their residence systems (G24).
+    EscapeToTown,
 }
 
 /// `dist/game/data/stats/skills/*.xml` → `Skill.java`, scoped to G6.

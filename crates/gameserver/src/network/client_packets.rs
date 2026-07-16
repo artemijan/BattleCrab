@@ -60,6 +60,9 @@ pub mod opcodes {
     pub const REQUEST_BYPASS_TO_SERVER: u8 = 0x23;
     /// `SendBypassBuildCmd` — the `//command` GM bar (admin commands).
     pub const SEND_BYPASS_BUILD_CMD: u8 = 0x74;
+    /// `BypassUserCmd` — the client `/command` bar (`/unstuck`, `/loc`, …);
+    /// body is one int command id.
+    pub const BYPASS_USER_CMD: u8 = 0xB3;
     /// `DlgAnswer` — reply to a `ConfirmDlg` (used by the admin-confirm flow).
     pub const DLG_ANSWER: u8 = 0xC6;
     pub const REQUEST_QUEST_ABORT: u8 = 0x63;
@@ -728,6 +731,11 @@ pub fn read_bypass_command(body_after_opcode: &[u8]) -> Option<String> {
 /// (Java's `useAdminCommand(player, "admin_" + cmd, true)`).
 pub fn read_build_command(body_after_opcode: &[u8]) -> Option<String> {
     PacketReader::new(body_after_opcode).read_string().map(|s| s.trim().to_string())
+}
+
+/// Port of `clientpackets/BypassUserCmd` — the `/command` bar's int command id.
+pub fn read_user_command(body_after_opcode: &[u8]) -> Option<i32> {
+    PacketReader::new(body_after_opcode).read_i32()
 }
 
 /// Port of `clientpackets/DlgAnswer` — the client's reply to a `ConfirmDlg`:

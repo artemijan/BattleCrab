@@ -346,6 +346,11 @@ fn finalize_skill(
                         _ => Vec::new(),
                     },
                     "RestorationRandom" => vec![SkillEffect::GiveItemRandom { groups: groups.clone() }],
+                    // Only the TOWN escape is portable (see `SkillEffect::EscapeToTown`);
+                    // CASTLE/CLANHALL/FORTRESS variants drop like unregistered names.
+                    "Escape" if value_at(params, "escapeType", level) == Some("TOWN") => {
+                        vec![SkillEffect::EscapeToTown]
+                    }
                     // `Speed` pumps four move-speed stats at once (Java
                     // `Speed.pump`); the 1-name→1-stat `EFFECT_REGISTRY` can't
                     // express that, so expand it here. Without this, movement
@@ -446,6 +451,17 @@ mod tests {
         let ki = sd.get(10248, 1).expect("Knight - Individual lvl 1");
         assert_eq!(ki.reuse_delay_group, 10008);
         assert_eq!(ki.reuse_key(), 10008);
+
+        // The `/unstuck` escape skills (G15.5): static 5-minute (2099) and
+        // GM 1-second (2100) casts whose `Escape TOWN` effect must parse to
+        // `EscapeToTown` — an empty effect list would cast and go nowhere.
+        let escape = sd.get(2099, 1).expect("Escape (5-minute) lvl 1");
+        assert_eq!(escape.magic_type, 2, "static skill");
+        assert_eq!(escape.hit_time, 300_000);
+        assert_eq!(escape.target_type, TargetType::Self_);
+        assert!(matches!(escape.effects.as_slice(), [SkillEffect::EscapeToTown]));
+        let gm_escape = sd.get(2100, 1).expect("Escape: 1 Second lvl 1");
+        assert!(matches!(gm_escape.effects.as_slice(), [SkillEffect::EscapeToTown]));
 
         // Skill 22490 "Mysterious Spiritshot d 5000" — the `Restoration`
         // effect backing the "Mysterious Blessed Spiritshot Pack (5000)

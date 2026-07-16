@@ -21,6 +21,14 @@ system" and "reach Java parity" are the same backlog.
 verifiable against the live Java server on the same DB/client, with the milestone
 gate met. Same vertical-slice-then-breadth discipline used through G13.
 
+**2026-07 Java-surface audit.** A sweep of the Java tree (`instancemanager/`,
+`handler/`, `taskmanager/`, `network/clientpackets/`, dist config) against this
+roadmap added six milestones the original breakdown missed — G15.5 (teleporters
+& user commands), G15.7 (crafting), G20.5 (recommendations), G24.5 (boats),
+G26.5 (lottery & monster race), G30.5 (item auction) — plus per-milestone
+**Audit additions** notes and the Classic/custom **scope gate** after the
+out-of-scope list.
+
 ---
 
 ## Milestone map
@@ -29,21 +37,27 @@ gate met. Same vertical-slice-then-breadth discipline used through G13.
 |---|-----------|-------|------------------|------------|
 | G14 | Item stats & equipment combat accuracy ✅ | Foundations | `//setparam` ✅ | — |
 | G15 | Economy & item actions | Foundations | — | G14 |
+| G15.5 | Teleporters & user commands 🚧 | Foundations | — | — |
+| G15.7 | Crafting & recipes | Foundations | — | G15 |
 | G16 | Character variables, premium & vitality | Foundations | `//premium*` `//pccafepoints` `//primepoints` `//set_vitality_level` | — |
 | G17 | Sub-classes, class change & nobless | Progression | `//setnoble` `//setsubclass` (editchar) | G22¹ |
 | G18 | Clans — full | Progression | `//clan_*` `//pledge` `//add_clan_skill` | G15 |
 | G19 | Skills & effects breadth | Combat | `//ave_abnormal` `//setteam` `//settargetable` `//para` `//playmovie` … (AdminEffects) | — |
 | G20 | Combat breadth | Combat | — | G14, G19 |
+| G20.5 | Recommendations | Support | — | G16 |
 | G21 | NPC AI & world-content breadth | Combat | `//scan` extras, guard/faction | G20 |
 | G22 | Quest & script breadth | Content | `//quest_*` `//charquestmenu` `//setcharquest` `//reload` (scripts) | G17, G19 |
 | G23 | Grand bosses & raid bosses | End-game | `//grandboss` (AdminGrandBoss) | G21 |
 | G24 | Castles, sieges, clan halls & territory war | End-game | `//siege`/AdminFortSiege, `//castle`, `//clanhall`, territory war | G18, G21 |
+| G24.5 | Boats | End-game | — | — |
 | G25 | Olympiad & hero | End-game | AdminOlympiad, `//saveolymp` `//endolympiad` `//sethero` `//givehero` `//settruehero` | G17 |
 | G26 | Seven Signs, Manor & Mammon | End-game | `//manor`, `//mammon_*` | G24, G15 |
+| G26.5 | Lottery & Monster Race | End-game | — | G15 |
 | G27 | Instances | End-game | AdminInstance, AdminInstanceZone | G21 |
 | G28 | Events engine & cursed weapons | End-game | AdminEvents, `//tvt_*`, AdminCursedWeapons | G20 |
 | G29 | Summons, pets, servitors, cubics, agathions | Support | AdminEditChar summon/pet subcommands | G19, G20 |
 | G30 | Mail, community board & party matching | Support | AdminBBS | G18 |
+| G30.5 | Item auction | Support | — | G15, G30 |
 | G31 | Moderation, accounts, petitions & HWID | Support | AdminPunishment, AdminLogin, AdminHwid, AdminPetition, AdminFakePlayers, editchar find_ip/dualbox/tracert | IP plumbing |
 | G32 | Fishing | Support | — | G19 |
 | G33 | Misc parity & finishing sweep | Finishing | AdminFightCalculator, AdminRepairChar, AdminPForge, AdminMissingHtmls, AdminPcCondOverride, `//geosave` serializer | (last) |
@@ -55,6 +69,29 @@ first; nobless status can be admin-set before the nobless quest exists.
 `AdminGraciaSeeds`, ADMIN HELLBOUND, `AdminElement` (Gracia/Hellbound/elemental
 attributes are Kamael-era content). Also out: `tools/` ports, MariaDB/Postgres,
 Swing UI (per [PLAN_GAME_SERVER.md](PLAN_GAME_SERVER.md) §11).
+
+**Scope gate — Classic-client & custom systems (2026-07 audit).** This build is
+an Interlude/Classic hybrid: the client protocol and datapack carry Classic-era
+systems the original scope never ruled in or out. Decisions:
+
+- **In scope, folded into existing milestones:** mentoring (`MentorManager`,
+  `config/MentorCoins.xml`) → G17; secondary password (`SecondaryAuthData`,
+  `RequestEx2ndPassword*`) → G31; contact list
+  (`RequestExAddContactToContactList` family) → G30; party adena distribution
+  (`adenadistribution` packets) → G30; teleport bookmarks
+  (`RequestTeleportBookMark`/bookmark-slot packets) → G15.5.
+- **Deferred until an operator asks** (disabled on this dist or cash-shop
+  flavored): attendance rewards (`EnableAttendanceRewards = False`), training
+  camp (`TrainingCampEnable = False`), daily missions, beauty shop, prime shop,
+  lucky game, item commission, item compounding (`CombinationItems.xml`),
+  appearance stones, auto-play/auto-potion (`Custom/AutoPlay.ini`,
+  `Custom/AutoPotions.ini`).
+- **Out of scope:** the sayune/shuttle/airship packet families (post-Interlude
+  movement, inert on Interlude maps) and the Mobius `config/Custom/*` features
+  (offline trade/play, sell-buffs, scheme buffer, faction system, fake players,
+  champion monsters, banking, class master, wedding, delevel manager, the
+  seasonal `scripts/events/*`) except any the operator explicitly enables —
+  G33 includes a one-time audit of `Custom/*.ini` enable flags to finalize this.
 
 ---
 
@@ -218,6 +255,53 @@ sells to another client, trade completes, an item enchants and can break, loot
 drops to the ground and is picked up. **Deps:** G14 (enchant/augment stat
 effects).
 
+**Audit additions (2026-07):** multisell (`MultisellData` + `MultiSellChoose` —
+82 dist lists, the concrete deliverable behind the "multisell/sell bypasses"
+line above); refund/buyback (`RequestRefundItem`, `AllowRefund = True`); item
+try-on (`RequestPreviewItem`, `AllowWear = True`); `RequestBuySellUIClose`;
+inventory-order persistence (`RequestSaveInventoryOrder`); and the item-
+maintenance task managers — `ItemLifeTimeTaskManager` (time-limited items),
+`ItemManaTaskManager` (shadow items), `ItemsAutoDestroyTaskManager` (ground-item
+cleanup breadth).
+
+### G15.5 — Teleporters & user commands
+*(2026-07 audit addition.)* Two small, high-playability systems no milestone
+covered:
+
+- **Gatekeepers:** `TeleporterData` (`data/teleporters/` — town/castle/
+  clanhall/fortress/others) + the teleport bypass family: list windows, adena
+  pricing (incl. the free-teleport-under-level config), noble/hunting-ground
+  lists. Also home for teleport bookmarks (scope gate).
+- **User commands:** `BypassUserCmd` → `handler/usercommandhandlers/*` —
+  `/unstuck` (escape cast + town teleport) first, then `/loc`, `/time`,
+  `/partyinfo`, and the rest.
+
+**Gate:** a player pays a gatekeeper to teleport between towns; `/unstuck`
+returns a stuck character to town. **Deps:** none (teleport/movement primitives
+exist) — the cheapest playability win on the board.
+
+🚧 **Landed (2026-07-16):** `data/teleporter_data.rs` (all dist lists, incl.
+`<npcs>` aliases) + `game_loop/teleporter.rs` (`showTeleports`/
+`showTeleportsHunting`/`teleport`/`showNoblesSelect` bypass verbs, fee
+suffix + adena charge, free ≤ `MaxFreeTeleportLevel`, karma gate);
+`BypassUserCmd` (0xB3) → `game_loop/user_commands.rs` with `/unstuck`
+(30 s forced-hit-time cast of 2099, GM 2100, via the new
+`SkillEffect::EscapeToTown` — also fixes escape *items* once their handlers
+land) and `/loc` (map-region `locId` + coords). Loader/dist-XML/synthetic-
+world tests throughout. **Remaining:** teleport bookmarks, the rest of the
+user-command family, the Mon/Tue fee discount (needs wall clock), nobles
+lists (G17), siege gates (G24).
+
+### G15.7 — Crafting & recipes
+*(2026-07 audit addition — `CraftingEnabled = True` on this dist.)*
+`RecipeData` (`Recipes.xml`), the recipe book (`character_recipebook` persist,
+`RequestRecipeBookOpen`/`Destroy`, common vs dwarven split), craft execution
+(`RequestRecipeItemMakeInfo`/`MakeSelf` — MP cost, material consume, success
+roll), and the private manufacture store (`RequestRecipeShop*` — reuses G15's
+private-store plumbing, `ManufactureItem` price list). **Gate:** learn a
+recipe, craft an item from materials, and buy a craft from another player's
+manufacture store. **Deps:** G15.
+
 ### G16 — Character variables, premium & vitality
 `GlobalVariablesManager` + a per-character key/value store (`character_variables`
 table). On top of it: premium accounts (+ `ExVitalityEffectInfo` bonuses),
@@ -239,6 +323,10 @@ occupation *quests* (G22). **Gate:** a character changes class and gets the new
 skill tree; a subclass can be added and switched. **Unblocks:** `//setnoble`,
 fuller `//setclass`, `//setsubclass`.
 
+**Audit additions (2026-07):** mentoring (`MentorManager`, `mentoring` packets,
+`config/MentorCoins.xml` — graduation triggers off class change), per the
+scope gate.
+
 ### G18 — Clans (full)
 Everything past G11's creation slice: invite/join/leave/oust/dissolve; clan
 level-up + reputation; sub-pledges (royal guard / order of knights) + academy;
@@ -247,6 +335,10 @@ warehouse; clan wars; alliances; the `PledgeInfo`/`PledgeStatusChanged`/RELATION
 breadth. **Gate:** form a clan, invite members, level it, learn a clan skill,
 declare war, form an ally. **Unblocks:** `//clan_*`, `//pledge`,
 `//add_clan_skill`/`//give_clan_skills`. **Deps:** G15 (clan warehouse).
+
+**Audit additions (2026-07):** clan recruitment/entry (`ClanEntryManager` — the
+`RequestPledgeRecruit*`/draft-list/waiting-list packet family) and the Classic
+pledge-bonus rewards (`ClanRewardData`, `pledgebonus` packets).
 
 ---
 
@@ -264,12 +356,26 @@ skill switches on. **Unblocks:** the AdminEffects AVE subset (`//ave_abnormal`,
 `//setteam`, `//settargetable`, `//para*`, `//bighead`, `//playmovie`,
 `//set_displayeffect`, `//event_trigger`), `//switch_gm_buffs`.
 
+**Audit additions (2026-07):** skill enchanting (`EnchantSkillGroupsData` +
+`RequestExEnchantSkill`/`Info`/`InfoDetail` — the level-76+ skill-enchant flow).
+
 ### G20 — Combat breadth
 `PhysicalAttack`-type skills; bows/crossbows (arrows, reuse gauge); dual-weapon
 split hits; polearm sweep; PvP auto-attack + the karma/PK/flag consumers; overhit
 XP; the `SHOTS_BONUS` dynamic value; the rest of `isMovementDisabled`
 (root/immobilize). **Gate:** a bow attack consumes an arrow, a polearm hits a
 line, PvP flagging drives auto-attack, a physical skill lands. **Deps:** G14, G19.
+
+**Audit additions (2026-07):** duels (`DuelManager`/`Duel` — 1v1 and party
+duels, `RequestDuelStart`/`AnswerStart`/`Surrender`, end conditions + the arena
+teleport variant). G25's olympiad matches reuse this shape, so duels land here.
+
+### G20.5 — Recommendations
+*(2026-07 audit addition.)* The evaluation/recommendation system: rec-have/
+rec-left counters on the character, `RequestVoteNew` (evaluate a target), the
+`TaskRecom` daily reset, and the UserInfo/CharInfo fields they feed. **Gate:**
+a given rec survives relog and the counters reset daily. **Deps:** G16
+(character variables).
 
 ### G21 — NPC AI & world-content breadth
 NPC skill casting (`AISkillScope` lists); minions; guard/faction/clan-help aggro
@@ -280,6 +386,10 @@ zone types (damage/effect/boss/jail/water-breath/no-store/arena…) + fence chec
 + the `ValidatePosition` door-exploit tail. **Gate:** a mob casts, a guard aggros
 a PK, a spoiled corpse can be swept, a boss keeps its HP across restart.
 **Deps:** G20.
+
+**Audit additions (2026-07):** fences (`FenceData` — unblocks `AdminFence`),
+NPC random social animations (`RandomAnimationTaskManager`), and
+`CreatureSeeTaskManager` (the on-creature-see AI trigger scripts rely on).
 
 ---
 
@@ -294,6 +404,10 @@ quest-window guards; `validateHtmlAction`; the remaining bypass families
 kind (one-time, repeatable, daily, class-transfer, instance) completes.
 **Unblocks:** `//quest_info`/`//quest_reload`/`//script_load`/`//script_unload`,
 `//charquestmenu`/`//setcharquest`, `//reload`. **Deps:** G17, G19.
+
+**Audit additions (2026-07):** the tutorial packet family
+(`RequestTutorialLinkHtml`/`QuestionMark`/`ClientEvent`/`PassCmdToServer`)
+backing Q00255.
 
 ---
 
@@ -314,12 +428,24 @@ change castle ownership; a clan hall can be bought at auction. **Unblocks:**
 AdminFortSiege (`//siege*`), `//castle`, `//clanhall`, territory war commands.
 **Deps:** G18 (clans), G21.
 
+### G24.5 — Boats
+*(2026-07 audit addition — `AllowBoat = True` on this dist.)* `BoatManager` +
+the four `vehicles/` route scripts (Talking–Gludin, Giran–Talking, Innadril
+tour, Rune–Primeval): the `Boat` world object following `VehiclePathPoint`
+routes, board/disembark (`RequestGetOnVehicle`/`GetOffVehicle`), in-vehicle
+movement/validation packets, and ticket collection. **Gate:** ride a scheduled
+ferry between two harbors. **Deps:** movement engine (done); independent of
+the other end-game systems.
+
 ### G25 — Olympiad & hero
 Olympiad registration/matches/points/rank; the hero system (monthly heroes, hero
 skills/weapons/aura, monument). **Gate:** register for Olympiad, run a match,
 compute heroes at period end. **Unblocks:** AdminOlympiad, `//saveolymp`,
 `//endolympiad`, `//sethero`/`//givehero`/`//settruehero`. **Deps:** G17
 (nobless).
+
+**Audit additions (2026-07):** olympiad observer mode (`ObserverReturn`, the
+arena observe teleports, observer state in UserInfo).
 
 ### G26 — Seven Signs, Manor & Mammon
 Seven Signs cycle (competition/seal periods, Festival of Darkness) + its castle
@@ -328,6 +454,12 @@ production/procure); the Mammon merchants (Blacksmith/Merchant of Mammon).
 **Gate:** a manor seed can be sown and harvested; the Seven Signs period
 advances. **Unblocks:** `//manor`, `//mammon_find`/`//mammon_respawn`. **Deps:**
 G24 (siege/castle tie-in), G15 (manor economy).
+
+### G26.5 — Lottery & Monster Race
+*(2026-07 audit addition.)* `instancemanager/games/Lottery` (ticket purchase,
+weekly draw, prize-claim dialogs) and `MonsterRace` (the Race Track: race
+ticks, betting, `MonRaceInfo`). Niche end-game content — schedule last within
+the track. **Deps:** G15 (economy).
 
 ### G27 — Instances
 `InstanceManager` + instance worlds; instance zones; reenter timers; instance-
@@ -341,6 +473,10 @@ event (TvT); cursed weapons (Zariche/Akamanah) lifecycle via
 `CursedWeaponsManager` (drop, pickup, transformation, karma, decay). **Gate:** a
 TvT event runs start-to-finish; a cursed weapon can be dropped and equipped.
 **Unblocks:** AdminEvents, `//tvt_*`, AdminCursedWeapons. **Deps:** G20.
+
+**Audit additions (2026-07):** `EventDropManager`/`EventShrineManager`, with
+the seven seasonal `scripts/events/*` (SquashEvent, MerrySquashmas, …) as the
+breadth list — subject to the scope gate (customs default out).
 
 ---
 
@@ -360,6 +496,16 @@ whisper/trade/invite check); tactical signs. **Gate:** send mail with an
 attachment; open the community board; create a matching room. **Unblocks:**
 AdminBBS. **Deps:** G18 (clan board).
 
+**Audit additions (2026-07):** the contact list
+(`RequestExAddContactToContactList` family) and party adena distribution
+(`adenadistribution` packets), per the scope gate.
+
+### G30.5 — Item auction
+*(2026-07 audit addition.)* `ItemAuctionManager` + `ItemAuctions.xml` (the
+auctioneer NPCs), `RequestBidItemAuction`/`RequestInfoItemAuction`, scheduled
+auction periods, winner delivery. **Deps:** G15 (economy); G30 if delivery
+goes via mail.
+
 ### G31 — Moderation, accounts, petitions & HWID
 Per-client IP plumbing (needed by several); punishment/jail (`PunishmentManager`
 + chat/jail/ban types) + say filter/chat bans; petitions (`PetitionManager`);
@@ -368,6 +514,11 @@ account ops); HWID tracking; fake players. **Gate:** jail a player, file and
 answer a petition, ban via the login link. **Unblocks:** AdminPunishment,
 AdminLogin, AdminHwid, AdminPetition, AdminFakePlayers, and editchar
 `//find_ip`/`//find_dualbox`/`//tracert`. **Deps:** IP plumbing.
+
+**Audit additions (2026-07):** GM chat snoop (`//snoop`, `SnoopQuit`),
+`AntiFeedManager`, bot-report punishments (`BotReportPunishments.xml`), and
+the secondary password (`SecondaryAuthData`, `RequestEx2ndPassword*`) per the
+scope gate.
 
 ### G32 — Fishing
 Fishing skill + rods/lures/bait; the fishing minigame (`FishingManager`); fish
@@ -386,7 +537,11 @@ serializer; `NpcNameLocalisationData`/multilang; remaining packets and the last
 data loaders; the niche admin tools (AdminFightCalculator, AdminRepairChar,
 AdminPForge, AdminMissingHtmls, AdminPcCondOverride); Dockerfile parity. Close
 with the file-by-file parity checklist ([PLAN_GAME_SERVER.md](PLAN_GAME_SERVER.md)
-§8). **Gate:** parity checklist complete.
+§8), plus a mechanical diff of the Java `network/clientpackets` handler list
+(298 files) against the Rust opcode table so any packet family that slipped
+every milestone surfaces here, and the one-time `Custom/*.ini` enable-flag
+audit from the scope gate (2026-07 audit backstop). **Gate:** parity checklist
+complete.
 
 ---
 
@@ -406,3 +561,5 @@ The tracks are ordered by leverage and dependency, but a few notes:
    server operator wants live first (sieges vs olympiad vs instances).
 5. **G31 needs IP plumbing** — a small cross-cut worth doing early if dualbox/
    moderation tooling is wanted sooner.
+6. **G15.5 is the cheapest playability win** — gatekeepers + `/unstuck` are
+   small ports that unblock normal play; slot it alongside G15's tail.

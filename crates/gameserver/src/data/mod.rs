@@ -21,6 +21,7 @@ pub mod skill_tree;
 pub mod spawn_data;
 pub mod stat_bonus;
 pub mod static_object_data;
+pub mod teleporter_data;
 pub mod transform_data;
 pub mod variation_data;
 pub mod xp_lost;
@@ -45,6 +46,7 @@ pub use skill_tree::SkillTreeData;
 pub use spawn_data::SpawnData;
 pub use stat_bonus::StatBonus;
 pub use static_object_data::StaticObjectData;
+pub use teleporter_data::TeleporterData;
 pub use transform_data::TransformData;
 pub use variation_data::VariationData;
 pub use xp_lost::PlayerXpPercentLostData;
@@ -125,6 +127,8 @@ pub struct GameData {
     pub static_object_data: StaticObjectData,
     pub buy_lists: BuyListData,
     pub categories: CategoryData,
+    /// Gatekeeper teleport lists (G15.5), see [`TeleporterData`].
+    pub teleporters: TeleporterData,
     pub transforms: TransformData,
     /// Enchant chance engine (rate groups + branded scrolls), see [`EnchantData`].
     pub enchant: EnchantData,
@@ -170,6 +174,7 @@ impl GameData {
             static_object_data: StaticObjectData::load_from(file_path),
             buy_lists,
             categories: CategoryData::load_from(file_path),
+            teleporters: TeleporterData::load_from(file_path),
             transforms: TransformData::load_from(file_path),
             enchant: EnchantData::load_from(file_path),
             variations: VariationData::load_from(file_path),
@@ -210,6 +215,7 @@ impl GameData {
             static_object_data: StaticObjectData::empty(),
             buy_lists: BuyListData::empty(),
             categories: CategoryData::empty(),
+            teleporters: TeleporterData::empty(),
             transforms: TransformData::empty(),
             enchant: EnchantData::empty(),
             variations: VariationData::empty(),

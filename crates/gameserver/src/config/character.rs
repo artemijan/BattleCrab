@@ -94,6 +94,15 @@ pub struct CharacterConfig {
     /// `Player.storeEffect`/`restoreEffects`, skill-reuse half; buff restore is
     /// still deferred). True on this dist.
     pub store_skill_cooltime: bool,
+    /// `MaxFreeTeleportLevel`: gatekeeper NORMAL/HUNTING teleports are free at
+    /// or below this level (40 on this dist, Java default 99).
+    pub max_free_teleport_level: i32,
+    /// `AltKarmaPlayerCanUseGK`: whether a negative-reputation character may
+    /// use gatekeepers (False — Java default and this dist).
+    pub alt_karma_player_can_use_gk: bool,
+    /// `UnstuckInterval` (seconds): the `/unstuck` escape cast time (30 on
+    /// this dist, Java default 300 = the stock 5-minute escape skill).
+    pub unstuck_interval: i32,
 }
 
 impl Default for CharacterConfig {
@@ -134,6 +143,9 @@ impl Default for CharacterConfig {
             max_m_atk_speed: 1999.0,
             max_evasion: 250.0,
             store_skill_cooltime: true,
+            max_free_teleport_level: 99,
+            alt_karma_player_can_use_gk: false,
+            unstuck_interval: 300,
         }
     }
 }
@@ -192,6 +204,9 @@ impl CharacterConfig {
             max_m_atk_speed: p.get_float("MaxMAtkSpeed", 1999.0) as f64,
             max_evasion: p.get_float("MaxEvasion", 250.0) as f64,
             store_skill_cooltime: p.get_bool("StoreSkillCooltime", d.store_skill_cooltime),
+            max_free_teleport_level: p.get_int("MaxFreeTeleportLevel", d.max_free_teleport_level),
+            alt_karma_player_can_use_gk: p.get_bool("AltKarmaPlayerCanUseGK", d.alt_karma_player_can_use_gk),
+            unstuck_interval: p.get_int("UnstuckInterval", d.unstuck_interval),
         }
     }
 }

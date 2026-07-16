@@ -16,6 +16,10 @@ const DEFAULT_RESPAWN: &str = "talking_island_town";
 #[derive(Debug, Clone)]
 pub struct MapRegion {
     pub name: String,
+    /// `locId`: the client "Current location: … (near X)" system-message id
+    /// for this region (`MapRegion.getLocId`, the `/loc` user command). 0
+    /// when the XML has none.
+    pub loc_id: i32,
     /// Ordinary (non-chaotic, non-other) respawn points.
     pub respawn_points: Vec<(i32, i32, i32)>,
     /// `<map X= Y=/>` tile coordinates this region covers.
@@ -118,6 +122,7 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<MapRegion>) {
             b"region" => {
                 cur = Some(MapRegion {
                     name: attr(b"name").unwrap_or_default(),
+                    loc_id: attr(b"locId").and_then(|v| v.parse().ok()).unwrap_or(0),
                     respawn_points: Vec::new(),
                     tiles: Vec::new(),
                 });

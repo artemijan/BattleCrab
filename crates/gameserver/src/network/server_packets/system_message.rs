@@ -71,6 +71,10 @@ pub mod sm_ids {
     pub const YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS: i16 = 2208;
     // Shop (G12)
     pub const YOU_DO_NOT_HAVE_ENOUGH_ADENA: i16 = 279;
+    // User commands (G15.5)
+    /// "Current Location: $s1" — the `/loc` fallback when the map region has
+    /// no `locId` message.
+    pub const CURRENT_LOCATION_S1: i16 = 2361;
     pub const YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED: i16 = 1036;
     pub const EXCHANGE_IS_SUCCESSFUL: i16 = 4358;
     pub const DISTANCE_TOO_FAR_CASTING_CANCELLED: i16 = 748;
