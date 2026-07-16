@@ -1,6 +1,6 @@
 # G16 (partial) — Main-menu admin commands: points, premium & spawn lists
 
-Status: **in progress**. Scope carved from the `//admin` main menu
+Status: **landed** (all five stages). Scope carved from the `//admin` main menu
 (`data/html/admin/main_menu.htm`) — the 14 buttons on the top panel. Ten were
 already implemented in G13.B (`Item`/`create_item`, `Teleport`/`move_to`,
 `Spawn`/`spawn_monster`, `Open`, `Close`, `Heal`, and the text form of
