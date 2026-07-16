@@ -8,7 +8,7 @@
 //! milestone (TODO(G24) at the call sites).
 
 use crate::db::DbCommand;
-use crate::model::components::Position;
+use crate::model::components::{Position, RegionCell};
 use crate::model::door::Door;
 use crate::model::siege::SiegeClanType;
 use crate::model::Player;
@@ -51,9 +51,11 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
 
     // `_castle.spawnDoor()` — close the castle gates at full HP for the battle.
     spawn_castle_doors(world, castle_id, false);
+    // `spawnSiegeGuard()` — the defender's stationed garrison.
+    spawn_siege_guards(world, castle_id);
 
-    // TODO(G24): updatePlayerSiegeStateFlags, spawn control/flame towers + siege
-    // guards (Castle.getZone().setActive is modelled by the in-progress flag the
+    // TODO(G24): updatePlayerSiegeStateFlags, spawn control/flame towers
+    // (Castle.getZone().setActive is modelled by the in-progress flag the
     // siege-zone PvP check reads).
 }
 
@@ -94,7 +96,8 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
     teleport_non_owners(world, castle_id);
     // `_castle.spawnDoor()` — restore the gates to full HP + closed.
     spawn_castle_doors(world, castle_id, false);
-    // TODO(G24): despawn control/flame towers + siege guards.
+    // Despawn the siege guards (+ any towers) from the battlefield.
+    despawn_siege_npcs(world, castle_id);
 }
 
 /// Java `Castle.setOwner` (from the throne-room artifact) + `Siege.midVictory`
@@ -152,6 +155,32 @@ pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
 
     // `_castle.spawnDoor(true)` — respawn the (now the captor's) gates at 50% HP.
     spawn_castle_doors(world, castle_id, true);
+}
+
+/// `Siege.spawnSiegeGuard` — spawn the castle's stationed garrison onto the
+/// battlefield; their object ids are tracked on the siege for despawn at the end.
+/// Guards carry their template AI, so aggressive ones engage attackers.
+fn spawn_siege_guards(world: &mut World, castle_id: i32) {
+    let spawns = world.siege_guards.get(&castle_id).cloned().unwrap_or_default();
+    for s in spawns {
+        if let Some(oid) = crate::model::npc::spawn_npc_at(world, s.npc_id, s.x, s.y, s.z, s.heading) {
+            super::death::introduce_npc(world, oid);
+            if let Some(siege) = world.sieges.get_mut(&castle_id) {
+                siege.spawned_npcs.push(oid);
+            }
+        }
+    }
+}
+
+/// Despawn every NPC spawned for this siege (Java `removeSiegeGuards` + the
+/// control/flame towers — the latter unported yet).
+fn despawn_siege_npcs(world: &mut World, castle_id: i32) {
+    let oids = world.sieges.get_mut(&castle_id).map(|s| std::mem::take(&mut s.spawned_npcs)).unwrap_or_default();
+    for oid in oids {
+        if let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0) {
+            super::death::despawn_npc(world, oid, region);
+        }
+    }
 }
 
 /// The object ids of a castle's doors — the doors standing inside its siege

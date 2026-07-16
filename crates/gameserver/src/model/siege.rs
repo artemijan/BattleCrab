@@ -46,6 +46,17 @@ pub struct SiegeClan {
     pub kind: SiegeClanType,
 }
 
+/// A battlefield NPC spawn point — a siege guard (`castle_siege_guards`) or a
+/// control/flame tower (`SiegeManager` config).
+#[derive(Debug, Clone, Copy)]
+pub struct SiegeSpawn {
+    pub npc_id: i32,
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+    pub heading: i32,
+}
+
 /// A castle's siege (Java `Castle.getSiege()`).
 #[derive(Debug, Clone)]
 pub struct Siege {
@@ -56,11 +67,14 @@ pub struct Siege {
     /// Java `_firstOwnerClanId` — the castle owner captured at siege start, so
     /// `endSiege` can tell "defender held" from "attacker captured" (0 = NPC).
     pub first_owner_clan_id: i32,
+    /// Object ids of the NPCs (siege guards / towers) spawned for this siege,
+    /// despawned at `endSiege`.
+    pub spawned_npcs: Vec<i32>,
 }
 
 impl Siege {
     pub fn new(castle_id: i32) -> Self {
-        Self { castle_id, clans: Vec::new(), in_progress: false, first_owner_clan_id: 0 }
+        Self { castle_id, clans: Vec::new(), in_progress: false, first_owner_clan_id: 0, spawned_npcs: Vec::new() }
     }
 
     /// Any clan registered as an ATTACKER (`getAttackerClans().isEmpty()`).

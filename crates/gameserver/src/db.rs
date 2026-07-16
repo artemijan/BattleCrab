@@ -322,6 +322,10 @@ pub enum DbEvent {
     /// The `siege_clans` table (Java `Siege.loadSiegeClan`), pushed unprompted at
     /// boot after `CastlesLoaded`. Grouped into per-castle sieges on the game thread.
     SiegesLoaded { rows: Vec<SiegeClanRow> },
+    /// The `castle_siege_guards` table (the stationed garrison, `isHired=0`),
+    /// pushed unprompted at boot. `(castle_id, spawn)`; grouped by castle on the
+    /// game thread.
+    SiegeGuardsLoaded { guards: Vec<(i32, crate::model::siege::SiegeSpawn)> },
 }
 
 /// One `siege_clans` row — a clan registered for a castle's siege.
@@ -392,6 +396,9 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
 
     // `Siege.loadSiegeClan` — after castles (the game loop keys sieges off them).
     let _ = event_tx.send(DbEvent::SiegesLoaded { rows: load_siege_clans(&pool).await });
+
+    // `SiegeGuardManager` — the stationed siege guards, spawned at siege start.
+    let _ = event_tx.send(DbEvent::SiegeGuardsLoaded { guards: load_siege_guards(&pool).await });
 
     // `ClanTable`'s boot restore, likewise unprompted.
     let _ = event_tx.send(DbEvent::ClansLoaded { clans: load_clans(&pool).await });
@@ -958,6 +965,29 @@ async fn load_cursed_weapons(pool: &SqlitePool) -> Vec<CursedWeaponRow> {
 
 /// `ClanTable`'s boot restore: every `clan_data` row + its member roster
 /// from `characters WHERE clanid=?` (Java `Clan.restore`).
+/// The stationed siege guards (`castle_siege_guards WHERE isHired=0`) — the
+/// non-mercenary garrison spawned at siege start.
+async fn load_siege_guards(pool: &SqlitePool) -> Vec<(i32, crate::model::siege::SiegeSpawn)> {
+    let rows = sqlx::query("SELECT castleId, npcId, x, y, z, heading FROM castle_siege_guards WHERE isHired=0")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
+    rows.iter()
+        .map(|r| {
+            (
+                geti(r, "castleId") as i32,
+                crate::model::siege::SiegeSpawn {
+                    npc_id: geti(r, "npcId") as i32,
+                    x: geti(r, "x") as i32,
+                    y: geti(r, "y") as i32,
+                    z: geti(r, "z") as i32,
+                    heading: geti(r, "heading") as i32,
+                },
+            )
+        })
+        .collect()
+}
+
 /// `Siege.loadSiegeClan`: every `siege_clans` row.
 async fn load_siege_clans(pool: &SqlitePool) -> Vec<SiegeClanRow> {
     let rows = sqlx::query("SELECT castle_id, clan_id, type FROM siege_clans").fetch_all(pool).await.unwrap_or_default();

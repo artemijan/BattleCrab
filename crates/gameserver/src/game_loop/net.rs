@@ -464,6 +464,16 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 tracing::info!("GameLoop: loaded sieges for {} castles ({} registered clans).", sieges.len(), rows.len());
                 world.sieges = sieges;
             }
+            DbEvent::SiegeGuardsLoaded { guards } => {
+                let mut by_castle: std::collections::HashMap<i32, Vec<crate::model::siege::SiegeSpawn>> =
+                    std::collections::HashMap::new();
+                for (castle_id, spawn) in guards {
+                    by_castle.entry(castle_id).or_default().push(spawn);
+                }
+                let total: usize = by_castle.values().map(|v| v.len()).sum();
+                tracing::info!("GameLoop: loaded {total} siege guards for {} castles.", by_castle.len());
+                world.siege_guards = by_castle;
+            }
             DbEvent::ClansLoaded { clans } => {
                 tracing::info!("GameLoop: loaded {} clans.", clans.len());
                 world.clans = clans.into_iter().map(|c| (c.id, c)).collect();

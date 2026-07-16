@@ -171,6 +171,10 @@ pub struct World {
     /// `siege_clans` table. In-progress state is runtime-only.
     pub sieges: HashMap<i32, crate::model::siege::Siege>,
 
+    /// Per-castle siege-guard spawn points (`castle_siege_guards`, the stationed
+    /// garrison), spawned at siege start (`DbEvent::SiegeGuardsLoaded`).
+    pub siege_guards: HashMap<i32, Vec<crate::model::siege::SiegeSpawn>>,
+
     /// Account premium expirations (`account_name` lowercase → enddate millis),
     /// the in-memory mirror of `account_premium` (Java `PremiumManager._premiumData`).
     /// Boot-loaded from the whole table (`DbEvent::PremiumLoaded`) rather than
@@ -237,6 +241,7 @@ impl World {
             cursed_weapons: Vec::new(),
             castles: Vec::new(),
             sieges: HashMap::new(),
+            siege_guards: HashMap::new(),
             premium: HashMap::new(),
             parties: HashMap::new(),
             next_party_id: 1,

@@ -924,3 +924,38 @@ fn siege_doors_close_on_start_and_breach_on_damage() {
     assert_eq!(d.current_hp, 1000, "revived to full HP");
     assert!(!world.geo.doors.is_open(24190001), "and closed");
 }
+
+/// Starting a siege spawns the castle's stationed guards onto the battlefield;
+/// ending it despawns them. Port of Siege.spawnSiegeGuard / removeSiegeGuards.
+#[test]
+fn siege_spawns_and_despawns_the_stationed_guards() {
+    use crate::model::siege::{Siege, SiegeSpawn};
+    let (mut world, ..) = test_world();
+    // Register a guard NPC template so spawn_npc_at can build it.
+    world.data.npc_data.insert_for_test(crate::data::npc_data::default_template(35085));
+    world.sieges.insert(3, Siege::new(3));
+    world.siege_guards.insert(
+        3,
+        vec![
+            SiegeSpawn { npc_id: 35085, x: 100, y: 100, z: 0, heading: 0 },
+            SiegeSpawn { npc_id: 35085, x: 200, y: 100, z: 0, heading: 0 },
+        ],
+    );
+
+    // start_siege → both guards spawn as live NPCs, tracked on the siege.
+    crate::game_loop::siege::start_siege(&mut world, 3);
+    let guard_oids = world.sieges[&3].spawned_npcs.clone();
+    assert_eq!(guard_oids.len(), 2, "two stationed guards spawned");
+    assert!(
+        guard_oids.iter().all(|oid| world.objects.has_component::<crate::model::npc::Npc>(oid)),
+        "guards are live NPCs"
+    );
+
+    // end_siege → the guards are despawned and the list cleared.
+    crate::game_loop::siege::end_siege(&mut world, 3);
+    assert!(world.sieges[&3].spawned_npcs.is_empty(), "guard list cleared");
+    assert!(
+        guard_oids.iter().all(|oid| !world.objects.has_component::<crate::model::npc::Npc>(oid)),
+        "guards despawned"
+    );
+}
