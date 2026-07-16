@@ -28,6 +28,9 @@ pub struct Clan {
     /// clamped to ±[`MAX_REPUTATION`]. Reputation-gated clan skills are a later
     /// milestone, so nothing consumes it yet beyond the pledge windows.
     pub reputation_score: i32,
+    /// Java `clan_data.hasCastle` — the residence id of the castle this clan
+    /// owns (0 = none). Source of truth for `Castle` ownership.
+    pub castle_id: i32,
     pub members: Vec<ClanMember>,
     /// The shared clan warehouse (Java `Clan._warehouse`, a `ClanWarehouse`
     /// container). Persisted with `owner_id = clan id`, `loc = "CLANWH"`.

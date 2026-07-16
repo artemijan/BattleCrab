@@ -19,6 +19,7 @@ use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
 
+mod castle;
 mod character;
 mod cursed_weapons;
 mod editchar;
@@ -44,6 +45,7 @@ mod world_cmds;
 
 // The command bodies and the small enums the dispatch table names live in the
 // modules above; glob them in so `dispatch` reads as one flat routing table.
+use castle::*;
 use character::*;
 use cursed_weapons::*;
 use editchar::*;
@@ -439,6 +441,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // unclaimed Hero" buttons.
         "admin_sethero" => admin_sethero(world, client_id, object_id),
         "admin_givehero" => admin_givehero(world, client_id, object_id),
+        // AdminCastle — the Game panel's "Castle" button (siege actions deferred).
+        "admin_castlemanage" => admin_castlemanage(world, client_id, object_id, &args),
         // AdminVitality (player vitality points).
         "admin_set_vitality" => admin_vitality(world, client_id, object_id, "set", &args),
         "admin_full_vitality" => admin_vitality(world, client_id, object_id, "full", &args),

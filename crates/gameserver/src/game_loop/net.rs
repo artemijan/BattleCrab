@@ -444,6 +444,10 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 tracing::info!("GameLoop: loaded {} cursed weapons.", weapons.len());
                 world.cursed_weapons = weapons;
             }
+            DbEvent::CastlesLoaded { castles } => {
+                tracing::info!("GameLoop: loaded {} castles.", castles.len());
+                world.castles = castles;
+            }
             DbEvent::ClansLoaded { clans } => {
                 tracing::info!("GameLoop: loaded {} clans.", clans.len());
                 world.clans = clans.into_iter().map(|c| (c.id, c)).collect();

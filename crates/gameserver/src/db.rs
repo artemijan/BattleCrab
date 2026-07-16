@@ -248,6 +248,11 @@ pub enum DbCommand {
     StoreCursedWeapon { item_id: i32, char_id: i32, reputation: i32, pk_kills: i32, nb_kills: i32, end_time: i64 },
     /// `CursedWeaponsManager.removeFromDb` — drop the weapon's state row.
     RemoveCursedWeapon { item_id: i32 },
+    /// `Castle.setSide`/`switchSide` — persist a castle's side.
+    UpdateCastleSide { castle_id: i32, side: String },
+    /// Castle ownership on the clan side (`Castle.setOwner`/`removeOwner` →
+    /// `clan_data.hasCastle`).
+    UpdateClanCastle { clan_id: i32, castle_id: i32 },
     /// Fire-and-forget clan level persist (`Clan.changeLevel`'s single UPDATE).
     UpdateClanLevel { clan_id: i32, level: i32 },
     /// Fire-and-forget clan reputation persist (`Clan.setReputationScore`, which
@@ -308,6 +313,8 @@ pub enum DbEvent {
     /// The `cursed_weapons` state table (Java `CursedWeaponsManager.restore`),
     /// pushed unprompted at boot; overlaid onto the XML config on the game thread.
     CursedWeaponsLoaded { rows: Vec<CursedWeaponRow> },
+    /// The `castle` table (Java `CastleManager.load`), pushed unprompted at boot.
+    CastlesLoaded { castles: Vec<crate::model::castle::Castle> },
 }
 
 /// One `cursed_weapons` row — the persisted wielder state of a cursed weapon.
@@ -364,6 +371,9 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
 
     // `CursedWeaponsManager.restore` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::CursedWeaponsLoaded { rows: load_cursed_weapons(&pool).await });
+
+    // `CastleManager.load` — likewise unprompted, before `ClansLoaded`.
+    let _ = event_tx.send(DbEvent::CastlesLoaded { castles: load_castles(&pool).await });
 
     // `ClanTable`'s boot restore, likewise unprompted.
     let _ = event_tx.send(DbEvent::ClansLoaded { clans: load_clans(&pool).await });
@@ -481,6 +491,16 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
             }
             DbCommand::RemoveCursedWeapon { item_id } => {
                 exec(&pool, sqlx::query("DELETE FROM cursed_weapons WHERE itemId=?").bind(item_id)).await;
+            }
+            DbCommand::UpdateCastleSide { castle_id, side } => {
+                exec(&pool, sqlx::query("UPDATE castle SET side=? WHERE id=?").bind(side).bind(castle_id)).await;
+            }
+            DbCommand::UpdateClanCastle { clan_id, castle_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET hasCastle=? WHERE clan_id=?").bind(castle_id).bind(clan_id),
+                )
+                .await;
             }
             DbCommand::UpdateClanLevel { clan_id, level } => {
                 exec(
@@ -901,8 +921,20 @@ async fn load_cursed_weapons(pool: &SqlitePool) -> Vec<CursedWeaponRow> {
 
 /// `ClanTable`'s boot restore: every `clan_data` row + its member roster
 /// from `characters WHERE clanid=?` (Java `Clan.restore`).
+/// `CastleManager.load`: every `castle` row (id/name/side).
+async fn load_castles(pool: &SqlitePool) -> Vec<crate::model::castle::Castle> {
+    let rows = sqlx::query("SELECT id, name, side FROM castle ORDER BY id").fetch_all(pool).await.unwrap_or_default();
+    rows.iter()
+        .map(|r| crate::model::castle::Castle {
+            id: geti(r, "id") as i32,
+            name: gets(r, "name"),
+            side: crate::model::castle::CastleSide::from_str(&gets(r, "side")).unwrap_or_default(),
+        })
+        .collect()
+}
+
 async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
-    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, leader_id FROM clan_data")
+    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, leader_id FROM clan_data")
         .fetch_all(pool)
         .await
         .unwrap_or_default();
@@ -922,6 +954,7 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             leader_id: geti(row, "leader_id") as i32,
             level: geti(row, "clan_level") as i32,
             reputation_score: geti(row, "reputation_score") as i32,
+            castle_id: geti(row, "hasCastle") as i32,
             warehouse: crate::model::inventory::Warehouse::from_rows(&wh_rows),
             members: member_rows
                 .iter()

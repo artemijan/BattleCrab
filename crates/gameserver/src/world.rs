@@ -161,6 +161,11 @@ pub struct World {
     /// (`DbEvent::CursedWeaponsLoaded`). Two on this dist (Zariche/Akamanah).
     pub cursed_weapons: Vec<crate::model::cursed_weapon::CursedWeapon>,
 
+    /// The castles (Java `CastleManager._castles`), keyed by residence id.
+    /// Loaded once at boot (`DbEvent::CastlesLoaded`); ownership is resolved
+    /// against `clans` (the owning clan's `castle_id`).
+    pub castles: Vec<crate::model::castle::Castle>,
+
     /// Account premium expirations (`account_name` lowercase → enddate millis),
     /// the in-memory mirror of `account_premium` (Java `PremiumManager._premiumData`).
     /// Boot-loaded from the whole table (`DbEvent::PremiumLoaded`) rather than
@@ -225,6 +230,7 @@ impl World {
             clans: HashMap::new(),
             grand_bosses: HashMap::new(),
             cursed_weapons: Vec::new(),
+            castles: Vec::new(),
             premium: HashMap::new(),
             parties: HashMap::new(),
             next_party_id: 1,

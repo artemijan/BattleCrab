@@ -1704,3 +1704,64 @@ fn admin_sethero_toggles_status_skills_and_aura() {
     let msgs: Vec<String> = drain(&mut rx).iter().filter_map(|p| sysmsg_text(p)).collect();
     assert!(msgs.iter().any(|t| t.contains("cannot claim the hero status")), "givehero blocked without a crowned hero");
 }
+
+/// `//castlemanage` shows a castle's page; `setOwner` assigns the targeted
+/// clanned player's clan + side, `switchSide` flips it, `takeCastle` strips it;
+/// siege actions report unavailable. Port of AdminCastle.
+#[test]
+fn admin_castlemanage_ownership_and_side() {
+    use crate::model::castle::{Castle, CastleSide};
+    use crate::model::clan::{Clan, ClanMember};
+    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (mut world, _db_tx, mut db_rx, _link) = admin_world();
+    world.data.root = ROOT.to_string();
+    world.castles = vec![Castle { id: 3, name: "Giran".into(), side: CastleSide::Neutral }];
+    world.clans.insert(
+        500,
+        Clan {
+            id: 500,
+            name: "Owners".into(),
+            leader_id: 8002,
+            level: 5,
+            reputation_score: 0,
+            castle_id: 0,
+            members: vec![ClanMember { char_id: 8002, name: "P8002".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
+            warehouse: Default::default(),
+        },
+    );
+    let mut rx = ingame_player_access(&mut world, 1, 8001, 100);
+    let _t = ingame_player_access(&mut world, 2, 8002, 0);
+    world.objects.get_component_mut::<Player>(&8002).unwrap().clan_id = 500;
+    world.objects.add_components(&8001, TargetRef(Some(8002)));
+    drain(&mut rx);
+
+    // //castlemanage 3 → the page, unowned + neutral.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3")].concat());
+    let page = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("castle page");
+    assert!(page.contains("Giran") && page.contains("NPC"), "unowned castle shows NPC");
+
+    // //castlemanage 3 setOwner LIGHT → clan 500 owns Giran on the light side.
+    drain_db(&mut db_rx);
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3 setOwner LIGHT")].concat());
+    let page = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("castle page");
+    assert_eq!(world.castles[0].side, CastleSide::Light, "side set");
+    assert_eq!(world.clans[&500].castle_id, 3, "clan owns the castle");
+    assert!(page.contains("Owners") && page.contains("Light"), "owner + side displayed");
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::UpdateClanCastle { clan_id: 500, castle_id: 3 })), "persisted");
+
+    // //castlemanage 3 switchSide → Dark.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3 switchSide")].concat());
+    drain(&mut rx);
+    assert_eq!(world.castles[0].side, CastleSide::Dark, "side switched");
+
+    // //castlemanage 3 takeCastle → unowned again.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3 takeCastle")].concat());
+    drain(&mut rx);
+    assert_eq!(world.clans[&500].castle_id, 0, "ownership removed");
+
+    // //castlemanage 3 startSiege → siege engine unported.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3 startSiege")].concat());
+    let msgs: Vec<String> = drain(&mut rx).iter().filter_map(|p| sysmsg_text(p)).collect();
+    assert!(msgs.iter().any(|t| t.contains("not available")), "siege deferred");
+}

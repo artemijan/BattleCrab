@@ -102,7 +102,7 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
             race: p.race,
         }
     };
-    let clan = Clan { id: clan_id, name: name.clone(), leader_id: leader_oid, level: 0, reputation_score: 0, members: vec![leader], warehouse: Default::default() };
+    let clan = Clan { id: clan_id, name: name.clone(), leader_id: leader_oid, level: 0, reputation_score: 0, castle_id: 0, members: vec![leader], warehouse: Default::default() };
     let _ = world.db.send(DbCommand::InsertClan { clan_id, name: name.clone(), leader_id: leader_oid });
     let _ = world.db.send(DbCommand::UpdateCharClan {
         char_id: leader_oid,
