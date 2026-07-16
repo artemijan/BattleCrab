@@ -226,11 +226,23 @@ fn spawn_castle_doors(world: &mut World, castle_id: i32, weak: bool) {
     }
 }
 
+/// Whether `door_oid` is a castle door standing in a siege zone whose siege is
+/// in progress — i.e. currently attackable/breachable (Java `Door.isAttackable`
+/// during a siege).
+pub(crate) fn attackable_door(world: &World, door_oid: i32) -> bool {
+    if !world.objects.has_component::<Door>(&door_oid) {
+        return false;
+    }
+    let Some(pos) = world.objects.get_component::<Position>(&door_oid) else { return false };
+    match world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) {
+        Some(castle_id) => world.sieges.get(&castle_id).is_some_and(|s| s.in_progress),
+        None => false,
+    }
+}
+
 /// Apply siege damage to a castle door; at 0 HP it's breached (opens). Returns
-/// whether it broke on this hit. TODO(G24): the attack trigger — `DoorAction`
-/// click-to-target + the melee/skill path against a door — is unported, so
-/// nothing reaches this in production yet.
-#[allow(dead_code)]
+/// whether it broke on this hit. Driven by the melee path against a targeted
+/// door (`combat::attack_door`).
 pub(crate) fn damage_door(world: &mut World, door_oid: i32, damage: i32) -> bool {
     let breached = {
         let Some(d) = world.objects.get_component_mut::<Door>(&door_oid) else { return false };

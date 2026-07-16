@@ -959,3 +959,42 @@ fn siege_spawns_and_despawns_the_stationed_guards() {
         "guards despawned"
     );
 }
+
+/// DoorAction end to end: click a siege door to target it, then attack it —
+/// the swing damages the gate and eventually breaches it (opens). Makes
+/// siege::damage_door reachable in-game.
+#[test]
+fn siege_door_can_be_targeted_and_breached_by_attack() {
+    use crate::data::door_data::DoorOpenMethod;
+    use crate::model::door::Door;
+    use crate::model::siege::Siege;
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000); // covers the door at (100, 0)
+    let mut siege = Siege::new(3);
+    siege.in_progress = true;
+    world.sieges.insert(3, siege);
+    let door = crate::model::door::spawn_door_for_test(&mut world, test_door(24190001, DoorOpenMethod::None));
+    world.objects.get_component_mut::<Door>(&door).unwrap().current_hp = 50; // a few swings to breach
+    let mut rx = ingame_caster(&mut world, 1, 3001, 80, 0); // within melee reach of the gate
+
+    // Click the door → it becomes the target.
+    handle_action(&mut world, 1, &action_body(door, 0));
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(door), "door targeted");
+    drain(&mut rx);
+
+    // Attack it → the swing is broadcast and the gate takes damage.
+    handle_attack_request(&mut world, 1, &attack_request_body(door));
+    let pkts = drain(&mut rx);
+    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::ATTACK), "swing broadcast");
+    assert!(world.objects.get_component::<Door>(&door).unwrap().current_hp < 50, "gate took damage");
+
+    // Keep swinging until it breaches.
+    for _ in 0..30 {
+        if world.geo.doors.is_open(24190001) {
+            break;
+        }
+        handle_attack_request(&mut world, 1, &attack_request_body(door));
+    }
+    assert_eq!(world.objects.get_component::<Door>(&door).unwrap().current_hp, 0, "gate destroyed");
+    assert!(world.geo.doors.is_open(24190001), "breached gate is open");
+}

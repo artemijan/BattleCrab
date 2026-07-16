@@ -264,6 +264,12 @@ pub(crate) fn start_attack_intent(
     target_object_id: i32,
     shift: bool,
 ) {
+    // Siege doors don't go through the creature combat machinery (no Vitals /
+    // CombatStats) — attack the gate directly.
+    if world.objects.has_component::<crate::model::door::Door>(&target_object_id) {
+        attack_door(world, client_id, object_id, target_object_id);
+        return;
+    }
     let target_is_player = world
         .objects
         .has_component::<crate::model::Player>(&target_object_id);
@@ -335,6 +341,86 @@ pub(crate) fn start_attack_intent(
     );
     // Think immediately — first swing shouldn't wait for the next tick.
     player_attack_think(world, object_id);
+}
+
+/// A player's melee swing against a targeted siege door — the `DoorAction`
+/// attack path. Only castle doors during an active siege take damage; the swing
+/// lands immediately (per `AttackRequest`; the chase + auto-repeat loop and the
+/// scheduled hit-time delay are a refinement, TODO(G24)).
+fn attack_door(world: &mut World, client_id: u32, attacker_oid: i32, door_oid: i32) {
+    // Approx of the door's collision extent for the melee reach check.
+    const DOOR_MELEE_MARGIN: f64 = 80.0;
+
+    if !super::siege::attackable_door(world, door_oid) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
+    let Some(attacker) = combatant(world, attacker_oid) else { return };
+    let Some(dpos) = world.objects.get_component::<Position>(&door_oid).copied() else { return };
+
+    // Reach check (Java uses the door's collision; approximate with a margin).
+    let dist = ((attacker.x - dpos.x) as f64).hypot((attacker.y - dpos.y) as f64);
+    if dist > attacker.atk_range as f64 + attacker.collision_radius + DOOR_MELEE_MARGIN {
+        super::helpers::send_sm_and_action_failed(world, client_id, sm_ids::YOUR_TARGET_IS_OUT_OF_RANGE, &[]);
+        return;
+    }
+
+    // Damage: pAtk vs the door's pDef (front, no crit, no shot).
+    let door_pdef = world
+        .objects
+        .get_component::<crate::model::door::Door>(&door_oid)
+        .and_then(|d| world.data.door_data.get(d.door_id))
+        .map(|t| (t.p_def as f64).max(1.0))
+        .unwrap_or(1.0);
+    let damage = formulas::calc_auto_attack_damage(
+        attacker.p_atk,
+        1.0,
+        crate::model::movement::Position::Front,
+        door_pdef,
+        false,
+        false,
+    ) as i32;
+
+    // Broadcast the swing.
+    let hit = server_packets::AttackHit {
+        target_object_id: door_oid,
+        damage,
+        miss: false,
+        crit: false,
+        soulshot: false,
+        ss_grade: 0,
+    };
+    let pkt =
+        server_packets::attack(attacker_oid, &hit, attacker.x, attacker.y, attacker.z, dpos.x, dpos.y, dpos.z);
+    broadcast_including_self(world, attacker_oid, &pkt);
+    refresh_attack_stance(world, attacker_oid);
+
+    // Apply the damage; on a breach `siege::damage_door` opens the gate.
+    super::siege::damage_door(world, door_oid, damage);
+
+    // Push the door's new HP to nearby (StatusUpdate).
+    let (cur_hp, max_hp) = {
+        let d = world.objects.get_component::<crate::model::door::Door>(&door_oid);
+        (
+            d.map(|d| d.current_hp).unwrap_or(0),
+            d.and_then(|d| world.data.door_data.get(d.door_id)).map(|t| t.hp_max).unwrap_or(1),
+        )
+    };
+    if let Some(region) = world.objects.get_component::<RegionCell>(&door_oid).map(|r| r.0) {
+        broadcast_near_region(
+            world,
+            region,
+            &server_packets::status_update(
+                door_oid,
+                &[
+                    (server_packets::status_update_type::MAX_HP, max_hp),
+                    (server_packets::status_update_type::CUR_HP, cur_hp),
+                ],
+            ),
+        );
+    }
 }
 
 /// Per-tick player combat system: drive every attack/cast intent one step.

@@ -86,6 +86,10 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
                 }
             }
         }
+    } else if world.objects.has_component::<crate::model::door::Door>(&pkt.object_id) {
+        // `Door.onAction`: just select it. Attackability (siege doors) is gated
+        // in the attack path.
+        set_target(world, client_id, object_id, Some(pkt.object_id));
     }
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::action_failed());
@@ -152,6 +156,22 @@ fn target_info(world: &World, viewer_level: i32, target_id: i32) -> Option<Targe
             cur_hp: vitals.cur_hp as i32,
             color: 0,
             is_npc: false,
+            heading: pos.heading,
+            x: pos.x,
+            y: pos.y,
+        });
+    }
+    if let Some(door) = world.objects.get_component::<crate::model::door::Door>(&target_id) {
+        // Doors validate-location and show an HP bar like NPCs (the siege attack
+        // gate lives in the attack path, not here).
+        let pos = world.objects.get_component::<Position>(&target_id)?;
+        let max_hp = world.data.door_data.get(door.door_id).map(|t| t.hp_max).unwrap_or(1);
+        return Some(TargetInfo {
+            z: pos.z,
+            max_hp,
+            cur_hp: door.current_hp,
+            color: 0,
+            is_npc: true,
             heading: pos.heading,
             x: pos.x,
             y: pos.y,
