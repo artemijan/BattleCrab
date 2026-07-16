@@ -7,7 +7,9 @@
 //! guards, the siege-zone PvP, and the winner/ownership change — is a later
 //! milestone (TODO(G24) at the call sites).
 
+use crate::db::DbCommand;
 use crate::model::components::Position;
+use crate::model::siege::SiegeClanType;
 use crate::model::Player;
 use crate::network::server_packets::{self, sm_ids, SmParam};
 use crate::scheduler::ScheduledTask;
@@ -22,8 +24,14 @@ const SIEGE_LENGTH_MIN: i32 = 120;
 /// `Siege.startSiege` (lifecycle slice). Called only with a registered attacker
 /// (the admin path guards that).
 pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
+    // The castle owner at start — `endSiege` compares against it (Java
+    // `_firstOwnerClanId = _castle.getOwnerId()`).
+    let first_owner = owner_clan_id(world, castle_id);
     match world.sieges.get_mut(&castle_id) {
-        Some(siege) if !siege.in_progress => siege.in_progress = true,
+        Some(siege) if !siege.in_progress => {
+            siege.in_progress = true;
+            siege.first_owner_clan_id = first_owner;
+        }
         _ => return, // unknown castle or already in progress
     }
 
@@ -45,20 +53,105 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
     // in-progress flag the siege-zone PvP check reads).
 }
 
-/// `Siege.endSiege` — announce the finish and clear the in-progress flag.
+/// `Siege.endSiege` — announce the finish, declare the winner (or a draw), and
+/// clear the battlefield.
 pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
-    match world.sieges.get_mut(&castle_id) {
-        Some(siege) if siege.in_progress => siege.in_progress = false,
+    let first_owner = match world.sieges.get_mut(&castle_id) {
+        Some(siege) if siege.in_progress => {
+            siege.in_progress = false;
+            siege.first_owner_clan_id
+        }
         _ => return, // unknown castle or not in progress
-    }
+    };
 
     broadcast_sm(world, sm_ids::THE_S1_SIEGE_HAS_FINISHED, castle_id);
+    broadcast_to_all(world, &server_packets::play_sound("systemmsg_eu.18"));
+
+    // The winner is whoever owns the castle at the end (an attacker only owns it
+    // if they captured it mid-siege via `capture`).
+    match world.clans.values().find(|c| c.castle_id == castle_id).map(|c| (c.id, c.name.clone())) {
+        Some((owner_id, owner_name)) => {
+            // "Clan <owner> is victorious over <castle>'s castle siege!"
+            let pkt = server_packets::system_message_with(
+                sm_ids::CLAN_S1_IS_VICTORIOUS_OVER_S2_S_CASTLE_SIEGE,
+                &[SmParam::Text(owner_name), SmParam::CastleName(castle_id)],
+            );
+            broadcast_to_all(world, &pkt);
+            // owner_id == first_owner → the defender held; otherwise an attacker
+            // captured it. TODO(G24): increaseBloodAllianceCount (unchanged) /
+            // setTicketBuyCount(0) + Hero.setCastleTaken (captured) — the clan
+            // blood-alliance count, castle ticket count and nobles aren't modelled.
+            let _ = (owner_id, first_owner);
+        }
+        None => broadcast_sm(world, sm_ids::THE_SIEGE_OF_S1_HAS_ENDED_IN_A_DRAW, castle_id),
+    }
 
     // `teleportPlayer(NotOwner, TOWN)` — clear the battlefield at the end too.
     teleport_non_owners(world, castle_id);
+    // TODO(G24): despawn control/flame towers + siege guards.
+}
 
-    // TODO(G24): determine the winner + change ownership, despawn towers/guards
-    // (Siege.endSiege).
+/// Java `Castle.setOwner` (from the throne-room artifact) + `Siege.midVictory`
+/// core: an attacker captures the castle mid-siege. Ownership transfers to
+/// `new_clan_id`; the old owner/defenders become attackers and the captor
+/// becomes the OWNER defender.
+///
+/// TODO(G24): the trigger (the artifact NPC), teleport-attackers-to-flag, the
+/// weakened-door respawn, tower removal, residential skills and crests.
+// The throne-room artifact that calls this is an unported spawn, so nothing in
+// production reaches `capture` yet — the engine + its end-to-end test are ready
+// for when it lands.
+#[allow(dead_code)]
+pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
+    if !world.sieges.get(&castle_id).is_some_and(|s| s.in_progress) {
+        return;
+    }
+    // Transfer ownership: the old owner loses `hasCastle`, the captor gains it.
+    if let Some(old) = owner_clan_id_opt(world, castle_id) {
+        if let Some(c) = world.clans.get_mut(&old) {
+            c.castle_id = 0;
+        }
+        let _ = world.db.send(DbCommand::UpdateClanCastle { clan_id: old, castle_id: 0 });
+    }
+    if let Some(c) = world.clans.get_mut(&new_clan_id) {
+        c.castle_id = castle_id;
+    }
+    let _ = world.db.send(DbCommand::UpdateClanCastle { clan_id: new_clan_id, castle_id });
+
+    // Reshuffle siege roles: every other side becomes an attacker, the captor
+    // becomes the OWNER; then re-persist the changed rows.
+    let changed: Vec<(i32, i32)> = match world.sieges.get_mut(&castle_id) {
+        Some(siege) => {
+            for sc in siege.clans.iter_mut() {
+                if sc.clan_id != new_clan_id
+                    && matches!(
+                        sc.kind,
+                        SiegeClanType::Owner | SiegeClanType::Defender | SiegeClanType::DefenderPending
+                    )
+                {
+                    sc.kind = SiegeClanType::Attacker;
+                }
+            }
+            match siege.clans.iter_mut().find(|c| c.clan_id == new_clan_id) {
+                Some(sc) => sc.kind = SiegeClanType::Owner,
+                None => siege.add_clan(new_clan_id, SiegeClanType::Owner),
+            }
+            siege.clans.iter().map(|c| (c.clan_id, c.kind.as_db())).collect()
+        }
+        None => Vec::new(),
+    };
+    for (clan_id, kind) in changed {
+        let _ = world.db.send(DbCommand::SaveSiegeClan { castle_id, clan_id, kind });
+    }
+}
+
+/// The clan id owning `castle_id` (0 = NPC/none).
+fn owner_clan_id(world: &World, castle_id: i32) -> i32 {
+    owner_clan_id_opt(world, castle_id).unwrap_or(0)
+}
+
+fn owner_clan_id_opt(world: &World, castle_id: i32) -> Option<i32> {
+    world.clans.values().find(|c| c.castle_id == castle_id).map(|c| c.id)
 }
 
 /// `Siege.teleportPlayer(NotOwner, TOWN)`: send every player standing in the

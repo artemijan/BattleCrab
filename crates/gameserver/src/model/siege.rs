@@ -53,11 +53,14 @@ pub struct Siege {
     pub clans: Vec<SiegeClan>,
     /// Java `isInProgress()` — runtime only, not persisted in `siege_clans`.
     pub in_progress: bool,
+    /// Java `_firstOwnerClanId` — the castle owner captured at siege start, so
+    /// `endSiege` can tell "defender held" from "attacker captured" (0 = NPC).
+    pub first_owner_clan_id: i32,
 }
 
 impl Siege {
     pub fn new(castle_id: i32) -> Self {
-        Self { castle_id, clans: Vec::new(), in_progress: false }
+        Self { castle_id, clans: Vec::new(), in_progress: false, first_owner_clan_id: 0 }
     }
 
     /// Any clan registered as an ATTACKER (`getAttackerClans().isEmpty()`).

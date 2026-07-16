@@ -836,3 +836,57 @@ fn siege_start_evicts_non_owners_to_town() {
     let np = *world.objects.get_component::<Position>(&9003).unwrap();
     assert_ne!(world.data.zone_data.siege_castle_at(np.x, np.y, np.z), Some(3), "non-owner evicted to town");
 }
+
+/// Mid-siege capture transfers castle ownership to the attacker and reshuffles
+/// siege roles; endSiege then declares the new owner victorious. Port of Java
+/// Siege capture (midVictory) + endSiege victory determination.
+#[test]
+fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
+    use crate::model::castle::{Castle, CastleSide};
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::siege::{Siege, SiegeClanType};
+    let (mut world, _db_tx, mut db_rx, _link) = test_world();
+    world.castles = vec![Castle { id: 3, name: "Giran".into(), side: CastleSide::Neutral }];
+    let mut siege = Siege::new(3);
+    siege.add_clan(500, SiegeClanType::Owner); // defender/owner
+    siege.add_clan(700, SiegeClanType::Attacker); // attacker
+    world.sieges.insert(3, siege);
+    let clan = |id: i32, name: &str, leader: i32, castle: i32| Clan {
+        id,
+        name: name.into(),
+        leader_id: leader,
+        level: 5,
+        reputation_score: 0,
+        castle_id: castle,
+        members: vec![ClanMember { char_id: leader, name: format!("P{leader}"), level: 40, class_id: 0, sex: 0, race: 0 }],
+        warehouse: Default::default(),
+    };
+    world.clans.insert(500, clan(500, "Defenders", 8002, 3)); // owns castle 3
+    world.clans.insert(700, clan(700, "Attackers", 8003, 0));
+    let mut rx = ingame_player(&mut world, 1, 8002, 0, 0, 0); // hears the announcements
+    drain(&mut rx);
+
+    crate::game_loop::siege::start_siege(&mut world, 3);
+    assert_eq!(world.sieges[&3].first_owner_clan_id, 500, "first owner captured at start");
+    drain(&mut rx);
+    drain_db(&mut db_rx);
+
+    // Capture by attacker clan 700.
+    crate::game_loop::siege::capture(&mut world, 3, 700);
+    assert_eq!(world.clans[&700].castle_id, 3, "captor now owns the castle");
+    assert_eq!(world.clans[&500].castle_id, 0, "old owner lost the castle");
+    let role = |cid: i32| world.sieges[&3].clans.iter().find(|c| c.clan_id == cid).map(|c| c.kind);
+    assert_eq!(role(700), Some(SiegeClanType::Owner), "captor is the new owner side");
+    assert_eq!(role(500), Some(SiegeClanType::Attacker), "old owner becomes an attacker");
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::UpdateClanCastle { clan_id: 700, castle_id: 3 })), "captor persisted");
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::UpdateClanCastle { clan_id: 500, castle_id: 0 })), "old owner cleared");
+
+    // endSiege → the captor (owner changed) is declared victorious.
+    crate::game_loop::siege::end_siege(&mut world, 3);
+    assert!(!world.sieges[&3].in_progress, "siege ended");
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::CLAN_S1_IS_VICTORIOUS_OVER_S2_S_CASTLE_SIEGE),
+        "victor announced"
+    );
+}

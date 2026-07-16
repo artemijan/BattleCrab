@@ -30,6 +30,8 @@ pub mod sm_ids {
     pub const YOU_HAVE_ALREADY_REQUESTED_A_CASTLE_SIEGE: i16 = 638;
     pub const THE_S1_SIEGE_HAS_STARTED: i16 = 711;
     pub const THE_S1_SIEGE_HAS_FINISHED: i16 = 712;
+    pub const CLAN_S1_IS_VICTORIOUS_OVER_S2_S_CASTLE_SIEGE: i16 = 291;
+    pub const THE_SIEGE_OF_S1_HAS_ENDED_IN_A_DRAW: i16 = 856;
     // Clan admin (`//pledge`)
     pub const S1_IS_NOT_A_CLAN_LEADER: i16 = 9;
     pub const CLAN_HAS_DISPERSED: i16 = 193;
