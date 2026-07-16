@@ -160,13 +160,21 @@ pub fn npc_info(v: &crate::model::npc::NpcView, t: &NpcTemplate) -> Vec<u8> {
 }
 
 /// Port of `serverpackets/NpcHtmlMessage` — the NPC dialog window. `item_id`
-/// stays 0 (item-triggered dialogs aren't a thing yet).
+/// stays 0: the window is replaced by the next html (or closed) on click.
 pub fn npc_html_message(npc_object_id: i32, html: &str) -> Vec<u8> {
+    npc_html_message_item(npc_object_id, 0, html)
+}
+
+/// `NpcHtmlMessage(npcObjId, itemId)`: a non-zero `item_id` marks the dialog
+/// as item-bound, which the client does NOT close when a bypass button is
+/// clicked — Java's `AdminHtml` sends every admin page as
+/// `NpcHtmlMessage(0, 1)` so the GM menu survives its own buttons.
+pub fn npc_html_message_item(npc_object_id: i32, item_id: i32, html: &str) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::NPC_HTML_MESSAGE);
     w.write_i32(npc_object_id);
     w.write_string(html);
-    w.write_i32(0); // item id
+    w.write_i32(item_id);
     w.write_i32(0); // show common board
     w.into_bytes()
 }

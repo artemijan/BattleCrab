@@ -27,8 +27,10 @@ pub(super) fn admin_admin(world: &mut World, client_id: u32, command: &str) {
 }
 
 /// Java `AdminHtml.showAdminHtml`: serve `data/html/admin/<path>` through a
-/// `NpcHtmlMessage(0, …)` (the admin menus are not NPC-scoped). A missing file
-/// shows the retail "text is missing" placeholder rather than nothing.
+/// `NpcHtmlMessage(0, 1)` (not NPC-scoped; item id 1 keeps the window open
+/// when its bypass buttons are clicked, so the GM menu stays up across
+/// commands that send no html back). A missing file shows the retail "text is
+/// missing" placeholder rather than nothing.
 pub(super) fn show_admin_html(world: &World, client_id: u32, path: &str) {
     show_admin_html_replace(world, client_id, path, &[]);
 }
@@ -44,6 +46,6 @@ pub(super) fn show_admin_html_replace(world: &World, client_id: u32, path: &str,
         content = content.replace(&format!("%{token}%"), value);
     }
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(0, &content));
+        cs.send(server_packets::npc_html_message_item(0, 1, &content));
     }
 }
