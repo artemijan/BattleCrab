@@ -70,6 +70,9 @@ pub struct CharData {
     pub delete_time: i64,
     pub last_access: i64,
     pub vitality_points: i32,
+    /// `characters.pccafe_points` (PC bang loyalty points; capped by
+    /// `PC_CAFE_MAX_POINTS`). Character-scoped like vitality.
+    pub pccafe_points: i32,
     pub access_level: i32,
     pub noble: bool,
     pub char_slot: i32,

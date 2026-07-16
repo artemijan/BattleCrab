@@ -110,6 +110,7 @@ pub const EX_SHOW_QUEST_MARK: i16 = 0x21;
 pub const EX_NPC_QUEST_HTML_MESSAGE: i16 = 0x8E;
 pub const EX_QUEST_ITEM_LIST: i16 = 0xC7;
 pub const EX_SET_COMPASS_ZONE_CODE: i16 = 0x33;
+pub const EX_PCCAFE_POINT_INFO: i16 = 0x32;
 /// `ExTeleportToLocationActivate` — the "teleport finished" packet; the
 /// client stays on the loading screen until it arrives.
 pub const EX_TELEPORT_TO_LOCATION_ACTIVATE: i16 = 0x14A;

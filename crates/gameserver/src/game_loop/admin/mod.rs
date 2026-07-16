@@ -28,6 +28,7 @@ mod items;
 mod menu;
 mod mobgroup;
 mod moderation;
+mod points;
 mod mounts;
 mod skills;
 mod spawn;
@@ -51,6 +52,7 @@ pub(crate) use flags::apply_gm_startup;
 use items::*;
 use mobgroup::*;
 use moderation::*;
+use points::*;
 use mounts::*;
 use skills::*;
 use spawn::*;
@@ -246,6 +248,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_show_spawns" | "admin_show_npcs" | "admin_spawn_debug_menu" | "admin_spawn_index" | "admin_npc_index" => {
             admin_spawn_menu(world, client_id, command)
         }
+        // PC-cafe loyalty points (target player or self) + the pccafe.htm menu.
+        "admin_pccafepoints" => admin_pccafepoints(world, client_id, object_id, &args),
         // Spawn-line inspection + teleport-to-index (`goSpawn`/`goPosition`).
         "admin_list_spawns" => admin_list_spawns(world, client_id, object_id, &args, false),
         "admin_list_positions" => admin_list_spawns(world, client_id, object_id, &args, true),

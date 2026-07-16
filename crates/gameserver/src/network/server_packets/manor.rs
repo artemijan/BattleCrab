@@ -88,6 +88,24 @@ pub fn ex_show_crop_info(manor_id: i32, hide_buttons: bool, crops: Option<&[Crop
     w.into_bytes()
 }
 
+/// Port of `serverpackets/ExPCCafePointInfo` — updates the client's PC-cafe
+/// point display. Mirrors the 3-arg Java ctor `(points, pointsToAdd, time)`
+/// used by `//pccafepoints`: `periodType = 1` (acquisition window),
+/// `remainTime = 0`, `pointType` red when spending (`add < 0`) else cyan, and
+/// the trailing `time * 3` seconds value.
+pub fn ex_pccafe_point_info(points: i32, add_point: i32, time: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PCCAFE_POINT_INFO);
+    w.write_i32(points); // num points
+    w.write_i32(add_point); // points inc display
+    w.write_u8(1); // period type (1 = acquisition)
+    w.write_i32(0); // remain time
+    w.write_u8(if add_point < 0 { 2 } else { 1 }); // color (2 = red, 1 = cyan)
+    w.write_i32(time * 3); // seconds * 3
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/settings/ExUISetting` — the player's stored UI key
 /// mapping. TODO(G-later): load the stored mapping; null → length 0 for now.
 pub fn ex_ui_setting() -> Vec<u8> {

@@ -61,6 +61,7 @@ fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
             class_id: c.class_id,
             base_class_id: c.base_class_id,
             vitality_points: c.vitality_points,
+            pccafe_points: c.pccafe_points,
         },
         items: c.items.clone(),
         skills: c.skills.clone(),
@@ -259,6 +260,8 @@ async fn shortcuts_and_macros_persist() {
     // child table in a transaction — in-place updates, deletions, and untouched
     // rows (the item + skill + surviving shortcuts) all in one write.
     let mut save = save_from(&loaded);
+    // A base `characters` column (pccafe_points) round-trips through the flush.
+    save.base.pccafe_points = 4200;
     for sc in save.shortcuts.iter_mut().filter(|s| s.slot == 0 && s.page == 0) {
         sc.kind = ShortcutType::Skill;
         sc.id = 1177;
@@ -280,6 +283,7 @@ async fn shortcuts_and_macros_persist() {
             // Untouched child rows survive the reconcile.
             assert_eq!(c.items.len(), 1, "item preserved");
             assert!(c.skills.iter().any(|&(id, lvl)| id == 1177 && lvl == 1), "skill preserved");
+            assert_eq!(c.pccafe_points, 4200, "pccafe points persisted");
         }
         _ => panic!("expected CharactersLoaded"),
     }

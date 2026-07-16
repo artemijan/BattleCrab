@@ -101,6 +101,7 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         delete_time: 0,
         last_access: 0,
         vitality_points: 0,
+        pccafe_points: 0,
         access_level: 0,
         noble: false,
         char_slot: 0,

@@ -104,6 +104,7 @@ pub struct PlayerSnapshot {
     pub class_id: i32,
     pub base_class_id: i32,
     pub vitality_points: i32,
+    pub pccafe_points: i32,
 }
 
 impl PlayerSnapshot {
@@ -139,6 +140,7 @@ impl PlayerSnapshot {
             class_id: p.class_id,
             base_class_id: p.base_class_id,
             vitality_points: p.vitality_points,
+            pccafe_points: p.pccafe_points,
         }
     }
 }
@@ -521,6 +523,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             delete_time,
             last_access: geti(row, "lastAccess"),
             vitality_points: geti(row, "vitality_points") as i32,
+            pccafe_points: geti(row, "pccafe_points") as i32,
             access_level: geti(row, "accesslevel") as i32,
             noble: geti(row, "nobless") == 1,
             char_slot: slot as i32,
@@ -967,7 +970,7 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
         "UPDATE characters SET level=?, maxHp=?, curHp=?, maxCp=?, curCp=?, maxMp=?, curMp=?, \
          face=?, hairStyle=?, hairColor=?, sex=?, heading=?, x=?, y=?, z=?, exp=?, sp=?, \
          reputation=?, pvpkills=?, pkkills=?, race=?, classid=?, base_class=?, \
-         vitality_points=?, online=0, lastAccess=? WHERE charId=?",
+         vitality_points=?, pccafe_points=?, online=0, lastAccess=? WHERE charId=?",
     )
     .bind(b.level)
     .bind(b.max_hp)
@@ -993,6 +996,7 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     .bind(b.class_id)
     .bind(b.base_class_id)
     .bind(b.vitality_points)
+    .bind(b.pccafe_points)
     .bind(now_millis())
     .bind(char_id)
     .execute(&mut *tx)
