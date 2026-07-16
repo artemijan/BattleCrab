@@ -3,9 +3,9 @@
 //! port. The info/search commands (`//character_info`, `//character_list`/
 //! `//show_characters`, `//find_character`, `//edit_character`) render the same
 //! HTML windows as Java (`charinfo`/`charlist`/`charfind`/`charedit.htm`), with
-//! stats not yet computed in the port defaulted. The pet/summon subcommands
-//! (`//fullfood`,
-//! `//summon_info`, `//show_pet_inv`, `//summon_setlvl`, `//unsummon`), the
+//! stats not yet computed in the port defaulted. `//fullfood` is wired as a
+//! pet-blocked stub (see [`admin_fullfood`]); the other pet/summon subcommands
+//! (`//summon_info`, `//show_pet_inv`, `//summon_setlvl`, `//unsummon`), the
 //! IP/dualbox tools (`//find_ip`, `//find_dualbox`, `//tracert` — no per-client
 //! IP is tracked), `//setparam`/`//unsetparam` (no fixed-stat API) and
 //! `//setnoble`/`//rec` (fields not modelled) stay on the not-implemented path.
@@ -34,6 +34,16 @@ fn online_players(world: &World) -> Vec<i32> {
 }
 
 /// `//current_player` / `//character_info [name]` — dump a player's key fields.
+/// `AdminEditChar`'s `//fullfood` — fill the targeted *pet*'s food bar. Pets are
+/// not modelled yet (G29), so no target can resolve as a pet; this always replies
+/// `INVALID_TARGET`, matching Java's non-pet-target branch.
+pub(super) fn admin_fullfood(world: &mut World, client_id: u32) {
+    // TODO(G29): when pets/summons exist, if the current target is a pet, set
+    // its CurrentFed to MaxFed and broadcast a StatusUpdate (Java
+    // `targetPet.setCurrentFed(targetPet.getMaxFed()); targetPet.broadcastStatusUpdate()`).
+    send_sm(world, client_id, sm_ids::INVALID_TARGET);
+}
+
 pub(super) fn admin_character_info(world: &mut World, client_id: u32, object_id: i32, args: &[&str], self_only: bool) {
     let target = if self_only {
         object_id
