@@ -78,6 +78,9 @@ pub enum ScheduledTask {
     /// Java `DailyTaskManager.resetRecommends`, fired daily at 06:30: zero every
     /// player's rec_left and decay rec_have. Reschedules itself 24 h out.
     DailyRecoReset,
+    /// `Siege.ScheduleEndSiegeTask`: a castle siege's timed window elapsed —
+    /// auto-end the siege.
+    SiegeEnd { castle_id: i32 },
 }
 
 struct Entry {

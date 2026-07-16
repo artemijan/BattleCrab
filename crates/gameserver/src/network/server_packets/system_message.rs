@@ -28,6 +28,8 @@ pub mod sm_ids {
     pub const S1_HAS_DISAPPEARED: i16 = 1818;
     // Castle sieges (`//castlemanage`)
     pub const YOU_HAVE_ALREADY_REQUESTED_A_CASTLE_SIEGE: i16 = 638;
+    pub const THE_S1_SIEGE_HAS_STARTED: i16 = 711;
+    pub const THE_S1_SIEGE_HAS_FINISHED: i16 = 712;
     // Clan admin (`//pledge`)
     pub const S1_IS_NOT_A_CLAN_LEADER: i16 = 9;
     pub const CLAN_HAS_DISPERSED: i16 = 193;
@@ -185,6 +187,8 @@ pub enum SmParam {
     NpcName(i32),
     /// `TYPE_ITEM_NAME` (3) — `addItemName`.
     ItemName(i32),
+    /// `TYPE_CASTLE_NAME` (5) — `addCastleId` (the client resolves the name).
+    CastleName(i32),
     /// `TYPE_LONG_NUMBER` (6) — `addLong`.
     Long(i64),
     /// `TYPE_PLAYER_NAME` (12) — `addPcName`.
@@ -224,6 +228,10 @@ pub fn system_message_with(message_id: i16, params: &[SmParam]) -> Vec<u8> {
             SmParam::ItemName(item_id) => {
                 w.write_u8(3);
                 w.write_i32(*item_id);
+            }
+            SmParam::CastleName(castle_id) => {
+                w.write_u8(5);
+                w.write_i32(*castle_id);
             }
             SmParam::Long(v) => {
                 w.write_u8(6);

@@ -231,17 +231,12 @@ fn siege_remove(world: &mut World, client_id: u32, gm_object_id: i32, idx: usize
     let _ = world.db.send(DbCommand::RemoveSiegeClan { castle_id, clan_id });
 }
 
-/// `startSiege` → `Siege.startSiege` (needs a registered attacker). The actual
-/// siege — control towers, guards, flags, zone PvP, teleport, the timed window
-/// and ownership change — is deferred (TODO(G24)); this flips the state.
+/// `startSiege` → `Siege.startSiege` (needs a registered attacker); the lifecycle
+/// (announce, auto-end schedule) lives in [`crate::game_loop::siege`].
 fn start_siege(world: &mut World, client_id: u32, idx: usize) {
     let castle_id = world.castles[idx].id;
     if world.sieges.get(&castle_id).is_some_and(|s| s.has_attackers()) {
-        if let Some(siege) = world.sieges.get_mut(&castle_id) {
-            siege.in_progress = true;
-        }
-        // TODO(G24): spawn control towers/guards, activate the siege zone,
-        // teleport, and schedule the end (Siege.startSiege).
+        crate::game_loop::siege::start_siege(world, castle_id);
     } else {
         send_message(world, client_id, "There is currently not registered any clan for castle siege!");
     }
@@ -251,11 +246,7 @@ fn start_siege(world: &mut World, client_id: u32, idx: usize) {
 fn stop_siege(world: &mut World, client_id: u32, idx: usize) {
     let castle_id = world.castles[idx].id;
     if world.sieges.get(&castle_id).is_some_and(|s| s.in_progress) {
-        if let Some(siege) = world.sieges.get_mut(&castle_id) {
-            siege.in_progress = false;
-        }
-        // TODO(G24): despawn towers/guards, deactivate the zone, apply results
-        // (Siege.endSiege).
+        crate::game_loop::siege::end_siege(world, castle_id);
     } else {
         send_message(world, client_id, "Castle siege is not currently in progress!");
     }

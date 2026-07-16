@@ -1813,11 +1813,24 @@ fn admin_castlemanage_siege_registration_and_state() {
         "duplicate registration refused"
     );
 
-    // startSiege → in progress; stopSiege → ended.
+    // startSiege → in progress + "siege has started" announced to everyone.
+    drain(&mut rx);
     on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3 startSiege")].concat());
     assert!(world.sieges[&3].in_progress, "siege started");
+    assert!(sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::THE_S1_SIEGE_HAS_STARTED), "start announced");
+    // stopSiege → ended + "siege has finished".
     on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3 stopSiege")].concat());
     assert!(!world.sieges[&3].in_progress, "siege stopped");
+    assert!(sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::THE_S1_SIEGE_HAS_FINISHED), "end announced");
+
+    // Re-start, then let the scheduled auto-end fire (Siege.ScheduleEndSiegeTask).
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3 startSiege")].concat());
+    assert!(world.sieges[&3].in_progress);
+    drain(&mut rx);
+    world.tick += 120 * 60 * 10 + 1; // past the 120-minute window (100 ms ticks)
+    apply_due_tasks(&mut world);
+    assert!(!world.sieges[&3].in_progress, "auto-ended after the siege window");
+    assert!(sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::THE_S1_SIEGE_HAS_FINISHED), "auto-end announced");
 
     // removeDeffender strips the target's clan (Java quirk) + persists.
     drain(&mut rx);

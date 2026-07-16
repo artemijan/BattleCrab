@@ -37,6 +37,7 @@ mod reco;
 mod regen;
 mod shop;
 mod shortcuts;
+mod siege;
 mod skills;
 mod target;
 mod teleporter;
@@ -316,6 +317,9 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::DailyRecoReset => {
                 reco::handle_daily_reco_reset(world);
+            }
+            ScheduledTask::SiegeEnd { castle_id } => {
+                siege::end_siege(world, castle_id);
             }
         }
     }
