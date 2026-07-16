@@ -795,3 +795,44 @@ fn siege_zone_makes_participants_attackable_only_during_siege() {
     world.objects.get_component_mut::<Position>(&4002).unwrap().x = 5000;
     assert!(!attackable(&world), "outside the siege zone → not attackable");
 }
+
+/// Starting a siege evicts everyone in the battlefield except the owning clan
+/// to their nearest town (Java teleportPlayer(NotOwner, TOWN)).
+#[test]
+fn siege_start_evicts_non_owners_to_town() {
+    use crate::model::castle::{Castle, CastleSide};
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::siege::Siege;
+    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (mut world, ..) = test_world();
+    world.data.map_region = crate::data::MapRegionData::load_from(ROOT);
+    insert_siege_zone(&mut world, 3, 0, 1000, 0, 1000);
+    world.castles = vec![Castle { id: 3, name: "Giran".into(), side: CastleSide::Neutral }];
+    world.sieges.insert(3, Siege::new(3));
+    // Owner clan 500 holds castle 3.
+    world.clans.insert(
+        500,
+        Clan {
+            id: 500,
+            name: "Owners".into(),
+            leader_id: 9002,
+            level: 5,
+            reputation_score: 0,
+            castle_id: 3,
+            members: vec![ClanMember { char_id: 9002, name: "P9002".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
+            warehouse: Default::default(),
+        },
+    );
+    let _o = ingame_player(&mut world, 1, 9002, 500, 500, 0); // owner-clan member in the zone
+    let _n = ingame_player(&mut world, 2, 9003, 600, 600, 0); // non-owner in the zone
+    world.objects.get_component_mut::<Player>(&9002).unwrap().clan_id = 500;
+
+    crate::game_loop::siege::start_siege(&mut world, 3);
+
+    // Owner-clan member stays in the battlefield.
+    let op = *world.objects.get_component::<Position>(&9002).unwrap();
+    assert_eq!(world.data.zone_data.siege_castle_at(op.x, op.y, op.z), Some(3), "owner clan holds the castle");
+    // Non-owner is teleported out of the siege zone.
+    let np = *world.objects.get_component::<Position>(&9003).unwrap();
+    assert_ne!(world.data.zone_data.siege_castle_at(np.x, np.y, np.z), Some(3), "non-owner evicted to town");
+}
