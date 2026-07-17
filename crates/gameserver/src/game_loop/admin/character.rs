@@ -8,46 +8,75 @@ use crate::world::World;
 
 use super::{current_target, send_message, target_player};
 
-/// `AdminExpSp`'s `//add_exp_sp <exp> <sp>` — grant exp+sp to the targeted
-/// player (or self), driving the level-up path.
+/// `AdminExpSp`'s `//add_exp_sp <exp> <sp>` — grant exp+sp to the **targeted
+/// player**, driving the level-up path. Faithful to Java `AdminExpSp`: a
+/// player target is required (no self-fallback — target yourself to self-grant),
+/// the target is told "Admin is adding you …", and the exp/sp menu is refreshed
+/// afterwards (Java's trailing `addExpSp(activeChar)`, run for every invocation).
 pub(super) fn admin_add_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let (Some(exp), Some(sp)) = (
-        args.first().and_then(|s| s.parse::<i64>().ok()),
-        args.get(1).and_then(|s| s.parse::<i64>().ok()),
-    ) else {
-        send_message(world, client_id, "Usage: //add_exp_sp <exp> <sp>");
+    use crate::network::server_packets::sm_ids;
+    // Java `adminAddExpSp`: the target must be a player, else INVALID_TARGET.
+    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
+        super::send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
-    let target = current_target(world, object_id)
-        .filter(|oid| world.objects.has_component::<Player>(oid))
-        .unwrap_or(object_id);
-    super::death::add_exp_and_sp(world, target, exp, sp);
-    if let Some(name) = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()) {
-        send_message(world, client_id, &format!("Added {exp} xp and {sp} sp to {name}."));
+    // Exactly two numeric tokens, else the usage hint (Java: `countTokens() != 2`
+    // or a parse failure returns false → "Usage" sysmessage).
+    match (
+        args.len(),
+        args.first().and_then(|s| s.parse::<i64>().ok()),
+        args.get(1).and_then(|s| s.parse::<i64>().ok()),
+    ) {
+        // Java only applies + messages when at least one value is non-zero.
+        (2, Some(exp), Some(sp)) if exp != 0 || sp != 0 => {
+            let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+            if let Some(tcid) = crate::game_loop::helpers::client_for_player(world, target) {
+                send_message(world, tcid, &format!("Admin is adding you {exp} xp and {sp} sp."));
+            }
+            super::death::add_exp_and_sp(world, target, exp, sp);
+            send_message(world, client_id, &format!("Added {exp} xp and {sp} sp to {name}."));
+        }
+        (2, Some(_), Some(_)) => {} // both zero: Java no-ops the grant, still refreshes the menu.
+        _ => send_message(world, client_id, "Usage: //add_exp_sp exp sp"),
     }
+    admin_add_exp_sp_menu(world, client_id, object_id);
 }
 
 /// `AdminExpSp`'s `//remove_exp_sp <exp> <sp>` — subtract exp+sp from the
-/// targeted player (or self), deleveling as needed.
+/// **targeted player**, deleveling as needed. The mirror of [`admin_add_exp_sp`]
+/// (player target required, target notified, menu refreshed).
 pub(super) fn admin_remove_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let (Some(exp), Some(sp)) = (
-        args.first().and_then(|s| s.parse::<i64>().ok()),
-        args.get(1).and_then(|s| s.parse::<i64>().ok()),
-    ) else {
-        send_message(world, client_id, "Usage: //remove_exp_sp exp sp");
+    use crate::network::server_packets::sm_ids;
+    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
+        super::send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
-    let target = current_target(world, object_id)
-        .filter(|oid| world.objects.has_component::<Player>(oid))
-        .unwrap_or(object_id);
-    super::death::remove_exp_and_sp(world, target, exp, sp);
-    if let Some(name) = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()) {
-        send_message(world, client_id, &format!("Removed {exp} xp and {sp} sp from {name}."));
+    match (
+        args.len(),
+        args.first().and_then(|s| s.parse::<i64>().ok()),
+        args.get(1).and_then(|s| s.parse::<i64>().ok()),
+    ) {
+        (2, Some(exp), Some(sp)) if exp != 0 || sp != 0 => {
+            let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+            if let Some(tcid) = crate::game_loop::helpers::client_for_player(world, target) {
+                send_message(world, tcid, &format!("Admin is removing you {exp} xp and {sp} sp."));
+            }
+            super::death::remove_exp_and_sp(world, target, exp, sp);
+            send_message(world, client_id, &format!("Removed {exp} xp and {sp} sp from {name}."));
+        }
+        (2, Some(_), Some(_)) => {}
+        _ => send_message(world, client_id, "Usage: //remove_exp_sp exp sp"),
     }
+    admin_add_exp_sp_menu(world, client_id, object_id);
 }
 
-/// `AdminExpSp`'s `//add_exp_sp_to_character` — Java opens `expsp.htm`; we send
-/// the same figures (level/exp/sp) as text for the current player target.
+/// `AdminExpSp`'s `addExpSp` (the `//add_exp_sp_to_character` command and the
+/// trailing menu refresh after every add/remove): open `expsp.htm` for the
+/// targeted player through `NpcHtmlMessage(0, 1)` — the item id 1 keeps the
+/// window up when its Add/Remove/Set-Level buttons fire. Java requires a player
+/// target, else `INVALID_TARGET`.
 pub(super) fn admin_add_exp_sp_menu(world: &mut World, client_id: u32, object_id: i32) {
     let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
     else {
@@ -55,9 +84,16 @@ pub(super) fn admin_add_exp_sp_menu(world: &mut World, client_id: u32, object_id
         return;
     };
     let Some(p) = world.objects.get_component::<Player>(&target) else { return };
-    send_message(world, client_id, &format!("=== {} (level {}) ===", p.name, p.level));
-    send_message(world, client_id, &format!("XP: {}  SP: {}", p.exp, p.sp));
-    send_message(world, client_id, "Usage: //add_exp_sp <exp> <sp> | //remove_exp_sp <exp> <sp>");
+    // Java fills `%class%` via `ClassListData` client-code; the port has no
+    // client-code table, so use the numeric class id (as `//character_info` does).
+    let r: Vec<(&str, String)> = vec![
+        ("name", p.name.clone()),
+        ("level", p.level.to_string()),
+        ("xp", p.exp.to_string()),
+        ("sp", p.sp.to_string()),
+        ("class", p.class_id.to_string()),
+    ];
+    super::menu::show_admin_html_replace(world, client_id, "expsp.htm", &r);
 }
 
 /// `AdminLevel`'s `//add_level <n>` / `//set_level <n>` — add levels to, or set
@@ -168,10 +204,13 @@ fn set_vitality_points(world: &mut World, target: i32, value: i32) {
 /// `AdminEditChar`'s `//setclass <id>` — change the target player's (or self's)
 /// class. Reuses `set_level` at the current level to recompute vitals/stats and
 /// grant the new class's skills, then rebroadcasts. The old class's skills are
-/// not pruned yet (Java's full class-transfer cleanup is TODO).
+/// not pruned yet (Java's full class-transfer cleanup is TODO). With no
+/// argument, opens the `setclass/` class-picker menu (Java's catch branch).
 pub(super) fn admin_setclass(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    // Java: no (parseable) argument throws StringIndexOutOfBoundsException and
+    // opens the class-picker menu instead of printing a usage line.
     let Some(class_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
-        send_message(world, client_id, "Usage: //setclass <classId>");
+        super::menu::show_admin_html(world, client_id, "setclass/human_fighter.htm");
         return;
     };
     if world.data.player_templates.get(class_id).is_none() {

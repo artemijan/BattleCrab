@@ -364,10 +364,19 @@ fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i32, i64, i32
 /// (base × MEN bonus × level mod).
 fn target_m_def(world: &World, target_oid: i32) -> f64 {
     if let Some(cs) = world.objects.get_component::<CombatStats>(&target_oid) {
+        // Players + NPCs: memoized at spawn through the MDefenseFinalizer shape.
         return cs.m_def;
     }
-    // NPCs: memoized at spawn through the same MDefenseFinalizer shape.
-    world.objects.get_component::<CombatStats>(&target_oid).map(|cs| cs.m_def).unwrap_or(1.0)
+    // Siege doors carry no `CombatStats` — their mDef is a flat template value.
+    if let Some(m_def) = world
+        .objects
+        .get_component::<crate::model::door::Door>(&target_oid)
+        .and_then(|d| world.data.door_data.get(d.door_id))
+        .map(|t| (t.m_def as f64).max(1.0))
+    {
+        return m_def;
+    }
+    1.0
 }
 
 /// Port of `Creature.doAttack` → `reduceCurrentHp` for magic skill damage:
@@ -376,6 +385,30 @@ fn target_m_def(world: &World, target_oid: i32) -> f64 {
 /// `combat::apply_physical_damage`'s per-kind receivers.
 pub(crate) fn apply_magic_damage(world: &mut World, caster_oid: i32, target_oid: i32, damage: f64, mcrit: bool, caster_name: &str) {
     use server_packets::{sm_ids, SmParam};
+
+    // A siege door: route the hit straight to the gate's HP (no CP/hate/AI
+    // receivers) and refresh its HP bar, then report the damage to the caster.
+    if world.objects.has_component::<crate::model::door::Door>(&target_oid) {
+        let door_name = world
+            .objects
+            .get_component::<crate::model::door::Door>(&target_oid)
+            .and_then(|d| world.data.door_data.get(d.door_id))
+            .map(|t| t.name.clone())
+            .unwrap_or_default();
+        if let Some(client_id) = client_for_player(world, caster_oid) {
+            if let Some(cs) = world.clients.get(&client_id) {
+                if mcrit {
+                    cs.send(server_packets::system_message_with(sm_ids::M_CRITICAL, &[]));
+                }
+                cs.send(server_packets::system_message_with(
+                    sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
+                    &[SmParam::PlayerName(caster_name.to_string()), SmParam::Text(door_name), SmParam::Int(damage as i32)],
+                ));
+            }
+        }
+        crate::game_loop::combat::apply_door_damage(world, target_oid, damage as i32);
+        return;
+    }
 
     let target_param = if let Some(p) = world.objects.get_component::<crate::model::Player>(&target_oid) {
         SmParam::PlayerName(p.name.clone())

@@ -49,6 +49,7 @@ async fn user_info_test() {
         clan_id: 0,
         clan_privs: 0,
         clan_leader: false,
+        pledge_class: 0,
         clan_create_expiry_time: 0,
         face: 1,       // m.face / visualFaceId
         hair_style: 3, // visualHairStyleId

@@ -30,6 +30,10 @@ pub struct CombatConfig {
     pub character: CharacterConfig,
     pub npc: NpcConfig,
     pub rates: RatesConfig,
+    /// General.ini runtime keys the game thread reads (ground-item auto-destroy,
+    /// …). The GM-startup keys of `GeneralConfig` travel separately via
+    /// `data.gm`; this carries the rest.
+    pub general: GeneralConfig,
 }
 
 /// Aggregate of every loaded config section, owned for the process lifetime
@@ -85,6 +89,11 @@ impl Config {
 
     /// The runtime bundle the game thread keeps on `World`.
     pub fn combat(&self) -> CombatConfig {
-        CombatConfig { character: self.character.clone(), npc: self.npc.clone(), rates: self.rates.clone() }
+        CombatConfig {
+            character: self.character.clone(),
+            npc: self.npc.clone(),
+            rates: self.rates.clone(),
+            general: self.general.clone(),
+        }
     }
 }

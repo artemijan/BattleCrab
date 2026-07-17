@@ -46,6 +46,16 @@ pub(crate) fn vitals_of(world: &World, object_id: i32) -> Option<&Vitals> {
     world.objects.get_component::<Vitals>(&object_id)
 }
 
+/// Whether an attack target is dead/gone across creatures and doors: a
+/// breached siege gate (0 HP) counts as dead, like a corpse, so the attack
+/// loop ends on it. A vanished object (no `Vitals`, no `Door`) is also "dead".
+pub(crate) fn target_is_dead(world: &World, object_id: i32) -> bool {
+    if let Some(door) = world.objects.get_component::<crate::model::door::Door>(&object_id) {
+        return door.current_hp <= 0;
+    }
+    vitals_of(world, object_id).is_none_or(|v| v.dead)
+}
+
 /// The combat-relevant view of a player or NPC — the stat finalizer outputs
 /// both kinds of combatant feed into the shared `Formulas` ports. NPC values
 /// are derived on demand from the template (same finalizer math the player's
@@ -76,7 +86,46 @@ pub(crate) struct Combatant {
     pub con_bonus: f64,
 }
 
+/// Stand-in collision radius for a siege door's extent (the gate carries no
+/// `Collision` component). Added to the attacker's reach so a swing/chase
+/// lands at roughly the gate face rather than its polygon centre.
+pub(crate) const DOOR_COLLISION_RADIUS: f64 = 80.0;
+
 pub(crate) fn combatant(world: &World, object_id: i32) -> Option<Combatant> {
+    // A siege door is a valid attack *target* but carries no
+    // Vitals/Collision/CombatStats — synthesize a stationary combatant from
+    // its Position + template pDef so the shared chase/reach geometry
+    // (`distance_2d`/`attack_reach`/`pawn_destination`) works uniformly.
+    // `dead` = breached (0 HP); the combat-stat fields are unused for a door
+    // target (`do_door_swing` reads the template directly).
+    if let Some(door) = world.objects.get_component::<crate::model::door::Door>(&object_id) {
+        let pos = world.objects.get_component::<Position>(&object_id)?;
+        let p_def = world
+            .data
+            .door_data
+            .get(door.door_id)
+            .map(|t| t.p_def as f64)
+            .unwrap_or(0.0);
+        return Some(Combatant {
+            x: pos.x,
+            y: pos.y,
+            z: pos.z,
+            heading: pos.heading,
+            collision_radius: DOOR_COLLISION_RADIUS,
+            dead: door.current_hp <= 0,
+            p_atk: 0.0,
+            p_def,
+            crit_stat: 0.0,
+            accuracy: 0,
+            evasion: 0,
+            p_atk_spd: 0,
+            random_dmg: 0,
+            atk_range: 0,
+            shield_def: 0.0,
+            shield_rate: 0.0,
+            con_bonus: 1.0,
+        });
+    }
     // One component-shaped path for both kinds — NPC stats are memoized
     // into `CombatStats` at spawn (`npc::npc_combat_stats`), so the old
     // per-call template derivation is gone.
@@ -253,10 +302,12 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
     start_attack_intent(world, client_id, object_id, pkt.object_id, pkt.shift);
 }
 
-/// Shared entry for "the player wants to auto-attack this NPC" (from
-/// `AttackRequest` or the second `Action` click): monsters only — guards/folk
-/// don't auto-attack without the PvP/karma systems, and player targets wait
-/// for PvP flags.
+/// Shared entry for "the player wants to auto-attack this target" (from
+/// `AttackRequest` or the second `Action` click): monsters, siege
+/// towers/flags/guards and siege gates, plus flagged players. Clean players
+/// need Ctrl (enforced client-side) and plain folk aren't attackable without
+/// the karma system. Out of reach, a non-shift click starts a chase
+/// (`player_attack_think` → `chase_target`); shift-click (`dontMove`) refuses.
 pub(crate) fn start_attack_intent(
     world: &mut World,
     client_id: u32,
@@ -264,19 +315,10 @@ pub(crate) fn start_attack_intent(
     target_object_id: i32,
     shift: bool,
 ) {
-    // Siege doors don't go through the creature combat machinery (no Vitals /
-    // CombatStats) — attack the gate directly.
-    if world.objects.has_component::<crate::model::door::Door>(&target_object_id) {
-        attack_door(world, client_id, object_id, target_object_id);
-        return;
-    }
     let target_is_player = world
         .objects
         .has_component::<crate::model::Player>(&target_object_id);
-    let target_dead = world
-        .objects
-        .get_component::<Vitals>(&target_object_id)
-        .is_none_or(|v| v.dead);
+    let target_dead = target_is_dead(world, target_object_id);
     if target_is_player {
         // `Creature.onForcedAttack` (the Ctrl/force melee path): the client only
         // sends an AttackRequest against a player when it means to — either
@@ -305,14 +347,7 @@ pub(crate) fn start_attack_intent(
         // which combatants tear down during a siege, and the stationed guards,
         // which attackers (anyone but a defender) may attack. Other folk aren't
         // attackable without the karma system.
-        let attackable = world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&target_object_id)
-            .and_then(|n| n.template(world))
-            .is_some_and(|t| t.is_auto_attackable())
-            || super::siege::attackable_siege_tower(world, target_object_id)
-            || super::siege::attackable_siege_flag(world, target_object_id)
-            || super::siege::attackable_siege_guard(world, target_object_id, object_id);
+        let attackable = super::target::is_auto_attackable(world, object_id, target_object_id);
         if !attackable || target_dead {
             if let Some(cs) = world.clients.get(&client_id) {
                 cs.send(server_packets::action_failed());
@@ -352,25 +387,20 @@ pub(crate) fn start_attack_intent(
 /// attack path. Only castle doors during an active siege take damage; the swing
 /// lands immediately (per `AttackRequest`; the chase + auto-repeat loop and the
 /// scheduled hit-time delay are a refinement, TODO(G24)).
-fn attack_door(world: &mut World, client_id: u32, attacker_oid: i32, door_oid: i32) {
-    // Approx of the door's collision extent for the melee reach check.
-    const DOOR_MELEE_MARGIN: f64 = 80.0;
-
+/// A player's melee swing against a targeted siege gate — the in-reach half of
+/// the `DoorAction` attack path, called from `player_attack_think` once the
+/// chase (`chase_target`) has closed the distance. Doors don't roll
+/// miss/crit/shield and have no AI, so this is a straight pAtk-vs-pDef hit
+/// (front, no shot); paced by the attacker's swing period so the loop
+/// auto-repeats until the gate breaches.
+fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
+    // Re-check the siege gate (the loop can outlive the siege ending).
     if !super::siege::attackable_door(world, door_oid) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        world.objects.remove_component::<Intent>(&attacker_oid);
         return;
     }
     let Some(attacker) = combatant(world, attacker_oid) else { return };
     let Some(dpos) = world.objects.get_component::<Position>(&door_oid).copied() else { return };
-
-    // Reach check (Java uses the door's collision; approximate with a margin).
-    let dist = ((attacker.x - dpos.x) as f64).hypot((attacker.y - dpos.y) as f64);
-    if dist > attacker.atk_range as f64 + attacker.collision_radius + DOOR_MELEE_MARGIN {
-        super::helpers::send_sm_and_action_failed(world, client_id, sm_ids::YOUR_TARGET_IS_OUT_OF_RANGE, &[]);
-        return;
-    }
 
     // Damage: pAtk vs the door's pDef (front, no crit, no shot).
     let door_pdef = world
@@ -388,6 +418,24 @@ fn attack_door(world: &mut World, client_id: u32, attacker_oid: i32, door_oid: i
         false,
     ) as i32;
 
+    // Face the gate (Java `doAttack` `setHeading`).
+    let heading = movement::calculate_heading((dpos.x - attacker.x) as f64, (dpos.y - attacker.y) as f64);
+    if let Some(pos) = world.objects.get_component_mut::<Position>(&attacker_oid) {
+        pos.heading = heading;
+    }
+
+    // Pace the loop: hold the next swing for the attacker's attack period and
+    // fire the swing-end hook (queued action), exactly like `do_auto_attack`.
+    let time_atk = formulas::calculate_time_between_attacks(attacker.p_atk_spd);
+    let now = world.tick;
+    if let Some(st) = world.objects.get_component_mut::<AttackState>(&attacker_oid) {
+        st.attack_end_tick = now + ms_to_ticks(time_atk);
+    }
+    world.scheduler.schedule(
+        now + ms_to_ticks(time_atk),
+        ScheduledTask::AttackFinish { object_id: attacker_oid },
+    );
+
     // Broadcast the swing.
     let hit = server_packets::AttackHit {
         target_object_id: door_oid,
@@ -402,10 +450,17 @@ fn attack_door(world: &mut World, client_id: u32, attacker_oid: i32, door_oid: i
     broadcast_including_self(world, attacker_oid, &pkt);
     refresh_attack_stance(world, attacker_oid);
 
-    // Apply the damage; on a breach `siege::damage_door` opens the gate.
-    super::siege::damage_door(world, door_oid, damage);
+    // Apply the damage; on a breach the gate opens and nearby clients see the
+    // new HP bar.
+    apply_door_damage(world, door_oid, damage);
+}
 
-    // Push the door's new HP to nearby (StatusUpdate).
+/// Apply damage to a siege door's HP and push its refreshed HP bar to nearby
+/// clients (`StatusUpdate`); a breach opens the gate (`siege::damage_door`).
+/// Shared by the melee swing (`do_door_swing`) and offensive skills
+/// (`skills::effects::apply_magic_damage`).
+pub(crate) fn apply_door_damage(world: &mut World, door_oid: i32, damage: i32) {
+    super::siege::damage_door(world, door_oid, damage);
     let (cur_hp, max_hp) = {
         let d = world.objects.get_component::<crate::model::door::Door>(&door_oid);
         (
@@ -469,9 +524,8 @@ fn player_attack_think(world: &mut World, object_id: i32) {
         return; // casting pauses the loop (Java: CAST intention), death ends it via do_die.
     }
     // Target gone or dead → drop the intent (Java `checkTargetLostOrDead` →
-    // ACTIVE intention).
-    let target_alive = vitals_of(world, target_object_id).is_some_and(|v| !v.dead);
-    if !target_alive {
+    // ACTIVE intention). A breached siege gate counts as dead.
+    if target_is_dead(world, target_object_id) {
         world.objects.remove_component::<Intent>(&object_id);
         return;
     }
@@ -519,7 +573,13 @@ fn player_attack_think(world: &mut World, object_id: i32) {
             );
         }
     }
-    do_auto_attack(world, object_id, target_object_id);
+    // A siege door takes damage through the gate path (no miss/crit/shield/AI);
+    // everything else goes through the shared creature swing.
+    if world.objects.has_component::<crate::model::door::Door>(&target_object_id) {
+        do_door_swing(world, object_id, target_object_id);
+    } else {
+        do_auto_attack(world, object_id, target_object_id);
+    }
 }
 
 /// `Creature.moveToPawn` for a player chasing a pawn (attack target or cast

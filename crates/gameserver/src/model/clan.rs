@@ -45,6 +45,24 @@ impl Clan {
     pub fn member(&self, char_id: i32) -> Option<&ClanMember> {
         self.members.iter().find(|m| m.char_id == char_id)
     }
+
+    /// The pledge class a member of this clan holds — Java
+    /// `ClanMember.calculatePledgeClass`, narrowed to the main clan (`pledgeType
+    /// == 0`), the only pledge type the port models (no academy/royal/order
+    /// sub-pledges yet). Interlude clan levels cap at 8; a clan below level 4
+    /// yields 0 for everyone, so the on-head rank crown only appears once the
+    /// clan is developed enough — matching retail.
+    pub fn pledge_class_of(&self, char_id: i32) -> u8 {
+        let is_leader = char_id == self.leader_id;
+        match self.level {
+            4 if is_leader => 3,
+            5 => if is_leader { 4 } else { 2 },
+            6 => if is_leader { 5 } else { 3 },
+            7 => if is_leader { 7 } else { 4 },
+            8 => if is_leader { 8 } else { 5 },
+            _ => 0,
+        }
+    }
 }
 
 /// Java `setReputationScore` clamp bound (±100M).

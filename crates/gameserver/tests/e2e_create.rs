@@ -445,7 +445,8 @@ async fn full_login_to_character_create() {
     assert_eq!(i16::from_le_bytes([creatable[1], creatable[2]]), 0x10B, "EX_IS_CHAR_NAME_CREATABLE");
     assert_eq!(i32::from_le_bytes(creatable[3..7].try_into().unwrap()), -1, "name should be creatable");
 
-    // CharacterCreate: Human Mystic (class 10) — has 5 level-1 skills.
+    // CharacterCreate: Human Mystic (class 10) — has 7 level-1 skills (the 5
+    // from the class tree plus Lucky + Common Craft from the common tree).
     let mut w = PacketWriter::new();
     w.write_u8(0x0C);
     w.write_bytes(&u16str(&name));
@@ -651,7 +652,9 @@ async fn full_login_to_character_create() {
     assert_eq!(g2.recv_skip_status_update().await[0], 0x84, "LeaveWorld");
     tokio::time::sleep(Duration::from_millis(300)).await; // let the store land
 
-    // The Mystic's 5 initial skills were written to character_skills.
+    // The Mystic's 7 initial skills were written to character_skills: the class
+    // tree's 5 level-1 autoGet skills plus the common tree's Lucky + Common Craft
+    // (Java getCompleteClassSkillTree unions in Commons.xml at creation).
     let check = commons::db::init(&db_url, 1).await.unwrap();
     let skill_count: i64 = sqlx::query_scalar(
         "SELECT COUNT(*) FROM character_skills WHERE charId = (SELECT charId FROM characters WHERE char_name = ?)",
@@ -660,7 +663,7 @@ async fn full_login_to_character_create() {
     .fetch_one(&check)
     .await
     .unwrap();
-    assert_eq!(skill_count, 5, "Human Mystic should start with 5 skills");
+    assert_eq!(skill_count, 7, "Human Mystic should start with 7 skills");
 
     // The logout stored the character (storeCharBase + updateOnlineStatus):
     // marked offline with a fresh lastAccess.

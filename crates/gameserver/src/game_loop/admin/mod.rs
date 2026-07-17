@@ -240,7 +240,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_give_item_to_all" => admin_give_item_to_all(world, client_id, &args),
         // Disconnect a player (named or targeted).
         "admin_kick" => admin_kick(world, client_id, object_id, &args),
-        // Add exp/sp to the targeted player (or self).
+        // Add/remove exp/sp to the targeted player (Java requires a target).
         "admin_add_exp_sp" => admin_add_exp_sp(world, client_id, object_id, &args),
         "admin_remove_exp_sp" => admin_remove_exp_sp(world, client_id, object_id, &args),
         "admin_add_exp_sp_to_character" => admin_add_exp_sp_menu(world, client_id, object_id),

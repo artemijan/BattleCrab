@@ -1525,14 +1525,32 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     Ok(())
 }
 
+/// Character count + pending-deletion timestamps for the login server's
+/// `ReplyCharacters` (Java `LoginServerThread.getCharsOnServer`). Mirrors
+/// [`load_characters`]: a character whose deletion timer has **expired** is
+/// purged and excluded, so the login server-select count never exceeds the
+/// char-select list the client sees on entry (the port has no separate global
+/// expired-char sweep, so counting raw rows would over-report).
 async fn count_characters(pool: &SqlitePool, account: &str) -> (u8, Vec<i64>) {
-    let rows = sqlx::query("SELECT deletetime FROM characters WHERE account_name=?")
+    let rows = sqlx::query("SELECT charId, deletetime FROM characters WHERE account_name=?")
         .bind(account)
         .fetch_all(pool)
         .await
         .unwrap_or_default();
-    let count = rows.len() as u8;
-    let del_times = rows.iter().map(|r| geti(r, "deletetime")).filter(|&t| t != 0).collect();
+    let now = now_millis();
+    let mut count: u8 = 0;
+    let mut del_times = Vec::new();
+    for row in &rows {
+        let delete_time = geti(row, "deletetime");
+        if delete_time > 0 && now > delete_time {
+            delete_char(pool, geti(row, "charId") as i32).await; // restoreChar: purge expired
+            continue;
+        }
+        count += 1;
+        if delete_time != 0 {
+            del_times.push(delete_time); // still counting down toward deletion
+        }
+    }
     (count, del_times)
 }
 

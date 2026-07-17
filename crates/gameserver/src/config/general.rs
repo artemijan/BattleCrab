@@ -35,6 +35,24 @@ pub struct GeneralConfig {
     /// has the special-skill data.
     pub gm_give_special_skills: bool,
     pub gm_give_special_aura_skills: bool,
+
+    // --- Ground-item auto-destroy (`ItemsAutoDestroyTaskManager`) ---
+    /// `AutoDestroyDroppedItemAfter` (seconds): how long a dropped ground item
+    /// lies before auto-destroying. `0` = never (Java code default). Applies to
+    /// NPC drops unconditionally and to player drops only when
+    /// [`Self::destroy_dropped_player_item`] is set.
+    pub autodestroy_item_after: u64,
+    /// `DestroyPlayerDroppedItem`: whether **player**-dropped items are subject
+    /// to auto-destroy at all. Java default `false` (and the dist value) — so a
+    /// player's drop persists until pickup/restart, unlike an NPC drop.
+    pub destroy_dropped_player_item: bool,
+    /// `DestroyEquipableItem`: extends [`Self::destroy_dropped_player_item`] to
+    /// equipable player drops (weapons/armor). When false, only non-equipable
+    /// player drops auto-destroy.
+    pub destroy_equipable_player_item: bool,
+    /// `ListOfProtectedItems`: item ids never auto-destroyed on the ground
+    /// (dist ships `0`, a non-existent id ⇒ effectively empty).
+    pub protected_items: Vec<i32>,
 }
 
 impl Default for GeneralConfig {
@@ -50,6 +68,10 @@ impl Default for GeneralConfig {
             gm_startup_diet_mode: false,
             gm_give_special_skills: false,
             gm_give_special_aura_skills: false,
+            autodestroy_item_after: 0,
+            destroy_dropped_player_item: false,
+            destroy_equipable_player_item: false,
+            protected_items: Vec::new(),
         }
     }
 }
@@ -73,6 +95,15 @@ impl GeneralConfig {
             gm_startup_diet_mode: p.get_bool("GMStartupDietMode", d.gm_startup_diet_mode),
             gm_give_special_skills: p.get_bool("GMGiveSpecialSkills", d.gm_give_special_skills),
             gm_give_special_aura_skills: p.get_bool("GMGiveSpecialAuraSkills", d.gm_give_special_aura_skills),
+            autodestroy_item_after: p.get_int("AutoDestroyDroppedItemAfter", 0).max(0) as u64,
+            destroy_dropped_player_item: p.get_bool("DestroyPlayerDroppedItem", d.destroy_dropped_player_item),
+            destroy_equipable_player_item: p.get_bool("DestroyEquipableItem", d.destroy_equipable_player_item),
+            // Java parses a comma-separated id list; the dist ships a lone `0`.
+            protected_items: p
+                .get_string("ListOfProtectedItems", "")
+                .split(',')
+                .filter_map(|s| s.trim().parse::<i32>().ok())
+                .collect(),
         }
     }
 }
@@ -90,10 +121,22 @@ mod tests {
         assert!(g.gm_hero_aura, "GMHeroAura=True");
         assert!(g.gm_startup_builder_hide, "GMStartupBuilderHide=True");
         assert!(g.gm_startup_invulnerable, "GMStartupInvulnerable=True");
-        assert!(!g.gm_startup_invisible, "GMStartupInvisible=False");
-        assert!(!g.gm_startup_silence, "GMStartupSilence=False");
+        assert!(g.gm_startup_invisible, "GMStartupInvisible=True");
+        assert!(g.gm_startup_silence, "GMStartupSilence=True");
         assert!(!g.gm_startup_auto_list, "GMStartupAutoList=False");
         assert!(!g.gm_startup_diet_mode, "GMStartupDietMode=False");
         assert!(!g.gm_give_special_skills, "GMGiveSpecialSkills=False");
+    }
+
+    /// The dist ground-item auto-destroy block: NPC drops decay after 600 s,
+    /// but player drops are kept (`DestroyPlayerDroppedItem=False`).
+    #[test]
+    fn loads_dist_ground_item_autodestroy_values() {
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/config/General.ini");
+        let g = GeneralConfig::from_parser(&PropertiesParser::load(path));
+        assert_eq!(g.autodestroy_item_after, 600, "AutoDestroyDroppedItemAfter=600");
+        assert!(!g.destroy_dropped_player_item, "DestroyPlayerDroppedItem=False");
+        assert!(!g.destroy_equipable_player_item, "DestroyEquipableItem=False");
+        assert_eq!(g.protected_items, vec![0], "ListOfProtectedItems=0");
     }
 }

@@ -56,6 +56,15 @@ pub struct CharacterConfig {
     /// skill reachable at the player's level (not just autoGet skills), on
     /// enter-world and every level-up (Java `giveAvailableSkills`).
     pub auto_learn_skills: bool,
+    /// `AutoLearnSkillsWithoutItems` (Java `giveAvailableSkills`'
+    /// `includeRequiredItems`): when true, `AutoLearnSkills` also grants class
+    /// skills that normally require a consumable book (e.g. Divine Inspiration);
+    /// when false those are skipped by the auto-learn path.
+    pub auto_learn_skills_without_items: bool,
+    /// `AutoLearnDivineInspiration`: Divine Inspiration (skill 1405) is excluded
+    /// from `AutoLearnSkills` unless this is set (or the learner is a GM) — Java
+    /// `getAvailableSkills`' explicit `CommonSkill.DIVINE_INSPIRATION` guard.
+    pub auto_learn_divine_inspiration: bool,
     /// `ExpertisePenalty`: when true, equipping a weapon/armor whose grade
     /// exceeds the character's expertise level applies the grade-penalty debuff
     /// skills (Java `Player.refreshExpertisePenalty`, gated on this flag).
@@ -133,6 +142,8 @@ impl Default for CharacterConfig {
             inventory_max_dwarf: 100,
             inventory_max_quest_items: 100,
             auto_learn_skills: false,
+            auto_learn_skills_without_items: true,
+            auto_learn_divine_inspiration: false,
             expertise_penalty: true,
             decrease_skill_level: true,
             strict_delevel_skill_removal: true,
@@ -195,6 +206,10 @@ impl CharacterConfig {
             inventory_max_dwarf: p.get_int("MaximumSlotsForDwarf", d.inventory_max_dwarf),
             inventory_max_quest_items: p.get_int("MaximumSlotsForQuestItems", d.inventory_max_quest_items),
             auto_learn_skills: p.get_bool("AutoLearnSkills", d.auto_learn_skills),
+            auto_learn_skills_without_items: p
+                .get_bool("AutoLearnSkillsWithoutItems", d.auto_learn_skills_without_items),
+            auto_learn_divine_inspiration: p
+                .get_bool("AutoLearnDivineInspiration", d.auto_learn_divine_inspiration),
             expertise_penalty: p.get_bool("ExpertisePenalty", d.expertise_penalty),
             decrease_skill_level: p.get_bool("DecreaseSkillOnDelevel", d.decrease_skill_level),
             strict_delevel_skill_removal: p.get_bool("StrictDelevelSkillRemoval", d.strict_delevel_skill_removal),

@@ -14,6 +14,7 @@ use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
 use tokio::net::TcpStream;
 
 const HEXID: &str = "-2ad66b3f483c22be097019f55c8abdf0";
+const HEXID2: &str = "-0011223344556677889900aabbccddee";
 
 struct SimGameServer {
     read: OwnedReadHalf,
@@ -35,6 +36,10 @@ impl SimGameServer {
 }
 
 async fn register_game_server(gs_addr: std::net::SocketAddr) -> SimGameServer {
+    register_game_server_as(gs_addr, 1, HEXID).await
+}
+
+async fn register_game_server_as(gs_addr: std::net::SocketAddr, desired_id: u8, hexid_str: &str) -> SimGameServer {
     let stream = TcpStream::connect(gs_addr).await.unwrap();
     let (read, write) = stream.into_split();
     let mut gs = SimGameServer { read, write, crypt: NewCrypt::new(GS_STATIC_BLOWFISH_KEY) };
@@ -64,11 +69,11 @@ async fn register_game_server(gs_addr: std::net::SocketAddr) -> SimGameServer {
     gs.send(w.into_bytes()).await;
     gs.crypt = NewCrypt::new(&new_key);
 
-    let hexid = hexid_from_string(HEXID).unwrap();
+    let hexid = hexid_from_string(hexid_str).unwrap();
     let mut w = PacketWriter::new();
     w.write_u8(0x01);
-    w.write_u8(1);
-    w.write_u8(0);
+    w.write_u8(desired_id);
+    w.write_u8(1); // acceptAlternateId — allow a dynamic id for a new hexid
     w.write_u8(0);
     w.write_i16(7777);
     w.write_i32(1000);
@@ -123,6 +128,66 @@ async fn reply_characters_lands_in_server_list() {
     assert!(list.len() >= chars_block + 2, "char count block should be appended");
     assert_eq!(list[chars_block], 1, "server id 1");
     assert_eq!(list[chars_block + 1], 3, "3 characters on Bartz");
+}
+
+/// With two game servers connected, the ServerList must wait for *both*
+/// ReplyCharacters before it is sent — a fast first server no longer
+/// short-circuits a slower second one (regression: the char map went non-empty
+/// after the first reply and the wait exited early, dropping server 2's count).
+#[tokio::test]
+async fn server_list_waits_for_all_connected_gameservers() {
+    let server = start_server(test_config()).await;
+    let mut gs1 = register_game_server_as(server.gs_addr, 1, HEXID).await;
+    let mut gs2 = register_game_server_as(server.gs_addr, 2, HEXID2).await;
+
+    let (mut client, reply) = login(server.addr, "twogs", "pw").await;
+    assert_eq!(reply[0], 0x03, "LoginOk");
+    let ok1 = i32::from_le_bytes(reply[1..5].try_into().unwrap());
+    let ok2 = i32::from_le_bytes(reply[5..9].try_into().unwrap());
+
+    // Both servers are asked for the account's characters.
+    let req1 = gs1.recv().await.expect("no RequestCharacters on gs1");
+    assert_eq!(req1[0], 0x05);
+    let req2 = gs2.recv().await.expect("no RequestCharacters on gs2");
+    assert_eq!(req2[0], 0x05);
+
+    // Server 1 answers immediately (3 chars); server 2 stays silent for now.
+    let mut w = PacketWriter::new();
+    w.write_u8(0x08);
+    w.write_string("twogs");
+    w.write_u8(3);
+    w.write_u8(0);
+    gs1.send(w.into_bytes()).await;
+    tokio::time::sleep(std::time::Duration::from_millis(80)).await;
+
+    // The client asks for the server list while server 2 hasn't replied. The
+    // login must wait (its 500 ms window), not send with only server 1's count.
+    let mut w = PacketWriter::new();
+    w.write_u8(0x05);
+    w.write_i32(ok1);
+    w.write_i32(ok2);
+    client.send(&w.into_bytes()).await;
+
+    // Now server 2 answers (5 chars) — inside the wait window.
+    let mut w = PacketWriter::new();
+    w.write_u8(0x08);
+    w.write_string("twogs");
+    w.write_u8(5);
+    w.write_u8(0);
+    gs2.send(w.into_bytes()).await;
+
+    let list = client.recv().await.expect("no ServerList");
+    assert_eq!(list[0], 0x04);
+    let count = list[1] as usize;
+    assert_eq!(count, 2, "both game servers listed");
+    let chars_block = 3 + count * 21 + 2;
+    // Parse the trailing (serverId, charCount) pairs order-independently.
+    let mut counts = std::collections::HashMap::new();
+    for i in 0..count {
+        counts.insert(list[chars_block + i * 2], list[chars_block + i * 2 + 1]);
+    }
+    assert_eq!(counts.get(&1), Some(&3), "server 1 → 3 chars");
+    assert_eq!(counts.get(&2), Some(&5), "server 2 → 5 chars (not dropped)");
 }
 
 #[tokio::test]

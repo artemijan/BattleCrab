@@ -202,7 +202,7 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
     w.write_i32(p.reputation);
     w.write_u8(0); // noble
     w.write_u8(p.hero_aura as u8); // hero (isHero || (isGM && GMHeroAura))
-    w.write_u8(0); // pledge class
+    w.write_u8(p.pledge_class); // clan rank → on-head crown (calculatePledgeClass)
     w.write_i32(p.pk_kills);
     w.write_i32(p.pvp_kills);
     w.write_i16(p.rec_left as i16); // recom left

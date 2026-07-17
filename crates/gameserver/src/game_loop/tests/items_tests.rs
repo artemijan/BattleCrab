@@ -1288,36 +1288,46 @@ fn drop_and_pickup_ground_item() {
     );
 }
 
-/// A ground item left un-picked-up auto-destroys after its lifetime
-/// (`ItemsOnGroundManager` cleanup).
-#[test]
-fn ground_item_decays_after_lifetime() {
-    let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
-    world.id_pool = 0x4000_0000..0x4000_0100;
-    let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
-    drain(&mut rx);
-    super::items::add_inventory_item(&mut world, 9300, 57, 100).expect("adena");
+/// Give `count` adena to `player_oid` and drop it via `RequestDropItem` at a
+/// fixed spot; returns the resulting ground-item object id.
+fn drop_adena(world: &mut World, client_id: u32, player_oid: i32, count: i64) -> i32 {
+    super::items::add_inventory_item(world, player_oid, 57, count).expect("adena");
     let adena_oid = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&9300)
+        .get_component::<crate::model::inventory::Inventory>(&player_oid)
         .unwrap()
         .items()
         .iter()
         .find(|it| it.item_id == 57)
         .unwrap()
         .object_id;
-
     let item_oid = world.next_npc_object_id;
     let mut w = PacketWriter::new();
     w.write_u8(cop::REQUEST_DROP_ITEM);
     w.write_i32(adena_oid);
-    w.write_i64(100);
+    w.write_i64(count);
     w.write_i32(100);
     w.write_i32(200);
     w.write_i32(-3000);
-    on_packet(&mut world, 1, w.into_bytes());
+    on_packet(world, client_id, w.into_bytes());
+    item_oid
+}
+
+/// A ground item left un-picked-up auto-destroys after its lifetime
+/// (`ItemsOnGroundManager` cleanup) — when General.ini enables it.
+#[test]
+fn ground_item_decays_after_lifetime() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    // Enable player-drop auto-destroy (General.ini `AutoDestroyDroppedItemAfter`
+    // + `DestroyPlayerDroppedItem`); the dist default keeps player drops.
+    world.cfg.general.autodestroy_item_after = 600;
+    world.cfg.general.destroy_dropped_player_item = true;
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
+    drain(&mut rx);
+    let item_oid = drop_adena(&mut world, 1, 9300, 100);
     assert!(world.objects.has_component::<crate::model::components::GroundItem>(&item_oid), "dropped");
 
     // Jump past the 600 s lifetime and fire the scheduled decay.
@@ -1325,6 +1335,43 @@ fn ground_item_decays_after_lifetime() {
     apply_due_tasks(&mut world);
     assert!(!world.objects.has_component::<crate::model::components::GroundItem>(&item_oid), "decayed");
     assert!(!world.ground_item_regions.values().flatten().any(|&id| id == item_oid), "de-indexed");
+}
+
+/// General.ini parity: with `DestroyPlayerDroppedItem = False` (the dist
+/// value), a player's drop is **never** auto-destroyed even when
+/// `AutoDestroyDroppedItemAfter > 0` — it persists until pickup/restart.
+#[test]
+fn player_ground_item_persists_when_destroy_player_dropped_off() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.cfg.general.autodestroy_item_after = 600;
+    world.cfg.general.destroy_dropped_player_item = false; // dist default
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
+    drain(&mut rx);
+    let item_oid = drop_adena(&mut world, 1, 9300, 100);
+
+    world.tick += 600 * 10 + 1;
+    apply_due_tasks(&mut world);
+    assert!(world.objects.has_component::<crate::model::components::GroundItem>(&item_oid), "player drop persists");
+}
+
+/// An NPC drop auto-destroys whenever `AutoDestroyDroppedItemAfter > 0`,
+/// independent of the player-drop flag (Java `Npc.dropItem`).
+#[test]
+fn npc_ground_item_decays_regardless_of_player_flag() {
+    use crate::game_loop::ground_items::{spawn_ground_item, DropSource};
+    let (mut world, ..) = admin_world();
+    world.cfg.general.autodestroy_item_after = 600;
+    world.cfg.general.destroy_dropped_player_item = false;
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let item_oid = spawn_ground_item(&mut world, 57, 100, 0, 100, 200, -3000, 0, DropSource::Npc);
+    assert!(world.objects.has_component::<crate::model::components::GroundItem>(&item_oid), "npc drop on ground");
+
+    world.tick += 600 * 10 + 1;
+    apply_due_tasks(&mut world);
+    assert!(!world.objects.has_component::<crate::model::components::GroundItem>(&item_oid), "npc drop decays");
 }
 
 /// Warehouse deposit → the item moves inventory→warehouse; withdraw moves it

@@ -186,6 +186,85 @@ async fn create_persist_delete_restore() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+/// The login server-select char count (`CountCharacters` → `ReplyCharacters`)
+/// must match the char-select list the client sees: a character whose deletion
+/// timer has expired is purged and excluded from the count, while one still
+/// counting down is kept. Regression for the login screen over-reporting when
+/// an expired-deletion row lingered (no GS load had purged it yet).
+#[tokio::test]
+async fn login_char_count_excludes_expired_deletions() {
+    let dir = std::env::temp_dir().join(format!("l2r_charcount_{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let db_path = dir.join("test.db");
+    let url = format!("jdbc:sqlite:{}", db_path.display());
+
+    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    {
+        let pool = commons::db::init(&url, 1).await.unwrap();
+        for table in ["characters", "items", "character_skills", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests"] {
+            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
+            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
+                sqlx::query(stmt).execute(&pool).await.unwrap();
+            }
+        }
+        pool.close().await;
+    }
+
+    let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (event_tx, event_rx) = std::sync::mpsc::channel();
+    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
+
+    // Three characters on the account.
+    for name in ["Alive", "Pending", "Doomed"] {
+        cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char(name) }).unwrap();
+        recv(&event_rx); // CharacterCreated
+        recv(&event_rx); // CharactersLoaded
+    }
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    let chars = match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => chars,
+        _ => panic!("expected CharactersLoaded"),
+    };
+    let id_of = |n: &str| chars.iter().find(|c| c.name == n).unwrap().object_id;
+    let now = commons::util::now_millis();
+
+    // "Pending" is counting down (future); "Doomed" already expired — stamped
+    // directly so no `LoadCharacters` purge intervenes before the count.
+    cmd_tx
+        .send(DbCommand::MarkDelete { client_id: 1, account: "acc".into(), char_id: id_of("Pending"), delete_time: now + 3 * 86_400_000 })
+        .unwrap();
+    recv(&event_rx); // CharactersLoaded (Pending kept — still counting down)
+    {
+        let pool = commons::db::init(&url, 1).await.unwrap();
+        sqlx::query("UPDATE characters SET deletetime=? WHERE charId=?").bind(1_i64).bind(id_of("Doomed")).execute(&pool).await.unwrap();
+        pool.close().await;
+    }
+
+    // The login count: 3 rows → 2 (Doomed purged), 1 pending-deletion timestamp.
+    cmd_tx.send(DbCommand::CountCharacters { account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharCount { count, del_times, .. } => {
+            assert_eq!(count, 2, "expired deletion excluded from the login count");
+            assert_eq!(del_times.len(), 1, "only the still-counting-down deletion is reported");
+        }
+        _ => panic!("expected CharCount"),
+    }
+
+    // …and the expired row is actually purged, so the char-select list agrees.
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            assert_eq!(chars.len(), 2, "two characters remain");
+            assert!(!chars.iter().any(|c| c.name == "Doomed"), "expired char purged");
+        }
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    cmd_tx.send(DbCommand::Shutdown).unwrap();
+    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 /// G9.6: initial shortcuts/macros persist at creation (ITEM entries resolved
 /// to the created items' object ids, missing items dropped), the runtime
 /// upsert/delete commands round-trip, and macro commands survive the

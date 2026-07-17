@@ -4,9 +4,11 @@
 //! `DoorStatusUpdate`), blocks LOS/movement while closed (the collision
 //! side lives in `geo::doors::DoorGrid`, registered before the engine is
 //! shared), and opens/closes through `game_loop/doors.rs` — BY_TIME cycles
-//! at boot, everything else when a script/system calls open/close. Not
-//! ported: door HP/attackable doors (sieges), click-to-target (`DoorAction`
-//! only matters for clan-hall owners), `masterClose` cascades, emitters.
+//! at boot, everything else when a script/system calls open/close. Siege
+//! doors carry HP and can be targeted + attacked — melee via
+//! `DoorAction`/`AttackRequest` and by offensive skills — breaching the gate.
+//! Not ported: clan-hall/fort door-owner open-on-click, `masterClose`
+//! cascades, emitters.
 
 use bevy_ecs::component::Component;
 

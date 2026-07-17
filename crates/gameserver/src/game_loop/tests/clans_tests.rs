@@ -231,3 +231,57 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
     assert_eq!(world.clans[&clan_id].warehouse.0.count_of(57), 300, "300 remains in clan warehouse");
     assert_eq!(world.objects.get_component::<Inventory>(&3001).unwrap().count_of(57), 200, "200 withdrawn to leader");
 }
+
+/// The pure `calculatePledgeClass` table for a main-clan member (`Clan::
+/// pledge_class_of`): a clan below level 4 yields 0 for everyone (no crown);
+/// the leader outranks the members from level 4 up.
+#[test]
+fn pledge_class_table_matches_calculate_pledge_class() {
+    use crate::model::clan::Clan;
+    let mut clan = Clan {
+        id: 1,
+        name: "Probe".into(),
+        leader_id: 10,
+        level: 0,
+        reputation_score: 0,
+        castle_id: 0,
+        members: Vec::new(),
+        warehouse: Default::default(),
+    };
+    // (leader, member) expected pledge class per clan level.
+    for (level, leader, member) in [
+        (0, 0, 0),
+        (3, 0, 0),
+        (4, 3, 0),
+        (5, 4, 2),
+        (6, 5, 3),
+        (7, 7, 4),
+        (8, 8, 5),
+    ] {
+        clan.level = level;
+        assert_eq!(clan.pledge_class_of(10), leader, "leader at clan level {level}");
+        assert_eq!(clan.pledge_class_of(20), member, "member at clan level {level}");
+    }
+}
+
+/// Levelling a clan recomputes each online member's `pledge_class` (the on-head
+/// crown) and re-broadcasts UserInfo + CharInfo so the crown appears live.
+#[test]
+fn set_clan_level_updates_leader_pledge_class_and_rebroadcasts() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30026, "VillageMaster", 5, 100, 0, 0);
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 10;
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_create_clan Myclan")));
+    let clan_id = world.objects.get_component::<Player>(&3001).unwrap().clan_id;
+    // A fresh (level 0) clan gives the leader no crown.
+    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().pledge_class, 0);
+    drain(&mut a_rx);
+
+    crate::game_loop::clans::set_clan_level(&mut world, clan_id, 5);
+    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().pledge_class, 4, "level-5 clan leader is pledge class 4");
+    let pkts = drain(&mut a_rx);
+    assert!(pkts.iter().any(|p| p[0] == 0x32), "fresh UserInfo on the level change");
+}

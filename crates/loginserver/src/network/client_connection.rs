@@ -154,16 +154,10 @@ async fn dispatch(
             let key = session.session_key.expect("authed implies session key");
             if key.login_ok1 == skey1 && key.login_ok2 == skey2 {
                 let servers = ctx.controller.server_list_data(session.ip.clone(), session.access_level).await;
-                // ServerList constructor: wait up to 500 ms (10 × 50 ms) for
-                // the ReplyCharacters data before sending without it.
+                // ServerList constructor: wait up to 500 ms for every connected
+                // game server's ReplyCharacters before sending.
                 let account = session.account.clone().unwrap_or_default();
-                let mut chars = ctx.controller.chars_on_servers(&account).await;
-                let mut tries = 0;
-                while chars.is_none() && tries < 10 {
-                    tokio::time::sleep(Duration::from_millis(50)).await;
-                    chars = ctx.controller.chars_on_servers(&account).await;
-                    tries += 1;
-                }
+                let chars = wait_for_char_counts(ctx, &account).await;
                 send(
                     write,
                     encryption,
@@ -315,7 +309,7 @@ async fn finish_auth(
                 send(write, encryption, server_packets::login_ok(&key)).await?;
             } else {
                 let servers = ctx.controller.server_list_data(session.ip.clone(), session.access_level).await;
-                let chars = ctx.controller.chars_on_servers(&user).await;
+                let chars = wait_for_char_counts(ctx, &user).await;
                 send(
                     write,
                     encryption,
@@ -351,6 +345,26 @@ pub async fn send(
 ) -> std::io::Result<()> {
     let encrypted = encryption.encrypt(body);
     write_frame(write, &encrypted).await
+}
+
+/// Java `ServerList`'s char-count wait: poll the controller until every game
+/// server that was asked has replied with this account's count (or 500 ms
+/// elapses — 10 × 50 ms), then return whatever counts arrived. Waiting on the
+/// reply *count* rather than "map is non-null" stops a fast first server from
+/// short-circuiting a slower second one (the map alone can't distinguish
+/// "0 characters" from "hasn't replied yet").
+async fn wait_for_char_counts(
+    ctx: &LoginContext,
+    account: &str,
+) -> Option<std::collections::HashMap<i32, i32>> {
+    let (mut ready, mut chars) = ctx.controller.chars_on_servers(account).await;
+    let mut tries = 0;
+    while !ready && tries < 10 {
+        tokio::time::sleep(Duration::from_millis(50)).await;
+        (ready, chars) = ctx.controller.chars_on_servers(account).await;
+        tries += 1;
+    }
+    chars
 }
 
 /// Java `close(LoginFailReason)`: send the failure packet, then disconnect.

@@ -143,9 +143,9 @@ pub fn skill_list(skills: &crate::model::components::SkillBook, data: &GameData)
 
 /// `AcquireSkillList` (0x90) — the class skills the player can currently
 /// learn (Java `SkillTreeData.getAvailableSkills`, `CLASS` type only — see
-/// `data/skill_tree.rs::available_skills`). Base-class skills never carry
-/// required items/remove-skills/dual-class gates (confirmed empty in
-/// `StartingClass/*.xml`), so those lists are always written empty.
+/// `data/skill_tree.rs::available_skills`). No entry carries remove-skills or
+/// dual-class gates (confirmed absent from the class trees), so those two
+/// counts are always zero.
 pub fn acquire_skill_list(p: &Player, skills: &crate::model::components::SkillBook, data: &GameData) -> Vec<u8> {
     let learnable = data.skill_trees.available_skills(p.class_id, p.level, &skills.0);
     let mut w = PacketWriter::new();
@@ -157,6 +157,10 @@ pub fn acquire_skill_list(p: &Player, skills: &crate::model::components::SkillBo
         w.write_i64(s.level_up_sp);
         w.write_u8(s.get_level as u8);
         w.write_u8(0); // dual class level
+        // TODO(G6): 2nd/3rd-class trees have book-gated skills (`s.requires_item`,
+        // e.g. Divine Inspiration). Java writes the `getRequiredItems` list here
+        // (item id + count) so the client shows/charges the book; we don't parse
+        // the `<item>` id/count yet, so the required-item list stays empty.
         w.write_u8(0); // required item count
         w.write_u8(0); // remove-skill count
     }

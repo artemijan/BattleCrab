@@ -239,7 +239,10 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
             if !auto_loot {
                 // Drop onto the ground for anyone to pick up (Java's owner-based
                 // loot-window protection is simplified away).
-                super::ground_items::spawn_ground_item(world, item_id, count, 0, nx, ny, nz, npc_oid);
+                super::ground_items::spawn_ground_item(
+                    world, item_id, count, 0, nx, ny, nz, npc_oid,
+                    super::ground_items::DropSource::Npc,
+                );
                 continue;
             }
             match party_id {
@@ -612,9 +615,16 @@ pub(crate) fn reward_skill_grants(
     class_id: i32,
     level: i32,
     known: &std::collections::HashMap<i32, i32>,
+    is_gm: bool,
 ) -> Vec<(i32, i32)> {
     if cfg.auto_learn_skills {
-        return data.skill_trees.all_available_skills(class_id, level, known);
+        return data.skill_trees.all_available_skills(
+            class_id,
+            level,
+            known,
+            cfg.auto_learn_skills_without_items,
+            cfg.auto_learn_divine_inspiration || is_gm,
+        );
     }
     let mut granted = Vec::new();
     let mut seen: std::collections::HashMap<i32, i32> = std::collections::HashMap::new();
@@ -636,12 +646,12 @@ pub(crate) fn reward_skill_grants(
 /// `AutoLearnSkills` it mirrors Java's `ShortCutInit` + "learned N skills"
 /// notice.
 pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
-    let (class_id, level, known) = {
+    let (class_id, level, known, is_gm) = {
         let Some(p) = world.objects.get_component::<crate::model::Player>(&player_oid) else { return };
         let skills = world.objects.get_component::<SkillBook>(&player_oid).cloned().unwrap_or_default();
-        (p.class_id, p.level, skills.0)
+        (p.class_id, p.level, skills.0, p.is_gm(&world.data))
     };
-    let granted = reward_skill_grants(&world.data, &world.cfg.character, class_id, level, &known);
+    let granted = reward_skill_grants(&world.data, &world.cfg.character, class_id, level, &known, is_gm);
     if granted.is_empty() {
         return;
     }

@@ -149,7 +149,7 @@ pub fn char_info(v: &crate::model::PlayerView) -> Vec<u8> {
     w.write_i32(0); // bait z
     w.write_i32(p.name_color); // name color (from access level)
     w.write_i32(pos.heading);
-    w.write_u8(0); // pledge class
+    w.write_u8(p.pledge_class); // clan rank → on-head crown (calculatePledgeClass)
     w.write_i16(0); // pledge type
     w.write_i32(p.title_color); // title color (from access level)
     w.write_u8(0); // cursed weapon level

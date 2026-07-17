@@ -13,9 +13,42 @@ use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::{region_of, World};
 
-/// `Config.AUTODESTROY_ITEM_AFTER` — a dropped ground item auto-destroys after
-/// this many seconds (Java default 600).
-const GROUND_ITEM_DECAY_SECS: u64 = 600;
+/// Who dropped a ground item — Java gates auto-destroy differently for the two
+/// (`Player.dropItem` vs `Npc.dropItem`).
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum DropSource {
+    /// A player's `RequestDropItem`: only auto-destroyed when
+    /// `DestroyPlayerDroppedItem` is set (+ the equipable sub-gate).
+    Player,
+    /// An NPC death drop with auto-loot off: auto-destroyed whenever
+    /// `AutoDestroyDroppedItemAfter > 0`.
+    Npc,
+}
+
+/// The auto-destroy delay (seconds) for a freshly dropped item, or `None` when
+/// it should never be scheduled — the port of the `ItemsAutoDestroyTaskManager.
+/// addItem` gates in `Player.dropItem` / `Npc.dropItem`. Herb-specific timing
+/// (`AutoDestroyHerbTime`) is a TODO(G21): the item template carries no
+/// immediate-effect/herb flag yet.
+fn auto_destroy_delay(world: &World, item_id: i32, source: DropSource) -> Option<u64> {
+    let g = &world.cfg.general;
+    if g.autodestroy_item_after == 0 || g.protected_items.contains(&item_id) {
+        return None;
+    }
+    match source {
+        DropSource::Npc => Some(g.autodestroy_item_after),
+        DropSource::Player => {
+            if !g.destroy_dropped_player_item {
+                return None;
+            }
+            let equipable = world.data.item_data.get(item_id).is_some_and(|t| t.is_equipable());
+            if equipable && !g.destroy_equipable_player_item {
+                return None;
+            }
+            Some(g.autodestroy_item_after)
+        }
+    }
+}
 
 /// Build a ground item's wire view (display id = item id — no disguised items;
 /// stackable from the template).
@@ -46,6 +79,7 @@ pub(crate) fn spawn_ground_item(
     y: i32,
     z: i32,
     dropper_oid: i32,
+    source: DropSource,
 ) -> i32 {
     let object_id = world.next_npc_object_id;
     world.next_npc_object_id += 1;
@@ -58,9 +92,14 @@ pub(crate) fn spawn_ground_item(
     if let Some(view) = ground_item_view(world, object_id) {
         super::helpers::broadcast_near_region(world, region, &server_packets::drop_item(dropper_oid, &view));
     }
-    world
-        .scheduler
-        .schedule(world.tick + GROUND_ITEM_DECAY_SECS * 10, ScheduledTask::GroundItemDecay { item_object_id: object_id });
+    // Auto-destroy scheduling, gated by General.ini: a player's drop persists
+    // unless `DestroyPlayerDroppedItem` is set (dist default: off), while an NPC
+    // drop decays after `AutoDestroyDroppedItemAfter`.
+    if let Some(delay_secs) = auto_destroy_delay(world, item_id, source) {
+        world
+            .scheduler
+            .schedule(world.tick + delay_secs * 10, ScheduledTask::GroundItemDecay { item_object_id: object_id });
+    }
     object_id
 }
 
@@ -143,5 +182,5 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(packet);
     }
-    spawn_ground_item(world, item_id, count, enchant, ppos.x, ppos.y, ppos.z, player_oid);
+    spawn_ground_item(world, item_id, count, enchant, ppos.x, ppos.y, ppos.z, player_oid, DropSource::Player);
 }

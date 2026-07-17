@@ -48,6 +48,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
             get_level: 5,
             level_up_sp: 100,
             auto_get: false,
+            requires_item: false,
         },
     );
     data.skill_data.insert_for_test(Skill {
@@ -363,7 +364,7 @@ fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
     chr.items = items;
     // Every skill a level-7 mystic can reach (autoGet + learnable), i.e. what the
     // character would have after "reaching level 7 and getting skills".
-    chr.skills = data.skill_trees.all_available_skills(class_id, 7, &std::collections::HashMap::new());
+    chr.skills = data.skill_trees.all_available_skills(class_id, 7, &std::collections::HashMap::new(), true, true);
     assert!(chr.skills.iter().any(|&(id, _)| id == 163), "level-7 mystic has Spellcraft (163)");
     assert!(chr.skills.iter().any(|&(id, _)| id == 249), "level-7 mystic has Weapon Mastery (249)");
 
@@ -514,9 +515,9 @@ fn auto_learn_grants_all_reachable_class_skills() {
         data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![human_fighter_template()]);
         // Class 0: a level-1 autoGet skill + a non-autoGet class skill (id 91,
         // levels 1@getLevel5 and 2@getLevel10).
-        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 1000, skill_level: 1, name: "Auto".into(), get_level: 1, level_up_sp: 0, auto_get: true });
-        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 91, skill_level: 1, name: "Class1".into(), get_level: 5, level_up_sp: 100, auto_get: false });
-        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 91, skill_level: 2, name: "Class2".into(), get_level: 10, level_up_sp: 200, auto_get: false });
+        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 1000, skill_level: 1, name: "Auto".into(), get_level: 1, level_up_sp: 0, auto_get: true, requires_item: false });
+        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 91, skill_level: 1, name: "Class1".into(), get_level: 5, level_up_sp: 100, auto_get: false, requires_item: false });
+        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 91, skill_level: 2, name: "Class2".into(), get_level: 10, level_up_sp: 200, auto_get: false, requires_item: false });
         data
     };
 
@@ -573,11 +574,11 @@ fn delevel_downgrades_then_removes_skills() {
         let mut data = GameData::for_test();
         data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![human_fighter_template()]);
         // Skill 91: level 1 @ getLevel 20, level 2 @ getLevel 40.
-        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 91, skill_level: 1, name: "S1".into(), get_level: 20, level_up_sp: 100, auto_get: false });
-        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 91, skill_level: 2, name: "S2".into(), get_level: 40, level_up_sp: 200, auto_get: false });
+        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 91, skill_level: 1, name: "S1".into(), get_level: 20, level_up_sp: 100, auto_get: false, requires_item: false });
+        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 91, skill_level: 2, name: "S2".into(), get_level: 40, level_up_sp: 200, auto_get: false, requires_item: false });
         // Skill 92: a single level @ getLevel 7 — used to show the strict flag
         // vs the 9-level grace at low character levels.
-        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 92, skill_level: 1, name: "S3".into(), get_level: 7, level_up_sp: 100, auto_get: false });
+        data.skill_trees.insert_for_test(0, SkillLearn { skill_id: 92, skill_level: 1, name: "S3".into(), get_level: 7, level_up_sp: 100, auto_get: false, requires_item: false });
         data
     };
 
@@ -767,6 +768,40 @@ fn nuke_kills_at_zero_hp() {
             .expect("Die packet for B");
         assert_eq!(i32::from_le_bytes(die[5..9].try_into().unwrap()), 1, "to-village flag");
     }
+}
+
+/// An offensive skill lands on a siege gate: `resolve_cast_target` accepts the
+/// door (siege-attackable), the LOS check is skipped for a door target (Java
+/// `canSeeTarget` short-circuit), the pipeline resolves the door's position,
+/// and the magic damage routes to the gate's HP instead of the creature path.
+#[test]
+fn cast_nuke_damages_siege_door() {
+    use crate::data::door_data::DoorOpenMethod;
+    use crate::model::door::Door;
+    use crate::model::siege::Siege;
+    let (mut world, ..) = cast_test_world();
+    insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000); // covers the gate at (100, 0)
+    let mut siege = Siege::new(3);
+    siege.in_progress = true;
+    world.sieges.insert(3, siege);
+    let door = crate::model::door::spawn_door_for_test(&mut world, test_door(24190001, DoorOpenMethod::None));
+    world.objects.get_component_mut::<Door>(&door).unwrap().current_hp = 100_000;
+    let mut rx = ingame_caster(&mut world, 1, 3001, 150, 0); // within Wind Strike's 600 cast range
+
+    // Ctrl-cast Wind Strike (1177, EnemyOnly) at the gate.
+    handle_action(&mut world, 1, &action_body(door, 0));
+    drain(&mut rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+    assert!(world.objects.has_component::<Casting>(&3001), "the door is a valid enemy target");
+    advance_ticks(&mut world, 45); // launch (35) + finish (5) with margin
+
+    assert!(world.objects.get_component::<Door>(&door).unwrap().current_hp < 100_000, "the nuke damaged the gate");
+    let pkts = drain(&mut rx);
+    assert!(
+        pkts.iter().any(|p| p[0] == server_packets::opcodes::STATUS_UPDATE
+            && i32::from_le_bytes(p[1..5].try_into().unwrap()) == door),
+        "the gate's HP bar is refreshed for onlookers",
+    );
 }
 
 /// Esc aborts a pre-launch cast: `MagicSkillCanceled` broadcast (self
@@ -1434,6 +1469,7 @@ fn skill_acquire_gates_send_system_messages() {
         get_level: 10,
         level_up_sp: 0,
         auto_get: false,
+        requires_item: false,
     });
     // Reachable level, but costs more SP than the player has (sp 0).
     world.data.skill_trees.insert_for_test(0, SkillLearn {
@@ -1443,6 +1479,7 @@ fn skill_acquire_gates_send_system_messages() {
         get_level: 1,
         level_up_sp: 100,
         auto_get: false,
+        requires_item: false,
     });
 
     handle_request_acquire_skill(&mut world, 1, &acquire_skill_body(1001, 1, cp::RequestAcquireSkill::CLASS));

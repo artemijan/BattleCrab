@@ -14,6 +14,33 @@ use super::skills::cast::abort_cast;
 /// `Npc.INTERACTION_DISTANCE`.
 pub(crate) const INTERACTION_DISTANCE: f64 = 250.0;
 
+/// Java `WorldObject.isAutoAttackable(attacker)` dispatched over the object
+/// kinds the port models — the single gate behind the click-to-attack cursor,
+/// the melee attack path, and offensive skill targeting. Keeping it in one
+/// place stops the melee and cast paths from drifting apart.
+///
+/// * **Player** → the PvP/karma relation (`Player.isAutoAttackable`).
+/// * **Door** → only a castle door during an active siege (`Door.isAuto
+///   Attackable`; Interlude ships no always-`isAttackable` doors).
+/// * **NPC** → an auto-attackable template (monsters), or a siege
+///   control/flame tower, HQ flag, or stationed guard the attacker may engage.
+pub(crate) fn is_auto_attackable(world: &World, attacker_oid: i32, target_oid: i32) -> bool {
+    if world.objects.has_component::<crate::model::Player>(&target_oid) {
+        return super::pvp::is_player_auto_attackable(world, attacker_oid, target_oid);
+    }
+    if world.objects.has_component::<crate::model::door::Door>(&target_oid) {
+        return super::siege::attackable_door(world, target_oid);
+    }
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&target_oid)
+        .and_then(|n| n.template(world))
+        .is_some_and(|t| t.is_auto_attackable())
+        || super::siege::attackable_siege_tower(world, target_oid)
+        || super::siege::attackable_siege_flag(world, target_oid)
+        || super::siege::attackable_siege_guard(world, target_oid, attacker_oid)
+}
+
 /// `Npc.canInteract(player)`: plain 3D distance vs `INTERACTION_DISTANCE`
 /// between two world objects. Shared by the interact path here and the
 /// bypass router (Java re-checks it on every `npc_…` bypass).
@@ -87,9 +114,29 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
             }
         }
     } else if world.objects.has_component::<crate::model::door::Door>(&pkt.object_id) {
-        // `Door.onAction`: just select it. Attackability (siege doors) is gated
-        // in the attack path.
-        set_target(world, client_id, object_id, Some(pkt.object_id));
+        // `DoorAction.action`: the first click selects the door; a second click
+        // (already targeted, non-shift `interact`) engages it when it's auto-
+        // attackable — a castle gate during a siege — gated on the 400-unit
+        // z-difference Java checks before `AI_INTENTION_ATTACK`.
+        let already_targeted = world
+            .objects
+            .get_component::<TargetRef>(&object_id)
+            .copied()
+            .unwrap_or_default()
+            .0
+            == Some(pkt.object_id);
+        let z_ok = matches!(
+            (
+                world.objects.get_component::<Position>(&object_id),
+                world.objects.get_component::<Position>(&pkt.object_id),
+            ),
+            (Some(a), Some(d)) if (a.z - d.z).abs() < 400
+        );
+        if already_targeted && !shift && z_ok && is_auto_attackable(world, object_id, pkt.object_id) {
+            super::combat::start_attack_intent(world, client_id, object_id, pkt.object_id, false);
+        } else {
+            set_target(world, client_id, object_id, Some(pkt.object_id));
+        }
     }
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::action_failed());

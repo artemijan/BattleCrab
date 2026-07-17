@@ -640,19 +640,67 @@ fn admin_kick_disconnects_target() {
     assert!(world.objects.get_component::<Player>(&7203).is_none(), "victim despawned");
 }
 
-/// `//add_exp_sp <exp> <sp>` grants exp and sp (driving level-up).
+/// `//add_exp_sp <exp> <sp>` grants exp and sp to the targeted player (driving
+/// level-up). Java requires a player target, so the GM targets itself here.
 #[test]
-fn admin_add_exp_sp_grants_to_self() {
+fn admin_add_exp_sp_grants_to_target() {
     let (mut world, ..) = admin_world();
     world.data.experience =
         crate::data::ExperienceData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
     let mut gm_rx = ingame_player_access(&mut world, 1, 7301, 100);
+    world.objects.add_components(&7301, crate::model::components::TargetRef(Some(7301)));
     drain(&mut gm_rx);
 
     on_packet(&mut world, 1, build_admin("add_exp_sp 1000 500"));
     let p = world.objects.get_component::<Player>(&7301).unwrap();
     assert!(p.exp >= 1000, "exp granted");
     assert_eq!(p.sp, 500, "sp granted");
+}
+
+/// `//add_exp_sp_to_character` opens the real `expsp.htm` window
+/// (`NpcHtmlMessage`) for the targeted player with its level/xp/sp filled in —
+/// not chat text — matching Java's `addExpSp`.
+#[test]
+fn admin_add_exp_sp_to_character_opens_menu() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7301, 100);
+    world.objects.add_components(&7301, crate::model::components::TargetRef(Some(7301)));
+    if let Some(p) = world.objects.get_component_mut::<Player>(&7301) {
+        p.level = 20;
+        p.exp = 123456;
+        p.sp = 789;
+    }
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("add_exp_sp_to_character"));
+    let pkts = drain(&mut gm_rx);
+    let html = pkts.iter().find_map(|p| decode_npc_html(p)).expect("expsp.htm sent as NpcHtmlMessage");
+    assert!(html.contains("admin_add_exp_sp"), "the Add/Remove button bypasses are present");
+    assert!(html.contains("123456"), "the player's xp is filled in");
+    assert!(html.contains("789"), "the player's sp is filled in");
+    assert!(!html.contains("%xp%") && !html.contains("%sp%"), "placeholders substituted");
+}
+
+/// `//add_exp_sp` with no player target is refused (Java `INVALID_TARGET`),
+/// not silently applied to the GM.
+#[test]
+fn admin_add_exp_sp_without_target_is_invalid() {
+    let (mut world, ..) = admin_world();
+    world.data.experience =
+        crate::data::ExperienceData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7301, 100);
+    let exp_before = world.objects.get_component::<Player>(&7301).unwrap().exp;
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("add_exp_sp 1000 500"));
+    assert_eq!(world.objects.get_component::<Player>(&7301).unwrap().exp, exp_before, "no self-grant without a target");
+    let pkts = drain(&mut gm_rx);
+    assert!(
+        pkts.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+            && sm_id(p) == server_packets::sm_ids::INVALID_TARGET),
+        "INVALID_TARGET sent",
+    );
 }
 
 /// `//set_level N` sets the target's level; `//add_level N` adds to it.
@@ -1273,6 +1321,32 @@ fn admin_setclass_changes_class() {
     assert_eq!(p.base_class_id, 1);
 }
 
+/// `//setclass` to an advanced class recalculates the skill set: with
+/// `AutoLearnSkills`, the target gains the new class's reachable skills —
+/// including ancestor-tier and common (Expertise) skills through the complete
+/// class tree — not just the base-class ones.
+#[test]
+fn admin_setclass_grants_advanced_class_skills() {
+    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (mut world, ..) = admin_world();
+    world.data.player_templates = crate::data::PlayerTemplateData::load_from(ROOT);
+    world.data.skill_trees = crate::data::SkillTreeData::load_from(ROOT);
+    world.cfg.character.auto_learn_skills = true;
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8703, 100);
+    drain(&mut gm_rx);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&8703) {
+        p.level = 40; // Warlord's 2nd-class skills gate at getLevel 40.
+    }
+
+    on_packet(&mut world, 1, build_admin("setclass 3")); // Warlord (2nd class)
+
+    let p = world.objects.get_component::<Player>(&8703).unwrap();
+    assert_eq!(p.class_id, 3);
+    let book = world.objects.get_component::<crate::model::components::SkillBook>(&8703).unwrap();
+    assert!(book.0.contains_key(&36), "gained Warlord's Whirlwind (36)");
+    assert!(book.0.contains_key(&239), "gained common Expertise (239) via the complete tree");
+}
+
 /// `//setclass` with an unknown class id is refused.
 #[test]
 fn admin_setclass_rejects_unknown() {
@@ -1404,11 +1478,13 @@ fn admin_effect_broadcasts_msu() {
     assert_eq!(i32::from_le_bytes(msu[5..9].try_into().unwrap()), 8809, "GM is the animation source");
 }
 
-/// `//remove_exp_sp <exp> <sp>` subtracts from the self target.
+/// `//remove_exp_sp <exp> <sp>` subtracts from the targeted player (the GM
+/// targets itself, matching Java's required player target).
 #[test]
 fn admin_remove_exp_sp_reduces() {
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8901, 100);
+    world.objects.add_components(&8901, crate::model::components::TargetRef(Some(8901)));
     drain(&mut gm_rx);
     if let Some(p) = world.objects.get_component_mut::<Player>(&8901) {
         p.exp = 1000;

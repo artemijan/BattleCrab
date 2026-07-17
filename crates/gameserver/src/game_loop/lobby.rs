@@ -367,10 +367,13 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     let (session, mut bundle) = s.into_ingame();
     // Clan-leader flag comes from the live clan table (Java reads it off
     // the restored `Clan` object) — fix it before the first UserInfo.
-    bundle.player.clan_leader = world
-        .clans
-        .get(&bundle.player.clan_id)
-        .is_some_and(|c| c.leader_id == bundle.player.object_id);
+    if let Some(clan) = world.clans.get(&bundle.player.clan_id) {
+        bundle.player.clan_leader = clan.leader_id == bundle.player.object_id;
+        bundle.player.pledge_class = clan.pledge_class_of(bundle.player.object_id);
+    } else {
+        bundle.player.clan_leader = false;
+        bundle.player.pledge_class = 0;
+    }
 
     // `Player.rewardSkills` on char-load: grant any reachable skills the book
     // is missing (autoGet always; with `AutoLearnSkills`, every reachable class
@@ -383,6 +386,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
             bundle.player.class_id,
             bundle.player.level,
             &bundle.skills.0,
+            bundle.player.is_gm(&world.data),
         );
         for &(id, lvl) in &granted {
             bundle.skills.0.insert(id, lvl);

@@ -982,21 +982,115 @@ fn siege_door_can_be_targeted_and_breached_by_attack() {
     assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(door), "door targeted");
     drain(&mut rx);
 
-    // Attack it → the swing is broadcast and the gate takes damage.
+    // Attack it → the first swing is broadcast and the gate takes damage.
     handle_attack_request(&mut world, 1, &attack_request_body(door));
     let pkts = drain(&mut rx);
     assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::ATTACK), "swing broadcast");
     assert!(world.objects.get_component::<Door>(&door).unwrap().current_hp < 50, "gate took damage");
 
-    // Keep swinging until it breaches.
-    for _ in 0..30 {
+    // The attack loop auto-repeats each swing period (no re-clicking) until the
+    // gate breaches.
+    for _ in 0..40 {
         if world.geo.doors.is_open(24190001) {
             break;
         }
-        handle_attack_request(&mut world, 1, &attack_request_body(door));
+        advance_world(&mut world, 20);
     }
     assert_eq!(world.objects.get_component::<Door>(&door).unwrap().current_hp, 0, "gate destroyed");
     assert!(world.geo.doors.is_open(24190001), "breached gate is open");
+}
+
+/// Door chase: attacking a gate from out of melee reach walks the player to it
+/// (`AI_INTENTION_ATTACK` → `maybeMoveToPawn`) instead of failing with
+/// "out of range", then the auto-repeat swing loop breaches it on arrival.
+#[test]
+fn siege_door_out_of_reach_chases_and_breaches() {
+    use crate::data::door_data::DoorOpenMethod;
+    use crate::model::components::{Movement, Position};
+    use crate::model::door::Door;
+    use crate::model::siege::Siege;
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    insert_siege_zone(&mut world, 3, 0, 2000, -1000, 1000); // covers the gate at (100, 0)
+    let mut siege = Siege::new(3);
+    siege.in_progress = true;
+    world.sieges.insert(3, siege);
+    let door = crate::model::door::spawn_door_for_test(&mut world, test_door(24190001, DoorOpenMethod::None));
+    world.objects.get_component_mut::<Door>(&door).unwrap().current_hp = 50;
+    let mut rx = ingame_caster(&mut world, 1, 3001, 900, 0); // well out of reach of the gate
+
+    // Ctrl-attack from out of reach → a chase begins, no out-of-range message.
+    handle_action(&mut world, 1, &action_body(door, 0));
+    drain(&mut rx);
+    handle_attack_request(&mut world, 1, &attack_request_body(door));
+    let start_x = world.objects.get_component::<Position>(&3001).unwrap().x;
+    assert!(world.objects.has_component::<Movement>(&3001), "a chase leg starts toward the gate");
+    let pkts = drain(&mut rx);
+    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::MOVE_TO_PAWN), "MoveToPawn broadcast");
+    assert!(
+        !pkts.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+            && sm_id(p) == server_packets::sm_ids::YOUR_TARGET_IS_OUT_OF_RANGE),
+        "no out-of-range message — the player walks instead",
+    );
+
+    // Walk in and swing until the gate breaches.
+    for _ in 0..80 {
+        if world.geo.doors.is_open(24190001) {
+            break;
+        }
+        advance_world(&mut world, 20);
+    }
+    let end_x = world.objects.get_component::<Position>(&3001).unwrap().x;
+    assert!(end_x < start_x, "the player closed distance to the gate ({start_x} → {end_x})");
+    assert_eq!(world.objects.get_component::<Door>(&door).unwrap().current_hp, 0, "gate breached after the chase");
+}
+
+/// A plain double-click engages a siege gate: the first `Action` selects it,
+/// the second (already targeted, non-shift) starts the swing — the
+/// `DoorAction` attack path, not just the Ctrl-forced `AttackRequest`.
+#[test]
+fn siege_door_second_action_click_starts_attack() {
+    use crate::data::door_data::DoorOpenMethod;
+    use crate::model::door::Door;
+    use crate::model::siege::Siege;
+    let (mut world, ..) = combat_test_world();
+    insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000);
+    let mut siege = Siege::new(3);
+    siege.in_progress = true;
+    world.sieges.insert(3, siege);
+    let door = crate::model::door::spawn_door_for_test(&mut world, test_door(24190001, DoorOpenMethod::None));
+    world.objects.get_component_mut::<Door>(&door).unwrap().current_hp = 5000;
+    let mut rx = ingame_caster(&mut world, 1, 3001, 80, 0); // within melee reach
+
+    // First click just selects — no damage.
+    handle_action(&mut world, 1, &action_body(door, 0));
+    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(door), "door targeted");
+    assert_eq!(world.objects.get_component::<Door>(&door).unwrap().current_hp, 5000, "selecting doesn't damage");
+    drain(&mut rx);
+
+    // Second click on the already-targeted gate engages it.
+    handle_action(&mut world, 1, &action_body(door, 0));
+    let pkts = drain(&mut rx);
+    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::ATTACK), "swing broadcast on the second click");
+    assert!(world.objects.get_component::<Door>(&door).unwrap().current_hp < 5000, "gate took damage");
+}
+
+/// A door is only engageable while its castle is under siege: outside a siege
+/// a repeated `Action` click just re-selects it, never attacks.
+#[test]
+fn door_click_does_not_attack_outside_siege() {
+    use crate::data::door_data::DoorOpenMethod;
+    use crate::model::door::Door;
+    let (mut world, ..) = combat_test_world();
+    insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000); // zone present, but no active siege
+    let door = crate::model::door::spawn_door_for_test(&mut world, test_door(24190001, DoorOpenMethod::None));
+    world.objects.get_component_mut::<Door>(&door).unwrap().current_hp = 5000;
+    let mut rx = ingame_caster(&mut world, 1, 3001, 80, 0);
+
+    handle_action(&mut world, 1, &action_body(door, 0));
+    handle_action(&mut world, 1, &action_body(door, 0));
+    let pkts = drain(&mut rx);
+    assert!(!pkts.iter().any(|p| p[0] == server_packets::opcodes::ATTACK), "no swing without an active siege");
+    assert_eq!(world.objects.get_component::<Door>(&door).unwrap().current_hp, 5000, "gate untouched");
 }
 
 /// Touching the throne-room Holy Artifact (an Artefact NPC) as a registered

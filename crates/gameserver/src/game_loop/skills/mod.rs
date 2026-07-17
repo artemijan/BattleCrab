@@ -43,6 +43,10 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
         }
         return;
     }
+    // TODO(G6): 2nd/3rd-class trees add book-gated skills (`learn.requires_item`,
+    // e.g. Divine Inspiration). Java's `checkPlayerSkill` also verifies and
+    // consumes `getRequiredItems` here (ITEM_MISSING_TO_LEARN_SKILL on failure);
+    // we don't parse the item id/count yet, so such skills are learned for free.
     let (skill_id, skill_level, level_up_sp) = (learn.skill_id, learn.skill_level, learn.level_up_sp);
 
     if let Some(player) = world.objects.get_component_mut::<crate::model::Player>(&object_id) {

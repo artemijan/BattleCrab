@@ -114,6 +114,7 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
         p.clan_id = clan_id;
         p.clan_privs = ALL_CLAN_PRIVILEGES;
         p.clan_leader = true;
+        p.pledge_class = clan.pledge_class_of(leader_oid); // 0 at level 0
     }
 
     if let Some(cs) = world.clients.get(&leader_client) {
@@ -147,6 +148,12 @@ pub(crate) fn set_clan_level(world: &mut World, clan_id: i32, level: i32) {
     broadcast_to_clan(world, clan_id, &info);
     broadcast_to_clan(world, clan_id, &crate::network::enter_world::system_message(sm_ids::YOUR_CLAN_S_LEVEL_HAS_INCREASED));
     for oid in member_ids {
+        // The level change may cross a pledge-class boundary (the on-head crown);
+        // recompute per member before the UserInfo/CharInfo re-broadcast.
+        let pledge_class = world.clans.get(&clan_id).map_or(0, |c| c.pledge_class_of(oid));
+        if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
+            p.pledge_class = pledge_class;
+        }
         super::party::broadcast_user_info(world, oid);
     }
 }
@@ -185,6 +192,7 @@ pub(crate) fn destroy_clan(world: &mut World, clan_id: i32) {
                 p.clan_id = 0;
                 p.clan_privs = 0;
                 p.clan_leader = false;
+                p.pledge_class = 0;
                 if *oid == leader_id {
                     p.clan_create_expiry_time = leader_expiry;
                 }
@@ -237,9 +245,14 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
         return;
     }
     let level = p.level;
-    let is_leader = world.clans.get(&clan_id).is_some_and(|c| c.leader_id == object_id);
+    let (is_leader, pledge_class) = world
+        .clans
+        .get(&clan_id)
+        .map(|c| (c.leader_id == object_id, c.pledge_class_of(object_id)))
+        .unwrap_or((false, 0));
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.clan_leader = is_leader;
+        p.pledge_class = pledge_class;
     }
     let Some(clan) = world.clans.get_mut(&clan_id) else {
         warn!("Player {object_id} carries unknown clan id {clan_id}.");

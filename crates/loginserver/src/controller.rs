@@ -41,8 +41,15 @@ struct AuthedEntry {
     key: SessionKey,
     kick: mpsc::Sender<LoginFailReason>,
     /// server_id → character count, filled by ReplyCharacters
-    /// (`LoginClient._charsOnServers`). None until the first reply arrives.
+    /// (`LoginClient._charsOnServers`). Only servers with ≥1 char get an entry
+    /// (Java's `if (charsNum > 0)`); `None` until such a reply arrives.
     chars_on_servers: Option<HashMap<i32, i32>>,
+    /// How many game servers were asked for this account's char count
+    /// (`RequestCharacters` fan-out) and how many have replied. The ServerList
+    /// waits for `chars_received >= chars_expected` so a slow second server
+    /// isn't dropped — the map alone can't tell "0 chars" from "not replied".
+    chars_expected: usize,
+    chars_received: usize,
 }
 
 /// One row of the client `ServerList` packet, fully resolved.
@@ -138,10 +145,12 @@ pub enum Msg {
         account: String,
         chars: i32,
     },
-    /// `LoginClient.getCharsOnServ` — None until any GS replied.
+    /// `LoginClient.getCharsOnServ` — returns `(all_replied, counts)`. The
+    /// ServerList polls this until `all_replied` (or it times out) so every
+    /// connected game server's count is included, not just the first to answer.
     GetCharsOnServers {
         account: String,
-        reply: oneshot::Sender<Option<HashMap<i32, i32>>>,
+        reply: oneshot::Sender<(bool, Option<HashMap<i32, i32>>)>,
     },
     /// RequestTempBan (0x0A).
     TempBan {
@@ -389,7 +398,10 @@ impl ControllerHandle {
             .await;
     }
 
-    pub async fn chars_on_servers(&self, account: &str) -> Option<HashMap<i32, i32>> {
+    /// `(all_expected_servers_replied, counts)` for the account. The caller
+    /// (ServerList) polls this, sleeping between tries, until the first element
+    /// is `true` or its own timeout elapses — then sends whatever counts it has.
+    pub async fn chars_on_servers(&self, account: &str) -> (bool, Option<HashMap<i32, i32>>) {
         let (reply, rx) = oneshot::channel();
         let _ = self
             .tx
@@ -398,7 +410,7 @@ impl ControllerHandle {
                 reply,
             })
             .await;
-        rx.await.ok().flatten()
+        rx.await.unwrap_or((true, None))
     }
 
     pub async fn temp_ban(&self, account: String, ip: String, ban_time: i64) {
@@ -565,18 +577,23 @@ impl Controller {
                 chars,
             } => {
                 if let Some(entry) = self.authed_clients.get_mut(&account) {
-                    let map = entry.chars_on_servers.get_or_insert_with(HashMap::new);
+                    entry.chars_received += 1;
+                    // Java `setCharactersOnServer`: only servers with ≥1 char are
+                    // recorded; a 0-char reply still counts as "replied" above.
                     if chars > 0 {
-                        map.insert(server_id, chars);
+                        entry.chars_on_servers.get_or_insert_with(HashMap::new).insert(server_id, chars);
                     }
                 }
             }
             Msg::GetCharsOnServers { account, reply } => {
-                let _ = reply.send(
-                    self.authed_clients
-                        .get(&account)
-                        .and_then(|e| e.chars_on_servers.clone()),
-                );
+                // Ready = every queried game server has answered (or there were
+                // none). An unknown account (shouldn't happen post-auth) is
+                // "ready" so the caller never blocks on it.
+                let status = match self.authed_clients.get(&account) {
+                    Some(e) => (e.chars_received >= e.chars_expected, e.chars_on_servers.clone()),
+                    None => (true, None),
+                };
+                let _ = reply.send(status);
             }
             Msg::TempBan {
                 account,
@@ -926,18 +943,26 @@ impl Controller {
                 key,
                 kick,
                 chars_on_servers: None,
+                chars_expected: 0,
+                chars_received: 0,
             },
         );
 
-        // getCharactersOnAccount: ask every authed GS for character counts.
+        // getCharactersOnAccount: ask every authed GS for character counts, and
+        // remember how many we asked so the ServerList waits for them all.
+        let mut expected = 0;
         for entry in self.gs.servers.values() {
             if entry.authed {
                 if let Some(link) = &entry.link {
                     let _ = link.try_send(GsCommand::RequestCharacters {
                         account: info.login.clone(),
                     });
+                    expected += 1;
                 }
             }
+        }
+        if let Some(entry) = self.authed_clients.get_mut(&info.login) {
+            entry.chars_expected = expected;
         }
 
         AuthOutcome::Success {

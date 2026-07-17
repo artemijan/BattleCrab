@@ -168,6 +168,11 @@ pub struct Player {
     pub clan_id: i32,
     pub clan_privs: i32,
     pub clan_leader: bool,
+    /// `ClanMember.calculatePledgeClass` result, denormalized here so the
+    /// UserInfo/CharInfo builders (store-only, no `World.clans` access) can
+    /// write it. Drives the on-head clan-rank crown; recomputed alongside
+    /// `clan_leader` whenever clan membership or level changes.
+    pub pledge_class: u8,
     /// `characters.clan_create_expiry_time` — the 10-day recreate cooldown.
     pub clan_create_expiry_time: i64,
 
@@ -658,6 +663,7 @@ impl Player {
             clan_id: c.clan_id,
             clan_privs: c.clan_privs,
             clan_leader: false, // fixed up at enter-world from World.clans
+            pledge_class: 0,    // recomputed with clan_leader from World.clans
             clan_create_expiry_time: c.clan_create_expiry_time,
             face: c.face,
             hair_style: c.hair_style,

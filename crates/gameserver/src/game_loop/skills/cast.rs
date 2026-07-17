@@ -148,15 +148,11 @@ pub(crate) fn resolve_cast_target(
             if t == caster.object_id {
                 return Err(sm_ids::INVALID_TARGET);
             }
-            let auto_attackable = if world.objects.has_component::<Player>(&t) {
-                crate::game_loop::pvp::is_player_auto_attackable(world, caster.object_id, t)
-            } else {
-                world
-                    .objects
-                    .get_component::<crate::model::npc::Npc>(&t)
-                    .and_then(|n| n.template(world))
-                    .is_some_and(|tm| tm.is_auto_attackable())
-            };
+            // `isAutoAttackable` over players, monsters, and — during a siege —
+            // castle doors, towers, HQ flags and stationed guards. A clean
+            // target still needs Ctrl (force-use).
+            let auto_attackable =
+                crate::game_loop::target::is_auto_attackable(world, caster.object_id, t);
             if !auto_attackable && !ctrl {
                 return Err(sm_ids::INVALID_TARGET);
             }
@@ -169,10 +165,16 @@ pub(crate) fn resolve_cast_target(
         return Err(sm_ids::INVALID_TARGET);
     }
     // "Geodata check when character is within range" — every non-self
-    // handler ends with `GeoEngine.canSeeTarget` → CANNOT_SEE_TARGET.
-    if !world
-        .geo
-        .can_see_target(caster_pos.x, caster_pos.y, caster_pos.z, tx, ty, tz)
+    // handler ends with `GeoEngine.canSeeTarget` → CANNOT_SEE_TARGET. Java's
+    // `canSeeTarget(asker, target)` short-circuits to `true` when the target
+    // is a door (GeoEngine.java: `target.isDoor() || canSeeTarget(...)`) — a
+    // closed siege gate occludes the ray to its own centre, so without this a
+    // gate could never be nuked.
+    let target_is_door = world.objects.has_component::<crate::model::door::Door>(&resolved);
+    if !target_is_door
+        && !world
+            .geo
+            .can_see_target(caster_pos.x, caster_pos.y, caster_pos.z, tx, ty, tz)
     {
         return Err(sm_ids::CANNOT_SEE_TARGET);
     }
@@ -194,6 +196,12 @@ pub(crate) fn target_state(world: &World, object_id: i32) -> Option<(i32, i32, i
         let pos = world.objects.get_component::<Position>(&object_id)?;
         let vitals = world.objects.get_component::<Vitals>(&object_id)?;
         return Some((pos.x, pos.y, pos.z, vitals.dead));
+    }
+    // Doors carry no `Vitals`/`Npc` — their HP lives on the `Door` component;
+    // a breached gate (0 HP) counts as dead, so a skill can't re-hit it.
+    if let Some(door) = world.objects.get_component::<crate::model::door::Door>(&object_id) {
+        let pos = world.objects.get_component::<Position>(&object_id)?;
+        return Some((pos.x, pos.y, pos.z, door.current_hp <= 0));
     }
     world
         .objects

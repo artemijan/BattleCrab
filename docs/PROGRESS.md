@@ -149,8 +149,9 @@ the right game address.
 - **Create fixes**: match Java (no re-send of `CharSelectionInfo` after
   `CharCreateOk` — `send_list` flag); Unicode name validation;
   `RequestCharacterNameCreatable` → `ExIsCharNameCreatable`.
-- **Initial skills**: `SkillTreeData` reads `StartingClass/*.xml` for level-1
-  auto-get skills → `character_skills` (Mystic 5, Orc Fighter 1, …).
+- **Initial skills**: `SkillTreeData` reads the class-tier + common trees; new
+  characters take their starting class's level-1 auto-get skills →
+  `character_skills` (Mystic 5, Orc Fighter 1, …).
 
 ### G4 — Enter world ✅ core (`82c86a0`, `0121575`, `ee682cc`, `0761efe`, `a6aea48`)
 - **Player model** (`model/`): composed struct built from a stored character +
@@ -1126,13 +1127,19 @@ G14; admin commands are carved out as their own G13
   `data/skill_tree.rs`, `game_loop/death.rs`, `game_loop/lobby.rs`): the port
   ignored `Character.ini`'s `AutoLearnSkills = True`, so players only ever got
   autoGet skills. `Player.rewardSkills` now branches on the flag — with it on,
-  `SkillTreeData.all_available_skills` (a base-tree narrowing of Java's
-  `getAllAvailableSkills`: highest reachable level per class skill, no
-  FS/removeSkills/required-items in `StartingClass/*.xml`) grants every
-  reachable class skill on both enter-world and level-up, with the
-  `ShortCutInit` + "learned N skills" (`SystemMessageId.S1_2`) notice. FS /
-  divine-inspiration / removeSkills paths stay out of scope (absent from base
-  trees). Unit + level-up/enter-world grant tests.
+  `SkillTreeData.all_available_skills` (highest reachable level per class skill)
+  grants every reachable class skill on both enter-world and level-up, with the
+  `ShortCutInit` + "learned N skills" (`SystemMessageId.S1_2`) notice.
+  `SkillTreeData` now loads all four class-tier directories (`StartingClass` /
+  `1st` / `2nd` / `3rdClass`) plus the common `Commons.xml` tree, and
+  `complete_entries` walks the `parentClassId` chain (Java
+  `getCompleteClassSkillTree`) so advanced classes reach their ancestor + common
+  skills — `//setclass` to a 2nd/3rd class now recalculates the skill set. The
+  auto-learn path honors `AutoLearnSkillsWithoutItems` and
+  `AutoLearnDivineInspiration` (`requires_item` flag from the `<item>` child).
+  FS / removeSkills paths stay out of scope (absent from the trees); parsing the
+  `<item>` id/count for the manual-learn cost display + consumption is
+  TODO(G6). Unit + level-up/enter-world/setclass grant tests.
 
 ### G13 — Admin / GM command system 🚧 (framework landed)
 Plan: [PLAN_G13_ADMIN.md](PLAN_G13_ADMIN.md). **G13.A (the framework) is done**;

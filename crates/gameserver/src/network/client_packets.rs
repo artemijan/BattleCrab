@@ -90,6 +90,10 @@ pub mod ex_opcodes {
     pub const REQUEST_KEY_MAPPING: u16 = 0x21;
     pub const REQUEST_CHARACTER_NAME_CREATABLE: u16 = 0xA9;
     pub const REQUEST_USER_BAN_INFO: u16 = 0x138;
+    /// `ExSendClientIni` — the client reports its `client.ini` after auth.
+    /// Mobius registers a `null` handler (no packet class), so it is consumed
+    /// and ignored.
+    pub const EX_SEND_CLIENT_INI: u16 = 0x104;
     pub const REQUEST_GOTO_LOBBY: u16 = 0x33;
     pub const REQUEST_CHANGE_PARTY_LEADER: u16 = 0x0C;
     pub const REQUEST_PARTY_LOOT_MODIFICATION: u16 = 0x75;

@@ -200,6 +200,9 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // RequestUserBanInfo (IN_GAME): Mobius has a null handler — the client
         // tolerates no reply, so consume it silently. TODO: ExUserBanInfo.
         exop::REQUEST_USER_BAN_INFO => {}
+        // ExSendClientIni (AUTHENTICATED): the client reports its client.ini
+        // after auth; Mobius registers a null handler, so consume it silently.
+        exop::EX_SEND_CLIENT_INI => {}
         exop::REQUEST_SAVE_INVENTORY_ORDER => {
             handle_request_save_inventory_order(world, client_id, ex_body)
         }
