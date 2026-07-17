@@ -1067,12 +1067,13 @@ fn siege_control_tower_destruction_decrements_the_count() {
     assert_eq!(world.sieges[&3].control_tower_count, 0, "destruction decremented the count");
 }
 
-/// A defender killed during a siege respawns *inside* the castle (the residence
-/// `owner_restart_point`) while a control tower still stands; once the attackers
-/// raze them all the defender loses that spawn and falls back to town. This is
-/// the payoff of the control-tower count — Java `MapRegionManager.getTeleToLocation`.
+/// A defender killed during a siege respawns *inside* the castle when it picks
+/// "to castle" (type 2 → residence `getSpawnLoc`); "to village" (type 0) still
+/// sends it to the map-region town. Java `RequestRestartPoint.portPlayer` — the
+/// castle respawn is not gated on the control-tower count (that only blocks
+/// resurrection, unported).
 #[test]
-fn siege_defender_respawns_at_castle_until_control_towers_fall() {
+fn siege_defender_respawns_at_castle_on_to_castle() {
     use crate::model::clan::{Clan, ClanMember};
     use crate::model::siege::Siege;
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -1083,9 +1084,10 @@ fn siege_defender_respawns_at_castle_until_control_towers_fall() {
         respawn_points: vec![(1000, 1000, 7)],
         tiles: vec![(20, 18)],
     }]);
+    insert_siege_zone(&mut world, 3, -1000, 1000, -1000, 1000);
     // The castle's owner restart point (from castle_hall.xml).
     world.data.castle_restart_points.insert(3, vec![(500, 600, 100)]);
-    // Clan 700 owns castle 3 and is under siege with one control tower up.
+    // Clan 700 owns castle 3 and is under siege.
     world.clans.insert(
         700,
         Clan {
@@ -1101,31 +1103,85 @@ fn siege_defender_respawns_at_castle_until_control_towers_fall() {
     );
     let mut siege = Siege::new(3);
     siege.in_progress = true;
-    siege.control_tower_count = 1;
     world.sieges.insert(3, siege);
 
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = 700;
     world.objects.get_component_mut::<Vitals>(&3001).unwrap().dead = true;
 
-    // Towers standing → respawn at the castle, not the town.
-    world.forced_rolls.push_back(0);
-    handle_request_restart_point(&mut world, 1, &restart_to_village());
+    // "To castle" → respawn inside the castle.
+    handle_request_restart_point(&mut world, 1, &restart_to(2));
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
     assert_eq!((pos.x, pos.y, pos.z), (500, 600, 105), "defender respawns inside the castle (z +5)");
 
-    // Raze the last control tower → the castle respawn is gone, fall back to town.
-    world.sieges.get_mut(&3).unwrap().control_tower_count = 0;
+    // "To village" → the ordinary town respawn (siege role doesn't hijack it).
     world.objects.get_component_mut::<Vitals>(&3001).unwrap().dead = true;
     world.forced_rolls.push_back(0);
-    handle_request_restart_point(&mut world, 1, &restart_to_village());
+    handle_request_restart_point(&mut world, 1, &restart_to(0));
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (1000, 1000, 12), "no towers → defender pushed back to town");
+    assert_eq!((pos.x, pos.y, pos.z), (1000, 1000, 12), "to-village goes to town, not the castle");
 }
 
-/// A `RequestRestartPoint` TO_VILLAGE body.
-fn restart_to_village() -> Vec<u8> {
+/// The clan leader of an attacker plants an HQ flag; it becomes attackable (a
+/// defender can destroy it) and the attacker's "to siege HQ" respawn point.
+/// Java `HeadquarterCreate` + `Siege.getFlag`/`killedFlag`.
+#[test]
+fn siege_attacker_hq_flag_is_respawn_point_and_destructible() {
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::siege::{Siege, SiegeClanType};
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    insert_siege_zone(&mut world, 3, -1000, 1000, -1000, 1000);
+    // The HQ flag NPC (35062) template.
+    let mut t = crate::data::npc_data::default_template(35062);
+    t.type_name = "Folk".into();
+    t.base_hp_max = 100.0;
+    world.data.npc_data.insert_for_test(t);
+    // Attacker clan 700, its leader 3001.
+    world.clans.insert(
+        700,
+        Clan {
+            id: 700,
+            name: "Attackers".into(),
+            leader_id: 3001,
+            level: 5,
+            reputation_score: 0,
+            castle_id: 0,
+            members: vec![ClanMember { char_id: 3001, name: "P3001".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
+            warehouse: Default::default(),
+        },
+    );
+    let mut siege = Siege::new(3);
+    siege.in_progress = true;
+    siege.add_clan(700, SiegeClanType::Attacker);
+    world.sieges.insert(3, siege);
+
+    let _rx = ingame_caster(&mut world, 1, 3001, 40, 50);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = 700;
+
+    // Leader plants the flag (HeadquarterCreate).
+    assert!(crate::game_loop::siege::place_siege_flag(&mut world, 3001), "leader plants the HQ");
+    let flag = world.sieges[&3].flag_of(700).expect("flag registered");
+    assert_eq!(world.sieges[&3].flag_count(700), 1);
+    // A second flag is refused (MaxFlags = 1).
+    assert!(!crate::game_loop::siege::place_siege_flag(&mut world, 3001), "flag cap enforced");
+    assert!(crate::game_loop::siege::attackable_siege_flag(&world, flag), "flag is attackable");
+
+    // The attacker respawns at the flag on "to siege HQ" (type 4).
+    world.objects.get_component_mut::<Vitals>(&3001).unwrap().dead = true;
+    let flag_pos = *world.objects.get_component::<Position>(&flag).unwrap();
+    handle_request_restart_point(&mut world, 1, &restart_to(4));
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!((pos.x, pos.y), (flag_pos.x, flag_pos.y), "attacker respawns at the HQ flag");
+
+    // A defender destroys the flag → it stops being a respawn point.
+    crate::game_loop::death::npc_do_die(&mut world, flag, 0);
+    assert_eq!(world.sieges[&3].flag_of(700), None, "killed flag removed");
+    assert!(!crate::game_loop::siege::attackable_siege_flag(&world, flag));
+}
+
+/// A `RequestRestartPoint` body for the given point type.
+fn restart_to(point_type: i32) -> Vec<u8> {
     let mut w = PacketWriter::new();
-    w.write_i32(0); // TO_VILLAGE
+    w.write_i32(point_type);
     w.into_bytes()
 }

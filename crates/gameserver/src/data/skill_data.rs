@@ -353,6 +353,9 @@ fn finalize_skill(
                         _ => Vec::new(),
                     },
                     "RestorationRandom" => vec![SkillEffect::GiveItemRandom { groups: groups.clone() }],
+                    // Both the basic (247) and advanced HQ skills carry this;
+                    // isAdvanced is not yet behaviorally distinct (see the effect).
+                    "HeadquarterCreate" => vec![SkillEffect::CreateHeadquarter],
                     // Java throws if amount is 0/missing; we drop the effect
                     // (silent no-op) to match how other bad effect bodies fall
                     // through, rather than panicking at data-load.

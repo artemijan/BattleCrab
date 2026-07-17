@@ -58,6 +58,9 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // `ControlTower.onDeath` → `Siege.killedCT`: a felled control tower weakens
     // the defenders (no-op for every other NPC).
     super::siege::killed_control_tower(world, npc_oid);
+    // `SiegeFlag.doDie` → `Siege.killedFlag`: a destroyed HQ flag stops being an
+    // attacker respawn point.
+    super::siege::killed_siege_flag(world, npc_oid);
 
     calculate_rewards(world, npc_oid, killer_oid);
 
@@ -848,11 +851,12 @@ fn apply_death_exp_penalty(world: &mut World, player_oid: i32) {
     }
 }
 
-/// Port of `clientpackets/RequestRestartPoint`, TO_VILLAGE only (every other
-/// restart type needs clans/sieges): pick the town respawn and start the
-/// teleport; the revive itself lands on `Appearing`.
+/// Port of `clientpackets/RequestRestartPoint`: pick the respawn point for the
+/// requested restart type — the siege "to castle"/"to siege HQ" cases when the
+/// dead player is a participant, else the map-region town respawn — and start
+/// the teleport; the revive itself lands on `Appearing`.
 pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(_pkt) = cp::RequestRestartPoint::read(body) else { return };
+    let Some(pkt) = cp::RequestRestartPoint::read(body) else { return };
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
     let (px, py, pz, dead) = {
@@ -869,22 +873,9 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
         .and_then(|p| crate::enums::Race::from_ordinal(p.race))
         .unwrap_or(crate::enums::Race::Human);
     let pick = if world.cfg.character.random_respawn_in_town { world.roll(64) as usize } else { 0 };
-    // Java `MapRegionManager.getTeleToLocation`: a siege defender whose castle is
-    // under attack respawns *inside* the castle (the residence `getSpawnLoc`) —
-    // but only while a control tower still stands; once the attackers raze them
-    // all (`getSiege().getControlTowerCount() == 0`) the defenders lose that
-    // spawn and fall back to town. Attacker siege-flag respawns (`SIEGEFLAG`) and
-    // non-owner registered defenders need siege flags / HQ — TODO(G24).
-    let siege_spawn = (|| {
-        let clan_id = world.objects.get_component::<crate::model::Player>(&object_id)?.clan_id;
-        let castle_id = world.clans.get(&clan_id).map(|c| c.castle_id).filter(|&c| c > 0)?;
-        let siege = world.sieges.get(&castle_id)?;
-        if !siege.in_progress || siege.control_tower_count <= 0 {
-            return None;
-        }
-        let pts = world.data.castle_restart_points.get(&castle_id)?;
-        (!pts.is_empty()).then(|| pts[pick % pts.len()])
-    })();
+    // The siege restart cases (Java `RequestRestartPoint.portPlayer`); everything
+    // else, and a non-participant, falls through to the map-region town respawn.
+    let siege_spawn = siege_restart_location(world, object_id, pkt.point_type, pick);
     let Some((x, y, z)) = siege_spawn.or_else(|| world.data.map_region.town_respawn(px, py, pz, race, pick)) else {
         return;
     };
@@ -892,6 +883,49 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
         p.pending_revive = true;
     }
     teleport_player(world, object_id, x, y, z);
+}
+
+/// The siege restart-point cases of Java `RequestRestartPoint.portPlayer` /
+/// `MapRegionManager.getTeleToLocation` we can honor at a castle under an active
+/// siege:
+/// - **to castle** (type 2): a *defender* (the owner or a registered defender
+///   clan) respawns inside the castle at the residence `getSpawnLoc`.
+/// - **to siege HQ** (type 4): an *attacker* respawns at their planted HQ flag
+///   (`getFlag`), if one still stands.
+///
+/// `None` (→ the caller's town respawn) for every other type/role. Note the
+/// castle respawn is *not* gated on the control-tower count — Java only uses
+/// that to block a defender's resurrection at the death spot
+/// (`ConditionPlayerCanResurrect`), which is unported (TODO(G24)). The attacker
+/// respawn delay (`getAttackerRespawnDelay`) is likewise deferred.
+fn siege_restart_location(world: &World, player_oid: i32, point_type: i32, pick: usize) -> Option<(i32, i32, i32)> {
+    use crate::model::siege::SiegeClanType;
+    let clan_id = world.objects.get_component::<crate::model::Player>(&player_oid)?.clan_id;
+    if clan_id == 0 {
+        return None;
+    }
+    let pos = world.objects.get_component::<Position>(&player_oid)?;
+    let castle_id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z)?;
+    let siege = world.sieges.get(&castle_id)?;
+    if !siege.in_progress {
+        return None;
+    }
+    let role = siege.clans.iter().find(|c| c.clan_id == clan_id).map(|c| c.kind);
+    // `checkIsDefender` covers the castle owner even if it holds no `siege_clans`
+    // row, so fold in castle ownership.
+    let is_defender = world.clans.get(&clan_id).is_some_and(|c| c.castle_id == castle_id)
+        || matches!(role, Some(SiegeClanType::Owner | SiegeClanType::Defender));
+    match point_type {
+        2 if is_defender => {
+            let pts = world.data.castle_restart_points.get(&castle_id)?;
+            (!pts.is_empty()).then(|| pts[pick % pts.len()])
+        }
+        4 if role == Some(SiegeClanType::Attacker) => {
+            let flag_oid = siege.flag_of(clan_id)?;
+            world.objects.get_component::<Position>(&flag_oid).map(|p| (p.x, p.y, p.z))
+        }
+        _ => None,
+    }
 }
 
 /// `Creature.teleToLocation`: stop moving, vanish from the old neighborhood

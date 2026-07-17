@@ -309,7 +309,8 @@ pub(crate) fn start_attack_intent(
             .get_component::<crate::model::npc::Npc>(&target_object_id)
             .and_then(|n| n.template(world))
             .is_some_and(|t| t.is_auto_attackable())
-            || super::siege::attackable_siege_tower(world, target_object_id);
+            || super::siege::attackable_siege_tower(world, target_object_id)
+            || super::siege::attackable_siege_flag(world, target_object_id);
         if !attackable || target_dead {
             if let Some(cs) = world.clients.get(&client_id) {
                 cs.send(server_packets::action_failed());

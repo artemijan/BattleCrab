@@ -113,6 +113,12 @@ pub enum SkillEffect {
     /// `amount` recommendations received (`rec_have`), capped at 255. Backs the
     /// "recommendation certificate" self-target skills.
     GiveRecommendation { amount: i32 },
+    /// `handlers/effecthandlers/HeadquarterCreate.java` — the "Build
+    /// Headquarters" siege skill (247): the caster (an attacker clan leader)
+    /// plants an HQ flag (NPC 35062) in the siege zone as a respawn point.
+    /// (`isAdvanced` — the advanced HQ's extra abilities — is collapsed for now,
+    /// TODO(G24).)
+    CreateHeadquarter,
 }
 
 /// `dist/game/data/stats/skills/*.xml` → `Skill.java`, scoped to G6.

@@ -213,8 +213,67 @@ pub(crate) fn killed_control_tower(world: &mut World, npc_oid: i32) {
     let Some(castle_id) = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) else { return };
     if let Some(siege) = world.sieges.get_mut(&castle_id) {
         siege.control_tower_count = (siege.control_tower_count - 1).max(0);
-        // TODO(G24): at 0, gate the defenders' castle respawn
-        // (ConditionPlayerCanResurrect) — the siege revive path is unported.
+        // TODO(G24): at 0, block defender *resurrection* (getting up at the death
+        // spot via a res skill) — Java `ConditionPlayerCanResurrect`. This does
+        // not gate the restart-point castle respawn; resurrection is unported.
+    }
+}
+
+/// Siege.ini `MaxFlags` (dist default) — HQ flags a clan may plant at once.
+const FLAG_MAX_COUNT: i32 = 1;
+/// Java `HeadquarterCreate.HQ_NPC_ID` — the "Headquarters" siege flag NPC.
+const HQ_NPC_ID: i32 = 35062;
+
+/// Java `HeadquarterCreate.instant` + `BuildCampSkillCondition`: the leader of an
+/// attacker clan plants an HQ flag in the siege zone, becoming the clan's respawn
+/// point until a defender destroys it. Returns whether a flag was placed.
+pub(crate) fn place_siege_flag(world: &mut World, player_oid: i32) -> bool {
+    let Some(clan_id) = world.objects.get_component::<Player>(&player_oid).map(|p| p.clan_id) else { return false };
+    let Some((x, y, z, heading)) = world.objects.get_component::<Position>(&player_oid).map(|p| (p.x, p.y, p.z, p.heading))
+    else {
+        return false;
+    };
+    // `HeadquarterCreate`: caster must be a clan leader (leaderId == objectId;
+    // a player's object id is its char id).
+    if clan_id == 0 || world.clans.get(&clan_id).map(|c| c.leader_id) != Some(player_oid) {
+        return false;
+    }
+    // `BuildCampSkillCondition`: an active siege at this spot where the clan is
+    // registered as an attacker. TODO(G24): also require the `ZoneId.HQ` sub-zone.
+    let Some(castle_id) = world.data.zone_data.siege_castle_at(x, y, z) else { return false };
+    let ok = world.sieges.get(&castle_id).is_some_and(|s| {
+        s.in_progress
+            && s.clans.iter().any(|c| c.clan_id == clan_id && c.kind == SiegeClanType::Attacker)
+            && s.flag_count(clan_id) < FLAG_MAX_COUNT // getNumFlags < MaxFlags
+    });
+    if !ok {
+        return false;
+    }
+    // Plant it at z+50 (Java `spawnMe(x, y, z + 50)`) and register it.
+    let Some(oid) = crate::model::npc::spawn_npc_at(world, HQ_NPC_ID, x, y, z + 50, heading) else { return false };
+    super::death::introduce_npc(world, oid);
+    if let Some(siege) = world.sieges.get_mut(&castle_id) {
+        siege.add_flag(clan_id, oid);
+        // Tracked for cleanup too, so a flag still standing at siege end is
+        // despawned with the rest (`removeFlags`).
+        siege.spawned_npcs.push(oid);
+    }
+    true
+}
+
+/// Whether an NPC is a registered HQ flag standing in an active siege —
+/// attackable so defenders can destroy it (Java `SiegeFlag.isAutoAttackable`).
+pub(crate) fn attackable_siege_flag(world: &World, npc_oid: i32) -> bool {
+    world.sieges.values().any(|s| s.in_progress && s.flags.iter().any(|&(_, oid)| oid == npc_oid))
+}
+
+/// Java `Siege.killedFlag` — a defender destroyed an attacker's HQ flag; drop it
+/// so the attacker loses that respawn point.
+pub(crate) fn killed_siege_flag(world: &mut World, npc_oid: i32) {
+    for siege in world.sieges.values_mut() {
+        if siege.remove_flag(npc_oid) {
+            break;
+        }
     }
 }
 

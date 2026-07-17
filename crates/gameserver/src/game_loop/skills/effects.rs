@@ -166,6 +166,13 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             SkillEffect::GiveRecommendation { amount } => {
                 crate::game_loop::reco::apply_give_recommendation(world, caster_oid, target_oid, *amount);
             }
+            SkillEffect::CreateHeadquarter => {
+                // `HeadquarterCreate.instant`: the effector (an attacker clan
+                // leader) plants the HQ flag. All the siege/leader/attacker/
+                // flag-cap checks live in the engine (mirrors the effect body +
+                // `BuildCampSkillCondition`).
+                crate::game_loop::siege::place_siege_flag(world, caster_oid);
+            }
             SkillEffect::StatModifier(_) => {} // collected below
         }
     }

@@ -71,8 +71,13 @@ pub struct Siege {
     /// despawned at `endSiege`.
     pub spawned_npcs: Vec<i32>,
     /// Java `_controlTowerCount` — live control towers. Set on spawn, decremented
-    /// as attackers destroy them; at 0 the defenders lose their castle respawn.
+    /// as attackers destroy them; at 0 the defenders can no longer be resurrected
+    /// (Java `ConditionPlayerCanResurrect`, unported — see TODO(G24)).
     pub control_tower_count: i32,
+    /// Java attacker `SiegeClan.getFlag()` — HQ flags planted during the siege
+    /// (owning clan id + flag npc oid). A flag is an attacker's respawn point
+    /// (`getTeleToLocation(SIEGEFLAG)`) until a defender destroys it.
+    pub flags: Vec<(i32, i32)>,
 }
 
 impl Siege {
@@ -84,7 +89,29 @@ impl Siege {
             first_owner_clan_id: 0,
             spawned_npcs: Vec::new(),
             control_tower_count: 0,
+            flags: Vec::new(),
         }
+    }
+
+    /// How many HQ flags a clan has planted (`SiegeClan.getNumFlags`).
+    pub fn flag_count(&self, clan_id: i32) -> i32 {
+        self.flags.iter().filter(|&&(c, _)| c == clan_id).count() as i32
+    }
+
+    /// A clan's HQ flag oid, if it has one (`getFlag(clan)` — the respawn point).
+    pub fn flag_of(&self, clan_id: i32) -> Option<i32> {
+        self.flags.iter().find(|&&(c, _)| c == clan_id).map(|&(_, oid)| oid)
+    }
+
+    pub fn add_flag(&mut self, clan_id: i32, npc_oid: i32) {
+        self.flags.push((clan_id, npc_oid));
+    }
+
+    /// Drop a destroyed flag (`Siege.killedFlag`); returns whether one was removed.
+    pub fn remove_flag(&mut self, npc_oid: i32) -> bool {
+        let before = self.flags.len();
+        self.flags.retain(|&(_, oid)| oid != npc_oid);
+        self.flags.len() != before
     }
 
     /// Any clan registered as an ATTACKER (`getAttackerClans().isEmpty()`).
