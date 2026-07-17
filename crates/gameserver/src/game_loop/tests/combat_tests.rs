@@ -1041,3 +1041,28 @@ fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
         "captor becomes the owner side"
     );
 }
+
+/// Control towers are attackable during a siege; destroying one decrements the
+/// siege's control-tower count (Java ControlTower.onDeath → Siege.killedCT).
+#[test]
+fn siege_control_tower_destruction_decrements_the_count() {
+    use crate::model::siege::{Siege, SiegeSpawn};
+    let (mut world, ..) = test_world();
+    insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000);
+    world.sieges.insert(3, Siege::new(3));
+    // A control-tower template (type ControlTower) + its spawn point in the zone.
+    let mut t = crate::data::npc_data::default_template(13002);
+    t.type_name = "ControlTower".into();
+    t.base_hp_max = 100.0;
+    world.data.npc_data.insert_for_test(t);
+    world.data.siege_towers.insert(3, vec![SiegeSpawn { npc_id: 13002, x: 100, y: 0, z: 0, heading: 0 }]);
+
+    crate::game_loop::siege::start_siege(&mut world, 3);
+    assert_eq!(world.sieges[&3].control_tower_count, 1, "one control tower counted at spawn");
+    let tower = *world.sieges[&3].spawned_npcs.last().expect("tower spawned");
+    assert!(crate::game_loop::siege::attackable_siege_tower(&world, tower), "attackable during the siege");
+
+    // Destroy it → the count drops.
+    crate::game_loop::death::npc_do_die(&mut world, tower, 0);
+    assert_eq!(world.sieges[&3].control_tower_count, 0, "destruction decremented the count");
+}

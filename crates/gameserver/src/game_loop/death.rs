@@ -55,6 +55,10 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     };
     let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
 
+    // `ControlTower.onDeath` → `Siege.killedCT`: a felled control tower weakens
+    // the defenders (no-op for every other NPC).
+    super::siege::killed_control_tower(world, npc_oid);
+
     calculate_rewards(world, npc_oid, killer_oid);
 
     // `OnAttackableKill` listeners (Java fires them async off the death

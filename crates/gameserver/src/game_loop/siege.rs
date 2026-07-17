@@ -168,10 +168,53 @@ fn spawn_siege_npcs(world: &mut World, castle_id: i32, spawns: &[SiegeSpawn]) {
     for s in spawns {
         if let Some(oid) = crate::model::npc::spawn_npc_at(world, s.npc_id, s.x, s.y, s.z, s.heading) {
             super::death::introduce_npc(world, oid);
+            // Java `spawnControlTower` counts the live control towers.
+            let is_control_tower = world.data.npc_data.get(s.npc_id).is_some_and(|t| t.type_name == "ControlTower");
             if let Some(siege) = world.sieges.get_mut(&castle_id) {
                 siege.spawned_npcs.push(oid);
+                if is_control_tower {
+                    siege.control_tower_count += 1;
+                }
             }
         }
+    }
+}
+
+/// Whether an NPC is a siege tower (control / flame) standing in an active
+/// siege zone — attackable so attackers can tear it down.
+pub(crate) fn attackable_siege_tower(world: &World, npc_oid: i32) -> bool {
+    let is_tower = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .and_then(|n| n.template(world))
+        .is_some_and(|t| matches!(t.type_name.as_str(), "ControlTower" | "FlameTower"));
+    if !is_tower {
+        return false;
+    }
+    let Some(pos) = world.objects.get_component::<Position>(&npc_oid) else { return false };
+    match world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) {
+        Some(castle_id) => world.sieges.get(&castle_id).is_some_and(|s| s.in_progress),
+        None => false,
+    }
+}
+
+/// Java `Siege.killedCT` — a control tower fell; decrement its castle's live
+/// count. At 0 the defenders lose their castle respawn.
+pub(crate) fn killed_control_tower(world: &mut World, npc_oid: i32) {
+    let is_ct = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .and_then(|n| n.template(world))
+        .is_some_and(|t| t.type_name == "ControlTower");
+    if !is_ct {
+        return;
+    }
+    let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied() else { return };
+    let Some(castle_id) = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) else { return };
+    if let Some(siege) = world.sieges.get_mut(&castle_id) {
+        siege.control_tower_count = (siege.control_tower_count - 1).max(0);
+        // TODO(G24): at 0, gate the defenders' castle respawn
+        // (ConditionPlayerCanResurrect) — the siege revive path is unported.
     }
 }
 

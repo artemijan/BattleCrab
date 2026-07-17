@@ -70,11 +70,21 @@ pub struct Siege {
     /// Object ids of the NPCs (siege guards / towers) spawned for this siege,
     /// despawned at `endSiege`.
     pub spawned_npcs: Vec<i32>,
+    /// Java `_controlTowerCount` — live control towers. Set on spawn, decremented
+    /// as attackers destroy them; at 0 the defenders lose their castle respawn.
+    pub control_tower_count: i32,
 }
 
 impl Siege {
     pub fn new(castle_id: i32) -> Self {
-        Self { castle_id, clans: Vec::new(), in_progress: false, first_owner_clan_id: 0, spawned_npcs: Vec::new() }
+        Self {
+            castle_id,
+            clans: Vec::new(),
+            in_progress: false,
+            first_owner_clan_id: 0,
+            spawned_npcs: Vec::new(),
+            control_tower_count: 0,
+        }
     }
 
     /// Any clan registered as an ATTACKER (`getAttackerClans().isEmpty()`).
