@@ -160,6 +160,20 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
                 cs.send(server_packets::show_mini_map(0));
             }
         }
+        // RequestRecipeBookOpen (IN_GAME): the "Common Craft" / "Dwarven Craft"
+        // action. Body is one int (`0` = dwarven). Recipe books are unported, so
+        // reply with the player's max MP and an empty book — the window opens.
+        cop::REQUEST_RECIPE_BOOK_OPEN => {
+            if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id) {
+                let is_dwarven = body.get(..4).map(|b| i32::from_le_bytes([b[0], b[1], b[2], b[3]]) == 0).unwrap_or(true);
+                let max_mp = world
+                    .objects
+                    .get_component::<crate::model::components::Vitals>(&session.player_object_id())
+                    .map(|v| v.max_mp)
+                    .unwrap_or(0);
+                cs.send(server_packets::recipe_book_item_list(is_dwarven, max_mp, &[]));
+            }
+        }
         cop::LOGOUT => handle_logout(world, client_id),
         cop::REQUEST_RESTART => handle_request_restart(world, client_id),
         cop::EX_PACKET => on_ex_packet(world, client_id, body),

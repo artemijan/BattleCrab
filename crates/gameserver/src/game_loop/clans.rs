@@ -201,6 +201,41 @@ pub(crate) fn apply_clan_skills_to_member(world: &mut World, clan_id: i32, membe
     }
 }
 
+/// Java `SiegeManager.getSiegeClanMinLevel()` (siege.config default): a clan
+/// leader gets the siege/leader skills once the clan reaches this level.
+const SIEGE_CLAN_MIN_LEVEL: i32 = 5;
+
+/// Port of `SiegeManager.addSiegeSkills` — the clan-leader-only skills the
+/// client files under the "Clan" skill tab: Imprint of Light/Darkness and Build
+/// Headquarters, plus the two Outpost skills once the clan owns a castle. Java
+/// adds them with `addSkill(sk, false)` (transient, not persisted); we mirror
+/// that through the [`ClanSkills`] channel — they're active skills with no stat
+/// effects, so this only registers them for the merged `SkillList`.
+///
+/// Advanced Headquarters (326) is noble-only; nobility isn't tracked yet, so it
+/// is skipped. TODO(G24): the cast behaviour (flag/HQ spawn, castle engrave)
+/// lands with the siege-combat milestone; this only makes the skills appear.
+fn apply_siege_skills_to_leader(world: &mut World, clan_id: i32, member_oid: i32) {
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    if clan.leader_id != member_oid || clan.level < SIEGE_CLAN_MIN_LEVEL {
+        return;
+    }
+    let has_castle = clan.castle_id > 0;
+    let mut ids = vec![
+        19034, // Imprint of Light
+        19035, // Imprint of Darkness
+        247,   // Build Headquarters
+    ];
+    if has_castle {
+        ids.push(844); // Outpost Construction
+        ids.push(845); // Outpost Demolition
+    }
+    for id in ids {
+        apply_clan_skill_to_member(world, member_oid, id, 1);
+    }
+    refresh_member_skill_list(world, member_oid);
+}
+
 /// Java `Clan.removeSkillEffects(player)` — strip every clan skill from a member
 /// (clan left / dispersed): revert each passive buff and clear [`ClanSkills`].
 pub(crate) fn remove_clan_skills_from_member(world: &mut World, member_oid: i32) {
@@ -397,6 +432,12 @@ pub(crate) fn set_clan_level(world: &mut World, clan_id: i32, level: i32) {
         }
         super::party::broadcast_user_info(world, oid);
     }
+    // Java `Clan.changeLevel`: on reaching the siege min level the online leader
+    // gains the siege/leader skills (`SiegeManager.addSiegeSkills(leader)`).
+    let leader_id = world.clans.get(&clan_id).map(|c| c.leader_id).unwrap_or(0);
+    if leader_id != 0 && client_for_player(world, leader_id).is_some() {
+        apply_siege_skills_to_leader(world, clan_id, leader_id);
+    }
 }
 
 /// `Clan.addReputationScore` (admin `//pledge rep`): add signed points, clamp,
@@ -516,6 +557,9 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
     apply_clan_advent_on_login(world, clan_id, object_id);
     // Clan skills — Java `EnterWorld` → `clan.addSkillEffects(player)`.
     apply_clan_skills_to_member(world, clan_id, object_id);
+    // Siege/leader skills — Java `EnterWorld`: `if (clan.getLevel() >=
+    // siegeClanMinLevel && isClanLeader()) addSiegeSkills(player)`.
+    apply_siege_skills_to_leader(world, clan_id, object_id);
 }
 
 /// `Player.deleteMe`'s clan half: the offline ping to online members, plus the

@@ -1832,10 +1832,14 @@ fn admin_castlemanage_ownership_and_side() {
     drain(&mut rx);
     assert_eq!(world.castles[0].side, CastleSide::Dark, "side switched");
 
-    // //castlemanage 3 takeCastle → unowned again.
+    // //castlemanage 3 takeCastle → unowned + reverted to NEUTRAL (Java removeOwner).
+    drain_db(&mut db_rx);
     on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("castlemanage 3 takeCastle")].concat());
     drain(&mut rx);
     assert_eq!(world.clans[&500].castle_id, 0, "ownership removed");
+    assert_eq!(world.castles[0].side, CastleSide::Neutral, "side reverts to neutral on take");
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::UpdateCastleSide { castle_id: 3, side } if side == "NEUTRAL")), "neutral side persisted");
 
     // //castlemanage 3 startSiege → no attackers registered.
     world.sieges.insert(3, crate::model::siege::Siege::new(3));

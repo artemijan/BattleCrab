@@ -19,3 +19,27 @@ fn leave_world_sends_delete_object_to_watchers() {
     assert_eq!(world.objects.get_component::<TargetRef>(&6302).unwrap().0, None, "dangling target dropped");
     assert!(far_rx.try_recv().is_err());
 }
+
+/// A clan leader coming into view sends the observer a `RelationChanged` with
+/// the `RELATION_LEADER` (0x80) crown bit — even with no siege — because
+/// `CharInfo` carries no is-leader field (Java `Player.sendInfo`).
+#[test]
+fn clan_leader_crown_relation_sent_on_entering_view() {
+    use crate::model::Player;
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    let _leader_rx = ingame_player(&mut world, 1, 6401, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&6401).unwrap();
+        p.clan_id = 7;
+        p.clan_leader = true;
+    }
+    let mut obs_rx = ingame_player(&mut world, 2, 6402, 200, 0, 0);
+    // The observer's knownlist add exchanges CharInfo + RelationChanged.
+    super::visibility::on_enter_world(&world, 2, 6402);
+    let saw_crown = drain(&mut obs_rx).iter().any(|p| {
+        p[0] == server_packets::opcodes::RELATION_CHANGED
+            && i32::from_le_bytes(p[2..6].try_into().unwrap()) == 6401
+            && i32::from_le_bytes(p[6..10].try_into().unwrap()) & 0x80 != 0
+    });
+    assert!(saw_crown, "leader entering view sends RelationChanged with the 0x80 crown bit");
+}

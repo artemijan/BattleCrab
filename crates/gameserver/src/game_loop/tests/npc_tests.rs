@@ -373,13 +373,16 @@ fn region_crossing_exchanges_delete_object_and_char_info() {
         world.tick += 1;
         visibility::movement_tick(&mut world);
     }
+    // CharInfo, its paired RelationChanged (Java `sendInfo`), then the in-flight move.
     let to_watcher = drain(&mut watcher_rx);
-    assert_eq!(to_watcher.len(), 2);
+    assert_eq!(to_watcher.len(), 3);
     assert_eq!(char_info_object_id(&to_watcher[0]), 6201);
-    assert_eq!(to_watcher[1][0], server_packets::opcodes::MOVE_TO_LOCATION);
+    assert_eq!(to_watcher[1][0], server_packets::opcodes::RELATION_CHANGED);
+    assert_eq!(to_watcher[2][0], server_packets::opcodes::MOVE_TO_LOCATION);
     let to_mover = drain(&mut mover_rx);
-    assert_eq!(to_mover.len(), 1, "watcher isn't moving → CharInfo only");
+    assert_eq!(to_mover.len(), 2, "watcher isn't moving → CharInfo + RelationChanged only");
     assert_eq!(char_info_object_id(&to_mover[0]), 6202);
+    assert_eq!(to_mover[1][0], server_packets::opcodes::RELATION_CHANGED);
 }
 
 /// dontMove is independent of the force modifier: a shift-click arrives on the

@@ -253,9 +253,13 @@ fn enter_world_exchanges_char_info_with_nearby_players_only() {
 
     handle_enter_world(&mut world, 3);
 
-    // The nearby player learns about the newcomer…
+    // The nearby player learns about the newcomer — CharInfo then the paired
+    // RelationChanged (Java `sendInfo`), and nothing more.
     let pkt = near_rx.try_recv().expect("nearby player must get CharInfo");
     assert_eq!(char_info_object_id(&pkt), 6003);
+    let rc = near_rx.try_recv().expect("nearby player must get the paired RelationChanged");
+    assert_eq!(rc[0], server_packets::opcodes::RELATION_CHANGED);
+    assert_eq!(i32::from_le_bytes(rc[2..6].try_into().unwrap()), 6003);
     assert!(near_rx.try_recv().is_err());
     // …the far one (regions (4,4) vs (0,0)) hears nothing…
     assert!(far_rx.try_recv().is_err(), "far player must not get CharInfo");

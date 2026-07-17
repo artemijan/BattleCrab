@@ -36,6 +36,12 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
         _ => return, // unknown castle or already in progress
     }
 
+    // Java `updatePlayerSiegeStateFlags(false)` + `updateZoneStatusForCharacters
+    // Inside`: now that the siege is active, participants standing in the zone
+    // gain the in-siege crown (UserInfo 0x80) + attackable icon. Runs before the
+    // teleport below, matching Java's order.
+    super::zones::refresh_siege_zone_for_all(world);
+
     // "The <castle> siege has started." + the siege sound, to everyone.
     broadcast_sm(world, sm_ids::THE_S1_SIEGE_HAS_STARTED, castle_id);
     broadcast_to_all(world, &server_packets::play_sound("systemmsg_eu.17"));
@@ -73,6 +79,10 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
         }
         _ => return, // unknown castle or not in progress
     };
+
+    // Java `updatePlayerSiegeStateFlags(true)`: the siege is over, so clear the
+    // in-siege crown/icon from everyone who was on the (now inactive) field.
+    super::zones::refresh_siege_zone_for_all(world);
 
     broadcast_sm(world, sm_ids::THE_S1_SIEGE_HAS_FINISHED, castle_id);
     broadcast_to_all(world, &server_packets::play_sound("systemmsg_eu.18"));

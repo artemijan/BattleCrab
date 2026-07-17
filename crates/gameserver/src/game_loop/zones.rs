@@ -72,36 +72,63 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         super::party::broadcast_user_info(world, object_id);
     }
 
-    // SiegeZone.onEnter/onExit: a siege zone is a combat zone only while its
-    // castle's siege runs, which the membership mask can't express — so track
-    // the active-siege state separately. Entering shows the combat-zone message;
-    // leaving shows the exit message and flags the player (Java `startPvPFlag`),
-    // which the PvP task then blinks out.
-    let now_active_siege = super::pvp::active_siege_castle(world, object_id).is_some();
-    if now_active_siege != flags.in_active_siege {
-        if let Some(f) = world.objects.get_component_mut::<ZoneFlags>(&object_id) {
-            f.in_active_siege = now_active_siege;
-        }
-        let msg = if now_active_siege {
-            server_packets::sm_ids::YOU_HAVE_ENTERED_A_COMBAT_ZONE
-        } else {
-            server_packets::sm_ids::YOU_HAVE_LEFT_A_COMBAT_ZONE
-        };
-        if let Some(cs) = client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid)) {
-            cs.send(server_packets::system_message_with(msg, &[]));
-        }
-        // Show (on enter) or clear (on exit) the attackable siege icon between
-        // this player and everyone nearby — the client won't render it otherwise
-        // (`Player.broadcastRelationChanged`).
-        super::pvp::broadcast_siege_relation(world, object_id);
-        if !now_active_siege {
-            super::pvp::start_pvp_flag_on_siege_exit(world, object_id);
-        }
-    }
+    // SiegeZone.onEnter/onExit — see `refresh_siege_zone_flag`.
+    refresh_siege_zone_flag(world, object_id);
 
     // Peace/NoRestart have no enter/exit side effects — membership itself is
     // the state their consumers check (`is_inside_peace_zone`; NO_RESTART has
     // no reader in this Mobius version beyond the login-inside teleport).
+}
+
+/// `SiegeZone.onEnter/onExit` for one player: a siege zone is a combat zone only
+/// while its castle's siege runs, which the membership mask can't express — so
+/// the active-siege state is tracked separately. On a change: flip the flag, show
+/// the combat-zone message, rebroadcast UserInfo (the in-siege **crown** bit,
+/// Java `updatePlayerSiegeStateFlags` → `updateUserInfo`) and RelationChanged
+/// (the attackable siege icon), and — on exit — flag the player (`startPvPFlag`),
+/// which the PvP task then blinks out.
+pub(crate) fn refresh_siege_zone_flag(world: &mut World, object_id: i32) {
+    let now_active_siege = super::pvp::active_siege_castle(world, object_id).is_some();
+    let was = world.objects.get_component::<ZoneFlags>(&object_id).is_some_and(|f| f.in_active_siege);
+    if now_active_siege == was {
+        return;
+    }
+    if let Some(f) = world.objects.get_component_mut::<ZoneFlags>(&object_id) {
+        f.in_active_siege = now_active_siege;
+    }
+    let msg = if now_active_siege {
+        server_packets::sm_ids::YOU_HAVE_ENTERED_A_COMBAT_ZONE
+    } else {
+        server_packets::sm_ids::YOU_HAVE_LEFT_A_COMBAT_ZONE
+    };
+    if let Some(cs) = client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid)) {
+        cs.send(server_packets::system_message_with(msg, &[]));
+    }
+    // UserInfo — the in-siege crown bit (0x80) toggles with zone presence.
+    super::party::broadcast_user_info(world, object_id);
+    // RelationChanged — the attackable siege icon vs everyone nearby.
+    super::pvp::broadcast_siege_relation(world, object_id);
+    if !now_active_siege {
+        super::pvp::start_pvp_flag_on_siege_exit(world, object_id);
+    }
+}
+
+/// Java `Castle.getZone().updateZoneStatusForCharactersInside()` — on siege
+/// start/end, re-run the siege-zone check for every in-game player so those
+/// standing in the castle's zone gain/lose the in-siege crown + attackable icon
+/// the moment the siege flips (they never crossed a zone boundary themselves).
+pub(crate) fn refresh_siege_zone_for_all(world: &mut World) {
+    let players: Vec<i32> = world
+        .clients
+        .values()
+        .filter_map(|cs| match cs {
+            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        })
+        .collect();
+    for oid in players {
+        refresh_siege_zone_flag(world, oid);
+    }
 }
 
 /// Java `Creature.isInsidePeaceZone(attacker, target)` narrowed to the

@@ -231,6 +231,84 @@ fn siege_zone_broadcasts_attackable_relation_on_enter() {
     assert!(is_attackable_rc(&drain(&mut b_rx), 3001), "B sees A as an attackable siege enemy");
 }
 
+/// A clan leader's siege `RelationChanged` carries the leader bit (`0x80`,
+/// `RELATION_LEADER`) that draws the on-head crown — the RelationChanged layout,
+/// distinct from UserInfo's (where the leader bit is `0x40`).
+#[test]
+fn siege_relation_carries_clan_leader_crown_bit() {
+    use crate::model::components::Position;
+    use crate::model::siege::Siege;
+    use crate::model::Player;
+    let (mut world, ..) = cast_test_world();
+    insert_siege_zone(&mut world, 3, 5000, 6000, -500, 500);
+    world.sieges.insert(3, {
+        let mut s = Siege::new(3);
+        s.in_progress = true;
+        s
+    });
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 5500, 0); // clan leader, inside
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.clan_id = 42;
+        p.clan_leader = true;
+    }
+    super::zones::revalidate_zone(&mut world, 3001, true);
+    let mut b_rx = ingame_caster(&mut world, 2, 3002, 0, 0); // outside
+    super::zones::revalidate_zone(&mut world, 3002, true);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    // B walks into the active siege zone; the relation broadcast about the leader
+    // (3001) must set the crown bit alongside the siege enemy bits.
+    world.objects.get_component_mut::<Position>(&3002).unwrap().x = 5500;
+    world.objects.get_component_mut::<crate::model::components::RegionCell>(&3002).unwrap().0 =
+        crate::world::region_of(5500, 0);
+    super::zones::revalidate_zone(&mut world, 3002, false);
+
+    let leader_crown_rc = drain(&mut b_rx).iter().any(|p| {
+        p[0] == server_packets::opcodes::RELATION_CHANGED
+            && i32::from_le_bytes(p[2..6].try_into().unwrap()) == 3001
+            && {
+                let rel = i32::from_le_bytes(p[6..10].try_into().unwrap());
+                rel & 0x80 != 0 // RELATION_LEADER (crown)
+            }
+    });
+    assert!(leader_crown_rc, "the leader's siege RelationChanged sets the 0x80 crown bit");
+}
+
+/// The UserInfo relation's in-siege bit (0x80 — the siege crown) is set for a
+/// registered siege participant standing in the active siege zone, and only
+/// then: not for a non-participant in the same zone, and not once the siege ends.
+#[test]
+fn user_info_relation_sets_in_siege_crown_bit_for_participant() {
+    use crate::model::siege::{Siege, SiegeClanType};
+    use crate::model::Player;
+    let (mut world, ..) = cast_test_world();
+    insert_siege_zone(&mut world, 3, 5000, 6000, -500, 500);
+    world.sieges.insert(3, {
+        let mut s = Siege::new(3);
+        s.in_progress = true;
+        s.add_clan(77, SiegeClanType::Attacker);
+        s
+    });
+    // Registered attacker (clan 77) and a non-participant (clan 88), both inside.
+    let _rx = ingame_caster(&mut world, 1, 3001, 5500, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = 77;
+    let _rx2 = ingame_caster(&mut world, 2, 3002, 5500, 0);
+    world.objects.get_component_mut::<Player>(&3002).unwrap().clan_id = 88;
+
+    let rel = |world: &World, oid: i32| {
+        let p = world.objects.get_component::<Player>(&oid).unwrap().clone();
+        super::party::calculate_relation(world, &p)
+    };
+    assert!(rel(&world, 3001) & 0x80 != 0, "registered participant in the active siege zone gets the crown bit");
+    assert!(rel(&world, 3002) & 0x80 == 0, "a non-participant in the zone does not");
+
+    // Siege no longer in progress → the bit clears.
+    world.sieges.get_mut(&3).unwrap().in_progress = false;
+    assert!(rel(&world, 3001) & 0x80 == 0, "the crown bit clears once the siege ends");
+}
+
 /// The 100-unit revalidation filter: a small drift does not re-run the zone
 /// query (the water flag stays stale until a real move), a forced call does.
 #[test]

@@ -89,11 +89,11 @@ pub(crate) fn broadcast_to_party(world: &World, party_id: u32, packet: &[u8], ex
     }
 }
 
-/// Java `UserInfo.calculateRelation` — the party/clan relation bitmask the
+/// Java `UserInfo.calculateRelation` — the party/clan/siege relation bitmask the
 /// `UserInfo` RELATION block carries. Party membership comes off the
 /// `PartyRef` component (absent → not in a party), clan off the `Player`.
-/// The siege bit (`0x80`) is unported. Takes `&Player` so the clan bits are
-/// correct even before the object is registered (the enter-world burst).
+/// Takes `&Player` so the clan bits are correct even before the object is
+/// registered (the enter-world burst).
 pub(crate) fn calculate_relation(world: &World, player: &Player) -> i32 {
     let mut relation = 0;
     if let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&player.object_id).copied() {
@@ -108,6 +108,36 @@ pub(crate) fn calculate_relation(world: &World, player: &Player) -> i32 {
         relation |= 0x20; // clan member
         if player.clan_leader {
             relation |= 0x40; // clan leader
+        }
+    }
+    if super::pvp::is_in_siege(world, player.object_id) {
+        relation |= 0x80; // in siege — draws the siege crown (Java `isInSiege()`)
+    }
+    relation
+}
+
+/// Java `Player.getRelation(target)` — the bitmask the **`RelationChanged`**
+/// packet carries. This is a *different* layout from [`calculate_relation`]
+/// (which is `UserInfo`'s): here clan member is `0x40` and the clan-leader bit
+/// (the one that draws the on-head crown) is `0x80`. Only the target-independent
+/// bits the port models are produced; the siege enemy/ally bits are folded in
+/// per-viewer by the caller, and clan-mate (`0x100`)/ally/party-index encoding
+/// are TODO (they need the viewer and a fuller party model).
+pub(crate) fn relation_changed_base(world: &World, oid: i32) -> i32 {
+    let Some(p) = world.objects.get_component::<Player>(&oid) else { return 0 };
+    let mut relation = 0;
+    if let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&oid).copied() {
+        if world.parties.get(&pid).is_some() {
+            relation |= 0x20; // RELATION_HAS_PARTY
+            if world.parties.get(&pid).is_some_and(|party| party.is_leader(oid)) {
+                relation |= 0x10; // RELATION_PARTYLEADER
+            }
+        }
+    }
+    if p.clan_id > 0 {
+        relation |= 0x40; // RELATION_CLAN_MEMBER
+        if p.clan_leader {
+            relation |= 0x80; // RELATION_LEADER — draws the clan-leader crown
         }
     }
     relation

@@ -76,6 +76,9 @@ pub mod opcodes {
     pub const REQUEST_SEND_FRIEND_MSG: u8 = 0x6B;
     /// `RequestShowMiniMap` — the client's map button (empty body).
     pub const REQUEST_SHOW_MINI_MAP: u8 = 0x6C;
+    /// `RequestRecipeBookOpen` — the "Common Craft" / "Dwarven Craft" action;
+    /// body is one int (`0` = dwarven craft, else common).
+    pub const REQUEST_RECIPE_BOOK_OPEN: u8 = 0xB5;
     pub const REQUEST_FRIEND_INVITE: u8 = 0x77;
     pub const REQUEST_ANSWER_FRIEND_INVITE: u8 = 0x78;
     pub const REQUEST_FRIEND_LIST: u8 = 0x79;

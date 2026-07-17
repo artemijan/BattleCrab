@@ -259,6 +259,9 @@ fn pledge_class_table_matches_calculate_pledge_class() {
         (6, 5, 3),
         (7, 7, 4),
         (8, 8, 5),
+        (9, 9, 6),
+        (10, 10, 7),
+        (11, 11, 8),
     ] {
         clan.level = level;
         assert_eq!(clan.pledge_class_of(10), leader, "leader at clan level {level}");
@@ -405,6 +408,54 @@ fn give_clan_skills_grants_gates_and_persists() {
     assert!(!clan_skill(&world, 3001, 370) && !clan_skill(&world, 3001, 371), "leader clan skills cleared on disperse");
     assert!(!has_passive_buff(&world, 3001, 370), "leader clan-skill buff reverted");
     assert!(!clan_skill(&world, 3002, 370), "member clan skills cleared on disperse");
+}
+
+/// Siege/leader skills (Java `SiegeManager.addSiegeSkills`): a clan leader gains
+/// Build Headquarters (247) + Imprint of Light/Darkness (19034/19035) once the
+/// clan reaches level 5, the two Outpost skills (844/845) only with a castle;
+/// regular members get none. Delivered through the transient [`ClanSkills`]
+/// channel so they show in the merged SkillList without persisting.
+#[test]
+fn siege_skills_granted_to_level5_clan_leader_only() {
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::components::ClanSkills;
+
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    let clan_id = 0x3000_0077;
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0 };
+    world.clans.insert(
+        clan_id,
+        Clan { id: clan_id, name: "SiegeClan".into(), leader_id: 3001, level: 4, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default() },
+    );
+    for oid in [3001, 3002] {
+        world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
+    }
+
+    let has = |world: &World, oid: i32, id: i32| {
+        world.objects.get_component::<ClanSkills>(&oid).is_some_and(|c| c.0.contains_key(&id))
+    };
+
+    // Level 4: below the siege min level — the leader gets no siege skills.
+    crate::game_loop::clans::on_enter_world(&mut world, 1, 3001);
+    assert!(!has(&world, 3001, 247), "no siege skills below clan level 5");
+
+    // Reaching level 5 grants the three core siege skills to the online leader.
+    crate::game_loop::clans::set_clan_level(&mut world, clan_id, 5);
+    for id in [247, 19034, 19035] {
+        assert!(has(&world, 3001, id), "leader gains siege skill {id} at clan level 5");
+    }
+    // No castle yet → no Outpost skills.
+    assert!(!has(&world, 3001, 844) && !has(&world, 3001, 845), "Outpost skills need a castle");
+    // A regular member never gets siege skills.
+    crate::game_loop::clans::on_enter_world(&mut world, 2, 3002);
+    assert!(!has(&world, 3002, 247), "non-leader member gets no siege skills");
+
+    // Owning a castle adds the two Outpost skills on the leader's next login.
+    world.clans.get_mut(&clan_id).unwrap().castle_id = 3;
+    crate::game_loop::clans::on_enter_world(&mut world, 1, 3001);
+    assert!(has(&world, 3001, 844) && has(&world, 3001, 845), "castle owner gets Outpost skills");
 }
 
 /// A member logging in re-derives the clan's skills (Java `addSkillEffects` on

@@ -68,6 +68,17 @@ pub(crate) fn active_siege_castle(world: &World, oid: i32) -> Option<i32> {
     world.sieges.get(&castle_id).filter(|s| s.in_progress).map(|_| castle_id)
 }
 
+/// Java `Player.isInSiege()` as the UserInfo relation reads it: the player is a
+/// registered participant of an active siege *and* stands in that castle's siege
+/// zone. This sets the in-siege bit (0x80) that puts the siege crown on their
+/// character — Java `Siege.updatePlayerSiegeStateFlags` does `setInSiege(true)`
+/// only for attacker/defender clan members inside the zone (`checkIfInZone`).
+pub(crate) fn is_in_siege(world: &World, oid: i32) -> bool {
+    let Some(castle_id) = active_siege_castle(world, oid) else { return false };
+    let clan_id = world.objects.get_component::<Player>(&oid).map_or(0, |p| p.clan_id);
+    clan_id != 0 && world.sieges.get(&castle_id).is_some_and(|s| s.is_registered(clan_id))
+}
+
 /// Both creatures stand in the *same* castle's active siege zone (Java
 /// `SiegeZone` active → siege PvP).
 fn in_active_siege_together(world: &World, a_oid: i32, b_oid: i32) -> bool {
@@ -168,9 +179,31 @@ fn siege_relation_bits(world: &World, viewer_oid: i32, target_oid: i32) -> i32 {
     }
 }
 
+/// Java `Player.sendInfo`'s `RelationChanged` half: how `subject` relates to
+/// `viewer` right now — the clan-leader crown (`RELATION_LEADER`), clan/party
+/// bits, the siege enemy state — plus whether `subject` is attackable by
+/// `viewer`. Emitted next to every `CharInfo` so a clan leader's crown shows the
+/// moment they come into view, not only inside a siege zone (the crown rides
+/// `RelationChanged`, since `CharInfo` carries no is-leader field).
+pub(crate) fn sendinfo_relation_changed(world: &World, subject_oid: i32, viewer_oid: i32) -> Vec<u8> {
+    let base = super::party::relation_changed_base(world, subject_oid);
+    let siege = siege_relation_bits(world, viewer_oid, subject_oid);
+    let reputation = world.objects.get_component::<Player>(&subject_oid).map_or(0, |p| p.reputation);
+    server_packets::relation_changed(
+        subject_oid,
+        base | siege,
+        is_player_auto_attackable(world, viewer_oid, subject_oid),
+        reputation,
+        flag_of(world, subject_oid),
+    )
+}
+
 fn relation_parts(world: &World, oid: i32) -> (i32, i32, u8) {
     let Some(p) = world.objects.get_component::<Player>(&oid) else { return (0, 0, 0) };
-    (super::party::calculate_relation(world, p), p.reputation, flag_of(world, oid))
+    // RelationChanged uses `Player.getRelation`'s bitmask (leader = 0x80), not
+    // `UserInfo.calculateRelation`'s (leader = 0x40) — the former is what carries
+    // the on-head clan-leader crown.
+    (super::party::relation_changed_base(world, oid), p.reputation, flag_of(world, oid))
 }
 
 /// Java `Player.broadcastRelationChanged`, for the siege case: refresh how
@@ -264,13 +297,16 @@ pub(crate) fn update_pvp_flag(world: &mut World, object_id: i32, value: u8) {
             &[(server_packets::status_update_type::PVP_FLAG, value as i32)],
         ),
     );
-    // RelationChanged → nearby players. `relation` is 0 (no party/clan), and
-    // `auto_attackable` is the viewer-independent core (flagged or PK).
+    // RelationChanged → nearby players. Carry the player's real relation bits
+    // (Java `broadcastRelationChanged` sends `getRelation`), not 0 — otherwise a
+    // flag change would strip a clan leader's on-head crown. `auto_attackable` is
+    // the viewer-independent core (flagged or PK).
     let auto_attackable = value > 0 || reputation < 0;
+    let relation = super::party::relation_changed_base(world, object_id);
     super::helpers::broadcast_to_others(
         world,
         object_id,
-        &server_packets::relation_changed(object_id, 0, auto_attackable, reputation, value),
+        &server_packets::relation_changed(object_id, relation, auto_attackable, reputation, value),
     );
 }
 

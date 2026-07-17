@@ -29,6 +29,7 @@ pub const RESTART_RESPONSE: u8 = 0x71;
 pub const LOG_OUT_OK: u8 = 0x84;
 pub const SETUP_GAUGE: u8 = 0x6B;
 pub const SKILL_COOL_TIME: u8 = 0xC7;
+pub const RECIPE_BOOK_ITEM_LIST: u8 = 0xDC;
 pub const ACQUIRE_SKILL_DONE: u8 = 0x94;
 pub const MY_TARGET_SELECTED: u8 = 0xB9;
 pub const DIE: u8 = 0x00;

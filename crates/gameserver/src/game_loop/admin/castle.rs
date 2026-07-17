@@ -160,6 +160,9 @@ fn take_castle(world: &mut World, client_id: u32, idx: usize) {
                 clan.castle_id = 0;
             }
             let _ = world.db.send(DbCommand::UpdateClanCastle { clan_id, castle_id: 0 });
+            // Java `removeOwner` reverts the castle to NEUTRAL (`setSide`).
+            world.castles[idx].side = CastleSide::Neutral;
+            let _ = world.db.send(DbCommand::UpdateCastleSide { castle_id, side: CastleSide::Neutral.as_db().to_string() });
             // TODO(G24): remove residential skills + crest (Castle.removeOwner).
         }
         None => send_message(world, client_id, "Error during removing castle!"),

@@ -55,10 +55,13 @@ impl Clan {
 
     /// The pledge class a member of this clan holds — Java
     /// `ClanMember.calculatePledgeClass`, narrowed to the main clan (`pledgeType
-    /// == 0`), the only pledge type the port models (no academy/royal/order
-    /// sub-pledges yet). Interlude clan levels cap at 8; a clan below level 4
-    /// yields 0 for everyone, so the on-head rank crown only appears once the
-    /// clan is developed enough — matching retail.
+    /// == 0`) with the default sub-pledge, the only pledge shape the port models
+    /// (no academy/royal/order sub-pledges yet). Clan levels run to 11 on this
+    /// dist; a clan below level 4 yields 0 for everyone, so the on-head rank
+    /// crown (which the client draws from this value, sent in UserInfo/CharInfo)
+    /// only appears once the clan is developed enough — matching retail. A clan
+    /// leader's value climbs with the clan level (…7→7, 8→8, …, 11→11), which is
+    /// what puts the crown over a high-level leader's head.
     pub fn pledge_class_of(&self, char_id: i32) -> u8 {
         let is_leader = char_id == self.leader_id;
         match self.level {
@@ -67,6 +70,9 @@ impl Clan {
             6 => if is_leader { 5 } else { 3 },
             7 => if is_leader { 7 } else { 4 },
             8 => if is_leader { 8 } else { 5 },
+            9 => if is_leader { 9 } else { 6 },
+            10 => if is_leader { 10 } else { 7 },
+            11 => if is_leader { 11 } else { 8 },
             _ => 0,
         }
     }
