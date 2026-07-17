@@ -1179,6 +1179,102 @@ fn siege_attacker_hq_flag_is_respawn_point_and_destructible() {
     assert!(!crate::game_loop::siege::attackable_siege_flag(&world, flag));
 }
 
+/// Register a stationed siege guard (`Defender`, npc 35085) in a running siege
+/// for castle 3, plus an attacker clan (700, owns no castle) whose member is
+/// `player_oid`. Returns the guard oid.
+fn setup_siege_with_guard(world: &mut World, guard_oid: i32, gx: i32, gy: i32) {
+    use crate::model::siege::Siege;
+    insert_siege_zone(world, 3, -2000, 2000, -2000, 2000);
+    world.sieges.insert(3, {
+        let mut s = Siege::new(3);
+        s.in_progress = true;
+        s
+    });
+    let mut t = crate::data::npc_data::default_template(35085);
+    t.type_name = "Defender".into();
+    t.aggro_range = 1000;
+    t.base_hp_max = 500.0;
+    t.base_p_atk = 50.0;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(world, guard_oid, 35085, "Defender", 75, gx, gy, 0);
+}
+
+fn attacker_clan(world: &mut World, player_oid: i32) {
+    use crate::model::clan::{Clan, ClanMember};
+    world.clans.insert(
+        700,
+        Clan {
+            id: 700,
+            name: "Attackers".into(),
+            leader_id: player_oid,
+            level: 5,
+            reputation_score: 0,
+            castle_id: 0,
+            members: vec![ClanMember { char_id: player_oid, name: "P".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
+            warehouse: Default::default(),
+        },
+    );
+    world.objects.get_component_mut::<Player>(&player_oid).unwrap().clan_id = 700;
+}
+
+/// A stationed guard is attackable by an attacker (no Ctrl) but not by a
+/// defender, and clicking it starts an attack instead of a chat window (Java
+/// `Defender.isAutoAttackable` / `onAction`).
+#[test]
+fn siege_guard_attackable_by_attacker_not_defender() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let guard = NPC_OID + 40;
+    setup_siege_with_guard(&mut world, guard, 40, 0);
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    attacker_clan(&mut world, 3001);
+
+    assert!(
+        crate::game_loop::siege::attackable_siege_guard(&world, guard, 3001),
+        "guard attackable by an attacker"
+    );
+    // If that clan instead owns the castle it is a defender → not attackable.
+    world.clans.get_mut(&700).unwrap().castle_id = 3;
+    assert!(
+        !crate::game_loop::siege::attackable_siege_guard(&world, guard, 3001),
+        "guard not attackable by a defender"
+    );
+    world.clans.get_mut(&700).unwrap().castle_id = 0;
+
+    // Clicking the already-targeted guard attacks it (not a menu).
+    set_target(&mut world, 1, 3001, Some(guard));
+    interact_with_npc(&mut world, 1, 3001, guard, false);
+    assert!(
+        matches!(world.objects.get_component::<Intent>(&3001), Some(Intent(crate::model::PlayerIntent::Attack { .. }))),
+        "click starts an attack on the guard"
+    );
+}
+
+/// A guard defends the castle: it aggros an intruding attacker within its aggro
+/// range and switches to the attack intent (Java `SiegeGuardAI` aggro scan).
+#[test]
+fn siege_guard_aggros_intruding_attacker() {
+    use crate::model::npc::{AggroList, NpcAi, NpcIntention};
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let guard = NPC_OID + 41;
+    setup_siege_with_guard(&mut world, guard, 120, 0);
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0); // attacker, in aggro range
+    attacker_clan(&mut world, 3001);
+    // Skip the spawn-calm so a single think acts.
+    world.objects.get_component_mut::<NpcAi>(&guard).unwrap().global_aggro = 0;
+
+    npc_ai::npc_ai_tick(&mut world);
+
+    assert!(
+        world.objects.get_component::<AggroList>(&guard).unwrap().0.contains_key(&3001),
+        "the attacker entered the guard's aggro list"
+    );
+    assert_eq!(
+        world.objects.get_component::<NpcAi>(&guard).unwrap().intention,
+        NpcIntention::Attack,
+        "guard locks on to defend the castle"
+    );
+}
+
 /// A `RequestRestartPoint` body for the given point type.
 fn restart_to(point_type: i32) -> Vec<u8> {
     let mut w = PacketWriter::new();

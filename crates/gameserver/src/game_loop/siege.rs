@@ -278,6 +278,54 @@ pub(crate) fn killed_siege_flag(world: &mut World, npc_oid: i32) {
     }
 }
 
+/// Whether `player_oid`'s clan defends `castle_id` — the castle owner or a
+/// registered defender clan (Java `Siege.checkIsDefender`, which counts the
+/// owner). Non-players and clanless players are never defenders.
+pub(crate) fn is_siege_defender(world: &World, castle_id: i32, player_oid: i32) -> bool {
+    let Some(clan_id) = world.objects.get_component::<Player>(&player_oid).map(|p| p.clan_id) else {
+        return false;
+    };
+    if clan_id == 0 {
+        return false;
+    }
+    if world.clans.get(&clan_id).is_some_and(|c| c.castle_id == castle_id) {
+        return true;
+    }
+    world.sieges.get(&castle_id).is_some_and(|s| {
+        s.clans
+            .iter()
+            .any(|c| c.clan_id == clan_id && matches!(c.kind, SiegeClanType::Owner | SiegeClanType::Defender))
+    })
+}
+
+/// The castle whose active siege a stationed guard (`Defender`) is standing in,
+/// if any — the guard's employer.
+pub(crate) fn active_siege_guard_castle(world: &World, guard_oid: i32) -> Option<i32> {
+    let is_guard = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&guard_oid)
+        .and_then(|n| n.template(world))
+        .is_some_and(|t| t.type_name == "Defender");
+    if !is_guard {
+        return None;
+    }
+    let pos = world.objects.get_component::<Position>(&guard_oid)?;
+    let castle_id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z)?;
+    world.sieges.get(&castle_id).filter(|s| s.in_progress).map(|_| castle_id)
+}
+
+/// Whether a stationed siege guard (`Defender`) is attackable by `attacker_oid`:
+/// the guard stands in an active siege zone and the attacker is not one of that
+/// castle's defenders (Java `Defender.isAutoAttackable` — attackable during the
+/// siege by anyone who isn't a registered defender of this field). The same
+/// predicate decides who a guard aggros (its enemies).
+pub(crate) fn attackable_siege_guard(world: &World, guard_oid: i32, attacker_oid: i32) -> bool {
+    match active_siege_guard_castle(world, guard_oid) {
+        Some(castle_id) => !is_siege_defender(world, castle_id, attacker_oid),
+        None => false,
+    }
+}
+
 /// Despawn every NPC spawned for this siege (Java `removeSiegeGuards` + the
 /// control/flame towers — the latter unported yet).
 fn despawn_siege_npcs(world: &mut World, castle_id: i32) {

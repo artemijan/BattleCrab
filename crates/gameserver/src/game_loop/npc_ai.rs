@@ -153,9 +153,10 @@ fn think(world: &mut World, npc_oid: i32) {
         return;
     }
     let Some(t) = npc.template(world) else { return };
-    // Only the Attackable subtree has this AI; the slice narrows further to
-    // monsters (guards need the karma system to have anything to do).
-    if !t.is_monster() {
+    // Only the Attackable subtree has this AI; the slice narrows to monsters —
+    // plus stationed siege guards (`Defender`) while their castle's siege runs,
+    // which use the same scan/attack/chase to defend against attackers.
+    if !t.is_monster() && super::siege::active_siege_guard_castle(world, npc_oid).is_none() {
         return;
     }
     let _ = npc;
@@ -325,6 +326,44 @@ fn think_active(world: &mut World, npc_oid: i32) {
                 let entry = aggro.0.entry(player_oid).or_default();
                 if entry.hate == 0.0 {
                     entry.hate = 1.0;
+                }
+            }
+        }
+    }
+
+    // Siege guards (`Defender`) defend the castle: they aggro their employer's
+    // enemies within aggro range regardless of the `isAggressive` flag (Java
+    // `SiegeGuardAI` — the guard's own aggro scan). Reuses the hate → attack →
+    // chase machinery below. `aggro_range` comes from the template (1000 for the
+    // stock guards); the enemy filter (anyone but a defender of this castle) is
+    // `attackable_siege_guard`.
+    if aggro_range > 0 {
+        if let Some(_castle) = super::siege::active_siege_guard_castle(world, npc_oid) {
+            let (nx, ny, nz) = {
+                let pos = world.objects.get_component::<Position>(&npc_oid).expect("caller checked");
+                (pos.x, pos.y, pos.z)
+            };
+            let mut in_range: Vec<i32> = Vec::new();
+            {
+                let crate::world::World { objects, geo, .. } = &mut *world;
+                objects.for_each_mut::<(&crate::model::Player, &Position, &RegionCell, &Vitals)>(|(p, pos, r, v)| {
+                    if !v.dead
+                        && regions_adjacent(region, r.0)
+                        && (((pos.x - nx) as f64).powi(2) + ((pos.y - ny) as f64).powi(2)).sqrt() <= aggro_range as f64
+                        && geo.can_see_target(nx, ny, nz, pos.x, pos.y, pos.z)
+                    {
+                        in_range.push(p.object_id);
+                    }
+                });
+            }
+            // Keep only actual enemies (attackers / non-defenders).
+            in_range.retain(|&pid| super::siege::attackable_siege_guard(world, npc_oid, pid));
+            if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
+                for player_oid in in_range {
+                    let entry = aggro.0.entry(player_oid).or_default();
+                    if entry.hate == 0.0 {
+                        entry.hate = 1.0;
+                    }
                 }
             }
         }

@@ -301,16 +301,18 @@ pub(crate) fn start_attack_intent(
             return;
         }
     } else {
-        // NPCs: monsters (auto-attackable template) — plus siege towers, which
-        // attackers tear down during a siege. Guards/folk aren't attackable
-        // without the karma system.
+        // NPCs: monsters (auto-attackable template) — plus siege towers/flags,
+        // which combatants tear down during a siege, and the stationed guards,
+        // which attackers (anyone but a defender) may attack. Other folk aren't
+        // attackable without the karma system.
         let attackable = world
             .objects
             .get_component::<crate::model::npc::Npc>(&target_object_id)
             .and_then(|n| n.template(world))
             .is_some_and(|t| t.is_auto_attackable())
             || super::siege::attackable_siege_tower(world, target_object_id)
-            || super::siege::attackable_siege_flag(world, target_object_id);
+            || super::siege::attackable_siege_flag(world, target_object_id)
+            || super::siege::attackable_siege_guard(world, target_object_id, object_id);
         if !attackable || target_dead {
             if let Some(cs) = world.clients.get(&client_id) {
                 cs.send(server_packets::action_failed());

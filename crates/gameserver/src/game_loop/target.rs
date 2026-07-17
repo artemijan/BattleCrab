@@ -294,7 +294,9 @@ pub(crate) fn interact_with_npc(world: &mut World, client_id: u32, object_id: i3
     }
     let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_object_id) else { return };
     let Some(t) = npc.template(world) else { return };
-    if t.is_auto_attackable() {
+    // `Defender.onAction`: a siege guard is attacked on click (not talked to)
+    // when the clicker is an attacker — same gate as the monster auto-attack.
+    if t.is_auto_attackable() || super::siege::attackable_siege_guard(world, npc_object_id, object_id) {
         let dead = world.objects.get_component::<Vitals>(&object_id).is_some_and(|v| v.dead);
         if !dead {
             // Shift-click carries the dontMove modifier into the attack.
