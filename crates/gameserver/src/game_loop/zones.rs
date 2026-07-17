@@ -90,6 +90,10 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         if let Some(cs) = client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid)) {
             cs.send(server_packets::system_message_with(msg, &[]));
         }
+        // Show (on enter) or clear (on exit) the attackable siege icon between
+        // this player and everyone nearby — the client won't render it otherwise
+        // (`Player.broadcastRelationChanged`).
+        super::pvp::broadcast_siege_relation(world, object_id);
         if !now_active_siege {
             super::pvp::start_pvp_flag_on_siege_exit(world, object_id);
         }

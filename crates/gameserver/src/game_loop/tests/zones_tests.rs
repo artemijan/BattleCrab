@@ -188,6 +188,49 @@ fn siege_zone_combat_messages_and_leave_flag() {
     assert_eq!(world.objects.get_component::<PvpState>(&3001).unwrap().flag, 1, "flagged on leaving the siege zone");
 }
 
+/// Entering an active siege zone broadcasts the attackable siege relation
+/// (`RelationChanged` INSIEGE|ENEMY + auto-attackable) both ways with everyone
+/// already in the zone — without it the client never shows combatants as
+/// attackable.
+#[test]
+fn siege_zone_broadcasts_attackable_relation_on_enter() {
+    use crate::model::components::Position;
+    use crate::model::siege::Siege;
+    let (mut world, ..) = cast_test_world();
+    insert_siege_zone(&mut world, 3, 5000, 6000, -500, 500);
+    world.sieges.insert(3, {
+        let mut s = Siege::new(3);
+        s.in_progress = true;
+        s
+    });
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 5500, 0); // already inside
+    super::zones::revalidate_zone(&mut world, 3001, true);
+    let mut b_rx = ingame_caster(&mut world, 2, 3002, 0, 0); // outside
+    super::zones::revalidate_zone(&mut world, 3002, true);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    // B walks into the active siege zone (keep its region cell in sync).
+    world.objects.get_component_mut::<Position>(&3002).unwrap().x = 5500;
+    world.objects.get_component_mut::<crate::model::components::RegionCell>(&3002).unwrap().0 =
+        crate::world::region_of(5500, 0);
+    super::zones::revalidate_zone(&mut world, 3002, false);
+
+    let is_attackable_rc = |pkts: &[Vec<u8>], about: i32| {
+        pkts.iter().any(|p| {
+            p[0] == server_packets::opcodes::RELATION_CHANGED
+                && i32::from_le_bytes(p[2..6].try_into().unwrap()) == about
+                && p[10] == 1 // auto-attackable
+                && {
+                    let rel = i32::from_le_bytes(p[6..10].try_into().unwrap());
+                    rel & 0x200 != 0 && rel & 0x1000 != 0 // INSIEGE | ENEMY
+                }
+        })
+    };
+    assert!(is_attackable_rc(&drain(&mut a_rx), 3002), "A sees B as an attackable siege enemy");
+    assert!(is_attackable_rc(&drain(&mut b_rx), 3001), "B sees A as an attackable siege enemy");
+}
+
 /// The 100-unit revalidation filter: a small drift does not re-run the zone
 /// query (the water flag stays stale until a real move), a forced call does.
 #[test]

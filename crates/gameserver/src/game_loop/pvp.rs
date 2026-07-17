@@ -6,12 +6,18 @@
 //! reduce to karma (`Player.reputation`) + the runtime flag. PVP-zone (arena)
 //! exemptions land with Phase 2, when those zones are loaded.
 
-use crate::model::components::{PvpState, ZoneFlags};
+use crate::model::components::{PvpState, RegionCell, ZoneFlags};
 use crate::model::Player;
 use crate::network::server_packets;
-use crate::world::World;
+use crate::session::ClientSession;
+use crate::world::{regions_adjacent, World};
 
-use super::helpers::broadcast_including_self;
+use super::helpers::{broadcast_including_self, client_for_player};
+
+/// `RelationChanged.RELATION_INSIEGE` (0x200) — the "in a siege" bit.
+const RELATION_INSIEGE: i32 = 0x200;
+/// `RelationChanged.RELATION_ENEMY` (0x1000) — the red, attackable siege icon.
+const RELATION_ENEMY: i32 = 0x1000;
 
 /// `Config.PVP_NORMAL_TIME` (PvPVsNormalTime, 120 s) in 100 ms ticks — how long
 /// the flag lasts after a hostile action toward a *clean* target.
@@ -148,6 +154,64 @@ pub(crate) fn update_pvp_status_target(world: &mut World, object_id: i32, target
         PVP_NORMAL_TICKS
     };
     set_flag_lasts(world, object_id, ticks);
+}
+
+/// Siege relation bits from `viewer`'s view onto `target` — the battlefield is
+/// mutually hostile, so a pair sharing an active siege zone shows the red
+/// INSIEGE|ENEMY icon. TODO(G24): same-side (attacker/attacker, defender/
+/// defender) pairs should be INSIEGE|ALLY once per-player siege side is tracked.
+fn siege_relation_bits(world: &World, viewer_oid: i32, target_oid: i32) -> i32 {
+    if in_active_siege_together(world, viewer_oid, target_oid) {
+        RELATION_INSIEGE | RELATION_ENEMY
+    } else {
+        0
+    }
+}
+
+fn relation_parts(world: &World, oid: i32) -> (i32, i32, u8) {
+    let Some(p) = world.objects.get_component::<Player>(&oid) else { return (0, 0, 0) };
+    (super::party::calculate_relation(world, p), p.reputation, flag_of(world, oid))
+}
+
+/// Java `Player.broadcastRelationChanged`, for the siege case: refresh how
+/// `object_id` and every nearby player relate now, per-viewer (siege enemy/ally
+/// is viewer-dependent). Sent on siege-zone enter/exit so the client shows — or
+/// clears — the attackable state that neither `CharInfo` nor the pvp-flag path
+/// carries. Without it, a combatant entering the zone never appears attackable.
+pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
+    let Some(my_region) = world.objects.get_component::<RegionCell>(&object_id).map(|r| r.0) else { return };
+    let my_client = client_for_player(world, object_id).and_then(|c| world.clients.get(&c));
+    let (my_relation, my_rep, my_flag) = relation_parts(world, object_id);
+    for cs in world.clients.values() {
+        let ClientSession::InGame(s) = cs else { continue };
+        let viewer = s.player_object_id();
+        if viewer == object_id {
+            continue;
+        }
+        let Some(vr) = world.objects.get_component::<RegionCell>(&viewer).map(|r| r.0) else { continue };
+        if !regions_adjacent(my_region, vr) {
+            continue;
+        }
+        // How `object_id` relates to (and is attackable by) this viewer.
+        cs.send(server_packets::relation_changed(
+            object_id,
+            my_relation | siege_relation_bits(world, viewer, object_id),
+            is_player_auto_attackable(world, viewer, object_id),
+            my_rep,
+            my_flag,
+        ));
+        // The reverse, so `object_id`'s own client sees the viewer too.
+        if let Some(mc) = my_client {
+            let (v_rel, v_rep, v_flag) = relation_parts(world, viewer);
+            mc.send(server_packets::relation_changed(
+                viewer,
+                v_rel | siege_relation_bits(world, object_id, viewer),
+                is_player_auto_attackable(world, object_id, viewer),
+                v_rep,
+                v_flag,
+            ));
+        }
+    }
 }
 
 /// Java `SiegeZone.onExit`'s `if (player.getPvpFlag() == 0) startPvPFlag()`:
