@@ -894,10 +894,11 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
 ///   (`getFlag`), if one still stands.
 ///
 /// `None` (→ the caller's town respawn) for every other type/role. Note the
-/// castle respawn is *not* gated on the control-tower count — Java only uses
-/// that to block a defender's resurrection at the death spot
-/// (`ConditionPlayerCanResurrect`), which is unported (TODO(G24)). The attacker
-/// respawn delay (`getAttackerRespawnDelay`) is likewise deferred.
+/// castle respawn is *not* gated on the control-tower count: in Interlude
+/// Classic that count has no respawn/resurrection outcome at all (it only picks
+/// a rejection message for a normal res skill during a siege — see
+/// `Siege.control_tower_count`). The attacker respawn delay
+/// (`getAttackerRespawnDelay`) is deferred (TODO(G24)).
 fn siege_restart_location(world: &World, player_oid: i32, point_type: i32, pick: usize) -> Option<(i32, i32, i32)> {
     use crate::model::siege::SiegeClanType;
     let clan_id = world.objects.get_component::<crate::model::Player>(&player_oid)?.clan_id;

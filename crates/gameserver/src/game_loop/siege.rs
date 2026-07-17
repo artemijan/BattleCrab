@@ -213,9 +213,10 @@ pub(crate) fn killed_control_tower(world: &mut World, npc_oid: i32) {
     let Some(castle_id) = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) else { return };
     if let Some(siege) = world.sieges.get_mut(&castle_id) {
         siege.control_tower_count = (siege.control_tower_count - 1).max(0);
-        // TODO(G24): at 0, block defender *resurrection* (getting up at the death
-        // spot via a res skill) — Java `ConditionPlayerCanResurrect`. This does
-        // not gate the restart-point castle respawn; resurrection is unported.
+        // The count has no gameplay outcome in Interlude Classic (see the field
+        // doc on `Siege.control_tower_count`): a normal resurrection is blocked
+        // in a siege regardless, and the count only selects the rejection
+        // message. TODO(G24): honor that message once resurrection is ported.
     }
 }
 
