@@ -517,6 +517,23 @@ mod tests {
         assert!(weapon_pen.stat_modifier_effects().iter().any(|e| e.stat == Stat::PhysicalAttack));
         let armor_pen = sd.get(6213, 4).expect("Armor Grade Penalty lvl 4");
         assert!(!armor_pen.stat_modifier_effects().is_empty(), "6213 must have stat effects");
+
+        // Clan Advent (19009) — the clan-leader-online aura applied via the clan
+        // login/logout hooks. Permanent (`abnormalTime=-1`) with all six stat
+        // effects: PAtk/PDef/MDef/MAtk percent buffs + flat HP/MP regen.
+        let advent = sd.get(19009, 1).expect("Clan Advent lvl 1");
+        assert_eq!(advent.abnormal_time, -1, "Clan Advent is permanent");
+        let stats: Vec<Stat> = advent.stat_modifier_effects().iter().map(|e| e.stat).collect();
+        for want in [
+            Stat::PhysicalAttack,
+            Stat::PhysicalDefence,
+            Stat::MagicalDefence,
+            Stat::MagicalAttack,
+            Stat::RegenerateHpRate,
+            Stat::RegenerateMpRate,
+        ] {
+            assert!(stats.contains(&want), "Clan Advent must modify {want:?}, got {stats:?}");
+        }
     }
 
     /// A trimmed Wind Strike (1177): per-level `targetType` and

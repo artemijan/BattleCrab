@@ -88,6 +88,39 @@ pub(super) fn admin_give_all_skills(world: &mut World, client_id: u32, object_id
     show_char_skills(world, client_id, target);
 }
 
+/// `AdminSkill`'s `//give_clan_skills` / `//give_all_clan_skills` — grant the
+/// targeted clan member's clan every pledge skill it qualifies for at its level
+/// (Java `adminGiveClanSkills`; `include_squad` also grants squad/sub-pledge
+/// skills). Each granted skill applies to the qualifying online members.
+pub(super) fn admin_give_clan_skills(world: &mut World, client_id: u32, object_id: i32, include_squad: bool) {
+    use crate::network::server_packets::{sm_ids, SmParam};
+    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
+        super::send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        return;
+    };
+    let Some(clan_id) = world.objects.get_component::<Player>(&target).map(|p| p.clan_id).filter(|&c| c != 0) else {
+        super::send_sm(world, client_id, sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER);
+        return;
+    };
+    let target_name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+    // Java warns when the target isn't the leader but grants to the clan anyway.
+    if world.clans.get(&clan_id).map(|c| c.leader_id != target).unwrap_or(true) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(crate::network::server_packets::system_message_with(
+                sm_ids::S1_IS_NOT_A_CLAN_LEADER,
+                &[SmParam::Text(target_name.clone())],
+            ));
+        }
+    }
+    let count = crate::game_loop::clans::give_clan_skills(world, clan_id, include_squad);
+    let clan_name = world.clans.get(&clan_id).map(|c| c.name.clone()).unwrap_or_default();
+    send_message(world, client_id, &format!("You gave {count} skills to {target_name}'s clan {clan_name}."));
+    if let Some(cid) = super::helpers::client_for_player(world, target) {
+        send_message(world, cid, &format!("Your clan received {count} skills."));
+    }
+}
+
 /// `AdminSkill`'s `//remove_all_skills` — strip every skill from the targeted
 /// player.
 pub(super) fn admin_remove_all_skills(world: &mut World, client_id: u32, object_id: i32) {
@@ -204,10 +237,7 @@ pub(super) fn admin_skill_menu(world: &mut World, client_id: u32, command: &str,
 /// Resend a player's `SkillList` after a skill-book change.
 pub(super) fn refresh_skill_list(world: &World, target: i32) {
     let Some(cid) = super::helpers::client_for_player(world, target) else { return };
-    let Some(book) = world.objects.get_component::<SkillBook>(&target) else {
-        return;
-    };
-    let packet = crate::network::enter_world::skill_list(book, &world.data);
+    let Some(packet) = super::helpers::skill_list_packet(world, target) else { return };
     if let Some(cs) = world.clients.get(&cid) {
         cs.send(packet);
     }

@@ -140,6 +140,7 @@ fn clan_roster_notifications_and_chat() {
             reputation_score: 0,
             castle_id: 0,
             members: vec![member(3001, "P3001"), member(3002, "P3002")],
+            skills: Default::default(),
             warehouse: Default::default(),
         },
     );
@@ -198,7 +199,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
     // A level-1 clan: 3001 leader, 3002 plain member (no privileges).
     let clan_id = 0x7000_0001;
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0 };
-    world.clans.insert(clan_id, Clan { id: clan_id, name: "WhClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], warehouse: Default::default() });
+    world.clans.insert(clan_id, Clan { id: clan_id, name: "WhClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default() });
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
     }
@@ -246,6 +247,7 @@ fn pledge_class_table_matches_calculate_pledge_class() {
         reputation_score: 0,
         castle_id: 0,
         members: Vec::new(),
+        skills: Default::default(),
         warehouse: Default::default(),
     };
     // (leader, member) expected pledge class per clan level.
@@ -284,4 +286,163 @@ fn set_clan_level_updates_leader_pledge_class_and_rebroadcasts() {
     assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().pledge_class, 4, "level-5 clan leader is pledge class 4");
     let pkts = drain(&mut a_rx);
     assert!(pkts.iter().any(|p| p[0] == 0x32), "fresh UserInfo on the level change");
+}
+
+/// Clan Advent (skill 19009), Java `ClanMaster`'s login/logout listeners: the
+/// aura lands on every online clan member while the leader is logged in and
+/// drops when the leader logs out. Leader login buffs all online members; a
+/// member logging in with the leader offline gets nothing.
+#[test]
+fn clan_advent_aura_tracks_leader_online_state() {
+    use crate::model::clan::{Clan, ClanMember};
+
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    // The real 19009 lives in the dist skills the synthetic test data doesn't
+    // load — register a stand-in so the login/logout path has one to apply.
+    world.data.skill_data.insert_for_test(clan_advent_test_skill());
+
+    // Leader 3001 (client 1) + member 3002 (client 2), both online, one clan.
+    let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    drain_db(&mut db_rx);
+    let clan_id = 0x3000_0001;
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0 };
+    world.clans.insert(
+        clan_id,
+        Clan { id: clan_id, name: "AdventClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default() },
+    );
+    for oid in [3001, 3002] {
+        world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
+    }
+
+    let has_advent = |world: &World, oid: i32| {
+        world.objects.get_component::<Buffs>(&oid).is_some_and(|b| b.0.iter().any(|x| x.skill_id == 19009))
+    };
+
+    // Leader logs in → the aura lands on every online member (leader + 3002).
+    crate::game_loop::clans::on_enter_world(&mut world, 1, 3001);
+    assert!(has_advent(&world, 3001), "leader gets Clan Advent on their own login");
+    assert!(has_advent(&world, 3002), "online member gets Clan Advent when the leader logs in");
+
+    // Leader logs out → the aura drops from the remaining online member.
+    crate::game_loop::clans::on_leave_world(&mut world, 3001, clan_id);
+    assert!(!has_advent(&world, 3002), "Clan Advent removed when the leader logs out");
+
+    // Fully take the leader offline (session gone + despawned), then a member
+    // login must NOT re-light the aura.
+    world.clients.remove(&1);
+    world.objects.despawn(&3001);
+    crate::game_loop::clans::on_enter_world(&mut world, 2, 3002);
+    assert!(!has_advent(&world, 3002), "no aura while the leader is offline");
+}
+
+/// `//give_clan_skills` (Java `adminGiveClanSkills`): the clan learns every
+/// pledge skill it qualifies for at its level; each applies to online members
+/// gated by social class, lands as a (passive, icon-less) stat buff, shows in
+/// the merged SkillList, and persists. Dispersing the clan strips them again.
+#[test]
+fn give_clan_skills_grants_gates_and_persists() {
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::data::pledge_skill_tree::PledgeSkillLearn;
+    use crate::model::components::{Buffs, ClanSkills};
+
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    // Two clan skills: 370 gated at HEIR (ordinal 3), 371 gated at COUNT (8).
+    world.data.skill_data.insert_for_test(passive_clan_test_skill(370));
+    world.data.skill_data.insert_for_test(passive_clan_test_skill(371));
+    let learn = |id, social| PledgeSkillLearn { skill_id: id, skill_level: 1, get_level: 3, social_class: Some(social), residencial: false };
+    world.data.pledge_skill_trees.insert_for_test(learn(370, 3), false);
+    world.data.pledge_skill_trees.insert_for_test(learn(371, 8), false);
+
+    // A level-8 clan: leader 3001 (pledge class 8 → social 9), member 3002
+    // (pledge class 5 → social 6). Both online.
+    let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    drain_db(&mut db_rx);
+    let clan_id = 0x3000_0055;
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0 };
+    world.clans.insert(
+        clan_id,
+        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default() },
+    );
+    for oid in [3001, 3002] {
+        world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
+    }
+
+    let clan_skill = |world: &World, oid: i32, id: i32| {
+        world.objects.get_component::<ClanSkills>(&oid).is_some_and(|c| c.0.contains_key(&id))
+    };
+    let has_passive_buff = |world: &World, oid: i32, id: i32| {
+        world.objects.get_component::<Buffs>(&oid).is_some_and(|b| b.0.iter().any(|x| x.skill_id == id && x.passive))
+    };
+
+    let count = crate::game_loop::clans::give_clan_skills(&mut world, clan_id, false);
+    assert_eq!(count, 2, "clan learns both level-3 pledge skills at clan level 8");
+
+    // Stored on the clan and persisted.
+    assert_eq!(world.clans[&clan_id].skills.get(&370), Some(&1));
+    assert_eq!(world.clans[&clan_id].skills.get(&371), Some(&1));
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::SaveClanSkill { clan_id: c, skill_id: 370, skill_level: 1, .. } if *c == clan_id)));
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::SaveClanSkill { skill_id: 371, .. })));
+
+    // Leader (social 9) gets both; member (social 6) gets only the HEIR skill.
+    assert!(clan_skill(&world, 3001, 370) && clan_skill(&world, 3001, 371), "leader gets both");
+    assert!(clan_skill(&world, 3002, 370), "member qualifies for the HEIR skill");
+    assert!(!clan_skill(&world, 3002, 371), "member is gated out of the COUNT skill");
+    // Applied skills land as icon-less passive buffs (stat effect, no abnormal row).
+    assert!(has_passive_buff(&world, 3001, 370), "clan skill applied as a passive buff");
+    assert!(!has_passive_buff(&world, 3002, 371), "gated-out skill not applied");
+
+    // The clan skill shows in the member's merged SkillList (opcode 0x5F).
+    let pkt = super::helpers::skill_list_packet(&world, 3001).expect("skill list");
+    assert_eq!(pkt[0], 0x5F);
+    let count_in_list = i32::from_le_bytes(pkt[1..5].try_into().unwrap());
+    assert!(count_in_list >= 2, "leader's skill list carries the 2 clan skills");
+
+    // Dispersing the clan strips the clan skills from the (still-online) members.
+    crate::game_loop::clans::destroy_clan(&mut world, clan_id);
+    assert!(!clan_skill(&world, 3001, 370) && !clan_skill(&world, 3001, 371), "leader clan skills cleared on disperse");
+    assert!(!has_passive_buff(&world, 3001, 370), "leader clan-skill buff reverted");
+    assert!(!clan_skill(&world, 3002, 370), "member clan skills cleared on disperse");
+}
+
+/// A member logging in re-derives the clan's skills (Java `addSkillEffects` on
+/// enter-world), gated by social class — nothing is persisted on the player.
+#[test]
+fn clan_skills_reapply_on_member_login() {
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::data::pledge_skill_tree::PledgeSkillLearn;
+    use crate::model::components::ClanSkills;
+
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    world.data.skill_data.insert_for_test(passive_clan_test_skill(370));
+    world.data.pledge_skill_trees.insert_for_test(
+        PledgeSkillLearn { skill_id: 370, skill_level: 1, get_level: 3, social_class: Some(3), residencial: false },
+        false,
+    );
+    let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain_db(&mut db_rx);
+    let clan_id = 0x3000_0066;
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0 };
+    // The clan already knows skill 370 (as if loaded from clan_skills).
+    let mut skills = std::collections::HashMap::new();
+    skills.insert(370, 1);
+    world.clans.insert(
+        clan_id,
+        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default() },
+    );
+    world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
+
+    // Simulate the leader's login → clan skills re-applied from the clan.
+    crate::game_loop::clans::on_enter_world(&mut world, 1, 3001);
+    assert!(
+        world.objects.get_component::<ClanSkills>(&3001).is_some_and(|c| c.0.contains_key(&370)),
+        "clan skills re-derived on login"
+    );
+    // Nothing was written to the player's own persisted skill book.
+    assert!(
+        world.objects.get_component::<crate::model::components::SkillBook>(&3001).is_some_and(|b| !b.0.contains_key(&370)),
+        "clan skill is transient — never in the persisted SkillBook"
+    );
 }

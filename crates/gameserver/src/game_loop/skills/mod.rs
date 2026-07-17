@@ -65,7 +65,9 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
                 return;
             };
             cs.send(server_packets::acquire_skill_done());
-            cs.send(crate::network::enter_world::skill_list(skills, &world.data));
+            if let Some(pkt) = super::helpers::skill_list_packet(world, object_id) {
+                cs.send(pkt);
+            }
             cs.send(crate::network::enter_world::acquire_skill_list(v.p, skills, &world.data));
             cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, crate::game_loop::party::calculate_relation(world, v.p)));
         }

@@ -600,8 +600,8 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
                 cs.send(server_packets::system_message_with(sm_ids::YOUR_LEVEL_HAS_INCREASED, &[]));
             }
             cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, super::party::calculate_relation(world, v.p)));
-            let Some(skills) = world.objects.get_component::<SkillBook>(&player_oid) else { return };
-            cs.send(crate::network::enter_world::skill_list(skills, &world.data));
+            let Some(pkt) = super::helpers::skill_list_packet(world, player_oid) else { return };
+            cs.send(pkt);
         }
     }
 }

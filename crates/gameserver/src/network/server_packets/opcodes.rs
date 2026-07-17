@@ -115,6 +115,10 @@ pub const EX_QUEST_ITEM_LIST: i16 = 0xC7;
 pub const EX_SET_COMPASS_ZONE_CODE: i16 = 0x33;
 pub const EX_PCCAFE_POINT_INFO: i16 = 0x32;
 pub const EX_VOTE_SYSTEM_INFO: i16 = 0xCA;
+/// `PledgeSkillList` — the clan window's skill tab (`(id, level)` list).
+pub const EX_PLEDGE_SKILL_LIST: i16 = 0x3A;
+/// `PledgeSkillListAdd` — one newly-learned clan skill `(id, level)`.
+pub const EX_PLEDGE_SKILL_LIST_ADD: i16 = 0x3B;
 /// `ExTeleportToLocationActivate` — the "teleport finished" packet; the
 /// client stays on the loading screen until it arrives.
 pub const EX_TELEPORT_TO_LOCATION_ACTIVATE: i16 = 0x14A;

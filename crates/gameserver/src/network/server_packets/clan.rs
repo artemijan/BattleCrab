@@ -121,6 +121,33 @@ pub fn pledge_show_member_list_delete_all() -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Port of `serverpackets/PledgeSkillList` — the clan window's skill tab. The
+/// port folds sub-unit (squad) skills into the main clan skill set (no
+/// sub-pledges modelled), so the squad-skill section is always empty.
+pub fn pledge_skill_list(skills: &[(i32, i32)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_SKILL_LIST);
+    w.write_i32(skills.len() as i32);
+    w.write_i32(0); // squad-skill count (sub-pledges unmodelled)
+    for &(id, level) in skills {
+        w.write_i32(id);
+        w.write_i16(level as i16);
+        w.write_i16(0); // sub level
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeSkillListAdd` — one clan skill just learned.
+pub fn pledge_skill_list_add(skill_id: i32, level: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_SKILL_LIST_ADD);
+    w.write_i32(skill_id);
+    w.write_i32(level);
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/GMViewPledgeInfo` — the GM `//pledge info` clan dump.
 /// `viewer_name` is Java's `_player.getName()` (the inspected clan member the GM
 /// targeted). Castle/hideout/fort/rank/ally/war stay zero (their systems are

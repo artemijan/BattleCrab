@@ -32,8 +32,10 @@ pub mod sm_ids {
     pub const THE_S1_SIEGE_HAS_FINISHED: i16 = 712;
     pub const CLAN_S1_IS_VICTORIOUS_OVER_S2_S_CASTLE_SIEGE: i16 = 291;
     pub const THE_SIEGE_OF_S1_HAS_ENDED_IN_A_DRAW: i16 = 856;
-    // Clan admin (`//pledge`)
+    // Clan admin (`//pledge`, `//give_clan_skills`)
     pub const S1_IS_NOT_A_CLAN_LEADER: i16 = 9;
+    pub const THE_TARGET_MUST_BE_A_CLAN_MEMBER: i16 = 234;
+    pub const THE_CLAN_SKILL_S1_HAS_BEEN_ADDED: i16 = 1788;
     pub const CLAN_HAS_DISPERSED: i16 = 193;
     pub const YOUR_CLAN_S_LEVEL_HAS_INCREASED: i16 = 274;
     pub const NOW_THAT_YOUR_CLAN_LEVEL_IS_ABOVE_LEVEL_5_IT_CAN_ACCUMULATE_CLAN_REPUTATION: i16 = 1771;

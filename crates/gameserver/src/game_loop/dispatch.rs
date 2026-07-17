@@ -75,13 +75,8 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         // RequestSkillList (IN_GAME): empty body, just `player.sendSkillList()`.
         cop::REQUEST_SKILL_LIST => {
             if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id) {
-                if let Some(skills) = world
-                    .objects
-                    .get_component::<crate::model::components::SkillBook>(
-                        &session.player_object_id(),
-                    )
-                {
-                    cs.send(crate::network::enter_world::skill_list(skills, &world.data));
+                if let Some(pkt) = super::helpers::skill_list_packet(world, session.player_object_id()) {
+                    cs.send(pkt);
                 }
             }
         }

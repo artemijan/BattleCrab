@@ -19,6 +19,7 @@ pub mod item_data;
 pub mod map_region;
 pub mod npc_data;
 pub mod player_template;
+pub mod pledge_skill_tree;
 pub mod skill_data;
 pub mod skill_tree;
 pub mod spawn_data;
@@ -46,6 +47,7 @@ pub use map_region::MapRegionData;
 pub use npc_data::NpcData;
 pub use player_template::PlayerTemplateData;
 pub use skill_data::SkillData;
+pub use pledge_skill_tree::PledgeSkillTreeData;
 pub use skill_tree::SkillTreeData;
 pub use spawn_data::SpawnData;
 pub use stat_bonus::StatBonus;
@@ -117,6 +119,8 @@ pub struct GameData {
     pub experience: ExperienceData,
     pub player_templates: PlayerTemplateData,
     pub skill_trees: SkillTreeData,
+    /// Clan (pledge/sub-pledge) skill trees — see [`PledgeSkillTreeData`].
+    pub pledge_skill_trees: PledgeSkillTreeData,
     pub stat_bonus: StatBonus,
     pub action_data: ActionData,
     pub item_data: ItemData,
@@ -170,6 +174,7 @@ impl GameData {
             experience: ExperienceData::load_from(file_path),
             player_templates: PlayerTemplateData::load_from(file_path),
             skill_trees: SkillTreeData::load_from(file_path),
+            pledge_skill_trees: PledgeSkillTreeData::load_from(file_path),
             stat_bonus: StatBonus::load_from(file_path),
             action_data: ActionData::load_from(file_path),
             item_data,
@@ -214,6 +219,7 @@ impl GameData {
             experience: ExperienceData::empty(),
             player_templates: PlayerTemplateData::empty(),
             skill_trees: SkillTreeData::empty(),
+            pledge_skill_trees: PledgeSkillTreeData::empty(),
             stat_bonus: StatBonus::empty(),
             action_data: ActionData::empty(),
             item_data: ItemData::empty(),

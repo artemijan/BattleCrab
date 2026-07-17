@@ -122,11 +122,23 @@ pub fn inventory_update_changes(
 /// via `SkillList.addSkill`): passive flag, level, sub-level, id, reuse-delay
 /// group (`Skill.reuseDelayGroup`, -1 when ungrouped), disabled (clan
 /// reputation gate — always false, no clans yet), enchanted (always false).
-pub fn skill_list(skills: &crate::model::components::SkillBook, data: &GameData) -> Vec<u8> {
+pub fn skill_list(
+    skills: &crate::model::components::SkillBook,
+    clan_skills: &crate::model::components::ClanSkills,
+    data: &GameData,
+) -> Vec<u8> {
+    // Java `sendSkillList` writes the player's own skills *and* the clan skills
+    // it added transiently (`addSkill(clanSkill, false)`) in one list. Merge so
+    // an id present in both (none in practice — clan ids are disjoint) isn't
+    // double-written; the player's own level wins.
+    let mut merged: std::collections::HashMap<i32, i32> = skills.0.clone();
+    for (&id, &lvl) in &clan_skills.0 {
+        merged.entry(id).or_insert(lvl);
+    }
     let mut w = PacketWriter::new();
     w.write_u8(0x5F);
-    w.write_i32(skills.0.len() as i32);
-    for (&skill_id, &level) in &skills.0 {
+    w.write_i32(merged.len() as i32);
+    for (&skill_id, &level) in &merged {
         let skill = data.skill_data.get(skill_id, level);
         let passive = skill.is_some_and(|s| s.operate_type == crate::model::skill::OperateType::Passive);
         w.write_i32(passive as i32);

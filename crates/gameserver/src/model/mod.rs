@@ -380,7 +380,7 @@ impl PlayerData {
                     components::ExpertisePenalty::default(),
                     components::PvpState::default(),
                 ),
-                (self.warehouse, self.freight),
+                (self.warehouse, self.freight, components::ClanSkills::default()),
             ),
         );
     }

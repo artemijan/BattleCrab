@@ -5,7 +5,7 @@
 //! control point is registration, which is where the no-recurring-macros
 //! deviation lives (see `handle_request_make_macro`).
 
-use crate::model::components::{Macros, Shortcuts, SkillBook};
+use crate::model::components::{Macros, Shortcuts};
 use crate::model::shortcut::{MacroType, MacroUpdateType, Shortcut, ShortcutType};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, sm_ids, system_message_with};
@@ -69,8 +69,8 @@ pub(crate) fn handle_request_short_cut_reg(world: &mut World, client_id: u32, bo
     }
 
     send(world, client_id, server_packets::shortcut_register(&sc));
-    if let Some(skills) = world.objects.get_component::<SkillBook>(&object_id) {
-        send(world, client_id, crate::network::enter_world::skill_list(skills, &world.data));
+    if let Some(pkt) = super::helpers::skill_list_packet(world, object_id) {
+        send(world, client_id, pkt);
     }
 }
 

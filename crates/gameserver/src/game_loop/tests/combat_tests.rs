@@ -820,6 +820,7 @@ fn siege_start_evicts_non_owners_to_town() {
             reputation_score: 0,
             castle_id: 3,
             members: vec![ClanMember { char_id: 9002, name: "P9002".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
+            skills: Default::default(),
             warehouse: Default::default(),
         },
     );
@@ -859,6 +860,7 @@ fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
         reputation_score: 0,
         castle_id: castle,
         members: vec![ClanMember { char_id: leader, name: format!("P{leader}"), level: 40, class_id: 0, sex: 0, race: 0 }],
+        skills: Default::default(),
         warehouse: Default::default(),
     };
     world.clans.insert(500, clan(500, "Defenders", 8002, 3)); // owns castle 3
@@ -1118,6 +1120,7 @@ fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
             reputation_score: 0,
             castle_id: 0,
             members: vec![ClanMember { char_id: 8003, name: "P8003".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
+            skills: Default::default(),
             warehouse: Default::default(),
         },
     );
@@ -1192,6 +1195,7 @@ fn siege_defender_respawns_at_castle_on_to_castle() {
             reputation_score: 0,
             castle_id: 3,
             members: vec![ClanMember { char_id: 3001, name: "P3001".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
+            skills: Default::default(),
             warehouse: Default::default(),
         },
     );
@@ -1241,6 +1245,7 @@ fn siege_attacker_hq_flag_is_respawn_point_and_destructible() {
             reputation_score: 0,
             castle_id: 0,
             members: vec![ClanMember { char_id: 3001, name: "P3001".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
+            skills: Default::default(),
             warehouse: Default::default(),
         },
     );
@@ -1305,6 +1310,7 @@ fn attacker_clan(world: &mut World, player_oid: i32) {
             reputation_score: 0,
             castle_id: 0,
             members: vec![ClanMember { char_id: player_oid, name: "P".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
+            skills: Default::default(),
             warehouse: Default::default(),
         },
     );

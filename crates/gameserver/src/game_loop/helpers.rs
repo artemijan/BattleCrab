@@ -14,6 +14,39 @@ pub(crate) fn client_for_player(world: &World, player_object_id: i32) -> Option<
     })
 }
 
+/// Java `Player.sendInventoryUpdate`: an `InventoryUpdate` never travels alone —
+/// it's always followed by the adena counter (`ExAdenaInvenCount`) and the
+/// weight bar (`ExUserInfoInvenWeight`), so any inventory change refreshes both.
+/// Ported paths that only sent the bare `InventoryUpdate` left the adena display
+/// stale (e.g. `//create_coin Adena`). `iu` is the already-built InventoryUpdate.
+pub(crate) fn send_inventory_update(world: &World, client_id: u32, object_id: i32, iu: Vec<u8>) {
+    let extras = world.objects.get_component::<crate::model::inventory::Inventory>(&object_id).map(|inv| {
+        (
+            crate::network::enter_world::ex_adena_inven_count(inv),
+            crate::network::enter_world::ex_user_info_inven_weight(object_id, inv, &world.data),
+        )
+    });
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(iu);
+        if let Some((adena, weight)) = extras {
+            cs.send(adena);
+            cs.send(weight);
+        }
+    }
+}
+
+/// The full `SkillList` packet for an in-world player — their skill book plus
+/// any transiently-granted clan skills (Java `sendSkillList`). `None` when the
+/// object carries no skill book (not a live player). The single funnel every
+/// `SkillList` resend goes through, so clan skills never fall off the list.
+pub(crate) fn skill_list_packet(world: &World, object_id: i32) -> Option<Vec<u8>> {
+    use crate::model::components::{ClanSkills, SkillBook};
+    let book = world.objects.get_component::<SkillBook>(&object_id)?;
+    let empty = ClanSkills::default();
+    let clan = world.objects.get_component::<ClanSkills>(&object_id).unwrap_or(&empty);
+    Some(crate::network::enter_world::skill_list(book, clan, &world.data))
+}
+
 /// Send a fresh `EtcStatusUpdate` to one player, built from their current state
 /// (expertise grade penalties + silence/message-refusal), mirroring Java's
 /// `sendPacket(new EtcStatusUpdate(this))` which reads it all off the player.

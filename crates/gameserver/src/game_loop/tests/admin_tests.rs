@@ -1802,6 +1802,7 @@ fn admin_castlemanage_ownership_and_side() {
             reputation_score: 0,
             castle_id: 0,
             members: vec![ClanMember { char_id: 8002, name: "P8002".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
+            skills: Default::default(),
             warehouse: Default::default(),
         },
     );
@@ -1866,6 +1867,7 @@ fn admin_castlemanage_siege_registration_and_state() {
             reputation_score: 0,
             castle_id: 0,
             members: vec![ClanMember { char_id: 8102, name: "P8102".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
+            skills: Default::default(),
             warehouse: Default::default(),
         },
     );
@@ -1915,4 +1917,54 @@ fn admin_castlemanage_siege_registration_and_state() {
     assert!(!world.sieges[&3].is_registered(700), "clan removed from the siege");
     let cmds = drain_db(&mut db_rx);
     assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::RemoveSiegeClan { castle_id: 3, clan_id: 700 })), "persisted removal");
+}
+
+/// `//give_clan_skills` end-to-end through the admin dispatch: a GM (access 100)
+/// targeting a clan leader grants the clan its pledge skills, applies them, and
+/// persists them (Java `AdminSkill.adminGiveClanSkills`).
+#[test]
+fn admin_give_clan_skills_command_grants_targeted_clan() {
+    use crate::data::pledge_skill_tree::PledgeSkillLearn;
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::components::{ClanSkills, TargetRef};
+
+    let (mut world, _tx, mut db_rx, _link) = admin_world();
+    world.data.skill_data.insert_for_test(passive_clan_test_skill(370));
+    world.data.pledge_skill_trees.insert_for_test(
+        PledgeSkillLearn { skill_id: 370, skill_level: 1, get_level: 3, social_class: Some(3), residencial: false },
+        false,
+    );
+
+    let mut rx = ingame_player_access(&mut world, 1, 6500, 100);
+    let clan_id = 0x3000_0077;
+    world.clans.insert(
+        clan_id,
+        Clan {
+            id: clan_id,
+            name: "GmClan".into(),
+            leader_id: 6500,
+            level: 8,
+            reputation_score: 0,
+            castle_id: 0,
+            members: vec![ClanMember { char_id: 6500, name: "P6500".into(), level: 80, class_id: 0, sex: 0, race: 0 }],
+            skills: Default::default(),
+            warehouse: Default::default(),
+        },
+    );
+    world.objects.get_component_mut::<Player>(&6500).unwrap().clan_id = clan_id;
+    world.objects.add_components(&6500, TargetRef(Some(6500)));
+    drain(&mut rx);
+    drain_db(&mut db_rx);
+
+    super::admin::use_admin_command(&mut world, 1, "admin_give_clan_skills", false);
+
+    assert_eq!(world.clans[&clan_id].skills.get(&370), Some(&1), "clan learned the pledge skill");
+    assert!(
+        world.objects.get_component::<ClanSkills>(&6500).is_some_and(|c| c.0.contains_key(&370)),
+        "skill applied to the online leader"
+    );
+    assert!(
+        drain_db(&mut db_rx).iter().any(|c| matches!(c, db::DbCommand::SaveClanSkill { skill_id: 370, .. })),
+        "clan skill persisted"
+    );
 }

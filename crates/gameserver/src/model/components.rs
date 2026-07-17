@@ -338,6 +338,16 @@ pub enum QueuedAction {
 #[derive(Component, Debug, Clone, Default)]
 pub struct SkillBook(pub HashMap<i32, i32>);
 
+/// Clan skills currently granted to this member (skill_id → level), Java's
+/// `Player.addSkill(clanSkill, false)` set. **Transient** — re-derived from the
+/// clan on every login (see `game_loop::clans::apply_clan_skills`) and never
+/// written to `character_skills` (Java passes `store=false`). Kept separate from
+/// [`SkillBook`] both to preserve that no-persist contract and so leaving/
+/// dispersing the clan strips exactly these. Folded into the `SkillList` packet
+/// alongside the skill book. Player-only.
+#[derive(Component, Debug, Clone, Default)]
+pub struct ClanSkills(pub HashMap<i32, i32>);
+
 /// The currently-applied grade-penalty levels (Java `Player._expertiseWeaponPenalty`
 /// / `_expertiseArmorPenalty`, each 0-4). Cached so `refresh_expertise_penalty`
 /// can no-op when nothing changed, and read by `EtcStatusUpdate`. Player-only.

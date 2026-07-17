@@ -32,6 +32,13 @@ pub struct Clan {
     /// owns (0 = none). Source of truth for `Castle` ownership.
     pub castle_id: i32,
     pub members: Vec<ClanMember>,
+    /// The clan's learned skills (Java `Clan._skills`, `skillId → level`).
+    /// Populated by `//give_clan_skills` and the boot-time `clan_skills` load;
+    /// re-applied to each member on login via the pledge social-class gate.
+    /// Sub-pledge skills (Java `_subPledgeSkills`) fold in here too — the port
+    /// has no sub-units, and `getMaxPledgeSkills` routes squad skills into the
+    /// main clan skill set anyway.
+    pub skills: std::collections::HashMap<i32, i32>,
     /// The shared clan warehouse (Java `Clan._warehouse`, a `ClanWarehouse`
     /// container). Persisted with `owner_id = clan id`, `loc = "CLANWH"`.
     pub warehouse: crate::model::inventory::Warehouse,

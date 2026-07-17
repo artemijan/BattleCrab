@@ -1232,6 +1232,32 @@ fn destroy_item_removes_from_inventory() {
     assert_eq!(inv(&world), 0, "all adena gone");
 }
 
+/// Giving adena (the item-creation menu's "Create Coin", quest rewards) sends
+/// the adena counter (`ExAdenaInvenCount` 0x13E) and weight bar
+/// (`ExUserInfoInvenWeight` 0x166) alongside the `InventoryUpdate`, matching
+/// Java `Player.sendInventoryUpdate` — so the status-bar adena refreshes. The
+/// bare-InventoryUpdate path left it stale.
+#[test]
+fn giving_adena_refreshes_the_adena_counter() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9100, 0);
+    drain(&mut rx);
+
+    crate::game_loop::quests::give_item_with_earned_message(&mut world, 1, 9100, 57, 100_000);
+
+    let pkts = drain(&mut rx);
+    assert!(pkts.iter().any(|p| is_ex(p, 0x13E)), "ExAdenaInvenCount (status-bar adena) sent");
+    assert!(pkts.iter().any(|p| is_ex(p, 0x166)), "ExUserInfoInvenWeight sent");
+    assert_eq!(
+        world.objects.get_component::<crate::model::inventory::Inventory>(&9100).unwrap().adena(),
+        100_000,
+        "adena actually added"
+    );
+}
+
 /// Drop → the item leaves the inventory and becomes a `GroundItem` world entity
 /// (DropItem broadcast); a click (`Action`) picks it back up.
 #[test]

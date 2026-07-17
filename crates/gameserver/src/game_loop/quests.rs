@@ -644,21 +644,27 @@ pub(crate) fn give_item_with_earned_message(world: &mut World, client_id: u32, p
     };
     let is_quest_item = world.data.item_data.get(item_id).is_some_and(|t| t.is_quest_item);
     let Some(inventory) = world.objects.get_component::<Inventory>(&player) else { return };
+    let sm = if item_id == ADENA_ID {
+        server_packets::system_message_with(sm_ids::YOU_HAVE_EARNED_S1_ADENA, &[SmParam::Long(count)])
+    } else if count > 1 {
+        server_packets::system_message_with(
+            sm_ids::YOU_HAVE_EARNED_S2_S1_S,
+            &[SmParam::ItemName(item_id), SmParam::Long(count)],
+        )
+    } else {
+        server_packets::system_message_with(sm_ids::YOU_HAVE_EARNED_S1, &[SmParam::ItemName(item_id)])
+    };
+    let iu = ew::inventory_update(inventory, &world.data, &changed_oids);
+    let quest_list = is_quest_item.then(|| ew::ex_quest_item_list(inventory, &world.data));
     if let Some(cs) = world.clients.get(&client_id) {
-        let sm = if item_id == ADENA_ID {
-            server_packets::system_message_with(sm_ids::YOU_HAVE_EARNED_S1_ADENA, &[SmParam::Long(count)])
-        } else if count > 1 {
-            server_packets::system_message_with(
-                sm_ids::YOU_HAVE_EARNED_S2_S1_S,
-                &[SmParam::ItemName(item_id), SmParam::Long(count)],
-            )
-        } else {
-            server_packets::system_message_with(sm_ids::YOU_HAVE_EARNED_S1, &[SmParam::ItemName(item_id)])
-        };
         cs.send(sm);
-        cs.send(ew::inventory_update(inventory, &world.data, &changed_oids));
-        if is_quest_item {
-            cs.send(ew::ex_quest_item_list(inventory, &world.data));
+    }
+    // `InventoryUpdate` + adena counter + weight bar (Java `sendInventoryUpdate`),
+    // so the status-bar adena count refreshes on adena gains (`//create_coin`).
+    super::helpers::send_inventory_update(world, client_id, player, iu);
+    if let Some(q) = quest_list {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(q);
         }
     }
 }

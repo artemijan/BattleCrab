@@ -1,13 +1,19 @@
 //! Clans — the G11 creation/display slice: `ClanTable.createClan` behind
-//! the village-master `create_clan` bypass, the pledge-window packets, and
-//! the enter/leave-world roster notifications. Invites/wars/levels/crests
-//! and everything else clan stay deferred (see the G11 plan).
+//! the village-master `create_clan` bypass, the pledge-window packets, the
+//! enter/leave-world roster notifications, the Clan Advent leader-online aura
+//! (`ClanMaster`'s login/logout listeners), and clan (pledge) skills —
+//! `//give_clan_skills`, re-applied to each member on login and stripped on
+//! dispersal (Java `Clan.addNewSkill`/`addSkillEffects`/`removeSkillEffects`).
+//! Invites/wars/levels/crests and everything else clan stay deferred (see the
+//! G11 plan).
 
 use commons::network::PacketReader;
 use tracing::warn;
 
 use crate::db::DbCommand;
 use crate::model::clan::{Clan, ClanMember, ALL_CLAN_PRIVILEGES};
+use crate::model::components::ClanSkills;
+use crate::model::skill::ActiveBuff;
 use crate::model::Player;
 use crate::network::server_packets::{self, sm_ids, SmParam};
 use crate::world::World;
@@ -27,6 +33,241 @@ fn now_millis() -> i64 {
 
 /// `DaysBeforeCreateAClan = 10` on this dist → the recreate cooldown in millis.
 const CLAN_CREATE_COOLDOWN_MS: i64 = 10 * 86_400_000;
+
+/// `CommonSkill.CLAN_ADVENT` (skill 19009 lv.1): the clan-leader-online aura —
+/// PAtk/PDef/MDef +5%, MAtk +6%, HP/MP regen +5 on every clan member while the
+/// leader is logged in. `abnormalTime=-1` (permanent) + `irreplacableBuff`, so
+/// it lasts until explicitly removed on the leader's logout / clan dispersal.
+const CLAN_ADVENT_SKILL_ID: i32 = 19009;
+const CLAN_ADVENT_SKILL_LEVEL: i32 = 1;
+
+/// The clan's member object-ids that are currently online (leader included).
+fn online_members(world: &World, clan_id: i32) -> Vec<i32> {
+    let Some(clan) = world.clans.get(&clan_id) else { return Vec::new() };
+    clan.members.iter().map(|m| m.char_id).filter(|&oid| client_for_player(world, oid).is_some()).collect()
+}
+
+/// Java `ClanMaster`'s `CommonSkill.CLAN_ADVENT.getSkill().applyEffects(p, p)`:
+/// self-cast Clan Advent onto one online member. Skipped when already present —
+/// the buff is permanent and `irreplacableBuff` (a single abnormal slot), so a
+/// re-trigger must not stack a second copy (Java's `EffectList` replaces in
+/// place; skipping the identical permanent buff is equivalent).
+fn apply_clan_advent(world: &mut World, object_id: i32) {
+    let already = world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&object_id)
+        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == CLAN_ADVENT_SKILL_ID));
+    if already {
+        return;
+    }
+    let Some(skill) = world.data.skill_data.get(CLAN_ADVENT_SKILL_ID, CLAN_ADVENT_SKILL_LEVEL).cloned() else {
+        return;
+    };
+    crate::game_loop::skills::effects::apply_skill_effects(world, object_id, object_id, &skill);
+}
+
+/// Java `getEffectList().stopSkillEffects(REMOVED, CommonSkill.CLAN_ADVENT)`:
+/// strip Clan Advent from one player (no-op if absent). Reuses the buff-expiry
+/// path, which drops the buff, reverts its stat contribution, and rebroadcasts
+/// UserInfo + the abnormal-status row.
+fn remove_clan_advent(world: &mut World, object_id: i32) {
+    crate::game_loop::skills::effects::handle_buff_expire(world, object_id, CLAN_ADVENT_SKILL_ID);
+}
+
+/// Java `ClanMaster.onPlayerLogin`: the leader's login lights the Clan Advent
+/// aura on every online member; a plain member's login lights it on themselves
+/// only if the leader is already online. (Java's `ON_PLAYER_CLAN_JOIN` /
+/// `ON_PLAYER_PROFESSION_CHANGE` refreshers stay TODO — clan invites and the
+/// subclass system aren't ported, so the login/logout pair is the whole surface
+/// that can fire today.)
+fn apply_clan_advent_on_login(world: &mut World, clan_id: i32, object_id: i32) {
+    let is_leader = world.clans.get(&clan_id).is_some_and(|c| c.leader_id == object_id);
+    if is_leader {
+        for oid in online_members(world, clan_id) {
+            apply_clan_advent(world, oid);
+        }
+    } else {
+        let leader_online =
+            world.clans.get(&clan_id).map(|c| c.leader_id).is_some_and(|lid| client_for_player(world, lid).is_some());
+        if leader_online {
+            apply_clan_advent(world, object_id);
+        }
+    }
+}
+
+// --- Clan skills (pledge skill tree): `//give_clan_skills` + login re-apply ---
+
+/// Java `addSkillEffects`'s per-skill gate: a member receives clan skill
+/// `(id, level)` when it has no `<socialClass>` requirement, or their pledge
+/// class clears it (`pledgeClass + 1 >= socialClass.ordinal()`).
+fn member_qualifies_for_clan_skill(world: &World, clan_id: i32, member_oid: i32, skill_id: i32, level: i32) -> bool {
+    let Some(req) = world.data.pledge_skill_trees.social_class_of(skill_id, level) else {
+        return true;
+    };
+    let pledge_class = world.clans.get(&clan_id).map(|c| c.pledge_class_of(member_oid)).unwrap_or(0);
+    pledge_class as i32 + 1 >= req as i32
+}
+
+/// Fold a clan (passive) skill's stat effects onto a member as a hidden
+/// permanent buff — the `passive: true` route [`crate::model::
+/// conditioned_passive_buffs`] uses, so it contributes to stats without an
+/// abnormal-status icon. Records it in [`ClanSkills`] (transient, never written
+/// to `character_skills`). Replaces any lower-level instance; a no-op if already
+/// applied at `level`.
+fn apply_clan_skill_to_member(world: &mut World, member_oid: i32, skill_id: i32, level: i32) {
+    let existing = world.objects.get_component::<ClanSkills>(&member_oid).and_then(|c| c.0.get(&skill_id).copied());
+    if existing == Some(level) {
+        return;
+    }
+    if existing.is_some() {
+        // Drop the old level's passive buff before re-adding (EffectList single slot).
+        crate::game_loop::skills::effects::handle_buff_expire(world, member_oid, skill_id);
+    }
+    if let Some(c) = world.objects.get_component_mut::<ClanSkills>(&member_oid) {
+        c.0.insert(skill_id, level);
+    }
+    let effects = world.data.skill_data.get(skill_id, level).map(|s| s.stat_modifier_effects()).unwrap_or_default();
+    if effects.is_empty() {
+        return; // known for the skill list, but nothing to fold into stats
+    }
+    let buff = ActiveBuff {
+        skill_id,
+        skill_level: level,
+        abnormal_type_client_id: -1,
+        expires_at_tick: u64::MAX,
+        passive: true,
+        effects,
+    };
+    apply_permanent_passive_buff(world, member_oid, buff);
+}
+
+/// The buff-application half of `apply_skill_effects` for a permanent passive:
+/// fold the effects into the member's stat maps, then rebroadcast UserInfo (no
+/// AbnormalStatusUpdate — passive buffs carry no icon).
+fn apply_permanent_passive_buff(world: &mut World, oid: i32, buff: ActiveBuff) {
+    use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers};
+    use crate::model::inventory::Inventory;
+    if let Some((target, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world
+        .objects
+        .get_many_mut::<(&mut Player, &BaseStats, &mut StatModifiers, &Inventory, &mut Buffs, &mut Speeds, &mut CombatStats)>(
+            &oid,
+        )
+    {
+        target.apply_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, buff);
+    }
+    super::party::broadcast_user_info(world, oid);
+}
+
+/// Resend a member's merged `SkillList` (own skills + clan skills).
+fn refresh_member_skill_list(world: &World, member_oid: i32) {
+    if let Some(cid) = client_for_player(world, member_oid) {
+        if let Some(pkt) = super::helpers::skill_list_packet(world, member_oid) {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(pkt);
+            }
+        }
+    }
+}
+
+/// The clan's full skill set as an `(id, level)` list (for `PledgeSkillList`).
+fn clan_skill_pairs(world: &World, clan_id: i32) -> Vec<(i32, i32)> {
+    world.clans.get(&clan_id).map(|c| c.skills.iter().map(|(&k, &v)| (k, v)).collect()).unwrap_or_default()
+}
+
+/// Java `Clan.addSkillEffects(player)`: (re-)apply every qualifying clan skill to
+/// one member, then resend their `SkillList` + the clan window's
+/// `PledgeSkillList`. Called on member login (`on_enter_world`).
+pub(crate) fn apply_clan_skills_to_member(world: &mut World, clan_id: i32, member_oid: i32) {
+    let skills = clan_skill_pairs(world, clan_id);
+    if skills.is_empty() {
+        return;
+    }
+    let mut applied = false;
+    for (id, level) in skills {
+        if member_qualifies_for_clan_skill(world, clan_id, member_oid, id, level) {
+            apply_clan_skill_to_member(world, member_oid, id, level);
+            applied = true;
+        }
+    }
+    if applied {
+        refresh_member_skill_list(world, member_oid);
+    }
+    // The clan window's skill tab (Java sends `PledgeSkillList` on enter-world).
+    if let Some(cid) = client_for_player(world, member_oid) {
+        let pkt = server_packets::pledge_skill_list(&clan_skill_pairs(world, clan_id));
+        if let Some(cs) = world.clients.get(&cid) {
+            cs.send(pkt);
+        }
+    }
+}
+
+/// Java `Clan.removeSkillEffects(player)` — strip every clan skill from a member
+/// (clan left / dispersed): revert each passive buff and clear [`ClanSkills`].
+pub(crate) fn remove_clan_skills_from_member(world: &mut World, member_oid: i32) {
+    let ids: Vec<i32> =
+        world.objects.get_component::<ClanSkills>(&member_oid).map(|c| c.0.keys().copied().collect()).unwrap_or_default();
+    if ids.is_empty() {
+        return;
+    }
+    for id in ids {
+        crate::game_loop::skills::effects::handle_buff_expire(world, member_oid, id);
+    }
+    if let Some(c) = world.objects.get_component_mut::<ClanSkills>(&member_oid) {
+        c.0.clear();
+    }
+    refresh_member_skill_list(world, member_oid);
+}
+
+/// Java `Clan.addNewSkill` for one skill: store it on the clan, persist it, and
+/// push it to every qualifying online member (buff + skill list +
+/// `PledgeSkillListAdd` + "clan skill added" message).
+fn add_clan_skill(world: &mut World, clan_id: i32, skill_id: i32, level: i32) {
+    if let Some(c) = world.clans.get_mut(&clan_id) {
+        c.skills.insert(skill_id, level);
+    }
+    let name = world.data.skill_data.get(skill_id, level).map(|s| s.name.clone()).unwrap_or_default();
+    let _ = world.db.send(DbCommand::SaveClanSkill { clan_id, skill_id, skill_level: level, skill_name: name });
+    for oid in online_members(world, clan_id) {
+        if !member_qualifies_for_clan_skill(world, clan_id, oid, skill_id, level) {
+            continue;
+        }
+        apply_clan_skill_to_member(world, oid, skill_id, level);
+        if let Some(cid) = client_for_player(world, oid) {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(server_packets::pledge_skill_list_add(skill_id, level));
+                cs.send(server_packets::system_message_with(
+                    sm_ids::THE_CLAN_SKILL_S1_HAS_BEEN_ADDED,
+                    &[SmParam::SkillName { id: skill_id, level }],
+                ));
+            }
+        }
+        refresh_member_skill_list(world, oid);
+    }
+}
+
+/// Java `AdminSkill.adminGiveClanSkills`: grant the clan every pledge skill it
+/// qualifies for at its level (plus squad skills when `include_squad`), applying
+/// each to online members. Returns how many skills were granted; the caller does
+/// the target/clan/leader checks and the summary messages.
+pub(crate) fn give_clan_skills(world: &mut World, clan_id: i32, include_squad: bool) -> usize {
+    let clan_level = world.clans.get(&clan_id).map(|c| c.level).unwrap_or(0);
+    let current: std::collections::HashMap<i32, i32> =
+        world.clans.get(&clan_id).map(|c| c.skills.clone()).unwrap_or_default();
+    let to_add = world.data.pledge_skill_trees.max_pledge_skills(clan_level, &current, include_squad);
+    for &(skill_id, level) in &to_add {
+        add_clan_skill(world, clan_id, skill_id, level);
+    }
+    // Java broadcasts the full `PledgeSkillList` to online members afterward.
+    let pkt = server_packets::pledge_skill_list(&clan_skill_pairs(world, clan_id));
+    for oid in online_members(world, clan_id) {
+        if let Some(cid) = client_for_player(world, oid) {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(pkt.clone());
+            }
+        }
+    }
+    to_add.len()
+}
 
 /// `VillageMaster.onBypassFeedback`'s `create_clan` branch: parse the typed name
 /// (rejecting embedded spaces, Java's `isValidName` reject) then run
@@ -102,7 +343,7 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
             race: p.race,
         }
     };
-    let clan = Clan { id: clan_id, name: name.clone(), leader_id: leader_oid, level: 0, reputation_score: 0, castle_id: 0, members: vec![leader], warehouse: Default::default() };
+    let clan = Clan { id: clan_id, name: name.clone(), leader_id: leader_oid, level: 0, reputation_score: 0, castle_id: 0, members: vec![leader], skills: Default::default(), warehouse: Default::default() };
     let _ = world.db.send(DbCommand::InsertClan { clan_id, name: name.clone(), leader_id: leader_oid });
     let _ = world.db.send(DbCommand::UpdateCharClan {
         char_id: leader_oid,
@@ -205,6 +446,11 @@ pub(crate) fn destroy_clan(world: &mut World, clan_id: i32) {
             }
         };
         if online {
+            // Java `removeClanMember` stops Clan Advent + all clan skills on each
+            // member as the clan disperses; the ex-members stay online, so both
+            // the aura and the pledge skills must drop.
+            remove_clan_advent(world, *oid);
+            remove_clan_skills_from_member(world, *oid);
             if let Some(cid) = client_for_player(world, *oid) {
                 if let Some(cs) = world.clients.get(&cid) {
                     cs.send(delete_all.clone());
@@ -266,12 +512,28 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
         cs.send(server_packets::pledge_show_member_list_all(clan, &world.objects));
     }
     notify_members(world, clan_id, object_id, true);
+    // Clan Advent (skill 19009) — Java `ClanMaster.onPlayerLogin`.
+    apply_clan_advent_on_login(world, clan_id, object_id);
+    // Clan skills — Java `EnterWorld` → `clan.addSkillEffects(player)`.
+    apply_clan_skills_to_member(world, clan_id, object_id);
 }
 
-/// `Player.deleteMe`'s clan half: the offline ping to online members.
-pub(crate) fn on_leave_world(world: &World, object_id: i32, clan_id: i32) {
-    if clan_id != 0 {
-        notify_members(world, clan_id, object_id, false);
+/// `Player.deleteMe`'s clan half: the offline ping to online members, plus the
+/// Clan Advent teardown (Java `ClanMaster.onPlayerLogout`). When the leader logs
+/// out the aura drops from every *other* online member; the leaver themselves is
+/// despawned right after this returns, so stripping it from self would be moot.
+pub(crate) fn on_leave_world(world: &mut World, object_id: i32, clan_id: i32) {
+    if clan_id == 0 {
+        return;
+    }
+    notify_members(world, clan_id, object_id, false);
+    let is_leader = world.clans.get(&clan_id).is_some_and(|c| c.leader_id == object_id);
+    if is_leader {
+        for oid in online_members(world, clan_id) {
+            if oid != object_id {
+                remove_clan_advent(world, oid);
+            }
+        }
     }
 }
 

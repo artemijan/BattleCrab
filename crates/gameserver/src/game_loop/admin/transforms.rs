@@ -167,8 +167,8 @@ fn broadcast_transform(world: &World, target: i32) {
         let ave = crate::network::user_info::ex_user_info_abnormal_visual_effect(target, hidden, display_id);
         if let Some(cs) = world.clients.get(&cid) {
             cs.send(ave);
-            if let Some(book) = world.objects.get_component::<SkillBook>(&target) {
-                cs.send(crate::network::enter_world::skill_list(book, &world.data));
+            if let Some(pkt) = super::helpers::skill_list_packet(world, target) {
+                cs.send(pkt);
             }
         }
     }

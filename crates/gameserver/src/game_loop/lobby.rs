@@ -433,7 +433,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(server_packets::shortcut_init(&bundle.shortcuts));
     session.send(ew::ex_basic_action_list(data));
     session.send(ew::henna_info());
-    session.send(ew::skill_list(&bundle.skills, data));
+    // Clan skills aren't applied yet (the clan login hook runs after the player
+    // is registered and re-sends the merged list) → empty clan set here.
+    session.send(ew::skill_list(&bundle.skills, &crate::model::components::ClanSkills::default(), data));
     session.send(ew::acquire_skill_list(player, &bundle.skills, data));
     // Initial burst carries 0/0; `refresh_expertise_penalty` (after the player
     // is registered below) recomputes and resends if any gear is over-grade.

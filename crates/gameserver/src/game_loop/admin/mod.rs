@@ -307,6 +307,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_setskill" => admin_setskill(world, client_id, object_id, &args),
         // Grant / strip / reset / copy a player's whole skill set.
         "admin_give_all_skills" | "admin_give_all_skills_fs" => admin_give_all_skills(world, client_id, object_id),
+        "admin_give_clan_skills" => admin_give_clan_skills(world, client_id, object_id, false),
+        "admin_give_all_clan_skills" => admin_give_clan_skills(world, client_id, object_id, true),
         "admin_remove_all_skills" => admin_remove_all_skills(world, client_id, object_id),
         "admin_reset_skills" => admin_reset_skills(world, client_id, object_id),
         "admin_get_skills" => admin_get_skills(world, client_id, object_id),

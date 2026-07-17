@@ -207,6 +207,7 @@ async fn character_create_inserts_into_real_schema() {
             human_fighter_template(),
         ]),
         skill_trees: crate::data::SkillTreeData::empty(),
+        pledge_skill_trees: crate::data::PledgeSkillTreeData::empty(),
         stat_bonus: crate::data::StatBonus::empty(),
         action_data: crate::data::ActionData::empty(),
         item_data: crate::data::ItemData::empty(),
@@ -982,6 +983,82 @@ fn quest_test_world() -> (
         world.data.npc_data.insert_for_test(t);
     }
     (world, db_rx, link_rx)
+}
+
+/// A stand-in passive clan skill (e.g. Clan Body 370) for the clan-skill tests:
+/// a passive with one flat +PAtk stat effect, so applying it both lands a
+/// passive buff and (via the shared pipeline) moves a supported stat.
+fn passive_clan_test_skill(id: i32) -> Skill {
+    use crate::model::skill::{SkillEffect, StatModifierEffect};
+    use crate::model::stats::{Stat, StatModifierType};
+    Skill {
+        id,
+        level: 1,
+        name: format!("Clan Skill {id}"),
+        operate_type: OperateType::Passive,
+        target_type: TargetType::Self_,
+        magic_type: 2,
+        effect_point: 0,
+        cast_range: 0,
+        effect_range: 0,
+        hit_time: 0,
+        hit_cancel_time: 0.0,
+        cool_time: 0,
+        reuse_delay: 0,
+        reuse_delay_group: -1,
+        mp_consume: 0,
+        mp_initial_consume: 0,
+        hp_consume: 0,
+        abnormal_time: 0,
+        abnormal_level: 0,
+        abnormal_type: "NONE".into(),
+        effects: vec![SkillEffect::StatModifier(StatModifierEffect {
+            stat: Stat::PhysicalAttack,
+            mode: StatModifierType::Diff,
+            amount: 10.0,
+            armor_condition: 0,
+            weapon_condition: 0,
+        })],
+    }
+}
+
+/// A stand-in for `CommonSkill.CLAN_ADVENT` (skill 19009 lv.1). The real skill
+/// lives in the dist `stats/skills` set, which the synthetic test `SkillData`
+/// doesn't load — register this so the clan login/logout path has something to
+/// apply. Permanent (`abnormal_time = -1`), one +5% PAtk stat modifier standing
+/// in for the full six-effect aura.
+fn clan_advent_test_skill() -> Skill {
+    use crate::model::skill::{SkillEffect, StatModifierEffect};
+    use crate::model::stats::{Stat, StatModifierType};
+    Skill {
+        id: 19009,
+        level: 1,
+        name: "Clan Advent".into(),
+        operate_type: OperateType::Other,
+        target_type: TargetType::Self_,
+        magic_type: 2,
+        effect_point: 100,
+        cast_range: 0,
+        effect_range: 0,
+        hit_time: 0,
+        hit_cancel_time: 0.0,
+        cool_time: 0,
+        reuse_delay: 0,
+        reuse_delay_group: -1,
+        mp_consume: 0,
+        mp_initial_consume: 0,
+        hp_consume: 0,
+        abnormal_time: -1,
+        abnormal_level: 1,
+        abnormal_type: "CLAN_ADVENT".into(),
+        effects: vec![SkillEffect::StatModifier(StatModifierEffect {
+            stat: Stat::PhysicalAttack,
+            mode: StatModifierType::Per,
+            amount: 5.0,
+            armor_condition: 0,
+            weapon_condition: 0,
+        })],
+    }
 }
 
 /// Decode a `PlaySound` (0x9E) packet's sound-file string.

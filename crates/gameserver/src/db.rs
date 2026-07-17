@@ -259,6 +259,10 @@ pub enum DbCommand {
     RemoveSiegeClan { castle_id: i32, clan_id: i32 },
     /// Fire-and-forget clan level persist (`Clan.changeLevel`'s single UPDATE).
     UpdateClanLevel { clan_id: i32, level: i32 },
+    /// `Clan.addNewSkill` — upsert a learned clan skill (`sub_pledge_id = -2`,
+    /// the main pledge). Keyed on `(clan_id, skill_id)`, so a re-grant at a
+    /// higher level replaces the row.
+    SaveClanSkill { clan_id: i32, skill_id: i32, skill_level: i32, skill_name: String },
     /// Fire-and-forget clan reputation persist (`Clan.setReputationScore`, which
     /// Java writes via `updateClanScoreInDb`).
     UpdateClanReputation { clan_id: i32, reputation: i32 },
@@ -497,6 +501,21 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
+            DbCommand::SaveClanSkill { clan_id, skill_id, skill_level, skill_name } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT OR REPLACE INTO clan_skills \
+                         (clan_id, skill_id, skill_level, skill_name, sub_pledge_id) \
+                         VALUES (?, ?, ?, ?, -2)",
+                    )
+                    .bind(clan_id)
+                    .bind(skill_id)
+                    .bind(skill_level)
+                    .bind(skill_name),
+                )
+                .await;
+            }
             DbCommand::StoreCursedWeapon { item_id, char_id, reputation, pk_kills, nb_kills, end_time } => {
                 exec(
                     &pool,
@@ -562,6 +581,7 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
             }
             DbCommand::DestroyClan { clan_id, leader_id, leader_expiry } => {
                 exec(&pool, sqlx::query("DELETE FROM clan_data WHERE clan_id=?").bind(clan_id)).await;
+                exec(&pool, sqlx::query("DELETE FROM clan_skills WHERE clan_id=?").bind(clan_id)).await;
                 exec(
                     &pool,
                     sqlx::query("UPDATE characters SET clanid=0, clan_privs=0 WHERE clanid=?").bind(clan_id),
@@ -1027,6 +1047,18 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             .unwrap_or_default();
         // Clan warehouse contents (`owner_id = clan_id`, `loc = "CLANWH"`).
         let wh_rows = load_items(pool, clan_id).await;
+        // Clan skills (Java `Clan.restoreSkills`) — the main-pledge set
+        // (`sub_pledge_id = -2`); sub-unit skills aren't modelled, so other
+        // sub_pledge ids are ignored. Missing table → empty (graceful).
+        let skill_rows = sqlx::query("SELECT skill_id, skill_level FROM clan_skills WHERE clan_id=? AND (sub_pledge_id=-2 OR sub_pledge_id=0)")
+            .bind(clan_id)
+            .fetch_all(pool)
+            .await
+            .unwrap_or_default();
+        let skills = skill_rows
+            .iter()
+            .map(|s| (geti(s, "skill_id") as i32, geti(s, "skill_level") as i32))
+            .collect();
         out.push(crate::model::clan::Clan {
             id: clan_id,
             name: gets(row, "clan_name"),
@@ -1034,6 +1066,7 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             level: geti(row, "clan_level") as i32,
             reputation_score: geti(row, "reputation_score") as i32,
             castle_id: geti(row, "hasCastle") as i32,
+            skills,
             warehouse: crate::model::inventory::Warehouse::from_rows(&wh_rows),
             members: member_rows
                 .iter()
