@@ -1,8 +1,0 @@
-Issues to be fixed:
-1. GMStartupInvulnerable is ignored on login
-2. In siege guards attack some time and then stops for a second and start attacking again, in java they attack until timeout and after that they stop.  Also there should be distance
-  limit where guards/npc/monsters can go far from their spawn lock (check it should be in config).
-3. When using admin command to give clan skills I get a lot of them even skills for owning a Territory war flag. Also it gives residence skills. Please fix it accordingly to java.
-4. when using attack skill on castle door too far it doesn't move to pawn. It works only when auto attack
-5. when admin is in invul mode it sends system message that char is evaded attack, but it shouldn't even send any message like in java.
-6. Still missing some skill in clan leader during the siege: Clan Escape Lock, Clan Resurrection Lock
