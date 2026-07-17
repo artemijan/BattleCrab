@@ -82,6 +82,9 @@ pub mod sm_ids {
     // Zones (G12)
     pub const YOU_MAY_NOT_ATTACK_THIS_TARGET_IN_A_PEACEFUL_ZONE: i16 = 85;
     pub const YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE: i16 = 2167;
+    // Siege zone (combat zone) enter/exit
+    pub const YOU_HAVE_ENTERED_A_COMBAT_ZONE: i16 = 283;
+    pub const YOU_HAVE_LEFT_A_COMBAT_ZONE: i16 = 284;
     // Skill acquisition (G13.9)
     pub const YOU_DO_NOT_HAVE_ENOUGH_SP_TO_LEARN_THIS_SKILL: i16 = 278;
     pub const YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS: i16 = 2208;

@@ -441,6 +441,12 @@ pub struct ZoneFlags {
     /// code. The client needs that initial push: without a valid code it
     /// treats the zone as unknown and refuses to open the world map.
     pub last_compass: i32,
+    /// Whether the player currently stands in an *active* siege zone (its
+    /// castle's siege in progress). Tracked so `revalidateZone` can fire
+    /// `SiegeZone.onEnter`/`onExit` (combat-zone messages + the leave-flag) on
+    /// the transition — a `SiegeZone` is only a combat zone while active, which
+    /// the plain zone mask (membership only) can't express.
+    pub in_active_siege: bool,
 }
 
 impl Default for ZoneFlags {
@@ -451,6 +457,7 @@ impl Default for ZoneFlags {
             mask: 0,
             last_validate: (i32::MIN, i32::MIN, i32::MIN),
             last_compass: 0,
+            in_active_siege: false,
         }
     }
 }

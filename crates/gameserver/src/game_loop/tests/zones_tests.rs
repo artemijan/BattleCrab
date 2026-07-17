@@ -149,6 +149,45 @@ fn water_zone_flips_swim_state_and_speeds() {
     assert!(drain(&mut rx).iter().any(|p| p[0] == 0x32));
 }
 
+/// `SiegeZone.onEnter`/`onExit`: entering an active siege zone sends the
+/// combat-zone message (no flag while inside); leaving sends the exit message
+/// and raises the PvP flag, which then blinks out.
+#[test]
+fn siege_zone_combat_messages_and_leave_flag() {
+    use crate::model::components::{Position, PvpState, ZoneFlags};
+    use crate::model::siege::Siege;
+    let (mut world, ..) = cast_test_world();
+    insert_siege_zone(&mut world, 3, 5000, 6000, -500, 500);
+    world.sieges.insert(3, {
+        let mut s = Siege::new(3);
+        s.in_progress = true;
+        s
+    });
+    let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0); // outside
+    super::zones::revalidate_zone(&mut world, 3001, true); // baseline, no transition
+    drain(&mut rx);
+
+    // Enter the active siege zone → combat-zone message, still unflagged.
+    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 5500;
+    super::zones::revalidate_zone(&mut world, 3001, false);
+    assert!(world.objects.get_component::<ZoneFlags>(&3001).unwrap().in_active_siege);
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_HAVE_ENTERED_A_COMBAT_ZONE),
+        "entered-combat-zone message"
+    );
+    assert_eq!(world.objects.get_component::<PvpState>(&3001).unwrap().flag, 0, "no flag while inside");
+
+    // Leave → exit message + the flag is raised (the leave-blink).
+    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 0;
+    super::zones::revalidate_zone(&mut world, 3001, false);
+    assert!(!world.objects.get_component::<ZoneFlags>(&3001).unwrap().in_active_siege);
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_HAVE_LEFT_A_COMBAT_ZONE),
+        "left-combat-zone message"
+    );
+    assert_eq!(world.objects.get_component::<PvpState>(&3001).unwrap().flag, 1, "flagged on leaving the siege zone");
+}
+
 /// The 100-unit revalidation filter: a small drift does not re-run the zone
 /// query (the water flag stays stale until a real move), a forced call does.
 #[test]

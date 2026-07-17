@@ -72,6 +72,29 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         super::party::broadcast_user_info(world, object_id);
     }
 
+    // SiegeZone.onEnter/onExit: a siege zone is a combat zone only while its
+    // castle's siege runs, which the membership mask can't express — so track
+    // the active-siege state separately. Entering shows the combat-zone message;
+    // leaving shows the exit message and flags the player (Java `startPvPFlag`),
+    // which the PvP task then blinks out.
+    let now_active_siege = super::pvp::active_siege_castle(world, object_id).is_some();
+    if now_active_siege != flags.in_active_siege {
+        if let Some(f) = world.objects.get_component_mut::<ZoneFlags>(&object_id) {
+            f.in_active_siege = now_active_siege;
+        }
+        let msg = if now_active_siege {
+            server_packets::sm_ids::YOU_HAVE_ENTERED_A_COMBAT_ZONE
+        } else {
+            server_packets::sm_ids::YOU_HAVE_LEFT_A_COMBAT_ZONE
+        };
+        if let Some(cs) = client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid)) {
+            cs.send(server_packets::system_message_with(msg, &[]));
+        }
+        if !now_active_siege {
+            super::pvp::start_pvp_flag_on_siege_exit(world, object_id);
+        }
+    }
+
     // Peace/NoRestart have no enter/exit side effects — membership itself is
     // the state their consumers check (`is_inside_peace_zone`; NO_RESTART has
     // no reader in this Mobius version beyond the login-inside teleport).

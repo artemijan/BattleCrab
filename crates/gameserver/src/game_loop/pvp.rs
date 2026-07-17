@@ -56,7 +56,7 @@ fn in_pvp_zone(world: &World, oid: i32) -> bool {
 /// The castle id of the active siege zone the creature stands in, if any. A
 /// `SiegeZone` is only "active" (PvP) while its castle's siege runs, so — unlike
 /// the static arena flag — this is a position + siege-state lookup.
-fn active_siege_castle(world: &World, oid: i32) -> Option<i32> {
+pub(crate) fn active_siege_castle(world: &World, oid: i32) -> Option<i32> {
     let pos = world.objects.get_component::<crate::model::components::Position>(&oid)?;
     let castle_id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z)?;
     world.sieges.get(&castle_id).filter(|s| s.in_progress).map(|_| castle_id)
@@ -148,6 +148,16 @@ pub(crate) fn update_pvp_status_target(world: &mut World, object_id: i32, target
         PVP_NORMAL_TICKS
     };
     set_flag_lasts(world, object_id, ticks);
+}
+
+/// Java `SiegeZone.onExit`'s `if (player.getPvpFlag() == 0) startPvPFlag()`:
+/// leaving an active siege zone raises the flag on a currently-unflagged player
+/// (for `PVP_NORMAL_TIME`), which the `PvpFlagTaskManager` then blinks out. An
+/// already-flagged player keeps their existing (unrefreshed) timer.
+pub(crate) fn start_pvp_flag_on_siege_exit(world: &mut World, object_id: i32) {
+    if flag_of(world, object_id) == 0 {
+        set_flag_lasts(world, object_id, PVP_NORMAL_TICKS);
+    }
 }
 
 /// Refresh the flag expiry to `now + ticks` and turn the flag on if it was off
