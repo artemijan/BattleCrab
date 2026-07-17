@@ -869,7 +869,25 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
         .and_then(|p| crate::enums::Race::from_ordinal(p.race))
         .unwrap_or(crate::enums::Race::Human);
     let pick = if world.cfg.character.random_respawn_in_town { world.roll(64) as usize } else { 0 };
-    let Some((x, y, z)) = world.data.map_region.town_respawn(px, py, pz, race, pick) else { return };
+    // Java `MapRegionManager.getTeleToLocation`: a siege defender whose castle is
+    // under attack respawns *inside* the castle (the residence `getSpawnLoc`) —
+    // but only while a control tower still stands; once the attackers raze them
+    // all (`getSiege().getControlTowerCount() == 0`) the defenders lose that
+    // spawn and fall back to town. Attacker siege-flag respawns (`SIEGEFLAG`) and
+    // non-owner registered defenders need siege flags / HQ — TODO(G24).
+    let siege_spawn = (|| {
+        let clan_id = world.objects.get_component::<crate::model::Player>(&object_id)?.clan_id;
+        let castle_id = world.clans.get(&clan_id).map(|c| c.castle_id).filter(|&c| c > 0)?;
+        let siege = world.sieges.get(&castle_id)?;
+        if !siege.in_progress || siege.control_tower_count <= 0 {
+            return None;
+        }
+        let pts = world.data.castle_restart_points.get(&castle_id)?;
+        (!pts.is_empty()).then(|| pts[pick % pts.len()])
+    })();
+    let Some((x, y, z)) = siege_spawn.or_else(|| world.data.map_region.town_respawn(px, py, pz, race, pick)) else {
+        return;
+    };
     if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&object_id) {
         p.pending_revive = true;
     }

@@ -5,6 +5,7 @@
 pub mod action_data;
 pub mod admin_data;
 pub mod buy_list_data;
+pub mod castle_zone_data;
 pub mod category_data;
 pub mod cursed_weapon_data;
 pub mod door_data;
@@ -135,6 +136,9 @@ pub struct GameData {
     pub cursed_weapons: CursedWeaponData,
     /// Control/flame tower spawns per castle, from `Siege.ini`.
     pub siege_towers: std::collections::HashMap<i32, Vec<crate::model::siege::SiegeSpawn>>,
+    /// Castle residence respawn points per castle, from `castle_hall.xml` — where
+    /// defenders respawn while the control towers stand.
+    pub castle_restart_points: std::collections::HashMap<i32, Vec<(i32, i32, i32)>>,
     /// Gatekeeper teleport lists (G15.5), see [`TeleporterData`].
     pub teleporters: TeleporterData,
     pub transforms: TransformData,
@@ -184,6 +188,7 @@ impl GameData {
             categories: CategoryData::load_from(file_path),
             cursed_weapons: CursedWeaponData::load_from(file_path),
             siege_towers: siege_data::load_siege_towers(file_path),
+            castle_restart_points: castle_zone_data::load_castle_restart_points(file_path),
             teleporters: TeleporterData::load_from(file_path),
             transforms: TransformData::load_from(file_path),
             enchant: EnchantData::load_from(file_path),
@@ -227,6 +232,7 @@ impl GameData {
             categories: CategoryData::empty(),
             cursed_weapons: CursedWeaponData::empty(),
             siege_towers: std::collections::HashMap::new(),
+            castle_restart_points: std::collections::HashMap::new(),
             teleporters: TeleporterData::empty(),
             transforms: TransformData::empty(),
             enchant: EnchantData::empty(),

@@ -1066,3 +1066,66 @@ fn siege_control_tower_destruction_decrements_the_count() {
     crate::game_loop::death::npc_do_die(&mut world, tower, 0);
     assert_eq!(world.sieges[&3].control_tower_count, 0, "destruction decremented the count");
 }
+
+/// A defender killed during a siege respawns *inside* the castle (the residence
+/// `owner_restart_point`) while a control tower still stands; once the attackers
+/// raze them all the defender loses that spawn and falls back to town. This is
+/// the payoff of the control-tower count — Java `MapRegionManager.getTeleToLocation`.
+#[test]
+fn siege_defender_respawns_at_castle_until_control_towers_fall() {
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::siege::Siege;
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    // Town fallback: one region covering the death spot, respawn at (1000, 1000).
+    world.data.map_region = crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
+        name: "test_town".into(),
+        loc_id: 0,
+        respawn_points: vec![(1000, 1000, 7)],
+        tiles: vec![(20, 18)],
+    }]);
+    // The castle's owner restart point (from castle_hall.xml).
+    world.data.castle_restart_points.insert(3, vec![(500, 600, 100)]);
+    // Clan 700 owns castle 3 and is under siege with one control tower up.
+    world.clans.insert(
+        700,
+        Clan {
+            id: 700,
+            name: "Defenders".into(),
+            leader_id: 3001,
+            level: 5,
+            reputation_score: 0,
+            castle_id: 3,
+            members: vec![ClanMember { char_id: 3001, name: "P3001".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
+            warehouse: Default::default(),
+        },
+    );
+    let mut siege = Siege::new(3);
+    siege.in_progress = true;
+    siege.control_tower_count = 1;
+    world.sieges.insert(3, siege);
+
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = 700;
+    world.objects.get_component_mut::<Vitals>(&3001).unwrap().dead = true;
+
+    // Towers standing → respawn at the castle, not the town.
+    world.forced_rolls.push_back(0);
+    handle_request_restart_point(&mut world, 1, &restart_to_village());
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (500, 600, 105), "defender respawns inside the castle (z +5)");
+
+    // Raze the last control tower → the castle respawn is gone, fall back to town.
+    world.sieges.get_mut(&3).unwrap().control_tower_count = 0;
+    world.objects.get_component_mut::<Vitals>(&3001).unwrap().dead = true;
+    world.forced_rolls.push_back(0);
+    handle_request_restart_point(&mut world, 1, &restart_to_village());
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (1000, 1000, 12), "no towers → defender pushed back to town");
+}
+
+/// A `RequestRestartPoint` TO_VILLAGE body.
+fn restart_to_village() -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(0); // TO_VILLAGE
+    w.into_bytes()
+}
