@@ -367,6 +367,12 @@ fn finalize_skill(
                     // `MagicalAttackRange` if left unhandled.
                     // TODO(G7.5): scale mAtk by charged souls once charges land.
                     "MagicalSoulAttack" => vec![SkillEffect::MagicalAttack { power: param("power").unwrap_or(0.0) }],
+                    // Vampiric Touch/Claw: magic damage + self-heal of
+                    // `percentage`% of the drained HP.
+                    "HpDrain" => vec![SkillEffect::HpDrain {
+                        power: param("power").unwrap_or(0.0),
+                        percentage: param("percentage").unwrap_or(0.0),
+                    }],
                     // Physical skill damage. `PhysicalSoulAttack` runs the
                     // identical `77·((pAtk·pAtkMod)·levelMod + power)/(pDef·pDefMod)`
                     // core; its only extra is a charged-soul boost that is ×1
@@ -455,6 +461,8 @@ fn finalize_skill(
                 abnormal_time: get_i("abnormalTime", 0),
                 abnormal_level: get_i("abnormalLevel", 0),
                 abnormal_type: value_at(values, "abnormalType", level).unwrap_or("NONE").to_string(),
+                // Java `AffectScope` defaults to SINGLE when the tag is absent.
+                single_target: value_at(values, "affectScope", level).map_or(true, |s| s == "SINGLE"),
                 effects: skill_effects,
             },
         );
@@ -514,6 +522,25 @@ mod tests {
             [SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance }]
                 if *power == 30.0 && *p_atk_mod == 1.0 && *p_def_mod == 1.0 && *critical_chance == 10.0
         ));
+
+        // Vampiric Touch 1147: an `HpDrain` skill — magic damage + 40% self-heal.
+        // Before the handler existed it fell through and dealt no damage.
+        let vampiric = sd.get(1147, 1).expect("Vampiric Touch lvl 1");
+        assert!(matches!(
+            vampiric.effects.as_slice(),
+            [SkillEffect::HpDrain { power, percentage }] if *power == 18.0 && *percentage == 40.0
+        ));
+
+        // Decrease Speed 1160: single-target (`affectScope SINGLE`) bad skill
+        // with a `Speed` PER -20% debuff. The four movement stats collapse to a
+        // single "Speed -20%" line in the caster feedback message.
+        let decrease_speed = sd.get(1160, 1).expect("Decrease Speed lvl 1");
+        assert!(decrease_speed.single_target && decrease_speed.is_bad());
+        assert_eq!(decrease_speed.debuff_percent_summary().as_deref(), Some("Speed -20%"));
+        // An area skill (`affectScope RANGE`) is not single-target → no % line.
+        let sonic_storm = sd.get(7, 1).expect("Sonic Storm lvl 1");
+        assert!(!sonic_storm.single_target);
+        assert_eq!(sonic_storm.debuff_percent_summary(), None);
 
         // Skill 1011 "Heal": the reference datapack's effect body is
         // `<item>power</item>`, which parses to the param key `item` — so the

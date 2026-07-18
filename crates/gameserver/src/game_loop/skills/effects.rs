@@ -98,6 +98,52 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 );
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name);
             }
+            SkillEffect::HpDrain { power, percentage } => {
+                let power = *power;
+                let (m_atk, caster_name) = {
+                    let m_atk =
+                        world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
+                    (m_atk, world.objects.get_component::<crate::model::Player>(&caster_oid).expect("player").name.clone())
+                };
+                let m_def = target_m_def(world, target_oid);
+                let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit, magic_shots_bonus);
+
+                // `HpDrain.instant()`: the drained HP is what's actually removed
+                // — CP absorbs first (player targets only; NPCs have no CP),
+                // then it's clamped to the target's remaining HP. Java reads both
+                // as truncated ints, pre-damage.
+                let cur_hp = world.objects.get_component::<Vitals>(&target_oid).map(|v| v.cur_hp.floor()).unwrap_or(0.0);
+                let cur_cp = world
+                    .objects
+                    .get_component::<crate::model::components::PlayerVitals>(&target_oid)
+                    .map(|v| v.cur_cp.floor())
+                    .unwrap_or(0.0);
+                let drain = if cur_cp > 0.0 {
+                    if damage < cur_cp { 0.0 } else { damage - cur_cp }
+                } else if damage > cur_hp {
+                    cur_hp
+                } else {
+                    damage
+                };
+                // Heal the caster by `percentage`% of the drain, overheal-clamped.
+                let heal = (*percentage / 100.0) * drain;
+                if heal > 0.0 {
+                    if let Some(v) = world.objects.get_component_mut::<Vitals>(&caster_oid) {
+                        v.cur_hp = (v.cur_hp + heal).min(v.max_hp as f64);
+                    }
+                    if let Some(client_id) = client_for_player(world, caster_oid) {
+                        let cur = world.objects.get_component::<Vitals>(&caster_oid).map(|v| v.cur_hp as i32).unwrap_or(0);
+                        if let Some(cs) = world.clients.get(&client_id) {
+                            cs.send(server_packets::status_update(
+                                caster_oid,
+                                &[(server_packets::status_update_type::CUR_HP, cur)],
+                            ));
+                        }
+                        crate::game_loop::party::notify_party_vitals(world, caster_oid);
+                    }
+                }
+                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name);
+            }
             SkillEffect::Heal { power } => {
                 let power = *power;
                 let m_atk = world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
@@ -253,6 +299,22 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         passive: false,
         effects: buff_effects,
     };
+    // Caster-facing feedback for a landed single-target debuff: an `S1_TEXT`
+    // line listing each percentage modifier (e.g. "Speed -20%"). Gated to
+    // single-target bad skills so an area debuff doesn't spam one line per
+    // affected target. Fires for NPC and player targets alike (the effect is
+    // always applied below — the port has no land-rate/resist roll yet).
+    if let Some(summary) = skill.debuff_percent_summary() {
+        if let Some(client_id) = client_for_player(world, caster_oid) {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::system_message_with(
+                    sm_ids::S1_TEXT,
+                    &[SmParam::Text(format!("{}: {}", skill.name, summary))],
+                ));
+            }
+        }
+    }
+
     // NPC target: buffs modify the mob's server-side stats (no buff icons —
     // those are self-only — and no NpcInfo re-broadcast, so a speed change
     // isn't reflected client-side until respawn; the combat math uses it now).

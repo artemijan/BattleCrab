@@ -72,6 +72,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         abnormal_time: 20,
         abnormal_level: 1,
         abnormal_type: "PD_UP".into(),
+        single_target: true,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalDefence,
             mode: StatModifierType::Per,
@@ -1448,6 +1449,75 @@ fn nuke_kills_monster_and_rewards() {
     assert!(world.objects.get_component::<crate::model::Player>(&3001).expect("player").exp > exp_before, "XP rewarded through the same death path");
     let packets = drain(&mut a_rx);
     assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::DIE));
+}
+
+/// Vampiric Touch (1147, HpDrain) deals magic damage to the mob and heals the
+/// caster by 40% of the HP drained — the regression guard for the whole
+/// `HpDrain` family, which used to cast but deal (and drain) nothing.
+#[test]
+fn vampiric_touch_deals_damage_and_heals_caster() {
+    use crate::model::components::Vitals;
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 15;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+    // Wound the caster (with ample headroom) so the lifesteal isn't
+    // overheal-clamped away.
+    {
+        let v = world.objects.get_component_mut::<Vitals>(&3001).unwrap();
+        v.max_hp = 100_000;
+        v.cur_hp = 1.0;
+    }
+    let npc_hp_before = nvit(&world, npc_oid).cur_hp;
+    let caster_hp_before = world.objects.get_component::<Vitals>(&3001).unwrap().cur_hp;
+    drain(&mut a_rx);
+
+    let skill = world.data.skill_data.get(1147, 1).expect("Vampiric Touch").clone();
+    world.forced_rolls.push_back(999_999); // magic-crit roll fails
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+
+    let dmg = npc_hp_before - nvit(&world, npc_oid).cur_hp;
+    assert!(dmg > 0.0, "Vampiric Touch dealt damage (was a silent no-op before)");
+    let healed = world.objects.get_component::<Vitals>(&3001).unwrap().cur_hp - caster_hp_before;
+    assert!((healed - 0.40 * dmg).abs() < 1.0, "caster healed {healed}, expected 40% of {dmg}");
+}
+
+/// A single-target debuff (Decrease Speed 1160, Speed -20%) lands on the mob —
+/// its run speed drops server-side — and the caster gets the `S1_TEXT` feedback
+/// line naming the debuff and its percentage.
+#[test]
+fn single_target_debuff_slows_monster_and_reports_percent() {
+    use crate::model::components::Speeds;
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 14;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+    drain(&mut a_rx);
+
+    let skill = world.data.skill_data.get(1160, 1).expect("Decrease Speed").clone();
+    assert!(skill.is_bad() && skill.single_target);
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+
+    // Debuff applied to the mob: run speed recomputed to base 120 × 0.80 = 96.
+    let speed = world.objects.get_component::<Speeds>(&npc_oid).unwrap().run_spd;
+    assert!((speed - 96.0).abs() < 1e-6, "run speed debuffed to 96, got {speed}");
+
+    // The caster sees the percentage feedback line (single-target only).
+    let msgs = drain(&mut a_rx);
+    assert!(
+        msgs.iter().any(|p| sysmsg_text(p).as_deref() == Some("Decrease Speed: Speed -20%")),
+        "caster received the debuff-% S1_TEXT line",
+    );
 }
 
 /// `RequestAcquireSkill.checkPlayerSkill` gates: an under-level request sends

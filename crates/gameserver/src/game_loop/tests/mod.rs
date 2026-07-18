@@ -380,6 +380,7 @@ fn cast_test_world() -> (
         abnormal_time: 0,
         abnormal_level: 0,
         abnormal_type: "NONE".into(),
+        single_target: true,
         effects: vec![],
     };
     data.skill_data.insert_for_test(Skill {
@@ -433,6 +434,40 @@ fn cast_test_world() -> (
             p_def_mod: 1.0,
             critical_chance: 10.0,
         }],
+        ..base.clone()
+    });
+    // Decrease Speed 1160 — a single-target debuff: Speed -20% (PER) on an
+    // enemy. `effect_point` negative → `is_bad`; drives the debuff-% message.
+    data.skill_data.insert_for_test(Skill {
+        id: 1160,
+        name: "Decrease Speed".into(),
+        target_type: TargetType::EnemyOnly,
+        effect_point: -331,
+        hit_time: 1000,
+        abnormal_time: 60,
+        abnormal_type: "SPEED_DOWN".into(),
+        effects: [Stat::RunSpeed, Stat::WalkSpeed, Stat::SwimRunSpeed, Stat::SwimWalkSpeed]
+            .into_iter()
+            .map(|stat| {
+                SkillEffect::StatModifier(StatModifierEffect {
+                    stat,
+                    mode: StatModifierType::Per,
+                    amount: -20.0,
+                    armor_condition: 0,
+                    weapon_condition: 0,
+                })
+            })
+            .collect(),
+        ..base.clone()
+    });
+    // Vampiric Touch 1147 — HpDrain: magic damage + 40% self-heal.
+    data.skill_data.insert_for_test(Skill {
+        id: 1147,
+        name: "Vampiric Touch".into(),
+        target_type: TargetType::Enemy,
+        effect_point: -143,
+        hit_time: 1000,
+        effects: vec![SkillEffect::HpDrain { power: 18.0, percentage: 40.0 }],
         ..base.clone()
     });
     // A slow self-buff (10 s cast) used as the interruptible victim cast.
@@ -1029,6 +1064,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         abnormal_time: 0,
         abnormal_level: 0,
         abnormal_type: "NONE".into(),
+        single_target: true,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalAttack,
             mode: StatModifierType::Diff,
@@ -1068,6 +1104,7 @@ fn clan_advent_test_skill() -> Skill {
         abnormal_time: -1,
         abnormal_level: 1,
         abnormal_type: "CLAN_ADVENT".into(),
+        single_target: true,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalAttack,
             mode: StatModifierType::Per,
