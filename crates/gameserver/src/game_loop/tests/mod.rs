@@ -386,6 +386,8 @@ fn cast_test_world() -> (
         activate_rate: -1,
         lvl_bonus_rate: 0,
         single_target: true,
+        can_be_dispelled: true,
+        is_debuff: false,
         effects: vec![],
     };
     data.skill_data.insert_for_test(Skill {
@@ -1099,6 +1101,8 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         single_target: true,
+        can_be_dispelled: true,
+        is_debuff: false,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalAttack,
             mode: StatModifierType::Diff,
@@ -1141,6 +1145,8 @@ fn clan_advent_test_skill() -> Skill {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         single_target: true,
+        can_be_dispelled: true,
+        is_debuff: false,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalAttack,
             mode: StatModifierType::Per,

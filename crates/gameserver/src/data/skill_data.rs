@@ -577,6 +577,9 @@ fn finalize_skill(
                 abnormal_type: value_at(values, "abnormalType", level).unwrap_or("NONE").to_string(),
                 // Java `AffectScope` defaults to SINGLE when the tag is absent.
                 single_target: value_at(values, "affectScope", level).map_or(true, |s| s == "SINGLE"),
+                // Java `set.getBoolean("canBeDispelled", true)` / `("isDebuff", false)`.
+                can_be_dispelled: value_at(values, "canBeDispelled", level).map_or(true, |v| v == "true"),
+                is_debuff: value_at(values, "isDebuff", level).map_or(false, |v| v == "true"),
                 effects: skill_effects,
             },
         );

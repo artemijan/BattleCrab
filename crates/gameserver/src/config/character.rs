@@ -118,6 +118,10 @@ pub struct CharacterConfig {
     /// `Player.storeEffect`/`restoreEffects`, skill-reuse half; buff restore is
     /// still deferred). True on this dist.
     pub store_skill_cooltime: bool,
+    /// `DanceCancelBuff`: whether a dance/song may be stripped by the client's
+    /// alt+click buff-cancel (`RequestDispel`). Java default False; this dist's
+    /// Character.ini sets it True.
+    pub dance_cancel_buff: bool,
     /// `MaxFreeTeleportLevel`: gatekeeper NORMAL/HUNTING teleports are free at
     /// or below this level (40 on this dist, Java default 99).
     pub max_free_teleport_level: i32,
@@ -186,6 +190,7 @@ impl Default for CharacterConfig {
             max_buff_count: 24,
             max_dance_count: 12,
             store_skill_cooltime: true,
+            dance_cancel_buff: false,
             max_free_teleport_level: 99,
             alt_karma_player_can_use_gk: false,
             unstuck_interval: 300,
@@ -258,6 +263,7 @@ impl CharacterConfig {
             max_buff_count: p.get_int("MaxBuffAmount", 24),
             max_dance_count: p.get_int("MaxDanceAmount", 12),
             store_skill_cooltime: p.get_bool("StoreSkillCooltime", d.store_skill_cooltime),
+            dance_cancel_buff: p.get_bool("DanceCancelBuff", d.dance_cancel_buff),
             max_free_teleport_level: p.get_int("MaxFreeTeleportLevel", d.max_free_teleport_level),
             alt_karma_player_can_use_gk: p.get_bool("AltKarmaPlayerCanUseGK", d.alt_karma_player_can_use_gk),
             unstuck_interval: p.get_int("UnstuckInterval", d.unstuck_interval),
