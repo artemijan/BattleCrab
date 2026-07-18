@@ -176,6 +176,14 @@ pub enum SkillEffect {
     /// level. Backs Cure Poison (1012), Cure Bleeding, etc. Java's special-cased
     /// `AbnormalType.TRANSFORM` branch is omitted — no transforms in scope yet.
     DispelBySlot { dispel: Vec<(String, i32)> },
+    /// `handlers/effecthandlers/ProtectionBlessing.java` — the Newbie Helper's
+    /// Blessing of Protection (5182): a chaotic (PK) character 10+ levels above
+    /// the target cannot damage or be damaged by them. Carries no stat
+    /// modifier, so it lands as an icon-only timed `ActiveBuff` (like a bare
+    /// `DamOverTime`) — the `PK_PROTECT` abnormal + 7200 s duration are honored,
+    /// but the actual damage-immunity check is deferred to the PvP milestone.
+    /// TODO(G-pvp): gate PK damage on this buff in the combat/flag path.
+    ProtectionBlessing,
 }
 
 /// `dist/game/data/stats/skills/*.xml` → `Skill.java`, scoped to G6.

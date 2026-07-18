@@ -400,6 +400,11 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 }
             }
             SkillEffect::StatModifier(_) => {} // collected below
+            // Blessing of Protection: no instant action — it lands purely as
+            // the timed `PK_PROTECT` abnormal handled by the buff path below
+            // (kept off the empty-`buff_effects` bail via `has_protection`).
+            // TODO(G-pvp): the actual PK damage immunity.
+            SkillEffect::ProtectionBlessing => {}
         }
     }
 
@@ -424,7 +429,10 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     // lands as a timed buff (for the icon + expiry) whose ticks are armed
     // below — so it must not bail here on an empty `buff_effects`.
     let has_dot = skill.effects.iter().any(|e| matches!(e, SkillEffect::DamOverTime { .. }));
-    if buff_effects.is_empty() && !has_dot {
+    // Blessing of Protection likewise carries no stat modifier but must still
+    // land as an icon-only timed buff (its PK_PROTECT abnormal + duration).
+    let has_protection = skill.effects.iter().any(|e| matches!(e, SkillEffect::ProtectionBlessing));
+    if buff_effects.is_empty() && !has_dot && !has_protection {
         return;
     }
 

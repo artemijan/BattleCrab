@@ -193,6 +193,15 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
                 super::shop::show_buy_window(world, client_id, object_id, npc_object_id, list_id);
             }
         }
+        // `bypasshandlers/SupportBlessing.java`: the Newbie Helper / Gatekeeper
+        // Blessing of Protection (the `default/BlessingOfProtection.htm` button).
+        "GiveBlessing" => super::support_magic::give_blessing(world, client_id, object_id, npc_object_id),
+        // `bypasshandlers/SupportMagic.java`: the newbie support buffs (the
+        // `default/SupportMagic.htm` / `SupportMagicServitor.htm` buttons).
+        "SupportMagic" => super::support_magic::support_magic(world, client_id, object_id, npc_object_id, false),
+        "SupportMagicServitor" => {
+            super::support_magic::support_magic(world, client_id, object_id, npc_object_id, true)
+        }
         _ => {
             warn!("Bypass: unhandled npc bypass verb [{verb}] in [{command}].");
         }

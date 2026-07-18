@@ -503,6 +503,12 @@ fn finalize_skill(
                             .collect(),
                         None => Vec::new(),
                     },
+                    // Blessing of Protection (5182): PK-damage immunity. No stat
+                    // modifier, so it would otherwise fall through to an empty
+                    // effect list and never land as a buff — carry a marker so
+                    // `apply_skill_effects` still creates the icon-only timed buff.
+                    // TODO(G-pvp): honor the actual damage immunity.
+                    "ProtectionBlessing" => vec![SkillEffect::ProtectionBlessing],
                     _ => match EFFECT_REGISTRY.iter().find(|(n, _)| n == xml_name).map(|(_, s)| *s) {
                         Some(stat) => param("amount").map(|amount| stat_mod(stat, amount)).into_iter().collect(),
                         None => Vec::new(),
@@ -668,6 +674,24 @@ mod tests {
         assert!(matches!(escape.effects.as_slice(), [SkillEffect::EscapeToTown]));
         let gm_escape = sd.get(2100, 1).expect("Escape: 1 Second lvl 1");
         assert!(matches!(gm_escape.effects.as_slice(), [SkillEffect::EscapeToTown]));
+
+        // Blessing of Protection 5182 (Newbie Helper): its `ProtectionBlessing`
+        // effect carries no stat modifier — before this arm it fell through to
+        // an empty effect list and never landed as a buff. It must parse to the
+        // marker so `apply_skill_effects` still creates the icon-only PK_PROTECT
+        // buff (7200 s).
+        let blessing = sd.get(5182, 1).expect("Blessing of Protection lvl 1");
+        assert!(matches!(blessing.effects.as_slice(), [SkillEffect::ProtectionBlessing]));
+        assert_eq!(blessing.abnormal_time, 7200);
+
+        // The Newbie Helper support buffs must all load with their stat effects
+        // (empty-effect skills would silently drop and show no icon): Wind Walk
+        // 4322 pumps all four move speeds; Shield 4323 is PhysicalDefence;
+        // Empower 4331 is MAtk.
+        let wind_walk = sd.get(4322, 1).expect("Adventurer's Wind Walk lvl 1");
+        assert_eq!(wind_walk.stat_modifier_effects().len(), 4, "Speed pumps 4 move stats");
+        assert!(!sd.get(4323, 1).expect("Shield").stat_modifier_effects().is_empty());
+        assert!(!sd.get(4331, 1).expect("Empower").stat_modifier_effects().is_empty());
 
         // Skill 22490 "Mysterious Spiritshot d 5000" — the `Restoration`
         // effect backing the "Mysterious Blessed Spiritshot Pack (5000)
