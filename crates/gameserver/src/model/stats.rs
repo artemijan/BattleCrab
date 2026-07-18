@@ -61,6 +61,17 @@ pub enum Stat {
     /// interrupts the target's cast (`Formulas.calcAtkBreak`). Concentration
     /// (`ReduceCancel`) lowers it.
     AttackCancel,
+    /// Java `Stat.SHIELD_DEFENCE_RATE` ("rShld") — the shield block chance.
+    /// Blessed Shield (`ShieldDefenceRate`) raises it. No finalizer yet, so it's
+    /// only a buff-modifier target (the buff lands with its icon regardless).
+    ShieldDefenceRate,
+    /// Java `Stat.CRITICAL_DAMAGE` ("cAtk", multiplicative) — the crit-damage
+    /// multiplier. Death Whisper (`CriticalDamage`, `mode=PER`) raises it.
+    CriticalDamage,
+    /// Java `Stat.CRITICAL_DAMAGE_ADD` ("cAtkAdd", additive) — the flat
+    /// crit-damage bonus that `CriticalDamage` effects with `mode=DIFF` feed
+    /// (the same handler picks this stat over `CRITICAL_DAMAGE` for diff mode).
+    CriticalDamageAdd,
 }
 
 /// Java `StatModifierType` (`AbstractStatAddEffect`/`AbstractStatPercentEffect`):

@@ -184,6 +184,22 @@ pub enum SkillEffect {
     /// but the actual damage-immunity check is deferred to the PvP milestone.
     /// TODO(G-pvp): gate PK damage on this buff in the combat/flag path.
     ProtectionBlessing,
+    /// `handlers/effecthandlers/DefenceTrait.java` — raises the target's
+    /// resistance to a set of `TraitType`s (Mental Shield's HOLD/SLEEP/
+    /// DERANGEMENT, Stun Resistance's SHOCK, …) via `mergeDefenceTrait`. The
+    /// per-trait resistances aren't a single `Stat` and the trait-defense math
+    /// isn't modeled yet, so this carries no stat modifier and lands as an
+    /// icon-only timed `ActiveBuff` (like `ProtectionBlessing`) — the abnormal +
+    /// duration are honored so the buff shows and expires correctly.
+    /// TODO(G16): apply the trait-defense resistances in the debuff land math.
+    DefenceTrait,
+    /// `handlers/effecthandlers/VampiricAttack.java` — Vampiric Rage: a chance to
+    /// recover a % of melee damage dealt as HP (`ABSORB_DAMAGE_PERCENT` +
+    /// `vampiricSum`). The melee HP-absorb path isn't modeled yet, so like
+    /// `ProtectionBlessing` this carries no stat modifier and lands as an
+    /// icon-only timed `ActiveBuff` (abnormal + duration honored).
+    /// TODO(G20): honor the actual HP absorb-on-hit in the melee combat path.
+    VampiricAttack,
 }
 
 /// `dist/game/data/stats/skills/*.xml` → `Skill.java`, scoped to G6.
