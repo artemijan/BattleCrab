@@ -1616,6 +1616,47 @@ fn single_target_debuff_resisted_leaves_target_and_reports() {
     );
 }
 
+/// Regression: casting a *bad* skill at a monster must aggro it — the mob's AI
+/// wakes and switches to the attack intention — **even when the debuff is
+/// resisted**. Java `SkillCaster.callSkill` runs `addDamageHate(caster, 0,
+/// -effectPoint)` + `notifyEvent(EVT_ATTACKED)` for every bad skill on an
+/// attackable, right after `activateSkill` and independent of whether the
+/// effects landed. The port used to wake the mob only from the damage/spoil
+/// effect handlers, so a pure or resisted debuff never made the monster
+/// retaliate ("when using a debuff and it doesn't land, the monster doesn't
+/// attack back"). This drives the full network cast path (where the fix lives,
+/// in `handle_skill_finish`) and forces the land roll to fail.
+#[test]
+fn resisted_debuff_still_aggros_monster() {
+    use crate::model::components::SkillBook;
+    use crate::model::npc::{AggroList, NpcAi, NpcIntention};
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
+
+    // Teach the caster Decrease Speed (1160) so the network cast path accepts it.
+    world.objects.get_component_mut::<SkillBook>(&3001).unwrap().0.insert(1160, 1);
+
+    // Target the mob, then cast the debuff, forcing the resist (crit roll 0,
+    // land roll 90 ≥ the 90 rate → resisted, as in `single_target_debuff_
+    // resisted_leaves_target_and_reports`).
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    drain(&mut a_rx);
+    world.forced_rolls.extend([0, 90]);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1160, false));
+
+    // Run the cast to completion (launch + finish phases).
+    advance_ticks(&mut world, 60);
+
+    // The debuff resisted (the resist line fired above), yet the mob is now
+    // attacking the caster: `callSkill` woke its AI + added hate regardless.
+    let ai = world.objects.get_component::<NpcAi>(&npc_oid).unwrap();
+    assert_eq!(ai.intention, NpcIntention::Attack, "resisted debuff still wakes the mob");
+    let aggro = world.objects.get_component::<AggroList>(&npc_oid).unwrap();
+    assert!(aggro.0.contains_key(&3001), "the caster is on the mob's aggro list");
+}
+
 /// Cure Poison (1012) cleanses a POISON debuff via `DispelBySlot`: it removes a
 /// landed Poison (129) DoT whose `abnormalLevel` is at or below the cure's
 /// dispel level, and leaves a higher-level poison alone. Before the fix
