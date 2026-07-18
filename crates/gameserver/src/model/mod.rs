@@ -313,6 +313,9 @@ pub struct PlayerData {
     pub warehouse: inventory::Warehouse,
     pub freight: inventory::Freight,
     pub skills: SkillBook,
+    /// Worn henna dyes (`character_hennas`); their stat bonus is already folded
+    /// into `base_stats`.
+    pub henna: components::HennaSlots,
     pub shortcuts: Shortcuts,
     pub macros: Macros,
     pub friends: components::Friends,
@@ -380,7 +383,7 @@ impl PlayerData {
                     components::ExpertisePenalty::default(),
                     components::PvpState::default(),
                 ),
-                (self.warehouse, self.freight, components::ClanSkills::default()),
+                (self.warehouse, self.freight, components::ClanSkills::default(), self.henna),
             ),
         );
     }
@@ -588,13 +591,25 @@ impl Player {
         let max_mp = calc_max_mp(data, &t, c.level, Some(&inventory), &no_mods);
         let max_cp = calc_max_cp(data, &t, c.level, &no_mods);
 
+        // Restored henna dyes (Java `restoreHenna`): their base-stat bonuses are
+        // folded straight into `BaseStats` — henna is a permanent base modifier,
+        // exactly like the template, so every downstream reader (finalizers,
+        // UserInfo STR/…) picks it up with no special-casing.
+        let mut henna_slots = [None; 3];
+        for &(slot, dye_id) in &c.hennas {
+            if (1..=3).contains(&slot) {
+                henna_slots[(slot - 1) as usize] = Some(dye_id);
+            }
+        }
+        let henna = components::HennaSlots(henna_slots);
+        let hs = data.hennas.stat_sums(&henna_slots);
         let base_stats = BaseStats {
-            str_: t.base_str,
-            dex: t.base_dex,
-            con: t.base_con,
-            int_: t.base_int,
-            wit: t.base_wit,
-            men: t.base_men,
+            str_: t.base_str + hs.str_,
+            dex: t.base_dex + hs.dex,
+            con: t.base_con + hs.con,
+            int_: t.base_int + hs.int_,
+            wit: t.base_wit + hs.wit,
+            men: t.base_men + hs.men,
         };
         let mut vitals = Vitals {
             max_hp: max_hp as i32,
@@ -754,6 +769,7 @@ impl Player {
             warehouse,
             freight,
             skills,
+            henna,
             shortcuts: Shortcuts::from_list(shortcuts),
             macros: Macros::from_list(c.macros.clone()),
             friends: components::Friends(c.friends.clone()),

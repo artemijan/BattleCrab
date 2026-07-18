@@ -188,6 +188,29 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
                 cs.send(server_packets::recipe_book_item_list(is_dwarven, max_mp, &[]));
             }
         }
+        // Henna / dye symbols (G16).
+        cop::REQUEST_HENNA_ITEM_LIST => super::henna::handle_item_list(world, client_id),
+        cop::REQUEST_HENNA_REMOVE_LIST => super::henna::handle_remove_list(world, client_id),
+        cop::REQUEST_HENNA_ITEM_INFO => {
+            if let Some(id) = cp::read_symbol_id(body) {
+                super::henna::handle_item_info(world, client_id, id);
+            }
+        }
+        cop::REQUEST_HENNA_ITEM_REMOVE_INFO => {
+            if let Some(id) = cp::read_symbol_id(body) {
+                super::henna::handle_item_remove_info(world, client_id, id);
+            }
+        }
+        cop::REQUEST_HENNA_EQUIP => {
+            if let Some(id) = cp::read_symbol_id(body) {
+                super::henna::handle_equip(world, client_id, id);
+            }
+        }
+        cop::REQUEST_HENNA_REMOVE => {
+            if let Some(id) = cp::read_symbol_id(body) {
+                super::henna::handle_remove(world, client_id, id);
+            }
+        }
         cop::LOGOUT => handle_logout(world, client_id),
         cop::REQUEST_RESTART => handle_request_restart(world, client_id),
         cop::EX_PACKET => on_ex_packet(world, client_id, body),

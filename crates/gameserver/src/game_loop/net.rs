@@ -114,7 +114,23 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
 
     let skill_reuses = reuses_to_save(world, world.objects.get_component::<crate::model::components::Reuses>(&object_id));
 
-    Some(db::PlayerSaveData { base, items, skills, shortcuts, macros, quests, skill_reuses })
+    let hennas = world
+        .objects
+        .get_component::<crate::model::components::HennaSlots>(&object_id)
+        .map(henna_rows)
+        .unwrap_or_default();
+
+    Some(db::PlayerSaveData { base, items, skills, hennas, shortcuts, macros, quests, skill_reuses })
+}
+
+/// Worn henna dyes → `character_hennas` rows as `(slot 1-3, dye_id)`.
+fn henna_rows(henna: &crate::model::components::HennaSlots) -> Vec<(i32, i32)> {
+    henna
+        .0
+        .iter()
+        .enumerate()
+        .filter_map(|(i, dye)| dye.map(|id| (i as i32 + 1, id)))
+        .collect()
 }
 
 /// Skill reuse cooldowns → `character_skills_save` rows (Java `storeEffect`,
@@ -259,6 +275,7 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
                     base: db::PlayerSnapshot::of(&b.player, &b.position, &b.vitals, &b.player_vitals),
                     items: b.inventory.to_rows().into_iter().chain(b.warehouse.to_rows()).chain(b.freight.to_rows()).collect(),
                     skills: b.skills.0.iter().map(|(id, lvl)| (*id, *lvl)).collect(),
+                    hennas: henna_rows(&b.henna),
                     shortcuts: b.shortcuts.0.values().cloned().collect(),
                     macros: b.macros.entries.clone(),
                     quests: b.quests.0.clone(),

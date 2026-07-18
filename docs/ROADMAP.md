@@ -311,6 +311,19 @@ premium flag and vitality level survive relog; henna changes stats.
 **Unblocks:** `//premium*`, `//pccafepoints`, `//primepoints`,
 `//set_vitality_level`.
 
+🚧 **Henna slice landed (2026-07-19)** — plan [PLAN_G16_HENNA.md](PLAN_G16_HENNA.md).
+`data/henna_data.rs` (`HennaData` — 372 dyes) + a `HennaSlots` component whose
+dye stat bonuses are folded into `BaseStats` (`= template + Σ worn dyes`,
+recomputed on draw/remove, so the finalizers + UserInfo panel pick henna up with
+no special-casing). `character_hennas` load/persist; the `RequestHenna*` packet
+family (equip/remove/item-info/item-remove-info/item-list/remove-list) +
+`HennaInfo`/`HennaEquipList`/`HennaRemoveList`/`HennaItemDrawInfo`/
+`HennaItemRemoveInfo`; the SymbolMaker `Draw`/`Remove` bypass; `HennaInfo` in the
+enter-world burst; empty-slot count from class level (`*_CLASS_GROUP` → 0/2/3).
+Interlude dyes are permanent (`duration=-1`), so the timed-henna scheduler +
+`HennaDuration` variables + LUC/CHA + dye skills are out of scope. **Remaining
+for G16:** `character_variables` store, full vitality, premium gameplay effects.
+
 ---
 
 ## Track B — Progression & clans

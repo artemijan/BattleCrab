@@ -508,6 +508,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // (Spellcraft/Magician's Movement) at enter-world: a robe-wearing mystic
     // logs in with the casting/attack-speed bonus already folded in.
     super::passive_skills::refresh_conditioned_passives(world, object_id);
+    // Java `EnterWorld` sends `HennaInfo` in the burst — the worn-dye panel
+    // (the dyes' stat bonus is already in the UserInfo this burst carried).
+    super::henna::send_henna_info(world, client_id, object_id);
     // Java `EnterWorld.runImpl`'s GM branch: apply the configured default GM
     // state (builder-hide / invul / invis / silence / diet) before the spawn
     // broadcast, so an invisible GM is never described to nearby players.

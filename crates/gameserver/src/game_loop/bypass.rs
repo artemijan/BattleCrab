@@ -206,6 +206,10 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
         "SupportMagicServitor" => {
             super::support_magic::support_magic(world, client_id, object_id, npc_object_id, true)
         }
+        // `ai/others/SymbolMaker`: the dye-symbol NPC's "Draw"/"Remove" buttons
+        // (only that script's htms emit these verbs).
+        "Draw" => super::henna::handle_item_list(world, client_id),
+        "Remove" => super::henna::handle_remove_list(world, client_id),
         _ => {
             warn!("Bypass: unhandled npc bypass verb [{verb}] in [{command}].");
         }

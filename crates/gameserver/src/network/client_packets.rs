@@ -85,6 +85,12 @@ pub mod opcodes {
     /// `RequestRecipeBookOpen` — the "Common Craft" / "Dwarven Craft" action;
     /// body is one int (`0` = dwarven craft, else common).
     pub const REQUEST_RECIPE_BOOK_OPEN: u8 = 0xB5;
+    pub const REQUEST_HENNA_EQUIP: u8 = 0x6F;
+    pub const REQUEST_HENNA_REMOVE_LIST: u8 = 0x70;
+    pub const REQUEST_HENNA_ITEM_REMOVE_INFO: u8 = 0x71;
+    pub const REQUEST_HENNA_REMOVE: u8 = 0x72;
+    pub const REQUEST_HENNA_ITEM_LIST: u8 = 0xC3;
+    pub const REQUEST_HENNA_ITEM_INFO: u8 = 0xC4;
     pub const REQUEST_FRIEND_INVITE: u8 = 0x77;
     pub const REQUEST_ANSWER_FRIEND_INVITE: u8 = 0x78;
     pub const REQUEST_FRIEND_LIST: u8 = 0x79;
@@ -912,6 +918,12 @@ impl RequestSendFriendMsg {
         let receiver = r.read_string()?;
         Some(Self { message, receiver })
     }
+}
+
+/// The single-int henna packets (`RequestHennaEquip`/`Remove`/`ItemInfo`/
+/// `ItemRemoveInfo`): one int `symbolId`.
+pub fn read_symbol_id(body: &[u8]) -> Option<i32> {
+    PacketReader::new(body).read_i32()
 }
 
 #[cfg(test)]
