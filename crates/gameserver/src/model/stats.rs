@@ -57,6 +57,10 @@ pub enum Stat {
     MaxHp,
     MaxMp,
     MaxCp,
+    /// Java `Stat.ATTACK_CANCEL` ("cancel") — modifies the chance a hit
+    /// interrupts the target's cast (`Formulas.calcAtkBreak`). Concentration
+    /// (`ReduceCancel`) lowers it.
+    AttackCancel,
 }
 
 /// Java `StatModifierType` (`AbstractStatAddEffect`/`AbstractStatPercentEffect`):

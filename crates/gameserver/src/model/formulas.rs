@@ -427,11 +427,13 @@ pub fn map_range(value: f64, from_min: f64, from_max: f64, to_min: f64, to_max: 
 /// `AltGameCancelByHit = cast`): the caller must already have checked that
 /// the target is casting and still abortable (pre-launch) — that check is
 /// what sets `init = 15`. `men_bonus` is the target's `BaseStat.MEN` bonus;
-/// `roll` is `Rnd.get(100)`. The `ATTACK_CANCEL` stat override and the
-/// raid/HP-blocked/channeling guards don't apply to players yet.
-pub fn calc_atk_break(dmg: f64, men_bonus: f64, roll: i32) -> bool {
+/// `roll` is `Rnd.get(100)`. `cancel_add`/`cancel_mul` are the target's
+/// `Stat.ATTACK_CANCEL` modifiers (Java `getStat().getValue(ATTACK_CANCEL,
+/// init)`), which buffs like Concentration lower. The raid/HP-blocked/
+/// channeling guards still don't apply to players yet.
+pub fn calc_atk_break(dmg: f64, men_bonus: f64, roll: i32, cancel_add: f64, cancel_mul: f64) -> bool {
     let init = 15.0 + (13.0 * dmg).sqrt() - (men_bonus * 100.0 - 100.0);
-    let rate = init.clamp(1.0, 99.0);
+    let rate = (init * cancel_mul + cancel_add).clamp(1.0, 99.0);
     (roll as f64) < rate
 }
 
@@ -654,12 +656,20 @@ mod tests {
     #[test]
     fn atk_break_rate_and_clamps() {
         // dmg 100 → 15 + √1300 ≈ 51.06: roll 51 breaks, 52 doesn't.
-        assert!(calc_atk_break(100.0, 1.0, 51));
-        assert!(!calc_atk_break(100.0, 1.0, 52));
+        assert!(calc_atk_break(100.0, 1.0, 51, 0.0, 1.0));
+        assert!(!calc_atk_break(100.0, 1.0, 52, 0.0, 1.0));
         // Huge MEN bonus can't push the rate below 1%.
-        assert!(calc_atk_break(0.0, 2.0, 0));
-        assert!(!calc_atk_break(0.0, 2.0, 1));
+        assert!(calc_atk_break(0.0, 2.0, 0, 0.0, 1.0));
+        assert!(!calc_atk_break(0.0, 2.0, 1, 0.0, 1.0));
         // Massive damage caps at 99% — roll 99 still survives.
-        assert!(!calc_atk_break(1e9, 1.0, 99));
+        assert!(!calc_atk_break(1e9, 1.0, 99, 0.0, 1.0));
+    }
+
+    /// `Stat.ATTACK_CANCEL`: Concentration's -18 DIFF lowers the interrupt rate
+    /// (≈51.06 → ≈33.06), so a roll of 40 now survives where it broke before.
+    #[test]
+    fn atk_break_honors_cancel_stat() {
+        assert!(calc_atk_break(100.0, 1.0, 40, 0.0, 1.0), "no buff: 40 < 51.06 breaks");
+        assert!(!calc_atk_break(100.0, 1.0, 40, -18.0, 1.0), "Concentration: 40 > 33.06 survives");
     }
 }

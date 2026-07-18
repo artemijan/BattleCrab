@@ -1444,8 +1444,17 @@ pub(crate) fn player_receive_damage(
                 .unwrap_or(0);
             world.data.stat_bonus.bonus(BaseStat::Men, men)
         };
+        // `Stat.ATTACK_CANCEL` modifiers (Concentration etc.) lower the rate.
+        let (cancel_add, cancel_mul) = world
+            .objects
+            .get_component::<crate::model::components::StatModifiers>(&player_oid)
+            .map(|m| {
+                use crate::model::stats::Stat::AttackCancel;
+                (m.add.get(&AttackCancel).copied().unwrap_or(0.0), m.mul.get(&AttackCancel).copied().unwrap_or(1.0))
+            })
+            .unwrap_or((0.0, 1.0));
         let break_roll = world.roll(100);
-        if formulas::calc_atk_break(damage, men_bonus, break_roll) {
+        if formulas::calc_atk_break(damage, men_bonus, break_roll, cancel_add, cancel_mul) {
             break_cast(world, player_oid);
             maybe_distance_too_far(world, player_oid);
         }

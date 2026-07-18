@@ -48,6 +48,11 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     ("HpRegen", Stat::RegenerateHpRate),
     ("MpRegen", Stat::RegenerateMpRate),
     ("CpRegen", Stat::RegenerateCpRate),
+    // Concentration (1078) and the like: `ReduceCancel` → `Stat.ATTACK_CANCEL`.
+    // Without this the effect fell through, produced no stat modifier, and the
+    // buff was dropped whole at `apply_skill_effects`' empty-effects guard — so
+    // the buff never landed (the community-board "Concentration doesn't work").
+    ("ReduceCancel", Stat::AttackCancel),
 ];
 
 pub struct SkillData {
@@ -882,4 +887,34 @@ mod tests {
         ));
     }
 
+    /// Concentration-shaped skill: a lone `ReduceCancel` effect must parse to a
+    /// `StatModifier(ATTACK_CANCEL)`. Before it was registered, the effect fell
+    /// through, the effect list was empty, and `apply_skill_effects` dropped the
+    /// whole buff — so Concentration never landed from the community board.
+    #[test]
+    fn reduce_cancel_parses_to_attack_cancel_stat() {
+        let xml = r#"
+        <list>
+            <skill id="1078" toLevel="1" name="Concentration">
+                <operateType>A2</operateType>
+                <abnormalType>CANCEL_PROB_DOWN</abnormalType>
+                <abnormalTime>1200</abnormalTime>
+                <targetType>TARGET</targetType>
+                <effects>
+                    <effect name="ReduceCancel">
+                        <amount>-18</amount>
+                    </effect>
+                </effects>
+            </skill>
+        </list>"#;
+        let mut out = HashMap::new();
+        parse_str(xml, &mut out);
+
+        let s = out.get(&(1078, 1)).expect("skill parsed");
+        assert_eq!(s.effects.len(), 1, "the ReduceCancel effect is not dropped");
+        assert!(matches!(
+            s.effects[0],
+            SkillEffect::StatModifier(StatModifierEffect { stat: Stat::AttackCancel, mode: StatModifierType::Diff, amount, .. }) if amount == -18.0
+        ));
+    }
 }
