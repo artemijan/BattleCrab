@@ -706,8 +706,11 @@ pub(crate) fn player_cast_think(world: &mut World, object_id: i32) {
     {
         return;
     }
-    // `checkTargetLost`: a dead or vanished target drops the intention.
-    if vitals_of(world, target_object_id).is_none_or(|v| v.dead) {
+    // `checkTargetLost`: a dead or vanished target drops the intention. A
+    // siege door carries no `Vitals` (its HP lives on the `Door` component), so
+    // use the door-aware `target_is_dead` — otherwise `vitals_of` reads `None`
+    // for a door and the walk-to-cast is abandoned before it starts.
+    if target_is_dead(world, target_object_id) {
         world.objects.remove_component::<Intent>(&object_id);
         return;
     }
@@ -998,13 +1001,23 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
             crit,
         },
     );
-    // Swing-end hook for players (Java's `EVT_READY_TO_ACT` schedule in
-    // `doAttack`): fires the action the swing held back, if any.
+    // Swing-end hook (Java's `EVT_READY_TO_ACT` schedule in `doAttack`).
+    // Players: fire the action the swing held back, if any. NPCs: re-run the AI
+    // think at the swing's end so it re-swings at the weapon's attack rate
+    // instead of stalling until the coarse 1 s `AttackableAI` tick — the fix for
+    // the "attack, pause a second, attack again" stutter (siege guards & mobs).
     if !is_npc_oid(attacker_oid) {
         world.scheduler.schedule(
             now + ms_to_ticks(time_atk),
             ScheduledTask::AttackFinish {
                 object_id: attacker_oid,
+            },
+        );
+    } else {
+        world.scheduler.schedule(
+            now + ms_to_ticks(time_atk),
+            ScheduledTask::NpcAttackReady {
+                npc_oid: attacker_oid,
             },
         );
     }
@@ -1115,6 +1128,15 @@ pub(crate) fn handle_attack_hit(
             .name
             .clone();
         let target_name = target_display_param(world, target);
+        // `Player.sendDamageMessage`: an invul / HP-blocked target silently
+        // absorbs the hit — the attacker is told "The attack has been blocked",
+        // NOT the damage line (which would falsely claim damage that never
+        // lands). Matches Java's `target.isInvul()` branch ahead of the
+        // `C1_HAS_INFLICTED` line.
+        let target_blocked = world
+            .objects
+            .get_component::<crate::model::components::AdminFlags>(&target)
+            .is_some_and(|f| f.invul);
         if let Some(cs) = world.clients.get(&client_id) {
             if crit {
                 cs.send(server_packets::system_message_with(
@@ -1122,14 +1144,21 @@ pub(crate) fn handle_attack_hit(
                     &[SmParam::PlayerName(attacker_name.clone())],
                 ));
             }
-            cs.send(server_packets::system_message_with(
-                sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
-                &[
-                    SmParam::PlayerName(attacker_name),
-                    target_name,
-                    SmParam::Int(damage),
-                ],
-            ));
+            if target_blocked {
+                cs.send(server_packets::system_message_with(
+                    sm_ids::THE_ATTACK_HAS_BEEN_BLOCKED,
+                    &[],
+                ));
+            } else {
+                cs.send(server_packets::system_message_with(
+                    sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
+                    &[
+                        SmParam::PlayerName(attacker_name),
+                        target_name,
+                        SmParam::Int(damage),
+                    ],
+                ));
+            }
         }
     }
 

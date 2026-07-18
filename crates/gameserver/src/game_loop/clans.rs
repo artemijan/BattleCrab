@@ -155,6 +155,9 @@ fn apply_permanent_passive_buff(world: &mut World, oid: i32, buff: ActiveBuff) {
     {
         target.apply_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, buff);
     }
+    // Clan skills like Clan Health / Clan Mind carry MaxHp/MaxMp modifiers that
+    // `recalculate_stats` doesn't consume — fold them into the vitals too.
+    crate::game_loop::skills::effects::recompute_max_vitals(world, oid);
     super::party::broadcast_user_info(world, oid);
 }
 
@@ -184,6 +187,13 @@ pub(crate) fn apply_clan_skills_to_member(world: &mut World, clan_id: i32, membe
     }
     let mut applied = false;
     for (id, level) in skills {
+        // Residence skills (a castle/clan-hall benefit) are never applied through
+        // the pledge-grant channel — guards against legacy rows a pre-fix grant
+        // persisted, so they don't re-apply on login. TODO(G24): residence
+        // ownership applies these through its own path.
+        if world.data.pledge_skill_trees.is_residence_skill(id) {
+            continue;
+        }
         if member_qualifies_for_clan_skill(world, clan_id, member_oid, id, level) {
             apply_clan_skill_to_member(world, member_oid, id, level);
             applied = true;
@@ -286,11 +296,46 @@ fn add_clan_skill(world: &mut World, clan_id: i32, skill_id: i32, level: i32) {
 /// the target/clan/leader checks and the summary messages.
 pub(crate) fn give_clan_skills(world: &mut World, clan_id: i32, include_squad: bool) -> usize {
     let clan_level = world.clans.get(&clan_id).map(|c| c.level).unwrap_or(0);
+
+    // Self-heal: a pre-fix `//give_clan_skills` (which read the wrong
+    // `residenceSkill` attribute) may have stored residence skills on the clan.
+    // Those belong to castle/clan-hall ownership, never this grant — strip them
+    // from the clan, revert them on online members, and delete the DB rows so a
+    // relog doesn't re-apply them. TODO(G24): residence ownership grants these
+    // through its own channel, not the pledge tree.
+    let residence: Vec<i32> = world
+        .clans
+        .get(&clan_id)
+        .map(|c| c.skills.keys().copied().filter(|&id| world.data.pledge_skill_trees.is_residence_skill(id)).collect())
+        .unwrap_or_default();
+    for id in residence {
+        if let Some(c) = world.clans.get_mut(&clan_id) {
+            c.skills.remove(&id);
+        }
+        let _ = world.db.send(DbCommand::DeleteClanSkill { clan_id, skill_id: id });
+        for oid in online_members(world, clan_id) {
+            if world.objects.get_component::<ClanSkills>(&oid).is_some_and(|c| c.0.contains_key(&id)) {
+                crate::game_loop::skills::effects::handle_buff_expire(world, oid, id);
+                if let Some(c) = world.objects.get_component_mut::<ClanSkills>(&oid) {
+                    c.0.remove(&id);
+                }
+            }
+        }
+    }
+
     let current: std::collections::HashMap<i32, i32> =
         world.clans.get(&clan_id).map(|c| c.skills.clone()).unwrap_or_default();
     let to_add = world.data.pledge_skill_trees.max_pledge_skills(clan_level, &current, include_squad);
     for &(skill_id, level) in &to_add {
         add_clan_skill(world, clan_id, skill_id, level);
+    }
+    // Re-apply every owned clan skill to each online member (idempotent — the
+    // `apply_clan_skill_to_member` level check no-ops when already applied). This
+    // makes the grant take effect immediately with no relog even when the clan
+    // already owned the skills (`to_add` empty), which is how a saturated clan
+    // ends up otherwise showing nothing changed.
+    for oid in online_members(world, clan_id) {
+        apply_clan_skills_to_member(world, clan_id, oid);
     }
     // Java broadcasts the full `PledgeSkillList` to online members afterward.
     let pkt = server_packets::pledge_skill_list(&clan_skill_pairs(world, clan_id));
@@ -301,7 +346,10 @@ pub(crate) fn give_clan_skills(world: &mut World, clan_id: i32, include_squad: b
             }
         }
     }
-    to_add.len()
+    // Report the clan's total (non-residence) skill count now in force, not just
+    // the newly-added ones — a re-run on an already-stocked clan then reports the
+    // real number it re-applied instead of a confusing "0 skills".
+    world.clans.get(&clan_id).map(|c| c.skills.len()).unwrap_or(0)
 }
 
 /// `VillageMaster.onBypassFeedback`'s `create_clan` branch: parse the typed name

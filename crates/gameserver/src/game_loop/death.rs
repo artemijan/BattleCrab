@@ -534,9 +534,9 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
             .or_else(|| data.player_templates.get(p.base_class_id))
             .cloned()
             .unwrap_or_default();
-        vitals.max_hp = crate::model::calc_max_hp(data, &t, p.level, Some(&inventory)) as i32;
-        vitals.max_mp = crate::model::calc_max_mp(data, &t, p.level, Some(&inventory)) as i32;
-        pvitals.max_cp = crate::model::calc_max_cp(data, &t, p.level) as i32;
+        vitals.max_hp = crate::model::calc_max_hp(data, &t, p.level, Some(&inventory), &mods) as i32;
+        vitals.max_mp = crate::model::calc_max_mp(data, &t, p.level, Some(&inventory), &mods) as i32;
+        pvitals.max_cp = crate::model::calc_max_cp(data, &t, p.level, &mods) as i32;
         if leveled_up {
             // Classic level-up: all vitals refill (Mobius Java only refills
             // CP here, but retail Classic restores HP/MP too).

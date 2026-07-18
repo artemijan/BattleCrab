@@ -119,8 +119,9 @@ pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &
     // Created character starts at full HP/MP (Java: setCurrentHp(getMaxHp())).
     // No equipped gear yet (initial items are added below, then equipped at
     // enter-world where `from_char` recomputes max with the paperdoll).
-    let max_hp = crate::model::calc_max_hp(&world.data, template, 1, None) as i32;
-    let max_mp = crate::model::calc_max_mp(&world.data, template, 1, None) as i32;
+    let no_mods = crate::model::components::StatModifiers::default();
+    let max_hp = crate::model::calc_max_hp(&world.data, template, 1, None, &no_mods) as i32;
+    let max_mp = crate::model::calc_max_mp(&world.data, template, 1, None, &no_mods) as i32;
     // Initial skills for the class (Java: getAvailableSkills at level 1).
     let skills = world.data.skill_trees.initial_skills(pkt.class_id);
     let items = resolve_initial_items(world, pkt.class_id);

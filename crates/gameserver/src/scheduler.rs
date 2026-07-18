@@ -40,6 +40,11 @@ pub enum ScheduledTask {
     /// (`attack_end_tick`), releasing whatever action the swing held back
     /// (`run_queued_action`); a no-op when nothing is queued.
     AttackFinish { object_id: i32 },
+    /// An NPC's swing period ended (`CreatureAttackTaskManager` re-firing at the
+    /// weapon's attack rate): re-run the AI think so it swings again without
+    /// waiting for the coarse 1 s `AttackableAI` tick. A no-op if the NPC has
+    /// died, lost the target, or left attack reach.
+    NpcAttackReady { npc_oid: i32 },
     /// `DecayTaskManager` firing for a dead NPC: the corpse disappears.
     NpcDecay { npc_object_id: i32 },
     /// `ItemsOnGroundManager` cleanup: a dropped ground item auto-destroys after

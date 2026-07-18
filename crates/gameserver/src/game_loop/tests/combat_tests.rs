@@ -572,11 +572,19 @@ fn aggressive_monster_aggros_idle_player() {
     world.objects.spawn(npc_oid, (npc, extra));
     let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
     world.objects.add_components(&npc_oid, cs);
+    // Give the idle victim a deep HP pool: an NPC now re-swings at its true
+    // weapon rate (not once per 1 s AI think), so a 100 HP player would be dead
+    // — and its target-cleared AI back to ACTIVE — before the 140-tick window
+    // ends. The deep pool keeps the fight going so we can observe the lock-on.
+    if let Some(v) = world.objects.get_component_mut::<crate::model::components::Vitals>(&3001) {
+        v.max_hp = 5000;
+        v.cur_hp = 5000.0;
+    }
     drain(&mut a_rx);
 
-    // 10 think seconds of calm (globalAggro −10 → 0), then the scan seeds
-    // hate and the AI locks on, chases in, and swings (both swings within
-    // 140 ticks forced to plain hits).
+    // 10 think seconds of calm (globalAggro −10 → 0), then the scan seeds hate
+    // and the AI locks on, chases in, and swings (the first swings within the
+    // 140-tick window forced to plain hits; later swings roll from the rng).
     world.forced_rolls.extend([0, 99, 10, 0, 99, 10]);
     advance_world(&mut world, 140);
     assert_eq!(world.objects.get_component::<crate::model::npc::NpcAi>(&npc_oid).unwrap().intention, crate::model::npc::NpcIntention::Attack);
@@ -586,7 +594,7 @@ fn aggressive_monster_aggros_idle_player() {
             && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid),
         "unprovoked attack on the idle player"
     );
-    assert!(pvit(&world, 3001).cur_hp < 100.0, "the swing landed");
+    assert!(pvit(&world, 3001).cur_hp < 5000.0, "the swing landed");
 }
 
 /// Death and the to-village loop: a killing blow sends `Die` with the

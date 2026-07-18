@@ -263,6 +263,9 @@ pub enum DbCommand {
     /// the main pledge). Keyed on `(clan_id, skill_id)`, so a re-grant at a
     /// higher level replaces the row.
     SaveClanSkill { clan_id: i32, skill_id: i32, skill_level: i32, skill_name: String },
+    /// Delete one learned clan skill row (`sub_pledge_id = -2`). Used to purge a
+    /// residence skill wrongly stored on the clan by a pre-fix `//give_clan_skills`.
+    DeleteClanSkill { clan_id: i32, skill_id: i32 },
     /// Fire-and-forget clan reputation persist (`Clan.setReputationScore`, which
     /// Java writes via `updateClanScoreInDb`).
     UpdateClanReputation { clan_id: i32, reputation: i32 },
@@ -513,6 +516,15 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                     .bind(skill_id)
                     .bind(skill_level)
                     .bind(skill_name),
+                )
+                .await;
+            }
+            DbCommand::DeleteClanSkill { clan_id, skill_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM clan_skills WHERE clan_id=? AND skill_id=?")
+                        .bind(clan_id)
+                        .bind(skill_id),
                 )
                 .await;
             }

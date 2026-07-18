@@ -223,11 +223,23 @@ pub(crate) fn in_cast_range(
     let Some((tx, ty, tz, _)) = target_state(world, target_oid) else {
         return false;
     };
+    // A siege door has no `Collision` component — its extent lives in the
+    // `DOOR_COLLISION_RADIUS` stand-in that the melee reach/chase geometry
+    // (`combatant`) already uses. Match it here so the cast range gate and the
+    // walk-to-cast (`chase_target`, also radius 80) agree; otherwise the gate
+    // demands the door's polygon *centre* and the chase overshoots almost onto
+    // the gate before casting.
     let target_radius = world
         .objects
         .get_component::<Collision>(&target_oid)
         .map(|c| c.radius)
-        .unwrap_or(0.0);
+        .unwrap_or_else(|| {
+            if world.objects.has_component::<crate::model::door::Door>(&target_oid) {
+                crate::game_loop::combat::DOOR_COLLISION_RADIUS
+            } else {
+                0.0
+            }
+        });
     let caster_radius = world
         .objects
         .get_component::<Collision>(&caster_oid)

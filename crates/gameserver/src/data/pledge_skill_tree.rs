@@ -116,6 +116,14 @@ impl PledgeSkillTreeData {
             .find(|l| l.skill_id == skill_id && l.skill_level == skill_level)
             .and_then(|l| l.social_class)
     }
+
+    /// Whether `skill_id` is a residence skill (`residenceSkill="true"` in the
+    /// pledge tree) — a castle/clan-hall benefit, never a `//give_clan_skills`
+    /// grant. Used to purge/ignore residence skills that a pre-fix grant leaked
+    /// into a clan's stored skill set.
+    pub fn is_residence_skill(&self, skill_id: i32) -> bool {
+        self.pledge.iter().any(|l| l.skill_id == skill_id && l.residencial)
+    }
 }
 
 /// `SocialClass.valueOf(name).ordinal()` — the clan rank ladder (Java
@@ -146,7 +154,7 @@ fn new_learn(e: &quick_xml::events::BytesStart) -> PledgeSkillLearn {
         skill_level: attr_i32(e, b"skillLevel").unwrap_or(0),
         get_level: attr_i32(e, b"getLevel").unwrap_or(99),
         social_class: None,
-        residencial: attr_str(e, b"residencialSkill").as_deref() == Some("true"),
+        residencial: attr_str(e, b"residenceSkill").as_deref() == Some("true"),
     }
 }
 
@@ -232,6 +240,26 @@ mod tests {
         // includeSquad pulls in sub-pledge (squad) skills at high clan level.
         let squad = t.max_pledge_skills(11, &none, true);
         assert!(squad.len() > t.max_pledge_skills(11, &none, false).len(), "squad skills add entries");
+    }
+
+    #[test]
+    fn excludes_residence_skills() {
+        // Java `getMaxPledgeSkills` filters `!isResidencialSkill()`: residence
+        // skills (`residenceSkill="true"` in the tree, e.g. Residence Body 590)
+        // are granted by owning a castle/clan hall, never by //give_clan_skills.
+        // Regression: the loader read the wrong attribute name, so all 30
+        // residence skills leaked into the grant.
+        let t = PledgeSkillTreeData::load_from(dist_root());
+        let none: HashMap<i32, i32> = HashMap::new();
+        let all = t.max_pledge_skills(11, &none, true);
+        assert!(
+            !all.iter().any(|&(id, _)| id == 590),
+            "Residence Body (590) is a residence skill and must be excluded"
+        );
+        assert!(
+            all.iter().any(|&(id, _)| id == 370),
+            "non-residence clan skills are still granted"
+        );
     }
 
     #[test]

@@ -65,6 +65,12 @@ pub mod sm_ids {
     pub const C1_HAS_EVADED_C2_S_ATTACK: i16 = 2264;
     pub const C1_S_ATTACK_WENT_ASTRAY: i16 = 2265;
     pub const C1_LANDED_A_CRITICAL_HIT: i16 = 2266;
+    /// `Player.sendDamageMessage`: shown to the attacker when the target
+    /// silently blocks the hit (invul / HP-block) instead of the damage line.
+    pub const THE_ATTACK_HAS_BEEN_BLOCKED: i16 = 1996;
+    /// `Player.sendDamageMessage`: the attacker's line against a door / control
+    /// tower — a plain damage number with no target name.
+    pub const YOU_HIT_FOR_S1_DAMAGE: i16 = 35;
     pub const YOU_HAVE_ACQUIRED_S1_XP_BONUS_S2_AND_S3_SP_BONUS_S4: i16 = 3259;
     pub const NOT_ENOUGH_HP: i16 = 23;
     pub const NOT_ENOUGH_MP: i16 = 24;

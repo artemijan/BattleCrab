@@ -154,6 +154,7 @@ fn recompute_speeds(world: &mut World, target: i32) {
     {
         p.recalculate_stats(data, &base, &mods, &inventory, &mut speeds, &mut combat);
     }
+    crate::game_loop::skills::effects::recompute_max_vitals(world, target);
 }
 
 /// Broadcast the transform change: UserInfo to self + CharInfo to nearby (via

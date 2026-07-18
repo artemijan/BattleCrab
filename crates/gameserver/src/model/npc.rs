@@ -113,17 +113,21 @@ impl AggroList {
     }
 }
 
-/// `NpcStat`'s finalizer outputs for a template, memoized into the
-/// `CombatStats` component at spawn — the same math the pre-stage-2
-/// `combat::combatant()` NPC branch and `effects::target_m_def` ran per
-/// call (no gear/buffs on NPCs, so the values never change):
-/// - `p_atk`: `PAttackFinalizer` — base × STR bonus × level mod.
+/// `NpcStat`'s finalizer outputs for a template — the finalizer *bases* that
+/// [`crate::model::npc_finalized_stats`] then folds passive template skills and
+/// buffs into (via `Stat.defaultValue`'s mul/add). Ports each Java finalizer:
+/// - `p_atk`: `PAttackFinalizer` — base × STR bonus × level mod (linear).
+/// - `m_atk`: `MAttackFinalizer` — base × (INT bonus × level mod)^2.2072 (a
+///   power, *not* linear — a mob's m.atk is well above its raw `<attack
+///   magical>` base).
 /// - `p_def`/`m_def`: `P/MDefenseFinalizer` — base × level mod (m_def also
 ///   × MEN bonus).
+/// - `p_atk_spd`/`m_atk_spd`: `P/MAttackSpeedFinalizer` — base × DEX/WIT bonus.
 /// - `crit_hit`: `PCriticalRateFinalizer` — base × DEX bonus × 10.
-/// - accuracy/evasion: the sub-70 `P{Accuracy,EvasionRate}Finalizer` shape
-///   (the NPC XML `accuracy`/`evasion` attributes are unimplemented in Java
-///   too).
+/// - accuracy: `PAccuracyFinalizer` — `sqrt(DEX)·5 + level` + the full tier
+///   ladder. evasion: `PEvasionRateFinalizer`'s NPC branch — same base but a
+///   single `>69` tier of `(level-69)+2` (the NPC XML `accuracy`/`evasion`
+///   attributes themselves are unimplemented in Java too).
 pub fn npc_combat_stats(
     t: &NpcTemplate,
     sb: &crate::data::stat_bonus::StatBonus,
@@ -131,18 +135,54 @@ pub fn npc_combat_stats(
     use crate::model::stats::BaseStat;
     let level_mod = (t.level as f64 + 89.0) / 100.0;
     let level = t.level as f64;
-    let acc_ev = ((t.base_dex as f64).sqrt() * 5.0 + level).round() as i32;
+    // `PAccuracyFinalizer`: `sqrt(DEX)·5 + level`, plus the full high-level tier
+    // ladder (same for players and NPCs).
+    let mut accuracy = (t.base_dex as f64).sqrt() * 5.0 + level;
+    if t.level > 69 {
+        accuracy += (t.level - 69) as f64;
+    }
+    if t.level > 77 {
+        accuracy += 1.0;
+    }
+    if t.level > 80 {
+        accuracy += 2.0;
+    }
+    if t.level > 87 {
+        accuracy += 2.0;
+    }
+    if t.level > 92 {
+        accuracy += 1.0;
+    }
+    if t.level > 97 {
+        accuracy += 1.0;
+    }
+    let accuracy = accuracy.round() as i32;
+    // `PEvasionRateFinalizer` NPC (`else`) branch: `sqrt(DEX)·5 + level` with a
+    // *single* `>69` tier of `(level-69)+2` — NOT the accuracy ladder. The
+    // EvasionRate skill effects (e.g. 4414 Heavy Armor Type -10, 4789 +3) then
+    // fold in via `npc_finalized_stats`.
+    let mut evasion = (t.base_dex as f64).sqrt() * 5.0 + level;
+    if t.level > 69 {
+        evasion += (t.level - 69) as f64 + 2.0;
+    }
+    let evasion = evasion.round() as i32;
+    // `P/MAttackSpeedFinalizer`: base × {DEX,WIT} bonus (`getX() > 0 ? bonus : 1`).
+    let dex_bonus = if t.base_dex > 0 { sb.bonus(BaseStat::Dex, t.base_dex) } else { 1.0 };
+    let wit_bonus = if t.base_wit > 0 { sb.bonus(BaseStat::Wit, t.base_wit) } else { 1.0 };
     crate::model::components::CombatStats {
         p_atk: t.base_p_atk * sb.bonus(BaseStat::Str, t.base_str) * level_mod,
-        m_atk: t.base_m_atk * sb.bonus(BaseStat::Int, t.base_int) * level_mod,
+        // `MAttackFinalizer`: `base × (INT bonus × levelMod)^2.2072` — a power,
+        // not the linear `× INT × levelMod` p.atk uses. (This is why a mob's
+        // m.atk is far above its raw `<attack magical>` base.)
+        m_atk: t.base_m_atk * (sb.bonus(BaseStat::Int, t.base_int) * level_mod).powf(2.2072),
         p_def: t.base_p_def * level_mod,
         m_def: t.base_m_def * sb.bonus(BaseStat::Men, t.base_men) * level_mod,
-        p_atk_spd: t.base_p_atk_spd,
-        m_atk_spd: t.base_m_atk_spd,
+        p_atk_spd: (t.base_p_atk_spd as f64 * dex_bonus).round() as i32,
+        m_atk_spd: (t.base_m_atk_spd as f64 * wit_bonus).round() as i32,
         crit_hit: t.base_crit_rate * sb.bonus(BaseStat::Dex, t.base_dex) * 10.0,
         m_crit_hit: 0.0,
-        evasion: acc_ev,
-        accuracy: acc_ev,
+        evasion,
+        accuracy,
         magic_evasion: 0,
         magic_accuracy: 0,
         atk_range: t.base_atk_range,
@@ -380,6 +420,12 @@ fn spawn_npc_entity(
     }
     let heading = if heading < 0 { world.rng.gen_range(0..RANDOM_HEADING_BOUND) } else { heading };
 
+    // Finalize combat/speed/vitals from template base + passive template skills
+    // (Java's `Creature` ctor copies `template.getSkills()` — HP Increase, Strong
+    // P.Atk, …). Spawns at full HP/MP. No player buffs yet, so pass empty.
+    let (combat, speeds, max_hp, max_mp) =
+        crate::model::npc_finalized_stats(&world.data, t, &crate::model::components::Buffs::default());
+
     let npc = Npc {
         object_id: world.next_npc_object_id,
         npc_id,
@@ -400,26 +446,17 @@ fn spawn_npc_entity(
             crate::model::components::Position { x, y, z, heading },
             crate::model::components::RegionCell(region),
             crate::model::components::Vitals {
-                max_hp: t.base_hp_max as i32,
-                cur_hp: t.base_hp_max,
-                max_mp: t.base_mp_max as i32,
-                cur_mp: t.base_mp_max,
+                max_hp: max_hp as i32,
+                cur_hp: max_hp,
+                max_mp: max_mp as i32,
+                cur_mp: max_mp,
                 dead: false,
             },
-            // Speeds memoized off the (immutable) template; NPCs spawn
-            // walking, AI flips `running` on aggro.
-            crate::model::components::Speeds {
-                run_spd: t.base_run_spd,
-                walk_spd: t.base_walk_spd,
-                swim_run_spd: 0.0,
-                swim_walk_spd: 0.0,
-                move_multiplier: 1.0,
-                base_run_spd: t.base_run_spd,
-                running: false,
-                swimming: false,
-            },
+            // Speeds finalized off the template (NPCs spawn walking; AI flips
+            // `running` on aggro).
+            speeds,
             crate::model::components::Collision { radius: t.collision_radius, height: t.collision_height },
-            npc_combat_stats(t, &world.data.stat_bonus),
+            combat,
             crate::model::components::AttackState::default(),
             NpcAi::default(),
             AggroList::default(),
@@ -530,5 +567,42 @@ mod tests {
         let mut ids: Vec<i32> = Vec::new();
         world.objects.for_each_mut::<&Npc>(|n| ids.push(n.object_id));
         assert!(ids.iter().all(|&id| id >= FIRST_NPC_OBJECT_ID));
+    }
+
+    /// Regression for the NPC stat-parity fix: a retail mob's finalized stats
+    /// are its `<vitals>`/`<attack>` base run through the CON/MEN bonus *and*
+    /// its passive template skills (HP Increase, Strong P.Atk/Def, …), plus the
+    /// `npc_combat_stats` finalizer shapes (m.atk power, atk-speed DEX/WIT,
+    /// accuracy tier ladder). Values cross-checked against the Java Mobius
+    /// finalizers for NPC 22109 (level 74 Male Spiked Stakato); without the fix
+    /// each was the raw base (HP 2632, m.atk 697, p.def 512, atk-spd 253, …).
+    /// Loads real datapack data, so it's a touch slower than the synthetic
+    /// tests.
+    #[test]
+    fn stakato_22109_finalized_stats_match_java() {
+        let data = crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let t = data.npc_data.get(22109).expect("22109 Male Spiked Stakato in datapack");
+        let (combat, _speeds, max_hp, max_mp) =
+            crate::model::npc_finalized_stats(&data, t, &crate::model::components::Buffs::default());
+        // HP: 4× (skill 4408) × (2632 base × 1.58 CON bonus).
+        assert_eq!(max_hp as i32, 16635, "max HP");
+        // MP: 1× (skill 4409) × (1475 base × 1.22 MEN bonus).
+        assert_eq!(max_mp as i32, 1799, "max MP");
+        // p.atk: 773.8 base × 1.2 STR × 1.63 levelMod × 1.33 (skill 4410). The
+        // live client can read higher when the pack applies Clan Might etc.
+        assert_eq!(combat.p_atk as i32, 2013, "p.atk (unbuffed base)");
+        // m.atk: 528.4 base × (0.81 INT × 1.63 levelMod)^2.2072.
+        assert_eq!(combat.m_atk as i32, 975, "m.atk (power finalizer)");
+        // p.def: 314.7 base × 1.63 × 1.33 (4412) × 1.15 (4414 Heavy Armor Type).
+        assert_eq!(combat.p_def as i32, 784, "p.def");
+        // m.def: 230.3 base × MEN × 1.63 × 1.09 (4789 NPC High Level).
+        assert_eq!(combat.m_def as i32, 499, "m.def");
+        // atk-spd: 253 base × 1.1 DEX bonus.
+        assert_eq!(combat.p_atk_spd, 278, "p.atk speed (DEX bonus)");
+        // accuracy: sqrt(30)·5 + 74 + (74-69) high-level tier bonus.
+        assert_eq!(combat.accuracy, 106, "accuracy (level tier ladder)");
+        // evasion: [sqrt(30)·5 + 74 + (74-69)+2 NPC tier] − 10 (4414 Heavy Armor
+        // Type) + 3 (4789) = 101. Distinct tier ladder from accuracy.
+        assert_eq!(combat.evasion, 101, "evasion (NPC tier + EvasionRate skills)");
     }
 }

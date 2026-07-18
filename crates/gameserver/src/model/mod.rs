@@ -581,9 +581,12 @@ impl Player {
         // Built early so equipped gear feeds every finalizer below — max HP/MP
         // (item +MP jewelry) as well as the combat recompute further down.
         let inventory = Inventory::from_rows(&inv_rows);
-        let max_hp = calc_max_hp(data, &t, c.level, Some(&inventory));
-        let max_mp = calc_max_mp(data, &t, c.level, Some(&inventory));
-        let max_cp = calc_max_cp(data, &t, c.level);
+        // No buffs are active at load; the enter-world clan-skill / passive
+        // pass recomputes these through `recompute_max_vitals` once buffs land.
+        let no_mods = StatModifiers::default();
+        let max_hp = calc_max_hp(data, &t, c.level, Some(&inventory), &no_mods);
+        let max_mp = calc_max_mp(data, &t, c.level, Some(&inventory), &no_mods);
+        let max_cp = calc_max_cp(data, &t, c.level, &no_mods);
 
         let base_stats = BaseStats {
             str_: t.base_str,
@@ -593,14 +596,14 @@ impl Player {
             wit: t.base_wit,
             men: t.base_men,
         };
-        let vitals = Vitals {
+        let mut vitals = Vitals {
             max_hp: max_hp as i32,
             cur_hp: c.cur_hp.min(max_hp),
             max_mp: max_mp as i32,
             cur_mp: c.cur_mp.min(max_mp),
             dead: c.cur_hp < 0.5,
         };
-        let player_vitals = PlayerVitals { max_cp: max_cp as i32, cur_cp: 0.0 };
+        let mut player_vitals = PlayerVitals { max_cp: max_cp as i32, cur_cp: 0.0 };
         let mut speeds = Speeds {
             run_spd: t.base_run_spd as f64,
             walk_spd: t.base_walk_spd as f64,
@@ -694,6 +697,18 @@ impl Player {
         for buff in conditioned_passive_buffs(data, &skills, &inventory) {
             p.apply_buff(data, &base_stats, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, buff);
         }
+        // Those passive skills can carry MaxHp/MaxMp/MaxCp modifiers (e.g. a
+        // mystic's MP passives, which drive most of an Archmage's MP pool). They
+        // land in `mods` above, but the vitals were computed before the passive
+        // pass — recompute them now so the enter-world `UserInfo` carries the
+        // boosted maxima. Java's Max{Hp,Mp,Cp}Finalizer run inside the same
+        // `recalculateStats`; keep current values (clamp only on shrink).
+        vitals.max_hp = calc_max_hp(data, &t, c.level, Some(&inventory), &mods) as i32;
+        vitals.max_mp = calc_max_mp(data, &t, c.level, Some(&inventory), &mods) as i32;
+        player_vitals.max_cp = calc_max_cp(data, &t, c.level, &mods) as i32;
+        vitals.cur_hp = vitals.cur_hp.min(vitals.max_hp as f64);
+        vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
+        player_vitals.cur_cp = player_vitals.cur_cp.min(player_vitals.max_cp as f64);
 
         // `ShortCuts.restoreMe`'s verification tail: ITEM shortcuts whose
         // object id left the inventory are dropped here, so they never reach the
@@ -839,14 +854,41 @@ impl Player {
         combat.m_crit_hit =
             finalize(mods, Stat::MagicCriticalRate, m_crit_base * wit_bonus * 10.0).clamp(0.0, cap(caps.max_m_crit_rate));
 
-        // P/MAccuracyFinalizer, P/MEvasionRateFinalizer (high-level +N steps
-        // above level 69 skipped — base classes here don't reach that high).
-        // Gear accuracy/evasion sums add on top (`calcWeaponPlusBaseValue`).
-        // `as i32` truncates toward zero, matching Java's `(int)` display getter.
+        // P/MAccuracyFinalizer, P/MEvasionRateFinalizer. Gear accuracy/evasion
+        // sums add on top (`calcWeaponPlusBaseValue`). `as i32` truncates toward
+        // zero, matching Java's `(int)` display getter. The high-level +N steps
+        // above level 69 apply only to the *physical* P{Accuracy,EvasionRate}
+        // finalizers for players (the M-variants for players have no steps).
         let level = self.level as f64;
-        combat.accuracy = finalize(mods, Stat::AccuracyCombat, (base.dex as f64).sqrt() * 5.0 + level + eq.accuracy) as i32;
+        // High-level bonus steps from P{Accuracy,EvasionRate}Finalizer: at lv 80
+        // this sums to +12 (11 for >69, +1 for >77).
+        let hi_level_step = |lvl: i32| -> f64 {
+            let mut b = 0.0;
+            if lvl > 69 {
+                b += (lvl - 69) as f64;
+            }
+            if lvl > 77 {
+                b += 1.0;
+            }
+            if lvl > 80 {
+                b += 2.0;
+            }
+            if lvl > 87 {
+                b += 2.0;
+            }
+            if lvl > 92 {
+                b += 1.0;
+            }
+            if lvl > 97 {
+                b += 1.0;
+            }
+            b
+        };
+        let acc_ev_step = hi_level_step(self.level as i32);
+        combat.accuracy =
+            finalize(mods, Stat::AccuracyCombat, (base.dex as f64).sqrt() * 5.0 + level + acc_ev_step + eq.accuracy) as i32;
         combat.magic_accuracy = finalize(mods, Stat::AccuracyMagic, (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_accuracy) as i32;
-        combat.evasion = finalize(mods, Stat::EvasionRate, (base.dex as f64).sqrt() * 5.0 + level + eq.evasion)
+        combat.evasion = finalize(mods, Stat::EvasionRate, (base.dex as f64).sqrt() * 5.0 + level + acc_ev_step + eq.evasion)
             .clamp(0.0, cap(caps.max_evasion)) as i32;
         combat.magic_evasion = finalize(mods, Stat::MagicEvasionRate, (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_evasion) as i32;
 
@@ -984,47 +1026,130 @@ fn finalize_speed(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
     base * mul + add
 }
 
-/// Rebuild an NPC's `CombatStats`/`Speeds` from its template plus its active
-/// buffs (the NPC counterpart of `Player::recalculate_stats` +
-/// `apply_buff`/`remove_buff`). NPCs have no gear or base-stat components, so
-/// the template-derived values (`npc_combat_stats`) are the finalizer bases;
-/// each active buff's modifiers fold in through the same add/mul maps and
-/// `finalize*` the player uses. Called on every buff apply/expire, so it starts
-/// from a clean base each time and can't drift.
-pub(crate) fn recompute_npc_stats_from_buffs(
-    t: &crate::data::npc_data::NpcTemplate,
-    sb: &crate::data::stat_bonus::StatBonus,
-    caps: &crate::data::CombatCaps,
-    buffs: &Buffs,
-    combat: &mut CombatStats,
-    speeds: &mut Speeds,
-) {
-    let base = npc::npc_combat_stats(t, sb);
+/// The permanent stat modifiers an NPC's *passive* template skills contribute.
+/// Java's `Creature` constructor copies every `template.getSkills()` onto the
+/// mob (`for (Skill s : template.getSkills().values()) addSkill(s)`); the
+/// passive ones (operateType `P`) pump stats through the same add/mul maps as
+/// buffs — this is where a retail mob's real HP/atk/def come from (skills 4408
+/// HP Increase, 4410 P.Atk, 4412 P.Def, …), on top of the raw `<vitals>`/
+/// `<attack>` base. The NPC counterpart of the player's `conditioned_passive_buffs`.
+///
+/// NPCs have no `Inventory` to test `<armorType>`/`<weaponType>` conditions
+/// against, so only unconditioned effects apply.
+/// TODO(G?): condition-gated NPC passives (e.g. 4415 "One-handed Sword" weapon
+/// mastery) need the template `<equipment>` evaluated like the player path;
+/// until then they're skipped. The dominant HP/atk/def passives (4408-4413) are
+/// unconditioned, so this covers the bulk of the stat delta.
+fn npc_passive_mods(data: &GameData, t: &crate::data::npc_data::NpcTemplate) -> StatModifiers {
+    use crate::model::skill::{OperateType, SkillEffect};
     let mut mods = StatModifiers::default();
+    for &(skill_id, level) in &t.skill_list {
+        let Some(skill) = data.skill_data.get(skill_id, level) else { continue };
+        if skill.operate_type != OperateType::Passive {
+            continue;
+        }
+        for effect in &skill.effects {
+            if let SkillEffect::StatModifier(m) = effect {
+                if m.armor_condition == 0 && m.weapon_condition == 0 {
+                    apply_modifier(&mut mods.add, &mut mods.mul, m);
+                }
+            }
+        }
+    }
+    mods
+}
+
+/// Finalize an NPC's `CombatStats`, `Speeds`, and max HP/MP from its template
+/// base → passive template skills → active buffs, through the same add/mul maps
+/// and `finalize*` the player uses. Max HP/MP fold in the CON/MEN bonus exactly
+/// like Java's `Max{Hp,Mp}Finalizer` (`base × statBonus`, then the passive/buff
+/// `mul`/`add`) — NPCs are uncapped there (the HP_LIMIT branch is player-only).
+/// Shared by spawn ([`crate::model::npc::spawn`]) and buff recompute.
+pub(crate) fn npc_finalized_stats(
+    data: &GameData,
+    t: &crate::data::npc_data::NpcTemplate,
+    buffs: &Buffs,
+) -> (CombatStats, Speeds, f64, f64) {
+    let sb = &data.stat_bonus;
+    let caps = &data.combat_caps;
+    let base = npc::npc_combat_stats(t, sb);
+    // Template passive skills are the NPC's innate stat base; player-cast buffs
+    // (buffs.0) stack on top through the same maps.
+    let mut mods = npc_passive_mods(data, t);
     for buff in &buffs.0 {
         for effect in &buff.effects {
             apply_modifier(&mut mods.add, &mut mods.mul, effect);
         }
     }
-    combat.p_atk = finalize(&mods, Stat::PhysicalAttack, base.p_atk).clamp(0.0, caps.max_p_atk);
-    combat.m_atk = finalize(&mods, Stat::MagicalAttack, base.m_atk).clamp(0.0, caps.max_m_atk);
-    // NPCs carry no naked-base/gear split, so the defense floor is a fifth of
-    // the template value (mirrors the player's `base × 0.2`).
-    combat.p_def = finalize_def(&mods, Stat::PhysicalDefence, base.p_def, base.p_def * 0.2);
-    combat.m_def = finalize_def(&mods, Stat::MagicalDefence, base.m_def, base.m_def * 0.2);
-    combat.p_atk_spd =
-        finalize_speed(&mods, Stat::PhysicalAttackSpeed, base.p_atk_spd as f64).clamp(1.0, caps.max_p_atk_speed) as i32;
-    combat.m_atk_spd =
-        finalize_speed(&mods, Stat::MagicAttackSpeed, base.m_atk_spd as f64).clamp(1.0, caps.max_m_atk_speed) as i32;
-    combat.crit_hit = finalize(&mods, Stat::CriticalRate, base.crit_hit).clamp(0.0, caps.max_p_crit_rate);
-    combat.accuracy = finalize(&mods, Stat::AccuracyCombat, base.accuracy as f64) as i32;
-    combat.evasion = finalize(&mods, Stat::EvasionRate, base.evasion as f64).clamp(0.0, caps.max_evasion) as i32;
-    // Range / random-damage aren't buffable here — keep the template values.
-    combat.atk_range = base.atk_range;
-    combat.random_dmg = base.random_dmg;
-    // Speeds: no `RUN_SPD_BOOST` for NPCs (that's a player-only base add).
-    speeds.run_spd = finalize(&mods, Stat::RunSpeed, t.base_run_spd);
-    speeds.walk_spd = finalize(&mods, Stat::WalkSpeed, t.base_walk_spd);
+    let combat = CombatStats {
+        p_atk: finalize(&mods, Stat::PhysicalAttack, base.p_atk).clamp(0.0, caps.max_p_atk),
+        m_atk: finalize(&mods, Stat::MagicalAttack, base.m_atk).clamp(0.0, caps.max_m_atk),
+        // NPCs carry no naked-base/gear split, so the defense floor is a fifth
+        // of the template value (mirrors the player's `base × 0.2`).
+        p_def: finalize_def(&mods, Stat::PhysicalDefence, base.p_def, base.p_def * 0.2),
+        m_def: finalize_def(&mods, Stat::MagicalDefence, base.m_def, base.m_def * 0.2),
+        p_atk_spd: finalize_speed(&mods, Stat::PhysicalAttackSpeed, base.p_atk_spd as f64)
+            .clamp(1.0, caps.max_p_atk_speed) as i32,
+        m_atk_spd: finalize_speed(&mods, Stat::MagicAttackSpeed, base.m_atk_spd as f64)
+            .clamp(1.0, caps.max_m_atk_speed) as i32,
+        crit_hit: finalize(&mods, Stat::CriticalRate, base.crit_hit).clamp(0.0, caps.max_p_crit_rate),
+        m_crit_hit: base.m_crit_hit,
+        accuracy: finalize(&mods, Stat::AccuracyCombat, base.accuracy as f64) as i32,
+        evasion: finalize(&mods, Stat::EvasionRate, base.evasion as f64).clamp(0.0, caps.max_evasion) as i32,
+        magic_evasion: base.magic_evasion,
+        magic_accuracy: base.magic_accuracy,
+        // Range / random-damage aren't buffable here — keep the template values.
+        atk_range: base.atk_range,
+        random_dmg: base.random_dmg,
+    };
+    let speeds = Speeds {
+        // No `RUN_SPD_BOOST` for NPCs (that's a player-only base add).
+        run_spd: finalize(&mods, Stat::RunSpeed, t.base_run_spd),
+        walk_spd: finalize(&mods, Stat::WalkSpeed, t.base_walk_spd),
+        swim_run_spd: 0.0,
+        swim_walk_spd: 0.0,
+        move_multiplier: 1.0,
+        base_run_spd: t.base_run_spd,
+        running: false,
+        swimming: false,
+    };
+    // `Max{Hp,Mp}Finalizer`: `mul × (baseMax × {CON,MEN} bonus) + add`; the
+    // bonus is skipped when the stat is 0 (`getX() > 0 ? bonus : 1`).
+    let con_bonus = if t.base_con > 0 { sb.con_bonus(t.base_con) } else { 1.0 };
+    let men_bonus = if t.base_men > 0 { sb.men_bonus(t.base_men) } else { 1.0 };
+    let hp_mul = mods.mul.get(&Stat::MaxHp).copied().unwrap_or(1.0);
+    let hp_add = mods.add.get(&Stat::MaxHp).copied().unwrap_or(0.0);
+    let mp_mul = mods.mul.get(&Stat::MaxMp).copied().unwrap_or(1.0);
+    let mp_add = mods.add.get(&Stat::MaxMp).copied().unwrap_or(0.0);
+    let max_hp = hp_mul * (t.base_hp_max * con_bonus) + hp_add;
+    let max_mp = mp_mul * (t.base_mp_max * men_bonus) + mp_add;
+    (combat, speeds, max_hp, max_mp)
+}
+
+/// Rebuild an NPC's `CombatStats`/`Speeds`/max-HP·MP from its template (incl.
+/// passive template skills) plus its active buffs — the NPC counterpart of
+/// `Player::recalculate_stats` + `apply_buff`/`remove_buff`. Called on every
+/// buff apply/expire, so it starts from a clean base each time and can't drift.
+/// Current HP/MP are only clamped *down* to a new max (Java never heals on a
+/// max increase).
+pub(crate) fn recompute_npc_stats_from_buffs(
+    data: &GameData,
+    t: &crate::data::npc_data::NpcTemplate,
+    buffs: &Buffs,
+    combat: &mut CombatStats,
+    speeds: &mut Speeds,
+    vitals: &mut Vitals,
+) {
+    let (new_combat, new_speeds, max_hp, max_mp) = npc_finalized_stats(data, t, buffs);
+    *combat = new_combat;
+    // Preserve the live running/swimming state (a mid-chase mob is running);
+    // only the speed magnitudes recompute.
+    speeds.run_spd = new_speeds.run_spd;
+    speeds.walk_spd = new_speeds.walk_spd;
+    vitals.max_hp = max_hp as i32;
+    vitals.max_mp = max_mp as i32;
+    vitals.cur_hp = vitals.cur_hp.min(max_hp);
+    vitals.cur_mp = vitals.cur_mp.min(max_mp);
 }
 
 /// Port of `ConditionUsingItemType.testImpl`'s armor branch (the only branch a
@@ -1131,22 +1256,34 @@ fn equipped_stat_sum(inventory: &Inventory, data: &GameData, stat: Stat) -> f64 
         .sum()
 }
 
-/// `MaxHpFinalizer`: `baseHpMax(level) * CON bonus`, plus each equipped item's
-/// flat `maxHp` bonus (`inventory = None` for the pre-equip char-creation
-/// preview). TODO(G7): the multiplicative/additive *buff* modifiers (`mul`/`add`).
-pub fn calc_max_hp(data: &GameData, t: &PlayerTemplate, level: i32, inventory: Option<&Inventory>) -> f64 {
+/// `MaxHpFinalizer`: `mul·(baseHpMax(level)·CON bonus) + add`, plus each
+/// equipped item's flat `maxHp` bonus (added *after* the buff `mul`, per Java —
+/// items aren't scaled by the buff). `inventory = None` for the pre-equip
+/// char-creation preview. The `mul`/`add` come from the buff modifier maps —
+/// HP-boosting clan skills / buffs move the stat through here.
+pub fn calc_max_hp(data: &GameData, t: &PlayerTemplate, level: i32, inventory: Option<&Inventory>, mods: &StatModifiers) -> f64 {
     let base = t.base_hp_max(level) * data.stat_bonus.con_bonus(t.base_con);
-    base + inventory.map(|inv| equipped_stat_sum(inv, data, Stat::MaxHp)).unwrap_or(0.0)
+    let mul = mods.mul.get(&Stat::MaxHp).copied().unwrap_or(1.0);
+    let add = mods.add.get(&Stat::MaxHp).copied().unwrap_or(0.0);
+    let item = inventory.map(|inv| equipped_stat_sum(inv, data, Stat::MaxHp)).unwrap_or(0.0);
+    mul * base + add + item
 }
 
-/// `MaxMpFinalizer`: `baseMpMax(level) * MEN bonus` + equipped `maxMp` bonuses.
-pub fn calc_max_mp(data: &GameData, t: &PlayerTemplate, level: i32, inventory: Option<&Inventory>) -> f64 {
+/// `MaxMpFinalizer`: `mul·(baseMpMax(level)·MEN bonus) + add` + equipped `maxMp`.
+pub fn calc_max_mp(data: &GameData, t: &PlayerTemplate, level: i32, inventory: Option<&Inventory>, mods: &StatModifiers) -> f64 {
     let base = t.base_mp_max(level) * data.stat_bonus.men_bonus(t.base_men);
-    base + inventory.map(|inv| equipped_stat_sum(inv, data, Stat::MaxMp)).unwrap_or(0.0)
+    let mul = mods.mul.get(&Stat::MaxMp).copied().unwrap_or(1.0);
+    let add = mods.add.get(&Stat::MaxMp).copied().unwrap_or(0.0);
+    let item = inventory.map(|inv| equipped_stat_sum(inv, data, Stat::MaxMp)).unwrap_or(0.0);
+    mul * base + add + item
 }
 
-/// `MaxCpFinalizer`: `baseCpMax(level) * CON bonus`. No item bonus — no item in
-/// this dist carries `maxCp`, and Java's `MaxCpFinalizer` has no paperdoll loop.
-pub fn calc_max_cp(data: &GameData, t: &PlayerTemplate, level: i32) -> f64 {
-    t.base_cp_max(level) * data.stat_bonus.con_bonus(t.base_con)
+/// `MaxCpFinalizer`: `mul·(baseCpMax(level)·CON bonus) + add`. No item bonus —
+/// no item in this dist carries `maxCp`, and Java's `MaxCpFinalizer` has no
+/// paperdoll loop.
+pub fn calc_max_cp(data: &GameData, t: &PlayerTemplate, level: i32, mods: &StatModifiers) -> f64 {
+    let base = t.base_cp_max(level) * data.stat_bonus.con_bonus(t.base_con);
+    let mul = mods.mul.get(&Stat::MaxCp).copied().unwrap_or(1.0);
+    let add = mods.add.get(&Stat::MaxCp).copied().unwrap_or(0.0);
+    mul * base + add
 }

@@ -410,6 +410,217 @@ fn give_clan_skills_grants_gates_and_persists() {
     assert!(!clan_skill(&world, 3002, 370), "member clan skills cleared on disperse");
 }
 
+/// `//give_clan_skills` self-heal: a clan carrying a residence skill (stored by
+/// a pre-fix grant that read the wrong attribute) has it purged — removed from
+/// the clan, reverted on online members, DB row deleted — while the grant
+/// (re-)applies the real clan skills immediately and reports the clan's actual
+/// skill count (not 0) even when it already owned them.
+#[test]
+fn give_clan_skills_purges_residence_and_reapplies() {
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::data::pledge_skill_tree::PledgeSkillLearn;
+    use crate::model::components::ClanSkills;
+
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    // Clan skill 370 (HEIR, non-residence) + residence skill 590.
+    world.data.skill_data.insert_for_test(passive_clan_test_skill(370));
+    world.data.skill_data.insert_for_test(passive_clan_test_skill(590));
+    world.data.pledge_skill_trees.insert_for_test(
+        PledgeSkillLearn { skill_id: 370, skill_level: 1, get_level: 3, social_class: Some(3), residencial: false }, false);
+    world.data.pledge_skill_trees.insert_for_test(
+        PledgeSkillLearn { skill_id: 590, skill_level: 1, get_level: 4, social_class: None, residencial: true }, false);
+
+    let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain_db(&mut db_rx);
+    let clan_id = 0x3000_0056;
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0 };
+    // The clan already "owns" 370 and a residence 590 (as a pre-fix grant left it),
+    // and the residence skill is applied to the online leader.
+    let mut skills = std::collections::HashMap::new();
+    skills.insert(370, 1);
+    skills.insert(590, 1);
+    world.clans.insert(
+        clan_id,
+        Clan { id: clan_id, name: "ResClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default() },
+    );
+    world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
+    world.objects.add_components(&3001, ClanSkills(std::collections::HashMap::from([(590, 1)])));
+
+    let count = crate::game_loop::clans::give_clan_skills(&mut world, clan_id, false);
+
+    // Residence skill purged from the clan and the member; real skill re-applied.
+    assert!(!world.clans[&clan_id].skills.contains_key(&590), "residence skill purged from clan");
+    assert!(world.clans[&clan_id].skills.contains_key(&370), "clan skill kept");
+    let leader_skills = world.objects.get_component::<ClanSkills>(&3001).unwrap();
+    assert!(!leader_skills.0.contains_key(&590), "residence skill reverted on the member");
+    assert!(leader_skills.0.contains_key(&370), "real clan skill applied immediately (no relog)");
+    // DB row deleted so a relog can't re-apply it.
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::DeleteClanSkill { clan_id: c, skill_id: 590 } if *c == clan_id)), "residence DB row deleted");
+    // Saturated clan still reports its real (non-residence) skill count, not 0.
+    assert_eq!(count, 1, "reports the clan's applied skill count");
+}
+
+/// `Max{Hp,Mp,Cp}Finalizer`: the buff `mul`/`add` modifiers apply as
+/// `mul·(base·statBonus) + add`, with equipped-item bonuses added *after* the
+/// mul (Java doesn't scale item bonuses by the buff). Regression for the G7 gap
+/// where these finalizers ignored buff modifiers entirely.
+#[test]
+fn max_vitals_finalizers_apply_buff_modifiers() {
+    use crate::model::components::StatModifiers;
+    use crate::model::stats::Stat;
+
+    let (world, _db_rx, _link_rx) = quest_test_world();
+    let t = world.data.player_templates.get(0).cloned().unwrap();
+    let mut mods = StatModifiers::default();
+    mods.mul.insert(Stat::MaxHp, 1.5);
+    mods.add.insert(Stat::MaxHp, 100.0);
+    mods.mul.insert(Stat::MaxMp, 2.0);
+    mods.mul.insert(Stat::MaxCp, 1.2);
+
+    let hp_base = t.base_hp_max(80) * world.data.stat_bonus.con_bonus(t.base_con);
+    let mp_base = t.base_mp_max(80) * world.data.stat_bonus.men_bonus(t.base_men);
+    let cp_base = t.base_cp_max(80) * world.data.stat_bonus.con_bonus(t.base_con);
+
+    let hp = crate::model::calc_max_hp(&world.data, &t, 80, None, &mods);
+    let mp = crate::model::calc_max_mp(&world.data, &t, 80, None, &mods);
+    let cp = crate::model::calc_max_cp(&world.data, &t, 80, &mods);
+    assert!((hp - (1.5 * hp_base + 100.0)).abs() < 1e-6, "MaxHp = mul*base + add");
+    assert!((mp - (2.0 * mp_base)).abs() < 1e-6, "MaxMp = mul*base");
+    assert!((cp - (1.2 * cp_base)).abs() < 1e-6, "MaxCp = mul*base");
+    // Empty mods leave the base untouched (mul=1, add=0).
+    let none = StatModifiers::default();
+    assert!((crate::model::calc_max_hp(&world.data, &t, 80, None, &none) - hp_base).abs() < 1e-6);
+}
+
+/// The admin `//superhaste 4` case (Super Haste 7029 L4, a toggle): its
+/// `+100% MaxMp` effect must double the MP bar through the active-buff path
+/// (`apply_skill_effects` → `recompute_max_vitals`). This is the modifier that
+/// was missing from the Archmage's MP (Java applied it, Rust didn't recompute
+/// the vitals for it).
+#[test]
+fn superhaste_maxmp_doubles_mp() {
+    use crate::model::components::Vitals;
+
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    // The real Super Haste 7029 L4 from the datapack (+100% MaxMp, PER).
+    let sh = crate::data::skill_data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"))
+        .get(7029, 4)
+        .expect("Super Haste 7029 L4")
+        .clone();
+    world.data.skill_data.insert_for_test(sh.clone());
+
+    let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let base_mp = world.objects.get_component::<Vitals>(&3001).unwrap().max_mp;
+
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, 3001, &sh);
+
+    let after = world.objects.get_component::<Vitals>(&3001).unwrap().max_mp;
+    assert!(
+        (after - base_mp * 2).abs() <= 1,
+        "Super Haste +100% MaxMp doubles the bar: {base_mp} -> {after}"
+    );
+}
+
+/// Login path: a passive skill in the character's book that carries a `MaxMp`
+/// modifier (a mystic's MP passives — most of an Archmage's MP pool) is folded
+/// into the vitals at load. Regression: `from_char` computed the vitals before
+/// applying the passive skills, so the boosted MP never reached the first
+/// `UserInfo` (the character showed only its base MP).
+#[test]
+fn passive_max_mp_skill_boosts_mp_at_login() {
+    use crate::model::components::StatModifiers;
+    use crate::model::skill::{OperateType, SkillEffect, StatModifierEffect};
+    use crate::model::stats::{Stat, StatModifierType};
+
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    // A passive skill that doubles MaxMp (+100%), like a stacked mage MP passive.
+    let mut s = passive_clan_test_skill(9001);
+    s.operate_type = OperateType::Passive;
+    s.effects = vec![SkillEffect::StatModifier(StatModifierEffect {
+        stat: Stat::MaxMp,
+        mode: StatModifierType::Per,
+        amount: 100.0,
+        armor_condition: 0,
+        weapon_condition: 0,
+    })];
+    world.data.skill_data.insert_for_test(s);
+
+    let t = world.data.player_templates.get(0).cloned().unwrap();
+    let base_mp = crate::model::calc_max_mp(&world.data, &t, 1, None, &StatModifiers::default());
+
+    let mut chr = dummy_char(7001, "Mage");
+    chr.skills = vec![(9001, 1)];
+    let bundle = Player::from_char(&world.data, &chr);
+    assert_eq!(bundle.vitals.max_mp, (base_mp * 2.0) as i32, "passive MaxMp folded into max_mp at login");
+}
+
+/// End-to-end: clan skills carrying `MaxHp`/`MaxMp`/`MaxCp` modifiers (Clan
+/// Health / Clan Mind, the Archmage clan-leader case) now move the HP/MP/CP bar
+/// immediately — `%` modifiers stack multiplicatively, flat ones add. Regression
+/// for the bug where these clan skills applied as buffs but never changed the
+/// vitals (the finalizers ignored the modifier maps).
+#[test]
+fn clan_skills_move_max_hp_mp_cp() {
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::data::pledge_skill_tree::PledgeSkillLearn;
+    use crate::model::components::{PlayerVitals, StatModifiers, Vitals};
+    use crate::model::skill::{SkillEffect, StatModifierEffect};
+    use crate::model::stats::{Stat, StatModifierType};
+
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+
+    // Skill 370: +100% MaxMp and +300 flat MaxHp. Skill 371: +50% MaxMp, +20% MaxCp.
+    for (id, effs) in [
+        (370, vec![(Stat::MaxMp, StatModifierType::Per, 100.0), (Stat::MaxHp, StatModifierType::Diff, 300.0)]),
+        (371, vec![(Stat::MaxMp, StatModifierType::Per, 50.0), (Stat::MaxCp, StatModifierType::Per, 20.0)]),
+    ] {
+        let mut s = passive_clan_test_skill(id);
+        s.effects = effs
+            .into_iter()
+            .map(|(stat, mode, amount)| SkillEffect::StatModifier(StatModifierEffect { stat, mode, amount, armor_condition: 0, weapon_condition: 0 }))
+            .collect();
+        world.data.skill_data.insert_for_test(s);
+        world.data.pledge_skill_trees.insert_for_test(
+            PledgeSkillLearn { skill_id: id, skill_level: 1, get_level: 1, social_class: None, residencial: false }, false);
+    }
+
+    let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain_db(&mut db_rx);
+
+    // Exact pre-buff maxima (empty modifier maps).
+    let (base_hp, base_mp, base_cp) = {
+        let p = world.objects.get_component::<Player>(&3001).unwrap();
+        let t = world.data.player_templates.get(p.class_id).cloned().unwrap();
+        let inv = world.objects.get_component::<crate::model::inventory::Inventory>(&3001).unwrap();
+        let none = StatModifiers::default();
+        (
+            crate::model::calc_max_hp(&world.data, &t, p.level, Some(inv), &none),
+            crate::model::calc_max_mp(&world.data, &t, p.level, Some(inv), &none),
+            crate::model::calc_max_cp(&world.data, &t, p.level, &none),
+        )
+    };
+
+    let clan_id = 0x3000_00AA;
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0 };
+    world.clans.insert(
+        clan_id,
+        Clan { id: clan_id, name: "VitalClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills: Default::default(), warehouse: Default::default() },
+    );
+    world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
+
+    crate::game_loop::clans::give_clan_skills(&mut world, clan_id, false);
+
+    let v = *world.objects.get_component::<Vitals>(&3001).unwrap();
+    let pv = *world.objects.get_component::<PlayerVitals>(&3001).unwrap();
+    // MaxMp: two % buffs stack multiplicatively (2.0 * 1.5 = 3.0).
+    assert_eq!(v.max_mp, (base_mp * 3.0) as i32, "MaxMp % buffs stacked onto the bar");
+    // MaxHp: flat +300.
+    assert_eq!(v.max_hp, (base_hp + 300.0) as i32, "flat MaxHp buff applied");
+    // MaxCp: +20%.
+    assert_eq!(pv.max_cp, (base_cp * 1.2) as i32, "MaxCp % buff applied");
+}
+
 /// Siege/leader skills (Java `SiegeManager.addSiegeSkills`): a clan leader gains
 /// Build Headquarters (247) + Imprint of Light/Darkness (19034/19035) once the
 /// clan reaches level 5, the two Outpost skills (844/845) only with a castle;

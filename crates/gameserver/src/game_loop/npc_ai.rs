@@ -141,6 +141,13 @@ fn animation_delay_ticks(world: &mut World, min_s: i32, max_s: i32) -> u64 {
     secs as u64 * TICKS_PER_SECOND
 }
 
+/// `ScheduledTask::NpcAttackReady` — the NPC's swing period elapsed. Re-run its
+/// think immediately (Java `EVT_READY_TO_ACT`) so a fast attacker keeps swinging
+/// at its weapon rate instead of stalling until the next 1 s AI tick.
+pub(crate) fn on_npc_attack_ready(world: &mut World, npc_oid: i32) {
+    think(world, npc_oid);
+}
+
 fn think(world: &mut World, npc_oid: i32) {
     let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) else { return };
     if world.objects.get_component::<Vitals>(&npc_oid).is_none_or(|v| v.dead) {
@@ -446,6 +453,15 @@ fn random_walk_move(world: &mut World, npc_oid: i32, cur: (i32, i32, i32), spawn
 fn think_attack(world: &mut World, npc_oid: i32) {
     let now = world.tick;
 
+    // Chase leash (`AttackableAI.thinkAttack` `AGGRO_DISTANCE_CHECK`): a monster
+    // dragged farther than the configured range from its spawn drops all aggro
+    // and walks home (healed to full when configured). Off by default on this
+    // dist. Guards/defenders (not `isMonster`) and grand bosses are exempt,
+    // matching Java.
+    if world.cfg.npc.aggro_distance_check_enabled && npc_leash_return_home(world, npc_oid) {
+        return;
+    }
+
     let target = world.objects.get_component::<AggroList>(&npc_oid).and_then(AggroList::most_hated);
     let Some(target_oid) = target else {
         set_active(world, npc_oid);
@@ -526,6 +542,54 @@ fn set_active(world: &mut World, npc_oid: i32) {
     if was_running {
         broadcast_near_region(world, region, &server_packets::change_move_type(npc_oid, false));
     }
+}
+
+/// `AttackableAI.thinkAttack`'s AggroDistanceCheck leash body: if `npc_oid` is
+/// a leashable monster now beyond its configured range from spawn, forget every
+/// target, optionally heal to full, and walk it home. Returns whether the leash
+/// fired (the caller then aborts the swing this think). Guards/defenders (not
+/// `isMonster`) and grand bosses are exempt, and raids only leash when
+/// `AggroDistanceCheckRaids` is set — matching Java.
+fn npc_leash_return_home(world: &mut World, npc_oid: i32) -> bool {
+    let (spawn, is_monster, is_grandboss, is_raid) = {
+        let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) else {
+            return false;
+        };
+        let spawn = npc.spawn_loc;
+        let Some(t) = npc.template(world) else { return false };
+        (spawn, t.is_monster(), t.type_name == "GrandBoss", t.is_raid())
+    };
+    if !is_monster || is_grandboss {
+        return false;
+    }
+    if is_raid && !world.cfg.npc.aggro_distance_check_raids {
+        return false;
+    }
+    let range = (if is_raid {
+        world.cfg.npc.aggro_distance_check_raid_range
+    } else {
+        world.cfg.npc.aggro_distance_check_range
+    }) as f64;
+    let restore = world.cfg.npc.aggro_distance_check_restore_life;
+    let Some(pos) = world.objects.get_component::<Position>(&npc_oid) else {
+        return false;
+    };
+    let dist = (((spawn.0 - pos.x) as f64).powi(2) + ((spawn.1 - pos.y) as f64).powi(2)).sqrt();
+    if dist <= range {
+        return false;
+    }
+    if restore {
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&npc_oid) {
+            v.cur_hp = v.max_hp as f64;
+            v.cur_mp = v.max_mp as f64;
+        }
+    }
+    if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
+        aggro.0.clear();
+    }
+    set_active(world, npc_oid);
+    move_npc_to(world, npc_oid, spawn.0, spawn.1, spawn.2);
+    true
 }
 
 /// `moveToPawn` for a chasing NPC: walk to the edge of attack reach,

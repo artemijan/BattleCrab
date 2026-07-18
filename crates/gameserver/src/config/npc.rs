@@ -27,6 +27,18 @@ pub struct NpcConfig {
     /// opens the `NpcViewMod` info window (Java `Action` case 1 →
     /// `Npc.onActionShift`) instead of a plain re-target.
     pub alt_game_view_npc: bool,
+    /// `AggroDistanceCheckEnabled` — the chase leash (`AttackableAI.thinkAttack`):
+    /// a monster dragged farther than the range below from its spawn drops
+    /// aggro and returns home. Disabled by default on this dist.
+    pub aggro_distance_check_enabled: bool,
+    /// `AggroDistanceCheckRange` — leash radius for a normal monster.
+    pub aggro_distance_check_range: i32,
+    /// `AggroDistanceCheckRaids` — apply the leash to raid bosses too.
+    pub aggro_distance_check_raids: bool,
+    /// `AggroDistanceCheckRaidRange` — leash radius when the monster is a raid.
+    pub aggro_distance_check_raid_range: i32,
+    /// `AggroDistanceCheckRestoreLife` — heal to full HP/MP on returning home.
+    pub aggro_distance_check_restore_life: bool,
 }
 
 impl Default for NpcConfig {
@@ -39,6 +51,11 @@ impl Default for NpcConfig {
             min_monster_animation: 5,
             max_monster_animation: 60,
             alt_game_view_npc: false,
+            aggro_distance_check_enabled: true,
+            aggro_distance_check_range: 1500,
+            aggro_distance_check_raids: false,
+            aggro_distance_check_raid_range: 3000,
+            aggro_distance_check_restore_life: true,
         }
     }
 }
@@ -56,6 +73,16 @@ impl NpcConfig {
             min_monster_animation: g.get_int("MinMonsterAnimation", d.min_monster_animation),
             max_monster_animation: g.get_int("MaxMonsterAnimation", d.max_monster_animation),
             alt_game_view_npc: p.get_bool("AltGameViewNpc", d.alt_game_view_npc),
+            aggro_distance_check_enabled: p
+                .get_bool("AggroDistanceCheckEnabled", d.aggro_distance_check_enabled),
+            aggro_distance_check_range: p
+                .get_int("AggroDistanceCheckRange", d.aggro_distance_check_range),
+            aggro_distance_check_raids: p
+                .get_bool("AggroDistanceCheckRaids", d.aggro_distance_check_raids),
+            aggro_distance_check_raid_range: p
+                .get_int("AggroDistanceCheckRaidRange", d.aggro_distance_check_raid_range),
+            aggro_distance_check_restore_life: p
+                .get_bool("AggroDistanceCheckRestoreLife", d.aggro_distance_check_restore_life),
         }
     }
 }

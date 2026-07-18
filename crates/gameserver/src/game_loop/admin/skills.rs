@@ -132,6 +132,13 @@ pub(super) fn admin_remove_all_skills(world: &mut World, client_id: u32, object_
     if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
         book.0.clear();
     }
+    // Java `getAllSkills()` includes clan/residence/siege skills (added via
+    // `addSkill`), so `removeSkill` strips them too. Those live in the transient
+    // `ClanSkills` channel here (not `SkillBook`), so clear it and revert the
+    // passive buffs it applied — otherwise //remove_all_skills leaves the clan
+    // passives on the character. Player-only (like Java): the clan still owns
+    // them, so they re-apply on relog.
+    crate::game_loop::clans::remove_clan_skills_from_member(world, target);
     refresh_skill_list(world, target);
     let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
     send_message(world, client_id, &format!("You have removed all skills from {name}."));

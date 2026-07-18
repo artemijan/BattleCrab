@@ -393,6 +393,7 @@ fn recompute_combat_stats(world: &mut World, target: i32) {
     {
         p.recalculate_stats(data, &base, &mods, &inventory, &mut speeds, &mut combat);
     }
+    crate::game_loop::skills::effects::recompute_max_vitals(world, target);
 }
 
 /// `//remove_clan_penalty create|join <name>` — clear a clan cooldown. Only the

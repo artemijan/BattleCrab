@@ -246,6 +246,9 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 }
                 }
         }
+        // Max HP/MP/CP live on a separate path from `recalculate_stats`; fold
+        // the buff's MaxHp/MaxMp/MaxCp modifiers into them too (e.g. a +MP buff).
+        recompute_max_vitals(world, target_oid);
         // A stat buff changed pAtk/pDef/speed/…; Java's `recalculateStats(true)`
         // follows with `broadcastUserInfo()`. Without this the client shows the
         // buff icon but never the changed stats or movement speed (and other
@@ -494,13 +497,57 @@ fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
         return;
     };
     let Some(t) = world.data.npc_data.get(npc_id) else { return };
-    let sb = &world.data.stat_bonus;
-    let caps = &world.data.combat_caps;
-    if let Some((buffs, mut combat, mut speeds)) = world
+    if let Some((buffs, mut combat, mut speeds, mut vitals)) = world
         .objects
-        .get_many_mut::<(&Buffs, &mut CombatStats, &mut Speeds)>(&target_oid)
+        .get_many_mut::<(&Buffs, &mut CombatStats, &mut Speeds, &mut crate::model::components::Vitals)>(&target_oid)
     {
-        crate::model::recompute_npc_stats_from_buffs(t, sb, caps, buffs, &mut combat, &mut speeds);
+        crate::model::recompute_npc_stats_from_buffs(&world.data, t, buffs, &mut combat, &mut speeds, &mut vitals);
+    }
+}
+
+/// Recompute a player's max HP/MP/CP from base + CON/MEN + gear + the current
+/// buff modifier maps — Java's `Max{Hp,Mp,Cp}Finalizer`, which run inside the
+/// same `recalculateStats`. The player's `recalculate_stats` only covers
+/// combat/speed stats, so this must be called alongside any buff apply/remove
+/// (clan skills, Clan Advent, GM buffs, …) or the HP/MP/CP stat modifiers those
+/// carry never move the bar. Current values are only clamped *down* (Java
+/// doesn't heal on a max increase). Callers already broadcast UserInfo.
+pub(crate) fn recompute_max_vitals(world: &mut World, oid: i32) {
+    use crate::model::components::{PlayerVitals, StatModifiers, Vitals};
+    use crate::model::inventory::Inventory;
+    let Some(p) = world.objects.get_component::<crate::model::Player>(&oid) else { return };
+    let (level, class_id, base_class_id) = (p.level, p.class_id, p.base_class_id);
+    let t = world
+        .data
+        .player_templates
+        .get(class_id)
+        .or_else(|| world.data.player_templates.get(base_class_id))
+        .cloned()
+        .unwrap_or_default();
+    let (max_hp, max_mp, max_cp) = {
+        let Some(mods) = world.objects.get_component::<StatModifiers>(&oid) else { return };
+        let inv = world.objects.get_component::<Inventory>(&oid);
+        (
+            crate::model::calc_max_hp(&world.data, &t, level, inv, mods),
+            crate::model::calc_max_mp(&world.data, &t, level, inv, mods),
+            crate::model::calc_max_cp(&world.data, &t, level, mods),
+        )
+    };
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
+        v.max_hp = max_hp as i32;
+        v.max_mp = max_mp as i32;
+        if v.cur_hp > max_hp {
+            v.cur_hp = max_hp;
+        }
+        if v.cur_mp > max_mp {
+            v.cur_mp = max_mp;
+        }
+    }
+    if let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&oid) {
+        pv.max_cp = max_cp as i32;
+        if pv.cur_cp > max_cp {
+            pv.cur_cp = max_cp;
+        }
     }
 }
 
@@ -538,6 +585,8 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     {
         player.remove_buff(&world.data, &base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, skill_id);
     }
+    // Reverting a MaxHp/MaxMp/MaxCp buff shrinks the bar (and clamps current).
+    recompute_max_vitals(world, player_object_id);
     let now = world.tick;
     // Removing the buff reverted its stat contribution — rebroadcast so the
     // client (and nearby players, for speed) see the stats return to normal.

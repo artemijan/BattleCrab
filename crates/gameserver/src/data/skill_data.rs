@@ -633,4 +633,5 @@ mod tests {
             SkillEffect::StatModifier(StatModifierEffect { stat: Stat::PhysicalAttack, mode: StatModifierType::Per, amount, .. }) if amount == 10.0
         ));
     }
+
 }

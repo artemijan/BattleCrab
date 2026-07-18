@@ -114,6 +114,16 @@ pub struct NpcTemplate {
     pub is_aggressive: bool,
     pub aggro_range: i32,
     pub clan_help_range: i32,
+
+    /// `<skillList><skill id level/>` — the template skills Java copies onto the
+    /// creature in the `Creature` constructor (`for (Skill s : template.getSkills())
+    /// addSkill(s)`). The *passive* ones (operateType `P`: 4408 HP Increase,
+    /// 4410 P.Atk, 4412 P.Def, …) carry the `MaxHp`/`PAtk`/… stat effects that a
+    /// retail mob's HP/atk/def are built from — without them an NPC shows only
+    /// its raw `<vitals>`/`<attack>` base. NOT the `<parameters><skill name=..>`
+    /// AI holders (those are parameters, not `getSkills()`). Stored as
+    /// `(skillId, level)`; effects are resolved against `SkillData` at spawn.
+    pub skill_list: Vec<(i32, i32)>,
 }
 
 impl NpcTemplate {
@@ -288,6 +298,7 @@ pub fn default_template(id: i32) -> NpcTemplate {
         is_aggressive: false,
         aggro_range: 0,
         clan_help_range: 0,
+        skill_list: Vec::new(),
     }
 }
 
@@ -319,6 +330,11 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
     // its whole body (stats + dropLists come after `<parameters>`). Suppress
     // all `<npc>` start/end handling while inside this block.
     let mut in_parameters = false;
+    // `<skillList>` scope: only the `<skill id level/>` rows here are template
+    // skills (Java `NpcTemplate._skills`). `<parameters>` also carries `<skill
+    // name=.. id level/>` AI holders, which are NOT `getSkills()` — this scope
+    // flag keeps them out.
+    let mut in_skill_list = false;
 
     while let Ok(event) = reader.read_event() {
         let (e, self_closing) = match event {
@@ -337,6 +353,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             Event::End(e) => {
                 match e.name().as_ref().to_ascii_lowercase().as_slice() {
                     b"parameters" => in_parameters = false,
+                    b"skilllist" => in_skill_list = false,
                     // A minion's `</npc>` inside `<parameters>` must not flush
                     // the parent template.
                     b"npc" if !in_parameters => {
@@ -362,6 +379,16 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
         let name = e.name().as_ref().to_ascii_lowercase();
         match name.as_slice() {
                     b"parameters" => in_parameters = !self_closing,
+                    b"skilllist" => in_skill_list = !self_closing,
+                    // `<skillList><skill id level/>` — a template skill. (The
+                    // `name`-tagged `<parameters><skill>` rows never reach here:
+                    // `in_skill_list` is false inside `<parameters>`.)
+                    b"skill" if in_skill_list => {
+                        if let (Some(t), Some(id)) = (cur.as_mut(), attr_i32(&e, b"id")) {
+                            let level = attr_i32(&e, b"level").unwrap_or(1);
+                            t.skill_list.push((id, level));
+                        }
+                    }
                     // Minion references inside `<parameters>` are not templates.
                     b"npc" if in_parameters => continue,
                     b"npc" => {
