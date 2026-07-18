@@ -61,6 +61,15 @@ pub struct Npc {
     /// Java `Npc._scriptValue` — per-instance scratch slot for scripts
     /// (fresh instance on respawn resets it, like Java).
     pub script_value: i32,
+    /// `Attackable._spoilerObjectId` — object id of the player who landed the
+    /// Spoil skill on this mob (0 = not spoiled). Set by the `Spoil` effect,
+    /// checked on death to roll the sweep list. A fresh instance on respawn
+    /// resets it, like Java.
+    pub spoiler_object_id: i32,
+    /// `Attackable._sweepItems` — the spoil loot rolled at death (item id,
+    /// count), waiting for a `Sweeper` cast. `None` until death rolls it (and
+    /// again after `takeSweep` hands it out); `isSweepActive()` == `Some`.
+    pub sweep_items: Option<Vec<(i32, i64)>>,
 }
 
 /// `AttackableAI`'s think state (G9), NPC-only.
@@ -251,6 +260,8 @@ impl Npc {
             spawn_loc: (x, y, z),
             spawn_ref: (0, 0, 0),
             script_value: 0,
+            spoiler_object_id: 0,
+            sweep_items: None,
         };
         let extra = (
             Position { x, y, z, heading: 0 },
@@ -434,6 +445,8 @@ fn spawn_npc_entity(
         spawn_loc: (x, y, z),
         spawn_ref,
         script_value: 0,
+        spoiler_object_id: 0,
+        sweep_items: None,
     };
     let object_id = npc.object_id;
     let region = region_of(x, y);

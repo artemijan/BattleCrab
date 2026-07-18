@@ -49,13 +49,22 @@ impl LootRule {
         }
     }
 
-    /// Random/by-turn looter selection; the `*_INCLUDING_SPOIL` variants only
-    /// differ for spoil loot, which doesn't exist yet.
+    /// Random/by-turn looter selection; the `*_INCLUDING_SPOIL` variants share
+    /// the same selection for normal drops and additionally spread spoil loot
+    /// (see `includes_spoil`).
     pub fn is_random(self) -> bool {
         matches!(self, Self::Random | Self::RandomIncludingSpoil)
     }
     pub fn is_by_turn(self) -> bool {
         matches!(self, Self::ByTurn | Self::ByTurnIncludingSpoil)
+    }
+
+    /// Whether Sweeper (spoil) loot is distributed among the party rather than
+    /// kept by the sweeper. Java `getActualLooter(spoil=true)` only assigns a
+    /// party looter for the `*_INCLUDING_SPOIL` types; every other rule leaves
+    /// spoil loot with the caster.
+    pub fn includes_spoil(self) -> bool {
+        matches!(self, Self::RandomIncludingSpoil | Self::ByTurnIncludingSpoil)
     }
 }
 

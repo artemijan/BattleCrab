@@ -1389,3 +1389,110 @@ fn restart_to(point_type: i32) -> Vec<u8> {
     w.write_i32(point_type);
     w.into_bytes()
 }
+
+/// Spoil → death → Sweeper end to end: casting Spoil marks the mob
+/// (`spoiler_object_id`), killing it rolls the `<spoil>` list into the corpse's
+/// sweep loot, and the Sweeper cast hands that loot to the caster and consumes
+/// the body (`ConsumeBody`). Drives the effect handlers directly (the cast
+/// pipeline's targeting gate is unit-tested separately in `resolve_cast_target`).
+#[test]
+fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
+    use crate::model::skill::{Skill, SkillEffect, TargetType};
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    // A spoil-only monster next to the caster: no death drops, one guaranteed
+    // spoil item (Charcoal 1871, chance 100%). Register the item + template.
+    world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+        item_id: 1871,
+        name: "Charcoal".into(),
+        kind: crate::data::item_data::ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: true,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        price: 0,
+        handler: crate::data::item_data::ItemHandler::None,
+        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_count: 0,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        enchant_enabled: false,
+        enchant_limit: 0,
+        is_magic_weapon: false,
+    });
+    let mut t = crate::data::npc_data::default_template(40777);
+    t.type_name = "Monster".into();
+    t.level = 5;
+    t.base_hp_max = 100.0;
+    t.base_mp_max = 30.0;
+    t.corpse_time = Some(10);
+    t.drop_list_spoil.push(crate::data::npc_data::DropHolder { item_id: 1871, min: 3, max: 3, chance: 100.0 });
+    world.data.npc_data.insert_for_test(t);
+    let npc_oid = NPC_OID + 77;
+    add_test_npc(&mut world, npc_oid, 40777, "Monster", 5, 10, 0, 0);
+
+    // A skill carrying just the Spoil effect (magic level 10 ⇒ near-certain
+    // land on a level-5 mob), and the Sweeper skill (Sweeper then ConsumeBody).
+    let make = |id: i32, target_type, magic_level, effects| Skill {
+        id,
+        level: 1,
+        name: String::new(),
+        operate_type: OperateType::Active,
+        target_type,
+        magic_type: 0,
+        magic_level,
+        effect_point: -1,
+        cast_range: 400,
+        effect_range: 400,
+        hit_time: 0,
+        hit_cancel_time: 0.0,
+        cool_time: 0,
+        reuse_delay: 0,
+        reuse_delay_group: -1,
+        mp_consume: 0,
+        mp_initial_consume: 0,
+        hp_consume: 0,
+        abnormal_time: 0,
+        abnormal_level: 0,
+        abnormal_type: "NONE".into(),
+        single_target: true,
+        effects,
+    };
+    let spoil = make(254, TargetType::EnemyOnly, 10, vec![SkillEffect::Spoil]);
+    let sweeper = make(42, TargetType::NpcBody, 0, vec![SkillEffect::Sweeper, SkillEffect::ConsumeBody]);
+
+    // Cast Spoil → the mob is marked as spoiled by the caster.
+    skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &spoil);
+    assert_eq!(
+        world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).unwrap().spoiler_object_id,
+        3001,
+        "Spoil set the spoiler to the caster"
+    );
+
+    // Kill it → the spoil list rolls into the corpse's sweep loot.
+    death::npc_do_die(&mut world, npc_oid, 3001);
+    assert_eq!(
+        world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).unwrap().sweep_items.as_deref(),
+        Some([(1871, 3)].as_slice()),
+        "death rolled the guaranteed spoil item into sweep loot"
+    );
+
+    // Sweep → loot lands in the caster's inventory and the corpse is consumed.
+    skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &sweeper);
+    assert_eq!(
+        world.objects.get_component::<crate::model::inventory::Inventory>(&3001).unwrap().count_of(1871),
+        3,
+        "sweep loot handed to the sweeper"
+    );
+    assert!(
+        !world.objects.has_component::<crate::model::npc::Npc>(&npc_oid),
+        "ConsumeBody decayed the corpse immediately"
+    );
+}

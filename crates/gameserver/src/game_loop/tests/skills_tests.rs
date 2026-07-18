@@ -58,7 +58,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         operate_type: OperateType::Active,
         target_type: TargetType::Self_,
         magic_type: 1,
-        effect_point: 0,
+        magic_level: 0,        effect_point: 0,
         cast_range: 0,
         effect_range: 0,
         hit_time: 400,

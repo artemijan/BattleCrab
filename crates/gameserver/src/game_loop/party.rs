@@ -819,6 +819,72 @@ pub(crate) fn distribute_xp_and_sp(
     }
 }
 
+/// Whether `a` and `b` are in the same party (`Player.isInLooterParty` half —
+/// the party-membership test, minus the online/proximity filtering the caller
+/// doesn't need for the spoil-owner check).
+pub(crate) fn same_party(world: &World, a: i32, b: i32) -> bool {
+    match (
+        world.objects.get_component::<PartyRef>(&a).map(|r| r.0),
+        world.objects.get_component::<PartyRef>(&b).map(|r| r.0),
+    ) {
+        (Some(pa), Some(pb)) => pa == pb,
+        _ => false,
+    }
+}
+
+/// `Party.getActualLooter(sweeper, itemId, spoil=true, corpse)` — who receives
+/// a Sweeper loot item. Solo (or a party rule that doesn't spread spoil) → the
+/// sweeper. `*_INCLUDING_SPOIL` rules pick a random / by-turn member in loot
+/// range of the corpse, falling back to the sweeper when none qualifies.
+pub(crate) fn spoil_looter(world: &mut World, sweeper: i32, corpse: (i32, i32)) -> i32 {
+    let Some(party_id) = world.objects.get_component::<PartyRef>(&sweeper).map(|r| r.0) else {
+        return sweeper;
+    };
+    let Some((members, rule, last_loot)) = world
+        .parties
+        .get(&party_id)
+        .map(|p| (p.members.clone(), p.distribution, p.item_last_loot))
+    else {
+        return sweeper;
+    };
+    if !rule.includes_spoil() {
+        return sweeper;
+    }
+    let range = world.cfg.character.alt_party_range as f64;
+    let in_range: Vec<i32> = members
+        .iter()
+        .copied()
+        .filter(|&m| {
+            world.objects.get_component::<Position>(&m).is_some_and(|p| {
+                let (dx, dy) = ((p.x - corpse.0) as f64, (p.y - corpse.1) as f64);
+                (dx * dx + dy * dy).sqrt() <= range
+            })
+        })
+        .collect();
+    if in_range.is_empty() {
+        return sweeper;
+    }
+    if rule.is_random() {
+        in_range[world.roll(in_range.len() as i32) as usize]
+    } else {
+        // `getCheckedNextLooter`: advance the cursor over the member list,
+        // skipping out-of-range members.
+        let mut cursor = last_loot;
+        let mut picked = sweeper;
+        for _ in 0..members.len() {
+            cursor = (cursor + 1) % members.len();
+            if in_range.contains(&members[cursor]) {
+                picked = members[cursor];
+                break;
+            }
+        }
+        if let Some(party) = world.parties.get_mut(&party_id) {
+            party.item_last_loot = cursor;
+        }
+        picked
+    }
+}
+
 /// `Party.distributeItem`/`distributeAdena` for an auto-looted drop. The
 /// corpse position gates the in-range member set (`ALT_PARTY_RANGE`).
 pub(crate) fn distribute_item(

@@ -279,6 +279,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::BuffExpire { player_object_id, skill_id } => {
                 handle_buff_expire(world, player_object_id, skill_id);
             }
+            ScheduledTask::DamOverTimeTick { caster, target, skill_id, skill_level } => {
+                skills::effects::handle_dam_over_time_tick(world, caster, target, skill_id, skill_level);
+            }
             ScheduledTask::AttackHit { attacker, target, damage, miss, crit } => {
                 combat::handle_attack_hit(world, attacker, target, damage, miss, crit);
             }

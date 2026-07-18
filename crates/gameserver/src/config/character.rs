@@ -118,6 +118,11 @@ pub struct CharacterConfig {
     /// `UnstuckInterval` (seconds): the `/unstuck` escape cast time (30 on
     /// this dist, Java default 300 = the stock 5-minute escape skill).
     pub unstuck_interval: i32,
+    /// `CalculateMagicSuccessBySkillMagicLevel`: when true (dist default), the
+    /// magic-hit level modifier in `Formulas.calcMagicSuccess` uses the skill's
+    /// own `magicLevel` instead of the caster's level. Drives the Spoil landing
+    /// roll.
+    pub calculate_magic_success_by_skill_magic_level: bool,
 }
 
 impl Default for CharacterConfig {
@@ -165,6 +170,7 @@ impl Default for CharacterConfig {
             max_free_teleport_level: 99,
             alt_karma_player_can_use_gk: false,
             unstuck_interval: 300,
+            calculate_magic_success_by_skill_magic_level: true,
         }
     }
 }
@@ -232,6 +238,8 @@ impl CharacterConfig {
             max_free_teleport_level: p.get_int("MaxFreeTeleportLevel", d.max_free_teleport_level),
             alt_karma_player_can_use_gk: p.get_bool("AltKarmaPlayerCanUseGK", d.alt_karma_player_can_use_gk),
             unstuck_interval: p.get_int("UnstuckInterval", d.unstuck_interval),
+            calculate_magic_success_by_skill_magic_level: p
+                .get_bool("CalculateMagicSuccessBySkillMagicLevel", d.calculate_magic_success_by_skill_magic_level),
         }
     }
 }

@@ -12,8 +12,8 @@ use tracing::info;
 
 pub const NPCS_DIR: &str = "data/stats/npcs";
 
-/// One `<item id min max chance>` drop line (Java `DropHolder`, spoil lists
-/// not carried — spoiling isn't ported).
+/// One `<item id min max chance>` drop line (Java `DropHolder`), shared by the
+/// death (`<drop>`) and spoil (`<spoil>`) lists.
 #[derive(Debug, Clone, Copy)]
 pub struct DropHolder {
     pub item_id: i32,
@@ -91,6 +91,10 @@ pub struct NpcTemplate {
     pub drop_list_death: Vec<DropHolder>,
     /// `<dropLists><group chance>` — grouped death drops (`_dropGroups`).
     pub drop_groups: Vec<DropGroup>,
+    /// `<dropLists><spoil>` — the Sweeper loot list (`_dropListSpoil`). Rolled
+    /// (`DropType.SPOIL`) into `Attackable._sweepItems` only when the mob dies
+    /// spoiled; also previewed by the shift-click "Show Spoil" NPC view.
+    pub drop_list_spoil: Vec<DropHolder>,
 
     // <equipment>
     pub rhand: i32,
@@ -286,6 +290,7 @@ pub fn default_template(id: i32) -> NpcTemplate {
         corpse_time: None,
         drop_list_death: Vec::new(),
         drop_groups: Vec::new(),
+        drop_list_spoil: Vec::new(),
         rhand: 0,
         lhand: 0,
         attackable: true,
@@ -518,8 +523,11 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                             if let Some(t) = cur.as_mut() {
                                 t.drop_list_death.push(holder);
                             }
+                        } else if drop_scope == DropScope::Spoil {
+                            if let Some(t) = cur.as_mut() {
+                                t.drop_list_spoil.push(holder);
+                            }
                         }
-                        // Spoil lists are dropped — spoiling isn't ported.
                     }
                     b"radius" => {
                         if let Some(t) = cur.as_mut() {
@@ -637,8 +645,12 @@ mod tests {
         let adena = goblin.drop_list_death.iter().find(|d| d.item_id == 57).expect("adena line");
         assert_eq!((adena.min, adena.max), (13, 30));
         assert_eq!(adena.chance, 70.0);
-        // Spoil lines are not carried.
         assert!(goblin.drop_groups.is_empty());
+        // <spoil> lines land in `drop_list_spoil` (Goblin 20003: Magic Ring
+        // 76.92%, Charcoal 12.1%) — a separate list from the 9 death drops.
+        assert_eq!(goblin.drop_list_spoil.len(), 2);
+        let magic_ring = goblin.drop_list_spoil.iter().find(|d| d.item_id == 116).expect("spoil Magic Ring");
+        assert_eq!(magic_ring.chance, 76.92);
 
         // <corpseTime> element text (npc 103, Holiday Santa); absent = None.
         assert_eq!(data.get(103).unwrap().corpse_time, Some(3));

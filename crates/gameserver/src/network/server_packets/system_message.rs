@@ -78,6 +78,11 @@ pub mod sm_ids {
     pub const YOU_USE_S1: i16 = 46;
     pub const S1_IS_NOT_AVAILABLE_REUSE: i16 = 48;
     pub const INVALID_TARGET: i16 = 109;
+    /// Spoil / Sweeper (`Spoil`/`Sweeper` effects, `ConditionPlayerCanSweep`).
+    pub const SWEEPER_FAILED_TARGET_NOT_SPOILED: i16 = 343;
+    pub const IT_HAS_ALREADY_BEEN_SPOILED: i16 = 357;
+    pub const THE_SPOIL_CONDITION_HAS_BEEN_ACTIVATED: i16 = 612;
+    pub const THERE_ARE_NO_PRIORITY_RIGHTS_ON_A_SWEEPER: i16 = 683;
     /// "Your shield defense has succeeded." (Interlude has no separate perfect-
     /// block message; the perfect block reuses this.)
     pub const SHIELD_DEFENSE_SUCCEEDED: i16 = 111;

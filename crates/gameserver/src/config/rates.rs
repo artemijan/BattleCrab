@@ -22,6 +22,13 @@ pub struct RatesConfig {
     /// (non-per-item) drop multipliers for normal monsters.
     pub death_drop_chance_multiplier: f64,
     pub death_drop_amount_multiplier: f64,
+    /// `SpoilDropChanceMultiplier` / `SpoilDropAmountMultiplier` — the spoil
+    /// (Sweeper loot) multipliers. Java's `calculateUngroupedDrop` `SPOIL`
+    /// branch seeds `rateChance`/`rateAmount` from these instead of the death
+    /// multipliers; the per-item `RATE_DROP_*_BY_ID` overrides do NOT apply to
+    /// spoil (only the death branch reads them).
+    pub spoil_drop_chance_multiplier: f64,
+    pub spoil_drop_amount_multiplier: f64,
     /// `DropChanceMultiplierByItemId` / `DropAmountMultiplierByItemId` —
     /// per-item overrides (the dist boosts adena ×50 chance / ×30 amount).
     pub drop_chance_by_id: HashMap<i32, f64>,
@@ -70,6 +77,8 @@ impl Default for RatesConfig {
             rate_party_sp: 1.0,
             death_drop_chance_multiplier: 1.0,
             death_drop_amount_multiplier: 1.0,
+            spoil_drop_chance_multiplier: 1.0,
+            spoil_drop_amount_multiplier: 1.0,
             drop_chance_by_id: HashMap::new(),
             drop_amount_by_id: HashMap::new(),
             raid_drop_chance_multiplier: 1.0,
@@ -101,6 +110,8 @@ impl RatesConfig {
             rate_party_sp: p.get_float("RatePartySp", 1.0) as f64,
             death_drop_chance_multiplier: p.get_float("DeathDropChanceMultiplier", 1.0) as f64,
             death_drop_amount_multiplier: p.get_float("DeathDropAmountMultiplier", 1.0) as f64,
+            spoil_drop_chance_multiplier: p.get_float("SpoilDropChanceMultiplier", 1.0) as f64,
+            spoil_drop_amount_multiplier: p.get_float("SpoilDropAmountMultiplier", 1.0) as f64,
             raid_drop_chance_multiplier: p.get_float("RaidDropChanceMultiplier", 1.0) as f64,
             raid_drop_amount_multiplier: p.get_float("RaidDropAmountMultiplier", 1.0) as f64,
             drop_chance_by_id: parse_id_multiplier_list(&p.get_string("DropChanceMultiplierByItemId", "")),

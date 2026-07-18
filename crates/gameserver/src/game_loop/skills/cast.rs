@@ -158,10 +158,44 @@ pub(crate) fn resolve_cast_target(
             }
             t
         }
+        // `NpcBody.java`: a dead NPC corpse. Used by the Sweeper family, which
+        // also carries the `OpSweeper` skill-condition — since there's no
+        // condition-handler layer yet, that gate (dead + spoiled + owner) is
+        // enforced here so a failed sweep blocks the whole cast (no MP spent,
+        // no `ConsumeBody` corpse-decay), matching Java's `canUse` refusal.
+        // TODO(G19): move this into a real skill-condition layer if other
+        // `NPC_BODY`/corpse skills (Harvest, corpse-consume) land.
+        TargetType::NpcBody => {
+            let t = caster_target.ok_or(sm_ids::INVALID_TARGET)?;
+            let is_dead_npc = world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&t)
+                .is_some()
+                && world.objects.get_component::<Vitals>(&t).is_some_and(|v| v.dead);
+            if !is_dead_npc {
+                return Err(sm_ids::INVALID_TARGET);
+            }
+            let spoiler = world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&t)
+                .map(|n| n.spoiler_object_id)
+                .unwrap_or(0);
+            if spoiler == 0 {
+                return Err(sm_ids::SWEEPER_FAILED_TARGET_NOT_SPOILED);
+            }
+            if spoiler != caster.object_id
+                && !crate::game_loop::party::same_party(world, caster.object_id, spoiler)
+            {
+                return Err(sm_ids::THERE_ARE_NO_PRIORITY_RIGHTS_ON_A_SWEEPER);
+            }
+            t
+        }
         TargetType::Other => return Err(sm_ids::INVALID_TARGET),
     };
     let (tx, ty, tz, target_dead) = target_state(world, resolved).ok_or(sm_ids::INVALID_TARGET)?;
-    if target_dead {
+    // A corpse (`NPC_BODY`) is *supposed* to be dead; every other target type
+    // rejects the dead.
+    if target_dead && skill.target_type != TargetType::NpcBody {
         return Err(sm_ids::INVALID_TARGET);
     }
     // "Geodata check when character is within range" — every non-self

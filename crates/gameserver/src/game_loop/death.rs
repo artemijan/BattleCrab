@@ -232,6 +232,23 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // (`Player.doAutoLoot`).
     let looter = max_dealer.map(|(id, _)| id).or_else(|| world.objects.has_component::<crate::model::Player>(&killer_oid).then_some(killer_oid));
     if let Some(looter) = looter {
+        // `doItemDrop`: a mob that died spoiled rolls its `<spoil>` list into
+        // the sweep loot (`DropType.SPOIL`), stashed on the corpse until a
+        // `Sweeper` cast claims it. The level-gap gate uses the same main
+        // damage dealer as the death drops (Java passes the same `player`).
+        let spoiled = world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&npc_oid)
+            .map(|n| n.spoiler_object_id != 0)
+            .unwrap_or(false);
+        if spoiled {
+            let sweep = roll_spoil_drops(world, &t, looter);
+            if let Some(npc) = world.objects.get_component_mut::<crate::model::npc::Npc>(&npc_oid) {
+                // `_sweepItems.set(...)`: `null`/empty → `isSweepActive()` false.
+                npc.sweep_items = if sweep.is_empty() { None } else { Some(sweep) };
+            }
+        }
+
         let drops = roll_drops(world, &t, looter);
         let party_id = world.objects.get_component::<crate::model::components::PartyRef>(&looter).map(|r| r.0);
         let auto_loot = world.cfg.character.auto_loot;
@@ -386,6 +403,59 @@ fn roll_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<(i32, 
             }
             out.push((drop.item_id, count));
         }
+    }
+    out
+}
+
+/// `NpcTemplate.calculateDrops(DropType.SPOIL)` — the `<spoil>` list only
+/// (never grouped, never adena), rolled with the spoil rate multipliers. Mirrors
+/// `roll_drops`' ungrouped path but: the `SPOIL` branch of
+/// `calculateUngroupedDrop` seeds `rateChance`/`rateAmount` from the spoil
+/// multipliers and does **not** read the per-item `RATE_DROP_*_BY_ID` overrides.
+/// The item-level-gap gate still applies (spoil items are never adena).
+fn roll_spoil_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<(i32, i64)> {
+    if t.drop_list_spoil.is_empty() {
+        return Vec::new();
+    }
+    let Some(killer) = world.objects.get_component::<crate::model::Player>(&killer_oid) else { return Vec::new() };
+    let level_diff = (t.level - killer.level) as f64;
+    let r = &world.cfg.rates;
+    let item_gap_chance = formulas::map_range(
+        level_diff,
+        -(r.drop_item_max_level_difference as f64),
+        -(r.drop_item_min_level_difference as f64),
+        r.drop_item_min_level_gap_chance,
+        100.0,
+    );
+    let mut occurrences = r.drop_max_occurrences_normal;
+    let chance_mult = r.spoil_drop_chance_multiplier;
+    let amount_mult = r.spoil_drop_amount_multiplier;
+
+    let mut out = Vec::new();
+    for drop in &t.drop_list_spoil {
+        if occurrences == 0 && drop.chance < 100.0 {
+            continue;
+        }
+        // Level-gap gate (item gap — spoil never contains adena).
+        if world.roll_f64() * 100.0 > item_gap_chance {
+            continue;
+        }
+        // Chance roll.
+        let chance = drop.chance * chance_mult;
+        if world.roll_f64() * 100.0 >= chance {
+            continue;
+        }
+        // Amount.
+        let base = if drop.max > drop.min {
+            drop.min + world.roll((drop.max - drop.min + 1) as i32) as i64
+        } else {
+            drop.min
+        };
+        let count = ((base as f64) * amount_mult).round().max(1.0) as i64;
+        if drop.chance < 100.0 {
+            occurrences -= 1;
+        }
+        out.push((drop.item_id, count));
     }
     out
 }

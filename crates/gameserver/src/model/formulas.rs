@@ -38,6 +38,26 @@ pub fn calc_magic_crit(m_crit_rate: f64, is_bad: bool, roll: i32) -> bool {
     m_crit_rate.min(cap) > roll as f64
 }
 
+/// `Formulas.calcMagicSuccess`, the caster-vs-attackable branch (which is the
+/// only branch a Spoil cast can hit — Spoil targets a monster, so
+/// `target.isAttackable()`). `effective_level` is `skill.magicLevel` when
+/// `CalculateMagicSuccessBySkillMagicLevel` is on and the skill has a positive
+/// magic level, else the caster's level (resolved at the call site).
+/// `Rnd.get(100)` is `roll` (0-99).
+///
+/// `lvlModifier = 1.3^(targetLevel - effectiveLevel)`,
+/// `rate = 100 - round(lvlModifier)` (mAccModifier = 1, resModifier = 1). The
+/// `targetModifier` NPC skill-chance penalty only kicks in for targets at
+/// `MinNPCLevelForMagicPenalty` (78) or above — irrelevant for every spoilable
+/// Interlude mob — so it is left at 1.0.
+/// TODO(G21): fold in `NPC_SKILL_CHANCE_PENALTY` + `MAGIC_SUCCESS_RES` once
+/// high-level NPC magic penalties / magic-resist stats are modeled.
+pub fn calc_magic_success(target_level: i32, effective_level: i32, roll: i32) -> bool {
+    let lvl_modifier = 1.3f64.powi(target_level - effective_level);
+    let rate = 100 - (lvl_modifier.round() as i32);
+    roll < rate
+}
+
 /// `Formulas.calcAtkSpdMultiplier` (armorBonus = 1). The "weapon base" attack
 /// speed for an unarmed player is the class template's `basePAtkSpd`.
 pub fn calc_atk_spd_multiplier(

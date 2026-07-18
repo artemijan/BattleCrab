@@ -30,6 +30,13 @@ pub enum ScheduledTask {
     CastEnd { player_object_id: i32, cast_seq: u64 },
     /// `BuffFinishTask`: an active buff's `abnormalTime` has elapsed.
     BuffExpire { player_object_id: i32, skill_id: i32 },
+    /// A `DamOverTime` effect's periodic tick (Java `EffectTickTask`, armed by
+    /// `BuffInfo` via `scheduleAtFixedRate` at `ticks * EFFECT_TICK_RATIO` ms).
+    /// Deals the per-tick poison/bleed damage from `caster` to `target` and
+    /// reschedules itself; a no-op that stops the chain once the buff has
+    /// expired/been removed (its `BuffExpire` drops it at `abnormalTime`) or the
+    /// target is dead — the same dead-id/`isDead` contract as everything here.
+    DamOverTimeTick { caster: i32, target: i32, skill_id: i32, skill_level: i32 },
     /// `CreatureAttackTaskManager.onHitTimeNotDual` — one auto-attack swing
     /// landing. The hit was rolled at swing start (Java
     /// `generateAttackTargetData`) and rides along; attacker/target death or

@@ -331,6 +331,43 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 // `BuildCampSkillCondition`).
                 crate::game_loop::siege::place_siege_flag(world, caster_oid);
             }
+            SkillEffect::Spoil => {
+                apply_spoil(world, caster_oid, target_oid, skill);
+            }
+            SkillEffect::Sweeper => {
+                apply_sweeper(world, caster_oid, target_oid);
+            }
+            SkillEffect::ConsumeBody => {
+                apply_consume_body(world, caster_oid, target_oid);
+            }
+            SkillEffect::DamOverTime { power, ticks, can_kill } => {
+                // `DamOverTime.onStart`: a magic (non-toggle) DoT bursts for
+                // `power * 10` on a magic-crit roll ("10 times HP DOT is taken
+                // during magic critical"), clamped to leave the target alive
+                // unless `canKill`. The periodic ticks are armed once below via
+                // `schedule_dam_over_time`, after the buff lands.
+                // TODO(G16): Java notes m.crit can land even when the debuff is
+                // resisted — the port has no land-rate/resist roll yet, so the
+                // two are tied here.
+                if skill.magic_type == 1 && mcrit && *ticks > 0 {
+                    let mut damage = *power * 10.0;
+                    if !*can_kill {
+                        let cur_hp =
+                            world.objects.get_component::<Vitals>(&target_oid).map(|v| v.cur_hp).unwrap_or(0.0);
+                        if damage >= cur_hp - 1.0 {
+                            damage = cur_hp - 1.0;
+                        }
+                    }
+                    if damage > 0.0 {
+                        let caster_name = world
+                            .objects
+                            .get_component::<crate::model::Player>(&caster_oid)
+                            .map(|p| p.name.clone())
+                            .unwrap_or_default();
+                        apply_skill_damage(world, caster_oid, target_oid, damage, true, true, &caster_name);
+                    }
+                }
+            }
             SkillEffect::StatModifier(_) => {} // collected below
         }
     }
@@ -352,7 +389,11 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
 
     // Continuous effects → one ActiveBuff on the target (`applyEffects`).
     let buff_effects = skill.stat_modifier_effects();
-    if buff_effects.is_empty() {
+    // A `DamOverTime` (poison/bleed) debuff has no stat modifier but still
+    // lands as a timed buff (for the icon + expiry) whose ticks are armed
+    // below — so it must not bail here on an empty `buff_effects`.
+    let has_dot = skill.effects.iter().any(|e| matches!(e, SkillEffect::DamOverTime { .. }));
+    if buff_effects.is_empty() && !has_dot {
         return;
     }
     // Java `EffectList` only schedules a stop task when the effect's time is
@@ -385,6 +426,12 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             }
         }
     }
+
+    // Arm the poison/bleed damage-over-time ticks (Java `BuffInfo.
+    // scheduleEffects` → `scheduleAtFixedRate`). The recurring `DamOverTimeTick`
+    // self-terminates once this buff's `BuffExpire` removes it or the target
+    // dies; done here so it covers both NPC and player targets.
+    schedule_dam_over_time(world, caster_oid, target_oid, skill);
 
     // NPC target: buffs modify the mob's server-side stats (no buff icons —
     // those are self-only — and no NpcInfo re-broadcast, so a speed change
@@ -540,6 +587,117 @@ fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i32, i64, i32
             }
         }
     }
+}
+
+/// Send a bare (no-argument) system message to `player_oid`, if online.
+fn send_sm(world: &World, player_oid: i32, sm_id: i16) {
+    if let Some(client_id) = client_for_player(world, player_oid) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(sm_id, &[]));
+        }
+    }
+}
+
+/// `handlers/effecthandlers/Spoil.java` + its `calcSuccess`
+/// (`Formulas.calcMagicSuccess`): mark a live monster spoiled so its `<spoil>`
+/// list rolls into sweep loot on death, wake its AI (`EVT_ATTACKED`), and
+/// message the caster. Non-monster/dead targets are rejected; an already-
+/// spoiled mob reports it; a resisted cast lands silently (no effect).
+fn apply_spoil(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
+    use crate::model::npc::Npc;
+    use server_packets::sm_ids;
+
+    // `!effected.isMonster() || effected.isDead()` → INVALID_TARGET.
+    let is_monster = crate::game_loop::combat::is_npc_oid(target_oid)
+        && world
+            .objects
+            .get_component::<Npc>(&target_oid)
+            .and_then(|n| n.template(world))
+            .is_some_and(|t| t.is_auto_attackable());
+    let dead = world.objects.get_component::<Vitals>(&target_oid).map(|v| v.dead).unwrap_or(true);
+    if !is_monster || dead {
+        send_sm(world, caster_oid, sm_ids::INVALID_TARGET);
+        return;
+    }
+    // `target.isSpoiled()` → already spoiled.
+    if world.objects.get_component::<Npc>(&target_oid).map(|n| n.spoiler_object_id != 0).unwrap_or(false) {
+        send_sm(world, caster_oid, sm_ids::IT_HAS_ALREADY_BEEN_SPOILED);
+        return;
+    }
+    // `calcSuccess` = `Formulas.calcMagicSuccess`. The effective level is the
+    // skill's `magicLevel` when `CalculateMagicSuccessBySkillMagicLevel` is on
+    // (dist default), else the caster's level.
+    let caster_level = world.objects.get_component::<crate::model::Player>(&caster_oid).map(|p| p.level).unwrap_or(1);
+    let target_level = world
+        .objects
+        .get_component::<Npc>(&target_oid)
+        .and_then(|n| n.template(world))
+        .map(|t| t.level)
+        .unwrap_or(1);
+    let effective_level = if world.cfg.character.calculate_magic_success_by_skill_magic_level && skill.magic_level > 0 {
+        skill.magic_level
+    } else {
+        caster_level
+    };
+    if !formulas::calc_magic_success(target_level, effective_level, world.roll(100)) {
+        // Magic resisted: `applyEffectScope` skips `instant()` — no effect,
+        // and Java sends no message on a failed `calcSuccess`.
+        return;
+    }
+    if let Some(npc) = world.objects.get_component_mut::<Npc>(&target_oid) {
+        npc.spoiler_object_id = caster_oid;
+    }
+    send_sm(world, caster_oid, sm_ids::THE_SPOIL_CONDITION_HAS_BEEN_ACTIVATED);
+    // `target.getAI().notifyEvent(EVT_ATTACKED, effector)`.
+    crate::game_loop::combat::npc_wake_on_attacked(world, target_oid, caster_oid);
+}
+
+/// `handlers/effecthandlers/Sweeper.java`: hand out the spoil loot rolled at
+/// death (`Attackable.takeSweep`). The dead/spoiled/owner gate is enforced up
+/// front by `resolve_cast_target` (the `OpSweeper` condition), so here we only
+/// re-check ownership defensively and distribute the claimed items.
+fn apply_sweeper(world: &mut World, caster_oid: i32, target_oid: i32) {
+    use crate::model::components::Position;
+    use crate::model::npc::Npc;
+
+    if !crate::game_loop::combat::is_npc_oid(target_oid) {
+        return;
+    }
+    // `checkSpoilOwner(player, false)` — silent (the message-carrying check ran
+    // at cast start).
+    let spoiler = world.objects.get_component::<Npc>(&target_oid).map(|n| n.spoiler_object_id).unwrap_or(0);
+    if spoiler == 0 || (spoiler != caster_oid && !crate::game_loop::party::same_party(world, caster_oid, spoiler)) {
+        return;
+    }
+    // `takeSweep()` — atomically claim the loot (a second sweep gets nothing).
+    // TODO(G15): `checkInventorySlotsAndWeight` (inventory-full refusal) is
+    // skipped — item weight/slot limits aren't modeled for this path yet.
+    let Some(items) = world.objects.get_component_mut::<Npc>(&target_oid).and_then(|n| n.sweep_items.take()) else {
+        return;
+    };
+    let corpse = world.objects.get_component::<Position>(&target_oid).map(|p| (p.x, p.y)).unwrap_or((0, 0));
+    for (item_id, count) in items {
+        // Solo → the sweeper; partied `*_INCLUDING_SPOIL` → a party member.
+        // Sweep loot always enters the looter's inventory (Java `addItem`),
+        // bypassing the auto-loot ground-drop toggle.
+        let looter = crate::game_loop::party::spoil_looter(world, caster_oid, corpse);
+        grant_and_notify(world, looter, &[(item_id, count, 0)]);
+    }
+}
+
+/// `handlers/effecthandlers/ConsumeBody.java`: decay the swept corpse at once
+/// (`Npc.endDecayTask` → `onDecay`). Paired after `Sweeper` on skill 42 so the
+/// body vanishes immediately. Only a dead NPC (the resolved corpse target).
+fn apply_consume_body(world: &mut World, _caster_oid: i32, target_oid: i32) {
+    if !crate::game_loop::combat::is_npc_oid(target_oid) {
+        return;
+    }
+    if world.objects.get_component::<Vitals>(&target_oid).map(|v| !v.dead).unwrap_or(true) {
+        return;
+    }
+    // `endDecayTask()` runs `onDecay` now; the corpse's originally-scheduled
+    // `NpcDecay` task then becomes a no-op (the entity is already despawned).
+    crate::game_loop::death::handle_npc_decay(world, target_oid);
 }
 
 /// The target-side `mDef` for the magic damage formula — players through
@@ -767,6 +925,133 @@ pub(crate) fn recompute_max_vitals(world: &mut World, oid: i32) {
         if pv.cur_cp > max_cp {
             pv.cur_cp = max_cp;
         }
+    }
+}
+
+/// Java `Config.EFFECT_TICK_RATIO` (character.ini `EffectTickRatio`, default
+/// 666 ms) — the base period of an over-time effect's tick. Not yet a Rust
+/// config knob; the datapack assumes the retail default.
+const EFFECT_TICK_RATIO_MS: u64 = 666;
+
+/// `effect.getTicks() * EFFECT_TICK_RATIO` expressed in whole game ticks
+/// (`game_loop::TICK` = 100 ms): both the delay to the first DoT tick and the
+/// interval between ticks (Java `scheduleAtFixedRate(task, period, period)`).
+/// `0` when `ticks <= 0`, which suppresses scheduling.
+fn dot_interval_ticks(ticks: i32) -> u64 {
+    if ticks <= 0 {
+        return 0;
+    }
+    (ticks as u64 * EFFECT_TICK_RATIO_MS) / crate::game_loop::TICK.as_millis() as u64
+}
+
+/// Damage per DoT tick: `power * getTicksMultiplier()`, where
+/// `getTicksMultiplier() = ticks * EFFECT_TICK_RATIO / 1000`
+/// (`AbstractEffect`). Curse Poison lvl 1 (power 11, ticks 5) → `11 * 5 * 666 /
+/// 1000 ≈ 36.6` every `5 * 666 = 3330 ms`.
+fn dot_tick_damage(power: f64, ticks: i32) -> f64 {
+    power * (ticks as f64 * EFFECT_TICK_RATIO_MS as f64) / 1000.0
+}
+
+/// Arm the first `DamOverTimeTick` for a skill carrying a `DamOverTime` effect
+/// (Java `BuffInfo.scheduleEffects`). One recurring task per skill drives all
+/// its DoT effects; the cadence comes from the first such effect (Interlude
+/// poison/bleed skills carry exactly one). A no-op for skills without a DoT.
+fn schedule_dam_over_time(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
+    let interval = skill
+        .effects
+        .iter()
+        .find_map(|e| match e {
+            SkillEffect::DamOverTime { ticks, .. } if *ticks > 0 => Some(dot_interval_ticks(*ticks)),
+            _ => None,
+        })
+        .unwrap_or(0);
+    if interval == 0 {
+        return;
+    }
+    world.scheduler.schedule(
+        world.tick + interval,
+        ScheduledTask::DamOverTimeTick {
+            caster: caster_oid,
+            target: target_oid,
+            skill_id: skill.id,
+            skill_level: skill.level,
+        },
+    );
+}
+
+/// `DamOverTime.onActionTime` — one poison/bleed tick. Deals
+/// `power * getTicksMultiplier()` from `caster` to `target` for each of the
+/// skill's DoT effects, then reschedules itself. The chain stops (Java's
+/// fixed-rate task cancelled by `BuffFinishTask`) when the buff is no longer
+/// present — its `BuffExpire` removes it at `abnormalTime` — or the target is
+/// dead. `can_kill == false` clamps each tick to leave the target at 1 HP
+/// (Java: "Fix for players dying by DOTs"). A non-toggle DoT never
+/// self-cancels on the tick's own return value (`BuffInfo.onTick` only cancels
+/// toggles), so the reschedule is unconditional while the buff lives.
+pub(crate) fn handle_dam_over_time_tick(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill_id: i32,
+    skill_level: i32,
+) {
+    // Buff gone (expired / removed / dispelled) → end the tick chain.
+    let buff_present = world
+        .objects
+        .get_component::<Buffs>(&target_oid)
+        .is_some_and(|b| b.0.iter().any(|entry| entry.skill_id == skill_id));
+    if !buff_present {
+        return;
+    }
+    // Dead target → stop (Java `onActionTime`: `isDead()` bails).
+    if world.objects.get_component::<Vitals>(&target_oid).is_none_or(|v| v.dead) {
+        return;
+    }
+    let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+        return;
+    };
+    // Effector name for the damage message (`Player.sendDamageMessage`); empty
+    // for an NPC effector (no client to message — the base no-op).
+    let caster_name = world
+        .objects
+        .get_component::<crate::model::Player>(&caster_oid)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+
+    let mut interval = 0;
+    for effect in &skill.effects {
+        let SkillEffect::DamOverTime { power, ticks, can_kill } = effect else { continue };
+        if *ticks <= 0 {
+            continue;
+        }
+        interval = dot_interval_ticks(*ticks);
+        let mut damage = dot_tick_damage(*power, *ticks);
+        // `!canKill`: a tick may never drop the target below 1 HP.
+        if !*can_kill {
+            let cur_hp = world.objects.get_component::<Vitals>(&target_oid).map(|v| v.cur_hp).unwrap_or(0.0);
+            if cur_hp <= 1.0 {
+                continue;
+            }
+            if damage >= cur_hp - 1.0 {
+                damage = cur_hp - 1.0;
+            }
+        }
+        if damage > 0.0 {
+            // Java `effector.doAttack(damage, effected, skill, isDOT=true, …,
+            // critical=false, …)`: no crit line; reuses the shared victim-side
+            // path (CP soak / NPC hate / AI wake / death).
+            apply_skill_damage(world, caster_oid, target_oid, damage, false, skill.magic_type == 1, &caster_name);
+            // A `canKill` tick can kill outright — stop then.
+            if world.objects.get_component::<Vitals>(&target_oid).is_none_or(|v| v.dead) {
+                return;
+            }
+        }
+    }
+    if interval > 0 {
+        world.scheduler.schedule(
+            world.tick + interval,
+            ScheduledTask::DamOverTimeTick { caster: caster_oid, target: target_oid, skill_id, skill_level },
+        );
     }
 }
 

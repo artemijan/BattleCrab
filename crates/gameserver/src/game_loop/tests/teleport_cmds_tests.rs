@@ -118,6 +118,7 @@ fn unstuck_casts_escape_and_teleports_to_town() {
         operate_type: OperateType::Active,
         target_type: TargetType::Self_,
         magic_type: 2, // static: the forced hit time is used verbatim
+        magic_level: 0,
         effect_point: 0,
         cast_range: 0,
         effect_range: 0,

@@ -1302,6 +1302,39 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
 /// activity against the target ends the chase.
 pub(crate) const ATTACK_TIMEOUT_TICKS: u64 = 1200;
 
+/// `AI.notifyEvent(EVT_ATTACKED, attacker)` → `AttackableAI.onEvtAttacked`
+/// with no HP change: the aggro/wake half of `npc_receive_damage`, used by
+/// non-damaging offensive effects (Spoil). `addDamageHate(attacker, 0, 1)`
+/// (hate += 1), reset the calm-after-spawn counter, arm the timeout, run, and
+/// switch to the attack intention. No StatusUpdate — HP didn't move.
+pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid: i32) {
+    if world.objects.get_component::<Vitals>(&npc_oid).is_none_or(|v| v.dead) {
+        return;
+    }
+    let now = world.tick;
+    let became_running = {
+        let Some((mut aggro, mut ai, mut speeds)) =
+            world.objects.get_many_mut::<(&mut AggroList, &mut NpcAi, &mut Speeds)>(&npc_oid)
+        else {
+            return;
+        };
+        aggro.0.entry(attacker_oid).or_default().hate += 1.0;
+        if ai.global_aggro < 0 {
+            ai.global_aggro = 0;
+        }
+        ai.attack_timeout_tick = now + ATTACK_TIMEOUT_TICKS;
+        ai.intention = NpcIntention::Attack;
+        let was_running = speeds.running;
+        speeds.running = true;
+        !was_running
+    };
+    if became_running {
+        if let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) {
+            broadcast_near_region(world, region, &server_packets::change_move_type(npc_oid, true));
+        }
+    }
+}
+
 /// `PlayerStatus.reduceHp` for a physical hit: CP absorbs first only against
 /// playable attackers (mobs bite straight into HP), casts can break
 /// (`Formulas.calcAtkBreak`), 0 HP → `doDie`.

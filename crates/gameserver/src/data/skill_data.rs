@@ -170,6 +170,15 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                             max_enchant: attr_i32(&e, b"maxEnchant").unwrap_or(0),
                         });
                     }
+                } else if in_effects && path.len() == 2 && e.name().as_ref() == b"effect" {
+                    // A param-less self-closing `<effect name="X" />` (Spoil,
+                    // Sweeper, ConsumeBody, …). No Start/End pair fires for an
+                    // `Empty` element, so capture it here with empty params —
+                    // otherwise the effect is silently dropped and the skill
+                    // becomes a no-op.
+                    if let Some(effect_name) = attr_str(&e, b"name") {
+                        effects.push((effect_name, HashMap::new(), String::from("DIFF"), Vec::new(), 0, 0));
+                    }
                 }
             }
             Ok(Event::Start(e)) => {
@@ -317,6 +326,7 @@ fn finalize_skill(
             Some("TARGET") => TargetType::Target,
             Some("ENEMY") => TargetType::Enemy,
             Some("ENEMY_ONLY") => TargetType::EnemyOnly,
+            Some("NPC_BODY") => TargetType::NpcBody,
             _ => TargetType::Other,
         };
 
@@ -373,6 +383,17 @@ fn finalize_skill(
                         power: param("power").unwrap_or(0.0),
                         percentage: param("percentage").unwrap_or(0.0),
                     }],
+                    // Poison/bleed damage-over-time (e.g. Curse Poison 1168).
+                    // Java always creates the effect and reads `power`/`ticks`
+                    // (`ticks` is a scalar child → level-0 fallback); `canKill`
+                    // defaults false. Without this arm the effect fell through
+                    // to `EFFECT_REGISTRY`, wasn't found, and got dropped — the
+                    // debuff landed but never dealt damage.
+                    "DamOverTime" => vec![SkillEffect::DamOverTime {
+                        power: param("power").unwrap_or(0.0),
+                        ticks: param("ticks").unwrap_or(0.0) as i32,
+                        can_kill: value_at(params, "canKill", level) == Some("true"),
+                    }],
                     // Dagger blows (calcBlowDamage). FatalBlow/Backstab roll
                     // `criticalChance` (default 0) to double; SoulBlow doesn't
                     // (its charged-soul boost is unmodeled → ×1). Backstab also
@@ -420,6 +441,13 @@ fn finalize_skill(
                         _ => Vec::new(),
                     },
                     "RestorationRandom" => vec![SkillEffect::GiveItemRandom { groups: groups.clone() }],
+                    // Spoil (254/…): mark the mob spoiled. No params — the
+                    // landing roll and target checks live in the effect handler.
+                    "Spoil" => vec![SkillEffect::Spoil],
+                    // Sweeper (42/474): claim the dead mob's spoil loot.
+                    "Sweeper" => vec![SkillEffect::Sweeper],
+                    // ConsumeBody (paired with Sweeper on 42): decay the corpse.
+                    "ConsumeBody" => vec![SkillEffect::ConsumeBody],
                     // Both the basic (247) and advanced HQ skills carry this;
                     // isAdvanced is not yet behaviorally distinct (see the effect).
                     "HeadquarterCreate" => vec![SkillEffect::CreateHeadquarter],
@@ -469,6 +497,7 @@ fn finalize_skill(
                 operate_type,
                 target_type,
                 magic_type: get_i("isMagic", 0),
+                magic_level: get_i("magicLevel", 0),
                 effect_point: get_i("effectPoint", 0),
                 cast_range: get_i("castRange", 0),
                 effect_range: get_i("effectRange", 0),
@@ -659,6 +688,31 @@ mod tests {
         ] {
             assert!(stats.contains(&want), "Clan Advent must modify {want:?}, got {stats:?}");
         }
+
+        // Curse Poison 1168: a `DamOverTime` debuff (power 11, ticks 5, no
+        // `canKill`) at lvl 1. Before the handler existed the effect fell
+        // through `EFFECT_REGISTRY` and was dropped, so the poison landed as a
+        // buff icon but never dealt damage.
+        let curse_poison = sd.get(1168, 1).expect("Curse Poison lvl 1");
+        assert!(matches!(
+            curse_poison.effects.as_slice(),
+            [SkillEffect::DamOverTime { power, ticks, can_kill: false }] if *power == 11.0 && *ticks == 5
+        ));
+        assert_eq!(curse_poison.abnormal_time, 30, "poison lasts 30s");
+
+        // Spoil 254: an `ENEMY_ONLY` debuff carrying the `Spoil` effect and a
+        // per-level `magicLevel` (10 at lvl 1) the `calcMagicSuccess` roll reads.
+        let spoil = sd.get(254, 1).expect("Spoil lvl 1");
+        assert_eq!(spoil.target_type, TargetType::EnemyOnly);
+        assert_eq!(spoil.magic_level, 10);
+        assert!(spoil.is_bad(), "Spoil has negative effectPoint");
+        assert!(matches!(spoil.effects.as_slice(), [SkillEffect::Spoil]));
+
+        // Sweeper 42: an `NPC_BODY` (corpse) skill whose effects are
+        // `Sweeper` then `ConsumeBody` (order matters — claim loot, then decay).
+        let sweeper = sd.get(42, 1).expect("Sweeper lvl 1");
+        assert_eq!(sweeper.target_type, TargetType::NpcBody);
+        assert!(matches!(sweeper.effects.as_slice(), [SkillEffect::Sweeper, SkillEffect::ConsumeBody]));
     }
 
     /// A trimmed Wind Strike (1177): per-level `targetType` and

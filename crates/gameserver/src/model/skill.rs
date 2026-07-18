@@ -33,6 +33,11 @@ pub enum TargetType {
     /// `ENEMY_ONLY`: like `ENEMY` minus the "attack anything with ctrl"
     /// leniencies; identical to `Enemy` in a world with only players.
     EnemyOnly,
+    /// `NPC_BODY`: a dead NPC corpse (Java `targethandlers/NpcBody.java`) —
+    /// used by corpse skills (Sweeper). Unlike the other types this requires
+    /// the target to be **dead**, so the cast pipeline's "no dead targets"
+    /// gate is inverted for it.
+    NpcBody,
     Other,
 }
 
@@ -117,6 +122,15 @@ pub enum SkillEffect {
     /// `percentage`% of the HP actually drained (CP absorbs first, clamped to
     /// the target's remaining HP). Backs Vampiric Touch/Claw.
     HpDrain { power: f64, percentage: f64 },
+    /// `handlers/effecthandlers/DamOverTime.java` — a poison/bleed damage-over-
+    /// time debuff. Lands as an `ActiveBuff` for `abnormalTime` and ticks every
+    /// `ticks * EFFECT_TICK_RATIO` ms (Java `BuffInfo.scheduleEffects`) for
+    /// `power * ticks * EFFECT_TICK_RATIO / 1000` damage per tick
+    /// (`AbstractEffect.getTicksMultiplier`), stopping when the buff expires or
+    /// the target dies. `can_kill == false` (the XML default) clamps each tick
+    /// so it leaves the target at 1 HP. Backs Curse Poison (1168), Poison,
+    /// Bleed, etc.
+    DamOverTime { power: f64, ticks: i32, can_kill: bool },
     /// `handlers/effecthandlers/Restoration.java` — instant single-item
     /// grant. Backs item-use skills wrapping a fixed pack/box reward (e.g.
     /// spiritshot packs): the item's `<skills>` entry casts this, which is
@@ -141,6 +155,19 @@ pub enum SkillEffect {
     /// (`isAdvanced` — the advanced HQ's extra abilities — is collapsed for now,
     /// TODO(G24).)
     CreateHeadquarter,
+    /// `handlers/effecthandlers/Spoil.java` — marks a live monster as spoiled
+    /// (`Attackable.setSpoilerObjectId`) so its `<spoil>` list rolls into sweep
+    /// loot on death. Gated by `calcSuccess` = `Formulas.calcMagicSuccess`, and
+    /// wakes the mob's AI (`EVT_ATTACKED`). Instant.
+    Spoil,
+    /// `handlers/effecthandlers/Sweeper.java` — on a dead, spoiled corpse the
+    /// caster owns (or is in the spoiler's looter party), hands out the loot
+    /// rolled at death (`takeSweep`), solo or party-distributed. Instant.
+    Sweeper,
+    /// `handlers/effecthandlers/ConsumeBody.java` — decays the targeted corpse
+    /// immediately (`Npc.endDecayTask`). Paired with `Sweeper` on skill 42 so
+    /// the swept body vanishes at once. Instant.
+    ConsumeBody,
 }
 
 /// `dist/game/data/stats/skills/*.xml` → `Skill.java`, scoped to G6.
@@ -154,6 +181,10 @@ pub struct Skill {
     /// Java `isMagic`: 0 physical, 1 magic, 2 static, 3 dance/song, 4 trigger.
     /// Drives cast-time scaling (`calc_skill_time_factor`) and crit rolls.
     pub magic_type: i32,
+    /// Java `magicLevel` — the skill's own level for magic-hit math. Feeds
+    /// `Formulas.calcMagicSuccess` when `CalculateMagicSuccessBySkillMagicLevel`
+    /// is on (the dist default), used by the Spoil landing roll.
+    pub magic_level: i32,
     /// Java `effectPoint` — negative marks an offensive ("bad") skill.
     pub effect_point: i32,
     pub cast_range: i32,
@@ -321,7 +352,7 @@ mod tests {
             operate_type: OperateType::Active,
             target_type: TargetType::EnemyOnly,
             magic_type: 1,
-            effect_point: if is_bad { -100 } else { 100 },
+            magic_level: 0,            effect_point: if is_bad { -100 } else { 100 },
             cast_range: 0,
             effect_range: 0,
             hit_time: 0,
