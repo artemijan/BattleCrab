@@ -279,7 +279,18 @@ fn apply_due_tasks(world: &mut World) {
                 handle_cast_end(world, player_object_id, cast_seq);
             }
             ScheduledTask::BuffExpire { player_object_id, skill_id } => {
-                handle_buff_expire(world, player_object_id, skill_id);
+                // A re-cast/refresh pushes a fresh instance with a later expiry
+                // and its own `BuffExpire`; only fire when the *current* buff has
+                // actually elapsed, so a stale task can't drop the refreshed buff.
+                let now = world.tick;
+                let elapsed = world
+                    .objects
+                    .get_component::<crate::model::components::Buffs>(&player_object_id)
+                    .and_then(|b| b.0.iter().find(|b| b.skill_id == skill_id))
+                    .is_some_and(|b| b.expires_at_tick <= now);
+                if elapsed {
+                    handle_buff_expire(world, player_object_id, skill_id);
+                }
             }
             ScheduledTask::DamOverTimeTick { caster, target, skill_id, skill_level } => {
                 skills::effects::handle_dam_over_time_tick(world, caster, target, skill_id, skill_level);

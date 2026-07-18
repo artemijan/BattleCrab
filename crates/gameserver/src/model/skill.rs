@@ -247,10 +247,36 @@ pub struct Skill {
     pub effects: Vec<SkillEffect>,
 }
 
+/// Which count-cap pool a landed buff occupies (Java `SkillBuffType`, trimmed
+/// to the pools the caps use). `Uncapped` folds Java's DEBUFF/TOGGLE/TRIGGER/
+/// passive types — none are limited by `MaxBuffAmount`/`MaxDanceAmount`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BuffSlot {
+    /// A good buff — counted against `MaxBuffAmount`.
+    Buff,
+    /// A dance/song (`isMagic == 3`) — counted against `MaxDanceAmount`.
+    Dance,
+    /// Debuff / toggle / passive — not slot-limited here.
+    Uncapped,
+}
+
 impl Skill {
     /// Java `Skill.isBad()`: `effectPoint < 0` (aggro/debuff/damage skills).
     pub fn is_bad(&self) -> bool {
         self.effect_point < 0
+    }
+
+    /// Java `Skill.getBuffType()` collapsed to the [`BuffSlot`] pools: a
+    /// passive/toggle or a debuff is `Uncapped`, a dance/song (`isMagic == 3`)
+    /// is `Dance`, everything else is a `Buff`.
+    pub fn buff_slot(&self) -> BuffSlot {
+        if matches!(self.operate_type, OperateType::Passive | OperateType::Toggle) || self.is_bad() {
+            BuffSlot::Uncapped
+        } else if self.magic_type == 3 {
+            BuffSlot::Dance
+        } else {
+            BuffSlot::Buff
+        }
     }
 
     /// The id a reuse is tracked and broadcast under: the shared
@@ -297,6 +323,15 @@ pub struct ActiveBuff {
     pub skill_id: i32,
     pub skill_level: i32,
     pub abnormal_type_client_id: i32,
+    /// Java `Skill.getAbnormalType()` ("NONE" when unset) — the stacking key:
+    /// effects of the same abnormal type don't stack (`EffectList.addActive`).
+    pub abnormal_type: String,
+    /// Java `Skill.getAbnormalLevel()` — decides which of two same-type buffs
+    /// wins (the higher level overrides; a lower one is refused).
+    pub abnormal_level: i32,
+    /// Which slot pool this occupies for the count caps (`MaxBuffAmount` /
+    /// `MaxDanceAmount`); debuffs/toggles/passives are `Uncapped`.
+    pub slot: BuffSlot,
     /// Absolute tick the buff expires at (for `AbnormalStatusUpdate`'s
     /// remaining-time field).
     pub expires_at_tick: u64,

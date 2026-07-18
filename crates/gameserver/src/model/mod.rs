@@ -35,7 +35,7 @@ pub const DEFAULT_NAME_COLOR: i32 = 0x00FF_FFFF;
 pub const DEFAULT_TITLE_COLOR: i32 = 0x00FF_FF77;
 use components::{AttackState, BaseStats, Buffs, ClientPos, Collision, CombatStats, Macros, PlayerVitals, Position, RegionCell, Reuses, Shortcuts, SkillBook, Speeds, StatModifiers, TargetRef, Vitals};
 use inventory::Inventory;
-use skill::{ActiveBuff, StatModifierEffect};
+use skill::{ActiveBuff, BuffSlot, StatModifierEffect};
 use stats::{BaseStat, Stat, StatModifierType};
 
 /// Java `SkillCaster`'s per-cast state, one NORMAL casting slot (no dual
@@ -932,9 +932,11 @@ impl Player {
         }
     }
 
-    /// Fold a landed buff's effects into the modifier maps and recompute.
-    /// Java `BuffInfo.initializeEffects` → `AbstractEffect.pump`.
-    /// Java `BuffInfo.initializeEffects` → `AbstractEffect.pump`.
+    /// Land a buff, applying Java `EffectList.addActive`'s stacking and the
+    /// `MaxBuffAmount`/`MaxDanceAmount` slot caps, then recompute. Returns
+    /// whether the buff actually landed (`false` = refused because a same-type
+    /// buff of equal/higher level is already active). Java
+    /// `BuffInfo.initializeEffects` → `AbstractEffect.pump`.
     pub fn apply_buff(
         &self,
         data: &GameData,
@@ -945,12 +947,64 @@ impl Player {
         speeds: &mut Speeds,
         combat: &mut CombatStats,
         buff: ActiveBuff,
-    ) {
-        for effect in &buff.effects {
-            apply_modifier(&mut mods.add, &mut mods.mul, effect);
+    ) -> bool {
+        // Passive stat-pump markers aren't real buffs — they never stack-conflict
+        // or count against the caps; fold and push as before.
+        if buff.passive {
+            for effect in &buff.effects {
+                apply_modifier(&mut mods.add, &mut mods.mul, effect);
+            }
+            buffs.0.push(buff);
+            self.recalculate_stats(data, base, mods, inventory, speeds, combat);
+            return true;
         }
+
+        // Java `EffectList.addActive` stacking: effects with no abnormal type
+        // conflict only with the same skill id; typed effects conflict with any
+        // buff of the same abnormal type.
+        let none_type = buff.abnormal_type.is_empty() || buff.abnormal_type == "NONE";
+        let conflict = buffs.0.iter().position(|e| {
+            if none_type {
+                e.skill_id == buff.skill_id
+            } else {
+                e.abnormal_type == buff.abnormal_type
+            }
+        });
+        if let Some(idx) = conflict {
+            // The higher (or equal) abnormal level wins; a lower one is refused.
+            if buff.abnormal_level >= buffs.0[idx].abnormal_level {
+                buffs.0.remove(idx);
+            } else {
+                return false;
+            }
+        }
+
+        // Slot count cap: drop the oldest same-pool buff until this one fits
+        // (Java removes the oldest in-use buff of the exceeding category).
+        let cap = match buff.slot {
+            BuffSlot::Buff => Some(data.combat_caps.max_buff_count),
+            BuffSlot::Dance => Some(data.combat_caps.max_dance_count),
+            BuffSlot::Uncapped => None,
+        };
+        if let Some(cap) = cap.filter(|c| *c > 0) {
+            while buffs.0.iter().filter(|b| b.slot == buff.slot).count() as i32 >= cap {
+                let Some(oldest) = buffs.0.iter().position(|b| b.slot == buff.slot) else { break };
+                buffs.0.remove(oldest);
+            }
+        }
+
         buffs.0.push(buff);
+        // A removal/override means the maps must be rebuilt from the survivors
+        // (can't just fold the new one in) — same as `remove_buff`.
+        mods.add.clear();
+        mods.mul.clear();
+        for b in &buffs.0 {
+            for effect in &b.effects {
+                apply_modifier(&mut mods.add, &mut mods.mul, effect);
+            }
+        }
         self.recalculate_stats(data, base, mods, inventory, speeds, combat);
+        true
     }
 
     /// Remove an expired/replaced buff and recompute from scratch (Java just
@@ -1220,6 +1274,9 @@ pub(crate) fn conditioned_passive_buffs(data: &GameData, skills: &SkillBook, inv
             skill_id,
             skill_level: level,
             abnormal_type_client_id: -1,
+            abnormal_type: "NONE".to_string(),
+            abnormal_level: 0,
+            slot: BuffSlot::Uncapped,
             expires_at_tick: u64::MAX,
             passive: true,
             effects: applicable,

@@ -482,6 +482,9 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         skill_id: skill.id,
         skill_level: skill.level,
         abnormal_type_client_id: abnormal_type_client_id(&skill.abnormal_type),
+        abnormal_type: skill.abnormal_type.clone(),
+        abnormal_level: skill.abnormal_level,
+        slot: skill.buff_slot(),
         expires_at_tick,
         passive: false,
         effects: buff_effects,
@@ -506,7 +509,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         return;
     }
     {
-        if let Some((target, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world
+        let landed = if let Some((target, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world
             .objects
             .get_many_mut::<(
                 &mut crate::model::Player,
@@ -518,7 +521,15 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 &mut CombatStats,
             )>(&target_oid)
         {
-            target.apply_buff(&world.data, &base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, buff);
+            target.apply_buff(&world.data, &base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, buff)
+        } else {
+            false
+        };
+        // A refused buff (a same-type buff of equal/higher level is already up)
+        // changes nothing — don't schedule its expiry (a stale `BuffExpire` on a
+        // shared skill id would drop the surviving buff early) or rebroadcast.
+        if !landed {
+            return;
         }
         if !permanent {
             world
@@ -1157,6 +1168,10 @@ pub(crate) fn handle_dam_over_time_tick(
 /// (`ScheduledTask::BuffExpire`). A buff already gone (re-cast/replaced) is a
 /// no-op, matching the scheduler's dead-id contract.
 pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill_id: i32) {
+    // Forced/unconditional removal — also used by dispel/cure, which strip a
+    // buff before its timer. The natural-timeout path gates on `expires_at_tick`
+    // at the scheduler dispatch so a stale `BuffExpire` from a re-cast can't drop
+    // the refreshed buff early.
     let still_active = world
         .objects
         .get_component::<Buffs>(&player_object_id)

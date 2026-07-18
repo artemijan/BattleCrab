@@ -49,6 +49,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         max_m_atk_speed: config.character.max_m_atk_speed,
         max_evasion: config.character.max_evasion,
         max_run_speed: config.character.max_run_speed,
+        max_buff_count: config.character.max_buff_count,
+        max_dance_count: config.character.max_dance_count,
     };
     // GM login-state / hero-aura settings live in General.ini; fold them into
     // the same data bundle the enter-world flow and UserInfo read.

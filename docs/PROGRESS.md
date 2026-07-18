@@ -273,7 +273,14 @@ milestone; summary:
   names, e.g. the damage effects, are dropped and the skill still loads).
   Buffs live in `Player.buffs`, expire via a new `ScheduledTask::BuffExpire`.
   Real `AbnormalStatusUpdate` (self-only — no known-list yet for
-  `ExAbnormalStatusUpdateFromTarget`).
+  `ExAbnormalStatusUpdateFromTarget`). `apply_buff` ports Java
+  `EffectList.addActive` stacking: a buff of the same abnormal type (or same
+  skill id when the type is `NONE`) never stacks — the higher/equal abnormal
+  level replaces in place, a lower one is refused; good buffs are capped at
+  `MaxBuffAmount` (24) and dances/songs at `MaxDanceAmount` (12) in separate
+  pools, dropping the oldest when exceeded. The scheduled `BuffExpire` only
+  fires once the current buff has truly elapsed, so a re-cast/refresh isn't
+  dropped early by a stale task.
 - **Cast pipeline** *(superseded by G7.5 below — real 3-phase timing,
   targeting, reuse, abort)*: `RequestMagicSkillUse` → a 2-phase scheduled flow
   (`ScheduledTask::SkillLaunch` at `hit_time`, then `finishSkill` inline — no

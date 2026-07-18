@@ -1833,3 +1833,135 @@ fn skill_reuse_cooldown_survives_relog() {
     world.cfg.character.store_skill_cooltime = false;
     assert!(super::net::build_save_data(&world, 3001).unwrap().skill_reuses.is_empty());
 }
+
+// --- Buff-slot stacking & count caps (Java `EffectList.addActive`) -----------
+
+/// A synthetic self-buff with a `PhysicalDefence +8%` modifier so it lands (a
+/// non-empty effect list), tagged with the given abnormal type/level and
+/// magic type (3 = dance/song).
+fn synthetic_buff(id: i32, level: i32, abnormal_type: &str, abnormal_level: i32, magic_type: i32) -> Skill {
+    use crate::model::skill::{Skill, SkillEffect, StatModifierEffect};
+    use crate::model::stats::{Stat, StatModifierType};
+    Skill {
+        id,
+        level,
+        name: format!("Buff{id}"),
+        operate_type: OperateType::Active,
+        target_type: TargetType::Self_,
+        magic_type,
+        magic_level: 0,
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
+        effect_point: 100, // >= 0 → not a debuff
+        cast_range: 0,
+        effect_range: 0,
+        hit_time: 0,
+        hit_cancel_time: 0.0,
+        cool_time: 0,
+        reuse_delay: 0,
+        reuse_delay_group: -1,
+        mp_consume: 0,
+        mp_initial_consume: 0,
+        hp_consume: 0,
+        abnormal_time: 100,
+        abnormal_level,
+        abnormal_type: abnormal_type.into(),
+        single_target: true,
+        effects: vec![SkillEffect::StatModifier(StatModifierEffect {
+            stat: Stat::PhysicalDefence,
+            mode: StatModifierType::Per,
+            amount: 8.0,
+            armor_condition: 0,
+            weapon_condition: 0,
+        })],
+    }
+}
+
+fn buff_skill_level(world: &World, oid: i32, skill_id: i32) -> i32 {
+    world
+        .objects
+        .get_component::<Buffs>(&oid)
+        .and_then(|b| b.0.iter().find(|x| x.skill_id == skill_id))
+        .map(|x| x.skill_level)
+        .unwrap_or(0)
+}
+
+fn has_buff(world: &World, oid: i32, skill_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<Buffs>(&oid)
+        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill_id))
+}
+
+/// Same abnormal type: a lower-level cast is refused (no downgrade, no second
+/// slot); an equal or higher level replaces in place.
+#[test]
+fn buff_same_abnormal_type_level_stacking() {
+    use crate::game_loop::skills::effects::apply_skill_effects;
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    let lvl1 = synthetic_buff(9001, 1, "MYBUFF", 1, 1);
+    let lvl3 = synthetic_buff(9001, 3, "MYBUFF", 3, 1);
+
+    // Land level 3.
+    apply_skill_effects(&mut world, 3001, 3001, &lvl3);
+    assert_eq!(pbuffs(&world, 3001), 1, "level 3 landed");
+    assert_eq!(buff_skill_level(&world, 3001, 9001), 3);
+
+    // A lower level is refused — no duplicate, still level 3.
+    apply_skill_effects(&mut world, 3001, 3001, &lvl1);
+    assert_eq!(pbuffs(&world, 3001), 1, "lower level does not stack a second slot");
+    assert_eq!(buff_skill_level(&world, 3001, 9001), 3, "lower level did not downgrade the buff");
+
+    // Re-casting the same level replaces in place (refresh) — still one slot.
+    apply_skill_effects(&mut world, 3001, 3001, &lvl3);
+    assert_eq!(pbuffs(&world, 3001), 1, "re-cast same level does not stack");
+}
+
+/// A different skill sharing the abnormal type also can't stack; the higher
+/// level overrides the lower.
+#[test]
+fn buff_higher_level_overrides_same_type() {
+    use crate::game_loop::skills::effects::apply_skill_effects;
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    // Two *different* skills, same abnormal type.
+    let weak = synthetic_buff(9101, 1, "SHARED", 1, 1);
+    let strong = synthetic_buff(9102, 1, "SHARED", 4, 1);
+
+    apply_skill_effects(&mut world, 3001, 3001, &weak);
+    assert!(has_buff(&world, 3001, 9101), "weak buff landed");
+
+    // Higher abnormal level overrides — the weak one is removed.
+    apply_skill_effects(&mut world, 3001, 3001, &strong);
+    assert_eq!(pbuffs(&world, 3001), 1, "same abnormal type never stacks");
+    assert!(has_buff(&world, 3001, 9102), "strong buff present");
+    assert!(!has_buff(&world, 3001, 9101), "weak buff overridden");
+}
+
+/// The good-buff slot cap (`MaxBuffAmount`) drops the oldest buff to make room;
+/// dances count against their own cap, not the buff cap.
+#[test]
+fn buff_slot_cap_drops_oldest() {
+    use crate::game_loop::skills::effects::apply_skill_effects;
+    let (mut world, ..) = cast_test_world();
+    world.data.combat_caps.max_buff_count = 2; // shrink the cap for the test
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    // Three distinct-type buffs; the cap is 2.
+    apply_skill_effects(&mut world, 3001, 3001, &synthetic_buff(9201, 1, "A", 1, 1));
+    apply_skill_effects(&mut world, 3001, 3001, &synthetic_buff(9202, 1, "B", 1, 1));
+    assert_eq!(pbuffs(&world, 3001), 2, "at the buff cap");
+
+    apply_skill_effects(&mut world, 3001, 3001, &synthetic_buff(9203, 1, "C", 1, 1));
+    assert_eq!(pbuffs(&world, 3001), 2, "cap holds after a third");
+    assert!(!has_buff(&world, 3001, 9201), "oldest buff (A) dropped");
+    assert!(has_buff(&world, 3001, 9203), "newest buff (C) present");
+
+    // A dance uses its own pool, so it lands on top of the 2 buffs.
+    apply_skill_effects(&mut world, 3001, 3001, &synthetic_buff(9301, 1, "D", 1, 3));
+    assert_eq!(pbuffs(&world, 3001), 3, "the dance is counted separately, not against the buff cap");
+    assert!(has_buff(&world, 3001, 9301), "dance landed");
+}

@@ -81,6 +81,10 @@ pub struct CombatCaps {
     pub max_m_atk_speed: f64,
     pub max_evasion: f64,
     pub max_run_speed: f64,
+    /// `MaxBuffAmount` (24) — good-buff slot cap, see [`crate::config::character::CharacterConfig::max_buff_count`].
+    pub max_buff_count: i32,
+    /// `MaxDanceAmount` (12) — dance/song slot cap.
+    pub max_dance_count: i32,
 }
 
 impl Default for CombatCaps {
@@ -95,6 +99,8 @@ impl Default for CombatCaps {
             max_m_atk_speed: 1999.0,
             max_evasion: 250.0,
             max_run_speed: 300.0,
+            max_buff_count: 24,
+            max_dance_count: 12,
         }
     }
 }
