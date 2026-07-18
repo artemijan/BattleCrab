@@ -362,6 +362,9 @@ pub enum ItemHandler {
     /// `handlers/itemhandlers/EnchantScrolls` — opens the enchant window for an
     /// enchant scroll (adds an `EnchantRequest` + `ChooseInventoryItem`).
     EnchantScrolls,
+    /// `handlers/itemhandlers/Recipes` — registers the recipe the item teaches
+    /// into the player's dwarven/common recipe book (G15.7).
+    Recipes,
 }
 
 impl ItemHandler {
@@ -990,6 +993,7 @@ fn make_template(
         Some("SpiritShot") => ItemHandler::SpiritShot,
         Some("BlessedSpiritShot") => ItemHandler::BlessedSpiritShot,
         Some("EnchantScrolls") => ItemHandler::EnchantScrolls,
+        Some("Recipes") => ItemHandler::Recipes,
         _ => ItemHandler::None,
     };
 

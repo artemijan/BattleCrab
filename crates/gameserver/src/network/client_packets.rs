@@ -85,6 +85,15 @@ pub mod opcodes {
     /// `RequestRecipeBookOpen` — the "Common Craft" / "Dwarven Craft" action;
     /// body is one int (`0` = dwarven craft, else common).
     pub const REQUEST_RECIPE_BOOK_OPEN: u8 = 0xB5;
+    pub const REQUEST_RECIPE_BOOK_DESTROY: u8 = 0xB6;
+    pub const REQUEST_RECIPE_ITEM_MAKE_INFO: u8 = 0xB7;
+    pub const REQUEST_RECIPE_ITEM_MAKE_SELF: u8 = 0xB8;
+    pub const REQUEST_RECIPE_SHOP_MANAGE_LIST: u8 = 0xB9;
+    pub const REQUEST_RECIPE_SHOP_MESSAGE_SET: u8 = 0xBA;
+    pub const REQUEST_RECIPE_SHOP_LIST_SET: u8 = 0xBB;
+    pub const REQUEST_RECIPE_SHOP_MANAGE_QUIT: u8 = 0xBC;
+    pub const REQUEST_RECIPE_SHOP_MAKE_INFO: u8 = 0xBE;
+    pub const REQUEST_RECIPE_SHOP_MAKE_ITEM: u8 = 0xBF;
     pub const REQUEST_FRIEND_INVITE: u8 = 0x77;
     pub const REQUEST_ANSWER_FRIEND_INVITE: u8 = 0x78;
     pub const REQUEST_FRIEND_LIST: u8 = 0x79;
@@ -912,6 +921,62 @@ impl RequestSendFriendMsg {
         let receiver = r.read_string()?;
         Some(Self { message, receiver })
     }
+}
+
+/// One line of a `RequestRecipeShopListSet` manufacture list: recipe-list id +
+/// adena cost.
+#[derive(Debug, Clone, Copy)]
+pub struct ManufactureLine {
+    pub recipe_id: i32,
+    pub cost: i64,
+}
+
+/// `RequestRecipeShopListSet` (0xBB): the manufacture recipes + prices the
+/// seller set. Java: `count(int)` then `count × (id:int, cost:long)`; a
+/// negative cost aborts the whole read (Java nulls `_items`).
+pub fn read_recipe_shop_list_set(body: &[u8]) -> Option<Vec<ManufactureLine>> {
+    let mut r = PacketReader::new(body);
+    let count = r.read_i32()?;
+    if count < 0 || count > 500 {
+        return None;
+    }
+    let mut items = Vec::with_capacity(count as usize);
+    for _ in 0..count {
+        let recipe_id = r.read_i32()?;
+        let cost = r.read_i64()?;
+        if cost < 0 {
+            return None;
+        }
+        items.push(ManufactureLine { recipe_id, cost });
+    }
+    Some(items)
+}
+
+/// `RequestRecipeShopMakeItem` (0xBF): `manufacturerId(int)`, `recipeId(int)`,
+/// then an unused long.
+pub fn read_recipe_shop_make_item(body: &[u8]) -> Option<(i32, i32)> {
+    let mut r = PacketReader::new(body);
+    let manufacturer = r.read_i32()?;
+    let recipe_id = r.read_i32()?;
+    let _unknown = r.read_i64()?;
+    Some((manufacturer, recipe_id))
+}
+
+/// `RequestRecipeShopMakeInfo` (0xBE): `playerObjectId(int)`, `recipeId(int)`.
+pub fn read_recipe_shop_make_info(body: &[u8]) -> Option<(i32, i32)> {
+    let mut r = PacketReader::new(body);
+    Some((r.read_i32()?, r.read_i32()?))
+}
+
+/// The single-int recipe packets (`RequestRecipeBookDestroy` 0xB6,
+/// `RequestRecipeItemMakeInfo` 0xB7, `RequestRecipeItemMakeSelf` 0xB8): one int.
+pub fn read_recipe_single_int(body: &[u8]) -> Option<i32> {
+    PacketReader::new(body).read_i32()
+}
+
+/// `RequestRecipeShopMessageSet` (0xBA): the store title string.
+pub fn read_recipe_shop_message_set(body: &[u8]) -> Option<String> {
+    PacketReader::new(body).read_string()
 }
 
 #[cfg(test)]

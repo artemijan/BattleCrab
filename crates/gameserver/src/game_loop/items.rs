@@ -418,6 +418,9 @@ fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
         ItemHandler::EnchantScrolls => {
             super::enchant::open(world, client_id, object_id, item_object_id)
         }
+        ItemHandler::Recipes => {
+            super::crafting::learn_recipe(world, client_id, object_id, item_object_id)
+        }
         ItemHandler::None => {}
     }
 }

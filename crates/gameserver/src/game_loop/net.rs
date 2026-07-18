@@ -114,7 +114,21 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
 
     let skill_reuses = reuses_to_save(world, world.objects.get_component::<crate::model::components::Reuses>(&object_id));
 
-    Some(db::PlayerSaveData { base, items, skills, shortcuts, macros, quests, skill_reuses })
+    // Registered recipes as (list_id, is_dwarven) — the component already keeps
+    // the two books split, so the flag is known without a RecipeData lookup.
+    let recipe_book = world
+        .objects
+        .get_component::<crate::model::components::RecipeBook>(&object_id)
+        .map(|rb| {
+            rb.dwarven
+                .iter()
+                .map(|&id| (id, true))
+                .chain(rb.common.iter().map(|&id| (id, false)))
+                .collect()
+        })
+        .unwrap_or_default();
+
+    Some(db::PlayerSaveData { base, items, skills, recipe_book, shortcuts, macros, quests, skill_reuses })
 }
 
 /// Skill reuse cooldowns → `character_skills_save` rows (Java `storeEffect`,
@@ -259,6 +273,13 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
                     base: db::PlayerSnapshot::of(&b.player, &b.position, &b.vitals, &b.player_vitals),
                     items: b.inventory.to_rows().into_iter().chain(b.warehouse.to_rows()).chain(b.freight.to_rows()).collect(),
                     skills: b.skills.0.iter().map(|(id, lvl)| (*id, *lvl)).collect(),
+                    recipe_book: b
+                        .recipe_book
+                        .dwarven
+                        .iter()
+                        .map(|&id| (id, true))
+                        .chain(b.recipe_book.common.iter().map(|&id| (id, false)))
+                        .collect(),
                     shortcuts: b.shortcuts.0.values().cloned().collect(),
                     macros: b.macros.entries.clone(),
                     quests: b.quests.0.clone(),

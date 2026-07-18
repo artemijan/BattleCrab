@@ -175,17 +175,46 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             }
         }
         // RequestRecipeBookOpen (IN_GAME): the "Common Craft" / "Dwarven Craft"
-        // action. Body is one int (`0` = dwarven). Recipe books are unported, so
-        // reply with the player's max MP and an empty book — the window opens.
+        // action. Body is one int (`0` = dwarven).
         cop::REQUEST_RECIPE_BOOK_OPEN => {
-            if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id) {
-                let is_dwarven = body.get(..4).map(|b| i32::from_le_bytes([b[0], b[1], b[2], b[3]]) == 0).unwrap_or(true);
-                let max_mp = world
-                    .objects
-                    .get_component::<crate::model::components::Vitals>(&session.player_object_id())
-                    .map(|v| v.max_mp)
-                    .unwrap_or(0);
-                cs.send(server_packets::recipe_book_item_list(is_dwarven, max_mp, &[]));
+            let is_dwarven = body.get(..4).map(|b| i32::from_le_bytes([b[0], b[1], b[2], b[3]]) == 0).unwrap_or(true);
+            super::crafting::request_book_open(world, client_id, is_dwarven);
+        }
+        cop::REQUEST_RECIPE_BOOK_DESTROY => {
+            if let Some(id) = cp::read_recipe_single_int(body) {
+                super::crafting::handle_book_destroy(world, client_id, id);
+            }
+        }
+        cop::REQUEST_RECIPE_ITEM_MAKE_INFO => {
+            if let Some(id) = cp::read_recipe_single_int(body) {
+                super::crafting::handle_make_info(world, client_id, id);
+            }
+        }
+        cop::REQUEST_RECIPE_ITEM_MAKE_SELF => {
+            if let Some(id) = cp::read_recipe_single_int(body) {
+                super::crafting::handle_make_self(world, client_id, id);
+            }
+        }
+        cop::REQUEST_RECIPE_SHOP_MANAGE_LIST => super::crafting::open_manage(world, client_id),
+        cop::REQUEST_RECIPE_SHOP_MESSAGE_SET => {
+            if let Some(name) = cp::read_recipe_shop_message_set(body) {
+                super::crafting::handle_message_set(world, client_id, name);
+            }
+        }
+        cop::REQUEST_RECIPE_SHOP_LIST_SET => {
+            if let Some(lines) = cp::read_recipe_shop_list_set(body) {
+                super::crafting::handle_list_set(world, client_id, lines);
+            }
+        }
+        cop::REQUEST_RECIPE_SHOP_MANAGE_QUIT => super::crafting::handle_manage_quit(world, client_id),
+        cop::REQUEST_RECIPE_SHOP_MAKE_INFO => {
+            if let Some((shop, recipe)) = cp::read_recipe_shop_make_info(body) {
+                super::crafting::handle_shop_make_info(world, client_id, shop, recipe);
+            }
+        }
+        cop::REQUEST_RECIPE_SHOP_MAKE_ITEM => {
+            if let Some((manufacturer, recipe)) = cp::read_recipe_shop_make_item(body) {
+                super::crafting::handle_shop_make_item(world, client_id, manufacturer, recipe);
             }
         }
         cop::LOGOUT => handle_logout(world, client_id),

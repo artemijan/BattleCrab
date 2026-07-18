@@ -169,6 +169,9 @@ pub struct PlayerSaveData {
     pub items: Vec<ItemRow>,
     /// Learned skills as `(skill_id, skill_level)` (class_index 0).
     pub skills: Vec<(i32, i32)>,
+    /// Registered recipes as `(recipe_list_id, is_dwarven)` — the `type` column
+    /// (1 dwarven / 0 common) is derived on the game thread from `RecipeData`.
+    pub recipe_book: Vec<(i32, bool)>,
     /// Panel/hotbar shortcuts (`Shortcuts` component).
     pub shortcuts: Vec<crate::model::shortcut::Shortcut>,
     /// Macro definitions (`Macros` component).
@@ -872,6 +875,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
         }
         let items = load_items(pool, object_id).await;
         let skills = load_skills(pool, object_id).await;
+        let recipe_book = load_recipe_book(pool, object_id).await;
         let shortcuts = load_shortcuts(pool, object_id).await;
         let macros = load_macros(pool, object_id).await;
         let friends = load_friends(pool, object_id).await;
@@ -917,6 +921,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             char_slot: slot as i32,
             items,
             skills,
+            recipe_book,
             shortcuts,
             macros,
             friends,
@@ -944,6 +949,19 @@ async fn load_skills(pool: &SqlitePool, owner_id: i32) -> Vec<(i32, i32)> {
         .await
         .unwrap_or_default();
     rows.iter().map(|r| (geti(r, "skill_id") as i32, geti(r, "skill_level") as i32)).collect()
+}
+
+/// A character's `character_recipebook` rows (Java `Player.restoreRecipeBook`)
+/// as recipe-*list* ids. The dwarven/common split (the `type` column) is
+/// re-derived from `RecipeData` on the game thread, so the DB layer just
+/// returns the ids. `classIndex = 0` — no subclasses on this dist.
+async fn load_recipe_book(pool: &SqlitePool, owner_id: i32) -> Vec<i32> {
+    let rows = sqlx::query("SELECT id FROM character_recipebook WHERE charId=? AND classIndex=0")
+        .bind(owner_id)
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
+    rows.iter().map(|r| geti(r, "id") as i32).collect()
 }
 
 /// A character's `character_skills_save` reuse rows (Java `restoreEffects`,
@@ -1587,6 +1605,21 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
         .bind(char_id)
         .bind(skill_id)
         .bind(level)
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    // registered recipes (Java saves per-registration; here delete+reinsert
+    // with the persist flush, memory-first like items/skills). `type` = 1
+    // dwarven / 0 common; `classIndex` 0.
+    sqlx::query("DELETE FROM character_recipebook WHERE charId=? AND classIndex=0").bind(char_id).execute(&mut *tx).await?;
+    for (list_id, is_dwarven) in &s.recipe_book {
+        sqlx::query(
+            "INSERT INTO character_recipebook (charId, id, classIndex, type) VALUES (?, ?, 0, ?)",
+        )
+        .bind(char_id)
+        .bind(list_id)
+        .bind(if *is_dwarven { 1 } else { 0 })
         .execute(&mut *tx)
         .await?;
     }

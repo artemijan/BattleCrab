@@ -348,6 +348,38 @@ pub struct SkillBook(pub HashMap<i32, i32>);
 #[derive(Component, Debug, Clone, Default)]
 pub struct ClanSkills(pub HashMap<i32, i32>);
 
+/// The player's registered crafting recipes as recipe-*list* ids, split by
+/// book (Java `Player._dwarvenRecipeBook` / `_commonRecipeBook`, keyed by
+/// `RecipeList.getId()`). Loaded from `character_recipebook`, persisted in the
+/// store transaction (the `type` column = dwarven/common, derived from
+/// `RecipeData`). Player-only. Order is kept stable (Java uses a sorted map;
+/// here insertion order — the wire packet carries a running 1-based slot index
+/// the client keys buttons by, so consistency across resends is what matters).
+#[derive(Component, Debug, Clone, Default)]
+pub struct RecipeBook {
+    pub dwarven: Vec<i32>,
+    pub common: Vec<i32>,
+}
+
+impl RecipeBook {
+    /// Whether either book holds this recipe-list id (Java `hasRecipeList`).
+    pub fn contains(&self, list_id: i32) -> bool {
+        self.dwarven.contains(&list_id) || self.common.contains(&list_id)
+    }
+}
+
+/// A player's active private *manufacture* store (Java `Player._manufactureItems`
+/// + store title): the recipes they craft-for-hire and the adena fee each.
+/// Present only while the store is open; not persisted (`StoreRecipeShopList =
+/// False`). The store *type* byte (MANUFACTURE) lives on
+/// [`Player::store_type`](crate::model::Player::store_type). `items` are
+/// `(recipe_list_id, cost)`.
+#[derive(Component, Debug, Clone, Default)]
+pub struct ManufactureStore {
+    pub items: Vec<(i32, i64)>,
+    pub title: String,
+}
+
 /// The currently-applied grade-penalty levels (Java `Player._expertiseWeaponPenalty`
 /// / `_expertiseArmorPenalty`, each 0-4). Cached so `refresh_expertise_penalty`
 /// can no-op when nothing changed, and read by `EtcStatusUpdate`. Player-only.

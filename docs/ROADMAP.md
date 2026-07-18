@@ -38,7 +38,7 @@ out-of-scope list.
 | G14 | Item stats & equipment combat accuracy ✅ | Foundations | `//setparam` ✅ | — |
 | G15 | Economy & item actions | Foundations | — | G14 |
 | G15.5 | Teleporters & user commands 🚧 | Foundations | — | — |
-| G15.7 | Crafting & recipes | Foundations | — | G15 |
+| G15.7 | Crafting & recipes ✅ | Foundations | — | G15 |
 | G16 | Character variables, premium & vitality | Foundations | `//premium*` `//pccafepoints` `//primepoints` `//set_vitality_level` | — |
 | G17 | Sub-classes, class change & nobless | Progression | `//setnoble` `//setsubclass` (editchar) | G22¹ |
 | G18 | Clans — full | Progression | `//clan_*` `//pledge` `//add_clan_skill` | G15 |
@@ -301,6 +301,26 @@ roll), and the private manufacture store (`RequestRecipeShop*` — reuses G15's
 private-store plumbing, `ManufactureItem` price list). **Gate:** learn a
 recipe, craft an item from materials, and buy a craft from another player's
 manufacture store. **Deps:** G15.
+
+✅ **Landed (2026-07-19)** — plan [PLAN_G15_7_CRAFTING.md](PLAN_G15_7_CRAFTING.md).
+`data/recipe_data.rs` (`RecipeData` — all 631 `Recipes.xml` recipes, ingredients
++ MP/HP `statUse` + `productionRare`) and a `RecipeBook` component
+(dwarven/common recipe-list ids) loaded from `character_recipebook` and persisted
+in the store transaction. `game_loop/crafting.rs` is the **synchronous**
+`RecipeItemMaker` (this dist is `AltGameCreation = False`, so no staged multi-pass
+craft, craft animation, crafting XP/SP, or HP/MP rest-wait): recipe learning via
+the `Recipes` item handler (craft-skill/level/limit gates), book open/destroy,
+self-craft (`RequestRecipeItemMakeInfo`/`MakeSelf` — material + MP/HP consume,
+`Rnd.get(100) < successRate` roll, masterwork `productionRare` roll), and the
+manufacture store (`RequestRecipeShop{ManageList,MessageSet,ListSet,ManageQuit,
+MakeInfo,MakeItem}` — store byte MANUFACTURE, click→`RecipeShopSellList`,
+customer buys a craft with the adena fee going crafter-ward, materials/MP off the
+right party). Server packets `RecipeBookItemList`/`RecipeItemMakeInfo`/
+`RecipeShop{ManageList,SellList,ItemInfo,Msg}` (0xDC–0xE1). **Deferred:**
+`AltGameCreation` staged crafting + XP/SP (config-off), manufacture-store
+persistence (`StoreRecipeShopList = False`), the `Stat.CRAFT_RATE` /
+`CRAFTING_CRITICAL` / `RECIPE_DWARVEN/COMMON` modifiers (no source in the ported
+set → identity).
 
 ### G16 — Character variables, premium & vitality
 `GlobalVariablesManager` + a per-character key/value store (`character_variables`
