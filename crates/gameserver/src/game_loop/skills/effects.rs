@@ -405,6 +405,13 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             // (kept off the empty-`buff_effects` bail via `has_protection`).
             // TODO(G-pvp): the actual PK damage immunity.
             SkillEffect::ProtectionBlessing => {}
+            // DefenceTrait (Mental Shield / Resist Shock) and VampiricAttack
+            // (Vampiric Rage): no instant action — they land purely as an
+            // icon-only timed buff (kept off the empty-`buff_effects` bail via
+            // `has_iconless_buff`). Their real mechanics (trait resistances /
+            // melee HP absorb) aren't modeled yet.
+            // TODO(G16/G20): honor the trait-defense and HP-absorb effects.
+            SkillEffect::DefenceTrait | SkillEffect::VampiricAttack => {}
         }
     }
 
@@ -429,10 +436,14 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     // lands as a timed buff (for the icon + expiry) whose ticks are armed
     // below — so it must not bail here on an empty `buff_effects`.
     let has_dot = skill.effects.iter().any(|e| matches!(e, SkillEffect::DamOverTime { .. }));
-    // Blessing of Protection likewise carries no stat modifier but must still
-    // land as an icon-only timed buff (its PK_PROTECT abnormal + duration).
-    let has_protection = skill.effects.iter().any(|e| matches!(e, SkillEffect::ProtectionBlessing));
-    if buff_effects.is_empty() && !has_dot && !has_protection {
+    // Blessing of Protection, DefenceTrait (Mental Shield / Resist Shock) and
+    // VampiricAttack (Vampiric Rage) likewise carry no stat modifier but must
+    // still land as an icon-only timed buff (their abnormal + duration): their
+    // real mechanics aren't modeled yet, but the buff must show and expire.
+    let has_iconless_buff = skill.effects.iter().any(|e| {
+        matches!(e, SkillEffect::ProtectionBlessing | SkillEffect::DefenceTrait | SkillEffect::VampiricAttack)
+    });
+    if buff_effects.is_empty() && !has_dot && !has_iconless_buff {
         return;
     }
 

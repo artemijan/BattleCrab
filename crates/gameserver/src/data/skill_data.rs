@@ -53,6 +53,12 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // buff was dropped whole at `apply_skill_effects`' empty-effects guard — so
     // the buff never landed (the community-board "Concentration doesn't work").
     ("ReduceCancel", Stat::AttackCancel),
+    // Blessed Shield (1243): `ShieldDefenceRate` → `Stat.SHIELD_DEFENCE_RATE`
+    // (single-stat `AbstractStatEffect`). Without this the effect fell through,
+    // produced no modifier, and the buff was dropped whole at the empty-effects
+    // guard (community-board "Blessed Shield doesn't apply"). `CriticalDamage`
+    // is NOT here — it is two-stat (mul/add by mode), handled in a match arm.
+    ("ShieldDefenceRate", Stat::ShieldDefenceRate),
 ];
 
 pub struct SkillData {
@@ -538,6 +544,39 @@ fn finalize_skill(
                     // `apply_skill_effects` still creates the icon-only timed buff.
                     // TODO(G-pvp): honor the actual damage immunity.
                     "ProtectionBlessing" => vec![SkillEffect::ProtectionBlessing],
+                    // Death Whisper (1242) & co.: Java `CriticalDamage extends
+                    // AbstractStatEffect(params, CRITICAL_DAMAGE, CRITICAL_DAMAGE_ADD)`
+                    // — a two-stat effect that pumps the multiplicative
+                    // `CRITICAL_DAMAGE` in `PER` mode and the additive
+                    // `CRITICAL_DAMAGE_ADD` in `DIFF` mode. The 1-name→1-stat
+                    // `EFFECT_REGISTRY` can't express that, so pick the stat by
+                    // mode here (like `Speed`). Without this the effect fell
+                    // through, produced no modifier, and the buff was dropped
+                    // whole (community-board "Death Whisper doesn't apply").
+                    "CriticalDamage" => param("amount")
+                        .map(|amount| {
+                            let stat = if modifier_mode == StatModifierType::Per {
+                                Stat::CriticalDamage
+                            } else {
+                                Stat::CriticalDamageAdd
+                            };
+                            stat_mod(stat, amount)
+                        })
+                        .into_iter()
+                        .collect(),
+                    // Mental Shield (1035) / Stun Resistance ("Resist Shock",
+                    // 1259): Java `DefenceTrait` raises per-`TraitType` resistance
+                    // (HOLD/SLEEP/SHOCK…) — not a single `Stat`, and its params
+                    // are the trait names, not `amount`. The trait-defense math
+                    // isn't modeled yet, so carry a marker (like
+                    // `ProtectionBlessing`) so the buff still lands icon-only
+                    // instead of being dropped whole.
+                    "DefenceTrait" => vec![SkillEffect::DefenceTrait],
+                    // Vampiric Rage (1268): Java `VampiricAttack` grants a chance
+                    // to absorb a % of melee damage as HP. The melee-absorb path
+                    // isn't modeled, so carry an icon-only marker rather than
+                    // dropping the buff.
+                    "VampiricAttack" => vec![SkillEffect::VampiricAttack],
                     _ => match EFFECT_REGISTRY.iter().find(|(n, _)| n == xml_name).map(|(_, s)| *s) {
                         Some(stat) => param("amount").map(|amount| stat_mod(stat, amount)).into_iter().collect(),
                         None => Vec::new(),
@@ -814,6 +853,39 @@ mod tests {
         let sweeper = sd.get(42, 1).expect("Sweeper lvl 1");
         assert_eq!(sweeper.target_type, TargetType::NpcBody);
         assert!(matches!(sweeper.effects.as_slice(), [SkillEffect::Sweeper, SkillEffect::ConsumeBody]));
+
+        // Community-board buffer skills that previously loaded with an empty
+        // effect list (every effect unregistered → dropped whole at the
+        // empty-`buff_effects` bail) and so never landed / showed no icon.
+        //
+        // Blessed Shield 1243 (`ShieldDefenceRate`, PER +5% at lvl 1) and Death
+        // Whisper 1242 (`CriticalDamage`, PER +25% at lvl 1) carry real stat
+        // modifiers now. Death Whisper's PER mode must pick `CRITICAL_DAMAGE`
+        // (not the `CRITICAL_DAMAGE_ADD` diff-mode sibling).
+        let blessed_shield = sd.get(1243, 1).expect("Blessed Shield lvl 1");
+        assert!(matches!(
+            blessed_shield.effects.as_slice(),
+            [SkillEffect::StatModifier(m)]
+                if m.stat == Stat::ShieldDefenceRate && m.mode == StatModifierType::Per && m.amount == 5.0
+        ));
+        let death_whisper = sd.get(1242, 1).expect("Death Whisper lvl 1");
+        assert!(matches!(
+            death_whisper.effects.as_slice(),
+            [SkillEffect::StatModifier(m)]
+                if m.stat == Stat::CriticalDamage && m.mode == StatModifierType::Per && m.amount == 25.0
+        ));
+
+        // Mental Shield 1035 and Stun Resistance ("Resist Shock") 1259 carry a
+        // `DefenceTrait` marker; Vampiric Rage 1268 carries a `VampiricAttack`
+        // marker. No stat modifier, but the marker keeps the buff off the
+        // empty-effects bail so it lands icon-only for its 1200 s.
+        let mental_shield = sd.get(1035, 1).expect("Mental Shield lvl 1");
+        assert!(matches!(mental_shield.effects.as_slice(), [SkillEffect::DefenceTrait]));
+        assert_eq!(mental_shield.abnormal_time, 1200);
+        let resist_shock = sd.get(1259, 1).expect("Stun Resistance lvl 1");
+        assert!(matches!(resist_shock.effects.as_slice(), [SkillEffect::DefenceTrait]));
+        let vampiric_rage = sd.get(1268, 1).expect("Vampiric Rage lvl 1");
+        assert!(matches!(vampiric_rage.effects.as_slice(), [SkillEffect::VampiricAttack]));
     }
 
     /// A trimmed Wind Strike (1177): per-level `targetType` and
