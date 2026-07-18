@@ -343,6 +343,19 @@ fn finalize_skill(
                     // `power`). Mirror that default here; do NOT drop the effect,
                     // or the skill becomes a silent no-op.
                     "MagicalAttack" => vec![SkillEffect::MagicalAttack { power: param("power").unwrap_or(0.0) }],
+                    // Ranged magical nuke (e.g. Prominence 1230). Java's
+                    // `MagicalAttackRange` computes the same
+                    // `calcMagicDam(mAtk, power, mDef, sps, bss, mcrit)` core as
+                    // `MagicalAttack`; the only extra is a `shieldDefPercent`
+                    // shield-block term, which the `MagicalAttack` damage path
+                    // doesn't model yet either, so route it to the same effect.
+                    // Without this the effect fell through to `EFFECT_REGISTRY`,
+                    // wasn't found, and got dropped — the skill cast but dealt
+                    // no damage.
+                    // TODO(G7.5): honor `shieldDefPercent` (adds
+                    // `shldDef * pct/100` to mDef on shield-block) once shield
+                    // defense is modeled in the magic-damage formula.
+                    "MagicalAttackRange" => vec![SkillEffect::MagicalAttack { power: param("power").unwrap_or(0.0) }],
                     "Heal" => vec![SkillEffect::Heal { power: param("power").unwrap_or(0.0) }],
                     "Restoration" => match (param("itemId"), param("itemCount")) {
                         (Some(item_id), Some(item_count)) => vec![SkillEffect::GiveItem {
@@ -458,6 +471,13 @@ mod tests {
         assert!(matches!(ws.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 12.0));
         assert_eq!(ws.reuse_delay_group, -1, "no <reuseDelayGroup> must stay -1, never 0");
         assert_eq!(ws.reuse_key(), 1177);
+
+        // Prominence 1230: a ranged nuke backed by the `MagicalAttackRange`
+        // effect. It must parse to a `MagicalAttack` (power 108 at lvl 28) —
+        // before the handler existed the effect fell through and was dropped,
+        // so the skill cast but dealt zero damage.
+        let prominence = sd.get(1230, 28).expect("Prominence lvl 28");
+        assert!(matches!(prominence.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 108.0));
 
         // Skill 1011 "Heal": the reference datapack's effect body is
         // `<item>power</item>`, which parses to the param key `item` — so the
