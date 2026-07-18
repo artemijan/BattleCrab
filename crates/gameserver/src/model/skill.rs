@@ -200,6 +200,37 @@ pub enum SkillEffect {
     /// icon-only timed `ActiveBuff` (abnormal + duration honored).
     /// TODO(G20): honor the actual HP absorb-on-hit in the melee combat path.
     VampiricAttack,
+    /// `handlers/effecthandlers/AttackAttribute.java` — adds `amount` to the
+    /// target's `<attribute>_POWER` attack-element stat (`mergeAdd`). Backs the
+    /// elemental dance/song buffs (Dance of Light 277 → HOLY, …). Attribute-based
+    /// attack math isn't modeled yet, so like `VampiricAttack` this carries no
+    /// stat modifier and lands as an icon-only timed `ActiveBuff` (abnormal +
+    /// duration honored) so the buff shows and expires.
+    /// TODO(G16): apply the attack-element power in the elemental damage math.
+    AttackAttribute,
+    /// `handlers/effecthandlers/MagicMpCost.java` — multiplies the target's
+    /// MP-consume rate for a given `magicType` (`mergeMpConsumeTypeValue`, factor
+    /// `amount/100 + 1`). Backs the MP-cost-reduction songs (Song of Champion
+    /// 8547, Song of Renewal 349). The cast MP-consume path reads `skill.mp_consume`
+    /// raw (no per-type stat multiplier), so this carries no stat modifier and
+    /// lands as an icon-only timed `ActiveBuff` (abnormal + duration honored).
+    /// TODO(G16): route MP consume through a per-magic-type consume-rate stat.
+    MagicMpCost,
+    /// `handlers/effecthandlers/Reuse.java` — multiplies the target's skill-reuse
+    /// rate for a given `magicType` (`mergeReuseTypeValue`, factor `amount/100 + 1`).
+    /// Backs the reuse-reduction buffs (Song of Champion 8547, Song of Renewal 349,
+    /// Gift of Seraphim 4703). The reuse path uses `skill.reuse_delay` raw (no
+    /// per-type stat multiplier), so this carries no stat modifier and lands as an
+    /// icon-only timed `ActiveBuff` (abnormal + duration honored).
+    /// TODO(G16): route reuse through a per-magic-type reuse-rate stat.
+    Reuse,
+    /// `handlers/effecthandlers/DamageShield.java` — `Stat.REFLECT_DAMAGE_PERCENT`:
+    /// reflects `amount`% of received damage back at the attacker. Backs Song of
+    /// Vengeance (305). The combat damage-reflect path isn't modeled yet, so this
+    /// carries no stat modifier and lands as an icon-only timed `ActiveBuff`
+    /// (abnormal + duration honored).
+    /// TODO(G20): reflect `amount`% of received damage in the combat path.
+    DamageShield,
 }
 
 /// `dist/game/data/stats/skills/*.xml` → `Skill.java`, scoped to G6.

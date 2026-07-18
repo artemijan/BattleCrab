@@ -412,6 +412,16 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             // melee HP absorb) aren't modeled yet.
             // TODO(G16/G20): honor the trait-defense and HP-absorb effects.
             SkillEffect::DefenceTrait | SkillEffect::VampiricAttack => {}
+            // Community-board dance/song buffs (Dance of Light, Song of Champion/
+            // Renewal/Vengeance, Gift of Seraphim): no instant action — they land
+            // purely as icon-only timed buffs (kept off the empty-`buff_effects`
+            // bail via `has_iconless_buff`). Their real mechanics (attack element /
+            // MP-consume rate / reuse rate / damage reflect) aren't modeled yet.
+            // TODO(G16/G20): honor the element/MP-cost/reuse/reflect effects.
+            SkillEffect::AttackAttribute
+            | SkillEffect::MagicMpCost
+            | SkillEffect::Reuse
+            | SkillEffect::DamageShield => {}
         }
     }
 
@@ -441,7 +451,16 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     // still land as an icon-only timed buff (their abnormal + duration): their
     // real mechanics aren't modeled yet, but the buff must show and expire.
     let has_iconless_buff = skill.effects.iter().any(|e| {
-        matches!(e, SkillEffect::ProtectionBlessing | SkillEffect::DefenceTrait | SkillEffect::VampiricAttack)
+        matches!(
+            e,
+            SkillEffect::ProtectionBlessing
+                | SkillEffect::DefenceTrait
+                | SkillEffect::VampiricAttack
+                | SkillEffect::AttackAttribute
+                | SkillEffect::MagicMpCost
+                | SkillEffect::Reuse
+                | SkillEffect::DamageShield
+        )
     });
     if buff_effects.is_empty() && !has_dot && !has_iconless_buff {
         return;

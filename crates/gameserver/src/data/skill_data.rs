@@ -577,6 +577,18 @@ fn finalize_skill(
                     // isn't modeled, so carry an icon-only marker rather than
                     // dropping the buff.
                     "VampiricAttack" => vec![SkillEffect::VampiricAttack],
+                    // Community-board dance/song buffs whose combat/cost math
+                    // isn't modeled yet — Dance of Light (277, `AttackAttribute`),
+                    // Song of Champion/Renewal (`MagicMpCost`/`Reuse`), Gift of
+                    // Seraphim (4703, `Reuse`), Song of Vengeance (305,
+                    // `DamageShield`). Each maps to a per-magic-type or element
+                    // stat the port doesn't have, so carry an icon-only marker
+                    // (like `DefenceTrait`) rather than dropping the buff whole at
+                    // the empty-effects guard — the buff must show and expire.
+                    "AttackAttribute" => vec![SkillEffect::AttackAttribute],
+                    "MagicMpCost" => vec![SkillEffect::MagicMpCost],
+                    "Reuse" => vec![SkillEffect::Reuse],
+                    "DamageShield" => vec![SkillEffect::DamageShield],
                     _ => match EFFECT_REGISTRY.iter().find(|(n, _)| n == xml_name).map(|(_, s)| *s) {
                         Some(stat) => param("amount").map(|amount| stat_mod(stat, amount)).into_iter().collect(),
                         None => Vec::new(),
@@ -1015,6 +1027,76 @@ mod tests {
             s.effects[0],
             SkillEffect::StatModifier(StatModifierEffect { stat: Stat::AttackCancel, mode: StatModifierType::Diff, amount, .. }) if amount == -18.0
         ));
+    }
+
+    /// Community-board dance/song buffs whose only effects are `AttackAttribute`
+    /// (Dance of Light), `MagicMpCost`/`Reuse` (Song of Champion/Renewal),
+    /// `Reuse` (Gift of Seraphim) or `DamageShield` (Song of Vengeance) must parse
+    /// to their icon-only marker rather than being dropped. Before these arms
+    /// existed, every effect fell through `EFFECT_REGISTRY`, the effect list was
+    /// empty, and `apply_skill_effects` dropped the whole buff — so none of these
+    /// landed from the community board.
+    #[test]
+    fn dance_song_buffs_parse_to_iconless_markers() {
+        let xml = r#"
+        <list>
+            <skill id="277" toLevel="1" name="Dance of Light">
+                <operateType>A2</operateType>
+                <abnormalTime>120</abnormalTime>
+                <targetType>SELF</targetType>
+                <effects>
+                    <effect name="AttackAttribute">
+                        <amount>20</amount>
+                        <attribute>HOLY</attribute>
+                    </effect>
+                </effects>
+            </skill>
+            <skill id="8547" toLevel="1" name="Song of Champion">
+                <operateType>A2</operateType>
+                <abnormalTime>120</abnormalTime>
+                <targetType>SELF</targetType>
+                <effects>
+                    <effect name="MagicMpCost">
+                        <amount>-20</amount>
+                        <mode>PER</mode>
+                        <magicType>0</magicType>
+                    </effect>
+                    <effect name="Reuse">
+                        <amount>-10</amount>
+                        <mode>PER</mode>
+                        <magicType>0</magicType>
+                    </effect>
+                </effects>
+            </skill>
+            <skill id="305" toLevel="1" name="Song of Vengeance">
+                <operateType>A2</operateType>
+                <abnormalTime>120</abnormalTime>
+                <targetType>SELF</targetType>
+                <effects>
+                    <effect name="DamageShield">
+                        <amount>20</amount>
+                    </effect>
+                </effects>
+            </skill>
+        </list>"#;
+        let mut out = HashMap::new();
+        parse_str(xml, &mut out);
+
+        let dol = out.get(&(277, 1)).expect("Dance of Light parsed");
+        assert!(
+            matches!(dol.effects.as_slice(), [SkillEffect::AttackAttribute]),
+            "AttackAttribute is not dropped"
+        );
+        let soc = out.get(&(8547, 1)).expect("Song of Champion parsed");
+        assert!(
+            matches!(soc.effects.as_slice(), [SkillEffect::MagicMpCost, SkillEffect::Reuse]),
+            "MagicMpCost/Reuse are not dropped"
+        );
+        let sov = out.get(&(305, 1)).expect("Song of Vengeance parsed");
+        assert!(
+            matches!(sov.effects.as_slice(), [SkillEffect::DamageShield]),
+            "DamageShield is not dropped"
+        );
     }
 
     /// `EnableModifySkillDuration`/`SkillDurationList`: an ordinary-level buff in

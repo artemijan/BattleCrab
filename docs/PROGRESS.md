@@ -1442,6 +1442,17 @@ Empty/placeholder now, to be filled in the owning milestone:
     item-icon data + a `RadarControl` packet); `_bbsdelevel` (config-off in the
     dist); the retail forum boards (unreachable under the custom nav). Scheme
     execute onto pets/servitors is `TODO(G29)` (no summons yet).
+  - **Buffer buffs land icon-only when their combat math is unported:** a buff
+    whose effects all fall through the `EFFECT_REGISTRY`/match arms produces an
+    empty effect list and gets dropped whole at `apply_skill_effects`' guard (so
+    the buff never appears). Effects mapping to a modeled `Stat` (`ReduceCancel`,
+    `ShieldDefenceRate`, `CriticalDamage`, …) both land and work; the dance/song
+    buffs whose stat isn't modeled — Dance of Light (277, `AttackAttribute`
+    element power), Song of Champion/Renewal (8547/349, `MagicMpCost`/`Reuse`
+    per-magic-type rate), Gift of Seraphim (4703, `Reuse`), Song of Vengeance
+    (305, `DamageShield` reflect) — now carry an icon-only marker so the buff
+    shows and expires, with the real effect deferred (`TODO(G16/G20)`: attack
+    element, per-type MP-consume/reuse rate stats, damage reflect).
 
 Run: `cargo test` (all green). Boot a pair on alt ports:
 `cargo run -p loginserver` + `CONFIG_SERVER_GAMESERVERPORT=… cargo run -p gameserver`.
