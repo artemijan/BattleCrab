@@ -89,6 +89,30 @@ impl SkillData {
         self.skills.keys().filter(|(sid, _)| *sid == id).map(|(_, lvl)| *lvl).max().unwrap_or(0)
     }
 
+    /// Java `Skill` constructor: `EnableModifySkillDuration` + `SkillDurationList`.
+    /// When enabled, override a skill's `abnormalTime` from the config list — for
+    /// ordinary levels (`< 100` or `> 140`) the config value replaces the XML
+    /// time; for enchanted levels (`100..140`) it is *added* to the base. Toggles
+    /// (`operateType=T`) are exempt. Applied once at boot (`main.rs`) so every
+    /// downstream reader of `abnormal_time` (buff expiry, DoT ticks) sees it.
+    pub fn apply_skill_duration_list(&mut self, list: &HashMap<i32, i32>) {
+        if list.is_empty() {
+            return;
+        }
+        for skill in self.skills.values_mut() {
+            if skill.operate_type == OperateType::Toggle {
+                continue;
+            }
+            if let Some(&secs) = list.get(&skill.id) {
+                if skill.level < 100 || skill.level > 140 {
+                    skill.abnormal_time = secs;
+                } else {
+                    skill.abnormal_time += secs;
+                }
+            }
+        }
+    }
+
     #[doc(hidden)]
     pub fn empty() -> Self {
         Self { skills: HashMap::new() }
@@ -916,5 +940,46 @@ mod tests {
             s.effects[0],
             SkillEffect::StatModifier(StatModifierEffect { stat: Stat::AttackCancel, mode: StatModifierType::Diff, amount, .. }) if amount == -18.0
         ));
+    }
+
+    /// `EnableModifySkillDuration`/`SkillDurationList`: an ordinary-level buff in
+    /// the list has its `abnormalTime` replaced, a toggle in the list is exempt,
+    /// and a skill absent from the list is untouched (Java `Skill` constructor).
+    #[test]
+    fn skill_duration_list_overrides_abnormal_time() {
+        let xml = r#"
+        <list>
+            <skill id="1078" toLevel="1" name="Concentration">
+                <operateType>A2</operateType>
+                <abnormalTime>1200</abnormalTime>
+                <targetType>TARGET</targetType>
+            </skill>
+            <skill id="9999" toLevel="1" name="A Toggle">
+                <operateType>T</operateType>
+                <abnormalTime>1200</abnormalTime>
+                <targetType>SELF</targetType>
+            </skill>
+            <skill id="5555" toLevel="1" name="Not Listed">
+                <operateType>A2</operateType>
+                <abnormalTime>1200</abnormalTime>
+                <targetType>TARGET</targetType>
+            </skill>
+        </list>"#;
+        let mut out = HashMap::new();
+        parse_str(xml, &mut out);
+        let mut sd = SkillData { skills: out };
+
+        let list = HashMap::from([(1078, 7200), (9999, 7200)]);
+        sd.apply_skill_duration_list(&list);
+
+        assert_eq!(sd.get(1078, 1).unwrap().abnormal_time, 7200, "active buff time replaced");
+        assert_eq!(sd.get(9999, 1).unwrap().abnormal_time, 1200, "toggle is exempt");
+        assert_eq!(sd.get(5555, 1).unwrap().abnormal_time, 1200, "skill not in list is untouched");
+
+        // Enchanted levels (100..=140) add rather than replace.
+        let enchanted = Skill { level: 101, ..sd.get(1078, 1).unwrap().clone() };
+        sd.insert_for_test(enchanted);
+        sd.apply_skill_duration_list(&HashMap::from([(1078, 100)]));
+        assert_eq!(sd.get(1078, 101).unwrap().abnormal_time, 7300, "enchanted level adds to base");
     }
 }

@@ -1,6 +1,8 @@
 //! `Character.ini` — port of the `CHARACTER_CONFIG_FILE` block of `Config.java`.
 //! Only the keys needed so far are loaded (grown per milestone).
 
+use std::collections::HashMap;
+
 use commons::config::PropertiesParser;
 
 pub const CHARACTER_CONFIG_FILE: &str = "config/Character.ini";
@@ -130,6 +132,14 @@ pub struct CharacterConfig {
     /// own `magicLevel` instead of the caster's level. Drives the Spoil landing
     /// roll.
     pub calculate_magic_success_by_skill_magic_level: bool,
+    /// `EnableModifySkillDuration` + `SkillDurationList` (`skillId,seconds;…`):
+    /// when enabled, a landed buff/debuff's `abnormalTime` is overridden by the
+    /// list value at skill-load time (Java `Skill` constructor), overriding the
+    /// XML `abnormalTime`. On this dist it stretches songs/dances/buffs to 2h.
+    /// Toggles (`operateType=T`) are exempt; enchanted levels (100–139) add the
+    /// override to the base time instead of replacing it.
+    pub enable_modify_skill_duration: bool,
+    pub skill_duration_list: HashMap<i32, i32>,
 }
 
 impl Default for CharacterConfig {
@@ -180,6 +190,8 @@ impl Default for CharacterConfig {
             alt_karma_player_can_use_gk: false,
             unstuck_interval: 300,
             calculate_magic_success_by_skill_magic_level: true,
+            enable_modify_skill_duration: false,
+            skill_duration_list: HashMap::new(),
         }
     }
 }
@@ -251,8 +263,30 @@ impl CharacterConfig {
             unstuck_interval: p.get_int("UnstuckInterval", d.unstuck_interval),
             calculate_magic_success_by_skill_magic_level: p
                 .get_bool("CalculateMagicSuccessBySkillMagicLevel", d.calculate_magic_success_by_skill_magic_level),
+            enable_modify_skill_duration: p.get_bool("EnableModifySkillDuration", d.enable_modify_skill_duration),
+            // Java only builds the map when the flag is set; keep it empty otherwise.
+            skill_duration_list: if p.get_bool("EnableModifySkillDuration", d.enable_modify_skill_duration) {
+                parse_skill_duration_list(&p.get_string("SkillDurationList", ""))
+            } else {
+                HashMap::new()
+            },
         }
     }
+}
+
+/// `SkillDurationList`: `skillId,seconds;skillId2,seconds2;…`. Malformed
+/// entries are skipped, mirroring Java's per-entry try/catch (which just logs).
+fn parse_skill_duration_list(raw: &str) -> HashMap<i32, i32> {
+    let mut out = HashMap::new();
+    for entry in raw.split(';') {
+        let mut it = entry.split(',');
+        if let (Some(id), Some(secs)) = (it.next(), it.next()) {
+            if let (Ok(id), Ok(secs)) = (id.trim().parse::<i32>(), secs.trim().parse::<i32>()) {
+                out.insert(id, secs);
+            }
+        }
+    }
+    out
 }
 
 /// `PartyXpCutoffGaps`: `from,to;from,to;…` pairs.
@@ -263,4 +297,21 @@ fn parse_gaps(raw: &str) -> Vec<(i32, i32)> {
             Some((a.trim().parse().ok()?, b.trim().parse().ok()?))
         })
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn skill_duration_list_parses_id_second_pairs() {
+        // The multi-line dist form (backslash continuations are already joined
+        // by the properties parser) with trailing `;` and stray whitespace.
+        let m = parse_skill_duration_list("1078,7200;1085,7200; 264,3600 ;bad;309,");
+        assert_eq!(m.get(&1078), Some(&7200));
+        assert_eq!(m.get(&1085), Some(&7200));
+        assert_eq!(m.get(&264), Some(&3600));
+        assert_eq!(m.get(&309), None, "missing value is skipped, not defaulted");
+        assert_eq!(m.len(), 3);
+    }
 }

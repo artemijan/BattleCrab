@@ -63,6 +63,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         startup_auto_list: config.general.gm_startup_auto_list,
         startup_diet_mode: config.general.gm_startup_diet_mode,
     };
+    // Character.ini `EnableModifySkillDuration`/`SkillDurationList`: bake the
+    // per-skill `abnormalTime` overrides into the loaded skills (Java does this
+    // in the `Skill` constructor). No-op when the list is empty/disabled.
+    data.skill_data.apply_skill_duration_list(&config.character.skill_duration_list);
 
     // Java: print_section("Geodata") → GeoEngine.getInstance() (scans
     // GeoDataPath for `{x}_{y}.l2j` regions; missing files just stay null).

@@ -280,7 +280,14 @@ milestone; summary:
   `MaxBuffAmount` (24) and dances/songs at `MaxDanceAmount` (12) in separate
   pools, dropping the oldest when exceeded. The scheduled `BuffExpire` only
   fires once the current buff has truly elapsed, so a re-cast/refresh isn't
-  dropped early by a stale task.
+  dropped early by a stale task. Buff/debuff **duration** honors `Character.ini`
+  `EnableModifySkillDuration`/`SkillDurationList` (**True** on this dist —
+  stretches most songs/dances/buffs to 2h): the `skillId,seconds` list overrides
+  each skill's `abnormalTime` at boot (`SkillData::apply_skill_duration_list`,
+  called from `main.rs` like `combat_caps`), matching Java's `Skill` constructor
+  — toggles are exempt, enchanted levels (100–139) add rather than replace. Every
+  downstream reader of `abnormal_time` (buff expiry ticks, DoT scheduling) then
+  sees the config value transparently.
 - **Cast pipeline** *(superseded by G7.5 below — real 3-phase timing,
   targeting, reuse, abort)*: `RequestMagicSkillUse` → a 2-phase scheduled flow
   (`ScheduledTask::SkillLaunch` at `hit_time`, then `finishSkill` inline — no
