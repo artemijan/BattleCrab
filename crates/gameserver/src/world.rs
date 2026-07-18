@@ -181,6 +181,15 @@ pub struct World {
     /// Java's lazy per-login load, so `//premium_*` works for any account.
     pub premium: HashMap<String, i64>,
 
+    /// Community-board buffer schemes, the in-memory mirror of `buffer_schemes`
+    /// (Java `SchemeBufferTable._schemesTable`): character object-id → its list
+    /// of `(scheme_name, skill_ids)`. Boot-loaded from the whole table
+    /// (`DbEvent::BufferSchemesLoaded`); create/delete write through immediately
+    /// (Java bulk-saves at shutdown — this port avoids the shutdown hook the same
+    /// way `premium` does). Scheme names are matched case-insensitively, like
+    /// Java's `TreeMap(CASE_INSENSITIVE_ORDER)`.
+    pub buffer_schemes: HashMap<i32, Vec<(String, Vec<i32>)>>,
+
     /// Live parties (`Party` objects have no Java-side registry — they only
     /// exist through member references; an id-keyed map is the Rust shape).
     pub parties: HashMap<u32, crate::model::party::Party>,
@@ -243,6 +252,7 @@ impl World {
             sieges: HashMap::new(),
             siege_guards: HashMap::new(),
             premium: HashMap::new(),
+            buffer_schemes: HashMap::new(),
             parties: HashMap::new(),
             next_party_id: 1,
             mob_groups: HashMap::new(),

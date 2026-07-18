@@ -34,7 +34,7 @@ mod mobgroup;
 mod moderation;
 mod pledge;
 mod points;
-mod premium;
+pub(crate) mod premium;
 mod mounts;
 mod skills;
 mod spawn;

@@ -55,6 +55,15 @@ pub struct CommunityBoardConfig {
     /// `CommunityCastAnimations`: play the buff cast animation to the caster.
     pub cast_animations: bool,
 
+    /// `CommunityPremiumSystem`: gates the `_bbspremium` buy action. Java also
+    /// requires the global `Config.PREMIUM_SYSTEM_ENABLED` (see
+    /// [`crate::game_loop::admin::premium::PREMIUM_SYSTEM_ENABLED`]).
+    pub community_premium_system: bool,
+    /// `CommunityPremiumBuyCoinId`: item id charged when buying premium (dist 57).
+    pub premium_coin_id: i32,
+    /// `CommunityPremiumPricePerDay`: coin cost per day of premium (dist 1000000).
+    pub premium_price_per_day: i64,
+
     /// `CommunityAvailableBuffs`: the skill-id whitelist the `_bbsbuff`/scheme
     /// handlers honor (anti-exploit — a bypass naming any other skill is
     /// silently skipped).
@@ -84,6 +93,9 @@ impl Default for CommunityBoardConfig {
             delevel_price: 0,
             karma_disabled: true,
             cast_animations: false,
+            community_premium_system: true,
+            premium_coin_id: 57,
+            premium_price_per_day: 1_000_000,
             available_buffs: HashSet::new(),
             available_teleports: HashMap::new(),
         }
@@ -124,6 +136,9 @@ impl CommunityBoardConfig {
             delevel_price: cb.get_long("CommunityDelevelPrice", d.delevel_price),
             karma_disabled: cb.get_bool("CommunityKarmaDisabled", d.karma_disabled),
             cast_animations: cb.get_bool("CommunityCastAnimations", d.cast_animations),
+            community_premium_system: cb.get_bool("CommunityPremiumSystem", d.community_premium_system),
+            premium_coin_id: cb.get_int("CommunityPremiumBuyCoinId", d.premium_coin_id),
+            premium_price_per_day: cb.get_long("CommunityPremiumPricePerDay", d.premium_price_per_day),
             available_buffs: cb
                 .get_string("CommunityAvailableBuffs", "")
                 .split(',')

@@ -290,6 +290,12 @@ pub enum DbCommand {
     /// UPDATE/DELETE). Used by `//premium_*`.
     StorePremium { account_name: String, enddate: i64 },
     DeletePremium { account_name: String },
+    /// Upsert / delete a `buffer_schemes` row (Java `SchemeBufferTable`; Java
+    /// bulk-rewrites the table at shutdown, this port write-throughs per change).
+    /// `skills` is the comma-joined skill-id list. Used by the community board's
+    /// `_bbs_buff_scheme_create`/`_delete`.
+    StoreBufferScheme { object_id: i32, scheme_name: String, skills: String },
+    DeleteBufferScheme { object_id: i32, scheme_name: String },
     /// Fire-and-forget daily recommendation reset for offline characters
     /// (Java `DailyTaskManager.resetRecommends`'s two UPDATE statements).
     /// Online players are reset in memory on the game thread; their rows get
@@ -318,6 +324,10 @@ pub enum DbEvent {
     /// The whole `account_premium` table (Java `PremiumManager` cache),
     /// pushed unprompted at boot. `(account_name lowercase, enddate millis)`.
     PremiumLoaded { entries: Vec<(String, i64)> },
+    /// The whole `buffer_schemes` table (Java `SchemeBufferTable.load`), pushed
+    /// unprompted at boot. `(object_id, scheme_name, skill_ids)`; skills not in
+    /// the available-buff table are filtered on the game thread.
+    BufferSchemesLoaded { entries: Vec<(i32, String, Vec<i32>)> },
     /// The `grandboss_data` table (Java `GrandBossManager.init`), pushed
     /// unprompted at boot. Filtered to known NPC templates on the game thread.
     GrandBossesLoaded { bosses: Vec<crate::model::grand_boss::GrandBoss> },
@@ -391,6 +401,9 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
     // Premium table cache, before clans so `ClansLoaded` stays the last boot
     // event (the game loop releases the login link on it).
     let _ = event_tx.send(DbEvent::PremiumLoaded { entries: load_premium(&pool).await });
+
+    // `SchemeBufferTable.load` — likewise unprompted, before `ClansLoaded`.
+    let _ = event_tx.send(DbEvent::BufferSchemesLoaded { entries: load_buffer_schemes(&pool).await });
 
     // `GrandBossManager.init` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::GrandBossesLoaded { bosses: load_grandboss_data(&pool).await });
@@ -664,6 +677,25 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
             DbCommand::DeletePremium { account_name } => {
                 exec(&pool, sqlx::query("DELETE FROM account_premium WHERE account_name=?").bind(account_name)).await;
             }
+            DbCommand::StoreBufferScheme { object_id, scheme_name, skills } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT OR REPLACE INTO buffer_schemes (object_id, scheme_name, skills) VALUES (?, ?, ?)")
+                        .bind(object_id)
+                        .bind(scheme_name)
+                        .bind(skills),
+                )
+                .await;
+            }
+            DbCommand::DeleteBufferScheme { object_id, scheme_name } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM buffer_schemes WHERE object_id=? AND scheme_name=?")
+                        .bind(object_id)
+                        .bind(scheme_name),
+                )
+                .await;
+            }
             DbCommand::ResetRecommends => {
                 // Java `DailyTaskManager.resetRecommends`: rec_left → 0 for
                 // everyone; rec_have → 0 for those at/under 20, else -20.
@@ -707,6 +739,26 @@ async fn load_account_var(pool: &SqlitePool, account: &str, var: &str) -> Option
 async fn load_premium(pool: &SqlitePool) -> Vec<(String, i64)> {
     match sqlx::query("SELECT account_name, enddate FROM account_premium").fetch_all(pool).await {
         Ok(rows) => rows.iter().map(|r| (gets(r, "account_name").to_lowercase(), geti(r, "enddate"))).collect(),
+        Err(_) => Vec::new(),
+    }
+}
+
+/// Boot load of the whole `buffer_schemes` table (Java `SchemeBufferTable.load`).
+/// `skills` is stored comma-joined; parse it here, drop empties. Availability
+/// filtering (skills still in the buffer table) happens on the game thread,
+/// where the datapack lives. Missing table → empty.
+async fn load_buffer_schemes(pool: &SqlitePool) -> Vec<(i32, String, Vec<i32>)> {
+    match sqlx::query("SELECT object_id, scheme_name, skills FROM buffer_schemes").fetch_all(pool).await {
+        Ok(rows) => rows
+            .iter()
+            .map(|r| {
+                let skills = gets(r, "skills")
+                    .split(',')
+                    .filter_map(|s| s.trim().parse::<i32>().ok())
+                    .collect();
+                (geti(r, "object_id") as i32, gets(r, "scheme_name"), skills)
+            })
+            .collect(),
         Err(_) => Vec::new(),
     }
 }

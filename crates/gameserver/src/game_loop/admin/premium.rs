@@ -14,11 +14,15 @@ use super::send_message;
 /// `config/Custom/PremiumSystem.ini` (`EnablePremiumSystem = True`). A dedicated
 /// PremiumSystem config loader is not ported, so the authoritative dist value is
 /// inlined (the "dist data is the spec" rule).
-const PREMIUM_SYSTEM_ENABLED: bool = true;
+pub(crate) const PREMIUM_SYSTEM_ENABLED: bool = true;
+
+/// One day of premium in milliseconds — the unit `_bbspremium` grants (Java
+/// `addPremiumTime(account, premiumDays, DAYS)`).
+pub(crate) const DAY_MILLIS: i64 = 86_400_000;
 
 /// One month of premium = 30 days (Java `addPremiumTime(account, months * 30,
 /// DAYS)`), in milliseconds.
-const MONTH_MILLIS: i64 = 30 * 86_400_000;
+const MONTH_MILLIS: i64 = 30 * DAY_MILLIS;
 
 /// `AdminPremium.useAdminCommand` — route a `//premium_*` command and always
 /// re-render the menu afterwards (Java sends the `premium_menu.htm`
@@ -99,7 +103,7 @@ fn get_premium_expiration(world: &World, account: &str) -> i64 {
 /// Java `PremiumManager.addPremiumTime` — extend from `max(now, current)` by
 /// `duration` ms, cache it, and write through to `account_premium`. Returns the
 /// new enddate.
-fn add_premium_time(world: &mut World, account: &str, duration_millis: i64) -> i64 {
+pub(crate) fn add_premium_time(world: &mut World, account: &str, duration_millis: i64) -> i64 {
     let key = account.to_lowercase();
     let now = commons::util::now_millis();
     let new_end = now.max(get_premium_expiration(world, account)) + duration_millis;
@@ -112,7 +116,7 @@ fn add_premium_time(world: &mut World, account: &str, duration_millis: i64) -> i
 /// `SimpleDateFormat` in the server's local zone; UTC here, as no time-zone crate
 /// is pulled in — a documented cosmetic deviation). Civil date via Howard
 /// Hinnant's `civil_from_days`.
-fn format_datetime(millis: i64) -> String {
+pub(crate) fn format_datetime(millis: i64) -> String {
     let secs = millis.div_euclid(1000);
     let days = secs.div_euclid(86_400);
     let tod = secs.rem_euclid(86_400);

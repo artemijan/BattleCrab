@@ -20,6 +20,7 @@ pub mod map_region;
 pub mod npc_data;
 pub mod player_template;
 pub mod pledge_skill_tree;
+pub mod scheme_buffer;
 pub mod skill_data;
 pub mod skill_tree;
 pub mod spawn_data;
@@ -46,6 +47,7 @@ pub use item_data::ItemData;
 pub use map_region::MapRegionData;
 pub use npc_data::NpcData;
 pub use player_template::PlayerTemplateData;
+pub use scheme_buffer::SchemeBufferData;
 pub use skill_data::SkillData;
 pub use pledge_skill_tree::PledgeSkillTreeData;
 pub use skill_tree::SkillTreeData;
@@ -136,6 +138,9 @@ pub struct GameData {
     pub door_data: DoorData,
     pub static_object_data: StaticObjectData,
     pub buy_lists: BuyListData,
+    /// Community-board scheme buffer available-buff table (`_availableBuffs`),
+    /// see [`SchemeBufferData`].
+    pub scheme_buffer: SchemeBufferData,
     pub categories: CategoryData,
     pub cursed_weapons: CursedWeaponData,
     /// Control/flame tower spawns per castle, from `Siege.ini`.
@@ -190,6 +195,7 @@ impl GameData {
             door_data: DoorData::load_from(file_path),
             static_object_data: StaticObjectData::load_from(file_path),
             buy_lists,
+            scheme_buffer: SchemeBufferData::load_from(file_path),
             categories: CategoryData::load_from(file_path),
             cursed_weapons: CursedWeaponData::load_from(file_path),
             siege_towers: siege_data::load_siege_towers(file_path),
@@ -235,6 +241,7 @@ impl GameData {
             door_data: DoorData::empty(),
             static_object_data: StaticObjectData::empty(),
             buy_lists: BuyListData::empty(),
+            scheme_buffer: SchemeBufferData::default(),
             categories: CategoryData::empty(),
             cursed_weapons: CursedWeaponData::empty(),
             siege_towers: std::collections::HashMap::new(),

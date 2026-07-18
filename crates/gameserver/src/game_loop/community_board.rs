@@ -2,19 +2,25 @@
 //! the `HomeBoard` handler from `dist/game/data/scripts/handlers/communityboard`.
 //!
 //! This dist runs `CustomCommunityBoard = True`, so the live board is the
-//! custom navigation board. This first slice (G30) ports:
+//! custom navigation board. Ported so far:
 //!   - the board window plumbing (`RequestShowBoard` → `_bbshome`, the
 //!     `_bbs*` bypass routing, and the chunked `ShowBoard` sender);
 //!   - `HomeBoard` home rendering (`_bbshome`/`_bbstop`) with the navigation
 //!     panel injected;
 //!   - the cheap, already-portable actions: `_bbsheal`, `_bbsteleport`,
-//!     `_bbsbuff` (direct buff list).
+//!     `_bbsbuff` (direct buff list);
+//!   - `_bbspremium` — buy account premium (reuses the `PremiumManager` store
+//!     also driving `//premium_*`);
+//!   - the scheme buffer (`_bbs_buff_scheme_create`/`_delete`/`_execute`),
+//!     backed by the `buffer_schemes` table + the `SchemeBufferSkills.xml`
+//!     available-buff levels.
 //!
 //! Deferred with `TODO(G30)` at each site (needs subsystems not ported yet):
-//! multisell/sell, the scheme buffer (`SchemeBufferTable` + `bbs_favorites`/
-//! `buffer_schemes` DB), premium-buy, delevel, drop-search, and the retail
-//! forum boards (`_bbsloc`/`_bbsclan`/`_bbsmail`/…), which the custom
-//! navigation never links to anyway.
+//! the merchant multisell/sell (`_bbsmultisell`/`_bbsexcmultisell`/`_bbssell`
+//! — no multisell/buy-list system); drop-search (`_bbs_search_*` — needs the
+//! item-icon data + a `RadarControl` packet); `_bbsdelevel` (config-off in the
+//! dist); and the retail forum boards (`_bbsloc`/`_bbsclan`/`_bbsmail`/…),
+//! which the custom navigation never links to anyway.
 
 use tracing::warn;
 
@@ -27,6 +33,11 @@ use crate::world::World;
 
 /// `Util.sendCBHtml`'s single-packet chunk size (client reassembles 101/102/103).
 const CHUNK: usize = 16250;
+
+/// `Config.BUFFER_MAX_SCHEMES` from `config/Custom/SchemeBuffer.ini`
+/// (`BufferMaxSchemesPerChar = 5`). Inlined like the premium flag — a dedicated
+/// SchemeBuffer.ini loader isn't ported and the dist value is authoritative.
+const MAX_SCHEMES: usize = 5;
 
 /// Entry point for `RequestShowBoard` and every `_bbs*` bypass — port of
 /// `CommunityBoardHandler.handleParseCommand` + `HomeBoard.parseCommunityBoardCommand`.
@@ -60,15 +71,19 @@ pub(crate) fn handle_parse_command(world: &mut World, client_id: u32, command: &
     }
 
     match first_token(command) {
-        "_bbshome" | "_bbstop" => show_home(world, client_id, command),
+        "_bbshome" | "_bbstop" => show_home(world, client_id, object_id, command),
         "_bbsheal" => do_heal(world, client_id, object_id, command),
         "_bbsteleport" => do_teleport(world, client_id, object_id, command),
         "_bbsbuff" => do_buff(world, client_id, object_id, command),
-        // TODO(G30): `_bbsmultisell`/`_bbsexcmultisell`/`_bbssell` need the
-        // multisell + buy-list systems (not ported); `_bbs_buff_scheme_*` needs
-        // `SchemeBufferTable` + the `buffer_schemes` table; `_bbspremium` needs
-        // `PremiumManager.addPremiumTime`; `_bbsdelevel` is config-disabled in
-        // the dist. Each is a `HomeBoard` branch in the Java source.
+        "_bbspremium" => do_premium(world, client_id, object_id, command),
+        "_bbs_buff_scheme_create" | "_bbs_buff_scheme_delete" | "_bbs_buff_scheme_execute" => {
+            do_scheme(world, client_id, object_id, command)
+        }
+        // TODO(G30): the merchant `_bbsmultisell`/`_bbsexcmultisell`/`_bbssell`
+        // need the multisell + buy-list systems; the `_bbs_search_*` drop-search
+        // needs item-icon data + a `RadarControl` packet; `_bbsdelevel` is
+        // config-disabled in the dist. Each is a `HomeBoard`/`DropSearchBoard`
+        // branch in the Java source.
         other => {
             warn!("CommunityBoard: unhandled/unported command [{other}] (full: [{command}]).");
         }
@@ -93,7 +108,7 @@ pub(crate) fn handle_write_command(world: &mut World, client_id: u32, url: &str)
 
 /// `HomeBoard`'s `_bbshome`/`_bbstop` branch: load the home page (custom or
 /// retail) and inject the navigation panel.
-fn show_home(world: &mut World, client_id: u32, command: &str) {
+fn show_home(world: &mut World, client_id: u32, object_id: i32, command: &str) {
     let custom = world.cfg.community_board.custom_enabled;
     let root = &world.data.root;
 
@@ -113,18 +128,7 @@ fn show_home(world: &mut World, client_id: u32, command: &str) {
     };
 
     if custom {
-        let navigation = read_html(root, "data/html/CommunityBoard/Custom/navigation.html")
-            .unwrap_or_default();
-        html = html.replace("%navigation%", &navigation);
-        html = html.replace("%errorMessage%", "");
-        // The scheme buffer isn't ported (TODO(G30)); render the empty-state
-        // string Java shows when a player has no schemes.
-        if html.contains("%schemenames%") {
-            html = html.replace(
-                "%schemenames%",
-                "No buffer schemes yet, please make sure you have buffs and then click Create Scheme.",
-            );
-        }
+        html = finalize_custom(world, object_id, html, "");
     } else {
         // Retail home counters. TODO(G30): real favorite/region counts (need the
         // `bbs_favorites` table + region registration) and clan count.
@@ -150,7 +154,7 @@ fn do_heal(world: &mut World, client_id: u32, object_id: i32, command: &str) {
     // TODO(G30): Java also restores the player's pet/servitors (not summonable
     // until G29).
     send_message(world, client_id, "You used heal!");
-    serve_page(world, client_id, command.strip_prefix("_bbsheal;"));
+    serve_page(world, client_id, object_id, command.strip_prefix("_bbsheal;"), "");
 }
 
 /// `HomeBoard`'s `_bbsteleport;<x> <y> <z>` branch: charge, hide the board and
@@ -220,28 +224,273 @@ fn do_buff(world: &mut World, client_id: u32, object_id: i32, command: &str) {
         // `MagicSkillUse` broadcast (summons land in G29).
         crate::game_loop::skills::effects::apply_skill_effects(world, object_id, object_id, &skill);
     }
-    serve_page(world, client_id, page);
+    serve_page(world, client_id, object_id, page, "");
+}
+
+/// `HomeBoard`'s `_bbspremium;<days>` branch: buy `<days>` (1–30) days of
+/// account premium at `premium_price_per_day` each, then serve the thank-you
+/// page. Reuses the `PremiumManager` store already ported for `//premium_*`.
+fn do_premium(world: &mut World, client_id: u32, object_id: i32, command: &str) {
+    use super::admin::premium;
+    // `HomeBoard.CUSTOM_COMMANDS` only registers `_bbspremium` when both the
+    // global premium system and the community premium option are on.
+    if !premium::PREMIUM_SYSTEM_ENABLED || !world.cfg.community_board.community_premium_system {
+        return;
+    }
+    // `_bbspremium;<days>` → Java splits the tail on `,` and takes the first field.
+    let days: i64 = command
+        .strip_prefix("_bbspremium;")
+        .and_then(|t| t.split(',').next())
+        .and_then(|d| d.trim().parse().ok())
+        .unwrap_or(0);
+    let price = world.cfg.community_board.premium_price_per_day.saturating_mul(days);
+    // Java folds the range check into the "Not enough currency!" guard.
+    if !(1..=30).contains(&days) {
+        send_message(world, client_id, "Not enough currency!");
+        return;
+    }
+    let coin = world.cfg.community_board.premium_coin_id;
+    if !charge_item(world, client_id, object_id, coin, price) {
+        return;
+    }
+
+    let Some(account) = account_of(world, client_id) else { return };
+    let enddate = premium::add_premium_time(world, &account, days * premium::DAY_MILLIS);
+    send_message(
+        world,
+        client_id,
+        &format!(
+            "Your account will now have premium status until {}.",
+            premium::format_datetime(enddate)
+        ),
+    );
+    // TODO(G16): Java also runs `PcCafePointsManager.run(player)` here when
+    // `Config.PC_CAFE_RETAIL_LIKE` (that manager is unported).
+    serve_page(world, client_id, object_id, Some("premium/thankyou.html"), "");
+}
+
+/// `HomeBoard`'s `_bbs_buff_scheme_*` branch: create a scheme from the player's
+/// active buffs, delete one, or execute (re-cast) one, then re-render the
+/// return page with any validation error banner. The bypass carries
+/// space-separated args: `<cmd> <name> <returnPath> [self|pet]`.
+fn do_scheme(world: &mut World, client_id: u32, object_id: i32, command: &str) {
+    let parts: Vec<&str> = command.split_whitespace().collect();
+    // Return page: `parts[2]` when present, else `parts[1]` (Java `parts.length
+    // < 3`); only if it names an html.
+    let return_path = if parts.len() < 3 { parts.get(1) } else { parts.get(2) }
+        .copied()
+        .filter(|p| p.ends_with(".html"));
+
+    // Java loads the return html first, runs the command (which may set an error
+    // message), then re-renders — so we always serve the return page.
+    let error = run_scheme_command(world, client_id, object_id, &parts).err().unwrap_or_default();
+    serve_page(world, client_id, object_id, return_path, &error);
+}
+
+/// Port of `HomeBoard.parseSchemeNameOrError` + the create/delete/execute
+/// dispatch. `Err(msg)` becomes the `%errorMessage%` banner.
+fn run_scheme_command(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    parts: &[&str],
+) -> Result<(), String> {
+    if parts.len() < 3 {
+        return Err("Please enter scheme name.".to_string());
+    }
+    let command_name = parts[0];
+    let scheme_name = parts[1];
+    if scheme_name.chars().count() > 14 {
+        return Err("Scheme's name must contain up to 14 chars.".to_string());
+    }
+    if !is_alphanumeric(scheme_name) {
+        return Err("Please use plain alphanumeric characters.".to_string());
+    }
+    if command_name == "_bbs_buff_scheme_create" {
+        if let Some(schemes) = world.buffer_schemes.get(&object_id) {
+            if schemes.len() >= MAX_SCHEMES {
+                return Err("Maximum schemes amount is already reached.".to_string());
+            }
+            if schemes.iter().any(|(n, _)| n.eq_ignore_ascii_case(scheme_name)) {
+                return Err("The scheme name already exists.".to_string());
+            }
+        }
+    }
+
+    match command_name {
+        "_bbs_buff_scheme_create" => scheme_create(world, object_id, scheme_name),
+        "_bbs_buff_scheme_delete" => {
+            scheme_delete(world, object_id, scheme_name);
+            Ok(())
+        }
+        "_bbs_buff_scheme_execute" => {
+            let is_pet = parts.get(3) == Some(&"pet");
+            apply_scheme(world, client_id, object_id, scheme_name, is_pet)
+        }
+        _ => Ok(()),
+    }
+}
+
+/// Java create branch: snapshot the player's currently-active whitelisted buffs
+/// into a new scheme, write it through to `buffer_schemes`.
+fn scheme_create(world: &mut World, object_id: i32, scheme_name: &str) -> Result<(), String> {
+    let buffs: Vec<i32> = world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&object_id)
+        .map(|b| {
+            b.0.iter()
+                .map(|a| a.skill_id)
+                .filter(|id| world.cfg.community_board.available_buffs.contains(id))
+                .collect()
+        })
+        .unwrap_or_default();
+    if buffs.is_empty() {
+        return Err("You don't have any buffs applied.".to_string());
+    }
+    let skills = buffs.iter().map(|id| id.to_string()).collect::<Vec<_>>().join(",");
+    world.buffer_schemes.entry(object_id).or_default().push((scheme_name.to_string(), buffs));
+    let _ = world.db.send(crate::db::DbCommand::StoreBufferScheme {
+        object_id,
+        scheme_name: scheme_name.to_string(),
+        skills,
+    });
+    Ok(())
+}
+
+/// Java `removeScheme` + the shutdown save collapse into an immediate delete.
+fn scheme_delete(world: &mut World, object_id: i32, scheme_name: &str) {
+    if let Some(schemes) = world.buffer_schemes.get_mut(&object_id) {
+        schemes.retain(|(n, _)| !n.eq_ignore_ascii_case(scheme_name));
+    }
+    let _ = world.db.send(crate::db::DbCommand::DeleteBufferScheme {
+        object_id,
+        scheme_name: scheme_name.to_string(),
+    });
+}
+
+/// Port of `HomeBoard.applyBuffs`: re-cast every skill in a scheme onto the
+/// player, at the level from the buffer's available-buff table.
+fn apply_scheme(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    scheme_name: &str,
+    is_pet: bool,
+) -> Result<(), String> {
+    let scheme: Vec<i32> = world
+        .buffer_schemes
+        .get(&object_id)
+        .and_then(|s| s.iter().find(|(n, _)| n.eq_ignore_ascii_case(scheme_name)))
+        .map(|(_, skills)| skills.clone())
+        .unwrap_or_default();
+
+    // TODO(G29): pets/servitors aren't summonable yet, so the "Pet" button
+    // always lands on Java's `player.getPet() == null && !player.hasServitors()`
+    // branch. Once summons exist, apply to pet + servitors here.
+    if is_pet {
+        return Err("You don't have a pet.".to_string());
+    }
+
+    let buff_price = world.cfg.community_board.buff_price;
+    let cost = if buff_price > 0 { buff_price * scheme.len() as i64 } else { 0 };
+    // NOTE: Java's guard is `(cost == 0) || inventoryCount < cost` — an inverted
+    // check that applies the scheme for free (dist `BuffPrice = 0`) and, were the
+    // price ever positive, would refuse only when the player CAN pay. Ported
+    // faithfully ("dist data is the spec"); with the dist price of 0, `cost` is
+    // always 0 so the buffs always apply.
+    let currency = world.cfg.community_board.currency_id;
+    let have = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .map(|inv| inv.count_of(currency))
+        .unwrap_or(0);
+    if !(cost == 0 || have < cost) {
+        return Err("You don't have enough items for this action.".to_string());
+    }
+    if cost > 0 {
+        // Java `destroyItemByItemId("CB_Buff", CURRENCY, cost, …)` — a no-op in
+        // dist; best-effort, never blocks the (already faithful) apply.
+        charge(world, client_id, object_id, cost);
+    }
+
+    for skill_id in &scheme {
+        if !world.cfg.community_board.available_buffs.contains(skill_id) {
+            continue;
+        }
+        let Some(level) = world.data.scheme_buffer.level_of(*skill_id) else { continue };
+        let Some(skill) = world.data.skill_data.get(*skill_id, level).cloned() else {
+            warn!("CommunityBoard: scheme buff {skill_id}/{level} missing from skill data.");
+            continue;
+        };
+        crate::game_loop::skills::effects::apply_skill_effects(world, object_id, object_id, &skill);
+    }
+    Ok(())
+}
+
+/// Java `Util.isAlphaNumeric` — non-empty and every char a letter or digit.
+fn is_alphanumeric(s: &str) -> bool {
+    !s.is_empty() && s.chars().all(char::is_alphanumeric)
 }
 
 /// Re-render a Custom sub-page after an action (the `page` tail the action
-/// bypasses carry, e.g. `buffer/buffs.html`). No-op if the tail is missing.
-fn serve_page(world: &mut World, client_id: u32, page: Option<&str>) {
+/// bypasses carry, e.g. `buffer/main` or `buffer/schemes.html`), with an
+/// optional error banner. No-op if the tail is missing.
+fn serve_page(world: &mut World, client_id: u32, object_id: i32, page: Option<&str>, error_message: &str) {
     let Some(page) = page.filter(|p| !p.is_empty()) else { return };
-    let rel = format!("data/html/CommunityBoard/Custom/{page}");
-    let Some(mut html) = read_html(&world.data.root, &rel) else {
+    // Java's `_bbsbuff`/`_bbsheal` pass a bare tail (`buffer/main`) and append
+    // ".html" unconditionally; the scheme/premium paths already carry it.
+    let file = if page.ends_with(".html") { page.to_string() } else { format!("{page}.html") };
+    let rel = format!("data/html/CommunityBoard/Custom/{file}");
+    let Some(html) = read_html(&world.data.root, &rel) else {
         warn!("CommunityBoard: missing sub-page [{rel}].");
         return;
     };
+    let html = finalize_custom(world, object_id, html, error_message);
+    send_cb_html(world, client_id, &html);
+}
+
+/// Port of `HomeBoard`'s post-build custom substitution: inject the navigation
+/// panel, the `%errorMessage%` banner, and the `%schemenames%` scheme buttons.
+fn finalize_custom(world: &World, object_id: i32, html: String, error_message: &str) -> String {
     let navigation =
         read_html(&world.data.root, "data/html/CommunityBoard/Custom/navigation.html").unwrap_or_default();
-    html = html.replace("%navigation%", &navigation).replace("%errorMessage%", "");
+    let mut html = html.replace("%navigation%", &navigation).replace("%errorMessage%", error_message);
     if html.contains("%schemenames%") {
-        html = html.replace(
-            "%schemenames%",
-            "No buffer schemes yet, please make sure you have buffs and then click Create Scheme.",
-        );
+        html = html.replace("%schemenames%", &render_scheme_names(world, object_id));
     }
-    send_cb_html(world, client_id, &html);
+    html
+}
+
+/// The `%schemenames%` block: the player's scheme rows, or Java's empty-state
+/// line when the player has no schemes registered (`getPlayerSchemes == null`).
+fn render_scheme_names(world: &World, object_id: i32) -> String {
+    match world.buffer_schemes.get(&object_id) {
+        Some(schemes) => build_scheme_html(schemes),
+        None => {
+            "No buffer schemes yet, please make sure you have buffs and then click Create Scheme.".to_string()
+        }
+    }
+}
+
+/// Java `HomeBoard.buildBufferSchemesHtml`: one execute/pet/delete button row
+/// per scheme, names sorted case-insensitively (Java iterates a
+/// `TreeMap(CASE_INSENSITIVE_ORDER)`).
+fn build_scheme_html(schemes: &[(String, Vec<i32>)]) -> String {
+    const ROW: &str = concat!(
+        "<td><button value=\"%schemename%\" action=\"bypass _bbs_buff_scheme_execute %schemename% buffer/schemes.html self\" height=\"26\" width=\"130\" back=\"L2UI_CT1.Button_DF_Down\" fore=\"L2UI_CT1.Button_DF\" /></td>",
+        "<td><button value=\"%schemename% (Pet)\" action=\"bypass _bbs_buff_scheme_execute %schemename% buffer/schemes.html pet\" height=\"26\" width=\"130\" back=\"L2UI_CT1.Button_DF_Down\" fore=\"L2UI_CT1.Button_DF\" /></td>",
+        "<td><button value=\"X\" action=\"bypass _bbs_buff_scheme_delete %schemename% buffer/schemes.html\" height=\"26\" width=\"26\" back=\"L2UI_CT1.Button_DF_Down\" fore=\"L2UI_CT1.Button_DF\" /></td>",
+    );
+    let mut names: Vec<&str> = schemes.iter().map(|(n, _)| n.as_str()).collect();
+    names.sort_by_key(|n| n.to_lowercase());
+    let mut out = String::from("<table align=\"center\">");
+    for name in names {
+        out.push_str("<tr>");
+        out.push_str(&ROW.replace("%schemename%", name));
+        out.push_str("</tr>");
+    }
+    out.push_str("</table>");
+    out
 }
 
 // --- helpers ---------------------------------------------------------------
@@ -287,20 +536,35 @@ fn reputation(world: &World, object_id: i32) -> i32 {
     world.objects.get_component::<Player>(&object_id).map(|p| p.reputation).unwrap_or(0)
 }
 
-/// `player.destroyItemByItemId(currency, price)` with the "not enough" guard.
+/// The account name behind a client (Java `player.getAccountName()`), for the
+/// account-scoped premium store.
+fn account_of(world: &World, client_id: u32) -> Option<String> {
+    match world.clients.get(&client_id) {
+        Some(ClientSession::InGame(s)) => Some(s.account().to_string()),
+        _ => None,
+    }
+}
+
+/// `player.destroyItemByItemId(currency, price)` on the board currency with the
+/// "not enough" guard.
+fn charge(world: &mut World, client_id: u32, object_id: i32, price: i64) -> bool {
+    let currency = world.cfg.community_board.currency_id;
+    charge_item(world, client_id, object_id, currency, price)
+}
+
+/// `player.destroyItemByItemId(item_id, price)` with the "not enough" guard.
 /// A zero/negative price is free (no inventory touch). Returns whether the
 /// action may proceed.
-fn charge(world: &mut World, client_id: u32, object_id: i32, price: i64) -> bool {
+fn charge_item(world: &mut World, client_id: u32, object_id: i32, item_id: i32, price: i64) -> bool {
     if price <= 0 {
         return true;
     }
-    let currency = world.cfg.community_board.currency_id;
     let have = world
         .objects
         .get_component::<Inventory>(&object_id)
-        .map(|inv| inv.count_of(currency))
+        .map(|inv| inv.count_of(item_id))
         .unwrap_or(0);
-    if have < price || !super::quests::take_items(world, client_id, object_id, currency, price) {
+    if have < price || !super::quests::take_items(world, client_id, object_id, item_id, price) {
         send_message(world, client_id, "Not enough currency!");
         return false;
     }

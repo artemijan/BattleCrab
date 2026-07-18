@@ -86,7 +86,7 @@ additions, and a Classic/custom scope gate — see ROADMAP.md.
 | Game  | G27 Instances                                              | ⏳ AdminInstance/AdminInstanceZone |
 | Game  | G28 Events engine & cursed weapons                          | ⏳ AdminEvents/`//tvt_*`/AdminCursedWeapons |
 | Game  | G29 Summons, pets, servitors, cubics, agathions             | ⏳ editchar summon/pet subcommands |
-| Game  | G30 Mail, community board & party matching                  | 🚧 **community board slice landed** (`ShowBoard` window + chunked `sendCBHtml`; `RequestShowBoard`/`_bbs*` bypass routing; custom `HomeBoard` render with navigation; `_bbsheal`/`_bbsteleport`/`_bbsbuff` actions + karma/combat gates). Mail, party matching, the scheme buffer, multisell/sell/premium/delevel board actions and the retail forum boards still ⏳ (`TODO(G30)`). AdminBBS pending |
+| Game  | G30 Mail, community board & party matching                  | 🚧 **community board: home + buffer + gatekeeper + premium + scheme buffer landed** (`ShowBoard` window + chunked `sendCBHtml`; `RequestShowBoard`/`_bbs*` bypass routing; custom `HomeBoard` render with navigation; `_bbsheal`/`_bbsteleport`/`_bbsbuff` actions + karma/combat gates; `_bbspremium` account-premium buy; `_bbs_buff_scheme_create`/`_delete`/`_execute` backed by the `buffer_schemes` table + `SchemeBufferSkills.xml` levels). Mail, party matching, the merchant multisell/sell, drop-search and `_bbsdelevel` (config-off) board actions and the retail forum boards still ⏳ (`TODO(G30)`). AdminBBS pending |
 | Game  | G30.5 Item auction                                          | ⏳ `ItemAuctionManager` + bid packets |
 | Game  | G31 Moderation, accounts, petitions & HWID                  | ⏳ AdminPunishment/AdminLogin/AdminHwid/AdminPetition |
 | Game  | G32 Fishing                                                 | ⏳ |
@@ -1403,11 +1403,24 @@ Empty/placeholder now, to be filled in the owning milestone:
 - **Community board (G30):** config load vs the dist `General.ini`/
   `Custom/CommunityBoard.ini` + the gatekeeper-html teleport-whitelist scan;
   `ShowBoard` chunker units (101/102/103 split, the empty-chunk `null`
-  sentinel); synthetic-world tests over the real dist htmls — the board button
-  opens the custom home with the navigation injected, the offline gate sends
-  the SystemMessage, `_bbsheal` restores vitals (and is refused when the
-  player can't pay), `_bbsteleport` moves to a whitelisted destination and
-  hides the board while an unlisted destination is refused.
+  sentinel); `SchemeBufferSkills.xml` available-buff loader; synthetic-world
+  tests over the real dist htmls — the board button opens the custom home with
+  the navigation injected, the offline gate sends the SystemMessage, `_bbsheal`
+  restores vitals (and is refused when the player can't pay), `_bbsteleport`
+  moves to a whitelisted destination and hides the board while an unlisted
+  destination is refused. **Premium buy** (`_bbspremium`) grants account
+  premium (reusing the `//premium_*` store), refuses out-of-range days /
+  insufficient currency, and serves the thank-you page. **Scheme buffer**
+  (`_bbs_buff_scheme_*`) snapshots the player's active whitelisted buffs into a
+  named scheme (max 5, alphanumeric ≤14), write-throughs to `buffer_schemes`,
+  renders the execute/pet/delete rows, deletes, and reports the no-pet /
+  no-buffs / cap errors.
+  - **Deferred (`TODO(G30)`):** the merchant multisell/sell (`_bbsmultisell`/
+    `_bbsexcmultisell`/`_bbssell` — no multisell/buy-list system yet); the drop
+    search (`_bbs_search_item`/`_bbs_search_drop`/`_bbs_npc_trace` — needs
+    item-icon data + a `RadarControl` packet); `_bbsdelevel` (config-off in the
+    dist); the retail forum boards (unreachable under the custom nav). Scheme
+    execute onto pets/servitors is `TODO(G29)` (no summons yet).
 
 Run: `cargo test` (all green). Boot a pair on alt ports:
 `cargo run -p loginserver` + `CONFIG_SERVER_GAMESERVERPORT=… cargo run -p gameserver`.

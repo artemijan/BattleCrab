@@ -496,6 +496,15 @@ whisper/trade/invite check); tactical signs. **Gate:** send mail with an
 attachment; open the community board; create a matching room. **Unblocks:**
 AdminBBS. **Deps:** G18 (clan board).
 
+**Community board progress:** the custom board (`CustomCommunityBoard = True`)
+is live — home/navigation, `_bbsheal`/`_bbsteleport`/`_bbsbuff`, `_bbspremium`
+(account-premium buy), and the scheme buffer (`_bbs_buff_scheme_*` +
+`buffer_schemes` persistence) have landed. Still open on the custom board: the
+merchant multisell/sell (needs the multisell subsystem — see the G14 audit note)
+and the drop search (`_bbs_search_*`, needs item-icon data + a `RadarControl`
+packet). The retail forum boards + `communitybbs` core stay deferred (the custom
+nav never links to them).
+
 **Audit additions (2026-07):** the contact list
 (`RequestExAddContactToContactList` family) and party adena distribution
 (`adenadistribution` packets), per the scope gate.

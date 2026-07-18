@@ -6,7 +6,8 @@ use super::*;
 
 use crate::config::community_board::{scan_available_teleports, CommunityBoardConfig};
 use crate::game_loop::community_board::handle_parse_command;
-use crate::model::components::{Position, Vitals};
+use crate::model::components::{Buffs, Position, Vitals};
+use crate::model::skill::ActiveBuff;
 
 const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
 
@@ -146,4 +147,174 @@ fn teleport_to_unlisted_destination_is_refused() {
     handle_parse_command(&mut world, 1, "_bbsteleport;999999 999999 999999");
     let pos = *world.objects.get_component::<Position>(&7005).unwrap();
     assert_eq!((pos.x, pos.y), (100, 200), "player did not move for an unlisted destination");
+}
+
+/// Give the player an active buff so the scheme-create snapshot has something
+/// to capture.
+fn push_buff(world: &mut World, oid: i32, skill_id: i32) {
+    let buffs = world.objects.get_component_mut::<Buffs>(&oid).expect("player has a Buffs component");
+    buffs.0.push(ActiveBuff {
+        skill_id,
+        skill_level: 1,
+        abnormal_type_client_id: 0,
+        expires_at_tick: u64::MAX,
+        passive: false,
+        effects: Vec::new(),
+    });
+}
+
+#[test]
+fn premium_buy_grants_status_and_serves_thankyou() {
+    let (mut world, _tx, _rx, _l) = test_world();
+    enable_board(&mut world);
+    world.cfg.community_board.premium_price_per_day = 0; // free — isolate the grant path
+    let mut rx = ingame_player(&mut world, 1, 7101, 0, 0, 0);
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbspremium;7");
+
+    // The account behind the test session is "bob" (lowercased in the store).
+    assert!(world.premium.get("bob").copied().unwrap_or(0) > 0, "premium granted for the account");
+    let pkts = drain(&mut rx);
+    assert!(
+        pkts.iter().any(|p| p[0] == server_packets::opcodes::SHOW_BOARD),
+        "the thank-you page is served"
+    );
+    assert!(count_system_messages(&pkts) >= 1, "the status message is sent");
+}
+
+#[test]
+fn premium_buy_refused_without_currency() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    // dist price 1,000,000/day; the fresh test player cannot pay.
+    let mut rx = ingame_player(&mut world, 1, 7102, 0, 0, 0);
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbspremium;1");
+    assert!(world.premium.is_empty(), "no premium granted when the player can't pay");
+}
+
+#[test]
+fn premium_buy_rejects_out_of_range_days() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    world.cfg.community_board.premium_price_per_day = 0;
+    let mut rx = ingame_player(&mut world, 1, 7103, 0, 0, 0);
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbspremium;40"); // > 30 → refused
+    assert!(world.premium.is_empty(), "an out-of-range day count is refused");
+}
+
+#[test]
+fn scheme_create_from_active_buffs_persists() {
+    let (mut world, _tx, mut db_rx, _l) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7110, 0, 0, 0);
+    push_buff(&mut world, 7110, 1204); // Wind Walk — on the dist whitelist
+    drain(&mut rx);
+    let _ = drain_db(&mut db_rx);
+
+    handle_parse_command(&mut world, 1, "_bbs_buff_scheme_create Windy buffer/schemes.html");
+
+    let schemes = world.buffer_schemes.get(&7110).expect("scheme registered");
+    assert_eq!(schemes.len(), 1);
+    assert_eq!(schemes[0].0, "Windy", "scheme stored under its name");
+    assert_eq!(schemes[0].1, vec![1204], "the active whitelisted buff was captured");
+    let cmds = drain_db(&mut db_rx);
+    assert!(
+        cmds.iter().any(|c| matches!(
+            c,
+            db::DbCommand::StoreBufferScheme { object_id, scheme_name, .. }
+                if *object_id == 7110 && scheme_name == "Windy"
+        )),
+        "the scheme is written through to buffer_schemes"
+    );
+}
+
+#[test]
+fn scheme_create_without_buffs_shows_error() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7111, 0, 0, 0);
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbs_buff_scheme_create Empty buffer/schemes.html");
+    assert!(
+        world.buffer_schemes.get(&7111).map_or(true, |s| s.is_empty()),
+        "no scheme created without active buffs"
+    );
+    let pkts = drain(&mut rx);
+    let content = pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
+        .map(|p| cb_content(p))
+        .unwrap_or_default();
+    assert!(content.contains("You don't have any buffs applied."), "the error banner is rendered");
+}
+
+#[test]
+fn scheme_delete_removes_it() {
+    let (mut world, _tx, mut db_rx, _l) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7112, 0, 0, 0);
+    push_buff(&mut world, 7112, 1204);
+    handle_parse_command(&mut world, 1, "_bbs_buff_scheme_create Gone buffer/schemes.html");
+    assert_eq!(world.buffer_schemes.get(&7112).unwrap().len(), 1);
+    let _ = drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbs_buff_scheme_delete Gone buffer/schemes.html");
+    assert!(world.buffer_schemes.get(&7112).unwrap().is_empty(), "scheme removed");
+    let cmds = drain_db(&mut db_rx);
+    assert!(
+        cmds.iter().any(|c| matches!(
+            c,
+            db::DbCommand::DeleteBufferScheme { scheme_name, .. } if scheme_name == "Gone"
+        )),
+        "the delete is written through"
+    );
+}
+
+#[test]
+fn scheme_execute_pet_without_pet_errors() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7113, 0, 0, 0);
+    push_buff(&mut world, 7113, 1204);
+    handle_parse_command(&mut world, 1, "_bbs_buff_scheme_create Petless buffer/schemes.html");
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbs_buff_scheme_execute Petless buffer/schemes.html pet");
+    let pkts = drain(&mut rx);
+    let content = pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
+        .map(|p| cb_content(p))
+        .unwrap_or_default();
+    assert!(content.contains("You don't have a pet."), "the pet execute reports no pet");
+}
+
+#[test]
+fn scheme_create_enforces_max_schemes() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7114, 0, 0, 0);
+    push_buff(&mut world, 7114, 1204);
+    for i in 0..5 {
+        handle_parse_command(&mut world, 1, &format!("_bbs_buff_scheme_create S{i} buffer/schemes.html"));
+    }
+    assert_eq!(world.buffer_schemes.get(&7114).unwrap().len(), 5, "five schemes created");
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbs_buff_scheme_create S6 buffer/schemes.html");
+    assert_eq!(world.buffer_schemes.get(&7114).unwrap().len(), 5, "the sixth is rejected at the cap");
+    let pkts = drain(&mut rx);
+    let content = pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
+        .map(|p| cb_content(p))
+        .unwrap_or_default();
+    assert!(content.contains("Maximum schemes amount is already reached."), "the cap error is shown");
 }

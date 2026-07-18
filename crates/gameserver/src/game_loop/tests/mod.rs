@@ -224,6 +224,7 @@ async fn character_create_inserts_into_real_schema() {
         door_data: crate::data::DoorData::empty(),
         static_object_data: crate::data::StaticObjectData::empty(),
         buy_lists: crate::data::BuyListData::empty(),
+        scheme_buffer: crate::data::SchemeBufferData::default(),
         categories: crate::data::CategoryData::empty(),
         cursed_weapons: crate::data::CursedWeaponData::empty(),
         siege_towers: std::collections::HashMap::new(),
@@ -255,6 +256,7 @@ async fn character_create_inserts_into_real_schema() {
             DbEvent::IdBlock { .. }
             | DbEvent::ClansLoaded { .. }
             | DbEvent::PremiumLoaded { .. }
+            | DbEvent::BufferSchemesLoaded { .. }
             | DbEvent::GrandBossesLoaded { .. }
             | DbEvent::CursedWeaponsLoaded { .. }
             | DbEvent::CastlesLoaded { .. }

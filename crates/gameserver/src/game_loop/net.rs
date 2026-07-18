@@ -411,6 +411,17 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 tracing::info!("GameLoop: loaded {} premium accounts.", entries.len());
                 world.premium = entries.into_iter().collect();
             }
+            DbEvent::BufferSchemesLoaded { entries } => {
+                // Java `SchemeBufferTable.load` drops any saved skill id no longer
+                // in `_availableBuffs`; the buffer table lives here on the game
+                // thread, so the filter runs at insert time (like grand bosses).
+                for (object_id, scheme_name, skills) in entries {
+                    let skills: Vec<i32> =
+                        skills.into_iter().filter(|id| world.data.scheme_buffer.contains(*id)).collect();
+                    world.buffer_schemes.entry(object_id).or_default().push((scheme_name, skills));
+                }
+                tracing::info!("GameLoop: loaded buffer schemes for {} characters.", world.buffer_schemes.len());
+            }
             DbEvent::GrandBossesLoaded { bosses } => {
                 // Java skips rows whose NPC template is missing (`NpcData
                 // .getTemplate(bossId) != null`); the datapack lives here on the
