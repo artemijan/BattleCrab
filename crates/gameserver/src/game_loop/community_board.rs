@@ -27,7 +27,7 @@
 //! the retail forum boards (`_bbsloc`/`_bbsclan`/`_bbsmail`/…), which the custom
 //! navigation never links to anyway.
 
-use tracing::{debug, warn};
+use tracing::warn;
 
 use crate::model::components::Casting;
 use crate::model::inventory::Inventory;
@@ -98,14 +98,12 @@ pub(crate) fn handle_parse_command(world: &mut World, client_id: u32, command: &
         "_bbs_buff_scheme_create" | "_bbs_buff_scheme_delete" | "_bbs_buff_scheme_execute" => {
             do_scheme(world, client_id, object_id, command)
         }
-        // TODO(G30): the merchant `_bbsmultisell`/`_bbsexcmultisell`/`_bbssell`
-        // (`HomeBoard`) need the multisell + buy-list systems. Handled explicitly
-        // so the dead merchant buttons give the player feedback instead of a
-        // silent WARN — they land here on every click until multisell exists.
-        "_bbsmultisell" | "_bbsexcmultisell" | "_bbssell" => {
-            debug!("CommunityBoard: merchant command [{command}] deferred (no multisell/buy-list system).");
-            send_message(world, client_id, "The shop is not available yet.");
-        }
+        // `HomeBoard`'s merchant branches: open a multisell (`_bbsmultisell`
+        // full / `_bbsexcmultisell` exchange) or the sell window (`_bbssell`),
+        // re-rendering the accompanying Custom page when one is named.
+        "_bbsmultisell" => do_multisell(world, client_id, object_id, command, false),
+        "_bbsexcmultisell" => do_multisell(world, client_id, object_id, command, true),
+        "_bbssell" => do_sell(world, client_id, object_id, command),
         other => {
             warn!("CommunityBoard: unhandled/unported command [{other}] (full: [{command}]).");
         }
@@ -457,6 +455,59 @@ fn apply_scheme(
 /// Java `Util.isAlphaNumeric` — non-empty and every char a letter or digit.
 fn is_alphanumeric(s: &str) -> bool {
     !s.is_empty() && s.chars().all(char::is_alphanumeric)
+}
+
+// --- Merchant (multisell / sell) ------------------------------------------
+
+/// `HomeBoard`'s `_bbsmultisell;<id>,<page>` / `_bbsexcmultisell;<id>,<page>`
+/// branch: open the multisell window, then re-render the named Custom page (the
+/// nav pages pass `_bbstop`, whose file is absent → no re-render, exactly like
+/// Java's null `returnHtml`).
+fn do_multisell(world: &mut World, client_id: u32, object_id: i32, command: &str, exchange: bool) {
+    let prefix = if exchange { "_bbsexcmultisell;" } else { "_bbsmultisell;" };
+    let Some(rest) = command.strip_prefix(prefix) else { return };
+    let mut opts = rest.split(',');
+    let Some(list_id) = opts.next().and_then(|s| s.trim().parse::<i32>().ok()) else {
+        warn!("CommunityBoard: bad multisell command [{command}].");
+        return;
+    };
+    let page = opts.next().map(str::trim);
+    render_merchant_page(world, client_id, object_id, page);
+    super::multisell::separate_and_send(world, client_id, object_id, list_id, exchange);
+}
+
+/// `HomeBoard`'s `_bbssell;<page>` branch: open the sell window (BuyList 423 +
+/// the sell tab), then re-render the named page. Buylist 423 is absent on this
+/// dist (as it is in the Java datapack — the command is unreachable from the
+/// shipped htmls), so the window is skipped with a warn rather than NPE'ing.
+fn do_sell(world: &mut World, client_id: u32, object_id: i32, command: &str) {
+    let page = command.strip_prefix("_bbssell;").map(str::trim);
+    render_merchant_page(world, client_id, object_id, page);
+
+    const CB_SELL_BUYLIST: i32 = 423;
+    let Some(list) = world.data.buy_lists.get(CB_SELL_BUYLIST) else {
+        warn!("CommunityBoard: sell buylist {CB_SELL_BUYLIST} not found.");
+        return;
+    };
+    let list = list.clone();
+    if let Some(inv) = world.objects.get_component::<crate::model::inventory::Inventory>(&object_id) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(crate::network::trade::buy_list(&list, inv, &world.data));
+            cs.send(crate::network::trade::ex_buy_sell_list_sell(inv, &world.data, false));
+        }
+    }
+}
+
+/// The accompanying-page render for the merchant branches: like [`serve_page`]
+/// but silent when the file is missing (the `_bbstop` sentinel names no file
+/// and is hit on every purchase — Java just leaves the board unchanged).
+fn render_merchant_page(world: &mut World, client_id: u32, object_id: i32, page: Option<&str>) {
+    let Some(page) = page.filter(|p| !p.is_empty()) else { return };
+    let file = if page.ends_with(".html") { page.to_string() } else { format!("{page}.html") };
+    let rel = format!("data/html/CommunityBoard/Custom/{file}");
+    let Some(html) = read_html(&world.data.root, &rel) else { return };
+    let html = finalize_custom(world, object_id, html, "");
+    send_cb_html(world, client_id, &html);
 }
 
 // --- FavoriteBoard / HomepageBoard ----------------------------------------

@@ -101,6 +101,8 @@ pub const SUN_SET: u8 = 0x13;
 pub const EARTHQUAKE: u8 = 0xD3;
 pub const SHOW_BOARD: u8 = 0x7B;
 pub const RADAR_CONTROL: u8 = 0xF1;
+/// `MultiSellList` — the multisell exchange window (one packet per 40-entry page).
+pub const MULTI_SELL_LIST: u8 = 0xD0;
 
 /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
 pub const EX: u8 = 0xFE;
@@ -131,6 +133,8 @@ pub const EX_USER_INFO_ABNORMAL_VISUAL_EFFECT: i16 = 0x158;
 pub const EX_AUTO_SOUL_SHOT: i16 = 0x0C;
 pub const EX_RED_SKY: i16 = 0x42;
 pub const EX_PUT_ENCHANT_TARGET_ITEM_RESULT: i16 = 0x82;
+/// `ExMultiSellResult` — the post-exchange "you got N of X" acknowledgement.
+pub const EX_MULTISELL_RESULT: i16 = 0x182;
 pub const EX_PUT_ENCHANT_SCROLL_ITEM_RESULT: i16 = 0x152;
 pub const EX_PUT_ENCHANT_SUPPORT_ITEM_RESULT: i16 = 0x83;
 pub const EX_REMOVE_ENCHANT_SUPPORT_ITEM_RESULT: i16 = 0x153;

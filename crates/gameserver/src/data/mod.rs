@@ -17,6 +17,7 @@ pub mod initial_equipment;
 pub mod initial_shortcut;
 pub mod item_data;
 pub mod map_region;
+pub mod multisell_data;
 pub mod npc_data;
 pub mod player_template;
 pub mod pledge_skill_tree;
@@ -45,6 +46,7 @@ pub use initial_equipment::InitialEquipmentData;
 pub use initial_shortcut::InitialShortcutData;
 pub use item_data::ItemData;
 pub use map_region::MapRegionData;
+pub use multisell_data::MultisellData;
 pub use npc_data::NpcData;
 pub use player_template::PlayerTemplateData;
 pub use scheme_buffer::SchemeBufferData;
@@ -144,6 +146,9 @@ pub struct GameData {
     pub door_data: DoorData,
     pub static_object_data: StaticObjectData,
     pub buy_lists: BuyListData,
+    /// Multisell exchange lists (`data/multisell/*`, incl. the custom CB shop
+    /// lists), see [`MultisellData`].
+    pub multisells: MultisellData,
     /// Community-board scheme buffer available-buff table (`_availableBuffs`),
     /// see [`SchemeBufferData`].
     pub scheme_buffer: SchemeBufferData,
@@ -180,6 +185,7 @@ impl GameData {
         // load first.
         let item_data = ItemData::load_from(file_path);
         let buy_lists = BuyListData::load_from(file_path, &item_data);
+        let multisells = MultisellData::load_from(file_path, &item_data);
         Self {
             root: file_path.to_string(),
             experience: ExperienceData::load_from(file_path),
@@ -201,6 +207,7 @@ impl GameData {
             door_data: DoorData::load_from(file_path),
             static_object_data: StaticObjectData::load_from(file_path),
             buy_lists,
+            multisells,
             scheme_buffer: SchemeBufferData::load_from(file_path),
             categories: CategoryData::load_from(file_path),
             cursed_weapons: CursedWeaponData::load_from(file_path),
@@ -247,6 +254,7 @@ impl GameData {
             door_data: DoorData::empty(),
             static_object_data: StaticObjectData::empty(),
             buy_lists: BuyListData::empty(),
+            multisells: MultisellData::empty(),
             scheme_buffer: SchemeBufferData::default(),
             categories: CategoryData::empty(),
             cursed_weapons: CursedWeaponData::empty(),

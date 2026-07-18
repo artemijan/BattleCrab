@@ -26,6 +26,7 @@ mod trade;
 mod warehouse;
 mod items;
 mod lobby;
+mod multisell;
 mod net;
 mod npc_ai;
 mod npc_view;

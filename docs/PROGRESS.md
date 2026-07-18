@@ -86,7 +86,7 @@ additions, and a Classic/custom scope gate — see ROADMAP.md.
 | Game  | G27 Instances                                              | ⏳ AdminInstance/AdminInstanceZone |
 | Game  | G28 Events engine & cursed weapons                          | ⏳ AdminEvents/`//tvt_*`/AdminCursedWeapons |
 | Game  | G29 Summons, pets, servitors, cubics, agathions             | ⏳ editchar summon/pet subcommands |
-| Game  | G30 Mail, community board & party matching                  | 🚧 **community board: home + buffer + gatekeeper + premium + scheme buffer landed** (`ShowBoard` window + chunked `sendCBHtml`; `RequestShowBoard`/`_bbs*` bypass routing; custom `HomeBoard` render with navigation; `_bbsheal`/`_bbsteleport`/`_bbsbuff` actions + karma/combat gates; `_bbspremium` account-premium buy; `_bbs_buff_scheme_create`/`_delete`/`_execute` backed by the `buffer_schemes` table + `SchemeBufferSkills.xml` levels; `FavoriteBoard` `_bbsgetfav`/`bbs_add_fav`/`_bbsdelfav_` backed by the `bbs_favorites` table + `HomepageBoard` `_bbslink` + `DropSearchBoard` `_bbs_search_item`/`_bbs_search_drop`/`_bbs_npc_trace` — drop index, server-rate drop list, item-icon side-map, new `RadarControl` 0xF1 packet). Mail, party matching, the merchant multisell/sell and `_bbsdelevel` (config-off) board actions and the retail forum boards still ⏳ (`TODO(G30)`; multisell now answers a "not available yet" message instead of a silent WARN). AdminBBS pending |
+| Game  | G30 Mail, community board & party matching                  | 🚧 **community board: home + buffer + gatekeeper + premium + scheme buffer landed** (`ShowBoard` window + chunked `sendCBHtml`; `RequestShowBoard`/`_bbs*` bypass routing; custom `HomeBoard` render with navigation; `_bbsheal`/`_bbsteleport`/`_bbsbuff` actions + karma/combat gates; `_bbspremium` account-premium buy; `_bbs_buff_scheme_create`/`_delete`/`_execute` backed by the `buffer_schemes` table + `SchemeBufferSkills.xml` levels; `FavoriteBoard` `_bbsgetfav`/`bbs_add_fav`/`_bbsdelfav_` backed by the `bbs_favorites` table + `HomepageBoard` `_bbslink` + `DropSearchBoard` `_bbs_search_item`/`_bbs_search_drop`/`_bbs_npc_trace` — drop index, server-rate drop list, item-icon side-map, new `RadarControl` 0xF1 packet; **merchant multisell** `MultisellData` + `MultiSellList` 0xD0 + `MultiSellChoose` 0xB0 exchange behind `_bbsmultisell`/`_bbsexcmultisell`). Mail, party matching, `_bbssell` (needs buylist 423, absent) and `_bbsdelevel` (config-off) board actions and the retail forum boards still ⏳ (`TODO(G30)`). AdminBBS pending |
 | Game  | G30.5 Item auction                                          | ⏳ `ItemAuctionManager` + bid packets |
 | Game  | G31 Moderation, accounts, petitions & HWID                  | ⏳ AdminPunishment/AdminLogin/AdminHwid/AdminPetition |
 | Game  | G32 Fishing                                                 | ⏳ |
@@ -1436,12 +1436,29 @@ Empty/placeholder now, to be filled in the owning milestone:
   named scheme (max 5, alphanumeric ≤14), write-throughs to `buffer_schemes`,
   renders the execute/pet/delete rows, deletes, and reports the no-pet /
   no-buffs / cap errors.
-  - **Deferred (`TODO(G30)`):** the merchant multisell/sell (`_bbsmultisell`/
-    `_bbsexcmultisell`/`_bbssell` — no multisell/buy-list system yet); the drop
-    search (`_bbs_search_item`/`_bbs_search_drop`/`_bbs_npc_trace` — needs
-    item-icon data + a `RadarControl` packet); `_bbsdelevel` (config-off in the
-    dist); the retail forum boards (unreachable under the custom nav). Scheme
-    execute onto pets/servitors is `TODO(G29)` (no summons yet).
+    **Merchant multisell** (`_bbsmultisell` / `_bbsexcmultisell`) opens the
+    exchange window and the `MultiSellChoose` click swaps adena/items for the
+    product — see the multisell subsystem below.
+  - **Deferred (`TODO(G30)`):** `_bbssell` (the sell window needs buylist 423,
+    absent on this dist — the command is also unreachable from the shipped
+    htmls); `_bbsdelevel` (config-off in the dist); the retail forum boards
+    (unreachable under the custom nav). Scheme execute onto pets/servitors is
+    `TODO(G29)` (no summons yet).
+- **Multisell (G30):** `MultisellData` loads every `data/multisell/*` list
+  (plus the `custom/` overlay — the `6000xx` CB shop lists) keyed by file name;
+  `separateAndSend` (the npc-less community-board path) pages the `MultiSellList`
+  (0xD0) window and records the open list on the player (`ActiveMultisell`
+  component); `MultiSellChoose` (0xB0) validates the open list / entry / amount,
+  checks and takes the (summed) ingredients, grants the products with the
+  acquisition SystemMessage + `ExMultiSellResult`, and sends one batched
+  `InventoryUpdate`. Synthetic-world tests over the real dist lists cover the
+  window open, a successful adena→item exchange, the ingredient-shortfall
+  refusal, and the stale-list drop. **Not ported (`TODO(G30)`, none reached by
+  the CB lists):** inventory-only exchange (`_bbsexcmultisell` opens the full
+  list), chance multisells, `maintainEnchantment`/enchanted ingredients,
+  `SpecialItemType` (clan reputation / fame / raid / PC café) ingredients &
+  products, castle tax, and the weight/slot capacity gates (the same G5
+  encumbrance deferral as the buy shop).
   - **Buffer buffs land icon-only when their combat math is unported:** a buff
     whose effects all fall through the `EFFECT_REGISTRY`/match arms produces an
     empty effect list and gets dropped whole at `apply_skill_effects`' guard (so

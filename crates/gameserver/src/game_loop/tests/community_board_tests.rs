@@ -426,21 +426,133 @@ fn delete_favorite_removes_and_writes_through() {
     );
 }
 
+// --- Merchant (multisell) ---------------------------------------------------
+
+use crate::data::item_data::ADENA_ID;
+use crate::data::MultisellData;
+use crate::game_loop::multisell::handle_multi_sell_choose;
+use crate::model::components::ActiveMultisell;
+use crate::model::inventory::Inventory;
+
+/// Load the real item catalog + multisell lists (the empty test data has no
+/// lists, and the loader validates ingredients/products against item templates).
+fn load_real_multisell_data(world: &mut World) {
+    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    world.data.multisells = MultisellData::load_from(DIST, &world.data.item_data);
+}
+
+/// Build a `MultiSellChoose` body (list id, entry id, amount + the ignored
+/// enchant/augment/elemental tail).
+fn multisell_choose_body(list_id: i32, entry_id: i32, amount: i64) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(list_id);
+    w.write_i32(entry_id);
+    w.write_i64(amount);
+    w.write_i16(0); // enchant level
+    w.write_i32(0); // augment 1
+    w.write_i32(0); // augment 2
+    for _ in 0..8 {
+        w.write_i16(0); // attack element + six defences
+    }
+    w.into_bytes()
+}
+
 #[test]
-fn merchant_multisell_defers_with_a_message_not_a_board() {
+fn merchant_multisell_opens_the_exchange_window() {
     let (mut world, ..) = test_world();
     enable_board(&mut world);
+    load_real_multisell_data(&mut world);
     let mut rx = ingame_player(&mut world, 1, 7205, 0, 0, 0);
     drain(&mut rx);
 
-    // Multisell is an unported subsystem — the player gets a SystemMessage, no board.
     handle_parse_command(&mut world, 1, "_bbsmultisell;600026,_bbstop");
     let pkts = drain(&mut rx);
+
+    // `_bbstop` names no page file, so the board is not re-rendered...
     assert!(
         !pkts.iter().any(|p| p[0] == server_packets::opcodes::SHOW_BOARD),
-        "no board for the deferred multisell"
+        "no board re-render (the page file is absent, like Java's null returnHtml)"
     );
-    assert_eq!(count_system_messages(&pkts), 1, "the deferred multisell messages the player");
+    // ...but the multisell window opens, and the open list is recorded.
+    assert!(
+        pkts.iter().any(|p| p[0] == server_packets::opcodes::MULTI_SELL_LIST),
+        "the MultiSellList window is sent"
+    );
+    assert_eq!(
+        world.objects.get_component::<ActiveMultisell>(&7205).map(|a| a.list_id),
+        Some(600026),
+        "the open list is tracked on the player"
+    );
+}
+
+#[test]
+fn multisell_choose_exchanges_adena_for_the_product() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    load_real_multisell_data(&mut world);
+    world.id_pool = 0x7000_0000..0x7000_1000;
+    let mut rx = ingame_player(&mut world, 1, 7206, 0, 0, 0);
+    // 600026 entry 1: 50,000,000 adena → 1 Cloth Belt (13894).
+    super::items::add_inventory_item(&mut world, 7206, ADENA_ID, 50_000_000);
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbsmultisell;600026,_bbstop");
+    drain(&mut rx);
+
+    let body = multisell_choose_body(600026, 1, 1);
+    handle_multi_sell_choose(&mut world, 1, &body);
+    let pkts = drain(&mut rx);
+
+    let inv = world.objects.get_component::<Inventory>(&7206).unwrap();
+    assert_eq!(inv.count_of(ADENA_ID), 0, "adena was spent");
+    assert_eq!(inv.count_of(13894), 1, "the Cloth Belt was granted");
+    assert!(
+        pkts.iter().any(|p| p[0] == server_packets::opcodes::EX && {
+            let sub = i16::from_le_bytes([p[1], p[2]]);
+            sub == server_packets::opcodes::EX_MULTISELL_RESULT
+        }),
+        "an ExMultiSellResult ack is sent"
+    );
+}
+
+#[test]
+fn multisell_choose_refused_without_enough_adena() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    load_real_multisell_data(&mut world);
+    world.id_pool = 0x7000_0000..0x7000_1000;
+    let mut rx = ingame_player(&mut world, 1, 7207, 0, 0, 0);
+    super::items::add_inventory_item(&mut world, 7207, ADENA_ID, 1_000); // far short
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbsmultisell;600026,_bbstop");
+    drain(&mut rx);
+
+    let body = multisell_choose_body(600026, 1, 1);
+    handle_multi_sell_choose(&mut world, 1, &body);
+    drain(&mut rx);
+
+    let inv = world.objects.get_component::<Inventory>(&7207).unwrap();
+    assert_eq!(inv.count_of(ADENA_ID), 1_000, "adena untouched on a shortfall");
+    assert_eq!(inv.count_of(13894), 0, "no belt granted");
+}
+
+#[test]
+fn multisell_choose_ignored_for_a_stale_list() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    load_real_multisell_data(&mut world);
+    world.id_pool = 0x7000_0000..0x7000_1000;
+    let mut rx = ingame_player(&mut world, 1, 7208, 0, 0, 0);
+    super::items::add_inventory_item(&mut world, 7208, ADENA_ID, 50_000_000);
+    drain(&mut rx);
+
+    // No multisell opened → a forged choose is dropped, nothing charged.
+    let body = multisell_choose_body(600026, 1, 1);
+    handle_multi_sell_choose(&mut world, 1, &body);
+
+    let inv = world.objects.get_component::<Inventory>(&7208).unwrap();
+    assert_eq!(inv.count_of(ADENA_ID), 50_000_000, "no exchange without an open list");
 }
 
 // --- DropSearchBoard --------------------------------------------------------
