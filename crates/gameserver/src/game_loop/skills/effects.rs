@@ -429,40 +429,37 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     }
 
     // Debuff landing roll — Java `Formulas.calcEffectSuccess`. A bad skill with
-    // an `activateRate` (≠ -1) can be resisted: compute the chance, report it to
-    // the caster, and on a failed roll skip the buff (and its DoT ticks) and send
-    // the "$c1 has resisted your $s2" line. Self-targeted casts never resist
-    // (Java's `target != attacker`). Buffs and always-land debuffs (`-1`) fall
-    // straight through. `activateRate == -1` is filtered here so those consume no
-    // roll (keeps the ordering of the remaining rolls stable).
+    // an `activateRate` (≠ -1) can be resisted: compute the chance, roll it, and
+    // report the outcome to the caster with the computed chance baked in — a
+    // "landed with X% chance on <target>" line on success, or a
+    // "<target> has resisted <skill>: X%" line on a failed roll (which also skips
+    // the buff and its DoT ticks). Self-targeted casts never resist (Java's
+    // `target != attacker`). Buffs and always-land debuffs (`-1`) fall straight
+    // through. `activateRate == -1` is filtered here so those consume no roll
+    // (keeps the ordering of the remaining rolls stable). Both lines are
+    // single-target only so an AoE debuff doesn't spam one line per target.
     // TODO(G16): a magic-crit `DamOverTime` burst is applied in the effect loop
     // above before this roll — Java gates that burst on landing too.
     if skill.is_bad() && caster_oid != target_oid && skill.activate_rate != -1 {
         let target_level = creature_level(world, target_oid);
         let rate = formulas::calc_effect_land_rate(skill.magic_level, skill.activate_rate, skill.lvl_bonus_rate, target_level);
-        // Caster-facing chance line, single-target only so an AoE debuff doesn't
-        // spam one line per affected target.
+        // Java: resisted when `finalRate <= Rnd.get(100)` (0-99). Roll before the
+        // message so the outcome line reflects it and the roll order stays stable.
+        let resisted = rate <= world.roll(100) as f64;
         if skill.single_target {
+            let target_name = creature_name(world, target_oid);
+            let text = if resisted {
+                format!("{} has resisted {}: {}%", target_name, skill.name, rate as i64)
+            } else {
+                format!("{} landed with {}% chance on {}", skill.name, rate as i64, target_name)
+            };
             if let Some(client_id) = client_for_player(world, caster_oid) {
                 if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(server_packets::system_message_with(
-                        sm_ids::S1_TEXT,
-                        &[SmParam::Text(format!("{}: {}% chance to land", skill.name, rate as i64))],
-                    ));
+                    cs.send(server_packets::system_message_with(sm_ids::S1_TEXT, &[SmParam::Text(text)]));
                 }
             }
         }
-        // Java: resisted when `finalRate <= Rnd.get(100)` (0-99).
-        if rate <= world.roll(100) as f64 {
-            let target_name = creature_name(world, target_oid);
-            if let Some(client_id) = client_for_player(world, caster_oid) {
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(server_packets::system_message_with(
-                        sm_ids::C1_HAS_RESISTED_YOUR_S2,
-                        &[SmParam::Text(target_name), SmParam::SkillName { id: skill.id, level: skill.level }],
-                    ));
-                }
-            }
+        if resisted {
             return;
         }
     }
@@ -555,8 +552,8 @@ fn creature_level(world: &World, oid: i32) -> i32 {
     }
 }
 
-/// A target creature's display name (Java `Creature.getName()`) for the
-/// `C1_HAS_RESISTED_YOUR_S2` line — an NPC's template name or the player's name.
+/// A target creature's display name (Java `Creature.getName()`) for the debuff
+/// landed/resisted caster line — an NPC's template name or the player's name.
 fn creature_name(world: &World, oid: i32) -> String {
     if crate::game_loop::combat::is_npc_oid(oid) {
         world
