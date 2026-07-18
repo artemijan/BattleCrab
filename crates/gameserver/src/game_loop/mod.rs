@@ -39,6 +39,7 @@ mod shop;
 mod shortcuts;
 mod siege;
 mod skills;
+mod support_magic;
 mod target;
 mod teleporter;
 mod user_commands;
