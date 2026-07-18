@@ -296,6 +296,13 @@ pub enum DbCommand {
     /// `_bbs_buff_scheme_create`/`_delete`.
     StoreBufferScheme { object_id: i32, scheme_name: String, skills: String },
     DeleteBufferScheme { object_id: i32, scheme_name: String },
+    /// Insert / delete a `bbs_favorites` row (Java `FavoriteBoard`
+    /// ADD_FAVORITE / DELETE_FAVORITE). `fav_id` is allocated on the game thread
+    /// (the table-wide AUTOINCREMENT PK, written explicitly here) so the
+    /// memory-first mirror carries it immediately. Used by the community board's
+    /// `bbs_add_fav`/`_bbsdelfav_`.
+    StoreFavorite { fav_id: i32, player_id: i32, title: String, bypass: String, add_date: String },
+    DeleteFavorite { player_id: i32, fav_id: i32 },
     /// Fire-and-forget daily recommendation reset for offline characters
     /// (Java `DailyTaskManager.resetRecommends`'s two UPDATE statements).
     /// Online players are reset in memory on the game thread; their rows get
@@ -328,6 +335,11 @@ pub enum DbEvent {
     /// unprompted at boot. `(object_id, scheme_name, skill_ids)`; skills not in
     /// the available-buff table are filtered on the game thread.
     BufferSchemesLoaded { entries: Vec<(i32, String, Vec<i32>)> },
+    /// The whole `bbs_favorites` table (Java `FavoriteBoard` loads per-player on
+    /// demand; this port caches all rows at boot like `buffer_schemes`), pushed
+    /// unprompted at boot. `(player_id, fav_id, title, bypass, add_date)`,
+    /// newest first.
+    FavoritesLoaded { entries: Vec<(i32, i32, String, String, String)> },
     /// The `grandboss_data` table (Java `GrandBossManager.init`), pushed
     /// unprompted at boot. Filtered to known NPC templates on the game thread.
     GrandBossesLoaded { bosses: Vec<crate::model::grand_boss::GrandBoss> },
@@ -404,6 +416,9 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
 
     // `SchemeBufferTable.load` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::BufferSchemesLoaded { entries: load_buffer_schemes(&pool).await });
+
+    // `FavoriteBoard` favorites cache — likewise unprompted, before `ClansLoaded`.
+    let _ = event_tx.send(DbEvent::FavoritesLoaded { entries: load_favorites(&pool).await });
 
     // `GrandBossManager.init` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::GrandBossesLoaded { bosses: load_grandboss_data(&pool).await });
@@ -696,6 +711,27 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
+            DbCommand::StoreFavorite { fav_id, player_id, title, bypass, add_date } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT OR REPLACE INTO bbs_favorites (favId, playerId, favTitle, favBypass, favAddDate) VALUES (?, ?, ?, ?, ?)",
+                    )
+                    .bind(fav_id)
+                    .bind(player_id)
+                    .bind(title)
+                    .bind(bypass)
+                    .bind(add_date),
+                )
+                .await;
+            }
+            DbCommand::DeleteFavorite { player_id, fav_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM bbs_favorites WHERE playerId=? AND favId=?").bind(player_id).bind(fav_id),
+                )
+                .await;
+            }
             DbCommand::ResetRecommends => {
                 // Java `DailyTaskManager.resetRecommends`: rec_left → 0 for
                 // everyone; rec_have → 0 for those at/under 20, else -20.
@@ -757,6 +793,31 @@ async fn load_buffer_schemes(pool: &SqlitePool) -> Vec<(i32, String, Vec<i32>)> 
                     .filter_map(|s| s.trim().parse::<i32>().ok())
                     .collect();
                 (geti(r, "object_id") as i32, gets(r, "scheme_name"), skills)
+            })
+            .collect(),
+        Err(_) => Vec::new(),
+    }
+}
+
+/// Boot load of the whole `bbs_favorites` table (Java `FavoriteBoard` loads it
+/// per-player on `_bbsgetfav`; this port caches all rows at boot like the
+/// buffer schemes). `ORDER BY favAddDate DESC` matches Java's list order.
+/// Missing table → empty.
+async fn load_favorites(pool: &SqlitePool) -> Vec<(i32, i32, String, String, String)> {
+    match sqlx::query("SELECT playerId, favId, favTitle, favBypass, favAddDate FROM bbs_favorites ORDER BY favAddDate DESC")
+        .fetch_all(pool)
+        .await
+    {
+        Ok(rows) => rows
+            .iter()
+            .map(|r| {
+                (
+                    geti(r, "playerId") as i32,
+                    geti(r, "favId") as i32,
+                    gets(r, "favTitle"),
+                    gets(r, "favBypass"),
+                    gets(r, "favAddDate"),
+                )
             })
             .collect(),
         Err(_) => Vec::new(),

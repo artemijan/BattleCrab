@@ -19,6 +19,17 @@ use crate::scheduler::{ScheduledTask, Scheduler};
 use crate::session::{ClientSession, SessionKey};
 use crate::store::EntityStore;
 
+/// One community-board favorite row (Java `bbs_favorites`). `add_date` is the
+/// display string (`yyyy-MM-dd HH:mm:ss`, matching SQL `CURRENT_TIMESTAMP` and
+/// Java's `SimpleDateFormat`), stored verbatim so it survives a round-trip.
+#[derive(Clone, Debug)]
+pub struct Favorite {
+    pub fav_id: i32,
+    pub title: String,
+    pub bypass: String,
+    pub add_date: String,
+}
+
 /// Java `World.SHIFT_BY`: world coordinates >> 11 ⇒ 2048-unit region cells
 /// (16×16 regions per 32768-unit map tile).
 pub const REGION_SHIFT: i32 = 11;
@@ -190,6 +201,26 @@ pub struct World {
     /// Java's `TreeMap(CASE_INSENSITIVE_ORDER)`.
     pub buffer_schemes: HashMap<i32, Vec<(String, Vec<i32>)>>,
 
+    /// Community-board favorites, the in-memory mirror of `bbs_favorites`
+    /// (Java `FavoriteBoard`): character object-id (`playerId`) → its favorites,
+    /// newest first (Java `ORDER BY favAddDate DESC`). Boot-loaded from the whole
+    /// table (`DbEvent::FavoritesLoaded`); add/delete write through immediately,
+    /// mirroring `buffer_schemes` (Java re-queries the DB after each change).
+    pub bbs_favorites: HashMap<i32, Vec<Favorite>>,
+
+    /// Next global `favId` to assign. `bbs_favorites.favId` is a table-wide
+    /// AUTOINCREMENT primary key, so ids must be globally unique — Java lets SQL
+    /// assign it, but the memory-first mirror needs the id up front to render the
+    /// delete button, so this port allocates on the game thread. Seeded from the
+    /// max loaded id + 1 at boot (`DbEvent::FavoritesLoaded`).
+    pub next_fav_id: i32,
+
+    /// Java `CommunityBoardHandler._bypasses`: the last board bypass a player
+    /// navigated to (`title` → `bypass`), captured on `_bbshome`/`_bbstop` and
+    /// popped by `bbs_add_fav` to build the favorite. Only the `HomeBoard` home
+    /// branch registers one under the custom board.
+    pub cb_last_bypass: HashMap<i32, (String, String)>,
+
     /// Live parties (`Party` objects have no Java-side registry — they only
     /// exist through member references; an id-keyed map is the Rust shape).
     pub parties: HashMap<u32, crate::model::party::Party>,
@@ -253,6 +284,9 @@ impl World {
             siege_guards: HashMap::new(),
             premium: HashMap::new(),
             buffer_schemes: HashMap::new(),
+            bbs_favorites: HashMap::new(),
+            next_fav_id: 1,
+            cb_last_bypass: HashMap::new(),
             parties: HashMap::new(),
             next_party_id: 1,
             mob_groups: HashMap::new(),

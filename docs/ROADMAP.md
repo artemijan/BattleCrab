@@ -499,11 +499,17 @@ AdminBBS. **Deps:** G18 (clan board).
 **Community board progress:** the custom board (`CustomCommunityBoard = True`)
 is live — home/navigation, `_bbsheal`/`_bbsteleport`/`_bbsbuff`, `_bbspremium`
 (account-premium buy), and the scheme buffer (`_bbs_buff_scheme_*` +
-`buffer_schemes` persistence) have landed. Still open on the custom board: the
-merchant multisell/sell (needs the multisell subsystem — see the G14 audit note)
-and the drop search (`_bbs_search_*`, needs item-icon data + a `RadarControl`
-packet). The retail forum boards + `communitybbs` core stay deferred (the custom
-nav never links to them).
+`buffer_schemes` persistence) have landed. The two client-toolbar handlers that
+sit outside `HomeBoard` are now ported too: the `FavoriteBoard`
+(`_bbsgetfav`/`bbs_add_fav`/`_bbsdelfav_`, backed by the `bbs_favorites` table,
+memory-first mirror + write-through like the buffer schemes) and the
+`HomepageBoard` (`_bbslink` → `homepage.html`). Still open on the custom board:
+the merchant multisell/sell (needs the multisell subsystem — see the G14 audit
+note) and the drop search (`_bbs_search_*`/`_bbs_npc_trace`, needs item-icon
+data + a `RadarControl` packet) — both now answer the player with a "not
+available yet" message instead of a silent unhandled-command WARN. The retail
+forum boards + `communitybbs` core stay deferred (the custom nav never links to
+them).
 
 **Audit additions (2026-07):** the contact list
 (`RequestExAddContactToContactList` family) and party adena distribution

@@ -321,3 +321,127 @@ fn scheme_create_enforces_max_schemes() {
         .unwrap_or_default();
     assert!(content.contains("Maximum schemes amount is already reached."), "the cap error is shown");
 }
+
+// --- FavoriteBoard / HomepageBoard ----------------------------------------
+
+/// Grab the concatenated board html (all SHOW_BOARD chunks joined).
+fn board_html(pkts: &[Vec<u8>]) -> String {
+    pkts.iter()
+        .filter(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
+        .map(|p| cb_content(p))
+        .collect()
+}
+
+#[test]
+fn homepage_link_serves_homepage() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7200, 0, 0, 0);
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbslink");
+    let pkts = drain(&mut rx);
+    assert_eq!(
+        pkts.iter().filter(|p| p[0] == server_packets::opcodes::SHOW_BOARD).count(),
+        3,
+        "the homepage is sent as three chunks"
+    );
+    assert!(board_html(&pkts).contains("bbs_Webfolder"), "homepage.html body rendered");
+}
+
+#[test]
+fn getfav_on_empty_renders_the_list_page() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7201, 0, 0, 0);
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbsgetfav");
+    let html = board_html(&drain(&mut rx));
+    assert!(html.contains("Bookmark list"), "favorite.html rendered");
+    assert!(!html.contains("%fav_list%"), "the (empty) list placeholder was substituted");
+}
+
+#[test]
+fn add_favorite_from_home_persists_and_renders() {
+    let (mut world, _tx, mut db_rx, _l) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7202, 0, 0, 0);
+    // Opening the board home queues the "Home" bypass (Java `addBypass`).
+    handle_parse_command(&mut world, 1, "_bbshome");
+    drain(&mut rx);
+    let _ = drain_db(&mut db_rx);
+
+    // The client toolbar's "add to favorites" button.
+    handle_parse_command(&mut world, 1, "bbs_add_fav");
+
+    let favs = world.bbs_favorites.get(&7202).expect("favorite registered");
+    assert_eq!(favs.len(), 1);
+    assert_eq!(favs[0].title, "Home", "favorite bookmarks the board home");
+    assert_eq!(favs[0].bypass, "_bbshome");
+    let cmds = drain_db(&mut db_rx);
+    assert!(
+        cmds.iter().any(|c| matches!(
+            c,
+            db::DbCommand::StoreFavorite { player_id, title, .. } if *player_id == 7202 && title == "Home"
+        )),
+        "the favorite is written through to bbs_favorites"
+    );
+    // The callback re-renders the favorites list with the new row.
+    let html = board_html(&drain(&mut rx));
+    assert!(html.contains("Home"), "the new favorite row is rendered");
+    assert!(html.contains("_bbsdelfav_"), "the delete button carries the fav id");
+}
+
+#[test]
+fn add_favorite_without_queued_bypass_is_noop() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7203, 0, 0, 0);
+    drain(&mut rx);
+
+    // No `_bbshome` first → nothing queued, nothing added (Java logs & returns).
+    handle_parse_command(&mut world, 1, "bbs_add_fav");
+    assert!(world.bbs_favorites.get(&7203).map_or(true, |f| f.is_empty()), "no favorite added");
+}
+
+#[test]
+fn delete_favorite_removes_and_writes_through() {
+    let (mut world, _tx, mut db_rx, _l) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7204, 0, 0, 0);
+    handle_parse_command(&mut world, 1, "_bbshome");
+    handle_parse_command(&mut world, 1, "bbs_add_fav");
+    let fav_id = world.bbs_favorites.get(&7204).unwrap()[0].fav_id;
+    let _ = drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, &format!("_bbsdelfav_{fav_id}"));
+    assert!(world.bbs_favorites.get(&7204).unwrap().is_empty(), "favorite removed");
+    let cmds = drain_db(&mut db_rx);
+    assert!(
+        cmds.iter()
+            .any(|c| matches!(c, db::DbCommand::DeleteFavorite { player_id, fav_id: id } if *player_id == 7204 && *id == fav_id)),
+        "the delete is written through"
+    );
+}
+
+#[test]
+fn merchant_and_search_defer_with_a_message_not_a_board() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7205, 0, 0, 0);
+    drain(&mut rx);
+
+    // Both are unported subsystems — the player gets a SystemMessage, no board.
+    handle_parse_command(&mut world, 1, "_bbsmultisell;600026,_bbstop");
+    let pkts = drain(&mut rx);
+    assert!(
+        !pkts.iter().any(|p| p[0] == server_packets::opcodes::SHOW_BOARD),
+        "no board for the deferred multisell"
+    );
+    assert_eq!(count_system_messages(&pkts), 1, "the deferred multisell messages the player");
+
+    handle_parse_command(&mut world, 1, "_bbs_search_item;");
+    assert_eq!(count_system_messages(&drain(&mut rx)), 1, "the deferred drop search messages the player");
+}
