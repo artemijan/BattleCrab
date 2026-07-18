@@ -13,6 +13,8 @@ pub mod sm_ids {
     pub const INVALID_MACRO_REFER_TO_THE_HELP_FILE_FOR_INSTRUCTIONS: i16 = 810;
     pub const MACRO_DESCRIPTIONS_MAY_CONTAIN_UP_TO_32_CHARACTERS: i16 = 837;
     pub const ENTER_THE_NAME_OF_THE_MACRO: i16 = 838;
+    // Community board (G30)
+    pub const THE_COMMUNITY_SERVER_IS_CURRENTLY_OFFLINE: i16 = 938;
     // Clans (G11)
     pub const S1_ALREADY_EXISTS: i16 = 5;
     pub const YOUR_CLAN_HAS_BEEN_CREATED: i16 = 189;

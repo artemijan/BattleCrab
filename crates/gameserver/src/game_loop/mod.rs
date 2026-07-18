@@ -10,6 +10,7 @@ mod admin;
 mod bypass;
 mod chat;
 mod clans;
+mod community_board;
 mod combat;
 mod augment;
 mod death;

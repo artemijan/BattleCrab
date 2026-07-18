@@ -86,7 +86,7 @@ additions, and a Classic/custom scope gate — see ROADMAP.md.
 | Game  | G27 Instances                                              | ⏳ AdminInstance/AdminInstanceZone |
 | Game  | G28 Events engine & cursed weapons                          | ⏳ AdminEvents/`//tvt_*`/AdminCursedWeapons |
 | Game  | G29 Summons, pets, servitors, cubics, agathions             | ⏳ editchar summon/pet subcommands |
-| Game  | G30 Mail, community board & party matching                  | ⏳ AdminBBS |
+| Game  | G30 Mail, community board & party matching                  | 🚧 **community board slice landed** (`ShowBoard` window + chunked `sendCBHtml`; `RequestShowBoard`/`_bbs*` bypass routing; custom `HomeBoard` render with navigation; `_bbsheal`/`_bbsteleport`/`_bbsbuff` actions + karma/combat gates). Mail, party matching, the scheme buffer, multisell/sell/premium/delevel board actions and the retail forum boards still ⏳ (`TODO(G30)`). AdminBBS pending |
 | Game  | G30.5 Item auction                                          | ⏳ `ItemAuctionManager` + bid packets |
 | Game  | G31 Moderation, accounts, petitions & HWID                  | ⏳ AdminPunishment/AdminLogin/AdminHwid/AdminPetition |
 | Game  | G32 Fishing                                                 | ⏳ |
@@ -1400,6 +1400,14 @@ Empty/placeholder now, to be filled in the owning milestone:
   integration tests over the real tick systems — melee kill (rewards,
   level-up, auto-loot, decay), chase + retaliation, unprovoked aggro,
   kill-by-nuke, player death → to-village revive, decay → respawn.
+- **Community board (G30):** config load vs the dist `General.ini`/
+  `Custom/CommunityBoard.ini` + the gatekeeper-html teleport-whitelist scan;
+  `ShowBoard` chunker units (101/102/103 split, the empty-chunk `null`
+  sentinel); synthetic-world tests over the real dist htmls — the board button
+  opens the custom home with the navigation injected, the offline gate sends
+  the SystemMessage, `_bbsheal` restores vitals (and is refused when the
+  player can't pay), `_bbsteleport` moves to a whitelisted destination and
+  hides the board while an unlisted destination is refused.
 
 Run: `cargo test` (all green). Boot a pair on alt ports:
 `cargo run -p loginserver` + `CONFIG_SERVER_GAMESERVERPORT=… cargo run -p gameserver`.

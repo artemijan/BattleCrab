@@ -99,6 +99,7 @@ pub const SHOW_MINI_MAP: u8 = 0xA3;
 pub const SUN_RISE: u8 = 0x12;
 pub const SUN_SET: u8 = 0x13;
 pub const EARTHQUAKE: u8 = 0xD3;
+pub const SHOW_BOARD: u8 = 0x7B;
 
 /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
 pub const EX: u8 = 0xFE;

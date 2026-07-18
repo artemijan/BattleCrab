@@ -40,7 +40,8 @@ pub(super) fn admin_heal(world: &mut World, client_id: u32, object_id: i32, args
 
 /// Java `//heal` on one creature: HP/MP → max (CP → max for players), no revive.
 /// StatusUpdate goes to the player (+ party), or is broadcast near an NPC.
-pub(super) fn heal_creature(world: &mut World, target: i32) {
+/// Also the `_bbsheal` community-board action.
+pub(crate) fn heal_creature(world: &mut World, target: i32) {
     let is_player = world.objects.has_component::<Player>(&target);
     let (max_hp, max_mp) = {
         let Some(v) = world.objects.get_component_mut::<Vitals>(&target) else { return };

@@ -33,6 +33,7 @@ use crate::model::components::Friends;
 mod admin_tests;
 mod clans_tests;
 mod combat_tests;
+mod community_board_tests;
 mod items_tests;
 mod lobby_tests;
 mod misc_tests;

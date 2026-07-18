@@ -5,6 +5,7 @@
 //! incrementally: each milestone adds the ini files / keys its subsystem needs.
 
 pub mod character;
+pub mod community_board;
 pub mod general;
 pub mod geoengine;
 pub mod hexid;
@@ -14,6 +15,7 @@ pub mod rates;
 pub mod server;
 
 pub use character::CharacterConfig;
+pub use community_board::CommunityBoardConfig;
 pub use general::GeneralConfig;
 pub use geoengine::GeoEngineConfig;
 pub use hexid::HexId;
@@ -34,6 +36,8 @@ pub struct CombatConfig {
     /// …). The GM-startup keys of `GeneralConfig` travel separately via
     /// `data.gm`; this carries the rest.
     pub general: GeneralConfig,
+    /// Community board (BBS) settings + the buff/teleport whitelists.
+    pub community_board: CommunityBoardConfig,
 }
 
 /// Aggregate of every loaded config section, owned for the process lifetime
@@ -46,6 +50,7 @@ pub struct Config {
     pub geoengine: GeoEngineConfig,
     pub npc: NpcConfig,
     pub rates: RatesConfig,
+    pub community_board: CommunityBoardConfig,
 
     /// Network (subnet, host) pairs advertised to the login server.
     pub ip_config: IpConfig,
@@ -70,6 +75,7 @@ impl Config {
         let geoengine = GeoEngineConfig::load();
         let npc = NpcConfig::load();
         let rates = RatesConfig::load();
+        let community_board = CommunityBoardConfig::load();
         let ip_config = IpConfig::load();
         let hex = HexId::load(server.request_id);
         Self {
@@ -79,6 +85,7 @@ impl Config {
             geoengine,
             npc,
             rates,
+            community_board,
             ip_config,
             hex_id: hex.hex_id,
             server_id: hex.server_id,
@@ -94,6 +101,7 @@ impl Config {
             npc: self.npc.clone(),
             rates: self.rates.clone(),
             general: self.general.clone(),
+            community_board: self.community_board.clone(),
         }
     }
 }

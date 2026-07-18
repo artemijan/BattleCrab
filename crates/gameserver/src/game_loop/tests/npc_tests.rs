@@ -316,7 +316,7 @@ fn bypass_routes_npc_commands_and_tracks_last_folk_npc() {
     // Empty and unknown bare commands drop silently (deviation: Java
     // disconnects on empty; unhandled prefixes only log there too).
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(""));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body("_bbshome"));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("no_such_command"));
     assert!(rx.try_recv().is_err());
 
     // Bare `Quest` with no LastFolkNpc (fresh player who never clicked an

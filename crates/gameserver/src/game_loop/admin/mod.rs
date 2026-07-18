@@ -40,7 +40,7 @@ mod skills;
 mod spawn;
 mod teleport;
 mod transforms;
-mod vitals;
+pub(crate) mod vitals;
 mod world_cmds;
 
 // The command bodies and the small enums the dispatch table names live in the

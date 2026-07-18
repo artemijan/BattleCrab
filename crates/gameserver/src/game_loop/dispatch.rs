@@ -104,6 +104,18 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_DELETE_MACRO => handle_request_delete_macro(world, client_id, body),
         cop::SAY2 => handle_say2(world, client_id, body),
         cop::REQUEST_BYPASS_TO_SERVER => handle_request_bypass_to_server(world, client_id, body),
+        // RequestShowBoard (IN_GAME): the community-board button → open at
+        // `BBSDefault` (`_bbshome`). Body is one unused int.
+        cop::REQUEST_SHOW_BOARD => {
+            let command = world.cfg.community_board.bbs_default.clone();
+            super::community_board::handle_parse_command(world, client_id, &command);
+        }
+        // RequestBBSwrite (IN_GAME): a board write/submit.
+        cop::REQUEST_BBS_WRITE => {
+            if let Some([url, ..]) = cp::read_bbs_write(body) {
+                super::community_board::handle_write_command(world, client_id, &url);
+            }
+        }
         // SendBypassBuildCmd (IN_GAME): the `//command` GM bar → admin command
         // with the `admin_` prefix Java prepends.
         cop::SEND_BYPASS_BUILD_CMD => {

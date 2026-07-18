@@ -58,6 +58,12 @@ pub mod opcodes {
     pub const REQUEST_DELETE_MACRO: u8 = 0xCE;
     pub const SAY2: u8 = 0x49;
     pub const REQUEST_BYPASS_TO_SERVER: u8 = 0x23;
+    /// `RequestShowBoard` — the client's community-board button. Body is one
+    /// unused int; opens the board at `Config.BBSDefault`.
+    pub const REQUEST_SHOW_BOARD: u8 = 0x5E;
+    /// `RequestBBSwrite` — a board write/submit (post, memo, …). Body is one
+    /// int + six strings (url + five args).
+    pub const REQUEST_BBS_WRITE: u8 = 0x24;
     /// `SendBypassBuildCmd` — the `//command` GM bar (admin commands).
     pub const SEND_BYPASS_BUILD_CMD: u8 = 0x74;
     /// `BypassUserCmd` — the client `/command` bar (`/unstuck`, `/loc`, …);
@@ -741,6 +747,22 @@ impl Say2 {
 /// `bypass -h ` prefix is stripped client-side; the command arrives bare).
 pub fn read_bypass_command(body_after_opcode: &[u8]) -> Option<String> {
     PacketReader::new(body_after_opcode).read_string()
+}
+
+/// Port of `clientpackets/RequestBBSwrite.readImpl` — a board write/submit:
+/// the target `url` plus five string arguments. `CommunityBoardHandler`
+/// maps the `url` (`Topic`/`Post`/`Region`/`Notice`) to a `_bbs*` write
+/// command; anything else answers a "not implemented" page.
+pub fn read_bbs_write(body_after_opcode: &[u8]) -> Option<[String; 6]> {
+    let mut r = PacketReader::new(body_after_opcode);
+    Some([
+        r.read_string()?, // url
+        r.read_string()?, // arg1
+        r.read_string()?, // arg2
+        r.read_string()?, // arg3
+        r.read_string()?, // arg4
+        r.read_string()?, // arg5
+    ])
 }
 
 /// Port of `clientpackets/SendBypassBuildCmd.readImpl` — one command string for
