@@ -427,13 +427,13 @@ fn delete_favorite_removes_and_writes_through() {
 }
 
 #[test]
-fn merchant_and_search_defer_with_a_message_not_a_board() {
+fn merchant_multisell_defers_with_a_message_not_a_board() {
     let (mut world, ..) = test_world();
     enable_board(&mut world);
     let mut rx = ingame_player(&mut world, 1, 7205, 0, 0, 0);
     drain(&mut rx);
 
-    // Both are unported subsystems — the player gets a SystemMessage, no board.
+    // Multisell is an unported subsystem — the player gets a SystemMessage, no board.
     handle_parse_command(&mut world, 1, "_bbsmultisell;600026,_bbstop");
     let pkts = drain(&mut rx);
     assert!(
@@ -441,7 +441,83 @@ fn merchant_and_search_defer_with_a_message_not_a_board() {
         "no board for the deferred multisell"
     );
     assert_eq!(count_system_messages(&pkts), 1, "the deferred multisell messages the player");
+}
 
+// --- DropSearchBoard --------------------------------------------------------
+
+/// Load the real NPC + item datapack into the synthetic world so the drop
+/// index and item catalog are populated (the empty test data has no drops).
+fn load_real_drop_data(world: &mut World) {
+    world.data.npc_data = crate::data::NpcData::load_from(DIST);
+    world.data.item_data = crate::data::ItemData::load_from(DIST);
+}
+
+#[test]
+fn drop_search_item_and_drop_list_render() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    load_real_drop_data(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7300, 0, 0, 0);
+    drain(&mut rx);
+
+    // The nav "Search" button (`_bbs_search_item;`) opens the empty page.
     handle_parse_command(&mut world, 1, "_bbs_search_item;");
-    assert_eq!(count_system_messages(&drain(&mut rx)), 1, "the deferred drop search messages the player");
+    let html = board_html(&drain(&mut rx));
+    assert!(html.contains("Drop Search"), "the drop-search page rendered with navigation");
+
+    // An empty query matches all droppable items → the first 14 icon buttons.
+    handle_parse_command(&mut world, 1, "_bbs_search_item ");
+    let html = board_html(&drain(&mut rx));
+    assert_eq!(html.matches("_bbs_search_drop").count(), 14, "14 item-icon buttons on a full page");
+    assert!(!html.contains("No Match"));
+
+    // A nonsense query → No Match.
+    handle_parse_command(&mut world, 1, "_bbs_search_item zzzznotanitem");
+    assert!(board_html(&drain(&mut rx)).contains("No Match"), "no matches reported");
+
+    // Drop list for a real indexed item: rows link each NPC to `_bbs_npc_trace`.
+    let item_id = *world.data.npc_data.drop_index().keys().next().expect("some item is dropped");
+    handle_parse_command(&mut world, 1, &format!("_bbs_search_drop {item_id} 1 $order $level"));
+    let html = board_html(&drain(&mut rx));
+    assert!(html.contains("_bbs_npc_trace"), "drop rows link to the NPC trace");
+    assert!(html.contains("Drop") || html.contains("Spoil"), "each row is tagged Drop or Spoil");
+}
+
+#[test]
+fn npc_trace_marks_a_live_spawn() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7301, 0, 0, 0);
+    // A live NPC (template 12345) spawned at a known location.
+    let (npc, extra) = crate::model::npc::Npc::for_test(9001, 12345, 111, 222, 333, 100, 100);
+    world.objects.spawn(9001, (npc, extra));
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbs_npc_trace 12345");
+    let pkts = drain(&mut rx);
+    let radars: Vec<_> = pkts.iter().filter(|p| p[0] == server_packets::opcodes::RADAR_CONTROL).collect();
+    assert_eq!(radars.len(), 2, "addMarker sends two RadarControl packets");
+    // The marker carries the spawn coordinates (x=111 after the opcode + showRadar + type ints).
+    let mut r = commons::network::PacketReader::new(&radars[0][1..]);
+    let _show = r.read_i32().unwrap();
+    let _type = r.read_i32().unwrap();
+    assert_eq!(r.read_i32().unwrap(), 111, "marker x = spawn x");
+    assert_eq!(r.read_i32().unwrap(), 222, "marker y = spawn y");
+    assert_eq!(r.read_i32().unwrap(), 333, "marker z = spawn z");
+}
+
+#[test]
+fn npc_trace_without_a_spawn_messages_the_player() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7302, 0, 0, 0);
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbs_npc_trace 999999");
+    let pkts = drain(&mut rx);
+    assert!(
+        !pkts.iter().any(|p| p[0] == server_packets::opcodes::RADAR_CONTROL),
+        "no marker when nothing is spawned"
+    );
+    assert_eq!(count_system_messages(&pkts), 1, "the player is told no spawn was found");
 }

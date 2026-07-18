@@ -257,6 +257,7 @@ async fn character_create_inserts_into_real_schema() {
             | DbEvent::ClansLoaded { .. }
             | DbEvent::PremiumLoaded { .. }
             | DbEvent::BufferSchemesLoaded { .. }
+            | DbEvent::FavoritesLoaded { .. }
             | DbEvent::GrandBossesLoaded { .. }
             | DbEvent::CursedWeaponsLoaded { .. }
             | DbEvent::CastlesLoaded { .. }

@@ -5,6 +5,7 @@
 //! (G9) — same "parse what the milestone consumes" pattern as `ItemData` (G5).
 
 use std::collections::HashMap;
+use std::sync::OnceLock;
 
 use quick_xml::events::Event;
 use quick_xml::Reader;
@@ -165,8 +166,28 @@ impl NpcTemplate {
     }
 }
 
+/// One flattened drop entry for the community-board drop search (Java
+/// `DropSearchBoard.CBDropHolder`): a single item's appearance in one NPC's
+/// drop or spoil list, with the group chance already folded in.
+#[derive(Debug, Clone)]
+pub struct CbDrop {
+    pub item_id: i32,
+    pub npc_id: i32,
+    pub npc_level: i32,
+    pub min: i64,
+    pub max: i64,
+    /// Percent (0–100), group chance already folded (Java `chance / 100`).
+    pub chance: f64,
+    pub is_spoil: bool,
+    pub is_raid: bool,
+}
+
 pub struct NpcData {
     by_id: HashMap<i32, NpcTemplate>,
+    /// Lazily-built inverted index `item_id → [CbDrop]` for the community-board
+    /// drop search (Java builds it eagerly in `DropSearchBoard`'s constructor;
+    /// this port defers the ~35k-template scan until the first search click).
+    drop_index: OnceLock<HashMap<i32, Vec<CbDrop>>>,
 }
 
 impl NpcData {
@@ -189,7 +210,7 @@ impl NpcData {
             }
         }
         info!("NpcData: Loaded {} NPCs.", by_id.len());
-        Self { by_id }
+        Self { by_id, drop_index: OnceLock::new() }
     }
 
     pub fn get(&self, npc_id: i32) -> Option<&NpcTemplate> {
@@ -234,13 +255,63 @@ impl NpcData {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { by_id: HashMap::new() }
+        Self { by_id: HashMap::new(), drop_index: OnceLock::new() }
     }
 
     /// Synthetic catalog for unit tests (same hook as `ItemData::from_templates`).
     #[doc(hidden)]
     pub fn from_templates(templates: Vec<NpcTemplate>) -> Self {
-        Self { by_id: templates.into_iter().map(|t| (t.id, t)).collect() }
+        Self { by_id: templates.into_iter().map(|t| (t.id, t)).collect(), drop_index: OnceLock::new() }
+    }
+
+    /// Every loaded template (Java `NpcData.getTemplates`), unordered.
+    pub fn all(&self) -> impl Iterator<Item = &NpcTemplate> {
+        self.by_id.values()
+    }
+
+    /// The community-board drop index (Java `DropSearchBoard.buildDropIndex`):
+    /// `item_id → [CbDrop]`, built on first use and cached. Adena (item 57) is
+    /// excluded (Java `BLOCK_ID`); each item's list is sorted by NPC level.
+    pub fn drop_index(&self) -> &HashMap<i32, Vec<CbDrop>> {
+        self.drop_index.get_or_init(|| {
+            const ADENA_ID: i32 = 57;
+            let mut index: HashMap<i32, Vec<CbDrop>> = HashMap::new();
+            let add = |index: &mut HashMap<i32, Vec<CbDrop>>, t: &NpcTemplate, d: &DropHolder, chance: f64, is_spoil: bool| {
+                if d.item_id == ADENA_ID {
+                    return;
+                }
+                index.entry(d.item_id).or_default().push(CbDrop {
+                    item_id: d.item_id,
+                    npc_id: t.id,
+                    npc_level: t.level,
+                    min: d.min,
+                    max: d.max,
+                    chance,
+                    is_spoil,
+                    is_raid: t.is_raid(),
+                });
+            };
+            // Same insertion order as Java: grouped death drops (group chance
+            // folded in), then ungrouped death drops, then spoil.
+            for t in self.by_id.values() {
+                for group in &t.drop_groups {
+                    let group_chance = group.chance / 100.0;
+                    for d in &group.items {
+                        add(&mut index, t, d, d.chance * group_chance, false);
+                    }
+                }
+                for d in &t.drop_list_death {
+                    add(&mut index, t, d, d.chance, false);
+                }
+                for d in &t.drop_list_spoil {
+                    add(&mut index, t, d, d.chance, true);
+                }
+            }
+            for list in index.values_mut() {
+                list.sort_by_key(|d| d.npc_level);
+            }
+            index
+        })
     }
 
     /// Register one synthetic template (same hook as `SkillData::insert_for_test`).
@@ -688,6 +759,25 @@ mod tests {
         let group = &t.drop_groups[0];
         assert!(group.chance > 0.0);
         assert!(!group.items.is_empty());
+    }
+
+    #[test]
+    fn drop_index_inverts_drops_and_excludes_adena() {
+        let data = NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let index = data.drop_index();
+        // Adena (57) is on the block list — never indexed.
+        assert!(!index.contains_key(&57), "adena excluded from the drop index");
+        // Goblin (20003) spoils Magic Ring (116) — a spoil entry maps back to it.
+        let ring = index.get(&116).expect("Magic Ring indexed");
+        let goblin_spoil = ring
+            .iter()
+            .find(|d| d.npc_id == 20003 && d.is_spoil)
+            .expect("goblin spoils Magic Ring");
+        assert_eq!(goblin_spoil.npc_level, data.get(20003).unwrap().level);
+        // Each item's list is sorted by NPC level (ascending).
+        assert!(ring.windows(2).all(|w| w[0].npc_level <= w[1].npc_level), "sorted by level");
+        // Cached: a second call returns the same populated map.
+        assert!(std::ptr::eq(index, data.drop_index()), "drop index is built once and cached");
     }
 
     #[test]

@@ -46,3 +46,19 @@ fn write(show_board: u8, content: &str) -> Vec<u8> {
     w.write_string(content);
     w.into_bytes()
 }
+
+/// `RadarControl` (0xF1) — place/remove a world-map marker. Port of
+/// `serverpackets/RadarControl`: `showRadar` (0 = show, 1 = delete, 2 = add),
+/// `type`, then the target `x`/`y`/`z`. Used by the community-board drop
+/// search's `_bbs_npc_trace` (Java `Radar.addMarker`, which sends the pair
+/// `(2, 2, …)` then `(0, 1, …)`).
+pub fn radar_control(show_radar: i32, radar_type: i32, x: i32, y: i32, z: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::RADAR_CONTROL);
+    w.write_i32(show_radar);
+    w.write_i32(radar_type);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.into_bytes()
+}
