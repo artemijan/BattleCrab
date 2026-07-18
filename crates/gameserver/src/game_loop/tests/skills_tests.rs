@@ -1548,12 +1548,6 @@ fn spawn_debuff_target(world: &mut World, a_rx: &mut tokio::sync::mpsc::Unbounde
     npc_oid
 }
 
-/// The `SystemMessage` message id of a packet, or `None` if it isn't one.
-fn sysmsg_id(p: &[u8]) -> Option<i16> {
-    (p.first() == Some(&crate::network::server_packets::opcodes::SYSTEM_MESSAGE) && p.len() >= 3)
-        .then(|| i16::from_le_bytes([p[1], p[2]]))
-}
-
 /// A single-target debuff (Decrease Speed 1160) that passes its landing roll
 /// slows the mob server-side (base 120 × 0.80 = 96) and shows the caster the
 /// computed landing chance. Against the level-5 test mob the rate constrains to
@@ -1576,17 +1570,18 @@ fn single_target_debuff_lands_and_reports_chance() {
     let speed = world.objects.get_component::<Speeds>(&npc_oid).unwrap().run_spd;
     assert!((speed - 96.0).abs() < 1e-6, "run speed debuffed to 96, got {speed}");
 
-    // The caster sees the landing-chance line (single-target only).
+    // The caster sees the landed-outcome line (single-target only).
     let msgs = drain(&mut a_rx);
     assert!(
-        msgs.iter().any(|p| sysmsg_text(p).as_deref() == Some("Decrease Speed: 90% chance to land")),
-        "caster received the debuff landing-chance S1_TEXT line",
+        msgs.iter()
+            .any(|p| sysmsg_text(p).as_deref() == Some("Decrease Speed landed with 90% chance on Test Gremlin")),
+        "caster received the debuff landed S1_TEXT line",
     );
 }
 
 /// The same cast that fails its landing roll leaves the mob unslowed and sends
-/// the caster the `C1_HAS_RESISTED_YOUR_S2` line (the chance line still shows).
-/// The land roll is forced to 90, which is not below the 90 rate, so it resists.
+/// the caster the "<target> has resisted <skill>: X%" line. The land roll is
+/// forced to 90, which is not below the 90 rate, so it resists.
 #[test]
 fn single_target_debuff_resisted_leaves_target_and_reports() {
     use crate::model::components::Speeds;
@@ -1604,15 +1599,11 @@ fn single_target_debuff_resisted_leaves_target_and_reports() {
     assert!((speed - 120.0).abs() < 1e-6, "run speed unchanged on resist, got {speed}");
 
     let msgs = drain(&mut a_rx);
-    // The chance line still fires (it precedes the roll).
+    // The resisted-outcome line carries the target, skill, and computed chance.
     assert!(
-        msgs.iter().any(|p| sysmsg_text(p).as_deref() == Some("Decrease Speed: 90% chance to land")),
-        "caster still sees the landing-chance line",
-    );
-    // …and the resist line (SystemMessageId 139).
-    assert!(
-        msgs.iter().any(|p| sysmsg_id(p) == Some(139)),
-        "caster received the C1_HAS_RESISTED_YOUR_S2 line",
+        msgs.iter()
+            .any(|p| sysmsg_text(p).as_deref() == Some("Test Gremlin has resisted Decrease Speed: 90%")),
+        "caster received the debuff resisted S1_TEXT line",
     );
 }
 
