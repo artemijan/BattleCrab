@@ -311,6 +311,51 @@ pub fn level_mod(level: i32) -> f64 {
     (level as f64 + 89.0) / 100.0
 }
 
+/// `Formulas.calcBlowDamage` (dagger blows: FatalBlow/Backstab/SoulBlow),
+/// melee/identity-simplified. The crit-damage/trait/attribute/pvp-pve
+/// multipliers are all identity for the actors that exist (default crit-damage
+/// stats, no traits/attributes) → `cdMult = 1`, `cdPatk = 0`, so only the base
+/// blow term survives. `position` adds 20% (back) / 5% (side) of `(power+pAtk)`
+/// before the ×77. Shield is folded into `p_def` by the caller (perfect block →
+/// the caller shortcuts to 1). `SKILL_POWER_ADD` is 0.
+///
+/// `77·((power+pAtk)·0.666 + isPos·(power+pAtk)·randomMul) / pDef · ssMod · randomMul`
+pub fn calc_blow_damage(p_atk: f64, power: f64, p_def: f64, position: Position, random_mul: f64, ss: bool) -> f64 {
+    let is_pos = match position {
+        Position::Back => 0.2,
+        Position::Side => 0.05,
+        Position::Front => 0.0,
+    };
+    let sum = power + p_atk;
+    let ss_mod = if ss { 2.0 } else { 1.0 };
+    let base_mod = (77.0 * ((sum * 0.666) + (is_pos * sum * random_mul))) / p_def.max(1.0);
+    (base_mod * ss_mod * random_mul).max(0.0)
+}
+
+/// `Formulas.calcBlowSuccess` — the "does the blow land" roll (part of the blow
+/// effect's `calcSuccess`). `crit_rate` is the caster's finalized crit rate ÷10,
+/// standing in for Java's `weaponCritical` (the weapon's raw `CRITICAL_RATE`
+/// excluding the DEX bonus); the `limit` cap (`BlowRateChanceLimit`, 100 on
+/// dist) dominates for a real dagger user, so the proxy's small overshoot is
+/// absorbed. `BLOW_RATE`/`BLOW_RATE_DEFENCE` stats are 1.0. Lands when `roll`
+/// (`Rnd.get(100)`) < min(rate, limit).
+/// TODO(G20): use the weapon's raw crit rate once weapon stats are exposed.
+pub fn calc_blow_success(
+    crit_rate: f64,
+    position: Position,
+    from_z: i32,
+    to_z: i32,
+    chance_boost: f64,
+    limit: f64,
+    roll: i32,
+) -> bool {
+    let rate = calc_critical_position_bonus(position)
+        * calc_critical_height_bonus(from_z, to_z)
+        * crit_rate
+        * ((100.0 + chance_boost) / 100.0);
+    (roll as f64) < rate.min(limit)
+}
+
 /// `Attackable.calculateExpAndSp`'s level-gap multiplier (the
 /// "4gameforum" table): full reward through +2 levels above the mob,
 /// tapering to 5% at +10 and beyond.
@@ -493,6 +538,36 @@ mod tests {
         // Floor 5% even at zero chance; cap 90% at huge chance.
         assert!(calc_physical_skill_crit(0.0, 1.0, 4));
         assert!(!calc_physical_skill_crit(1000.0, 1.0, 90));
+    }
+
+    /// Blow damage: pAtk 100, power 50, pDef 60, front, no shot →
+    /// 77·((150·0.666))/60 = 128.205; back adds 20% of (power+pAtk); a soulshot
+    /// doubles; randomMul scales (and also feeds the positional term).
+    #[test]
+    fn blow_damage_matches_java() {
+        let front = calc_blow_damage(100.0, 50.0, 60.0, Position::Front, 1.0, false);
+        assert!((front - (77.0 * (150.0 * 0.666) / 60.0)).abs() < 1e-9);
+        // Back: +0.2·150 inside the bracket.
+        let back = calc_blow_damage(100.0, 50.0, 60.0, Position::Back, 1.0, false);
+        assert!((back - (77.0 * ((150.0 * 0.666) + (0.2 * 150.0)) / 60.0)).abs() < 1e-9);
+        // Soulshot doubles the front hit.
+        assert!((calc_blow_damage(100.0, 50.0, 60.0, Position::Front, 1.0, true) - front * 2.0).abs() < 1e-9);
+        // pDef floors at 1.
+        assert!(calc_blow_damage(100.0, 50.0, 0.0, Position::Front, 1.0, false).is_finite());
+    }
+
+    /// Blow success: rate = posBonus · heightBonus · critRate · (100+boost)/100,
+    /// capped at `limit`, vs Rnd(100). Equal-z height bonus is 1.1.
+    #[test]
+    fn blow_success_rate_cap_and_threshold() {
+        // 1.0 · 1.1 · 10 · 1.0 = 11: roll 10 lands, 11 doesn't.
+        assert!(calc_blow_success(10.0, Position::Front, 0, 0, 0.0, 100.0, 10));
+        assert!(!calc_blow_success(10.0, Position::Front, 0, 0, 0.0, 100.0, 11));
+        // chanceBoost 100 doubles the rate → 22.
+        assert!(calc_blow_success(10.0, Position::Front, 0, 0, 100.0, 100.0, 21));
+        // A huge crit rate is capped at `limit` (80): roll 79 lands, 80 doesn't.
+        assert!(calc_blow_success(10_000.0, Position::Front, 0, 0, 0.0, 80.0, 79));
+        assert!(!calc_blow_success(10_000.0, Position::Front, 0, 0, 0.0, 80.0, 80));
     }
 
     /// The level-gap XP table: full through +2, tapering to 5%.

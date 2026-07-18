@@ -373,6 +373,28 @@ fn finalize_skill(
                         power: param("power").unwrap_or(0.0),
                         percentage: param("percentage").unwrap_or(0.0),
                     }],
+                    // Dagger blows (calcBlowDamage). FatalBlow/Backstab roll
+                    // `criticalChance` (default 0) to double; SoulBlow doesn't
+                    // (its charged-soul boost is unmodeled → ×1). Backstab also
+                    // requires flanking. Their `Lethal` sibling effect drops.
+                    "FatalBlow" => vec![SkillEffect::Blow {
+                        power: param("power").unwrap_or(0.0),
+                        chance_boost: param("chanceBoost").unwrap_or(0.0),
+                        critical_chance: Some(param("criticalChance").unwrap_or(0.0)),
+                        backstab: false,
+                    }],
+                    "Backstab" => vec![SkillEffect::Blow {
+                        power: param("power").unwrap_or(0.0),
+                        chance_boost: param("chanceBoost").unwrap_or(0.0),
+                        critical_chance: Some(param("criticalChance").unwrap_or(0.0)),
+                        backstab: true,
+                    }],
+                    "SoulBlow" => vec![SkillEffect::Blow {
+                        power: param("power").unwrap_or(0.0),
+                        chance_boost: param("chanceBoost").unwrap_or(0.0),
+                        critical_chance: None,
+                        backstab: false,
+                    }],
                     // Physical skill damage. `PhysicalSoulAttack` runs the
                     // identical `77·((pAtk·pAtkMod)·levelMod + power)/(pDef·pDefMod)`
                     // core; its only extra is a charged-soul boost that is ×1
@@ -529,6 +551,26 @@ mod tests {
         assert!(matches!(
             vampiric.effects.as_slice(),
             [SkillEffect::HpDrain { power, percentage }] if *power == 18.0 && *percentage == 40.0
+        ));
+
+        // Dagger blows: Mortal Blow 16 (FatalBlow, crit-double, no flank),
+        // Backstab 30 (flank-required), Shining Edge 505 (SoulBlow, no crit).
+        let mortal_blow = sd.get(16, 1).expect("Mortal Blow lvl 1");
+        assert!(matches!(
+            mortal_blow.effects.as_slice(),
+            [SkillEffect::Blow { power, chance_boost, critical_chance: Some(_), backstab: false }]
+                if *power == 73.0 && *chance_boost == 200.0
+        ));
+        let backstab = sd.get(30, 1).expect("Backstab lvl 1");
+        assert!(matches!(
+            backstab.effects.first(),
+            Some(SkillEffect::Blow { power, chance_boost, critical_chance: Some(cc), backstab: true })
+                if *power == 1107.0 && *chance_boost == 400.0 && *cc == 5.0
+        ));
+        let shining_edge = sd.get(505, 1).expect("Shining Edge lvl 1");
+        assert!(matches!(
+            shining_edge.effects.first(),
+            Some(SkillEffect::Blow { power, critical_chance: None, backstab: false, .. }) if *power == 1853.0
         ));
 
         // Decrease Speed 1160: single-target (`affectScope SINGLE`) bad skill

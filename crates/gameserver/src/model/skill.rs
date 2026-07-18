@@ -103,6 +103,15 @@ pub enum SkillEffect {
     PhysicalAttack { power: f64, p_atk_mod: f64, p_def_mod: f64, critical_chance: f64 },
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.
     Heal { power: f64 },
+    /// Dagger blow skills (`FatalBlow`/`Backstab`/`SoulBlow`) — instant physical
+    /// damage via `Formulas.calcBlowDamage`, gated by a `calcBlowSuccess` land
+    /// roll (blows can miss). `critical_chance` is `Some` for FatalBlow/Backstab
+    /// (rolls `calcCrit` to double the hit) and `None` for SoulBlow (whose
+    /// charged-soul boost is ×1 until charges land). `backstab` requires the
+    /// caster to be outside the target's front arc.
+    /// TODO(G20): SoulBlow charged-soul boost; the accompanying `Lethal`
+    /// instant-kill effect is still dropped.
+    Blow { power: f64, chance_boost: f64, critical_chance: Option<f64>, backstab: bool },
     /// `handlers/effecthandlers/HpDrain.java` — magic damage (same
     /// `calcMagicDam` core as `MagicalAttack`) that also heals the caster by
     /// `percentage`% of the HP actually drained (CP absorbs first, clamped to

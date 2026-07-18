@@ -470,6 +470,28 @@ fn cast_test_world() -> (
         effects: vec![SkillEffect::HpDrain { power: 18.0, percentage: 40.0 }],
         ..base.clone()
     });
+    // Backstab 30 — a dagger blow requiring a flank (backstab: true).
+    data.skill_data.insert_for_test(Skill {
+        id: 30,
+        name: "Backstab".into(),
+        target_type: TargetType::Enemy,
+        magic_type: 0,
+        effect_point: -305,
+        hit_time: 1000,
+        effects: vec![SkillEffect::Blow { power: 1107.0, chance_boost: 400.0, critical_chance: Some(5.0), backstab: true }],
+        ..base.clone()
+    });
+    // Mortal Blow 16 — a FatalBlow (no flank requirement).
+    data.skill_data.insert_for_test(Skill {
+        id: 16,
+        name: "Mortal Blow".into(),
+        target_type: TargetType::Enemy,
+        magic_type: 0,
+        effect_point: -52,
+        hit_time: 1000,
+        effects: vec![SkillEffect::Blow { power: 73.0, chance_boost: 200.0, critical_chance: Some(0.0), backstab: false }],
+        ..base.clone()
+    });
     // A slow self-buff (10 s cast) used as the interruptible victim cast.
     data.skill_data.insert_for_test(Skill {
         id: 91,

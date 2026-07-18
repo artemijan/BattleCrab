@@ -31,6 +31,9 @@ pub struct CharacterConfig {
     pub random_respawn_in_town: bool,
     /// `AltPartyMaxMembers` (9 on this dist, Java default 7).
     pub alt_party_max_members: usize,
+    /// `BlowRateChanceLimit`: the cap (%) on a dagger blow's land chance
+    /// (`Formulas.calcBlowSuccess`). 100 on this dist, Java default 80.
+    pub blow_rate_chance_limit: f64,
     /// `AltLeavePartyLeader`: leader leaving transfers lead instead of
     /// disbanding (True on this dist).
     pub alt_leave_party_leader: bool,
@@ -132,6 +135,7 @@ impl Default for CharacterConfig {
             delevel_minimum: 85,
             random_respawn_in_town: true,
             alt_party_max_members: 7,
+            blow_rate_chance_limit: 80.0,
             alt_leave_party_leader: false,
             party_xp_cutoff_method: "level".to_string(),
             party_xp_cutoff_level: 20,
@@ -192,6 +196,7 @@ impl CharacterConfig {
             delevel_minimum: p.get_int("DelevelMinimum", d.delevel_minimum),
             random_respawn_in_town: p.get_bool("RandomRespawnInTownEnabled", d.random_respawn_in_town),
             alt_party_max_members: p.get_int("AltPartyMaxMembers", 7).max(2) as usize,
+            blow_rate_chance_limit: p.get_int("BlowRateChanceLimit", 80) as f64,
             alt_leave_party_leader: p.get_bool("AltLeavePartyLeader", d.alt_leave_party_leader),
             party_xp_cutoff_method: p.get_string("PartyXpCutoffMethod", "level").to_lowercase(),
             party_xp_cutoff_level: p.get_int("PartyXpCutoffLevel", 20),

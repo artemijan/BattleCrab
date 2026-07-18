@@ -1451,6 +1451,52 @@ fn nuke_kills_monster_and_rewards() {
     assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::DIE));
 }
 
+/// Dagger blows deal damage (Mortal Blow, a FatalBlow), and Backstab only
+/// lands from a flank: behind the mob it hits, from the front it silently fails.
+#[test]
+fn dagger_blows_deal_damage_and_backstab_requires_flank() {
+    use crate::model::components::{CombatStats, Position, Vitals};
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0); // caster at (0,0)
+    let npc_oid = NPC_OID + 16;
+    // NPC at (40,0). Heading 0 (faces +x, east) → caster to its west is BEHIND.
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+    // Deterministic land roll: crit rate > 0 so the blow can land, no random spread.
+    {
+        let c = world.objects.get_component_mut::<CombatStats>(&3001).unwrap();
+        c.crit_hit = 1000.0;
+        c.random_dmg = 0;
+    }
+    drain(&mut a_rx);
+
+    // Mortal Blow (FatalBlow) — lands from behind, deals damage.
+    let mortal = world.data.skill_data.get(16, 1).expect("Mortal Blow").clone();
+    let hp0 = nvit(&world, npc_oid).cur_hp;
+    world.forced_rolls.extend([999_999, 0, 999_999]); // top magic roll; success lands; crit-double fails
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &mortal);
+    assert!(nvit(&world, npc_oid).cur_hp < hp0, "FatalBlow dealt damage (was a no-op before)");
+    world.objects.get_component_mut::<Vitals>(&npc_oid).unwrap().cur_hp = hp0;
+
+    // Backstab from behind — lands.
+    let backstab = world.data.skill_data.get(30, 1).expect("Backstab").clone();
+    world.forced_rolls.extend([999_999, 0, 999_999]);
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &backstab);
+    assert!(nvit(&world, npc_oid).cur_hp < hp0, "Backstab from the flank landed");
+    world.objects.get_component_mut::<Vitals>(&npc_oid).unwrap().cur_hp = hp0;
+
+    // Turn the mob to face the caster (heading 0x8000 = west) → caster is now in
+    // front → Backstab silently fails, dealing no damage.
+    world.objects.get_component_mut::<Position>(&npc_oid).unwrap().heading = 0x8000;
+    world.forced_rolls.extend([999_999, 0, 999_999]);
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &backstab);
+    assert_eq!(nvit(&world, npc_oid).cur_hp, hp0, "front Backstab dealt no damage");
+}
+
 /// Vampiric Touch (1147, HpDrain) deals magic damage to the mob and heals the
 /// caster by 40% of the HP drained — the regression guard for the whole
 /// `HpDrain` family, which used to cast but deal (and drain) nothing.

@@ -98,6 +98,77 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 );
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name);
             }
+            SkillEffect::Blow { power, chance_boost, critical_chance, backstab } => {
+                use crate::model::components::Position as PosComp;
+                // Attacker position relative to the target's facing (for the
+                // land roll's positional bonus, the blow's back/side damage
+                // bonus, and Backstab's flank requirement).
+                let (Some(a), Some(t)) = (
+                    world.objects.get_component::<PosComp>(&caster_oid).copied(),
+                    world.objects.get_component::<PosComp>(&target_oid).copied(),
+                ) else {
+                    continue;
+                };
+                let position = crate::model::movement::get_position(a.x, a.y, t.x, t.y, t.heading);
+
+                // Backstab must land from outside the target's front arc
+                // (`!isInFrontOf`). A front Backstab silently fails, like Java's
+                // `calcSuccess == false` — no `doAttack`, no message.
+                if *backstab && position == crate::model::movement::Position::Front {
+                    continue;
+                }
+
+                let (p_atk, crit_rate, str_bonus, random_dmg, caster_name) = {
+                    let cs = world.objects.get_component::<CombatStats>(&caster_oid);
+                    let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
+                    let crit_rate = cs.map(|c| c.crit_hit).unwrap_or(0.0);
+                    let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
+                    let str_bonus = world
+                        .objects
+                        .get_component::<BaseStats>(&caster_oid)
+                        .map(|b| world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Str, b.str_))
+                        .unwrap_or(1.0);
+                    let name =
+                        world.objects.get_component::<crate::model::Player>(&caster_oid).expect("player").name.clone();
+                    (p_atk, crit_rate, str_bonus, random_dmg, name)
+                };
+
+                // `calcBlowSuccess`: does the blow land? A miss is silent
+                // (Java's `calcSuccess == false` skips the whole effect).
+                let landed = formulas::calc_blow_success(
+                    crit_rate / 10.0,
+                    position,
+                    a.z,
+                    t.z,
+                    *chance_boost,
+                    world.cfg.character.blow_rate_chance_limit,
+                    world.roll(100),
+                );
+                if !landed {
+                    continue;
+                }
+
+                let p_def = target_p_def(world, target_oid);
+                let rand_roll = if random_dmg > 0 { world.roll(2 * random_dmg + 1) - random_dmg } else { 0 };
+                let mut damage = formulas::calc_blow_damage(
+                    p_atk,
+                    *power,
+                    p_def,
+                    position,
+                    formulas::random_damage_multiplier(rand_roll),
+                    ss,
+                );
+                // FatalBlow/Backstab double on a `calcCrit` roll; SoulBlow
+                // (`critical_chance == None`) doesn't.
+                if let Some(cc) = critical_chance {
+                    if formulas::calc_physical_skill_crit(*cc, str_bonus, world.roll(100)) {
+                        damage *= 2.0;
+                    }
+                }
+                // Java passes `critical = true` to `doAttack` for every blow, so
+                // it always shows as a critical hit.
+                apply_skill_damage(world, caster_oid, target_oid, damage, true, false, &caster_name);
+            }
             SkillEffect::HpDrain { power, percentage } => {
                 let power = *power;
                 let (m_atk, caster_name) = {
