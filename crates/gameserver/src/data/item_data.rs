@@ -660,6 +660,10 @@ pub struct ItemData {
     /// charge consumes, and (non-zero ⇒) whether the weapon can use that shot
     /// kind at all. Sparse: only weapons that declared a non-zero count.
     weapon_shots: HashMap<i32, (i32, i32)>,
+    /// `<set name="icon"/>` by item id, side-mapped like the others. Read by the
+    /// community-board drop search's item-icon buttons (Java `ItemTemplate
+    /// .getIcon()`); missing → the question-mark fallback (see [`ItemData::icon`]).
+    icons: HashMap<i32, String>,
 }
 
 impl ItemData {
@@ -673,6 +677,7 @@ impl ItemData {
         let mut armor_types = HashMap::new();
         let mut weapon_types = HashMap::new();
         let mut weapon_shots = HashMap::new();
+        let mut icons = HashMap::new();
         let dir = format!("{file_path}{ITEMS_DIR}");
         if let Ok(entries) = std::fs::read_dir(&dir) {
             let mut paths: Vec<_> = entries
@@ -682,11 +687,22 @@ impl ItemData {
                 .collect();
             paths.sort();
             for path in paths {
-                parse_file(&path, &mut by_id, &mut stat_bonuses, &mut armor_types, &mut weapon_types, &mut weapon_shots);
+                parse_file(&path, &mut by_id, &mut stat_bonuses, &mut armor_types, &mut weapon_types, &mut weapon_shots, &mut icons);
             }
         }
         info!("ItemData: Loaded {} item templates.", by_id.len());
-        Self { by_id, stat_bonuses, armor_types, weapon_types, weapon_shots }
+        Self { by_id, stat_bonuses, armor_types, weapon_types, weapon_shots, icons }
+    }
+
+    /// `<set name="icon"/>` of an item, or the client question-mark fallback
+    /// (Java `DropSearchBoard`'s `icon == null` default). Never fails.
+    pub fn icon(&self, item_id: i32) -> &str {
+        self.icons.get(&item_id).map(String::as_str).unwrap_or("icon.etc_question_mark_i00")
+    }
+
+    /// Every loaded template (Java `ItemData.getAllItems`), unordered.
+    pub fn all(&self) -> impl Iterator<Item = &ItemTemplate> {
+        self.by_id.values()
     }
 
     pub fn get(&self, item_id: i32) -> Option<&ItemTemplate> {
@@ -731,6 +747,7 @@ impl ItemData {
             armor_types: HashMap::new(),
             weapon_types: HashMap::new(),
             weapon_shots: HashMap::new(),
+            icons: HashMap::new(),
         }
     }
 
@@ -772,6 +789,7 @@ impl ItemData {
             armor_types: HashMap::new(),
             weapon_types: HashMap::new(),
             weapon_shots: HashMap::new(),
+            icons: HashMap::new(),
         }
     }
 
@@ -789,6 +807,7 @@ fn parse_file(
     armor_out: &mut HashMap<i32, ArmorType>,
     weapon_out: &mut HashMap<i32, WeaponType>,
     weapon_shots_out: &mut HashMap<i32, (i32, i32)>,
+    icons_out: &mut HashMap<i32, String>,
 ) {
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
@@ -917,6 +936,9 @@ fn parse_file(
                     let sps = attrs.get("spiritshots").and_then(|v| v.parse().ok()).unwrap_or(0);
                     if ss != 0 || sps != 0 {
                         weapon_shots_out.insert(item_id, (ss, sps));
+                    }
+                    if let Some(icon) = attrs.get("icon") {
+                        icons_out.insert(item_id, icon.clone());
                     }
                 }
             }
@@ -1096,6 +1118,17 @@ mod tests {
         let box_item = data.get(23762).expect("item 23762 (High-grade Elixir Pack)");
         assert_eq!(box_item.extractable_count_min, 1);
         assert_eq!(box_item.extractable_count_max, 1);
+    }
+
+    #[test]
+    fn parses_item_icons_with_fallback() {
+        let data = ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        // Adena carries an explicit `<set name="icon">`.
+        assert_eq!(data.icon(57), "icon.etc_adena_i00");
+        // An unknown item falls back to the client question-mark (Java default).
+        assert_eq!(data.icon(-1), "icon.etc_question_mark_i00");
+        // `all()` yields the loaded catalog (Java `getAllItems`).
+        assert!(data.all().any(|i| i.item_id == 57), "adena is in the catalog");
     }
 
     #[test]

@@ -422,6 +422,21 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 }
                 tracing::info!("GameLoop: loaded buffer schemes for {} characters.", world.buffer_schemes.len());
             }
+            DbEvent::FavoritesLoaded { entries } => {
+                // `favId` is a table-wide AUTOINCREMENT PK; seed the game-thread
+                // allocator past the highest loaded id so new favorites stay unique.
+                let mut max_id = 0;
+                for (player_id, fav_id, title, bypass, add_date) in entries {
+                    max_id = max_id.max(fav_id);
+                    world
+                        .bbs_favorites
+                        .entry(player_id)
+                        .or_default()
+                        .push(crate::world::Favorite { fav_id, title, bypass, add_date });
+                }
+                world.next_fav_id = max_id + 1;
+                tracing::info!("GameLoop: loaded favorites for {} characters.", world.bbs_favorites.len());
+            }
             DbEvent::GrandBossesLoaded { bosses } => {
                 // Java skips rows whose NPC template is missing (`NpcData
                 // .getTemplate(bossId) != null`); the datapack lives here on the

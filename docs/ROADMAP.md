@@ -499,10 +499,18 @@ AdminBBS. **Deps:** G18 (clan board).
 **Community board progress:** the custom board (`CustomCommunityBoard = True`)
 is live — home/navigation, `_bbsheal`/`_bbsteleport`/`_bbsbuff`, `_bbspremium`
 (account-premium buy), and the scheme buffer (`_bbs_buff_scheme_*` +
-`buffer_schemes` persistence) have landed. Still open on the custom board: the
-merchant multisell/sell (needs the multisell subsystem — see the G14 audit note)
-and the drop search (`_bbs_search_*`, needs item-icon data + a `RadarControl`
-packet). The retail forum boards + `communitybbs` core stay deferred (the custom
+`buffer_schemes` persistence) have landed. The three handlers that sit
+outside `HomeBoard` are now ported too: the `FavoriteBoard`
+(`_bbsgetfav`/`bbs_add_fav`/`_bbsdelfav_`, backed by the `bbs_favorites` table,
+memory-first mirror + write-through like the buffer schemes), the
+`HomepageBoard` (`_bbslink` → `homepage.html`), and the `DropSearchBoard`
+(`_bbs_search_item`/`_bbs_search_drop`/`_bbs_npc_trace` — item-name search over
+a lazily-built drop index, the per-item drop/spoil list at server rates, and a
+new `RadarControl` (0xF1) world-map trace; item icons parsed into an `ItemData`
+side-map). Still open on the custom board: only the merchant multisell/sell
+(needs the multisell subsystem — see the G14 audit note), which now answers the
+player with a "not available yet" message instead of a silent unhandled-command
+WARN. The retail forum boards + `communitybbs` core stay deferred (the custom
 nav never links to them).
 
 **Audit additions (2026-07):** the contact list
