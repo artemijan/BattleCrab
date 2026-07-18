@@ -280,7 +280,13 @@ milestone; summary:
   `MaxBuffAmount` (24) and dances/songs at `MaxDanceAmount` (12) in separate
   pools, dropping the oldest when exceeded. The scheduled `BuffExpire` only
   fires once the current buff has truly elapsed, so a re-cast/refresh isn't
-  dropped early by a stale task.
+  dropped early by a stale task. **`RequestDispel`** (alt+click a buff icon,
+  ex `0xD0:0x0048`) ports the Java gate — `canBeDispelled` && !`isDebuff`, not a
+  TRANSFORM abnormal, dances only under `DanceCancelBuff` (new Character.ini
+  config, True on this dist) — then force-removes the self-buff via the shared
+  `handle_buff_expire` path (reverting stats + `AbnormalStatusUpdate`). Skill
+  parsing gained `can_be_dispelled`/`is_debuff` flags. Pet/servitor dispel is
+  `TODO(G29)`.
 - **Cast pipeline** *(superseded by G7.5 below — real 3-phase timing,
   targeting, reuse, abort)*: `RequestMagicSkillUse` → a 2-phase scheduled flow
   (`ScheduledTask::SkillLaunch` at `hit_time`, then `finishSkill` inline — no

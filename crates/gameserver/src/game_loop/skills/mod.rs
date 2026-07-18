@@ -9,6 +9,51 @@ use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::World;
 
+/// Port of `clientpackets/RequestDispel.runImpl` — the client's alt+click
+/// buff-cancel on a buff icon (ex-opcode `0xD0:0x0048`). Strips one buff off the
+/// player (forced removal, reverting its stats and refreshing the icons), gated
+/// exactly as Java gates it.
+pub(crate) fn handle_request_dispel(world: &mut World, client_id: u32, ex_body: &[u8]) {
+    let Some(pkt) = cp::RequestDispel::read(ex_body) else { return };
+    // Java: `(_skillId <= 0) || (_skillLevel <= 0)` → return.
+    if pkt.skill_id <= 0 || pkt.skill_level <= 0 {
+        return;
+    }
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let object_id = session.player_object_id();
+    // Java looks up `(skillId, skillLevel, skillSubLevel)`; the Rust skill store
+    // is keyed by `(id, level)` only (sub-level is always 0 in Interlude), so the
+    // sub-level is validated in the reader but not used for the lookup.
+    let (can_be_dispelled, is_debuff, is_transform, is_dance, skill_id) =
+        match world.data.skill_data.get(pkt.skill_id, pkt.skill_level) {
+            Some(skill) => (
+                skill.can_be_dispelled,
+                skill.is_debuff,
+                skill.abnormal_type == "TRANSFORM",
+                skill.magic_type == 3, // Java `Skill.isDance()`
+                skill.id,
+            ),
+            None => return,
+        };
+    // Java: `!skill.canBeDispelled() || skill.isDebuff()` → return, then the
+    // TRANSFORM abnormal-type guard, then the dance gate under `DanceCancelBuff`.
+    if !can_be_dispelled || is_debuff || is_transform {
+        return;
+    }
+    if is_dance && !world.cfg.character.dance_cancel_buff {
+        return;
+    }
+    // Java: `player.getObjectId() == _objectId` → `stopSkillEffects(REMOVED, id)`.
+    // `handle_buff_expire` is the forced-removal path (reverts stats, rebroadcasts
+    // UserInfo + AbnormalStatusUpdate) — same end state as `stopSkillEffects`.
+    if pkt.object_id == object_id {
+        effects::handle_buff_expire(world, object_id, skill_id);
+    }
+    // TODO(G29): pet/servitor dispel — Java also strips the buff off the player's
+    // pet (`player.getPet()`) or servitor (`player.getServitor(_objectId)`) when
+    // `_objectId` is that summon's object id. Summons are not in scope yet.
+}
+
 /// Port of `clientpackets/RequestAcquireSkill.runImpl`, `AcquireSkillType::CLASS`
 /// only (see the G6 plan's scope notes — every other type is silently
 /// ignored, same as Java ignores an out-of-state/unsupported request).

@@ -244,6 +244,12 @@ pub struct Skill {
     /// any area scope (`RANGE`/`SQUARE`/`FAN`/…). Used to gate the per-target
     /// debuff-percentage message to single-target debuffs only.
     pub single_target: bool,
+    /// Java `Skill.canBeDispelled()` (`<canBeDispelled>`, default true) — whether
+    /// the client's alt+click buff-cancel (`RequestDispel`) is allowed to strip it.
+    pub can_be_dispelled: bool,
+    /// Java `Skill.isDebuff()` (`<isDebuff>`, default false). A debuff can't be
+    /// self-dispelled via alt+click even when `can_be_dispelled` is set.
+    pub is_debuff: bool,
     pub effects: Vec<SkillEffect>,
 }
 

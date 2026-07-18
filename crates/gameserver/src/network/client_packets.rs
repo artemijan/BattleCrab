@@ -137,6 +137,9 @@ pub mod ex_opcodes {
     pub const REQUEST_REFINE_CANCEL: u16 = 0x40;
     /// `RequestVoteNew` — recommend the currently-targeted player (`targetId`).
     pub const REQUEST_VOTE_NEW: u16 = 0x7B;
+    /// `RequestDispel` — alt+click a buff icon to cancel it (`objectId`,
+    /// `skillId`, `skillLevel:short`, `skillSubLevel:short`).
+    pub const REQUEST_DISPEL: u16 = 0x48;
 }
 
 /// Split an extended-packet body (after the `0xD0` opcode) into its 2-byte LE
@@ -579,6 +582,29 @@ impl RequestTargetCanceld {
         let mut r = PacketReader::new(body_after_opcode);
         let target_lost = r.read_i16()? != 0;
         Some(Self { target_lost })
+    }
+}
+
+/// Port of `clientpackets/RequestDispel` (ex `dddhh`): the alt+click buff-cancel
+/// on a buff icon. `object_id` is whose buff (self, pet, or servitor);
+/// `skill_id`/`skill_level`/`skill_sub_level` identify the buff to strip.
+pub struct RequestDispel {
+    pub object_id: i32,
+    pub skill_id: i32,
+    pub skill_level: i32,
+    pub skill_sub_level: i32,
+}
+
+impl RequestDispel {
+    /// `readImpl`: readInt objectId, readInt skillId, readShort skillLevel,
+    /// readShort skillSubLevel. Called with the body after the 2-byte sub-opcode.
+    pub fn read(ex_body: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(ex_body);
+        let object_id = r.read_i32()?;
+        let skill_id = r.read_i32()?;
+        let skill_level = r.read_i16()? as i32;
+        let skill_sub_level = r.read_i16()? as i32;
+        Some(Self { object_id, skill_id, skill_level, skill_sub_level })
     }
 }
 

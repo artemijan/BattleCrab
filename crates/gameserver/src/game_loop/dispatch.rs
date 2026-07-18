@@ -44,6 +44,7 @@ use super::shortcuts::{
 };
 use super::skills::cast::handle_request_magic_skill_use;
 use super::skills::handle_request_acquire_skill;
+use super::skills::handle_request_dispel;
 use super::target::{handle_action, handle_request_target_canceld};
 
 /// Dispatch one decrypted client packet body (opcode + payload) on the game
@@ -296,6 +297,8 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             handle_answer_party_loot_modification(world, client_id, ex_body)
         }
         exop::REQUEST_VOTE_NEW => super::reco::handle_request_vote_new(world, client_id, ex_body),
+        // RequestDispel (IN_GAME): alt+click a buff icon to cancel the buff.
+        exop::REQUEST_DISPEL => handle_request_dispel(world, client_id, ex_body),
         exop::REQUEST_GOTO_LOBBY => {
             let maybe_session = world.clients.get(&client_id);
             if let Some(ClientSession::InLobby(session)) = maybe_session {

@@ -75,6 +75,8 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         single_target: true,
+        can_be_dispelled: true,
+        is_debuff: false,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalDefence,
             mode: StatModifierType::Per,
@@ -1691,6 +1693,8 @@ fn cure_poison_dispels_matching_poison_debuff() {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         single_target: true,
+        can_be_dispelled: true,
+        is_debuff: false,
         effects: vec![SkillEffect::DamOverTime { power: 24.0, ticks: 5, can_kill: false }],
     };
     world.data.skill_data.insert_for_test(poison(1, 3));
@@ -1720,6 +1724,8 @@ fn cure_poison_dispels_matching_poison_debuff() {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         single_target: true,
+        can_be_dispelled: true,
+        is_debuff: false,
         effects: vec![SkillEffect::DispelBySlot { dispel: vec![("POISON".into(), 3)] }],
     });
 
@@ -1867,6 +1873,8 @@ fn synthetic_buff(id: i32, level: i32, abnormal_type: &str, abnormal_level: i32,
         abnormal_level,
         abnormal_type: abnormal_type.into(),
         single_target: true,
+        can_be_dispelled: true,
+        is_debuff: false,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalDefence,
             mode: StatModifierType::Per,
@@ -1939,6 +1947,114 @@ fn buff_higher_level_overrides_same_type() {
     assert_eq!(pbuffs(&world, 3001), 1, "same abnormal type never stacks");
     assert!(has_buff(&world, 3001, 9102), "strong buff present");
     assert!(!has_buff(&world, 3001, 9101), "weak buff overridden");
+}
+
+// --- RequestDispel (alt+click buff-cancel, ex 0xD0:0x0048) -------------------
+
+/// The `RequestDispel` ex body after the sub-opcode: objectId, skillId,
+/// skillLevel (short), skillSubLevel (short).
+fn dispel_body(object_id: i32, skill_id: i32, skill_level: i32, skill_sub_level: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(object_id);
+    w.write_i32(skill_id);
+    w.write_i16(skill_level as i16);
+    w.write_i16(skill_sub_level as i16);
+    w.into_bytes()
+}
+
+/// Alt+clicking a normal self-buff strips it: the buff leaves and its stat
+/// contribution (P.Def +8%) reverts.
+#[test]
+fn dispel_removes_self_buff() {
+    use crate::game_loop::skills::{effects::apply_skill_effects, handle_request_dispel};
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    let buff = synthetic_buff(9200, 1, "MYBUFF", 1, 1);
+    world.data.skill_data.insert_for_test(buff.clone());
+    apply_skill_effects(&mut world, 3001, 3001, &buff);
+    assert!(has_buff(&world, 3001, 9200), "buff landed");
+    assert_eq!(pbuffs(&world, 3001), 1);
+
+    handle_request_dispel(&mut world, 1, &dispel_body(3001, 9200, 1, 0));
+    assert!(!has_buff(&world, 3001, 9200), "alt+click removed the buff");
+    assert_eq!(pbuffs(&world, 3001), 0, "buff slot freed after dispel");
+}
+
+/// A debuff can't be self-dispelled (Java `skill.isDebuff()` guard), even though
+/// it sits in the buff list.
+#[test]
+fn dispel_refuses_debuff() {
+    use crate::game_loop::skills::{effects::apply_skill_effects, handle_request_dispel};
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    let mut debuff = synthetic_buff(9201, 1, "MYDEBUFF", 1, 1);
+    debuff.is_debuff = true;
+    world.data.skill_data.insert_for_test(debuff.clone());
+    apply_skill_effects(&mut world, 3001, 3001, &debuff);
+    assert!(has_buff(&world, 3001, 9201), "debuff landed");
+
+    handle_request_dispel(&mut world, 1, &dispel_body(3001, 9201, 1, 0));
+    assert!(has_buff(&world, 3001, 9201), "debuff cannot be alt+click dispelled");
+}
+
+/// A skill flagged `canBeDispelled=false` survives an alt+click.
+#[test]
+fn dispel_refuses_undispellable_buff() {
+    use crate::game_loop::skills::{effects::apply_skill_effects, handle_request_dispel};
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    let mut buff = synthetic_buff(9202, 1, "MYBUFF", 1, 1);
+    buff.can_be_dispelled = false;
+    world.data.skill_data.insert_for_test(buff.clone());
+    apply_skill_effects(&mut world, 3001, 3001, &buff);
+    assert!(has_buff(&world, 3001, 9202), "buff landed");
+
+    handle_request_dispel(&mut world, 1, &dispel_body(3001, 9202, 1, 0));
+    assert!(has_buff(&world, 3001, 9202), "undispellable buff survives alt+click");
+}
+
+/// A dance/song (`magic_type == 3`) is only strippable when `DanceCancelBuff`
+/// is on — this dist's Character.ini sets it True.
+#[test]
+fn dispel_dance_gated_by_config() {
+    use crate::game_loop::skills::{effects::apply_skill_effects, handle_request_dispel};
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    let dance = synthetic_buff(9203, 1, "MYDANCE", 1, 3);
+    world.data.skill_data.insert_for_test(dance.clone());
+
+    // Config off: the dance is not removed.
+    world.cfg.character.dance_cancel_buff = false;
+    apply_skill_effects(&mut world, 3001, 3001, &dance);
+    assert!(has_buff(&world, 3001, 9203), "dance landed");
+    handle_request_dispel(&mut world, 1, &dispel_body(3001, 9203, 1, 0));
+    assert!(has_buff(&world, 3001, 9203), "dance kept while DanceCancelBuff is off");
+
+    // Config on (this dist's default): the dance is removed.
+    world.cfg.character.dance_cancel_buff = true;
+    handle_request_dispel(&mut world, 1, &dispel_body(3001, 9203, 1, 0));
+    assert!(!has_buff(&world, 3001, 9203), "dance removed while DanceCancelBuff is on");
+}
+
+/// A dispel aimed at another object id (not the player's own) is a no-op for the
+/// player's buffs — the pet/servitor branch is out of scope (TODO(G29)).
+#[test]
+fn dispel_wrong_object_id_ignored() {
+    use crate::game_loop::skills::{effects::apply_skill_effects, handle_request_dispel};
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    let buff = synthetic_buff(9204, 1, "MYBUFF", 1, 1);
+    world.data.skill_data.insert_for_test(buff.clone());
+    apply_skill_effects(&mut world, 3001, 3001, &buff);
+    assert!(has_buff(&world, 3001, 9204), "buff landed");
+
+    handle_request_dispel(&mut world, 1, &dispel_body(9999, 9204, 1, 0));
+    assert!(has_buff(&world, 3001, 9204), "dispel on a foreign object id leaves the player's buff");
 }
 
 /// The good-buff slot cap (`MaxBuffAmount`) drops the oldest buff to make room;
