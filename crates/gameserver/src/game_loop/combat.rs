@@ -458,7 +458,7 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
 /// Apply damage to a siege door's HP and push its refreshed HP bar to nearby
 /// clients (`StatusUpdate`); a breach opens the gate (`siege::damage_door`).
 /// Shared by the melee swing (`do_door_swing`) and offensive skills
-/// (`skills::effects::apply_magic_damage`).
+/// (`skills::effects::apply_skill_damage`).
 pub(crate) fn apply_door_damage(world: &mut World, door_oid: i32, damage: i32) {
     super::siege::damage_door(world, door_oid, damage);
     let (cur_hp, max_hp) = {

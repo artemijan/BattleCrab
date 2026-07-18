@@ -418,6 +418,23 @@ fn cast_test_world() -> (
         })],
         ..base.clone()
     });
+    // Power Strike 3 — the canonical physical attack skill (`magic_type: 0`).
+    data.skill_data.insert_for_test(Skill {
+        id: 3,
+        name: "Power Strike".into(),
+        target_type: TargetType::EnemyOnly,
+        magic_type: 0,
+        effect_point: -52,
+        hit_time: 1000,
+        reuse_delay: 3000,
+        effects: vec![SkillEffect::PhysicalAttack {
+            power: 30.0,
+            p_atk_mod: 1.0,
+            p_def_mod: 1.0,
+            critical_chance: 10.0,
+        }],
+        ..base.clone()
+    });
     // A slow self-buff (10 s cast) used as the interruptible victim cast.
     data.skill_data.insert_for_test(Skill {
         id: 91,

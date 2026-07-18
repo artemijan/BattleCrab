@@ -356,6 +356,32 @@ fn finalize_skill(
                     // `shldDef * pct/100` to mDef on shield-block) once shield
                     // defense is modeled in the magic-damage formula.
                     "MagicalAttackRange" => vec![SkillEffect::MagicalAttack { power: param("power").unwrap_or(0.0) }],
+                    // Soul-charge magic nuke (e.g. some Kamael/dagger-mage
+                    // skills). Java's `MagicalSoulAttack` runs the identical
+                    // `calcMagicDam(mAtk, power, mDef, sps, bss, mcrit)` core as
+                    // `MagicalAttack`; its only difference is scaling mAtk by
+                    // `1.3 + souls*0.05` when the caster has charged souls.
+                    // Souls/charges aren't modeled yet, so that multiplier is
+                    // exactly 1.0 here and the damage is identical to
+                    // `MagicalAttack` — same silent-drop trap as
+                    // `MagicalAttackRange` if left unhandled.
+                    // TODO(G7.5): scale mAtk by charged souls once charges land.
+                    "MagicalSoulAttack" => vec![SkillEffect::MagicalAttack { power: param("power").unwrap_or(0.0) }],
+                    // Physical skill damage. `PhysicalSoulAttack` runs the
+                    // identical `77·((pAtk·pAtkMod)·levelMod + power)/(pDef·pDefMod)`
+                    // core; its only extra is a charged-soul boost that is ×1
+                    // until charges are modeled, so it routes here too (like
+                    // MagicalSoulAttack→MagicalAttack). The `FatalBlow`/
+                    // `Backstab`/`SoulBlow` blow skills use a different
+                    // `calcBlowDamage` formula and are intentionally left to fall
+                    // through until that formula is ported.
+                    // TODO(G20): honor charged souls on PhysicalSoulAttack.
+                    "PhysicalAttack" | "PhysicalSoulAttack" => vec![SkillEffect::PhysicalAttack {
+                        power: param("power").unwrap_or(0.0),
+                        p_atk_mod: param("pAtkMod").unwrap_or(1.0),
+                        p_def_mod: param("pDefMod").unwrap_or(1.0),
+                        critical_chance: param("criticalChance").unwrap_or(10.0),
+                    }],
                     "Heal" => vec![SkillEffect::Heal { power: param("power").unwrap_or(0.0) }],
                     "Restoration" => match (param("itemId"), param("itemCount")) {
                         (Some(item_id), Some(item_count)) => vec![SkillEffect::GiveItem {
@@ -478,6 +504,16 @@ mod tests {
         // so the skill cast but dealt zero damage.
         let prominence = sd.get(1230, 28).expect("Prominence lvl 28");
         assert!(matches!(prominence.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 108.0));
+
+        // Power Strike 3: the canonical `PhysicalAttack` skill. Before the
+        // handler existed every physical attack skill (1164 XML entries) cast
+        // but dealt zero damage. Power 30 at lvl 1, default mods/crit chance.
+        let power_strike = sd.get(3, 1).expect("Power Strike lvl 1");
+        assert!(matches!(
+            power_strike.effects.as_slice(),
+            [SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance }]
+                if *power == 30.0 && *p_atk_mod == 1.0 && *p_def_mod == 1.0 && *critical_chance == 10.0
+        ));
 
         // Skill 1011 "Heal": the reference datapack's effect body is
         // `<item>power</item>`, which parses to the param key `item` — so the

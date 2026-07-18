@@ -264,6 +264,53 @@ pub fn calc_auto_attack_damage(p_atk: f64, random_mul: f64, position: Position, 
     (attack / p_def.max(1.0)).max(0.0)
 }
 
+/// `Formulas.calcCrit`'s physical-skill branch for sub-78 actors
+/// (`handlers/effecthandlers/PhysicalAttack.java` passes `_criticalChance`,
+/// default 10). `statBonus` is the caster's STR bonus (`BaseStat.STR.calcBonus`,
+/// the default skill-crit stat); `CRITICAL_RATE_SKILL` mul (1.0) and the
+/// pvp/pve balance multipliers (1.0) drop out. Chance-in-100 is clamped to
+/// [5, 90]; crit when `rate > roll` (`Rnd.get(100)`).
+pub fn calc_physical_skill_crit(critical_chance: f64, str_bonus: f64, roll: i32) -> bool {
+    (critical_chance * str_bonus).clamp(5.0, 90.0) > roll as f64
+}
+
+/// `handlers/effecthandlers/PhysicalAttack.java` `instant()`, melee/shotless
+/// narrowing — the same dropped-terms rationale as `calc_auto_attack_damage`
+/// (soulshots handled via `ss`; trait/weakness/attribute/pvp-pve mods 1.0,
+/// `SKILL_POWER_ADD` 0, `PHYSICAL_SKILL_POWER` 1, abnormal/race mods 1.0). The
+/// ranged branch (`weaponMod` 70 with the `+pAtk+power` bonus) is deferred with
+/// bows (G20); this uses the melee `weaponMod` 77. Shield defence is folded into
+/// `p_def` by the caller (perfect block → caller passes damage-1 path).
+///
+/// `damage = 77·((pAtk·pAtkMod)·levelMod + power) / (pDef·pDefMod) · ssMod ·
+/// critMod · randomMod`, where `ssMod = ss ? 2 : 1`, `critMod` = `calcCritDamage`'s
+/// physical-skill value (2 with default crit-damage stats).
+#[allow(clippy::too_many_arguments)]
+pub fn calc_physical_skill_damage(
+    p_atk: f64,
+    p_atk_mod: f64,
+    p_def: f64,
+    p_def_mod: f64,
+    power: f64,
+    level_mod: f64,
+    random_mul: f64,
+    crit: bool,
+    ss: bool,
+) -> f64 {
+    let attack = p_atk * p_atk_mod;
+    let defence = (p_def * p_def_mod).max(1.0);
+    let weapon_mod = 77.0;
+    let ss_mod = if ss { 2.0 } else { 1.0 };
+    let crit_mod = if crit { 2.0 } else { 1.0 };
+    let base_mod = (weapon_mod * ((attack * level_mod) + power)) / defence;
+    (base_mod * ss_mod * crit_mod * random_mul).max(0.0)
+}
+
+/// `Creature.getLevelMod`: `(level + 89) / 100` (transform stances aside).
+pub fn level_mod(level: i32) -> f64 {
+    (level as f64 + 89.0) / 100.0
+}
+
 /// `Attackable.calculateExpAndSp`'s level-gap multiplier (the
 /// "4gameforum" table): full reward through +2 levels above the mob,
 /// tapering to 5% at +10 and beyond.
@@ -420,6 +467,32 @@ mod tests {
         assert_eq!(calc_shield_use(90.0, 1.0, false, false, 0, 98), SHIELD_SUCCEED);
         // A bow attacker raises the rate 30% (rate 30 → 39, blocks a roll of 35).
         assert_eq!(calc_shield_use(30.0, 1.0, true, false, 35, 50), SHIELD_SUCCEED);
+    }
+
+    /// Physical skill damage, melee/shotless: pAtk 100, level 40 (levelMod
+    /// 1.29), power 50, pDef 60 → 77·((100·1.29)+50)/60 = 229.833…; a crit
+    /// doubles, a soulshot doubles, randomMod scales linearly.
+    #[test]
+    fn physical_skill_damage_matches_java() {
+        let lm = level_mod(40);
+        let base = calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, false);
+        assert!((base - (77.0 * ((100.0 * 1.29) + 50.0) / 60.0)).abs() < 1e-9);
+        assert!((calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, true, false) - base * 2.0).abs() < 1e-9);
+        assert!((calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, true) - base * 2.0).abs() < 1e-9);
+        assert!((calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.1, false, false) - base * 1.1).abs() < 1e-9);
+        // pAtkMod/pDefMod scale attack and defence; defence floors at 1.
+        assert!(calc_physical_skill_damage(100.0, 1.0, 0.0, 0.0, 50.0, lm, 1.0, false, false).is_finite());
+    }
+
+    /// Physical skill crit: `critChance · strBonus` clamped [5, 90] vs Rnd(100).
+    #[test]
+    fn physical_skill_crit_rate_and_clamps() {
+        // chance 10, STR bonus 1.2 → 12: roll 11 crits, 12 doesn't (strict `>`).
+        assert!(calc_physical_skill_crit(10.0, 1.2, 11));
+        assert!(!calc_physical_skill_crit(10.0, 1.2, 12));
+        // Floor 5% even at zero chance; cap 90% at huge chance.
+        assert!(calc_physical_skill_crit(0.0, 1.0, 4));
+        assert!(!calc_physical_skill_crit(1000.0, 1.0, 90));
     }
 
     /// The level-gap XP table: full through +2, tapering to 5%.

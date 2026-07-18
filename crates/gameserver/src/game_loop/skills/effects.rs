@@ -44,6 +44,15 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     };
     let magic_shots_bonus = if bss { 4.0 } else if sps { 2.0 } else { 1.0 };
 
+    // Soulshots (physical/thrown skills, Java `useSoulShot() == !isMagic`):
+    // charged flag read once for the ×2 physical-damage bonus; spent post-cast
+    // like spiritshots. Blessed soulshots don't exist in Interlude.
+    let ss = skill.magic_type != 1
+        && world
+            .objects
+            .get_component::<crate::model::Player>(&caster_oid)
+            .is_some_and(|p| p.is_charged_shot(crate::model::ShotType::Soulshots));
+
     for effect in &skill.effects {
         match effect {
             SkillEffect::MagicalAttack { power } => {
@@ -55,7 +64,39 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 };
                 let m_def = target_m_def(world, target_oid);
                 let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit, magic_shots_bonus);
-                apply_magic_damage(world, caster_oid, target_oid, damage, mcrit, &caster_name);
+                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name);
+            }
+            SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance } => {
+                // `PhysicalAttack.instant()`: crit is rolled here (per-effect in
+                // Java), not the once-per-cast magic roll above.
+                let (p_atk, level, str_bonus, random_dmg, caster_name) = {
+                    let cs = world.objects.get_component::<CombatStats>(&caster_oid);
+                    let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
+                    let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
+                    let player =
+                        world.objects.get_component::<crate::model::Player>(&caster_oid).expect("player");
+                    let str_bonus = world
+                        .objects
+                        .get_component::<BaseStats>(&caster_oid)
+                        .map(|b| world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Str, b.str_))
+                        .unwrap_or(1.0);
+                    (p_atk, player.level, str_bonus, random_dmg, player.name.clone())
+                };
+                let p_def = target_p_def(world, target_oid);
+                let crit = formulas::calc_physical_skill_crit(*critical_chance, str_bonus, world.roll(100));
+                let rand_roll = if random_dmg > 0 { world.roll(2 * random_dmg + 1) - random_dmg } else { 0 };
+                let damage = formulas::calc_physical_skill_damage(
+                    p_atk,
+                    *p_atk_mod,
+                    p_def,
+                    *p_def_mod,
+                    *power,
+                    formulas::level_mod(level),
+                    formulas::random_damage_multiplier(rand_roll),
+                    crit,
+                    ss,
+                );
+                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name);
             }
             SkillEffect::Heal { power } => {
                 let power = *power;
@@ -183,6 +224,12 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         let shot = if bss { crate::model::ShotType::BlessedSpiritshots } else { crate::model::ShotType::Spiritshots };
         if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&caster_oid) {
             p.uncharge_shot(shot);
+        }
+    }
+    // Spend the soulshot on a physical/thrown skill (Java `unchargeShot(SOULSHOTS)`).
+    if ss {
+        if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&caster_oid) {
+            p.uncharge_shot(crate::model::ShotType::Soulshots);
         }
     }
 
@@ -365,6 +412,21 @@ fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i32, i64, i32
 /// The target-side `mDef` for the magic damage formula — players through
 /// their stat pipeline, NPCs through the `MDefenseFinalizer` shape
 /// (base × MEN bonus × level mod).
+fn target_p_def(world: &World, target_oid: i32) -> f64 {
+    if let Some(cs) = world.objects.get_component::<CombatStats>(&target_oid) {
+        return cs.p_def;
+    }
+    if let Some(p_def) = world
+        .objects
+        .get_component::<crate::model::door::Door>(&target_oid)
+        .and_then(|d| world.data.door_data.get(d.door_id))
+        .map(|t| (t.p_def as f64).max(1.0))
+    {
+        return p_def;
+    }
+    1.0
+}
+
 fn target_m_def(world: &World, target_oid: i32) -> f64 {
     if let Some(cs) = world.objects.get_component::<CombatStats>(&target_oid) {
         // Players + NPCs: memoized at spawn through the MDefenseFinalizer shape.
@@ -382,11 +444,35 @@ fn target_m_def(world: &World, target_oid: i32) -> f64 {
     1.0
 }
 
-/// Port of `Creature.doAttack` → `reduceCurrentHp` for magic skill damage:
-/// the caster-side messages here, the victim-side application (CP soak,
-/// death, NPC hate/AI wake) shared with the auto-attack path in
-/// `combat::apply_physical_damage`'s per-kind receivers.
-pub(crate) fn apply_magic_damage(world: &mut World, caster_oid: i32, target_oid: i32, damage: f64, mcrit: bool, caster_name: &str) {
+/// `Player.sendDamageMessage`'s crit line: magic skills show `M_CRITICAL`,
+/// physical skills `C1_LANDED_A_CRITICAL_HIT` (named after the attacker).
+fn crit_message(is_magic: bool, caster_name: &str) -> Vec<u8> {
+    use server_packets::{sm_ids, SmParam};
+    if is_magic {
+        server_packets::system_message_with(sm_ids::M_CRITICAL, &[])
+    } else {
+        server_packets::system_message_with(
+            sm_ids::C1_LANDED_A_CRITICAL_HIT,
+            &[SmParam::PlayerName(caster_name.to_string())],
+        )
+    }
+}
+
+/// Port of `Creature.doAttack` → `reduceCurrentHp` for instant skill damage
+/// (magic and physical): the caster-side messages here, the victim-side
+/// application (CP soak, death, NPC hate/AI wake) shared with the auto-attack
+/// path in `combat::apply_physical_damage`'s per-kind receivers. `is_magic`
+/// picks the crit line (`Player.sendDamageMessage`: `M_CRITICAL` for magic,
+/// `C1_LANDED_A_CRITICAL_HIT` for physical skills).
+pub(crate) fn apply_skill_damage(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    damage: f64,
+    crit: bool,
+    is_magic: bool,
+    caster_name: &str,
+) {
     use server_packets::{sm_ids, SmParam};
 
     // A siege door: route the hit straight to the gate's HP (no CP/hate/AI
@@ -400,8 +486,8 @@ pub(crate) fn apply_magic_damage(world: &mut World, caster_oid: i32, target_oid:
             .unwrap_or_default();
         if let Some(client_id) = client_for_player(world, caster_oid) {
             if let Some(cs) = world.clients.get(&client_id) {
-                if mcrit {
-                    cs.send(server_packets::system_message_with(sm_ids::M_CRITICAL, &[]));
+                if crit {
+                    cs.send(crit_message(is_magic, caster_name));
                 }
                 cs.send(server_packets::system_message_with(
                     sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
@@ -424,8 +510,8 @@ pub(crate) fn apply_magic_damage(world: &mut World, caster_oid: i32, target_oid:
 
     if let Some(client_id) = client_for_player(world, caster_oid) {
         if let Some(cs) = world.clients.get(&client_id) {
-            if mcrit {
-                cs.send(server_packets::system_message_with(sm_ids::M_CRITICAL, &[]));
+            if crit {
+                cs.send(crit_message(is_magic, caster_name));
             }
             cs.send(server_packets::system_message_with(
                 sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,

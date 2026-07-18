@@ -1131,6 +1131,50 @@ fn spiritshot_doubles_magic_damage_and_is_consumed() {
     assert!(!world.objects.get_component::<Player>(&3001).unwrap().is_charged_shot(ShotType::Spiritshots), "spiritshot consumed");
 }
 
+/// A `PhysicalAttack` skill (Power Strike 3) deals damage end-to-end — the
+/// regression guard for the whole family of physical skills that used to cast
+/// but no-op — and a charged soulshot doubles it and is spent.
+#[test]
+fn physical_skill_damages_monster_and_soulshot_doubles() {
+    use crate::model::components::{CombatStats, Vitals};
+    use crate::model::{Player, ShotType};
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 13;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+    let skill = world.data.skill_data.get(3, 1).expect("Power Strike").clone();
+    assert_eq!(skill.magic_type, 0, "test skill must be physical");
+    // Zero the weapon random-damage spread so only the crit roll is consumed
+    // and the damage is deterministic.
+    world.objects.get_component_mut::<CombatStats>(&3001).unwrap().random_dmg = 0;
+    drain(&mut a_rx);
+
+    let start_hp = nvit(&world, npc_oid).cur_hp;
+    // Two forced high rolls per cast: the unconditional top-of-cast magic-crit
+    // roll (unused for a physical skill) then the physical-skill crit roll —
+    // both fail, so damage is the non-crit base.
+    // Control cast (no shot).
+    world.forced_rolls.extend([999_999, 999_999]);
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    let base = start_hp - nvit(&world, npc_oid).cur_hp;
+    assert!(base > 0.0, "physical skill dealt damage (was a silent no-op before)");
+    world.objects.get_component_mut::<Vitals>(&npc_oid).unwrap().cur_hp = start_hp;
+
+    // Charged soulshot cast, identical (failed) crit rolls.
+    world.objects.get_component_mut::<Player>(&3001).unwrap().charge_shot(ShotType::Soulshots);
+    world.forced_rolls.extend([999_999, 999_999]);
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    let ss = start_hp - nvit(&world, npc_oid).cur_hp;
+
+    assert!((ss - base * 2.0).abs() < 1e-6, "soulshot doubles physical skill damage ({ss} vs {base})");
+    assert!(!world.objects.get_component::<Player>(&3001).unwrap().is_charged_shot(ShotType::Soulshots), "soulshot consumed");
+}
+
 /// Toggling auto-use (`RequestAutoSoulShot`) with a matching weapon activates
 /// the shot: `ExAutoSoulShot` ack, the auto-set records the item, and it's
 /// charged immediately; a following attack keeps it topped up.

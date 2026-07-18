@@ -93,6 +93,14 @@ pub enum SkillEffect {
     StatModifier(StatModifierEffect),
     /// `handlers/effecthandlers/MagicalAttack.java` — instant magic damage.
     MagicalAttack { power: f64 },
+    /// `handlers/effecthandlers/PhysicalAttack.java` — instant physical skill
+    /// damage (`77·((pAtk·pAtkMod)·levelMod + power) / (pDef·pDefMod)`, crit ×2,
+    /// soulshot ×2). Also backs `PhysicalSoulAttack` (identical formula; its
+    /// soul mAtk-style boost is ×1 until charges are modeled). The dagger-blow
+    /// skills (`FatalBlow`/`Backstab`/`SoulBlow`) use a different `calcBlowDamage`
+    /// formula and are NOT routed here.
+    /// TODO(G20): ranged (bow) weaponMod 70 branch; shield-block `pDef` add.
+    PhysicalAttack { power: f64, p_atk_mod: f64, p_def_mod: f64, critical_chance: f64 },
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.
     Heal { power: f64 },
     /// `handlers/effecthandlers/Restoration.java` — instant single-item
