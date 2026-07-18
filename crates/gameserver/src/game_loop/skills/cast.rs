@@ -886,9 +886,33 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             .is_some_and(|t| t.is_auto_attackable());
     if skill.is_bad() {
         // Bad skill on a player → flag the caster against that target
-        // (`updatePvPStatus(target)`). Monsters just take hate, no flag.
+        // (`updatePvPStatus(target)`). Monsters take hate + an AI wake, no flag.
         if target_is_player {
             crate::game_loop::pvp::update_pvp_status_target(world, player_object_id, target_oid);
+        } else if target_is_monster {
+            // `callSkill`: a bad skill on an attackable *always* adds hate
+            // (`addDamageHate(caster, 0, -effectPoint)`) and wakes its AI
+            // (`notifyEvent(EVT_ATTACKED, caster)`), right after `activateSkill`
+            // and **independent of whether the effects landed**. That's why a
+            // resisted or otherwise no-op debuff still makes the mob retaliate:
+            // the wake belongs here in the `callSkill` analog, not in the effect
+            // handlers (those only wake on damage / spoil, so a pure or resisted
+            // debuff would never aggro). `npc_wake_on_attacked` is the EVT_ATTACKED
+            // primitive (hate += 1 + switch to the attack intention); the explicit
+            // `-effectPoint` hate is added on top, matching `addDamageHate`
+            // (`-effect_point` is positive since a bad skill has `effect_point < 0`).
+            // TODO(G16): Java skips the wake when the skill `hasEffectType(HATE)`
+            // (aggro-reduction skills manage their own hate); no HATE effect is
+            // modeled yet, so every bad skill wakes.
+            crate::game_loop::combat::npc_wake_on_attacked(world, target_oid, player_object_id);
+            let hate = (-skill.effect_point) as f64;
+            if hate != 0.0 {
+                if let Some(aggro) =
+                    world.objects.get_component_mut::<crate::model::npc::AggroList>(&target_oid)
+                {
+                    aggro.0.entry(player_object_id).or_default().hate += hate;
+                }
+            }
         }
         // Start attack stance (finalizer, right after `callSkill`): a bad skill
         // with an action draws the weapon and starts the 15 s combat timer, so

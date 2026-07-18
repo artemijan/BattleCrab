@@ -1307,7 +1307,15 @@ Empty/placeholder now, to be filled in the owning milestone:
   `ExAbnormalStatusUpdateFromTarget` (broadcast to other players); most of
   the 230-entry `Stat` enum and 369 effect classes (grow `EFFECT_REGISTRY`/
   `SkillEffect` as needed); overhit XP bonus; buffs/effects on NPC targets
-  (no NPC effect list).
+  (no NPC effect list). ~~offensive-skill aggro on NPCs~~ (✅ — `callSkill`'s
+  post-`activateSkill` loop now runs `addDamageHate(caster, 0, -effectPoint)` +
+  `notifyEvent(EVT_ATTACKED)` for any bad skill on an attackable, in
+  `handle_skill_finish`'s `is_bad` block — **independent of whether the effects
+  landed**, so a *resisted* or pure debuff still wakes the mob and makes it
+  retaliate; the wake previously only fired from the damage/spoil effect
+  handlers, so a non-landing debuff drew no aggro. Java skips this when the
+  skill `hasEffectType(HATE)` — no HATE effect is modeled yet, tracked by a
+  `TODO(G16)` at the site).
 - **Movement/targeting (post-G7.8):** NPC pathfinding (player moves path
   via the G7.85 worker; NPC chase/return-home moves are still straight-line,
   and the Attackable closest-reachable-point grid scan is unported);
