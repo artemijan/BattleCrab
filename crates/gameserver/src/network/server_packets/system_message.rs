@@ -45,6 +45,10 @@ pub mod sm_ids {
     pub const YOU_HAVE_EARNED_S1_ADENA: i16 = 52;
     pub const YOU_HAVE_EARNED_S2_S1_S: i16 = 53;
     pub const YOU_HAVE_EARNED_S1: i16 = 54;
+    // Multisell (G30): the enchanted-product ack and the ingredient-shortfall
+    // message.
+    pub const ACQUIRED_S1_S2: i16 = 371;
+    pub const YOU_NEED_S2_S1_S: i16 = 2961;
     pub const YOU_HAVE_OBTAINED_S1_ADENA: i16 = 28;
     pub const YOU_HAVE_OBTAINED_S2_S1: i16 = 29;
     pub const YOU_HAVE_OBTAINED_S1: i16 = 30;

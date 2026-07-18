@@ -404,6 +404,17 @@ pub struct Macros {
 #[derive(Component, Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct TargetRef(pub Option<i32>);
 
+/// The multisell list the player currently has open (Java
+/// `Player._currentMultiSell` / `setMultiSell`), player-only. Presence-based:
+/// added when a `MultiSellList` is sent, read/validated by `MultiSellChoose`,
+/// removed on a stale/forged choose. Only the list id is retained — the
+/// community-board path uses default (1.0) multipliers and no npc/tax, so the
+/// `PreparedMultisellListHolder` collapses to a lookup by id.
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ActiveMultisell {
+    pub list_id: i32,
+}
+
 /// GM-toggled state on a player (Java `Creature._isInvul`, `_isUndying`,
 /// `Player.setInvisible`/`setSilenceMode`/`setDietMode`). Presence-based:
 /// absent = every flag `false`, added on the first toggle or by the GM-startup

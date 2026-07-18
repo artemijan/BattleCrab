@@ -89,6 +89,8 @@ pub mod opcodes {
     pub const REQUEST_ANSWER_FRIEND_INVITE: u8 = 0x78;
     pub const REQUEST_FRIEND_LIST: u8 = 0x79;
     pub const REQUEST_FRIEND_DEL: u8 = 0x7A;
+    /// `MultiSellChoose` — a purchase/exchange click in the multisell window.
+    pub const MULTI_SELL_CHOOSE: u8 = 0xB0;
     /// Extended packets: opcode 0xD0 + a 2-byte little-endian sub-opcode.
     pub const EX_PACKET: u8 = 0xD0;
 }
@@ -443,6 +445,36 @@ impl RequestSellItem {
             items.push((object_id, item_id, count));
         }
         Some(Self { list_id, items })
+    }
+}
+
+/// Port of `clientpackets/MultiSellChoose`: the item exchange click. Reads the
+/// full retail body (enchant/augment/elemental stats follow the amount), but
+/// only `list_id`/`entry_id`/`amount` drive the community-board exchange path
+/// (the enchant-maintenance validation is a `maintainEnchantment`-list concern,
+/// TODO(G30)).
+pub struct MultiSellChoose {
+    pub list_id: i32,
+    pub entry_id: i32,
+    pub amount: i64,
+}
+
+impl MultiSellChoose {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let list_id = r.read_i32()?;
+        let entry_id = r.read_i32()?;
+        let amount = r.read_i64()?;
+        // enchantLevel(short), augment1(int), augment2(int), attackAttribute
+        // (short), attributePower(short), and six elemental defence shorts —
+        // consumed to keep the reader honest even though this path ignores them.
+        let _enchant_level = r.read_i16()?;
+        let _augment1 = r.read_i32()?;
+        let _augment2 = r.read_i32()?;
+        for _ in 0..8 {
+            let _ = r.read_i16()?;
+        }
+        Some(Self { list_id, entry_id, amount })
     }
 }
 
