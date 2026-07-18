@@ -380,6 +380,8 @@ fn cast_test_world() -> (
         abnormal_time: 0,
         abnormal_level: 0,
         abnormal_type: "NONE".into(),
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
         single_target: true,
         effects: vec![],
     };
@@ -437,11 +439,16 @@ fn cast_test_world() -> (
         ..base.clone()
     });
     // Decrease Speed 1160 — a single-target debuff: Speed -20% (PER) on an
-    // enemy. `effect_point` negative → `is_bad`; drives the debuff-% message.
+    // enemy. `effect_point` negative → `is_bad`. The magic-level/activate/
+    // lvl-bonus trio matches dist level 1 so the landing-rate roll and its
+    // caster-facing chance line compute the real 90 (constrained) vs a low-level mob.
     data.skill_data.insert_for_test(Skill {
         id: 1160,
         name: "Decrease Speed".into(),
         target_type: TargetType::EnemyOnly,
+        magic_level: 35,
+        activate_rate: 80,
+        lvl_bonus_rate: 30,
         effect_point: -331,
         hit_time: 1000,
         abnormal_time: 60,
@@ -1086,6 +1093,8 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         abnormal_time: 0,
         abnormal_level: 0,
         abnormal_type: "NONE".into(),
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
         single_target: true,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalAttack,
@@ -1126,6 +1135,8 @@ fn clan_advent_test_skill() -> Skill {
         abnormal_time: -1,
         abnormal_level: 1,
         abnormal_type: "CLAN_ADVENT".into(),
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
         single_target: true,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalAttack,

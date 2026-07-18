@@ -1156,6 +1156,9 @@ pub(crate) fn handle_attack_hit(
                         SmParam::PlayerName(attacker_name),
                         target_name,
                         SmParam::Int(damage),
+                        // `sendDamageMessage`'s `addPopup(target, attacker,
+                        // -damage)` — the on-screen floating damage number.
+                        SmParam::Popup { target, attacker, damage: -damage },
                     ],
                 ));
             }

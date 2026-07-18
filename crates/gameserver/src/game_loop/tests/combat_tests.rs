@@ -1462,6 +1462,8 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
         abnormal_time: 0,
         abnormal_level: 0,
         abnormal_type: "NONE".into(),
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
         single_target: true,
         effects,
     };

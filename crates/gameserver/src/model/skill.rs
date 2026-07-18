@@ -168,6 +168,14 @@ pub enum SkillEffect {
     /// immediately (`Npc.endDecayTask`). Paired with `Sweeper` on skill 42 so
     /// the swept body vanishes at once. Instant.
     ConsumeBody,
+    /// `handlers/effecthandlers/DispelBySlot.java` — instant cleanse. Stops
+    /// every active buff/debuff whose originating skill's `<abnormalType>` is in
+    /// the dispel set, provided the listed level is negative (dispel all levels)
+    /// or `>=` the buff skill's own `abnormalLevel`. Each `(abnormal_type, level)`
+    /// pair comes from the `<dispel>` string (`"POISON,3"`), which is per-skill-
+    /// level. Backs Cure Poison (1012), Cure Bleeding, etc. Java's special-cased
+    /// `AbnormalType.TRANSFORM` branch is omitted — no transforms in scope yet.
+    DispelBySlot { dispel: Vec<(String, i32)> },
 }
 
 /// `dist/game/data/stats/skills/*.xml` → `Skill.java`, scoped to G6.
@@ -185,6 +193,14 @@ pub struct Skill {
     /// `Formulas.calcMagicSuccess` when `CalculateMagicSuccessBySkillMagicLevel`
     /// is on (the dist default), used by the Spoil landing roll.
     pub magic_level: i32,
+    /// Java `activateRate` (default -1) — a debuff's base landing rate before the
+    /// level/resist math in `Formulas.calcEffectSuccess`. `-1` means the effect
+    /// always lands (no resist roll). Feeds `formulas::calc_effect_land_rate`.
+    pub activate_rate: i32,
+    /// Java `lvlBonusRate` (default 0) — how steeply the caster/target level gap
+    /// swings the debuff landing rate; multiplies the level term in
+    /// `calc_effect_land_rate`.
+    pub lvl_bonus_rate: i32,
     /// Java `effectPoint` — negative marks an offensive ("bad") skill.
     pub effect_point: i32,
     pub cast_range: i32,
@@ -252,59 +268,6 @@ impl Skill {
             })
             .collect()
     }
-
-    /// A human-readable summary of a single-target debuff's percentage
-    /// modifiers, e.g. `"Speed -20%"` or `"P. Atk. -23%, P. Def. -23%"` — for
-    /// the caster-facing `S1_TEXT` feedback line. `None` unless this is a
-    /// single-target bad skill carrying at least one `Per`-mode modifier (only
-    /// percentage modifiers have a meaningful "%"; flat `Diff` mods are skipped).
-    /// The four movement stats a `Speed` effect expands into collapse back to a
-    /// single `"Speed"` entry, and identical `(label, amount)` pairs dedupe.
-    pub fn debuff_percent_summary(&self) -> Option<String> {
-        if !self.is_bad() || !self.single_target {
-            return None;
-        }
-        let mut parts: Vec<String> = Vec::new();
-        for m in &self.effects {
-            let SkillEffect::StatModifier(m) = m else { continue };
-            if m.mode != StatModifierType::Per {
-                continue;
-            }
-            let Some(label) = stat_display_name(m.stat) else { continue };
-            // `-20` → "-20%", `15` → "+15%".
-            let entry = format!("{label} {:+}%", m.amount as i64);
-            if !parts.contains(&entry) {
-                parts.push(entry);
-            }
-        }
-        if parts.is_empty() {
-            None
-        } else {
-            Some(parts.join(", "))
-        }
-    }
-}
-
-/// Short display label for a debuff-relevant stat. The four movement stats map
-/// to a single `"Speed"` so a `Speed` effect reads as one line. `None` for
-/// stats we don't surface in the debuff message (keeps the line focused on the
-/// familiar combat stats rather than dumping every internal stat name).
-fn stat_display_name(stat: Stat) -> Option<&'static str> {
-    Some(match stat {
-        Stat::RunSpeed | Stat::WalkSpeed | Stat::SwimRunSpeed | Stat::SwimWalkSpeed => "Speed",
-        Stat::PhysicalAttack => "P. Atk.",
-        Stat::PhysicalDefence => "P. Def.",
-        Stat::MagicalAttack => "M. Atk.",
-        Stat::MagicalDefence => "M. Def.",
-        Stat::PhysicalAttackSpeed => "Atk. Spd.",
-        Stat::MagicAttackSpeed => "Casting Spd.",
-        Stat::CriticalRate => "Critical Rate",
-        Stat::MagicCriticalRate => "Magic Crit. Rate",
-        Stat::EvasionRate => "Evasion",
-        Stat::MagicEvasionRate => "Magic Evasion",
-        Stat::AccuracyCombat => "Accuracy",
-        _ => return None,
-    })
 }
 
 /// `AbnormalType.getClientId()`, scoped to the types skills registered in
@@ -338,86 +301,8 @@ pub struct ActiveBuff {
     pub effects: Vec<StatModifierEffect>,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// A minimal skill carrying `effects`, marked bad + single-target unless
-    /// overridden — enough to exercise `debuff_percent_summary`.
-    fn debuff_skill(name: &str, is_bad: bool, single: bool, effects: Vec<SkillEffect>) -> Skill {
-        Skill {
-            id: 1,
-            level: 1,
-            name: name.into(),
-            operate_type: OperateType::Active,
-            target_type: TargetType::EnemyOnly,
-            magic_type: 1,
-            magic_level: 0,            effect_point: if is_bad { -100 } else { 100 },
-            cast_range: 0,
-            effect_range: 0,
-            hit_time: 0,
-            hit_cancel_time: 0.0,
-            cool_time: 0,
-            reuse_delay: 0,
-            reuse_delay_group: -1,
-            mp_consume: 0,
-            mp_initial_consume: 0,
-            hp_consume: 0,
-            abnormal_time: 60,
-            abnormal_level: 1,
-            abnormal_type: "NONE".into(),
-            single_target: single,
-            effects,
-        }
-    }
-
-    fn per(stat: Stat, amount: f64) -> SkillEffect {
-        SkillEffect::StatModifier(StatModifierEffect {
-            stat,
-            mode: StatModifierType::Per,
-            amount,
-            armor_condition: 0,
-            weapon_condition: 0,
-        })
-    }
-
-    /// The four movement stats a `Speed` effect expands into collapse to one
-    /// "Speed -20%" line (deduped).
-    #[test]
-    fn debuff_summary_collapses_speed() {
-        let sk = debuff_skill("Decrease Speed", true, true, vec![
-            per(Stat::RunSpeed, -20.0),
-            per(Stat::WalkSpeed, -20.0),
-            per(Stat::SwimRunSpeed, -20.0),
-            per(Stat::SwimWalkSpeed, -20.0),
-        ]);
-        assert_eq!(sk.debuff_percent_summary().as_deref(), Some("Speed -20%"));
-    }
-
-    /// Multiple distinct stats list in order; a positive modifier shows `+`.
-    #[test]
-    fn debuff_summary_lists_multiple_stats_with_sign() {
-        let sk = debuff_skill("Curse", true, true, vec![
-            per(Stat::PhysicalAttack, -23.0),
-            per(Stat::CriticalRate, 15.0),
-        ]);
-        assert_eq!(sk.debuff_percent_summary().as_deref(), Some("P. Atk. -23%, Critical Rate +15%"));
-    }
-
-    /// Gates: a buff (not bad) and an area (non-single) skill get no % line, and
-    /// a flat `Diff` modifier is skipped (only `Per` mods have a meaningful "%").
-    #[test]
-    fn debuff_summary_gates() {
-        let effects = vec![per(Stat::PhysicalAttack, -20.0)];
-        assert_eq!(debuff_skill("Buff", false, true, effects.clone()).debuff_percent_summary(), None);
-        assert_eq!(debuff_skill("Area", true, false, effects.clone()).debuff_percent_summary(), None);
-        let diff = vec![SkillEffect::StatModifier(StatModifierEffect {
-            stat: Stat::PhysicalAttack,
-            mode: StatModifierType::Diff,
-            amount: -20.0,
-            armor_condition: 0,
-            weapon_condition: 0,
-        })];
-        assert_eq!(debuff_skill("Flat", true, true, diff).debuff_percent_summary(), None);
-    }
-}
+// The debuff landing-chance formula is unit-tested in `formulas.rs`
+// (`effect_land_rate_clamps_and_special_cases`); the caster-facing chance line
+// and the resist roll have end-to-end tests in `game_loop::tests::skills_tests`
+// (`single_target_debuff_lands_and_reports_chance` /
+// `single_target_debuff_resisted_leaves_target_and_reports`).

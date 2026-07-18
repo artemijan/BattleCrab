@@ -448,6 +448,32 @@ fn finalize_skill(
                     "Sweeper" => vec![SkillEffect::Sweeper],
                     // ConsumeBody (paired with Sweeper on 42): decay the corpse.
                     "ConsumeBody" => vec![SkillEffect::ConsumeBody],
+                    // Cure Poison/Bleeding etc.: the `<dispel>` string is a
+                    // per-level `"TYPE,level"` list (Java splits on ';' then ',').
+                    // Falls through to an empty effect (silent no-op, like other
+                    // unhandled bodies) if the string is missing/unparseable,
+                    // rather than dropping the whole cast. Without this arm the
+                    // effect fell through to `EFFECT_REGISTRY`, wasn't found, and
+                    // got dropped — the skill cast but cured nothing.
+                    "DispelBySlot" => match value_at(params, "dispel", level) {
+                        Some(spec) if !spec.is_empty() => {
+                            let dispel = spec
+                                .split(';')
+                                .filter_map(|pair| {
+                                    let mut it = pair.split(',');
+                                    let ty = it.next()?.trim().to_string();
+                                    let lvl = it.next()?.trim().parse::<i32>().ok()?;
+                                    Some((ty, lvl))
+                                })
+                                .collect::<Vec<_>>();
+                            if dispel.is_empty() {
+                                Vec::new()
+                            } else {
+                                vec![SkillEffect::DispelBySlot { dispel }]
+                            }
+                        }
+                        _ => Vec::new(),
+                    },
                     // Both the basic (247) and advanced HQ skills carry this;
                     // isAdvanced is not yet behaviorally distinct (see the effect).
                     "HeadquarterCreate" => vec![SkillEffect::CreateHeadquarter],
@@ -498,6 +524,8 @@ fn finalize_skill(
                 target_type,
                 magic_type: get_i("isMagic", 0),
                 magic_level: get_i("magicLevel", 0),
+                activate_rate: get_i("activateRate", -1),
+                lvl_bonus_rate: get_i("lvlBonusRate", 0),
                 effect_point: get_i("effectPoint", 0),
                 cast_range: get_i("castRange", 0),
                 effect_range: get_i("effectRange", 0),
@@ -603,15 +631,19 @@ mod tests {
         ));
 
         // Decrease Speed 1160: single-target (`affectScope SINGLE`) bad skill
-        // with a `Speed` PER -20% debuff. The four movement stats collapse to a
-        // single "Speed -20%" line in the caster feedback message.
+        // with a `Speed` PER -20% debuff, and the landing-rate inputs the
+        // caster-feedback + resist roll read (`activateRate` 80, `lvlBonusRate` 30).
         let decrease_speed = sd.get(1160, 1).expect("Decrease Speed lvl 1");
         assert!(decrease_speed.single_target && decrease_speed.is_bad());
-        assert_eq!(decrease_speed.debuff_percent_summary().as_deref(), Some("Speed -20%"));
-        // An area skill (`affectScope RANGE`) is not single-target → no % line.
+        assert_eq!(decrease_speed.activate_rate, 80);
+        assert_eq!(decrease_speed.lvl_bonus_rate, 30);
+        // An area skill (`affectScope RANGE`) is not single-target.
         let sonic_storm = sd.get(7, 1).expect("Sonic Storm lvl 1");
         assert!(!sonic_storm.single_target);
-        assert_eq!(sonic_storm.debuff_percent_summary(), None);
+        // A skill with no `<activateRate>` defaults to -1 (always lands): the
+        // buff Might 1068.
+        let might = sd.get(1068, 1).expect("Might lvl 1");
+        assert_eq!(might.activate_rate, -1);
 
         // Skill 1011 "Heal": the reference datapack's effect body is
         // `<item>power</item>`, which parses to the param key `item` — so the
@@ -699,6 +731,19 @@ mod tests {
             [SkillEffect::DamOverTime { power, ticks, can_kill: false }] if *power == 11.0 && *ticks == 5
         ));
         assert_eq!(curse_poison.abnormal_time, 30, "poison lasts 30s");
+
+        // Cure Poison 1012: a `DispelBySlot` cleanse whose per-level `<dispel>`
+        // string parses to `(POISON, level)` pairs (3/7/9 across levels 1-3).
+        // Before the handler existed the effect fell through `EFFECT_REGISTRY`
+        // and was dropped, so the cure cast but removed nothing.
+        for (lvl, want) in [(1, 3), (2, 7), (3, 9)] {
+            let cure = sd.get(1012, lvl).unwrap_or_else(|| panic!("Cure Poison lvl {lvl}"));
+            assert!(
+                matches!(cure.effects.as_slice(), [SkillEffect::DispelBySlot { dispel }] if dispel.as_slice() == [("POISON".to_string(), want)]),
+                "Cure Poison lvl {lvl} dispels POISON,{want}, got {:?}",
+                cure.effects,
+            );
+        }
 
         // Spoil 254: an `ENEMY_ONLY` debuff carrying the `Spoil` effect and a
         // per-level `magicLevel` (10 at lvl 1) the `calcMagicSuccess` roll reads.

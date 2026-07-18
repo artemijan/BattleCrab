@@ -59,6 +59,9 @@ pub mod sm_ids {
     /// Java `SystemMessage(String)` / `Player.sendMessage(String)` — a bare
     /// `$s1` text line (`SystemMessageId.S1_2`).
     pub const S1_TEXT: i16 = 1983;
+    /// "$c1 has resisted your $s2." — a debuff failed its landing roll
+    /// (`Formulas.calcEffectSuccess`). Params: `[Text(targetName), SkillName]`.
+    pub const C1_HAS_RESISTED_YOUR_S2: i16 = 139;
     pub const YOU_HAVE_ACQUIRED_S1_SP: i16 = 331;
     pub const YOUR_SP_HAS_DECREASED_BY_S1: i16 = 538;
     pub const YOUR_XP_HAS_DECREASED_BY_S1: i16 = 539;
@@ -213,6 +216,11 @@ pub enum SmParam {
     PlayerName(String),
     /// `TYPE_SYSTEM_STRING` (13) — `addSystemString` (sysstring-e.dat id).
     SysString(i32),
+    /// `TYPE_POPUP_ID` (16) — `addPopup(target, attacker, damage)`. Mobius's
+    /// on-screen floating damage number: the client draws it over `target`'s
+    /// head when the "show damage" client option is enabled. `damage` is passed
+    /// negative (`-damage`) exactly as `Player.sendDamageMessage` does.
+    Popup { target: i32, attacker: i32, damage: i32 },
 }
 
 /// Port of `serverpackets/SystemMessage.writeImpl` (localisation branch
@@ -262,6 +270,12 @@ pub fn system_message_with(message_id: i16, params: &[SmParam]) -> Vec<u8> {
             SmParam::SysString(id) => {
                 w.write_u8(13);
                 w.write_i32(*id);
+            }
+            SmParam::Popup { target, attacker, damage } => {
+                w.write_u8(16);
+                w.write_i32(*target);
+                w.write_i32(*attacker);
+                w.write_i32(*damage);
             }
         }
     }

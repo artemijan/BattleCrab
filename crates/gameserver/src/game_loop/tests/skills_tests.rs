@@ -72,6 +72,8 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         abnormal_time: 20,
         abnormal_level: 1,
         abnormal_type: "PD_UP".into(),
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
         single_target: true,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalDefence,
@@ -1533,36 +1535,182 @@ fn vampiric_touch_deals_damage_and_heals_caster() {
     assert!((healed - 0.40 * dmg).abs() < 1.0, "caster healed {healed}, expected 40% of {dmg}");
 }
 
-/// A single-target debuff (Decrease Speed 1160, Speed -20%) lands on the mob —
-/// its run speed drops server-side — and the caster gets the `S1_TEXT` feedback
-/// line naming the debuff and its percentage.
-#[test]
-fn single_target_debuff_slows_monster_and_reports_percent() {
-    use crate::model::components::Speeds;
-
-    let (mut world, _db_rx, _link_rx) = combat_test_world();
-    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+/// Spawn the level-5 test mob (40001) targeted for a debuff cast and drain the
+/// spawn/target chatter, returning its object id.
+fn spawn_debuff_target(world: &mut World, a_rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) -> i32 {
     let npc_oid = NPC_OID + 14;
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
     let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
     world.objects.add_components(&npc_oid, cs);
-    drain(&mut a_rx);
+    drain(a_rx);
+    npc_oid
+}
+
+/// The `SystemMessage` message id of a packet, or `None` if it isn't one.
+fn sysmsg_id(p: &[u8]) -> Option<i16> {
+    (p.first() == Some(&crate::network::server_packets::opcodes::SYSTEM_MESSAGE) && p.len() >= 3)
+        .then(|| i16::from_le_bytes([p[1], p[2]]))
+}
+
+/// A single-target debuff (Decrease Speed 1160) that passes its landing roll
+/// slows the mob server-side (base 120 × 0.80 = 96) and shows the caster the
+/// computed landing chance. Against the level-5 test mob the rate constrains to
+/// the 90 cap; the forced roll (0) is below it, so the debuff lands. The first
+/// forced value feeds the unconditional magic-crit roll, the second the land roll.
+#[test]
+fn single_target_debuff_lands_and_reports_chance() {
+    use crate::model::components::Speeds;
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
 
     let skill = world.data.skill_data.get(1160, 1).expect("Decrease Speed").clone();
     assert!(skill.is_bad() && skill.single_target);
+    world.forced_rolls.extend([0, 0]); // magic-crit roll, then land roll (0 < 90 → lands)
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
 
     // Debuff applied to the mob: run speed recomputed to base 120 × 0.80 = 96.
     let speed = world.objects.get_component::<Speeds>(&npc_oid).unwrap().run_spd;
     assert!((speed - 96.0).abs() < 1e-6, "run speed debuffed to 96, got {speed}");
 
-    // The caster sees the percentage feedback line (single-target only).
+    // The caster sees the landing-chance line (single-target only).
     let msgs = drain(&mut a_rx);
     assert!(
-        msgs.iter().any(|p| sysmsg_text(p).as_deref() == Some("Decrease Speed: Speed -20%")),
-        "caster received the debuff-% S1_TEXT line",
+        msgs.iter().any(|p| sysmsg_text(p).as_deref() == Some("Decrease Speed: 90% chance to land")),
+        "caster received the debuff landing-chance S1_TEXT line",
+    );
+}
+
+/// The same cast that fails its landing roll leaves the mob unslowed and sends
+/// the caster the `C1_HAS_RESISTED_YOUR_S2` line (the chance line still shows).
+/// The land roll is forced to 90, which is not below the 90 rate, so it resists.
+#[test]
+fn single_target_debuff_resisted_leaves_target_and_reports() {
+    use crate::model::components::Speeds;
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
+
+    let skill = world.data.skill_data.get(1160, 1).expect("Decrease Speed").clone();
+    world.forced_rolls.extend([0, 90]); // magic-crit roll, then land roll (90 >= 90 → resisted)
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+
+    // No debuff: run speed stays at the mob's base 120.
+    let speed = world.objects.get_component::<Speeds>(&npc_oid).unwrap().run_spd;
+    assert!((speed - 120.0).abs() < 1e-6, "run speed unchanged on resist, got {speed}");
+
+    let msgs = drain(&mut a_rx);
+    // The chance line still fires (it precedes the roll).
+    assert!(
+        msgs.iter().any(|p| sysmsg_text(p).as_deref() == Some("Decrease Speed: 90% chance to land")),
+        "caster still sees the landing-chance line",
+    );
+    // …and the resist line (SystemMessageId 139).
+    assert!(
+        msgs.iter().any(|p| sysmsg_id(p) == Some(139)),
+        "caster received the C1_HAS_RESISTED_YOUR_S2 line",
+    );
+}
+
+/// Cure Poison (1012) cleanses a POISON debuff via `DispelBySlot`: it removes a
+/// landed Poison (129) DoT whose `abnormalLevel` is at or below the cure's
+/// dispel level, and leaves a higher-level poison alone. Before the fix
+/// `DispelBySlot` fell through the effect registry and the cure was a silent
+/// no-op (the poison kept ticking).
+#[test]
+fn cure_poison_dispels_matching_poison_debuff() {
+    use crate::model::components::Buffs;
+    use crate::model::skill::{OperateType, Skill, SkillEffect, TargetType};
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 31;
+    spawn_targeted_monster(&mut world, &mut a_rx, npc_oid, 50);
+
+    // The test world builds skills by hand (no real XML) — mirror the dist
+    // values: Poison 129 (abnormalType POISON, abnormalLevel 3 @ lvl 1 / 7 @
+    // lvl 4, a DamOverTime debuff) and Cure Poison 1012 (DispelBySlot POISON,3).
+    let poison = |level: i32, abnormal_level: i32| Skill {
+        id: 129,
+        level,
+        name: "Poison".into(),
+        operate_type: OperateType::Active,
+        target_type: TargetType::EnemyOnly,
+        magic_type: 1,
+        magic_level: 20,
+        effect_point: -204,
+        cast_range: 600,
+        effect_range: 1100,
+        hit_time: 3000,
+        hit_cancel_time: 0.0,
+        cool_time: 0,
+        reuse_delay: 2000,
+        reuse_delay_group: -1,
+        mp_consume: 8,
+        mp_initial_consume: 2,
+        hp_consume: 0,
+        abnormal_time: 30,
+        abnormal_level,
+        abnormal_type: "POISON".into(),
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
+        single_target: true,
+        effects: vec![SkillEffect::DamOverTime { power: 24.0, ticks: 5, can_kill: false }],
+    };
+    world.data.skill_data.insert_for_test(poison(1, 3));
+    world.data.skill_data.insert_for_test(poison(4, 7));
+    world.data.skill_data.insert_for_test(Skill {
+        id: 1012,
+        level: 1,
+        name: "Cure Poison".into(),
+        operate_type: OperateType::Active,
+        target_type: TargetType::Target,
+        magic_type: 1,
+        magic_level: 7,
+        effect_point: 121,
+        cast_range: 600,
+        effect_range: 1100,
+        hit_time: 4000,
+        hit_cancel_time: 0.0,
+        cool_time: 0,
+        reuse_delay: 4000,
+        reuse_delay_group: -1,
+        mp_consume: 8,
+        mp_initial_consume: 2,
+        hp_consume: 0,
+        abnormal_time: 0,
+        abnormal_level: 0,
+        abnormal_type: "NONE".into(),
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
+        single_target: true,
+        effects: vec![SkillEffect::DispelBySlot { dispel: vec![("POISON".into(), 3)] }],
+    });
+
+    let poison1 = world.data.skill_data.get(129, 1).unwrap().clone();
+    let poison4 = world.data.skill_data.get(129, 4).unwrap().clone();
+    let cure = world.data.skill_data.get(1012, 1).unwrap().clone();
+
+    // Land Poison lvl 1 (abnormalLevel 3) on the mob.
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &poison1);
+    assert_eq!(world.objects.get_component::<Buffs>(&npc_oid).unwrap().0.len(), 1, "poison landed");
+
+    // Cure Poison lvl 1 dispels POISON up to level 3 → the debuff is removed.
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &cure);
+    assert!(world.objects.get_component::<Buffs>(&npc_oid).unwrap().0.is_empty(), "poison cured");
+
+    // A higher-level poison (lvl 4, abnormalLevel 7) is above Cure Poison lvl 1's
+    // reach (POISON,3) and survives the cleanse.
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &poison4);
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &cure);
+    assert_eq!(
+        world.objects.get_component::<Buffs>(&npc_oid).unwrap().0.len(),
+        1,
+        "a poison above the cure's dispel level is not removed",
     );
 }
 

@@ -544,6 +544,8 @@ fn item_skill_potion_heals_and_enforces_reuse() {
         abnormal_time: 0,
         abnormal_level: 0,
         abnormal_type: "NONE".into(),
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
         single_target: true,
         effects: vec![SkillEffect::Heal { power: 30.0 }],
     });
@@ -635,6 +637,8 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         abnormal_time: 0,
         abnormal_level: 0,
         abnormal_type: "NONE".into(),
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
         single_target: true,
         effects: vec![SkillEffect::GiveItem { item_id: 21852, item_count: 5000, item_enchant_level: 0 }],
     });
@@ -737,6 +741,8 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         abnormal_time: 0,
         abnormal_level: 0,
         abnormal_type: "NONE".into(),
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
         single_target: true,
         effects: vec![SkillEffect::GiveItemRandom {
             groups: vec![
@@ -845,6 +851,8 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         abnormal_time: 0,
         abnormal_level: 0,
         abnormal_type: "NONE".into(),
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
         single_target: true,
         effects: vec![SkillEffect::GiveItemRandom {
             groups: vec![RestorationGroup {

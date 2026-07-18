@@ -530,12 +530,12 @@ async fn full_login_to_character_create() {
             .map(|(_, v)| *v)
             .sum()
     };
-    let expected_hp = (gameserver::model::calc_max_hp(&data, mystic, 1, None) + gear_bonus(gameserver::model::stats::Stat::MaxHp)) as i32;
-    let expected_mp = (gameserver::model::calc_max_mp(&data, mystic, 1, None) + gear_bonus(gameserver::model::stats::Stat::MaxMp)) as i32;
+    let expected_hp = (gameserver::model::calc_max_hp(&data, mystic, 1, None, &gameserver::model::components::StatModifiers::default()) + gear_bonus(gameserver::model::stats::Stat::MaxHp)) as i32;
+    let expected_mp = (gameserver::model::calc_max_mp(&data, mystic, 1, None, &gameserver::model::components::StatModifiers::default()) + gear_bonus(gameserver::model::stats::Stat::MaxMp)) as i32;
     assert_eq!(max_hp, expected_hp, "UserInfo max HP matches the calc ({expected_hp})");
     assert_eq!(max_mp, expected_mp, "UserInfo max MP matches the gear-inclusive calc ({expected_mp})");
     assert!(max_hp > 90 && max_hp < 110, "Human Mystic level 1 HP is ~99");
-    assert!(expected_mp > gameserver::model::calc_max_mp(&data, mystic, 1, None) as i32, "equipped gear raised Max MP above the naked value");
+    assert!(expected_mp > gameserver::model::calc_max_mp(&data, mystic, 1, None, &gameserver::model::components::StatModifiers::default()) as i32, "equipped gear raised Max MP above the naked value");
 
     // Drain the rest of the enter-world burst, collecting opcodes, until the
     // welcome SystemMessage (0x62) — the last packet Java sends on enter.

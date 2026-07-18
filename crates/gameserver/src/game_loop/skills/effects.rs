@@ -368,6 +368,37 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     }
                 }
             }
+            SkillEffect::DispelBySlot { dispel } => {
+                // Java `DispelBySlot.instant`: stop each active effect whose
+                // originating skill's `<abnormalType>` is in the dispel set and
+                // whose `abnormalLevel` is at or below the listed level (a
+                // negative level dispels every level). We look each active buff's
+                // source skill back up in `skill_data` for its type/level, then
+                // route removals through `handle_buff_expire` — which drops the
+                // buff, reverts its stats, and rebroadcasts the abnormal icons
+                // for both player and NPC targets; the DoT tick chain (e.g.
+                // Poison) self-terminates once its buff is gone. Buff snapshot is
+                // collected first to avoid overlapping borrows of `world`.
+                let candidates: Vec<(i32, i32)> = world
+                    .objects
+                    .get_component::<Buffs>(&target_oid)
+                    .map(|buffs| buffs.0.iter().map(|b| (b.skill_id, b.skill_level)).collect())
+                    .unwrap_or_default();
+                let to_dispel: Vec<i32> = candidates
+                    .into_iter()
+                    .filter(|&(sid, slvl)| {
+                        world.data.skill_data.get(sid, slvl).is_some_and(|bs| {
+                            dispel
+                                .iter()
+                                .any(|(ty, lvl)| bs.abnormal_type == *ty && (*lvl < 0 || *lvl >= bs.abnormal_level))
+                        })
+                    })
+                    .map(|(sid, _)| sid)
+                    .collect();
+                for skill_id in to_dispel {
+                    handle_buff_expire(world, target_oid, skill_id);
+                }
+            }
             SkillEffect::StatModifier(_) => {} // collected below
         }
     }
@@ -396,6 +427,45 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     if buff_effects.is_empty() && !has_dot {
         return;
     }
+
+    // Debuff landing roll — Java `Formulas.calcEffectSuccess`. A bad skill with
+    // an `activateRate` (≠ -1) can be resisted: compute the chance, report it to
+    // the caster, and on a failed roll skip the buff (and its DoT ticks) and send
+    // the "$c1 has resisted your $s2" line. Self-targeted casts never resist
+    // (Java's `target != attacker`). Buffs and always-land debuffs (`-1`) fall
+    // straight through. `activateRate == -1` is filtered here so those consume no
+    // roll (keeps the ordering of the remaining rolls stable).
+    // TODO(G16): a magic-crit `DamOverTime` burst is applied in the effect loop
+    // above before this roll — Java gates that burst on landing too.
+    if skill.is_bad() && caster_oid != target_oid && skill.activate_rate != -1 {
+        let target_level = creature_level(world, target_oid);
+        let rate = formulas::calc_effect_land_rate(skill.magic_level, skill.activate_rate, skill.lvl_bonus_rate, target_level);
+        // Caster-facing chance line, single-target only so an AoE debuff doesn't
+        // spam one line per affected target.
+        if skill.single_target {
+            if let Some(client_id) = client_for_player(world, caster_oid) {
+                if let Some(cs) = world.clients.get(&client_id) {
+                    cs.send(server_packets::system_message_with(
+                        sm_ids::S1_TEXT,
+                        &[SmParam::Text(format!("{}: {}% chance to land", skill.name, rate as i64))],
+                    ));
+                }
+            }
+        }
+        // Java: resisted when `finalRate <= Rnd.get(100)` (0-99).
+        if rate <= world.roll(100) as f64 {
+            let target_name = creature_name(world, target_oid);
+            if let Some(client_id) = client_for_player(world, caster_oid) {
+                if let Some(cs) = world.clients.get(&client_id) {
+                    cs.send(server_packets::system_message_with(
+                        sm_ids::C1_HAS_RESISTED_YOUR_S2,
+                        &[SmParam::Text(target_name), SmParam::SkillName { id: skill.id, level: skill.level }],
+                    ));
+                }
+            }
+            return;
+        }
+    }
     // Java `EffectList` only schedules a stop task when the effect's time is
     // positive; a toggle or a 0-`abnormalTime` buff (e.g. Super Haste 7029,
     // `operateType=T`) persists until it's toggled/removed. Model that as a
@@ -411,21 +481,6 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         passive: false,
         effects: buff_effects,
     };
-    // Caster-facing feedback for a landed single-target debuff: an `S1_TEXT`
-    // line listing each percentage modifier (e.g. "Speed -20%"). Gated to
-    // single-target bad skills so an area debuff doesn't spam one line per
-    // affected target. Fires for NPC and player targets alike (the effect is
-    // always applied below — the port has no land-rate/resist roll yet).
-    if let Some(summary) = skill.debuff_percent_summary() {
-        if let Some(client_id) = client_for_player(world, caster_oid) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::S1_TEXT,
-                    &[SmParam::Text(format!("{}: {}", skill.name, summary))],
-                ));
-            }
-        }
-    }
 
     // Arm the poison/bleed damage-over-time ticks (Java `BuffInfo.
     // scheduleEffects` → `scheduleAtFixedRate`). The recurring `DamOverTimeTick`
@@ -481,6 +536,37 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         // buff icon but never the changed stats or movement speed (and other
         // players never see the speed change).
         crate::game_loop::party::broadcast_user_info(world, target_oid);
+    }
+}
+
+/// A target creature's level (Java `Creature.getLevel()`) for the debuff
+/// landing-rate math — an NPC reads its template, a player its record. Defaults
+/// to 1, matching the Spoil landing-level fallback.
+fn creature_level(world: &World, oid: i32) -> i32 {
+    if crate::game_loop::combat::is_npc_oid(oid) {
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&oid)
+            .and_then(|n| n.template(world))
+            .map(|t| t.level)
+            .unwrap_or(1)
+    } else {
+        world.objects.get_component::<crate::model::Player>(&oid).map(|p| p.level).unwrap_or(1)
+    }
+}
+
+/// A target creature's display name (Java `Creature.getName()`) for the
+/// `C1_HAS_RESISTED_YOUR_S2` line — an NPC's template name or the player's name.
+fn creature_name(world: &World, oid: i32) -> String {
+    if crate::game_loop::combat::is_npc_oid(oid) {
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&oid)
+            .and_then(|n| n.template(world))
+            .map(|t| t.name.clone())
+            .unwrap_or_default()
+    } else {
+        world.objects.get_component::<crate::model::Player>(&oid).map(|p| p.name.clone()).unwrap_or_default()
     }
 }
 
@@ -806,7 +892,14 @@ pub(crate) fn apply_skill_damage(
             }
             cs.send(server_packets::system_message_with(
                 sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
-                &[SmParam::PlayerName(caster_name.to_string()), target_param, SmParam::Int(dmg_int)],
+                &[
+                    SmParam::PlayerName(caster_name.to_string()),
+                    target_param,
+                    SmParam::Int(dmg_int),
+                    // `sendDamageMessage`'s `addPopup(target, attacker, -damage)`
+                    // — the on-screen floating damage number over the target.
+                    SmParam::Popup { target: target_oid, attacker: caster_oid, damage: -dmg_int },
+                ],
             ));
         }
     }

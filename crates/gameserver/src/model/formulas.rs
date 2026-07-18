@@ -58,6 +58,29 @@ pub fn calc_magic_success(target_level: i32, effective_level: i32, roll: i32) ->
     roll < rate
 }
 
+/// `Formulas.calcEffectSuccess` — a debuff's landing chance in percent (0-100),
+/// reduced to the factors the port currently models. Java scales `baseMod` by an
+/// attribute (element) bonus, a trait resist/vulnerability bonus and a
+/// `RESIST_ABNORMAL_DEBUFF` mul, `constrain`s to `[minChance, maxChance]`, then
+/// scales by a `BasicPropertyResist` bonus — and subtracts an `ABNORMAL_RESIST_*`
+/// term up front. None of those stats are modeled server-side yet, so each is 1.0
+/// (or 0 for the resist subtrahend), leaving:
+///   baseMod   = (magicLevel - targetLevel + 3) * lvlBonusRate + activateRate + 30
+///   finalRate = constrain(baseMod, 10, 90)
+/// `magicLevel <= -1` falls back to `targetLevel + 3` (Java). `activateRate == -1`
+/// means the debuff always lands → 100. The 10/90 clamp is dist `Character.ini`'s
+/// Min/MaxAbnormalStateSuccessRate (no Interlude skill overrides minChance/maxChance).
+/// TODO(G16): fold in the element/trait/`ABNORMAL_RESIST_*`/`RESIST_ABNORMAL_DEBUFF`/
+/// `BasicPropertyResist` bonuses once those stats land.
+pub fn calc_effect_land_rate(magic_level: i32, activate_rate: i32, lvl_bonus_rate: i32, target_level: i32) -> f64 {
+    if activate_rate == -1 {
+        return 100.0;
+    }
+    let magic_level = if magic_level <= -1 { target_level + 3 } else { magic_level };
+    let base_mod = (magic_level - target_level + 3) * lvl_bonus_rate + activate_rate + 30;
+    (base_mod as f64).clamp(10.0, 90.0)
+}
+
 /// `Formulas.calcAtkSpdMultiplier` (armorBonus = 1). The "weapon base" attack
 /// speed for an unarmed player is the class template's `basePAtkSpd`.
 pub fn calc_atk_spd_multiplier(
@@ -433,6 +456,23 @@ mod tests {
     #[test]
     fn magic_dam_survives_zero_mdef() {
         assert!(calc_magic_dam(100.0, 0.0, 12.0, false, 1.0).is_finite());
+    }
+
+    /// Decrease Speed 1 (magicLevel 35, activateRate 80, lvlBonusRate 30): the
+    /// steep lvlBonusRate caps the chance at 90 vs a low-level mob and floors it
+    /// at 10 vs a much higher-level one. `activateRate == -1` always lands (100),
+    /// and a skill with no magic level uses `targetLevel + 3`.
+    #[test]
+    fn effect_land_rate_clamps_and_special_cases() {
+        // (35 - 5 + 3)·30 + 80 + 30 = 1100 → clamp to 90.
+        assert!((calc_effect_land_rate(35, 80, 30, 5) - 90.0).abs() < 1e-9);
+        // (35 - 80 + 3)·30 + 80 + 30 = -1150 → clamp to 10.
+        assert!((calc_effect_land_rate(35, 80, 30, 80) - 10.0).abs() < 1e-9);
+        // activateRate -1 → guaranteed.
+        assert!((calc_effect_land_rate(35, -1, 30, 5) - 100.0).abs() < 1e-9);
+        // magicLevel <= -1 falls back to targetLevel + 3, so the level term is
+        // (23 - 20 + 3) = 6: 6·5 + 10 + 30 = 70.
+        assert!((calc_effect_land_rate(-1, 10, 5, 20) - 70.0).abs() < 1e-9);
     }
 
     /// Good skills cap the per-mille rate at 320, bad skills at 200; the
