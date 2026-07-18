@@ -20,6 +20,7 @@ mod enchant;
 mod expertise;
 mod friends;
 mod ground_items;
+mod henna;
 mod helpers;
 mod private_store;
 mod trade;

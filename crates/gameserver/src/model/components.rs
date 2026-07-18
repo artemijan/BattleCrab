@@ -338,6 +338,25 @@ pub enum QueuedAction {
 #[derive(Component, Debug, Clone, Default)]
 pub struct SkillBook(pub HashMap<i32, i32>);
 
+/// The player's three worn henna dyes (Java `Player._henna[3]`), by slot →
+/// dye id. Loaded from `character_hennas`, persisted in the store transaction.
+/// The dyes' base-stat bonuses are folded into [`BaseStats`] (recomputed on
+/// add/remove); this component holds only the slot assignments. Player-only.
+#[derive(Component, Debug, Clone, Default)]
+pub struct HennaSlots(pub [Option<i32>; 3]);
+
+impl HennaSlots {
+    /// Number of filled slots (Java `3 - getHennaEmptySlots()` counts these).
+    pub fn worn(&self) -> usize {
+        self.0.iter().filter(|s| s.is_some()).count()
+    }
+
+    /// The worn dye ids in slot order.
+    pub fn dye_ids(&self) -> impl Iterator<Item = i32> + '_ {
+        self.0.iter().filter_map(|s| *s)
+    }
+}
+
 /// Clan skills currently granted to this member (skill_id → level), Java's
 /// `Player.addSkill(clanSkill, false)` set. **Transient** — re-derived from the
 /// clan on every login (see `game_loop::clans::apply_clan_skills`) and never

@@ -12,6 +12,7 @@ pub mod door_data;
 pub mod siege_data;
 pub mod enchant_data;
 pub mod experience;
+pub mod henna_data;
 pub mod hit_condition_bonus;
 pub mod initial_equipment;
 pub mod initial_shortcut;
@@ -41,6 +42,7 @@ pub use cursed_weapon_data::CursedWeaponData;
 pub use door_data::DoorData;
 pub use enchant_data::EnchantData;
 pub use experience::ExperienceData;
+pub use henna_data::HennaData;
 pub use hit_condition_bonus::HitConditionBonusData;
 pub use initial_equipment::InitialEquipmentData;
 pub use initial_shortcut::InitialShortcutData;
@@ -152,6 +154,7 @@ pub struct GameData {
     /// Community-board scheme buffer available-buff table (`_availableBuffs`),
     /// see [`SchemeBufferData`].
     pub scheme_buffer: SchemeBufferData,
+    pub hennas: HennaData,
     pub categories: CategoryData,
     pub cursed_weapons: CursedWeaponData,
     /// Control/flame tower spawns per castle, from `Siege.ini`.
@@ -209,6 +212,7 @@ impl GameData {
             buy_lists,
             multisells,
             scheme_buffer: SchemeBufferData::load_from(file_path),
+            hennas: HennaData::load_from(file_path),
             categories: CategoryData::load_from(file_path),
             cursed_weapons: CursedWeaponData::load_from(file_path),
             siege_towers: siege_data::load_siege_towers(file_path),
@@ -256,6 +260,7 @@ impl GameData {
             buy_lists: BuyListData::empty(),
             multisells: MultisellData::empty(),
             scheme_buffer: SchemeBufferData::default(),
+            hennas: HennaData::empty(),
             categories: CategoryData::empty(),
             cursed_weapons: CursedWeaponData::empty(),
             siege_towers: std::collections::HashMap::new(),

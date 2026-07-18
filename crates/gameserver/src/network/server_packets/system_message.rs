@@ -112,6 +112,11 @@ pub mod sm_ids {
     pub const YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS: i16 = 2208;
     // Shop (G12)
     pub const YOU_DO_NOT_HAVE_ENOUGH_ADENA: i16 = 279;
+    // Henna / dye symbols (G16).
+    pub const THE_SYMBOL_HAS_BEEN_ADDED: i16 = 877;
+    pub const THE_SYMBOL_HAS_BEEN_DELETED: i16 = 878;
+    pub const THE_SYMBOL_CANNOT_BE_DRAWN: i16 = 899;
+    pub const NO_SLOT_EXISTS_TO_DRAW_THE_SYMBOL: i16 = 900;
     // User commands (G15.5)
     /// "Current Location: $s1" — the `/loc` fallback when the map region has
     /// no `locId` message.
