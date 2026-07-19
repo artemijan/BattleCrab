@@ -42,6 +42,7 @@ fn cc_skill(id: i32, effect: SkillEffect, abnormal: &str) -> Skill {
         abnormal_type: abnormal.into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
+        over_hit: false,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,

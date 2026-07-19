@@ -571,9 +571,22 @@ reset to 0; otherwise `calculateKarmaGain` + `pk_kills++`), with the PVP-zone
 unconditionally, where Java skips it inside PVP **or siege** zones — arena and
 siege deaths are now free.
 
-**Still open in G20** (breadth, not gate): overhit XP, `SHOTS_BONUS`, duels,
-karma decay while hunting (`calculateKarmaLost` needs per-level `KarmaData`,
-absent from this dist), and PK item drops.
+🚧 **Over-hit landed (2026-07-19)** — plan
+[PLAN_G20_OVERHIT.md](PLAN_G20_OVERHIT.md). A killing blow from an `<overHit>`
+skill banks the damage by which it overshot, paid as bonus XP capped at 25 % of
+the share. 59 learnable skills carry it.
+
+**`<overHit>` is an *effect* parameter, not a skill field** — it sits inside
+`<effect>` and each damage handler reads `params.getBoolean("overHit")`. The
+first implementation read it at skill level; the behaviour tests passed anyway
+(their fixtures set it wherever the code looked) and only the parse assertion
+against the real datapack caught it. Assert against real data, not just
+fixtures.
+
+**Still open in G20** (breadth, not gate): duels (`DuelManager` — G25's olympiad
+reuses their shape), `SHOTS_BONUS`, karma decay while hunting
+(`calculateKarmaLost` needs per-level `KarmaData`, absent from this dist), and
+PK item drops.
 
 **Scoping note:** several G20 line items were already done — `PhysicalAttack`
 skills (instant-damage slice) and the root/immobilize half of

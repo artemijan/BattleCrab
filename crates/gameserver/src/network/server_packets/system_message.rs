@@ -225,6 +225,10 @@ pub mod sm_ids {
     /// "Your skill was deactivated due to lack of MP." — a toggle's MP upkeep
     /// tick failing (`ManaDamOverTime`).
     pub const YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP: i16 = 140;
+    /// "Over-hit!" — the notice for a killing blow that overshot. Java's
+    /// companion message 362 (the bonus *amount*) is defined but never sent in
+    /// this build, so it is not ported.
+    pub const OVER_HIT: i16 = 361;
     // Ranged attacks (G20).
     pub const YOU_HAVE_RUN_OUT_OF_ARROWS: i16 = 112;
     pub const YOUR_CROSSBOW_IS_PREPARING_TO_FIRE: i16 = 2224;

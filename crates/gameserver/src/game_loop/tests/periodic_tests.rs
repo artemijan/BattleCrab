@@ -35,6 +35,7 @@ fn periodic_skill(id: i32, effects: Vec<SkillEffect>, toggle: bool) -> Skill {
         abnormal_type: format!("PERIODIC{id}"),
         activate_rate: -1,
         lvl_bonus_rate: 0,
+        over_hit: false,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,

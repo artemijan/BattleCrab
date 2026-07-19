@@ -44,6 +44,7 @@ mod melee_variants_tests;
 mod misc_tests;
 mod movement_tests;
 mod npc_tests;
+mod overhit_tests;
 mod periodic_tests;
 mod pvp_kill_tests;
 mod quests_tests;
@@ -402,6 +403,7 @@ fn cast_test_world() -> (
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
+        over_hit: false,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
@@ -1132,6 +1134,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
+        over_hit: false,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
@@ -1181,6 +1184,7 @@ fn clan_advent_test_skill() -> Skill {
         abnormal_type: "CLAN_ADVENT".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
+        over_hit: false,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
