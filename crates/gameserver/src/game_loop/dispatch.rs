@@ -360,6 +360,9 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_PLEDGE_RECRUIT_BOARD_SEARCH => {
             super::clans::handle_request_pledge_recruit_board_search(world, client_id, ex_body)
         }
+        exop::REQUEST_PLEDGE_DRAFT_LIST_SEARCH => {
+            super::clans::handle_request_pledge_draft_list_search(world, client_id, ex_body)
+        }
         exop::REQUEST_PLEDGE_RECRUIT_APPLY_INFO => {
             super::clans::handle_request_pledge_recruit_apply_info(world, client_id)
         }

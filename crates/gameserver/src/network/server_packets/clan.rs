@@ -231,6 +231,18 @@ pub fn ex_pledge_recruit_board_search_empty(current_page: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Port of `serverpackets/ExPledgeDraftListSearch` (0xFE:0x146) — the
+/// draft-list tab's search result: a list of clanless players waiting to be
+/// recruited (`playerId`, `name:string`, `karma`, `classId`, `level` each).
+/// The waiting list lives in `ClanEntryManager`, which is unported
+/// (TODO(G18)), so the count is 0 and no entries follow — exactly Java's
+/// answer on an empty registry.
+pub fn ex_pledge_draft_list_search_empty() -> Vec<u8> {
+    let mut w = ex(0x146);
+    w.write_i32(0); // waiting-list entries
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/ExPledgeRecruitInfo` (0xFE:0x13F) — a clan's
 /// summary for the recruitment UI. Java appends the sub-pledge list
 /// (`getAllSubPledges`); the port has no sub-units yet (G18), so the count
