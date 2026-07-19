@@ -174,8 +174,14 @@ pub struct PlayerSaveData {
     /// any `items` row for this owner not present here, so this is the whole
     /// authoritative set, covering pickups, drops, stack changes and equips.
     pub items: Vec<ItemRow>,
-    /// Learned skills as `(skill_id, skill_level)` (class_index 0).
+    /// Learned skills as `(skill_id, skill_level)` for the **active** class
+    /// index (see [`Self::class_index`]).
     pub skills: Vec<(i32, i32)>,
+    /// The *inactive* class indices' books (G17 subclasses), so a slot keeps
+    /// what it learned while it was active.
+    pub skills_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
+    /// Which class index [`Self::skills`] belongs to.
+    pub class_index: i32,
     /// Worn henna dyes as `(slot 1-3, symbol_id)` (class_index 0).
     pub hennas: Vec<(i32, i32)>,
     /// Registered recipes as `(recipe_list_id, is_dwarven)` — the `type` column
@@ -1011,7 +1017,16 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             continue;
         }
         let items = load_items(pool, object_id).await;
-        let skills = load_skills(pool, object_id).await;
+        let skills_by_index = load_skills(pool, object_id).await;
+        let subclasses = load_subclasses(pool, object_id).await;
+        let class_id_now = geti(row, "classid") as i32;
+        // Java keeps the *active* class in `characters.classid`; the index is
+        // whichever subclass slot carries it (0 when it's the base class).
+        let active_index = subclasses
+            .iter()
+            .find(|s| s.class_id == class_id_now)
+            .map(|s| s.class_index)
+            .unwrap_or(0);
         let hennas = load_hennas(pool, object_id).await;
         let recipe_book = load_recipe_book(pool, object_id).await;
         let variables = load_variables(pool, object_id).await;
@@ -1057,10 +1072,13 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             prime_points,
             access_level: geti(row, "accesslevel") as i32,
             noble: geti(row, "nobless") == 1,
-            subclasses: load_subclasses(pool, object_id).await,
+            subclasses,
             char_slot: slot as i32,
             items,
-            skills,
+            // The active class index is whichever subclass row matches the
+            // `characters.classid` we just loaded; base class → 0.
+            skills: skills_by_index.get(&active_index).cloned().unwrap_or_default(),
+            skills_by_index,
             hennas,
             recipe_book,
             variables,
@@ -1084,13 +1102,19 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
 /// A character's `character_skills` rows (Java: `Player.restoreSkills`,
 /// called for every row shown in `CharSelectionInfo` — same treatment as
 /// `load_items`).
-async fn load_skills(pool: &SqlitePool, owner_id: i32) -> Vec<(i32, i32)> {
-    let rows = sqlx::query("SELECT skill_id, skill_level FROM character_skills WHERE charId=? AND class_index=0")
+async fn load_skills(pool: &SqlitePool, owner_id: i32) -> std::collections::HashMap<i32, Vec<(i32, i32)>> {
+    let rows = sqlx::query("SELECT skill_id, skill_level, class_index FROM character_skills WHERE charId=?")
         .bind(owner_id)
         .fetch_all(pool)
         .await
         .unwrap_or_default();
-    rows.iter().map(|r| (geti(r, "skill_id") as i32, geti(r, "skill_level") as i32)).collect()
+    let mut out: std::collections::HashMap<i32, Vec<(i32, i32)>> = std::collections::HashMap::new();
+    for r in &rows {
+        out.entry(geti(r, "class_index") as i32)
+            .or_default()
+            .push((geti(r, "skill_id") as i32, geti(r, "skill_level") as i32));
+    }
+    out
 }
 
 /// A character's `character_hennas` rows (Java `Player.restoreHenna`) as
@@ -1767,8 +1791,9 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
             .await?;
     }
 
-    // learned skills (class_index 0 — no subclasses on this dist).
-    sqlx::query("DELETE FROM character_skills WHERE charId=? AND class_index=0").bind(char_id).execute(&mut *tx).await?;
+    // Learned skills, per class index (G17): every slot is rewritten, so a
+    // subclass keeps its own book rather than inheriting the active one.
+    sqlx::query("DELETE FROM character_skills WHERE charId=?").bind(char_id).execute(&mut *tx).await?;
 
     // worn henna dyes (Java stores per add/remove; here delete+reinsert on flush,
     // memory-first like items/skills). `class_index` 0 — no subclasses.
@@ -1781,16 +1806,25 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
             .execute(&mut *tx)
             .await?;
     }
-    for (skill_id, level) in &s.skills {
-        sqlx::query(
-            "INSERT INTO character_skills (charId, skill_id, skill_level, skill_sub_level, class_index) \
-             VALUES (?, ?, ?, 0, 0)",
-        )
-        .bind(char_id)
-        .bind(skill_id)
-        .bind(level)
-        .execute(&mut *tx)
-        .await?;
+    // The active index's book comes from `skills`; the rest from the banked
+    // per-index map.
+    let mut per_index: Vec<(i32, &Vec<(i32, i32)>)> =
+        s.skills_by_index.iter().map(|(i, v)| (*i, v)).collect();
+    per_index.push((s.class_index, &s.skills));
+    for (class_index, skills) in per_index {
+        for (skill_id, level) in skills {
+            sqlx::query(
+                "INSERT OR REPLACE INTO character_skills \
+                 (charId, skill_id, skill_level, skill_sub_level, class_index) \
+                 VALUES (?, ?, ?, 0, ?)",
+            )
+            .bind(char_id)
+            .bind(skill_id)
+            .bind(level)
+            .bind(class_index)
+            .execute(&mut *tx)
+            .await?;
+        }
     }
 
     // registered recipes (Java saves per-registration; here delete+reinsert

@@ -69,6 +69,8 @@ fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
         },
         items: c.items.clone(),
         skills: c.skills.clone(),
+        skills_by_index: Default::default(),
+        class_index: 0,
         hennas: c.hennas.clone(),
         recipe_book: c.recipe_book.iter().map(|&id| (id, true)).collect(),
         variables: c.variables.clone(),
