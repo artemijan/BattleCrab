@@ -1,6 +1,7 @@
 //! `NPC.ini` — port of the `NPC_CONFIG_FILE` block of `Config.java`, scoped
 //! to the keys the G9 combat/AI slice consumes.
 
+use super::character::CHARACTER_CONFIG_FILE;
 use commons::config::PropertiesParser;
 
 pub const NPC_CONFIG_FILE: &str = "config/NPC.ini";
@@ -99,6 +100,7 @@ impl NpcConfig {
     pub fn load() -> Self {
         let p = PropertiesParser::load(NPC_CONFIG_FILE);
         let g = PropertiesParser::load(GENERAL_CONFIG_FILE);
+        let c = PropertiesParser::load(CHARACTER_CONFIG_FILE);
         let d = Self::default();
         Self {
             default_corpse_time: p.get_int("DefaultCorpseTime", d.default_corpse_time),
@@ -127,8 +129,8 @@ impl NpcConfig {
             force_delete_minions: p.get_bool("ForceDeleteMinions", d.force_delete_minions),
             raid_hp_regen_multiplier: p.get_int("RaidHpRegenMultiplier", 100) as f64 / 100.0,
             raid_mp_regen_multiplier: p.get_int("RaidMpRegenMultiplier", 100) as f64 / 100.0,
-            hp_regen_multiplier: g.get_int("HpRegenMultiplier", 100) as f64 / 100.0,
-            mp_regen_multiplier: g.get_int("MpRegenMultiplier", 100) as f64 / 100.0,
+            hp_regen_multiplier: c.get_int("HpRegenMultiplier", 100) as f64 / 100.0,
+            mp_regen_multiplier: c.get_int("MpRegenMultiplier", 100) as f64 / 100.0,
         }
     }
 }
