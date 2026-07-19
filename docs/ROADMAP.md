@@ -391,7 +391,10 @@ declare war, form an ally. **Unblocks:** `//clan_*`, `//pledge`,
 
 **Audit additions (2026-07):** clan recruitment/entry (`ClanEntryManager` — the
 `RequestPledgeRecruit*`/draft-list/waiting-list packet family) and the Classic
-pledge-bonus rewards (`ClanRewardData`, `pledgebonus` packets).
+pledge-bonus rewards (`ClanRewardData`, `pledgebonus` packets). The three
+clan-window queries (ex 0xD3/0xD8/0xDE → `ExPledgeRecruitInfo`/
+`ExPledgeRecruitApplyInfo`) are already answered with faithful empty-registry
+responses (`game_loop/clans.rs`); this milestone adds the registry itself.
 
 ---
 

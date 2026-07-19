@@ -353,6 +353,17 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             handle_answer_party_loot_modification(world, client_id, ex_body)
         }
         exop::REQUEST_VOTE_NEW => super::reco::handle_request_vote_new(world, client_id, ex_body),
+        // Clan entry (recruitment) queries fired when the clan window opens.
+        exop::REQUEST_PLEDGE_RECRUIT_INFO => {
+            super::clans::handle_request_pledge_recruit_info(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_RECRUIT_APPLY_INFO => {
+            super::clans::handle_request_pledge_recruit_apply_info(world, client_id)
+        }
+        // RequestPledgeWaitingApplied: only answered when the clanless player
+        // has an application in ClanEntryManager (`clanId > 0`); the registry
+        // is unported (TODO(G18)), so Java on an empty registry sends nothing.
+        exop::REQUEST_PLEDGE_WAITING_APPLIED => {}
         // RequestDispel (IN_GAME): alt+click a buff icon to cancel the buff.
         exop::REQUEST_DISPEL => handle_request_dispel(world, client_id, ex_body),
         exop::REQUEST_GOTO_LOBBY => {

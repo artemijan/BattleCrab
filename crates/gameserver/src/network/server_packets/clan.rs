@@ -193,3 +193,40 @@ pub fn gm_view_pledge_info(
     }
     w.into_bytes()
 }
+
+// ---------------------------------------------------------------------------
+// Clan entry (recruitment) — the query slice; the full ClanEntryManager
+// board/waiting-list system is G18.
+// ---------------------------------------------------------------------------
+
+fn ex(sub: i16) -> PacketWriter {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(sub);
+    w
+}
+
+/// Port of `serverpackets/ExPledgeRecruitApplyInfo` (0xFE:0x140) — the
+/// player's clan-entry state, driving which recruitment buttons the clan
+/// window shows. The int is Java's `ClanEntryStatus` ordinal: 0 DEFAULT,
+/// 1 WAITING (clanless, application pending), 2 ORDERED (leader of a
+/// recruiting clan).
+pub fn ex_pledge_recruit_apply_info(status: i32) -> Vec<u8> {
+    let mut w = ex(0x140);
+    w.write_i32(status);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExPledgeRecruitInfo` (0xFE:0x13F) — a clan's
+/// summary for the recruitment UI. Java appends the sub-pledge list
+/// (`getAllSubPledges`); the port has no sub-units yet (G18), so the count
+/// is 0 and no entries follow.
+pub fn ex_pledge_recruit_info(clan: &crate::model::clan::Clan) -> Vec<u8> {
+    let mut w = ex(0x13F);
+    w.write_string(&clan.name);
+    w.write_string(clan.leader_name());
+    w.write_i32(clan.level);
+    w.write_i32(clan.members.len() as i32);
+    w.write_i32(0); // sub-pledge count
+    w.into_bytes()
+}

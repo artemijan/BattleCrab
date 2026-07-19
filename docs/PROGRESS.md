@@ -1071,7 +1071,13 @@ creation through the ClanMaster dialog. Script breadth is G12.
   enter-world)/`clan_create_expiry_time`; clan id real in UserInfo CLAN
   block, CharInfo, CharSelectionInfo, CharSelected; clan chat now
   broadcasts to online members; enter/leave world send the roster window
-  and online/offline pings.
+  and online/offline pings. The clan-window clan-entry queries are
+  answered (ex 0xD3 `RequestPledgeRecruitInfo` → `ExPledgeRecruitInfo`
+  with an empty sub-pledge list, ex 0xDE `RequestPledgeRecruitApplyInfo`
+  → always-DEFAULT `ExPledgeRecruitApplyInfo`, ex 0xD8
+  `RequestPledgeWaitingApplied` consumed silently) — the registration
+  side (`ClanEntryManager`, board search/apply/waiting/draft lists) is
+  G18's recruitment audit addition.
 - **Tests**: cond-flags/bit-unpack units; `char_persistence::
   quest_states_persist`; synthetic-world tests for bypass routing, the
   full Q00258 loop (accept → drops → cond mark → turn-in → repeatable
