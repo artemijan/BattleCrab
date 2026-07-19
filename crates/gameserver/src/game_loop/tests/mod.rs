@@ -45,6 +45,7 @@ mod lobby_tests;
 mod melee_variants_tests;
 mod misc_tests;
 mod movement_tests;
+mod npc_cast_tests;
 mod npc_tests;
 mod overhit_tests;
 mod periodic_tests;
@@ -232,6 +233,7 @@ async fn character_create_inserts_into_real_schema() {
         initial_shortcuts: crate::data::InitialShortcutData::empty(),
         skill_data: crate::data::SkillData::empty(),
         npc_data: crate::data::NpcData::empty(),
+        npc_ai_skills: Default::default(),
         spawn_data: crate::data::SpawnData::empty(),
         hit_condition_bonus: crate::data::HitConditionBonusData::default(),
         xp_lost: crate::data::PlayerXpPercentLostData::empty(),
@@ -387,6 +389,7 @@ fn cast_test_world() -> (
         level: 1,
         name: String::new(),
         operate_type: OperateType::Active,
+        is_continuous: false,
         target_type: TargetType::Other,
         magic_type: 1,
         magic_level: 0,        effect_point: 0,
@@ -1118,6 +1121,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         level: 1,
         name: format!("Clan Skill {id}"),
         operate_type: OperateType::Passive,
+        is_continuous: false,
         target_type: TargetType::Self_,
         magic_type: 2,
         magic_level: 0,        effect_point: 0,
@@ -1168,6 +1172,7 @@ fn clan_advent_test_skill() -> Skill {
         level: 1,
         name: "Clan Advent".into(),
         operate_type: OperateType::Other,
+        is_continuous: false,
         target_type: TargetType::Self_,
         magic_type: 2,
         magic_level: 0,        effect_point: 100,

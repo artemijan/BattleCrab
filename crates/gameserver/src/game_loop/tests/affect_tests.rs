@@ -18,6 +18,7 @@ fn aoe_skill(id: i32, scope: AffectScope, object: AffectObject, range: i32) -> S
         level: 1,
         name: format!("Test {id}"),
         operate_type: OperateType::Active,
+        is_continuous: false,
         target_type: TargetType::Enemy,
         magic_type: 1,
         magic_level: 0,

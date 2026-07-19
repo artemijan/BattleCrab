@@ -19,6 +19,7 @@ fn nuke(id: i32, power: f64, over_hit: bool) -> Skill {
         level: 1,
         name: format!("Nuke {id}"),
         operate_type: OperateType::Active,
+        is_continuous: false,
         target_type: TargetType::Enemy,
         magic_type: 1,
         magic_level: 40,

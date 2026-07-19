@@ -60,7 +60,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 let (m_atk, caster_name) = {
                     let m_atk =
                         world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
-                    (m_atk, world.objects.get_component::<crate::model::Player>(&caster_oid).expect("player").name.clone())
+                    (m_atk, caster_display_name(world, caster_oid))
                 };
                 let m_def = target_m_def(world, target_oid);
                 let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit, magic_shots_bonus);
@@ -73,14 +73,12 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     let cs = world.objects.get_component::<CombatStats>(&caster_oid);
                     let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
                     let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
-                    let player =
-                        world.objects.get_component::<crate::model::Player>(&caster_oid).expect("player");
                     let str_bonus = world
                         .objects
                         .get_component::<BaseStats>(&caster_oid)
                         .map(|b| world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Str, b.str_))
                         .unwrap_or(1.0);
-                    (p_atk, player.level, str_bonus, random_dmg, player.name.clone())
+                    (p_atk, caster_level(world, caster_oid), str_bonus, random_dmg, caster_display_name(world, caster_oid))
                 };
                 let p_def = target_p_def(world, target_oid);
                 let crit = formulas::calc_physical_skill_crit(*critical_chance, str_bonus, world.roll(100));
@@ -129,7 +127,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                         .map(|b| world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Str, b.str_))
                         .unwrap_or(1.0);
                     let name =
-                        world.objects.get_component::<crate::model::Player>(&caster_oid).expect("player").name.clone();
+                        caster_display_name(world, caster_oid);
                     (p_atk, crit_rate, str_bonus, random_dmg, name)
                 };
 
@@ -174,7 +172,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 let (m_atk, caster_name) = {
                     let m_atk =
                         world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
-                    (m_atk, world.objects.get_component::<crate::model::Player>(&caster_oid).expect("player").name.clone())
+                    (m_atk, caster_display_name(world, caster_oid))
                 };
                 let m_def = target_m_def(world, target_oid);
                 let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit, magic_shots_bonus);
@@ -269,7 +267,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     vitals.cur_hp += amount;
                     amount
                 };
-                let caster_name = world.objects.get_component::<crate::model::Player>(&caster_oid).expect("player").name.clone();
+                let caster_name = caster_display_name(world, caster_oid);
                 if let Some(client_id) = client_for_player(world, target_oid) {
                     if let Some(cs) = world.clients.get(&client_id) {
                         if target_oid != caster_oid {
@@ -1634,3 +1632,34 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     }
 }
 
+
+/// The caster's name for the damage system messages. NPCs cast skills as of
+/// G21, so this can't `expect` a `Player` — a monster resolves to its template
+/// name. These strings only ever reach the *caster's own* client, which an NPC
+/// doesn't have, so the value is cosmetic for the NPC path; the helper exists
+/// so the shared effect code stops panicking on a non-player caster.
+fn caster_display_name(world: &World, oid: i32) -> String {
+    if let Some(p) = world.objects.get_component::<crate::model::Player>(&oid) {
+        return p.name.clone();
+    }
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&oid)
+        .and_then(|n| n.template(world))
+        .map(|t| t.name.clone())
+        .unwrap_or_default()
+}
+
+/// The caster's level for `levelMod` in the physical-skill damage formula
+/// (Java reads `Creature.getLevel()`, which both players and NPCs implement).
+fn caster_level(world: &World, oid: i32) -> i32 {
+    if let Some(p) = world.objects.get_component::<crate::model::Player>(&oid) {
+        return p.level;
+    }
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&oid)
+        .and_then(|n| n.template(world))
+        .map(|t| t.level)
+        .unwrap_or(1)
+}

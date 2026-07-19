@@ -1450,6 +1450,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
         level: 1,
         name: String::new(),
         operate_type: OperateType::Active,
+        is_continuous: false,
         target_type,
         magic_type: 0,
         magic_level,
