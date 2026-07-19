@@ -4,6 +4,7 @@
 //! [`build_registry`]). Framework in `game_loop/quests.rs`; this module is
 //! only the content.
 
+pub mod alliance_master;
 pub mod clan_master;
 pub mod newbie_guide;
 pub mod npc_location_info;
@@ -50,6 +51,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00317_catch_the_wind::Q00317CatchTheWind),
         Arc::new(q00320_bones_tell_the_future::Q00320BonesTellTheFuture),
         Arc::new(q00324_sweetest_venom::Q00324SweetestVenom),
+        Arc::new(alliance_master::AllianceMaster),
         Arc::new(clan_master::ClanMaster),
         Arc::new(newbie_guide::NewbieGuide),
         Arc::new(npc_location_info::NpcLocationInfo),

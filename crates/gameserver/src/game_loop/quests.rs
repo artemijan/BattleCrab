@@ -582,6 +582,15 @@ impl<'w> QuestCtx<'w> {
         loc
     }
 
+    /// `Player.getClan() != null` (AllianceMaster's clan gate). Clan id 0 is
+    /// the no-clan sentinel.
+    pub fn has_clan(&self) -> bool {
+        self.world
+            .objects
+            .get_component::<crate::model::Player>(&self.player)
+            .is_some_and(|p| p.clan_id != 0)
+    }
+
     /// `Player.isClanLeader` (ClanMaster's LEADER_REQUIRED gate).
     pub fn is_clan_leader(&self) -> bool {
         self.world
