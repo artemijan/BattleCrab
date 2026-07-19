@@ -225,6 +225,9 @@ pub mod sm_ids {
     /// "Your skill was deactivated due to lack of MP." — a toggle's MP upkeep
     /// tick failing (`ManaDamOverTime`).
     pub const YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP: i16 = 140;
+    // Ranged attacks (G20).
+    pub const YOU_HAVE_RUN_OUT_OF_ARROWS: i16 = 112;
+    pub const YOUR_CROSSBOW_IS_PREPARING_TO_FIRE: i16 = 2224;
     // Vitality (G16): the four `PlayerStat.setVitalityPoints` notices.
     pub const YOUR_VITALITY_IS_AT_MAXIMUM: i16 = 2314;
     pub const YOUR_VITALITY_HAS_INCREASED: i16 = 2315;

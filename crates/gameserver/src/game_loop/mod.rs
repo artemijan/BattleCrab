@@ -38,6 +38,7 @@ mod passive_skills;
 mod position;
 mod pvp;
 pub mod quests;
+mod ranged;
 mod reco;
 mod regen;
 mod shop;

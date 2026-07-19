@@ -531,6 +531,24 @@ line, PvP flagging drives auto-attack, a physical skill lands. **Deps:** G14, G1
 duels, `RequestDuelStart`/`AnswerStart`/`Surrender`, end conditions + the arena
 teleport variant). G25's olympiad matches reuse this shape, so duels land here.
 
+🚧 **Ranged attacks landed (2026-07-19)** — plan
+[PLAN_G20_RANGED.md](PLAN_G20_RANGED.md). The gate's first clause: bows and
+crossbows now require **ammunition** matched to the weapon's crystal grade and
+auto-equipped into the left hand, spend **MP** per shot, consume an arrow, and
+arm a **reload delay** (`900000 / pAtkSpd`) shown as a red `SetupGauge`; running
+out of arrows or MP refuses the swing. Bow *range* already worked — bows declare
+`pAtkRange` 500, fed to `CombatStats` since G14.
+
+Ammunition needs its own `Inventory::equip_ammunition`: the ordinary equip path
+refuses `Etc` items (arrows are `Etc`) *and* its `SLOT_L_HAND` branch displaces
+a two-handed weapon — it would unequip the bow. Java sidesteps the same problem
+the same way (`setPaperdollItem` directly).
+
+**Scoping note:** several G20 line items were already done — `PhysicalAttack`
+skills (instant-damage slice) and the root/immobilize half of
+`isMovementDisabled` (G19 CC slice). Still open: polearm sweep, the melee half
+of PvP auto-attack, dual-weapon split hits, overhit XP, `SHOTS_BONUS`, duels.
+
 ### G20.5 — Recommendations
 *(2026-07 audit addition.)* The evaluation/recommendation system: rec-have/
 rec-left counters on the character, `RequestVoteNew` (evaluate a target), the

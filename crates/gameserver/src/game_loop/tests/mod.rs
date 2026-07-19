@@ -45,6 +45,7 @@ mod movement_tests;
 mod npc_tests;
 mod periodic_tests;
 mod quests_tests;
+mod ranged_tests;
 mod resist_tests;
 mod shortcuts_tests;
 mod skills_tests;
@@ -807,6 +808,9 @@ fn combat_test_world() -> (
         price: 0,
         handler: crate::data::item_data::ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
+ mp_consume: 0,
+ reduced_mp_consume: 0,
+ reduced_mp_consume_chance: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -1073,6 +1077,9 @@ fn quest_test_world() -> (
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
+ mp_consume: 0,
+ reduced_mp_consume: 0,
+ reduced_mp_consume_chance: 0,
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,
@@ -1320,6 +1327,9 @@ fn shop_world() -> (
         price: 0,
         handler: crate::data::item_data::ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
+ mp_consume: 0,
+ reduced_mp_consume: 0,
+ reduced_mp_consume_chance: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
@@ -1373,6 +1383,9 @@ fn add_quest_items(world: &mut World, ids: &[(i32, &str, bool)]) {
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
+ mp_consume: 0,
+ reduced_mp_consume: 0,
+ reduced_mp_consume_chance: 0,
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,
@@ -1399,6 +1412,9 @@ fn shot_template(item_id: i32, grade: crate::data::item_data::CrystalType, handl
         name: format!("shot{item_id}"),
         kind: crate::data::item_data::ItemKind::Etc,
         crystal_type: grade, crystal_count: 0,
+ mp_consume: 0,
+ reduced_mp_consume: 0,
+ reduced_mp_consume_chance: 0,
         body_part: crate::data::item_data::SLOT_NONE,
         weight: 0,
         is_stackable: true,
@@ -1421,6 +1437,9 @@ fn shot_weapon(world: &mut World, item_id: i32, grade: crate::data::item_data::C
         name: format!("weapon{item_id}"),
         kind: crate::data::item_data::ItemKind::Weapon,
         crystal_type: grade, crystal_count: 0,
+ mp_consume: 0,
+ reduced_mp_consume: 0,
+ reduced_mp_consume_chance: 0,
         body_part: crate::data::item_data::SLOT_R_HAND,
         weight: 0,
         is_stackable: false,
@@ -1558,6 +1577,9 @@ fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<
         price: 0,
         handler: crate::data::item_data::ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
+ mp_consume: 0,
+ reduced_mp_consume: 0,
+ reduced_mp_consume_chance: 0,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
