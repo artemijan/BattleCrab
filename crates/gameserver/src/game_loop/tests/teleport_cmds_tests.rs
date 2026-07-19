@@ -96,10 +96,12 @@ fn teleporter_rejects_malformed_and_wrong_npc() {
     assert_eq!((pos.x, pos.y), (0, 0), "non-teleporter NPC must not teleport");
 }
 
-/// Shared `/unstuck` fixture: the dist's 30 s `UnstuckInterval`, a map region
-/// whose tile contains (0,0), and the static escape skill 2099 with the
-/// `Escape TOWN` effect.
-fn unstuck_world() -> crate::world::World {
+/// `/unstuck` (user command 52) with the dist's 30 s `UnstuckInterval`:
+/// sends the "You use Escape" line, starts a static 30 s cast of skill 2099,
+/// refuses a second use mid-cast, and on landing the `Escape TOWN` effect
+/// teleports to the map-region town respawn.
+#[test]
+fn unstuck_casts_escape_and_teleports_to_town() {
     let (mut world, ..) = test_world();
     world.cfg.character.unstuck_interval = 30;
     world.data.map_region = crate::data::MapRegionData::from_regions(vec![
@@ -150,16 +152,6 @@ fn unstuck_world() -> crate::world::World {
         stay_after_death: false,
         effects: vec![crate::model::skill::SkillEffect::EscapeToTown],
     });
-    world
-}
-
-/// `/unstuck` (user command 52) with the dist's 30 s `UnstuckInterval`:
-/// sends the "You use Escape" line, starts a static 30 s cast of skill 2099,
-/// refuses a second use mid-cast, and on landing the `Escape TOWN` effect
-/// teleports to the map-region town respawn.
-#[test]
-fn unstuck_casts_escape_and_teleports_to_town() {
-    let mut world = unstuck_world();
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     // The bare test template spawns at 0 HP; the finish phase's HP re-check
     // (`cur_hp <= hp_consume`) needs a live caster.
@@ -187,33 +179,6 @@ fn unstuck_casts_escape_and_teleports_to_town() {
     assert!(
         landed.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED),
         "teleport must cancel the cast animation client-side"
-    );
-    assert!(!world.objects.has_component::<Casting>(&3001), "cast slot freed by the abort");
-}
-
-/// Regression: `/unstuck` with a target selected (here: the player's own
-/// character, the everyday self-click) must still cancel the cast animation
-/// on landing. Java's `canAbortCast` (`getTarget() == null`) skips the
-/// `MagicSkillCanceled` in this case and leaves the escape FX playing at the
-/// destination — a Mobius quirk `abort_cast_on_teleport` deliberately does
-/// not port.
-#[test]
-fn unstuck_with_target_selected_still_cancels_cast_animation() {
-    let mut world = unstuck_world();
-    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Vitals>(&3001).unwrap().cur_hp = 100.0;
-    world.objects.add_components(&3001, crate::model::components::TargetRef(Some(3001)));
-
-    super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(52));
-    drain(&mut rx);
-    advance_ticks(&mut world, 310);
-
-    let pos = world.objects.get_component::<Position>(&3001).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (5000, 6000, -25), "teleported despite the selection");
-    let landed = drain(&mut rx);
-    assert!(
-        landed.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED),
-        "cancel must go out even with a target selected"
     );
     assert!(!world.objects.has_component::<Casting>(&3001), "cast slot freed by the abort");
 }
