@@ -22,6 +22,7 @@ use rand::Rng;
 use crate::data::npc_ai_skills::AiSkillScope;
 use crate::data::npc_data::AiType;
 use crate::model::components::{Casting, Position, RegionCell, Vitals};
+use crate::model::npc::AggroList;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
@@ -72,27 +73,31 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
 
     // --- Java's priority ladder, in order. ---
 
-    // 1. Heal. Java reconsiders the target across the faction; we heal the
-    //    caster. The chance scales so it's certain below 33 % HP:
+    // 1. Heal — the most important skill, and Java reconsiders the target for
+    //    it: the pack's healer looks for whoever is worst off, not just itself.
+    //    The chance scales off *that* target's HP so it's certain below 33 %:
     //    `(100 - hpPercent) * 1.5`.
-    // TODO(G21): `skillTargetReconsider` — heal a wounded faction-mate once
-    // clan-help exists (Java `AttackableAI.skillTargetReconsider`).
     if let Some(skill) = pick(world, &ai_skills, AiSkillScope::Heal, npc_oid) {
-        let hp_pct = hp_percent(world, npc_oid);
-        let heal_chance = (100.0 - hp_pct) * 1.5;
-        if (rand::thread_rng().gen_range(0..100) as f64) < heal_chance
-            && check_skill_target(world, npc_oid, npc_oid, &skill)
-        {
-            start_cast(world, npc_oid, npc_oid, &skill);
-            return true;
+        if let Some(heal_target) = skill_target_reconsider(world, npc_oid, &skill, false) {
+            let hp_pct = hp_percent(world, heal_target);
+            let heal_chance = (100.0 - hp_pct) * 1.5;
+            if (rand::thread_rng().gen_range(0..100) as f64) < heal_chance
+                && check_skill_target(world, npc_oid, heal_target, &skill)
+            {
+                start_cast(world, npc_oid, heal_target, &skill);
+                return true;
+            }
         }
     }
 
-    // 2. Self-buff. Same reconsider narrowing as heal.
+    // 2. Buff — same reconsider, so a support mob buffs its pack rather than
+    //    only itself. Java passes `insideCastRange = true` here.
     if let Some(skill) = pick(world, &ai_skills, AiSkillScope::Buff, npc_oid) {
-        if check_skill_target(world, npc_oid, npc_oid, &skill) {
-            start_cast(world, npc_oid, npc_oid, &skill);
-            return true;
+        if let Some(buff_target) = skill_target_reconsider(world, npc_oid, &skill, true) {
+            if check_skill_target(world, npc_oid, buff_target, &skill) {
+                start_cast(world, npc_oid, buff_target, &skill);
+                return true;
+            }
         }
     }
 
@@ -234,7 +239,11 @@ fn check_skill_target(world: &World, npc_oid: i32, target_oid: i32, skill: &Skil
         }
         // Java: "there are cases where bad skills (negative effect points) are
         // actually buffs and NPCs cast them on players, but they shouldn't."
-        if !(skill.is_debuff || skill.is_bad()) && target_oid != npc_oid {
+        // The test is `target.isAutoAttackable(caster)` — refuse a *good*
+        // continuous skill on an **enemy**. This read `target_oid != npc_oid`
+        // while heal/buff were self-only (slice 1), which silently blocked
+        // buffing a faction-mate once reconsider landed.
+        if !(skill.is_debuff || skill.is_bad()) && is_auto_attackable_by_npc(world, target_oid) {
             return false;
         }
     }
@@ -395,4 +404,132 @@ fn has_abnormal_at_least(world: &World, oid: i32, abnormal_type: &str, level: i3
             b.0.iter()
                 .any(|e| e.abnormal_type == abnormal_type && e.abnormal_level >= level)
         })
+}
+
+/// Java `AttackableAI.skillTargetReconsider` — who should this skill actually
+/// land on? Until now heal and buff resolved to the caster itself, because the
+/// port had no faction data; slice 2 added it, so a pack's healer can now look
+/// after the pack. **1040 NPCs on this dist carry a buff-bucket skill and 305 a
+/// heal-bucket one**, so this is the difference between a support mob being
+/// decorative and being a real problem to fight.
+///
+/// - **Bad skill** → the caster's own aggro list (whoever is fighting it).
+/// - **Good skill** → nearby faction-mates plus itself; a *heal* picks the
+///   lowest HP percentage, anything else picks at random.
+///
+/// **Deviation from Java, deliberate.** Java's good-skill candidate set is
+/// `getVisibleObjectsInRange(npc, Creature.class, range)` — *every* creature
+/// nearby. Its `checkSkillTarget` only rejects auto-attackable targets **inside
+/// the `isContinuous()` branch**, and a heal is not continuous, so as written a
+/// healer mob would happily heal a wounded **player** fighting it. That is
+/// almost certainly unintended and would read as a port bug in-game, so the
+/// candidate set here is scoped to the caster's faction (`shares_clan_with`)
+/// plus itself. The scoping makes the AI do *less* than Java, never more.
+/// TODO(G21): revisit if a capture ever shows retail mobs healing players.
+fn skill_target_reconsider(
+    world: &World,
+    npc_oid: i32,
+    skill: &Skill,
+    inside_cast_range: bool,
+) -> Option<i32> {
+    // `isBad`: for a continuous skill the debuff flag decides, otherwise the
+    // effect points do.
+    let is_bad = if skill.is_continuous { skill.is_debuff } else { skill.is_bad() };
+
+    if is_bad {
+        // Anything already fighting this NPC is fair game.
+        let candidates: Vec<i32> = world
+            .objects
+            .get_component::<AggroList>(&npc_oid)
+            .map(|a| a.0.keys().copied().collect())
+            .unwrap_or_default();
+        let valid: Vec<i32> = candidates
+            .into_iter()
+            .filter(|&oid| check_skill_target(world, npc_oid, oid, skill))
+            .collect();
+        return pick_random(world, &valid);
+    }
+
+    // `insideCastRange ? castRange + collisionRadius : 2000` (Java's own
+    // "TODO need some forget range" constant).
+    let range = if inside_cast_range {
+        skill.cast_range as f64 + collision_radius(world, npc_oid)
+    } else {
+        2000.0
+    };
+
+    let mut valid: Vec<i32> = faction_mates_in_range(world, npc_oid, range)
+        .into_iter()
+        .filter(|&oid| check_skill_target(world, npc_oid, oid, skill))
+        .collect();
+    // Java adds self explicitly — `getVisibleObjects` never returns you.
+    if check_skill_target(world, npc_oid, npc_oid, skill) {
+        valid.push(npc_oid);
+    }
+    if valid.is_empty() {
+        return None;
+    }
+
+    // A heal goes to whoever is worst off, not to a random member.
+    if skill.effects.iter().any(|e| matches!(e, crate::model::skill::SkillEffect::Heal { .. })) {
+        return valid
+            .into_iter()
+            .min_by(|&a, &b| hp_percent(world, a).total_cmp(&hp_percent(world, b)));
+    }
+    pick_random(world, &valid)
+}
+
+fn pick_random(_world: &World, candidates: &[i32]) -> Option<i32> {
+    match candidates.len() {
+        0 => None,
+        n => Some(candidates[rand::thread_rng().gen_range(0..n)]),
+    }
+}
+
+/// Living NPCs within `range` that share a faction with this one (the same
+/// `shares_clan_with` test the help-call uses), excluding the caller.
+fn faction_mates_in_range(world: &World, npc_oid: i32, range: f64) -> Vec<i32> {
+    let Some(npc_id) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).map(|n| n.npc_id) else {
+        return Vec::new();
+    };
+    let (Some(mine), Some(pos), Some(region)) = (
+        world.data.npc_data.get(npc_id),
+        world.objects.get_component::<Position>(&npc_oid).copied(),
+        world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0),
+    ) else {
+        return Vec::new();
+    };
+    if mine.clans.is_empty() {
+        return Vec::new();
+    }
+
+    (-1..=1)
+        .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
+        .filter_map(|(dx, dy)| world.npc_regions.get(&(region.0 + dx, region.1 + dy)))
+        .flatten()
+        .copied()
+        .filter(|&other| other != npc_oid)
+        .filter(|&other| {
+            world.objects.get_component::<Vitals>(&other).is_some_and(|v| !v.dead)
+                && world
+                    .objects
+                    .get_component::<Position>(&other)
+                    .is_some_and(|p| {
+                        let d = (((p.x - pos.x) as f64).powi(2) + ((p.y - pos.y) as f64).powi(2)).sqrt();
+                        d <= range
+                    })
+                && world
+                    .objects
+                    .get_component::<crate::model::npc::Npc>(&other)
+                    .and_then(|n| world.data.npc_data.get(n.npc_id))
+                    .is_some_and(|theirs| mine.shares_clan_with(theirs))
+        })
+        .collect()
+}
+
+/// `target.isAutoAttackable(npc)` from a monster's point of view: players are,
+/// other NPCs are not. That's what keeps a support mob from "buffing" the
+/// player it's fighting while still letting it buff its pack.
+fn is_auto_attackable_by_npc(world: &World, target_oid: i32) -> bool {
+    world.objects.has_component::<crate::model::Player>(&target_oid)
 }
