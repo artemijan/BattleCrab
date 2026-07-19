@@ -1121,6 +1121,43 @@ pub(crate) fn abort_cast(world: &mut World, object_id: i32) {
     stop_casting(world, object_id);
 }
 
+/// The `abortCast()` inside `Creature.teleToLocation`, which resolves its
+/// caster through `SkillCaster.canAbortCast` — and that is *not* the phase
+/// check its comment claims. It is literally
+/// `getCaster().getTarget() == null` (`SkillCaster.java:940`), so a teleport
+/// cancels the cast exactly while the caster has nothing selected.
+///
+/// [`abort_cast`]'s `!launched` guard models the other abort paths and is
+/// deliberately not reused: a teleport effect (`Escape`, `Recall`) fires from
+/// the *finish* phase, when `launched` is already true, so that guard would
+/// swallow the `MagicSkillCanceled`. That packet is the only thing that stops
+/// the cast animation client-side — without it the escape FX keeps playing at
+/// the destination until the client's own skill duration elapses (5 minutes
+/// for skill 2099), long after `/unstuck` already teleported the player.
+pub(crate) fn abort_cast_on_teleport(world: &mut World, object_id: i32) {
+    if !world.objects.has_component::<Casting>(&object_id) {
+        return;
+    }
+    let has_target = world
+        .objects
+        .get_component::<crate::model::components::TargetRef>(&object_id)
+        .is_some_and(|t| t.0.is_some());
+    if has_target {
+        return;
+    }
+    broadcast_including_self(
+        world,
+        object_id,
+        &server_packets::magic_skill_canceld(object_id),
+    );
+    if let Some(client_id) = client_for_player(world, object_id) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+    }
+    stop_casting(world, object_id);
+}
+
 /// Port of `Creature.breakCast`: a cast broken by *incoming damage* (as opposed
 /// to a self-initiated `abortCast`). It performs the same abort — `MagicSkillCanceled`
 /// + `ActionFailed`, only for a not-yet-launched cast — and then, if the victim

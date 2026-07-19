@@ -404,6 +404,9 @@ fn cast_test_world() -> (
     data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![template]);
 
     let base = Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id: 0,
         level: 1,
         name: String::new(),
@@ -825,6 +828,9 @@ fn combat_test_world() -> (
     }
     // Adena template so auto-loot stacks it.
     world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 57,
         name: "Adena".into(),
         kind: crate::data::item_data::ItemKind::Etc,
@@ -1112,6 +1118,9 @@ fn quest_test_world() -> (
         (462, "Stockings", false, false),
     ] {
         world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+            immediate_effect: false,
+            ex_immediate_effect: false,
+            default_action: crate::data::item_data::ActionType::Other,
             item_id,
             name: name.into(),
             kind: crate::data::item_data::ItemKind::Etc,
@@ -1153,6 +1162,9 @@ fn passive_clan_test_skill(id: i32) -> Skill {
     use crate::model::skill::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id,
         level: 1,
         name: format!("Clan Skill {id}"),
@@ -1205,6 +1217,9 @@ fn clan_advent_test_skill() -> Skill {
     use crate::model::skill::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id: 19009,
         level: 1,
         name: "Clan Advent".into(),
@@ -1376,6 +1391,9 @@ fn shop_world() -> (
     let (mut world, db_rx, _link_rx) = quest_test_world();
     // A stackable potion the shop sells in bulk.
     world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 1061,
         name: "Greater Healing Potion".into(),
         kind: crate::data::item_data::ItemKind::Etc,
@@ -1434,6 +1452,9 @@ fn count_of_item(world: &World, oid: i32, item_id: i32) -> i64 {
 fn add_quest_items(world: &mut World, ids: &[(i32, &str, bool)]) {
     for &(item_id, name, is_quest_item) in ids {
         world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+            immediate_effect: false,
+            ex_immediate_effect: false,
+            default_action: crate::data::item_data::ActionType::Other,
             item_id,
             name: name.into(),
             kind: crate::data::item_data::ItemKind::Etc,
@@ -1473,6 +1494,9 @@ fn item_count(world: &World, player: i32, item_id: i32) -> i64 {
 /// A `<set name="handler">` shot item template (soulshot/spiritshot).
 fn shot_template(item_id: i32, grade: crate::data::item_data::CrystalType, handler: crate::data::item_data::ItemHandler, skill_id: i32) -> crate::data::item_data::ItemTemplate {
     crate::data::item_data::ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id,
         name: format!("shot{item_id}"),
         kind: crate::data::item_data::ItemKind::Etc,
@@ -1500,6 +1524,9 @@ fn shot_template(item_id: i32, grade: crate::data::item_data::CrystalType, handl
 /// A graded weapon template that consumes `ss`/`sps` shots per charge.
 fn shot_weapon(world: &mut World, item_id: i32, grade: crate::data::item_data::CrystalType, ss: i32, sps: i32) {
     world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id,
         name: format!("weapon{item_id}"),
         kind: crate::data::item_data::ItemKind::Weapon,
@@ -1634,6 +1661,9 @@ fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<
     world.id_pool = 0x5000_0000..0x5000_0100; // item oids for the seeded adena
     // Adena template so `add_inventory_item`/`take_items` can stack it.
     world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 57,
         name: "Adena".into(),
         kind: crate::data::item_data::ItemKind::Etc,

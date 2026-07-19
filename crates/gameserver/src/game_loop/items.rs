@@ -664,35 +664,63 @@ fn broadcast_shot_visual(world: &mut World, object_id: i32, skills: &[(i32, i32)
 }
 
 /// Port of `handlers/itemhandlers/ItemSkillsTemplate.useItem` (potions, buff
-/// scrolls, …): casts each of the item's `<skills>` entries immediately
-/// (Java's `SkillCaster.triggerCast` path — no cast bar, no MP/HP cost; items
-/// never carry either), then consumes the item once at least one skill
-/// landed. Narrowing: no pets (none exist yet), no Olympiad guard (no
-/// Olympiad), no `<cond>` gating (not parsed for items — see `item_data`'s
-/// header comment), and every use is treated as consume-on-success — Java's
-/// `checkConsume` only withholds consumption for the `itemConsumeId`/
-/// `SKILL_REDUCE_ON_SKILL_SUCCESS` combo, which needs a skill-side item-
-/// consume effect this port doesn't have yet.
+/// scrolls, escape scrolls, …). Each of the item's `<skills>` entries takes
+/// one of Java's two branches:
+///
+/// * **instant** (`SkillCaster.triggerCast`) when the skill is
+///   `withoutAction` or the item carries `immediate_effect`/
+///   `ex_immediate_effect` — the effects land at once, no cast bar. This is
+///   the potion/herb/capsule path.
+/// * **cast** (`playable.useMagic(itemSkill, item, …)`) otherwise — a real
+///   cast bar of the skill's own `hitTime`, interruptible by damage. This is
+///   the scroll path: a Scroll of Escape (736 → 2013) casts for 20 s, a
+///   Scroll: Might (3933 → 2057) for 4 s.
+///
+/// Consumption follows `checkConsume` (see [`check_consume`]) and, as in
+/// Java, happens as soon as the branch *starts* — a scroll is spent even if
+/// the cast is interrupted, since `useMagic` returning true is what sets
+/// `successfulUse`.
+///
+/// Narrowing: no pets (none exist yet), no Olympiad guard (no Olympiad), no
+/// `<cond>` gating (not parsed for items — see `item_data`'s header comment).
+/// TODO(G15): Java's busy check is `!isPotion && !isElixir && !isScroll &&
+/// isCastingNow()`, and its `useMagic` would *queue* a skill that loses that
+/// race. `QueuedAction::Skill` replays by skill id through `use_magic_on`,
+/// which would not find an item skill on the player's skill list, so the cast
+/// branch just refuses while another cast is running instead of queueing.
 fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
-    use crate::game_loop::skills::cast::{check_skill_reuse, resolve_cast_target, set_skill_reuse};
+    use crate::game_loop::skills::cast::{
+        check_skill_reuse, resolve_cast_target, set_skill_reuse, start_casting,
+    };
     use crate::game_loop::skills::effects::apply_skill_effects;
-    use crate::model::components::{Position, TargetRef};
+    use crate::model::components::{Casting, Position, TargetRef};
     use crate::model::skill::TargetType;
     use crate::model::Player;
 
-    let item_skills = {
+    let (item_skills, immediate_effect, ex_immediate_effect, default_action) = {
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else { return };
         let Some(item) = inventory.items().iter().find(|i| i.object_id == item_object_id) else { return };
         let Some(template) = world.data.item_data.get(item.item_id) else { return };
-        template.item_skills.clone()
+        (
+            template.item_skills.clone(),
+            template.immediate_effect,
+            template.ex_immediate_effect,
+            template.default_action,
+        )
     };
     if item_skills.is_empty() {
         return;
     }
 
     let mut used = false;
+    // `hasConsumeSkill` — Java sets it for every listed skill, *before* any of
+    // the per-skill `continue`s, so a skill that never fires still counts.
+    let mut has_consume_skill = false;
     for (skill_id, skill_level) in item_skills {
         let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else { continue };
+        if skill.item_consume_id > 0 {
+            has_consume_skill = true;
+        }
         if !check_skill_reuse(world, client_id, object_id, &skill) {
             continue;
         }
@@ -708,13 +736,45 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
                 }
             }
         };
-        apply_skill_effects(world, object_id, target_oid, &skill);
-        set_skill_reuse(world, object_id, &skill);
+        if skill.without_action || immediate_effect || ex_immediate_effect {
+            apply_skill_effects(world, object_id, target_oid, &skill);
+            set_skill_reuse(world, object_id, &skill);
+        } else {
+            if world.objects.has_component::<Casting>(&object_id) {
+                continue;
+            }
+            // `start_casting` registers the reuse itself.
+            start_casting(world, client_id, object_id, &skill, target_oid);
+        }
         used = true;
     }
 
-    if used {
+    if used && check_consume(default_action, has_consume_skill, immediate_effect) {
         destroy_used_item(world, client_id, object_id, item_object_id);
+    }
+}
+
+/// Port of `ItemSkillsTemplate.checkConsume`: whether the *item handler* is
+/// the one that destroys the item.
+fn check_consume(
+    default_action: crate::data::item_data::ActionType,
+    has_consume_skill: bool,
+    immediate_effect: bool,
+) -> bool {
+    use crate::data::item_data::ActionType;
+    match default_action {
+        // Java: `if (!hasConsumeSkill && hasImmediateEffect()) return true;`
+        // then falls out of the switch to `return hasConsumeSkill`.
+        ActionType::Capsule | ActionType::SkillReduce => has_consume_skill || immediate_effect,
+        // Java returns false: these are destroyed by `SkillCaster.finishSkill`
+        // when the cast actually lands (`SkillCaster.java:524`) instead.
+        // TODO(G15): that path needs the triggering item threaded through the
+        // cast so the finish phase can find it, which `Casting` does not carry
+        // yet. Consuming here keeps the deviation on the safe side — returning
+        // false today would let these be used without ever being spent. Only
+        // items 8058/8060 are in the Interlude range.
+        ActionType::SkillReduceOnSkillSuccess => true,
+        ActionType::Other => has_consume_skill,
     }
 }
 

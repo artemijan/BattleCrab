@@ -37,6 +37,9 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
     let (mut world, ..) = cast_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 2,
         name: "Test Sword".into(),
         kind: crate::data::item_data::ItemKind::Weapon,
@@ -102,6 +105,9 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     for id in [501, 502] {
         world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+            immediate_effect: false,
+            ex_immediate_effect: false,
+            default_action: crate::data::item_data::ActionType::Other,
             item_id: id,
             name: format!("earring{id}"),
             kind: crate::data::item_data::ItemKind::Armor,
@@ -196,6 +202,9 @@ fn equipping_gear_updates_combat_stats() {
     let _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
 
     let template = |item_id: i32, kind: ItemKind, body_part: i32| ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id,
         name: format!("gear{item_id}"),
         kind,
@@ -264,6 +273,9 @@ fn equipping_gear_updates_max_hp_mp() {
 
     // A necklace granting +100 Max MP.
     world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 520,
         name: "MP Necklace".into(),
         kind: ItemKind::Armor,
@@ -325,6 +337,9 @@ fn extractable_pack_item_unpacks_into_its_contents() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
     world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 15195,
         name: "Mage Class Equipment Set".into(),
         kind: ItemKind::Etc,
@@ -352,6 +367,9 @@ fn extractable_pack_item_unpacks_into_its_contents() {
     });
     for item_id in [15230, 15270] {
         world.data.item_data.insert_for_test(ItemTemplate {
+            immediate_effect: false,
+            ex_immediate_effect: false,
+            default_action: crate::data::item_data::ActionType::Other,
             item_id,
             name: format!("Pack Content {item_id}"),
             kind: ItemKind::Etc,
@@ -416,6 +434,9 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
     world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 15274,
         name: "Jewelry Pack (A-grade)".into(),
         kind: ItemKind::Etc,
@@ -439,6 +460,9 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 14966,
         name: "Majestic Earring of Fortune".into(),
         kind: ItemKind::Armor,
@@ -511,6 +535,9 @@ fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
     assert_eq!(world.cfg.character.inventory_max_no_dwarf, 80, "test assumes the default 80-slot cap");
 
     world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 15195,
         name: "Mage Class Equipment Set".into(),
         kind: ItemKind::Etc,
@@ -569,6 +596,9 @@ fn item_skill_potion_heals_and_enforces_reuse() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
     world.data.skill_data.insert_for_test(Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id: 2031,
         level: 1,
         name: "Lesser Healing Potion".into(),
@@ -605,6 +635,9 @@ fn item_skill_potion_heals_and_enforces_reuse() {
         effects: vec![SkillEffect::Heal { power: 30.0 }],
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: true,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::SkillReduce,
         item_id: 9910,
         name: "Lesser Healing Potion".into(),
         kind: ItemKind::Etc,
@@ -661,6 +694,133 @@ fn item_skill_potion_heals_and_enforces_reuse() {
     assert_eq!(potion.count, 1, "reuse blocks a second consume");
 }
 
+/// `ItemSkillsTemplate` only fires an item's skills instantly on the
+/// `triggerCast` branch (`withoutAction`, or the item's `immediate_effect`/
+/// `ex_immediate_effect`); everything else goes through `useMagic` and gets a
+/// real cast bar. This models the Scroll of Escape (item 736 → skill 2013,
+/// `hitTime` 20000, `SKILL_REDUCE`, no `immediate_effect`): using it must
+/// *start a 20 s cast* rather than teleport on the spot, and the scroll is
+/// spent up front because `checkConsume` returns `hasConsumeSkill` for a
+/// `SKILL_REDUCE` item whose skill declares an `itemConsumeId`.
+#[test]
+fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
+    use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
+    use crate::model::components::Casting;
+    use crate::model::inventory::Inventory;
+    use crate::model::skill::SkillEffect;
+
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.data.map_region = crate::data::MapRegionData::from_regions(vec![
+        crate::data::map_region::MapRegion {
+            name: "test_town".into(),
+            loc_id: 924,
+            respawn_points: vec![(5000, 6000, -30)],
+            tiles: vec![(20, 18)],
+        },
+    ]);
+    world.data.skill_data.insert_for_test(Skill {
+        id: 2013,
+        level: 1,
+        name: "Scroll of Escape".into(),
+        operate_type: OperateType::Active,
+        is_continuous: false,
+        target_type: TargetType::Self_,
+        magic_type: 2, // static: hitTime used verbatim
+        magic_level: 0,
+        effect_point: 0,
+        cast_range: 0,
+        effect_range: 0,
+        hit_time: 20_000,
+        hit_cancel_time: 0.0,
+        cool_time: 0,
+        reuse_delay: 0,
+        reuse_delay_group: -1,
+        mp_consume: 0,
+        mp_initial_consume: 0,
+        hp_consume: 0,
+        without_action: false,
+        item_consume_id: 9909,
+        item_consume_count: 1,
+        abnormal_time: 0,
+        abnormal_level: 0,
+        abnormal_type: "NONE".into(),
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
+        over_hit: false,
+        abnormal_visuals: Vec::new(),
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
+        can_be_dispelled: true,
+        is_debuff: false,
+        stay_after_death: false,
+        effects: vec![SkillEffect::EscapeToTown],
+    });
+    world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::SkillReduce,
+        item_id: 9909,
+        name: "Scroll of Escape".into(),
+        kind: ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: true,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        price: 0,
+        handler: ItemHandler::ItemSkills,
+        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_count: 0,
+        attack_radius: 40,
+        attack_angle: 0,
+        mp_consume: 0,
+        reduced_mp_consume: 0,
+        reduced_mp_consume_chance: 0,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: vec![(2013, 1)],
+        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        enchant_enabled: false,
+        enchant_limit: 0,
+        is_magic_weapon: false,
+    });
+    if let Some(vitals) = world.objects.get_component_mut::<Vitals>(&3001) {
+        vitals.cur_hp = 100.0;
+    }
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9002, 9909, 2);
+    }
+
+    items::handle_use_item(&mut world, 1, &use_item_body(9002));
+
+    // The cast started — it did NOT resolve inline.
+    assert!(world.objects.has_component::<Casting>(&3001), "20 s cast in progress");
+    let pkts = drain(&mut rx);
+    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE), "cast bar shown");
+    assert!(
+        !pkts.iter().any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION),
+        "must not teleport before the cast lands"
+    );
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!((pos.x, pos.y), (0, 0), "still at the origin mid-cast");
+    // Spent at cast start, like Java's `successfulUse` -> `checkConsume`.
+    let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+    assert_eq!(inv.items().iter().find(|i| i.item_id == 9909).expect("scroll").count, 1, "one consumed up front");
+
+    // 20 s later (200 ticks) + the finish floor: now it teleports.
+    advance_ticks(&mut world, 210);
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (5000, 6000, -25), "escaped once the cast landed");
+}
+
 /// The bug this guards: a `Restoration`-effect skill (e.g. the "Mysterious
 /// Blessed Spiritshot Pack" line, item 22599 → skill 22490) used to parse
 /// with an empty effect list — `SkillEffect::GiveItem`/`GiveItemRandom`
@@ -677,6 +837,9 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
     world.data.skill_data.insert_for_test(Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id: 22490,
         level: 5,
         name: "Mysterious Spiritshot d 5000".into(),
@@ -713,6 +876,9 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         effects: vec![SkillEffect::GiveItem { item_id: 21852, item_count: 5000, item_enchant_level: 0 }],
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: true,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::SkillReduce,
         item_id: 22599,
         name: "Mysterious Blessed Spiritshot Pack (5000) (D-grade)".into(),
         kind: ItemKind::Etc,
@@ -736,6 +902,9 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         item_skills: vec![(22490, 5)], etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 21852,
         name: "Blessed Spiritshot: D-grade".into(),
         kind: ItemKind::Etc,
@@ -801,6 +970,9 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
     world.forced_rolls.push_back(600_000);
 
     world.data.skill_data.insert_for_test(Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id: 323,
         level: 1,
         name: "Quiver of Arrow".into(),
@@ -852,6 +1024,9 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         }],
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 1344,
         name: "Mithril Arrow".into(),
         kind: ItemKind::Etc,
@@ -875,6 +1050,9 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: true,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::SkillReduce,
         item_id: 9999,
         name: "Quiver of Arrow scroll".into(),
         kind: ItemKind::Etc,
@@ -931,6 +1109,9 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
     world.forced_rolls.push_back(1);
 
     world.data.skill_data.insert_for_test(Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id: 324,
         level: 1,
         name: "Enchanted Reward".into(),
@@ -973,6 +1154,9 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
     });
     // The reward is a non-stackable weapon so it carries an enchant.
     world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 6001,
         name: "Enchanted Blade".into(),
         kind: ItemKind::Weapon,
@@ -996,6 +1180,9 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: true,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::SkillReduce,
         item_id: 9998,
         name: "Enchanted Reward scroll".into(),
         kind: ItemKind::Etc,

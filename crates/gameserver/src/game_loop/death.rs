@@ -1337,6 +1337,17 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     world.objects.remove_component::<Movement>(&player_oid);
     world.objects.remove_component::<Intent>(&player_oid);
     world.objects.remove_component::<crate::model::components::QueuedAction>(&player_oid);
+    // The rest of `teleToLocation`'s prologue, in Java's order: cancel the
+    // client's pending action, `abortCast()`, then `setTarget(null)` — all
+    // before `decayMe`. The abort is what tells the client to stop drawing
+    // the cast animation; a skill that teleports on landing (`/unstuck`'s
+    // Escape, Recall) would otherwise leave the FX playing at the destination
+    // for the client's own skill duration.
+    if let Some(cs) = client_for_player(world, player_oid).and_then(|cid| world.clients.get(&cid)) {
+        cs.send(server_packets::action_failed());
+    }
+    super::skills::cast::abort_cast_on_teleport(world, player_oid);
+    super::target::drop_target_notify(world, player_oid);
     let Some(heading) = world.objects.get_component::<Position>(&player_oid).map(|p| p.heading) else { return };
     broadcast_including_self(world, player_oid, &server_packets::teleport_to_location(player_oid, x, y, z, heading));
     // `decayMe`: DeleteObject to everyone who could see the old position

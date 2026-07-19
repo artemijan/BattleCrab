@@ -15,6 +15,9 @@ const WEAK_OVERHIT_SKILL: i32 = 8302;
 
 fn nuke(id: i32, power: f64, over_hit: bool) -> Skill {
     Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id,
         level: 1,
         name: format!("Nuke {id}"),

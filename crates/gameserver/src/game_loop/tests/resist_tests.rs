@@ -13,6 +13,9 @@ const VICTIM_CID: u32 = 2;
 
 fn base_skill(id: i32, effects: Vec<SkillEffect>) -> Skill {
     Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id,
         level: 1,
         name: format!("T{id}"),

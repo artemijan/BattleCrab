@@ -525,6 +525,9 @@ mod tests {
 
     fn earring(id: i32) -> ItemTemplate {
         ItemTemplate {
+            immediate_effect: false,
+            ex_immediate_effect: false,
+            default_action: crate::data::item_data::ActionType::Other,
             item_id: id,
             name: format!("earring{id}"),
             kind: ItemKind::Armor,

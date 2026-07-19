@@ -522,6 +522,19 @@ pub struct Skill {
     pub mp_consume: i32,
     pub mp_initial_consume: i32,
     pub hp_consume: i32,
+    /// `<withoutAction>` (Java `Skill._withoutAction`, default false). An
+    /// item skill flagged this way is fired instantly by
+    /// `ItemSkillsTemplate` (the `SkillCaster.triggerCast` branch) instead of
+    /// going through `useMagic`'s cast bar. Only four skills in the whole
+    /// dist set it, none in the Interlude ranges, but the flag is half of
+    /// Java's instant/cast decision so it is parsed rather than assumed.
+    pub without_action: bool,
+    /// `<itemConsumeId>`/`<itemConsumeCount>` (Java `Skill.getItemConsumeId`
+    /// / `getItemConsumeCount`, 0 = none) — the "reagent" the skill spends.
+    /// Read by `ItemSkillsTemplate.checkConsume` to decide whether the item
+    /// handler is the one that destroys the item.
+    pub item_consume_id: i32,
+    pub item_consume_count: i32,
     /// Seconds a landed buff/debuff lasts (Java `abnormalTime`); 0 for
     /// instant/non-buff skills.
     pub abnormal_time: i32,

@@ -388,6 +388,33 @@ impl ItemHandler {
 /// other value collapses to [`EtcItemType::Other`]. The `is_*` helpers mirror
 /// `EnchantScroll`'s `_isWeapon`/`_isBlessed`/`_isBlessedDown`/`_isSafe`/
 /// `_isGiant` classification.
+/// `<set name="default_action">` (Java `ActionType`), narrowed to the three
+/// values `ItemSkillsTemplate.checkConsume` branches on. Everything else —
+/// `EQUIP`, `PEEL`, `RECIPE`, … — collapses to [`ActionType::Other`], which
+/// takes `checkConsume`'s fallthrough (`return hasConsumeSkill`) exactly like
+/// Java's unlisted cases.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ActionType {
+    #[default]
+    Other,
+    Capsule,
+    SkillReduce,
+    /// The item is destroyed by `SkillCaster.finishSkill` when the cast
+    /// actually lands, never by the item handler.
+    SkillReduceOnSkillSuccess,
+}
+
+impl ActionType {
+    fn from_name(name: Option<&str>) -> Self {
+        match name {
+            Some("CAPSULE") => ActionType::Capsule,
+            Some("SKILL_REDUCE") => ActionType::SkillReduce,
+            Some("SKILL_REDUCE_ON_SKILL_SUCCESS") => ActionType::SkillReduceOnSkillSuccess,
+            _ => ActionType::Other,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum EtcItemType {
     #[default]
@@ -652,6 +679,16 @@ pub struct ItemTemplate {
     /// `<set name="is_magic_weapon">` (Java `Weapon._isMagicWeapon`; false for
     /// non-weapons) — splits the fighter/mage enchant rate groups.
     pub is_magic_weapon: bool,
+    /// `<set name="immediate_effect">` / `<set name="ex_immediate_effect">`
+    /// (Java `ItemTemplate.hasImmediateEffect`/`hasExImmediateEffect`, both
+    /// default false). Either one makes `ItemSkillsTemplate` fire the item's
+    /// skills instantly instead of casting them; `immediate_effect` alone
+    /// also feeds `checkConsume`.
+    pub immediate_effect: bool,
+    pub ex_immediate_effect: bool,
+    /// `<set name="default_action">` — only the values `checkConsume`
+    /// distinguishes are kept (see [`ActionType`]).
+    pub default_action: ActionType,
 }
 
 impl ItemTemplate {
@@ -1061,6 +1098,9 @@ fn make_template(
         enchant_enabled: attrs.get("enchant_enabled").map(|v| v == "true").unwrap_or(false),
         enchant_limit: attrs.get("enchant_limit").and_then(|v| v.parse().ok()).unwrap_or(0),
         is_magic_weapon: kind == ItemKind::Weapon && attrs.get("is_magic_weapon").map(|v| v == "true").unwrap_or(false),
+        immediate_effect: attrs.get("immediate_effect").map(|v| v == "true").unwrap_or(false),
+        ex_immediate_effect: attrs.get("ex_immediate_effect").map(|v| v == "true").unwrap_or(false),
+        default_action: ActionType::from_name(attrs.get("default_action").map(|s| s.as_str())),
     }
 }
 
@@ -1140,6 +1180,23 @@ mod tests {
         let polearm = data.get(15).expect("polearm 15");
         assert_eq!((polearm.attack_radius, polearm.attack_angle), (66, 120));
         assert_eq!((sword.attack_radius, sword.attack_angle), (40, 120));
+
+        // G15 item-cast slice: the flags `ItemSkillsTemplate` branches on.
+        // A Scroll of Escape is *not* immediate — it casts its 20 s skill —
+        // while a Healing Potion is, so it fires instantly. Both are
+        // SKILL_REDUCE, which is what makes `checkConsume` spend them.
+        let soe = data.get(736).expect("Scroll of Escape 736");
+        assert!(!soe.immediate_effect, "SoE must take the cast branch");
+        assert!(!soe.ex_immediate_effect);
+        assert_eq!(soe.default_action, ActionType::SkillReduce);
+        assert_eq!(soe.item_skills, vec![(2013, 1)]);
+        let potion = data.get(1060).expect("Healing Potion 1060");
+        assert!(potion.immediate_effect, "potions stay instant");
+        assert_eq!(potion.default_action, ActionType::SkillReduce);
+        // Packs are CAPSULE + immediate.
+        let pack = data.get(22599).expect("spiritshot pack 22599");
+        assert!(pack.immediate_effect);
+        assert_eq!(pack.default_action, ActionType::Capsule);
 
         // A graded item parses its <set name="crystal_type"/>.
         let boots = data.get(40).expect("item 40 (Leather Boots)");

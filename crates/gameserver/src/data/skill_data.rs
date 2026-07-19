@@ -849,6 +849,9 @@ fn finalize_skill(
                 mp_consume: get_i("mpConsume", 0),
                 mp_initial_consume: get_i("mpInitialConsume", 0),
                 hp_consume: get_i("hpConsume", 0),
+                without_action: value_at(values, "withoutAction", level).map_or(false, |v| v == "true"),
+                item_consume_id: get_i("itemConsumeId", 0),
+                item_consume_count: get_i("itemConsumeCount", 0),
                 abnormal_time: get_i("abnormalTime", 0),
                 abnormal_level: get_i("abnormalLevel", 0),
                 abnormal_type: value_at(values, "abnormalType", level).unwrap_or("NONE").to_string(),
@@ -1174,6 +1177,25 @@ mod tests {
         assert!(matches!(escape.effects.as_slice(), [SkillEffect::EscapeToTown]));
         let gm_escape = sd.get(2100, 1).expect("Escape: 1 Second lvl 1");
         assert!(matches!(gm_escape.effects.as_slice(), [SkillEffect::EscapeToTown]));
+
+        // G15 item-cast slice: `ItemSkillsTemplate` picks the instant vs cast
+        // branch from `withoutAction` + the item's `immediate_effect`, and
+        // `checkConsume` reads the skill's `itemConsumeId`. Scroll of Escape
+        // (2013) declares neither `withoutAction` nor a short hit time, so it
+        // must cast for its full 20 s and name its reagent.
+        let soe = sd.get(2013, 1).expect("Scroll of Escape lvl 1");
+        assert_eq!(soe.hit_time, 20_000);
+        assert!(!soe.without_action, "no <withoutAction> -> cast branch");
+        assert_eq!(soe.item_consume_id, 736, "the scroll itself");
+        assert_eq!(soe.item_consume_count, 1);
+        // Scroll: Might (2057) is the 4 s buff-scroll shape.
+        let might = sd.get(2057, 1).expect("Scroll: Might lvl 1");
+        assert_eq!(might.hit_time, 4000);
+        assert!(!might.without_action);
+        assert_eq!(might.item_consume_id, 3933);
+        // A potion skill carries no reagent — the item handler consumes it via
+        // the item's own `immediate_effect`.
+        assert_eq!(sd.get(2031, 1).expect("Healing Potion lvl 1").item_consume_id, 0);
 
         // Blessing of Protection 5182 (Newbie Helper): its `ProtectionBlessing`
         // effect carries no stat modifier — before this arm it fell through to
