@@ -134,7 +134,25 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
         })
         .unwrap_or_default();
 
-    Some(db::PlayerSaveData { base, items, skills, hennas, recipe_book, shortcuts, macros, quests, skill_reuses })
+    // `PlayerVariables.storeMe` — the whole map, flushed with the character.
+    let variables = world
+        .objects
+        .get_component::<crate::model::components::PlayerVariables>(&object_id)
+        .map(|v| v.0.iter().map(|(k, val)| (k.clone(), val.clone())).collect())
+        .unwrap_or_default();
+
+    Some(db::PlayerSaveData {
+        base,
+        items,
+        skills,
+        hennas,
+        recipe_book,
+        variables,
+        shortcuts,
+        macros,
+        quests,
+        skill_reuses,
+    })
 }
 
 /// Worn henna dyes → `character_hennas` rows as `(slot 1-3, dye_id)`.
@@ -297,6 +315,7 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
                         .map(|&id| (id, true))
                         .chain(b.recipe_book.common.iter().map(|&id| (id, false)))
                         .collect(),
+                    variables: b.variables.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
                     shortcuts: b.shortcuts.0.values().cloned().collect(),
                     macros: b.macros.entries.clone(),
                     quests: b.quests.0.clone(),

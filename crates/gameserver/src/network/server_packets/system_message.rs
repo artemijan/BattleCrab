@@ -222,6 +222,11 @@ pub mod sm_ids {
     pub const YOUR_SELECTED_TARGET_CAN_NO_LONGER_RECEIVE_A_RECOMMENDATION: i16 = 1188;
     pub const YOU_ARE_OUT_OF_RECOMMENDATIONS_TRY_AGAIN_LATER: i16 = 3206;
     pub const YOU_OBTAINED_S1_RECOMMENDATION_S: i16 = 3207;
+    // Vitality (G16): the four `PlayerStat.setVitalityPoints` notices.
+    pub const YOUR_VITALITY_IS_AT_MAXIMUM: i16 = 2314;
+    pub const YOUR_VITALITY_HAS_INCREASED: i16 = 2315;
+    pub const YOUR_VITALITY_HAS_DECREASED: i16 = 2316;
+    pub const YOUR_VITALITY_IS_FULLY_EXHAUSTED: i16 = 2317;
 }
 
 /// One `SystemMessage` parameter (Java `SystemMessage.SMParam`), scoped to the

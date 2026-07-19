@@ -26,6 +26,7 @@ fn new_char(name: &str) -> NewCharacter {
         items: vec![],
         shortcuts: vec![],
         macros: vec![],
+        vitality_points: 0,
     }
 }
 
@@ -67,6 +68,9 @@ fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
         },
         items: c.items.clone(),
         skills: c.skills.clone(),
+        hennas: c.hennas.clone(),
+        recipe_book: c.recipe_book.iter().map(|&id| (id, true)).collect(),
+        variables: c.variables.clone(),
         shortcuts: c.shortcuts.clone(),
         macros: c.macros.clone(),
         quests: c.quests.clone(),
@@ -203,7 +207,7 @@ async fn login_char_count_excludes_expired_deletions() {
     let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "character_skills", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests"] {
+        for table in ["characters", "items", "character_skills", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -286,7 +290,7 @@ async fn shortcuts_and_macros_persist() {
         // `character_quests` is needed too: the memory-first flush reconciles
         // every child table, so `store_player` always touches it (even with no
         // quests, to delete any that were abandoned).
-        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests"] {
+        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -396,7 +400,7 @@ async fn friendships_persist() {
     let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_friends", "character_reco_bonus"] {
+        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_friends", "character_reco_bonus", "character_hennas", "character_recipebook", "character_variables"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -473,7 +477,7 @@ async fn quest_states_persist() {
     let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_friends", "character_reco_bonus", "character_quests"] {
+        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_friends", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -563,7 +567,7 @@ async fn recommendations_persist() {
     let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests"] {
+        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -632,7 +636,7 @@ async fn skill_reuse_cooldowns_persist() {
     let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests"] {
+        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();

@@ -47,6 +47,7 @@ mod skills_tests;
 mod social_tests;
 mod teleport_cmds_tests;
 mod visibility_tests;
+mod vitality_tests;
 mod zones_tests;
 
 fn test_world() -> (
@@ -144,6 +145,7 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         skills: vec![],
         hennas: vec![],
         recipe_book: vec![],
+        variables: vec![],
         shortcuts: vec![],
         macros: vec![],
         friends: vec![],

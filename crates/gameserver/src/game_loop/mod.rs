@@ -47,6 +47,7 @@ mod support_magic;
 mod target;
 mod teleporter;
 mod user_commands;
+mod vitality;
 #[cfg(test)]
 mod tests;
 mod visibility;

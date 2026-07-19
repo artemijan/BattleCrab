@@ -57,7 +57,7 @@ pub struct CommunityBoardConfig {
 
     /// `CommunityPremiumSystem`: gates the `_bbspremium` buy action. Java also
     /// requires the global `Config.PREMIUM_SYSTEM_ENABLED` (see
-    /// [`crate::game_loop::admin::premium::PREMIUM_SYSTEM_ENABLED`]).
+    /// [`crate::game_loop::admin::premium::premium_system_enabled`]).
     pub community_premium_system: bool,
     /// `CommunityPremiumBuyCoinId`: item id charged when buying premium (dist 57).
     pub premium_coin_id: i32,

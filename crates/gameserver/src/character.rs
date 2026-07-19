@@ -92,6 +92,8 @@ pub struct CharData {
     /// `character_recipebook` rows: recipe-list ids (dwarven/common split
     /// derived from `RecipeData` at `PlayerData::from_char`).
     pub recipe_book: Vec<i32>,
+    /// `character_variables` rows: (var, val) — the `PlayerVariables` store.
+    pub variables: Vec<(String, String)>,
     /// `character_shortcuts` rows (class_index 0).
     pub shortcuts: Vec<crate::model::shortcut::Shortcut>,
     /// `character_macroses` rows, commands already decoded.

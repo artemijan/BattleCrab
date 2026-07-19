@@ -65,6 +65,17 @@ pub struct RatesConfig {
     pub drop_item_min_level_difference: i32,
     pub drop_item_max_level_difference: i32,
     pub drop_item_min_level_gap_chance: f64,
+
+    /// `RateVitalityExpMultiplier` — the exp/sp multiplier a player with any
+    /// vitality points left earns (**2** on this dist).
+    pub rate_vitality_exp_multiplier: f64,
+    /// `RateVitalityGain` / `RateVitalityLost` — scale applied to a positive /
+    /// negative vitality delta in `updateVitalityPoints` (both **1**).
+    pub rate_vitality_gain: f64,
+    pub rate_vitality_lost: f64,
+    /// `VitalityMaxItemsAllowed` — weekly cap on vitality-restoring item uses,
+    /// reported by `ExVitalityEffectInfo` (**999**).
+    pub vitality_max_items_allowed: i32,
 }
 
 impl Default for RatesConfig {
@@ -95,6 +106,10 @@ impl Default for RatesConfig {
             drop_item_min_level_difference: 5,
             drop_item_max_level_difference: 10,
             drop_item_min_level_gap_chance: 10.0,
+            rate_vitality_exp_multiplier: 2.0,
+            rate_vitality_gain: 1.0,
+            rate_vitality_lost: 1.0,
+            vitality_max_items_allowed: 999,
         }
     }
 }
@@ -128,6 +143,13 @@ impl RatesConfig {
             drop_item_min_level_difference: p.get_int("DropItemMinLevelDifference", 5),
             drop_item_max_level_difference: p.get_int("DropItemMaxLevelDifference", 10),
             drop_item_min_level_gap_chance: p.get_float("DropItemMinLevelGapChance", 10.0) as f64,
+            rate_vitality_exp_multiplier: p
+                .get_float("RateVitalityExpMultiplier", d.rate_vitality_exp_multiplier as f32)
+                as f64,
+            rate_vitality_gain: p.get_float("RateVitalityGain", d.rate_vitality_gain as f32) as f64,
+            rate_vitality_lost: p.get_float("RateVitalityLost", d.rate_vitality_lost as f32) as f64,
+            vitality_max_items_allowed: p
+                .get_int("VitalityMaxItemsAllowed", d.vitality_max_items_allowed),
         }
     }
 }

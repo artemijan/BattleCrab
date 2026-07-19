@@ -39,6 +39,12 @@ pub struct NpcConfig {
     pub aggro_distance_check_raid_range: i32,
     /// `AggroDistanceCheckRestoreLife` — heal to full HP/MP on returning home.
     pub aggro_distance_check_restore_life: bool,
+    /// `VitalityConsumeByMob` / `VitalityConsumeByBoss` — the divisors in
+    /// `Attackable.getVitalityPoints` (2250 / 1125 on this dist). Only used at
+    /// level 85+; below that Java hard-codes 1000, so on an Interlude server
+    /// these are effectively dormant — ported for faithfulness.
+    pub vitality_consume_by_mob: i32,
+    pub vitality_consume_by_boss: i32,
 }
 
 impl Default for NpcConfig {
@@ -56,6 +62,8 @@ impl Default for NpcConfig {
             aggro_distance_check_raids: false,
             aggro_distance_check_raid_range: 3000,
             aggro_distance_check_restore_life: true,
+            vitality_consume_by_mob: 2250,
+            vitality_consume_by_boss: 1125,
         }
     }
 }
@@ -83,6 +91,8 @@ impl NpcConfig {
                 .get_int("AggroDistanceCheckRaidRange", d.aggro_distance_check_raid_range),
             aggro_distance_check_restore_life: p
                 .get_bool("AggroDistanceCheckRestoreLife", d.aggro_distance_check_restore_life),
+            vitality_consume_by_mob: p.get_int("VitalityConsumeByMob", d.vitality_consume_by_mob),
+            vitality_consume_by_boss: p.get_int("VitalityConsumeByBoss", d.vitality_consume_by_boss),
         }
     }
 }

@@ -387,6 +387,37 @@ impl RecipeBook {
     }
 }
 
+/// The per-character key/value store (Java `PlayerVariables`, table
+/// `character_variables`). Java's `AbstractVariables` is a `StatSet` with typed
+/// getters and a dirty flag that `storeMe` consults; here the map is plain and
+/// the memory-first autosave flushes it wholesale with the rest of the
+/// character, so no dirty tracking is needed.
+///
+/// Only the keys a ported subsystem reads live here today —
+/// [`VITALITY_ITEMS_USED`]. The rest of Java's key set (instance origin/restore,
+/// UI key mapping, ability points, auto-use settings, …) belongs to subsystems
+/// that are not ported; they will land as their milestones do. Player-only.
+#[derive(Component, Debug, Clone, Default)]
+pub struct PlayerVariables(pub HashMap<String, String>);
+
+/// `PlayerVariables.VITALITY_ITEMS_USED_VARIABLE_NAME` — how many
+/// vitality-restoring items the character has consumed this week, capped by
+/// `Config.VITALITY_MAX_ITEMS_ALLOWED` and reported by `ExVitalityEffectInfo`.
+pub const VITALITY_ITEMS_USED: &str = "VITALITY_ITEMS_USED";
+
+impl PlayerVariables {
+    /// Java `AbstractVariables.getInt(key, default)` — a non-numeric or absent
+    /// value yields the default.
+    pub fn get_int(&self, key: &str, default: i32) -> i32 {
+        self.0.get(key).and_then(|v| v.parse().ok()).unwrap_or(default)
+    }
+
+    /// Java `AbstractVariables.set(key, value)`.
+    pub fn set_int(&mut self, key: &str, value: i32) {
+        self.0.insert(key.to_string(), value.to_string());
+    }
+}
+
 /// A player's active private *manufacture* store (Java `Player._manufactureItems`
 /// + store title): the recipes they craft-for-hire and the adena fee each.
 /// Present only while the store is open; not persisted (`StoreRecipeShopList =

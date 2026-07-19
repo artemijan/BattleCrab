@@ -11,6 +11,7 @@ pub mod geoengine;
 pub mod hexid;
 pub mod ipconfig;
 pub mod npc;
+pub mod premium;
 pub mod rates;
 pub mod server;
 
@@ -21,6 +22,7 @@ pub use geoengine::GeoEngineConfig;
 pub use hexid::HexId;
 pub use ipconfig::IpConfig;
 pub use npc::NpcConfig;
+pub use premium::PremiumConfig;
 pub use rates::RatesConfig;
 pub use server::ServerConfig;
 
@@ -38,6 +40,8 @@ pub struct CombatConfig {
     pub general: GeneralConfig,
     /// Community board (BBS) settings + the buff/teleport whitelists.
     pub community_board: CommunityBoardConfig,
+    /// `Custom/PremiumSystem.ini` — the account-premium reward multipliers.
+    pub premium: PremiumConfig,
 }
 
 /// Aggregate of every loaded config section, owned for the process lifetime
@@ -51,6 +55,7 @@ pub struct Config {
     pub npc: NpcConfig,
     pub rates: RatesConfig,
     pub community_board: CommunityBoardConfig,
+    pub premium: PremiumConfig,
 
     /// Network (subnet, host) pairs advertised to the login server.
     pub ip_config: IpConfig,
@@ -76,6 +81,7 @@ impl Config {
         let npc = NpcConfig::load();
         let rates = RatesConfig::load();
         let community_board = CommunityBoardConfig::load();
+        let premium = PremiumConfig::load();
         let ip_config = IpConfig::load();
         let hex = HexId::load(server.request_id);
         Self {
@@ -86,6 +92,7 @@ impl Config {
             npc,
             rates,
             community_board,
+            premium,
             ip_config,
             hex_id: hex.hex_id,
             server_id: hex.server_id,
@@ -102,6 +109,7 @@ impl Config {
             rates: self.rates.clone(),
             general: self.general.clone(),
             community_board: self.community_board.clone(),
+            premium: self.premium.clone(),
         }
     }
 }

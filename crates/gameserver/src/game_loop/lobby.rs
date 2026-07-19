@@ -144,6 +144,13 @@ pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &
         items,
         shortcuts,
         macros,
+        // `CharacterCreate`: only seeded when the system is on, and capped at
+        // the pool maximum. 0 on this dist — a fresh character starts drained.
+        vitality_points: if world.cfg.character.enable_vitality {
+            world.cfg.character.starting_vitality_points.min(crate::model::MAX_VITALITY_POINTS)
+        } else {
+            0
+        },
     };
     let _ = world
         .db
@@ -421,7 +428,20 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // of G5, skills G6, shortcuts/macros G9.6, friends G10, quest lists
     // G11; henna/mail still empty (TODOs in `enter_world`).
     session.send(user_info(&view, data, &world.cfg.character, super::party::calculate_relation(world, view.p)));
-    session.send(ew::ex_vitality_effect_info(player));
+    // `EnterWorld`: the vitality block only goes out when the system is on.
+    // The player isn't in the world store yet (the bundle still owns them), so
+    // the bonus is computed here rather than through `vitality::`.
+    if world.cfg.character.enable_vitality {
+        let bonus =
+            if player.vitality_points > 0 { world.cfg.rates.rate_vitality_exp_multiplier } else { 1.0 };
+        let items_used = bundle.variables.get_int(crate::model::components::VITALITY_ITEMS_USED, 0);
+        session.send(ew::ex_vitality_effect_info(
+            player,
+            bonus,
+            items_used,
+            world.cfg.rates.vitality_max_items_allowed,
+        ));
+    }
     session.send(server_packets::ex_ui_setting());
     // `MacroList.sendAllMacros` — one packet per stored macro (or one empty
     // LIST packet), in Java's position before the bookmark/item lists.
@@ -433,7 +453,10 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(ew::ex_quest_item_list(&bundle.inventory, data));
     session.send(server_packets::shortcut_init(&bundle.shortcuts));
     session.send(ew::ex_basic_action_list(data));
-    session.send(ew::henna_info());
+    // Java `EnterWorld` sends `HennaInfo` here, inside the burst and ahead of
+    // the welcome message — with the player's real worn dyes (their stat bonus
+    // is already folded into the UserInfo above).
+    session.send(super::henna::henna_info_packet(&world.data, player.class_id, &bundle.henna));
     // Clan skills aren't applied yet (the clan login hook runs after the player
     // is registered and re-sends the merged list) → empty clan set here.
     session.send(ew::skill_list(&bundle.skills, &crate::model::components::ClanSkills::default(), data));
@@ -508,9 +531,6 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // (Spellcraft/Magician's Movement) at enter-world: a robe-wearing mystic
     // logs in with the casting/attack-speed bonus already folded in.
     super::passive_skills::refresh_conditioned_passives(world, object_id);
-    // Java `EnterWorld` sends `HennaInfo` in the burst — the worn-dye panel
-    // (the dyes' stat bonus is already in the UserInfo this burst carried).
-    super::henna::send_henna_info(world, client_id, object_id);
     // Java `EnterWorld.runImpl`'s GM branch: apply the configured default GM
     // state (builder-hide / invul / invis / silence / diet) before the spawn
     // broadcast, so an invisible GM is never described to nearby players.

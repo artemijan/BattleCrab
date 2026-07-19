@@ -340,14 +340,28 @@ pub const SM_WELCOME: i16 = 34;
 
 // ---- extended packets ----
 
-/// `ExVitalityEffectInfo` (0x118).
-pub fn ex_vitality_effect_info(p: &Player) -> Vec<u8> {
+/// `ExVitalityEffectInfo` (0x118) — the vitality gauge's tooltip block, sent
+/// on enter-world when `EnableVitality`.
+///
+/// `bonus` is Java's `(int) player.getStat().getVitalityExpBonus() * 100` —
+/// the cast binds tighter than the multiply, so the *truncated* multiplier is
+/// what gets scaled (×2.0 → 200; a hypothetical ×2.5 would also send 200, not
+/// 250). Faithful to Java, quirk included.
+pub fn ex_vitality_effect_info(p: &Player, bonus: f64, items_used: i32, max_items: i32) -> Vec<u8> {
     let mut w = ex(0x118);
     w.write_i32(p.vitality_points);
-    w.write_i32(0); // vitality bonus
-    w.write_i16(0); // additional bonus %
-    w.write_i16(0); // items remaining
-    w.write_i16(0); // max items allowed
+    w.write_i32((bonus as i32) * 100);
+    w.write_i16(0); // vitality additional bonus in % (Java hard-codes 0)
+    w.write_i16((max_items - items_used).max(0) as i16);
+    w.write_i16(max_items as i16);
+    w.into_bytes()
+}
+
+/// `ExVitalityPointInfo` (0xA1) — the running pool, pushed whenever it moves
+/// (`PlayerStat.setVitalityPoints`).
+pub fn ex_vitality_point_info(points: i32) -> Vec<u8> {
+    let mut w = ex(0xA1);
+    w.write_i32(points);
     w.into_bytes()
 }
 

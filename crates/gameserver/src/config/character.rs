@@ -5,6 +5,8 @@ use std::collections::HashMap;
 
 use commons::config::PropertiesParser;
 
+use crate::model::MAX_VITALITY_POINTS;
+
 pub const CHARACTER_CONFIG_FILE: &str = "config/Character.ini";
 /// `CharacterDataStoreInterval` lives in Java's `General.ini`, not `Character.ini`.
 const GENERAL_CONFIG_FILE: &str = "config/General.ini";
@@ -39,6 +41,16 @@ pub struct CharacterConfig {
     /// `AltLeavePartyLeader`: leader leaving transfers lead instead of
     /// disbanding (True on this dist).
     pub alt_leave_party_leader: bool,
+    /// `EnableVitality`: master switch for the vitality system (True on this
+    /// dist). Java gates `PlayerStat.updateVitalityPoints` and the daily/weekly
+    /// resets on it.
+    pub enable_vitality: bool,
+    /// `StartingVitalityPoints`: vitality a freshly created character gets
+    /// (0 on this dist; Java's default is `MAX_VITALITY_POINTS`).
+    pub starting_vitality_points: i32,
+    /// `RaidbossUseVitality`: whether raid-boss kills move vitality at all
+    /// (False on this dist, so boss kills neither consume nor grant points).
+    pub raidboss_use_vitality: bool,
     /// `PartyXpCutoffMethod` (+ its per-method tuning): which rewarded
     /// members share the party XP split, and — for "highfive" (this dist) —
     /// the per-member level-gap percentage table.
@@ -176,6 +188,11 @@ impl Default for CharacterConfig {
             alt_party_max_members: 7,
             blow_rate_chance_limit: 80.0,
             alt_leave_party_leader: false,
+            // Java `Config` defaults: vitality off, but full points when it is
+            // switched on.
+            enable_vitality: false,
+            starting_vitality_points: MAX_VITALITY_POINTS,
+            raidboss_use_vitality: false,
             party_xp_cutoff_method: "level".to_string(),
             party_xp_cutoff_level: 20,
             party_xp_cutoff_percent: 3.0,
@@ -248,6 +265,11 @@ impl CharacterConfig {
             alt_party_max_members: p.get_int("AltPartyMaxMembers", 7).max(2) as usize,
             blow_rate_chance_limit: p.get_int("BlowRateChanceLimit", 80) as f64,
             alt_leave_party_leader: p.get_bool("AltLeavePartyLeader", d.alt_leave_party_leader),
+            enable_vitality: p.get_bool("EnableVitality", d.enable_vitality),
+            starting_vitality_points: p
+                .get_int("StartingVitalityPoints", d.starting_vitality_points)
+                .clamp(0, MAX_VITALITY_POINTS),
+            raidboss_use_vitality: p.get_bool("RaidbossUseVitality", d.raidboss_use_vitality),
             party_xp_cutoff_method: p.get_string("PartyXpCutoffMethod", "level").to_lowercase(),
             party_xp_cutoff_level: p.get_int("PartyXpCutoffLevel", 20),
             party_xp_cutoff_percent: p.get_float("PartyXpCutoffPercent", 3.0) as f64,
