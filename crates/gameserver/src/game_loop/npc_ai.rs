@@ -312,7 +312,19 @@ fn think_active(world: &mut World, npc_oid: i32) {
         let t = world.data.npc_data.get(npc_id);
         // Java `npc.isAggressive()`: the explicit flag, not aggroRange —
         // nearly every passive mob in the datapack has an aggroRange too.
-        (t.map(|t| t.is_aggressive && t.aggro_range > 0).unwrap_or(false), t.map(|t| t.aggro_range).unwrap_or(0))
+        //
+        // `is_monster()` is the other half of the gate and it is load-bearing.
+        // Java runs this scan for `isAggressive() || instanceof Guard`, but every
+        // candidate then has to clear `isAggressiveTowards` → `isAutoAttackable`,
+        // and `Player.isAutoAttackable` only returns true for an NPC attacker via
+        // `attacker.isMonster()` — a `Guard` is an `Attackable`, not a `Monster`,
+        // so it falls through the playable branches and returns false. The only
+        // thing that makes a guard aggro a player is the `reputation < 0`
+        // early-return in `isAggressiveTowards`, handled by `guard_aggro_scan`.
+        // Town guards *are* `isAggressive="true"` in the datapack (all 186 of
+        // them), so without this check every guard seeds hate on every lawful
+        // player inside its 450-unit aggroRange and murders them.
+        (t.map(|t| t.is_monster() && t.is_aggressive && t.aggro_range > 0).unwrap_or(false), t.map(|t| t.aggro_range).unwrap_or(0))
     };
     let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
 
@@ -350,10 +362,11 @@ fn think_active(world: &mut World, npc_oid: i32) {
     // Town guards hunt PKs (`isAggressiveTowards`, the `me instanceof Guard`
     // branch): a guard aggros a player with **negative reputation** inside a
     // *hardcoded* 500 units — Java uses the literal, not the template's
-    // `aggroRange`, and does it regardless of the `isAggressive` flag (guards
-    // are flagged passive in the datapack, so gating on it would make every
-    // guard inert). A lawful player is ignored, which is what makes this a
-    // PK-hunting rule rather than general aggression.
+    // `aggroRange` (which is 450 on the stock guards), and does it regardless of
+    // the `isAggressive` flag. A lawful player is ignored, which is what makes
+    // this a PK-hunting rule rather than general aggression — and it is the
+    // *only* way a guard aggros a player, since the generic scan above is
+    // monster-only (see the `is_monster()` note there).
     if world
         .objects
         .get_component::<crate::model::npc::Npc>(&npc_oid)
