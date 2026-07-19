@@ -698,6 +698,63 @@ fn teleport_with_charm_consumes_token() {
     );
 }
 
+/// TeleportToRaceTrack: a gatekeeper's free "Monster Race Track" button
+/// sends the player to the arena and records the origin in `MONSTER_RETURN`;
+/// the Race Manager reads it back and returns them, clearing the variable.
+/// (Destination z is lifted by 5 by `teleToLocation`, as in the charm test.)
+#[test]
+fn teleport_to_race_track_round_trips_via_monster_return() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    // Trisha (Dion gatekeeper) and the Race Manager at the arena.
+    add_test_npc(&mut world, NPC_OID, 30059, "Teleporter", 70, 100, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 1, 30995, "RaceManager", 70, 12661, 181687, -3540);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    // Outbound: the gatekeeper's button.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest TeleportToRaceTrack")));
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (12661, 181687, -3535), "at the race track");
+    assert_eq!(
+        world.objects.get_component::<crate::model::components::PlayerVariables>(&3001).unwrap().get_int("MONSTER_RETURN", -1),
+        30059,
+        "origin gatekeeper remembered"
+    );
+    assert!(drain(&mut rx).iter().any(|p| p[0] == 0x22), "TeleportToLocation sent");
+
+    // Inbound: the manager sends them back to Trisha's town, not the default.
+    world.objects.get_component_mut::<Player>(&3001).unwrap().teleporting = false;
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest TeleportToRaceTrack", NPC_OID + 1)),
+    );
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (15670, 142983, -2700), "returned to Dion");
+    assert_eq!(
+        world.objects.get_component::<crate::model::components::PlayerVariables>(&3001).unwrap().get_int("MONSTER_RETURN", -1),
+        -1,
+        "return point consumed"
+    );
+}
+
+/// The Race Manager with no stored origin falls back to Trisha (Dion) —
+/// Java's `TELEPORTER_LOCATIONS.get(30059)` branch.
+#[test]
+fn race_manager_without_monster_return_falls_back_to_dion() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    // Within interaction range of the player — the bypass is distance-gated.
+    add_test_npc(&mut world, NPC_OID, 30995, "RaceManager", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest TeleportToRaceTrack")));
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!((pos.x, pos.y, pos.z), (15670, 142983, -2700), "default return is Dion");
+}
+
 /// `RequestSellItem` (0x37) sells inventory items to the targeted merchant for
 /// reference-price/2 adena each.
 #[test]

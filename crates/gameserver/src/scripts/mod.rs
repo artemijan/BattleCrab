@@ -21,6 +21,7 @@ pub mod q00316_destroy_plague_carriers;
 pub mod q00317_catch_the_wind;
 pub mod q00320_bones_tell_the_future;
 pub mod q00324_sweetest_venom;
+pub mod teleport_to_race_track;
 pub mod teleport_with_charm;
 
 use std::sync::Arc;
@@ -49,6 +50,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(dwarf_change1::DwarfChange1::blacksmith()),
         Arc::new(dwarf_change1::DwarfChange1::warehouse()),
         Arc::new(orc_change1::OrcChange1),
+        Arc::new(teleport_to_race_track::TeleportToRaceTrack),
         Arc::new(teleport_with_charm::TeleportWithCharm),
     ];
     QuestRegistry::new(scripts)

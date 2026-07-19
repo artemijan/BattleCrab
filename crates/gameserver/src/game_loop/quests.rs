@@ -617,6 +617,38 @@ impl<'w> QuestCtx<'w> {
         super::death::teleport_player(self.world, self.player, x, y, z);
     }
 
+    /// `player.getVariables().getInt(key, default)` — the *character*
+    /// key/value store (`character_variables`), not the per-quest
+    /// `QuestState` vars: it outlives the script's quest state and is what
+    /// the `ai/others` behaviors use to remember something about a player
+    /// (TeleportToRaceTrack's return point).
+    pub fn player_var_int(&self, key: &str, default: i32) -> i32 {
+        self.world
+            .objects
+            .get_component::<crate::model::components::PlayerVariables>(&self.player)
+            .map(|v| v.get_int(key, default))
+            .unwrap_or(default)
+    }
+
+    /// `player.getVariables().set(key, value)` (memory-first — flushed with
+    /// the character like every other persisted field).
+    pub fn set_player_var_int(&mut self, key: &str, value: i32) {
+        if let Some(v) =
+            self.world.objects.get_component_mut::<crate::model::components::PlayerVariables>(&self.player)
+        {
+            v.set_int(key, value);
+        }
+    }
+
+    /// `player.getVariables().remove(key)`.
+    pub fn unset_player_var(&mut self, key: &str) {
+        if let Some(v) =
+            self.world.objects.get_component_mut::<crate::model::components::PlayerVariables>(&self.player)
+        {
+            v.0.remove(key);
+        }
+    }
+
     /// The involved NPC's per-instance scratch value (Java
     /// `Npc.isScriptValue`/`setScriptValue` — reset on respawn because the
     /// respawned NPC is a fresh instance).

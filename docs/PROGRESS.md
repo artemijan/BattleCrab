@@ -1551,6 +1551,34 @@ Deviation: `getAnySpawn` reads Java's spawn *table*; the Rust port scans live
 spawned NPCs instead. Identical for the always-spawned town NPCs on the
 whitelist.
 
+- `scripts/teleport_to_race_track.rs` — the Monster Derby Track round trip
+  (`ai/others/TeleportToRaceTrack`). Twelve gatekeepers carry the free
+  "Teleport to the Monster Arena and the Monster Race Track" button; the
+  Race Track Manager (30995) reads the origin back and returns the player.
+  Previously unported, so every one of those buttons was silently dead —
+  the bypass resolved to no script and the window just closed.
+
+  The return point lives in the *character* variable store (`MONSTER_RETURN`
+  → npc id), so this script added `QuestCtx::{player_var_int,
+  set_player_var_int, unset_player_var}` over the existing
+  `PlayerVariables` component — the first script to reach for
+  `character_variables` rather than per-quest `QuestState` vars.
+
+  `bare_talk()` stays false, matching Java: all fourteen htmls point at the
+  *named* `Quest TeleportToRaceTrack` bypass, which reaches `on_talk`
+  regardless of `id()`, so the quest-window chooser is never involved.
+
+  Deviation: Stanislava (31699) carries the button in her html but is absent
+  from Java's `TELEPORTER_LOCATIONS`, so the Java return trip NPEs on
+  `teleToLocation(null)`. The port falls back to the Dion default instead of
+  dropping the teleport.
+
+  Not ported: the `RaceManager` betting UI (`MonsterRace`, ticket
+  purchase/payout). Only the exit/entry teleports work; Java's
+  `RaceManager` overrides `onBypassFeedback` for betting but not
+  `showChatWindow`, so `html/default/30995.htm` — the page holding the exit
+  button — renders correctly either way.
+
 ---
 
 ## Cross-cutting notes
