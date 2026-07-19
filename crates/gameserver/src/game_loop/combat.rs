@@ -1493,6 +1493,12 @@ pub(crate) fn player_receive_damage(
     attacker_oid: i32,
     damage: f64,
 ) {
+    // A duel is consequence-free: the losing blow stops at 1 HP and ends the
+    // duel instead of killing (Java caps it in the duel damage path, which is
+    // why a duel loser stands back up rather than dying).
+    if super::duel::duel_lethal_guard(world, attacker_oid, player_oid, damage) {
+        return;
+    }
     let attacker_is_playable = !is_npc_oid(attacker_oid);
     // GM `//invul`/`//undying` (Java `isInvul`/`isUndying`): invul ignores the
     // hit entirely; undying lets damage apply but floors HP at 1.

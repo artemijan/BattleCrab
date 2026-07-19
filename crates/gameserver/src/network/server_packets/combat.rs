@@ -124,3 +124,71 @@ pub fn social_action(object_id: i32, action_id: i32) -> Vec<u8> {
     w.write_i32(0);
     w.into_bytes()
 }
+
+// ---------------------------------------------------------------------------
+// Duels (G20)
+// ---------------------------------------------------------------------------
+
+fn ex(opcode: i16) -> PacketWriter {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcode);
+    w
+}
+
+/// `ExDuelAskStart` — "X challenges you to a duel" prompt.
+pub fn ex_duel_ask_start(requestor_name: &str, party_duel: i32) -> Vec<u8> {
+    let mut w = ex(opcodes::EX_DUEL_ASK_START);
+    w.write_string(requestor_name);
+    w.write_i32(party_duel);
+    w.into_bytes()
+}
+
+/// `ExDuelReady` — the countdown finished; the client shows "ready".
+pub fn ex_duel_ready(party_duel: i32) -> Vec<u8> {
+    let mut w = ex(opcodes::EX_DUEL_READY);
+    w.write_i32(party_duel);
+    w.into_bytes()
+}
+
+/// `ExDuelStart` — the duel is live.
+pub fn ex_duel_start(party_duel: i32) -> Vec<u8> {
+    let mut w = ex(opcodes::EX_DUEL_START);
+    w.write_i32(party_duel);
+    w.into_bytes()
+}
+
+/// `ExDuelEnd` — closes the duel UI.
+pub fn ex_duel_end(party_duel: i32) -> Vec<u8> {
+    let mut w = ex(opcodes::EX_DUEL_END);
+    w.write_i32(party_duel);
+    w.into_bytes()
+}
+
+/// `ExDuelUpdateUserInfo` — the opponent's bars in the duel panel.
+#[allow(clippy::too_many_arguments)]
+pub fn ex_duel_update_user_info(
+    name: &str,
+    object_id: i32,
+    class_id: i32,
+    cur_hp: i32,
+    max_hp: i32,
+    cur_mp: i32,
+    max_mp: i32,
+    cur_cp: i32,
+    max_cp: i32,
+    level: i32,
+) -> Vec<u8> {
+    let mut w = ex(opcodes::EX_DUEL_UPDATE_USER_INFO);
+    w.write_string(name);
+    w.write_i32(object_id);
+    w.write_i32(class_id);
+    w.write_i32(level);
+    w.write_i32(cur_hp);
+    w.write_i32(max_hp);
+    w.write_i32(cur_mp);
+    w.write_i32(max_mp);
+    w.write_i32(cur_cp);
+    w.write_i32(max_cp);
+    w.into_bytes()
+}

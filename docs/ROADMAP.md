@@ -583,10 +583,24 @@ first implementation read it at skill level; the behaviour tests passed anyway
 against the real datapack caught it. Assert against real data, not just
 fixtures.
 
-**Still open in G20** (breadth, not gate): duels (`DuelManager` — G25's olympiad
-reuses their shape), `SHOTS_BONUS`, karma decay while hunting
-(`calculateKarmaLost` needs per-level `KarmaData`, absent from this dist), and
-PK item drops.
+🚧 **Duels (1v1) landed (2026-07-19)** — plan
+[PLAN_G20_DUELS.md](PLAN_G20_DUELS.md). The last feature G20 names, and the one
+**G25's olympiad reuses the shape of**: challenge → ask → accept → 5 s countdown
+→ fight → end on death / surrender / 120 s timeout / drifting >1600 apart, with
+the `canDuel` gates and the five `ExDuel*` packets. **A duel never kills** — the
+losing blow is capped at 1 HP and ends the duel instead, so no death penalty and
+no karma or PvP counters move.
+
+Scoped to **1v1**: party duels teleport both parties into an arena instance,
+which needs G27, so a party request is refused rather than half-handled.
+Condition restore is simplified to a full heal rather than Java's pre-duel
+snapshot (`TODO(G20)`); `canDuel` already requires ≥50 % HP/MP, so the gap is
+small.
+
+**Still open in G20** (all small): `SHOTS_BONUS`, karma decay while hunting
+(`calculateKarmaLost` needs per-level `KarmaData`, absent from this dist), PK
+item drops, the party-duel variant, and the ranged trio (bow peace-zone check,
+`CHEAPSHOT`, NPC-archer reuse).
 
 **Scoping note:** several G20 line items were already done — `PhysicalAttack`
 skills (instant-damage slice) and the root/immobilize half of

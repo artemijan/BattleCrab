@@ -120,6 +120,10 @@ pub mod ex_opcodes {
     /// Mobius registers a `null` handler (no packet class), so it is consumed
     /// and ignored.
     pub const EX_SEND_CLIENT_INI: u16 = 0x104;
+    /// Duels (G20) — `RequestDuelStart` / `AnswerStart` / `Surrender`.
+    pub const REQUEST_DUEL_START: u16 = 0x1B;
+    pub const REQUEST_DUEL_ANSWER_START: u16 = 0x1C;
+    pub const REQUEST_DUEL_SURRENDER: u16 = 0x42;
     pub const REQUEST_GOTO_LOBBY: u16 = 0x33;
     pub const REQUEST_CHANGE_PARTY_LEADER: u16 = 0x0C;
     pub const REQUEST_PARTY_LOOT_MODIFICATION: u16 = 0x75;
@@ -1032,4 +1036,21 @@ mod tests {
         let body = save_order_body(2, &[(1000, 0)]);
         assert!(RequestSaveInventoryOrder::read(&body).is_none());
     }
+}
+
+/// `RequestDuelStart` — the challenged player's name and the party-duel flag.
+pub fn read_duel_start(body: &[u8]) -> Option<(String, i32)> {
+    let mut r = PacketReader::new(body);
+    let name = r.read_string()?;
+    let party_duel = r.read_i32().unwrap_or(0);
+    Some((name, party_duel))
+}
+
+/// `RequestDuelAnswerStart` — reads `partyDuel`, an unused field, then the
+/// response (1 accepts, anything else declines).
+pub fn read_duel_answer(body: &[u8]) -> Option<i32> {
+    let mut r = PacketReader::new(body);
+    let _party_duel = r.read_i32()?;
+    let _unused = r.read_i32().unwrap_or(0);
+    Some(r.read_i32().unwrap_or(0))
 }

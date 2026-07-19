@@ -229,6 +229,19 @@ pub mod sm_ids {
     /// companion message 362 (the bonus *amount*) is defined but never sent in
     /// this build, so it is not ported.
     pub const OVER_HIT: i16 = 361;
+    // Duels (G20).
+    pub const THERE_IS_NO_OPPONENT_TO_RECEIVE_YOUR_CHALLENGE_FOR_A_DUEL: i16 = 1926;
+    pub const C1_HAS_BEEN_CHALLENGED_TO_A_DUEL: i16 = 1927;
+    pub const C1_IS_TOO_FAR_AWAY_TO_RECEIVE_A_DUEL_CHALLENGE: i16 = 2028;
+    pub const C1_HAS_DECLINED_YOUR_CHALLENGE_TO_A_DUEL: i16 = 1931;
+    pub const YOU_ARE_UNABLE_TO_REQUEST_A_DUEL_AT_THIS_TIME: i16 = 1940;
+    pub const THE_DUEL_WILL_BEGIN_IN_S1_SECOND_S: i16 = 1945;
+    pub const LET_THE_DUEL_BEGIN: i16 = 1949;
+    pub const C1_HAS_WON_THE_DUEL: i16 = 1950;
+    pub const THE_DUEL_HAS_ENDED_IN_A_TIE: i16 = 1952;
+    pub const C1_CANNOT_DUEL_BECAUSE_C1_S_HP_OR_MP_IS_BELOW_50: i16 = 2019;
+    pub const C1_CANNOT_DUEL_BECAUSE_C1_IS_CURRENTLY_ENGAGED_IN_BATTLE: i16 = 2021;
+    pub const C1_CANNOT_DUEL_BECAUSE_C1_IS_ALREADY_ENGAGED_IN_A_DUEL: i16 = 2022;
     // Ranged attacks (G20).
     pub const YOU_HAVE_RUN_OUT_OF_ARROWS: i16 = 112;
     pub const YOUR_CROSSBOW_IS_PREPARING_TO_FIRE: i16 = 2224;
