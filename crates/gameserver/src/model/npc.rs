@@ -360,6 +360,15 @@ pub fn spawn_all(world: &mut World) -> usize {
                     skipped += 1;
                     continue;
                 }
+                // `dbSave` spawns belong to `DBSpawnManager`, not the static
+                // pass — Java's `spawnNpc` hands them over and only places them
+                // if the DB didn't already define them. Defer to
+                // `boss_respawn::resolve_boot`, which settles them against the
+                // `npc_respawns` rows once those arrive.
+                if world.data.spawn_data.spawns[spawn_idx].groups[group_idx].npcs[npc_idx].db_save {
+                    world.pending_boss_spawns.push((spawn_idx, group_idx, npc_idx));
+                    continue;
+                }
                 for _ in 0..count {
                     if spawn_one(world, spawn_idx, group_idx, npc_idx).is_some() {
                         placed += 1;

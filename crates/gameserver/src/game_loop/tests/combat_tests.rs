@@ -692,6 +692,7 @@ fn dead_monster_decays_and_respawns() {
                     loc: Some(crate::data::spawn_data::FixedLoc { x: 30, y: 0, z: 0, heading: 0 }),
                     respawn_secs: 3,
                     respawn_random_secs: 0,
+                    db_save: false,
                 }],
             }],
         }],

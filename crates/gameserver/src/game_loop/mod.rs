@@ -32,6 +32,7 @@ mod items;
 mod lobby;
 mod multisell;
 mod net;
+mod boss_respawn;
 mod npc_ai;
 mod npc_cast;
 mod npc_view;
@@ -246,6 +247,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // ahead of the `DbCommand::Shutdown` `main` sends only after this thread
     // joins, so the DB thread drains them first.
     net::save_all_players(&mut world);
+    // `DBSpawnManager.updateDb` — every living raid boss's current HP/MP, so a
+    // restart mid-fight resumes at the HP the boss was left on.
+    boss_respawn::save_all_bosses(&mut world);
 }
 
 
@@ -314,6 +318,9 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::GroundItemDecay { item_object_id } => {
                 ground_items::handle_ground_item_decay(world, item_object_id);
+            }
+            ScheduledTask::BossRespawn { spawn_ref } => {
+                boss_respawn::handle_boss_respawn(world, spawn_ref);
             }
             ScheduledTask::NpcDecay { npc_object_id } => {
                 death::handle_npc_decay(world, npc_object_id);

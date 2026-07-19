@@ -119,6 +119,10 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
     // Gather the respawn bookkeeping before despawn (components drop with
     // the entity).
     let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).cloned() else { return };
+    // A `dbSave` boss's row is written from its *spawn* position, which the
+    // despawn below drops along with the entity — so read it first.
+    let db_saved = super::boss_respawn::is_db_saved(world, npc.spawn_ref);
+    let corpse_pos = world.objects.get_component::<Position>(&npc_oid).copied();
     despawn_npc(world, npc_oid, region);
 
     // `Spawn.decreaseCount`: respawn only when the spawn line asked for it
@@ -131,6 +135,14 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
         world
             .scheduler
             .schedule(world.tick + delay_secs as u64 * 10, ScheduledTask::NpcRespawn { spawn_idx, group_idx, npc_idx });
+        // `DBSpawnManager.updateStatus(npc, true)`: bank the absolute due time
+        // so a restart inside the (up to 24 h + 12 h random) window resumes the
+        // wait instead of handing the boss back immediately.
+        if db_saved {
+            if let Some(pos) = corpse_pos {
+                super::boss_respawn::persist_death_at(world, npc.npc_id, pos, delay_secs);
+            }
+        }
     }
 }
 
