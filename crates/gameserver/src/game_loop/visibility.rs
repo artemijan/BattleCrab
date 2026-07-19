@@ -54,7 +54,7 @@ fn send_char_info(world: &World, observer: &ClientSession, player_id: i32) {
 fn send_npc_info(world: &World, session: &ClientSession, npc_id: i32) {
     let Some(v) = crate::model::npc::NpcView::of(&world.objects, npc_id) else { return };
     let Some(t) = v.npc.template(world) else { return };
-    session.send(server_packets::npc_info(&v, t));
+    session.send(server_packets::npc_info(&v, t, &world.cfg.npc));
 }
 
 /// The region cell a player is registered in (`None` once they're gone).

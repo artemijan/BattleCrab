@@ -20,14 +20,54 @@ pub fn npc_say(npc_object_id: i32, npc_id: i32, npc_string_id: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Port of `Creature.getTitle()`'s monster branch: with `ShowNpcLevel` /
+/// `ShowNpcAggression` on, a monster's title becomes `Lv <level>` plus `[A]`
+/// (template aggressive) / `[G]` (has a clan list and a clan-help range, i.e.
+/// calls faction help), with the template title appended after. The champion
+/// and trap branches are skipped — neither is modeled yet.
+pub fn npc_title(t: &NpcTemplate, cfg: &crate::config::NpcConfig) -> String {
+    if !t.is_monster() || (!cfg.show_npc_level && !cfg.show_npc_aggression) {
+        return t.title.clone();
+    }
+    let mut title = String::new();
+    if cfg.show_npc_level {
+        title.push_str("Lv ");
+        title.push_str(&t.level.to_string());
+    }
+    if cfg.show_npc_aggression {
+        // Java appends the separator space before checking the flags, so a
+        // calm loner still gets "Lv 20 " — kept for byte parity.
+        if !title.is_empty() {
+            title.push(' ');
+        }
+        if t.is_aggressive {
+            title.push_str("[A]");
+        }
+        if !t.clans.is_empty() && t.clan_help_range > 0 {
+            title.push_str("[G]");
+        }
+    }
+    if !t.title.is_empty() {
+        title.push(' ');
+        title.push_str(&t.title);
+    }
+    title
+}
+
 /// Port of `serverpackets/NpcInfo` (masked, 5 mask bytes / "mask_bits_37").
 /// Component selection follows the Java constructor with the not-yet-modeled
 /// state at its defaults: no summon animation, no water/fly/team/enchant/
 /// clone/transform/abnormals, no clan, reputation 0, pvp flag 0. The
 /// localisation pass (`MULTILANG_ENABLE`) is skipped.
-pub fn npc_info(v: &crate::model::npc::NpcView, t: &NpcTemplate) -> Vec<u8> {
+pub fn npc_info(
+    v: &crate::model::npc::NpcView,
+    t: &NpcTemplate,
+    cfg: &crate::config::NpcConfig,
+) -> Vec<u8> {
     let crate::model::npc::NpcView { npc, pos, vitals, speeds } = v;
     use NpcInfoType as T;
+
+    let title = npc_title(t, cfg);
 
     // Java `NpcInfo._masks` starts with the two unnamed always-on component
     // pairs (0x0C/0x0D and 0x14/0x15) pre-set.
@@ -40,7 +80,7 @@ pub fn npc_info(v: &crate::model::npc::NpcView, t: &NpcTemplate) -> Vec<u8> {
         // in block 2; the string components add their chars on top.
         match ty {
             T::Attackable | T::Relations => init_size += ty.block_length(),
-            T::Title => init_size += ty.block_length() + t.title.len() as i32 * 2,
+            T::Title => init_size += ty.block_length() + title.len() as i32 * 2,
             T::Name => block_size += ty.block_length() + t.name.len() as i32 * 2,
             _ => block_size += ty.block_length(),
         }
@@ -79,7 +119,7 @@ pub fn npc_info(v: &crate::model::npc::NpcView, t: &NpcTemplate) -> Vec<u8> {
     if t.server_side_name {
         add(&mut mask_bytes, T::Name);
     }
-    if t.server_side_title {
+    if t.server_side_title || (t.is_monster() && (cfg.show_npc_level || cfg.show_npc_aggression)) {
         add(&mut mask_bytes, T::Title);
     }
     add(&mut mask_bytes, T::PetEvolutionId);
@@ -109,7 +149,7 @@ pub fn npc_info(v: &crate::model::npc::NpcView, t: &NpcTemplate) -> Vec<u8> {
     w.write_u8(u8::from(t.is_attackable_class() && t.type_name != "Guard"));
     w.write_i32(0); // relations
     if contains(T::Title) {
-        w.write_string(&t.title);
+        w.write_string(&title);
     }
 
     // Block 2.
@@ -235,6 +275,37 @@ mod tests {
         w.write_u8(0x0C); // visual state: targetable | show name
         let expected = w.into_bytes();
 
-        assert_eq!(super::npc_info(&v, &t), expected);
+        assert_eq!(super::npc_info(&v, &t, &crate::config::NpcConfig::default()), expected);
+    }
+
+    /// `Creature.getTitle()` monster branch, per config combination.
+    #[test]
+    fn npc_title_level_and_aggression_flags() {
+        let mut t = crate::data::npc_data::default_template(20001);
+        t.type_name = "Monster".into();
+        t.level = 20;
+        t.is_aggressive = true;
+        t.clans = vec!["ORC_CLAN".into()];
+        t.clan_help_range = 300;
+
+        let mut cfg = crate::config::NpcConfig::default();
+        assert_eq!(super::npc_title(&t, &cfg), ""); // both off → template title
+        cfg.show_npc_level = true;
+        cfg.show_npc_aggression = true;
+        assert_eq!(super::npc_title(&t, &cfg), "Lv 20 [A][G]");
+
+        t.is_aggressive = false;
+        t.clan_help_range = 0;
+        // Java writes the separator space even when no flag follows.
+        assert_eq!(super::npc_title(&t, &cfg), "Lv 20 ");
+
+        cfg.show_npc_level = false;
+        t.is_aggressive = true;
+        t.title = "Raid Fighter".into();
+        assert_eq!(super::npc_title(&t, &cfg), "[A] Raid Fighter");
+
+        // Non-monsters keep their template title untouched.
+        t.type_name = "Folk".into();
+        assert_eq!(super::npc_title(&t, &cfg), "Raid Fighter");
     }
 }

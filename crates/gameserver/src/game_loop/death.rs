@@ -201,7 +201,7 @@ pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
     let Some(v) = crate::model::npc::NpcView::of(&world.objects, object_id) else { return };
     let Some(region) = world.objects.get_component::<RegionCell>(&object_id).map(|r| r.0) else { return };
     let Some(t) = v.npc.template(world) else { return };
-    let pkt = server_packets::npc_info(&v, t);
+    let pkt = server_packets::npc_info(&v, t, &world.cfg.npc);
     broadcast_near_region(world, region, &pkt);
 }
 

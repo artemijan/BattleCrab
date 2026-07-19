@@ -1599,6 +1599,20 @@ heal (Java's `instant = false`). Details + known gap
 (`isDeleteAbnormalOnLeave` isn't parsed yet) in
 [PLAN_BUFF_PERSISTENCE.md](PLAN_BUFF_PERSISTENCE.md).
 
+### Monster level/aggro in NPC titles (`ShowNpcLevel`/`ShowNpcAggression`) ✅
+
+Port of `Creature.getTitle()`'s custom-title branch, which `NpcInfo` reads
+through `calcBlockSize`/`writeImpl`: with `NPC.ini`'s `ShowNpcLevel` /
+`ShowNpcAggression` (both True on this dist), a monster's title becomes
+`Lv <level>` + `[A]` (template `isAggressive`) + `[G]` (has `<clanList>` and a
+`clanHelpRange`), with the template title appended. New `npc_title` helper in
+`server_packets/npc.rs`; `npc_info` now takes `&NpcConfig` and includes the
+TITLE component for any monster when either flag is set (the Java mask
+condition), so mobs that previously sent no title now do. Champion and trap
+title branches skipped (neither modeled). Quirk kept for byte parity: Java
+appends the `[A]`/`[G]` separator space before checking the flags, so a calm,
+clanless mob titles as `"Lv 20 "`.
+
 ---
 
 ## Cross-cutting notes

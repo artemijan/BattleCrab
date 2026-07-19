@@ -28,6 +28,12 @@ pub struct NpcConfig {
     /// opens the `NpcViewMod` info window (Java `Action` case 1 →
     /// `Npc.onActionShift`) instead of a plain re-target.
     pub alt_game_view_npc: bool,
+    /// `ShowNpcLevel` — prefix every monster's title with `Lv <level>`
+    /// (Java `Creature.getTitle()`'s custom-title branch). True on this dist.
+    pub show_npc_level: bool,
+    /// `ShowNpcAggression` — append `[A]` (aggressive) / `[G]` (calls clan
+    /// help) to every monster's title. True on this dist.
+    pub show_npc_aggression: bool,
     /// `AggroDistanceCheckEnabled` — the chase leash (`AttackableAI.thinkAttack`):
     /// a monster dragged farther than the range below from its spawn drops
     /// aggro and returns home. Disabled by default on this dist.
@@ -88,6 +94,8 @@ impl Default for NpcConfig {
             min_monster_animation: 5,
             max_monster_animation: 60,
             alt_game_view_npc: false,
+            show_npc_level: false,
+            show_npc_aggression: false,
             aggro_distance_check_enabled: true,
             aggro_distance_check_range: 1500,
             aggro_distance_check_raids: false,
@@ -125,6 +133,8 @@ impl NpcConfig {
             min_monster_animation: g.get_int("MinMonsterAnimation", d.min_monster_animation),
             max_monster_animation: g.get_int("MaxMonsterAnimation", d.max_monster_animation),
             alt_game_view_npc: p.get_bool("AltGameViewNpc", d.alt_game_view_npc),
+            show_npc_level: p.get_bool("ShowNpcLevel", d.show_npc_level),
+            show_npc_aggression: p.get_bool("ShowNpcAggression", d.show_npc_aggression),
             aggro_distance_check_enabled: p
                 .get_bool("AggroDistanceCheckEnabled", d.aggro_distance_check_enabled),
             aggro_distance_check_range: p
