@@ -12,6 +12,7 @@ pub mod dwarf_change1;
 pub mod dwarf_change2;
 pub mod first_class_transfer_talk;
 pub mod elf_human_change1;
+pub mod elf_human_change2;
 pub mod orc_change1;
 pub mod orc_dark_elf_change2;
 pub mod q00109_in_search_of_the_nest;
@@ -56,6 +57,9 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(first_class_transfer_talk::FirstClassTransferTalk),
         Arc::new(elf_human_change1::ElfHumanChange1::fighter()),
         Arc::new(elf_human_change1::ElfHumanChange1::wizard()),
+        Arc::new(elf_human_change2::ElfHumanChange2::fighter()),
+        Arc::new(elf_human_change2::ElfHumanChange2::wizard()),
+        Arc::new(elf_human_change2::ElfHumanChange2::cleric()),
         Arc::new(dwarf_change2::DwarfChange2::blacksmith()),
         Arc::new(dwarf_change2::DwarfChange2::warehouse()),
         Arc::new(dwarf_change1::DwarfChange1::blacksmith()),

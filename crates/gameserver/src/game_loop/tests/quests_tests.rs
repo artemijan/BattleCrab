@@ -1647,3 +1647,217 @@ fn change2_pages_exist_in_dist() {
         }
     }
 }
+
+/// ElfHumanFighterChange2: a Warrior with all three marks becomes a Gladiator
+/// at level 40 and is paid 15 C-grade coupons.
+#[test]
+fn elf_human_change2_second_class_transfer() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(2627, "Challenger", true), (2734, "Trust", true), (2762, "Duelist", true),
+          (8870, "Coupon C", false)],
+    );
+    world.data.categories.insert_for_test("FIGHTER_GROUP", &[1, 2, 3]);
+    world.data.categories.insert_for_test("HUMAN_FALL_CLASS", &[1, 2, 3]);
+    world.data.categories.insert_for_test("ELF_FALL_CLASS", &[]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30109, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.race = 0;
+        p.class_id = 1; // Warrior
+        p.base_class_id = 1;
+    }
+    for id in [2627, 2734, 2762] {
+        super::items::add_inventory_item(&mut world, 3001, id, 1);
+    }
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest ElfHumanFighterChange2 2")),
+    );
+
+    let p = world.objects.get_component::<Player>(&3001).unwrap();
+    assert_eq!(p.class_id, 2, "now a Gladiator");
+    assert_eq!(p.base_class_id, 2, "and it is the base class");
+    for id in [2627, 2734, 2762] {
+        assert_eq!(item_count(&world, 3001, id), 0, "mark {id} consumed");
+    }
+    assert_eq!(item_count(&world, 3001, 8870), 15, "15 C-grade coupons");
+}
+
+/// The `from_class` half of each row is load-bearing. All ten Fighter targets
+/// live on the same NPC, so without it a Human Knight could take Temple
+/// Knight — an *Elven* Knight's class — from the same master.
+#[test]
+fn elf_human_change2_rejects_the_wrong_source_class() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(2633, "Duty", true), (3140, "Life", true), (2820, "Healer", true)],
+    );
+    world.data.categories.insert_for_test("FIGHTER_GROUP", &[4]);
+    world.data.categories.insert_for_test("HUMAN_FALL_CLASS", &[4]);
+    world.data.categories.insert_for_test("ELF_FALL_CLASS", &[]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30109, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.race = 0;
+        p.class_id = 4; // Human Knight, holding exactly the Temple Knight marks
+        p.base_class_id = 4;
+    }
+    for id in [2633, 3140, 2820] {
+        super::items::add_inventory_item(&mut world, 3001, id, 1);
+    }
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    // 20 = Temple Knight, which only an Elven Knight (19) may take.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest ElfHumanFighterChange2 20")),
+    );
+
+    let p = world.objects.get_component::<Player>(&3001).unwrap();
+    assert_eq!(p.class_id, 4, "still a Knight");
+    for id in [2633, 3140, 2820] {
+        assert_eq!(item_count(&world, 3001, id), 1, "mark {id} not consumed");
+    }
+}
+
+/// All three marks are required — `hasQuestItems(a, b, c)` is an AND. With two
+/// of three at level 40 the master serves the noProof page and takes nothing.
+#[test]
+fn elf_human_change2_requires_all_three_marks() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(2721, "Pilgrim", true), (2734, "Trust", true), (2820, "Healer", true)],
+    );
+    world.data.categories.insert_for_test("CLERIC_GROUP", &[15]);
+    world.data.categories.insert_for_test("HUMAN_CALL_CLASS", &[15]);
+    world.data.categories.insert_for_test("ELF_CALL_CLASS", &[]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30120, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.race = 0;
+        p.class_id = 15; // Cleric
+        p.base_class_id = 15;
+    }
+    for id in [2721, 2734] {
+        super::items::add_inventory_item(&mut world, 3001, id, 1); // two of three
+    }
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest ElfHumanClericChange2 16")),
+    );
+
+    let p = world.objects.get_component::<Player>(&3001).unwrap();
+    assert_eq!(p.class_id, 15, "still a Cleric");
+    for id in [2721, 2734] {
+        assert_eq!(item_count(&world, 3001, id), 1, "mark {id} kept");
+    }
+}
+
+/// `onTalk` routes to a class-list page, the first-occupation refusal, or the
+/// mismatch page. Compared byte-for-byte against the dist page — asserting
+/// "non-empty" would pass while serving the wrong window.
+#[test]
+fn elf_human_change2_talk_picks_the_class_list() {
+    // (script, page npc, group, human cat, elf cat, class id, expected page)
+    let cases: [(&str, i32, &str, &str, &str, i32, u32); 9] = [
+        ("ElfHumanFighterChange2", 30109, "FIGHTER_GROUP", "HUMAN_FALL_CLASS", "ELF_FALL_CLASS", 1, 2),
+        ("ElfHumanFighterChange2", 30109, "FIGHTER_GROUP", "HUMAN_FALL_CLASS", "ELF_FALL_CLASS", 5, 9),
+        ("ElfHumanFighterChange2", 30109, "FIGHTER_GROUP", "HUMAN_FALL_CLASS", "ELF_FALL_CLASS", 7, 16),
+        ("ElfHumanFighterChange2", 30109, "FIGHTER_GROUP", "HUMAN_FALL_CLASS", "ELF_FALL_CLASS", 19, 23),
+        ("ElfHumanFighterChange2", 30109, "FIGHTER_GROUP", "HUMAN_FALL_CLASS", "ELF_FALL_CLASS", 22, 30),
+        // No first occupation yet.
+        ("ElfHumanFighterChange2", 30109, "FIGHTER_GROUP", "HUMAN_FALL_CLASS", "ELF_FALL_CLASS", 0, 37),
+        ("ElfHumanWizardChange2", 30115, "WIZARD_GROUP", "HUMAN_MALL_CLASS", "ELF_MALL_CLASS", 11, 2),
+        ("ElfHumanWizardChange2", 30115, "WIZARD_GROUP", "HUMAN_MALL_CLASS", "ELF_MALL_CLASS", 26, 12),
+        ("ElfHumanClericChange2", 30120, "CLERIC_GROUP", "HUMAN_CALL_CLASS", "ELF_CALL_CLASS", 29, 9),
+    ];
+    for (script, npc_id, group, human_cat, elf_cat, class_id, expected) in cases {
+        let (mut world, _db_rx, _link_rx) = quest_test_world();
+        world.data.categories.insert_for_test(group, &[class_id]);
+        world.data.categories.insert_for_test(human_cat, &[class_id]);
+        world.data.categories.insert_for_test(elf_cat, &[]);
+        world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+        world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+        add_test_npc(&mut world, NPC_OID, npc_id, "VillageMaster", 70, 100, 0, 0);
+        let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+        {
+            let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+            p.class_id = class_id;
+            p.base_class_id = class_id;
+        }
+        drain(&mut rx);
+
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {script}")),
+        );
+
+        let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).unwrap_or_default();
+        let want_path = format!(
+            "{}/../../dist/game/data/scripts/village_master/{script}/{npc_id}-{expected:02}.htm",
+            env!("CARGO_MANIFEST_DIR")
+        );
+        let want = crate::data::htm_cache::strip_htm(
+            &std::fs::read_to_string(&want_path).unwrap_or_else(|_| panic!("dist page {want_path}")),
+        )
+        .replace("%objectId%", &NPC_OID.to_string());
+        assert_eq!(html, want, "{script} class {class_id}: wrong page (wanted {expected})");
+    }
+}
+
+/// Every page the three scripts can name exists — and each set is owned by one
+/// NPC, so the other masters must ship nothing (which is why the hard-coded
+/// page owner cannot be tidied into a per-NPC name that would 404).
+#[test]
+fn elf_human_change2_pages_exist_in_dist() {
+    const DIST: &str =
+        concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/village_master/");
+    // (script, page npc, fixed pages, row first-pages, another master's id)
+    let sets: [(&str, i32, &[u32], &[u32], i32); 3] = [
+        ("ElfHumanFighterChange2", 30109, &[1, 2, 9, 16, 23, 30, 37, 38, 39],
+         &[40, 44, 48, 52, 56, 60, 64, 68, 72, 76], 30187),
+        ("ElfHumanWizardChange2", 30115, &[1, 2, 12, 19, 20, 21], &[22, 26, 30, 34, 38], 30174),
+        ("ElfHumanClericChange2", 30120, &[1, 2, 9, 13, 14, 15], &[16, 20, 24], 30191),
+    ];
+    for (script, npc, fixed, firsts, other) in sets {
+        for n in fixed {
+            let p = format!("{DIST}{script}/{npc}-{n:02}.htm");
+            assert!(std::path::Path::new(&p).exists(), "missing {script}/{npc}-{n:02}.htm");
+        }
+        for first in firsts {
+            for n in *first..=(*first + 3) {
+                let p = format!("{DIST}{script}/{npc}-{n}.htm");
+                assert!(std::path::Path::new(&p).exists(), "missing {script}/{npc}-{n}.htm");
+            }
+        }
+        let p = format!("{DIST}{script}/{other}-01.htm");
+        assert!(!std::path::Path::new(&p).exists(), "only {npc} ships {script} pages");
+    }
+}
