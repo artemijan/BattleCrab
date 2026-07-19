@@ -197,6 +197,22 @@ pub enum SkillEffect {
     /// so it leaves the target at 1 HP. Backs Curse Poison (1168), Poison,
     /// Bleed, etc.
     DamOverTime { power: f64, ticks: i32, can_kill: bool },
+    /// `handlers/effecthandlers/Cp.java` — an instant CP change. `percent`
+    /// selects Java's `PER` mode (a share of max CP) over `DIFF` (a flat
+    /// amount). Braveheart 440 grants `+1000 DIFF`; Wrath 320 and Touch of
+    /// Death 342 take CP away.
+    Cp { amount: f64, percent: bool },
+    /// `handlers/effecthandlers/HealOverTime.java` — periodic HP change on the
+    /// same tick chain as [`SkillEffect::DamOverTime`]. **`power` is routinely
+    /// negative on this dist** (Fury Fists 222 `-12`, Arcane Wisdom 336 `-50`):
+    /// those are toggles that *drain* HP for their upkeep, so this is not a
+    /// heal-only effect despite the name.
+    HealOverTime { power: f64, ticks: i32 },
+    /// `handlers/effecthandlers/ManaDamOverTime.java` — periodic MP drain
+    /// (positive `power` = MP removed). Silent Move 221 and friends are toggles
+    /// paying MP upkeep; when a tick's drain exceeds current MP the toggle is
+    /// switched off (Java returns `false`, which cancels a toggle).
+    ManaDamOverTime { power: f64, ticks: i32 },
     /// `handlers/effecthandlers/Restoration.java` — instant single-item
     /// grant. Backs item-use skills wrapping a fixed pack/box reward (e.g.
     /// spiritshot packs): the item's `<skills>` entry casts this, which is

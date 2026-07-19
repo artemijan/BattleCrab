@@ -455,6 +455,25 @@ usage, not raw instance count. `StatUp` tops the raw list (887 instances) but is
 only 9 learnable skills — its footprint is almost all talisman/Freya/agathion
 content outside Interlude's reach.
 
+🚧 **Periodic HP/MP effects, healing modifiers & CP (2026-07-19)** — plan
+[PLAN_G19_PERIODIC_EFFECTS.md](PLAN_G19_PERIODIC_EFFECTS.md). The top of the
+learnable-usage ranking, and one coherent family: `HealOverTime` (11) and
+`ManaDamOverTime` (10) join the existing DoT tick chain rather than adding
+schedulers; `HealEffect` (9) scales healing on the *recipient*; `Cp` (7) is an
+instant CP change. `HealOverTime` is **not heal-only** — its power is routinely
+negative, which is how the upkeep toggles (Fury Fists, Arcane Wisdom) pay their
+HP cost, floored at 1 so it never kills. An MP tick that exceeds current MP
+switches a **toggle** off with SM 140 (Java's `false` return, honoured only for
+toggles), closing the loop on the toggles ported in the first G19 slice — until
+now they were free.
+
+**Recurring trap:** effects carrying no stat modifier are silently dropped by
+`apply_skill_effects`' empty-effects guard — the buff never lands, so nothing
+happens at all. This has now bitten three slices running (stun/root,
+`BlockAbnormalSlot`, both periodic effects). The guard now reads as three
+categories — *periodic*, *icon-only*, *state flag* — and any new modifier-less
+effect must join one.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued

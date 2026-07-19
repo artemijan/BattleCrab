@@ -218,7 +218,14 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             SkillEffect::Heal { power } => {
                 let power = *power;
                 let m_atk = world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
-                let amount = formulas::calc_heal(power, m_atk, mcrit, sps, bss, skill.mp_consume, caster_is_player);
+                let mut amount = formulas::calc_heal(power, m_atk, mcrit, sps, bss, skill.mp_consume, caster_is_player);
+                // Java `Heal`: `amount *= effected.HEAL_EFFECT; amount +=
+                // effected.HEAL_EFFECT_ADD` — the *recipient's* stats decide
+                // how much of the heal they actually get.
+                if let Some(mods) = world.objects.get_component::<crate::model::components::StatModifiers>(&target_oid) {
+                    amount *= mods.mul.get(&crate::model::stats::Stat::HealEffect).copied().unwrap_or(1.0);
+                    amount += mods.add.get(&crate::model::stats::Stat::HealEffectAdd).copied().unwrap_or(0.0);
+                }
                 if crate::game_loop::combat::is_npc_oid(target_oid) {
                     // Healing an NPC: clamp and update, no system messages
                     // (nobody to send them to).
@@ -446,6 +453,27 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             // beyond the buff landing — the mechanic is the abnormal flag the
             // buff carries, read by the action gates (`game_loop::abnormal`).
             SkillEffect::BlockActions { .. } | SkillEffect::Root | SkillEffect::BlockAbnormalSlot { .. } => {}
+            // Periodic effects do nothing on application; their work happens on
+            // the tick chain armed by `schedule_dam_over_time`.
+            SkillEffect::HealOverTime { .. } | SkillEffect::ManaDamOverTime { .. } => {}
+            // `Cp.instant` — an immediate CP change, clamped so it never takes
+            // the target past full CP (Java caps the *gain* at the recoverable
+            // headroom; a negative amount is applied as-is and floored at 0).
+            SkillEffect::Cp { amount, percent } => {
+                let Some(pv) = world.objects.get_component::<crate::model::components::PlayerVitals>(&target_oid).copied()
+                else {
+                    continue; // NPCs have no CP pool
+                };
+                let basic = if *percent { pv.max_cp as f64 * *amount / 100.0 } else { *amount };
+                let headroom = (pv.max_cp as f64 - pv.cur_cp).max(0.0);
+                let delta = if basic >= 0.0 { basic.min(headroom) } else { basic };
+                if delta != 0.0 {
+                    if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&target_oid) {
+                        v.cur_cp = (v.cur_cp + delta).clamp(0.0, v.max_cp as f64);
+                    }
+                    broadcast_vitals(world, target_oid);
+                }
+            }
             SkillEffect::ProtectionBlessing => {}
             // DefenceTrait (Mental Shield / Resist Shock) and VampiricAttack
             // (Vampiric Rage): no instant action — they land purely as an
@@ -487,7 +515,18 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     // A `DamOverTime` (poison/bleed) debuff has no stat modifier but still
     // lands as a timed buff (for the icon + expiry) whose ticks are armed
     // below — so it must not bail here on an empty `buff_effects`.
-    let has_dot = skill.effects.iter().any(|e| matches!(e, SkillEffect::DamOverTime { .. }));
+    // Any effect whose whole job happens on the periodic tick chain: it carries
+    // no stat modifier, but the buff must still land (for the icon, the expiry
+    // and — crucially — to keep the tick chain alive, which stops the moment
+    // the buff is gone).
+    let has_periodic = skill.effects.iter().any(|e| {
+        matches!(
+            e,
+            SkillEffect::DamOverTime { .. }
+                | SkillEffect::HealOverTime { .. }
+                | SkillEffect::ManaDamOverTime { .. }
+        )
+    });
     // Blessing of Protection, DefenceTrait (Mental Shield / Resist Shock) and
     // VampiricAttack (Vampiric Rage) likewise carry no stat modifier but must
     // still land as an icon-only timed buff (their abnormal + duration): their
@@ -510,7 +549,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 | SkillEffect::DamageShield
         )
     });
-    if buff_effects.is_empty() && !has_dot && !has_iconless_buff && !has_state_flag {
+    if buff_effects.is_empty() && !has_periodic && !has_iconless_buff && !has_state_flag {
         return;
     }
 
@@ -1218,7 +1257,13 @@ fn schedule_dam_over_time(world: &mut World, caster_oid: i32, target_oid: i32, s
         .effects
         .iter()
         .find_map(|e| match e {
-            SkillEffect::DamOverTime { ticks, .. } if *ticks > 0 => Some(dot_interval_ticks(*ticks)),
+            SkillEffect::DamOverTime { ticks, .. }
+            | SkillEffect::HealOverTime { ticks, .. }
+            | SkillEffect::ManaDamOverTime { ticks, .. }
+                if *ticks > 0 =>
+            {
+                Some(dot_interval_ticks(*ticks))
+            }
             _ => None,
         })
         .unwrap_or(0);
@@ -1234,6 +1279,28 @@ fn schedule_dam_over_time(world: &mut World, caster_oid: i32, target_oid: i32, s
             skill_level: skill.level,
         },
     );
+}
+
+/// Push a periodic tick's HP/MP change to the owner and their party — the
+/// `broadcastStatusUpdate(effector)` every `onActionTime` ends with.
+fn broadcast_vitals(world: &World, target_oid: i32) {
+    if let Some(client_id) = client_for_player(world, target_oid) {
+        if let Some((v, cs)) = world
+            .objects
+            .get_component::<Vitals>(&target_oid)
+            .copied()
+            .zip(world.clients.get(&client_id))
+        {
+            cs.send(server_packets::status_update(
+                target_oid,
+                &[
+                    (server_packets::status_update_type::CUR_HP, v.cur_hp as i32),
+                    (server_packets::status_update_type::CUR_MP, v.cur_mp as i32),
+                ],
+            ));
+        }
+    }
+    crate::game_loop::party::notify_party_vitals(world, target_oid);
 }
 
 /// `DamOverTime.onActionTime` — one poison/bleed tick. Deals
@@ -1276,7 +1343,67 @@ pub(crate) fn handle_dam_over_time_tick(
         .unwrap_or_default();
 
     let mut interval = 0;
+    // Set when a tick returns Java's `false` for a *toggle*, which cancels it
+    // (`BuffInfo.onTick` only honours the return value for toggles).
+    let mut deactivate_toggle = false;
+    let is_toggle = skill.operate_type == crate::model::skill::OperateType::Toggle;
+
     for effect in &skill.effects {
+        match effect {
+            // `HealOverTime.onActionTime`. `power` is negative for the upkeep
+            // toggles, so this both heals and drains.
+            SkillEffect::HealOverTime { power, ticks } if *ticks > 0 => {
+                interval = dot_interval_ticks(*ticks);
+                let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else { continue };
+                let max_hp = v.max_hp as f64;
+                // Java's early bails: at full HP a healing tick is skipped, and
+                // a draining one is skipped when it would take the target to 0.
+                // (With a negative power the second test is `hp + |power| <= 0`,
+                // which never fires — ported as written rather than "fixed".)
+                if *power > 0.0 {
+                    if v.cur_hp >= max_hp {
+                        deactivate_toggle |= is_toggle;
+                        continue;
+                    }
+                } else if v.cur_hp - *power <= 0.0 {
+                    deactivate_toggle |= is_toggle;
+                    continue;
+                }
+                let mut hp = v.cur_hp + dot_tick_damage(*power, *ticks);
+                // Cap at max when healing, floor at 1 when draining — a HoT
+                // upkeep never kills its owner.
+                hp = if *power > 0.0 { hp.min(max_hp) } else { hp.max(1.0) };
+                if let Some(vit) = world.objects.get_component_mut::<Vitals>(&target_oid) {
+                    vit.cur_hp = hp;
+                }
+                broadcast_vitals(world, target_oid);
+            }
+            // `ManaDamOverTime.onActionTime` — MP upkeep.
+            SkillEffect::ManaDamOverTime { power, ticks } if *ticks > 0 => {
+                interval = dot_interval_ticks(*ticks);
+                let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else { continue };
+                let drain = dot_tick_damage(*power, *ticks);
+                if drain > v.cur_mp && is_toggle {
+                    // Out of MP: the toggle switches itself off.
+                    if let Some(client_id) = client_for_player(world, target_oid) {
+                        if let Some(cs) = world.clients.get(&client_id) {
+                            cs.send(server_packets::system_message_with(
+                                server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP,
+                                &[],
+                            ));
+                        }
+                    }
+                    deactivate_toggle = true;
+                    continue;
+                }
+                if let Some(vit) = world.objects.get_component_mut::<Vitals>(&target_oid) {
+                    vit.cur_mp = (vit.cur_mp - drain).max(0.0);
+                }
+                broadcast_vitals(world, target_oid);
+            }
+            _ => {}
+        }
+
         let SkillEffect::DamOverTime { power, ticks, can_kill } = effect else { continue };
         if *ticks <= 0 {
             continue;
@@ -1303,6 +1430,12 @@ pub(crate) fn handle_dam_over_time_tick(
                 return;
             }
         }
+    }
+    if deactivate_toggle {
+        // Java's `false` return cancels a toggle's effect outright; the tick
+        // chain then ends with the buff.
+        handle_buff_expire(world, target_oid, skill_id);
+        return;
     }
     if interval > 0 {
         world.scheduler.schedule(

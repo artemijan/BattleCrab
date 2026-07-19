@@ -65,6 +65,13 @@ pub enum Stat {
     /// Blessed Shield (`ShieldDefenceRate`) raises it. No finalizer yet, so it's
     /// only a buff-modifier target (the buff lands with its icon regardless).
     ShieldDefenceRate,
+    /// Java `Stat.HEAL_EFFECT` ("healEffect", multiplicative) and
+    /// `HEAL_EFFECT_ADD` ("healEffectAdd", additive) — how much healing the
+    /// *recipient* actually receives. `Heal` applies them as
+    /// `amount = amount * HEAL_EFFECT + HEAL_EFFECT_ADD`. Touch of Life 341
+    /// (`+30 PER`) raises it; Touch of Death 342 (`-30 PER`) cuts it.
+    HealEffect,
+    HealEffectAdd,
     /// Java `Stat.RESIST_ABNORMAL_DEBUFF` ("debuffVuln") — a **multiplier on
     /// incoming debuff landing chance** (`Formulas.calcEffectSuccess`'s
     /// `buffDebuffMod`). Below 1 = resistant (Guts `amount=-50` → ×0.5), above

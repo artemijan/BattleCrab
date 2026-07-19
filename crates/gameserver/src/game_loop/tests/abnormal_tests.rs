@@ -5,7 +5,7 @@ use super::*;
 
 use crate::game_loop::abnormal;
 use crate::model::components::{Buffs, Casting, Movement};
-use crate::model::skill::{effect_flag, AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
+use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
 
 const CASTER: i32 = 2001;
 const VICTIM: i32 = 2002;

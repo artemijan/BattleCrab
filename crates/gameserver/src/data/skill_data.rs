@@ -525,6 +525,49 @@ fn finalize_skill(
                     // defaults false. Without this arm the effect fell through
                     // to `EFFECT_REGISTRY`, wasn't found, and got dropped — the
                     // debuff landed but never dealt damage.
+                    // Periodic HP / MP effects riding the same tick chain as DamOverTime.
+                    // `HealEffect` scales the healing its bearer *receives* — a two-stat
+                    // AbstractStatEffect like CriticalDamage: PER feeds the multiplier,
+                    // DIFF the flat addend.
+                    "HealEffect" => {
+                        return param("amount")
+                            .map(|amount| {
+                                let stat = if modifier_mode == StatModifierType::Per {
+                                    Stat::HealEffect
+                                } else {
+                                    Stat::HealEffectAdd
+                                };
+                                stat_mod(stat, amount)
+                            })
+                            .into_iter()
+                            .collect();
+                    }
+                    // Instant CP change (Braveheart, Wrath, Touch of Death).
+                    "Cp" => {
+                        return param("amount")
+                            .map(|amount| SkillEffect::Cp {
+                                amount,
+                                percent: modifier_mode == StatModifierType::Per,
+                            })
+                            .into_iter()
+                            .collect();
+                    }
+                    "HealOverTime" => {
+                        return match (param("power"), value_at(params, "ticks", level).and_then(|v| v.parse::<i32>().ok())) {
+                            (Some(power), Some(ticks)) if ticks > 0 => {
+                                vec![SkillEffect::HealOverTime { power, ticks }]
+                            }
+                            _ => Vec::new(),
+                        };
+                    }
+                    "ManaDamOverTime" => {
+                        return match (param("power"), value_at(params, "ticks", level).and_then(|v| v.parse::<i32>().ok())) {
+                            (Some(power), Some(ticks)) if ticks > 0 => {
+                                vec![SkillEffect::ManaDamOverTime { power, ticks }]
+                            }
+                            _ => Vec::new(),
+                        };
+                    }
                     "DamOverTime" => vec![SkillEffect::DamOverTime {
                         power: param("power").unwrap_or(0.0),
                         ticks: param("ticks").unwrap_or(0.0) as i32,
@@ -866,6 +909,42 @@ mod tests {
         // Sonic Storm carries the same 5-12 cap over a tighter 150 sweep.
         assert_eq!(sonic_storm.affect_range, 150);
         assert_eq!(sonic_storm.affect_limit, (5, 12));
+
+        // Fury Fists 222 — an upkeep toggle: `HealOverTime` with a *negative*
+        // power, i.e. an HP cost per tick, not a heal. Silent Move 221 is the
+        // MP-cost twin. Both are toggles, so their upkeep also drives the
+        // toggle-off-on-exhaustion path.
+        let fury_fists = sd.get(222, 1).expect("Fury Fists lvl 1");
+        assert_eq!(fury_fists.operate_type, OperateType::Toggle);
+        assert!(matches!(
+            fury_fists.effects.iter().find(|e| matches!(e, SkillEffect::HealOverTime { .. })),
+            Some(SkillEffect::HealOverTime { power, ticks }) if *power == -12.0 && *ticks == 2
+        ), "got {:?}", fury_fists.effects);
+        let silent_move = sd.get(221, 1).expect("Silent Move lvl 1");
+        assert!(matches!(
+            silent_move.effects.iter().find(|e| matches!(e, SkillEffect::ManaDamOverTime { .. })),
+            Some(SkillEffect::ManaDamOverTime { power, ticks }) if *power == 9.0 && *ticks == 5
+        ), "got {:?}", silent_move.effects);
+
+        // Braveheart 440 grants a flat +1000 CP; Touch of Death 342 takes CP as
+        // a percentage.
+        let braveheart = sd.get(440, 1).expect("Braveheart lvl 1");
+        assert!(matches!(
+            braveheart.effects.iter().find(|e| matches!(e, SkillEffect::Cp { .. })),
+            Some(SkillEffect::Cp { amount, percent: false }) if *amount == 1000.0
+        ), "got {:?}", braveheart.effects);
+        assert!(matches!(
+            sd.get(342, 1).expect("Touch of Death").effects.iter().find(|e| matches!(e, SkillEffect::Cp { .. })),
+            Some(SkillEffect::Cp { amount, percent: true }) if *amount == -90.0
+        ));
+        // Touch of Life 341 raises the healing its target receives (PER → the
+        // multiplicative stat); Touch of Death 342 lowers it.
+        assert!(sd
+            .get(341, 1)
+            .expect("Touch of Life")
+            .stat_modifier_effects()
+            .iter()
+            .any(|m| m.stat == Stat::HealEffect && m.amount == 30.0));
 
         // Guts 139 — the debuff-resistance buff: a negative `amount` on
         // `ResistAbnormalByCategory` means *more* resistant, and it must parse
