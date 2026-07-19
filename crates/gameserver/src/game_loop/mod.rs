@@ -58,6 +58,7 @@ mod vitality;
 #[cfg(test)]
 mod tests;
 mod visibility;
+pub(crate) mod walkers;
 pub(crate) mod zones;
 mod common;
 
@@ -215,6 +216,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         if world.tick.is_multiple_of(effect_zones::SWEEP_PERIOD) {
             effect_zones::effect_zone_tick(&mut world);
             effect_zones::damage_zone_tick(&mut world);
+        }
+        if world.tick.is_multiple_of(walkers::WALKER_PERIOD) {
+            walkers::walker_tick(&mut world);
         }
         if world.tick.is_multiple_of(npc_ai::NPC_THINK_PERIOD) {
             // AttackableAI think (1 s) + the combat-stance sweep (15 s

@@ -656,9 +656,11 @@ Note `ConditionZone` (1080) is ~99% inert on Interlude (`NoBookmark`).
 NPC regen landed (`PLAN_G21_NPC_REGEN.md`) — 14855 templates' `hpRegen` was
 parsed but unused, so no NPC ever healed. Remaining breadth:
 `DamageZone`/`SwampZone` (only 15 live between them; the rest are siege-gated),
-`HtmCache` (caching only), walker routes (12 NPCs), `CreatureSeeTaskManager`
-(needs a script engine). `DamageZone`/`SwampZone` landed
-(`PLAN_G21_DAMAGE_SWAMP_ZONES.md`) — the last zone types with live content. NPC pathfinding
+`DamageZone`/`SwampZone` landed (`PLAN_G21_DAMAGE_SWAMP_ZONES.md`) and walker
+routes landed (`PLAN_G21_WALKER_ROUTES.md`), so **G21 is complete**. The only
+untouched items are empty or blocked on this dist: `HtmCache` (caching only),
+`CreatureSeeTaskManager` (needs a script engine), `FenceData` (one "demo"
+fence). NPC pathfinding
 landed (`PLAN_G21_NPC_PATHFINDING.md`) — mobs consulted no geodata at all
 before, so chases walked through walls. `skillTargetReconsider` landed
 (`PLAN_G21_TARGET_RECONSIDER.md`) — support mobs (1040 buffers / 305 healers)

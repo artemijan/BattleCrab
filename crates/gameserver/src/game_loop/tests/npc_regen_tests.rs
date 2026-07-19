@@ -153,7 +153,7 @@ fn regen_continues_during_combat() {
 fn healing_broadcasts_the_hp_bar() {
     let (mut world, _db, _l) = regen_world();
     let mut out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
-    let oid = place(&mut world, MOB_ID, 500.0);
+    let _oid = place(&mut world, MOB_ID, 500.0);
     let _ = drain(&mut out);
 
     regen(&mut world, 1);

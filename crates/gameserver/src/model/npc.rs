@@ -417,6 +417,8 @@ pub(crate) fn spawn_one(world: &mut World, spawn_idx: usize, group_idx: usize, n
     // rather than in `spawn_npc_entity` so a minion that itself declares
     // minions can't recurse — minions are placed through `spawn_npc_at`,
     // which deliberately doesn't run this.
+    // `WalkingManager.onSpawn` — attach a walking route if this id has one.
+    crate::game_loop::walkers::on_npc_spawn(world, oid, npc_id);
     let escort = crate::game_loop::minions::spawn_minions(world, oid);
     world.minions_placed += escort;
     Some(oid)

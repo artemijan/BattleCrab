@@ -53,6 +53,7 @@ mod minion_tests;
 mod npc_cast_tests;
 mod npc_path_tests;
 mod target_reconsider_tests;
+mod walker_tests;
 mod npc_regen_tests;
 mod npc_tests;
 mod overhit_tests;
@@ -254,6 +255,7 @@ async fn character_create_inserts_into_real_schema() {
         scheme_buffer: crate::data::SchemeBufferData::default(),
         hennas: crate::data::HennaData::empty(),
         recipes: crate::data::RecipeData::empty(),
+        routes: Default::default(),
         categories: crate::data::CategoryData::empty(),
         cursed_weapons: crate::data::CursedWeaponData::empty(),
         siege_towers: std::collections::HashMap::new(),
