@@ -1521,3 +1521,129 @@ fn dwarf_change2_pages_exist_in_dist() {
         assert!(!std::path::Path::new(&other).exists(), "only the first NPC ships pages");
     }
 }
+
+/// OrcChange2: an Orc Raider with the three marks becomes a Destroyer and is
+/// paid C-grade coupons.
+#[test]
+fn orc_change2_transfer_pays_coupons() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(2627, "Challenger", true), (3203, "Glory", true), (3276, "Champion", true), (8870, "Coupon C", false)],
+    );
+    world.data.categories.insert_for_test("ORC_MALL_CLASS", &[45, 46]);
+    world.data.categories.insert_for_test("ORC_FALL_CLASS", &[]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30513, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.race = 3;
+        p.class_id = 45; // Orc Raider
+        p.base_class_id = 45;
+    }
+    for id in [2627, 3203, 3276] {
+        super::items::add_inventory_item(&mut world, 3001, id, 1);
+    }
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange2 46")));
+
+    let p = world.objects.get_component::<Player>(&3001).unwrap();
+    assert_eq!(p.class_id, 46, "now a Destroyer");
+    assert_eq!(item_count(&world, 3001, 8870), 15, "Orc masters pay coupons");
+}
+
+/// DarkElfChange2 takes the **row index**, and — unlike every other Change2 —
+/// pays **no coupon at all**.
+#[test]
+fn dark_elf_change2_uses_row_index_and_pays_nothing() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(2633, "Duty", true), (3172, "Fate", true), (3307, "Witchcraft", true), (8870, "Coupon C", false)],
+    );
+    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[33]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30474, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.race = 2; // Dark Elf
+        p.class_id = 32; // Palus Knight
+        p.base_class_id = 32;
+    }
+    for id in [2633, 3172, 3307] {
+        super::items::add_inventory_item(&mut world, 3001, id, 1);
+    }
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    // Row 0 = Shillien Knight (33) from Palus Knight (32).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange2 0")));
+
+    let p = world.objects.get_component::<Player>(&3001).unwrap();
+    assert_eq!(p.class_id, 33, "row 0 is Shillien Knight");
+    for id in [2633, 3172, 3307] {
+        assert_eq!(item_count(&world, 3001, id), 0, "mark {id} consumed");
+    }
+    assert_eq!(item_count(&world, 3001, 8870), 0, "the Dark Elf script pays NO coupon");
+}
+
+/// Both scripts need all three marks.
+#[test]
+fn change2_scripts_require_all_three_marks() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(2627, "Challenger", true), (3203, "Glory", true), (3276, "Champion", true)]);
+    world.data.categories.insert_for_test("ORC_MALL_CLASS", &[45, 46]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30513, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.race = 3;
+        p.class_id = 45;
+        p.base_class_id = 45;
+    }
+    super::items::add_inventory_item(&mut world, 3001, 2627, 1); // one of three
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange2 46")));
+
+    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().class_id, 45, "still a Raider");
+    assert_eq!(item_count(&world, 3001, 2627), 1, "the one mark is kept");
+}
+
+/// Both page sets exist, and both are owned by a single NPC — note the Dark
+/// Elf owner (30474) is the *third* entry in its NPC list, not the first.
+#[test]
+fn change2_pages_exist_in_dist() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/village_master/");
+    for n in [1u32, 2, 6, 10, 17, 18, 19] {
+        let p = format!("{DIST}OrcChange2/30513-{n:02}.htm");
+        assert!(std::path::Path::new(&p).exists(), "missing OrcChange2/30513-{n:02}.htm");
+    }
+    for first in [20u32, 24, 28, 32] {
+        for n in first..=(first + 3) {
+            let p = format!("{DIST}OrcChange2/30513-{n}.htm");
+            assert!(std::path::Path::new(&p).exists(), "missing OrcChange2/30513-{n}.htm");
+        }
+    }
+    for n in [1u32, 8, 12, 19, 54, 55, 56] {
+        let p = format!("{DIST}DarkElfChange2/30474-{n:02}.html");
+        assert!(std::path::Path::new(&p).exists(), "missing DarkElfChange2/30474-{n:02}.html");
+    }
+    for first in [26u32, 30, 34, 38, 42, 46, 50] {
+        for n in first..=(first + 3) {
+            let p = format!("{DIST}DarkElfChange2/30474-{n}.html");
+            assert!(std::path::Path::new(&p).exists(), "missing DarkElfChange2/30474-{n}.html");
+        }
+    }
+}
