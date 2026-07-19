@@ -31,6 +31,8 @@ pub mod q00320_bones_tell_the_future;
 pub mod q00401_path_of_the_warrior;
 pub mod q00402_path_of_the_human_knight;
 pub mod q00403_path_of_the_rogue;
+pub mod q00404_path_of_the_human_wizard;
+pub mod q00405_path_of_the_cleric;
 pub mod q00406_path_of_the_elven_knight;
 pub mod q00407_path_of_the_elven_scout;
 pub mod q00324_sweetest_venom;
@@ -60,6 +62,8 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),
         Arc::new(q00402_path_of_the_human_knight::Q00402PathOfTheHumanKnight),
         Arc::new(q00403_path_of_the_rogue::Q00403PathOfTheRogue),
+        Arc::new(q00404_path_of_the_human_wizard::Q00404PathOfTheHumanWizard),
+        Arc::new(q00405_path_of_the_cleric::Q00405PathOfTheCleric),
         Arc::new(q00406_path_of_the_elven_knight::Q00406PathOfTheElvenKnight),
         Arc::new(q00407_path_of_the_elven_scout::Q00407PathOfTheElvenScout),
         Arc::new(alliance_master::AllianceMaster),
