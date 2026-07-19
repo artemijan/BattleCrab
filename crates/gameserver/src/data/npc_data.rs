@@ -158,6 +158,13 @@ pub struct NpcTemplate {
     /// every NPC uses the defaults — parsed anyway to stay data-driven.
     pub min_skill_chance: i32,
     pub max_skill_chance: i32,
+    /// `<ai><clanList><clan>…` (Java `NpcTemplate._clans`) — the faction names
+    /// this NPC belongs to. Two NPCs share a faction if their sets intersect,
+    /// or if either side declares `ALL`. 4569 clan entries on this dist.
+    pub clans: Vec<String>,
+    /// `<ai><clanList><ignoreNpcId>…` (Java `_ignoreClanNpcIds`) — faction-mates
+    /// this NPC refuses to answer help calls from, even sharing a clan.
+    pub ignore_clan_npc_ids: Vec<i32>,
 
     /// `<skillList><skill id level/>` — the template skills Java copies onto the
     /// creature in the `Creature` constructor (`for (Skill s : template.getSkills())
@@ -178,6 +185,26 @@ impl NpcTemplate {
             self.type_name.as_str(),
             "Monster" | "Chest" | "ControllableMob" | "EventMonster" | "FeedableBeast" | "TamedBeast" | "GrandBoss" | "RaidBoss" | "FestivalMonster"
         )
+    }
+
+    /// Java `me instanceof Guard` — the town guards that hunt PKs. 186 NPCs on
+    /// this dist. Distinct from the siege `Defender` guards, which have their
+    /// own aggro path.
+    pub fn is_guard(&self) -> bool {
+        self.type_name == "Guard"
+    }
+
+    /// Java `NpcTemplate.isClan(Set<Integer> clans)` — do these two factions
+    /// overlap? `ALL` on *either* side matches everything, which is how the
+    /// 238 `ALL` NPCs pull their whole neighbourhood into a fight.
+    pub fn shares_clan_with(&self, other: &NpcTemplate) -> bool {
+        if self.clans.is_empty() || other.clans.is_empty() {
+            return false;
+        }
+        if self.clans.iter().any(|c| c == "ALL") || other.clans.iter().any(|c| c == "ALL") {
+            return true;
+        }
+        self.clans.iter().any(|c| other.clans.contains(c))
     }
 
     /// Membership in Java's `Attackable` subtree (`Creature.isAttackable()`
@@ -414,6 +441,8 @@ pub fn default_template(id: i32) -> NpcTemplate {
         ai_type: AiType::Fighter,
         min_skill_chance: 7,
         max_skill_chance: 15,
+        clans: Vec::new(),
+        ignore_clan_npc_ids: Vec::new(),
         aggro_range: 0,
         clan_help_range: 0,
         skill_list: Vec::new(),
@@ -442,6 +471,8 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
     let mut cur_group: Option<DropGroup> = None;
     // `<corpseTime>` carries its value as element text.
     let mut in_corpse_time = false;
+    let mut in_clan = false;
+    let mut in_ignore_npc_id = false;
     // `<parameters>` can nest `<minions><npc .../></minions>` (and skill/param
     // rows). Those inner `<npc>` tags are minion references, NOT new templates:
     // treating them as template starts overwrites the parent's `cur` and drops
@@ -465,6 +496,19 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                             t.corpse_time = Some(v);
                         }
                     }
+                } else if in_clan {
+                    if let Some(t) = cur.as_mut() {
+                        let name = String::from_utf8_lossy(&text).trim().to_string();
+                        if !name.is_empty() {
+                            t.clans.push(name);
+                        }
+                    }
+                } else if in_ignore_npc_id {
+                    if let Some(t) = cur.as_mut() {
+                        if let Ok(v) = String::from_utf8_lossy(&text).trim().parse() {
+                            t.ignore_clan_npc_ids.push(v);
+                        }
+                    }
                 }
                 continue;
             }
@@ -481,6 +525,8 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                     }
                     b"attribute" => in_attribute = false,
                     b"corpsetime" => in_corpse_time = false,
+                    b"clan" => in_clan = false,
+                    b"ignorenpcid" => in_ignore_npc_id = false,
                     b"drop" | b"spoil" => drop_scope = DropScope::None,
                     b"group" => {
                         if let (Some(t), Some(g)) = (cur.as_mut(), cur_group.take()) {
@@ -623,6 +669,8 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                         }
                     }
                     b"corpsetime" => in_corpse_time = !self_closing,
+                    b"clan" => in_clan = !self_closing,
+                    b"ignorenpcid" => in_ignore_npc_id = !self_closing,
                     b"drop" => drop_scope = DropScope::Death,
                     b"spoil" => drop_scope = DropScope::Spoil,
                     b"group" => {
@@ -857,5 +905,31 @@ mod tests {
         let minion = data.get(3405).expect("npc 3405 real block");
         assert_eq!(minion.type_name, "Monster");
         assert_eq!(minion.level, 22);
+    }
+}
+
+#[cfg(test)]
+mod clan_tests {
+    use super::*;
+
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+
+    /// The `<clanList>` parse, against the real datapack — a fixture would
+    /// agree with whatever the parser does.
+    #[test]
+    fn parses_clans_and_guards_from_dist() {
+        let data = NpcData::load_from(DIST);
+        let with_clans = data.all().filter(|t| !t.clans.is_empty()).count();
+        let guards = data.all().filter(|t| t.is_guard()).count();
+        let ignores = data.all().filter(|t| !t.ignore_clan_npc_ids.is_empty()).count();
+        println!("CLANS={with_clans} GUARDS={guards} IGNORES={ignores}");
+        assert!(with_clans > 2000, "expected thousands of faction NPCs, got {with_clans}");
+        assert!(guards > 100, "expected ~186 Guard templates, got {guards}");
+        assert!(ignores > 0, "expected some ignoreNpcId lists, got {ignores}");
+
+        // Cave Servant 20236 sits in a clanList that also carries ignoreNpcIds.
+        if let Some(t) = data.get(20236) {
+            assert!(!t.clans.is_empty(), "20236 should carry a clan");
+        }
     }
 }

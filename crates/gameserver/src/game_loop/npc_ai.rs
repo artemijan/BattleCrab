@@ -2,11 +2,11 @@
 //! regions — aggro-range scans, chasing, swinging back, drift-return.
 //!
 //! Idle random walk and random social animations
-//! (`RandomAnimationTaskManager`) are ported. Not ported yet (see PROGRESS):
-//! guard aggro (karma players don't exist), clan/faction help calls, minions,
-//! NPC skill casting (`AISkillScope` lists aren't parsed), the archer kite and
-//! raid target-chaos moves, and Java's teleport-home on attack timeout
-//! (walking home is used instead — no teleport plumbing for NPCs).
+//! (`RandomAnimationTaskManager`), NPC skill casting (see
+//! [`super::npc_cast`]), town-guard PK aggro and clan/faction help calls are
+//! ported. Not ported yet (see PROGRESS): minions, the archer kite and raid
+//! target-chaos moves, and Java's teleport-home on attack timeout (walking
+//! home is used instead — no teleport plumbing for NPCs).
 
 use std::collections::HashSet;
 
@@ -168,9 +168,11 @@ fn think(world: &mut World, npc_oid: i32) {
     }
     let Some(t) = npc.template(world) else { return };
     // Only the Attackable subtree has this AI; the slice narrows to monsters —
-    // plus stationed siege guards (`Defender`) while their castle's siege runs,
-    // which use the same scan/attack/chase to defend against attackers.
-    if !t.is_monster() && super::siege::active_siege_guard_castle(world, npc_oid).is_none() {
+    // plus town `Guard`s (Java `Guard extends Attackable`, so they run this same
+    // AI; they're what hunts PKs) and stationed siege guards (`Defender`) while
+    // their castle's siege runs, which use the same scan/attack/chase to defend
+    // against attackers.
+    if !t.is_monster() && !t.is_guard() && super::siege::active_siege_guard_castle(world, npc_oid).is_none() {
         return;
     }
     let _ = npc;
@@ -345,6 +347,22 @@ fn think_active(world: &mut World, npc_oid: i32) {
         }
     }
 
+    // Town guards hunt PKs (`isAggressiveTowards`, the `me instanceof Guard`
+    // branch): a guard aggros a player with **negative reputation** inside a
+    // *hardcoded* 500 units — Java uses the literal, not the template's
+    // `aggroRange`, and does it regardless of the `isAggressive` flag (guards
+    // are flagged passive in the datapack, so gating on it would make every
+    // guard inert). A lawful player is ignored, which is what makes this a
+    // PK-hunting rule rather than general aggression.
+    if world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .and_then(|n| n.template(world))
+        .is_some_and(|t| t.is_guard())
+    {
+        guard_aggro_scan(world, npc_oid, region);
+    }
+
     // Siege guards (`Defender`) defend the castle: they aggro their employer's
     // enemies within aggro range regardless of the `isAggressive` flag (Java
     // `SiegeGuardAI` — the guard's own aggro scan). Reuses the hate → attack →
@@ -506,6 +524,10 @@ fn think_attack(world: &mut World, npc_oid: i32) {
     {
         return;
     }
+
+    // Call the faction for help before anything else this think (Java runs the
+    // block right after the geodata check, ahead of the cast ladder).
+    faction_call(world, npc_oid, target_oid);
 
     // Cast before closing distance — Java's "Cast skills" block sits between
     // the target checks and the range/move tail, so a caster that launched a
@@ -692,4 +714,157 @@ fn move_npc_to(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32) {
         }),
     );
     broadcast_near_region(world, region, &server_packets::move_to_location(npc_oid, x, y, z, start.0, start.1, start.2));
+}
+
+/// Java `AttackableAI.isAggressiveTowards`, `me instanceof Guard` branch.
+/// Guards seed hate on nearby **PKs** (reputation < 0) so the ordinary attack
+/// loop takes over from there.
+///
+/// The 500 is Java's literal (`GUARD_ATTACK_RANGE` in spirit — the source has
+/// the bare constant with a "TODO Make sure how guards behave towards players"
+/// note beside it), deliberately not the template `aggroRange`.
+const GUARD_AGGRO_RANGE: f64 = 500.0;
+
+fn guard_aggro_scan(world: &mut World, npc_oid: i32, region: (i32, i32)) {
+    let (nx, ny, nz) = {
+        let Some(pos) = world.objects.get_component::<Position>(&npc_oid) else { return };
+        (pos.x, pos.y, pos.z)
+    };
+    let mut pks: Vec<i32> = Vec::new();
+    {
+        let crate::world::World { objects, geo, .. } = &mut *world;
+        objects.for_each_mut::<(&crate::model::Player, &Position, &RegionCell, &Vitals)>(|(p, pos, r, v)| {
+            // `getReputation() < 0` is the whole test: a clean player walks
+            // past a guard untouched no matter how close.
+            if !v.dead
+                && p.reputation < 0
+                && regions_adjacent(region, r.0)
+                && (((pos.x - nx) as f64).powi(2) + ((pos.y - ny) as f64).powi(2)).sqrt() <= GUARD_AGGRO_RANGE
+                && geo.can_see_target(nx, ny, nz, pos.x, pos.y, pos.z)
+            {
+                pks.push(p.object_id);
+            }
+        });
+    }
+    if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
+        for oid in pks {
+            let entry = aggro.0.entry(oid).or_default();
+            if entry.hate == 0.0 {
+                entry.hate = 1.0;
+            }
+        }
+    }
+}
+
+/// Java `AttackableAI.thinkAttack`'s faction block: an engaged NPC drags its
+/// nearby clan-mates into the fight.
+///
+/// Three gates are easy to drop and each one matters:
+/// 1. **Only if the target actually attacked *this* NPC.** Java checks
+///    `getAttackByList`; the port's proxy is a non-zero `damage` entry in the
+///    aggro list. Without it, walking up to one mob of a faction and hitting
+///    *nothing* would still pull the whole camp.
+/// 2. **Only idle/active clan-mates answer.** One already attacking or casting
+///    is left alone, so a fight doesn't continually re-target everyone in it.
+/// 3. **`ignoreNpcId`** — 82 templates on this dist refuse calls from specific
+///    faction-mates.
+///
+/// `TODO(G21)`: Java fires `EVT_AGGRESSION` (a `Summon`-aware event) and an
+/// `OnAttackableFactionCall` script hook; the port seeds hate directly and has
+/// no script listeners yet.
+fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
+    let Some((npc_id, help_range, collision)) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .map(|n| n.npc_id)
+        .and_then(|id| world.data.npc_data.get(id).map(|t| (id, t.clan_help_range, t.collision_radius)))
+    else {
+        return;
+    };
+    if help_range <= 0
+        || world.data.npc_data.get(npc_id).is_none_or(|t| t.clans.is_empty())
+    {
+        return;
+    }
+
+    // Gate 1: this NPC must actually have been attacked by the target.
+    let was_attacked = world
+        .objects
+        .get_component::<AggroList>(&npc_oid)
+        .and_then(|a| a.0.get(&target_oid))
+        .is_some_and(|info| info.damage > 0.0);
+    if !was_attacked {
+        return;
+    }
+
+    let range = help_range as f64 + collision;
+    let (Some(pos), Some(region)) = (
+        world.objects.get_component::<Position>(&npc_oid).copied(),
+        world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0),
+    ) else {
+        return;
+    };
+    let hate = world
+        .objects
+        .get_component::<AggroList>(&npc_oid)
+        .and_then(|a| a.0.get(&target_oid))
+        .map(|i| i.hate)
+        .unwrap_or(1.0);
+    let target_is_player = world.objects.has_component::<crate::model::Player>(&target_oid);
+
+    // Candidate clan-mates: NPCs in this and the neighbouring regions.
+    let nearby: Vec<i32> = (-1..=1)
+        .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
+        .filter_map(|(dx, dy)| world.npc_regions.get(&(region.0 + dx, region.1 + dy)))
+        .flatten()
+        .copied()
+        .filter(|&other| other != npc_oid)
+        .collect();
+
+    let mut recruits: Vec<i32> = Vec::new();
+    for other in nearby {
+        // Alive, and within the faction range in 2D with Java's ±600 z band.
+        let Some(opos) = world.objects.get_component::<Position>(&other).copied() else { continue };
+        if world.objects.get_component::<Vitals>(&other).is_none_or(|v| v.dead) {
+            continue;
+        }
+        let dist = (((opos.x - pos.x) as f64).powi(2) + ((opos.y - pos.y) as f64).powi(2)).sqrt();
+        if dist > range || (opos.z - pos.z).abs() > 600 {
+            continue;
+        }
+        // Gate 2: only the uncommitted answer.
+        if world
+            .objects
+            .get_component::<NpcAi>(&other)
+            .is_none_or(|ai| ai.intention == NpcIntention::Attack)
+        {
+            continue;
+        }
+        // Gate 3: same faction, and not on either side's ignore list.
+        let Some(other_id) = world.objects.get_component::<crate::model::npc::Npc>(&other).map(|n| n.npc_id) else {
+            continue;
+        };
+        let (Some(mine), Some(theirs)) = (world.data.npc_data.get(npc_id), world.data.npc_data.get(other_id)) else {
+            continue;
+        };
+        if !mine.shares_clan_with(theirs) || theirs.ignore_clan_npc_ids.contains(&npc_id) {
+            continue;
+        }
+        recruits.push(other);
+    }
+
+    for other in recruits {
+        // Java: a *playable* target gets `EVT_AGGRESSION … 1` (a nudge — the
+        // recruit picks its own target), anything else inherits the caller's
+        // full hate. Either way the recruit switches to the attack loop.
+        let added = if target_is_player { 1.0 } else { hate };
+        if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&other) {
+            let entry = aggro.0.entry(target_oid).or_default();
+            entry.hate += added;
+        }
+        if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&other) {
+            ai.intention = NpcIntention::Attack;
+            ai.attack_timeout_tick = world.tick + ATTACK_TIMEOUT_TICKS;
+        }
+    }
 }

@@ -643,8 +643,11 @@ NPC random social animations (`RandomAnimationTaskManager`), and
 **Progress:** NPC skill casting landed (`PLAN_G21_NPC_CASTING.md`) — the
 `AISkillScope` buckets + the `thinkAttack` cast ladder, covering the "a mob
 casts" gate clause. 4831 templates carry castable skills; 73 % of those
-attachments resolve to fully-ported effects. Remaining gate clauses:
-guard-aggro-a-PK, and raid HP across restart (`DBSpawnManager`).
+attachments resolve to fully-ported effects. Town-guard PK aggro + faction
+help calls landed (`PLAN_G21_GUARD_AGGRO.md`) — the `<clanList>` faction data
+(3760 templates) wasn't parsed at all before, so mobs fought alone. Remaining
+gate clause: raid HP across restart (`DBSpawnManager`); minions parse but
+never spawn.
 
 ---
 

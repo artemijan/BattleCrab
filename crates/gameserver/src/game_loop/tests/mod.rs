@@ -45,6 +45,7 @@ mod lobby_tests;
 mod melee_variants_tests;
 mod misc_tests;
 mod movement_tests;
+mod guard_aggro_tests;
 mod npc_cast_tests;
 mod npc_tests;
 mod overhit_tests;
