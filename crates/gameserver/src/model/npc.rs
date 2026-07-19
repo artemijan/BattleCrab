@@ -90,6 +90,10 @@ pub struct NpcAi {
     /// `Npc._lastSocialBroadcast` (absolute world tick): the 6 s throttle floor
     /// shared by all social broadcasts.
     pub last_social_tick: u64,
+    /// Monotonic cast id, the NPC counterpart of `Player.cast_seq`: a scheduled
+    /// launch/finish task carrying a stale seq is a cast that was aborted (or
+    /// superseded) and no-ops. See [`crate::game_loop::skills::cast::live_cast`].
+    pub cast_seq: u64,
 }
 
 impl Default for NpcAi {
@@ -101,6 +105,7 @@ impl Default for NpcAi {
             attack_timeout_tick: 0,
             next_animation_tick: None,
             last_social_tick: 0,
+            cast_seq: 0,
         }
     }
 }

@@ -507,6 +507,13 @@ fn think_attack(world: &mut World, npc_oid: i32) {
         return;
     }
 
+    // Cast before closing distance — Java's "Cast skills" block sits between
+    // the target checks and the range/move tail, so a caster that launched a
+    // spell this think neither chases nor swings.
+    if super::npc_cast::try_cast(world, npc_oid, target_oid) {
+        return;
+    }
+
     let Some(attacker) = combat::combatant(world, npc_oid) else { return };
     let Some(victim) = combat::combatant(world, target_oid) else { return };
     let reach = attacker.atk_range as f64 + attacker.collision_radius + victim.collision_radius;

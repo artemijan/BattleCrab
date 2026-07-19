@@ -117,6 +117,7 @@ fn unstuck_casts_escape_and_teleports_to_town() {
         level: 1,
         name: "Escape".into(),
         operate_type: OperateType::Active,
+        is_continuous: false,
         target_type: TargetType::Self_,
         magic_type: 2, // static: the forced hit time is used verbatim
         magic_level: 0,

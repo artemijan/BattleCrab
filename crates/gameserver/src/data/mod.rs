@@ -19,6 +19,7 @@ pub mod initial_shortcut;
 pub mod item_data;
 pub mod map_region;
 pub mod multisell_data;
+pub mod npc_ai_skills;
 pub mod npc_data;
 pub mod player_template;
 pub mod pledge_skill_tree;
@@ -50,6 +51,7 @@ pub use initial_shortcut::InitialShortcutData;
 pub use item_data::ItemData;
 pub use map_region::MapRegionData;
 pub use multisell_data::MultisellData;
+pub use npc_ai_skills::{AiSkillScope, NpcAiSkillIndex, NpcAiSkills};
 pub use npc_data::NpcData;
 pub use player_template::PlayerTemplateData;
 pub use recipe_data::RecipeData;
@@ -142,6 +144,8 @@ pub struct GameData {
     pub initial_shortcuts: InitialShortcutData,
     pub skill_data: SkillData,
     pub npc_data: NpcData,
+    /// Per-template AI skill buckets — see [`NpcAiSkillIndex`].
+    pub npc_ai_skills: NpcAiSkillIndex,
     pub spawn_data: SpawnData,
     pub hit_condition_bonus: HitConditionBonusData,
     pub xp_lost: PlayerXpPercentLostData,
@@ -192,6 +196,12 @@ impl GameData {
         let item_data = ItemData::load_from(file_path);
         let buy_lists = BuyListData::load_from(file_path, &item_data);
         let multisells = MultisellData::load_from(file_path, &item_data);
+        // The NPC AI skill index buckets each template's *active* skills by
+        // what the AI would use them for, so it needs both loaders done first
+        // (Java does the same bucketing inline at the end of `NpcData.parse`).
+        let skill_data = SkillData::load_from(file_path);
+        let npc_data = NpcData::load_from(file_path);
+        let npc_ai_skills = NpcAiSkillIndex::build(&npc_data, &skill_data);
         Self {
             root: file_path.to_string(),
             experience: ExperienceData::load_from(file_path),
@@ -203,8 +213,9 @@ impl GameData {
             item_data,
             initial_equipment: InitialEquipmentData::load_from(file_path),
             initial_shortcuts: InitialShortcutData::load_from(file_path),
-            skill_data: SkillData::load_from(file_path),
-            npc_data: NpcData::load_from(file_path),
+            skill_data,
+            npc_data,
+            npc_ai_skills,
             spawn_data: SpawnData::load_from(file_path),
             hit_condition_bonus: HitConditionBonusData::load_from(file_path),
             xp_lost: PlayerXpPercentLostData::load_from(file_path),
@@ -254,6 +265,7 @@ impl GameData {
             initial_shortcuts: InitialShortcutData::empty(),
             skill_data: SkillData::empty(),
             npc_data: NpcData::empty(),
+            npc_ai_skills: NpcAiSkillIndex::default(),
             spawn_data: SpawnData::empty(),
             hit_condition_bonus: HitConditionBonusData::default(),
             xp_lost: PlayerXpPercentLostData::empty(),

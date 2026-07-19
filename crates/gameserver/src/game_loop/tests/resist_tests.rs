@@ -17,6 +17,7 @@ fn base_skill(id: i32, effects: Vec<SkillEffect>) -> Skill {
         level: 1,
         name: format!("T{id}"),
         operate_type: OperateType::Active,
+        is_continuous: false,
         target_type: TargetType::Enemy,
         magic_type: 1,
         magic_level: 40,

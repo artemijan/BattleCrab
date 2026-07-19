@@ -438,6 +438,10 @@ pub struct Skill {
     pub level: i32,
     pub name: String,
     pub operate_type: OperateType,
+    /// Java `Skill.isContinuous()` — an effect that sits on the target for
+    /// `abnormal_time` rather than resolving instantly. Drives the NPC AI's
+    /// BUFF/DEBUFF bucketing and its "target already has this abnormal" skip.
+    pub is_continuous: bool,
     pub target_type: TargetType,
     /// Java `<overHit>` — a killing blow from this skill grants bonus XP
     /// proportional to the *excess* damage (`Attackable.calculateOverhitExp`).

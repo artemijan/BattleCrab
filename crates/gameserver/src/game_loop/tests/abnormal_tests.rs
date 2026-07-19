@@ -23,6 +23,7 @@ fn cc_skill(id: i32, effect: SkillEffect, abnormal: &str) -> Skill {
         level: 1,
         name: format!("CC {id}"),
         operate_type: OperateType::Active,
+        is_continuous: false,
         target_type: TargetType::Enemy,
         magic_type: 1,
         magic_level: 0,

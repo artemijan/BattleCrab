@@ -15,6 +15,7 @@ fn periodic_skill(id: i32, effects: Vec<SkillEffect>, toggle: bool) -> Skill {
         level: 1,
         name: format!("P{id}"),
         operate_type: if toggle { OperateType::Toggle } else { OperateType::Active },
+        is_continuous: false,
         target_type: if toggle { TargetType::None_ } else { TargetType::Self_ },
         magic_type: 1,
         magic_level: 0,

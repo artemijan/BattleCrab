@@ -356,6 +356,15 @@ fn finalize_skill(
             Some("T") => OperateType::Toggle,
             _ => OperateType::Other,
         };
+        // Java `SkillOperateType.isContinuous()` — the A2..A6/DA2..DA5 family.
+        // `OperateType` above collapses A1 and A2 into `Active` (the cast
+        // pipeline treats them alike), so continuity is read from the raw
+        // string instead of derived from it. The NPC AI needs it to tell a
+        // buff/debuff apart from an instant nuke when bucketing skills.
+        let is_continuous = matches!(
+            value_at(values, "operateType", level),
+            Some("A2" | "A3" | "A4" | "A5" | "A6" | "DA2" | "DA4" | "DA5")
+        );
         let target_type = match value_at(values, "targetType", level) {
             Some("SELF") => TargetType::Self_,
             Some("TARGET") => TargetType::Target,
@@ -804,6 +813,7 @@ fn finalize_skill(
                 level,
                 name: name.to_string(),
                 operate_type,
+                is_continuous,
                 target_type,
                 over_hit,
                 abnormal_visuals,

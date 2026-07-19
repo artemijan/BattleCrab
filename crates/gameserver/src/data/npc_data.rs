@@ -35,6 +35,34 @@ pub struct DropGroup {
 /// (`model/actor/instance/*`, instantiated by reflection in `Spawn`). The Rust
 /// port keeps the type name and derives the two subtree memberships the G8
 /// slice actually branches on.
+/// Java `enums/AIType` — the `<ai type="…">` attribute. This dist uses
+/// `BALANCED` (3163), `MAGE` (402), `ARCHER` (220), `CORPSE` (43) and
+/// `HEALER` (23); everything else omits the attribute and defaults to
+/// `FIGHTER`. `AttackableAI` only branches on `MAGE` and `ARCHER`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AiType {
+    #[default]
+    Fighter,
+    Archer,
+    Balanced,
+    Mage,
+    Healer,
+    Corpse,
+}
+
+impl AiType {
+    fn parse(s: &str) -> Self {
+        match s {
+            "ARCHER" => Self::Archer,
+            "BALANCED" => Self::Balanced,
+            "MAGE" => Self::Mage,
+            "HEALER" => Self::Healer,
+            "CORPSE" => Self::Corpse,
+            _ => Self::Fighter,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct NpcTemplate {
     pub id: i32,
@@ -119,6 +147,17 @@ pub struct NpcTemplate {
     pub is_aggressive: bool,
     pub aggro_range: i32,
     pub clan_help_range: i32,
+    /// `<ai type="…">` (Java `NpcTemplate._aiType`, default `FIGHTER`). Only
+    /// `MAGE` changes behaviour in `AttackableAI`: a mage casts on every think
+    /// without the `hasSkillChance()` roll and without having to stand still.
+    /// `ARCHER` additionally keeps its distance (the kite move, not ported).
+    pub ai_type: AiType,
+    /// `minSkillChance`/`maxSkillChance` (Java defaults 7/15). `hasSkillChance()`
+    /// is `Rnd.get(100) < Rnd.get(min, max)`, i.e. roughly a 1-in-9 chance per
+    /// think for a non-mage. Neither attribute appears anywhere in this dist, so
+    /// every NPC uses the defaults — parsed anyway to stay data-driven.
+    pub min_skill_chance: i32,
+    pub max_skill_chance: i32,
 
     /// `<skillList><skill id level/>` — the template skills Java copies onto the
     /// creature in the `Creature` constructor (`for (Skill s : template.getSkills())
@@ -372,6 +411,9 @@ pub fn default_template(id: i32) -> NpcTemplate {
         random_walk: false,
         random_animation: true,
         is_aggressive: false,
+        ai_type: AiType::Fighter,
+        min_skill_chance: 7,
+        max_skill_chance: 15,
         aggro_range: 0,
         clan_help_range: 0,
         skill_list: Vec::new(),
@@ -573,6 +615,11 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                             }
                             set_i32(&e, b"aggroRange", &mut t.aggro_range);
                             set_i32(&e, b"clanHelpRange", &mut t.clan_help_range);
+                            if let Some(v) = attr_str(&e, b"type") {
+                                t.ai_type = AiType::parse(&v);
+                            }
+                            set_i32(&e, b"minSkillChance", &mut t.min_skill_chance);
+                            set_i32(&e, b"maxSkillChance", &mut t.max_skill_chance);
                         }
                     }
                     b"corpsetime" => in_corpse_time = !self_closing,

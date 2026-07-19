@@ -640,6 +640,12 @@ a PK, a spoiled corpse can be swept, a boss keeps its HP across restart.
 NPC random social animations (`RandomAnimationTaskManager`), and
 `CreatureSeeTaskManager` (the on-creature-see AI trigger scripts rely on).
 
+**Progress:** NPC skill casting landed (`PLAN_G21_NPC_CASTING.md`) — the
+`AISkillScope` buckets + the `thinkAttack` cast ladder, covering the "a mob
+casts" gate clause. 4831 templates carry castable skills; 73 % of those
+attachments resolve to fully-ported effects. Remaining gate clauses:
+guard-aggro-a-PK, and raid HP across restart (`DBSpawnManager`).
+
 ---
 
 ## Track D — Content

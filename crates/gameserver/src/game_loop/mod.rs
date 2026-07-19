@@ -33,6 +33,7 @@ mod lobby;
 mod multisell;
 mod net;
 mod npc_ai;
+mod npc_cast;
 mod npc_view;
 mod party;
 mod passive_skills;
