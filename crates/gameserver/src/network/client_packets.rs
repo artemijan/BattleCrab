@@ -163,10 +163,14 @@ pub mod ex_opcodes {
     pub const REQUEST_DISPEL: u16 = 0x48;
     /// Clan entry (recruitment) queries the clan window fires on open.
     /// `RequestPledgeRecruitInfo` (`clanId`) asks for a clan's recruitment
-    /// summary; the other two are empty-bodied status polls. The rest of the
-    /// `RequestPledgeRecruit*` family (board search/access/detail, waiting
+    /// summary; the waiting/apply ones are empty-bodied status polls, and
+    /// `RequestPledgeRecruitBoardSearch` (`clanLevel`, `karma`, `type`,
+    /// `query:string`, `sort`, `descending`, `page`, `applicationType`) is the
+    /// recruit-board tab's filter search. The rest of the
+    /// `RequestPledgeRecruit*` family (board access/detail, waiting
     /// list management, draft list) is the G18 `ClanEntryManager` port.
     pub const REQUEST_PLEDGE_RECRUIT_INFO: u16 = 0xD3;
+    pub const REQUEST_PLEDGE_RECRUIT_BOARD_SEARCH: u16 = 0xD4;
     pub const REQUEST_PLEDGE_WAITING_APPLIED: u16 = 0xD8;
     pub const REQUEST_PLEDGE_RECRUIT_APPLY_INFO: u16 = 0xDE;
 }

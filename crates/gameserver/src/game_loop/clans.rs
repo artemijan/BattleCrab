@@ -589,6 +589,32 @@ pub(crate) fn handle_request_pledge_recruit_info(world: &World, client_id: u32, 
     }
 }
 
+/// `RequestPledgeRecruitBoardSearch` (ex 0xD4): the recruit-board tab's
+/// filter search, answered with one `ExPledgeRecruitBoardSearch` page. Java
+/// picks an unsorted/sorted/by-name list from `ClanEntryManager` depending on
+/// the filters; the registry is unported (TODO(G18): `ClanEntryManager` +
+/// the `RequestPledgeRecruit*` board/apply family), so every branch pages an
+/// empty list — only the echoed page number survives. The full field order is
+/// still read so a malformed packet is dropped like Java's failed `readImpl`.
+pub(crate) fn handle_request_pledge_recruit_board_search(
+    world: &World,
+    client_id: u32,
+    ex_body: &[u8],
+) {
+    let mut r = PacketReader::new(ex_body);
+    let Some(_clan_level) = r.read_i32() else { return };
+    let Some(_karma) = r.read_i32() else { return };
+    let Some(_search_type) = r.read_i32() else { return };
+    let Some(_query) = r.read_string() else { return };
+    let Some(_sort) = r.read_i32() else { return };
+    let Some(_descending) = r.read_i32() else { return };
+    let Some(page) = r.read_i32() else { return };
+    // Trailing applicationType int: Java reads it but never uses it.
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::ex_pledge_recruit_board_search_empty(page));
+    }
+}
+
 /// `RequestPledgeRecruitApplyInfo` (ex 0xDE): the clan window polls the
 /// player's clan-entry status on open. Java answers ORDERED for the leader
 /// of a clan registered in `ClanEntryManager` and WAITING for a clanless

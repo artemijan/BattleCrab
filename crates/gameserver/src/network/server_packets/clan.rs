@@ -217,6 +217,20 @@ pub fn ex_pledge_recruit_apply_info(status: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Port of `serverpackets/ExPledgeRecruitBoardSearch` (0xFE:0x141) — one page
+/// of the clan recruitment board. Java pages a `PledgeRecruitInfo` list from
+/// `ClanEntryManager` 12 clans at a time; the registry is unported
+/// (TODO(G18): `ClanEntryManager` + the board entry lists), so the board is
+/// always empty — `currentPage` echoed, 0 total pages, 0 clans on the page,
+/// no entries: exactly Java's answer on an empty registry.
+pub fn ex_pledge_recruit_board_search_empty(current_page: i32) -> Vec<u8> {
+    let mut w = ex(0x141);
+    w.write_i32(current_page);
+    w.write_i32(0); // total pages: ceil(0 / 12)
+    w.write_i32(0); // clans on this page
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/ExPledgeRecruitInfo` (0xFE:0x13F) — a clan's
 /// summary for the recruitment UI. Java appends the sub-pledge list
 /// (`getAllSubPledges`); the port has no sub-units yet (G18), so the count
