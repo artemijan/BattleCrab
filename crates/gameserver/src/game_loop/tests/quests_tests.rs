@@ -2180,3 +2180,242 @@ fn elven_path_quest_pages_exist_in_dist() {
     let gap = format!("{DIST}Q00407_PathOfTheElvenScout/30426-03.html");
     assert!(!std::path::Path::new(&gap).exists(), "30426-03 genuinely does not ship");
 }
+
+/// Put `item_id` straight into the RHand paperdoll. Bypasses `equip_item`,
+/// which would need full weapon templates for these quest items.
+fn equip_weapon_row(world: &mut World, player: i32, item_id: i32) {
+    let row = crate::character::ItemRow {
+        object_id: 90000,
+        item_id,
+        count: 1,
+        enchant_level: 0,
+        loc: "PAPERDOLL".into(),
+        loc_data: crate::model::inventory::PaperdollSlot::RHand as i32,
+        custom_type1: 0,
+        custom_type2: 0,
+        mana_left: -1,
+        time: 0,
+        augment_mineral: 0,
+        augment_option1: 0,
+        augment_option2: 0,
+    };
+    world.objects.add_components(&player, crate::model::inventory::Inventory::from_rows(&[row]));
+}
+
+/// Accept Q00401 and return the world to "quest started".
+fn accept_q401(world: &mut World) {
+    handle_request_bypass_to_server(world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00401_PathOfTheWarrior")));
+    handle_request_bypass_to_server(world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00401_PathOfTheWarrior ACCEPT")));
+    handle_request_bypass_to_server(
+        world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00401_PathOfTheWarrior 30010-06.htm")),
+    );
+}
+
+/// Q00401's spider legs are gated purely on the weapon/solo tag — there is no
+/// chance roll — so an unarmed kill pays nothing and a kill with Auron's
+/// sharpened sword always pays.
+#[test]
+fn quest_q00401_spider_legs_require_the_quest_sword() {
+    for (equip_sword, expected) in [(false, 0), (true, 1)] {
+        let (mut world, mut db_rx, _link_rx) = quest_test_world();
+        add_quest_items(&mut world, &[(1138, "Auron Letter", true), (1142, "Rusted Sword 3", true), (1144, "Spider Leg", true)]);
+        let mut t = crate::data::npc_data::default_template(20038);
+        t.type_name = "Monster".into();
+        t.level = 20;
+        t.base_hp_max = 1000.0;
+        world.data.npc_data.insert_for_test(t);
+        add_test_npc(&mut world, NPC_OID, 30010, "Folk", 5, 100, 0, 0);
+        let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+        {
+            let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+            p.level = 19;
+            p.class_id = 0; // Human Fighter
+            p.base_class_id = 0;
+        }
+        if equip_sword {
+            equip_weapon_row(&mut world, 3001, 1142);
+        }
+        drain_db(&mut db_rx);
+        accept_q401(&mut world);
+        drain(&mut rx);
+
+        let spider = NPC_OID + 1;
+        add_test_npc(&mut world, spider, 20038, "Monster", 20, 30, 0, 0);
+        combat::npc_receive_damage(&mut world, spider, 3001, 10.0);
+        death::npc_do_die(&mut world, spider, 3001);
+
+        assert_eq!(
+            item_count(&world, 3001, 1144),
+            expected,
+            "sword equipped = {equip_sword}: the tag is the only gate"
+        );
+    }
+}
+
+/// Q00401's rusted-sword drop is `getRandom(10) < 4`. Forcing the roll to 4
+/// must *not* drop — if it were read as `getRandom(100) < 40` it would.
+#[test]
+fn quest_q00401_rusted_sword_chance_is_out_of_ten() {
+    for (forced, expected) in [(3, 1), (4, 0)] {
+        let (mut world, mut db_rx, _link_rx) = quest_test_world();
+        add_quest_items(&mut world, &[(1138, "Auron Letter", true), (1139, "Guild Mark", true), (1140, "Rusted Sword 1", true)]);
+        let mut t = crate::data::npc_data::default_template(20035);
+        t.type_name = "Monster".into();
+        t.level = 20;
+        world.data.npc_data.insert_for_test(t);
+        add_test_npc(&mut world, NPC_OID, 30010, "Folk", 5, 100, 0, 0);
+        let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+        {
+            let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+            p.level = 19;
+            p.class_id = 0;
+            p.base_class_id = 0;
+        }
+        drain_db(&mut db_rx);
+        accept_q401(&mut world);
+        super::items::add_inventory_item(&mut world, 3001, 1139, 1); // guild mark
+        drain(&mut rx);
+
+        let mob = NPC_OID + 1;
+        add_test_npc(&mut world, mob, 20035, "Monster", 20, 30, 0, 0);
+        world.forced_rolls.push_back(forced);
+        death::npc_do_die(&mut world, mob, 3001);
+
+        assert_eq!(
+            item_count(&world, 3001, 1140),
+            expected,
+            "roll {forced} against `getRandom(10) < 4`"
+        );
+    }
+}
+
+/// Q00403's drop table is the same `ItemChanceHolder` type quest 406 uses with
+/// `getRandom(100)`, but this quest rolls `getRandom(REQUIRED_ITEM_COUNT)` —
+/// out of **10**. A forced roll can't tell the two apart (the forced value
+/// ignores the bound), so this asserts the *rate*: Ruin Spartoi are chance 8,
+/// i.e. 80%, and 40 kills reliably cap the 10-bone collection. Read as a
+/// percentage it would be 8% and cap essentially never.
+#[test]
+fn quest_q00403_bone_chance_is_out_of_ten_not_a_hundred() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1180, "Bezique Letter", true), (1181, "Neti Bow", true), (1182, "Neti Dagger", true), (1183, "Spartois Bones", true)]);
+    let mut t = crate::data::npc_data::default_template(20054);
+    t.type_name = "Monster".into();
+    t.level = 20;
+    t.base_hp_max = 1000.0;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30379, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 19;
+        p.class_id = 0;
+        p.base_class_id = 0;
+    }
+    equip_weapon_row(&mut world, 3001, 1181); // Neti's bow satisfies the tag
+    drain_db(&mut db_rx);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue ACCEPT")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue 30379-06.htm")));
+    drain(&mut rx);
+
+    for i in 0..40 {
+        let mob = NPC_OID + 100 + i;
+        add_test_npc(&mut world, mob, 20054, "Monster", 20, 30, 0, 0);
+        combat::npc_receive_damage(&mut world, mob, 3001, 10.0);
+        death::npc_do_die(&mut world, mob, 3001);
+    }
+
+    assert_eq!(item_count(&world, 3001, 1183), 10, "80% drop caps at 10 well within 40 kills");
+    assert_eq!(quest_cond(&world, 3001, "Q00403_PathOfTheRogue"), Some(3));
+}
+
+/// The Cat's Eye Bandit taunts its attacker on the first qualifying hit —
+/// **to that player only** — and on death broadcasts a different line and
+/// yields one of the four stolen goods.
+#[test]
+fn quest_q00403_cats_eye_bandit_taunts_then_drops_loot() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(1180, "Bezique Letter", true), (1181, "Neti Bow", true), (1185, "Most Wanted", true),
+          (1186, "Stolen Jewelry", true), (1187, "Stolen Tomes", true), (1188, "Stolen Ring", true),
+          (1189, "Stolen Necklace", true)],
+    );
+    let mut t = crate::data::npc_data::default_template(27038);
+    t.type_name = "Monster".into();
+    t.level = 20;
+    t.base_hp_max = 1000.0;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30379, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 19;
+        p.class_id = 0;
+        p.base_class_id = 0;
+    }
+    equip_weapon_row(&mut world, 3001, 1181);
+    drain_db(&mut db_rx);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue ACCEPT")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue 30379-06.htm")));
+    super::items::add_inventory_item(&mut world, 3001, 1185, 1); // the most-wanted list
+    drain(&mut rx);
+
+    let bandit = NPC_OID + 1;
+    add_test_npc(&mut world, bandit, 27038, "Monster", 20, 30, 0, 0);
+    combat::npc_receive_damage(&mut world, bandit, 3001, 10.0);
+    let says: Vec<_> = drain(&mut rx).into_iter().filter(|p| p[0] == server_packets::opcodes::NPC_SAY).collect();
+    assert_eq!(says.len(), 1, "one taunt on the first qualifying hit");
+    assert_eq!(i32::from_le_bytes(says[0][13..17].try_into().unwrap()), 40306, "the taunt line");
+
+    // A second hit must not re-taunt (script value is no longer 0).
+    combat::npc_receive_damage(&mut world, bandit, 3001, 10.0);
+    assert!(
+        !drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::NPC_SAY),
+        "the taunt fires once"
+    );
+
+    world.forced_rolls.push_back(0); // pick STOLEN_JEWELRY
+    death::npc_do_die(&mut world, bandit, 3001);
+    assert_eq!(item_count(&world, 3001, 1186), 1, "one of the stolen goods");
+    assert!(
+        drain(&mut rx).iter().any(|p| {
+            p[0] == server_packets::opcodes::NPC_SAY
+                && i32::from_le_bytes(p[13..17].try_into().unwrap()) == 40307
+        }),
+        "the death line, which is broadcast rather than whispered"
+    );
+}
+
+/// Both quests' pages exist, with the same mixed `.htm`/`.html` split as the
+/// elven pair.
+#[test]
+fn warrior_rogue_quest_pages_exist_in_dist() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/quests/");
+    let htm: [(&str, &str, &[&str]); 2] = [
+        ("Q00401_PathOfTheWarrior", "30010", &["01", "02", "02a", "03", "04", "05", "06"]),
+        ("Q00403_PathOfTheRogue", "30379", &["01", "02", "02a", "03", "04", "05", "06"]),
+    ];
+    for (dir, npc, pages) in htm {
+        for p in pages {
+            let path = format!("{DIST}{dir}/{npc}-{p}.htm");
+            assert!(std::path::Path::new(&path).exists(), "missing {dir}/{npc}-{p}.htm");
+        }
+    }
+    let html: [(&str, &str, &[&str]); 4] = [
+        ("Q00401_PathOfTheWarrior", "30010", &["07", "08", "09", "10", "11", "12", "13"]),
+        ("Q00401_PathOfTheWarrior", "30253", &["01", "02", "03", "04", "05", "06"]),
+        ("Q00403_PathOfTheRogue", "30379", &["07", "08", "09", "10", "11"]),
+        ("Q00403_PathOfTheRogue", "30425", &["01", "02", "03", "04", "05", "06", "07", "08"]),
+    ];
+    for (dir, npc, pages) in html {
+        for p in pages {
+            let path = format!("{DIST}{dir}/{npc}-{p}.html");
+            assert!(std::path::Path::new(&path).exists(), "missing {dir}/{npc}-{p}.html");
+        }
+    }
+}

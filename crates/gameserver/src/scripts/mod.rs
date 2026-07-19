@@ -8,6 +8,7 @@ pub mod alliance_master;
 pub mod clan_master;
 pub mod newbie_guide;
 pub mod npc_location_info;
+pub mod quest_common;
 pub mod dark_elf_change1;
 pub mod dwarf_change1;
 pub mod dwarf_change2;
@@ -27,6 +28,8 @@ pub mod q00313_collect_spores;
 pub mod q00316_destroy_plague_carriers;
 pub mod q00317_catch_the_wind;
 pub mod q00320_bones_tell_the_future;
+pub mod q00401_path_of_the_warrior;
+pub mod q00403_path_of_the_rogue;
 pub mod q00406_path_of_the_elven_knight;
 pub mod q00407_path_of_the_elven_scout;
 pub mod q00324_sweetest_venom;
@@ -53,6 +56,8 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00317_catch_the_wind::Q00317CatchTheWind),
         Arc::new(q00320_bones_tell_the_future::Q00320BonesTellTheFuture),
         Arc::new(q00324_sweetest_venom::Q00324SweetestVenom),
+        Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),
+        Arc::new(q00403_path_of_the_rogue::Q00403PathOfTheRogue),
         Arc::new(q00406_path_of_the_elven_knight::Q00406PathOfTheElvenKnight),
         Arc::new(q00407_path_of_the_elven_scout::Q00407PathOfTheElvenScout),
         Arc::new(alliance_master::AllianceMaster),
