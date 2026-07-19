@@ -45,7 +45,7 @@ mod pvp;
 pub mod quests;
 mod ranged;
 mod reco;
-mod regen;
+pub(crate) mod regen;
 mod shop;
 mod shortcuts;
 mod siege;
@@ -76,7 +76,7 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use net::{drain_db, drain_login_link, drain_network, drain_path};
-use regen::{run_regen_tick, REGEN_TICK_PERIOD};
+use regen::{run_npc_regen_tick, run_regen_tick, REGEN_TICK_PERIOD};
 use skills::cast::{handle_cast_end, handle_skill_finish, handle_skill_launch};
 use skills::effects::handle_buff_expire;
 
@@ -224,6 +224,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         }
         if world.tick.is_multiple_of(REGEN_TICK_PERIOD) {
             run_regen_tick(&mut world);
+            run_npc_regen_tick(&mut world);
         }
         if world.tick.is_multiple_of(AUTOSAVE_CHECK_PERIOD) {
             autosave_tick(&mut world);

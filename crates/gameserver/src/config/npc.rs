@@ -57,6 +57,14 @@ pub struct NpcConfig {
     /// `ForceDeleteMinions` (False here) — despawn a leader's minions when it
     /// dies even if it isn't a raid boss.
     pub force_delete_minions: bool,
+    /// `RaidHpRegenMultiplier` / `RaidMpRegenMultiplier` as fractions (Java
+    /// divides the percentage by 100). Both 100 % on this dist.
+    pub raid_hp_regen_multiplier: f64,
+    pub raid_mp_regen_multiplier: f64,
+    /// `HpRegenMultiplier` / `MpRegenMultiplier` from `Character.ini`, applied
+    /// to non-raid NPCs (Java reads the same globals for players and NPCs).
+    pub hp_regen_multiplier: f64,
+    pub mp_regen_multiplier: f64,
 }
 
 impl Default for NpcConfig {
@@ -78,6 +86,10 @@ impl Default for NpcConfig {
             raid_minion_respawn_time: 300_000,
             custom_minions_respawn_time: std::collections::HashMap::new(),
             force_delete_minions: false,
+            raid_hp_regen_multiplier: 1.0,
+            raid_mp_regen_multiplier: 1.0,
+            hp_regen_multiplier: 1.0,
+            mp_regen_multiplier: 1.0,
             vitality_consume_by_boss: 1125,
         }
     }
@@ -113,6 +125,10 @@ impl NpcConfig {
                 &p.get_string("CustomMinionsRespawnTime", ""),
             ),
             force_delete_minions: p.get_bool("ForceDeleteMinions", d.force_delete_minions),
+            raid_hp_regen_multiplier: p.get_int("RaidHpRegenMultiplier", 100) as f64 / 100.0,
+            raid_mp_regen_multiplier: p.get_int("RaidMpRegenMultiplier", 100) as f64 / 100.0,
+            hp_regen_multiplier: g.get_int("HpRegenMultiplier", 100) as f64 / 100.0,
+            mp_regen_multiplier: g.get_int("MpRegenMultiplier", 100) as f64 / 100.0,
         }
     }
 }
