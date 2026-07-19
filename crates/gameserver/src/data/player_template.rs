@@ -159,6 +159,11 @@ pub struct PlayerTemplateData {
 }
 
 impl PlayerTemplateData {
+    /// Every loaded class id.
+    pub fn class_ids(&self) -> Vec<i32> {
+        self.templates.keys().copied().collect()
+    }
+
     pub fn load() -> Self {
         Self::load_from("")
     }
