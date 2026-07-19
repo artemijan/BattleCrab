@@ -693,6 +693,31 @@ impl<'w> QuestCtx<'w> {
         }
     }
 
+    /// `npc.getVariables().getInt(key)` — 0 when unset, as in Java.
+    pub fn npc_var_int(&self, key: &str) -> i32 {
+        self.world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&self.npc)
+            .and_then(|n| n.vars.get(key).copied())
+            .unwrap_or(0)
+    }
+
+    /// `npc.getVariables().set(key, value)`.
+    pub fn set_npc_var_int(&mut self, key: &str, value: i32) {
+        if let Some(n) = self.world.objects.get_component_mut::<crate::model::npc::Npc>(&self.npc) {
+            n.vars.insert(key.to_string(), value);
+        }
+    }
+
+    /// `player.getActiveWeaponInstance()`'s item id, or 0 when bare-handed.
+    pub fn equipped_weapon_id(&self) -> i32 {
+        self.world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&self.player)
+            .map(|inv| inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand))
+            .unwrap_or(0)
+    }
+
     /// `npc.broadcastPacket(new NpcSay(npc, NPC_GENERAL, npcStringId))`.
     pub fn npc_say(&mut self, npc_string_id: i32) {
         let Some(npc) = self.world.objects.get_component::<crate::model::npc::Npc>(&self.npc) else { return };
@@ -703,6 +728,18 @@ impl<'w> QuestCtx<'w> {
         };
         let pkt = server_packets::npc_say(self.npc, npc.npc_id, npc_string_id);
         super::helpers::broadcast_near_region(self.world, region, &pkt);
+    }
+
+    /// `attacker.sendPacket(new NpcSay(npc, NPC_GENERAL, npcStringId))` — the
+    /// same line as [`Self::npc_say`] but delivered to the acting player only.
+    /// Quest 403's Cat's Eye Bandit taunts its attacker this way while its
+    /// death line broadcasts, so the two are not interchangeable.
+    pub fn npc_say_to_player(&mut self, npc_string_id: i32) {
+        let Some(npc) = self.world.objects.get_component::<crate::model::npc::Npc>(&self.npc) else {
+            return;
+        };
+        let pkt = server_packets::npc_say(self.npc, npc.npc_id, npc_string_id);
+        self.send(pkt);
     }
 
     /// `Quest.getAlreadyCompletedMsg` (`data/html/alreadycompleted.htm`).

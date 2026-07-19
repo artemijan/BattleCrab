@@ -61,6 +61,12 @@ pub struct Npc {
     /// Java `Npc._scriptValue` — per-instance scratch slot for scripts
     /// (fresh instance on respawn resets it, like Java).
     pub script_value: i32,
+    /// Java `Npc.getVariables()` — the per-instance string-keyed scratch map
+    /// quest scripts use alongside `script_value` (11 Interlude quests do,
+    /// under 6 distinct keys such as `lastAttacker`). Empty by default and a
+    /// `HashMap` does not allocate until the first insert, so idle NPCs pay
+    /// only the struct size. A fresh instance on respawn resets it, like Java.
+    pub vars: std::collections::HashMap<String, i32>,
     /// `Attackable._spoilerObjectId` — object id of the player who landed the
     /// Spoil skill on this mob (0 = not spoiled). Set by the `Spoil` effect,
     /// checked on death to roll the sweep list. A fresh instance on respawn
@@ -265,6 +271,7 @@ impl Npc {
             spawn_loc: (x, y, z),
             spawn_ref: (0, 0, 0),
             script_value: 0,
+            vars: std::collections::HashMap::new(),
             spoiler_object_id: 0,
             sweep_items: None,
         };
@@ -473,6 +480,7 @@ fn spawn_npc_entity(
         spawn_loc: (x, y, z),
         spawn_ref,
         script_value: 0,
+        vars: std::collections::HashMap::new(),
         spoiler_object_id: 0,
         sweep_items: None,
     };
