@@ -711,3 +711,40 @@ fn clan_skills_reapply_on_member_login() {
         "clan skill is transient — never in the persisted SkillBook"
     );
 }
+
+/// The clan-entry queries the clan window fires on open (ex 0xD3/0xDE):
+/// `ExPledgeRecruitInfo` echoes the clan summary with an empty sub-pledge
+/// list, `ExPledgeRecruitApplyInfo` always answers DEFAULT until the G18
+/// `ClanEntryManager` lands, and an unknown clan id stays silent.
+#[test]
+fn clan_entry_queries() {
+    use crate::model::clan::{Clan, ClanMember};
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain(&mut rx);
+
+    let clan_id = 0x7000_0002;
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 40, class_id: 0, sex: 0, race: 0 };
+    world.clans.insert(clan_id, Clan { id: clan_id, name: "Recruiters".into(), leader_id: 3001, level: 3, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default() });
+
+    // ExPledgeRecruitApplyInfo: status DEFAULT (0) — nothing is registered.
+    super::clans::handle_request_pledge_recruit_apply_info(&world, 1);
+    let pkts = drain(&mut rx);
+    let apply = pkts.iter().find(|p| p[0] == 0xFE && p[1] == 0x40 && p[2] == 0x01).expect("ExPledgeRecruitApplyInfo");
+    assert_eq!(&apply[3..7], &0i32.to_le_bytes());
+
+    // ExPledgeRecruitInfo: name, leader name, level, member count, 0 sub-pledges.
+    super::clans::handle_request_pledge_recruit_info(&world, 1, &clan_id.to_le_bytes());
+    let pkts = drain(&mut rx);
+    let info = pkts.iter().find(|p| p[0] == 0xFE && p[1] == 0x3F && p[2] == 0x01).expect("ExPledgeRecruitInfo");
+    let mut r = commons::network::PacketReader::new(&info[3..]);
+    assert_eq!(r.read_string().unwrap(), "Recruiters");
+    assert_eq!(r.read_string().unwrap(), "P3001");
+    assert_eq!(r.read_i32().unwrap(), 3); // clan level
+    assert_eq!(r.read_i32().unwrap(), 2); // member count
+    assert_eq!(r.read_i32().unwrap(), 0); // sub-pledge count
+
+    // Unknown clan id: Java's ClanTable miss returns without an answer.
+    super::clans::handle_request_pledge_recruit_info(&world, 1, &0x7999_9999i32.to_le_bytes());
+    assert!(drain(&mut rx).is_empty());
+}

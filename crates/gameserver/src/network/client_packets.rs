@@ -161,6 +161,14 @@ pub mod ex_opcodes {
     /// `RequestDispel` — alt+click a buff icon to cancel it (`objectId`,
     /// `skillId`, `skillLevel:short`, `skillSubLevel:short`).
     pub const REQUEST_DISPEL: u16 = 0x48;
+    /// Clan entry (recruitment) queries the clan window fires on open.
+    /// `RequestPledgeRecruitInfo` (`clanId`) asks for a clan's recruitment
+    /// summary; the other two are empty-bodied status polls. The rest of the
+    /// `RequestPledgeRecruit*` family (board search/access/detail, waiting
+    /// list management, draft list) is the G18 `ClanEntryManager` port.
+    pub const REQUEST_PLEDGE_RECRUIT_INFO: u16 = 0xD3;
+    pub const REQUEST_PLEDGE_WAITING_APPLIED: u16 = 0xD8;
+    pub const REQUEST_PLEDGE_RECRUIT_APPLY_INFO: u16 = 0xDE;
 }
 
 /// Split an extended-packet body (after the `0xD0` opcode) into its 2-byte LE

@@ -578,6 +578,30 @@ pub(crate) fn handle_request_pledge_info(world: &World, client_id: u32, body: &[
     }
 }
 
+/// `RequestPledgeRecruitInfo` (ex 0xD3): a clan's recruitment summary,
+/// answered with `ExPledgeRecruitInfo`. Java resolves the clan through
+/// `ClanTable` and stays silent for an unknown id.
+pub(crate) fn handle_request_pledge_recruit_info(world: &World, client_id: u32, ex_body: &[u8]) {
+    let Some(clan_id) = PacketReader::new(ex_body).read_i32() else { return };
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::ex_pledge_recruit_info(clan));
+    }
+}
+
+/// `RequestPledgeRecruitApplyInfo` (ex 0xDE): the clan window polls the
+/// player's clan-entry status on open. Java answers ORDERED for the leader
+/// of a clan registered in `ClanEntryManager` and WAITING for a clanless
+/// player with a pending application; the recruitment registry is unported
+/// (TODO(G18): `ClanEntryManager` + the `RequestPledgeRecruit*` board/apply
+/// family), so with no way to register both branches fall through to
+/// DEFAULT — exactly Java's answer on an empty registry.
+pub(crate) fn handle_request_pledge_recruit_apply_info(world: &World, client_id: u32) {
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::ex_pledge_recruit_apply_info(0));
+    }
+}
+
 /// `EnterWorld.runImpl`'s clan section (narrowed): fix the leader flag from
 /// the live table, refresh the member's level in the roster, send the
 /// pledge window to the enterer and the online-status update to the rest.
