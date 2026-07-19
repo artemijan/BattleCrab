@@ -2419,3 +2419,181 @@ fn warrior_rogue_quest_pages_exist_in_dist() {
         }
     }
 }
+
+const Q402: &str = "Q00402_PathOfTheHumanKnight";
+
+/// Q00402 world: Vasper at NPC_OID, quest accepted, `coins` Coins of Lords
+/// already in the bag.
+fn q402_world_with_coins(coins: usize) -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = vec![(1271, "Squire's Mark", true), (1161, "Sword of Ritual", false)];
+    for id in [1162, 1163, 1164, 1165, 1166, 1167] {
+        items.push((id, "Coin of Lords", true));
+    }
+    for id in [1168, 1169, 1170, 1171, 1172, 1173, 1174, 1175, 1176, 1177, 1178, 1179] {
+        items.push((id, "Badge or trophy", true));
+    }
+    add_quest_items(&mut world, &items);
+    add_test_npc(&mut world, NPC_OID, 30417, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 19;
+        p.class_id = 0; // Human Fighter
+        p.base_class_id = 0;
+    }
+    drain_db(&mut db_rx);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} ACCEPT")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-08.htm")));
+    for id in [1162, 1163, 1164, 1165, 1166, 1167].iter().take(coins) {
+        super::items::add_inventory_item(&mut world, 3001, *id, 1);
+    }
+    drain(&mut rx);
+    (world, rx)
+}
+
+/// With exactly three coins, talking to Vasper only *offers* — the sword comes
+/// from the confirmation bypass.
+#[test]
+fn quest_q00402_three_coins_needs_the_confirm_button() {
+    let (mut world, _rx) = q402_world_with_coins(3);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402}")));
+    assert_eq!(item_count(&world, 3001, 1161), 0, "talking alone does not pay at 3 coins");
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-13.html")));
+    assert_eq!(item_count(&world, 3001, 1161), 1, "the confirm button awards the Sword of Ritual");
+    {
+        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        assert!(quests.0[Q402].is_completed(), "one-time quest stays COMPLETED");
+    }
+}
+
+/// Six coins is the one path that completes **inside `onTalk`**, with no
+/// confirmation step. Asymmetric, and deliberate — see the module header.
+#[test]
+fn quest_q00402_six_coins_completes_on_talk_without_a_confirm() {
+    let (mut world, _rx) = q402_world_with_coins(6);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402}")));
+
+    assert_eq!(item_count(&world, 3001, 1161), 1, "six coins pays out on the talk itself");
+    for id in [1162, 1163, 1164, 1165, 1166, 1167] {
+        assert_eq!(item_count(&world, 3001, id), 0, "coin {id} consumed");
+    }
+    assert_eq!(item_count(&world, 3001, 1271), 0, "the Squire's Mark is taken");
+    {
+        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        assert!(quests.0[Q402].is_completed());
+    }
+}
+
+/// Each confirm button is bound to its own coin range, so a client replaying
+/// the wrong one gets nothing.
+#[test]
+fn quest_q00402_confirm_buttons_check_their_coin_range() {
+    // `-13` is the "exactly 3" button; with 4 coins it must refuse.
+    let (mut world, _rx) = q402_world_with_coins(4);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-13.html")));
+    assert_eq!(item_count(&world, 3001, 1161), 0, "the 3-coin button refuses 4 coins");
+    // `-14` is the "4 or 5" button; it must refuse a full set of 6.
+    let (mut world6, _rx6) = q402_world_with_coins(6);
+    handle_request_bypass_to_server(&mut world6, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-14.html")));
+    assert_eq!(item_count(&world6, 3001, 1161), 0, "the 4-5 coin button refuses 6 coins");
+}
+
+/// One officer's sub-quest end to end — and Bathis' Bugbear Necklace is one of
+/// the two trophies with **no chance roll**, so ten kills is exactly ten
+/// necklaces.
+#[test]
+fn quest_q00402_badge_to_coin_and_the_unrolled_drop() {
+    let (mut world, mut rx) = q402_world_with_coins(0);
+    let mut t = crate::data::npc_data::default_template(20775); // Bugbear Raider
+    t.type_name = "Monster".into();
+    t.level = 20;
+    world.data.npc_data.insert_for_test(t);
+    let bathis = NPC_OID + 60;
+    add_test_npc(&mut world, bathis, 30332, "Folk", 5, 100, 0, 0);
+
+    // The badge hand-over.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{bathis}_Quest {Q402} 30332-02.html")));
+    assert_eq!(item_count(&world, 3001, 1168), 1, "Gludio Guard's 1st badge");
+    drain(&mut rx);
+
+    // Ten kills, no roll forced — every one must pay.
+    for i in 0..10 {
+        let mob = NPC_OID + 200 + i;
+        add_test_npc(&mut world, mob, 20775, "Monster", 20, 30, 0, 0);
+        death::npc_do_die(&mut world, mob, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, 1169), 10, "the necklace has no chance roll");
+
+    // Turn in for the coin.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{bathis}_Quest {Q402}")));
+    assert_eq!(item_count(&world, 3001, 1162), 1, "Coin of Lords 1");
+    assert_eq!(item_count(&world, 3001, 1168), 0, "badge returned");
+    assert_eq!(item_count(&world, 3001, 1169), 0, "necklaces handed over");
+}
+
+/// The drop is gated on holding that officer's badge — killing the right mob
+/// without it pays nothing.
+#[test]
+fn quest_q00402_drops_need_the_matching_badge() {
+    let (mut world, _rx) = q402_world_with_coins(0);
+    let mut t = crate::data::npc_data::default_template(20775);
+    t.type_name = "Monster".into();
+    t.level = 20;
+    world.data.npc_data.insert_for_test(t);
+
+    let mob = NPC_OID + 200;
+    add_test_npc(&mut world, mob, 20775, "Monster", 20, 30, 0, 0);
+    death::npc_do_die(&mut world, mob, 3001);
+
+    assert_eq!(item_count(&world, 3001, 1169), 0, "no badge, no trophy");
+}
+
+/// Vasper's pages alternate extensions (`-06` html, `-07`/`-08` htm, `-09`+
+/// html) rather than splitting on a prefix like the other Path quests, and
+/// Raymond alone ships six pages.
+#[test]
+fn human_knight_quest_pages_exist_in_dist() {
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/quests/Q00402_PathOfTheHumanKnight/"
+    );
+    for p in ["01", "02", "02a", "03", "04", "05", "07", "08"] {
+        let path = format!("{DIST}30417-{p}.htm");
+        assert!(std::path::Path::new(&path).exists(), "missing 30417-{p}.htm");
+    }
+    for p in ["06", "09", "10", "11", "12", "13", "14", "15"] {
+        let path = format!("{DIST}30417-{p}.html");
+        assert!(std::path::Path::new(&path).exists(), "missing 30417-{p}.html");
+    }
+    // The alternation is real, not a tidy prefix split.
+    assert!(!std::path::Path::new(&format!("{DIST}30417-07.html")).exists());
+    assert!(!std::path::Path::new(&format!("{DIST}30417-06.htm")).exists());
+
+    let officers: [(&str, &[&str]); 6] = [
+        ("30332", &["01", "02", "03", "04", "05"]),
+        ("30289", &["01", "02", "03", "04", "05", "06"]), // the six-page one
+        ("30379", &["01", "02", "03", "04", "05"]),
+        ("30037", &["01", "02", "03", "04", "05"]),
+        ("30039", &["01", "02", "03", "04", "05"]),
+        ("30031", &["01", "02", "03", "04", "05"]),
+    ];
+    for (npc, pages) in officers {
+        for p in pages {
+            let path = format!("{DIST}{npc}-{p}.html");
+            assert!(std::path::Path::new(&path).exists(), "missing {npc}-{p}.html");
+        }
+    }
+    assert!(std::path::Path::new(&format!("{DIST}30653-01.html")).exists());
+    // Only Raymond has a sixth page.
+    for npc in ["30332", "30379", "30037", "30039", "30031"] {
+        assert!(
+            !std::path::Path::new(&format!("{DIST}{npc}-06.html")).exists(),
+            "{npc} must not ship a -06"
+        );
+    }
+}
