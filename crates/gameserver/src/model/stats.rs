@@ -65,6 +65,15 @@ pub enum Stat {
     /// Blessed Shield (`ShieldDefenceRate`) raises it. No finalizer yet, so it's
     /// only a buff-modifier target (the buff lands with its icon regardless).
     ShieldDefenceRate,
+    /// Java `Stat.RESIST_ABNORMAL_DEBUFF` ("debuffVuln") — a **multiplier on
+    /// incoming debuff landing chance** (`Formulas.calcEffectSuccess`'s
+    /// `buffDebuffMod`). Below 1 = resistant (Guts `amount=-50` → ×0.5), above
+    /// 1 = vulnerable (Touch of Death `amount=+30` → ×1.3).
+    ResistAbnormalDebuff,
+    /// Java `Stat.RESIST_DISPEL_BUFF` ("cancelVuln") — the same shape for being
+    /// *dispelled*: Ultimate Defense (`amount=-80`) makes its buffs ×0.2 as
+    /// likely to be cancelled.
+    ResistDispelBuff,
     /// Java `Stat.CRITICAL_DAMAGE` ("cAtk", multiplicative) — the crit-damage
     /// multiplier. Death Whisper (`CriticalDamage`, `mode=PER`) raises it.
     CriticalDamage,

@@ -154,6 +154,11 @@ pub enum SkillEffect {
     /// not modelled — `hasBlockActions()` treats both flags the same, so the
     /// only skills wrongly blocked are the whitelisted ones. TODO(G19).
     BlockActions { conditional: bool },
+    /// `handlers/effecthandlers/BlockAbnormalSlot.java` — while this buff is
+    /// up, the listed abnormal types cannot land on the target at all. Backs
+    /// the Prophecy family's mutual exclusion (Prophecy of Water 1355 blocks
+    /// every `BUFF_SPECIAL_*` slot) and Heroic Miracle 395 (`INVINCIBILITY`).
+    BlockAbnormalSlot { slots: Vec<String> },
     /// `handlers/effecthandlers/Root.java` — immobilised. Unlike a stun the
     /// target may still attack and cast.
     Root,
@@ -237,6 +242,12 @@ pub enum SkillEffect {
     /// level. Backs Cure Poison (1012), Cure Bleeding, etc. Java's special-cased
     /// `AbnormalType.TRANSFORM` branch is omitted — no transforms in scope yet.
     DispelBySlot { dispel: Vec<(String, i32)> },
+    /// `handlers/effecthandlers/DispelBySlotProbability.java` — the Bane family
+    /// (Warrior Bane 1350, Mass Warrior Bane 1344, …): cleanse a set of
+    /// abnormal types, but roll `rate`% **per buff** rather than stripping all
+    /// of them. Unlike [`SkillEffect::DispelBySlot`] the spec carries no
+    /// per-type level, so every level of a listed type is a candidate.
+    DispelBySlotProbability { dispel: Vec<String>, rate: i32 },
     /// `handlers/effecthandlers/ProtectionBlessing.java` — the Newbie Helper's
     /// Blessing of Protection (5182): a chaotic (PK) character 10+ levels above
     /// the target cannot damage or be damaged by them. Carries no stat
@@ -474,6 +485,19 @@ impl Skill {
         })
     }
 
+    /// The abnormal types this skill blocks while active — Java
+    /// `EffectList.addBlockedAbnormalTypes` on effect start.
+    pub fn blocked_abnormals(&self) -> Vec<String> {
+        self.effects
+            .iter()
+            .filter_map(|e| match e {
+                SkillEffect::BlockAbnormalSlot { slots } => Some(slots.clone()),
+                _ => None,
+            })
+            .flatten()
+            .collect()
+    }
+
     pub fn stat_modifier_effects(&self) -> Vec<StatModifierEffect> {
         self.effects
             .iter()
@@ -526,6 +550,10 @@ pub struct ActiveBuff {
     /// overwhelming majority). Stamped at creation so the creature's live mask
     /// is a fold over its buff list — see [`effect_flag`].
     pub effect_flags: u32,
+    /// Abnormal types this buff *blocks* from landing while it is up
+    /// (`BlockAbnormalSlot`). Empty for almost every buff; stamped at creation
+    /// and folded on read, the same way `effect_flags` is.
+    pub blocked_abnormals: Vec<String>,
     pub effects: Vec<StatModifierEffect>,
 }
 

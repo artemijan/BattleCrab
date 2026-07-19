@@ -141,6 +141,7 @@ fn apply_clan_skill_to_member(world: &mut World, member_oid: i32, skill_id: i32,
         passive: true,
         // Synthetic buff (passive/clan/expertise pump): no abnormal state.
         effect_flags: 0,
+        blocked_abnormals: Vec::new(),
         effects,
     };
     apply_permanent_passive_buff(world, member_oid, buff);

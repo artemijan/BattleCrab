@@ -44,6 +44,7 @@ mod misc_tests;
 mod movement_tests;
 mod npc_tests;
 mod quests_tests;
+mod resist_tests;
 mod shortcuts_tests;
 mod skills_tests;
 mod social_tests;
