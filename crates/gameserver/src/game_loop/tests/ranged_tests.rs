@@ -19,6 +19,8 @@ fn template(item_id: i32, name: &str, kind: ItemKind, body_part: i32) -> ItemTem
         kind,
         crystal_type: CrystalType::None,
         crystal_count: 0,
+        attack_radius: 40,
+        attack_angle: 0,
         mp_consume: 0,
         reduced_mp_consume: 0,
         reduced_mp_consume_chance: 0,

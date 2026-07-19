@@ -544,6 +544,22 @@ refuses `Etc` items (arrows are `Etc`) *and* its `SLOT_L_HAND` branch displaces
 a two-handed weapon — it would unequip the bow. Java sidesteps the same problem
 the same way (`setPaperdollItem` directly).
 
+🚧 **Multi-hit melee landed (2026-07-19)** — plan
+[PLAN_G20_MELEE_VARIANTS.md](PLAN_G20_MELEE_VARIANTS.md). Completes the
+`doAttack` variant family: **dual** weapons strike the main target twice at half
+damage, and the **polearm sweep** adds a hit per extra target inside the
+weapon's radius (66 for a polearm vs 40 for a sword, from `damage_range`) and
+its 120° arc. The `Attack` packet, which hard-coded "0 additional hits", now
+carries the whole list, each hit scheduled through the normal victim-side path.
+
+**The sweep is gated on `ATTACK_COUNT_MAX`, a stat — not on the weapon type.**
+Holding a polearm sweeps nothing; **Polearm Mastery 216** (`HitNumber` 5) is
+what enables it. A first pass at this slice wrongly concluded the whole feature
+was dead on this dist, because `CreatureStat`'s angle default is 0 and a bad
+regex missed skill 216 — but `PlayableStat` overrides radius/angle from the
+weapon, and 216 is perfectly ordinary. Verify a "this is dead" conclusion as
+carefully as a "this is live" one.
+
 **Scoping note:** several G20 line items were already done — `PhysicalAttack`
 skills (instant-damage slice) and the root/immobilize half of
 `isMovementDisabled` (G19 CC slice). Still open: polearm sweep, the melee half

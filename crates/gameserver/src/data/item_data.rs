@@ -596,6 +596,14 @@ pub struct ItemTemplate {
     /// `<set name="crystal_count"/>` — crystals yielded on crystallization (0 =
     /// not crystallizable).
     pub crystal_count: i32,
+    /// `<set name="damage_range" val="0;0;radius;angle"/>` — the weapon's
+    /// melee sweep geometry (Java `Weapon.getBaseAttackRadius/Angle`). A
+    /// polearm reaches 66 with a 120° arc; a sword 40/120. Java's fallback when
+    /// the tag is absent or malformed is radius 40, angle **0** — an angle of 0
+    /// makes the multi-target sweep hit nothing, which is the intended
+    /// "single-target weapon" behaviour.
+    pub attack_radius: i32,
+    pub attack_angle: i32,
     /// `<set name="mp_consume"/>` — MP a **ranged** weapon spends per shot
     /// (Short Bow 13 → 1). 0 for everything else.
     pub mp_consume: i32,
@@ -818,6 +826,17 @@ impl ItemData {
     }
 }
 
+/// `damage_range` is `a;b;radius;angle`; Java only reads it when all four parts
+/// parse, otherwise falling back to 40/0.
+fn damage_range_part(raw: Option<&String>, index: usize, fallback: i32) -> i32 {
+    let Some(raw) = raw else { return fallback };
+    let parts: Vec<&str> = raw.split(';').collect();
+    if parts.len() < 4 {
+        return fallback;
+    }
+    parts.get(index).and_then(|v| v.trim().parse().ok()).unwrap_or(fallback)
+}
+
 fn parse_file(
     path: &std::path::Path,
     out: &mut HashMap<i32, ItemTemplate>,
@@ -1017,6 +1036,8 @@ fn make_template(
         name,
         kind,
         crystal_type: CrystalType::from_name(attrs.get("crystal_type").map(|s| s.as_str())),
+        attack_radius: damage_range_part(attrs.get("damage_range"), 2, 40),
+        attack_angle: damage_range_part(attrs.get("damage_range"), 3, 0),
         mp_consume: attrs.get("mp_consume").and_then(|v| v.parse().ok()).unwrap_or(0),
         reduced_mp_consume: attrs.get("reduced_mp_consume").and_then(|v| v.parse().ok()).unwrap_or(0),
         reduced_mp_consume_chance: attrs
@@ -1113,6 +1134,12 @@ mod tests {
         assert_eq!(arrow.crystal_type, CrystalType::None, "matches the no-grade bow");
         // A melee weapon spends nothing.
         assert_eq!(data.get(2).map(|t| t.mp_consume), Some(0));
+
+        // Melee sweep geometry (G20): a polearm reaches further than a sword,
+        // both with a 120-degree arc (`damage_range` = a;b;radius;angle).
+        let polearm = data.get(15).expect("polearm 15");
+        assert_eq!((polearm.attack_radius, polearm.attack_angle), (66, 120));
+        assert_eq!((sword.attack_radius, sword.attack_angle), (40, 120));
 
         // A graded item parses its <set name="crystal_type"/>.
         let boots = data.get(40).expect("item 40 (Leather Boots)");

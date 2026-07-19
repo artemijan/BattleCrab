@@ -454,7 +454,7 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
         ss_grade: 0,
     };
     let pkt =
-        server_packets::attack(attacker_oid, &hit, attacker.x, attacker.y, attacker.z, dpos.x, dpos.y, dpos.z);
+        server_packets::attack(attacker_oid, std::slice::from_ref(&hit), attacker.x, attacker.y, attacker.z, dpos.x, dpos.y, dpos.z);
     broadcast_including_self(world, attacker_oid, &pkt);
     refresh_attack_stance(world, attacker_oid);
 
@@ -1004,6 +1004,62 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         0
     };
 
+    // `generateAttackTargetData` — one swing can carry several hits.
+    //
+    // * A **dual** weapon strikes the main target twice, each at half damage
+    //   (Java's `halfDamage` in `generateHit`).
+    // * A **polearm sweep** adds one simple hit per extra target, gated on
+    //   `ATTACK_COUNT_MAX > 1` (Polearm Mastery 216 sets it to 5). Extra
+    //   targets must be alive, auto-attackable, inside the weapon's attack
+    //   radius, and within its attack angle of the attacker's heading.
+    let weapon_id = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&attacker_oid)
+        .map(|inv| inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand))
+        .unwrap_or(0);
+    let is_dual = matches!(
+        world.data.item_data.weapon_type(weapon_id),
+        crate::data::item_data::WeaponType::Dual
+            | crate::data::item_data::WeaponType::DualBlunt
+            | crate::data::item_data::WeaponType::DualDagger
+            | crate::data::item_data::WeaponType::DualFist
+    );
+
+    let mut hits: Vec<server_packets::AttackHit> = Vec::new();
+    let main_damage = if is_dual { damage / 2 } else { damage };
+    hits.push(server_packets::AttackHit {
+        target_object_id: target_oid,
+        damage: main_damage,
+        miss,
+        crit,
+        soulshot: ss,
+        ss_grade,
+    });
+    if is_dual {
+        // Java rolls the second hit independently; this port reuses the first
+        // roll's outcome for it, so a dual swing is two halves of one roll
+        // rather than two separate rolls. TODO(G20): independent second roll
+        // once the roll is factored out of `do_auto_attack`.
+        hits.push(server_packets::AttackHit {
+            target_object_id: target_oid,
+            damage: main_damage,
+            miss,
+            crit,
+            soulshot: ss,
+            ss_grade,
+        });
+    }
+    for extra in sweep_targets(world, attacker_oid, target_oid, weapon_id) {
+        hits.push(server_packets::AttackHit {
+            target_object_id: extra,
+            damage,
+            miss,
+            crit,
+            soulshot: ss,
+            ss_grade,
+        });
+    }
+
     let now = world.tick;
     if let Some(st) = world
         .objects
@@ -1011,16 +1067,18 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     {
         st.attack_end_tick = now + ms_to_ticks(time_atk);
     }
-    world.scheduler.schedule(
-        now + ms_to_ticks(time_to_hit),
-        ScheduledTask::AttackHit {
-            attacker: attacker_oid,
-            target: target_oid,
-            damage,
-            miss,
-            crit,
-        },
-    );
+    for hit in &hits {
+        world.scheduler.schedule(
+            now + ms_to_ticks(time_to_hit),
+            ScheduledTask::AttackHit {
+                attacker: attacker_oid,
+                target: hit.target_object_id,
+                damage: hit.damage,
+                miss: hit.miss,
+                crit: hit.crit,
+            },
+        );
+    }
     // Swing-end hook (Java's `EVT_READY_TO_ACT` schedule in `doAttack`).
     // Players: fire the action the swing held back, if any. NPCs: re-run the AI
     // think at the swing's end so it re-swings at the weapon's attack rate
@@ -1042,18 +1100,10 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         );
     }
 
-    // Broadcast the swing.
-    let hit = server_packets::AttackHit {
-        target_object_id: target_oid,
-        damage,
-        miss,
-        crit,
-        soulshot: ss,
-        ss_grade,
-    };
+    // Broadcast the swing (all of its hits in one packet).
     let pkt = server_packets::attack(
         attacker_oid,
-        &hit,
+        &hits,
         attacker.x,
         attacker.y,
         attacker.z,
@@ -1077,6 +1127,82 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         refresh_attack_stance(world, attacker_oid);
         super::pvp::update_pvp_status_target(world, attacker_oid, target_oid);
     }
+}
+
+/// The polearm sweep's extra targets — Java's `ATTACK_COUNT_MAX` loop in
+/// `generateAttackTargetData`.
+///
+/// Returns nothing at all unless the attacker's `ATTACK_COUNT_MAX` exceeds 1,
+/// which on this dist means Polearm Mastery 216 (`HitNumber` 5). Candidates
+/// must be alive, auto-attackable, inside the **weapon's** attack radius (66
+/// for a polearm, 40 for most others) and within its attack angle of the
+/// attacker's heading (120° for both — a weapon that declares no
+/// `damage_range` falls back to angle 0, which selects nothing).
+///
+/// Java also skips the sweep when `PHYSICAL_POLEARM_TARGET_SINGLE > 0`; no
+/// ported effect sets that stat, so the check is omitted. TODO(G20).
+fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: i32) -> Vec<i32> {
+    let max_targets = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&attacker_oid)
+        .and_then(|m| m.add.get(&crate::model::stats::Stat::AttackCountMax).copied())
+        .unwrap_or(0.0) as i32
+        + 1; // the base 1 target
+    if max_targets <= 1 {
+        return Vec::new();
+    }
+    let Some(template) = world.data.item_data.get(weapon_id) else { return Vec::new() };
+    let (radius, angle) = (template.attack_radius, template.attack_angle);
+    if radius <= 0 || angle <= 0 {
+        return Vec::new();
+    }
+    let Some(origin) = world.objects.get_component::<Position>(&attacker_oid).copied() else {
+        return Vec::new();
+    };
+    let Some(region) = world.objects.get_component::<RegionCell>(&attacker_oid).map(|r| r.0) else {
+        return Vec::new();
+    };
+    let heading_deg = origin.heading as f64 * 360.0 / 65536.0;
+
+    let mut out = Vec::new();
+    let mut room = max_targets - 1; // the main target already used one
+    for candidate in world.npcs_visible_from(region) {
+        if room <= 0 {
+            break;
+        }
+        if candidate == main_target || candidate == attacker_oid {
+            continue;
+        }
+        if vitals_of(world, candidate).map(|v| v.dead).unwrap_or(true) {
+            continue;
+        }
+        // Only auto-attackable creatures are swept up (Java `isAutoAttackable`).
+        let attackable = world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&candidate)
+            .and_then(|n| n.template(world))
+            .is_some_and(|t| t.is_auto_attackable());
+        if !attackable {
+            continue;
+        }
+        let Some(pos) = world.objects.get_component::<Position>(&candidate).copied() else { continue };
+        let (dx, dy) = ((pos.x - origin.x) as f64, (pos.y - origin.y) as f64);
+        if (dx * dx + dy * dy).sqrt() > radius as f64 {
+            continue;
+        }
+        // `Math.abs(calculateDirectionTo(obj) - headingAngle) > angle` → skip.
+        let direction = dy.atan2(dx).to_degrees();
+        let mut delta = (direction - heading_deg).abs() % 360.0;
+        if delta > 180.0 {
+            delta = 360.0 - delta;
+        }
+        if delta > angle as f64 {
+            continue;
+        }
+        out.push(candidate);
+        room -= 1;
+    }
+    out
 }
 
 /// `ScheduledTask::AttackHit` — `onHitTimeNotDual` + `onHitTarget`: the swing

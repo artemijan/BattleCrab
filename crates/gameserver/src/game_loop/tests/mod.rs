@@ -40,6 +40,7 @@ mod henna_tests;
 mod crafting_tests;
 mod items_tests;
 mod lobby_tests;
+mod melee_variants_tests;
 mod misc_tests;
 mod movement_tests;
 mod npc_tests;
@@ -808,6 +809,8 @@ fn combat_test_world() -> (
         price: 0,
         handler: crate::data::item_data::ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
+ attack_radius: 40,
+ attack_angle: 0,
  mp_consume: 0,
  reduced_mp_consume: 0,
  reduced_mp_consume_chance: 0,
@@ -1077,6 +1080,8 @@ fn quest_test_world() -> (
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
+ attack_radius: 40,
+ attack_angle: 0,
  mp_consume: 0,
  reduced_mp_consume: 0,
  reduced_mp_consume_chance: 0,
@@ -1327,6 +1332,8 @@ fn shop_world() -> (
         price: 0,
         handler: crate::data::item_data::ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
+ attack_radius: 40,
+ attack_angle: 0,
  mp_consume: 0,
  reduced_mp_consume: 0,
  reduced_mp_consume_chance: 0,
@@ -1383,6 +1390,8 @@ fn add_quest_items(world: &mut World, ids: &[(i32, &str, bool)]) {
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
+ attack_radius: 40,
+ attack_angle: 0,
  mp_consume: 0,
  reduced_mp_consume: 0,
  reduced_mp_consume_chance: 0,
@@ -1412,6 +1421,8 @@ fn shot_template(item_id: i32, grade: crate::data::item_data::CrystalType, handl
         name: format!("shot{item_id}"),
         kind: crate::data::item_data::ItemKind::Etc,
         crystal_type: grade, crystal_count: 0,
+ attack_radius: 40,
+ attack_angle: 0,
  mp_consume: 0,
  reduced_mp_consume: 0,
  reduced_mp_consume_chance: 0,
@@ -1437,6 +1448,8 @@ fn shot_weapon(world: &mut World, item_id: i32, grade: crate::data::item_data::C
         name: format!("weapon{item_id}"),
         kind: crate::data::item_data::ItemKind::Weapon,
         crystal_type: grade, crystal_count: 0,
+ attack_radius: 40,
+ attack_angle: 0,
  mp_consume: 0,
  reduced_mp_consume: 0,
  reduced_mp_consume_chance: 0,
@@ -1577,6 +1590,8 @@ fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<
         price: 0,
         handler: crate::data::item_data::ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
+ attack_radius: 40,
+ attack_angle: 0,
  mp_consume: 0,
  reduced_mp_consume: 0,
  reduced_mp_consume_chance: 0,
