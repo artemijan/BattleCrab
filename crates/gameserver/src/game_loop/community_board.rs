@@ -259,7 +259,7 @@ fn do_premium(world: &mut World, client_id: u32, object_id: i32, command: &str) 
     use super::admin::premium;
     // `HomeBoard.CUSTOM_COMMANDS` only registers `_bbspremium` when both the
     // global premium system and the community premium option are on.
-    if !premium::PREMIUM_SYSTEM_ENABLED || !world.cfg.community_board.community_premium_system {
+    if !premium::premium_system_enabled(world) || !world.cfg.community_board.community_premium_system {
         return;
     }
     // `_bbspremium;<days>` → Java splits the tail on `,` and takes the first field.

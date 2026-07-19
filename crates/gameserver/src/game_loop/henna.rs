@@ -222,10 +222,16 @@ pub(crate) fn handle_remove(world: &mut World, client_id: u32, symbol_id: i32) {
 
 // --- shared -----------------------------------------------------------------
 
-/// `HennaInfo` — the worn-dye panel. Sent at enter-world and after any change.
-pub(crate) fn send_henna_info(world: &World, client_id: u32, oid: i32) {
-    let class_id = class_id_of(world, oid);
-    let sums = worn_sums(world, oid);
+/// Build the `HennaInfo` payload from a slot set. Split out from
+/// [`send_henna_info`] so the enter-world burst can send the *real* panel
+/// straight from the `Entering` bundle, before the player is in the world store
+/// (Java sends `HennaInfo` inside the burst, ahead of the welcome message).
+pub(crate) fn henna_info_packet(
+    data: &crate::data::GameData,
+    class_id: i32,
+    slots: &HennaSlots,
+) -> Vec<u8> {
+    let sums = data.hennas.stat_sums(&slots.0);
     let wire = HennaStatWire {
         int_: sums.int_ as i16,
         str_: sums.str_ as i16,
@@ -234,17 +240,20 @@ pub(crate) fn send_henna_info(world: &World, client_id: u32, oid: i32) {
         dex: sums.dex as i16,
         wit: sums.wit as i16,
     };
-    let dyes: Vec<(i32, bool)> = world
-        .objects
-        .get_component::<HennaSlots>(&oid)
-        .map(|h| {
-            h.dye_ids()
-                .map(|id| (id, world.data.hennas.get(id).is_some_and(|hn| hn.is_allowed_class(class_id))))
-                .collect()
-        })
-        .unwrap_or_default();
-    let worn = world.objects.get_component::<HennaSlots>(&oid).map(|h| h.worn() as i32).unwrap_or(0);
-    send(world, client_id, sp::henna_info(wire, worn, &dyes));
+    let dyes: Vec<(i32, bool)> = slots
+        .dye_ids()
+        .map(|id| (id, data.hennas.get(id).is_some_and(|hn| hn.is_allowed_class(class_id))))
+        .collect();
+    sp::henna_info(wire, slots.worn() as i32, &dyes)
+}
+
+/// `HennaInfo` — the worn-dye panel. Sent after any dye change (the
+/// enter-world copy goes out through [`henna_info_packet`]).
+pub(crate) fn send_henna_info(world: &World, client_id: u32, oid: i32) {
+    let class_id = class_id_of(world, oid);
+    let slots = world.objects.get_component::<HennaSlots>(&oid).cloned().unwrap_or_default();
+    let pkt = henna_info_packet(&world.data, class_id, &slots);
+    send(world, client_id, pkt);
 }
 
 /// Recompute `BaseStats = template + worn-henna sums`, re-run the finalizers +

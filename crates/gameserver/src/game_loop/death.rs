@@ -289,10 +289,23 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
             if !regions_adjacent(npc_region, pregion) {
                 continue; // Java `isInSurroundingRegion(attacker)`.
             }
-            let gap = formulas::exp_sp_level_gap_multiplier(p.level, t.level);
-            let exp = (t.exp * rate_xp * damage / total_damage * gap).max(0.0);
-            let sp = (t.sp * rate_sp * damage / total_damage * gap).max(0.0);
-            add_exp_and_sp(world, player_oid, exp.round() as i64, sp.round() as i64);
+            let player_level = p.level;
+            let gap = formulas::exp_sp_level_gap_multiplier(player_level, t.level);
+            let mut exp = (t.exp * rate_xp * damage / total_damage * gap).max(0.0);
+            let mut sp = (t.sp * rate_sp * damage / total_damage * gap).max(0.0);
+            // `Attackable.onKill`: premium rates apply *before* the vitality /
+            // skill bonus multiplier `addExpAndSp` folds in.
+            if super::admin::premium::has_premium_status(world, player_oid) {
+                exp *= world.cfg.premium.rate_xp;
+                sp *= world.cfg.premium.rate_sp;
+            }
+            add_exp_and_sp(world, player_oid, exp, sp, true);
+            // Java consumes vitality only when `exp > 0`, and keys the amount on
+            // the *pre-bonus* exp — the same value it just handed to
+            // `addExpAndSp`.
+            if exp > 0.0 {
+                consume_kill_vitality(world, player_oid, player_level, &t, exp);
+            }
             continue;
         };
 
@@ -334,7 +347,7 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
         let gap = formulas::exp_sp_level_gap_multiplier(party_lvl, t.level);
         let exp = (t.exp * rate_xp * party_dmg / total_damage * gap).max(0.0) * party_mul;
         let sp = (t.sp * rate_sp * party_dmg / total_damage * gap).max(0.0) * party_mul;
-        super::party::distribute_xp_and_sp(world, &rewarded, party_lvl, exp, sp);
+        super::party::distribute_xp_and_sp(world, &rewarded, party_lvl, exp, sp, &t);
     }
 }
 
@@ -497,10 +510,62 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
 // XP/SP gain and level-ups (`PlayableStat.addExp` / `PlayerStat.addLevel`)
 // ---------------------------------------------------------------------------
 
-/// `PlayerStat.addExpAndSp` (no bonus multipliers — vitality/rods are later
-/// milestones, so bonus == base and the SM shows 0 bonus like Java does
-/// then).
-pub(crate) fn add_exp_and_sp(world: &mut World, player_oid: i32, exp: i64, sp: i64) {
+/// The vitality half of `Attackable.onKill`'s reward block: charge the killer
+/// for the kill (`updateVitalityPoints(getVitalityPoints(level, exp, isRaid),
+/// true, false)`).
+///
+/// `RaidbossUseVitality = False` on this dist, so raid kills are skipped
+/// outright — Java expresses the same thing through
+/// `Config.RAIDBOSS_USE_VITALITY` gating `_isRaid` into the boss branch.
+pub(crate) fn consume_kill_vitality(
+    world: &mut World,
+    player_oid: i32,
+    player_level: i32,
+    t: &NpcTemplate,
+    exp: f64,
+) {
+    if !world.cfg.character.enable_vitality {
+        return;
+    }
+    let is_boss = t.is_raid();
+    if is_boss && !world.cfg.character.raidboss_use_vitality {
+        return;
+    }
+    let delta = super::vitality::kill_vitality_delta(world, t.level, t.exp, player_level, exp, is_boss);
+    super::vitality::update_vitality_points(world, player_oid, delta, true, false);
+    // TODO(G16): Java also calls `PcCafePointsManager.givePcCafePoint(attacker,
+    // exp)` right here (PC_CAFE_RETAIL_LIKE); the points store exists
+    // (`//pccafepoints`) but the earn-per-kill manager is unported.
+}
+
+/// `PlayerStat.addExpAndSp(addToExp, addToSp, useBonuses)`.
+///
+/// `use_bonuses` is Java's third argument: the kill path passes
+/// `Attackable.useVitalityRate()` (always true here — champion monsters aren't
+/// ported), while quest rewards and `//add_exp_sp` go through the two-argument
+/// overload, which passes **false**. When set, the vitality/skill exp bonus
+/// multiplies the reward and the acquisition message reports the surplus in its
+/// "bonus" slots — which is where the client's floating "+N XP bonus" comes
+/// from.
+///
+/// Java's fishing-rod branch (`FANCY_FISHING_ROD_SKILL` → ×1.5) is not ported —
+/// fishing is G32. Amounts stay `f64` until the final `Math.round`, as in Java,
+/// so the bonus never compounds a rounding error.
+pub(crate) fn add_exp_and_sp(world: &mut World, player_oid: i32, exp: f64, sp: f64, use_bonuses: bool) {
+    let (bonus_exp, bonus_sp) = if use_bonuses {
+        // Java reads the exp and sp multipliers separately; with BONUS_EXP /
+        // BONUS_SP unmodelled they are the same value today.
+        (
+            super::vitality::exp_bonus_multiplier(world, player_oid),
+            super::vitality::exp_bonus_multiplier(world, player_oid),
+        )
+    } else {
+        (1.0, 1.0)
+    };
+    let (base_exp, base_sp) = (exp, sp);
+    let (add_exp, add_sp) = (exp * bonus_exp, sp * bonus_sp);
+    let (exp, sp) = (add_exp.round() as i64, add_sp.round() as i64);
+
     let max_level = world.data.experience.max_level as i32;
     let cap = world.data.experience.exp_for_level(max_level) - 1;
     let (old_level, new_exp) = {
@@ -514,7 +579,12 @@ pub(crate) fn add_exp_and_sp(world: &mut World, player_oid: i32, exp: i64, sp: i
             if let Some(cs) = world.clients.get(&client_id) {
                 cs.send(server_packets::system_message_with(
                     sm_ids::YOU_HAVE_ACQUIRED_S1_XP_BONUS_S2_AND_S3_SP_BONUS_S4,
-                    &[SmParam::Long(exp), SmParam::Long(0), SmParam::Long(sp), SmParam::Long(0)],
+                    &[
+                        SmParam::Long(exp),
+                        SmParam::Long((add_exp - base_exp).round() as i64),
+                        SmParam::Long(sp),
+                        SmParam::Long((add_sp - base_sp).round() as i64),
+                    ],
                 ));
             }
         }

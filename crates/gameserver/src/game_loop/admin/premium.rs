@@ -10,11 +10,27 @@ use crate::world::World;
 
 use super::send_message;
 
-/// `Config.PREMIUM_SYSTEM_ENABLED` — from this dist's
-/// `config/Custom/PremiumSystem.ini` (`EnablePremiumSystem = True`). A dedicated
-/// PremiumSystem config loader is not ported, so the authoritative dist value is
-/// inlined (the "dist data is the spec" rule).
-pub(crate) const PREMIUM_SYSTEM_ENABLED: bool = true;
+/// `Config.PREMIUM_SYSTEM_ENABLED` — now read from
+/// `config/Custom/PremiumSystem.ini` via [`crate::config::PremiumConfig`]
+/// (G16 replaced the previously inlined `true` with the real loader).
+pub(crate) fn premium_system_enabled(world: &World) -> bool {
+    world.cfg.premium.enabled
+}
+
+/// Java `Player.hasPremiumStatus()` — `PREMIUM_SYSTEM_ENABLED && _premiumStatus`.
+///
+/// Java caches the flag on the `Player` at login (`PremiumManager` loads the
+/// account's row then); this port keeps the whole `account_premium` table in
+/// `World.premium` and resolves through the character's account name, so a
+/// `//premium_add`/`//premium_remove` while the player is online takes effect
+/// immediately rather than at next login.
+pub(crate) fn has_premium_status(world: &World, object_id: i32) -> bool {
+    if !premium_system_enabled(world) {
+        return false;
+    }
+    let Some(p) = world.objects.get_component::<crate::model::Player>(&object_id) else { return false };
+    get_premium_expiration(world, &p.account) > commons::util::now_millis()
+}
 
 /// One day of premium in milliseconds — the unit `_bbspremium` grants (Java
 /// `addPremiumTime(account, premiumDays, DAYS)`).
@@ -46,7 +62,7 @@ fn add_premium(world: &mut World, client_id: u32, months: i64, args: &[&str]) {
         send_message(world, client_id, "Please enter a valid account name.");
         return;
     };
-    if !PREMIUM_SYSTEM_ENABLED {
+    if !premium_system_enabled(world) {
         send_message(world, client_id, "Premium system is disabled.");
         return;
     }
@@ -63,7 +79,7 @@ fn view_premium(world: &World, client_id: u32, args: &[&str]) {
         send_message(world, client_id, "Please enter a valid account name.");
         return;
     };
-    if !PREMIUM_SYSTEM_ENABLED {
+    if !premium_system_enabled(world) {
         send_message(world, client_id, "Premium system is disabled.");
         return;
     }
@@ -81,7 +97,7 @@ fn remove_premium(world: &mut World, client_id: u32, args: &[&str]) {
         send_message(world, client_id, "Please enter a valid account name.");
         return;
     };
-    if !PREMIUM_SYSTEM_ENABLED {
+    if !premium_system_enabled(world) {
         send_message(world, client_id, "Premium system is disabled.");
         return;
     }

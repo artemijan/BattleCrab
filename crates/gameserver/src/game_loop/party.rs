@@ -741,6 +741,12 @@ pub(crate) fn notify_party_all(world: &World, object_id: i32) {
     notify_party_window(world, object_id, server_packets::party_window_flags::ALL);
 }
 
+/// The vitality-only variant (`PlayerStat.setVitalityPoints` adds just the
+/// `VITALITY_POINTS` component type before broadcasting).
+pub(crate) fn notify_party_vitality_points(world: &World, object_id: i32) {
+    notify_party_window(world, object_id, server_packets::party_window_flags::VITALITY_POINTS);
+}
+
 fn notify_party_window(world: &World, object_id: i32, flags: u16) {
     let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&object_id).copied() else { return };
     let Some(view) = member_view(world, object_id) else { return };
@@ -777,6 +783,9 @@ pub(crate) fn distribute_xp_and_sp(
     top_level: i32,
     base_exp: f64,
     base_sp: f64,
+    // The killed monster's template — needed for the per-member vitality
+    // charge (`target.getVitalityPoints(...)` in Java's loop).
+    target: &crate::data::npc_data::NpcTemplate,
 ) {
     let cfg = &world.cfg.character;
     let valid = crate::model::party::valid_members(
@@ -806,6 +815,11 @@ pub(crate) fn distribute_xp_and_sp(
         let pre = (level as f64) * (level as f64) / sq_level_sum;
         let mut xp = xp_reward * pre;
         let mut sp = sp_reward * pre;
+        // `calculateExpSpPartyCutoff`: premium rates first, then the cutoff.
+        if super::admin::premium::has_premium_status(world, member) {
+            xp *= world.cfg.premium.rate_xp;
+            sp *= world.cfg.premium.rate_sp;
+        }
         if highfive {
             match crate::model::party::highfive_cutoff_percent(top_level - level, &gaps, &percents) {
                 Some(pct) => {
@@ -815,7 +829,11 @@ pub(crate) fn distribute_xp_and_sp(
                 None => continue, // outside every gap range: nothing at all
             }
         }
-        super::death::add_exp_and_sp(world, member, xp.round() as i64, sp.round() as i64);
+        super::death::add_exp_and_sp(world, member, xp, sp, true);
+        // Java charges each rewarded member's vitality on the post-cutoff xp.
+        if xp > 0.0 {
+            super::death::consume_kill_vitality(world, member, level, target, xp);
+        }
     }
 }
 

@@ -260,7 +260,14 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
             max_characters_per_account: 7,
             delete_days: 3,
             starting_adena: 100,
-            cfg: gameserver::config::CombatConfig::default(),
+            cfg: {
+                // This dist runs `EnableVitality = True`, and `EnterWorld`
+                // gates the `ExVitalityEffectInfo` block on it — the burst this
+                // test walks packet-by-packet only matches with it on.
+                let mut cfg = gameserver::config::CombatConfig::default();
+                cfg.character.enable_vitality = true;
+                cfg
+            },
         },
     );
 

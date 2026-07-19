@@ -67,6 +67,10 @@ pub struct NewCharacter {
     pub shortcuts: Vec<NewShortcut>,
     /// Macro presets referenced by MACRO shortcuts above.
     pub macros: Vec<crate::model::shortcut::Macro>,
+    /// `CharacterCreate`: `min(StartingVitalityPoints, MAX_VITALITY_POINTS)`
+    /// when `EnableVitality`, else the column default (0). Resolved on the game
+    /// thread, which owns the config.
+    pub vitality_points: i32,
 }
 
 /// The persistable slice of a `Player`, snapshotted on the game thread when the
@@ -183,6 +187,8 @@ pub struct PlayerSaveData {
     /// Live skill reuse cooldowns (`Reuses` component) as `character_skills_save`
     /// rows — empty when `StoreSkillCooltime` is off. See [`SkillReuseRow`].
     pub skill_reuses: Vec<SkillReuseRow>,
+    /// `character_variables` rows (`PlayerVariables` component) as `(var, val)`.
+    pub variables: Vec<(String, String)>,
 }
 
 /// One `character_skills_save` reuse row (Java `Player.storeEffect`'s
@@ -879,6 +885,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
         let skills = load_skills(pool, object_id).await;
         let hennas = load_hennas(pool, object_id).await;
         let recipe_book = load_recipe_book(pool, object_id).await;
+        let variables = load_variables(pool, object_id).await;
         let shortcuts = load_shortcuts(pool, object_id).await;
         let macros = load_macros(pool, object_id).await;
         let friends = load_friends(pool, object_id).await;
@@ -926,6 +933,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             skills,
             hennas,
             recipe_book,
+            variables,
             shortcuts,
             macros,
             friends,
@@ -980,6 +988,18 @@ async fn load_recipe_book(pool: &SqlitePool, owner_id: i32) -> Vec<i32> {
         .await
         .unwrap_or_default();
     rows.iter().map(|r| geti(r, "id") as i32).collect()
+}
+
+/// A character's `character_variables` rows (Java `PlayerVariables.restoreMe`)
+/// as `(var, val)` pairs. Values stay strings — the component parses on read,
+/// like Java's `StatSet` getters.
+async fn load_variables(pool: &SqlitePool, owner_id: i32) -> Vec<(String, String)> {
+    let rows = sqlx::query("SELECT var, val FROM character_variables WHERE charId=?")
+        .bind(owner_id)
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
+    rows.iter().map(|r| (gets(r, "var"), gets(r, "val"))).collect()
 }
 
 /// A character's `character_skills_save` reuse rows (Java `restoreEffects`,
@@ -1380,8 +1400,10 @@ async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: 
         "INSERT INTO characters \
          (account_name, charId, char_name, level, maxHp, curHp, maxCp, curCp, maxMp, curMp, \
           face, hairStyle, hairColor, sex, heading, x, y, z, exp, sp, reputation, \
-          race, classid, base_class, deletetime, title, accesslevel, online, char_slot, lastAccess, createDate) \
-         VALUES (?, ?, ?, 1, ?, ?, 0, 0, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, 0, 0, 0, ?, ?, ?, 0, '', 0, 0, ?, ?, date('now'))",
+          race, classid, base_class, deletetime, title, accesslevel, online, char_slot, lastAccess, createDate, \
+          vitality_points) \
+         VALUES (?, ?, ?, 1, ?, ?, 0, 0, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, 0, 0, 0, ?, ?, ?, 0, '', 0, 0, ?, ?, date('now'), \
+          ?)",
     )
     .bind(&data.account)
     .bind(char_id)
@@ -1402,6 +1424,7 @@ async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: 
     .bind(data.class_id) // base_class = classid
     .bind(count as i32) // char_slot
     .bind(now_millis())
+    .bind(data.vitality_points)
     .execute(pool)
     .await;
 
@@ -1652,6 +1675,19 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
         .bind(if *is_dwarven { 1 } else { 0 })
         .execute(&mut *tx)
         .await?;
+    }
+
+    // character variables (Java `PlayerVariables.storeMe` does exactly this
+    // delete-then-reinsert, guarded by a dirty flag we don't need — the flush
+    // is already batched).
+    sqlx::query("DELETE FROM character_variables WHERE charId=?").bind(char_id).execute(&mut *tx).await?;
+    for (var, val) in &s.variables {
+        sqlx::query("INSERT INTO character_variables (charId, var, val) VALUES (?, ?, ?)")
+            .bind(char_id)
+            .bind(var)
+            .bind(val)
+            .execute(&mut *tx)
+            .await?;
     }
 
     // shortcuts (Java's delete+insert, here scoped to the transaction).

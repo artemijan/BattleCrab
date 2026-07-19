@@ -39,7 +39,7 @@ out-of-scope list.
 | G15 | Economy & item actions | Foundations | — | G14 |
 | G15.5 | Teleporters & user commands 🚧 | Foundations | — | — |
 | G15.7 | Crafting & recipes ✅ | Foundations | — | G15 |
-| G16 | Character variables, premium & vitality | Foundations | `//premium*` `//pccafepoints` `//primepoints` `//set_vitality_level` | — |
+| G16 | Character variables, premium & vitality ✅ | Foundations | `//premium*` `//pccafepoints` `//primepoints` `//set_vitality_level` | — |
 | G17 | Sub-classes, class change & nobless | Progression | `//setnoble` `//setsubclass` (editchar) | G22¹ |
 | G18 | Clans — full | Progression | `//clan_*` `//pledge` `//add_clan_skill` | G15 |
 | G19 | Skills & effects breadth | Combat | `//ave_abnormal` `//setteam` `//settargetable` `//para` `//playmovie` … (AdminEffects) | — |
@@ -331,7 +331,7 @@ premium flag and vitality level survive relog; henna changes stats.
 **Unblocks:** `//premium*`, `//pccafepoints`, `//primepoints`,
 `//set_vitality_level`.
 
-🚧 **Henna slice landed (2026-07-19)** — plan [PLAN_G16_HENNA.md](PLAN_G16_HENNA.md).
+✅ **Henna slice landed (2026-07-19)** — plan [PLAN_G16_HENNA.md](PLAN_G16_HENNA.md).
 `data/henna_data.rs` (`HennaData` — 372 dyes) + a `HennaSlots` component whose
 dye stat bonuses are folded into `BaseStats` (`= template + Σ worn dyes`,
 recomputed on draw/remove, so the finalizers + UserInfo panel pick henna up with
@@ -341,8 +341,28 @@ family (equip/remove/item-info/item-remove-info/item-list/remove-list) +
 `HennaItemRemoveInfo`; the SymbolMaker `Draw`/`Remove` bypass; `HennaInfo` in the
 enter-world burst; empty-slot count from class level (`*_CLASS_GROUP` → 0/2/3).
 Interlude dyes are permanent (`duration=-1`), so the timed-henna scheduler +
-`HennaDuration` variables + LUC/CHA + dye skills are out of scope. **Remaining
-for G16:** `character_variables` store, full vitality, premium gameplay effects.
+`HennaDuration` variables + LUC/CHA + dye skills are out of scope.
+
+✅ **Vitality + variables + premium effects — G16 complete (2026-07-19)** —
+plan [PLAN_G16_VITALITY.md](PLAN_G16_VITALITY.md). The `character_variables`
+key/value store (`PlayerVariables` component, loaded at char load, flushed in
+the store transaction); the vitality pool in `game_loop/vitality.rs` (clamped
+`0..=140_000`, `setVitalityPoints`'s four notices + `ExVitalityPointInfo` +
+party-window field, `updateVitalityPoints` through the gain/lost rates with the
+`isLucky` exemption); the ×2 exp/sp bonus, folded in via a new `use_bonuses`
+argument on `add_exp_and_sp` so quest/admin grants opt out exactly as Java's
+two-argument overload does, with the surplus reported in the acquisition
+SystemMessage's bonus slots; per-kill consumption
+(`Attackable.getVitalityPoints`) on both the solo and party reward branches; a
+real `Custom/PremiumSystem.ini` loader replacing the inlined
+`PREMIUM_SYSTEM_ENABLED`, plus `hasPremiumStatus` and `PremiumRateXp`/`Sp` on
+the reward path; real `ExVitalityEffectInfo` fields; and
+`StartingVitalityPoints` at creation. **Deferred:** the daily/weekly refills
+(`DailyTaskManager`, `TODO(G33)` — they need the wall-clock daily-task
+scheduler, so **vitality currently only drains**), vitality-restoring *items*
+(the `VITALITY_ITEMS_USED` counter is stored and reported but nothing
+increments it), `PC_CAFE_RETAIL_LIKE` per-kill points, and the unmodelled
+`VITALITY_CONSUME_RATE`/`BONUS_EXP`/`BONUS_SP` stats (`TODO(G19)`).
 
 ---
 
@@ -582,8 +602,11 @@ tables; the fishing championship. **Gate:** cast, hook, and land a fish.
 ## Track G — Finishing
 
 ### G33 — Misc parity & finishing sweep
-The residuals: game-time clock (CharSelected/UserInfo use 0 today);
-`AutoSaveManager` periodic save cadence; precautionary/scheduled restart +
+The residuals: game-time clock (CharSelected/UserInfo use 0 today); the
+wall-clock **`DailyTaskManager`** and the resets riding on it — notably the
+vitality daily (+25 %) / weekly (full) refills deferred from G16, without which
+**vitality only ever drains** (`reco.rs`'s `schedule_initial_daily_reset` is the
+pattern); `AutoSaveManager` periodic save cadence; precautionary/scheduled restart +
 deadlock detector; offline-trader restore; the `//geosave` binary-region
 serializer; `NpcNameLocalisationData`/multilang; remaining packets and the last
 data loaders; the niche admin tools (AdminFightCalculator, AdminRepairChar,

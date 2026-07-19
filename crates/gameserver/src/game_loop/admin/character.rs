@@ -3,7 +3,7 @@
 //! integer fields, appearance, and equipment enchant levels.
 
 use crate::model::inventory::{Inventory, PaperdollSlot};
-use crate::model::Player;
+use crate::model::{Player, MAX_VITALITY_POINTS, MIN_VITALITY_POINTS};
 use crate::world::World;
 
 use super::{current_target, send_message, target_player};
@@ -34,7 +34,8 @@ pub(super) fn admin_add_exp_sp(world: &mut World, client_id: u32, object_id: i32
             if let Some(tcid) = crate::game_loop::helpers::client_for_player(world, target) {
                 send_message(world, tcid, &format!("Admin is adding you {exp} xp and {sp} sp."));
             }
-            super::death::add_exp_and_sp(world, target, exp, sp);
+            // `AdminEditChar` uses the no-bonus overload.
+            super::death::add_exp_and_sp(world, target, exp as f64, sp as f64, false);
             send_message(world, client_id, &format!("Added {exp} xp and {sp} sp to {name}."));
         }
         (2, Some(_), Some(_)) => {} // both zero: Java no-ops the grant, still refreshes the menu.
@@ -162,14 +163,11 @@ pub(super) fn set_field_value(world: &mut World, client_id: u32, object_id: i32,
     send_message(world, client_id, &format!("{} set to {value}.", field.label()));
 }
 
-/// Java `PlayerStat.MAX_VITALITY_POINTS` / `MIN_VITALITY_POINTS`.
-const MAX_VITALITY_POINTS: i32 = 140_000;
-const MIN_VITALITY_POINTS: i32 = 0;
-
 /// `AdminVitality`'s `//set_vitality <n>` / `//full_vitality` / `//empty_vitality`
 /// / `//get_vitality` — read or set the *targeted player's* vitality points
-/// (Java requires a player target). Setting rebroadcasts UserInfo (the vitality
-/// block).
+/// (Java requires a player target). Java passes `quiet = true` to
+/// `setVitalityPoints`, so the player gets the gauge update and the UserInfo
+/// broadcast but none of the "your vitality has increased/decreased" lines.
 pub(super) fn admin_vitality(world: &mut World, client_id: u32, object_id: i32, mode: &str, args: &[&str]) {
     let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid)) else {
         send_message(world, client_id, "Target not found or not a player");
@@ -186,19 +184,17 @@ pub(super) fn admin_vitality(world: &mut World, client_id: u32, object_id: i32, 
                 send_message(world, client_id, "Incorrect vitality");
                 return;
             };
-            set_vitality_points(world, target, value);
+            crate::game_loop::vitality::set_vitality_points(world, target, value, true);
         }
-        "full" => set_vitality_points(world, target, MAX_VITALITY_POINTS),
-        "empty" => set_vitality_points(world, target, MIN_VITALITY_POINTS),
+        "full" => {
+            crate::game_loop::vitality::set_vitality_points(world, target, MAX_VITALITY_POINTS, true);
+        }
+        "empty" => {
+            crate::game_loop::vitality::set_vitality_points(world, target, MIN_VITALITY_POINTS, true);
+        }
         _ => {}
     }
     super::party::broadcast_user_info(world, target);
-}
-
-fn set_vitality_points(world: &mut World, target: i32, value: i32) {
-    if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
-        p.vitality_points = value.clamp(MIN_VITALITY_POINTS, MAX_VITALITY_POINTS);
-    }
 }
 
 /// `AdminEditChar`'s `//setclass <id>` — change the target player's (or self's)

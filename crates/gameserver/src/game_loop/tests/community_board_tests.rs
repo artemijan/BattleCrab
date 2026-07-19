@@ -170,6 +170,9 @@ fn push_buff(world: &mut World, oid: i32, skill_id: i32) {
 fn premium_buy_grants_status_and_serves_thankyou() {
     let (mut world, _tx, _rx, _l) = test_world();
     enable_board(&mut world);
+    // `EnablePremiumSystem` is False in Java's `Config` defaults (and so in
+    // `PremiumConfig::default`); this dist's PremiumSystem.ini turns it on.
+    world.cfg.premium.enabled = true;
     world.cfg.community_board.premium_price_per_day = 0; // free — isolate the grant path
     let mut rx = ingame_player(&mut world, 1, 7101, 0, 0, 0);
     drain(&mut rx);

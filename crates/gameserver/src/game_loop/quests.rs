@@ -481,7 +481,10 @@ impl<'w> QuestCtx<'w> {
     pub fn add_exp_and_sp(&mut self, exp: i64, sp: i64) {
         let exp = (exp as f64 * self.world.cfg.rates.rate_quest_reward_xp) as i64;
         let sp = (sp as f64 * self.world.cfg.rates.rate_quest_reward_sp) as i64;
-        super::death::add_exp_and_sp(self.world, self.player, exp, sp);
+        // Java routes quest rewards through `Player.addExpAndSp(exp, sp)`, the
+        // two-arg overload — `useBonuses = false`, so vitality neither boosts
+        // the reward nor is spent on it.
+        super::death::add_exp_and_sp(self.world, self.player, exp as f64, sp as f64, false);
     }
 
     // --- misc --------------------------------------------------------------

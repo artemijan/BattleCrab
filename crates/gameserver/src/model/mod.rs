@@ -33,6 +33,13 @@ use crate::data::GameData;
 /// real UserInfo capture. See [`Player::name_color`].
 pub const DEFAULT_NAME_COLOR: i32 = 0x00FF_FFFF;
 pub const DEFAULT_TITLE_COLOR: i32 = 0x00FF_FF77;
+
+/// `PlayerStat.MAX_VITALITY_POINTS` / `MIN_VITALITY_POINTS` — the bounds every
+/// vitality read and write clamps to. Lives here (rather than in
+/// `game_loop::vitality`) because both the config loader and the stat code need
+/// them.
+pub const MAX_VITALITY_POINTS: i32 = 140_000;
+pub const MIN_VITALITY_POINTS: i32 = 0;
 use components::{AttackState, BaseStats, Buffs, ClientPos, Collision, CombatStats, Macros, PlayerVitals, Position, RegionCell, Reuses, Shortcuts, SkillBook, Speeds, StatModifiers, TargetRef, Vitals};
 use inventory::Inventory;
 use skill::{ActiveBuff, BuffSlot, StatModifierEffect};
@@ -139,6 +146,10 @@ pub struct Player {
     /// player currently wields (0 = none). Set by `CursedWeapon.activate`,
     /// cleared by `endOfLife`; suppresses karma decay and gates un-equip.
     pub cursed_weapon_equipped_id: i32,
+    /// `PlayerStat._vitalityPoints` — always clamped to
+    /// [`MIN_VITALITY_POINTS`]..=[`MAX_VITALITY_POINTS`]. Persisted in
+    /// `characters.vitality_points`; consumed on monster kills and spent as an
+    /// exp/sp multiplier (see `game_loop::vitality`).
     pub vitality_points: i32,
     /// `characters.pccafe_points` — PC-cafe loyalty points (`//pccafepoints`).
     pub pccafe_points: i32,
@@ -318,6 +329,8 @@ pub struct PlayerData {
     pub henna: components::HennaSlots,
     /// Registered crafting recipes (`character_recipebook`), split by book.
     pub recipe_book: components::RecipeBook,
+    /// `character_variables` key/value store (Java `PlayerVariables`).
+    pub variables: components::PlayerVariables,
     pub shortcuts: Shortcuts,
     pub macros: Macros,
     pub friends: components::Friends,
@@ -385,7 +398,14 @@ impl PlayerData {
                     components::ExpertisePenalty::default(),
                     components::PvpState::default(),
                 ),
-                (self.warehouse, self.freight, components::ClanSkills::default(), self.henna, self.recipe_book),
+                (
+                    self.warehouse,
+                    self.freight,
+                    components::ClanSkills::default(),
+                    self.henna,
+                    self.recipe_book,
+                    self.variables,
+                ),
             ),
         );
     }
@@ -784,6 +804,7 @@ impl Player {
             skills,
             henna,
             recipe_book,
+            variables: components::PlayerVariables(c.variables.iter().cloned().collect()),
             shortcuts: Shortcuts::from_list(shortcuts),
             macros: Macros::from_list(c.macros.clone()),
             friends: components::Friends(c.friends.clone()),
