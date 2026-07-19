@@ -656,7 +656,9 @@ Note `ConditionZone` (1080) is ~99% inert on Interlude (`NoBookmark`).
 NPC regen landed (`PLAN_G21_NPC_REGEN.md`) — 14855 templates' `hpRegen` was
 parsed but unused, so no NPC ever healed. Remaining breadth:
 `DamageZone`/`SwampZone` (only 15 live between them; the rest are siege-gated),
-NPC pathfinding, fences, `HtmCache`, walker routes, `CreatureSeeTaskManager`.
+fences, `HtmCache`, walker routes, `CreatureSeeTaskManager`. NPC pathfinding
+landed (`PLAN_G21_NPC_PATHFINDING.md`) — mobs consulted no geodata at all
+before, so chases walked through walls.
 
 ---
 

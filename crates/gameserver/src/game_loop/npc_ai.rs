@@ -672,7 +672,7 @@ fn chase(world: &mut World, npc_oid: i32, target_oid: i32, reach: f64) {
 }
 
 /// A plain destination walk (return-home) with a `MoveToLocation` broadcast.
-fn move_npc_to(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32) {
+pub(crate) fn move_npc_to(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32) {
     // `Creature.moveToLocation` bails on `isMovementDisabled()` — a rooted mob
     // stays put (and a stunned one never gets here; `think` already returned).
     if super::abnormal::is_movement_disabled(world, npc_oid) {
@@ -687,9 +687,57 @@ fn move_npc_to(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32) {
     if speed <= 0.0 {
         return;
     }
+
+    // GEODATA MOVEMENT CHECKS AND PATHFINDING — the NPC half of
+    // `Creature.moveToLocation`, which Java shares between players and mobs.
+    // Until this slice NPCs moved in a straight line with no geodata at all,
+    // so a chase walked them through walls and into terrain.
+    let (mut x, mut y, mut z) = (x, y, z);
+    let (original_x, original_y, original_z) = (x, y, z);
+    let original_distance = {
+        let dx = (x - start.0) as f64;
+        let dy = (y - start.1) as f64;
+        (dx * dx + dy * dy).sqrt()
+    };
+    if world.path_finding > 0 && original_distance <= 3000.0 && !(start.2 - z > 300 && original_distance < 300.0) {
+        let (vx, vy, vz) = world.geo.get_valid_location(start.0, start.1, start.2, x, y, z);
+        x = vx;
+        y = vy;
+        // `if (!isPlayer()) z = destiny.getZ()` — unlike a player (who keeps
+        // the z its client asked for), an NPC takes the geodata's corrected z.
+        z = vz;
+    }
+
     let dx = (x - start.0) as f64;
     let dy = (y - start.1) as f64;
     let distance = (dx * dx + dy * dy).sqrt();
+
+    // The clamp cut the move short — the direct line is blocked, so ask the
+    // path worker for a route to the *original* destination. `playable: false`
+    // is Java's cheaper single-pass filter for AI movers. The move starts when
+    // the reply lands in `handle_path_result`.
+    if world.path_finding > 0 && (original_distance - distance) > 30.0 {
+        // One outstanding request at a time: the AI re-issues a chase every
+        // think (1 s), which would otherwise flood the worker with duplicates
+        // for the same mob.
+        if world.objects.has_component::<crate::model::components::PathWait>(&npc_oid) {
+            return;
+        }
+        let seq = world.next_path_seq();
+        world.objects.add_components(&npc_oid, crate::model::components::PathWait { seq });
+        let _ = world.path.send(crate::geo::worker::PathRequest {
+            seq,
+            // NPCs have no client; every client-facing send on the reply path
+            // is gated on the mover being a player, so this is never read.
+            client_id: 0,
+            object_id: npc_oid,
+            from: start,
+            to: (original_x, original_y, original_z),
+            playable: false,
+        });
+        return;
+    }
+
     if distance < 1.0 {
         return;
     }

@@ -643,3 +643,4 @@ mod tests {
         assert_eq!(g.get_spawn_height(82698, 148638, -3473), -3473);
     }
 }
+
