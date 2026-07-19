@@ -15,7 +15,7 @@ mod community_board;
 mod combat;
 mod crafting;
 mod augment;
-mod death;
+pub(crate) mod death;
 mod dispatch;
 mod doors;
 pub(crate) mod duel;
@@ -58,6 +58,7 @@ mod vitality;
 #[cfg(test)]
 mod tests;
 mod visibility;
+pub(crate) mod subclass;
 pub(crate) mod walkers;
 pub(crate) mod zones;
 mod common;

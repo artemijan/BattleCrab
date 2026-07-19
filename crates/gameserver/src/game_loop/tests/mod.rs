@@ -53,6 +53,7 @@ mod minion_tests;
 mod noble_tests;
 mod npc_cast_tests;
 mod npc_path_tests;
+mod subclass_tests;
 mod target_reconsider_tests;
 mod walker_tests;
 mod npc_regen_tests;
@@ -161,6 +162,7 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         prime_points: 0,
         access_level: 0,
         noble: false,
+        subclasses: Vec::new(),
         char_slot: 0,
         items: vec![],
         skills: vec![],

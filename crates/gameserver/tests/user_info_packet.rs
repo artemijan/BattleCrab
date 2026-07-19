@@ -24,6 +24,16 @@ async fn user_info_test() {
         hero_aura: false,
 
         is_noble: false,
+
+        class_index: 0,
+
+        subclasses: Vec::new(),
+
+        base_level: 1,
+
+        base_exp: 0,
+
+        base_sp: 0,
         is_hero: false,
         level: 1,
         class_id: 10,
