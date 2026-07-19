@@ -29,6 +29,8 @@ async fn user_info_test() {
 
         subclasses: Vec::new(),
         skills_by_index: Default::default(),
+        hennas_by_index: Default::default(),
+        shortcuts_by_index: Default::default(),
 
 
         base_level: 1,

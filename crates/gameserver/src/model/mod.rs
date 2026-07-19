@@ -152,6 +152,11 @@ pub struct Player {
     /// lives in the `SkillBook` component; a switch moves it here and takes the
     /// target's out.
     pub skills_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
+    /// Inactive indices' worn hennas — dyes are per-subclass.
+    pub hennas_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
+    /// Inactive indices' shortcut bars.
+    pub shortcuts_by_index:
+        std::collections::HashMap<i32, Vec<crate::model::shortcut::Shortcut>>,
     pub base_level: i32,
     pub base_exp: i64,
     pub base_sp: i64,
@@ -717,6 +722,8 @@ impl Player {
                 .unwrap_or(0),
             subclasses: c.subclasses.clone(),
             skills_by_index: c.skills_by_index.clone(),
+            hennas_by_index: c.hennas_by_index.clone(),
+            shortcuts_by_index: c.shortcuts_by_index.clone(),
             base_level: c.level,
             base_exp: c.exp,
             base_sp: c.sp,

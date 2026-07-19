@@ -259,7 +259,7 @@ pub(crate) fn send_henna_info(world: &World, client_id: u32, oid: i32) {
 /// Recompute `BaseStats = template + worn-henna sums`, re-run the finalizers +
 /// max-HP/MP, then push `UserInfo` + `HennaInfo` to the owner (Java `addHenna`/
 /// `removeHenna`'s `recalcHennaStats` + `broadcastUserInfo(BASE_STATS, …)`).
-fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
+pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
     let (class_id, base_class_id) = world.objects.get_component::<Player>(&oid).map(|p| (p.class_id, p.base_class_id)).unwrap_or((0, 0));
     let t = world
         .data

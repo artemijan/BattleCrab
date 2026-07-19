@@ -167,6 +167,8 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         items: vec![],
         skills: vec![],
         skills_by_index: Default::default(),
+        hennas_by_index: Default::default(),
+        shortcuts_by_index: Default::default(),
         hennas: vec![],
         recipe_book: vec![],
         variables: vec![],
