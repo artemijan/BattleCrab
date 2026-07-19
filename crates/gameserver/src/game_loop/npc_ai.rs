@@ -242,7 +242,7 @@ fn controllable_think(world: &mut World, npc_oid: i32, group_id: i32) {
 
 /// Make the mob attack `target`: seed dominant hate and enter the attack loop
 /// (reuses `think_attack`, so chase + swing are the wild AI's).
-fn seed_attack(world: &mut World, npc_oid: i32, target: i32) {
+pub(crate) fn seed_attack(world: &mut World, npc_oid: i32, target: i32) {
     let target_alive = world.objects.get_component::<Vitals>(&target).is_some_and(|v| !v.dead);
     if !target_alive {
         stop_npc(world, npc_oid);
