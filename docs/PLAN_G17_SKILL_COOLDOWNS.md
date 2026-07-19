@@ -22,8 +22,8 @@ Reading the Java before designing the port saved building the wrong thing.
   subclass saved its cooldowns onto the base slot and loaded the base slot's on
   login.
 
-`restore_type = 0` (actual buff restore across logout) remains a later
-milestone — untouched here, as before.
+`restore_type = 0` (actual buff restore across logout) has since landed — see
+`PLAN_BUFF_PERSISTENCE.md`.
 
 ## Tests
 

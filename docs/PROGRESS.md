@@ -571,9 +571,9 @@ killing the client.
   position/heading, exp/sp, reputation, PvP/PK, class ids, vitality) +
   `updateOnlineStatus` (`online=0`, `lastAccess=now`) in one UPDATE. Runs on
   restart, logout, **and unexpected disconnect** (incl. the `Entering`
-  state, where the `Player` still lives on the session). `storeCharSub`/
-  `storeEffect`/item-reuse persistence deferred (need subclasses and
-  buff restore on login).
+  state, where the `Player` still lives on the session). `storeCharSub` and
+  `storeEffect` have since landed (G17 subclasses; cooldowns in G13.9/G17 and
+  buffs in "Buff persistence" below); item-reuse persistence is still deferred.
 - **Tests**: restart store+lobby round trip, restart → re-enter world (the
   original bug), logout store+`LeaveWorld`, disconnect store.
 
@@ -1546,6 +1546,20 @@ of their four-entry menu.
 Deviation: `getAnySpawn` reads Java's spawn *table*; the Rust port scans live
 spawned NPCs instead. Identical for the always-spawned town NPCs on the
 whitelist.
+
+### Buff persistence across relog ✅
+
+Buffs now survive logout — the `restore_type = 0` half of Java
+`storeEffect`/`restoreEffects` that G13.9 and G17 deferred. The rule: **a
+buff's countdown is frozen while offline** (rows store relative
+`remaining_time`), whereas a cooldown's keeps running (rows store an absolute
+`systime`). Store filter reproduces Java's skip list (dances unless the new
+`AltStoreDances` config, toggles, `LIFE_FORCE_OTHERS`, dedupe); restore applies
+each row at enter-world through a new `apply_continuous_effects` split out of
+`apply_skill_effects`, so a restored buff doesn't re-fire the skill's damage or
+heal (Java's `instant = false`). Details + known gap
+(`isDeleteAbnormalOnLeave` isn't parsed yet) in
+[PLAN_BUFF_PERSISTENCE.md](PLAN_BUFF_PERSISTENCE.md).
 
 ---
 

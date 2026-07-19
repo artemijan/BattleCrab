@@ -113,6 +113,7 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     let quests = world.objects.get_component::<Quests>(&object_id).map(|q| q.0.clone()).unwrap_or_default();
 
     let skill_reuses = reuses_to_save(world, world.objects.get_component::<crate::model::components::Reuses>(&object_id));
+    let skill_buffs = buffs_to_save(world, world.objects.get_component::<crate::model::components::Buffs>(&object_id));
 
     let hennas = world
         .objects
@@ -164,6 +165,7 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
         macros,
         quests,
         skill_reuses,
+        skill_buffs,
     })
 }
 
@@ -198,6 +200,62 @@ fn reuses_to_save(world: &World, reuses: Option<&crate::model::components::Reuse
                 skill_level: sr.skill_level,
                 reuse_delay: sr.total_ms,
                 systime_ms: now_ms + remaining_ticks as i64 * 100,
+            })
+        })
+        .collect()
+}
+
+/// Active buffs → `character_skills_save` rows (Java `storeEffect`, buff half),
+/// gated by `StoreSkillCooltime` like the reuse half.
+///
+/// Stores the **remaining seconds**, not an end instant: a buff's countdown is
+/// frozen while the character is offline (Java's `restoreEffects` hands this
+/// value straight to `applyEffects` as a custom `abnormalTime`), unlike a
+/// cooldown, which keeps decaying. Java's skip list is reproduced here:
+///
+/// * dances/songs, unless `AltStoreDances` — not kept in retail;
+/// * toggles (Java `isToggle() && !isNecessaryToggle()`) — modelled here as
+///   buffs with no expiry, which is also what a 0-`abnormalTime` skill looks
+///   like; neither should come back on its own after a relog;
+/// * `LIFE_FORCE_OTHERS` — Java refuses to persist heal-over-time herbs;
+/// * one row per skill id, first occurrence wins (Java dedupes on
+///   `getReuseHashCode()`).
+///
+/// Passive stand-in entries (the grade-penalty pumps) are skipped too: they
+/// carry no real buff, and enter-world re-derives them via
+/// `refresh_expertise_penalty` — persisting them would double-apply the pump.
+///
+/// TODO(G22): Java also skips `isDeleteAbnormalOnLeave()` skills; the flag
+/// isn't parsed into `Skill` yet, so such a buff currently survives a relog it
+/// shouldn't.
+fn buffs_to_save(world: &World, buffs: Option<&crate::model::components::Buffs>) -> Vec<db::SkillBuffRow> {
+    use crate::model::skill::BuffSlot;
+    let Some(buffs) = buffs.filter(|_| world.cfg.character.store_skill_cooltime) else {
+        return Vec::new();
+    };
+    let now_tick = world.tick;
+    let mut seen = std::collections::HashSet::new();
+    buffs
+        .0
+        .iter()
+        .filter(|b| !b.passive)
+        .filter(|b| b.slot != BuffSlot::Dance || world.cfg.character.alt_store_dances)
+        .filter(|b| b.abnormal_type != "LIFE_FORCE_OTHERS")
+        .filter_map(|b| {
+            // `u64::MAX` is the no-expiry sentinel (toggle / 0-`abnormalTime`);
+            // `saturating_sub` keeps it enormous, and the `> 0` seconds check
+            // below can't reject it, so screen it out explicitly.
+            if b.expires_at_tick == u64::MAX {
+                return None;
+            }
+            let remaining_time_secs = (b.expires_at_tick.saturating_sub(now_tick) / 10) as i32;
+            if remaining_time_secs <= 0 || !seen.insert(b.skill_id) {
+                return None;
+            }
+            Some(db::SkillBuffRow {
+                skill_id: b.skill_id,
+                skill_level: b.skill_level,
+                remaining_time_secs,
             })
         })
         .collect()
@@ -336,6 +394,13 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
                     macros: b.macros.entries.clone(),
                     quests: b.quests.0.clone(),
                     skill_reuses: reuses_to_save(world, Some(&b.reuses)),
+                    // This character never spawned, so its buffs were never
+                    // applied — they're still the untouched rows the select path
+                    // loaded. Write them straight back: running them through
+                    // `buffs_to_save` (which reads the empty live `Buffs`
+                    // component) would silently drop every buff of anyone who
+                    // disconnects between char-select and enter-world.
+                    skill_buffs: b.pending_buffs.clone(),
                 },
             });
         }

@@ -117,4 +117,8 @@ pub struct CharData {
     /// `character_skills_save` reuse rows (Java `restoreEffects`, skill-reuse
     /// half). Non-expired only; converted to live `Reuses` at enter-world.
     pub skill_reuses: Vec<crate::db::SkillReuseRow>,
+    /// `character_skills_save` buff rows (Java `restoreEffects`, buff half).
+    /// Re-applied as live `Buffs` once the character has spawned at
+    /// enter-world, each with its stored remaining time.
+    pub skill_buffs: Vec<crate::db::SkillBuffRow>,
 }

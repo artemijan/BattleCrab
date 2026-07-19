@@ -374,9 +374,15 @@ pub struct PlayerData {
     pub friends: components::Friends,
     pub quests: components::Quests,
     /// Live skill-reuse cooldowns. Empty out of `from_char`; the real select
-    /// path fills it from the DB via [`PlayerData::restore_reuses`] (buffs are
-    /// not restored — a later milestone).
+    /// path fills it from the DB via [`PlayerData::restore_reuses`].
     pub reuses: Reuses,
+    /// Persisted buffs waiting to be re-applied. Unlike every other field here
+    /// this is *not* a component: a buff can only be applied to a character
+    /// that is already in the world (it drives stats, the expiry scheduler and
+    /// client packets), so enter-world takes these rows just before
+    /// [`PlayerData::spawn_into`] and hands them to
+    /// `skills::effects::restore_persisted_buffs` once the entity exists.
+    pub pending_buffs: Vec<crate::db::SkillBuffRow>,
 }
 
 
@@ -401,6 +407,15 @@ impl PlayerData {
                 },
             );
         }
+    }
+
+    /// Java `restoreEffects` (buff half), staging step: carry the loaded buff
+    /// rows on the bundle so enter-world can re-apply them after the character
+    /// spawns. No time arithmetic happens here — unlike a cooldown, a buff's
+    /// stored `remaining_time` is relative and its countdown does not advance
+    /// while the character is offline, so the value is used verbatim.
+    pub fn restore_buffs(&mut self, c: &CharData) {
+        self.pending_buffs = c.skill_buffs.clone();
     }
 
     /// Spawn into the world registry (Java `World.addObject` at EnterWorld).
@@ -865,6 +880,8 @@ impl Player {
             // Filled by the select path via `restore_reuses` (needs the game
             // tick); empty here keeps the many test callers unchanged.
             reuses: Reuses::default(),
+            // Likewise filled by the select path, via `restore_buffs`.
+            pending_buffs: Vec::new(),
         }
     }
 
