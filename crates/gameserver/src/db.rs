@@ -273,6 +273,9 @@ pub enum DbCommand {
         cur_hp: f64,
         cur_mp: f64,
     },
+    /// `ADD_CHAR_SUBCLASS` / `UPDATE_CHAR_SUBCLASS` — upsert one subclass slot.
+    /// Keyed on `(charId, class_id)` like Java's primary key.
+    StoreSubClass { char_id: i32, class_id: i32, class_index: i32, level: i32, exp: i64, sp: i64 },
     /// `DBSpawnManager.deleteSpawn` — drop a raid boss's respawn row.
     DeleteNpcRespawn { npc_id: i32 },
     /// `CursedWeaponsManager.removeFromDb` — drop the weapon's state row.
@@ -627,6 +630,23 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
+            DbCommand::StoreSubClass { char_id, class_id, class_index, level, exp, sp } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT OR REPLACE INTO character_subclasses \
+                         (charId, class_id, exp, sp, level, vitality_points, class_index, dual_class) \
+                         VALUES (?, ?, ?, ?, ?, 0, ?, 0)",
+                    )
+                    .bind(char_id)
+                    .bind(class_id)
+                    .bind(exp)
+                    .bind(sp)
+                    .bind(level)
+                    .bind(class_index),
+                )
+                .await;
+            }
             DbCommand::DeleteNpcRespawn { npc_id } => {
                 exec(&pool, sqlx::query("DELETE FROM npc_respawns WHERE id=?").bind(npc_id)).await;
             }
@@ -851,6 +871,30 @@ pub struct NpcRespawnRow {
     pub cur_mp: f64,
 }
 
+/// `RESTORE_CHAR_SUBCLASSES` — a character's subclass slots.
+async fn load_subclasses(pool: &SqlitePool, char_id: i32) -> Vec<crate::model::SubClass> {
+    match sqlx::query(
+        "SELECT class_id, exp, sp, level, class_index FROM character_subclasses \
+         WHERE charId=? ORDER BY class_index",
+    )
+    .bind(char_id)
+    .fetch_all(pool)
+    .await
+    {
+        Ok(rows) => rows
+            .iter()
+            .map(|r| crate::model::SubClass {
+                class_id: geti(r, "class_id") as i32,
+                class_index: geti(r, "class_index") as i32,
+                level: geti(r, "level") as i32,
+                exp: geti(r, "exp"),
+                sp: geti(r, "sp"),
+            })
+            .collect(),
+        Err(_) => Vec::new(),
+    }
+}
+
 /// Boot load of the whole `npc_respawns` table (Java `DBSpawnManager.load`).
 /// Missing table → empty, like the other boot loads.
 async fn load_npc_respawns(pool: &SqlitePool) -> Vec<NpcRespawnRow> {
@@ -1013,6 +1057,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             prime_points,
             access_level: geti(row, "accesslevel") as i32,
             noble: geti(row, "nobless") == 1,
+            subclasses: load_subclasses(pool, object_id).await,
             char_slot: slot as i32,
             items,
             skills,

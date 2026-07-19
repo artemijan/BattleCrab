@@ -371,6 +371,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_set_mp" => set_vital(world, client_id, object_id, Vital::Mp, &args),
         "admin_set_cp" => set_vital(world, client_id, object_id, Vital::Cp, &args),
         "admin_setclass" => admin_setclass(world, client_id, object_id, &args),
+        "admin_setsubclass" => character::admin_setsubclass(world, client_id, object_id, &args),
+        "admin_changesubclass" => character::admin_changesubclass(world, client_id, object_id, &args),
 
         // AdminEditChar breadth — info/search, rename, party, pvp-flag, clan penalty.
         "admin_current_player" => admin_character_info(world, client_id, object_id, &args, true),

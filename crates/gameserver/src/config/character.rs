@@ -135,6 +135,8 @@ pub struct CharacterConfig {
     /// `getMaxBuffCount`; 24 on this dist). When exceeded the oldest buff is
     /// dropped (`EffectList.addActive`).
     pub max_buff_count: i32,
+    /// `MaxSubclass` (5) — how many subclass slots a character may hold.
+    pub max_subclass: i32,
     /// `MaxDanceAmount`: the dance/song slot cap (Java `DANCES_MAX_AMOUNT`; 12
     /// on this dist). Dances/songs are counted separately from buffs.
     pub max_dance_count: i32,
@@ -223,6 +225,7 @@ impl Default for CharacterConfig {
             max_evasion: 250.0,
             max_run_speed: 300.0,
             max_buff_count: 24,
+            max_subclass: 5,
             max_dance_count: 12,
             store_skill_cooltime: true,
             dance_cancel_buff: false,
@@ -306,6 +309,7 @@ impl CharacterConfig {
             max_evasion: p.get_float("MaxEvasion", 250.0) as f64,
             max_run_speed: p.get_float("MaxRunSpeed", 300.0) as f64,
             max_buff_count: p.get_int("MaxBuffAmount", 24),
+            max_subclass: p.get_int("MaxSubclass", 5),
             max_dance_count: p.get_int("MaxDanceAmount", 12),
             store_skill_cooltime: p.get_bool("StoreSkillCooltime", d.store_skill_cooltime),
             dance_cancel_buff: p.get_bool("DanceCancelBuff", d.dance_cancel_buff),

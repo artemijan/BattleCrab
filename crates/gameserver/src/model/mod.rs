@@ -96,6 +96,17 @@ pub struct SkillReuse {
     pub total_ms: i32,
 }
 
+/// Java `SubClassHolder` — one subclass slot's saved progress.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct SubClass {
+    pub class_id: i32,
+    /// 1..=`MaxSubclass`; 0 is reserved for the base class.
+    pub class_index: i32,
+    pub level: i32,
+    pub exp: i64,
+    pub sp: i64,
+}
+
 /// The player residual core component: identity, class/appearance,
 /// progression counters, and the few flags nothing sweeps — everything
 /// system-shaped lives in the extracted components (`model/components.rs`;
@@ -125,6 +136,21 @@ pub struct Player {
     /// Java `Player._noble` — Olympiad nobless. Grants the noble skill tree,
     /// unlocks the noblesse teleport lists and Advanced Headquarters (326).
     pub is_noble: bool,
+    /// Java `Player._classIndex` — 0 is the base class, 1..=`MaxSubclass` are
+    /// the subclass slots. Everything the character *is* right now (class_id,
+    /// level, exp, sp, learned skills) belongs to this slot.
+    pub class_index: i32,
+    /// Java `Player.getSubClasses()`, keyed by class index. The *inactive*
+    /// slots: the active one's progress lives in the ordinary `level`/`exp`/
+    /// `sp` fields and is written back on switch.
+    pub subclasses: Vec<SubClass>,
+    /// The base class's banked progress while a subclass is active. Java keeps
+    /// the base row in `characters` and only ever writes the *active* class
+    /// there; the port stashes it here so a switch back restores it without a
+    /// DB round-trip.
+    pub base_level: i32,
+    pub base_exp: i64,
+    pub base_sp: i64,
     /// Java `Player._hero`. Olympiad crowning is unported (TODO(G25)), so a
     /// fresh session starts `false`; `//sethero` toggles it (grant/remove the
     /// hero skill tree + refresh the aura).
@@ -679,6 +705,11 @@ impl Player {
             title_color,
             hero_aura,
             is_noble: c.noble,
+            class_index: 0,
+            subclasses: c.subclasses.clone(),
+            base_level: c.level,
+            base_exp: c.exp,
+            base_sp: c.sp,
             is_hero: false,
             level: c.level,
             class_id: c.class_id,

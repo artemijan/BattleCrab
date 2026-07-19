@@ -83,6 +83,8 @@ pub struct CharData {
     pub prime_points: i32,
     pub access_level: i32,
     pub noble: bool,
+    /// `character_subclasses` rows for this character (class index 1..N).
+    pub subclasses: Vec<crate::model::SubClass>,
     pub char_slot: i32,
     pub items: Vec<ItemRow>,
     /// `character_skills` rows: (skill_id, skill_level).

@@ -297,3 +297,56 @@ pub(super) fn admin_set_enchant(world: &mut World, client_id: u32, object_id: i3
     super::party::broadcast_user_info(world, target);
     send_message(world, client_id, &format!("Enchant set to +{value}."));
 }
+
+/// `//setsubclass <classId>` — add a subclass to the target (Java's
+/// `AdminEditChar` opens a picker; the id form is what the GM panel bypasses
+/// use). With no argument, lists the target's current slots.
+pub(super) fn admin_setsubclass(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    use crate::game_loop::subclass::{add_subclass, AddError};
+
+    let target = target_player(world, object_id);
+    let Some(class_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        let listing = world
+            .objects
+            .get_component::<Player>(&target)
+            .map(|p| {
+                let mut s = format!("Base class {} (index 0){}", p.base_class_id, if p.class_index == 0 { " [active]" } else { "" });
+                for sub in &p.subclasses {
+                    s.push_str(&format!(
+                        "\nSubclass {} (index {}, level {}){}",
+                        sub.class_id,
+                        sub.class_index,
+                        sub.level,
+                        if p.class_index == sub.class_index { " [active]" } else { "" }
+                    ));
+                }
+                s
+            })
+            .unwrap_or_default();
+        send_message(world, client_id, &listing);
+        return;
+    };
+
+    match add_subclass(world, target, class_id) {
+        Ok(index) => send_message(world, client_id, &format!("Added subclass {class_id} in slot {index}.")),
+        Err(AddError::SlotsFull) => send_message(world, client_id, "No free subclass slots."),
+        Err(AddError::AlreadyHave) => send_message(world, client_id, "That class is already held."),
+        Err(AddError::UnknownClass) => {
+            send_message(world, client_id, &format!("Class id {class_id} does not exist."))
+        }
+    }
+}
+
+/// `//changesubclass <index>` — switch the target's active class (0 = base).
+pub(super) fn admin_changesubclass(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(index) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //changesubclass <index> (0 = base class)");
+        return;
+    };
+    let target = target_player(world, object_id);
+    if crate::game_loop::subclass::set_active_class(world, target, index) {
+        send_message(world, client_id, &format!("Active class index is now {index}."));
+    } else {
+        send_message(world, client_id, "No such subclass slot (or it is already active).");
+    }
+}
