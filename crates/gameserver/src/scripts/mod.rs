@@ -13,6 +13,7 @@ pub mod dwarf_change2;
 pub mod first_class_transfer_talk;
 pub mod elf_human_change1;
 pub mod orc_change1;
+pub mod orc_dark_elf_change2;
 pub mod q00109_in_search_of_the_nest;
 pub mod q00258_bring_wolf_pelts;
 pub mod q00260_orc_hunting;
@@ -60,6 +61,8 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(dwarf_change1::DwarfChange1::blacksmith()),
         Arc::new(dwarf_change1::DwarfChange1::warehouse()),
         Arc::new(orc_change1::OrcChange1),
+        Arc::new(orc_dark_elf_change2::Change2::orc()),
+        Arc::new(orc_dark_elf_change2::Change2::dark_elf()),
         Arc::new(teleport_to_race_track::TeleportToRaceTrack),
         Arc::new(teleport_with_charm::TeleportWithCharm),
     ];
