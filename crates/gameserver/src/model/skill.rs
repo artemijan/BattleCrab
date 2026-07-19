@@ -375,6 +375,62 @@ pub mod effect_flag {
     pub const BLOCK_CONTROL: u32 = 1 << 5;
 }
 
+/// Java `AbnormalVisualEffect` — the client-side *look* of an abnormal (the
+/// stun swirl, the poison tint, the silence mark). Purely cosmetic: the
+/// mechanics live in [`effect_flag`] and the effect handlers, while this is
+/// what the client renders over the character.
+///
+/// Only the ids the dist's skills actually reference are mapped; an unknown
+/// name yields `None` and is simply not shown (Java would fail the enum lookup
+/// and log). `VP_KEEP` shares client id 29 with `VP_UP` in Java, comment and
+/// all.
+pub fn abnormal_visual_client_id(name: &str) -> Option<i16> {
+    Some(match name {
+        "DOT_BLEEDING" => 1,
+        "DOT_POISON" => 2,
+        "DOT_FIRE" => 3,
+        "DOT_WATER" => 4,
+        "DOT_WIND" => 5,
+        "DOT_SOIL" => 6,
+        "STUN" => 7,
+        "SLEEP" => 8,
+        "SILENCE" => 9,
+        "ROOT" => 10,
+        "PARALYZE" => 11,
+        "FLESH_STONE" => 12,
+        "DOT_MP" => 13,
+        "BIG_HEAD" => 14,
+        "DOT_FIRE_AREA" => 15,
+        "CHANGE_TEXTURE" => 16,
+        "BIG_BODY" => 17,
+        "FLOATING_ROOT" => 18,
+        "DANCE_ROOT" => 19,
+        "GHOST_STUN" => 20,
+        "STEALTH" => 21,
+        "SEIZURE1" => 22,
+        "SEIZURE2" => 23,
+        "MAGIC_SQUARE" => 24,
+        "FREEZING" => 25,
+        "SHAKE" => 26,
+        "ULTIMATE_DEFENCE" => 28,
+        "VP_UP" | "VP_KEEP" => 29,
+        "REAL_TARGET" => 30,
+        "DEATH_MARK" => 31,
+        "TURN_FLEE" => 32,
+        "INVINCIBILITY" => 33,
+        "AIR_BATTLE_SLOW" => 34,
+        "AIR_BATTLE_ROOT" => 35,
+        "CHANGE_WP" => 36,
+        "CHANGE_HAIR_G" => 37,
+        "CHANGE_HAIR_P" => 38,
+        _ => return None,
+    })
+}
+
+/// `AbnormalVisualEffect.STEALTH.getClientId()` — GM invisibility's translucent
+/// glow, appended by Java whenever `isInvisible()`.
+pub const STEALTH_CLIENT_ID: i16 = 21;
+
 /// `dist/game/data/stats/skills/*.xml` → `Skill.java`, scoped to G6.
 #[derive(Debug, Clone)]
 pub struct Skill {
@@ -383,6 +439,9 @@ pub struct Skill {
     pub name: String,
     pub operate_type: OperateType,
     pub target_type: TargetType,
+    /// Java `<abnormalVisualEffect>` as resolved client ids — what the client
+    /// draws on anyone carrying this skill's abnormal. Cosmetic only.
+    pub abnormal_visuals: Vec<i16>,
     /// Java `toggleGroupId` — toggles sharing a group are mutually exclusive:
     /// switching one on stops the others (`stopAllTogglesOfGroup`). 0 = no
     /// group.
@@ -600,6 +659,10 @@ pub struct ActiveBuff {
     /// overwhelming majority). Stamped at creation so the creature's live mask
     /// is a fold over its buff list — see [`effect_flag`].
     pub effect_flags: u32,
+    /// Client ids of the visual effects this buff shows while up. Stamped at
+    /// creation and folded over the buff list when a packet needs the creature's
+    /// current look — same pattern as `effect_flags`.
+    pub abnormal_visuals: Vec<i16>,
     /// Abnormal types this buff *blocks* from landing while it is up
     /// (`BlockAbnormalSlot`). Empty for almost every buff; stamped at creation
     /// and folded on read, the same way `effect_flags` is.

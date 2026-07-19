@@ -55,8 +55,11 @@ fn send_invisible_visual(world: &World, client_id: u32, object_id: i32, invisibl
     // Keep the current transform id in the packet so toggling invisibility on a
     // transformed GM doesn't drop the transform model.
     let transform = world.objects.get_component::<Player>(&object_id).map_or(0, |p| p.transform_display_id);
+    // Carry the buff-driven visuals through too, so toggling invisibility on a
+    // stunned/poisoned GM doesn't wipe those from their own view.
+    let visuals = crate::game_loop::abnormal::visual_effects(world, object_id);
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::user_info::ex_user_info_abnormal_visual_effect(object_id, invisible, transform));
+        cs.send(crate::network::user_info::ex_user_info_abnormal_visual_effect(object_id, invisible, transform, &visuals));
     }
 }
 
@@ -178,4 +181,96 @@ pub(super) fn toggle_flag_on_target(world: &mut World, client_id: u32, object_id
     };
     let on = set_flag(world, target, flag);
     send_message(world, client_id, &format!("Target {} {}.", flag.label().to_lowercase(), if on { "enabled" } else { "disabled" }));
+}
+
+/// `AdminEffects`' `//ave_abnormal <NAME> [radius]` — **toggle** an abnormal
+/// visual effect on the current target (or self when untargeted), or on
+/// everyone within `radius`. Java's `performAbnormalVisualEffect` starts the
+/// effect when absent and stops it when present, which is what makes the
+/// command a toggle.
+///
+/// Now that the visual runtime exists (G19), this is just a pinned entry in
+/// `AdminVisuals` folded alongside the buff-derived ones.
+pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    use crate::model::components::AdminVisuals;
+
+    let Some(&name) = args.first() else {
+        send_message(world, client_id, "Usage: //ave_abnormal <EFFECT_NAME> [radius]");
+        return;
+    };
+    let Some(ave) = crate::model::skill::abnormal_visual_client_id(&name.to_uppercase()) else {
+        send_message(world, client_id, &format!("Unknown abnormal visual effect: {name}"));
+        return;
+    };
+    let radius = args.get(1).and_then(|r| r.parse::<i32>().ok()).unwrap_or(0);
+
+    // Target set: everyone in radius, else the target, else self.
+    let targets: Vec<i32> = if radius > 0 {
+        let Some(origin) = world.objects.get_component::<crate::model::components::Position>(&object_id).copied()
+        else {
+            return;
+        };
+        let mut out = Vec::new();
+        for cs in world.clients.values() {
+            if let crate::session::ClientSession::InGame(s) = cs {
+                let oid = s.player_object_id();
+                if world.objects.get_component::<crate::model::components::Position>(&oid).is_some_and(|p| {
+                    let (dx, dy) = ((p.x - origin.x) as f64, (p.y - origin.y) as f64);
+                    (dx * dx + dy * dy).sqrt() <= radius as f64
+                }) {
+                    out.push(oid);
+                }
+            }
+        }
+        out
+    } else {
+        vec![super::current_target(world, object_id).unwrap_or(object_id)]
+    };
+
+    let mut toggled_on = 0;
+    for target in &targets {
+        let now_on = {
+            let entry = world.objects.get_component_mut::<AdminVisuals>(target);
+            match entry {
+                Some(v) => {
+                    if let Some(pos) = v.0.iter().position(|&x| x == ave) {
+                        v.0.remove(pos);
+                        false
+                    } else {
+                        v.0.push(ave);
+                        true
+                    }
+                }
+                None => {
+                    world.objects.add_components(target, AdminVisuals(vec![ave]));
+                    true
+                }
+            }
+        };
+        toggled_on += i32::from(now_on);
+        // Re-broadcast so the change is visible immediately, to the owner and
+        // to everyone who can see them.
+        crate::game_loop::party::broadcast_user_info(world, *target);
+        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, *target) {
+            let visuals = crate::game_loop::abnormal::visual_effects(world, *target);
+            let transform = world
+                .objects
+                .get_component::<Player>(target)
+                .map_or(0, |p| p.transform_display_id);
+            let hidden = world
+                .objects
+                .get_component::<crate::model::components::AdminFlags>(target)
+                .is_some_and(|f| f.hidden);
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(crate::network::user_info::ex_user_info_abnormal_visual_effect(
+                    *target, hidden, transform, &visuals,
+                ));
+            }
+        }
+    }
+    send_message(
+        world,
+        client_id,
+        &format!("{name}: enabled on {toggled_on}, disabled on {} of {} target(s).", targets.len() as i32 - toggled_on, targets.len()),
+    );
 }

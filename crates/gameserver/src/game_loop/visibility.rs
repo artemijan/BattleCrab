@@ -38,7 +38,7 @@ fn send_char_info(world: &World, observer: &ClientSession, player_id: i32) {
         return;
     }
     let Some(v) = crate::model::PlayerView::of(&world.objects, player_id) else { return };
-    observer.send(server_packets::char_info(&v));
+    observer.send(server_packets::char_info(&v, &super::abnormal::visual_effects(world, player_id)));
     // Java `Player.sendInfo` pairs each CharInfo with a RelationChanged, so the
     // viewer learns the relation bits CharInfo can't carry — notably the
     // clan-leader crown (`RELATION_LEADER`). Without it a leader shows no crown

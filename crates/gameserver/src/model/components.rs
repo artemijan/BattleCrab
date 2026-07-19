@@ -387,6 +387,15 @@ impl RecipeBook {
     }
 }
 
+/// Abnormal visual effects a GM pinned on this creature with `//ave_abnormal`,
+/// independent of any buff. Java has no such component — it calls
+/// `startAbnormalVisualEffect` directly, which mutates the same
+/// `EffectList._abnormalVisualEffects` set the buffs feed. This port keeps the
+/// buff-derived set computed (a fold, never stored), so the manual ones need
+/// somewhere of their own to live.
+#[derive(Component, Debug, Clone, Default)]
+pub struct AdminVisuals(pub Vec<i16>);
+
 /// The per-character key/value store (Java `PlayerVariables`, table
 /// `character_variables`). Java's `AbstractVariables` is a `StatSet` with typed
 /// getters and a dirty flag that `storeMe` consults; here the map is plain and

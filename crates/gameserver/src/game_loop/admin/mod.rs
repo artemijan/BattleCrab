@@ -298,6 +298,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_setundying" => toggle_flag_on_target(world, client_id, object_id, GmFlag::Undying),
         // Toggle the GM's visibility to other players.
         "admin_hide" => admin_hide(world, client_id, object_id),
+        // Toggle an abnormal visual effect on the target (or a radius).
+        "admin_ave_abnormal" => flags::admin_ave_abnormal(world, client_id, object_id, &args),
         // Toggle message-refusal (chat block) mode.
         "admin_silence" => admin_silence(world, client_id, object_id),
         // Grant / remove a skill on the targeted player (or self).

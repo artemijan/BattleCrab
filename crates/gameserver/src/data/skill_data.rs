@@ -365,6 +365,12 @@ fn finalize_skill(
             Some("NONE") => TargetType::None_,
             _ => TargetType::Other,
         };
+        // `<abnormalVisualEffect>` is a `;`-separated list of enum names.
+        let abnormal_visuals: Vec<i16> = value_at(values, "abnormalVisualEffect", level)
+            .unwrap_or("")
+            .split(';')
+            .filter_map(|n| crate::model::skill::abnormal_visual_client_id(n.trim()))
+            .collect();
         let toggle_group_id = get_i("toggleGroupId", 0);
         // `affectScope` defaults to SINGLE when absent (Java's Skill ctor).
         let affect_scope = match value_at(values, "affectScope", level) {
@@ -782,6 +788,7 @@ fn finalize_skill(
                 name: name.to_string(),
                 operate_type,
                 target_type,
+                abnormal_visuals,
                 toggle_group_id,
                 affect_scope,
                 affect_object,
@@ -922,6 +929,17 @@ mod tests {
         // Sonic Storm carries the same 5-12 cap over a tighter 150 sweep.
         assert_eq!(sonic_storm.affect_range, 150);
         assert_eq!(sonic_storm.affect_limit, (5, 12));
+
+        // Abnormal *visual* effects — the cosmetic half of everything above.
+        // Shield Stun 92 draws STUN(7), Bleed 96 draws DOT_BLEEDING(1), Horror
+        // 65 draws TURN_FLEE(32); Might 1068 draws nothing.
+        assert_eq!(sd.get(92, 1).expect("Shield Stun").abnormal_visuals, vec![7]);
+        assert_eq!(sd.get(96, 1).expect("Bleed").abnormal_visuals, vec![1]);
+        assert_eq!(sd.get(65, 1).expect("Horror").abnormal_visuals, vec![32]);
+        assert!(sd.get(1068, 1).expect("Might").abnormal_visuals.is_empty());
+        // An unknown enum name resolves to nothing rather than panicking.
+        assert_eq!(crate::model::skill::abnormal_visual_client_id("NOT_A_REAL_AVE"), None);
+        assert_eq!(crate::model::skill::abnormal_visual_client_id("STUN"), Some(7));
 
         // The rest of the CC family, against the real Interlude skills.
         // Seal of Silence 1246 silences (magic only); Shield Slam 353 is the

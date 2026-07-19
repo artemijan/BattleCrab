@@ -1972,3 +1972,32 @@ fn admin_give_clan_skills_command_grants_targeted_clan() {
         "clan skill persisted"
     );
 }
+
+/// `//ave_abnormal <NAME>` toggles a GM-pinned abnormal visual on the target
+/// (self when untargeted), and rejects an unknown effect name. The pinned set
+/// is folded alongside buff-derived visuals by `abnormal::visual_effects`.
+#[test]
+fn admin_ave_abnormal_toggles_a_pinned_visual() {
+    use crate::game_loop::abnormal::visual_effects;
+
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut rx = ingame_player_access(&mut world, 1, 6481, 100);
+    drain(&mut rx);
+
+    assert!(visual_effects(&world, 6481).is_empty(), "nothing pinned to begin with");
+
+    // BIG_HEAD is client id 14.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("ave_abnormal BIG_HEAD")].concat());
+    assert!(visual_effects(&world, 6481).contains(&14), "pinned on");
+    drain(&mut rx);
+
+    // Toggling the same name removes it.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("ave_abnormal BIG_HEAD")].concat());
+    assert!(!visual_effects(&world, 6481).contains(&14), "pinned off");
+    drain(&mut rx);
+
+    // An unknown name changes nothing.
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("ave_abnormal NOT_REAL")].concat());
+    assert!(visual_effects(&world, 6481).is_empty(), "an unknown effect name is rejected");
+}
