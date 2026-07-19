@@ -1362,8 +1362,8 @@ Empty/placeholder now, to be filled in the owning milestone:
   dialog's non-village restart points (clan hall/castle/fixed-feather).
 - **Quests/scripts (post-G11/G12):** party quest sharing
   (`getRandomPartyMemberState` — kill credit is killer-only); daily quests
-  (`restartTime`/reset hour); `onFirstTalk` hook (~~onAttack/onSpawn~~ ✅
-  G12); tutorial (Q00255);
+  (`restartTime`/reset hour); ~~`onFirstTalk` hook~~ (✅ — see below;
+  ~~onAttack/onSpawn~~ ✅ G12); tutorial (Q00255);
   `ExQuestNpcLogList`; the quest-window weight/inventory-90%/40-quest
   guards; the chooser's simulated-`onTalk` pre-filter; `validateHtmlAction`
   (bare bypasses resolve via `LastFolkNpc` + distance); the remaining ~188
@@ -1473,6 +1473,33 @@ Empty/placeholder now, to be filled in the owning milestone:
 
 Run: `cargo test` (all green). Boot a pair on alt ports:
 `cargo run -p loginserver` + `CONFIG_SERVER_GAMESERVERPORT=… cargo run -p gameserver`.
+
+### Newbie Guide — the `onFirstTalk` hook
+
+Java registers NPC chat windows two ways: the `data/html/**` file the NPC id
+resolves to, and `addFirstTalkId`, where a script **replaces** the window
+outright. Only the first was ported, so all five Newbie Guides (30598–30602)
+fell through to `npcdefault.htm` and showed a single "Quest" button instead
+of their four-entry menu.
+
+- `QuestScript::first_talk_npcs`/`on_first_talk` + a one-owner-per-NPC
+  `QuestRegistry` index; `quests::notify_first_talk` runs from
+  `target::interact_with_npc` **before** `showChatWindow`, matching
+  `NpcAction`'s ordering (so it fires even for a non-talkable NPC).
+- `NpcTemplate.race` — `<race>` was parsed by nobody; the guides' own-race
+  gate (`npc.getRace() != player.getRace()` → `-no.htm`) needs it. Stored as
+  the `Race` ordinal so it compares to `Player.race` directly; non-player
+  races (`UNDEAD`, `BEAST`, …) are `None`.
+- `scripts/newbie_guide.rs` — menu + the `-<n><m|f>.htm` advice pages
+  (`MAGE_GROUP` stands in for `isMageClass()`). The Q00255 tutorial reward
+  branch is a `TODO(G33)`: the tutorial quest is unported.
+- `scripts/npc_location_info.rs` — the "NPC Location Information" submenu,
+  `custom/NpcLocationInfo`: 161 whitelisted town NPCs, radar marker on the
+  chosen one's spawn (`QuestCtx::any_spawn_location`/`add_radar`).
+
+Deviation: `getAnySpawn` reads Java's spawn *table*; the Rust port scans live
+spawned NPCs instead. Identical for the always-spawned town NPCs on the
+whitelist.
 
 ---
 

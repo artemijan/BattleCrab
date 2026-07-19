@@ -672,7 +672,8 @@ now help their pack. Note `FenceData` is a single "demo" fence on this dist.
 
 ### G22 — Quest & script breadth
 The remaining ~188 quests, ~14 village-master scripts and ~81 `ai/` scripts;
-daily quests (`restartTime`); the tutorial (Q00255); `onFirstTalk`; the
+daily quests (`restartTime`); the tutorial (Q00255); ~~`onFirstTalk`~~ (✅ —
+the hook and its first users, NewbieGuide + NpcLocationInfo); the
 quest-window guards; `validateHtmlAction`; the remaining bypass families
 (multisell/sell already partly in G15). Script hot-reload backs `//reload`.
 **Gate:** the quest/AI parity checklist is green; a representative quest of each

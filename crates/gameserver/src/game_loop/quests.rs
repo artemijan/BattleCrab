@@ -53,6 +53,14 @@ pub trait QuestScript: Send + Sync {
     fn spawn_npcs(&self) -> &[i32] {
         &[]
     }
+    /// NPCs whose chat window this script *replaces* (`addFirstTalkId`).
+    /// Java's `NpcAction`: when an NPC carries an `ON_NPC_FIRST_TALK`
+    /// listener, clicking it fires [`QuestScript::on_first_talk`] **instead
+    /// of** `Npc.showChatWindow` — the default `data/html/default/<id>.htm`
+    /// is never consulted for that NPC.
+    fn first_talk_npcs(&self) -> &[i32] {
+        &[]
+    }
     /// Utility scripts (id ≤ 0) opting in to run `on_talk` from the bare
     /// `Quest` (quest-window) bypass — the `ai/others` behaviors whose talk
     /// *is* the behavior (TeleportWithCharm). Deliberate deviation: this
@@ -76,6 +84,15 @@ pub trait QuestScript: Send + Sync {
         None
     }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String>;
+    /// `onFirstTalk` — the whole chat window for a [`first_talk_npcs`] NPC.
+    /// Returning `None` sends nothing (Java's null return, used by scripts
+    /// that already pushed their own packet).
+    ///
+    /// [`first_talk_npcs`]: QuestScript::first_talk_npcs
+    fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        let _ = ctx;
+        None
+    }
     /// HTML-button events (`Quest <Name> <event>` bypasses) and quest-timer
     /// names (Java routes both through `onEvent`; timers arrive via
     /// [`QuestScript::on_timer`] here for the trait's clarity).
@@ -114,6 +131,7 @@ pub struct QuestRegistry {
     kill: HashMap<i32, Vec<usize>>,
     attack: HashMap<i32, Vec<usize>>,
     spawn: HashMap<i32, Vec<usize>>,
+    first_talk: HashMap<i32, usize>,
 }
 
 impl QuestRegistry {
@@ -124,6 +142,9 @@ impl QuestRegistry {
         let mut kill: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut attack: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut spawn: HashMap<i32, Vec<usize>> = HashMap::new();
+        // One entry per NPC: the first-talk listener owns the whole chat
+        // window, so two scripts claiming the same NPC is a bug, not a fan-out.
+        let mut first_talk: HashMap<i32, usize> = HashMap::new();
         for (idx, s) in scripts.iter().enumerate() {
             by_name.insert(s.name(), idx);
             for &id in s.start_npcs() {
@@ -141,8 +162,25 @@ impl QuestRegistry {
             for &id in s.spawn_npcs() {
                 spawn.entry(id).or_default().push(idx);
             }
+            for &id in s.first_talk_npcs() {
+                if let Some(&prev) = first_talk.get(&id) {
+                    warn!(
+                        "QuestRegistry: npc {id} first-talk claimed by both [{}] and [{}]; keeping the first.",
+                        scripts[prev].name(),
+                        s.name(),
+                    );
+                    continue;
+                }
+                first_talk.insert(id, idx);
+            }
         }
-        Self { scripts, by_name, start, talk, kill, attack, spawn }
+        Self { scripts, by_name, start, talk, kill, attack, spawn, first_talk }
+    }
+
+    /// The script owning `npc_id`'s chat window, if any (Java
+    /// `npc.hasListener(ON_NPC_FIRST_TALK)` + the listener itself).
+    pub fn first_talk_quest(&self, npc_id: i32) -> Option<Arc<dyn QuestScript>> {
+        self.first_talk.get(&npc_id).map(|&i| self.scripts[i].clone())
     }
 
     pub fn by_name(&self, name: &str) -> Option<Arc<dyn QuestScript>> {
@@ -509,6 +547,41 @@ impl<'w> QuestCtx<'w> {
         self.world.objects.get_component::<crate::model::Player>(&self.player).map(|p| p.race).unwrap_or(0)
     }
 
+    /// `Npc.getRace()` — the talked-to NPC's `<race>` as the same ordinal
+    /// [`player_race`](QuestCtx::player_race) returns, `None` when the
+    /// template declares a non-player race (or none).
+    pub fn npc_race(&self) -> Option<i32> {
+        self.world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&self.npc)
+            .and_then(|n| n.template(self.world))
+            .and_then(|t| t.race)
+    }
+
+    /// `AbstractScript.addRadar` — drop a radar marker on the player's map
+    /// (`RadarControl(0, 1, x, y, z)`).
+    pub fn add_radar(&mut self, x: i32, y: i32, z: i32) {
+        let pkt = server_packets::radar_control(0, 1, x, y, z);
+        self.send(pkt);
+    }
+
+    /// `SpawnTable.getAnySpawn(npcId)` — the spawn point of any live instance
+    /// of `npc_id` (the `spawn_loc` anchor, not its wandered-to position, so
+    /// the marker matches Java's `Spawn.getX/Y/Z`). Java reads its spawn
+    /// *table* — every registered point, spawned or not; the Rust world holds
+    /// spawned objects, so this scans those. The two agree for the
+    /// always-spawned town NPCs this serves; a despawned NPC yields `None`
+    /// where Java would still answer.
+    pub fn any_spawn_location(&mut self, npc_id: i32) -> Option<(i32, i32, i32)> {
+        let mut loc = None;
+        self.world.objects.for_each_mut::<&crate::model::npc::Npc>(|npc| {
+            if loc.is_none() && npc.npc_id == npc_id {
+                loc = Some(npc.spawn_loc);
+            }
+        });
+        loc
+    }
+
     /// `Player.isClanLeader` (ClanMaster's LEADER_REQUIRED gate).
     pub fn is_clan_leader(&self) -> bool {
         self.world
@@ -870,6 +943,20 @@ fn process_quest_event(world: &mut World, client_id: u32, player: i32, npc_oid: 
         script.on_event(&mut ctx, event)
     };
     show_result(world, client_id, npc_oid, &script, res);
+}
+
+/// `NpcAction`'s first-talk branch: if a script owns this NPC's chat
+/// window, run its `onFirstTalk` and report `true` so the caller skips
+/// `Npc.showChatWindow` entirely.
+pub(crate) fn notify_first_talk(world: &mut World, client_id: u32, player: i32, npc_oid: i32, npc_id: i32) -> bool {
+    let registry = world.quests.clone();
+    let Some(script) = registry.first_talk_quest(npc_id) else { return false };
+    let res = {
+        let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
+        script.on_first_talk(&mut ctx)
+    };
+    show_result(world, client_id, npc_oid, &script, res);
+    true
 }
 
 /// `Attackable` kill → registered kill quests' `onKill`. Called from

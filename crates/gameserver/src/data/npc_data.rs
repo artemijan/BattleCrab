@@ -83,6 +83,11 @@ pub struct NpcTemplate {
     pub title: String,
     pub server_side_name: bool,
     pub server_side_title: bool,
+    /// `<race>` → Java `NpcTemplate.getRace()`, as the `Race` enum ordinal
+    /// (`HUMAN`=0 … `KAMAEL`=5) so it compares directly against
+    /// `Player.race`. `None` for the templates that declare no race — Java
+    /// leaves the field null there, and a null never equals a player race.
+    pub race: Option<i32>,
 
     // <stats str/int/dex/wit/con/men> — parsed for G9 formulas.
     pub base_str: i32,
@@ -411,6 +416,7 @@ pub fn default_template(id: i32) -> NpcTemplate {
         title: String::new(),
         server_side_name: false,
         server_side_title: false,
+        race: None,
         base_str: 40,
         base_int: 21,
         base_dex: 30,
@@ -500,6 +506,8 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
     // `<minions>` scope inside `<parameters>` — `<parameters>` also carries
     // unrelated `<npc>`-shaped rows, so the escort list needs its own flag.
     let mut in_minions = false;
+    // `<race>` text scope (Java `NpcTemplate.setRace`).
+    let mut in_race = false;
 
     while let Ok(event) = reader.read_event() {
         let (e, self_closing) = match event {
@@ -525,6 +533,10 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                             t.ignore_clan_npc_ids.push(v);
                         }
                     }
+                } else if in_race {
+                    if let Some(t) = cur.as_mut() {
+                        t.race = parse_race(String::from_utf8_lossy(&text).trim());
+                    }
                 }
                 continue;
             }
@@ -542,6 +554,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                     }
                     b"attribute" => in_attribute = false,
                     b"corpsetime" => in_corpse_time = false,
+                    b"race" => in_race = false,
                     b"clan" => in_clan = false,
                     b"ignorenpcid" => in_ignore_npc_id = false,
                     b"drop" | b"spoil" => drop_scope = DropScope::None,
@@ -698,6 +711,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                         }
                     }
                     b"corpsetime" => in_corpse_time = !self_closing,
+                    b"race" => in_race = !self_closing,
                     b"minions" => in_minions = !self_closing,
                     b"clan" => in_clan = !self_closing,
                     b"ignorenpcid" => in_ignore_npc_id = !self_closing,
@@ -754,6 +768,22 @@ fn finish_template(mut t: NpcTemplate, out: &mut HashMap<i32, NpcTemplate>) {
         t.can_move = true;
     }
     out.insert(t.id, t);
+}
+
+/// `<race>` → `Race` ordinal. Only the six playable races matter (they are
+/// the ones compared against `Player.race`); the monster-flavor values the
+/// enum also carries (`UNDEAD`, `BEAST`, …) resolve to `None`, which never
+/// matches a player — the same outcome as Java's `!=` on a non-player race.
+fn parse_race(text: &str) -> Option<i32> {
+    match text.to_ascii_uppercase().as_str() {
+        "HUMAN" => Some(0),
+        "ELF" => Some(1),
+        "DARKELF" | "DARK_ELF" => Some(2),
+        "ORC" => Some(3),
+        "DWARF" => Some(4),
+        "KAMAEL" => Some(5),
+        _ => None,
+    }
 }
 
 fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
@@ -980,5 +1010,29 @@ mod clan_tests {
         if let Some(t) = data.get(20236) {
             assert!(!t.clans.is_empty(), "20236 should carry a clan");
         }
+    }
+}
+
+#[cfg(test)]
+mod race_tests {
+    use super::*;
+
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+
+    /// `<race>` parses to the `Race` ordinal for the five playable races and
+    /// to `None` for the monster-flavor values — the Newbie Guides' own-race
+    /// gate reads this field.
+    #[test]
+    fn parses_playable_races_from_dist() {
+        let data = NpcData::load_from(DIST);
+        // One Newbie Guide per starter village. Id order is *not* race
+        // order: 30601 is the Dwarven village (DWARF=4), 30602 the Orc one
+        // (ORC=3).
+        for (npc_id, race) in [(30598, 0), (30599, 1), (30600, 2), (30601, 4), (30602, 3)] {
+            let t = data.get(npc_id).unwrap_or_else(|| panic!("{npc_id} loads"));
+            assert_eq!(t.race, Some(race), "npc {npc_id} race");
+        }
+        // A monster's `<race>UNDEAD</race>` is not a player race.
+        assert_eq!(data.get(20015).and_then(|t| t.race), None, "undead is not a playable race");
     }
 }

@@ -744,3 +744,103 @@ fn request_sell_item_pays_adena() {
     assert_eq!(adena_of(&world, 3001), 1000 + 400, "paid 4 × (200/2)");
     assert!(drain(&mut rx).iter().any(|p| p[0] == 0x21), "InventoryUpdate sent");
 }
+
+/// Register a Newbie Guide (30598, Talking Island / Human) as a live NPC,
+/// with the `<race>HUMAN</race>` its dist template declares.
+fn add_newbie_guide(world: &mut World) {
+    let mut t = crate::data::npc_data::default_template(30598);
+    t.type_name = "Folk".into();
+    t.name = "Newbie Guide".into();
+    t.race = Some(0); // HUMAN
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(world, NPC_OID, 30598, "Folk", 70, 0, 0, 0);
+}
+
+/// `NewbieGuide.onFirstTalk`: an `addFirstTalkId` script owns the whole chat
+/// window. Without the first-talk route the guide has no
+/// `data/html/default/30598.htm`, so it degrades to `npcdefault.htm`'s lone
+/// "Quest" button — the four-entry menu below is the regression guard.
+#[test]
+fn newbie_guide_first_talk_replaces_the_default_chat_window() {
+    let (mut world, ..) = quest_test_world();
+    add_newbie_guide(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain(&mut rx);
+
+    // First click targets, second interacts (Java `Player.doInteract`).
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("guide window");
+    assert!(html.contains("Ask for an advice"), "advice entry: {html}");
+    assert!(html.contains("Quest NpcLocationInfo"), "npc-location entry: {html}");
+    assert!(html.contains("Link default/SupportMagic.htm"), "support-magic entry: {html}");
+    assert!(html.contains("action=\"bypass -h Quest\">Quest"), "quest entry: {html}");
+    assert!(!html.contains("I have nothing to say"), "not the npcdefault fallback: {html}");
+}
+
+/// The race gate: a guide only advises its own race (`npc.getRace() !=
+/// player.getRace()` → `-no.htm`).
+#[test]
+fn newbie_guide_turns_away_other_races() {
+    let (mut world, ..) = quest_test_world();
+    add_newbie_guide(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<crate::model::Player>(&3001).unwrap().race = 1; // ELF
+    drain(&mut rx);
+
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("refusal window");
+    assert!(!html.contains("Ask for an advice"), "menu withheld: {html}");
+}
+
+/// The advice pages: `Quest NewbieGuide <n>` picks `<npcId>-<n><m|f>.htm`,
+/// `f` for the fighter class this test's player carries. Event `0` returns
+/// to the menu.
+#[test]
+fn newbie_guide_advice_pages_follow_the_class_suffix() {
+    let (mut world, ..) = quest_test_world();
+    add_newbie_guide(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.add_components(&3001, LastFolkNpc(NPC_OID));
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NewbieGuide 1"));
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("advice page");
+    assert!(html.contains("What should I do now?"), "30598-1f.htm: {html}");
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NewbieGuide 0"));
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("menu");
+    assert!(html.contains("Ask for an advice"), "back to the menu: {html}");
+}
+
+/// `NpcLocationInfo`: the bare bypass opens the profession list, a page name
+/// navigates, and a whitelisted npc id drops a radar marker on its spawn.
+#[test]
+fn npc_location_info_marks_the_requested_npc_on_the_radar() {
+    let (mut world, ..) = quest_test_world();
+    add_newbie_guide(&mut world);
+    // Gatekeeper Roxxy — a whitelisted target, spawned so the lookup lands.
+    add_test_npc(&mut world, NPC_OID + 1, 30006, "Teleporter", 70, 500, 600, 700);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.add_components(&3001, LastFolkNpc(NPC_OID));
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NpcLocationInfo"));
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("profession list");
+    assert!(html.contains("Teleporter"), "30598.htm: {html}");
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NpcLocationInfo 30598-1.htm"));
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("teleporter page");
+    assert!(html.contains("Gatekeeper Roxxy"), "30598-1.htm: {html}");
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NpcLocationInfo 30006"));
+    let pkts = drain(&mut rx);
+    let html = pkts.iter().find_map(|p| decode_npc_html(p)).expect("MoveToLoc page");
+    assert!(html.contains("direction of the arrow"), "MoveToLoc.htm: {html}");
+    assert!(pkts.iter().any(|p| p[0] == 0xF1), "RadarControl sent");
+
+    // Off-whitelist id: Java returns null, so nothing is sent.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NpcLocationInfo 99999"));
+    assert!(drain(&mut rx).is_empty(), "no window for an unlisted npc");
+}

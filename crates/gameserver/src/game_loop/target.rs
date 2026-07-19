@@ -363,14 +363,23 @@ pub(crate) fn interact_with_npc(world: &mut World, client_id: u32, object_id: i3
         super::siege::try_capture_artifact(world, object_id, npc_object_id);
         return;
     }
-    // `Npc.showChatWindow(player, 0)`.
-    if !t.talkable {
+    // Everything below hands `world` out mutably, so take what the chat
+    // window needs off the template first.
+    let (npc_id, type_name, npc_name, talkable) = (t.id, t.type_name.clone(), t.name.clone(), t.talkable);
+    // `NpcAction`: an `ON_NPC_FIRST_TALK` listener replaces the chat window
+    // outright. The check sits *before* `showChatWindow` in Java, so it also
+    // fires for a non-talkable NPC (where `showChatWindow` would have bailed).
+    if super::quests::notify_first_talk(world, client_id, object_id, npc_object_id, npc_id) {
         return;
     }
-    let html = load_chat_window_html(&world.data.root, &t.type_name, t.id)
+    // `Npc.showChatWindow(player, 0)`.
+    if !talkable {
+        return;
+    }
+    let html = load_chat_window_html(&world.data.root, &type_name, npc_id)
         .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
         .replace("%objectId%", &npc_object_id.to_string())
-        .replace("%npcname%", &t.name);
+        .replace("%npcname%", &npc_name);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::npc_html_message(npc_object_id, &html));
     }
