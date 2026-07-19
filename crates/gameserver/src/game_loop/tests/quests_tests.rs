@@ -844,3 +844,135 @@ fn npc_location_info_marks_the_requested_npc_on_the_radar() {
     handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NpcLocationInfo 99999"));
     assert!(drain(&mut rx).is_empty(), "no window for an unlisted npc");
 }
+
+/// DwarfWarehouseChange1: a Dwarven Fighter with the Ring of Raven becomes a
+/// Scavenger. Mirrors the OrcChange1 test, but on the shared
+/// `DwarfChange1` implementation.
+#[test]
+fn dwarf_warehouse_change1_first_class_transfer() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1642, "Ring of Raven", true), (8869, "Shadow Coupon (D)", false)]);
+    world.data.categories.insert_for_test("BOUNTY_HUNTER_GROUP", &[53, 54]);
+    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[54]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30498, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 20;
+        p.race = 4; // Dwarf
+        p.class_id = 53;
+        p.base_class_id = 53;
+    }
+    super::items::add_inventory_item(&mut world, 3001, 1642, 1);
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfWarehouseChange1 54")),
+    );
+
+    let p = world.objects.get_component::<Player>(&3001).unwrap();
+    assert_eq!(p.class_id, 54, "now a Scavenger");
+    assert_eq!(p.base_class_id, 54, "on the base slot the base class moves too");
+    assert_eq!(item_count(&world, 3001, 1642), 0, "proof consumed");
+    assert_eq!(item_count(&world, 3001, 8869), 15, "shadow coupons paid");
+}
+
+/// The level gate: 19 is refused, the proof is kept, and nothing is paid.
+#[test]
+fn dwarf_change1_refuses_below_level_20() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1635, "Final Pass Certificate", true), (8869, "Shadow Coupon (D)", false)]);
+    world.data.categories.insert_for_test("WARSMITH_GROUP", &[53, 56]);
+    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[56]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30499, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 19;
+        p.race = 4;
+        p.class_id = 53;
+        p.base_class_id = 53;
+    }
+    super::items::add_inventory_item(&mut world, 3001, 1635, 1);
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfBlacksmithChange1 56")),
+    );
+
+    let p = world.objects.get_component::<Player>(&3001).unwrap();
+    assert_eq!(p.class_id, 53, "still a Dwarven Fighter at 19");
+    assert_eq!(item_count(&world, 3001, 1635), 1, "the proof is NOT consumed on a refusal");
+    assert_eq!(item_count(&world, 3001, 8869), 0, "and nothing is paid");
+}
+
+/// Without the proof item the transfer is refused even at level 20.
+#[test]
+fn dwarf_change1_refuses_without_the_proof_item() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1635, "Final Pass Certificate", true), (8869, "Shadow Coupon (D)", false)]);
+    world.data.categories.insert_for_test("WARSMITH_GROUP", &[53, 56]);
+    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[56]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30499, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 20;
+        p.race = 4;
+        p.class_id = 53;
+        p.base_class_id = 53;
+    }
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfBlacksmithChange1 56")),
+    );
+
+    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().class_id, 53, "no proof, no transfer");
+}
+
+/// Every html page the two scripts can return must exist in the dist, or a
+/// player hits a blank window at the moment of their class change.
+#[test]
+fn dwarf_change1_html_pages_exist_in_dist() {
+    // Village-master pages live under data/scripts/, not data/html/.
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/");
+    for (dir, npcs, extra) in [
+        ("village_master/DwarfBlacksmithChange1", [30499, 30504, 30595, 32093], "30499-12.htm"),
+        ("village_master/DwarfWarehouseChange1", [30498, 30503, 30594, 32092], "30498-12.htm"),
+    ] {
+        for npc in npcs {
+            // -01/-05 from onTalk, -06/-07 refusals, -08..-11 the level/proof
+            // matrix, -10 the success page.
+            for suffix in ["01", "05", "06", "07", "08", "09", "10", "11"] {
+                let path = format!("{DIST}{dir}/{npc}-{suffix}.htm");
+                assert!(
+                    std::path::Path::new(&path).exists(),
+                    "missing dist page {dir}/{npc}-{suffix}.htm"
+                );
+            }
+        }
+        // Only the *first* NPC of each set ships a `-12` page; Java hard-codes
+        // that one id for the fourth-class refusal regardless of who you are
+        // talking to, which is why the port does the same.
+        assert!(
+            std::path::Path::new(&format!("{DIST}{dir}/{extra}")).exists(),
+            "missing fourth-class page {dir}/{extra}"
+        );
+    }
+}
