@@ -400,8 +400,9 @@ pledge-bonus rewards (`ClanRewardData`, `pledgebonus` packets).
 ### G19 — Skills & effects breadth
 Grow `EFFECT_REGISTRY` toward the 369 Java effect classes and the 230-entry
 `Stat` enum on demand; toggle-type skills; the remaining `AcquireSkillType`s
-(pledge/transform/transfer/subclass/collect/…); `calcMagicSuccess`
-(`ALT_GAME_MAGICFAILURES`); AoE affect scopes (only `SINGLE` resolves today);
+(pledge/transform/transfer/subclass/collect/…); ~~`calcMagicSuccess`
+(`ALT_GAME_MAGICFAILURES`)~~ (done — magic damage is now resisted against
+out-of-level targets); AoE affect scopes (only `SINGLE` resolves today);
 buffs/effects on NPC targets; the **abnormal-visual-effect** runtime + per-
 creature team / targetable / display-effect state; `ExAbnormalStatusUpdateFrom
 Target`. **Gate:** a debuff lands on a mob, an AoE nuke hits a cluster, a toggle
@@ -515,7 +516,7 @@ icon-only community-board buffs and G16's identity-valued
 `FAN`/`FAN_PB`/`SQUARE`/`SQUARE_PB`/`RING_RANGE` scopes and `GROUND`-targeted
 casts; the CC effects adjacent to the ported pair (`BlockControl` 81, `Fear` 68
 — needs forced flee movement, `DebuffBlock` 115, `DamageBlock` 162,
-`TargetCancel` 101, `KnockBack` 91, and the mute/disarm family); `calcMagicSuccess`; the abnormal-visual-effect runtime + per-creature
+`TargetCancel` 101, `KnockBack` 91, and the mute/disarm family); ~~`calcMagicSuccess`~~ (done); the abnormal-visual-effect runtime + per-creature
 team/targetable state (and the AdminEffects AVE subset it unblocks);
 `ExAbnormalStatusUpdateFromTarget`; the remaining `AcquireSkillType`s; and skill
 enchanting.

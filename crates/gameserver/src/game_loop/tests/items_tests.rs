@@ -1246,16 +1246,18 @@ fn spiritshot_doubles_magic_damage_and_is_consumed() {
     drain(&mut a_rx);
 
     let start_hp = nvit(&world, npc_oid).cur_hp;
-    // Control cast (no shot), non-crit.
-    world.forced_rolls.push_back(999_999);
+    // Control cast (no shot), non-crit. The trailing 0 pins the `MagicFailures`
+    // success roll — unforced it resists ~3 % of the time against this mob, and
+    // the halved damage reads as "the shot did nothing".
+    world.forced_rolls.extend([999_999, 0]);
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let base = start_hp - nvit(&world, npc_oid).cur_hp;
     assert!(base > 0.0, "control nuke dealt damage");
     world.objects.get_component_mut::<Vitals>(&npc_oid).unwrap().cur_hp = start_hp;
 
-    // Charged spiritshot cast, identical crit roll.
+    // Charged spiritshot cast, identical crit + success rolls.
     world.objects.get_component_mut::<Player>(&3001).unwrap().charge_shot(ShotType::Spiritshots);
-    world.forced_rolls.push_back(999_999);
+    world.forced_rolls.extend([999_999, 0]);
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let ss = start_hp - nvit(&world, npc_oid).cur_hp;
 

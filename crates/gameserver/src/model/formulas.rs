@@ -16,16 +16,48 @@ use crate::model::Player;
 /// `Formulas.SKILL_LAUNCH_TIME` — the floor on the launch→finish phase.
 const SKILL_LAUNCH_TIME_MS: f64 = 500.0;
 
+/// The outcome of `calcMagicDam`'s `ALT_GAME_MAGICFAILURES` block — how a
+/// failed [`calc_magic_success`] roll reshapes the damage. Rolled by the
+/// caller (it needs the RNG and sends the system messages) and handed to
+/// [`calc_magic_dam`] so the adjustment lands at Java's point in the formula:
+/// *before* the crit multiplier, which is why a resisted magic crit deals 2
+/// damage rather than 1.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum MagicFailure {
+    /// The spell landed (or `MagicFailures = False`).
+    #[default]
+    None,
+    /// First roll failed, second succeeded — `damage /= 2`.
+    Half,
+    /// Both rolls failed — `damage = 1`.
+    Resisted,
+}
+
 /// `Formulas.calcMagicDam` (the `77 * power * sqrt(mAtk) / mDef` MDAM
 /// formula). `mcrit` doubles the damage via `calcCritDamage`'s magic branch
-/// (`2 * MAGIC_CRITICAL_DAMAGE(1) * DEFENCE_MAGIC_CRITICAL_DAMAGE(1)`). The
-/// `ALT_GAME_MAGICFAILURES` resist branch is deferred (equivalent to running
-/// with `MagicFailures = False`) — it needs `calcMagicSuccess`' magic-level
-/// vs target-level table, which nothing else uses yet.
+/// (`2 * MAGIC_CRITICAL_DAMAGE(1) * DEFENCE_MAGIC_CRITICAL_DAMAGE(1)`).
 /// `shots_bonus` is Java's `bss ? 4 : sps ? 2 : 1` (times the `SHOTS_BONUS`
 /// stat, 1.0 here) applied to the base magic damage.
-pub fn calc_magic_dam(m_atk: f64, m_def: f64, power: f64, mcrit: bool, shots_bonus: f64) -> f64 {
-    (77.0 * power * m_atk.sqrt() / m_def.max(1.0)) * shots_bonus * if mcrit { 2.0 } else { 1.0 }
+///
+/// `failure` is the `ALT_GAME_MAGICFAILURES` verdict. Java mutates `damage`
+/// inside the failure block and only then multiplies by `critMod` and the
+/// trait/attribute/random/pvpPve mods (all 1.0 here), so the halving and the
+/// `damage = 1` floor are applied here *ahead* of `mcrit`.
+pub fn calc_magic_dam(
+    m_atk: f64,
+    m_def: f64,
+    power: f64,
+    mcrit: bool,
+    shots_bonus: f64,
+    failure: MagicFailure,
+) -> f64 {
+    let mut damage = (77.0 * power * m_atk.sqrt() / m_def.max(1.0)) * shots_bonus;
+    match failure {
+        MagicFailure::None => {}
+        MagicFailure::Half => damage /= 2.0,
+        MagicFailure::Resisted => damage = 1.0,
+    }
+    damage * if mcrit { 2.0 } else { 1.0 }
 }
 
 /// `Formulas.calcCrit`'s magic branch for both-below-level-78 actors (base
@@ -38,24 +70,98 @@ pub fn calc_magic_crit(m_crit_rate: f64, is_bad: bool, roll: i32) -> bool {
     m_crit_rate.min(cap) > roll as f64
 }
 
-/// `Formulas.calcMagicSuccess`, the caster-vs-attackable branch (which is the
-/// only branch a Spoil cast can hit — Spoil targets a monster, so
-/// `target.isAttackable()`). `effective_level` is `skill.magicLevel` when
-/// `CalculateMagicSuccessBySkillMagicLevel` is on and the skill has a positive
-/// magic level, else the caster's level (resolved at the call site).
-/// `Rnd.get(100)` is `roll` (0-99).
+/// Inputs to [`calc_magic_success_rate`] — one field per term of Java's
+/// `Formulas.calcMagicSuccess`, resolved from the world at the call site.
+#[derive(Debug, Clone)]
+pub struct MagicSuccess<'a> {
+    /// Java `attacker.isAttackable() || target.isAttackable()` — true when
+    /// either side is a monster/guard, i.e. any PvE cast. Selects the
+    /// level-difference branch; false takes the magic-accuracy branch.
+    pub pve: bool,
+    pub target_level: i32,
+    /// `skill.magicLevel` when `CalculateMagicSuccessBySkillMagicLevel` is on
+    /// (dist default) and the skill has a positive magic level, else the
+    /// caster's level.
+    pub effective_level: i32,
+    /// `attacker.getActingPlayer()`'s level — `None` when the caster is an NPC,
+    /// which skips the NPC skill-chance penalty entirely (Java's null check).
+    pub caster_player_level: Option<i32>,
+    /// `target.isRaid() || target.isRaidMinion()` — raids are exempt from the
+    /// level-78 skill-chance penalty.
+    pub target_is_raid: bool,
+    /// `MinNPCLevelForMagicPenalty` (78 on this dist).
+    pub min_npc_level_for_magic_penalty: i32,
+    /// `SkillChancePenaltyForLvLDifferences` (`2.5, 3.0, 3.25, 3.5`).
+    pub skill_chance_penalty: &'a [f64],
+    /// `attacker.getMagicAccuracy()` / `target.getMagicEvasionRate()` — read
+    /// only on the non-PvE branch.
+    pub magic_accuracy: i32,
+    pub magic_evasion: i32,
+}
+
+/// `Formulas.calcMagicSuccess` — the percent chance (may fall below 0, meaning
+/// "always fails") that a magic attack is not resisted.
 ///
-/// `lvlModifier = 1.3^(targetLevel - effectiveLevel)`,
-/// `rate = 100 - round(lvlModifier)` (mAccModifier = 1, resModifier = 1). The
-/// `targetModifier` NPC skill-chance penalty only kicks in for targets at
-/// `MinNPCLevelForMagicPenalty` (78) or above — irrelevant for every spoilable
-/// Interlude mob — so it is left at 1.0.
-/// TODO(G21): fold in `NPC_SKILL_CHANCE_PENALTY` + `MAGIC_SUCCESS_RES` once
-/// high-level NPC magic penalties / magic-resist stats are modeled.
-pub fn calc_magic_success(target_level: i32, effective_level: i32, roll: i32) -> bool {
-    let lvl_modifier = 1.3f64.powi(target_level - effective_level);
-    let rate = 100 - (lvl_modifier.round() as i32);
-    roll < rate
+/// PvE branch: `lvlModifier = 1.3^(targetLevel - effectiveLevel)`, so the
+/// penalty compounds fast — a 9-level gap already costs ~10 points and an
+/// 18-level gap drives the rate to 0. On top of that, targets at
+/// `MinNPCLevelForMagicPenalty` or above that outlevel the *caster* by 3+
+/// multiply the failure term by `SkillChancePenaltyForLvLDifferences`.
+///
+/// PvP branch: a step table on `magicAccuracy - magicEvasion`.
+///
+/// Java's `resModifier` (`getMul(MAGIC_SUCCESS_RES, 1)`) is fixed at 1.0 here.
+/// The only two dist items touching `magicSuccRes` (10207/10208, the enhanced
+/// shirts) declare it in a `<stats>` block, which Java parses into an *additive*
+/// func — `getMul` never sees it, so the term is 1.0 on this dist for Java too.
+pub fn calc_magic_success_rate(i: &MagicSuccess) -> i32 {
+    let mut lvl_modifier = 1.0f64;
+    let mut target_modifier = 1.0f64;
+    let mut m_acc_modifier = 1i32;
+
+    if i.pve {
+        lvl_modifier = 1.3f64.powi(i.target_level - i.effective_level);
+
+        if let Some(caster_level) = i.caster_player_level {
+            if !i.target_is_raid
+                && i.target_level >= i.min_npc_level_for_magic_penalty
+                && (i.target_level - caster_level) >= 3
+                && !i.skill_chance_penalty.is_empty()
+            {
+                let level_diff = (i.target_level - caster_level - 2) as usize;
+                target_modifier = i.skill_chance_penalty[level_diff.min(i.skill_chance_penalty.len() - 1)];
+            }
+        }
+    } else {
+        let m_acc_diff = i.magic_accuracy - i.magic_evasion;
+        m_acc_modifier = if m_acc_diff > -20 {
+            2
+        } else if m_acc_diff > -25 {
+            30
+        } else if m_acc_diff > -30 {
+            60
+        } else if m_acc_diff > -35 {
+            90
+        } else {
+            100
+        };
+    }
+
+    100 - java_round_float(m_acc_modifier as f64 * lvl_modifier * target_modifier)
+}
+
+/// `Rnd.get(100) < rate` — `roll` is 0-99.
+pub fn calc_magic_success(i: &MagicSuccess, roll: i32) -> bool {
+    roll < calc_magic_success_rate(i)
+}
+
+/// Java `Math.round(float)`, which is `(int) floor(a + 0.5f)` — *not* Rust's
+/// `f64::round` (half away from zero). The distinction only shows on exact
+/// `.5` values, but the narrowing to `f32` first matters too: `1.3^n` grows
+/// past `f32::MAX` around n = 330, where both languages saturate the cast to
+/// `Integer.MAX_VALUE` / `i32::MAX`.
+fn java_round_float(v: f64) -> i32 {
+    ((v as f32) + 0.5f32).floor() as i32
 }
 
 /// `Formulas.calcEffectSuccess` — a debuff's landing chance in percent (0-100),
@@ -459,19 +565,131 @@ mod tests {
     /// magic crit doubles it.
     #[test]
     fn magic_dam_matches_java_formula() {
-        let dmg = calc_magic_dam(100.0, 60.0, 12.0, false, 1.0);
+        let none = MagicFailure::None;
+        let dmg = calc_magic_dam(100.0, 60.0, 12.0, false, 1.0, none);
         assert!((dmg - 154.0).abs() < 1e-9);
-        let crit = calc_magic_dam(100.0, 60.0, 12.0, true, 1.0);
+        let crit = calc_magic_dam(100.0, 60.0, 12.0, true, 1.0, none);
         assert!((crit - 308.0).abs() < 1e-9);
         // Spiritshot doubles, blessed spiritshot quadruples the base.
-        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 2.0) - 308.0).abs() < 1e-9);
-        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 4.0) - 616.0).abs() < 1e-9);
+        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, none) - 308.0).abs() < 1e-9);
+        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 4.0, none) - 616.0).abs() < 1e-9);
     }
 
     /// mDef is floored at 1 so a zero-defence target can't divide by zero.
     #[test]
     fn magic_dam_survives_zero_mdef() {
-        assert!(calc_magic_dam(100.0, 0.0, 12.0, false, 1.0).is_finite());
+        assert!(calc_magic_dam(100.0, 0.0, 12.0, false, 1.0, MagicFailure::None).is_finite());
+    }
+
+    /// Java applies the `MagicFailures` adjustment to the *base* damage and only
+    /// then multiplies by `critMod` — so a resisted crit lands on 2, not 1, and
+    /// a halved crit keeps the full ×2.
+    #[test]
+    fn magic_failure_applies_before_the_crit_multiplier() {
+        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 1.0, MagicFailure::Half) - 77.0).abs() < 1e-9);
+        assert!((calc_magic_dam(100.0, 60.0, 12.0, true, 1.0, MagicFailure::Half) - 154.0).abs() < 1e-9);
+        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 1.0, MagicFailure::Resisted) - 1.0).abs() < 1e-9);
+        assert!((calc_magic_dam(100.0, 60.0, 12.0, true, 1.0, MagicFailure::Resisted) - 2.0).abs() < 1e-9);
+    }
+
+    /// A PvE cast with no level gap and no level-78 penalty: `1.3^0 = 1`, so
+    /// `rate = 100 - 1 = 99`.
+    fn pve_input(target_level: i32, effective_level: i32) -> MagicSuccess<'static> {
+        MagicSuccess {
+            pve: true,
+            target_level,
+            effective_level,
+            caster_player_level: Some(effective_level),
+            target_is_raid: false,
+            min_npc_level_for_magic_penalty: 78,
+            skill_chance_penalty: &[2.5, 3.0, 3.25, 3.5],
+            magic_accuracy: 0,
+            magic_evasion: 0,
+        }
+    }
+
+    /// `rate = 100 - round(1.3^levelDiff)`. The curve is the whole reason a nuke
+    /// on a far-higher-level mob has to fail: by +18 levels the rate is negative,
+    /// so `Rnd.get(100) < rate` can never be true.
+    #[test]
+    fn magic_success_rate_follows_the_1_3_power_curve() {
+        assert_eq!(calc_magic_success_rate(&pve_input(40, 40)), 99);
+        assert_eq!(calc_magic_success_rate(&pve_input(46, 40)), 95); // 1.3^6  = 4.83  → 5
+        assert_eq!(calc_magic_success_rate(&pve_input(49, 40)), 89); // 1.3^9  = 10.6  → 11
+        assert_eq!(calc_magic_success_rate(&pve_input(52, 40)), 77); // 1.3^12 = 23.3  → 23
+        assert_eq!(calc_magic_success_rate(&pve_input(55, 40)), 49); // 1.3^15 = 51.2  → 51
+        assert!(calc_magic_success_rate(&pve_input(58, 40)) < 0); // 1.3^18 = 112.5
+    }
+
+    /// Casting *up* the level curve is free: a high-level caster on a low mob
+    /// saturates at 100 (`1.3^-n` rounds to 0).
+    #[test]
+    fn magic_success_rate_saturates_against_lower_targets() {
+        assert_eq!(calc_magic_success_rate(&pve_input(20, 40)), 100);
+    }
+
+    /// The roll is `Rnd.get(100) < rate`, so a rate of 49 lands on rolls 0-48.
+    #[test]
+    fn magic_success_roll_is_exclusive() {
+        let input = pve_input(55, 40);
+        assert!(calc_magic_success(&input, 48));
+        assert!(!calc_magic_success(&input, 49));
+        // A negative rate can never be rolled under, even at roll 0.
+        assert!(!calc_magic_success(&pve_input(58, 40), 0));
+    }
+
+    /// `MinNPCLevelForMagicPenalty` (78) gates the extra `targetModifier`. At 78+
+    /// with the caster 3+ levels below, the failure term is multiplied by the
+    /// penalty table entry at `targetLevel - casterLevel - 2`, clamped to the last.
+    #[test]
+    fn magic_success_applies_the_level_78_npc_penalty() {
+        // Target 78, caster 75 → levelDiff index 1 → 3.0. 1.3^3 = 2.197.
+        // 100 - round(2.197 * 3.0) = 100 - round(6.59) = 93.
+        let mut input = pve_input(78, 75);
+        assert_eq!(calc_magic_success_rate(&input), 93);
+        // Same gap against a 77 mob: below the threshold, so no targetModifier.
+        // 100 - round(2.197) = 98.
+        let below = pve_input(77, 74);
+        assert_eq!(calc_magic_success_rate(&below), 98);
+        // Raids are exempt from the penalty even at 78+.
+        input.target_is_raid = true;
+        assert_eq!(calc_magic_success_rate(&input), 98);
+    }
+
+    /// An NPC caster (`getActingPlayer() == null`) never picks up the penalty —
+    /// Java's null check comes before the level test.
+    #[test]
+    fn magic_success_npc_caster_skips_the_penalty() {
+        let mut input = pve_input(78, 75);
+        input.caster_player_level = None;
+        assert_eq!(calc_magic_success_rate(&input), 98);
+    }
+
+    /// The index clamps to the last table entry rather than panicking on a gap
+    /// wider than the table (Java's `levelDiff >= length` branch).
+    #[test]
+    fn magic_success_penalty_index_clamps() {
+        // Target 99, caster 78: index 19, table has 4 entries → 3.5.
+        // Both the clamped and the out-of-range case drive the rate negative.
+        assert!(calc_magic_success_rate(&pve_input(99, 78)) < 0);
+    }
+
+    /// PvP (neither side an `Attackable`) takes the magic-accuracy step table
+    /// instead; the level gap is irrelevant there.
+    #[test]
+    fn magic_success_pvp_uses_the_accuracy_table() {
+        let mut input = pve_input(80, 40);
+        input.pve = false;
+        // mAccDiff 0 > -20 → mAccModifier 2 → rate 98, despite the 40-level gap.
+        assert_eq!(calc_magic_success_rate(&input), 98);
+        input.magic_evasion = 22; // diff -22 → 30
+        assert_eq!(calc_magic_success_rate(&input), 70);
+        input.magic_evasion = 27; // diff -27 → 60
+        assert_eq!(calc_magic_success_rate(&input), 40);
+        input.magic_evasion = 32; // diff -32 → 90
+        assert_eq!(calc_magic_success_rate(&input), 10);
+        input.magic_evasion = 40; // diff -40 → 100
+        assert_eq!(calc_magic_success_rate(&input), 0);
     }
 
     /// Decrease Speed 1 (magicLevel 35, activateRate 80, lvlBonusRate 30): the

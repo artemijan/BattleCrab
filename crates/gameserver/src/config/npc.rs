@@ -66,6 +66,16 @@ pub struct NpcConfig {
     /// to non-raid NPCs (Java reads the same globals for players and NPCs).
     pub hp_regen_multiplier: f64,
     pub mp_regen_multiplier: f64,
+    /// `MinNPCLevelForMagicPenalty` (78) — the Gracia rule "when a character is
+    /// 3+ levels below a level-78+ monster, that monster resists magic more
+    /// often". Below this NPC level `Formulas.calcMagicSuccess` leaves its
+    /// `targetModifier` at 1.0, so on Interlude content the bare
+    /// `1.3^levelDiff` term is the whole penalty.
+    pub min_npc_level_for_magic_penalty: i32,
+    /// `SkillChancePenaltyForLvLDifferences` — multiplier on the magic-failure
+    /// term for -3 … -6 level differences, indexed by
+    /// `targetLevel - casterLevel - 2` and clamped to the last entry.
+    pub skill_chance_penalty_for_lvl_differences: Vec<f64>,
 }
 
 impl Default for NpcConfig {
@@ -92,6 +102,11 @@ impl Default for NpcConfig {
             hp_regen_multiplier: 1.0,
             mp_regen_multiplier: 1.0,
             vitality_consume_by_boss: 1125,
+            min_npc_level_for_magic_penalty: 78,
+            // Java's `Config` default for this key is the string "unknown",
+            // which `parseConfigLine` turns into an empty array; this dist sets
+            // it explicitly, so mirror the dist value as the default.
+            skill_chance_penalty_for_lvl_differences: vec![2.5, 3.0, 3.25, 3.5],
         }
     }
 }
@@ -131,7 +146,26 @@ impl NpcConfig {
             raid_mp_regen_multiplier: p.get_int("RaidMpRegenMultiplier", 100) as f64 / 100.0,
             hp_regen_multiplier: c.get_int("HpRegenMultiplier", 100) as f64 / 100.0,
             mp_regen_multiplier: c.get_int("MpRegenMultiplier", 100) as f64 / 100.0,
+            min_npc_level_for_magic_penalty: p
+                .get_int("MinNPCLevelForMagicPenalty", d.min_npc_level_for_magic_penalty),
+            skill_chance_penalty_for_lvl_differences: parse_config_line(
+                &p.get_string("SkillChancePenaltyForLvLDifferences", ""),
+                d.skill_chance_penalty_for_lvl_differences,
+            ),
         }
+    }
+}
+
+/// Java `Config.parseConfigLine` — a comma-separated float list. An unparseable
+/// or empty value falls back to the default rather than failing the boot (Java
+/// would hand back an empty array; an empty penalty table is indistinguishable
+/// from "no penalty", which is the same outcome as the fallback on this dist).
+fn parse_config_line(raw: &str, fallback: Vec<f64>) -> Vec<f64> {
+    let parsed: Vec<f64> = raw.split(',').filter_map(|v| v.trim().parse().ok()).collect();
+    if parsed.is_empty() {
+        fallback
+    } else {
+        parsed
     }
 }
 

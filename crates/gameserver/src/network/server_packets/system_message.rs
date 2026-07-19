@@ -68,6 +68,18 @@ pub mod sm_ids {
     /// "$c1 has resisted your $s2." — a debuff failed its landing roll
     /// (`Formulas.calcEffectSuccess`). Params: `[Text(targetName), SkillName]`.
     pub const C1_HAS_RESISTED_YOUR_S2: i16 = 139;
+    /// "Drain was only 50% successful." — `calcMagicDam`'s half-damage branch
+    /// on an HP-drain skill.
+    pub const DRAIN_WAS_ONLY_50_SUCCESSFUL: i16 = 156;
+    /// "You resisted $c1's drain." — shown to a *player target* that resisted
+    /// an incoming drain. Params: `[Text(casterName)]`.
+    pub const YOU_RESISTED_C1_S_DRAIN: i16 = 157;
+    /// "Your attack has failed." — `calcMagicDam`'s half-damage branch on a
+    /// non-drain magic skill.
+    pub const YOUR_ATTACK_HAS_FAILED: i16 = 158;
+    /// "You resisted $c1's magic." — shown to a *player target* that resisted
+    /// an incoming spell. Params: `[Text(casterName)]`.
+    pub const YOU_RESISTED_C1_S_MAGIC: i16 = 159;
     pub const YOU_HAVE_ACQUIRED_S1_SP: i16 = 331;
     pub const YOUR_SP_HAS_DECREASED_BY_S1: i16 = 538;
     pub const YOUR_XP_HAS_DECREASED_BY_S1: i16 = 539;

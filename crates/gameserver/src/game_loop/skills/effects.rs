@@ -63,7 +63,8 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     (m_atk, caster_display_name(world, caster_oid))
                 };
                 let m_def = target_m_def(world, target_oid);
-                let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit, magic_shots_bonus);
+                let failure = roll_magic_failure(world, caster_oid, target_oid, skill, false);
+                let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit, magic_shots_bonus, failure);
                 apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit);
             }
             SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance } => {
@@ -175,7 +176,10 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     (m_atk, caster_display_name(world, caster_oid))
                 };
                 let m_def = target_m_def(world, target_oid);
-                let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit, magic_shots_bonus);
+                // `is_drain` swaps the caster-side failure lines for the drain
+                // wording (Java checks `skill.hasEffectType(HP_DRAIN)`).
+                let failure = roll_magic_failure(world, caster_oid, target_oid, skill, true);
+                let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit, magic_shots_bonus, failure);
 
                 // `HpDrain.instant()`: the drained HP is what's actually removed
                 // — CP absorbs first (player targets only; NPCs have no CP),
@@ -1028,6 +1032,155 @@ fn send_sm(world: &World, player_oid: i32, sm_id: i16) {
     }
 }
 
+/// Send a system message with parameters to `player_oid`, if online.
+fn send_sm_with(world: &World, player_oid: i32, sm_id: i16, params: &[server_packets::SmParam]) {
+    if let Some(client_id) = client_for_player(world, player_oid) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(sm_id, params));
+        }
+    }
+}
+
+/// Resolve `Formulas.calcMagicSuccess`' inputs for a cast. `penalty` is the
+/// caller-owned backing store for the config penalty table (the struct borrows
+/// it), since `world` is re-borrowed mutably for the roll.
+fn magic_success_input<'a>(
+    world: &World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    penalty: &'a [f64],
+) -> formulas::MagicSuccess<'a> {
+    use crate::model::npc::Npc;
+
+    // Java `attacker.isAttackable() || target.isAttackable()`. `isAttackable()`
+    // is the `Attackable` class test (monsters, guards, defenders), not
+    // `isAutoAttackable` — a peaceful Folk on either side takes the PvP branch.
+    let is_attackable = |oid: i32| {
+        crate::game_loop::combat::is_npc_oid(oid)
+            && world
+                .objects
+                .get_component::<Npc>(&oid)
+                .and_then(|n| n.template(world))
+                .is_some_and(|t| t.is_attackable_class())
+    };
+
+    let caster_player_level =
+        world.objects.get_component::<crate::model::Player>(&caster_oid).map(|p| p.level);
+
+    // `target.isRaid() || target.isRaidMinion()` — a minion counts as a raid
+    // only when its leader is one (Java sets `_isRaidMinion` from the spawning
+    // raid boss, not from the minion's own template).
+    let target_is_raid = world
+        .objects
+        .get_component::<Npc>(&target_oid)
+        .and_then(|n| n.template(world))
+        .is_some_and(|t| t.is_raid())
+        || world
+            .objects
+            .get_component::<crate::game_loop::minions::MinionOf>(&target_oid)
+            .and_then(|leader| world.objects.get_component::<Npc>(&leader.0))
+            .and_then(|n| n.template(world))
+            .is_some_and(|t| t.is_raid());
+
+    formulas::MagicSuccess {
+        pve: is_attackable(caster_oid) || is_attackable(target_oid),
+        target_level: creature_level(world, target_oid),
+        effective_level: if world.cfg.character.calculate_magic_success_by_skill_magic_level
+            && skill.magic_level > 0
+        {
+            skill.magic_level
+        } else {
+            caster_level(world, caster_oid)
+        },
+        caster_player_level,
+        target_is_raid,
+        min_npc_level_for_magic_penalty: world.cfg.npc.min_npc_level_for_magic_penalty,
+        skill_chance_penalty: penalty,
+        magic_accuracy: world
+            .objects
+            .get_component::<CombatStats>(&caster_oid)
+            .map(|c| c.magic_accuracy)
+            .unwrap_or(0),
+        magic_evasion: world
+            .objects
+            .get_component::<CombatStats>(&target_oid)
+            .map(|c| c.magic_evasion)
+            .unwrap_or(0),
+    }
+}
+
+/// `Formulas.calcMagicDam`'s `ALT_GAME_MAGICFAILURES` block: roll
+/// `calcMagicSuccess`, and on a miss roll it a *second* time to pick between
+/// half damage and a flat 1, messaging both sides the way Java does.
+///
+/// Two Java quirks are load-bearing here and deliberately preserved:
+/// 1. The second roll — and therefore the damage reduction — only happens when
+///    the attacker is a player. An NPC caster that fails the first roll deals
+///    **full** damage; only the player target's "You resisted" line is sent.
+/// 2. Both the attacker-side and target-side messages fire on the same failure,
+///    so a resisted PvP nuke messages caster and victim.
+fn roll_magic_failure(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    is_drain: bool,
+) -> formulas::MagicFailure {
+    use server_packets::{sm_ids, SmParam};
+
+    if !world.cfg.character.magic_failures {
+        return formulas::MagicFailure::None;
+    }
+
+    let penalty = world.cfg.npc.skill_chance_penalty_for_lvl_differences.clone();
+    let input = magic_success_input(world, caster_oid, target_oid, skill, &penalty);
+    if formulas::calc_magic_success(&input, world.roll(100)) {
+        return formulas::MagicFailure::None;
+    }
+
+    let caster_is_player = world.objects.get_component::<crate::model::Player>(&caster_oid).is_some();
+    let target_is_player = world.objects.get_component::<crate::model::Player>(&target_oid).is_some();
+
+    let outcome = if caster_is_player {
+        // Java re-runs `calcMagicSuccess` here — an independent second roll,
+        // not a reuse of the first one's result.
+        let input = magic_success_input(world, caster_oid, target_oid, skill, &penalty);
+        if formulas::calc_magic_success(&input, world.roll(100)) {
+            send_sm(
+                world,
+                caster_oid,
+                if is_drain { sm_ids::DRAIN_WAS_ONLY_50_SUCCESSFUL } else { sm_ids::YOUR_ATTACK_HAS_FAILED },
+            );
+            formulas::MagicFailure::Half
+        } else {
+            let target_name = creature_name(world, target_oid);
+            send_sm_with(
+                world,
+                caster_oid,
+                sm_ids::C1_HAS_RESISTED_YOUR_S2,
+                &[SmParam::Text(target_name), SmParam::SkillName { id: skill.id, level: skill.level }],
+            );
+            formulas::MagicFailure::Resisted
+        }
+    } else {
+        // NPC caster: Java leaves `damage` untouched.
+        formulas::MagicFailure::None
+    };
+
+    if target_is_player {
+        let caster_name = caster_display_name(world, caster_oid);
+        send_sm_with(
+            world,
+            target_oid,
+            if is_drain { sm_ids::YOU_RESISTED_C1_S_DRAIN } else { sm_ids::YOU_RESISTED_C1_S_MAGIC },
+            &[SmParam::Text(caster_name)],
+        );
+    }
+
+    outcome
+}
+
 /// `handlers/effecthandlers/Spoil.java` + its `calcSuccess`
 /// (`Formulas.calcMagicSuccess`): mark a live monster spoiled so its `<spoil>`
 /// list rolls into sweep loot on death, wake its AI (`EVT_ATTACKED`), and
@@ -1054,22 +1207,11 @@ fn apply_spoil(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skil
         send_sm(world, caster_oid, sm_ids::IT_HAS_ALREADY_BEEN_SPOILED);
         return;
     }
-    // `calcSuccess` = `Formulas.calcMagicSuccess`. The effective level is the
-    // skill's `magicLevel` when `CalculateMagicSuccessBySkillMagicLevel` is on
-    // (dist default), else the caster's level.
-    let caster_level = world.objects.get_component::<crate::model::Player>(&caster_oid).map(|p| p.level).unwrap_or(1);
-    let target_level = world
-        .objects
-        .get_component::<Npc>(&target_oid)
-        .and_then(|n| n.template(world))
-        .map(|t| t.level)
-        .unwrap_or(1);
-    let effective_level = if world.cfg.character.calculate_magic_success_by_skill_magic_level && skill.magic_level > 0 {
-        skill.magic_level
-    } else {
-        caster_level
-    };
-    if !formulas::calc_magic_success(target_level, effective_level, world.roll(100)) {
+    // `calcSuccess` = `Formulas.calcMagicSuccess`, unconditional here — Spoil's
+    // own handler calls it directly, so `MagicFailures` doesn't gate it.
+    let penalty = world.cfg.npc.skill_chance_penalty_for_lvl_differences.clone();
+    let input = magic_success_input(world, caster_oid, target_oid, skill, &penalty);
+    if !formulas::calc_magic_success(&input, world.roll(100)) {
         // Magic resisted: `applyEffectScope` skips `instant()` — no effect,
         // and Java sends no message on a failed `calcSuccess`.
         return;
