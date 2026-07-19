@@ -439,6 +439,10 @@ pub struct Skill {
     pub name: String,
     pub operate_type: OperateType,
     pub target_type: TargetType,
+    /// Java `<overHit>` — a killing blow from this skill grants bonus XP
+    /// proportional to the *excess* damage (`Attackable.calculateOverhitExp`).
+    /// 59 learnable skills carry it (Triple Slash, Power Strike, Sonic Storm…).
+    pub over_hit: bool,
     /// Java `<abnormalVisualEffect>` as resolved client ids — what the client
     /// draws on anyone carrying this skill's abnormal. Cosmetic only.
     pub abnormal_visuals: Vec<i16>,

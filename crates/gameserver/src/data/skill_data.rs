@@ -371,6 +371,15 @@ fn finalize_skill(
             .split(';')
             .filter_map(|n| crate::model::skill::abnormal_visual_client_id(n.trim()))
             .collect();
+        // `overHit` is an **effect** parameter, not a skill field — the damage
+        // handlers (Backstab, EnergyAttack, PhysicalAttack, …) each read
+        // `params.getBoolean("overHit", false)`. A skill carries at most one
+        // damage effect in practice, so hoisting "any effect declares it" to the
+        // skill is behaviourally identical and avoids threading the flag
+        // through every `SkillEffect` variant.
+        let over_hit = effects.iter().any(|(_, params, ..)| {
+            value_at(params, "overHit", level).is_some_and(|v| v.trim().eq_ignore_ascii_case("true"))
+        });
         let toggle_group_id = get_i("toggleGroupId", 0);
         // `affectScope` defaults to SINGLE when absent (Java's Skill ctor).
         let affect_scope = match value_at(values, "affectScope", level) {
@@ -796,6 +805,7 @@ fn finalize_skill(
                 name: name.to_string(),
                 operate_type,
                 target_type,
+                over_hit,
                 abnormal_visuals,
                 toggle_group_id,
                 affect_scope,
@@ -937,6 +947,12 @@ mod tests {
         // Sonic Storm carries the same 5-12 cap over a tighter 150 sweep.
         assert_eq!(sonic_storm.affect_range, 150);
         assert_eq!(sonic_storm.affect_limit, (5, 12));
+
+        // Over-hit (G20): 59 learnable skills carry `<overHit>true</overHit>` —
+        // a killing blow with one pays bonus XP for the excess damage.
+        assert!(sd.get(1, 1).expect("Triple Slash").over_hit, "Triple Slash over-hits");
+        assert!(sd.get(7, 1).expect("Sonic Storm").over_hit);
+        assert!(!sd.get(1068, 1).expect("Might").over_hit, "a buff does not");
 
         // Polearm Mastery 216 raises ATTACK_COUNT_MAX to 5 (`HitNumber`) —
         // this is what turns a polearm into a sweep weapon; the weapon type

@@ -387,6 +387,18 @@ impl RecipeBook {
     }
 }
 
+/// Java `Attackable`'s over-hit trio (`_overhitEnabled` / `_overhitDamage` /
+/// `_overhitAttacker`): a killing blow from an `<overHit>` skill banks the
+/// *excess* damage, which becomes bonus XP for whoever landed it.
+///
+/// Armed per damaging blow and disarmed by any blow that fails to kill, so it
+/// only ever survives on a corpse — exactly Java's `setOverhitValues` contract.
+#[derive(Component, Debug, Clone, Copy, Default)]
+pub struct Overhit {
+    pub damage: f64,
+    pub attacker: i32,
+}
+
 /// Java `Creature._disableRangedAttackEndTime` — the tick a bow/crossbow may
 /// fire again. Present only after a shot; the reload delay is
 /// `900000 / pAtkSpd` ms (`Formulas.calculateReuseTime`).

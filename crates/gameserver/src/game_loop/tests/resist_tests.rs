@@ -36,6 +36,7 @@ fn base_skill(id: i32, effects: Vec<SkillEffect>) -> Skill {
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
+        over_hit: false,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,

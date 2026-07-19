@@ -292,6 +292,9 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
             let player_level = p.level;
             let gap = formulas::exp_sp_level_gap_multiplier(player_level, t.level);
             let mut exp = (t.exp * rate_xp * damage / total_damage * gap).max(0.0);
+            // `Attackable.onKill`: the over-hit bonus rides on this attacker's
+            // share, but only for whoever actually landed the killing blow.
+            exp += overhit_bonus(world, npc_oid, player_oid, exp);
             let mut sp = (t.sp * rate_sp * damage / total_damage * gap).max(0.0);
             // `Attackable.onKill`: premium rates apply *before* the vitality /
             // skill bonus multiplier `addExpAndSp` folds in.
@@ -509,6 +512,33 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
 // ---------------------------------------------------------------------------
 // XP/SP gain and level-ups (`PlayableStat.addExp` / `PlayerStat.addLevel`)
 // ---------------------------------------------------------------------------
+
+/// `Attackable.calculateOverhitExp` — the bonus XP a killing `<overHit>` blow
+/// earns, and the "over-hit!" notice that goes with it.
+///
+/// The bonus is the excess damage as a share of the victim's **max** HP,
+/// **capped at 25 %**, applied to that attacker's exp share. Returns 0 for
+/// anyone who didn't land the over-hit blow, and clears the record so a single
+/// kill pays it once.
+fn overhit_bonus(world: &mut World, npc_oid: i32, attacker_oid: i32, exp: f64) -> f64 {
+    use crate::model::components::Overhit;
+    let Some(oh) = world.objects.get_component::<Overhit>(&npc_oid).copied() else { return 0.0 };
+    if oh.attacker != attacker_oid {
+        return 0.0;
+    }
+    let max_hp = world.objects.get_component::<Vitals>(&npc_oid).map(|v| v.max_hp as f64).unwrap_or(0.0);
+    if max_hp <= 0.0 {
+        return 0.0;
+    }
+    world.objects.remove_component::<Overhit>(&npc_oid);
+    let percentage = ((oh.damage * 100.0) / max_hp).min(25.0);
+    if let Some(client_id) = client_for_player(world, attacker_oid) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(sm_ids::OVER_HIT, &[]));
+        }
+    }
+    (percentage / 100.0) * exp
+}
 
 /// The vitality half of `Attackable.onKill`'s reward block: charge the killer
 /// for the kill (`updateVitalityPoints(getVitalityPoints(level, exp, isRaid),

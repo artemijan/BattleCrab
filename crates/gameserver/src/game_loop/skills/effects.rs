@@ -64,7 +64,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 };
                 let m_def = target_m_def(world, target_oid);
                 let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit, magic_shots_bonus);
-                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name);
+                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit);
             }
             SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance } => {
                 // `PhysicalAttack.instant()`: crit is rolled here (per-effect in
@@ -96,7 +96,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     crit,
                     ss,
                 );
-                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name);
+                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit);
             }
             SkillEffect::Blow { power, chance_boost, critical_chance, backstab } => {
                 use crate::model::components::Position as PosComp;
@@ -167,7 +167,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 }
                 // Java passes `critical = true` to `doAttack` for every blow, so
                 // it always shows as a critical hit.
-                apply_skill_damage(world, caster_oid, target_oid, damage, true, false, &caster_name);
+                apply_skill_damage(world, caster_oid, target_oid, damage, true, false, &caster_name, skill.over_hit);
             }
             SkillEffect::HpDrain { power, percentage } => {
                 let power = *power;
@@ -213,7 +213,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                         crate::game_loop::party::notify_party_vitals(world, caster_oid);
                     }
                 }
-                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name);
+                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit);
             }
             SkillEffect::Heal { power } => {
                 let power = *power;
@@ -371,7 +371,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                             .get_component::<crate::model::Player>(&caster_oid)
                             .map(|p| p.name.clone())
                             .unwrap_or_default();
-                        apply_skill_damage(world, caster_oid, target_oid, damage, true, true, &caster_name);
+                        apply_skill_damage(world, caster_oid, target_oid, damage, true, true, &caster_name, skill.over_hit);
                     }
                 }
             }
@@ -807,6 +807,32 @@ fn apply_mute_interrupt(world: &mut World, target_oid: i32, skill: &Skill) {
     }
 }
 
+/// Java `AttackableStatus.reduceHp` + `Attackable.setOverhitValues`: bank the
+/// *excess* damage of a killing `<overHit>` blow, so the kill reward can pay a
+/// bonus for it.
+///
+/// `excess = damage - currentHp`. A blow that fails to kill (negative excess)
+/// **disarms** the state — as does any damage from a non-overhit skill — so the
+/// record only ever survives on a corpse, and only from the blow that made it
+/// one.
+fn record_overhit(world: &mut World, caster_oid: i32, target_oid: i32, damage: f64, over_hit: bool) {
+    use crate::model::components::Overhit;
+    if damage <= 0.0 {
+        return;
+    }
+    let cur_hp = world
+        .objects
+        .get_component::<Vitals>(&target_oid)
+        .map(|v| v.cur_hp)
+        .unwrap_or(0.0);
+    let excess = damage - cur_hp;
+    if !over_hit || excess < 0.0 {
+        world.objects.remove_component::<Overhit>(&target_oid);
+        return;
+    }
+    world.objects.add_components(&target_oid, Overhit { damage: excess, attacker: caster_oid });
+}
+
 /// `Creature.stopMove` + `abortCast` on the freshly-stunned victim: a skill
 /// that lands `BLOCK_ACTIONS` interrupts whatever the target was doing, rather
 /// than only preventing the *next* action. Without this a stun landing
@@ -1149,7 +1175,12 @@ pub(crate) fn apply_skill_damage(
     crit: bool,
     is_magic: bool,
     caster_name: &str,
+    // Java `AttackableStatus.reduceHp` consults the skill's `<overHit>` here.
+    // Passed explicitly rather than re-read, because the damage value this
+    // needs only exists at the call site.
+    over_hit: bool,
 ) {
+    record_overhit(world, caster_oid, target_oid, damage, over_hit);
     use server_packets::{sm_ids, SmParam};
 
     // A siege door: route the hit straight to the gate's HP (no CP/hate/AI
@@ -1521,7 +1552,7 @@ pub(crate) fn handle_dam_over_time_tick(
             // Java `effector.doAttack(damage, effected, skill, isDOT=true, …,
             // critical=false, …)`: no crit line; reuses the shared victim-side
             // path (CP soak / NPC hate / AI wake / death).
-            apply_skill_damage(world, caster_oid, target_oid, damage, false, skill.magic_type == 1, &caster_name);
+            apply_skill_damage(world, caster_oid, target_oid, damage, false, skill.magic_type == 1, &caster_name, false);
             // A `canKill` tick can kill outright — stop then.
             if world.objects.get_component::<Vitals>(&target_oid).is_none_or(|v| v.dead) {
                 return;
