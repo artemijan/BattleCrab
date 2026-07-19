@@ -18,6 +18,7 @@ mod augment;
 mod death;
 mod dispatch;
 mod doors;
+pub(crate) mod duel;
 mod enchant;
 mod expertise;
 mod friends;
@@ -325,6 +326,8 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::PartyPositionBroadcast { party_id, seq } => {
                 party::handle_position_broadcast(world, party_id, seq);
             }
+            ScheduledTask::DuelCountdown { duel_id } => duel::handle_countdown(world, duel_id),
+            ScheduledTask::DuelTick { duel_id } => duel::handle_tick(world, duel_id),
             ScheduledTask::PartyLootChangeTimeout { party_id, seq } => {
                 party::handle_loot_change_timeout(world, party_id, seq);
             }

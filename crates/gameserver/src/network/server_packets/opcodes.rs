@@ -153,3 +153,10 @@ pub const EX_SHOW_VARIATION_CANCEL_WINDOW: i16 = 0x53;
 pub const EX_PUT_INTENSIVE_RESULT_FOR_VARIATION_MAKE: i16 = 0x55;
 pub const EX_VARIATION_RESULT: i16 = 0x57;
 pub const EX_VARIATION_CANCEL_RESULT: i16 = 0x59;
+
+/// Duel packets (G20) — `ExDuelAskStart`/`Ready`/`Start`/`End`/`UpdateUserInfo`.
+pub const EX_DUEL_ASK_START: i16 = 0x4D;
+pub const EX_DUEL_READY: i16 = 0x4E;
+pub const EX_DUEL_START: i16 = 0x4F;
+pub const EX_DUEL_END: i16 = 0x50;
+pub const EX_DUEL_UPDATE_USER_INFO: i16 = 0x51;

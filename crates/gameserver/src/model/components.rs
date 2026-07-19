@@ -387,6 +387,18 @@ impl RecipeBook {
     }
 }
 
+/// The duel this player is currently in (`Player._isInDuel` → the duel id).
+/// Present from the countdown until the duel ends.
+#[derive(Component, Debug, Clone, Copy, Default)]
+pub struct DuelRef(pub u32);
+
+/// An outstanding duel challenge awaiting this player's answer
+/// (`ExDuelAskStart` sent, `RequestDuelAnswerStart` pending).
+#[derive(Component, Debug, Clone, Copy, Default)]
+pub struct PendingDuel {
+    pub challenger: i32,
+}
+
 /// Java `Attackable`'s over-hit trio (`_overhitEnabled` / `_overhitDamage` /
 /// `_overhitAttacker`): a killing blow from an `<overHit>` skill banks the
 /// *excess* damage, which becomes bonus XP for whoever landed it.

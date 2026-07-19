@@ -278,6 +278,9 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // ExSendClientIni (AUTHENTICATED): the client reports its client.ini
         // after auth; Mobius registers a null handler, so consume it silently.
         exop::EX_SEND_CLIENT_INI => {}
+        exop::REQUEST_DUEL_START => super::duel::handle_request_duel_start(world, client_id, ex_body),
+        exop::REQUEST_DUEL_ANSWER_START => super::duel::handle_request_duel_answer(world, client_id, ex_body),
+        exop::REQUEST_DUEL_SURRENDER => super::duel::handle_request_duel_surrender(world, client_id),
         exop::REQUEST_SAVE_INVENTORY_ORDER => {
             handle_request_save_inventory_order(world, client_id, ex_body)
         }

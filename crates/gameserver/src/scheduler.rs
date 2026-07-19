@@ -68,6 +68,10 @@ pub enum ScheduledTask {
     /// `_positionBroadcastTask`); reschedules itself while the party lives
     /// and `seq` matches.
     PartyPositionBroadcast { party_id: u32, seq: u64 },
+    /// One second of a duel's pre-fight countdown.
+    DuelCountdown { duel_id: u32 },
+    /// The per-second `checkEndDuelCondition` sweep of a running duel.
+    DuelTick { duel_id: u32 },
     /// The 15 s loot-rule-change window elapsed without unanimous approval
     /// (`Party.PARTY_DISTRIBUTION_TYPE_REQUEST_TIMEOUT`).
     PartyLootChangeTimeout { party_id: u32, seq: u64 },

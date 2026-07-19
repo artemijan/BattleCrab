@@ -225,6 +225,9 @@ pub struct World {
     /// exist through member references; an id-keyed map is the Rust shape).
     pub parties: HashMap<u32, crate::model::party::Party>,
     pub next_party_id: u32,
+    /// Running duels (Java `DuelManager._duels`), keyed by duel id.
+    pub duels: HashMap<u32, crate::game_loop::duel::Duel>,
+    pub next_duel_id: u32,
     /// GM mob groups (`MobGroupTable`), keyed by group id — `//mobgroup_*`.
     pub mob_groups: HashMap<i32, crate::model::mob_group::MobGroup>,
     /// Region cell → ground-item object ids in it (same shape as `npc_regions`;
@@ -289,6 +292,8 @@ impl World {
             cb_last_bypass: HashMap::new(),
             parties: HashMap::new(),
             next_party_id: 1,
+            duels: HashMap::new(),
+            next_duel_id: 1,
             mob_groups: HashMap::new(),
             ground_item_regions: HashMap::new(),
             request_seq: 0,
