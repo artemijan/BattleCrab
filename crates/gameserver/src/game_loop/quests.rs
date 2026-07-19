@@ -532,6 +532,14 @@ impl<'w> QuestCtx<'w> {
         self.send(pkt);
     }
 
+    /// `player.sendPacket(new SocialAction(player.getObjectId(), id))` — the
+    /// victory animation the class-path quests play on completion. Java uses
+    /// `sendPacket`, not a broadcast, so only the player sees it.
+    pub fn social_action(&mut self, action_id: i32) {
+        let pkt = server_packets::social_action(self.player, action_id);
+        self.send(pkt);
+    }
+
     /// `Rnd.get(bound)` through the world RNG (test-forceable).
     pub fn roll(&mut self, bound: i32) -> i32 {
         self.world.roll(bound)
