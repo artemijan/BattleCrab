@@ -40,6 +40,7 @@ pub mod q00410_path_of_the_palus_knight;
 pub mod q00411_path_of_the_assassin;
 pub mod q00412_path_of_the_dark_wizard;
 pub mod q00413_path_of_the_shillien_oracle;
+pub mod q00414_path_of_the_orc_raider;
 pub mod q00407_path_of_the_elven_scout;
 pub mod q00324_sweetest_venom;
 pub mod teleport_to_race_track;
@@ -77,6 +78,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00411_path_of_the_assassin::Q00411PathOfTheAssassin),
         Arc::new(q00412_path_of_the_dark_wizard::Q00412PathOfTheDarkWizard),
         Arc::new(q00413_path_of_the_shillien_oracle::Q00413PathOfTheShillienOracle),
+        Arc::new(q00414_path_of_the_orc_raider::Q00414PathOfTheOrcRaider),
         Arc::new(q00407_path_of_the_elven_scout::Q00407PathOfTheElvenScout),
         Arc::new(alliance_master::AllianceMaster),
         Arc::new(clan_master::ClanMaster),
