@@ -168,7 +168,16 @@ fn unstuck_casts_escape_and_teleports_to_town() {
     advance_ticks(&mut world, 310);
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
     assert_eq!((pos.x, pos.y, pos.z), (5000, 6000, -25), "escaped to the town respawn (z lifted by 5)");
-    assert!(drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
+    let landed = drain(&mut rx);
+    assert!(landed.iter().any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
+    // `teleToLocation`'s `abortCast()`: without the cancel the client keeps
+    // drawing the escape FX at the destination for skill 2099's own 5-minute
+    // duration, even though the teleport already landed.
+    assert!(
+        landed.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED),
+        "teleport must cancel the cast animation client-side"
+    );
+    assert!(!world.objects.has_component::<Casting>(&3001), "cast slot freed by the abort");
 }
 
 /// `/loc` (user command 0): inside a mapped region the region's `locId` is
