@@ -337,3 +337,62 @@ fn the_save_carries_hennas_and_shortcuts_for_every_slot() {
     assert!(save.hennas_by_index.contains_key(&0), "the base slot's dyes are banked");
     assert!(save.shortcuts_by_index.contains_key(&0), "and its shortcut bar");
 }
+
+// ---------------------------------------------------------------------------
+// The village-master flow (slice 5).
+
+use crate::game_loop::subclass::{available_subclasses, can_add_subclass, SUBCLASS_MIN_LEVEL};
+
+#[test]
+fn adding_a_subclass_needs_level_75() {
+    let (mut world, _db, _l) = sub_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+
+    crate::game_loop::death::set_level(&mut world, PLAYER, SUBCLASS_MIN_LEVEL - 1);
+    assert!(!can_add_subclass(&world, PLAYER), "74 is not enough");
+
+    crate::game_loop::death::set_level(&mut world, PLAYER, SUBCLASS_MIN_LEVEL);
+    assert!(can_add_subclass(&world, PLAYER), "75 is the gate");
+}
+
+#[test]
+fn a_full_slot_list_blocks_adding_even_at_level_75() {
+    let (mut world, _db, _l) = sub_world();
+    world.cfg.character.max_subclass = 1;
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    crate::game_loop::death::set_level(&mut world, PLAYER, SUBCLASS_MIN_LEVEL);
+    add_subclass(&mut world, PLAYER, 3).unwrap();
+
+    assert!(!can_add_subclass(&world, PLAYER));
+}
+
+#[test]
+fn the_available_list_excludes_the_base_lineage_and_held_classes() {
+    // Against the real datapack, so the class hierarchy and category groups
+    // are the shipped ones rather than a fixture's guess.
+    let (mut world, _db, _l) = combat_test_world();
+    world.data = crate::data::GameData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    // Human Fighter line: base class 0.
+    let avail = available_subclasses(&world, PLAYER);
+    assert!(!avail.is_empty(), "a human fighter has subclasses available");
+
+    // Every offering is a third-class group entry...
+    for c in &avail {
+        assert!(
+            world.data.categories.contains("THIRD_CLASS_GROUP", *c),
+            "class {c} is not a 3rd-class group entry"
+        );
+    }
+    // ...and none is Overlord or Warsmith.
+    assert!(!avail.contains(&91), "Overlord is never subclassable");
+    assert!(!avail.contains(&99), "Warsmith is never subclassable");
+
+    // Taking one removes it (and its lineage) from the next offering.
+    let taken = avail[0];
+    add_subclass(&mut world, PLAYER, taken).unwrap();
+    assert!(!available_subclasses(&world, PLAYER).contains(&taken), "a held class is not offered again");
+}

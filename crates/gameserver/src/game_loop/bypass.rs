@@ -164,6 +164,18 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
         // `VillageMaster.onBypassFeedback` verbs — gated on the instance
         // class like Java's subclass override (`type_name` check stands in
         // for `instanceof VillageMaster`).
+        // `VillageMaster.onBypassFeedback`'s `Subclass` verb — the in-game
+        // add/change flow over the G17 subclass mechanic.
+        "Subclass" if is_village_master(world, npc_object_id) => {
+            let args = command.strip_prefix("Subclass").unwrap_or("").trim();
+            super::subclass::handle_village_master_bypass(
+                world,
+                client_id,
+                object_id,
+                npc_object_id,
+                args,
+            );
+        }
         "create_clan" if is_village_master(world, npc_object_id) => {
             let args = command.strip_prefix("create_clan").unwrap_or("").trim();
             super::clans::handle_create_clan(world, client_id, object_id, args);

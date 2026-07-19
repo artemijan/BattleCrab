@@ -162,6 +162,25 @@ impl SkillTreeData {
         &self.hero_skills
     }
 
+    /// The class this one advanced from (`ClassId.getParent`), if any.
+    pub fn parent_class(&self, class_id: i32) -> Option<i32> {
+        self.parents.get(&class_id).copied()
+    }
+
+    /// Walk up to the class's root (1st-occupation) ancestor, inclusive.
+    pub fn class_lineage(&self, class_id: i32) -> Vec<i32> {
+        let mut out = vec![class_id];
+        let mut cur = class_id;
+        while let Some(p) = self.parents.get(&cur).copied() {
+            if out.contains(&p) {
+                break;
+            }
+            out.push(p);
+            cur = p;
+        }
+        out
+    }
+
     /// Test hook: install a synthetic noble tree.
     #[doc(hidden)]
     pub fn set_noble_skills_for_test(&mut self, skills: Vec<Skill>) {
