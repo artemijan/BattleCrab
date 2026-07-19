@@ -139,6 +139,8 @@ fn apply_clan_skill_to_member(world: &mut World, member_oid: i32, skill_id: i32,
         slot: crate::model::skill::BuffSlot::Uncapped,
         expires_at_tick: u64::MAX,
         passive: true,
+        // Synthetic buff (passive/clan/expertise pump): no abnormal state.
+        effect_flags: 0,
         effects,
     };
     apply_permanent_passive_buff(world, member_oid, buff);

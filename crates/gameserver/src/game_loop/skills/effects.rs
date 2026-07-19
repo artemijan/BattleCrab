@@ -404,6 +404,10 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             // the timed `PK_PROTECT` abnormal handled by the buff path below
             // (kept off the empty-`buff_effects` bail via `has_protection`).
             // TODO(G-pvp): the actual PK damage immunity.
+            // Purely state-flag effects: nothing happens at application time
+            // beyond the buff landing — the mechanic is the abnormal flag the
+            // buff carries, read by the action gates (`game_loop::abnormal`).
+            SkillEffect::BlockActions { .. } | SkillEffect::Root => {}
             SkillEffect::ProtectionBlessing => {}
             // DefenceTrait (Mental Shield / Resist Shock) and VampiricAttack
             // (Vampiric Rage): no instant action — they land purely as an
@@ -450,6 +454,9 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     // VampiricAttack (Vampiric Rage) likewise carry no stat modifier but must
     // still land as an icon-only timed buff (their abnormal + duration): their
     // real mechanics aren't modeled yet, but the buff must show and expire.
+    // Stun/sleep/paralyze/root carry no stat modifier either — their whole
+    // mechanic is the abnormal flag — so they must survive this guard too.
+    let has_state_flag = skill.effect_flags() != 0;
     let has_iconless_buff = skill.effects.iter().any(|e| {
         matches!(
             e,
@@ -462,7 +469,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 | SkillEffect::DamageShield
         )
     });
-    if buff_effects.is_empty() && !has_dot && !has_iconless_buff {
+    if buff_effects.is_empty() && !has_dot && !has_iconless_buff && !has_state_flag {
         return;
     }
 
@@ -517,6 +524,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         slot: skill.buff_slot(),
         expires_at_tick,
         passive: false,
+        effect_flags: skill.effect_flags(),
         effects: buff_effects,
     };
 
@@ -531,6 +539,9 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     // isn't reflected client-side until respawn; the combat math uses it now).
     if crate::game_loop::combat::is_npc_oid(target_oid) {
         apply_buff_to_npc(world, target_oid, buff, skill.id);
+        if skill.effect_flags() & crate::model::skill::effect_flag::BLOCK_ACTIONS != 0 {
+            apply_block_actions_interrupt(world, target_oid);
+        }
         if !permanent {
             world
                 .scheduler
@@ -577,12 +588,47 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         // Max HP/MP/CP live on a separate path from `recalculate_stats`; fold
         // the buff's MaxHp/MaxMp/MaxCp modifiers into them too (e.g. a +MP buff).
         recompute_max_vitals(world, target_oid);
+        if skill.effect_flags() & crate::model::skill::effect_flag::BLOCK_ACTIONS != 0 {
+            apply_block_actions_interrupt(world, target_oid);
+        }
         // A stat buff changed pAtk/pDef/speed/…; Java's `recalculateStats(true)`
         // follows with `broadcastUserInfo()`. Without this the client shows the
         // buff icon but never the changed stats or movement speed (and other
         // players never see the speed change).
         crate::game_loop::party::broadcast_user_info(world, target_oid);
     }
+}
+
+/// `Creature.stopMove` + `abortCast` on the freshly-stunned victim: a skill
+/// that lands `BLOCK_ACTIONS` interrupts whatever the target was doing, rather
+/// than only preventing the *next* action. Without this a stun landing
+/// mid-cast would let the cast finish.
+///
+/// A root deliberately does not do this — it stops movement (the movement
+/// primitives refuse it from the next tick) but leaves a cast running.
+fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) {
+    // Order matters: abort the cast *first*. `stop_casting` resumes the move
+    // the cast interrupted (`start_casting` stashes it), so clearing movement
+    // before the cast would see it immediately restored — the victim would keep
+    // walking while stunned.
+    if world.objects.has_component::<crate::model::components::Casting>(&target_oid) {
+        crate::game_loop::skills::cast::stop_casting(world, target_oid);
+    }
+    // Then freeze them where they stand and tell everyone who can see them.
+    if world.objects.has_component::<crate::model::components::Movement>(&target_oid) {
+        world.objects.remove_component::<crate::model::components::Movement>(&target_oid);
+        if let Some(pos) = world.objects.get_component::<crate::model::components::Position>(&target_oid).copied() {
+            if let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&target_oid).map(|r| r.0) {
+                crate::game_loop::helpers::broadcast_near_region(
+                    world,
+                    region,
+                    &server_packets::stop_move(target_oid, pos.x, pos.y, pos.z, pos.heading),
+                );
+            }
+        }
+    }
+    // Monsters additionally lose their chase leg; `think` will no-op while the
+    // flag is up, and the AI resumes on its own once it expires.
 }
 
 /// A target creature's level (Java `Creature.getLevel()`) for the debuff

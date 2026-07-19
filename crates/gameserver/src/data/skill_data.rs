@@ -409,6 +409,18 @@ fn finalize_skill(
                     })
                 };
                 match xml_name.as_str() {
+                    // Stun / sleep / paralyze (540 uses) and Root (79): no stat
+                    // modifier at all — the whole mechanic is the abnormal-state
+                    // flag they contribute (`Skill::effect_flags`).
+                    "BlockActions" => {
+                        // Java: a non-empty `allowedSkills` whitelist makes this
+                        // CONDITIONAL_BLOCK_ACTIONS instead. Both gate the same
+                        // way in `hasBlockActions()`.
+                        let conditional = value_at(params, "allowedSkills", level)
+                            .is_some_and(|v| !v.trim().is_empty());
+                        return vec![SkillEffect::BlockActions { conditional }];
+                    }
+                    "Root" => return vec![SkillEffect::Root],
                     // Java instantiates these handlers whenever the `<effect>` is
                     // present and reads `params.getDouble("power", 0)` — the
                     // effect is always created, `power` defaulting to 0 when the
@@ -778,6 +790,20 @@ mod tests {
         assert_eq!(sonic_storm.affect_range, 150);
         assert_eq!(sonic_storm.affect_limit, (5, 12));
 
+        // Shield Stun 92 / Arrest 402 — the crowd-control pair. Neither carries
+        // a stat modifier: the whole mechanic is the abnormal-state flag.
+        let shield_stun = sd.get(92, 1).expect("Shield Stun lvl 1");
+        assert_eq!(shield_stun.effect_flags(), crate::model::skill::effect_flag::BLOCK_ACTIONS);
+        assert_eq!(shield_stun.abnormal_type, "STUN");
+        assert!(shield_stun.stat_modifier_effects().is_empty());
+        let arrest = sd.get(402, 1).expect("Arrest lvl 1");
+        assert_eq!(arrest.effect_flags(), crate::model::skill::effect_flag::ROOTED);
+        assert_eq!(arrest.abnormal_type, "ROOT_PHYSICALLY");
+        // A root does NOT block actions — only movement.
+        assert_eq!(arrest.effect_flags() & crate::model::skill::effect_flag::BLOCK_ACTIONS, 0);
+        // An ordinary buff contributes no state flags at all.
+        assert_eq!(sd.get(1068, 1).expect("Might").effect_flags(), 0);
+
         // Thunder Storm 48 casts from SELF with a POINT_BLANK sweep — the
         // scope that centres on the *caster* rather than the target, which is
         // why its targetType is SELF even though it is an offensive skill.
@@ -786,6 +812,9 @@ mod tests {
         assert_eq!(thunder_storm.target_type, TargetType::Self_);
         assert_eq!(thunder_storm.affect_object, AffectObject::NotFriend);
         assert_eq!(thunder_storm.affect_range, 150);
+        // ...and it is *also* a stun, so it exercises both G19 slices at once:
+        // a caster-centred sweep that block-actions everything it catches.
+        assert_eq!(thunder_storm.effect_flags(), crate::model::skill::effect_flag::BLOCK_ACTIONS);
         // A skill with no `<activateRate>` defaults to -1 (always lands): the
         // buff Might 1068.
         let might = sd.get(1068, 1).expect("Might lvl 1");

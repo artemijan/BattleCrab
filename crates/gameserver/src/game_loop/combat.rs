@@ -281,6 +281,14 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
     }
 
     let _ = player;
+    // `Creature.isAttackDisabled()` → `isDisabled()` → `hasBlockActions()`: a
+    // stunned/asleep/paralyzed attacker is refused outright.
+    if super::abnormal::is_blocked_from_actions(world, object_id) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
     // A Ctrl-click (force attack) both selects *and* engages the target. When
     // switching target the client may send only this packet — no preceding
     // `Action` — so selecting without engaging drops the "attack this next"

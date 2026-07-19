@@ -30,6 +30,7 @@ use crate::model::party::LootRule;
 use crate::character::FriendInfo;
 use crate::model::components::Friends;
 
+mod abnormal_tests;
 mod admin_tests;
 mod affect_tests;
 mod clans_tests;

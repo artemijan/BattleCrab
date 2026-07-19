@@ -145,6 +145,18 @@ pub struct RestorationGroup {
 pub enum SkillEffect {
     /// Continuous stat pump (goes into an `ActiveBuff` for `abnormal_time`).
     StatModifier(StatModifierEffect),
+    /// `handlers/effecthandlers/BlockActions.java` — stun / sleep / paralyze:
+    /// the target can neither act nor move for the buff's duration. Carries no
+    /// stat modifier; the state lives in the [`effect_flag`] mask.
+    ///
+    /// `conditional` mirrors Java's `allowedSkills` whitelist (a non-empty list
+    /// yields `CONDITIONAL_BLOCK_ACTIONS` instead). The whitelist contents are
+    /// not modelled — `hasBlockActions()` treats both flags the same, so the
+    /// only skills wrongly blocked are the whitelisted ones. TODO(G19).
+    BlockActions { conditional: bool },
+    /// `handlers/effecthandlers/Root.java` — immobilised. Unlike a stun the
+    /// target may still attack and cast.
+    Root,
     /// `handlers/effecthandlers/MagicalAttack.java` — instant magic damage.
     MagicalAttack { power: f64 },
     /// `handlers/effecthandlers/PhysicalAttack.java` — instant physical skill
@@ -280,6 +292,30 @@ pub enum SkillEffect {
     /// (abnormal + duration honored).
     /// TODO(G20): reflect `amount`% of received damage in the combat path.
     DamageShield,
+}
+
+/// Java `EffectFlag` — the abnormal-state bitmask a creature carries while
+/// certain effects are on it, consulted by the action gates
+/// (`Creature.hasBlockActions`/`isRooted`/`isMovementDisabled`).
+///
+/// **Deviation:** Java caches the mask on `EffectList` and recomputes it on
+/// every add/remove (`computeEffectFlags`). This port instead stamps each
+/// [`ActiveBuff`] with the flags its skill contributes and ORs the live buff
+/// list on read ([`crate::game_loop::abnormal::flags_of`]). Same answer, but
+/// there is no cached value to go stale across the several places buffs are
+/// added and removed.
+///
+/// Only the flags with a ported consumer are defined; the rest of Java's ~40
+/// are added as their mechanics land.
+pub mod effect_flag {
+    /// `BLOCK_ACTIONS` — stun / sleep / paralyze: no attacking, casting or
+    /// moving. Java also has `CONDITIONAL_BLOCK_ACTIONS` (a `BlockActions`
+    /// carrying an `allowedSkills` whitelist); `hasBlockActions()` treats the
+    /// two identically, and the whitelist itself is a TODO(G19), so both map
+    /// here.
+    pub const BLOCK_ACTIONS: u32 = 1 << 0;
+    /// `ROOTED` — immobilised, but still able to attack and cast.
+    pub const ROOTED: u32 = 1 << 1;
 }
 
 /// `dist/game/data/stats/skills/*.xml` → `Skill.java`, scoped to G6.
@@ -423,6 +459,21 @@ impl Skill {
 
     /// The continuous stat-pump subset of `effects` — what lands as an
     /// `ActiveBuff` (instant effects never enter a buff).
+    /// OR of the [`effect_flag`] bits this skill's effects contribute — Java's
+    /// `AbstractEffect.getEffectFlags()` summed over the effect list.
+    pub fn effect_flags(&self) -> u32 {
+        self.effects.iter().fold(0, |acc, e| {
+            acc | match e {
+                // Java splits these into BLOCK_ACTIONS vs
+                // CONDITIONAL_BLOCK_ACTIONS, but `hasBlockActions()` ORs them,
+                // so a single bit is behaviourally identical here.
+                SkillEffect::BlockActions { .. } => effect_flag::BLOCK_ACTIONS,
+                SkillEffect::Root => effect_flag::ROOTED,
+                _ => 0,
+            }
+        })
+    }
+
     pub fn stat_modifier_effects(&self) -> Vec<StatModifierEffect> {
         self.effects
             .iter()
@@ -471,6 +522,10 @@ pub struct ActiveBuff {
     /// `AbnormalStatusUpdate` (Java passive skills never show an abnormal icon)
     /// and never get a `BuffExpire` schedule.
     pub passive: bool,
+    /// OR of the [`effect_flag`] bits this buff's skill contributes (0 for the
+    /// overwhelming majority). Stamped at creation so the creature's live mask
+    /// is a fold over its buff list — see [`effect_flag`].
+    pub effect_flags: u32,
     pub effects: Vec<StatModifierEffect>,
 }
 

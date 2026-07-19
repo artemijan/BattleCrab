@@ -153,6 +153,13 @@ fn think(world: &mut World, npc_oid: i32) {
     if world.objects.get_component::<Vitals>(&npc_oid).is_none_or(|v| v.dead) {
         return;
     }
+    // A stunned/asleep/paralyzed mob does nothing at all — Java's `isDisabled()`
+    // short-circuits `AttackableAI.onEvtThink`. A *rooted* one still thinks
+    // (it can attack an adjacent target); the movement primitives refuse the
+    // chase leg on their own.
+    if super::abnormal::is_blocked_from_actions(world, npc_oid) {
+        return;
+    }
     // GM-controlled mobs run their own state machine (which itself reuses the
     // scan/attack/chase primitives below) rather than the wild AI.
     if let Some(group_id) = world.objects.get_component::<crate::model::mob_group::Controllable>(&npc_oid).map(|c| c.group_id) {
@@ -637,6 +644,11 @@ fn chase(world: &mut World, npc_oid: i32, target_oid: i32, reach: f64) {
 
 /// A plain destination walk (return-home) with a `MoveToLocation` broadcast.
 fn move_npc_to(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32) {
+    // `Creature.moveToLocation` bails on `isMovementDisabled()` — a rooted mob
+    // stays put (and a stunned one never gets here; `think` already returned).
+    if super::abnormal::is_movement_disabled(world, npc_oid) {
+        return;
+    }
     let (speed, start, region) = {
         let Some(speed) = world.objects.get_component::<Speeds>(&npc_oid).map(Speeds::move_speed) else { return };
         let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied() else { return };
