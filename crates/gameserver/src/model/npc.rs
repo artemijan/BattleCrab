@@ -282,6 +282,7 @@ impl Npc {
                 base_run_spd: 120.0,
                 running: false,
                 swimming: false,
+                swamp_multiplier: 1.0,
             },
             Collision { radius: 8.0, height: 15.0 },
             AttackState::default(),

@@ -112,3 +112,104 @@ fn already_affected_at_least(world: &World, oid: i32, skill_id: i32, level: i32)
 fn ms_to_ticks(ms: i32) -> u64 {
     (ms.max(0) as u64 / 100).max(1)
 }
+
+/// `DamageZone.ApplyDamage` — flat HP/MP loss for players standing in lava,
+/// acid or a castle trap. Same sweep shape as the effect tick above (one pass,
+/// grouped by zone, each zone on its own `reuse`).
+///
+/// **Castle traps are siege-only and spare the defenders.** A zone with a
+/// `castleId` does nothing unless that castle's siege is in progress, and even
+/// then skips anyone defending it — otherwise the castle's own garrison would
+/// cook itself on its own traps.
+pub(crate) fn damage_zone_tick(world: &mut World) {
+    let mut occupants: Vec<(usize, Vec<i32>)> = Vec::new();
+    {
+        let mut pairs: Vec<(usize, i32)> = Vec::new();
+        let crate::world::World { objects, data, .. } = &mut *world;
+        objects.for_each_mut::<(&crate::model::Player, &Position, &Vitals)>(|(p, pos, v)| {
+            if v.dead {
+                return;
+            }
+            for idx in data.zone_data.zone_indices_at(pos.x, pos.y, pos.z) {
+                if data.zone_data.zones[idx].kind == ZoneKind::Damage {
+                    pairs.push((idx, p.object_id));
+                }
+            }
+        });
+        pairs.sort_unstable();
+        for (idx, oid) in pairs {
+            match occupants.last_mut() {
+                Some((i, list)) if *i == idx => list.push(oid),
+                _ => occupants.push((idx, vec![oid])),
+            }
+        }
+    }
+
+    for (idx, players) in occupants {
+        let Some(params) = world.data.zone_data.zones[idx].damage.clone() else { continue };
+        if !params.enabled {
+            continue;
+        }
+        // Castle traps: only during that castle's siege.
+        let siege = params.castle_id > 0;
+        if siege && !world.sieges.contains_key(&params.castle_id) {
+            continue;
+        }
+
+        let now = world.tick;
+        match world.effect_zone_next_tick.get(&idx) {
+            Some(&due) if due > now => continue,
+            Some(_) => {
+                world.effect_zone_next_tick.insert(idx, now + ms_to_ticks(params.reuse));
+            }
+            None => {
+                world
+                    .effect_zone_next_tick
+                    .insert(idx, now + ms_to_ticks(params.initial_delay.max(params.reuse)));
+                continue;
+            }
+        }
+
+        for oid in players {
+            // During a siege the castle's defenders are immune to its traps.
+            if siege && super::siege::is_siege_defender(world, params.castle_id, oid) {
+                continue;
+            }
+            if params.hp_per_tick > 0 {
+                super::combat::apply_physical_damage(world, oid, oid, params.hp_per_tick as f64);
+            }
+            if params.mp_per_tick > 0 {
+                if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
+                    v.cur_mp = (v.cur_mp - params.mp_per_tick as f64).max(0.0);
+                }
+            }
+        }
+    }
+}
+
+/// The `SwampZone` multiplier at a point — `SpeedFinalizer`'s
+/// `baseValue *= zone.getMoveBonus()` for a playable inside one. `1.0` when
+/// not in a swamp. Castle-trap swamps only bite during their siege.
+pub(crate) fn swamp_multiplier_at(world: &World, oid: i32) -> f64 {
+    let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else { return 1.0 };
+    for idx in world.data.zone_data.zone_indices_at(pos.x, pos.y, pos.z) {
+        let zone = &world.data.zone_data.zones[idx];
+        if zone.kind != ZoneKind::Swamp {
+            continue;
+        }
+        let Some(p) = zone.swamp.as_ref() else { continue };
+        if !p.enabled {
+            continue;
+        }
+        if p.castle_id > 0 {
+            if !world.sieges.contains_key(&p.castle_id) {
+                continue;
+            }
+            if super::siege::is_siege_defender(world, p.castle_id, oid) {
+                continue;
+            }
+        }
+        return p.move_bonus;
+    }
+    1.0
+}
