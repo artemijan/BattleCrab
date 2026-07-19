@@ -387,6 +387,14 @@ impl RecipeBook {
     }
 }
 
+/// Java `Creature._disableRangedAttackEndTime` — the tick a bow/crossbow may
+/// fire again. Present only after a shot; the reload delay is
+/// `900000 / pAtkSpd` ms (`Formulas.calculateReuseTime`).
+#[derive(Component, Debug, Clone, Copy, Default)]
+pub struct RangedReload {
+    pub ready_at_tick: u64,
+}
+
 /// Abnormal visual effects a GM pinned on this creature with `//ave_abnormal`,
 /// independent of any buff. Java has no such component — it calls
 /// `startAbnormalVisualEffect` directly, which mutates the same

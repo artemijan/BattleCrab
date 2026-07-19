@@ -381,7 +381,8 @@ impl ItemHandler {
     }
 }
 
-/// `<set name="etcitem_type">`, narrowed to the enchant-scroll kinds the
+/// `<set name="etcitem_type">`, narrowed to the enchant-scroll kinds and the
+/// ammunition kinds the
 /// enchant flow branches on (Java `EtcItemType`, used through
 /// `AbstractEnchantItem.ENCHANT_TYPES` + `EnchantScroll`'s type flags). Every
 /// other value collapses to [`EtcItemType::Other`]. The `is_*` helpers mirror
@@ -391,6 +392,10 @@ impl ItemHandler {
 pub enum EtcItemType {
     #[default]
     Other,
+    /// `ARROW` / `BOLT` — bow and crossbow ammunition. Matched to the weapon by
+    /// crystal grade (`findArrowForBow`) and auto-equipped into the left hand.
+    Arrow,
+    Bolt,
     EnchtWp,
     EnchtAm,
     BlessEnchtWp,
@@ -417,6 +422,8 @@ pub enum EtcItemType {
 impl EtcItemType {
     fn from_name(name: Option<&str>) -> Self {
         match name {
+            Some("ARROW") => EtcItemType::Arrow,
+            Some("BOLT") => EtcItemType::Bolt,
             Some("ENCHT_WP") => EtcItemType::EnchtWp,
             Some("ENCHT_AM") => EtcItemType::EnchtAm,
             Some("BLESS_ENCHT_WP") => EtcItemType::BlessEnchtWp,
@@ -589,6 +596,14 @@ pub struct ItemTemplate {
     /// `<set name="crystal_count"/>` — crystals yielded on crystallization (0 =
     /// not crystallizable).
     pub crystal_count: i32,
+    /// `<set name="mp_consume"/>` — MP a **ranged** weapon spends per shot
+    /// (Short Bow 13 → 1). 0 for everything else.
+    pub mp_consume: i32,
+    /// `<set name="reduced_mp_consume"/>` + `reduced_mp_consume_chance` — some
+    /// bows roll a cheaper shot. Absent on this dist's bows; ported for
+    /// faithfulness (Java: `Rnd.get(100) < chance` swaps in the cheaper cost).
+    pub reduced_mp_consume: i32,
+    pub reduced_mp_consume_chance: i32,
     pub body_part: i32,
     pub weight: i32,
     pub is_stackable: bool,
@@ -1002,6 +1017,12 @@ fn make_template(
         name,
         kind,
         crystal_type: CrystalType::from_name(attrs.get("crystal_type").map(|s| s.as_str())),
+        mp_consume: attrs.get("mp_consume").and_then(|v| v.parse().ok()).unwrap_or(0),
+        reduced_mp_consume: attrs.get("reduced_mp_consume").and_then(|v| v.parse().ok()).unwrap_or(0),
+        reduced_mp_consume_chance: attrs
+            .get("reduced_mp_consume_chance")
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(0),
         crystal_count: attrs.get("crystal_count").and_then(|s| s.parse().ok()).unwrap_or(0),
         body_part: part,
         weight,
@@ -1081,6 +1102,17 @@ mod tests {
         // No-grade weapon → CrystalType::None (level 0), so it never penalizes.
         assert_eq!(sword.crystal_type, CrystalType::None);
         assert_eq!(sword.crystal_type.level(), 0);
+
+        // Ranged weapons (G20): Short Bow 13 costs MP per shot and reaches 500;
+        // Wooden Arrow 17 is ARROW ammunition. Both are no-grade, so they match.
+        let bow = data.get(13).expect("Short Bow 13");
+        assert_eq!(bow.mp_consume, 1, "a bow spends MP per shot");
+        assert_eq!(bow.crystal_type, CrystalType::None);
+        let arrow = data.get(17).expect("Wooden Arrow 17");
+        assert_eq!(arrow.etc_item_type, EtcItemType::Arrow);
+        assert_eq!(arrow.crystal_type, CrystalType::None, "matches the no-grade bow");
+        // A melee weapon spends nothing.
+        assert_eq!(data.get(2).map(|t| t.mp_consume), Some(0));
 
         // A graded item parses its <set name="crystal_type"/>.
         let boots = data.get(40).expect("item 40 (Leather Boots)");

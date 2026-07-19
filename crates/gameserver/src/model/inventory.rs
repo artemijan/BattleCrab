@@ -348,6 +348,23 @@ impl Inventory {
     /// to what ordinary gear (and `initialEquipment.xml`) exercises. Returns
     /// the `object_id`s whose paperdoll/unequipped state changed (for
     /// `InventoryUpdate`). No-op if `object_id` isn't a known, equipable item.
+    /// Put ammunition in the left hand, bypassing the ordinary equip rules —
+    /// Java's `checkAndEquipAmmunition` calls `setPaperdollItem(PAPERDOLL_LHAND,
+    /// arrows)` directly rather than going through `equipItem`.
+    ///
+    /// Both of `equip_item`'s rules are wrong for ammunition: arrows are `Etc`
+    /// items (which it refuses outright), and its `SLOT_L_HAND` branch
+    /// *displaces a two-handed weapon* — which would unequip the very bow the
+    /// arrows are for.
+    pub fn equip_ammunition(&mut self, object_id: i32) -> Vec<i32> {
+        if self.find(object_id).is_none() {
+            return Vec::new();
+        }
+        let mut changed: Vec<i32> = self.clear(PaperdollSlot::LHand).into_iter().collect();
+        changed.push(self.set(PaperdollSlot::LHand, object_id));
+        changed
+    }
+
     pub fn equip_item(&mut self, catalog: &ItemData, object_id: i32) -> Vec<i32> {
         let Some(item) = self.find(object_id) else { return Vec::new() };
         let item_id = item.item_id;
@@ -631,11 +648,11 @@ mod tests {
     use crate::data::item_data::ItemTemplate;
 
     fn armor(id: i32, body_part: i32) -> ItemTemplate {
-        ItemTemplate { item_id: id, name: format!("armor{id}"), kind: ItemKind::Armor, crystal_type: item_data::CrystalType::None, crystal_count: 0, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false }
+        ItemTemplate { item_id: id, name: format!("armor{id}"), kind: ItemKind::Armor, crystal_type: item_data::CrystalType::None, crystal_count: 0, mp_consume: 0, reduced_mp_consume: 0, reduced_mp_consume_chance: 0, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false }
     }
 
     fn weapon(id: i32, body_part: i32) -> ItemTemplate {
-        ItemTemplate { item_id: id, name: format!("weapon{id}"), kind: ItemKind::Weapon, crystal_type: item_data::CrystalType::None, crystal_count: 0, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false }
+        ItemTemplate { item_id: id, name: format!("weapon{id}"), kind: ItemKind::Weapon, crystal_type: item_data::CrystalType::None, crystal_count: 0, mp_consume: 0, reduced_mp_consume: 0, reduced_mp_consume_chance: 0, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false }
     }
 
     #[test]
@@ -740,6 +757,9 @@ mod tests {
                 price: 0,
                 handler: item_data::ItemHandler::None,
                 crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
+ mp_consume: 0,
+ reduced_mp_consume: 0,
+ reduced_mp_consume_chance: 0,
                 capsuled_items: Vec::new(),
                 extractable_count_min: 0,
                 extractable_count_max: 0,
@@ -758,6 +778,9 @@ mod tests {
                 price: 0,
                 handler: item_data::ItemHandler::None,
                 crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
+ mp_consume: 0,
+ reduced_mp_consume: 0,
+ reduced_mp_consume_chance: 0,
                 capsuled_items: Vec::new(),
                 extractable_count_min: 0,
                 extractable_count_max: 0,
@@ -789,6 +812,9 @@ mod tests {
             price: 0,
             handler: item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
+ mp_consume: 0,
+ reduced_mp_consume: 0,
+ reduced_mp_consume_chance: 0,
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,

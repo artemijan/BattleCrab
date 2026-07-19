@@ -875,6 +875,18 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         return;
     }
 
+    // Ranged weapons run Java's `doAttack` BOW/CROSSBOW gate before the swing:
+    // reload delay, ammunition, MP. Only players carry ammunition — an NPC
+    // archer shoots freely, as in Java (the whole block is `isPlayer()`-gated
+    // apart from the reuse timer).
+    let weapon_type = super::ranged::equipped_weapon_type(world, attacker_oid).unwrap_or_default();
+    if super::ranged::is_ranged(weapon_type) && world.objects.has_component::<crate::model::Player>(&attacker_oid) {
+        if let Err(why) = super::ranged::prepare_ranged_shot(world, attacker_oid, weapon_type) {
+            super::ranged::report_refusal(world, attacker_oid, why);
+            return;
+        }
+    }
+
     let time_atk = formulas::calculate_time_between_attacks(attacker.p_atk_spd);
     // Two-handed timing needs the weapon's body part — item kinds are parsed
     // (G5), so check the equipped right hand for SLOT_LR_HAND.
