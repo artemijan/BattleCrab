@@ -34,6 +34,7 @@ const CLASS_TREE_SUBDIRS: [&str; 4] = ["StartingClass", "1stClass", "2ndClass", 
 /// The class-agnostic tree unioned into every class (Java `_commonSkillTree`).
 const COMMON_TREE_FILE: &str = "Commons.xml";
 pub const HERO_SKILL_TREE_FILE: &str = "data/skillTrees/heroSkillTree.xml";
+pub const NOBLE_SKILL_TREE_FILE: &str = "data/skillTrees/nobleSkillTree.xml";
 
 /// Java `CommonSkill.EXPERTISE` (239): the one skill `checkPlayerSkills`
 /// verifies with no level grace — its level *is* the wearable grade, so it may
@@ -80,6 +81,10 @@ pub struct SkillTreeData {
     /// The hero skill tree (Java `getHeroSkillTree`) — a flat `(id, level)`
     /// list from `heroSkillTree.xml`, granted/removed by `//sethero`.
     hero_skills: Vec<Skill>,
+    /// The noble skill tree (Java `getNobleSkillTree`) — 8 skills from
+    /// `nobleSkillTree.xml` (Noblesse Blessing, the three Noblesse songs,
+    /// Build Advanced Headquarters, …), granted/removed with nobless status.
+    noble_skills: Vec<Skill>,
 }
 
 impl SkillTreeData {
@@ -108,6 +113,8 @@ impl SkillTreeData {
             &mut common,
         );
         let hero_skills = parse_hero_tree(&format!("{file_path}{HERO_SKILL_TREE_FILE}"));
+        // Same flat `<skill id level/>` shape as the hero tree.
+        let noble_skills = parse_hero_tree(&format!("{file_path}{NOBLE_SKILL_TREE_FILE}"));
         let total: usize = trees.values().map(|v| v.len()).sum();
         info!(
             "SkillTreeData: Loaded skill trees for {} classes ({total} skill levels), {} common + {} hero skills.",
@@ -115,7 +122,8 @@ impl SkillTreeData {
             common.len(),
             hero_skills.len()
         );
-        Self { trees, parents, common, hero_skills }
+        info!("SkillTreeData: Loaded {} noble skills.", noble_skills.len());
+        Self { trees, parents, common, hero_skills, noble_skills }
     }
 
     /// Java `getCompleteClassSkillTree`: the class's own `<skill>` entries, then
@@ -152,6 +160,17 @@ impl SkillTreeData {
     /// granted while a player holds hero status.
     pub fn hero_skills(&self) -> &[Skill] {
         &self.hero_skills
+    }
+
+    /// Test hook: install a synthetic noble tree.
+    #[doc(hidden)]
+    pub fn set_noble_skills_for_test(&mut self, skills: Vec<Skill>) {
+        self.noble_skills = skills;
+    }
+
+    /// Java `SkillTreeData.getNobleSkillTree`.
+    pub fn noble_skills(&self) -> &[Skill] {
+        &self.noble_skills
     }
 
     /// The skills a freshly created character of `class_id` starts with
@@ -271,7 +290,7 @@ impl SkillTreeData {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { trees: HashMap::new(), parents: HashMap::new(), common: Vec::new(), hero_skills: Vec::new() }
+        Self { trees: HashMap::new(), parents: HashMap::new(), common: Vec::new(), hero_skills: Vec::new(), noble_skills: Vec::new() }
     }
 
     #[doc(hidden)]

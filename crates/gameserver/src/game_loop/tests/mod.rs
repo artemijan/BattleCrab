@@ -50,6 +50,7 @@ mod damage_swamp_tests;
 mod effect_zone_tests;
 mod guard_aggro_tests;
 mod minion_tests;
+mod noble_tests;
 mod npc_cast_tests;
 mod npc_path_tests;
 mod target_reconsider_tests;

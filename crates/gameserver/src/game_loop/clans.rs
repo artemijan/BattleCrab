@@ -229,8 +229,9 @@ const SIEGE_CLAN_MIN_LEVEL: i32 = 5;
 /// that through the [`ClanSkills`] channel — they're active skills with no stat
 /// effects, so this only registers them for the merged `SkillList`.
 ///
-/// Advanced Headquarters (326) is noble-only; nobility isn't tracked yet, so it
-/// is skipped. TODO(G24): the cast behaviour (flag/HQ spawn, castle engrave)
+/// Advanced Headquarters (326) is noble-only and comes from the *noble* skill
+/// tree (G17), not from this clan-siege set, so it is still skipped here.
+/// TODO(G24): the cast behaviour (flag/HQ spawn, castle engrave)
 /// lands with the siege-combat milestone; this only makes the skills appear.
 fn apply_siege_skills_to_leader(world: &mut World, clan_id: i32, member_oid: i32) {
     let Some(clan) = world.clans.get(&clan_id) else { return };

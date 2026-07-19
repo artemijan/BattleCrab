@@ -8,7 +8,7 @@
 //!   `castleteleporter-busy.htm` branch, `castleId` checks) — no sieges (G24).
 //! - The Mon/Tue 20:00–24:00 half-price window (`calculateFee`'s Calendar
 //!   branch) — needs server-local wall-clock plumbing (G33's game clock).
-//! - Noblesse lists refuse everyone (no nobless status until G17) — same
+//! - Noblesse lists check the player's nobless (G17); non-nobles are refused —
 //!   behavior Java shows a non-noble.
 //! - `isSubClassActive()` in the free-teleport check — no subclasses (G17).
 //! - The combat-flag gate (SM 2348) — no combat flags (G24).
@@ -143,9 +143,9 @@ fn show_teleport_list(
         warn!("Teleporter: unknown teleport list [{list_name}] for npc {npc_object_id}.");
         return;
     };
-    if holder.is_noblesse() {
-        // No nobles yet — Java refuses non-nobles with a log line.
-        warn!("Teleporter: noblesse teleport list [{list_name}] requested without nobless.");
+    // Java `TeleportType.NOBLESS`: only a noble may open the list.
+    if holder.is_noblesse() && !is_noble(world, object_id) {
+        warn!("Teleporter: noblesse teleport list [{list_name}] requested by a non-noble.");
         return;
     }
 
@@ -204,8 +204,8 @@ fn do_teleport(
         warn!("Teleporter: unknown teleport list [{list_name}] for npc {npc_object_id}.");
         return;
     };
-    if holder.is_noblesse() {
-        warn!("Teleporter: noblesse teleport requested without nobless.");
+    if holder.is_noblesse() && !is_noble(world, object_id) {
+        warn!("Teleporter: noblesse teleport requested by a non-noble.");
         return;
     }
     let Some(loc) = loc_id.and_then(|id| holder.locations.get(id)).cloned() else {
@@ -276,4 +276,12 @@ fn send_teleporter_html(world: &World, client_id: u32, npc_object_id: i32, file:
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::npc_html_message(npc_object_id, &html));
     }
+}
+
+/// `Player.isNoble()` — nobless gates the `NOBLESS` teleport lists.
+fn is_noble(world: &World, player_object_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::Player>(&player_object_id)
+        .is_some_and(|p| p.is_noble)
 }

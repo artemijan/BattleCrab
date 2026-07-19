@@ -111,6 +111,8 @@ pub struct PlayerSnapshot {
     pub base_class_id: i32,
     pub vitality_points: i32,
     pub pccafe_points: i32,
+    /// `characters.nobless` — Olympiad nobless, toggled by `//setnoble`.
+    pub noble: bool,
 }
 
 impl PlayerSnapshot {
@@ -149,6 +151,7 @@ impl PlayerSnapshot {
             base_class_id: p.base_class_id,
             vitality_points: p.vitality_points,
             pccafe_points: p.pccafe_points,
+            noble: p.is_noble,
         }
     }
 }
@@ -1631,7 +1634,7 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
         "UPDATE characters SET level=?, maxHp=?, curHp=?, maxCp=?, curCp=?, maxMp=?, curMp=?, \
          face=?, hairStyle=?, hairColor=?, sex=?, heading=?, x=?, y=?, z=?, exp=?, sp=?, \
          reputation=?, pvpkills=?, pkkills=?, race=?, classid=?, base_class=?, \
-         vitality_points=?, pccafe_points=?, online=0, lastAccess=? WHERE charId=?",
+         vitality_points=?, pccafe_points=?, nobless=?, online=0, lastAccess=? WHERE charId=?",
     )
     .bind(b.level)
     .bind(b.max_hp)
@@ -1658,6 +1661,7 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     .bind(b.base_class_id)
     .bind(b.vitality_points)
     .bind(b.pccafe_points)
+    .bind(if b.noble { 1 } else { 0 })
     .bind(now_millis())
     .bind(char_id)
     .execute(&mut *tx)
