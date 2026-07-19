@@ -594,22 +594,32 @@ impl<'w> QuestCtx<'w> {
         self.world.objects.get_component::<crate::model::Player>(&self.player).map(|p| p.class_id).unwrap_or(-1)
     }
 
+    /// Java `Player.isSubClassActive()` — true while a subclass slot is the
+    /// active one (G17). Several village-master scripts refuse to talk at all
+    /// in that state.
+    pub fn is_subclass_active(&self) -> bool {
+        self.world
+            .objects
+            .get_component::<crate::model::Player>(&self.player)
+            .is_some_and(|p| p.class_index != 0)
+    }
+
     /// `Player.isInCategory(CategoryType.X)` against `CategoryData.xml`.
     pub fn is_in_category(&self, category: &str) -> bool {
         self.world.data.categories.contains(category, self.player_class_id())
     }
 
-    /// The village-master class transfer (`setClassId` + `setBaseClass` +
-    /// `broadcastUserInfo`), narrowed to base-class changes — no subclasses
-    /// exist, so both ids move together. Persisted immediately through the
-    /// regular `StorePlayer` snapshot.
+    /// The village-master class transfer — routed through the G17 mechanic
+    /// (`game_loop::subclass::set_class_id`), so it moves the *active* slot:
+    /// the base class only when the player is on it. Persisted immediately
+    /// through the regular `StorePlayer` snapshot.
     pub fn set_class_id(&mut self, class_id: i32) {
-        if let Some(p) = self.world.objects.get_component_mut::<crate::model::Player>(&self.player) {
-            p.class_id = class_id;
-            p.base_class_id = class_id;
-        }
+        // Was an unconditional `base_class_id = class_id`, which since G17
+        // would rewrite the character's *base* class if a quest transfer ran
+        // while a subclass was active. The shared mechanic moves the active
+        // slot only, and also does `rewardSkills` + the stat/UserInfo refresh.
+        super::subclass::set_class_id(self.world, self.player, class_id);
         super::net::store_player_now(self.world, self.player);
-        super::party::broadcast_user_info(self.world, self.player);
     }
 
     /// `player.teleToLocation(loc)` (TeleportWithCharm and friends).
