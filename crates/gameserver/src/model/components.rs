@@ -150,6 +150,11 @@ pub struct PlayerVitals {
 /// same rounded numbers as before, just stored as f64.
 #[derive(Component, Debug, Clone, Copy)]
 pub struct Speeds {
+    /// `SwampZone.getMoveBonus()` for the zone the creature is standing in,
+    /// or 1.0. Java re-reads the zone inside `SpeedFinalizer`; the port caches
+    /// it here and refreshes it on zone enter/exit, so the stat recompute stays
+    /// free of world lookups.
+    pub swamp_multiplier: f64,
     pub run_spd: f64,
     pub walk_spd: f64,
     pub swim_run_spd: f64,

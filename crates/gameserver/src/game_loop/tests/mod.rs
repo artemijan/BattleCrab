@@ -46,6 +46,7 @@ mod melee_variants_tests;
 mod misc_tests;
 mod movement_tests;
 mod boss_respawn_tests;
+mod damage_swamp_tests;
 mod effect_zone_tests;
 mod guard_aggro_tests;
 mod minion_tests;
@@ -1257,6 +1258,8 @@ fn insert_zone(world: &mut World, kind: crate::data::zone_data::ZoneKind, x1: i3
         },
         castle_id: 0,
         effect: None,
+        damage: None,
+        swamp: None,
     });
 }
 
@@ -1272,6 +1275,8 @@ fn insert_siege_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i3
         },
         castle_id,
         effect: None,
+        damage: None,
+        swamp: None,
     });
 }
 

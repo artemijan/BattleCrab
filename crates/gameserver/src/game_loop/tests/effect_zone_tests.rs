@@ -75,6 +75,8 @@ fn insert_effect_zone(world: &mut World, p: EffectZoneParams) {
         },
         castle_id: 0,
         effect: Some(p),
+        damage: None,
+        swamp: None,
     });
 }
 

@@ -58,7 +58,7 @@ mod vitality;
 #[cfg(test)]
 mod tests;
 mod visibility;
-mod zones;
+pub(crate) mod zones;
 mod common;
 
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -214,6 +214,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         combat::player_combat_tick(&mut world);
         if world.tick.is_multiple_of(effect_zones::SWEEP_PERIOD) {
             effect_zones::effect_zone_tick(&mut world);
+            effect_zones::damage_zone_tick(&mut world);
         }
         if world.tick.is_multiple_of(npc_ai::NPC_THINK_PERIOD) {
             // AttackableAI think (1 s) + the combat-stance sweep (15 s

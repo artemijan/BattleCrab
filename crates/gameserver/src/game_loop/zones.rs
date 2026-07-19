@@ -72,6 +72,34 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         super::party::broadcast_user_info(world, object_id);
     }
 
+    // SwampZone.onEnter/onExit: refresh the cached move-speed multiplier and,
+    // when it actually changed, recompute the speeds and rebroadcast UserInfo
+    // (Java's `broadcastUserInfo()` on both edges).
+    let swamp = super::effect_zones::swamp_multiplier_at(world, object_id);
+    let swamp_changed = world
+        .objects
+        .get_component::<Speeds>(&object_id)
+        .is_some_and(|s| s.swamp_multiplier != swamp);
+    if swamp_changed {
+        if let Some(speeds) = world.objects.get_component_mut::<Speeds>(&object_id) {
+            speeds.swamp_multiplier = swamp;
+        }
+        // Speeds only — the swamp multiplier is applied inside
+        // `recalculate_stats`, so a plain recompute picks it up.
+        if let Some((player, base, mods, inventory, mut speeds, mut combat)) = world.objects.get_many_mut::<(
+            &crate::model::Player,
+            &crate::model::components::BaseStats,
+            &crate::model::components::StatModifiers,
+            &crate::model::inventory::Inventory,
+            &mut Speeds,
+            &mut crate::model::components::CombatStats,
+        )>(&object_id)
+        {
+            player.recalculate_stats(&world.data, base, mods, &inventory, &mut speeds, &mut combat);
+        }
+        super::party::broadcast_user_info(world, object_id);
+    }
+
     // SiegeZone.onEnter/onExit — see `refresh_siege_zone_flag`.
     refresh_siege_zone_flag(world, object_id);
 

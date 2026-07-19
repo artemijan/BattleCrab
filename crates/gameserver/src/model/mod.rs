@@ -650,6 +650,7 @@ impl Player {
             base_run_spd: t.base_run_spd as f64,
             running: true,
             swimming: false,
+            swamp_multiplier: 1.0,
         };
         let collision = Collision { radius: t.collision_radius, height: t.collision_height };
         // Java `setAccessLevel` folds the tier's name/title color into the
@@ -975,6 +976,16 @@ impl Player {
             }
         }
 
+        // `SpeedFinalizer`: a playable inside a `SwampZone` has every speed
+        // scaled, after the boost and before the clamp.
+        if speeds.swamp_multiplier != 1.0 {
+            let m = speeds.swamp_multiplier;
+            speeds.run_spd *= m;
+            speeds.walk_spd *= m;
+            speeds.swim_run_spd *= m;
+            speeds.swim_walk_spd *= m;
+        }
+
         // SpeedFinalizer's `validateValue`: players clamp to [1, MaxRunSpeed]
         // (300 on this dist).
         let speed_cap = cap(caps.max_run_speed);
@@ -1217,6 +1228,7 @@ pub(crate) fn npc_finalized_stats(
         base_run_spd: t.base_run_spd,
         running: false,
         swimming: false,
+        swamp_multiplier: 1.0,
     };
     // `Max{Hp,Mp}Finalizer`: `mul × (baseMax × {CON,MEN} bonus) + add`; the
     // bonus is skipped when the stat is 0 (`getX() > 0 ? bonus : 1`).

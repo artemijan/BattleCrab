@@ -1147,6 +1147,7 @@ fn client_move_multiplier_tracks_speed_buffs() {
         base_run_spd: 132.0,
         running: true,
         swimming: false,
+        swamp_multiplier: 1.0,
     };
     // At rest it matches Java exactly: 167 / 132.
     assert!((s.client_move_multiplier() - 167.0 / 132.0).abs() < 1e-9);

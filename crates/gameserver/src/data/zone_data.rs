@@ -44,6 +44,11 @@ pub enum ZoneKind {
     /// standing in it — the Blazing Swamp's fire, Sea of Spores' poison, the
     /// Hot Springs buff trio. See [`Zone::effect`].
     Effect,
+    /// Java `DamageZone`: flat HP/MP loss per tick. Devil's Isle lava plus the
+    /// castle traps (which only bite during their castle's siege).
+    Damage,
+    /// Java `SwampZone`: multiplies a playable's move speed while inside.
+    Swamp,
 }
 
 impl ZoneKind {
@@ -59,6 +64,9 @@ impl ZoneKind {
             // EffectZone. Nothing reads it yet, but the bit keeps the
             // membership mask complete so enter/exit diffs work.
             ZoneKind::Effect => 32,
+            ZoneKind::Damage => 64,
+            // `ZoneId.SWAMP` — read by the speed finalizer.
+            ZoneKind::Swamp => 128,
         }
     }
 }
@@ -71,6 +79,35 @@ pub struct Zone {
     pub castle_id: i32,
     /// `EffectZone` parameters; `None` for every other kind.
     pub effect: Option<EffectZoneParams>,
+    /// `DamageZone` parameters; `None` for every other kind.
+    pub damage: Option<DamageZoneParams>,
+    /// `SwampZone` move-speed multiplier; `None` for every other kind.
+    pub swamp: Option<SwampZoneParams>,
+}
+
+/// Java `DamageZone`'s `<stat>` block. Defaults are the Java field
+/// initialisers — note **`damageHPPerSec` defaults to 200 and no zone in this
+/// dist overrides it**, so every damage zone here hits for 200.
+#[derive(Debug, Clone)]
+pub struct DamageZoneParams {
+    pub hp_per_tick: i32,
+    pub mp_per_tick: i32,
+    /// `initialDelay` (Java `_startTask`, default 10 ms).
+    pub initial_delay: i32,
+    /// `reuse` (Java `_reuseTask`, default 5000 ms).
+    pub reuse: i32,
+    pub enabled: bool,
+    /// `castleId` — a castle trap, live only while that castle's siege runs
+    /// (and never against that castle's own defenders).
+    pub castle_id: i32,
+}
+
+/// Java `SwampZone`. `move_bonus` defaults to 0.5; this dist uses 0.2.
+#[derive(Debug, Clone)]
+pub struct SwampZoneParams {
+    pub move_bonus: f64,
+    pub enabled: bool,
+    pub castle_id: i32,
 }
 
 /// Java `EffectZone`'s `<stat>` block. Defaults are the Java field
@@ -134,6 +171,9 @@ impl ZoneData {
             ("plains_of_the_lizardmen.xml", ZoneKind::Effect),
             ("zone.xml", ZoneKind::Effect),
             ("underground_coliseum.xml", ZoneKind::Effect),
+            ("damage.xml", ZoneKind::Damage),
+            ("castle_trap.xml", ZoneKind::Damage),
+            ("swamp.xml", ZoneKind::Swamp),
         ] {
             parse_file(&format!("{file_path}data/zones/{file}"), kind, &mut zones);
         }
@@ -217,6 +257,8 @@ fn kind_from_type(ty: &str) -> Option<ZoneKind> {
         "ArenaZone" => ZoneKind::Pvp,
         "SiegeZone" => ZoneKind::Siege,
         "EffectZone" => ZoneKind::Effect,
+        "DamageZone" => ZoneKind::Damage,
+        "SwampZone" => ZoneKind::Swamp,
         _ => return None,
     })
 }
@@ -254,6 +296,9 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
         enabled: bool,
         casts_on_players: bool,
         remove_effects_on_exit: bool,
+        dmg_hp: i32,
+        dmg_mp: i32,
+        move_bonus: f64,
     }
     let mut cur: Option<Pending> = None;
 
@@ -273,12 +318,29 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                                 casts_on_players: p.casts_on_players,
                                 remove_effects_on_exit: p.remove_effects_on_exit,
                             });
+                            let damage = (p.kind == ZoneKind::Damage).then(|| DamageZoneParams {
+                                hp_per_tick: p.dmg_hp,
+                                mp_per_tick: p.dmg_mp,
+                                initial_delay: p.initial_delay,
+                                // Java's DamageZone default reuse is 5000, not
+                                // the EffectZone's 30000.
+                                reuse: if p.reuse == 30_000 { 5_000 } else { p.reuse },
+                                enabled: p.enabled,
+                                castle_id: p.castle_id,
+                            });
+                            let swamp = (p.kind == ZoneKind::Swamp).then(|| SwampZoneParams {
+                                move_bonus: p.move_bonus,
+                                enabled: p.enabled,
+                                castle_id: p.castle_id,
+                            });
                             out.push(Zone {
                                 name: p.name,
                                 kind: p.kind,
                                 territory: Territory { form, min_z: p.min_z, max_z: p.max_z },
                                 castle_id: p.castle_id,
                                 effect,
+                                damage,
+                                swamp,
                             });
                         }
                     }
@@ -309,6 +371,9 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                     enabled: true,
                     casts_on_players: true,
                     remove_effects_on_exit: false,
+                    dmg_hp: 200,
+                    dmg_mp: 0,
+                    move_bonus: 0.5,
                 });
                 // A zone whose `type=` names a kind we don't port yet is
                 // skipped outright rather than mis-filed under the fallback.
@@ -340,6 +405,9 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                     "default_enabled" => p.enabled = val == "true",
                     "targetClass" => p.casts_on_players = val != "Npc",
                     "removeEffectsOnExit" => p.remove_effects_on_exit = val == "true",
+                    "damageHPPerSec" => p.dmg_hp = val.parse().unwrap_or(p.dmg_hp),
+                    "damageMPPerSec" => p.dmg_mp = val.parse().unwrap_or(p.dmg_mp),
+                    "move_bonus" => p.move_bonus = val.parse().unwrap_or(p.move_bonus),
                     _ => {}
                 }
             }
@@ -383,14 +451,15 @@ mod tests {
     #[test]
     fn loads_real_dist_files() {
         let data = ZoneData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
-        // 134 peace + 423 water + 47 no_restart + 12 pvp + 9 siege + 218 effect.
+        // 134 peace + 423 water + 47 no_restart + 12 pvp + 9 siege + 218 effect
+        // + 35 damage + 20 swamp.
         //
         // Was 605 before per-zone `type=` parsing landed. Effect zones account
         // for 218 of the increase; the other 20 are Peace/NoRestart/Pvp zones
         // that live in the *mixed* files (devil_isle, zone, underground_
         // coliseum) which the filename→kind loader couldn't read at all — so
         // they were silently missing from the world.
-        assert_eq!(data.zones.len(), 843);
+        assert_eq!(data.zones.len(), 898);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
         assert_eq!(count(ZoneKind::Peace), 134);
         assert_eq!(count(ZoneKind::Water), 423);
@@ -398,6 +467,8 @@ mod tests {
         assert_eq!(count(ZoneKind::Pvp), 12);
         assert_eq!(count(ZoneKind::Siege), 9);
         assert_eq!(count(ZoneKind::Effect), 218);
+        assert_eq!(count(ZoneKind::Damage), 35);
+        assert_eq!(count(ZoneKind::Swamp), 20);
 
         // Talking Island town center sits in talking_island_town_peace_zone1
         // (NPoly, z band [-3966, -3466]).
@@ -433,6 +504,8 @@ mod tests {
             },
             castle_id: 0,
             effect: None,
+            damage: None,
+            swamp: None,
         });
         assert_eq!(data.mask_at(500, 500, 0), ZoneKind::Peace.bit());
         assert_eq!(data.mask_at(1500, 500, 0), 0);
@@ -475,7 +548,14 @@ mod effect_zone_tests {
             assert!(
                 matches!(
                     z.kind,
-                    ZoneKind::Peace | ZoneKind::Water | ZoneKind::NoRestart | ZoneKind::Pvp | ZoneKind::Siege | ZoneKind::Effect
+                    ZoneKind::Peace
+                        | ZoneKind::Water
+                        | ZoneKind::NoRestart
+                        | ZoneKind::Pvp
+                        | ZoneKind::Siege
+                        | ZoneKind::Effect
+                        | ZoneKind::Damage
+                        | ZoneKind::Swamp
                 ),
                 "zone {} has an unported kind",
                 z.name
