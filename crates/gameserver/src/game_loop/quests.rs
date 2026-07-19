@@ -757,6 +757,22 @@ impl<'w> QuestCtx<'w> {
             .unwrap_or(0)
     }
 
+    /// Quest 415's `checkWeapon`: **bare hands or a fist weapon**
+    /// (`weapon == null || FIST || DUALFIST`). Note this is the *inverse*
+    /// shape of quests 401/403, which demand one specific weapon id — an Orc
+    /// Monk fights unarmed, so "no weapon" is the pass case here, not the
+    /// fail case.
+    pub fn is_bare_or_fist_handed(&self) -> bool {
+        let weapon = self.equipped_weapon_id();
+        if weapon == 0 {
+            return true;
+        }
+        matches!(
+            self.world.data.item_data.weapon_type(weapon),
+            crate::data::item_data::WeaponType::Fist | crate::data::item_data::WeaponType::DualFist
+        )
+    }
+
     /// `npc.broadcastPacket(new NpcSay(npc, NPC_GENERAL, npcStringId))`.
     pub fn npc_say(&mut self, npc_string_id: i32) {
         let Some(npc) = self.world.objects.get_component::<crate::model::npc::Npc>(&self.npc) else { return };
