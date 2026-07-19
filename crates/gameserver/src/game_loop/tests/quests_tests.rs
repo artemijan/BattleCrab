@@ -1033,3 +1033,130 @@ fn dwarf_change1_html_pages_exist_in_dist() {
         );
     }
 }
+
+/// ElfHumanFighterChange1: a Human Fighter with the Medallion of Warrior
+/// becomes a Warrior. The same NPCs serve Elves, so the elf branch is checked
+/// too — a bad `from_class` match would let a Human take an Elven class.
+#[test]
+fn elf_human_fighter_change1_transfers_by_race() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1145, "Medallion of Warrior", true), (8869, "Coupon", false)]);
+    world.data.categories.insert_for_test("FIGHTER_GROUP", &[0, 1, 18, 19]);
+    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[1, 19]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30066, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 20;
+        p.race = 0; // Human
+        p.class_id = 0; // Fighter
+        p.base_class_id = 0;
+    }
+    super::items::add_inventory_item(&mut world, 3001, 1145, 1);
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    // A Human Fighter may not take the Elven Knight (19) branch.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest ElfHumanFighterChange1 19")),
+    );
+    assert_eq!(
+        world.objects.get_component::<Player>(&3001).unwrap().class_id,
+        0,
+        "a Human must not take an Elf class from the same NPC"
+    );
+    assert_eq!(item_count(&world, 3001, 1145), 1, "and nothing was consumed");
+
+    // Warrior (1) is the Human branch.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest ElfHumanFighterChange1 1")),
+    );
+    let p = world.objects.get_component::<Player>(&3001).unwrap();
+    assert_eq!(p.class_id, 1, "now a Warrior");
+    assert_eq!(p.base_class_id, 1);
+    assert_eq!(item_count(&world, 3001, 1145), 0, "proof consumed");
+    assert_eq!(item_count(&world, 3001, 8869), 15, "coupons paid");
+}
+
+/// ElfHumanWizardChange1: an Elven Mage becomes an Oracle.
+#[test]
+fn elf_human_wizard_change1_elf_branch() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1235, "Leaf of Oracle", true), (8869, "Coupon", false)]);
+    world.data.categories.insert_for_test("MAGE_GROUP", &[10, 25, 29]);
+    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[29]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30037, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 20;
+        p.race = 1; // Elf
+        p.class_id = 25; // Elven Mage
+        p.base_class_id = 25;
+    }
+    super::items::add_inventory_item(&mut world, 3001, 1235, 1);
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest ElfHumanWizardChange1 29")),
+    );
+
+    let p = world.objects.get_component::<Player>(&3001).unwrap();
+    assert_eq!(p.class_id, 29, "now an Oracle");
+    assert_eq!(item_count(&world, 3001, 1235), 0, "proof consumed");
+    assert_eq!(item_count(&world, 3001, 8869), 15, "coupons paid");
+}
+
+/// Every page the two scripts can return must exist in the dist. The matrix is
+/// table-driven (four consecutive pages per target), so an off-by-one in the
+/// table would silently serve the wrong — or a missing — page.
+#[test]
+fn elf_human_change1_html_pages_exist_in_dist() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/");
+    // (dir, npcs, per-target first pages, talk/refusal pages, fourth-class page)
+    let sets: [(&str, &[i32], &[u32], &[u32], &str); 2] = [
+        (
+            "village_master/ElfHumanFighterChange1",
+            &[30066, 30288, 30373, 32094],
+            &[21, 25, 29, 33, 37],
+            &[1, 11, 18, 19, 20],
+            "30066-41.htm",
+        ),
+        (
+            "village_master/ElfHumanWizardChange1",
+            &[30037, 30070, 30289, 32095, 32098],
+            &[18, 22, 26, 30],
+            &[1, 8, 15, 16, 17],
+            "30037-34.htm",
+        ),
+    ];
+    for (dir, npcs, firsts, fixed, fourth) in sets {
+        for npc in npcs {
+            for page in fixed {
+                let path = format!("{DIST}{dir}/{npc}-{page:02}.htm");
+                assert!(std::path::Path::new(&path).exists(), "missing {dir}/{npc}-{page:02}.htm");
+            }
+            for first in firsts {
+                for p in *first..=(*first + 3) {
+                    let path = format!("{DIST}{dir}/{npc}-{p}.htm");
+                    assert!(std::path::Path::new(&path).exists(), "missing {dir}/{npc}-{p}.htm");
+                }
+            }
+        }
+        assert!(
+            std::path::Path::new(&format!("{DIST}{dir}/{fourth}")).exists(),
+            "missing fourth-class page {dir}/{fourth}"
+        );
+    }
+}
