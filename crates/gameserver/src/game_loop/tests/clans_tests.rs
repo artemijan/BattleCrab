@@ -87,9 +87,12 @@ fn clan_master_dialog_gates_on_leadership() {
 
     let root = world.data.root.clone();
     let page = |name: &str| {
-        std::fs::read_to_string(format!("{root}data/scripts/village_master/ClanMaster/{name}"))
-            .expect(name)
-            .replace("%objectId%", &NPC_OID.to_string())
+        // The server serves htm through the cache, which strips comments and
+        // tabs/newlines exactly as Java's `HtmCache.loadFile` does — so the
+        // expectation has to go through the same transform, not the raw file.
+        let raw = std::fs::read_to_string(format!("{root}data/scripts/village_master/ClanMaster/{name}"))
+            .expect(name);
+        crate::data::htm_cache::strip_htm(&raw).replace("%objectId%", &NPC_OID.to_string())
     };
 
     // Talk → the root menu (ClanMaster id -1 ⇒ plain NpcHtmlMessage).
