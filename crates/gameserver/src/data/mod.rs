@@ -24,6 +24,7 @@ pub mod npc_data;
 pub mod player_template;
 pub mod pledge_skill_tree;
 pub mod recipe_data;
+pub mod route_data;
 pub mod scheme_buffer;
 pub mod skill_data;
 pub mod skill_tree;
@@ -55,6 +56,7 @@ pub use npc_ai_skills::{AiSkillScope, NpcAiSkillIndex, NpcAiSkills};
 pub use npc_data::NpcData;
 pub use player_template::PlayerTemplateData;
 pub use recipe_data::RecipeData;
+pub use route_data::RouteData;
 pub use scheme_buffer::SchemeBufferData;
 pub use skill_data::SkillData;
 pub use pledge_skill_tree::PledgeSkillTreeData;
@@ -162,6 +164,8 @@ pub struct GameData {
     pub scheme_buffer: SchemeBufferData,
     pub hennas: HennaData,
     pub recipes: RecipeData,
+    /// NPC walking routes (`Routes.xml`), see [`RouteData`].
+    pub routes: RouteData,
     pub categories: CategoryData,
     pub cursed_weapons: CursedWeaponData,
     /// Control/flame tower spawns per castle, from `Siege.ini`.
@@ -228,6 +232,7 @@ impl GameData {
             scheme_buffer: SchemeBufferData::load_from(file_path),
             hennas: HennaData::load_from(file_path),
             recipes: RecipeData::load_from(file_path),
+            routes: RouteData::load_from(file_path),
             categories: CategoryData::load_from(file_path),
             cursed_weapons: CursedWeaponData::load_from(file_path),
             siege_towers: siege_data::load_siege_towers(file_path),
@@ -278,6 +283,7 @@ impl GameData {
             scheme_buffer: SchemeBufferData::default(),
             hennas: HennaData::empty(),
             recipes: RecipeData::empty(),
+            routes: RouteData::default(),
             categories: CategoryData::empty(),
             cursed_weapons: CursedWeaponData::empty(),
             siege_towers: std::collections::HashMap::new(),
