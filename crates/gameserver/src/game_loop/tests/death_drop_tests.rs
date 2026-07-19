@@ -72,6 +72,9 @@ fn register_loot(world: &mut World, stacks: i32) {
 /// Minimal etc-item template shared by the fixtures.
 fn items_tests_template() -> crate::data::item_data::ItemTemplate {
     crate::data::item_data::ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 0,
         name: String::new(),
         kind: crate::data::item_data::ItemKind::Etc,

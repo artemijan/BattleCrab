@@ -14,6 +14,9 @@ const CID: u32 = 1;
 /// A skill template the tests reshape per case.
 fn aoe_skill(id: i32, scope: AffectScope, object: AffectObject, range: i32) -> Skill {
     Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id,
         level: 1,
         name: format!("Test {id}"),

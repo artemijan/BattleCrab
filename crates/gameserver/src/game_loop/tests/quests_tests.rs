@@ -761,6 +761,9 @@ fn race_manager_without_monster_return_falls_back_to_dion() {
 fn request_sell_item_pays_adena() {
     let (mut world, _db_rx, mut rx) = shop_world();
     world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 5000,
         name: "Trophy".into(),
         kind: crate::data::item_data::ItemKind::Etc,

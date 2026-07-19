@@ -17,6 +17,9 @@ const RARE_PRODUCT: i32 = 4;
 
 fn etc_template(item_id: i32, name: &str, stackable: bool, handler: ItemHandler) -> ItemTemplate {
     ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id,
         name: name.into(),
         kind: ItemKind::Etc,

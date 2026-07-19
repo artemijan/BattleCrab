@@ -1406,6 +1406,9 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     // A spoil-only monster next to the caster: no death drops, one guaranteed
     // spoil item (Charcoal 1871, chance 100%). Register the item + template.
     world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 1871,
         name: "Charcoal".into(),
         kind: crate::data::item_data::ItemKind::Etc,
@@ -1447,6 +1450,9 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     // A skill carrying just the Spoil effect (magic level 10 ⇒ near-certain
     // land on a level-5 mob), and the Sweeper skill (Sweeper then ConsumeBody).
     let make = |id: i32, target_type, magic_level, effects| Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id,
         level: 1,
         name: String::new(),

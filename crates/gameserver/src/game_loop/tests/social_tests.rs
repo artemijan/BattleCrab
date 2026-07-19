@@ -473,6 +473,9 @@ fn party_loot_split_and_rotation() {
     let mut c_rx = ingame_caster(&mut world, 3, 3003, 99_000, 0); // out of range
     let party_id = make_party(&mut world, &[3001, 3002, 3003], LootRule::ByTurn);
     world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
         item_id: 1234,
         name: "Test Loot".into(),
         kind: crate::data::item_data::ItemKind::Etc,

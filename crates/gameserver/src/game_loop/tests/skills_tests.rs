@@ -52,6 +52,9 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         },
     );
     data.skill_data.insert_for_test(Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id: 91,
         level: 1,
         name: "Defense Aura".into(),
@@ -1756,6 +1759,9 @@ fn cure_poison_dispels_matching_poison_debuff() {
     // values: Poison 129 (abnormalType POISON, abnormalLevel 3 @ lvl 1 / 7 @
     // lvl 4, a DamOverTime debuff) and Cure Poison 1012 (DispelBySlot POISON,3).
     let poison = |level: i32, abnormal_level: i32| Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id: 129,
         level,
         name: "Poison".into(),
@@ -1795,6 +1801,9 @@ fn cure_poison_dispels_matching_poison_debuff() {
     world.data.skill_data.insert_for_test(poison(1, 3));
     world.data.skill_data.insert_for_test(poison(4, 7));
     world.data.skill_data.insert_for_test(Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id: 1012,
         level: 1,
         name: "Cure Poison".into(),
@@ -2025,6 +2034,9 @@ fn synthetic_buff(id: i32, level: i32, abnormal_type: &str, abnormal_level: i32,
     use crate::model::skill::{Skill, SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id,
         level,
         name: format!("Buff{id}"),

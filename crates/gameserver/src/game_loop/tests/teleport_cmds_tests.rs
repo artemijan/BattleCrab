@@ -113,6 +113,9 @@ fn unstuck_casts_escape_and_teleports_to_town() {
         },
     ]);
     world.data.skill_data.insert_for_test(Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id: 2099,
         level: 1,
         name: "Escape".into(),

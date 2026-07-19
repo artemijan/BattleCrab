@@ -14,6 +14,9 @@ const BUFF_ID: i32 = 8501;
 
 fn zone_skill(id: i32, effects: Vec<SkillEffect>, abnormal: &str) -> Skill {
     Skill {
+        without_action: false,
+        item_consume_id: 0,
+        item_consume_count: 0,
         id,
         level: 1,
         name: format!("Zone {id}"),

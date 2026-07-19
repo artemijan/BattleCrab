@@ -648,11 +648,11 @@ mod tests {
     use crate::data::item_data::ItemTemplate;
 
     fn armor(id: i32, body_part: i32) -> ItemTemplate {
-        ItemTemplate { item_id: id, name: format!("armor{id}"), kind: ItemKind::Armor, crystal_type: item_data::CrystalType::None, crystal_count: 0, attack_radius: 40, attack_angle: 0, mp_consume: 0, reduced_mp_consume: 0, reduced_mp_consume_chance: 0, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false }
+        ItemTemplate { item_id: id, name: format!("armor{id}"), kind: ItemKind::Armor, crystal_type: item_data::CrystalType::None, crystal_count: 0, attack_radius: 40, attack_angle: 0, mp_consume: 0, reduced_mp_consume: 0, reduced_mp_consume_chance: 0, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false, immediate_effect: false, ex_immediate_effect: false, default_action: crate::data::item_data::ActionType::Other }
     }
 
     fn weapon(id: i32, body_part: i32) -> ItemTemplate {
-        ItemTemplate { item_id: id, name: format!("weapon{id}"), kind: ItemKind::Weapon, crystal_type: item_data::CrystalType::None, crystal_count: 0, attack_radius: 40, attack_angle: 0, mp_consume: 0, reduced_mp_consume: 0, reduced_mp_consume_chance: 0, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false }
+        ItemTemplate { item_id: id, name: format!("weapon{id}"), kind: ItemKind::Weapon, crystal_type: item_data::CrystalType::None, crystal_count: 0, attack_radius: 40, attack_angle: 0, mp_consume: 0, reduced_mp_consume: 0, reduced_mp_consume_chance: 0, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false, immediate_effect: false, ex_immediate_effect: false, default_action: crate::data::item_data::ActionType::Other }
     }
 
     #[test]
@@ -745,6 +745,9 @@ mod tests {
     fn quest_items_are_excluded_from_the_ordinary_capacity_count() {
         let catalog = ItemData::from_templates(vec![
             ItemTemplate {
+                immediate_effect: false,
+                ex_immediate_effect: false,
+                default_action: crate::data::item_data::ActionType::Other,
                 item_id: 1,
                 name: "quest_item".into(),
                 kind: ItemKind::Etc,
@@ -768,6 +771,9 @@ mod tests {
                 item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
             },
             ItemTemplate {
+                immediate_effect: false,
+                ex_immediate_effect: false,
+                default_action: crate::data::item_data::ActionType::Other,
                 item_id: 2,
                 name: "ordinary_item".into(),
                 kind: ItemKind::Etc,
@@ -804,6 +810,9 @@ mod tests {
     #[test]
     fn etc_items_are_never_equipped() {
         let catalog = ItemData::from_templates(vec![ItemTemplate {
+            immediate_effect: false,
+            ex_immediate_effect: false,
+            default_action: crate::data::item_data::ActionType::Other,
             item_id: 57,
             name: "Adena".into(),
             kind: ItemKind::Etc,
