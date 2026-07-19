@@ -7,6 +7,7 @@
 pub mod clan_master;
 pub mod newbie_guide;
 pub mod npc_location_info;
+pub mod dwarf_change1;
 pub mod orc_change1;
 pub mod q00109_in_search_of_the_nest;
 pub mod q00258_bring_wolf_pelts;
@@ -45,6 +46,8 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(clan_master::ClanMaster),
         Arc::new(newbie_guide::NewbieGuide),
         Arc::new(npc_location_info::NpcLocationInfo),
+        Arc::new(dwarf_change1::DwarfChange1::blacksmith()),
+        Arc::new(dwarf_change1::DwarfChange1::warehouse()),
         Arc::new(orc_change1::OrcChange1),
         Arc::new(teleport_with_charm::TeleportWithCharm),
     ];
