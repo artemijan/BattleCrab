@@ -943,7 +943,7 @@ fn charge_item(world: &mut World, client_id: u32, object_id: i32, item_id: i32, 
 }
 
 fn read_html(root: &str, rel: &str) -> Option<String> {
-    std::fs::read_to_string(format!("{root}{rel}")).ok()
+    crate::data::htm_cache::read_htm(format!("{root}{rel}"))
 }
 
 fn send_message(world: &World, client_id: u32, text: &str) {

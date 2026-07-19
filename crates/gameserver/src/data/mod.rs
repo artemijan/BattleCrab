@@ -14,6 +14,7 @@ pub mod enchant_data;
 pub mod experience;
 pub mod henna_data;
 pub mod hit_condition_bonus;
+pub mod htm_cache;
 pub mod initial_equipment;
 pub mod initial_shortcut;
 pub mod item_data;

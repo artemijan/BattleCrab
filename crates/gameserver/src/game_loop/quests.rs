@@ -648,8 +648,8 @@ impl<'w> QuestCtx<'w> {
 
     /// `Quest.getAlreadyCompletedMsg` (`data/html/alreadycompleted.htm`).
     pub fn already_completed_html(&self) -> String {
-        std::fs::read_to_string(format!("{}data/html/alreadycompleted.htm", self.world.data.root))
-            .unwrap_or_else(|_| "<html><body>This quest has already been completed.</body></html>".to_string())
+        crate::data::htm_cache::read_htm(format!("{}data/html/alreadycompleted.htm", self.world.data.root))
+            .unwrap_or_else(|| "<html><body>This quest has already been completed.</body></html>".to_string())
     }
 
     /// `Quest.startQuestTimer(name, time, npc, player)` — non-repeating
@@ -1092,16 +1092,15 @@ fn show_html_file(world: &mut World, client_id: u32, npc_oid: i32, script: &Arc<
 /// `data/scripts/quests/<Name>/` fallback.
 fn load_quest_html(world: &World, script: &Arc<dyn QuestScript>, filename: &str) -> Option<String> {
     let root = &world.data.root;
-    std::fs::read_to_string(format!("{root}data/scripts/{}/{filename}", script.html_dir()))
-        .or_else(|_| std::fs::read_to_string(format!("{root}data/scripts/quests/{}/{filename}", script.name())))
-        .ok()
+    crate::data::htm_cache::read_htm(format!("{root}data/scripts/{}/{filename}", script.html_dir()))
+        .or_else(|| crate::data::htm_cache::read_htm(format!("{root}data/scripts/quests/{}/{filename}", script.name())))
 }
 
 /// `Quest.getNoQuestMsg` (`data/html/noquest.htm`, with Java's inline
 /// default when the file is missing).
 fn no_quest_html(world: &World) -> String {
-    std::fs::read_to_string(format!("{}data/html/noquest.htm", world.data.root))
-        .unwrap_or_else(|_| "<html><body>You are either not on a quest that involves this NPC, or you don't meet this NPC's minimum quest requirements.</body></html>".to_string())
+    crate::data::htm_cache::read_htm(format!("{}data/html/noquest.htm", world.data.root))
+        .unwrap_or_else(|| "<html><body>You are either not on a quest that involves this NPC, or you don't meet this NPC's minimum quest requirements.</body></html>".to_string())
 }
 
 fn send_no_quest_html(world: &mut World, client_id: u32, npc_oid: i32) {

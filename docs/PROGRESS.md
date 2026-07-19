@@ -1402,7 +1402,11 @@ Empty/placeholder now, to be filled in the owning milestone:
   split + overhit; Java's teleport-home on attack timeout (we walk);
   elemental attributes (template parse skips them); `dbSave` raid
   persistence (`DBSpawnManager` — spawned statically at full HP);
-  `HtmCache` (dialog `.htm`s are read per interaction);
+  `HtmCache` *caching* (dialog `.htm`s are still read per interaction, but
+  every read now goes through `data::htm_cache::read_htm`, which applies
+  `HtmCache.loadFile`'s comment/tab/newline stripping — without it the client
+  rendered a literal `-->` for each commented-out block, e.g. the Newbie
+  Guide at `html/default/31076.htm`; 187 dist htmls ship comments);
   ~~zones/doors/`StaticObjectData`~~ (✅ G12 vertical slice);
   `NpcNameLocalisationData`/multilang; the death
   dialog's non-village restart points (clan hall/castle/fixed-feather).

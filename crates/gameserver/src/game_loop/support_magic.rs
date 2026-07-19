@@ -174,8 +174,8 @@ fn cast_from_npc(world: &mut World, npc_object_id: i32, target_oid: i32, (skill_
 /// Serve a `data/html/default/<file>` window through the clicked NPC (Java
 /// `npc.showChatWindow(player, "data/html/default/...")`).
 fn send_default_html(world: &World, client_id: u32, npc_object_id: i32, file: &str) {
-    let html = std::fs::read_to_string(format!("{}data/html/default/{file}", world.data.root))
-        .unwrap_or_else(|_| "<html><body>My Text is missing:<br></body></html>".to_string())
+    let html = crate::data::htm_cache::read_htm(format!("{}data/html/default/{file}", world.data.root))
+        .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
         .replace("%objectId%", &npc_object_id.to_string());
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::npc_html_message(npc_object_id, &html));

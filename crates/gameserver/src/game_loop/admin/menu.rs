@@ -39,7 +39,7 @@ pub(super) fn show_admin_html(world: &World, client_id: u32, path: &str) {
 /// `NpcHtmlMessage.replace`). Each `(token, value)` replaces every `%token%`.
 pub(super) fn show_admin_html_replace(world: &World, client_id: u32, path: &str, replacements: &[(&str, String)]) {
     let full = format!("{}data/html/admin/{path}", world.data.root);
-    let mut content = std::fs::read_to_string(&full).unwrap_or_else(|_| {
+    let mut content = crate::data::htm_cache::read_htm(&full).unwrap_or_else(|| {
         format!("<html><body>My text is missing:<br>data/html/admin/{path}</body></html>")
     });
     for (token, value) in replacements {

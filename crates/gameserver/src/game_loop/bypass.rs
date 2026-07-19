@@ -132,7 +132,7 @@ fn handle_link(world: &mut World, client_id: u32, object_id: i32, html_path: &st
         .filter(|id| world.objects.has_component::<crate::model::npc::Npc>(id))
         .unwrap_or(0);
     let content = if VALID_LINKS.contains(&html_path) {
-        std::fs::read_to_string(format!("{}data/html/{html_path}", world.data.root)).ok()
+        crate::data::htm_cache::read_htm(format!("{}data/html/{html_path}", world.data.root))
     } else {
         None
     };

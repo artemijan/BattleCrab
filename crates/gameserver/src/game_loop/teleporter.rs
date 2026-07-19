@@ -174,11 +174,11 @@ fn show_teleport_list(
         ));
     }
 
-    let html = std::fs::read_to_string(format!(
+    let html = crate::data::htm_cache::read_htm(format!(
         "{}data/html/teleporter/teleports.htm",
         world.data.root
     ))
-    .unwrap_or_else(|_| "<html><body>%locations%</body></html>".to_string())
+    .unwrap_or_else(|| "<html><body>%locations%</body></html>".to_string())
     .replace("%locations%", &buttons);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::npc_html_message(npc_object_id, &html));
@@ -269,8 +269,8 @@ fn send_teleporter_html(world: &World, client_id: u32, npc_object_id: i32, file:
         .and_then(|n| n.template(world))
         .map(|t| t.name.clone())
         .unwrap_or_default();
-    let html = std::fs::read_to_string(format!("{}data/html/teleporter/{file}", world.data.root))
-        .unwrap_or_else(|_| "<html><body>My Text is missing:<br></body></html>".to_string())
+    let html = crate::data::htm_cache::read_htm(format!("{}data/html/teleporter/{file}", world.data.root))
+        .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
         .replace("%objectId%", &npc_object_id.to_string())
         .replace("%npcname%", &name);
     if let Some(cs) = world.clients.get(&client_id) {

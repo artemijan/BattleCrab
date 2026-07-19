@@ -42,8 +42,8 @@ pub(crate) fn send_npc_view(world: &World, client_id: u32, npc_object_id: i32) {
     // Java `NpcHtmlMessage.setFile`: a missing file still sends the packet
     // (empty content, logged) — mirror `interact_with_npc`'s stub fallback so
     // the window always opens even when the datapack html is absent.
-    let mut html = std::fs::read_to_string(format!("{}data/html/mods/NpcView/Info.htm", world.data.root))
-        .unwrap_or_else(|_| "<html><body>NPC Info<br>%name%</body></html>".to_string());
+    let mut html = crate::data::htm_cache::read_htm(format!("{}data/html/mods/NpcView/Info.htm", world.data.root))
+        .unwrap_or_else(|| "<html><body>NPC Info<br>%name%</body></html>".to_string());
 
     let mut set = |needle: &str, value: &str| html = html.replace(needle, value);
     set("%name%", &t.name);
@@ -265,7 +265,7 @@ fn send_npc_drop_list(world: &World, client_id: u32, npc_object_id: i32, scope: 
     }
 
     let Some(template_html) =
-        std::fs::read_to_string(format!("{}data/html/mods/NpcView/DropList.htm", world.data.root)).ok()
+        crate::data::htm_cache::read_htm(format!("{}data/html/mods/NpcView/DropList.htm", world.data.root))
     else {
         return;
     };

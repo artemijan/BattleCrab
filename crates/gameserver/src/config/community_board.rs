@@ -175,7 +175,9 @@ fn collect_teleports_in_dir(dir: &std::path::Path, out: &mut HashMap<String, (i3
         if path.is_dir() {
             collect_teleports_in_dir(&path, out); // e.g. the `teleports/` subtree
         } else if path.extension().is_some_and(|e| e == "html" || e == "htm") {
-            if let Ok(text) = std::fs::read_to_string(&path) {
+            // Through `HtmCache` normalization: Java scans the cached text, so
+            // a commented-out `_bbsteleport` must not register a destination.
+            if let Some(text) = crate::data::htm_cache::read_htm(&path) {
                 extract_teleports(&text, out);
             }
         }

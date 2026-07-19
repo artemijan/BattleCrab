@@ -2,6 +2,7 @@
 //! `Player.setTarget` port, and (G8) the `NpcAction` interact path — talking
 //! to a targeted NPC opens its chat window.
 
+use crate::data::htm_cache::read_htm;
 use crate::model::components::{Intent, Position, QueuedAction, TargetRef, Vitals};
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
@@ -411,8 +412,8 @@ pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id:
 /// Java shows the "text is missing" stub); plain `Folk`/`Npc` use
 /// `data/html/default/` falling back to `npcdefault.htm`. Page `value` picks
 /// `<id>.htm` (0) or `<id>-<value>.htm`. Java streams these through
-/// `HtmCache`; a per-interaction disk read is fine at this scale (TODO: cache
-/// if profiling ever cares).
+/// `HtmCache`; we read per interaction but apply the same normalization via
+/// [`read_htm`] (TODO: cache if profiling ever cares).
 fn load_chat_window_html(root: &str, type_name: &str, npc_id: i32, value: i32) -> Option<String> {
     let pom = if value == 0 { npc_id.to_string() } else { format!("{npc_id}-{value}") };
     let dir = match type_name {
@@ -426,9 +427,8 @@ fn load_chat_window_html(root: &str, type_name: &str, npc_id: i32, value: i32) -
         _ => None,
     };
     match dir {
-        Some(dir) => std::fs::read_to_string(format!("{root}data/html/{dir}/{pom}.htm")).ok(),
-        None => std::fs::read_to_string(format!("{root}data/html/default/{pom}.htm"))
-            .or_else(|_| std::fs::read_to_string(format!("{root}data/html/npcdefault.htm")))
-            .ok(),
+        Some(dir) => read_htm(format!("{root}data/html/{dir}/{pom}.htm")),
+        None => read_htm(format!("{root}data/html/default/{pom}.htm"))
+            .or_else(|| read_htm(format!("{root}data/html/npcdefault.htm"))),
     }
 }
