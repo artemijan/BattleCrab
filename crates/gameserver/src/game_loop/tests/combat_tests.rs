@@ -1397,7 +1397,7 @@ fn restart_to(point_type: i32) -> Vec<u8> {
 /// pipeline's targeting gate is unit-tested separately in `resolve_cast_target`).
 #[test]
 fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
-    use crate::model::skill::{Skill, SkillEffect, TargetType};
+    use crate::model::skill::{AffectObject, AffectScope, Skill, SkillEffect, TargetType};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -1464,7 +1464,11 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
-        single_target: true,
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
         effects,

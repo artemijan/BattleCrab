@@ -106,6 +106,9 @@ pub(crate) fn resolve_cast_target(
     use server_packets::sm_ids;
 
     let resolved = match skill.target_type {
+        // `None.java`: returns the caster outright. Unlike `Self`, there is no
+        // peace-zone gate — a toggle is not an attack on anyone.
+        TargetType::None_ => return Ok(caster.object_id),
         // `Self.java`: a bad (offensive) self-target skill is refused inside
         // a peace zone — SM 2167.
         TargetType::Self_ => {
@@ -340,12 +343,6 @@ pub(crate) fn use_magic_on(
 ) {
     use server_packets::sm_ids;
 
-    let Some(player) = world
-        .objects
-        .get_component::<crate::model::Player>(&object_id)
-    else {
-        return;
-    };
     // The dead can't cast (`checkUseConditions` → `isDead`).
     if world
         .objects
@@ -380,7 +377,85 @@ pub(crate) fn use_magic_on(
         }
         return;
     }
-    if skill.operate_type != OperateType::Active || skill.target_type == TargetType::Other {
+    // `Player.useMagic`'s toggle branch, ahead of every other check: recasting
+    // a live toggle switches it **off** and casts nothing; otherwise a toggle
+    // in a group first stops the others in that group, then casts normally.
+    //
+    // Java's `isNecessaryToggle()` exemption (a toggle that may never be
+    // switched off) is not ported — no skill on this dist sets it.
+    if skill.operate_type == OperateType::Toggle {
+        let already_on = world
+            .objects
+            .get_component::<crate::model::components::Buffs>(&object_id)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill.id));
+        if already_on {
+            super::effects::handle_buff_expire(world, object_id, skill.id);
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
+            return;
+        }
+        if skill.toggle_group_id > 0 {
+            // `EffectList.stopAllTogglesOfGroup` — the group is mutually
+            // exclusive, so switching this one on drops its siblings.
+            let siblings: Vec<i32> = world
+                .objects
+                .get_component::<crate::model::components::Buffs>(&object_id)
+                .map(|b| {
+                    b.0.iter()
+                        .map(|x| x.skill_id)
+                        .filter(|&id| {
+                            world
+                                .data
+                                .skill_data
+                                .get(id, 1)
+                                .is_some_and(|s| s.toggle_group_id == skill.toggle_group_id)
+                        })
+                        .collect()
+                })
+                .unwrap_or_default();
+            for sibling in siblings {
+                super::effects::handle_buff_expire(world, object_id, sibling);
+            }
+        }
+        // `SkillCaster.run`'s instant-cast short circuit: a toggle is never
+        // "launched" — no cast bar, no launch/finish phases, no `Casting`
+        // component. It goes straight to `triggerCast`, so the effect is live
+        // the moment the client asks for it.
+        //
+        // Toggles are `targetType NONE` (the caster) on this dist, so the
+        // target resolution the phased path does is just `object_id`.
+        if !check_skill_reuse(world, client_id, object_id, &skill) {
+            return;
+        }
+        // `MagicSkillUse` with a 0 cast time — the client plays the toggle's
+        // animation without drawing a cast bar.
+        if let (Some(caster), Some(pos)) = (
+            world.objects.get_component::<crate::model::Player>(&object_id),
+            world.objects.get_component::<Position>(&object_id).copied(),
+        ) {
+            let pkt = server_packets::magic_skill_use(
+                caster,
+                &pos,
+                (object_id, pos.x, pos.y, pos.z),
+                skill.id,
+                skill.level,
+                0,
+                skill.reuse_delay_group,
+                skill.reuse_delay,
+            );
+            broadcast_including_self(world, object_id, &pkt);
+        }
+        super::effects::apply_skill_effects(world, object_id, object_id, &skill);
+        set_skill_reuse(world, object_id, &skill);
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    } else if skill.operate_type != OperateType::Active {
+        return;
+    }
+    if skill.target_type == TargetType::Other {
         return;
     }
 
@@ -404,6 +479,11 @@ pub(crate) fn use_magic_on(
             .unwrap_or_default()
             .0
     });
+    // Fetched here rather than at the top of the function: the toggle branch
+    // above needs `&mut world`, so this borrow must start after it.
+    let Some(player) = world.objects.get_component::<crate::model::Player>(&object_id) else {
+        return;
+    };
     let target_oid =
         match resolve_cast_target(world, player, &caster_pos, caster_target, &skill, ctrl) {
             Ok(oid) => oid,
@@ -868,13 +948,58 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         crate::game_loop::party::notify_party_vitals(world, player_object_id);
     }
 
-    // `callSkill` → effect application, if the target is still around.
-    if target_state(world, cast.target_object_id).is_some() {
-        apply_skill_effects(world, player_object_id, cast.target_object_id, &skill);
+    // `Skill.forEachTargetAffected` — expand the primary target through the
+    // skill's affect scope, then run `callSkill` per affected creature. A
+    // single-target skill resolves to exactly the primary target, so this is
+    // the old path with one extra element in the loop.
+    let affected = if target_state(world, cast.target_object_id).is_some() {
+        super::affect::targets_affected(world, player_object_id, cast.target_object_id, &skill)
+    } else {
+        Vec::new()
+    };
+
+    for target_oid in affected {
+        // Each target is re-checked: an AoE's effects on an early target can
+        // kill or despawn a later one (Java re-resolves through the world too).
+        if target_state(world, target_oid).is_none() {
+            continue;
+        }
+        apply_skill_effects(world, player_object_id, target_oid, &skill);
+        apply_cast_consequences(world, player_object_id, target_oid, &skill);
     }
 
-    // `SkillCaster` flagging + stance, per target (single-target pipeline).
-    let target_oid = cast.target_object_id;
+    // Attack stance is caster-scoped, so it fires once per cast rather than
+    // per affected target.
+    if skill.is_bad() {
+        // Start attack stance (finalizer, right after `callSkill`): a bad skill
+        // with an action draws the weapon and starts the 15 s combat timer, so
+        // `canLogout` refuses a relogin. Java also excludes `isWithoutAction()`
+        // skills and `DOOR_TREASURE` targets; neither is modeled here, so
+        // `is_bad()` is the whole gate.
+        crate::game_loop::combat::refresh_attack_stance(world, player_object_id);
+    }
+
+    // Hold the cast slot for the cool phase (`stopCasting(false)` after
+    // `_coolTime`), freeing inline when there's nothing to wait out.
+    let cool_ticks = ms_to_ticks(cast.cool_ms);
+    if cool_ticks == 0 {
+        stop_casting(world, player_object_id);
+    } else {
+        world.scheduler.schedule(
+            world.tick + cool_ticks,
+            ScheduledTask::CastEnd {
+                player_object_id,
+                cast_seq,
+            },
+        );
+    }
+}
+
+/// The per-target half of Java's `callSkill`: PvP flagging, monster hate and
+/// the AI wake. Split out of [`handle_skill_finish`] when affect scopes landed
+/// so every creature an AoE touches gets the same treatment the single target
+/// used to get.
+fn apply_cast_consequences(world: &mut World, player_object_id: i32, target_oid: i32, skill: &Skill) {
     let target_is_player = world.objects.has_component::<Player>(&target_oid);
     // Monster proxy: an NPC whose template is auto-attackable (same test the
     // targeting code uses for "is this a monster").
@@ -914,12 +1039,6 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
                 }
             }
         }
-        // Start attack stance (finalizer, right after `callSkill`): a bad skill
-        // with an action draws the weapon and starts the 15 s combat timer, so
-        // `canLogout` refuses a relogin. Java also excludes `isWithoutAction()`
-        // skills and `DOOR_TREASURE` targets; neither is modeled here, so
-        // `is_bad()` is the whole gate.
-        crate::game_loop::combat::refresh_attack_stance(world, player_object_id);
     } else if target_oid != player_object_id {
         // Good/support skill (not self-cast): "supporting monsters or players
         // results in pvpflag" — buffing a monster, or a flagged/PK player,
@@ -937,21 +1056,6 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         if flag_self {
             crate::game_loop::pvp::update_pvp_status(world, player_object_id);
         }
-    }
-
-    // Hold the cast slot for the cool phase (`stopCasting(false)` after
-    // `_coolTime`), freeing inline when there's nothing to wait out.
-    let cool_ticks = ms_to_ticks(cast.cool_ms);
-    if cool_ticks == 0 {
-        stop_casting(world, player_object_id);
-    } else {
-        world.scheduler.schedule(
-            world.tick + cool_ticks,
-            ScheduledTask::CastEnd {
-                player_object_id,
-                cast_seq,
-            },
-        );
     }
 }
 

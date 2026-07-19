@@ -1,4 +1,5 @@
 use super::*;
+use crate::model::skill::{AffectObject, AffectScope};
 
 /// `showTeleports` builds the button list: the fee suffix shows only above
 /// the free-teleport level (`shouldPayFee`/`calculateFee`), the button
@@ -135,7 +136,11 @@ fn unstuck_casts_escape_and_teleports_to_town() {
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
-        single_target: true,
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
         effects: vec![crate::model::skill::SkillEffect::EscapeToTown],

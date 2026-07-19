@@ -10,7 +10,7 @@ use super::*;
 /// are tested against synthetic `World` state, not real time).
 #[test]
 fn learn_and_cast_buff_skill_applies_and_expires() {
-    use crate::model::skill::{Skill, SkillEffect, StatModifierEffect};
+    use crate::model::skill::{AffectObject, AffectScope, Skill, SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
 
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
@@ -74,7 +74,11 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         abnormal_type: "PD_UP".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
-        single_target: true,
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
@@ -1564,7 +1568,7 @@ fn single_target_debuff_lands_and_reports_chance() {
     let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
 
     let skill = world.data.skill_data.get(1160, 1).expect("Decrease Speed").clone();
-    assert!(skill.is_bad() && skill.single_target);
+    assert!(skill.is_bad() && skill.affect_scope == AffectScope::Single);
     world.forced_rolls.extend([0, 0]); // magic-crit roll, then land roll (0 < 90 → lands)
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
 
@@ -1692,7 +1696,11 @@ fn cure_poison_dispels_matching_poison_debuff() {
         abnormal_type: "POISON".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
-        single_target: true,
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
         effects: vec![SkillEffect::DamOverTime { power: 24.0, ticks: 5, can_kill: false }],
@@ -1723,7 +1731,11 @@ fn cure_poison_dispels_matching_poison_debuff() {
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
-        single_target: true,
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
         effects: vec![SkillEffect::DispelBySlot { dispel: vec![("POISON".into(), 3)] }],
@@ -1872,7 +1884,11 @@ fn synthetic_buff(id: i32, level: i32, abnormal_type: &str, abnormal_level: i32,
         abnormal_time: 100,
         abnormal_level,
         abnormal_type: abnormal_type.into(),
-        single_target: true,
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
