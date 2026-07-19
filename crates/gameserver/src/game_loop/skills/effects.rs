@@ -336,6 +336,23 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 // `BuildCampSkillCondition`).
                 crate::game_loop::siege::place_siege_flag(world, caster_oid);
             }
+            SkillEffect::OpenRecipeBook { dwarven } => {
+                // `OpenCommonRecipeBook`/`OpenDwarfRecipeBook.instant`: players
+                // only, refused while a private store (incl. manufacture) is up,
+                // then `RecipeManager.requestBookOpen`.
+                if world.objects.get_component::<crate::model::Player>(&caster_oid).is_some() {
+                    let store_type = world
+                        .objects
+                        .get_component::<crate::model::Player>(&caster_oid)
+                        .map(|p| p.store_type)
+                        .unwrap_or(0);
+                    if store_type != 0 {
+                        send_sm(world, caster_oid, sm_ids::ITEM_CREATION_IS_NOT_POSSIBLE_WHILE_ENGAGED_IN_A_TRADE);
+                    } else if let Some(cid) = crate::game_loop::helpers::client_for_player(world, caster_oid) {
+                        crate::game_loop::crafting::request_book_open(world, cid, *dwarven);
+                    }
+                }
+            }
             SkillEffect::Spoil => {
                 apply_spoil(world, caster_oid, target_oid, skill);
             }

@@ -718,6 +718,12 @@ fn finalize_skill(
                     // Both the basic (247) and advanced HQ skills carry this;
                     // isAdvanced is not yet behaviorally distinct (see the effect).
                     "HeadquarterCreate" => vec![SkillEffect::CreateHeadquarter],
+                    // "Common Craft" (1322) / "Dwarven Craft" (1321): param-less
+                    // self-closing effects whose whole job is to open the recipe
+                    // window. Without these arms both skills parsed to zero
+                    // effects and the cast did nothing.
+                    "OpenCommonRecipeBook" => vec![SkillEffect::OpenRecipeBook { dwarven: false }],
+                    "OpenDwarfRecipeBook" => vec![SkillEffect::OpenRecipeBook { dwarven: true }],
                     // Java throws if amount is 0/missing; we drop the effect
                     // (silent no-op) to match how other bad effect bodies fall
                     // through, rather than panicking at data-load.
@@ -1252,6 +1258,16 @@ mod tests {
         let sweeper = sd.get(42, 1).expect("Sweeper lvl 1");
         assert_eq!(sweeper.target_type, TargetType::NpcBody);
         assert!(matches!(sweeper.effects.as_slice(), [SkillEffect::Sweeper, SkillEffect::ConsumeBody]));
+
+        // Common Craft 1322 / Dwarven Craft 1321: self-target ability skills
+        // whose only effect opens the matching recipe window. Both parsed to an
+        // empty effect list before `OpenCommonRecipeBook`/`OpenDwarfRecipeBook`
+        // were registered, so casting them did nothing at all.
+        let common_craft = sd.get(1322, 1).expect("Common Craft lvl 1");
+        assert_eq!(common_craft.target_type, TargetType::Self_);
+        assert!(matches!(common_craft.effects.as_slice(), [SkillEffect::OpenRecipeBook { dwarven: false }]));
+        let dwarven_craft = sd.get(1321, 1).expect("Dwarven Craft lvl 1");
+        assert!(matches!(dwarven_craft.effects.as_slice(), [SkillEffect::OpenRecipeBook { dwarven: true }]));
 
         // Community-board buffer skills that previously loaded with an empty
         // effect list (every effect unregistered → dropped whole at the
