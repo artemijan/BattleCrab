@@ -146,6 +146,7 @@ fn unstuck_casts_escape_and_teleports_to_town() {
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
+        stay_after_death: false,
         effects: vec![crate::model::skill::SkillEffect::EscapeToTown],
     });
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);

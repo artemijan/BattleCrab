@@ -295,6 +295,13 @@ pub enum SkillEffect {
     /// but the actual damage-immunity check is deferred to the PvP milestone.
     /// TODO(G-pvp): gate PK damage on this buff in the combat/flag path.
     ProtectionBlessing,
+    /// `handlers/effecthandlers/NoblesseBless.java` — Noblesse Blessing (1323):
+    /// the target keeps its buffs through death, losing only this blessing.
+    /// Carries no stat modifier; its whole mechanic is the
+    /// [`effect_flag::NOBLESS_BLESSING`] bit read by `Playable.doDie`, so it
+    /// lands as an icon-only timed `ActiveBuff` (kept off the empty-effects
+    /// bail by `has_state_flag`).
+    NoblesseBless,
     /// `handlers/effecthandlers/DefenceTrait.java` — raises the target's
     /// resistance to a set of `TraitType`s (Mental Shield's HOLD/SLEEP/
     /// DERANGEMENT, Stun Resistance's SHOCK, …) via `mergeDefenceTrait`. The
@@ -379,6 +386,13 @@ pub mod effect_flag {
     /// (`UseItem`'s `isControlBlocked()`); Java's broader summon/mob-control
     /// meaning needs G29.
     pub const BLOCK_CONTROL: u32 = 1 << 5;
+    /// `NOBLESS_BLESSING` (Java's spelling) — Noblesse Blessing (1323): on
+    /// death the creature keeps every other buff and loses only the blessing
+    /// itself (`Playable.doDie`). Java's sibling `RESURRECTION_SPECIAL` has the
+    /// same "keep your buffs" role there, but its self-resurrect mechanic isn't
+    /// ported, so the flag has no source yet.
+    /// TODO(G22): add RESURRECTION_SPECIAL alongside the self-res effect.
+    pub const NOBLESS_BLESSING: u32 = 1 << 6;
 }
 
 /// Java `AbnormalVisualEffect` — the client-side *look* of an abnormal (the
@@ -522,6 +536,13 @@ pub struct Skill {
     /// Java `Skill.isDebuff()` (`<isDebuff>`, default false). A debuff can't be
     /// self-dispelled via alt+click even when `can_be_dispelled` is set.
     pub is_debuff: bool,
+    /// Java `Skill.isStayAfterDeath()` (`<stayAfterDeath>`, default false) — the
+    /// buff survives its holder's death (`EffectList
+    /// .stopAllEffectsExceptThoseThatLastThroughDeath`). Java ORs
+    /// `irreplacableBuff` and `isNecessaryToggle` into the same getter; neither
+    /// tag is parsed here yet, so this is the plain `<stayAfterDeath>` value.
+    /// TODO: fold in `<irreplacableBuff>`/`<isNecessaryToggle>` when parsed.
+    pub stay_after_death: bool,
     pub effects: Vec<SkillEffect>,
 }
 
@@ -603,6 +624,7 @@ impl Skill {
                 SkillEffect::PhysicalMute => effect_flag::PHYSICAL_MUTED,
                 SkillEffect::DebuffBlock => effect_flag::DEBUFF_BLOCK,
                 SkillEffect::BlockControl => effect_flag::BLOCK_CONTROL,
+                SkillEffect::NoblesseBless => effect_flag::NOBLESS_BLESSING,
                 _ => 0,
             }
         })

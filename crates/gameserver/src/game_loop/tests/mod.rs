@@ -36,6 +36,7 @@ mod affect_tests;
 mod clans_tests;
 mod combat_tests;
 mod community_board_tests;
+mod death_buff_tests;
 mod death_drop_tests;
 mod duel_tests;
 mod henna_tests;
@@ -434,6 +435,7 @@ fn cast_test_world() -> (
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
+        stay_after_death: false,
         effects: vec![],
     };
     data.skill_data.insert_for_test(Skill {
@@ -1166,6 +1168,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
+        stay_after_death: false,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalAttack,
             mode: StatModifierType::Diff,
@@ -1217,6 +1220,7 @@ fn clan_advent_test_skill() -> Skill {
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
+        stay_after_death: false,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalAttack,
             mode: StatModifierType::Per,

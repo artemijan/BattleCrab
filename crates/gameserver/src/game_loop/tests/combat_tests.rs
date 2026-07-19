@@ -1480,6 +1480,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
+        stay_after_death: false,
         effects,
     };
     let spoil = make(254, TargetType::EnemyOnly, 10, vec![SkillEffect::Spoil]);

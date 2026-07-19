@@ -756,6 +756,12 @@ fn finalize_skill(
                     // `apply_skill_effects` still creates the icon-only timed buff.
                     // TODO(G-pvp): honor the actual damage immunity.
                     "ProtectionBlessing" => vec![SkillEffect::ProtectionBlessing],
+                    // Noblesse Blessing (1323): no params, no stat modifier —
+                    // the whole mechanic is the `NOBLESS_BLESSING` flag the
+                    // death path reads. Without this arm the effect fell through
+                    // to `EFFECT_REGISTRY`, wasn't found, and the buff was
+                    // dropped whole (the skill cast but nothing landed).
+                    "NoblesseBless" => vec![SkillEffect::NoblesseBless],
                     // Death Whisper (1242) & co.: Java `CriticalDamage extends
                     // AbstractStatEffect(params, CRITICAL_DAMAGE, CRITICAL_DAMAGE_ADD)`
                     // — a two-stat effect that pumps the multiplicative
@@ -849,6 +855,11 @@ fn finalize_skill(
                 // Java `set.getBoolean("canBeDispelled", true)` / `("isDebuff", false)`.
                 can_be_dispelled: value_at(values, "canBeDispelled", level).map_or(true, |v| v == "true"),
                 is_debuff: value_at(values, "isDebuff", level).map_or(false, |v| v == "true"),
+                // Java `set.getBoolean("stayAfterDeath", false)`. The dist writes
+                // both `true` and `True` for this tag and `Boolean.parseBoolean`
+                // is case-insensitive, so compare loosely.
+                stay_after_death: value_at(values, "stayAfterDeath", level)
+                    .is_some_and(|v| v.eq_ignore_ascii_case("true")),
                 effects: skill_effects,
             },
         );
@@ -1005,6 +1016,19 @@ mod tests {
         ), "Trick cancels its target");
         // A silence must not also block physical skills, and vice versa.
         assert_eq!(sd.get(1246, 1).unwrap().effect_flags() & effect_flag::PHYSICAL_MUTED, 0);
+
+        // Noblesse Blessing 1323 — its only effect is the flag the death path
+        // reads; without the parse arm the buff would be dropped whole.
+        let bless = sd.get(1323, 1).expect("Noblesse Blessing");
+        assert!(matches!(bless.effects.as_slice(), [SkillEffect::NoblesseBless]));
+        assert_eq!(bless.effect_flags(), effect_flag::NOBLESS_BLESSING);
+        assert!(!bless.stay_after_death, "the blessing itself is what death consumes");
+        // `<stayAfterDeath>` is parsed case-insensitively — the dist writes both
+        // spellings: Final Flying Form 840 `true`, Report Status 6038 `True`.
+        // Might 1068 is untagged.
+        assert!(sd.get(840, 1).expect("Final Flying Form").stay_after_death);
+        assert!(sd.get(6038, 1).expect("Report Status").stay_after_death, "`True` parses too");
+        assert!(!sd.get(1068, 1).expect("Might").stay_after_death);
 
         // Fury Fists 222 — an upkeep toggle: `HealOverTime` with a *negative*
         // power, i.e. an HP cost per tick, not a heal. Silent Move 221 is the

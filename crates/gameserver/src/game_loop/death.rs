@@ -1125,6 +1125,10 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     // packets via the seq mismatch).
     super::skills::cast::abort_cast(world, player_oid);
 
+    // `Playable.doDie`'s buff block: death normally strips everything, unless
+    // Noblesse Blessing is up — then only the blessing goes.
+    stop_effects_on_death(world, player_oid);
+
     // `Player.doDie`'s reputation block: a player killer takes the PvP/PK
     // consequences (counters, karma) for this death.
     if world.objects.has_component::<crate::model::Player>(&killer_oid) {
@@ -1155,6 +1159,49 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
         player_oid,
         &server_packets::status_update(player_oid, &[(server_packets::status_update_type::CUR_HP, 0)]),
     );
+}
+
+/// `Playable.doDie`'s effect block.
+///
+/// Java: a `NOBLESS_BLESSING` (or `RESURRECTION_SPECIAL`) holder stops *only*
+/// that effect and keeps the rest of its buffs through death and the following
+/// resurrection; everyone else runs
+/// `stopAllEffectsExceptThoseThatLastThroughDeath`, which strips every active
+/// buff whose skill isn't `<stayAfterDeath>`.
+///
+/// `RESURRECTION_SPECIAL` has no ported source yet (the self-res effect is
+/// TODO(G22)), so only the blessing can spare the buff list here.
+///
+/// Passive entries are skipped: Java's sweep runs over `EffectList._actives`
+/// only, while this port parks the grade-penalty passives in the same `Buffs`
+/// vec — dropping those would silently unwind a passive's stat pump on death.
+fn stop_effects_on_death(world: &mut World, player_oid: i32) {
+    use crate::model::skill::effect_flag;
+
+    let blessed = super::abnormal::flags_of(world, player_oid) & effect_flag::NOBLESS_BLESSING != 0;
+    let Some(buffs) = world.objects.get_component::<Buffs>(&player_oid) else { return };
+    let to_stop: Vec<i32> = buffs
+        .0
+        .iter()
+        .filter(|b| !b.passive)
+        .filter(|b| {
+            if blessed {
+                // `stopEffects(EffectFlag.NOBLESS_BLESSING)` — the blessing and
+                // nothing else.
+                b.effect_flags & effect_flag::NOBLESS_BLESSING != 0
+            } else {
+                !world
+                    .data
+                    .skill_data
+                    .get(b.skill_id, b.skill_level)
+                    .is_some_and(|s| s.stay_after_death)
+            }
+        })
+        .map(|b| b.skill_id)
+        .collect();
+    for skill_id in to_stop {
+        super::skills::effects::handle_buff_expire(world, player_oid, skill_id);
+    }
 }
 
 /// `Player.calculateDeathExpPenalty` + `PlayableStat.removeExp` (with the
