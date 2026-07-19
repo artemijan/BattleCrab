@@ -3589,3 +3589,162 @@ fn quest_q00413_full_chain_awards_the_orb_of_abyss() {
     }
     assert!(drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
 }
+
+const Q414: &str = "Q00414_PathOfTheOrcRaider";
+
+/// An Orc Fighter with Q00414 accepted (Karukia at NPC_OID).
+fn q414_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let rows: Vec<(i32, &str, bool)> =
+        [1578, 1579, 1580, 1589, 1590, 1591, 1592, 8544].iter().map(|id| (*id, "Q414", true)).collect();
+    add_quest_items(&mut world, &rows);
+    for id in [20320, 27045, 27054] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 20;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30570, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 19;
+        p.class_id = 44; // Orc Fighter
+        p.base_class_id = 44;
+        p.race = 3;
+    }
+    drain_db(&mut db_rx);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q414}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q414} ACCEPT")));
+    assert_eq!(item_count(&world, 3001, 1579), 1, "the Goblin Dwelling Map");
+    drain(&mut rx);
+    (world, rx)
+}
+
+/// Green blood is a rising **summon meter**, not loot: a roll above the held
+/// count gains one, a roll at or below it wipes the stack and summons Kuruka.
+#[test]
+fn quest_q00414_green_blood_is_a_summon_meter() {
+    let (mut world, _rx) = q414_world();
+
+    // blood 0, forced roll 5 → `0 <= 5` → gain.
+    let mob = NPC_OID + 100;
+    add_test_npc(&mut world, mob, 20320, "Monster", 20, 30, 0, 0);
+    world.forced_rolls.push_back(5);
+    death::npc_do_die(&mut world, mob, 3001);
+    assert_eq!(item_count(&world, 3001, 1578), 1, "gained a green blood");
+    assert!(npcs_of(&mut world, 27045).is_empty(), "no summon yet");
+
+    // blood 1, forced roll 0 → `1 <= 0` is false → wipe and summon.
+    let mob2 = NPC_OID + 101;
+    add_test_npc(&mut world, mob2, 20320, "Monster", 20, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, mob2, 3001);
+    assert_eq!(item_count(&world, 3001, 1578), 0, "the meter is wiped");
+    let summoned = npcs_of(&mut world, 27045);
+    assert_eq!(summoned.len(), 1, "Kuruka Ratman Leader was summoned");
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::npc::AggroList>(&summoned[0])
+            .is_some_and(|a| a.0.contains_key(&3001)),
+        "and set on the player"
+    );
+}
+
+/// The tooth comes from Kuruka, never from the goblins — porting the blood as
+/// a capped collection would make the quest unfinishable.
+#[test]
+fn quest_q00414_teeth_come_from_kuruka_and_reset_the_meter() {
+    let (mut world, _rx) = q414_world();
+    // Stock a little blood first.
+    let mob = NPC_OID + 100;
+    add_test_npc(&mut world, mob, 20320, "Monster", 20, 30, 0, 0);
+    world.forced_rolls.push_back(19);
+    death::npc_do_die(&mut world, mob, 3001);
+    assert_eq!(item_count(&world, 3001, 1578), 1);
+
+    let kuruka = NPC_OID + 200;
+    add_test_npc(&mut world, kuruka, 27045, "Monster", 20, 30, 0, 0);
+    death::npc_do_die(&mut world, kuruka, 3001);
+    assert_eq!(item_count(&world, 3001, 1580), 1, "the tooth comes from Kuruka");
+    assert_eq!(item_count(&world, 3001, 1578), 0, "and resets the meter");
+}
+
+/// Umbar Orcs spend one report per head (Zakan's first), 20% of the time.
+#[test]
+fn quest_q00414_umbar_heads_spend_the_reports() {
+    let (mut world, _rx) = q414_world();
+    for _ in 0..10 {
+        super::items::add_inventory_item(&mut world, 3001, 1580, 1); // 10 teeth
+    }
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q414} 30570-07a.htm")));
+    assert_eq!(item_count(&world, 3001, 1589), 1, "Umbar's report");
+    assert_eq!(item_count(&world, 3001, 1590), 1, "Zakan's report");
+    assert_eq!(quest_cond(&world, 3001, Q414), Some(3));
+
+    // A roll of 2 misses (`getRandom(10) < 2`).
+    let miss = NPC_OID + 300;
+    add_test_npc(&mut world, miss, 27054, "Monster", 20, 30, 0, 0);
+    world.forced_rolls.push_back(2);
+    death::npc_do_die(&mut world, miss, 3001);
+    assert_eq!(item_count(&world, 3001, 1591), 0, "roll 2 is outside the 20%");
+
+    for i in 0..2 {
+        let mob = NPC_OID + 310 + i;
+        add_test_npc(&mut world, mob, 27054, "Monster", 20, 30, 0, 0);
+        world.forced_rolls.push_back(0);
+        death::npc_do_die(&mut world, mob, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, 1591), 2, "two betrayer heads");
+    assert_eq!(item_count(&world, 3001, 1590), 0, "Zakan's report spent first");
+    assert_eq!(item_count(&world, 3001, 1589), 0, "then Umbar's");
+    assert_eq!(quest_cond(&world, 3001, Q414), Some(4));
+
+    // Kasman pays out.
+    let kasman = NPC_OID + 20;
+    add_test_npc(&mut world, kasman, 30501, "Folk", 5, 100, 0, 0);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{kasman}_Quest {Q414}")));
+    assert_eq!(item_count(&world, 3001, 1592), 1, "the Mark of Raider");
+    {
+        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        assert!(quests.0[Q414].is_completed());
+    }
+}
+
+/// NPC 31978 ships five pages in this quest's directory but is registered
+/// nowhere, and `30570-07.htm` offers only the `07a` button — so the whole
+/// `07b` route is dead at both ends. Asserted so a future reader doesn't
+/// "restore" one end without the other.
+#[test]
+fn orc_raider_dead_branch_is_dead_at_both_ends() {
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/quests/Q00414_PathOfTheOrcRaider/"
+    );
+    // The orphaned pages really do ship.
+    for p in ["01", "02", "03", "04", "05"] {
+        assert!(
+            std::path::Path::new(&format!("{DIST}31978-{p}.htm")).exists(),
+            "31978-{p}.htm ships but is unreachable"
+        );
+    }
+    // ...and nothing offers the 07b button.
+    let fork = std::fs::read_to_string(format!("{DIST}30570-07.htm")).expect("the fork page");
+    assert!(fork.contains("30570-07a.htm"), "07a is offered");
+    assert!(!fork.contains("30570-07b.htm"), "07b is NOT offered — the route is unreachable");
+}
+
+#[test]
+fn orc_raider_quest_pages_exist_in_dist() {
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/quests/Q00414_PathOfTheOrcRaider/"
+    );
+    for p in ["01", "02", "02a", "03", "04", "05", "06", "07", "07a", "07b", "08"] {
+        assert!(std::path::Path::new(&format!("{DIST}30570-{p}.htm")).exists(), "missing 30570-{p}.htm");
+    }
+    for p in ["01", "02", "03"] {
+        assert!(std::path::Path::new(&format!("{DIST}30501-{p}.htm")).exists(), "missing 30501-{p}.htm");
+    }
+}
