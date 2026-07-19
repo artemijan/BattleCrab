@@ -1094,6 +1094,13 @@ G14; admin commands are carved out as their own G13
 `data/buy_list_data.rs`, `network/trade.rs`):
 - `Link <file>`: `Link.java`'s whitelist (23 pages) served from
   `data/html/` as plain `NpcHtmlMessage`; `..`-escapes dropped.
+- `Chat <page>` (`ChatLink.java` → `Npc.showChatWindow(player, value)`): the
+  follow-up dialog pages (`<npcId>-<page>.htm` in the instance class's html
+  dir). Without it every "next page" button on a folk html was a log-drop —
+  notably the merchant landing pages, which reach `Buy` only through
+  `Chat 1`, so no shop behind a Lector-style two-step menu was openable. The
+  `showPkDenyChatWindow` reputation gate and the `ON_NPC_FIRST_TALK` redirect
+  on page 0 are still `TODO(G23)`.
 - `Buy <listId>` on `Merchant`/`Fisherman` templates →
   `Merchant.showBuyWindow`: all **338** buylists load (file name = list id,
   `CorrectPrices = True` floors prices to sell value at load; limited stock
