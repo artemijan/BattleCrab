@@ -3000,3 +3000,135 @@ fn elven_oracle_quest_pages_exist_in_dist() {
         assert!(std::path::Path::new(&path).exists(), "missing 30428-{p}.html");
     }
 }
+
+const Q408: &str = "Q00408_PathOfTheElvenWizard";
+
+/// An Elven Mage with Q00408 accepted (Rossela at `NPC_OID`).
+fn q408_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = vec![(1230, "Eternity Diamond", false)];
+    for id in [1218, 1219, 1220, 1221, 1222, 1223, 1224, 1225, 1226, 1229, 1272, 1273, 1274] {
+        items.push((id, "Q408 item", true));
+    }
+    add_quest_items(&mut world, &items);
+    for id in [20019, 20047, 20466] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 20;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30414, "Folk", 5, 100, 0, 0); // Rossela
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 19;
+        p.class_id = 25; // Elven Mage
+        p.base_class_id = 25;
+        p.race = 1;
+    }
+    drain_db(&mut db_rx);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408} ACCEPT")));
+    assert_eq!(item_count(&world, 3001, 1229), 1, "the Fertility Peridot");
+    drain(&mut rx);
+    (world, rx)
+}
+
+/// All three errands, then the diamond. Errands 1 and 2 swap the introduction
+/// for a charm through a dialog event; **errand 3 has no such event** and
+/// swaps on the talk itself.
+#[test]
+fn quest_q00408_three_errands_award_the_eternity_diamond() {
+    let (mut world, mut rx) = q408_world();
+    let (greenis, thalia, northwind) = (NPC_OID + 20, NPC_OID + 21, NPC_OID + 22);
+    add_test_npc(&mut world, greenis, 30157, "Folk", 5, 100, 0, 0);
+    add_test_npc(&mut world, thalia, 30371, "Folk", 5, 100, 0, 0);
+    add_test_npc(&mut world, northwind, 30423, "Folk", 5, 100, 0, 0);
+    let mut mob_oid = NPC_OID + 500;
+
+    // (offer event, specialist oid, swap event, mob, material, need, gem)
+    let errands: [(&str, i32, Option<&str>, i32, i32, i64, i32); 3] = [
+        ("30414-10.html", greenis, Some("30157-02.html"), 20466, 1219, 5, 1220),
+        ("30414-12.html", thalia, Some("30371-02.html"), 20019, 1223, 5, 1221),
+        ("30414-16.html", northwind, None, 20047, 1225, 2, 1226),
+    ];
+    for (offer, specialist, swap, mob, material, need, gem) in errands {
+        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408} {offer}")));
+        match swap {
+            // Greenis / Thalia: the swap needs the dialog event.
+            Some(ev) => {
+                handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{specialist}_Quest {Q408} {ev}")));
+            }
+            // Northwind: talking is enough.
+            None => {
+                handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{specialist}_Quest {Q408}")));
+            }
+        }
+        for _ in 0..need {
+            mob_oid += 1;
+            add_test_npc(&mut world, mob_oid, mob, "Monster", 20, 30, 0, 0);
+            world.forced_rolls.push_back(0); // inside every chance
+            death::npc_do_die(&mut world, mob_oid, 3001);
+        }
+        assert_eq!(item_count(&world, 3001, material), need, "collected material {material}");
+        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{specialist}_Quest {Q408}")));
+        assert_eq!(item_count(&world, 3001, gem), 1, "gem {gem} awarded");
+        assert_eq!(item_count(&world, 3001, material), 0, "material handed over");
+    }
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408}")));
+    assert_eq!(item_count(&world, 3001, 1230), 1, "the Eternity Diamond");
+    {
+        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        assert!(quests.0[Q408].is_completed());
+    }
+    assert!(
+        drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION),
+        "the completion animation"
+    );
+}
+
+/// The charm is the drop gate: the same mob pays nothing before the
+/// introduction has been swapped for it.
+#[test]
+fn quest_q00408_drops_need_the_charm() {
+    let (mut world, _rx) = q408_world();
+    let mob = NPC_OID + 400;
+    add_test_npc(&mut world, mob, 20466, "Monster", 20, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, mob, 3001);
+    assert_eq!(item_count(&world, 3001, 1219), 0, "no charm, no Red Down");
+}
+
+/// Northwind ships only three pages, which is *why* his errand has no swap
+/// event — there is no fourth page to route one to.
+#[test]
+fn elven_wizard_quest_pages_exist_in_dist() {
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/quests/Q00408_PathOfTheElvenWizard/"
+    );
+    for p in ["01", "02", "02a", "03", "04", "05", "06"] {
+        let path = format!("{DIST}30414-{p}.htm");
+        assert!(std::path::Path::new(&path).exists(), "missing 30414-{p}.htm");
+    }
+    for n in 7..=23 {
+        let path = format!("{DIST}30414-{n:02}.html");
+        assert!(std::path::Path::new(&path).exists(), "missing 30414-{n:02}.html");
+    }
+    for npc in ["30157", "30371"] {
+        for p in ["01", "02", "03", "04"] {
+            let path = format!("{DIST}{npc}-{p}.html");
+            assert!(std::path::Path::new(&path).exists(), "missing {npc}-{p}.html");
+        }
+    }
+    for p in ["01", "02", "03"] {
+        let path = format!("{DIST}30423-{p}.html");
+        assert!(std::path::Path::new(&path).exists(), "missing 30423-{p}.html");
+    }
+    assert!(
+        !std::path::Path::new(&format!("{DIST}30423-04.html")).exists(),
+        "Northwind has no fourth page — hence no swap event"
+    );
+}
