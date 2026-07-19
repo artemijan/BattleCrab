@@ -86,6 +86,16 @@ pub(crate) fn handle_use_item(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::UseItem::read(body) else { return };
     let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
     let object_id = session.player_object_id();
+    // `UseItem.runImpl`: `hasBlockActions() || isControlBlocked() ||
+    // isAlikeDead()` refuses the use outright. (Death is gated further in.)
+    if crate::game_loop::abnormal::is_blocked_from_actions(world, object_id)
+        || crate::game_loop::abnormal::is_control_blocked(world, object_id)
+    {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
     use_equipable_item(world, client_id, object_id, pkt.object_id);
 }
 

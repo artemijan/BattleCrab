@@ -481,6 +481,19 @@ fn finalize_skill(
                         return vec![SkillEffect::BlockActions { conditional }];
                     }
                     "Root" => return vec![SkillEffect::Root],
+                    // The rest of the state-flag CC family (Seal of Silence,
+                    // Shield Slam, Mystic Immunity, Horror): no parameters, the
+                    // mechanic is entirely the flag.
+                    "Mute" => return vec![SkillEffect::Mute],
+                    "PhysicalMute" => return vec![SkillEffect::PhysicalMute],
+                    "DebuffBlock" => return vec![SkillEffect::DebuffBlock],
+                    "BlockControl" => return vec![SkillEffect::BlockControl],
+                    "TargetCancel" => {
+                        let chance = value_at(params, "chance", level)
+                            .and_then(|v| v.parse::<i32>().ok())
+                            .unwrap_or(100);
+                        return vec![SkillEffect::TargetCancel { chance }];
+                    }
                     // Java instantiates these handlers whenever the `<effect>` is
                     // present and reads `params.getDouble("power", 0)` — the
                     // effect is always created, `power` defaulting to 0 when the
@@ -909,6 +922,22 @@ mod tests {
         // Sonic Storm carries the same 5-12 cap over a tighter 150 sweep.
         assert_eq!(sonic_storm.affect_range, 150);
         assert_eq!(sonic_storm.affect_limit, (5, 12));
+
+        // The rest of the CC family, against the real Interlude skills.
+        // Seal of Silence 1246 silences (magic only); Shield Slam 353 is the
+        // physical twin; Mystic Immunity 1411 blocks incoming debuffs; Horror
+        // 65 blocks control; Trick 11 cancels the target.
+        use crate::model::skill::effect_flag;
+        assert_eq!(sd.get(1246, 1).expect("Seal of Silence").effect_flags(), effect_flag::MUTED);
+        assert_eq!(sd.get(353, 1).expect("Shield Slam").effect_flags() & effect_flag::PHYSICAL_MUTED, effect_flag::PHYSICAL_MUTED);
+        assert_eq!(sd.get(1411, 1).expect("Mystic Immunity").effect_flags() & effect_flag::DEBUFF_BLOCK, effect_flag::DEBUFF_BLOCK);
+        assert_eq!(sd.get(65, 1).expect("Horror").effect_flags() & effect_flag::BLOCK_CONTROL, effect_flag::BLOCK_CONTROL);
+        assert!(matches!(
+            sd.get(11, 1).expect("Trick").effects.iter().find(|e| matches!(e, SkillEffect::TargetCancel { .. })),
+            Some(SkillEffect::TargetCancel { .. })
+        ), "Trick cancels its target");
+        // A silence must not also block physical skills, and vice versa.
+        assert_eq!(sd.get(1246, 1).unwrap().effect_flags() & effect_flag::PHYSICAL_MUTED, 0);
 
         // Fury Fists 222 — an upkeep toggle: `HealOverTime` with a *negative*
         // power, i.e. an HP cost per tick, not a heal. Silent Move 221 is the

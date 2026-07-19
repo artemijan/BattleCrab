@@ -41,6 +41,28 @@ pub(crate) fn is_blocked_from_actions(world: &World, object_id: i32) -> bool {
     flags_of(world, object_id) & effect_flag::BLOCK_ACTIONS != 0
 }
 
+/// Java `Creature.isMuted()` — silenced against **magic** skills.
+pub(crate) fn is_muted(world: &World, object_id: i32) -> bool {
+    flags_of(world, object_id) & effect_flag::MUTED != 0
+}
+
+/// Java `Creature.isPhysicalMuted()` — the non-magic twin.
+pub(crate) fn is_physical_muted(world: &World, object_id: i32) -> bool {
+    flags_of(world, object_id) & effect_flag::PHYSICAL_MUTED != 0
+}
+
+/// Java `Creature.isDebuffBlocked()` — incoming debuffs fail outright. (Java
+/// also ORs `isInvul()`; GM invulnerability is tracked separately in this port
+/// and is not folded in here.)
+pub(crate) fn is_debuff_blocked(world: &World, object_id: i32) -> bool {
+    flags_of(world, object_id) & effect_flag::DEBUFF_BLOCK != 0
+}
+
+/// Java `Creature.isControlBlocked()` — "out of control"; blocks item use here.
+pub(crate) fn is_control_blocked(world: &World, object_id: i32) -> bool {
+    flags_of(world, object_id) & effect_flag::BLOCK_CONTROL != 0
+}
+
 /// Java `Creature.isMovementDisabled()`, effect-driven terms only: a stun
 /// blocks movement, and so does a root (which leaves attacking and casting
 /// alone).

@@ -468,6 +468,24 @@ pub(crate) fn use_magic_on(
         return;
     }
 
+    // `SkillCaster.checkDoCastConditions`' mute checks: a magic skill is
+    // refused while silenced, a non-magic one while physically muted. Static
+    // skills (`magic_type == 2`) bypass both, as in Java's `!skill.isStatic()`
+    // guard.
+    if skill.magic_type != 2 {
+        let muted = if skill.magic_type == 1 {
+            super::super::abnormal::is_muted(world, object_id)
+        } else {
+            super::super::abnormal::is_physical_muted(world, object_id)
+        };
+        if muted {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
+            return;
+        }
+    }
+
     // Reuse gate (`Player.useMagic`'s `isSkillDisabled` branch), keyed by the
     // shared reuse group when the skill has one: timestamp reuses (> 3000 ms)
     // get the remaining h/m/s breakdown, short ones SM 48.

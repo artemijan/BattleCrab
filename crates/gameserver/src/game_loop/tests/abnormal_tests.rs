@@ -5,7 +5,7 @@ use super::*;
 
 use crate::game_loop::abnormal;
 use crate::model::components::{Buffs, Casting, Movement};
-use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
+use crate::model::skill::{effect_flag, AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
 
 const CASTER: i32 = 2001;
 const VICTIM: i32 = 2002;
@@ -250,4 +250,181 @@ fn aoe_stun_blocks_the_whole_cluster() {
     assert!(abnormal::is_blocked_from_actions(&world, a), "mob in the sweep is stunned");
     assert!(abnormal::is_blocked_from_actions(&world, b), "so is the second one");
     assert!(!abnormal::is_blocked_from_actions(&world, far), "the one outside is not");
+}
+
+// ---------------------------------------------------------------------------
+// The rest of the CC family: mute, debuff-block, control-block, target-cancel
+// ---------------------------------------------------------------------------
+
+const MUTE_ID: i32 = 9310;
+const PMUTE_ID: i32 = 9311;
+const DBLOCK_ID: i32 = 9312;
+const CBLOCK_ID: i32 = 9313;
+const TCANCEL_ID: i32 = 9314;
+
+fn cc2_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+    // Builds on `cc_world` so the stun/root fixtures are available too — the
+    // debuff-block case needs a real debuff to refuse.
+    let (mut world, db, l) = cc_world();
+    world.data.skill_data.insert_for_test(cc_skill(MUTE_ID, SkillEffect::Mute, "MUTE"));
+    world.data.skill_data.insert_for_test(cc_skill(PMUTE_ID, SkillEffect::PhysicalMute, "PHYSICAL_MUTE"));
+    world.data.skill_data.insert_for_test(cc_skill(DBLOCK_ID, SkillEffect::DebuffBlock, "DEBUFF_BLOCK"));
+    world.data.skill_data.insert_for_test(cc_skill(CBLOCK_ID, SkillEffect::BlockControl, "BLOCK_CONTROL"));
+    world.data.skill_data.insert_for_test(cc_skill(TCANCEL_ID, SkillEffect::TargetCancel { chance: 100 }, "NONE"));
+    (world, db, l)
+}
+
+/// A silenced caster is refused **magic** skills but keeps physical ones; the
+/// physical mute is the mirror image. Skill 91 in `cast_test_world` is magic
+/// (`magic_type == 1`).
+#[test]
+fn mute_blocks_magic_and_physical_mute_blocks_the_rest() {
+    let (mut world, _db, _l) = cc2_world();
+    let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    drain(&mut out);
+
+    // Silenced: the magic self-buff is refused.
+    land(&mut world, MUTE_ID, CASTER);
+    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 91, false, false);
+    assert!(!world.objects.has_component::<Casting>(&CASTER), "a silenced caster can't cast magic");
+
+    // Clear it and confirm the same cast now works.
+    crate::game_loop::skills::effects::handle_buff_expire(&mut world, CASTER, MUTE_ID);
+    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 91, false, false);
+    assert!(world.objects.has_component::<Casting>(&CASTER), "and can once the silence ends");
+    crate::game_loop::skills::cast::stop_casting(&mut world, CASTER);
+
+    // A *physical* mute leaves the magic skill alone.
+    land(&mut world, PMUTE_ID, CASTER);
+    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 91, false, false);
+    assert!(
+        world.objects.has_component::<Casting>(&CASTER),
+        "physical mute must not block a magic skill"
+    );
+}
+
+/// Landing a mute aborts the cast already in flight.
+#[test]
+fn mute_interrupts_an_in_flight_cast() {
+    let (mut world, _db, _l) = cc2_world();
+    let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    drain(&mut out);
+
+    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 91, false, false);
+    assert!(world.objects.has_component::<Casting>(&CASTER));
+    land(&mut world, MUTE_ID, CASTER);
+    assert!(!world.objects.has_component::<Casting>(&CASTER), "the in-flight cast is aborted");
+}
+
+/// **Raid bosses are immune to the mute interrupt** — Java's `isRaid()` bail,
+/// which is what stops one silence from neutering a raid.
+#[test]
+fn raid_bosses_ignore_the_mute_interrupt() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+
+    // A raid-flagged NPC.
+    let mut t = crate::data::npc_data::default_template(20050);
+    t.type_name = "RaidBoss".into();
+    t.level = 40;
+    t.base_hp_max = 5000.0;
+    t.base_mp_max = 500.0;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 20050, "RaidBoss", 40, 100, 0, 0);
+    assert!(
+        world.data.npc_data.get(20050).is_some_and(|t| t.is_raid()),
+        "fixture must actually be a raid for this test to mean anything"
+    );
+
+    // The mute still lands as a buff; only the cast-abort side effect is skipped.
+    land(&mut world, MUTE_ID, NPC_OID);
+    assert!(abnormal::flags_of(&world, NPC_OID) & effect_flag::MUTED != 0, "the flag still applies");
+}
+
+/// `DEBUFF_BLOCK` refuses incoming debuffs outright while leaving buffs alone.
+#[test]
+fn debuff_block_refuses_incoming_debuffs() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
+
+    // Baseline: the stun lands.
+    land(&mut world, STUN_ID, VICTIM);
+    assert!(abnormal::is_blocked_from_actions(&world, VICTIM));
+    crate::game_loop::skills::effects::handle_buff_expire(&mut world, VICTIM, STUN_ID);
+
+    // Under debuff block it does not.
+    land(&mut world, DBLOCK_ID, VICTIM);
+    land(&mut world, STUN_ID, VICTIM);
+    assert!(
+        !abnormal::is_blocked_from_actions(&world, VICTIM),
+        "a debuff-blocked target refuses the stun entirely"
+    );
+
+    // A *buff* still lands (1068 is the Might-like buff, not a debuff).
+    let buff = world.data.skill_data.get(1068, 1).cloned().expect("might");
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, VICTIM, &buff);
+    assert!(
+        world.objects.get_component::<Buffs>(&VICTIM).is_some_and(|b| b.0.iter().any(|x| x.skill_id == 1068)),
+        "debuff block does not stop buffs"
+    );
+}
+
+/// `BLOCK_CONTROL` refuses item use (Java's `UseItem` gate).
+#[test]
+fn control_block_refuses_item_use() {
+    let (mut world, _db, _l) = cc2_world();
+    let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    drain(&mut out);
+
+    land(&mut world, CBLOCK_ID, CASTER);
+    // A bogus item object id is fine: the gate must reject before any lookup,
+    // so the only reply is ActionFailed.
+    crate::game_loop::items::handle_use_item(&mut world, CID, &use_item_body(1234));
+    let pkts = drain(&mut out);
+    assert!(
+        pkts.iter().any(|p| p[0] == server_packets::opcodes::ACTION_FAIL),
+        "item use is refused while control-blocked"
+    );
+}
+
+/// `TargetCancel` drops the victim's target and aborts what they were doing.
+#[test]
+fn target_cancel_clears_the_target_and_aborts() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let mut vout = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 60, 0, 0);
+
+    // The victim is targeting the mob and casting.
+    world.objects.get_component_mut::<crate::model::components::TargetRef>(&VICTIM).unwrap().0 = Some(NPC_OID);
+    crate::game_loop::skills::cast::use_magic(&mut world, VICTIM_CID, VICTIM, 91, false, false);
+    assert!(world.objects.has_component::<Casting>(&VICTIM));
+    drain(&mut vout);
+
+    land(&mut world, TCANCEL_ID, VICTIM);
+    assert_eq!(
+        world.objects.get_component::<crate::model::components::TargetRef>(&VICTIM).unwrap().0,
+        None,
+        "the target is dropped"
+    );
+    assert!(!world.objects.has_component::<Casting>(&VICTIM), "and the cast is aborted");
+}
+
+/// A 0% `TargetCancel` does nothing — proof the chance roll is consulted.
+#[test]
+fn zero_chance_target_cancel_does_nothing() {
+    let (mut world, _db, _l) = cc2_world();
+    world.data.skill_data.insert_for_test(cc_skill(9315, SkillEffect::TargetCancel { chance: 0 }, "NONE"));
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 60, 0, 0);
+
+    world.objects.get_component_mut::<crate::model::components::TargetRef>(&VICTIM).unwrap().0 = Some(NPC_OID);
+    land(&mut world, 9315, VICTIM);
+    assert_eq!(
+        world.objects.get_component::<crate::model::components::TargetRef>(&VICTIM).unwrap().0,
+        Some(NPC_OID),
+        "a 0% target-cancel leaves the target alone"
+    );
 }
