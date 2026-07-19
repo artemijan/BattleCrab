@@ -377,7 +377,11 @@ pub fn spawn_all(world: &mut World) -> usize {
             }
         }
     }
-    tracing::info!("SpawnData: spawned {placed} NPCs ({skipped} spawn lines skipped).");
+    // Minions are placed underneath `spawn_one`, so fold them into the tally —
+    // otherwise the reported count disagrees with the world's NPC population.
+    let escorts = std::mem::take(&mut world.minions_placed);
+    let placed = placed + escorts;
+    tracing::info!("SpawnData: spawned {placed} NPCs ({escorts} minions, {skipped} spawn lines skipped).");
     placed
 }
 
@@ -407,7 +411,14 @@ pub(crate) fn spawn_one(world: &mut World, spawn_idx: usize, group_idx: usize, n
         (def.npc_id, loc, def.respawn_secs, def.respawn_random_secs)
     };
     let Some((x, y, z, heading)) = loc else { return None };
-    spawn_npc_entity(world, npc_id, x, y, z, heading, respawn_secs, respawn_random_secs, (spawn_idx, group_idx, npc_idx))
+    let oid = spawn_npc_entity(world, npc_id, x, y, z, heading, respawn_secs, respawn_random_secs, (spawn_idx, group_idx, npc_idx))?;
+    // `NpcSpawnTemplate.spawnNpc`: a leader brings its escort. Hooked here
+    // rather than in `spawn_npc_entity` so a minion that itself declares
+    // minions can't recurse — minions are placed through `spawn_npc_at`,
+    // which deliberately doesn't run this.
+    let escort = crate::game_loop::minions::spawn_minions(world, oid);
+    world.minions_placed += escort;
+    Some(oid)
 }
 
 /// Runtime spawn of a single NPC at an explicit location with no respawn and no

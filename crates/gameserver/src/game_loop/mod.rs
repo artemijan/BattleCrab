@@ -33,6 +33,7 @@ mod lobby;
 mod multisell;
 mod net;
 mod boss_respawn;
+pub(crate) mod minions;
 mod npc_ai;
 mod npc_cast;
 mod npc_view;
@@ -321,6 +322,9 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::BossRespawn { spawn_ref } => {
                 boss_respawn::handle_boss_respawn(world, spawn_ref);
+            }
+            ScheduledTask::MinionRespawn { master_object_id, minion_npc_id } => {
+                minions::handle_minion_respawn(world, master_object_id, minion_npc_id);
             }
             ScheduledTask::NpcDecay { npc_object_id } => {
                 death::handle_npc_decay(world, npc_object_id);

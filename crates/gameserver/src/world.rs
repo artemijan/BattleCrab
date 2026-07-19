@@ -114,6 +114,9 @@ pub struct World {
     /// `dbSave` spawn definitions the static spawn pass deliberately left
     /// unplaced, awaiting their `npc_respawns` rows — see
     /// [`crate::game_loop::boss_respawn`]. Drained once at boot.
+    /// Running tally of minions placed by the current spawn pass, so
+    /// `spawn_all`'s reported count matches the world's NPC population.
+    pub minions_placed: usize,
     pub pending_boss_spawns: Vec<(usize, usize, usize)>,
     /// npc id → its `dbSave` spawn definition, for the death/respawn writes
     /// (Java's `DBSpawnManager._spawns`).
@@ -271,6 +274,7 @@ impl World {
             clients: HashMap::new(),
             objects: EntityStore::new(),
             npc_regions: HashMap::new(),
+            minions_placed: 0,
             pending_boss_spawns: Vec::new(),
             boss_spawn_refs: HashMap::new(),
             door_regions: HashMap::new(),

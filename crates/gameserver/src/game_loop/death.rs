@@ -64,6 +64,12 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
 
     calculate_rewards(world, npc_oid, killer_oid);
 
+    // `Attackable.doDie`'s minion notifications, in Java's order: tell this
+    // NPC's leader it lost a minion, then (if it led a pack itself) clear its
+    // own escort.
+    super::minions::on_minion_die(world, npc_oid);
+    super::minions::on_master_die(world, npc_oid);
+
     // `OnAttackableKill` listeners (Java fires them async off the death
     // path; here it's an ordinary call after rewards — same tick, no
     // component borrow held). Killer-only: party quest sharing is deferred.

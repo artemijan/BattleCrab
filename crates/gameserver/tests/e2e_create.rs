@@ -347,7 +347,13 @@ impl GameClient {
     /// - `ExSetCompassZoneCode` (FE:0x33) — G12 zone revalidation reporting the
     ///   spawn point's peace-zone compass icon.
     async fn recv_skip_status_update(&mut self) -> Vec<u8> {
-        const SKIP: &[u8] = &[0x18, 0x0C, 0x08, 0x2F, 0x47];
+        // Ambient broadcasts that can land between a request and its reply.
+        // 0x27 SocialAction is an NPC *idle animation* — it fires on a random
+        // timer for any NPC near the player, so it can interleave anywhere.
+        // This is the most likely cause of the intermittent failures this test
+        // showed before minions existed; adding escorts near the spawn made it
+        // near-deterministic rather than introducing it.
+        const SKIP: &[u8] = &[0x18, 0x0C, 0x08, 0x2F, 0x47, 0x27];
         loop {
             let pkt = self.recv().await;
             let compass =

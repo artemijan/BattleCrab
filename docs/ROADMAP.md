@@ -649,8 +649,11 @@ help calls landed (`PLAN_G21_GUARD_AGGRO.md`) — the `<clanList>` faction data
 gate clause: raid HP across restart (`DBSpawnManager`); minions parse but
 never spawn. Raid-boss persistence landed (`PLAN_G21_BOSS_PERSISTENCE.md`) —
 `DBSpawnManager`/`npc_respawns`, covering the last gate clause, so **G21's gate
-is met**. Remaining breadth: minions, NPC pathfinding/regen, the other ~33 zone
-types, fences, `HtmCache`, walker routes, `CreatureSeeTaskManager`.
+is met**. Minions landed (`PLAN_G21_MINIONS.md`) — 460 leaders, 3289 escorts placed.
+Remaining breadth: **zones** (only 5 of ~30 kinds ported; `ConditionZone` 1080,
+`EffectZone` 218, `ScriptZone` 133, `TaxZone` 122 lead the 2779 total), NPC
+pathfinding/regen, fences, `HtmCache`, walker routes,
+`CreatureSeeTaskManager`.
 
 ---
 

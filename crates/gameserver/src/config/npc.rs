@@ -45,6 +45,18 @@ pub struct NpcConfig {
     /// these are effectively dormant — ported for faithfulness.
     pub vitality_consume_by_mob: i32,
     pub vitality_consume_by_boss: i32,
+    /// `RaidMinionRespawnTime` (ms, 300000 here) — how long a *raid* boss's
+    /// minion stays dead. A non-raid leader's minions don't come back at all
+    /// unless overridden below (Java's `respawnTime < 0 ? isRaid ? cfg : 0`).
+    pub raid_minion_respawn_time: i32,
+    /// `CustomMinionsRespawnTime` — per-npc-id overrides in *seconds*
+    /// (`22450,30;22371,120;…`, 23 entries on this dist). Present ids bypass
+    /// the raid-only rule entirely, so a `0` here means "never respawn" even
+    /// for a raid minion.
+    pub custom_minions_respawn_time: std::collections::HashMap<i32, i32>,
+    /// `ForceDeleteMinions` (False here) — despawn a leader's minions when it
+    /// dies even if it isn't a raid boss.
+    pub force_delete_minions: bool,
 }
 
 impl Default for NpcConfig {
@@ -63,6 +75,9 @@ impl Default for NpcConfig {
             aggro_distance_check_raid_range: 3000,
             aggro_distance_check_restore_life: true,
             vitality_consume_by_mob: 2250,
+            raid_minion_respawn_time: 300_000,
+            custom_minions_respawn_time: std::collections::HashMap::new(),
+            force_delete_minions: false,
             vitality_consume_by_boss: 1125,
         }
     }
@@ -93,6 +108,22 @@ impl NpcConfig {
                 .get_bool("AggroDistanceCheckRestoreLife", d.aggro_distance_check_restore_life),
             vitality_consume_by_mob: p.get_int("VitalityConsumeByMob", d.vitality_consume_by_mob),
             vitality_consume_by_boss: p.get_int("VitalityConsumeByBoss", d.vitality_consume_by_boss),
+            raid_minion_respawn_time: p.get_int("RaidMinionRespawnTime", d.raid_minion_respawn_time),
+            custom_minions_respawn_time: parse_minion_respawn_overrides(
+                &p.get_string("CustomMinionsRespawnTime", ""),
+            ),
+            force_delete_minions: p.get_bool("ForceDeleteMinions", d.force_delete_minions),
         }
     }
+}
+
+/// `CustomMinionsRespawnTime` — `id,seconds;id,seconds;…`. Malformed pairs are
+/// skipped rather than failing the boot, matching Java's lenient split.
+fn parse_minion_respawn_overrides(raw: &str) -> std::collections::HashMap<i32, i32> {
+    raw.split(';')
+        .filter_map(|pair| {
+            let (id, secs) = pair.split_once(',')?;
+            Some((id.trim().parse().ok()?, secs.trim().parse().ok()?))
+        })
+        .collect()
 }
