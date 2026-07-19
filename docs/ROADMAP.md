@@ -43,7 +43,7 @@ out-of-scope list.
 | G17 | Sub-classes, class change & nobless | Progression | `//setnoble` `//setsubclass` (editchar) | G22¹ |
 | G18 | Clans — full | Progression | `//clan_*` `//pledge` `//add_clan_skill` | G15 |
 | G19 | Skills & effects breadth 🚧 | Combat | `//ave_abnormal` `//setteam` `//settargetable` `//para` `//playmovie` … (AdminEffects) | — |
-| G20 | Combat breadth | Combat | — | G14, G19 |
+| G20 | Combat breadth ✅ | Combat | — | G14, G19 |
 | G20.5 | Recommendations | Support | — | G16 |
 | G21 | NPC AI & world-content breadth | Combat | `//scan` extras, guard/faction | G20 |
 | G22 | Quest & script breadth | Content | `//quest_*` `//charquestmenu` `//setcharquest` `//reload` (scripts) | G17, G19 |
@@ -597,10 +597,22 @@ Condition restore is simplified to a full heal rather than Java's pre-duel
 snapshot (`TODO(G20)`); `canDuel` already requires ≥50 % HP/MP, so the gap is
 small.
 
-**Still open in G20** (all small): `SHOTS_BONUS`, karma decay while hunting
-(`calculateKarmaLost` needs per-level `KarmaData`, absent from this dist), PK
-item drops, the party-duel variant, and the ranged trio (bow peace-zone check,
-`CHEAPSHOT`, NPC-archer reuse).
+✅ **Death item drops — G20 complete (2026-07-19)** — plan
+[PLAN_G20_DEATH_DROPS.md](PLAN_G20_DEATH_DROPS.md). A PK past
+`MinimumPKRequiredToDrop` killed by a player scatters part of their inventory —
+the **karma penalty**, not general looting: killing a *clean* player takes
+nothing. A **monster** kill uses the separate, gentler `Player*` rates, so an
+ordinary death to a mob can still cost an item. Adena/quest items never drop,
+equipped items unequip first and roll the equip/weapon percentage, arena deaths
+and GMs are exempt.
+
+**Why this closes G20.** Checking the leftovers against *this dist* rather than
+the list: `SHOTS_BONUS` is **provably dead** here — zero items declare
+`reducedSoulshot`, so the stat has no source and porting it is a verified no-op;
+karma decay is **blocked** on a per-level `KarmaData` table absent from
+`data/`; party duels are **blocked** on G27's arena instances. Only the three
+ranged scraps remain (bow peace-zone check, `CHEAPSHOT`, NPC-archer reuse), none
+reachable in normal play.
 
 **Scoping note:** several G20 line items were already done — `PhysicalAttack`
 skills (instant-damage slice) and the root/immobilize half of

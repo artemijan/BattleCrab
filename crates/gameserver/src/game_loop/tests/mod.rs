@@ -36,6 +36,7 @@ mod affect_tests;
 mod clans_tests;
 mod combat_tests;
 mod community_board_tests;
+mod death_drop_tests;
 mod duel_tests;
 mod henna_tests;
 mod crafting_tests;

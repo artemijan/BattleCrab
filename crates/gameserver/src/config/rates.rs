@@ -73,6 +73,24 @@ pub struct RatesConfig {
     /// negative vitality delta in `updateVitalityPoints` (both **1**).
     pub rate_vitality_gain: f64,
     pub rate_vitality_lost: f64,
+    /// Death drops (`Player.onDieDropItem`). Two rate sets: the **player** one
+    /// applies when a *monster* did the killing, the **karma** one when a
+    /// playable killed a PK who is past `MinimumPKRequiredToDrop`. Each is a
+    /// gate roll (`rate_drop`), per-item percentages split by inventory /
+    /// equipped / equipped-weapon, and a cap on how many items may fall.
+    pub player_drop_limit: i32,
+    pub player_rate_drop: i32,
+    pub player_rate_drop_item: i32,
+    pub player_rate_drop_equip: i32,
+    pub player_rate_drop_equip_weapon: i32,
+    pub karma_drop_limit: i32,
+    pub karma_rate_drop: i32,
+    pub karma_rate_drop_item: i32,
+    pub karma_rate_drop_equip: i32,
+    pub karma_rate_drop_equip_weapon: i32,
+    /// `PVP.ini` `MinimumPKRequiredToDrop` (Java default 4) — a PK below this
+    /// many kills drops nothing to a player killer.
+    pub karma_pk_limit: i32,
     /// `VitalityMaxItemsAllowed` — weekly cap on vitality-restoring item uses,
     /// reported by `ExVitalityEffectInfo` (**999**).
     pub vitality_max_items_allowed: i32,
@@ -110,6 +128,17 @@ impl Default for RatesConfig {
             rate_vitality_gain: 1.0,
             rate_vitality_lost: 1.0,
             vitality_max_items_allowed: 999,
+            player_drop_limit: 0,
+            player_rate_drop: 0,
+            player_rate_drop_item: 0,
+            player_rate_drop_equip: 0,
+            player_rate_drop_equip_weapon: 0,
+            karma_drop_limit: 0,
+            karma_rate_drop: 0,
+            karma_rate_drop_item: 0,
+            karma_rate_drop_equip: 0,
+            karma_rate_drop_equip_weapon: 0,
+            karma_pk_limit: 4,
         }
     }
 }
@@ -150,6 +179,21 @@ impl RatesConfig {
             rate_vitality_lost: p.get_float("RateVitalityLost", d.rate_vitality_lost as f32) as f64,
             vitality_max_items_allowed: p
                 .get_int("VitalityMaxItemsAllowed", d.vitality_max_items_allowed),
+            player_drop_limit: p.get_int("PlayerDropLimit", d.player_drop_limit),
+            player_rate_drop: p.get_int("PlayerRateDrop", d.player_rate_drop),
+            player_rate_drop_item: p.get_int("PlayerRateDropItem", d.player_rate_drop_item),
+            player_rate_drop_equip: p.get_int("PlayerRateDropEquip", d.player_rate_drop_equip),
+            player_rate_drop_equip_weapon: p
+                .get_int("PlayerRateDropEquipWeapon", d.player_rate_drop_equip_weapon),
+            karma_drop_limit: p.get_int("KarmaDropLimit", d.karma_drop_limit),
+            karma_rate_drop: p.get_int("KarmaRateDrop", d.karma_rate_drop),
+            karma_rate_drop_item: p.get_int("KarmaRateDropItem", d.karma_rate_drop_item),
+            karma_rate_drop_equip: p.get_int("KarmaRateDropEquip", d.karma_rate_drop_equip),
+            karma_rate_drop_equip_weapon: p
+                .get_int("KarmaRateDropEquipWeapon", d.karma_rate_drop_equip_weapon),
+            // Lives in PVP.ini, not Rates.ini.
+            karma_pk_limit: PropertiesParser::load("config/PVP.ini")
+                .get_int("MinimumPKRequiredToDrop", d.karma_pk_limit),
         }
     }
 }

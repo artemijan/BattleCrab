@@ -513,6 +513,137 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
 // XP/SP gain and level-ups (`PlayableStat.addExp` / `PlayerStat.addLevel`)
 // ---------------------------------------------------------------------------
 
+/// `Player.onDieDropItem` — scatter part of the victim's inventory.
+///
+/// Two rate sets, per Java:
+/// * a **playable** killer only triggers drops when the victim is a PK past
+///   `MinimumPKRequiredToDrop` — this is the karma penalty, not a general
+///   looting mechanic;
+/// * a **monster** killer uses the (much gentler) player rates, which is why an
+///   ordinary death to a mob can still cost an item.
+///
+/// Nothing drops inside a PVP zone when a player did the killing (arena deaths
+/// are free), and GMs are exempt.
+///
+/// Not modelled: shadow / time-limited items (no ported source), pet control
+/// items (G29), the `KarmaListNonDroppableItems` whitelists, and the clan-war
+/// exemption (`TODO(G18)` — warring clans don't make each other drop).
+fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
+    use crate::data::item_data;
+
+    let killer_is_player = world.objects.has_component::<crate::model::Player>(&killer_oid);
+    // Arena deaths cost nothing when another player did it.
+    if killer_is_player
+        && world
+            .objects
+            .get_component::<crate::model::components::ZoneFlags>(&victim_oid)
+            .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Pvp))
+    {
+        return;
+    }
+    let Some(victim) = world.objects.get_component::<crate::model::Player>(&victim_oid) else { return };
+    if victim.is_gm(&world.data) {
+        return;
+    }
+    let (reputation, pk_kills) = (victim.reputation, victim.pk_kills);
+
+    let r = &world.cfg.rates;
+    let (rate, item_pct, equip_pct, weapon_pct, limit) = if killer_is_player {
+        // Karma drops only once the victim is a repeat PK.
+        if reputation >= 0 || pk_kills < r.karma_pk_limit {
+            return;
+        }
+        (
+            r.karma_rate_drop,
+            r.karma_rate_drop_item,
+            r.karma_rate_drop_equip,
+            r.karma_rate_drop_equip_weapon,
+            r.karma_drop_limit,
+        )
+    } else if crate::game_loop::combat::is_npc_oid(killer_oid) {
+        (
+            r.player_rate_drop,
+            r.player_rate_drop_item,
+            r.player_rate_drop_equip,
+            r.player_rate_drop_equip_weapon,
+            r.player_drop_limit,
+        )
+    } else {
+        return;
+    };
+
+    if rate <= 0 || world.roll(100) >= rate {
+        return;
+    }
+
+    // Snapshot first: dropping mutates the inventory underneath us.
+    let candidates: Vec<(i32, i32, i64, i32)> = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&victim_oid)
+        .map(|inv| {
+            inv.items()
+                .iter()
+                .map(|i| (i.object_id, i.item_id, i.count, i.enchant_level))
+                .collect()
+        })
+        .unwrap_or_default();
+    let Some(pos) = world.objects.get_component::<Position>(&victim_oid).copied() else { return };
+
+    let mut dropped = 0;
+    for (obj_id, item_id, count, enchant) in candidates {
+        if limit > 0 && dropped >= limit {
+            break;
+        }
+        let Some(t) = world.data.item_data.get(item_id) else { continue };
+        // Adena and quest items never drop.
+        if item_id == item_data::ADENA_ID || t.is_quest_item || t.type2 == item_data::TYPE2_QUEST {
+            continue;
+        }
+        let equipped = world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&victim_oid)
+            .is_some_and(|inv| inv.paperdoll_slot_of(obj_id).is_some());
+        let chance = if equipped {
+            if t.type2 == item_data::TYPE2_WEAPON { weapon_pct } else { equip_pct }
+        } else {
+            item_pct
+        };
+        if chance <= 0 || world.roll(100) >= chance {
+            continue;
+        }
+        // Equipped items come off first (`unEquipItemInSlot`).
+        if equipped {
+            if let Some(inv) = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&victim_oid) {
+                inv.unequip_item(obj_id);
+            }
+        }
+        if let Some(inv) = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&victim_oid) {
+            inv.remove_item(item_id, count);
+        }
+        crate::game_loop::ground_items::spawn_ground_item(
+            world,
+            item_id,
+            count,
+            enchant,
+            pos.x,
+            pos.y,
+            pos.z,
+            victim_oid,
+            crate::game_loop::ground_items::DropSource::Player,
+        );
+        dropped += 1;
+    }
+    if dropped > 0 {
+        if let Some(client_id) = client_for_player(world, victim_oid) {
+            if let Some(v) = crate::model::PlayerView::of(&world.objects, victim_oid) {
+                if let Some(cs) = world.clients.get(&client_id) {
+                    cs.send(crate::network::enter_world::item_list(v.inventory, &world.data, false));
+                }
+            }
+        }
+    }
+}
+
 /// `Attackable.calculateOverhitExp` — the bonus XP a killing `<overHit>` blow
 /// earns, and the "over-hit!" notice that goes with it.
 ///
@@ -981,6 +1112,10 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     if world.objects.has_component::<crate::model::Player>(&killer_oid) {
         super::pvp::on_kill_update_pvp_reputation(world, killer_oid, player_oid);
     }
+
+    // `onDieDropItem` — a PK (or anyone a monster killed) can scatter part of
+    // their inventory on the ground. Runs before the XP penalty, as in Java.
+    on_die_drop_item(world, player_oid, killer_oid);
 
     // Death XP penalty — Java skips it entirely when the victim died inside a
     // PVP or siege zone (`!isLucky() && !insidePvpZone && !isOnEvent()`).
