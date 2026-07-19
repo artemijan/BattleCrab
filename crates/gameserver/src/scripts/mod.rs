@@ -9,6 +9,7 @@ pub mod newbie_guide;
 pub mod npc_location_info;
 pub mod dark_elf_change1;
 pub mod dwarf_change1;
+pub mod dwarf_change2;
 pub mod first_class_transfer_talk;
 pub mod elf_human_change1;
 pub mod orc_change1;
@@ -54,6 +55,8 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(first_class_transfer_talk::FirstClassTransferTalk),
         Arc::new(elf_human_change1::ElfHumanChange1::fighter()),
         Arc::new(elf_human_change1::ElfHumanChange1::wizard()),
+        Arc::new(dwarf_change2::DwarfChange2::blacksmith()),
+        Arc::new(dwarf_change2::DwarfChange2::warehouse()),
         Arc::new(dwarf_change1::DwarfChange1::blacksmith()),
         Arc::new(dwarf_change1::DwarfChange1::warehouse()),
         Arc::new(orc_change1::OrcChange1),

@@ -1386,3 +1386,138 @@ fn first_class_transfer_talk_pages_exist_in_dist() {
     assert!(!std::path::Path::new(&format!("{DIST}30031_fighter.html")).exists());
     assert!(!std::path::Path::new(&format!("{DIST}30520_mystic.html")).exists());
 }
+
+/// DwarfBlacksmithChange2: an Artisan with **all three** marks becomes a
+/// Warsmith at level 40, paying C-grade coupons.
+#[test]
+fn dwarf_change2_second_class_transfer() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(3119, "Mark of Guildsman", true), (3238, "Mark of Prosperity", true),
+          (2867, "Mark of Maestro", true), (8870, "Coupon C", false)],
+    );
+    world.data.categories.insert_for_test("WARSMITH_GROUP", &[56, 57]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30512, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.race = 4;
+        p.class_id = 56; // Artisan
+        p.base_class_id = 56;
+    }
+    for id in [3119, 3238, 2867] {
+        super::items::add_inventory_item(&mut world, 3001, id, 1);
+    }
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfBlacksmithChange2 57")),
+    );
+
+    let p = world.objects.get_component::<Player>(&3001).unwrap();
+    assert_eq!(p.class_id, 57, "now a Warsmith");
+    for id in [3119, 3238, 2867] {
+        assert_eq!(item_count(&world, 3001, id), 0, "mark {id} consumed");
+    }
+    assert_eq!(item_count(&world, 3001, 8870), 15, "C-grade coupons");
+}
+
+/// Holding only *some* of the marks is not enough — Java's
+/// `hasQuestItems(a, b, c)` is an AND. Treating it as "any" would let a player
+/// transfer on one mark.
+#[test]
+fn dwarf_change2_requires_all_three_marks() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(3119, "Mark of Guildsman", true), (3238, "Mark of Prosperity", true),
+          (2867, "Mark of Maestro", true), (8870, "Coupon C", false)],
+    );
+    world.data.categories.insert_for_test("WARSMITH_GROUP", &[56, 57]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30512, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.race = 4;
+        p.class_id = 56;
+        p.base_class_id = 56;
+    }
+    // Two of the three.
+    super::items::add_inventory_item(&mut world, 3001, 3119, 1);
+    super::items::add_inventory_item(&mut world, 3001, 3238, 1);
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfBlacksmithChange2 57")),
+    );
+
+    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().class_id, 56, "still an Artisan");
+    assert_eq!(item_count(&world, 3001, 3119), 1, "and the marks are not taken");
+    assert_eq!(item_count(&world, 3001, 3238), 1);
+}
+
+/// Level 39 is refused even holding all three marks.
+#[test]
+fn dwarf_change2_requires_level_40() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(3119, "Mark of Guildsman", true), (3238, "Mark of Prosperity", true),
+          (2809, "Mark of Searcher", true), (8870, "Coupon C", false)],
+    );
+    world.data.categories.insert_for_test("BOUNTY_HUNTER_GROUP", &[54, 55]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30511, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 39;
+        p.race = 4;
+        p.class_id = 54; // Scavenger
+        p.base_class_id = 54;
+    }
+    for id in [3119, 3238, 2809] {
+        super::items::add_inventory_item(&mut world, 3001, id, 1);
+    }
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfWarehouseChange2 55")),
+    );
+
+    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().class_id, 54, "still a Scavenger at 39");
+    assert_eq!(item_count(&world, 3001, 3119), 1, "marks kept");
+}
+
+/// One 12-page set serves all eight masters per script — every page the
+/// scripts can name belongs to the *first* NPC's id.
+#[test]
+fn dwarf_change2_pages_exist_in_dist() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/village_master/");
+    for (dir, page_npc) in [("DwarfBlacksmithChange2", 30512), ("DwarfWarehouseChange2", 30511)] {
+        for n in 1..=12 {
+            let path = format!("{DIST}{dir}/{page_npc}-{n:02}.htm");
+            assert!(std::path::Path::new(&path).exists(), "missing {dir}/{page_npc}-{n:02}.htm");
+        }
+        // And the other masters genuinely ship nothing of their own.
+        let other = format!("{DIST}{dir}/30677-01.htm");
+        assert!(!std::path::Path::new(&other).exists(), "only the first NPC ships pages");
+    }
+}

@@ -1095,7 +1095,7 @@ fn quest_test_world() -> (
     {
         let base = world.data.player_templates.get(0).cloned().unwrap_or_default();
         let mut all = vec![base.clone()];
-        for class_id in [1, 4, 7, 11, 15, 19, 22, 26, 29, 31, 32, 35, 38, 39, 42, 44, 45, 47, 49, 50, 53, 54, 56] {
+        for class_id in [1, 4, 7, 11, 15, 19, 22, 26, 29, 31, 32, 35, 38, 39, 42, 44, 45, 47, 49, 50, 53, 54, 55, 56, 57] {
             let mut t = base.clone();
             t.class_id = class_id;
             all.push(t);
