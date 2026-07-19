@@ -487,6 +487,14 @@ fn finalize_skill(
                         return vec![SkillEffect::BlockActions { conditional }];
                     }
                     "Root" => return vec![SkillEffect::Root],
+                    // Polearm Mastery 216: `HitNumber` is a plain
+                    // AbstractStatEffect over ATTACK_COUNT_MAX (amount 5).
+                    "HitNumber" => {
+                        return param("amount")
+                            .map(|amount| stat_mod(Stat::AttackCountMax, amount))
+                            .into_iter()
+                            .collect();
+                    }
                     // The rest of the state-flag CC family (Seal of Silence,
                     // Shield Slam, Mystic Immunity, Horror): no parameters, the
                     // mechanic is entirely the flag.
@@ -929,6 +937,15 @@ mod tests {
         // Sonic Storm carries the same 5-12 cap over a tighter 150 sweep.
         assert_eq!(sonic_storm.affect_range, 150);
         assert_eq!(sonic_storm.affect_limit, (5, 12));
+
+        // Polearm Mastery 216 raises ATTACK_COUNT_MAX to 5 (`HitNumber`) —
+        // this is what turns a polearm into a sweep weapon; the weapon type
+        // alone does not.
+        let mastery = sd.get(216, 1).expect("Polearm Mastery lvl 1");
+        assert!(mastery
+            .stat_modifier_effects()
+            .iter()
+            .any(|m| m.stat == Stat::AttackCountMax && m.amount == 5.0), "got {:?}", mastery.effects);
 
         // Abnormal *visual* effects — the cosmetic half of everything above.
         // Shield Stun 92 draws STUN(7), Bleed 96 draws DOT_BLEEDING(1), Horror

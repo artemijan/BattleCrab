@@ -485,6 +485,8 @@ fn party_loot_split_and_rotation() {
         price: 0,
         handler: crate::data::item_data::ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
+ attack_radius: 40,
+ attack_angle: 0,
  mp_consume: 0,
  reduced_mp_consume: 0,
  reduced_mp_consume_chance: 0,

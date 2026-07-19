@@ -36,19 +36,30 @@ fn hit_flags(hit: &AttackHit) -> i32 {
 
 /// Port of `serverpackets/Attack` (single-hit melee shape — the trailing
 /// extra-hit list is empty, matching non-dual weapons).
-pub fn attack(attacker_object_id: i32, hit: &AttackHit, ax: i32, ay: i32, az: i32, tx: i32, ty: i32, tz: i32) -> Vec<u8> {
+/// One swing, which may land **several hits**: a dual weapon strikes twice, and
+/// a polearm sweep adds one hit per extra target (Java `Attack.addHit`). `hits`
+/// must be non-empty; the first is written inline and the rest follow the
+/// `writeShort(size - 1)` count.
+pub fn attack(attacker_object_id: i32, hits: &[AttackHit], ax: i32, ay: i32, az: i32, tx: i32, ty: i32, tz: i32) -> Vec<u8> {
     let mut w = PacketWriter::new();
+    let Some(first) = hits.first() else { return Vec::new() };
     w.write_u8(opcodes::ATTACK);
     w.write_i32(attacker_object_id);
-    w.write_i32(hit.target_object_id);
+    w.write_i32(first.target_object_id);
     w.write_i32(0); // soulshot visual substitute (brooch jewels)
-    w.write_i32(hit.damage);
-    w.write_i32(hit_flags(hit));
-    w.write_i32(hit.ss_grade); // Hit.getGrade() — weapon crystal grade on a soulshot hit
+    w.write_i32(first.damage);
+    w.write_i32(hit_flags(first));
+    w.write_i32(first.ss_grade); // Hit.getGrade() — weapon crystal grade on a soulshot hit
     w.write_i32(ax);
     w.write_i32(ay);
     w.write_i32(az);
-    w.write_i16(0); // no additional hits
+    w.write_i16((hits.len() - 1) as i16);
+    for hit in &hits[1..] {
+        w.write_i32(hit.target_object_id);
+        w.write_i32(hit.damage);
+        w.write_i32(hit_flags(hit));
+        w.write_i32(hit.ss_grade);
+    }
     w.write_i32(tx);
     w.write_i32(ty);
     w.write_i32(tz);

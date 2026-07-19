@@ -65,6 +65,10 @@ pub enum Stat {
     /// Blessed Shield (`ShieldDefenceRate`) raises it. No finalizer yet, so it's
     /// only a buff-modifier target (the buff lands with its icon regardless).
     ShieldDefenceRate,
+    /// Java `Stat.ATTACK_COUNT_MAX` ("atkCountMax") — how many creatures one
+    /// swing may hit. 1 by default; Polearm Mastery 216 (`HitNumber`) raises it
+    /// to 5, which is what turns a polearm into a sweep weapon.
+    AttackCountMax,
     /// Java `Stat.HEAL_EFFECT` ("healEffect", multiplicative) and
     /// `HEAL_EFFECT_ADD` ("healEffectAdd", additive) — how much healing the
     /// *recipient* actually receives. `Heal` applies them as
