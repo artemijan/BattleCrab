@@ -219,6 +219,13 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
         super::henna::apply_henna_change(world, cid, player_oid);
     }
 
+    // 3c. `resetTimeStamps()` — Java *clears* skill cooldowns on a class
+    //     switch rather than banking them per slot, so a subclass can't be
+    //     used to sit out a long reuse on the class that started it.
+    if let Some(reuses) = world.objects.get_component_mut::<crate::model::components::Reuses>(&player_oid) {
+        reuses.0.clear();
+    }
+
     // 4. Rebuild stats and top up the auto-granted tree for the new class.
     //    `set_level` is the same path `//setclass` uses: recompute HP/MP/stats,
     //    grant the class's reachable skills, and push the status/UserInfo/
