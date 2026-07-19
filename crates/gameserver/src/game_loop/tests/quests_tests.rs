@@ -3929,3 +3929,206 @@ fn orc_monk_quest_pages_exist_in_dist() {
         assert!(std::path::Path::new(&format!("{DIST}30591-0{n}.html")).exists(), "missing 30591-0{n}");
     }
 }
+
+const Q416: &str = "Q00416_PathOfTheOrcShaman";
+
+/// An Orc Mage with Q00416 accepted (Tataru at NPC_OID).
+fn q416_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let rows: Vec<(i32, &str, bool)> =
+        (1616..=1631).map(|id| (id, "Q416", true)).collect();
+    add_quest_items(&mut world, &rows);
+    for id in [20038, 20043, 20335, 20415, 20478, 20479, 27056] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 20;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30585, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 19;
+        p.class_id = 49; // Orc Mage
+        p.base_class_id = 49;
+        p.race = 3;
+    }
+    drain_db(&mut db_rx);
+    // Note the event name: START, not ACCEPT.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416} START")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416} 30585-07.htm")));
+    assert_eq!(item_count(&world, 3001, 1616), 1, "the fire charm");
+    drain(&mut rx);
+    (world, rx)
+}
+
+/// `ItemChanceHolder.count` is a **cond selector**, not a quantity: a grizzly
+/// bear (gate cond 6) drops nothing at cond 1, and drops exactly one blood —
+/// not six — once the cond matches.
+#[test]
+fn quest_q00416_holder_count_is_a_cond_gate_not_a_quantity() {
+    let (mut world, _rx) = q416_world();
+    // At cond 1 the grizzly is out of season.
+    let early = NPC_OID + 100;
+    add_test_npc(&mut world, early, 20335, "Monster", 20, 30, 0, 0);
+    death::npc_do_die(&mut world, early, 3001);
+    assert_eq!(item_count(&world, 3001, 1625), 0, "grizzly is gated to cond 6");
+
+    // Advance to cond 6 the short way: hand the player the flame charm and set
+    // the cond, mirroring Umos' hand-over.
+    super::items::add_inventory_item(&mut world, 3001, 1624, 1);
+    set_quest_cond(&mut world, 3001, Q416, 6);
+    let mob = NPC_OID + 101;
+    add_test_npc(&mut world, mob, 20335, "Monster", 20, 30, 0, 0);
+    death::npc_do_die(&mut world, mob, 3001);
+    assert_eq!(item_count(&world, 3001, 1625), 1, "one blood per kill, not six");
+}
+
+/// The first stage: three different mobs, one trophy each, cond 2 when all
+/// three are in.
+#[test]
+fn quest_q00416_first_stage_needs_one_of_each_trophy() {
+    let (mut world, _rx) = q416_world();
+    let mut oid = NPC_OID + 200;
+    for (mob, item) in [(20415, 1619), (20478, 1618)] {
+        oid += 1;
+        add_test_npc(&mut world, oid, mob, "Monster", 20, 30, 0, 0);
+        death::npc_do_die(&mut world, oid, 3001);
+        assert_eq!(item_count(&world, 3001, item), 1, "trophy {item}");
+        assert_eq!(quest_cond(&world, 3001, Q416), Some(1), "still collecting");
+    }
+    oid += 1;
+    add_test_npc(&mut world, oid, 20479, "Monster", 20, 30, 0, 0);
+    death::npc_do_die(&mut world, oid, 3001);
+    assert_eq!(quest_cond(&world, 3001, Q416), Some(2), "all three trophies");
+
+    // Tataru swaps them for the mask and the second egg.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416}")));
+    assert_eq!(item_count(&world, 3001, 1620), 1, "Hestui mask");
+    assert_eq!(item_count(&world, 3001, 1621), 1, "second fiery egg");
+    assert_eq!(item_count(&world, 3001, 1616), 0, "fire charm consumed");
+    assert_eq!(quest_cond(&world, 3001, Q416), Some(3));
+}
+
+/// The parasite meter escalates and, unlike quest 414's Kuruka, the conjured
+/// Durka Spirit is **not** set on the player.
+#[test]
+fn quest_q00416_durka_meter_summons_without_aggro() {
+    let (mut world, _rx) = q416_world();
+    super::items::add_inventory_item(&mut world, 3001, 1627, 1); // spirit net
+    set_quest_cond(&mut world, 3001, Q416, 9);
+
+    // Below the threshold the kill just pays a parasite.
+    let mob = NPC_OID + 300;
+    add_test_npc(&mut world, mob, 20038, "Monster", 20, 30, 0, 0);
+    death::npc_do_die(&mut world, mob, 3001);
+    assert_eq!(item_count(&world, 3001, 1629), 1, "a parasite");
+    assert!(npcs_of(&mut world, 27056).is_empty(), "no spirit yet");
+
+    // Eight parasites makes the summon certain.
+    for _ in 0..7 {
+        super::items::add_inventory_item(&mut world, 3001, 1629, 1);
+    }
+    assert_eq!(item_count(&world, 3001, 1629), 8);
+    let mob2 = NPC_OID + 301;
+    add_test_npc(&mut world, mob2, 20043, "Monster", 20, 30, 0, 0);
+    death::npc_do_die(&mut world, mob2, 3001);
+    assert_eq!(item_count(&world, 3001, 1629), 0, "the meter is wiped");
+    let spirits = npcs_of(&mut world, 27056);
+    assert_eq!(spirits.len(), 1, "a Durka Spirit was conjured");
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::npc::AggroList>(&spirits[0])
+            .is_none_or(|a| !a.0.contains_key(&3001)),
+        "and is NOT set on the player, unlike quest 414's Kuruka"
+    );
+
+    // Killing it yields the bound spirit and consumes the net.
+    death::npc_do_die(&mut world, spirits[0], 3001);
+    assert_eq!(item_count(&world, 3001, 1628), 1, "bound Durka spirit");
+    assert_eq!(item_count(&world, 3001, 1627), 0, "the net is spent");
+}
+
+/// The tail: bound spirit → totem spirit blood → the Mask of Medium.
+#[test]
+fn quest_q00416_finish_awards_the_mask_of_medium() {
+    let (mut world, mut rx) = q416_world();
+    let (umos, duda) = (NPC_OID + 20, NPC_OID + 21);
+    add_test_npc(&mut world, umos, 30502, "Folk", 5, 100, 0, 0);
+    add_test_npc(&mut world, duda, 30593, "Folk", 5, 100, 0, 0);
+    super::items::add_inventory_item(&mut world, 3001, 1628, 1); // bound spirit
+    set_quest_cond(&mut world, 3001, Q416, 9);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{duda}_Quest {Q416}")));
+    assert_eq!(item_count(&world, 3001, 1630), 1, "totem spirit blood");
+    assert_eq!(quest_cond(&world, 3001, Q416), Some(11), "Java jumps 9 -> 11");
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{umos}_Quest {Q416} 30502-07.html")));
+    assert_eq!(item_count(&world, 3001, 1631), 1, "the Mask of Medium");
+    {
+        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        assert!(quests.0[Q416].is_completed());
+    }
+    assert!(drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
+}
+
+/// The `memoState` 100+ branch is dead at both ends — third Orc quest running.
+#[test]
+fn orc_shaman_dead_branch_is_dead_at_both_ends() {
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/quests/Q00416_PathOfTheOrcShaman/"
+    );
+    // The orphaned NPCs really do ship pages.
+    for npc in ["31979", "32057", "32090"] {
+        let any = (1..=9).any(|n| {
+            std::path::Path::new(&format!("{DIST}{npc}-0{n}.html")).exists()
+        });
+        assert!(any, "{npc} ships pages but is registered nowhere");
+    }
+    // The only entry to memoState 100 is 30585-14, which nothing offers.
+    assert!(std::path::Path::new(&format!("{DIST}30585-14.html")).exists(), "30585-14 ships");
+    for page in ["30585-11.html", "30585-12.html", "30585-13.html"] {
+        let body = std::fs::read_to_string(format!("{DIST}{page}")).expect(page);
+        assert!(!body.contains("30585-14"), "{page} must not offer the dead entry");
+    }
+}
+
+#[test]
+fn orc_shaman_quest_pages_exist_in_dist() {
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/quests/Q00416_PathOfTheOrcShaman/"
+    );
+    for p in ["01", "02", "03", "04", "05", "06", "07"] {
+        assert!(std::path::Path::new(&format!("{DIST}30585-{p}.htm")).exists(), "missing 30585-{p}.htm");
+    }
+    for n in 8..=16 {
+        assert!(
+            std::path::Path::new(&format!("{DIST}30585-{n:02}.html")).exists(),
+            "missing 30585-{n:02}.html"
+        );
+    }
+    for n in 1..=7 {
+        assert!(std::path::Path::new(&format!("{DIST}30502-0{n}.html")).exists(), "missing 30502-0{n}");
+    }
+    for n in 1..=5 {
+        assert!(std::path::Path::new(&format!("{DIST}30592-0{n}.html")).exists(), "missing 30592-0{n}");
+    }
+    for n in 1..=6 {
+        assert!(std::path::Path::new(&format!("{DIST}30593-0{n}.html")).exists(), "missing 30593-0{n}");
+    }
+}
+
+/// Force a quest's cond directly — used to jump into a mid-quest stage without
+/// replaying the whole chain.
+fn set_quest_cond(world: &mut World, player: i32, quest: &str, cond: i32) {
+    if let Some(q) = world.objects.get_component_mut::<crate::model::components::Quests>(&player) {
+        if let Some(qs) = q.0.get_mut(quest) {
+            qs.vars.insert("cond".to_string(), cond.to_string());
+        }
+    }
+}

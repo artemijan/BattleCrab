@@ -714,6 +714,17 @@ impl<'w> QuestCtx<'w> {
     /// `random_offset` reproduces Java's `Rnd.get(50, 100)` per axis with an
     /// independent sign, so a group of ambushers doesn't stack on one point.
     pub fn spawn_attacker(&mut self, npc_id: i32, random_offset: bool) -> Option<i32> {
+        let spawned = self.spawn_near_npc(npc_id, random_offset)?;
+        super::npc_ai::seed_attack(self.world, spawned, self.player);
+        Some(spawned)
+    }
+
+    /// `addSpawn(npcId, npc, randomOffset, 0, …)` **without**
+    /// `addAttackPlayerDesire` — the newcomer appears and is left alone.
+    /// Quest 416 spawns its Durka Spirit this way: Java conjures it beside the
+    /// dead spider and does *not* set it on the player, unlike quest 414's
+    /// Kuruka. Keep the two apart; aggroing here would be an invention.
+    pub fn spawn_near_npc(&mut self, npc_id: i32, random_offset: bool) -> Option<i32> {
         let (mut x, mut y, z) = self
             .world
             .objects
@@ -728,7 +739,6 @@ impl<'w> QuestCtx<'w> {
         }
         let spawned = crate::model::npc::spawn_npc_at(self.world, npc_id, x, y, z, -1)?;
         super::death::introduce_npc(self.world, spawned);
-        super::npc_ai::seed_attack(self.world, spawned, self.player);
         Some(spawned)
     }
 
