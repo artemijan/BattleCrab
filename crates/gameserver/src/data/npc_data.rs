@@ -35,6 +35,14 @@ pub struct DropGroup {
 /// (`model/actor/instance/*`, instantiated by reflection in `Spawn`). The Rust
 /// port keeps the type name and derives the two subtree memberships the G8
 /// slice actually branches on.
+/// Java `model/holders/MinionHolder` — one `<npc>` row of a `<minions>` block.
+#[derive(Debug, Clone, Copy)]
+pub struct MinionHolder {
+    pub npc_id: i32,
+    /// How many of this minion the leader keeps alive at once.
+    pub count: i32,
+}
+
 /// Java `enums/AIType` — the `<ai type="…">` attribute. This dist uses
 /// `BALANCED` (3163), `MAGE` (402), `ARCHER` (220), `CORPSE` (43) and
 /// `HEALER` (23); everything else omits the attribute and defaults to
@@ -162,6 +170,10 @@ pub struct NpcTemplate {
     /// this NPC belongs to. Two NPCs share a faction if their sets intersect,
     /// or if either side declares `ALL`. 4569 clan entries on this dist.
     pub clans: Vec<String>,
+    /// `<parameters><minions><npc id count/>` (Java `NpcTemplate.getParameters()
+    /// .getMinionList("Privates")`) — the escort this NPC spawns with. 467
+    /// leaders on this dist declare 962 minion entries.
+    pub minions: Vec<MinionHolder>,
     /// `<ai><clanList><ignoreNpcId>…` (Java `_ignoreClanNpcIds`) — faction-mates
     /// this NPC refuses to answer help calls from, even sharing a clan.
     pub ignore_clan_npc_ids: Vec<i32>,
@@ -443,6 +455,7 @@ pub fn default_template(id: i32) -> NpcTemplate {
         max_skill_chance: 15,
         clans: Vec::new(),
         ignore_clan_npc_ids: Vec::new(),
+        minions: Vec::new(),
         aggro_range: 0,
         clan_help_range: 0,
         skill_list: Vec::new(),
@@ -484,6 +497,9 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
     // name=.. id level/>` AI holders, which are NOT `getSkills()` — this scope
     // flag keeps them out.
     let mut in_skill_list = false;
+    // `<minions>` scope inside `<parameters>` — `<parameters>` also carries
+    // unrelated `<npc>`-shaped rows, so the escort list needs its own flag.
+    let mut in_minions = false;
 
     while let Ok(event) = reader.read_event() {
         let (e, self_closing) = match event {
@@ -515,6 +531,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             Event::End(e) => {
                 match e.name().as_ref().to_ascii_lowercase().as_slice() {
                     b"parameters" => in_parameters = false,
+                    b"minions" => in_minions = false,
                     b"skilllist" => in_skill_list = false,
                     // A minion's `</npc>` inside `<parameters>` must not flush
                     // the parent template.
@@ -553,8 +570,20 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                             t.skill_list.push((id, level));
                         }
                     }
-                    // Minion references inside `<parameters>` are not templates.
-                    b"npc" if in_parameters => continue,
+                    // Minion references inside `<parameters>` are not templates
+                    // — but they *are* this NPC's escort list, so record them
+                    // on the parent before skipping the template handling.
+                    b"npc" if in_parameters => {
+                        if in_minions {
+                            if let (Some(t), Some(id)) = (cur.as_mut(), attr_i32(&e, b"id")) {
+                                t.minions.push(MinionHolder {
+                                    npc_id: id,
+                                    count: attr_i32(&e, b"count").unwrap_or(1),
+                                });
+                            }
+                        }
+                        continue;
+                    }
                     b"npc" => {
                         let Some(id) = attr_i32(&e, b"id") else { continue };
                         let mut t = default_template(id);
@@ -669,6 +698,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                         }
                     }
                     b"corpsetime" => in_corpse_time = !self_closing,
+                    b"minions" => in_minions = !self_closing,
                     b"clan" => in_clan = !self_closing,
                     b"ignorenpcid" => in_ignore_npc_id = !self_closing,
                     b"drop" => drop_scope = DropScope::Death,
@@ -913,6 +943,25 @@ mod clan_tests {
     use super::*;
 
     const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+
+    /// The `<minions>` parse, against the real datapack.
+    #[test]
+    fn parses_minions_from_dist() {
+        let data = NpcData::load_from(DIST);
+        let leaders = data.all().filter(|t| !t.minions.is_empty()).count();
+        let entries: usize = data.all().map(|t| t.minions.len()).sum();
+        println!("MINION LEADERS={leaders} ENTRIES={entries}");
+        // 467 `<minions>` *blocks* exist in the XML but they sit on 460
+        // distinct NPCs — a handful declare many groups each (25100 has 28,
+        // 25200 has 29, 22602 has 15). The entry count is the check that
+        // matters: every one of the 962 `<npc>` rows is captured.
+        assert_eq!(leaders, 460, "expected the dist's 460 minion-leading NPCs");
+        assert_eq!(entries, 962, "expected the dist's 962 minion entries");
+
+        // Tracker Captain Sharuk 3404 declares 3402 x3 and 3403 x1.
+        let boss = data.get(3404).expect("3404 loads");
+        assert!(!boss.minions.is_empty(), "3404 must carry its escort");
+    }
 
     /// The `<clanList>` parse, against the real datapack — a fixture would
     /// agree with whatever the parser does.

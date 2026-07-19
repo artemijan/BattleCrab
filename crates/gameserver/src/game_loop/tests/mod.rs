@@ -47,6 +47,7 @@ mod misc_tests;
 mod movement_tests;
 mod boss_respawn_tests;
 mod guard_aggro_tests;
+mod minion_tests;
 mod npc_cast_tests;
 mod npc_tests;
 mod overhit_tests;

@@ -58,6 +58,8 @@ pub enum ScheduledTask {
     /// [`crate::game_loop::boss_respawn`]. Carries the spawn definition index
     /// rather than an object id: the boss isn't in the world yet.
     BossRespawn { spawn_ref: (usize, usize, usize) },
+    /// A leader's killed minion is due back — see [`crate::game_loop::minions`].
+    MinionRespawn { master_object_id: i32, minion_npc_id: i32 },
     /// `ItemsOnGroundManager` cleanup: a dropped ground item auto-destroys after
     /// its lifetime elapses.
     GroundItemDecay { item_object_id: i32 },
