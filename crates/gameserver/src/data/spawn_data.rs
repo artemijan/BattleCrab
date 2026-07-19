@@ -5,8 +5,8 @@
 //! (sec/min/hour), and `<territories>` on the spawn or group. Unused-by-data
 //! features are not ported: `zone=`/`banned_territory`/`<locations>`/
 //! `<minions>`/`respawnPattern` (0 occurrences each), `<parameters>`
-//! (consumed by AI scripts only, G11), and `dbSave` raid persistence
-//! (`DBSpawnManager`) — dbSave spawns are placed like static ones for now.
+//! (consumed by AI scripts only, G11). `dbSave` raid persistence
+//! (`DBSpawnManager`) is ported — see [`crate::game_loop::boss_respawn`].
 
 use quick_xml::events::Event;
 use quick_xml::Reader;
@@ -37,6 +37,11 @@ pub struct NpcSpawnDef {
     pub loc: Option<FixedLoc>,
     pub respawn_secs: i32,
     pub respawn_random_secs: i32,
+    /// `dbSave="true"` (Java `NpcSpawnTemplate.hasDBSave`) — this NPC's live
+    /// HP/MP and pending respawn time survive a server restart, via the
+    /// `npc_respawns` table and `DBSpawnManager`. 225 spawns on this dist, all
+    /// raid bosses in `RaidbossSpawns.xml`.
+    pub db_save: bool,
 }
 
 #[derive(Clone, Copy)]
@@ -269,6 +274,7 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<SpawnTemplate>) {
                     loc,
                     respawn_secs: attr_str(&e, b"respawnTime").as_deref().and_then(parse_duration_secs).unwrap_or(0),
                     respawn_random_secs: attr_str(&e, b"respawnRandom").as_deref().and_then(parse_duration_secs).unwrap_or(0),
+                    db_save: attr_str(&e, b"dbSave").as_deref() == Some("true"),
                 };
                 if in_group {
                     if let Some(g) = cur_group.as_mut() {

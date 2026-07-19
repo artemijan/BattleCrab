@@ -111,6 +111,13 @@ pub struct World {
     /// is built once at spawn; players keep using the cheap per-player
     /// adjacency compare instead (see `regions_adjacent`).
     pub npc_regions: HashMap<(i32, i32), Vec<i32>>,
+    /// `dbSave` spawn definitions the static spawn pass deliberately left
+    /// unplaced, awaiting their `npc_respawns` rows — see
+    /// [`crate::game_loop::boss_respawn`]. Drained once at boot.
+    pub pending_boss_spawns: Vec<(usize, usize, usize)>,
+    /// npc id → its `dbSave` spawn definition, for the death/respawn writes
+    /// (Java's `DBSpawnManager._spawns`).
+    pub boss_spawn_refs: HashMap<i32, (usize, usize, usize)>,
     /// Region cell → door object ids in it — same shape as `npc_regions`
     /// (doors are static; built once by `model::door::spawn_doors`).
     pub door_regions: HashMap<(i32, i32), Vec<i32>>,
@@ -264,6 +271,8 @@ impl World {
             clients: HashMap::new(),
             objects: EntityStore::new(),
             npc_regions: HashMap::new(),
+            pending_boss_spawns: Vec::new(),
+            boss_spawn_refs: HashMap::new(),
             door_regions: HashMap::new(),
             static_regions: HashMap::new(),
             next_npc_object_id: crate::model::npc::FIRST_NPC_OBJECT_ID,

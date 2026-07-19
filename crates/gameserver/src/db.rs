@@ -257,6 +257,21 @@ pub enum DbCommand {
     UpdateCharClan { char_id: i32, clan_id: i32, clan_privs: i32 },
     /// `CursedWeapon.saveData` — upsert the weapon's wielder state row.
     StoreCursedWeapon { item_id: i32, char_id: i32, reputation: i32, pk_kills: i32, nb_kills: i32, end_time: i64 },
+    /// `DBSpawnManager.updateStatus`/`addNewSpawn` — upsert a raid boss's
+    /// `npc_respawns` row (live HP/MP while alive, or the pending respawn time
+    /// while dead). Keyed on npc id, matching Java's PRIMARY KEY.
+    StoreNpcRespawn {
+        npc_id: i32,
+        x: i32,
+        y: i32,
+        z: i32,
+        heading: i32,
+        respawn_time: i64,
+        cur_hp: f64,
+        cur_mp: f64,
+    },
+    /// `DBSpawnManager.deleteSpawn` — drop a raid boss's respawn row.
+    DeleteNpcRespawn { npc_id: i32 },
     /// `CursedWeaponsManager.removeFromDb` — drop the weapon's state row.
     RemoveCursedWeapon { item_id: i32 },
     /// `Castle.setSide`/`switchSide` — persist a castle's side.
@@ -339,6 +354,9 @@ pub enum DbEvent {
     /// The full clan table (`ClanTable` boot load), pushed unprompted at
     /// boot like the first `IdBlock`.
     ClansLoaded { clans: Vec<crate::model::clan::Clan> },
+    /// The whole `npc_respawns` table (Java `DBSpawnManager.load`), pushed
+    /// unprompted at boot. See [`NpcRespawnRow`].
+    NpcRespawnsLoaded { rows: Vec<NpcRespawnRow> },
     /// The whole `account_premium` table (Java `PremiumManager` cache),
     /// pushed unprompted at boot. `(account_name lowercase, enddate millis)`.
     PremiumLoaded { entries: Vec<(String, i64)> },
@@ -430,6 +448,9 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
 
     // `FavoriteBoard` favorites cache — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::FavoritesLoaded { entries: load_favorites(&pool).await });
+
+    // `DBSpawnManager.load` — likewise unprompted, before `ClansLoaded`.
+    let _ = event_tx.send(DbEvent::NpcRespawnsLoaded { rows: load_npc_respawns(&pool).await });
 
     // `GrandBossManager.init` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::GrandBossesLoaded { bosses: load_grandboss_data(&pool).await });
@@ -583,6 +604,28 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                     .bind(end_time),
                 )
                 .await;
+            }
+            DbCommand::StoreNpcRespawn { npc_id, x, y, z, heading, respawn_time, cur_hp, cur_mp } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT OR REPLACE INTO npc_respawns \
+                         (id, x, y, z, heading, respawnTime, currentHp, currentMp) \
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    )
+                    .bind(npc_id)
+                    .bind(x)
+                    .bind(y)
+                    .bind(z)
+                    .bind(heading)
+                    .bind(respawn_time)
+                    .bind(cur_hp)
+                    .bind(cur_mp),
+                )
+                .await;
+            }
+            DbCommand::DeleteNpcRespawn { npc_id } => {
+                exec(&pool, sqlx::query("DELETE FROM npc_respawns WHERE id=?").bind(npc_id)).await;
             }
             DbCommand::RemoveCursedWeapon { item_id } => {
                 exec(&pool, sqlx::query("DELETE FROM cursed_weapons WHERE itemId=?").bind(item_id)).await;
@@ -786,6 +829,45 @@ async fn load_account_var(pool: &SqlitePool, account: &str, var: &str) -> Option
 async fn load_premium(pool: &SqlitePool) -> Vec<(String, i64)> {
     match sqlx::query("SELECT account_name, enddate FROM account_premium").fetch_all(pool).await {
         Ok(rows) => rows.iter().map(|r| (gets(r, "account_name").to_lowercase(), geti(r, "enddate"))).collect(),
+        Err(_) => Vec::new(),
+    }
+}
+
+/// One `npc_respawns` row — a raid boss's persisted state.
+#[derive(Debug, Clone, Copy)]
+pub struct NpcRespawnRow {
+    pub npc_id: i32,
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+    pub heading: i32,
+    /// Absolute unix millis the boss is due back, or 0 when it's alive (Java
+    /// stores 0 for a living boss and the due time for a dead one).
+    pub respawn_time: i64,
+    pub cur_hp: f64,
+    pub cur_mp: f64,
+}
+
+/// Boot load of the whole `npc_respawns` table (Java `DBSpawnManager.load`).
+/// Missing table → empty, like the other boot loads.
+async fn load_npc_respawns(pool: &SqlitePool) -> Vec<NpcRespawnRow> {
+    match sqlx::query("SELECT id, x, y, z, heading, respawnTime, currentHp, currentMp FROM npc_respawns")
+        .fetch_all(pool)
+        .await
+    {
+        Ok(rows) => rows
+            .iter()
+            .map(|r| NpcRespawnRow {
+                npc_id: geti(r, "id") as i32,
+                x: geti(r, "x") as i32,
+                y: geti(r, "y") as i32,
+                z: geti(r, "z") as i32,
+                heading: geti(r, "heading") as i32,
+                respawn_time: geti(r, "respawnTime"),
+                cur_hp: getf(r, "currentHp"),
+                cur_mp: getf(r, "currentMp"),
+            })
+            .collect(),
         Err(_) => Vec::new(),
     }
 }

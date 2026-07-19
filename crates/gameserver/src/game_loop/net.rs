@@ -494,6 +494,11 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 world.next_fav_id = max_id + 1;
                 tracing::info!("GameLoop: loaded favorites for {} characters.", world.bbs_favorites.len());
             }
+            DbEvent::NpcRespawnsLoaded { rows } => {
+                // Settle the `dbSave` spawns the static pass deferred (Java's
+                // `DBSpawnManager.load` + the `spawnNpc` hand-off).
+                super::boss_respawn::resolve_boot(world, rows);
+            }
             DbEvent::GrandBossesLoaded { bosses } => {
                 // Java skips rows whose NPC template is missing (`NpcData
                 // .getTemplate(bossId) != null`); the datapack lives here on the

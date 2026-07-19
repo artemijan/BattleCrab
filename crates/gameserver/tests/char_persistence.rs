@@ -92,7 +92,8 @@ fn recv(rx: &std::sync::mpsc::Receiver<DbEvent>) -> DbEvent {
             | DbEvent::CursedWeaponsLoaded { .. }
             | DbEvent::CastlesLoaded { .. }
             | DbEvent::SiegesLoaded { .. }
-            | DbEvent::SiegeGuardsLoaded { .. } => continue,
+            | DbEvent::SiegeGuardsLoaded { .. }
+            | DbEvent::NpcRespawnsLoaded { .. } => continue,
             other => return other,
         }
     }

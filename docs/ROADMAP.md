@@ -647,7 +647,10 @@ attachments resolve to fully-ported effects. Town-guard PK aggro + faction
 help calls landed (`PLAN_G21_GUARD_AGGRO.md`) — the `<clanList>` faction data
 (3760 templates) wasn't parsed at all before, so mobs fought alone. Remaining
 gate clause: raid HP across restart (`DBSpawnManager`); minions parse but
-never spawn.
+never spawn. Raid-boss persistence landed (`PLAN_G21_BOSS_PERSISTENCE.md`) —
+`DBSpawnManager`/`npc_respawns`, covering the last gate clause, so **G21's gate
+is met**. Remaining breadth: minions, NPC pathfinding/regen, the other ~33 zone
+types, fences, `HtmCache`, walker routes, `CreatureSeeTaskManager`.
 
 ---
 

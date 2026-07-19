@@ -54,6 +54,10 @@ pub enum ScheduledTask {
     NpcAttackReady { npc_oid: i32 },
     /// `DecayTaskManager` firing for a dead NPC: the corpse disappears.
     NpcDecay { npc_object_id: i32 },
+    /// A `dbSave` raid boss whose persisted respawn time came due — see
+    /// [`crate::game_loop::boss_respawn`]. Carries the spawn definition index
+    /// rather than an object id: the boss isn't in the world yet.
+    BossRespawn { spawn_ref: (usize, usize, usize) },
     /// `ItemsOnGroundManager` cleanup: a dropped ground item auto-destroys after
     /// its lifetime elapses.
     GroundItemDecay { item_object_id: i32 },
