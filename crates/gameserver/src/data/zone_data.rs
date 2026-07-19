@@ -40,6 +40,10 @@ pub enum ZoneKind {
     /// (auto-attackable) while that castle's siege is in progress; the
     /// [`Zone::castle_id`] ties the zone to its siege.
     Siege,
+    /// Java `EffectZone`: periodically casts a fixed skill list on the players
+    /// standing in it — the Blazing Swamp's fire, Sea of Spores' poison, the
+    /// Hot Springs buff trio. See [`Zone::effect`].
+    Effect,
 }
 
 impl ZoneKind {
@@ -51,6 +55,10 @@ impl ZoneKind {
             ZoneKind::NoRestart => 4,
             ZoneKind::Pvp => 8,
             ZoneKind::Siege => 16,
+            // `ZoneId.ALTERED` — Java sets it on any player inside an
+            // EffectZone. Nothing reads it yet, but the bit keeps the
+            // membership mask complete so enter/exit diffs work.
+            ZoneKind::Effect => 32,
         }
     }
 }
@@ -61,6 +69,35 @@ pub struct Zone {
     pub territory: Territory,
     /// `<stat name="castleId">` for `SiegeZone`s; 0 otherwise.
     pub castle_id: i32,
+    /// `EffectZone` parameters; `None` for every other kind.
+    pub effect: Option<EffectZoneParams>,
+}
+
+/// Java `EffectZone`'s `<stat>` block. Defaults are the Java field
+/// initialisers (`_chance = 100`, `_initialDelay = 0`, `_reuse = 30000`).
+#[derive(Debug, Clone)]
+pub struct EffectZoneParams {
+    /// `skillIdLvl` — `id-lvl;id-lvl;` pairs, all cast together.
+    pub skills: Vec<(i32, i32)>,
+    /// `chance` — rolled per creature per tick, not per skill.
+    pub chance: i32,
+    /// `initialDelay` (ms) before the zone's first tick.
+    pub initial_delay: i32,
+    /// `reuse` (ms) between ticks.
+    pub reuse: i32,
+    /// `default_enabled` — a disabled zone ticks nothing until something
+    /// enables it (siege scripts). Java's `_enabled` defaults to **true**.
+    pub enabled: bool,
+    /// Derived from `targetClass`: does this zone's tick reach players at all?
+    ///
+    /// Java tracks only creatures of `targetClass` (default `Creature`, i.e.
+    /// everyone) as being "inside", and the tick *additionally* requires
+    /// `isPlayer()`. So the 27 zones declaring `targetClass="Npc"` cast on
+    /// **nobody**. Kept explicit so that stays true here rather than being
+    /// accidentally revived.
+    pub casts_on_players: bool,
+    /// `removeEffectsOnExit` — strip the zone's own skills when leaving.
+    pub remove_effects_on_exit: bool,
 }
 
 #[derive(Default)]
@@ -88,12 +125,22 @@ impl ZoneData {
             // `castle_siege.xml` is uniformly `SiegeZone`; each zone's `castleId`
             // stat ties it to its castle's siege.
             ("castle_siege.xml", ZoneKind::Siege),
+            // Files carrying `EffectZone`s. Several mix zone types, which is
+            // why the parser now reads each zone's own `type=` and skips the
+            // kinds that aren't ported — the mapping below is only a fallback.
+            ("effect.xml", ZoneKind::Effect),
+            ("cleft.xml", ZoneKind::Effect),
+            ("devil_isle.xml", ZoneKind::Effect),
+            ("plains_of_the_lizardmen.xml", ZoneKind::Effect),
+            ("zone.xml", ZoneKind::Effect),
+            ("underground_coliseum.xml", ZoneKind::Effect),
         ] {
             parse_file(&format!("{file_path}data/zones/{file}"), kind, &mut zones);
         }
         let mut data = Self { zones, grid: Default::default() };
         data.build_grid();
-        info!("ZoneData: Loaded {} zones (peace/water/no_restart/pvp/siege).", data.zones.len());
+        let effects = data.zones.iter().filter(|z| z.kind == ZoneKind::Effect).count();
+        info!("ZoneData: Loaded {} zones ({effects} effect).", data.zones.len());
         data
     }
 
@@ -133,6 +180,21 @@ impl ZoneData {
             .filter(move |zn| z >= zn.territory.min_z && z <= zn.territory.max_z && zn.territory.contains_2d(x, y))
     }
 
+    /// Indices (into [`Self::zones`]) of every zone containing the point.
+    /// The effect-zone tick needs the index, not just the zone, so it can key
+    /// each zone's own reuse timer.
+    pub fn zone_indices_at(&self, x: i32, y: i32, z: i32) -> impl Iterator<Item = usize> + '_ {
+        self.grid
+            .get(&(x >> ZONE_SHIFT, y >> ZONE_SHIFT))
+            .into_iter()
+            .flatten()
+            .map(|&i| i as usize)
+            .filter(move |&i| {
+                let zn = &self.zones[i];
+                z >= zn.territory.min_z && z <= zn.territory.max_z && zn.territory.contains_2d(x, y)
+            })
+    }
+
     /// `ZoneKind` membership bits at a point — what `revalidate_zones` diffs.
     pub fn mask_at(&self, x: i32, y: i32, z: i32) -> u8 {
         self.zones_at(x, y, z).fold(0, |m, zn| m | zn.kind.bit())
@@ -145,6 +207,32 @@ impl ZoneData {
     }
 }
 
+/// Map a `type="…"` attribute to a [`ZoneKind`]. `None` for kinds not ported
+/// yet, so mixed files can be read without pulling in unported behaviour.
+fn kind_from_type(ty: &str) -> Option<ZoneKind> {
+    Some(match ty {
+        "PeaceZone" => ZoneKind::Peace,
+        "WaterZone" => ZoneKind::Water,
+        "NoRestartZone" => ZoneKind::NoRestart,
+        "ArenaZone" => ZoneKind::Pvp,
+        "SiegeZone" => ZoneKind::Siege,
+        "EffectZone" => ZoneKind::Effect,
+        _ => return None,
+    })
+}
+
+/// `skillIdLvl="4150-7;4148-1;"` → `[(4150, 7), (4148, 1)]`.
+fn parse_skill_id_lvl(raw: &str) -> Vec<(i32, i32)> {
+    raw.split(';')
+        .filter_map(|pair| {
+            let (id, lvl) = pair.trim().split_once('-')?;
+            Some((id.trim().parse().ok()?, lvl.trim().parse().ok()?))
+        })
+        .collect()
+}
+
+/// `default_kind` is the filename-derived fallback for files that predate
+/// per-zone `type=` parsing; a zone's own `type=` attribute always wins.
 fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
     let Ok(content) = std::fs::read_to_string(path) else { return };
     let mut reader = Reader::from_str(&content);
@@ -158,6 +246,14 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
         xs: Vec<i32>,
         ys: Vec<i32>,
         castle_id: i32,
+        kind: ZoneKind,
+        skills: Vec<(i32, i32)>,
+        chance: i32,
+        initial_delay: i32,
+        reuse: i32,
+        enabled: bool,
+        casts_on_players: bool,
+        remove_effects_on_exit: bool,
     }
     let mut cur: Option<Pending> = None;
 
@@ -168,11 +264,21 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                 if e.name().as_ref() == b"zone" {
                     if let Some(p) = cur.take() {
                         if let Some(form) = build_form(&p.shape, p.xs, p.ys, p.rad) {
+                            let effect = (p.kind == ZoneKind::Effect).then(|| EffectZoneParams {
+                                skills: p.skills,
+                                chance: p.chance,
+                                initial_delay: p.initial_delay,
+                                reuse: p.reuse,
+                                enabled: p.enabled,
+                                casts_on_players: p.casts_on_players,
+                                remove_effects_on_exit: p.remove_effects_on_exit,
+                            });
                             out.push(Zone {
                                 name: p.name,
-                                kind,
+                                kind: p.kind,
                                 territory: Territory { form, min_z: p.min_z, max_z: p.max_z },
                                 castle_id: p.castle_id,
+                                effect,
                             });
                         }
                     }
@@ -193,7 +299,24 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                     xs: Vec::new(),
                     ys: Vec::new(),
                     castle_id: 0,
+                    // A zone's own `type=` wins; the filename mapping is the
+                    // fallback for the single-type files.
+                    kind: attr_str(&e, b"type").as_deref().and_then(kind_from_type).unwrap_or(kind),
+                    skills: Vec::new(),
+                    chance: 100,
+                    initial_delay: 0,
+                    reuse: 30_000,
+                    enabled: true,
+                    casts_on_players: true,
+                    remove_effects_on_exit: false,
                 });
+                // A zone whose `type=` names a kind we don't port yet is
+                // skipped outright rather than mis-filed under the fallback.
+                if let Some(ty) = attr_str(&e, b"type") {
+                    if kind_from_type(&ty).is_none() {
+                        cur = None;
+                    }
+                }
             }
             // Zone files capitalize the node attributes (`X`/`Y`), unlike
             // the spawn territories' lowercase — accept either.
@@ -205,9 +328,19 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
             }
             // `SiegeZone`s carry `<stat name="castleId" val="N"/>`; other zone
             // stats are still skipped (see module docs).
-            b"stat" if attr_str(&e, b"name").as_deref() == Some("castleId") => {
-                if let Some(p) = cur.as_mut() {
-                    p.castle_id = attr_i32(&e, b"val").unwrap_or(0);
+            b"stat" => {
+                let (Some(p), Some(name)) = (cur.as_mut(), attr_str(&e, b"name")) else { continue };
+                let val = attr_str(&e, b"val").unwrap_or_default();
+                match name.as_str() {
+                    "castleId" => p.castle_id = val.parse().unwrap_or(0),
+                    "skillIdLvl" => p.skills = parse_skill_id_lvl(&val),
+                    "chance" => p.chance = val.parse().unwrap_or(p.chance),
+                    "initialDelay" => p.initial_delay = val.parse().unwrap_or(p.initial_delay),
+                    "reuse" => p.reuse = val.parse().unwrap_or(p.reuse),
+                    "default_enabled" => p.enabled = val == "true",
+                    "targetClass" => p.casts_on_players = val != "Npc",
+                    "removeEffectsOnExit" => p.remove_effects_on_exit = val == "true",
+                    _ => {}
                 }
             }
             _ => {}
@@ -250,8 +383,21 @@ mod tests {
     #[test]
     fn loads_real_dist_files() {
         let data = ZoneData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
-        // 127 peace + 423 water + 40 no_restart + 6 pvp + 9 castle_siege.
-        assert_eq!(data.zones.len(), 605);
+        // 134 peace + 423 water + 47 no_restart + 12 pvp + 9 siege + 218 effect.
+        //
+        // Was 605 before per-zone `type=` parsing landed. Effect zones account
+        // for 218 of the increase; the other 20 are Peace/NoRestart/Pvp zones
+        // that live in the *mixed* files (devil_isle, zone, underground_
+        // coliseum) which the filename→kind loader couldn't read at all — so
+        // they were silently missing from the world.
+        assert_eq!(data.zones.len(), 843);
+        let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
+        assert_eq!(count(ZoneKind::Peace), 134);
+        assert_eq!(count(ZoneKind::Water), 423);
+        assert_eq!(count(ZoneKind::NoRestart), 47);
+        assert_eq!(count(ZoneKind::Pvp), 12);
+        assert_eq!(count(ZoneKind::Siege), 9);
+        assert_eq!(count(ZoneKind::Effect), 218);
 
         // Talking Island town center sits in talking_island_town_peace_zone1
         // (NPoly, z band [-3966, -3466]).
@@ -286,9 +432,57 @@ mod tests {
                 max_z: 100,
             },
             castle_id: 0,
+            effect: None,
         });
         assert_eq!(data.mask_at(500, 500, 0), ZoneKind::Peace.bit());
         assert_eq!(data.mask_at(1500, 500, 0), 0);
         assert_eq!(data.mask_at(500, 500, 200), 0);
+    }
+}
+
+#[cfg(test)]
+mod effect_zone_tests {
+    use super::*;
+
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+
+    #[test]
+    fn parses_effect_zones_from_dist() {
+        let data = ZoneData::load_from(DIST);
+        let effects: Vec<&Zone> = data.zones.iter().filter(|z| z.kind == ZoneKind::Effect).collect();
+        let with_skills = effects.iter().filter(|z| !z.effect.as_ref().unwrap().skills.is_empty()).count();
+        let npc_only = effects.iter().filter(|z| !z.effect.as_ref().unwrap().casts_on_players).count();
+        println!("EFFECT ZONES={} with_skills={with_skills} npc_targeted={npc_only}", effects.len());
+        assert_eq!(effects.len(), 218, "expected the dist's 218 EffectZones");
+        assert_eq!(npc_only, 27, "expected 27 targetClass=Npc zones (which cast on nobody)");
+
+        // Blazing Swamp: fire damage-over-time, 50% chance.
+        let fire = effects
+            .iter()
+            .find(|z| z.name == "fireswamp_1")
+            .expect("fireswamp_1 must load");
+        let p = fire.effect.as_ref().unwrap();
+        assert_eq!(p.skills, vec![(4150, 1)], "s_area_fire1");
+        assert_eq!(p.chance, 50);
+    }
+
+    /// The mixed-type files must not smuggle unported kinds in under the
+    /// filename fallback.
+    #[test]
+    fn mixed_files_only_yield_ported_kinds() {
+        let data = ZoneData::load_from(DIST);
+        for z in &data.zones {
+            assert!(
+                matches!(
+                    z.kind,
+                    ZoneKind::Peace | ZoneKind::Water | ZoneKind::NoRestart | ZoneKind::Pvp | ZoneKind::Siege | ZoneKind::Effect
+                ),
+                "zone {} has an unported kind",
+                z.name
+            );
+            if z.kind == ZoneKind::Effect {
+                assert!(z.effect.is_some(), "effect zone {} must carry params", z.name);
+            }
+        }
     }
 }
