@@ -4291,3 +4291,166 @@ fn artisan_dead_branch_is_dead_at_both_ends() {
     }
     assert!(offers_08b, "08b is the live route and is offered");
 }
+
+const Q417: &str = "Q00417_PathOfTheScavenger";
+
+/// A Dwarven Fighter with Q00417 accepted (Pipi at NPC_OID).
+fn q417_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let rows: Vec<(i32, &str, bool)> = (1642..=1657).map(|id| (id, "Q417", true)).collect();
+    add_quest_items(&mut world, &rows);
+    for id in [20403, 20508, 20777, 27058] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 20;
+        t.base_hp_max = 1000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30524, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 19;
+        p.class_id = 53; // Dwarven Fighter
+        p.base_class_id = 53;
+        p.race = 4;
+    }
+    drain_db(&mut db_rx);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q417}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q417} ACCEPT")));
+    assert_eq!(item_count(&world, 3001, 1643), 1, "Pipi's letter");
+    drain(&mut rx);
+    (world, rx)
+}
+
+/// Mark `npc_oid` as spoiled by `player`, the way the Spoil effect would.
+fn mark_spoiled(world: &mut World, npc_oid: i32, player: i32) {
+    if let Some(n) = world.objects.get_component_mut::<crate::model::npc::Npc>(&npc_oid) {
+        n.spoiler_object_id = player;
+    }
+}
+
+/// The payout is gated on the corpse being **spoiled** — the Scavenger's own
+/// mechanic. An unspoiled Honey Bear pays nothing.
+#[test]
+fn quest_q00417_payout_requires_a_spoiled_corpse() {
+    for (spoil, expected) in [(false, 0), (true, 1)] {
+        let (mut world, _rx) = q417_world();
+        super::items::add_inventory_item(&mut world, 3001, 1653, 1); // bear picture
+        let bear = NPC_OID + 100;
+        add_test_npc(&mut world, bear, 27058, "Monster", 20, 30, 0, 0);
+        combat::npc_receive_damage(&mut world, bear, 3001, 10.0);
+        if spoil {
+            // Spoiled by someone else, so the attack-time disqualifier
+            // (spoiler == attacker) does not fire.
+            mark_spoiled(&mut world, bear, 9999);
+        }
+        death::npc_do_die(&mut world, bear, 3001);
+        assert_eq!(
+            item_count(&world, 3001, 1655),
+            expected,
+            "spoiled={spoil}: honey only drops off a spoiled corpse"
+        );
+    }
+}
+
+/// `giveItemRandomly`'s chance is a 0..1 fraction and this quest passes **50**,
+/// so every qualifying kill drops. No forced roll is used: if the port had
+/// "corrected" it to 0.5 this would be flaky, and at 0.5 with the RNG it would
+/// fail about half the time.
+#[test]
+fn quest_q00417_drop_chance_fifty_means_always() {
+    let (mut world, _rx) = q417_world();
+    super::items::add_inventory_item(&mut world, 3001, 1654, 1); // tarantula picture
+    for i in 0..6 {
+        let mob = NPC_OID + 200 + i;
+        add_test_npc(&mut world, mob, 20403, "Monster", 20, 30, 0, 0);
+        combat::npc_receive_damage(&mut world, mob, 3001, 10.0);
+        mark_spoiled(&mut world, mob, 9999);
+        death::npc_do_die(&mut world, mob, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, 1656), 6, "six kills, six beads — chance 50 is not 50%");
+}
+
+/// The Honey Bear summon meter escalates at `20 * flag` percent and resets on
+/// success.
+#[test]
+fn quest_q00417_honey_bear_summon_meter_escalates() {
+    let (mut world, _rx) = q417_world();
+    super::items::add_inventory_item(&mut world, 3001, 1653, 1); // bear picture
+
+    // First kill: flag is 0, so no roll happens at all — it just rises.
+    let b1 = NPC_OID + 300;
+    add_test_npc(&mut world, b1, 20777, "Monster", 20, 30, 0, 0);
+    combat::npc_receive_damage(&mut world, b1, 3001, 10.0);
+    death::npc_do_die(&mut world, b1, 3001);
+    assert!(npcs_of(&mut world, 27058).is_empty(), "flag 0 never summons");
+
+    // Second kill with the roll inside `20 * 1`: the bear appears.
+    let b2 = NPC_OID + 301;
+    add_test_npc(&mut world, b2, 20777, "Monster", 20, 30, 0, 0);
+    combat::npc_receive_damage(&mut world, b2, 3001, 10.0);
+    world.forced_rolls.push_back(5); // 5 < 20
+    death::npc_do_die(&mut world, b2, 3001);
+    assert_eq!(npcs_of(&mut world, 27058).len(), 1, "the Honey Bear was summoned");
+}
+
+/// The delivery round-trip bumps the **tens** digit of `memoStateEx(1)`, and
+/// the second hand-in promotes to cond 3.
+#[test]
+fn quest_q00417_deliveries_bump_the_tens_digit() {
+    let (mut world, _rx) = q417_world();
+    let shari = NPC_OID + 20;
+    add_test_npc(&mut world, shari, 30517, "Folk", 5, 100, 0, 0);
+
+    super::items::add_inventory_item(&mut world, 3001, 1648, 1); // Shari's axe
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{shari}_Quest {Q417}")));
+    assert_eq!(item_count(&world, 3001, 1651), 1, "Shari's pay");
+    assert_eq!(quest_memo_ex(&world, 3001, Q417, 1), 10, "tens digit bumped");
+    assert!(quest_cond(&world, 3001, Q417) != Some(3), "not promoted on the first");
+
+    super::items::add_inventory_item(&mut world, 3001, 1648, 1);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{shari}_Quest {Q417}")));
+    assert_eq!(quest_memo_ex(&world, 3001, Q417, 1), 20);
+    super::items::add_inventory_item(&mut world, 3001, 1648, 1);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{shari}_Quest {Q417}")));
+    assert_eq!(quest_cond(&world, 3001, Q417), Some(3), "the third hand-in promotes");
+}
+
+/// Torai hands over the undies and **deletes himself**; Raut then pays the
+/// Ring of Raven.
+#[test]
+fn quest_q00417_torai_vanishes_and_raut_pays_the_ring() {
+    let (mut world, mut rx) = q417_world();
+    let (torai, raut) = (NPC_OID + 30, NPC_OID + 31);
+    add_test_npc(&mut world, torai, 30557, "Folk", 5, 100, 0, 0);
+    add_test_npc(&mut world, raut, 30316, "Folk", 5, 100, 0, 0);
+    super::items::add_inventory_item(&mut world, 3001, 1644, 1); // teleport scroll
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{torai}_Quest {Q417} 30557-03.html")));
+    assert_eq!(item_count(&world, 3001, 1645), 1, "succubus undies");
+    assert_eq!(quest_cond(&world, 3001, Q417), Some(11));
+    assert!(
+        world.objects.get_component::<crate::model::npc::Npc>(&torai).is_none(),
+        "Torai deleted himself"
+    );
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{raut}_Quest {Q417}")));
+    assert_eq!(item_count(&world, 3001, 1642), 1, "the Ring of Raven");
+    {
+        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        assert!(quests.0[Q417].is_completed());
+    }
+    assert!(drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
+}
+
+fn quest_memo_ex(world: &World, player: i32, quest: &str, slot: i32) -> i32 {
+    world
+        .objects
+        .get_component::<crate::model::components::Quests>(&player)
+        .and_then(|q| q.0.get(quest))
+        .and_then(|qs| qs.vars.get(&format!("memoStateEx{slot}")))
+        .and_then(|v| v.parse::<i32>().ok())
+        .unwrap_or(0)
+}

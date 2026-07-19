@@ -706,6 +706,49 @@ impl<'w> QuestCtx<'w> {
         self.set_var("memoState", value.to_string());
     }
 
+    /// `QuestState.getMemoStateEx(slot)` — a *second*, slotted memo axis
+    /// (`QuestState.MEMO_EX_VAR + slot`), independent of `memoState`. Quest
+    /// 417 packs two counters into one slot via tens/units arithmetic.
+    pub fn memo_state_ex(&self, slot: i32) -> i32 {
+        self.get_int(&format!("memoStateEx{slot}"))
+    }
+
+    /// `QuestState.setMemoStateEx(slot, value)`.
+    pub fn set_memo_state_ex(&mut self, slot: i32, value: i32) {
+        self.set_var(&format!("memoStateEx{slot}"), value.to_string());
+    }
+
+    /// `Attackable.isSpoiled()` — whether a Spoil landed on the involved NPC.
+    /// Quest 417 (the Scavenger path) pays out only on spoiled corpses.
+    pub fn npc_is_spoiled(&self) -> bool {
+        self.world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&self.npc)
+            .is_some_and(|n| n.spoiler_object_id != 0)
+    }
+
+    /// `Attackable.getSpoilerObjectId()`.
+    pub fn npc_spoiler_object_id(&self) -> i32 {
+        self.world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&self.npc)
+            .map(|n| n.spoiler_object_id)
+            .unwrap_or(0)
+    }
+
+    /// `npc.deleteMe()` — remove the involved NPC from the world.
+    pub fn delete_npc(&mut self) {
+        let Some(region) = self
+            .world
+            .objects
+            .get_component::<crate::model::components::RegionCell>(&self.npc)
+            .map(|r| r.0)
+        else {
+            return;
+        };
+        super::death::despawn_npc(self.world, self.npc, region);
+    }
+
     /// `addSpawn(npcId, npc, randomOffset, 0, …)` followed by
     /// `addAttackPlayerDesire(spawned, player)` — the quest-ambush primitive.
     /// Spawns beside the NPC the player is talking to and sets the newcomer on
