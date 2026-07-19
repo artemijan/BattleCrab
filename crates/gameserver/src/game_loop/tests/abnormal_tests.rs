@@ -42,6 +42,7 @@ fn cc_skill(id: i32, effect: SkillEffect, abnormal: &str) -> Skill {
         abnormal_type: abnormal.into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
+        abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
         affect_object: AffectObject::All,
@@ -427,4 +428,89 @@ fn zero_chance_target_cancel_does_nothing() {
         Some(NPC_OID),
         "a 0% target-cancel leaves the target alone"
     );
+}
+
+// ---------------------------------------------------------------------------
+// Abnormal visual effects
+// ---------------------------------------------------------------------------
+
+/// The visual set is a fold over live buffs, de-duplicated, and clears with
+/// them. Two poisons draw one tint.
+#[test]
+fn visual_effects_fold_over_buffs_and_clear() {
+    use crate::game_loop::abnormal::visual_effects;
+
+    let (mut world, _db, _l) = cc_world();
+    // STUN(7) and DOT_POISON(2); a second poison must not duplicate the tint.
+    let mut stun_vis = cc_skill(9320, SkillEffect::BlockActions { conditional: false }, "STUN_VIS");
+    stun_vis.abnormal_visuals = vec![7];
+    let mut poison_a = cc_skill(9321, SkillEffect::Root, "POISON_A");
+    poison_a.abnormal_visuals = vec![2];
+    let mut poison_b = cc_skill(9322, SkillEffect::Root, "POISON_B");
+    poison_b.abnormal_visuals = vec![2];
+    for sk in [stun_vis, poison_a, poison_b] {
+        world.data.skill_data.insert_for_test(sk);
+    }
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
+
+    assert!(visual_effects(&world, VICTIM).is_empty(), "nothing showing to begin with");
+
+    land(&mut world, 9320, VICTIM);
+    assert_eq!(visual_effects(&world, VICTIM), vec![7], "the stun swirl shows");
+
+    land(&mut world, 9321, VICTIM);
+    land(&mut world, 9322, VICTIM);
+    let vis = visual_effects(&world, VICTIM);
+    assert!(vis.contains(&7) && vis.contains(&2), "both visuals show: {vis:?}");
+    assert_eq!(vis.iter().filter(|&&v| v == 2).count(), 1, "de-duplicated: {vis:?}");
+
+    // Clearing the stun leaves the poison tint behind.
+    crate::game_loop::skills::effects::handle_buff_expire(&mut world, VICTIM, 9320);
+    let vis = visual_effects(&world, VICTIM);
+    assert!(!vis.contains(&7) && vis.contains(&2), "only the stun's visual went: {vis:?}");
+}
+
+/// The visual reaches the wire: `CharInfo` carries the count and ids so nearby
+/// players actually see the effect on the victim.
+#[test]
+fn char_info_carries_the_visual_list() {
+    let (mut world, _db, _l) = cc_world();
+    let mut stun_vis = cc_skill(9323, SkillEffect::BlockActions { conditional: false }, "STUN_VIS");
+    stun_vis.abnormal_visuals = vec![7];
+    world.data.skill_data.insert_for_test(stun_vis);
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
+
+    let visuals_of = |world: &World| {
+        let v = crate::model::PlayerView::of(&world.objects, VICTIM).expect("view");
+        server_packets::char_info(&v, &crate::game_loop::abnormal::visual_effects(world, VICTIM))
+    };
+
+    let before = visuals_of(&world);
+    land(&mut world, 9323, VICTIM);
+    let after = visuals_of(&world);
+    assert!(after.len() > before.len(), "the stunned CharInfo is longer by the visual entry");
+}
+
+/// A skill with no `<abnormalVisualEffect>` sends no visual packet — Java only
+/// pushes the set from start/stopAbnormalVisualEffect, so a plain stat buff
+/// must not spam `ExUserInfoAbnormalVisualEffect`.
+#[test]
+fn buffs_without_a_visual_send_no_visual_packet() {
+    let (mut world, _db, _l) = cc_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let mut vout = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
+    drain(&mut vout);
+
+    // 1068 is the Might-like stat buff from `cast_test_world` — no visual.
+    let buff = world.data.skill_data.get(1068, 1).cloned().expect("might");
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, VICTIM, &buff);
+
+    let pkts = drain(&mut vout);
+    let ave_pkts = pkts
+        .iter()
+        .filter(|p| p[0] == 0xFE && p.len() >= 3 && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_USER_INFO_ABNORMAL_VISUAL_EFFECT)
+        .count();
+    assert_eq!(ave_pkts, 0, "a visual-less buff pushes no ExUserInfoAbnormalVisualEffect");
 }

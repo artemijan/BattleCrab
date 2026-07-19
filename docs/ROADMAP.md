@@ -491,6 +491,23 @@ movement in the AI rather than a flag, so it belongs with **G21**'s NPC AI
 breadth. `AbnormalShield` has no ported source, and Java's wider
 `BLOCK_CONTROL` (summon/mob control) waits on G29.
 
+🚧 **Abnormal visual effects (2026-07-19)** — plan
+[PLAN_G19_ABNORMAL_VISUALS.md](PLAN_G19_ABNORMAL_VISUALS.md). The cosmetic
+counterpart to the CC/periodic slices: stun, root, silence, poison and bleed all
+worked mechanically but the client drew **nothing** on the victim, because
+`CharInfo` hard-coded an abnormal-visual count of 0. The enum→client-id map,
+`<abnormalVisualEffect>` parsing, and a stamp-and-fold visual set now feed both
+`CharInfo` and `ExUserInfoAbnormalVisualEffect` — pushed *only when the set
+changes*, as Java does (an unconditional refresh is both chattier than retail
+and observable, since several tests assert exact packet order). `//ave_abnormal`
+lands on top, toggling a GM-pinned visual held in a new `AdminVisuals` component.
+
+Two scoping checks made here: the **geometric affect scopes** deferred in the
+first G19 slice are only **5 learnable skills**, confirming that deferral; and
+the rest of the AdminEffects AVE subset (`//setteam`, `//settargetable`,
+`//set_displayeffect`, `//playmovie`, `//event_trigger`) is now *unblocked* but
+each needs its own per-creature state and packet field.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued

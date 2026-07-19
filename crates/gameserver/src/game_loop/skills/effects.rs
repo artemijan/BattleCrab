@@ -674,6 +674,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         passive: false,
         effect_flags: skill.effect_flags(),
         blocked_abnormals: skill.blocked_abnormals(),
+        abnormal_visuals: skill.abnormal_visuals.clone(),
         effects: buff_effects,
     };
 
@@ -747,6 +748,35 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         // buff icon but never the changed stats or movement speed (and other
         // players never see the speed change).
         crate::game_loop::party::broadcast_user_info(world, target_oid);
+        // Java pushes the visual set only from `startAbnormalVisualEffect` /
+        // `stopAbnormalVisualEffect`, i.e. only when the set actually changed —
+        // not on every buff. A skill with no `<abnormalVisualEffect>` can't have
+        // changed anything, so it sends nothing.
+        if !skill.abnormal_visuals.is_empty() {
+            refresh_abnormal_visuals(world, target_oid);
+        }
+    }
+}
+
+/// Push the creature's current abnormal-visual set to their **own** client
+/// (`ExUserInfoAbnormalVisualEffect`). The set other people see rides on the
+/// `CharInfo` that `broadcast_user_info` already sends; this is the self-facing
+/// half, without which a stunned player sees no swirl on themselves.
+fn refresh_abnormal_visuals(world: &World, object_id: i32) {
+    let Some(client_id) = client_for_player(world, object_id) else { return };
+    let visuals = crate::game_loop::abnormal::visual_effects(world, object_id);
+    let invisible = world
+        .objects
+        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .is_some_and(|f| f.hidden);
+    let transform = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .map_or(0, |p| p.transform_display_id);
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(crate::network::user_info::ex_user_info_abnormal_visual_effect(
+            object_id, invisible, transform, &visuals,
+        ));
     }
 }
 
@@ -1527,6 +1557,12 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     if !still_active {
         return;
     }
+    // Did the buff about to go carry a visual? If not, the set can't change and
+    // no `ExUserInfoAbnormalVisualEffect` is due (Java's same rule).
+    let had_visuals = world
+        .objects
+        .get_component::<Buffs>(&player_object_id)
+        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill_id && !x.abnormal_visuals.is_empty()));
     // NPC: drop the buff and recompute from the template (no icons/broadcast).
     if crate::game_loop::combat::is_npc_oid(player_object_id) {
         if let Some(b) = world.objects.get_component_mut::<Buffs>(&player_object_id) {
@@ -1556,6 +1592,9 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     // Removing the buff reverted its stat contribution — rebroadcast so the
     // client (and nearby players, for speed) see the stats return to normal.
     crate::game_loop::party::broadcast_user_info(world, player_object_id);
+    if had_visuals {
+        refresh_abnormal_visuals(world, player_object_id);
+    }
     let Some(client_id) = client_for_player(world, player_object_id) else { return };
     if let Some(buffs) = world.objects.get_component::<Buffs>(&player_object_id) {
         if let Some(cs) = world.clients.get(&client_id) {

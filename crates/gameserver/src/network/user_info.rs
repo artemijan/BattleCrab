@@ -15,23 +15,32 @@ use crate::network::server_packets::opcodes;
 
 const OPCODE_USER_INFO: u8 = 0x32;
 
-/// `AbnormalVisualEffect.STEALTH.getClientId()` — the translucent GM-invisible
-/// glow the client renders on the character.
-const STEALTH_CLIENT_ID: i16 = 21;
+use crate::model::skill::STEALTH_CLIENT_ID;
 
 /// Port of `serverpackets/ExUserInfoAbnormalVisualEffect`. Carries the
 /// transformation id (so the GM sees their own transformed model — UserInfo has
 /// no transform field) and the abnormal-effect list, of which STEALTH
 /// (GM invisibility) is the only one we model (Java appends STEALTH whenever
 /// `isInvisible()`). Sent to the player's own client.
-pub fn ex_user_info_abnormal_visual_effect(object_id: i32, invisible: bool, transform_display_id: i32) -> Vec<u8> {
+pub fn ex_user_info_abnormal_visual_effect(
+    object_id: i32,
+    invisible: bool,
+    transform_display_id: i32,
+    visuals: &[i16],
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::EX);
     w.write_i16(opcodes::EX_USER_INFO_ABNORMAL_VISUAL_EFFECT);
     w.write_i32(object_id);
     w.write_i32(transform_display_id); // transformation id
-    w.write_i32(if invisible { 1 } else { 0 }); // effect count
-    if invisible {
+    // The buff-driven visuals, plus STEALTH when GM-invisible (Java appends it
+    // to the set rather than sending it alone).
+    let extra = usize::from(invisible && !visuals.contains(&STEALTH_CLIENT_ID));
+    w.write_i32((visuals.len() + extra) as i32);
+    for &id in visuals {
+        w.write_i16(id);
+    }
+    if extra == 1 {
         w.write_i16(STEALTH_CLIENT_ID);
     }
     w.into_bytes()

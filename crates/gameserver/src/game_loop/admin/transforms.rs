@@ -165,7 +165,8 @@ fn broadcast_transform(world: &World, target: i32) {
     let display_id = world.objects.get_component::<Player>(&target).map_or(0, |p| p.transform_display_id);
     let hidden = world.objects.get_component::<crate::model::components::AdminFlags>(&target).is_some_and(|f| f.hidden);
     if let Some(cid) = super::helpers::client_for_player(world, target) {
-        let ave = crate::network::user_info::ex_user_info_abnormal_visual_effect(target, hidden, display_id);
+        let visuals = crate::game_loop::abnormal::visual_effects(world, target);
+        let ave = crate::network::user_info::ex_user_info_abnormal_visual_effect(target, hidden, display_id, &visuals);
         if let Some(cs) = world.clients.get(&cid) {
             cs.send(ave);
             if let Some(pkt) = super::helpers::skill_list_packet(world, target) {

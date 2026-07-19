@@ -37,6 +37,7 @@ fn aoe_skill(id: i32, scope: AffectScope, object: AffectObject, range: i32) -> S
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
+        abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: scope,
         affect_object: object,

@@ -69,7 +69,10 @@ const CHAR_INFO_PAPERDOLL_ORDER_VISUAL_ID: [PaperdollSlot; 9] = [
 /// systems not yet modeled (clan, mounts, stores, cubics, fishing, abnormal
 /// visual effects…) are their empty Java defaults; the vehicle branch and the
 /// GM-sees-invisible variant are skipped (no boats/GM model).
-pub fn char_info(v: &crate::model::PlayerView) -> Vec<u8> {
+/// `visuals` is the creature's live abnormal-visual client-id list
+/// (`game_loop::abnormal::visual_effects`), passed in rather than read off the
+/// view because `PlayerView` carries no `Buffs`.
+pub fn char_info(v: &crate::model::PlayerView, visuals: &[i16]) -> Vec<u8> {
     let crate::model::PlayerView { p, pos, vitals, pvitals, speeds, collision, combat, inventory, .. } = v;
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::CHAR_INFO);
@@ -163,7 +166,14 @@ pub fn char_info(v: &crate::model::PlayerView) -> Vec<u8> {
     w.write_i32(vitals.max_mp);
     w.write_i32(vitals.cur_mp.round() as i32);
     w.write_u8(0); // cBRLectureMark
-    w.write_i32(0); // abnormal visual effect count (+ short ids)
+    // `CharInfo`: the abnormal-visual list everyone nearby sees on this
+    // character — the stun swirl, poison tint, silence mark. Java also appends
+    // STEALTH here when a GM sees through invisibility (`_gmSeeInvis`), which
+    // this port handles on the self-only Ex packet instead.
+    w.write_i32(visuals.len() as i32);
+    for &id in visuals {
+        w.write_i16(id);
+    }
     w.write_u8(0); // true hero (100 when true)
     w.write_u8(1); // hair accessory enabled
     w.write_u8(0); // used ability points

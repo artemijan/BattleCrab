@@ -136,6 +136,7 @@ fn unstuck_casts_escape_and_teleports_to_town() {
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
+        abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
         affect_object: AffectObject::All,

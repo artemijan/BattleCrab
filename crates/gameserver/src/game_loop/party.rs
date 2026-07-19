@@ -149,7 +149,7 @@ pub(crate) fn broadcast_user_info(world: &World, object_id: i32) {
     let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) else { return };
     let relation = calculate_relation(world, v.p);
     send_to_player(world, object_id, crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, relation));
-    let char_info = server_packets::char_info(&v);
+    let char_info = server_packets::char_info(&v, &super::abnormal::visual_effects(world, object_id));
     broadcast_to_others(world, object_id, &char_info);
 }
 

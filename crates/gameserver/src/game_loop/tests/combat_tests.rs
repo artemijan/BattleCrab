@@ -1464,6 +1464,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
+        abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
         affect_object: AffectObject::All,

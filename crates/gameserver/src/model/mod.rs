@@ -1333,6 +1333,7 @@ pub(crate) fn conditioned_passive_buffs(data: &GameData, skills: &SkillBook, inv
             // Synthetic buff (passive/clan/expertise pump): no abnormal state.
             effect_flags: 0,
             blocked_abnormals: Vec::new(),
+            abnormal_visuals: Vec::new(),
             effects: applicable,
         });
     }

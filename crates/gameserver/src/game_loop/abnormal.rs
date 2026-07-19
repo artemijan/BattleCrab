@@ -41,6 +41,29 @@ pub(crate) fn is_blocked_from_actions(world: &World, object_id: i32) -> bool {
     flags_of(world, object_id) & effect_flag::BLOCK_ACTIONS != 0
 }
 
+/// Java `EffectList.getCurrentAbnormalVisualEffects()` — every visual effect
+/// the creature's live buffs contribute, de-duplicated (two poisons draw one
+/// tint). Order is the buff order, which is what Java's `LinkedHashSet`
+/// preserves.
+pub(crate) fn visual_effects(world: &World, object_id: i32) -> Vec<i16> {
+    let mut out: Vec<i16> = Vec::new();
+    // GM-pinned effects first, so `//ave_abnormal` shows even on a buff-less
+    // creature.
+    if let Some(admin) = world.objects.get_component::<crate::model::components::AdminVisuals>(&object_id) {
+        out.extend(admin.0.iter().copied());
+    }
+    if let Some(buffs) = world.objects.get_component::<Buffs>(&object_id) {
+        for buff in &buffs.0 {
+            for &id in &buff.abnormal_visuals {
+                if !out.contains(&id) {
+                    out.push(id);
+                }
+            }
+        }
+    }
+    out
+}
+
 /// Java `Creature.isMuted()` — silenced against **magic** skills.
 pub(crate) fn is_muted(world: &World, object_id: i32) -> bool {
     flags_of(world, object_id) & effect_flag::MUTED != 0
