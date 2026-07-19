@@ -254,6 +254,12 @@ pub enum SkillEffect {
     /// (`isAdvanced` — the advanced HQ's extra abilities — is collapsed for now,
     /// TODO(G24).)
     CreateHeadquarter,
+    /// `handlers/effecthandlers/OpenCommonRecipeBook.java` /
+    /// `OpenDwarfRecipeBook.java` — the "Common Craft" (1322) / "Dwarven Craft"
+    /// (1321) ability skills: casting one opens the matching recipe window
+    /// (`RecipeManager.requestBookOpen`). Refused while the caster runs a
+    /// private store. Instant, self-target.
+    OpenRecipeBook { dwarven: bool },
     /// `handlers/effecthandlers/Spoil.java` — marks a live monster as spoiled
     /// (`Attackable.setSpoilerObjectId`) so its `<spoil>` list rolls into sweep
     /// loot on death. Gated by `calcSuccess` = `Formulas.calcMagicSuccess`, and

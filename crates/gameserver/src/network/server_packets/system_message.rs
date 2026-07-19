@@ -101,6 +101,9 @@ pub mod sm_ids {
     pub const C1_CREATED_S3_S2_S_AT_THE_PRICE_OF_S4_ADENA: i16 = 1148;
     pub const YOU_FAILED_TO_CREATE_S2_FOR_C1_AT_THE_PRICE_OF_S3_ADENA: i16 = 1149;
     pub const C1_HAS_FAILED_TO_CREATE_S2_AT_THE_PRICE_OF_S3_ADENA: i16 = 1150;
+    /// `OpenCommonRecipeBook`/`OpenDwarfRecipeBook` — a craft skill used while a
+    /// private store is up.
+    pub const ITEM_CREATION_IS_NOT_POSSIBLE_WHILE_ENGAGED_IN_A_TRADE: i16 = 1125;
     pub const YOUR_CASTING_HAS_BEEN_INTERRUPTED: i16 = 27;
     pub const YOU_USE_S1: i16 = 46;
     pub const S1_IS_NOT_AVAILABLE_REUSE: i16 = 48;
