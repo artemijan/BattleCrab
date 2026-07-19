@@ -99,3 +99,67 @@ pub(crate) fn regen_player(
         Some(updates)
     }
 }
+
+/// `CreatureStatus.doRegeneration` for NPCs — the half that was never ported.
+/// 14855 templates on this dist declare an `hpRegen` (only 58 are zero), and
+/// none of it did anything: a wounded mob stayed wounded until it despawned,
+/// and a raid boss whittled down over several attempts never recovered.
+///
+/// **The NPC formula is much shorter than the player one, and that's Java, not
+/// a narrowing.** In `RegenHPFinalizer` the level-mod, CON/MEN bonus and the
+/// sitting/standing/running multipliers all sit *inside* `if (isPlayer())`.
+/// An NPC's rate is simply its template value times the config multiplier.
+///
+/// Java also regenerates **during combat** — the task only checks "not dead"
+/// and "not already full", never an in-combat flag. That is deliberate here
+/// too: it's what makes a long fight against a high-regen boss a DPS race.
+pub(crate) fn run_npc_regen_tick(world: &mut World) {
+    use crate::model::npc::Npc;
+
+    // Collect first: applying regen needs the template (a `world.data` read)
+    // while the vitals are borrowed, and the broadcast needs `world` again.
+    let mut wounded: Vec<(i32, i32)> = Vec::new();
+    world.objects.for_each_mut::<(&Npc, &Vitals)>(|(npc, v)| {
+        if !v.dead && (v.cur_hp < v.max_hp as f64 || v.cur_mp < v.max_mp as f64) {
+            wounded.push((npc.object_id, npc.npc_id));
+        }
+    });
+
+    for (oid, npc_id) in wounded {
+        let Some(t) = world.data.npc_data.get(npc_id) else { continue };
+        let is_raid = matches!(t.type_name.as_str(), "RaidBoss" | "GrandBoss");
+        let (hp_mul, mp_mul) = if is_raid {
+            (world.cfg.npc.raid_hp_regen_multiplier, world.cfg.npc.raid_mp_regen_multiplier)
+        } else {
+            (world.cfg.npc.hp_regen_multiplier, world.cfg.npc.mp_regen_multiplier)
+        };
+        let hp_regen = t.base_hp_reg * hp_mul;
+        let mp_regen = t.base_mp_reg * mp_mul;
+
+        let Some(mut v) = world.objects.get_component_mut::<Vitals>(&oid) else { continue };
+        let before_hp = v.cur_hp;
+        v.cur_hp = (v.cur_hp + hp_regen).min(v.max_hp as f64);
+        v.cur_mp = (v.cur_mp + mp_regen).min(v.max_mp as f64);
+        let (cur_hp, max_hp) = (v.cur_hp as i32, v.max_hp);
+        let changed = v.cur_hp != before_hp;
+        drop(v);
+
+        // `broadcastStatusUpdate` — refresh the HP bar for anyone targeting it.
+        // Only on an actual HP change, so a full-HP/low-MP mob doesn't spam.
+        if changed {
+            if let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&oid).map(|r| r.0) {
+                super::helpers::broadcast_near_region(
+                    world,
+                    region,
+                    &server_packets::status_update(
+                        oid,
+                        &[
+                            (server_packets::status_update_type::MAX_HP, max_hp),
+                            (server_packets::status_update_type::CUR_HP, cur_hp),
+                        ],
+                    ),
+                );
+            }
+        }
+    }
+}

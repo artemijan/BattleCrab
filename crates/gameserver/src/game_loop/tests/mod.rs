@@ -50,6 +50,7 @@ mod effect_zone_tests;
 mod guard_aggro_tests;
 mod minion_tests;
 mod npc_cast_tests;
+mod npc_regen_tests;
 mod npc_tests;
 mod overhit_tests;
 mod periodic_tests;

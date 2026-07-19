@@ -653,8 +653,10 @@ is met**. Minions landed (`PLAN_G21_MINIONS.md`) — 460 leaders, 3289 escorts p
 EffectZones landed (`PLAN_G21_EFFECT_ZONES.md`) — 218 zones, plus per-zone
 `type=` parsing which recovered 20 zones that were missing entirely (605 → 843).
 Note `ConditionZone` (1080) is ~99% inert on Interlude (`NoBookmark`).
-Remaining breadth: `DamageZone`/`SwampZone`, NPC pathfinding/regen, fences,
-`HtmCache`, walker routes, `CreatureSeeTaskManager`.
+NPC regen landed (`PLAN_G21_NPC_REGEN.md`) — 14855 templates' `hpRegen` was
+parsed but unused, so no NPC ever healed. Remaining breadth:
+`DamageZone`/`SwampZone` (only 15 live between them; the rest are siege-gated),
+NPC pathfinding, fences, `HtmCache`, walker routes, `CreatureSeeTaskManager`.
 
 ---
 
