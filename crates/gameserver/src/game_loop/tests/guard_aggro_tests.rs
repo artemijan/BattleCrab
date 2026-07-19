@@ -13,16 +13,19 @@ const LONER_ID: i32 = 41103;
 const GUARD_OID: i32 = NPC_OID;
 const MATE_OID: i32 = NPC_OID + 1;
 
-/// A `Guard` template — note guards are flagged **passive** in the datapack,
-/// which is exactly why the guard branch can't be gated on `is_aggressive`.
+/// A `Guard` template, mirroring the real datapack: every one of the 186 stock
+/// guards carries `isAggressive="true"` with `aggroRange="450"`. That combination
+/// is the whole point of the fixture — it is what the generic aggro scan would
+/// pick up if it weren't gated on `is_monster()`, which is how guards ended up
+/// killing lawful players. Guard aggro must come *only* from the PK rule.
 fn guard_template() -> crate::data::npc_data::NpcTemplate {
     let mut t = crate::data::npc_data::default_template(GUARD_ID);
     t.type_name = "Guard".into();
     t.name = "Town Guard".into();
     t.level = 20;
     t.base_hp_max = 500.0;
-    t.is_aggressive = false;
-    t.aggro_range = 0;
+    t.is_aggressive = true;
+    t.aggro_range = 450;
     t.collision_radius = 10.0;
     t
 }
@@ -100,6 +103,27 @@ fn guard_ignores_a_pk_beyond_500_units() {
     advance_world(&mut world, 20);
 
     assert_eq!(hate_on(&world, GUARD_OID, PLAYER), 0.0, "the guard range is 500, not the template aggroRange");
+}
+
+#[test]
+fn guard_ignores_a_lawful_player_standing_point_blank() {
+    // Regression: guards carry `isAggressive="true"`/`aggroRange="450"`, so the
+    // generic aggro scan used to seed hate on anyone who walked up to one and
+    // the guard would then beat a lawful player to death. Java never reaches
+    // that scan's target filter for a guard — `Player.isAutoAttackable` is only
+    // true for a `Monster` attacker — so proximity alone must mean nothing.
+    let (mut world, _db, _l) = guard_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_test_npc(&mut world, GUARD_OID, GUARD_ID, "Guard", 20, 40, 0, 0);
+    set_reputation(&mut world, PLAYER, 0);
+    // `global_aggro` starts at -10 and only climbs one step per think, so the
+    // generic aggro scan is suppressed for the first ten thinks. Clear it, or
+    // the guard sits inert for the whole test and it proves nothing.
+    world.objects.get_component_mut::<NpcAi>(&GUARD_OID).unwrap().global_aggro = 0;
+
+    advance_world(&mut world, 20);
+
+    assert_eq!(hate_on(&world, GUARD_OID, PLAYER), 0.0, "a guard must not aggro a lawful player standing next to it");
 }
 
 #[test]

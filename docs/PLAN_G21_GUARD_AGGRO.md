@@ -34,12 +34,34 @@ Two details worth stating because both look like bugs otherwise:
 - The range is Java's bare literal, **not** the template's `aggroRange`
   (the Java source has a "TODO Make sure how guards behave towards players"
   note right beside it).
-- It runs **regardless of `isAggressive`**. Guards are flagged *passive* in the
-  datapack, so gating on that flag — the obvious thing to do — would leave
-  every guard inert.
+- It runs **regardless of `isAggressive`** — Java's guard branch never consults
+  the flag.
 
 A lawful player is ignored no matter how close, which is what makes this a
 PK-hunting rule rather than general aggression. Both directions are tested.
+
+**Correction (2026-07-19).** This slice originally claimed guards are flagged
+*passive* in the datapack. **They are not** — all 186 stock `Guard` templates
+carry `isAggressive="true" aggroRange="450"`. The claim was wrong in the plan,
+in the code comment, and in the test fixture (which hardcoded
+`is_aggressive = false`), so the whole slice's test suite agreed with an
+assumption that the shipped data contradicts and guards were killing lawful
+players on sight.
+
+The generic aggro scan in `think_active` was gated only on `is_aggressive`, so
+every guard seeded hate on every player inside 450 units. Java runs that scan
+for `isAggressive() || instanceof Guard` too, but each candidate then has to
+clear `isAggressiveTowards` → `isAutoAttackable`, and `Player.isAutoAttackable`
+only returns true for an NPC attacker via **`attacker.isMonster()`**. A `Guard`
+is an `Attackable`, not a `Monster`, so it falls through every playable branch
+and returns false. The generic scan is therefore **monster-only**, and
+`guard_aggro_scan`'s reputation rule is the *only* path by which a guard aggros
+a player. The fix adds `is_monster()` to that gate; the fixture now mirrors the
+real datapack so the regression is actually reachable.
+
+**Lesson:** a fixture that encodes the same wrong assumption as the code under
+test cannot catch that assumption being wrong. When a comment asserts a fact
+about the datapack, check it against `dist/`.
 
 **Faction help calls** — `faction_call`, from the faction block of
 `thinkAttack`. An engaged NPC drags idle clan-mates within
