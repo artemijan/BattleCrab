@@ -250,13 +250,6 @@ pub struct Player {
     /// Java `Creature._isTeleporting`: position pushed server-side, waiting
     /// for the client's `Appearing`.
     pub teleporting: bool,
-    /// A cast was aborted by the teleport in flight: re-send
-    /// `MagicSkillCanceled` once the client answers with `Appearing`. The
-    /// cancel sent before `TeleportToLocation` is lost in the client's
-    /// world-reload teardown (observed with `/unstuck` — the escape FX kept
-    /// playing at the destination, in Java too), so it must be repeated when
-    /// the char is stable again. No Java equivalent.
-    pub cancel_cast_fx_on_appear: bool,
     /// `Player._questZoneId` (default -1): the quest zone the client last
     /// selected (`ExSendSelectedQuestZoneID`), read by quest teleports
     /// (`TeleportHolder`). Transient — not persisted.
@@ -786,7 +779,6 @@ impl Player {
             cast_seq: 0,
             pending_revive: false,
             teleporting: false,
-            cancel_cast_fx_on_appear: false,
             quest_zone_id: -1,
             charged_shots: 0,
             auto_shots: Vec::new(),

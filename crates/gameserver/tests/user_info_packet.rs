@@ -74,7 +74,6 @@ async fn user_info_test() {
         cast_seq: 0,
         pending_revive: false,
         teleporting: false,
-        cancel_cast_fx_on_appear: false,
         quest_zone_id: 0,
         charged_shots: 0,
         auto_shots: Vec::new(),

@@ -189,23 +189,6 @@ fn unstuck_casts_escape_and_teleports_to_town() {
         "teleport must cancel the cast animation client-side"
     );
     assert!(!world.objects.has_component::<Casting>(&3001), "cast slot freed by the abort");
-
-    // The pre-teleport cancel is lost in the client's world-reload teardown,
-    // so `Appearing` must repeat it once the destination has loaded.
-    super::death::handle_appearing(&mut world, 1);
-    let appeared = drain(&mut rx);
-    assert!(
-        appeared.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED),
-        "Appearing must re-send the cancel — the pre-teleport one never survives the reload"
-    );
-
-    // A later teleport with no cast in flight must not re-send it.
-    crate::game_loop::death::teleport_player(&mut world, 3001, 0, 0, 0);
-    super::death::handle_appearing(&mut world, 1);
-    assert!(
-        !drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED),
-        "no stale cancel on a cast-free teleport"
-    );
 }
 
 /// Regression: `/unstuck` with a target selected (here: the player's own
@@ -233,12 +216,6 @@ fn unstuck_with_target_selected_still_cancels_cast_animation() {
         "cancel must go out even with a target selected"
     );
     assert!(!world.objects.has_component::<Casting>(&3001), "cast slot freed by the abort");
-
-    super::death::handle_appearing(&mut world, 1);
-    assert!(
-        drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED),
-        "Appearing must re-send the cancel with a target selected too"
-    );
 }
 
 /// `/loc` (user command 0): inside a mapped region the region's `locId` is

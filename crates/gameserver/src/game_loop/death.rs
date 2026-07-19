@@ -1398,20 +1398,6 @@ pub(crate) fn handle_appearing(world: &mut World, client_id: u32) {
     {
         cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, super::party::calculate_relation(world, v.p)));
     }
-    // A cast aborted by this teleport: the `MagicSkillCanceled` sent before
-    // `TeleportToLocation` is lost in the client's world-reload teardown (the
-    // `/unstuck` escape FX kept playing at the destination — in Java too, so
-    // no Java equivalent for this re-send). Now that the client has loaded
-    // and the char is stable, repeat the cancel so the FX actually stops.
-    let resend_cancel = world
-        .objects
-        .get_component_mut::<crate::model::Player>(&object_id)
-        .is_some_and(|p| std::mem::take(&mut p.cancel_cast_fx_on_appear));
-    if resend_cancel {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::magic_skill_canceld(object_id));
-        }
-    }
 }
 
 /// `Player.doRevive`: restore the configured percentages (`RespawnRestoreHP`
