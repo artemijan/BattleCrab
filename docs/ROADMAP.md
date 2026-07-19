@@ -426,12 +426,27 @@ cast via `SkillCaster.run`'s short circuit, the new `targetType NONE`). Until
 this landed only `SINGLE` resolved, so all ~1900 area skills in the datapack hit
 exactly one creature and all 104 toggles were unreachable.
 
+🚧 **Abnormal-state flags + crowd control (2026-07-19)** — plan
+[PLAN_G19_ABNORMAL_STATES.md](PLAN_G19_ABNORMAL_STATES.md). A datapack survey
+put 41 % of effect instances (11 698 / 28 259) on unported effects; this slice
+takes the pair that were *inert rather than merely absent* — `BlockActions`
+(540 uses: stun/sleep/paralyze) and `Root` (79). Java's `EffectFlag` mask is
+ported as flags stamped on each `ActiveBuff` and folded on read
+(`game_loop/abnormal.rs`), rather than Java's cached-and-invalidated mask, since
+buffs mutate from several places here. Gates: no attacking, casting or moving
+while stunned; no moving while rooted; a stunned mob's AI goes quiet; a rooted
+one stays put. Landing a stun also interrupts the victim mid-action (abort cast,
+then freeze movement — that order matters). Before this a stun landed, showed
+its icon, and the victim carried on fighting.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued
 `VITALITY_CONSUME_RATE`/`BONUS_EXP`/`BONUS_SP` are waiting on it; the geometric
 `FAN`/`FAN_PB`/`SQUARE`/`SQUARE_PB`/`RING_RANGE` scopes and `GROUND`-targeted
-casts; `calcMagicSuccess`; the abnormal-visual-effect runtime + per-creature
+casts; the CC effects adjacent to the ported pair (`BlockControl` 81, `Fear` 68
+— needs forced flee movement, `DebuffBlock` 115, `DamageBlock` 162,
+`TargetCancel` 101, `KnockBack` 91, and the mute/disarm family); `calcMagicSuccess`; the abnormal-visual-effect runtime + per-creature
 team/targetable state (and the AdminEffects AVE subset it unblocks);
 `ExAbnormalStatusUpdateFromTarget`; the remaining `AcquireSkillType`s; and skill
 enchanting.

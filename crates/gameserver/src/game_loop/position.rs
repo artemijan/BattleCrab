@@ -54,6 +54,15 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         .map_or(0.0, |c| c.height);
     let target_z = (pkt.target_z as f64 + collision_height) as i32;
 
+    // Stunned/asleep/paralyzed or rooted players can't move either — the rest
+    // of `isMovementDisabled`'s effect-driven terms.
+    if super::abnormal::is_movement_disabled(world, object_id) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::stop_move(object_id, cur.x, cur.y, cur.z, cur.heading));
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
     // Dead players can't move at all (`isMovementDisabled`).
     if world.objects.get_component::<Vitals>(&object_id).is_some_and(|v| v.dead) {
         if let Some(cs) = world.clients.get(&client_id) {

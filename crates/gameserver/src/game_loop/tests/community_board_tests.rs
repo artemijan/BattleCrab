@@ -162,6 +162,7 @@ fn push_buff(world: &mut World, oid: i32, skill_id: i32) {
         slot: crate::model::skill::BuffSlot::Buff,
         expires_at_tick: u64::MAX,
         passive: false,
+        effect_flags: 0,
         effects: Vec::new(),
     });
 }
