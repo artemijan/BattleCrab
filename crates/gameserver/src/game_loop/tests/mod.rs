@@ -43,6 +43,7 @@ mod lobby_tests;
 mod misc_tests;
 mod movement_tests;
 mod npc_tests;
+mod periodic_tests;
 mod quests_tests;
 mod resist_tests;
 mod shortcuts_tests;
