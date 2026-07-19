@@ -1039,7 +1039,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
         let macros = load_macros(pool, object_id).await;
         let friends = load_friends(pool, object_id).await;
         let quests = load_quests(pool, object_id).await;
-        let skill_reuses = load_skill_reuses(pool, object_id).await;
+        let skill_reuses = load_skill_reuses(pool, object_id, active_index).await;
         let (rec_have, rec_left) = load_reco_bonus(pool, object_id).await;
         out.push(CharData {
             object_id,
@@ -1167,18 +1167,19 @@ async fn load_variables(pool: &SqlitePool, owner_id: i32) -> Vec<(String, String
     rows.iter().map(|r| (gets(r, "var"), gets(r, "val"))).collect()
 }
 
-/// A character's `character_skills_save` reuse rows (Java `restoreEffects`,
-/// `restore_type = 1` half). Already-expired rows (`systime <= now`) are
+/// A character's `character_skills_save` reuse rows for the **active** class
+/// index (Java `restoreEffects`, `restore_type = 1` half). Already-expired rows (`systime <= now`) are
 /// dropped here; the survivors carry the absolute `systime` and the game side
 /// converts it to a game tick when the character enters the world. Buff rows
 /// (restore_type 0) are ignored — buff restore is a later milestone.
-async fn load_skill_reuses(pool: &SqlitePool, owner_id: i32) -> Vec<SkillReuseRow> {
+async fn load_skill_reuses(pool: &SqlitePool, owner_id: i32, class_index: i32) -> Vec<SkillReuseRow> {
     let now = now_millis();
     let rows = sqlx::query(
         "SELECT skill_id, skill_level, reuse_delay, systime FROM character_skills_save \
-         WHERE charId=? AND class_index=0 AND restore_type=1",
+         WHERE charId=? AND class_index=? AND restore_type=1",
     )
     .bind(owner_id)
+    .bind(class_index)
     .fetch_all(pool)
     .await
     .unwrap_or_default();
@@ -1951,26 +1952,28 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
         }
     }
 
-    // skill reuse cooldowns (`character_skills_save`, restore_type 1). Always
-    // delete first so an emptied set (or `StoreSkillCooltime` turned off, which
+    // skill reuse cooldowns (`character_skills_save`, restore_type 1), under
+    // the *active* class index (G17). Always delete first so an emptied set (or `StoreSkillCooltime` turned off, which
     // makes `skill_reuses` empty) clears stale rows; `remaining_time` is -1 like
     // Java's reuse rows (only `systime` is read back). buff rows (restore_type 0)
     // are a later milestone and never written here.
-    sqlx::query("DELETE FROM character_skills_save WHERE charId=? AND class_index=0")
+    sqlx::query("DELETE FROM character_skills_save WHERE charId=? AND class_index=?")
         .bind(char_id)
+        .bind(s.class_index)
         .execute(&mut *tx)
         .await?;
     for (i, r) in s.skill_reuses.iter().enumerate() {
         sqlx::query(
             "INSERT INTO character_skills_save \
              (charId, skill_id, skill_level, skill_sub_level, remaining_time, reuse_delay, systime, restore_type, class_index, buff_index) \
-             VALUES (?, ?, ?, 0, -1, ?, ?, 1, 0, ?)",
+             VALUES (?, ?, ?, 0, -1, ?, ?, 1, ?, ?)",
         )
         .bind(char_id)
         .bind(r.reuse_key)
         .bind(r.skill_level)
         .bind(r.reuse_delay)
         .bind(r.systime_ms)
+        .bind(s.class_index)
         .bind(i as i32 + 1)
         .execute(&mut *tx)
         .await?;

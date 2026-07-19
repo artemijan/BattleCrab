@@ -477,3 +477,52 @@ fn a_class_change_broadcasts_the_visual_effect() {
         "onlookers (and the player) should see the class-change flash"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Skill cooldowns across a class switch (slice 7).
+
+#[test]
+fn a_class_switch_clears_skill_cooldowns() {
+    // Java `setActiveClass` calls `resetTimeStamps()`. Without it a player
+    // could park a long reuse on one class and sit it out on another.
+    let (mut world, _db, _l) = sub_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_subclass(&mut world, PLAYER, 3).unwrap();
+    world.objects.get_component_mut::<crate::model::components::Reuses>(&PLAYER).unwrap().0.insert(
+        1234,
+        crate::model::SkillReuse { skill_level: 1, until_tick: world.tick + 100_000, total_ms: 600_000 },
+    );
+
+    set_active_class(&mut world, PLAYER, 1);
+
+    assert!(
+        world.objects.get_component::<crate::model::components::Reuses>(&PLAYER).unwrap().0.is_empty(),
+        "cooldowns are wiped on a class switch, not carried or banked"
+    );
+}
+
+#[test]
+fn cooldowns_are_saved_under_the_active_class_index() {
+    let (mut world, mut db, _l) = sub_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_subclass(&mut world, PLAYER, 3).unwrap();
+    set_active_class(&mut world, PLAYER, 1);
+    world.objects.get_component_mut::<crate::model::components::Reuses>(&PLAYER).unwrap().0.insert(
+        1234,
+        crate::model::SkillReuse { skill_level: 1, until_tick: world.tick + 100_000, total_ms: 600_000 },
+    );
+    let _ = drain_db(&mut db);
+
+    crate::game_loop::net::save_all_players(&mut world);
+
+    let cmds = drain_db(&mut db);
+    let save = cmds
+        .iter()
+        .find_map(|c| match c {
+            db::DbCommand::StorePlayer { save } => Some(save),
+            _ => None,
+        })
+        .expect("a save went out");
+    assert_eq!(save.class_index, 1, "the reuse rows go under the active slot, not index 0");
+    assert!(!save.skill_reuses.is_empty(), "and the cooldown is in them");
+}
