@@ -45,6 +45,7 @@ mod misc_tests;
 mod movement_tests;
 mod npc_tests;
 mod periodic_tests;
+mod pvp_kill_tests;
 mod quests_tests;
 mod ranged_tests;
 mod resist_tests;
