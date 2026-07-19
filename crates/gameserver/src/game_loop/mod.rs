@@ -33,6 +33,7 @@ mod lobby;
 mod multisell;
 mod net;
 mod boss_respawn;
+pub(crate) mod effect_zones;
 pub(crate) mod minions;
 mod npc_ai;
 mod npc_cast;
@@ -211,6 +212,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         // Player attack intents (chase + swing) every tick, like Java's
         // event-driven PlayerAI reacting as soon as it's ready to act.
         combat::player_combat_tick(&mut world);
+        if world.tick.is_multiple_of(effect_zones::SWEEP_PERIOD) {
+            effect_zones::effect_zone_tick(&mut world);
+        }
         if world.tick.is_multiple_of(npc_ai::NPC_THINK_PERIOD) {
             // AttackableAI think (1 s) + the combat-stance sweep (15 s
             // timeouts, checked at the same 1 s cadence as Java).

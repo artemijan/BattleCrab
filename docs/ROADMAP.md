@@ -650,10 +650,11 @@ gate clause: raid HP across restart (`DBSpawnManager`); minions parse but
 never spawn. Raid-boss persistence landed (`PLAN_G21_BOSS_PERSISTENCE.md`) —
 `DBSpawnManager`/`npc_respawns`, covering the last gate clause, so **G21's gate
 is met**. Minions landed (`PLAN_G21_MINIONS.md`) — 460 leaders, 3289 escorts placed.
-Remaining breadth: **zones** (only 5 of ~30 kinds ported; `ConditionZone` 1080,
-`EffectZone` 218, `ScriptZone` 133, `TaxZone` 122 lead the 2779 total), NPC
-pathfinding/regen, fences, `HtmCache`, walker routes,
-`CreatureSeeTaskManager`.
+EffectZones landed (`PLAN_G21_EFFECT_ZONES.md`) — 218 zones, plus per-zone
+`type=` parsing which recovered 20 zones that were missing entirely (605 → 843).
+Note `ConditionZone` (1080) is ~99% inert on Interlude (`NoBookmark`).
+Remaining breadth: `DamageZone`/`SwampZone`, NPC pathfinding/regen, fences,
+`HtmCache`, walker routes, `CreatureSeeTaskManager`.
 
 ---
 
