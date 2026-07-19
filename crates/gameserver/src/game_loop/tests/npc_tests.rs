@@ -298,10 +298,18 @@ fn bypass_routes_npc_commands_and_tracks_last_folk_npc() {
     );
     drain(&mut rx);
 
-    // `npc_`-prefixed command on an in-range NPC: the verb is unhandled in
-    // this phase (log-drop) but the `ActionFailed` terminator still arrives —
-    // Java sends it from the `npc_` branch regardless of the outcome.
+    // `npc_`-prefixed command on an in-range NPC whose verb has no handler
+    // (log-drop): the `ActionFailed` terminator still arrives — Java sends it
+    // from the `npc_` branch regardless of the outcome.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_NoSuchVerb")));
+    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert!(rx.try_recv().is_err());
+
+    // A handled verb answers before that terminator: `Chat 0` sends the NPC's
+    // dialog page (here the "text is missing" stub — this world has no html
+    // root) ahead of the `ActionFailed`.
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Chat 0")));
+    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::NPC_HTML_MESSAGE);
     assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
     assert!(rx.try_recv().is_err());
 
@@ -324,6 +332,33 @@ fn bypass_routes_npc_commands_and_tracks_last_folk_npc() {
     let mut rx2 = ingame_player(&mut world, 2, 3002, 0, 0, 0);
     handle_request_bypass_to_server(&mut world, 2, &bypass_body("Quest"));
     assert!(rx2.try_recv().is_err());
+}
+
+/// `bypasshandlers/ChatLink` end to end against the real datapack: talking to
+/// Trader Lector (30001, a `Merchant`) shows `merchant/30001.htm`, and its
+/// "I want to trade some equipment" button (`Chat 1`) walks to
+/// `merchant/30001-1.htm` — the page carrying the `Buy` buttons. Before the
+/// `Chat` verb was handled, that button silently dropped and the shop was
+/// unreachable.
+#[test]
+fn chat_bypass_walks_merchant_dialog_pages() {
+    let (mut world, ..) = test_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    add_test_npc(&mut world, NPC_OID, 30001, "Merchant", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    // Landing page (`Npc.showChatWindow(player, 0)`), via the NPC click.
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    let landing = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("landing page");
+    assert!(landing.contains("Trader Lector"), "merchant/30001.htm: {landing}");
+    assert!(landing.contains(&format!("npc_{NPC_OID}_Chat 1")), "trade button carries the objectId");
+
+    // The trade button: page 1 is the buy-list menu.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Chat 1")));
+    let page1 = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("page 1");
+    assert!(page1.contains("What would you like to trade?"), "merchant/30001-1.htm: {page1}");
+    assert!(page1.contains(&format!("npc_{NPC_OID}_Buy 3000101")), "warrior buy list reachable");
 }
 
 /// Walking across a region boundary out of / back into an observer's 3×3

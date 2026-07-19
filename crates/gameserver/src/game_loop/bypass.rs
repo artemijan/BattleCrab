@@ -151,6 +151,16 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
     let verb = command.split(' ').next().unwrap_or("");
     match verb {
         "Quest" => super::quests::quest_link(world, client_id, object_id, npc_object_id, command),
+        // `bypasshandlers/ChatLink.java`: the follow-up dialog pages every
+        // folk html walks through (`Chat 1` → `<npcId>-1.htm`). Java parses
+        // the tail with `Integer.parseInt`, falling back to page 0.
+        // TODO(G23): `Chat 0` on an NPC with an `ON_NPC_FIRST_TALK` listener
+        // fires that quest event instead of the static page.
+        "Chat" => {
+            let value =
+                command.strip_prefix("Chat").and_then(|s| s.trim().parse::<i32>().ok()).unwrap_or(0);
+            super::target::show_chat_window(world, client_id, npc_object_id, value);
+        }
         // `VillageMaster.onBypassFeedback` verbs — gated on the instance
         // class like Java's subclass override (`type_name` check stands in
         // for `instanceof VillageMaster`).

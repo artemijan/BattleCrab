@@ -364,10 +364,31 @@ pub(crate) fn interact_with_npc(world: &mut World, client_id: u32, object_id: i3
         return;
     }
     // `Npc.showChatWindow(player, 0)`.
+    show_chat_window(world, client_id, npc_object_id, 0);
+}
+
+/// Port of `Npc.showChatWindow(player, value)`: send the NPC dialog page
+/// `value` (0 = the NPC's landing page, N = the `<id>-<N>.htm` follow-up that
+/// the `Chat N` bypass buttons walk to). Java also gates PK players out of
+/// merchant/teleporter/warehouse dialogs via the `-pk.htm` pages
+/// (`showPkDenyChatWindow`).
+// TODO(G23): port the `showPkDenyChatWindow` reputation gate — needs the
+// `ALT_GAME_KARMA_PLAYER_CAN_SHOP`/`_USE_GK`/`_USE_WAREHOUSE` configs, which
+// we don't parse yet.
+pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id: i32, value: i32) {
+    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_object_id) else { return };
+    let Some(t) = npc.template(world) else { return };
     if !t.talkable {
         return;
     }
-    let html = load_chat_window_html(&world.data.root, &t.type_name, t.id)
+    // Java bails on the landing page of an `Auctioneer`, and on the id ranges
+    // that belong to NPCs driven entirely by their own script windows.
+    if (t.type_name == "Auctioneer" && value == 0)
+        || matches!(t.id, 31093..=31094 | 31172..=31201 | 31239..=31254)
+    {
+        return;
+    }
+    let html = load_chat_window_html(&world.data.root, &t.type_name, t.id, value)
         .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
         .replace("%objectId%", &npc_object_id.to_string())
         .replace("%npcname%", &t.name);
@@ -379,10 +400,12 @@ pub(crate) fn interact_with_npc(world: &mut World, client_id: u32, object_id: i3
 /// `getHtmlPath` across the instance classes this slice can meet: each
 /// subclass roots its dialogs in its own `data/html/<dir>/` (no fallback —
 /// Java shows the "text is missing" stub); plain `Folk`/`Npc` use
-/// `data/html/default/` falling back to `npcdefault.htm`. Java streams these
-/// through `HtmCache`; a per-interaction disk read is fine at this scale
-/// (TODO: cache if profiling ever cares).
-fn load_chat_window_html(root: &str, type_name: &str, npc_id: i32) -> Option<String> {
+/// `data/html/default/` falling back to `npcdefault.htm`. Page `value` picks
+/// `<id>.htm` (0) or `<id>-<value>.htm`. Java streams these through
+/// `HtmCache`; a per-interaction disk read is fine at this scale (TODO: cache
+/// if profiling ever cares).
+fn load_chat_window_html(root: &str, type_name: &str, npc_id: i32, value: i32) -> Option<String> {
+    let pom = if value == 0 { npc_id.to_string() } else { format!("{npc_id}-{value}") };
     let dir = match type_name {
         "Merchant" => Some("merchant"),
         "Fisherman" => Some("fisherman"),
@@ -394,8 +417,8 @@ fn load_chat_window_html(root: &str, type_name: &str, npc_id: i32) -> Option<Str
         _ => None,
     };
     match dir {
-        Some(dir) => std::fs::read_to_string(format!("{root}data/html/{dir}/{npc_id}.htm")).ok(),
-        None => std::fs::read_to_string(format!("{root}data/html/default/{npc_id}.htm"))
+        Some(dir) => std::fs::read_to_string(format!("{root}data/html/{dir}/{pom}.htm")).ok(),
+        None => std::fs::read_to_string(format!("{root}data/html/default/{pom}.htm"))
             .or_else(|_| std::fs::read_to_string(format!("{root}data/html/npcdefault.htm")))
             .ok(),
     }
