@@ -399,6 +399,44 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     handle_buff_expire(world, target_oid, skill_id);
                 }
             }
+            SkillEffect::DispelBySlotProbability { dispel, rate } => {
+                // Java `DispelBySlotProbability.instant`: the same cleanse as
+                // `DispelBySlot`, except the `rate`% roll is evaluated **per
+                // buff** inside the predicate — so a 40% Mass Warrior Bane
+                // strips roughly two of five matching buffs rather than all or
+                // nothing. The spec carries no per-type level, so every level
+                // of a listed abnormal type is a candidate.
+                //
+                // Java also skips `isIrreplacableBuff()` effects; no skill on
+                // this dist sets that flag, so it is not modelled. TODO(G19).
+                //
+                // Note this path deliberately does *not* consult the target's
+                // `ResistDispelBuff`: Java reads that stat only in
+                // `Formulas.calcCancelSuccess` (the `Cancel` skill family,
+                // unported), never in the Bane handler.
+                let candidates: Vec<(i32, i32)> = world
+                    .objects
+                    .get_component::<Buffs>(&target_oid)
+                    .map(|buffs| buffs.0.iter().map(|b| (b.skill_id, b.skill_level)).collect())
+                    .unwrap_or_default();
+                let mut to_dispel: Vec<i32> = Vec::new();
+                for (sid, slvl) in candidates {
+                    let matches = world
+                        .data
+                        .skill_data
+                        .get(sid, slvl)
+                        .is_some_and(|bs| dispel.iter().any(|ty| bs.abnormal_type == *ty));
+                    // Roll per candidate, and only for candidates that match —
+                    // keeping the roll count (and so the RNG stream) tied to the
+                    // buffs actually at risk, as in Java's predicate.
+                    if matches && world.roll(100) < *rate {
+                        to_dispel.push(sid);
+                    }
+                }
+                for skill_id in to_dispel {
+                    handle_buff_expire(world, target_oid, skill_id);
+                }
+            }
             SkillEffect::StatModifier(_) => {} // collected below
             // Blessing of Protection: no instant action — it lands purely as
             // the timed `PK_PROTECT` abnormal handled by the buff path below
@@ -407,7 +445,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             // Purely state-flag effects: nothing happens at application time
             // beyond the buff landing — the mechanic is the abnormal flag the
             // buff carries, read by the action gates (`game_loop::abnormal`).
-            SkillEffect::BlockActions { .. } | SkillEffect::Root => {}
+            SkillEffect::BlockActions { .. } | SkillEffect::Root | SkillEffect::BlockAbnormalSlot { .. } => {}
             SkillEffect::ProtectionBlessing => {}
             // DefenceTrait (Mental Shield / Resist Shock) and VampiricAttack
             // (Vampiric Rage): no instant action — they land purely as an
@@ -456,7 +494,10 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     // real mechanics aren't modeled yet, but the buff must show and expire.
     // Stun/sleep/paralyze/root carry no stat modifier either — their whole
     // mechanic is the abnormal flag — so they must survive this guard too.
-    let has_state_flag = skill.effect_flags() != 0;
+    // State-only effects carry no stat modifier: the CC flags, and
+    // `BlockAbnormalSlot`'s blocked-type set. Both must survive the
+    // empty-effects guard or the buff is dropped whole and never lands.
+    let has_state_flag = skill.effect_flags() != 0 || !skill.blocked_abnormals().is_empty();
     let has_iconless_buff = skill.effects.iter().any(|e| {
         matches!(
             e,
@@ -487,7 +528,23 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     // above before this roll — Java gates that burst on landing too.
     if skill.is_bad() && caster_oid != target_oid && skill.activate_rate != -1 {
         let target_level = creature_level(world, target_oid);
-        let rate = formulas::calc_effect_land_rate(skill.magic_level, skill.activate_rate, skill.lvl_bonus_rate, target_level);
+        // Java: `skill.isDebuff() ? target.getStat().getValue(RESIST_ABNORMAL_DEBUFF, 1) : 1`.
+        let debuff_resist_mod = if skill.is_debuff {
+            world
+                .objects
+                .get_component::<crate::model::components::StatModifiers>(&target_oid)
+                .and_then(|m| m.mul.get(&crate::model::stats::Stat::ResistAbnormalDebuff).copied())
+                .unwrap_or(1.0)
+        } else {
+            1.0
+        };
+        let rate = formulas::calc_effect_land_rate(
+            skill.magic_level,
+            skill.activate_rate,
+            skill.lvl_bonus_rate,
+            target_level,
+            debuff_resist_mod,
+        );
         // Java: resisted when `finalRate <= Rnd.get(100)` (0-99). Roll before the
         // message so the outcome line reflects it and the roll order stays stable.
         let resisted = rate <= world.roll(100) as f64;
@@ -513,6 +570,20 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     // `operateType=T`) persists until it's toggled/removed. Model that as a
     // sentinel expiry with no `BuffExpire` schedule, else it would vanish the
     // same tick it lands.
+    // `EffectList.addActive`'s blocked-slot gate: a buff whose abnormal type is
+    // in the target's blocked set (from a live `BlockAbnormalSlot`) can't land
+    // at all. This is what keeps two Prophecies off the same character.
+    // "NONE" is the no-abnormal sentinel and is never blockable.
+    if skill.abnormal_type != "NONE" {
+        let blocked = world
+            .objects
+            .get_component::<Buffs>(&target_oid)
+            .is_some_and(|b| b.0.iter().any(|x| x.blocked_abnormals.iter().any(|t| *t == skill.abnormal_type)));
+        if blocked {
+            return;
+        }
+    }
+
     let permanent = skill.abnormal_time <= 0;
     let expires_at_tick = if permanent { u64::MAX } else { world.tick + skill.abnormal_time as u64 * 10 };
     let buff = ActiveBuff {
@@ -525,6 +596,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         expires_at_tick,
         passive: false,
         effect_flags: skill.effect_flags(),
+        blocked_abnormals: skill.blocked_abnormals(),
         effects: buff_effects,
     };
 

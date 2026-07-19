@@ -439,6 +439,22 @@ one stays put. Landing a stun also interrupts the victim mid-action (abort cast,
 then freeze movement — that order matters). Before this a stun landed, showed
 its icon, and the victim carried on fighting.
 
+🚧 **Abnormal resistance, blocking & probabilistic dispel (2026-07-19)** — plan
+[PLAN_G19_ABNORMAL_RESIST.md](PLAN_G19_ABNORMAL_RESIST.md). The other half of the
+CC system: `ResistAbnormalByCategory` (Guts, Touch of Life/Death) pumping a
+multiplier on incoming debuff chance that `calc_effect_land_rate` now applies as
+Java's `buffDebuffMod` (multiplied before the clamp); `ResistDispelByCategory`
+(Ultimate Defense) pumping `ResistDispelBuff`, correctly left *unconsumed* since
+Java reads it only in `calcCancelSuccess` (the unported `Cancel` family);
+`BlockAbnormalSlot` (the Prophecies' mutual exclusion) refusing blocked abnormal
+types via the same stamp-and-fold pattern as the CC flags; and
+`DispelBySlotProbability` (the Bane family) rolling its rate **per buff**.
+
+**Method note for future slices:** rank unported effects by *learnable-skill*
+usage, not raw instance count. `StatUp` tops the raw list (887 instances) but is
+only 9 learnable skills — its footprint is almost all talisman/Freya/agathion
+content outside Interlude's reach.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued

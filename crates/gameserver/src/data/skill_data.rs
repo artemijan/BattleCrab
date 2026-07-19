@@ -409,6 +409,66 @@ fn finalize_skill(
                     })
                 };
                 match xml_name.as_str() {
+                    // Guts (139) / Touch of Life (341) / Touch of Death (342):
+                    // a multiplier on how likely an incoming *debuff* is to
+                    // land. Java `mergeMul(RESIST_ABNORMAL_DEBUFF,
+                    // 1 + amount/100)` — which is exactly what `Per` mode does
+                    // here — so the mode is forced rather than read from the
+                    // XML (these effects carry no `<mode>`, which would default
+                    // to DIFF and silently mean something else entirely).
+                    //
+                    // Java's handler switches on `<slot>` and only implements
+                    // DEBUFF ("only this one is in use it seems"); a different
+                    // slot pumps nothing, so it is skipped here too.
+                    "ResistAbnormalByCategory" => {
+                        let slot = value_at(params, "slot", level).unwrap_or("DEBUFF");
+                        return param("amount")
+                            .filter(|_| slot == "DEBUFF")
+                            .map(|amount| {
+                                SkillEffect::StatModifier(StatModifierEffect {
+                                    stat: Stat::ResistAbnormalDebuff,
+                                    mode: StatModifierType::Per,
+                                    amount,
+                                    armor_condition: *armor_condition,
+                                    weapon_condition: *weapon_condition,
+                                })
+                            })
+                            .into_iter()
+                            .collect();
+                    }
+                    // Ultimate Defense (110) / Ultimate Evasion (111): the same
+                    // shape for resisting *dispel*. Java only implements the
+                    // BUFF slot.
+                    "ResistDispelByCategory" => {
+                        let slot = value_at(params, "slot", level).unwrap_or("BUFF");
+                        return param("amount")
+                            .filter(|_| slot == "BUFF")
+                            .map(|amount| {
+                                SkillEffect::StatModifier(StatModifierEffect {
+                                    stat: Stat::ResistDispelBuff,
+                                    mode: StatModifierType::Per,
+                                    amount,
+                                    armor_condition: *armor_condition,
+                                    weapon_condition: *weapon_condition,
+                                })
+                            })
+                            .into_iter()
+                            .collect();
+                    }
+                    // Prophecy family / Heroic Miracle: block a set of abnormal
+                    // types from landing while this buff is up.
+                    "BlockAbnormalSlot" => {
+                        let slots: Vec<String> = value_at(params, "slot", level)
+                            .unwrap_or("")
+                            .split(';')
+                            .map(|t| t.trim().to_string())
+                            .filter(|t| !t.is_empty())
+                            .collect();
+                        if slots.is_empty() {
+                            return Vec::new();
+                        }
+                        return vec![SkillEffect::BlockAbnormalSlot { slots }];
+                    }
                     // Stun / sleep / paralyze (540 uses) and Root (79): no stat
                     // modifier at all — the whole mechanic is the abnormal-state
                     // flag they contribute (`Skill::effect_flags`).
@@ -531,6 +591,23 @@ fn finalize_skill(
                     // rather than dropping the whole cast. Without this arm the
                     // effect fell through to `EFFECT_REGISTRY`, wasn't found, and
                     // got dropped — the skill cast but cured nothing.
+                    // The Bane family: `<dispel>` is a plain `;` list of
+                    // abnormal types (no `,level` suffix) plus a `<rate>`.
+                    "DispelBySlotProbability" => {
+                        let dispel: Vec<String> = value_at(params, "dispel", level)
+                            .unwrap_or("")
+                            .split(';')
+                            .map(|t| t.trim().to_string())
+                            .filter(|t| !t.is_empty())
+                            .collect();
+                        if dispel.is_empty() {
+                            return Vec::new();
+                        }
+                        let rate = value_at(params, "rate", level)
+                            .and_then(|v| v.parse::<i32>().ok())
+                            .unwrap_or(100);
+                        return vec![SkillEffect::DispelBySlotProbability { dispel, rate }];
+                    }
                     "DispelBySlot" => match value_at(params, "dispel", level) {
                         Some(spec) if !spec.is_empty() => {
                             let dispel = spec
@@ -789,6 +866,59 @@ mod tests {
         // Sonic Storm carries the same 5-12 cap over a tighter 150 sweep.
         assert_eq!(sonic_storm.affect_range, 150);
         assert_eq!(sonic_storm.affect_limit, (5, 12));
+
+        // Guts 139 — the debuff-resistance buff: a negative `amount` on
+        // `ResistAbnormalByCategory` means *more* resistant, and it must parse
+        // as a PER modifier (the XML carries no <mode>, so a naive read would
+        // make it DIFF and mean something entirely different).
+        let guts = sd.get(139, 1).expect("Guts lvl 1");
+        let resist = guts
+            .stat_modifier_effects()
+            .into_iter()
+            .find(|m| m.stat == Stat::ResistAbnormalDebuff)
+            .expect("Guts pumps ResistAbnormalDebuff");
+        assert_eq!(resist.mode, StatModifierType::Per);
+        assert_eq!(resist.amount, -50.0, "Guts lvl 1 is -50 → x0.5 debuff chance");
+        // Touch of Death 342 is the same effect with the sign flipped.
+        let touch_of_death = sd.get(342, 1).expect("Touch of Death lvl 1");
+        assert_eq!(
+            touch_of_death
+                .stat_modifier_effects()
+                .into_iter()
+                .find(|m| m.stat == Stat::ResistAbnormalDebuff)
+                .map(|m| m.amount),
+            Some(30.0)
+        );
+        // Ultimate Defense 110 resists *dispel* rather than debuffs.
+        let ultimate_defense = sd.get(110, 1).expect("Ultimate Defense lvl 1");
+        assert!(ultimate_defense
+            .stat_modifier_effects()
+            .iter()
+            .any(|m| m.stat == Stat::ResistDispelBuff && m.amount == -80.0));
+
+        // Prophecy of Water 1355 blocks the BUFF_SPECIAL_* slots, which is how
+        // the Prophecies stay mutually exclusive.
+        let prophecy = sd.get(1355, 1).expect("Prophecy of Water lvl 1");
+        let blocked = prophecy.blocked_abnormals();
+        assert!(blocked.contains(&"BUFF_SPECIAL_ATTACK".to_string()), "got {blocked:?}");
+        assert_eq!(blocked.len(), 5, "all five BUFF_SPECIAL slots: {blocked:?}");
+        // An ordinary buff blocks nothing.
+        assert!(sd.get(1068, 1).expect("Might").blocked_abnormals().is_empty());
+
+        // Warrior Bane 1350 / Mass Warrior Bane 1344 — probabilistic dispel.
+        let bane = sd.get(1350, 1).expect("Warrior Bane lvl 1");
+        match bane.effects.iter().find(|e| matches!(e, SkillEffect::DispelBySlotProbability { .. })) {
+            Some(SkillEffect::DispelBySlotProbability { dispel, rate }) => {
+                assert_eq!(*rate, 80, "single-target Bane is 80%");
+                assert!(dispel.contains(&"SPEED_UP".to_string()), "got {dispel:?}");
+            }
+            other => panic!("expected DispelBySlotProbability, got {other:?}"),
+        }
+        let mass_bane = sd.get(1344, 1).expect("Mass Warrior Bane lvl 1");
+        assert!(mass_bane.effects.iter().any(|e| matches!(
+            e,
+            SkillEffect::DispelBySlotProbability { rate, .. } if *rate == 40
+        )), "the mass version trades rate for reach");
 
         // Shield Stun 92 / Arrest 402 — the crowd-control pair. Neither carries
         // a stat modifier: the whole mechanic is the abnormal-state flag.

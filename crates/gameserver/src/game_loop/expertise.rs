@@ -159,6 +159,7 @@ fn passive_penalty_buff(skill_id: i32, level: i32, effects: Vec<StatModifierEffe
         passive: true,
         // Synthetic buff (passive/clan/expertise pump): no abnormal state.
         effect_flags: 0,
+        blocked_abnormals: Vec::new(),
         effects,
     }
 }
