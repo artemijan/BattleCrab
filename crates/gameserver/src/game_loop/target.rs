@@ -363,6 +363,15 @@ pub(crate) fn interact_with_npc(world: &mut World, client_id: u32, object_id: i3
         super::siege::try_capture_artifact(world, object_id, npc_object_id);
         return;
     }
+    // Everything below hands `world` out mutably, so take what we need off the
+    // template first.
+    let npc_id = t.id;
+    // `NpcAction`: an `ON_NPC_FIRST_TALK` listener replaces the chat window
+    // outright. The check sits *before* `showChatWindow` in Java, so it also
+    // fires for a non-talkable NPC (where `showChatWindow` would have bailed).
+    if super::quests::notify_first_talk(world, client_id, object_id, npc_object_id, npc_id) {
+        return;
+    }
     // `Npc.showChatWindow(player, 0)`.
     show_chat_window(world, client_id, npc_object_id, 0);
 }
