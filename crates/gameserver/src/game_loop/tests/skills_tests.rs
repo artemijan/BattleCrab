@@ -685,12 +685,18 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
     assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::MAGIC_SKILL_LAUNCHED);
 
     // Finish 500 ms later: MP consume, damage, messages, status updates.
+    // Pin the two rolls the finish consumes: the magic crit (d1000) and the
+    // `MagicFailures` success roll. PvP takes `calcMagicSuccess`' magic-accuracy
+    // branch (both sides players, neither `isAttackable()`), which is only a
+    // 98 % rate — left unforced, the nuke would be resisted ~2 % of runs and the
+    // exact-damage assertions below would flake.
+    world.forced_rolls.extend([999, 0]);
     world.tick += 5;
     apply_due_tasks(&mut world);
 
     let m_atk = pcs(&world, 3001).m_atk;
     let m_def = pcs(&world, 3002).m_def;
-    let damage = formulas::calc_magic_dam(m_atk, m_def, 12.0, false, 1.0);
+    let damage = formulas::calc_magic_dam(m_atk, m_def, 12.0, false, 1.0, formulas::MagicFailure::None);
     assert!(damage > 100.0, "sanity: the nuke must overflow B's CP ({damage})");
     {
         let b = pvit(&world, 3002);
@@ -1041,9 +1047,10 @@ fn incoming_magic_damage_can_break_precast() {
     drain(&mut a_rx);
     drain(&mut b_rx);
 
-    // Force the rolls: crit d1000 (rate 0 → miss regardless), then the
-    // atk-break d100 → 0 always breaks (rate ≥ 1).
-    world.forced_rolls.extend([999, 0]);
+    // Force the rolls: crit d1000 (rate 0 → miss regardless), the magic-success
+    // d100 (PvP accuracy branch, rate 98 → 0 lands, so damage is unreduced),
+    // then the atk-break d100 → 0 always breaks (rate ≥ 1).
+    world.forced_rolls.extend([999, 0, 0]);
 
     advance_ticks(&mut world, 45);
 
@@ -1452,15 +1459,86 @@ fn nuke_kills_monster_and_rewards() {
     let exp_before = world.objects.get_component::<crate::model::Player>(&3001).expect("player").exp;
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
     assert!(world.objects.has_component::<Casting>(&3001), "cast accepted without force-use");
-    // Drop rolls at death: gap fails (droppable but let it fail → no loot
+    // Roll order at cast finish: magic crit (d1000, 999_999 → no crit), the
+    // `MagicFailures` success roll (d100, 0 → lands at full damage against a
+    // level-5 mob), then the drop roll at death (999_999 → fails, so no loot
     // noise in this test).
-    world.forced_rolls.extend([999_999, 999_999]);
+    world.forced_rolls.extend([999_999, 0, 999_999]);
     advance_world(&mut world, 45);
 
     assert!(nvit(&world, npc_oid).dead, "the nuke killed it");
     assert!(world.objects.get_component::<crate::model::Player>(&3001).expect("player").exp > exp_before, "XP rewarded through the same death path");
     let packets = drain(&mut a_rx);
     assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::DIE));
+}
+
+/// A nuke against a far-higher-level monster is resisted down to 1 damage —
+/// `Formulas.calcMagicDam`'s `ALT_GAME_MAGICFAILURES` branch. `calcMagicSuccess`
+/// scales the failure term by `1.3^(targetLevel - skillMagicLevel)`, so at a
+/// ~55-level gap the rate is far below 0 and *both* rolls fail whatever they
+/// land on, floating the damage to 1. Until this was wired up, a level-5
+/// character's Wind Strike killed a level-60 mob at full damage.
+#[test]
+fn nuke_on_a_far_higher_level_monster_is_resisted_to_one_damage() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    world.objects.get_component_mut::<crate::model::Player>(&3001).unwrap().exp = 4000; // level 5
+
+    let npc_oid = NPC_OID + 31;
+    add_test_npc(&mut world, npc_oid, 40099, "Monster", 60, 100, 0, 0);
+    let hp_before = nvit(&world, npc_oid).cur_hp;
+
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    drain(&mut a_rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    // Only the crit roll needs pinning — a magic crit would double the floored
+    // damage to 2. The two success rolls fail on any value at this gap.
+    world.forced_rolls.extend([999]);
+    advance_world(&mut world, 45);
+
+    // The next regen tick is at 60, past the cast, so nothing heals the 1 back.
+    let dealt = hp_before - nvit(&world, npc_oid).cur_hp;
+    assert!((dealt - 1.0).abs() < 1e-9, "a resisted nuke deals exactly 1 damage, dealt {dealt}");
+    assert!(!nvit(&world, npc_oid).dead, "1 damage can't kill a 100 HP mob");
+
+    let packets = drain(&mut a_rx);
+    assert!(
+        packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+                && sm_id(p) == server_packets::sm_ids::C1_HAS_RESISTED_YOUR_S2),
+        "the caster is told the target resisted"
+    );
+}
+
+/// The same nuke against a same-level monster is unaffected: the failure roll
+/// is a 97 % proposition at a 4-level gap, so the damage is the full MDAM
+/// figure. Guards the penalty against over-firing on normal-level content.
+#[test]
+fn nuke_on_a_same_level_monster_deals_full_damage() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    world.objects.get_component_mut::<crate::model::Player>(&3001).unwrap().exp = 4000; // level 5
+
+    let npc_oid = NPC_OID + 32;
+    add_test_npc(&mut world, npc_oid, 40098, "Monster", 5, 100, 0, 0);
+    let m_atk = pcs(&world, 3001).m_atk;
+    let m_def = pcs(&world, npc_oid).m_def; // `pcs` reads any object's CombatStats
+    let unresisted = formulas::calc_magic_dam(m_atk, m_def, 12.0, false, 1.0, formulas::MagicFailure::None);
+    assert!(unresisted > 100.0, "sanity: an unresisted nuke overkills a 100 HP mob ({unresisted})");
+
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    drain(&mut a_rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    // Crit misses; the success roll of 0 lands against the 97 % rate.
+    world.forced_rolls.extend([999, 0]);
+    advance_world(&mut world, 45);
+
+    // Full damage overkills, so the mob dies — the exact figure is pinned by
+    // `magic_dam_matches_java_formula`; what matters here is that no level
+    // penalty bit at a 4-level gap (contrast the level-60 case above, which
+    // survives on 1 damage).
+    assert!(nvit(&world, npc_oid).dead, "an unpenalized nuke kills a same-level mob");
 }
 
 /// Dagger blows deal damage (Mortal Blow, a FatalBlow), and Backstab only
@@ -1536,7 +1614,8 @@ fn vampiric_touch_deals_damage_and_heals_caster() {
     drain(&mut a_rx);
 
     let skill = world.data.skill_data.get(1147, 1).expect("Vampiric Touch").clone();
-    world.forced_rolls.push_back(999_999); // magic-crit roll fails
+    // magic-crit roll fails, then the `MagicFailures` success roll lands (0).
+    world.forced_rolls.extend([999_999, 0]);
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
 
     let dmg = npc_hp_before - nvit(&world, npc_oid).cur_hp;

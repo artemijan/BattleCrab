@@ -161,8 +161,12 @@ pub struct CharacterConfig {
     /// `CalculateMagicSuccessBySkillMagicLevel`: when true (dist default), the
     /// magic-hit level modifier in `Formulas.calcMagicSuccess` uses the skill's
     /// own `magicLevel` instead of the caster's level. Drives the Spoil landing
-    /// roll.
+    /// roll and the magic-damage failure roll.
     pub calculate_magic_success_by_skill_magic_level: bool,
+    /// `MagicFailures` (`ALT_GAME_MAGICFAILURES`, True on this dist): gates the
+    /// `Formulas.calcMagicDam`/`calcManaDam` resist branch. With it off, magic
+    /// damage always lands at full strength regardless of the level gap.
+    pub magic_failures: bool,
     /// `EnableModifySkillDuration` + `SkillDurationList` (`skillId,seconds;…`):
     /// when enabled, a landed buff/debuff's `abnormalTime` is overridden by the
     /// list value at skill-load time (Java `Skill` constructor), overriding the
@@ -233,6 +237,7 @@ impl Default for CharacterConfig {
             alt_karma_player_can_use_gk: false,
             unstuck_interval: 300,
             calculate_magic_success_by_skill_magic_level: true,
+            magic_failures: true,
             enable_modify_skill_duration: false,
             skill_duration_list: HashMap::new(),
         }
@@ -318,6 +323,7 @@ impl CharacterConfig {
             unstuck_interval: p.get_int("UnstuckInterval", d.unstuck_interval),
             calculate_magic_success_by_skill_magic_level: p
                 .get_bool("CalculateMagicSuccessBySkillMagicLevel", d.calculate_magic_success_by_skill_magic_level),
+            magic_failures: p.get_bool("MagicFailures", d.magic_failures),
             enable_modify_skill_duration: p.get_bool("EnableModifySkillDuration", d.enable_modify_skill_duration),
             // Java only builds the map when the flag is set; keep it empty otherwise.
             skill_duration_list: if p.get_bool("EnableModifySkillDuration", d.enable_modify_skill_duration) {
