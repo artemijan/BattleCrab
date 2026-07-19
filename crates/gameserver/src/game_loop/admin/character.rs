@@ -214,16 +214,14 @@ pub(super) fn admin_setclass(world: &mut World, client_id: u32, object_id: i32, 
         return;
     }
     let target = target_player(world, object_id);
-    let Some(level) = world.objects.get_component::<Player>(&target).map(|p| p.level) else { return };
-    if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
-        p.class_id = class_id;
-        p.base_class_id = class_id;
+    // Routed through the shared occupation-change mechanic. This used to set
+    // `base_class_id` unconditionally, which — now that subclasses exist —
+    // would rewrite the character's *base* class while standing on a subclass.
+    if crate::game_loop::subclass::set_class_id(world, target, class_id) {
+        send_message(world, client_id, &format!("Class set to {class_id}."));
+    } else {
+        send_message(world, client_id, &format!("Class id {class_id} does not exist."));
     }
-    // Recompute HP/MP/stats + grant the new class's reachable skills, with the
-    // status/UserInfo/SkillList refresh; then CharInfo to nearby (new class).
-    super::death::set_level(world, target, level);
-    super::party::broadcast_user_info(world, target);
-    send_message(world, client_id, &format!("Class set to {class_id}."));
 }
 
 /// `//settitle <text>` — set the target player's title.

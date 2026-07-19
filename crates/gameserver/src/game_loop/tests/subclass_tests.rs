@@ -396,3 +396,84 @@ fn the_available_list_excludes_the_base_lineage_and_held_classes() {
     add_subclass(&mut world, PLAYER, taken).unwrap();
     assert!(!available_subclasses(&world, PLAYER).contains(&taken), "a held class is not offered again");
 }
+
+// ---------------------------------------------------------------------------
+// Occupation change (slice 6).
+
+use crate::game_loop::subclass::set_class_id;
+
+#[test]
+fn a_class_change_on_the_base_slot_moves_the_base_class() {
+    let (mut world, _db, _l) = sub_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+
+    assert!(set_class_id(&mut world, PLAYER, 5));
+
+    assert_eq!(p(&world).class_id, 5);
+    assert_eq!(p(&world).base_class_id, 5, "advancing on the base slot changes what you are");
+}
+
+#[test]
+fn a_class_change_on_a_subclass_leaves_the_base_class_alone() {
+    // The bug this slice fixes: `//setclass` set base_class_id
+    // unconditionally, so advancing while on a subclass rewrote the
+    // character's base class. Java updates only that slot.
+    let (mut world, _db, _l) = sub_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    let base = p(&world).base_class_id;
+    add_subclass(&mut world, PLAYER, 3).unwrap();
+    set_active_class(&mut world, PLAYER, 1);
+
+    assert!(set_class_id(&mut world, PLAYER, 5));
+
+    assert_eq!(p(&world).class_id, 5, "the active class advanced");
+    assert_eq!(p(&world).base_class_id, base, "the BASE class must not move");
+    assert_eq!(
+        p(&world).subclasses.iter().find(|s| s.class_index == 1).unwrap().class_id,
+        5,
+        "the slot itself records the new class"
+    );
+}
+
+#[test]
+fn the_subclass_slots_new_class_survives_a_switch_away_and_back() {
+    let (mut world, _db, _l) = sub_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_subclass(&mut world, PLAYER, 3).unwrap();
+    set_active_class(&mut world, PLAYER, 1);
+    set_class_id(&mut world, PLAYER, 5);
+
+    set_active_class(&mut world, PLAYER, 0);
+    set_active_class(&mut world, PLAYER, 1);
+
+    assert_eq!(p(&world).class_id, 5, "the advanced slot kept its class");
+}
+
+#[test]
+fn an_unknown_class_is_rejected() {
+    let (mut world, _db, _l) = sub_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    let before = p(&world).class_id;
+
+    assert!(!set_class_id(&mut world, PLAYER, 9999));
+
+    assert_eq!(p(&world).class_id, before, "nothing moved");
+}
+
+#[test]
+fn a_class_change_broadcasts_the_visual_effect() {
+    // Java: broadcastPacket(new MagicSkillUse(this, 5103, 1, 0, 0)).
+    let (mut world, _db, _l) = sub_world();
+    let mut out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    let _ = drain(&mut out);
+
+    set_class_id(&mut world, PLAYER, 5);
+
+    let packets = drain(&mut out);
+    assert!(
+        packets
+            .iter()
+            .any(|p| p.first() == Some(&crate::network::server_packets::opcodes::MAGIC_SKILL_USE)),
+        "onlookers (and the player) should see the class-change flash"
+    );
+}
