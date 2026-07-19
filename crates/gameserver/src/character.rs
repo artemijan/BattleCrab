@@ -94,6 +94,10 @@ pub struct CharData {
     /// Every class index's learned skills, so a subclass switch can restore the
     /// target slot's book instead of re-deriving it.
     pub skills_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
+    /// Worn hennas per class index (G17) — dyes are per-subclass in Java too.
+    pub hennas_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
+    /// Shortcut bars per class index (G17).
+    pub shortcuts_by_index: std::collections::HashMap<i32, Vec<crate::model::shortcut::Shortcut>>,
     /// `character_hennas` rows: (slot 1-3, dye/symbol id).
     pub hennas: Vec<(i32, i32)>,
     /// `character_recipebook` rows: recipe-list ids (dwarven/common split

@@ -141,10 +141,12 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
         .map(|v| v.0.iter().map(|(k, val)| (k.clone(), val.clone())).collect())
         .unwrap_or_default();
 
-    let (skills_by_index, class_index) = world
+    let (skills_by_index, hennas_by_index, shortcuts_by_index, class_index) = world
         .objects
         .get_component::<crate::model::Player>(&object_id)
-        .map(|p| (p.skills_by_index.clone(), p.class_index))
+        .map(|p| {
+            (p.skills_by_index.clone(), p.hennas_by_index.clone(), p.shortcuts_by_index.clone(), p.class_index)
+        })
         .unwrap_or_default();
 
     Some(db::PlayerSaveData {
@@ -152,6 +154,8 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
         items,
         skills,
         skills_by_index,
+        hennas_by_index,
+        shortcuts_by_index,
         class_index,
         hennas,
         recipe_book,
@@ -316,6 +320,8 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
                     items: b.inventory.to_rows().into_iter().chain(b.warehouse.to_rows()).chain(b.freight.to_rows()).collect(),
                     skills: b.skills.0.iter().map(|(id, lvl)| (*id, *lvl)).collect(),
                     skills_by_index: Default::default(),
+                    hennas_by_index: Default::default(),
+                    shortcuts_by_index: Default::default(),
                     class_index: 0,
                     hennas: henna_rows(&b.henna),
                     recipe_book: b

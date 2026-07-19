@@ -246,3 +246,94 @@ fn the_save_carries_every_slots_book() {
     assert!(save.skills.iter().any(|(id, _)| *id == 8001), "the active book carries the new skill");
     assert!(save.skills_by_index.contains_key(&0), "and the base slot's book is banked alongside");
 }
+
+// ---------------------------------------------------------------------------
+// Per-class-index hennas and shortcuts (slice 4).
+
+use crate::model::components::{HennaSlots, Shortcuts};
+
+fn set_henna(world: &mut World, slot: usize, dye: i32) {
+    world.objects.get_component_mut::<HennaSlots>(&PLAYER).unwrap().0[slot] = Some(dye);
+}
+
+fn henna(world: &World, slot: usize) -> Option<i32> {
+    world.objects.get_component::<HennaSlots>(&PLAYER).unwrap().0[slot]
+}
+
+fn add_shortcut(world: &mut World, slot: i32, id: i32) {
+    let sc = crate::model::shortcut::Shortcut {
+        slot,
+        page: 0,
+        kind: crate::model::shortcut::ShortcutType::Skill,
+        id,
+        level: 1,
+        character_type: 1,
+        shared_reuse_group: -1,
+    };
+    world.objects.get_component_mut::<Shortcuts>(&PLAYER).unwrap().0.insert(slot, sc);
+}
+
+fn shortcut_ids(world: &World) -> Vec<i32> {
+    world
+        .objects
+        .get_component::<Shortcuts>(&PLAYER)
+        .map(|s| s.0.values().map(|sc| sc.id).collect())
+        .unwrap_or_default()
+}
+
+#[test]
+fn hennas_are_per_subclass() {
+    // Java clears `_henna` and calls `restoreHenna()` inside setActiveClass —
+    // dyes belong to the class you painted them on.
+    let (mut world, _db, _l) = sub_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_subclass(&mut world, PLAYER, 3).unwrap();
+    set_henna(&mut world, 0, 111);
+
+    set_active_class(&mut world, PLAYER, 1);
+    assert_eq!(henna(&world, 0), None, "the subclass starts with bare slots");
+    set_active_class(&mut world, PLAYER, 0);
+
+    assert_eq!(henna(&world, 0), Some(111), "the base class's dye came back");
+}
+
+#[test]
+fn shortcuts_are_per_subclass() {
+    let (mut world, _db, _l) = sub_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_subclass(&mut world, PLAYER, 3).unwrap();
+    add_shortcut(&mut world, 1, 1001);
+
+    set_active_class(&mut world, PLAYER, 1);
+    assert!(!shortcut_ids(&world).contains(&1001), "the subclass has its own bar");
+    add_shortcut(&mut world, 1, 2002);
+    set_active_class(&mut world, PLAYER, 0);
+
+    let ids = shortcut_ids(&world);
+    assert!(ids.contains(&1001), "the base bar came back");
+    assert!(!ids.contains(&2002), "and did not inherit the subclass's");
+}
+
+#[test]
+fn the_save_carries_hennas_and_shortcuts_for_every_slot() {
+    let (mut world, mut db, _l) = sub_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_subclass(&mut world, PLAYER, 3).unwrap();
+    set_henna(&mut world, 0, 111);
+    add_shortcut(&mut world, 1, 1001);
+    set_active_class(&mut world, PLAYER, 1);
+    let _ = drain_db(&mut db);
+
+    crate::game_loop::net::save_all_players(&mut world);
+
+    let cmds = drain_db(&mut db);
+    let save = cmds
+        .iter()
+        .find_map(|c| match c {
+            db::DbCommand::StorePlayer { save } => Some(save),
+            _ => None,
+        })
+        .expect("a save went out");
+    assert!(save.hennas_by_index.contains_key(&0), "the base slot's dyes are banked");
+    assert!(save.shortcuts_by_index.contains_key(&0), "and its shortcut bar");
+}

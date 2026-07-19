@@ -180,6 +180,11 @@ pub struct PlayerSaveData {
     /// The *inactive* class indices' books (G17 subclasses), so a slot keeps
     /// what it learned while it was active.
     pub skills_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
+    /// Inactive indices' worn hennas.
+    pub hennas_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
+    /// Inactive indices' shortcut bars.
+    pub shortcuts_by_index:
+        std::collections::HashMap<i32, Vec<crate::model::shortcut::Shortcut>>,
     /// Which class index [`Self::skills`] belongs to.
     pub class_index: i32,
     /// Worn henna dyes as `(slot 1-3, symbol_id)` (class_index 0).
@@ -1027,10 +1032,10 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             .find(|s| s.class_id == class_id_now)
             .map(|s| s.class_index)
             .unwrap_or(0);
-        let hennas = load_hennas(pool, object_id).await;
+        let hennas_by_index = load_hennas(pool, object_id).await;
         let recipe_book = load_recipe_book(pool, object_id).await;
         let variables = load_variables(pool, object_id).await;
-        let shortcuts = load_shortcuts(pool, object_id).await;
+        let shortcuts_by_index = load_shortcuts(pool, object_id).await;
         let macros = load_macros(pool, object_id).await;
         let friends = load_friends(pool, object_id).await;
         let quests = load_quests(pool, object_id).await;
@@ -1079,10 +1084,12 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             // `characters.classid` we just loaded; base class → 0.
             skills: skills_by_index.get(&active_index).cloned().unwrap_or_default(),
             skills_by_index,
-            hennas,
+            hennas: hennas_by_index.get(&active_index).cloned().unwrap_or_default(),
+            hennas_by_index,
             recipe_book,
             variables,
-            shortcuts,
+            shortcuts: shortcuts_by_index.get(&active_index).cloned().unwrap_or_default(),
+            shortcuts_by_index,
             macros,
             friends,
             quests,
@@ -1119,16 +1126,20 @@ async fn load_skills(pool: &SqlitePool, owner_id: i32) -> std::collections::Hash
 
 /// A character's `character_hennas` rows (Java `Player.restoreHenna`) as
 /// `(slot, symbol_id)`. `class_index = 0` — no subclasses on this dist.
-async fn load_hennas(pool: &SqlitePool, owner_id: i32) -> Vec<(i32, i32)> {
-    let rows = sqlx::query("SELECT slot, symbol_id FROM character_hennas WHERE charId=? AND class_index=0")
+async fn load_hennas(pool: &SqlitePool, owner_id: i32) -> std::collections::HashMap<i32, Vec<(i32, i32)>> {
+    let rows = sqlx::query("SELECT slot, symbol_id, class_index FROM character_hennas WHERE charId=?")
         .bind(owner_id)
         .fetch_all(pool)
         .await
         .unwrap_or_default();
-    rows.iter()
-        .map(|r| (geti(r, "slot") as i32, geti(r, "symbol_id") as i32))
-        .filter(|(slot, sym)| (1..=3).contains(slot) && *sym != 0)
-        .collect()
+    let mut out: std::collections::HashMap<i32, Vec<(i32, i32)>> = std::collections::HashMap::new();
+    for r in &rows {
+        let (slot, sym) = (geti(r, "slot") as i32, geti(r, "symbol_id") as i32);
+        if (1..=3).contains(&slot) && sym != 0 {
+            out.entry(geti(r, "class_index") as i32).or_default().push((slot, sym));
+        }
+    }
+    out
 }
 
 /// A character's `character_recipebook` rows (Java `Player.restoreRecipeBook`)
@@ -1204,14 +1215,19 @@ async fn load_reco_bonus(pool: &SqlitePool, owner_id: i32) -> (i32, i32) {
 /// `Player::from_char`). `characterType` isn't stored; restore hardcodes 1
 /// like Java. `shared_reuse_group` starts at the -1 default; `from_char`
 /// fills it for EtcItem shortcuts.
-async fn load_shortcuts(pool: &SqlitePool, owner_id: i32) -> Vec<crate::model::shortcut::Shortcut> {
-    let rows = sqlx::query("SELECT slot, page, type, shortcut_id, level FROM character_shortcuts WHERE charId=? AND class_index=0")
+async fn load_shortcuts(
+    pool: &SqlitePool,
+    owner_id: i32,
+) -> std::collections::HashMap<i32, Vec<crate::model::shortcut::Shortcut>> {
+    let rows = sqlx::query("SELECT slot, page, type, shortcut_id, level, class_index FROM character_shortcuts WHERE charId=?")
         .bind(owner_id)
         .fetch_all(pool)
         .await
         .unwrap_or_default();
-    rows.iter()
-        .map(|r| crate::model::shortcut::Shortcut {
+    let mut out: std::collections::HashMap<i32, Vec<crate::model::shortcut::Shortcut>> =
+        std::collections::HashMap::new();
+    for r in &rows {
+        out.entry(geti(r, "class_index") as i32).or_default().push(crate::model::shortcut::Shortcut {
             slot: geti(r, "slot") as i32,
             page: geti(r, "page") as i32,
             kind: crate::model::shortcut::ShortcutType::from_ordinal(geti(r, "type") as i32),
@@ -1219,8 +1235,9 @@ async fn load_shortcuts(pool: &SqlitePool, owner_id: i32) -> Vec<crate::model::s
             level: geti(r, "level") as i32,
             character_type: 1,
             shared_reuse_group: -1,
-        })
-        .collect()
+        });
+    }
+    out
 }
 
 /// A character's `character_friends` rows joined with each friend's
@@ -1796,15 +1813,24 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     sqlx::query("DELETE FROM character_skills WHERE charId=?").bind(char_id).execute(&mut *tx).await?;
 
     // worn henna dyes (Java stores per add/remove; here delete+reinsert on flush,
-    // memory-first like items/skills). `class_index` 0 — no subclasses.
-    sqlx::query("DELETE FROM character_hennas WHERE charId=? AND class_index=0").bind(char_id).execute(&mut *tx).await?;
-    for (slot, symbol_id) in &s.hennas {
-        sqlx::query("INSERT INTO character_hennas (charId, symbol_id, slot, class_index) VALUES (?, ?, ?, 0)")
+    // memory-first like items/skills). Per class index since G17.
+    sqlx::query("DELETE FROM character_hennas WHERE charId=?").bind(char_id).execute(&mut *tx).await?;
+    let mut henna_idx: Vec<(i32, &Vec<(i32, i32)>)> =
+        s.hennas_by_index.iter().map(|(i, v)| (*i, v)).collect();
+    henna_idx.push((s.class_index, &s.hennas));
+    for (class_index, hennas) in henna_idx {
+        for (slot, symbol_id) in hennas {
+            sqlx::query(
+                "INSERT OR REPLACE INTO character_hennas (charId, symbol_id, slot, class_index) \
+                 VALUES (?, ?, ?, ?)",
+            )
             .bind(char_id)
             .bind(symbol_id)
             .bind(slot)
+            .bind(class_index)
             .execute(&mut *tx)
             .await?;
+        }
     }
     // The active index's book comes from `skills`; the rest from the banked
     // per-index map.
@@ -1856,20 +1882,27 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     }
 
     // shortcuts (Java's delete+insert, here scoped to the transaction).
-    sqlx::query("DELETE FROM character_shortcuts WHERE charId=? AND class_index=0").bind(char_id).execute(&mut *tx).await?;
-    for sc in &s.shortcuts {
-        sqlx::query(
-            "INSERT INTO character_shortcuts (charId, slot, page, type, shortcut_id, level, sub_level, class_index) \
-             VALUES (?, ?, ?, ?, ?, ?, 0, 0)",
-        )
-        .bind(char_id)
-        .bind(sc.slot)
-        .bind(sc.page)
-        .bind(sc.kind.ordinal())
-        .bind(sc.id)
-        .bind(sc.level)
-        .execute(&mut *tx)
-        .await?;
+    sqlx::query("DELETE FROM character_shortcuts WHERE charId=?").bind(char_id).execute(&mut *tx).await?;
+    let mut sc_idx: Vec<(i32, &Vec<crate::model::shortcut::Shortcut>)> =
+        s.shortcuts_by_index.iter().map(|(i, v)| (*i, v)).collect();
+    sc_idx.push((s.class_index, &s.shortcuts));
+    for (class_index, shortcuts) in sc_idx {
+        for sc in shortcuts {
+            sqlx::query(
+                "INSERT OR REPLACE INTO character_shortcuts \
+                 (charId, slot, page, type, shortcut_id, level, sub_level, class_index) \
+                 VALUES (?, ?, ?, ?, ?, ?, 0, ?)",
+            )
+            .bind(char_id)
+            .bind(sc.slot)
+            .bind(sc.page)
+            .bind(sc.kind.ordinal())
+            .bind(sc.id)
+            .bind(sc.level)
+            .bind(class_index)
+            .execute(&mut *tx)
+            .await?;
+        }
     }
 
     // macros.

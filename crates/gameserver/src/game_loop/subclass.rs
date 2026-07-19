@@ -170,6 +170,55 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
         }
     }
 
+    // 3b. Hennas and shortcuts are per class index too (Java clears `_henna`
+    //     and calls `restoreHenna()` + `restoreShortcuts()` inside the same
+    //     switch). Bank the outgoing set, take the incoming one.
+    let outgoing_henna: Vec<(i32, i32)> = world
+        .objects
+        .get_component::<crate::model::components::HennaSlots>(&player_oid)
+        .map(|h| {
+            h.0.iter()
+                .enumerate()
+                .filter_map(|(i, d)| d.map(|dye| (i as i32 + 1, dye)))
+                .collect()
+        })
+        .unwrap_or_default();
+    let outgoing_shortcuts: Vec<crate::model::shortcut::Shortcut> = world
+        .objects
+        .get_component::<crate::model::components::Shortcuts>(&player_oid)
+        .map(|s| s.0.values().cloned().collect())
+        .unwrap_or_default();
+    let (incoming_henna, incoming_shortcuts) = {
+        let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) else { return false };
+        p.hennas_by_index.insert(cur_index, outgoing_henna);
+        p.shortcuts_by_index.insert(cur_index, outgoing_shortcuts);
+        (
+            p.hennas_by_index.get(&class_index).cloned().unwrap_or_default(),
+            p.shortcuts_by_index.get(&class_index).cloned().unwrap_or_default(),
+        )
+    };
+    let mut slots = [None; 3];
+    for (slot, dye) in incoming_henna {
+        if (1..=3).contains(&slot) {
+            slots[(slot - 1) as usize] = Some(dye);
+        }
+    }
+    if let Some(h) = world.objects.get_component_mut::<crate::model::components::HennaSlots>(&player_oid) {
+        h.0 = slots;
+    }
+    if let Some(sc) = world.objects.get_component_mut::<crate::model::components::Shortcuts>(&player_oid) {
+        sc.0.clear();
+        for s in incoming_shortcuts {
+            sc.0.insert(s.slot + s.page * 12, s);
+        }
+    }
+    // Henna dyes fold into `BaseStats`, so the swap has to re-fold them.
+    // `apply_henna_change` also pushes `HennaInfo`, which is exactly what
+    // Java's `setActiveClass` does (`restoreHenna(); sendPacket(HennaInfo)`).
+    if let Some(cid) = super::helpers::client_for_player(world, player_oid) {
+        super::henna::apply_henna_change(world, cid, player_oid);
+    }
+
     // 4. Rebuild stats and top up the auto-granted tree for the new class.
     //    `set_level` is the same path `//setclass` uses: recompute HP/MP/stats,
     //    grant the class's reachable skills, and push the status/UserInfo/
