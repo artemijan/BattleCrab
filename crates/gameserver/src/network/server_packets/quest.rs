@@ -26,6 +26,9 @@ pub mod quest_sounds {
     pub const MIDDLE: &str = "ItemSound.quest_middle";
     pub const FINISH: &str = "ItemSound.quest_finish";
     pub const ITEMGET: &str = "ItemSound.quest_itemget";
+    /// `QuestSound.ITEMSOUND_QUEST_BEFORE_BATTLE` — played when a quest
+    /// conjures something hostile (quest 416's Durka Spirit).
+    pub const BEFORE_BATTLE: &str = "ItemSound.quest_before_battle";
 }
 
 /// Port of `serverpackets/ExShowQuestMark` — the on-screen quest marker,
