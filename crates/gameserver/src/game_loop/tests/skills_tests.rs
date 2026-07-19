@@ -2277,3 +2277,177 @@ fn buff_slot_cap_drops_oldest() {
     assert_eq!(pbuffs(&world, 3001), 3, "the dance is counted separately, not against the buff cap");
     assert!(has_buff(&world, 3001, 9301), "dance landed");
 }
+
+/// Repro for "cast on a monster, mid-cast select a far monster and click the
+/// same skill again → the click is forgotten": the queued skill must replay at
+/// cast end against the new target and, being out of range, start the
+/// walk-to-cast leg (Java `stopCasting` → `useMagic` → CAST intention →
+/// `thinkCast`/`maybeMoveToPawn`).
+#[test]
+fn queued_skill_on_far_retarget_walks_into_range_after_cast() {
+    use crate::model::components::QueuedAction;
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let near = NPC_OID + 70;
+    let far = NPC_OID + 71;
+    spawn_targeted_monster(&mut world, &mut a_rx, near, 100);
+    // The far monster: outside castRange 600, spawned untargeted.
+    let (npc, extra) = crate::model::npc::Npc::for_test(far, 40001, 900, 0, 0, 5000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(far);
+    world.objects.spawn(far, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&far, cs);
+
+    // Nuke the near monster (hit 3500 + finish 500 ms = 40 ticks).
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    assert!(world.objects.has_component::<Casting>(&3001), "first cast running");
+
+    // Mid-cast, past the real Wind Strike's 1200 ms reuse (the test skill's
+    // 10 s reuse is dropped to model the dist timing, where the reuse expires
+    // while the 4 s cast is still running): select the far monster and click
+    // the same skill again.
+    advance_world(&mut world, 15);
+    if let Some(reuses) = world.objects.get_component_mut::<crate::model::components::Reuses>(&3001) {
+        reuses.0.clear();
+    }
+    handle_action(&mut world, 1, &action_body(far, 0));
+    drain(&mut a_rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    assert!(
+        matches!(world.objects.get_component::<QueuedAction>(&3001), Some(QueuedAction::Skill { skill_id: 1177, .. })),
+        "second click parked in the queue slot"
+    );
+    drain(&mut a_rx);
+
+    // Cast end → replay → out of range → walk-to-cast toward the far monster.
+    advance_world(&mut world, 30);
+    assert!(
+        matches!(
+            world.objects.get_component::<Intent>(&3001),
+            Some(Intent(crate::model::PlayerIntent::Cast { target_object_id, .. })) if *target_object_id == far
+        ),
+        "replayed click walks to the far monster (got intent {:?}, queued {:?}, casting {:?})",
+        world.objects.get_component::<Intent>(&3001),
+        world.objects.get_component::<QueuedAction>(&3001),
+        world.objects.get_component::<Casting>(&3001)
+    );
+    let packets = drain(&mut a_rx);
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::MOVE_TO_PAWN), "MoveToPawn broadcast for the walk");
+
+    // ~300 units at run speed ⇒ in range, then the cast starts on the far mob.
+    advance_world(&mut world, 40);
+    let cast = world.objects.get_component::<Casting>(&3001).expect("cast started after the walk");
+    assert_eq!(cast.0.target_object_id, far, "cast aimed at the far monster");
+}
+
+/// Same scenario through the real client packet sequence: switching targets
+/// sends `RequestTargetCanceld` (aborting the running cast) before the
+/// `Action` click, so the second skill click must start the walk-to-cast
+/// immediately.
+#[test]
+fn far_retarget_after_target_cancel_walks_into_range() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let near = NPC_OID + 72;
+    let far = NPC_OID + 73;
+    spawn_targeted_monster(&mut world, &mut a_rx, near, 100);
+    let (npc, extra) = crate::model::npc::Npc::for_test(far, 40001, 900, 0, 0, 5000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(far);
+    world.objects.spawn(far, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&far, cs);
+
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    assert!(world.objects.has_component::<Casting>(&3001), "first cast running");
+
+    // Client target switch: TargetCanceld (aborts the cast) + Action(far).
+    advance_world(&mut world, 15);
+    if let Some(reuses) = world.objects.get_component_mut::<crate::model::components::Reuses>(&3001) {
+        reuses.0.clear();
+    }
+    handle_request_target_canceld(&mut world, 1, &target_canceld_body(false));
+    assert!(!world.objects.has_component::<Casting>(&3001), "cast aborted by the switch");
+    handle_action(&mut world, 1, &action_body(far, 0));
+    drain(&mut a_rx);
+
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    assert!(
+        matches!(
+            world.objects.get_component::<Intent>(&3001),
+            Some(Intent(crate::model::PlayerIntent::Cast { target_object_id, .. })) if *target_object_id == far
+        ),
+        "second click walks to the far monster (got intent {:?})",
+        world.objects.get_component::<Intent>(&3001)
+    );
+    let packets = drain(&mut a_rx);
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::MOVE_TO_PAWN), "MoveToPawn broadcast for the walk");
+
+    advance_world(&mut world, 40);
+    let cast = world.objects.get_component::<Casting>(&3001).expect("cast started after the walk");
+    assert_eq!(cast.0.target_object_id, far, "cast aimed at the far monster");
+}
+
+/// The same "queue on a far retarget" flow against the real datapack: real
+/// Wind Strike (4 s cast, 1.2 s reuse — the reuse expires while the cast is
+/// still running, so the mid-cast second click must reach the queue slot).
+#[test]
+fn queued_far_retarget_with_real_datapack_timings() {
+    use crate::model::components::QueuedAction;
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    world.data = crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let near = NPC_OID + 74;
+    let far = NPC_OID + 75;
+    // Real-datapack monsters (Gremlin, 20001) at 100 and 900 units.
+    for (oid, x) in [(near, 100), (far, 900)] {
+        let (npc, extra) = crate::model::npc::Npc::for_test(oid, 20001, x, 0, 0, 5000, 30);
+        world.npc_regions.entry(extra.1 .0).or_default().push(oid);
+        world.objects.spawn(oid, (npc, extra));
+        let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(20001).unwrap(), &world.data.stat_bonus);
+        world.objects.add_components(&oid, cs);
+    }
+    handle_action(&mut world, 1, &action_body(near, 0));
+    drain(&mut a_rx);
+
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    assert!(world.objects.has_component::<Casting>(&3001), "first cast running");
+    drain(&mut a_rx);
+
+    // 2 s in: reuse (1.2 s) expired, cast (~4 s) still running. Select the far
+    // monster and click the same skill again.
+    advance_world(&mut world, 20);
+    handle_action(&mut world, 1, &action_body(far, 0));
+    drain(&mut a_rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
+    assert!(
+        matches!(world.objects.get_component::<QueuedAction>(&3001), Some(QueuedAction::Skill { skill_id: 1177, .. })),
+        "second click parked in the queue slot (casting {:?}, reuses {:?})",
+        world.objects.get_component::<Casting>(&3001).map(|c| c.0.skill_id),
+        world.objects.get_component::<crate::model::components::Reuses>(&3001)
+    );
+    drain(&mut a_rx);
+
+    // Cast end → replay → walk-to-cast toward the far monster.
+    advance_world(&mut world, 40);
+    assert!(
+        matches!(
+            world.objects.get_component::<Intent>(&3001),
+            Some(Intent(crate::model::PlayerIntent::Cast { target_object_id, .. })) if *target_object_id == far
+        ) || world
+            .objects
+            .get_component::<Casting>(&3001)
+            .is_some_and(|c| c.0.target_object_id == far),
+        "replayed click acts on the far monster (intent {:?}, queued {:?}, casting {:?})",
+        world.objects.get_component::<Intent>(&3001),
+        world.objects.get_component::<QueuedAction>(&3001),
+        world.objects.get_component::<Casting>(&3001)
+    );
+    let packets = drain(&mut a_rx);
+    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::MOVE_TO_PAWN), "MoveToPawn broadcast for the walk");
+
+    advance_world(&mut world, 40);
+    let cast = world.objects.get_component::<Casting>(&3001).expect("cast started after the walk");
+    assert_eq!(cast.0.target_object_id, far, "cast aimed at the far monster");
+}
