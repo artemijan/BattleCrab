@@ -13,7 +13,7 @@
 //! village-master UI flow (G22's occupation quests), and the subclass-change
 //! lock Java holds across the swap.
 
-use crate::model::components::SkillBook;
+use crate::model::components::{Position, RegionCell, SkillBook};
 use crate::model::{Player, SubClass};
 use crate::world::World;
 
@@ -451,4 +451,72 @@ fn send_html(world: &World, client_id: u32, npc_oid: i32, page: &str) {
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(crate::network::server_packets::npc_html_message(npc_oid, page));
     }
+}
+
+// ---------------------------------------------------------------------------
+// Occupation change (`Player.setClassId`).
+
+/// Java's class-change visual (`broadcastPacket(new MagicSkillUse(this, 5103,
+/// 1, 0, 0))`) — the flash everyone nearby sees when a character advances.
+const CLASS_CHANGE_EFFECT_SKILL: i32 = 5103;
+
+/// `Player.setClassId` — advance (or set) the character's occupation.
+///
+/// **Which class id moves depends on the active slot**, and getting this wrong
+/// corrupts the character: on a subclass, Java updates *that slot's* class id
+/// (`getSubClasses().get(_classIndex).setClassId(id)`) and leaves the base
+/// class alone. Only on the base slot does `_baseClass` follow.
+///
+/// Returns `false` for an unknown class id.
+pub(crate) fn set_class_id(world: &mut World, player_oid: i32, class_id: i32) -> bool {
+    if world.data.player_templates.get(class_id).is_none() {
+        return false;
+    }
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return false };
+    let (index, level) = (p.class_index, p.level);
+
+    if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
+        p.class_id = class_id;
+        if index == 0 {
+            // Base slot: the character's identity really does change.
+            p.base_class_id = class_id;
+        } else if let Some(slot) = p.subclasses.iter_mut().find(|s| s.class_index == index) {
+            // Subclass slot: only that slot advances — the base class is
+            // untouched. Overwriting it here would silently rewrite what the
+            // character *is*.
+            slot.class_id = class_id;
+        }
+    }
+    // Persist the slot's new class so the change survives a restart.
+    if index != 0 {
+        if let Some(slot) = world
+            .objects
+            .get_component::<Player>(&player_oid)
+            .and_then(|p| p.subclasses.iter().find(|s| s.class_index == index).copied())
+        {
+            persist_slot(world, player_oid, slot);
+        }
+    }
+
+    // `rewardSkills()` + the stat recompute + status/UserInfo/SkillList refresh.
+    super::death::set_level(world, player_oid, level);
+    super::party::broadcast_user_info(world, player_oid);
+
+    // The class-change flash, to everyone nearby including the player.
+    if let Some(pos) = world.objects.get_component::<Position>(&player_oid).copied() {
+        if let Some(region) = world.objects.get_component::<RegionCell>(&player_oid).map(|r| r.0) {
+            super::helpers::broadcast_near_region(
+                world,
+                region,
+                &crate::network::server_packets::magic_skill_use_raw(
+                    (player_oid, pos.x, pos.y, pos.z),
+                    (player_oid, pos.x, pos.y, pos.z),
+                    CLASS_CHANGE_EFFECT_SKILL,
+                    1,
+                    0,
+                ),
+            );
+        }
+    }
+    true
 }
