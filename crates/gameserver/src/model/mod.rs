@@ -122,6 +122,9 @@ pub struct Player {
     /// Hero glow shown in CharInfo/UserInfo: `isHero() || (isGM() &&
     /// GMHeroAura)`. Recomputed whenever [`is_hero`](Self::is_hero) changes.
     pub hero_aura: bool,
+    /// Java `Player._noble` — Olympiad nobless. Grants the noble skill tree,
+    /// unlocks the noblesse teleport lists and Advanced Headquarters (326).
+    pub is_noble: bool,
     /// Java `Player._hero`. Olympiad crowning is unported (TODO(G25)), so a
     /// fresh session starts `false`; `//sethero` toggles it (grant/remove the
     /// hero skill tree + refresh the aura).
@@ -675,6 +678,7 @@ impl Player {
             name_color,
             title_color,
             hero_aura,
+            is_noble: c.noble,
             is_hero: false,
             level: c.level,
             class_id: c.class_id,

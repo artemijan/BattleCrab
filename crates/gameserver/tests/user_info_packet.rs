@@ -22,6 +22,8 @@ async fn user_info_test() {
         title_color: gameserver::model::DEFAULT_TITLE_COLOR,
 
         hero_aura: false,
+
+        is_noble: false,
         is_hero: false,
         level: 1,
         class_id: 10,

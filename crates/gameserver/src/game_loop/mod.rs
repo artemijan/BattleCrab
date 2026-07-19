@@ -7,7 +7,7 @@
 //! the game thread, keeping handler code sequential and 1:1 with Java `run()`.
 
 mod abnormal;
-mod admin;
+pub(crate) mod admin;
 mod bypass;
 mod chat;
 mod clans;

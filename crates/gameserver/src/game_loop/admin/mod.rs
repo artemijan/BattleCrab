@@ -27,7 +27,7 @@ mod effects;
 mod gm_util;
 mod flags;
 mod grand_boss;
-mod hero;
+pub(crate) mod hero;
 mod items;
 mod menu;
 mod mobgroup;
@@ -444,6 +444,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // AdminAdmin hero commands — the Game panel's "Set Hero" / "Give
         // unclaimed Hero" buttons.
         "admin_sethero" => admin_sethero(world, client_id, object_id),
+        "admin_setnoble" => hero::admin_setnoble(world, client_id, object_id),
         "admin_givehero" => admin_givehero(world, client_id, object_id),
         // AdminCastle — the Game panel's "Castle" button (siege actions deferred).
         "admin_castlemanage" => admin_castlemanage(world, client_id, object_id, &args),

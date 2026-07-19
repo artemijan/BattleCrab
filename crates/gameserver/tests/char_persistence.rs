@@ -65,6 +65,7 @@ fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
             base_class_id: c.base_class_id,
             vitality_points: c.vitality_points,
             pccafe_points: c.pccafe_points,
+            noble: false,
         },
         items: c.items.clone(),
         skills: c.skills.clone(),

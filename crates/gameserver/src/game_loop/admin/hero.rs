@@ -77,3 +77,45 @@ fn set_hero(world: &mut World, target: i32, hero: bool) {
     super::skills::refresh_skill_list(world, target);
     crate::game_loop::party::broadcast_user_info(world, target);
 }
+
+/// `//setnoble` — toggle the target's nobless (Java `AdminEditChar`'s
+/// `admin_setnoble`, which flips `setNoble(!isNoble())` on the target or self).
+pub(super) fn admin_setnoble(world: &mut World, client_id: u32, gm_object_id: i32) {
+    // Java reuses the same target resolution as the hero commands.
+    let Some(target) = hero_target(world, gm_object_id) else {
+        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        return;
+    };
+    let now = world.objects.get_component::<Player>(&target).is_some_and(|p| p.is_noble);
+    set_noble(world, target, !now);
+    let msg = if now { "You are no longer a noblesse." } else { "You are now a noblesse." };
+    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, target) {
+        send_message(world, cid, msg);
+    }
+}
+
+/// Java `Player.setNoble`: grant the noble skill tree when turning nobless on
+/// (removed otherwise), set the flag, and resend the skill list + UserInfo.
+///
+/// Unlike `setHero`, Java does **not** gate this on being on the base class —
+/// nobless is a property of the character, not of the active class, so a
+/// subclass keeps it.
+pub(crate) fn set_noble(world: &mut World, target: i32, noble: bool) {
+    let noble_skills: Vec<(i32, i32)> = world.data.skill_trees.noble_skills().to_vec();
+    if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
+        if noble {
+            for (id, level) in &noble_skills {
+                book.0.insert(*id, *level);
+            }
+        } else {
+            for (id, _) in &noble_skills {
+                book.0.remove(id);
+            }
+        }
+    }
+    if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
+        p.is_noble = noble;
+    }
+    super::skills::refresh_skill_list(world, target);
+    crate::game_loop::party::broadcast_user_info(world, target);
+}
