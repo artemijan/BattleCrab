@@ -178,6 +178,7 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         friends: vec![],
         quests: Default::default(),
         skill_reuses: vec![],
+        skill_buffs: vec![],
     }
 }
 

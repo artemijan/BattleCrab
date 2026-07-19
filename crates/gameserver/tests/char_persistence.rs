@@ -80,6 +80,7 @@ fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
         macros: c.macros.clone(),
         quests: c.quests.clone(),
         skill_reuses: c.skill_reuses.clone(),
+        skill_buffs: c.skill_buffs.clone(),
     }
 }
 
@@ -685,6 +686,80 @@ async fn skill_reuse_cooldowns_persist() {
     cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => assert!(chars[0].skill_reuses.is_empty()),
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    cmd_tx.send(DbCommand::Shutdown).unwrap();
+    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Active buffs round-trip through `character_skills_save` (Java
+/// `storeEffect`/`restoreEffects`, buff half). The stored `remaining_time` is
+/// relative and comes back **verbatim** however much wall-clock time passed —
+/// a buff's countdown is frozen while the character is offline, which is the
+/// whole difference between this and `skill_reuse_cooldowns_persist` above.
+/// Buff and reuse rows also have to coexist in the one table without either
+/// kind bleeding into the other's load.
+#[tokio::test]
+async fn active_buffs_persist_with_frozen_countdown() {
+    let dir = std::env::temp_dir().join(format!("l2r_buffsave_{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let db_path = dir.join("test.db");
+    let url = format!("jdbc:sqlite:{}", db_path.display());
+
+    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    {
+        let pool = commons::db::init(&url, 1).await.unwrap();
+        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables"] {
+            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
+            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
+                sqlx::query(stmt).execute(&pool).await.unwrap();
+            }
+        }
+        pool.close().await;
+    }
+
+    let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (event_tx, event_rx) = std::sync::mpsc::channel();
+    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
+
+    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Buffed") }).unwrap();
+    recv(&event_rx); // CharacterCreated
+    let loaded = match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => chars[0].clone(),
+        _ => panic!("expected CharactersLoaded"),
+    };
+
+    let now = commons::util::now_millis();
+    let mut save = save_from(&loaded);
+    // Wind Walk with 20 min left, Might with 5 s left, and an already-dead row.
+    save.skill_buffs = vec![
+        db::SkillBuffRow { skill_id: 1204, skill_level: 2, remaining_time_secs: 1200 },
+        db::SkillBuffRow { skill_id: 1068, skill_level: 3, remaining_time_secs: 5 },
+        db::SkillBuffRow { skill_id: 1085, skill_level: 1, remaining_time_secs: 0 },
+    ];
+    // A cooldown shares the table; it must not come back as a buff.
+    save.skill_reuses = vec![db::SkillReuseRow { reuse_key: 1177, skill_level: 3, reuse_delay: 300_000, systime_ms: now + 120_000 }];
+    cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            let b = &chars[0].skill_buffs;
+            assert_eq!(b.len(), 2, "the zero-remaining buff is filtered on load");
+            // `buff_index` order is preserved, so the bar comes back as stored.
+            assert_eq!((b[0].skill_id, b[0].skill_level, b[0].remaining_time_secs), (1204, 2, 1200));
+            assert_eq!((b[1].skill_id, b[1].skill_level, b[1].remaining_time_secs), (1068, 3, 5));
+            assert_eq!(chars[0].skill_reuses.len(), 1, "the reuse row loads as a reuse, not a buff");
+        }
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    // A flush with no live buffs clears them (the reconcile always deletes).
+    cmd_tx.send(DbCommand::StorePlayer { save: save_from(&loaded) }).unwrap();
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => assert!(chars[0].skill_buffs.is_empty()),
         _ => panic!("expected CharactersLoaded"),
     }
 

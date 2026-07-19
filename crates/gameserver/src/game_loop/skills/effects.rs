@@ -562,6 +562,28 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         }
     }
 
+    apply_continuous_effects(world, caster_oid, target_oid, skill, None);
+}
+
+/// The continuous half of Java `Skill.applyEffects` — everything that turns a
+/// cast into one timed `ActiveBuff` on the target — split out from the instant
+/// (damage/heal) half above so it can be driven on its own.
+///
+/// `abnormal_time_override` is Java's `abnormalTime` parameter: `None` uses the
+/// skill's own `abnormalTime`, `Some(secs)` overrides it. Buff restore at login
+/// is the caller that passes it, mirroring Java `restoreEffects`'
+/// `skill.applyEffects(this, this, false, remainingTime)` — the `instant =
+/// false` there is exactly why this half has to be separable, since a restored
+/// buff must not re-fire the skill's damage or heal.
+pub(crate) fn apply_continuous_effects(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    abnormal_time_override: Option<i32>,
+) {
+    use server_packets::{sm_ids, SmParam};
+
     // Continuous effects → one ActiveBuff on the target (`applyEffects`).
     let buff_effects = skill.stat_modifier_effects();
     // A `DamOverTime` (poison/bleed) debuff has no stat modifier but still
@@ -683,8 +705,12 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         }
     }
 
-    let permanent = skill.abnormal_time <= 0;
-    let expires_at_tick = if permanent { u64::MAX } else { world.tick + skill.abnormal_time as u64 * 10 };
+    // Java `BuffInfo.setAbnormalTime` is applied only for a *positive* override
+    // ("if equal or lesser than zero will be ignored"), so a bad stored value
+    // falls back to the skill's own duration rather than making the buff permanent.
+    let abnormal_time = abnormal_time_override.filter(|&t| t > 0).unwrap_or(skill.abnormal_time);
+    let permanent = abnormal_time <= 0;
+    let expires_at_tick = if permanent { u64::MAX } else { world.tick + abnormal_time as u64 * 10 };
     let buff = ActiveBuff {
         skill_id: skill.id,
         skill_level: skill.level,
@@ -777,6 +803,31 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         if !skill.abnormal_visuals.is_empty() {
             refresh_abnormal_visuals(world, target_oid);
         }
+    }
+}
+
+/// Java `Player.restoreEffects` (buff half): re-apply the buffs a character was
+/// carrying at logout, each with the remaining time that was stored — the
+/// countdown resumes where it stopped rather than accounting for the time spent
+/// offline, which is what makes an hour-long buff still an hour long after an
+/// overnight logout.
+///
+/// Runs after the character is spawned, since applying a buff touches the live
+/// stat/scheduler/packet paths. Each row goes through
+/// [`apply_continuous_effects`] with the stored duration as Java's custom
+/// `abnormalTime`, self-cast (`effector == effected`, matching Java's
+/// `applyEffects(this, this, …)`), which also means the debuff resist roll is
+/// skipped — a debuff that was up at logout comes back rather than getting a
+/// second chance to be resisted.
+///
+/// A row whose skill no longer exists (datapack change, skill removed) is
+/// dropped silently, like Java's `skill == null` continue.
+pub(crate) fn restore_persisted_buffs(world: &mut World, object_id: i32, rows: &[crate::db::SkillBuffRow]) {
+    for row in rows {
+        let Some(skill) = world.data.skill_data.get(row.skill_id, row.skill_level).cloned() else {
+            continue;
+        };
+        apply_continuous_effects(world, object_id, object_id, &skill, Some(row.remaining_time_secs));
     }
 }
 

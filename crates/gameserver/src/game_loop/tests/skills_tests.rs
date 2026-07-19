@@ -1943,6 +1943,79 @@ fn skill_reuse_cooldown_survives_relog() {
     assert!(super::net::build_save_data(&world, 3001).unwrap().skill_reuses.is_empty());
 }
 
+/// A live buff is captured into the save as its **remaining seconds** and comes
+/// back on relog with that time intact (Java `storeEffect`/`restoreEffects`,
+/// buff half). The countdown is frozen while offline: the restored buff gets
+/// its full stored duration measured off the *new* tick, however long the
+/// character was away.
+#[test]
+fn buff_survives_relog_without_offline_countdown() {
+    use crate::game_loop::skills::effects::{apply_skill_effects, restore_persisted_buffs};
+
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    // `synthetic_buff` has `abnormal_time` 100 s; burn 30 s of it.
+    let buff = synthetic_buff(9500, 2, "RELOG", 1, 1);
+    world.data.skill_data.insert_for_test(buff.clone());
+    apply_skill_effects(&mut world, 3001, 3001, &buff);
+    world.tick += 300;
+
+    // The save captures the *remaining* 70 s, not the skill's full duration.
+    let save = super::net::build_save_data(&world, 3001).expect("save data");
+    assert_eq!(save.skill_buffs.len(), 1, "the live buff is captured");
+    let row = save.skill_buffs[0];
+    assert_eq!((row.skill_id, row.skill_level, row.remaining_time_secs), (9500, 2, 70));
+
+    // Relog after a long "offline" gap — modelled by advancing the tick well past
+    // where the buff would have expired had it kept counting down.
+    world.tick += 100_000;
+    let _rx2 = ingame_caster(&mut world, 2, 3002, 0, 0);
+    restore_persisted_buffs(&mut world, 3002, &[row]);
+
+    let restored = world
+        .objects
+        .get_component::<Buffs>(&3002)
+        .and_then(|b| b.0.iter().find(|x| x.skill_id == 9500).cloned())
+        .expect("buff restored");
+    assert_eq!(restored.skill_level, 2, "the stored level came back, not the skill's level 1");
+    // 70 s off the *current* tick: the offline gap consumed none of the buff.
+    assert_eq!(restored.expires_at_tick - world.tick, 700);
+
+    // With the config off, buffs aren't persisted (and the DB rows get cleared).
+    world.cfg.character.store_skill_cooltime = false;
+    assert!(super::net::build_save_data(&world, 3001).unwrap().skill_buffs.is_empty());
+}
+
+/// Java `storeEffect`'s skip list: a dance/song is dropped at logout unless
+/// `AltStoreDances`, and a toggle (no expiry) is never stored at all.
+#[test]
+fn dances_and_toggles_are_not_stored_by_default() {
+    use crate::game_loop::skills::effects::apply_skill_effects;
+
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    // magic_type 3 = dance/song.
+    let dance = synthetic_buff(9600, 1, "DANCE", 1, 3);
+    // A toggle-ish buff: 0 `abnormal_time` → no expiry (the `u64::MAX` sentinel).
+    let mut toggle = synthetic_buff(9601, 1, "TOGGLE", 1, 1);
+    toggle.abnormal_time = 0;
+    apply_skill_effects(&mut world, 3001, 3001, &dance);
+    apply_skill_effects(&mut world, 3001, 3001, &toggle);
+    assert_eq!(pbuffs(&world, 3001), 2, "both landed");
+
+    world.cfg.character.alt_store_dances = false;
+    let save = super::net::build_save_data(&world, 3001).expect("save data");
+    assert!(save.skill_buffs.is_empty(), "dance dropped, toggle never stored");
+
+    // AltStoreDances=True (this dist) keeps the dance — but still not the toggle.
+    world.cfg.character.alt_store_dances = true;
+    let save = super::net::build_save_data(&world, 3001).expect("save data");
+    assert_eq!(save.skill_buffs.len(), 1);
+    assert_eq!(save.skill_buffs[0].skill_id, 9600, "only the dance came through");
+}
+
 // --- Buff-slot stacking & count caps (Java `EffectList.addActive`) -----------
 
 /// A synthetic self-buff with a `PhysicalDefence +8%` modifier so it lands (a

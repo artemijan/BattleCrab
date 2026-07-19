@@ -318,6 +318,9 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
     // Java `restoreEffects` (skill-reuse half): re-arm persisted cooldowns off
     // the current game tick before the bundle enters the world.
     bundle.restore_reuses(&chr, world.tick, commons::util::now_millis());
+    // The buff half only rides along on the bundle here: a buff can't be applied
+    // to a character that isn't in the world yet, so enter-world does it.
+    bundle.restore_buffs(&chr);
     let selected = server_packets::char_selected(&bundle.view(), s.play_ok1(), 0);
 
     // Transition InLobby → Entering, holding the built Player bundle.
@@ -514,6 +517,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     }
 
     let object_id = player.object_id;
+    // Take the persisted buffs off the bundle before it's consumed; they're
+    // re-applied below, once the entity exists.
+    let pending_buffs = std::mem::take(&mut bundle.pending_buffs);
     bundle.spawn_into(&mut world.objects);
     info!(
         "GameLoop: '{name}' entered the world ({} online).",
@@ -531,6 +537,13 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // (Spellcraft/Magician's Movement) at enter-world: a robe-wearing mystic
     // logs in with the casting/attack-speed bonus already folded in.
     super::passive_skills::refresh_conditioned_passives(world, object_id);
+    // Java `EnterWorld` → `restoreEffects` (buff half): the buffs the character
+    // logged out with come back, each resuming the remaining time it had at
+    // logout — offline time doesn't burn buff duration. Runs after the passive
+    // pumps so the buff modifiers stack on top of the same base the cast-time
+    // path would have seen, and before the spawn broadcast so nearby players
+    // get a `CharInfo` that already carries the buffed speed and visuals.
+    super::skills::effects::restore_persisted_buffs(world, object_id, &pending_buffs);
     // Java `EnterWorld.runImpl`'s GM branch: apply the configured default GM
     // state (builder-hide / invul / invis / silence / diet) before the spawn
     // broadcast, so an invisible GM is never described to nearby players.
