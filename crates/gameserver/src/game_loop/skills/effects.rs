@@ -452,7 +452,37 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             // Purely state-flag effects: nothing happens at application time
             // beyond the buff landing — the mechanic is the abnormal flag the
             // buff carries, read by the action gates (`game_loop::abnormal`).
-            SkillEffect::BlockActions { .. } | SkillEffect::Root | SkillEffect::BlockAbnormalSlot { .. } => {}
+            SkillEffect::BlockActions { .. }
+            | SkillEffect::Root
+            | SkillEffect::BlockAbnormalSlot { .. }
+            // Pure state-flag CC: nothing happens on application beyond the
+            // buff landing; the gates read the flag (`game_loop::abnormal`).
+            | SkillEffect::Mute
+            | SkillEffect::PhysicalMute
+            | SkillEffect::DebuffBlock
+            | SkillEffect::BlockControl => {}
+            // `TargetCancel.instant` — roll `chance`, then drop the victim's
+            // target and abort whatever they were doing (Java also sets the AI
+            // to IDLE; the ported AI reaches the same state once the intent is
+            // cleared).
+            SkillEffect::TargetCancel { chance } => {
+                if world.roll(100) >= *chance {
+                    continue;
+                }
+                // `setTarget(null)` — the Player override broadcasts
+                // `TargetUnselected` with includeSelf, which is what clears the
+                // client's selection ring.
+                if let Some(client_id) = client_for_player(world, target_oid) {
+                    crate::game_loop::target::set_target(world, client_id, target_oid, None);
+                } else if let Some(t) = world.objects.get_component_mut::<crate::model::components::TargetRef>(&target_oid) {
+                    t.0 = None; // NPC: no client to notify
+                }
+                // `abortAttack()` / `abortCast()`.
+                world.objects.remove_component::<crate::model::components::Intent>(&target_oid);
+                if world.objects.has_component::<crate::model::components::Casting>(&target_oid) {
+                    crate::game_loop::skills::cast::stop_casting(world, target_oid);
+                }
+            }
             // Periodic effects do nothing on application; their work happens on
             // the tick chain armed by `schedule_dam_over_time`.
             SkillEffect::HealOverTime { .. } | SkillEffect::ManaDamOverTime { .. } => {}
@@ -609,6 +639,14 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     // `operateType=T`) persists until it's toggled/removed. Model that as a
     // sentinel expiry with no `BuffExpire` schedule, else it would vanish the
     // same tick it lands.
+    // `Formulas.calcMagicAffected`: a target under `DEBUFF_BLOCK` (Mystic
+    // Immunity, Celestial Shield) refuses every incoming debuff outright — no
+    // roll, no partial landing. Self-cast is exempt for the same reason the
+    // resist roll is: Java compares `target != attacker`.
+    if skill.is_debuff && caster_oid != target_oid && crate::game_loop::abnormal::is_debuff_blocked(world, target_oid) {
+        return;
+    }
+
     // `EffectList.addActive`'s blocked-slot gate: a buff whose abnormal type is
     // in the target's blocked set (from a live `BlockAbnormalSlot`) can't land
     // at all. This is what keeps two Prophecies off the same character.
@@ -653,6 +691,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         if skill.effect_flags() & crate::model::skill::effect_flag::BLOCK_ACTIONS != 0 {
             apply_block_actions_interrupt(world, target_oid);
         }
+        apply_mute_interrupt(world, target_oid, skill);
         if !permanent {
             world
                 .scheduler
@@ -702,11 +741,39 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         if skill.effect_flags() & crate::model::skill::effect_flag::BLOCK_ACTIONS != 0 {
             apply_block_actions_interrupt(world, target_oid);
         }
+        apply_mute_interrupt(world, target_oid, skill);
         // A stat buff changed pAtk/pDef/speed/…; Java's `recalculateStats(true)`
         // follows with `broadcastUserInfo()`. Without this the client shows the
         // buff icon but never the changed stats or movement speed (and other
         // players never see the speed change).
         crate::game_loop::party::broadcast_user_info(world, target_oid);
+    }
+}
+
+/// `Mute.onStart` — silencing someone also drops the cast they were already
+/// mid-way through, otherwise a mute landing during a cast would let that cast
+/// finish. **Raid bosses are immune** (Java's `effected.isRaid()` bail), which
+/// is what stops a single silence from neutering a raid.
+///
+/// Unlike a stun this does not touch movement — a silenced character walks
+/// normally.
+fn apply_mute_interrupt(world: &mut World, target_oid: i32, skill: &Skill) {
+    let mutes = skill.effect_flags()
+        & (crate::model::skill::effect_flag::MUTED | crate::model::skill::effect_flag::PHYSICAL_MUTED)
+        != 0;
+    if !mutes {
+        return;
+    }
+    let is_raid = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&target_oid)
+        .and_then(|n| n.template(world))
+        .is_some_and(|t| t.is_raid());
+    if is_raid {
+        return;
+    }
+    if world.objects.has_component::<crate::model::components::Casting>(&target_oid) {
+        crate::game_loop::skills::cast::stop_casting(world, target_oid);
     }
 }
 

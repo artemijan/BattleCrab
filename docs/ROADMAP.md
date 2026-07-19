@@ -474,6 +474,23 @@ happens at all. This has now bitten three slices running (stun/root,
 categories — *periodic*, *icon-only*, *state flag* — and any new modifier-less
 effect must join one.
 
+🚧 **CC breadth — mute, debuff-block, control-block, target-cancel
+(2026-07-19)** — plan [PLAN_G19_CC_BREADTH.md](PLAN_G19_CC_BREADTH.md).
+Completes the crowd-control family: each is a flag on the existing
+`effect_flag` mask plus the one gate Java puts it behind — `MUTED` /
+`PHYSICAL_MUTED` refusing magic vs non-magic skills in `checkDoCastConditions`
+(static skills exempt), `DEBUFF_BLOCK` bailing on incoming debuffs outright
+ahead of the resistance multiplier, `BLOCK_CONTROL` refusing item use, and
+`TargetCancel` dropping the victim's target and aborting their attack and cast
+on a chance roll. A landing mute also aborts the victim's in-flight cast —
+**except on raid bosses**, which is what stops one silence from neutering a
+raid.
+
+`Fear` (9 learnable skills) is the deliberate hold-out: it needs forced flee
+movement in the AI rather than a flag, so it belongs with **G21**'s NPC AI
+breadth. `AbnormalShield` has no ported source, and Java's wider
+`BLOCK_CONTROL` (summon/mob control) waits on G29.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued

@@ -159,6 +159,23 @@ pub enum SkillEffect {
     /// the Prophecy family's mutual exclusion (Prophecy of Water 1355 blocks
     /// every `BUFF_SPECIAL_*` slot) and Heroic Miracle 395 (`INVINCIBILITY`).
     BlockAbnormalSlot { slots: Vec<String> },
+    /// `handlers/effecthandlers/Mute.java` — silence: magic skills refused.
+    /// Landing it also aborts the victim's current cast; raid bosses are immune
+    /// (`onStart`'s `isRaid()` bail).
+    Mute,
+    /// `handlers/effecthandlers/PhysicalMute.java` — the physical twin,
+    /// refusing non-magic skills.
+    PhysicalMute,
+    /// `handlers/effecthandlers/DebuffBlock.java` — incoming debuffs fail while
+    /// this is up.
+    DebuffBlock,
+    /// `handlers/effecthandlers/BlockControl.java` — the "out of control"
+    /// state; blocks item use in this port.
+    BlockControl,
+    /// `handlers/effecthandlers/TargetCancel.java` — an instant, chance-rolled
+    /// effect that drops the victim's target and aborts their attack and cast
+    /// (Trick 11, Switch 12, Aura Flash 1417).
+    TargetCancel { chance: i32 },
     /// `handlers/effecthandlers/Root.java` — immobilised. Unlike a stun the
     /// target may still attack and cast.
     Root,
@@ -343,6 +360,19 @@ pub mod effect_flag {
     pub const BLOCK_ACTIONS: u32 = 1 << 0;
     /// `ROOTED` — immobilised, but still able to attack and cast.
     pub const ROOTED: u32 = 1 << 1;
+    /// `MUTED` — silenced: **magic** skills are refused (Seal of Silence 1246).
+    pub const MUTED: u32 = 1 << 2;
+    /// `PSYCHICAL_MUTED` (Java's spelling) — the physical twin: non-magic
+    /// skills are refused (Shield Slam 353, Heroic Grandeur 1375).
+    pub const PHYSICAL_MUTED: u32 = 1 << 3;
+    /// `DEBUFF_BLOCK` — incoming debuffs fail outright (Mystic Immunity 1411,
+    /// Celestial Shield 1418).
+    pub const DEBUFF_BLOCK: u32 = 1 << 4;
+    /// `BLOCK_CONTROL` — Java's "out of control" state (Horror 65, Curse Fear
+    /// 1169, Turn Undead 1400). The only ported consumer is the item-use gate
+    /// (`UseItem`'s `isControlBlocked()`); Java's broader summon/mob-control
+    /// meaning needs G29.
+    pub const BLOCK_CONTROL: u32 = 1 << 5;
 }
 
 /// `dist/game/data/stats/skills/*.xml` → `Skill.java`, scoped to G6.
@@ -496,6 +526,10 @@ impl Skill {
                 // so a single bit is behaviourally identical here.
                 SkillEffect::BlockActions { .. } => effect_flag::BLOCK_ACTIONS,
                 SkillEffect::Root => effect_flag::ROOTED,
+                SkillEffect::Mute => effect_flag::MUTED,
+                SkillEffect::PhysicalMute => effect_flag::PHYSICAL_MUTED,
+                SkillEffect::DebuffBlock => effect_flag::DEBUFF_BLOCK,
+                SkillEffect::BlockControl => effect_flag::BLOCK_CONTROL,
                 _ => 0,
             }
         })
