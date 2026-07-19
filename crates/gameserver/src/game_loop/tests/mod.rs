@@ -710,6 +710,13 @@ fn add_test_npc(world: &mut World, object_id: i32, npc_id: i32, type_name: &str,
         &world.data.stat_bonus,
     );
     world.objects.add_components(&object_id, cs);
+    // Reserve this id against the runtime allocator. `NPC_OID` and
+    // `world.next_npc_object_id` both start at `FIRST_NPC_OBJECT_ID`, so
+    // without this the *first* runtime spawn (`spawn_npc_at` — e.g. a quest
+    // ambush) lands on the same object id as a fixture NPC and silently
+    // replaces it: the talk you then send to "the village master" is answered
+    // by a lizardman. Cost one debugging session in quest 409.
+    world.next_npc_object_id = world.next_npc_object_id.max(object_id + 1);
 }
 
 const NPC_OID: i32 = crate::model::npc::FIRST_NPC_OBJECT_ID;

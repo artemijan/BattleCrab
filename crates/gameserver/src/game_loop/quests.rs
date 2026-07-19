@@ -693,6 +693,45 @@ impl<'w> QuestCtx<'w> {
         }
     }
 
+    /// `QuestState.getMemoState()` — Java stores it as the quest variable
+    /// `memoState` (`QuestState.MEMO_VAR`), a second progress axis alongside
+    /// `cond`: `cond` drives the client's quest window, `memoState` is the
+    /// script's own bookkeeping and is never shown.
+    pub fn memo_state(&self) -> i32 {
+        self.get_int("memoState")
+    }
+
+    /// `QuestState.setMemoState(value)`.
+    pub fn set_memo_state(&mut self, value: i32) {
+        self.set_var("memoState", value.to_string());
+    }
+
+    /// `addSpawn(npcId, npc, randomOffset, 0, …)` followed by
+    /// `addAttackPlayerDesire(spawned, player)` — the quest-ambush primitive.
+    /// Spawns beside the NPC the player is talking to and sets the newcomer on
+    /// them.
+    ///
+    /// `random_offset` reproduces Java's `Rnd.get(50, 100)` per axis with an
+    /// independent sign, so a group of ambushers doesn't stack on one point.
+    pub fn spawn_attacker(&mut self, npc_id: i32, random_offset: bool) -> Option<i32> {
+        let (mut x, mut y, z) = self
+            .world
+            .objects
+            .get_component::<crate::model::components::Position>(&self.npc)
+            .map(|p| (p.x, p.y, p.z))?;
+        if random_offset {
+            for axis in [&mut x, &mut y] {
+                let offset = self.world.roll(51) + 50; // Rnd.get(50, 100)
+                let sign = if self.world.roll(2) == 0 { -1 } else { 1 };
+                *axis += offset * sign;
+            }
+        }
+        let spawned = crate::model::npc::spawn_npc_at(self.world, npc_id, x, y, z, -1)?;
+        super::death::introduce_npc(self.world, spawned);
+        super::npc_ai::seed_attack(self.world, spawned, self.player);
+        Some(spawned)
+    }
+
     /// `npc.getVariables().getInt(key)` — 0 when unset, as in Java.
     pub fn npc_var_int(&self, key: &str) -> i32 {
         self.world

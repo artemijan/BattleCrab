@@ -2855,3 +2855,148 @@ fn wizard_cleric_quest_pages_exist_in_dist() {
         }
     }
 }
+
+const Q409: &str = "Q00409_PathOfTheElvenOracle";
+
+/// An Elven Mage with Q00409 accepted, plus Allana and Perrin placed.
+fn q409_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = vec![(1235, "Leaf of Oracle", false)];
+    for id in [1231, 1232, 1233, 1234, 1236, 1275] {
+        items.push((id, "Q409 item", true));
+    }
+    add_quest_items(&mut world, &items);
+    for id in [27032, 27033, 27034, 27035] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 20;
+        t.base_hp_max = 1000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30293, "Folk", 5, 100, 0, 0); // Manuel
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 19;
+        p.class_id = 25; // Elven Mage
+        p.base_class_id = 25;
+        p.race = 1;
+    }
+    drain_db(&mut db_rx);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q409}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q409} ACCEPT")));
+    assert_eq!(item_count(&world, 3001, 1231), 1, "the Crystal Medallion");
+    drain(&mut rx);
+    (world, rx)
+}
+
+/// Object ids of every live NPC with `npc_id`.
+fn npcs_of(world: &mut World, npc_id: i32) -> Vec<i32> {
+    let mut out = Vec::new();
+    world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+        if n.npc_id == npc_id {
+            out.push(n.object_id);
+        }
+    });
+    out
+}
+
+/// `replay_1` conjures three lizardmen **and sets them on the player** — the
+/// new `spawn_attacker` primitive has to wire both halves, so this asserts the
+/// spawn and the aggro together.
+#[test]
+fn quest_q00409_allana_spawns_three_ambushers_that_aggro() {
+    let (mut world, _rx) = q409_world();
+    let allana = NPC_OID + 20;
+    add_test_npc(&mut world, allana, 30424, "Folk", 5, 100, 0, 0);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{allana}_Quest {Q409}")));
+    assert_eq!(quest_cond(&world, 3001, Q409), Some(2), "Allana starts the tale");
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{allana}_Quest {Q409} replay_1")));
+
+    for id in [27032, 27033, 27034] {
+        let spawned = npcs_of(&mut world, id);
+        assert_eq!(spawned.len(), 1, "one {id} ambusher was conjured");
+        assert!(
+            world
+                .objects
+                .get_component::<crate::model::npc::AggroList>(&spawned[0])
+                .is_some_and(|a| a.0.contains_key(&3001)),
+            "ambusher {id} was set on the player"
+        );
+    }
+}
+
+/// The ambush tag pays only the first attacker — and unlike quests 401/403
+/// there is **no weapon requirement**, so an unarmed first hit still qualifies.
+#[test]
+fn quest_q00409_ambush_pays_only_the_first_attacker() {
+    // Killed cold: never attacked, so script value stays 0.
+    let (mut world, _rx) = q409_world();
+    let cold = NPC_OID + 100;
+    add_test_npc(&mut world, cold, 27033, "Monster", 20, 30, 0, 0);
+    death::npc_do_die(&mut world, cold, 3001);
+    assert_eq!(item_count(&world, 3001, 1234), 0, "an untagged ambusher pays nothing");
+
+    // Attacked first (bare-handed) then killed: qualifies.
+    let tagged = NPC_OID + 101;
+    add_test_npc(&mut world, tagged, 27033, "Monster", 20, 30, 0, 0);
+    combat::npc_receive_damage(&mut world, tagged, 3001, 10.0);
+    death::npc_do_die(&mut world, tagged, 3001);
+    assert_eq!(item_count(&world, 3001, 1234), 1, "no weapon gate here, unlike 401/403");
+    assert_eq!(quest_cond(&world, 3001, Q409), Some(3));
+}
+
+/// `memoState` and `cond` are separate axes and move independently: losing the
+/// re-enactment rewinds `memoState` 2 → 1 while pushing `cond` to 8.
+#[test]
+fn quest_q00409_memo_state_rewinds_independently_of_cond() {
+    let (mut world, mut rx) = q409_world();
+    let allana = NPC_OID + 20;
+    add_test_npc(&mut world, allana, 30424, "Folk", 5, 100, 0, 0);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{allana}_Quest {Q409}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{allana}_Quest {Q409} replay_1")));
+    assert_eq!(quest_memo(&world, 3001, Q409), 2, "the re-enactment is running");
+    drain(&mut rx);
+
+    // Back to Manuel empty-handed: the tale is reset, the window jumps to 8.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q409}")));
+
+    assert_eq!(quest_memo(&world, 3001, Q409), 1, "memoState rewound");
+    assert_eq!(quest_cond(&world, 3001, Q409), Some(8), "cond moved the other way");
+}
+
+fn quest_memo(world: &World, player: i32, quest: &str) -> i32 {
+    world
+        .objects
+        .get_component::<crate::model::components::Quests>(&player)
+        .and_then(|q| q.0.get(quest))
+        .and_then(|qs| qs.vars.get("memoState"))
+        .and_then(|v| v.parse::<i32>().ok())
+        .unwrap_or(0)
+}
+
+#[test]
+fn elven_oracle_quest_pages_exist_in_dist() {
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/quests/Q00409_PathOfTheElvenOracle/"
+    );
+    for p in ["01", "02", "02a", "03", "04", "05"] {
+        let path = format!("{DIST}30293-{p}.htm");
+        assert!(std::path::Path::new(&path).exists(), "missing 30293-{p}.htm");
+    }
+    for p in ["06", "07", "08", "09"] {
+        let path = format!("{DIST}30293-{p}.html");
+        assert!(std::path::Path::new(&path).exists(), "missing 30293-{p}.html");
+    }
+    for p in ["01", "02", "03", "04", "05", "06", "07", "08", "09"] {
+        let path = format!("{DIST}30424-{p}.html");
+        assert!(std::path::Path::new(&path).exists(), "missing 30424-{p}.html");
+    }
+    for p in ["01", "02", "03", "04", "05", "06"] {
+        let path = format!("{DIST}30428-{p}.html");
+        assert!(std::path::Path::new(&path).exists(), "missing 30428-{p}.html");
+    }
+}
