@@ -88,7 +88,12 @@ pub struct CharData {
     pub char_slot: i32,
     pub items: Vec<ItemRow>,
     /// `character_skills` rows: (skill_id, skill_level).
+    /// Learned skills for the **active** class index (what the login path puts
+    /// in the skill book).
     pub skills: Vec<(i32, i32)>,
+    /// Every class index's learned skills, so a subclass switch can restore the
+    /// target slot's book instead of re-deriving it.
+    pub skills_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
     /// `character_hennas` rows: (slot 1-3, dye/symbol id).
     pub hennas: Vec<(i32, i32)>,
     /// `character_recipebook` rows: recipe-list ids (dwarven/common split

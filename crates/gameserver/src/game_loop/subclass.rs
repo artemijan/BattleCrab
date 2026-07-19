@@ -5,12 +5,15 @@
 //! the character *is* right now belongs to the active slot; switching writes
 //! the current progress back into its slot and loads the target's.
 //!
-//! **Deliberately scoped to the gate** ("a subclass can be added and
-//! switched"). Not here, each a `TODO(G17)` at the site: per-subclass hennas
-//! and shortcuts (both still load with `class_index = 0`), certification
-//! skills, the village-master UI flow (G22's occupation quests), and the
-//! subclass-change lock Java holds across the swap.
+//! Each slot keeps its own learned skills (`character_skills.class_index`), so
+//! a hand-learned skill survives a switch away and back.
+//!
+//! Not here, each a `TODO(G17)` at the site: per-subclass hennas and shortcuts
+//! (both still load with `class_index = 0`), certification skills, the
+//! village-master UI flow (G22's occupation quests), and the subclass-change
+//! lock Java holds across the swap.
 
+use crate::model::components::SkillBook;
 use crate::model::{Player, SubClass};
 use crate::world::World;
 
@@ -143,14 +146,34 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
         p.sp = new_sp;
     }
 
-    // 3. Rebuild stats and the skill book for the new class. `set_level` is
-    //    the same path `//setclass` uses: recompute HP/MP/stats, grant the
-    //    class's reachable skills, and push the status/UserInfo/SkillList
-    //    refresh. Java instead removes every skill then `restoreSkills` +
-    //    `rewardSkills` from the DB.
-    //    TODO(G17): persist `character_skills` per `class_index` so *manually*
-    //    learned skills survive a switch — right now only the auto-granted
-    //    tree is re-derived, so a hand-learned skill is lost on the round trip.
+    // 3. Swap the skill books. Java `removeSkill`s everything, then
+    //    `restoreSkills()` (the DB rows for the new index) + `rewardSkills()`
+    //    (the class's auto-granted tree on top). The port mirrors that: bank
+    //    the outgoing book, restore the incoming one if the slot has been
+    //    played before, and let `set_level` below add the auto-granted tree.
+    let outgoing: Vec<(i32, i32)> = world
+        .objects
+        .get_component::<SkillBook>(&player_oid)
+        .map(|b| b.0.iter().map(|(id, lvl)| (*id, *lvl)).collect())
+        .unwrap_or_default();
+    let incoming = {
+        let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) else { return false };
+        p.skills_by_index.insert(cur_index, outgoing);
+        p.skills_by_index.get(&class_index).cloned()
+    };
+    if let Some(book) = world.objects.get_component_mut::<SkillBook>(&player_oid) {
+        book.0.clear();
+        // A slot played before restores exactly what it knew — including
+        // *manually learned* skills, which re-deriving the tree would lose.
+        for (id, lvl) in incoming.unwrap_or_default() {
+            book.0.insert(id, lvl);
+        }
+    }
+
+    // 4. Rebuild stats and top up the auto-granted tree for the new class.
+    //    `set_level` is the same path `//setclass` uses: recompute HP/MP/stats,
+    //    grant the class's reachable skills, and push the status/UserInfo/
+    //    SkillList refresh.
     super::death::set_level(world, player_oid, new_level);
     // `set_level` normalises exp to the level floor; restore the slot's own.
     if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {

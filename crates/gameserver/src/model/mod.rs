@@ -148,6 +148,10 @@ pub struct Player {
     /// the base row in `characters` and only ever writes the *active* class
     /// there; the port stashes it here so a switch back restores it without a
     /// DB round-trip.
+    /// The *inactive* class indices' learned skills. The active index's book
+    /// lives in the `SkillBook` component; a switch moves it here and takes the
+    /// target's out.
+    pub skills_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
     pub base_level: i32,
     pub base_exp: i64,
     pub base_sp: i64,
@@ -705,8 +709,14 @@ impl Player {
             title_color,
             hero_aura,
             is_noble: c.noble,
-            class_index: 0,
+            class_index: c
+                .subclasses
+                .iter()
+                .find(|s| s.class_id == c.class_id)
+                .map(|s| s.class_index)
+                .unwrap_or(0),
             subclasses: c.subclasses.clone(),
+            skills_by_index: c.skills_by_index.clone(),
             base_level: c.level,
             base_exp: c.exp,
             base_sp: c.sp,

@@ -28,6 +28,8 @@ async fn user_info_test() {
         class_index: 0,
 
         subclasses: Vec::new(),
+        skills_by_index: Default::default(),
+
 
         base_level: 1,
 

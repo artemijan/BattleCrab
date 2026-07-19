@@ -173,3 +173,76 @@ fn adding_a_subclass_is_persisted() {
         "the new slot must reach the DB"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Per-class-index skill books (slice 3).
+
+use crate::model::components::SkillBook;
+
+fn knows(world: &World, skill_id: i32) -> bool {
+    world.objects.get_component::<SkillBook>(&PLAYER).is_some_and(|b| b.0.contains_key(&skill_id))
+}
+
+/// Put a skill in the book that the class tree would never grant, standing in
+/// for one learned by hand from a trainer.
+fn learn_by_hand(world: &mut World, skill_id: i32) {
+    world.objects.get_component_mut::<SkillBook>(&PLAYER).unwrap().0.insert(skill_id, 3);
+}
+
+#[test]
+fn a_hand_learned_skill_survives_a_switch_away_and_back() {
+    // The gap this slice closes: before per-index books, a switch re-derived
+    // only the auto-granted tree, so anything learned by hand vanished.
+    let (mut world, _db, _l) = sub_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_subclass(&mut world, PLAYER, 3).unwrap();
+    learn_by_hand(&mut world, 7777);
+
+    set_active_class(&mut world, PLAYER, 1);
+    assert!(!knows(&world, 7777), "the subclass has its own, empty book");
+    set_active_class(&mut world, PLAYER, 0);
+
+    assert!(knows(&world, 7777), "the base class got its hand-learned skill back");
+}
+
+#[test]
+fn each_slot_keeps_its_own_skills() {
+    let (mut world, _db, _l) = sub_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_subclass(&mut world, PLAYER, 3).unwrap();
+    add_subclass(&mut world, PLAYER, 4).unwrap();
+
+    set_active_class(&mut world, PLAYER, 1);
+    learn_by_hand(&mut world, 8001);
+    set_active_class(&mut world, PLAYER, 2);
+    learn_by_hand(&mut world, 8002);
+
+    assert!(knows(&world, 8002), "slot 2's own skill");
+    assert!(!knows(&world, 8001), "and not slot 1's");
+
+    set_active_class(&mut world, PLAYER, 1);
+    assert!(knows(&world, 8001));
+    assert!(!knows(&world, 8002));
+}
+
+#[test]
+fn the_save_carries_every_slots_book() {
+    let (mut world, mut db, _l) = sub_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_subclass(&mut world, PLAYER, 3).unwrap();
+    set_active_class(&mut world, PLAYER, 1);
+    learn_by_hand(&mut world, 8001);
+    let _ = drain_db(&mut db);
+
+    crate::game_loop::net::save_all_players(&mut world);
+
+    let cmds = drain_db(&mut db);
+    let save = cmds.iter().find_map(|c| match c {
+        db::DbCommand::StorePlayer { save } => Some(save),
+        _ => None,
+    });
+    let save = save.expect("a save went out");
+    assert_eq!(save.class_index, 1, "the active index is recorded");
+    assert!(save.skills.iter().any(|(id, _)| *id == 8001), "the active book carries the new skill");
+    assert!(save.skills_by_index.contains_key(&0), "and the base slot's book is banked alongside");
+}
