@@ -84,6 +84,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
+        stay_after_death: false,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalDefence,
             mode: StatModifierType::Per,
@@ -1709,6 +1710,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
+        stay_after_death: false,
         effects: vec![SkillEffect::DamOverTime { power: 24.0, ticks: 5, can_kill: false }],
     };
     world.data.skill_data.insert_for_test(poison(1, 3));
@@ -1747,6 +1749,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
+        stay_after_death: false,
         effects: vec![SkillEffect::DispelBySlot { dispel: vec![("POISON".into(), 3)] }],
     });
 
@@ -1903,6 +1906,7 @@ fn synthetic_buff(id: i32, level: i32, abnormal_type: &str, abnormal_level: i32,
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
+        stay_after_death: false,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalDefence,
             mode: StatModifierType::Per,

@@ -45,6 +45,7 @@ fn periodic_skill(id: i32, effects: Vec<SkillEffect>, toggle: bool) -> Skill {
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
+        stay_after_death: false,
         effects,
     }
 }

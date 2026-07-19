@@ -733,6 +733,22 @@ consciously stayed out.
   dropped), `Spawn.decreaseCount` schedules the respawn (min/max random
   spread) and the spawn line re-runs — fresh transient object id, a
   documented deviation from Java's id-reusing `respawnNpc`.
+- **Buffs and death** (`death.rs::stop_effects_on_death`): `Playable.doDie`'s
+  effect block, which the port had been missing entirely — **a dead player kept
+  every buff through death and revive**. Now death runs
+  `stopAllEffectsExceptThoseThatLastThroughDeath` (everything but
+  `<stayAfterDeath>`, newly parsed onto `Skill` — case-insensitively, since the
+  dist writes both `true` and `True`), unless **Noblesse Blessing** is up: then
+  the blessing is stopped and the rest of the buff list survives. That blessing
+  had no effect at all before — `NoblesseBless` wasn't in the parse table, so
+  1323 cast and landed *nothing* (the whole-buff drop G19 describes for
+  modifier-less effects); it is now a state-flag effect carrying
+  `effect_flag::NOBLESS_BLESSING`, read at death off the same fold-on-read mask
+  the CC gates use. Java's sibling exemption `RESURRECTION_SPECIAL` is a
+  `TODO(G22)` — the self-resurrect effect isn't ported, so the flag has no
+  source yet. Passive entries in `Buffs` (the grade-penalty stat pumps) are
+  skipped: Java sweeps `EffectList._actives` only, and dropping those would
+  silently unwind a passive on death.
 - **Rewards**: `calculateRewards` from the aggro damage shares (solo-only —
   parties don't exist), `ALT_PARTY_RANGE`/surrounding-region gates,
   level-gap multiplier, ×`RateXp/RateSp`; `addExpAndSp` (SM 3259) with the

@@ -601,6 +601,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
+        stay_after_death: false,
         effects: vec![SkillEffect::Heal { power: 30.0 }],
     });
     world.data.item_data.insert_for_test(ItemTemplate {
@@ -708,6 +709,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
+        stay_after_death: false,
         effects: vec![SkillEffect::GiveItem { item_id: 21852, item_count: 5000, item_enchant_level: 0 }],
     });
     world.data.item_data.insert_for_test(ItemTemplate {
@@ -831,6 +833,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
+        stay_after_death: false,
         effects: vec![SkillEffect::GiveItemRandom {
             groups: vec![
                 RestorationGroup {
@@ -960,6 +963,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
+        stay_after_death: false,
         effects: vec![SkillEffect::GiveItemRandom {
             groups: vec![RestorationGroup {
                 chance: 100.0,

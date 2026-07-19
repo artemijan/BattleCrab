@@ -458,7 +458,10 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             | SkillEffect::Mute
             | SkillEffect::PhysicalMute
             | SkillEffect::DebuffBlock
-            | SkillEffect::BlockControl => {}
+            | SkillEffect::BlockControl
+            // Noblesse Blessing: nothing at application time either — the death
+            // path reads its `NOBLESS_BLESSING` flag off the landed buff.
+            | SkillEffect::NoblesseBless => {}
             // `TargetCancel.instant` — roll `chance`, then drop the victim's
             // target and abort whatever they were doing (Java also sets the AI
             // to IDLE; the ported AI reaches the same state once the intent is

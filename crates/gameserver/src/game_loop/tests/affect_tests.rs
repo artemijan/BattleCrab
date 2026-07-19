@@ -47,6 +47,7 @@ fn aoe_skill(id: i32, scope: AffectScope, object: AffectObject, range: i32) -> S
         affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: true,
+        stay_after_death: false,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalDefence,
             mode: StatModifierType::Per,
