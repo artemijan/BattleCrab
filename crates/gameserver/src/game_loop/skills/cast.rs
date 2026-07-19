@@ -1140,6 +1140,11 @@ pub(crate) fn abort_cast(world: &mut World, object_id: i32) {
 /// the *finish* phase, when `launched` is already true, so that guard would
 /// swallow the `MagicSkillCanceled`. That packet is the only thing that stops
 /// the cast animation client-side.
+///
+/// The immediate cancel below serves the *observers* at the origin. The
+/// caster's own client is mid teleport teardown and loses it, so the caster
+/// is flagged (`cancel_cast_fx_on_appear`) and gets the cancel again from
+/// `handle_appearing`, once the destination has loaded.
 pub(crate) fn abort_cast_on_teleport(world: &mut World, object_id: i32) {
     if !world.objects.has_component::<Casting>(&object_id) {
         return;
@@ -1153,6 +1158,9 @@ pub(crate) fn abort_cast_on_teleport(world: &mut World, object_id: i32) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
+    }
+    if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&object_id) {
+        p.cancel_cast_fx_on_appear = true;
     }
     stop_casting(world, object_id);
 }
