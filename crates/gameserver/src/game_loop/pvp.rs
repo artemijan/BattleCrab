@@ -88,12 +88,26 @@ fn in_active_siege_together(world: &World, a_oid: i32, b_oid: i32) -> bool {
     )
 }
 
-/// Java `Playable.checkIfPvP(target)` reduced to the ported state: the target
-/// is already "in PvP" (a PK or currently flagged), which shortens the
-/// attacker's own flag to `PVP_PVP_TIME`. Party/clan-war/dark-side branches
-/// aren't modeled.
-fn check_if_pvp(world: &World, self_oid: i32, target_oid: i32) -> bool {
-    self_oid != target_oid && (is_pk(world, target_oid) || flag_of(world, target_oid) > 0)
+/// Java `Playable.checkIfPvP(target)`: is this a *legitimate* PvP engagement —
+/// one that shortens the attacker's flag to `PVP_PVP_TIME`, and (on a kill)
+/// costs them no karma?
+///
+/// True when the target is already "in PvP": a PK or currently flagged. **Party
+/// mates are explicitly not** — killing one is a PK. Java's remaining legs need
+/// systems this port lacks: clan wars (a mutual war makes kills lawful,
+/// TODO(G18)) and the faction dark-side check.
+pub(crate) fn check_if_pvp(world: &World, self_oid: i32, target_oid: i32) -> bool {
+    if self_oid == target_oid {
+        return false;
+    }
+    if is_pk(world, target_oid) || flag_of(world, target_oid) > 0 {
+        return true;
+    }
+    // Java's remaining branches — party mate, then the clan-war test — both
+    // end at `false` for everything this port models, so the fallthrough is
+    // the same answer. When clan wars land (G18) a mutual war must return true
+    // here.
+    false
 }
 
 /// Java `Player.isAutoAttackable(attacker)` narrowed to the ported systems: a
@@ -345,4 +359,82 @@ pub(crate) fn pvp_flag_tick(world: &mut World) {
     for oid in solid {
         update_pvp_flag(world, oid, 1);
     }
+}
+
+// ---------------------------------------------------------------------------
+// Kill consequences (`Player.onKillUpdatePvPReputation`)
+// ---------------------------------------------------------------------------
+
+/// Java `Formulas.calculateKarmaGain(pkCount, isSummon)` — how much reputation
+/// a player loses for an unlawful kill. Summons aren't ported, so only the
+/// player brackets are: a flat 43 200 above 180 kills, and the two rising
+/// brackets below that. (Reputation is stored negative, so the caller
+/// *subtracts* this.)
+pub(crate) fn calculate_karma_gain(pk_count: i32) -> i32 {
+    if pk_count < 99 {
+        (((pk_count as f64 * 0.5) + 1.0) * 60.0 * 12.0) as i32
+    } else if pk_count < 180 {
+        (((pk_count as f64 * 0.125) + 37.75) * 60.0 * 12.0) as i32
+    } else {
+        43_200
+    }
+}
+
+/// `Config.ReputationIncrease` — reputation granted for killing a PK. **0 on
+/// this dist**, so the branch that uses it is inert here; ported for
+/// faithfulness (and so an operator raising it gets the retail behaviour).
+const REPUTATION_INCREASE: i32 = 0;
+
+/// `Player.onKillUpdatePvPReputation` — the counters and karma a player kill
+/// moves. Called from the victim's death path with their killer.
+///
+/// Three outcomes, in Java's order:
+/// 1. a **legitimate PvP** kill (victim was flagged or a PK) → `pvp_kills++`,
+///    plus reputation back for killing a PK within ±10 levels;
+/// 2. otherwise, a killer with **positive reputation and no prior PKs** has it
+///    reset to 0 — the "first offence" grace;
+/// 3. otherwise a real **PK**: karma is added (reputation goes down) and
+///    `pk_kills++`.
+///
+/// Nothing happens at all when either side is inside a PVP zone.
+pub(crate) fn on_kill_update_pvp_reputation(world: &mut World, killer_oid: i32, victim_oid: i32) {
+    if killer_oid == victim_oid || !world.objects.has_component::<Player>(&killer_oid) {
+        return;
+    }
+    if in_pvp_zone(world, killer_oid) || in_pvp_zone(world, victim_oid) {
+        return; // "Do nothing when in PVP zone."
+    }
+
+    let legitimate = check_if_pvp(world, killer_oid, victim_oid);
+    let (killer_rep, killer_pk) = {
+        let Some(p) = world.objects.get_component::<Player>(&killer_oid) else { return };
+        (p.reputation, p.pk_kills)
+    };
+    let victim_rep = world.objects.get_component::<Player>(&victim_oid).map_or(0, |p| p.reputation);
+    let level_diff = {
+        let v = world.objects.get_component::<Player>(&victim_oid).map_or(0, |p| p.level);
+        let k = world.objects.get_component::<Player>(&killer_oid).map_or(0, |p| p.level);
+        v - k
+    };
+
+    if let Some(p) = world.objects.get_component_mut::<Player>(&killer_oid) {
+        if legitimate {
+            // Killing a PK within ±10 levels earns reputation back.
+            if victim_rep < 0 && killer_rep >= 0 && level_diff < 11 && level_diff > -11 {
+                p.reputation = killer_rep + REPUTATION_INCREASE;
+            }
+            p.pvp_kills += 1;
+        } else if killer_rep > 0 && killer_pk == 0 {
+            // First offence with positive reputation: reset rather than punish.
+            p.reputation = 0;
+            p.pk_kills += 1;
+        } else {
+            p.reputation = killer_rep - calculate_karma_gain(killer_pk);
+            p.pk_kills += 1;
+        }
+    }
+
+    // `broadcastUserInfo(UserInfoType.SOCIAL)` — the name/title colour and the
+    // karma flag other clients draw come from here.
+    super::party::broadcast_user_info(world, killer_oid);
 }

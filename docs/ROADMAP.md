@@ -560,6 +560,21 @@ regex missed skill 216 — but `PlayableStat` overrides radius/angle from the
 weapon, and 216 is perfectly ordinary. Verify a "this is dead" conclusion as
 carefully as a "this is live" one.
 
+✅ **G20's gate is met (2026-07-19)** — plan
+[PLAN_G20_PVP_KILLS.md](PLAN_G20_PVP_KILLS.md). The last clause needed the
+*consumers*, not the targeting: `is_player_auto_attackable` already handled
+peace/arena/siege zones, PK and flag, but killing a player moved nothing —
+`player_do_die` carried a literal `let _ = killer_oid;`. Ported Java's three
+branches (lawful PvP kill → `pvp_kills++`; positive-reputation first offence →
+reset to 0; otherwise `calculateKarmaGain` + `pk_kills++`), with the PVP-zone
+"do nothing" short-circuit. Found alongside: the death XP penalty was applied
+unconditionally, where Java skips it inside PVP **or siege** zones — arena and
+siege deaths are now free.
+
+**Still open in G20** (breadth, not gate): overhit XP, `SHOTS_BONUS`, duels,
+karma decay while hunting (`calculateKarmaLost` needs per-level `KarmaData`,
+absent from this dist), and PK item drops.
+
 **Scoping note:** several G20 line items were already done — `PhysicalAttack`
 skills (instant-damage slice) and the root/immobilize half of
 `isMovementDisabled` (G19 CC slice). Still open: polearm sweep, the melee half

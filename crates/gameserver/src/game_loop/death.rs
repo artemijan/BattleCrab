@@ -946,10 +946,25 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     // packets via the seq mismatch).
     super::skills::cast::abort_cast(world, player_oid);
 
-    // Death XP penalty (`calculateDeathExpPenalty` — raid/pvp-zone modifiers
-    // don't apply: the only killers are plain monsters).
-    let _ = killer_oid;
-    apply_death_exp_penalty(world, player_oid);
+    // `Player.doDie`'s reputation block: a player killer takes the PvP/PK
+    // consequences (counters, karma) for this death.
+    if world.objects.has_component::<crate::model::Player>(&killer_oid) {
+        super::pvp::on_kill_update_pvp_reputation(world, killer_oid, player_oid);
+    }
+
+    // Death XP penalty — Java skips it entirely when the victim died inside a
+    // PVP or siege zone (`!isLucky() && !insidePvpZone && !isOnEvent()`).
+    // Arena and siege deaths are free.
+    let in_free_death_zone = world
+        .objects
+        .get_component::<crate::model::components::ZoneFlags>(&player_oid)
+        .is_some_and(|f| {
+            f.contains(crate::data::zone_data::ZoneKind::Pvp)
+                || f.contains(crate::data::zone_data::ZoneKind::Siege)
+        });
+    if !in_free_death_zone {
+        apply_death_exp_penalty(world, player_oid);
+    }
 
     broadcast_including_self(world, player_oid, &server_packets::die(player_oid, true));
     broadcast_including_self(
