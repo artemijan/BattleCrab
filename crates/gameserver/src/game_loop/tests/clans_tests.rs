@@ -748,3 +748,37 @@ fn clan_entry_queries() {
     super::clans::handle_request_pledge_recruit_info(&world, 1, &0x7999_9999i32.to_le_bytes());
     assert!(drain(&mut rx).is_empty());
 }
+
+/// `RequestPledgeRecruitBoardSearch` (ex 0xD4): the recruit-board tab always
+/// gets one `ExPledgeRecruitBoardSearch` page back — empty until the G18
+/// `ClanEntryManager` lands (0 total pages, 0 clans, the requested page
+/// echoed), and a short/malformed packet is dropped without an answer.
+#[test]
+fn clan_recruit_board_search() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain(&mut rx);
+
+    // clanLevel=-1, karma=-1, type=0, query="", sort=0, descending=1, page=3,
+    // applicationType=0 — the clan window's default "show all" search.
+    let mut body = Vec::new();
+    body.extend((-1i32).to_le_bytes());
+    body.extend((-1i32).to_le_bytes());
+    body.extend(0i32.to_le_bytes());
+    body.extend(0u16.to_le_bytes()); // empty UTF-16 string (terminator only)
+    body.extend(0i32.to_le_bytes());
+    body.extend(1i32.to_le_bytes());
+    body.extend(3i32.to_le_bytes());
+    body.extend(0i32.to_le_bytes());
+    super::clans::handle_request_pledge_recruit_board_search(&world, 1, &body);
+    let pkts = drain(&mut rx);
+    let page = pkts.iter().find(|p| p[0] == 0xFE && p[1] == 0x41 && p[2] == 0x01).expect("ExPledgeRecruitBoardSearch");
+    let mut r = commons::network::PacketReader::new(&page[3..]);
+    assert_eq!(r.read_i32().unwrap(), 3); // current page echoed
+    assert_eq!(r.read_i32().unwrap(), 0); // total pages
+    assert_eq!(r.read_i32().unwrap(), 0); // clans on this page
+
+    // Truncated packet (missing the page int): dropped silently.
+    super::clans::handle_request_pledge_recruit_board_search(&world, 1, &body[..body.len() - 8]);
+    assert!(drain(&mut rx).is_empty());
+}
