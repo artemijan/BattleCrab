@@ -43,6 +43,7 @@ pub mod q00413_path_of_the_shillien_oracle;
 pub mod q00414_path_of_the_orc_raider;
 pub mod q00415_path_of_the_orc_monk;
 pub mod q00416_path_of_the_orc_shaman;
+pub mod q00417_path_of_the_scavenger;
 pub mod q00418_path_of_the_artisan;
 pub mod q00407_path_of_the_elven_scout;
 pub mod q00324_sweetest_venom;
@@ -84,6 +85,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00414_path_of_the_orc_raider::Q00414PathOfTheOrcRaider),
         Arc::new(q00415_path_of_the_orc_monk::Q00415PathOfTheOrcMonk),
         Arc::new(q00416_path_of_the_orc_shaman::Q00416PathOfTheOrcShaman),
+        Arc::new(q00417_path_of_the_scavenger::Q00417PathOfTheScavenger),
         Arc::new(q00418_path_of_the_artisan::Q00418PathOfTheArtisan),
         Arc::new(q00407_path_of_the_elven_scout::Q00407PathOfTheElvenScout),
         Arc::new(alliance_master::AllianceMaster),
