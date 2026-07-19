@@ -4132,3 +4132,162 @@ fn set_quest_cond(world: &mut World, player: i32, quest: &str, cond: i32) {
         }
     }
 }
+
+const Q418: &str = "Q00418_PathOfTheArtisan";
+
+/// A Dwarven Fighter with Q00418 accepted (Silvera at NPC_OID).
+fn q418_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let rows: Vec<(i32, &str, bool)> = (1632..=1641).map(|id| (id, "Q418", true)).collect();
+    add_quest_items(&mut world, &rows);
+    for id in [20017, 20389, 20390] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 20;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30527, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 19;
+        p.class_id = 53; // Dwarven Fighter
+        p.base_class_id = 53;
+        p.race = 4;
+    }
+    drain_db(&mut db_rx);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418} ACCEPT")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418} 30527-06.htm")));
+    assert_eq!(item_count(&world, 3001, 1632), 1, "Silvery's ring");
+    drain(&mut rx);
+    (world, rx)
+}
+
+/// The leader-tooth roll is lopsided: below 5 it pays **only** when one tooth
+/// is already held, so the first tooth comes at 50% and the second at 100%.
+#[test]
+fn quest_q00418_leader_tooth_roll_has_a_hole_at_zero() {
+    let (mut world, _rx) = q418_world();
+    let mut oid = NPC_OID + 100;
+
+    // Roll 0 with zero teeth: the `< 5` branch does nothing at all.
+    oid += 1;
+    add_test_npc(&mut world, oid, 20390, "Monster", 20, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, oid, 3001);
+    assert_eq!(item_count(&world, 3001, 1637), 0, "roll<5 at zero teeth pays nothing");
+
+    // Roll 5 with zero teeth: the `else` branch always pays.
+    oid += 1;
+    add_test_npc(&mut world, oid, 20390, "Monster", 20, 30, 0, 0);
+    world.forced_rolls.push_back(5);
+    death::npc_do_die(&mut world, oid, 3001);
+    assert_eq!(item_count(&world, 3001, 1637), 1, "roll>=5 always pays");
+
+    // Roll 0 with one tooth: now the `< 5` branch does pay.
+    oid += 1;
+    add_test_npc(&mut world, oid, 20390, "Monster", 20, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, oid, 3001);
+    assert_eq!(item_count(&world, 3001, 1637), 2, "roll<5 pays the second tooth");
+}
+
+/// Ratman teeth cap at 10 on a 70% roll; a roll of 7 misses.
+#[test]
+fn quest_q00418_ratman_teeth_roll_is_seventy_percent() {
+    let (mut world, _rx) = q418_world();
+    let miss = NPC_OID + 200;
+    add_test_npc(&mut world, miss, 20389, "Monster", 20, 30, 0, 0);
+    world.forced_rolls.push_back(7);
+    death::npc_do_die(&mut world, miss, 3001);
+    assert_eq!(item_count(&world, 3001, 1636), 0, "roll 7 is outside `< 7`");
+
+    let hit = NPC_OID + 201;
+    add_test_npc(&mut world, hit, 20389, "Monster", 20, 30, 0, 0);
+    world.forced_rolls.push_back(6);
+    death::npc_do_die(&mut world, hit, 3001);
+    assert_eq!(item_count(&world, 3001, 1636), 1, "roll 6 pays");
+}
+
+/// The whole chain: teeth → 1st pass → Kluto's letter → Pinter's footprint →
+/// the stolen box → 2nd pass → the Final Pass Certificate.
+#[test]
+fn quest_q00418_full_chain_awards_the_final_pass() {
+    let (mut world, mut rx) = q418_world();
+    let (pinter, kluto) = (NPC_OID + 20, NPC_OID + 21);
+    add_test_npc(&mut world, pinter, 30298, "Folk", 5, 100, 0, 0);
+    add_test_npc(&mut world, kluto, 30317, "Folk", 5, 100, 0, 0);
+    for _ in 0..10 {
+        super::items::add_inventory_item(&mut world, 3001, 1636, 1);
+    }
+    for _ in 0..2 {
+        super::items::add_inventory_item(&mut world, 3001, 1637, 1);
+    }
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418} 30527-08b.html")));
+    assert_eq!(item_count(&world, 3001, 1633), 1, "first pass certificate");
+    assert_eq!(item_count(&world, 3001, 1636), 0, "teeth handed over");
+    assert_eq!(quest_cond(&world, 3001, Q418), Some(3));
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{kluto}_Quest {Q418} 30317-04.html")));
+    assert_eq!(item_count(&world, 3001, 1638), 1, "Kluto's letter");
+    assert_eq!(quest_cond(&world, 3001, Q418), Some(4));
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pinter}_Quest {Q418} 30298-03.html")));
+    assert_eq!(item_count(&world, 3001, 1639), 1, "footprint of thief");
+    assert_eq!(quest_cond(&world, 3001, Q418), Some(5));
+
+    let orc = NPC_OID + 300;
+    add_test_npc(&mut world, orc, 20017, "Monster", 20, 30, 0, 0);
+    world.forced_rolls.push_back(0); // `getRandom(10) < 2`
+    death::npc_do_die(&mut world, orc, 3001);
+    assert_eq!(item_count(&world, 3001, 1640), 1, "the stolen secret box");
+    assert_eq!(quest_cond(&world, 3001, Q418), Some(6));
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pinter}_Quest {Q418} 30298-06.html")));
+    assert_eq!(item_count(&world, 3001, 1634), 1, "second pass certificate");
+    assert_eq!(item_count(&world, 3001, 1641), 1, "the secret box");
+    assert_eq!(quest_cond(&world, 3001, Q418), Some(7));
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{kluto}_Quest {Q418} 30317-10.html")));
+    assert_eq!(item_count(&world, 3001, 1635), 1, "the Final Pass Certificate");
+    {
+        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        assert!(quests.0[Q418].is_completed());
+    }
+    assert!(drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
+}
+
+/// Fourth quest running with a route dead at both ends.
+#[test]
+fn artisan_dead_branch_is_dead_at_both_ends() {
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/quests/Q00418_PathOfTheArtisan/"
+    );
+    for npc in ["31956", "31963", "32052"] {
+        let any =
+            (1..=9).any(|n| std::path::Path::new(&format!("{DIST}{npc}-0{n}.html")).exists());
+        assert!(any, "{npc} ships pages but is registered nowhere");
+    }
+    // Only 08b is offered; 08c (the memoState 10 entry) is not.
+    // Pages only — the .java source naturally names `08c` as a case label,
+    // which is exactly the handler we are proving is unreachable.
+    let mut offers_08b = false;
+    for entry in std::fs::read_dir(DIST).expect("quest dir") {
+        let path = entry.expect("entry").path();
+        let is_page = path
+            .extension()
+            .and_then(|e| e.to_str())
+            .is_some_and(|e| e == "htm" || e == "html");
+        if !is_page {
+            continue;
+        }
+        let body = std::fs::read_to_string(&path).unwrap_or_default();
+        assert!(!body.contains("30527-08c"), "no page may offer the dead 08c entry");
+        offers_08b |= body.contains("30527-08b");
+    }
+    assert!(offers_08b, "08b is the live route and is offered");
+}
