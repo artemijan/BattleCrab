@@ -1088,6 +1088,20 @@ fn quest_test_world() -> (
 ) {
     let (mut world, db_rx, link_rx) = combat_test_world();
     world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    // Class-transfer scripts route through the G17 mechanic, which refuses a
+    // class id with no template. `combat_test_world` registers only class 0,
+    // so give the fixture the first-occupation ids the village-master scripts
+    // can target.
+    {
+        let base = world.data.player_templates.get(0).cloned().unwrap_or_default();
+        let mut all = vec![base.clone()];
+        for class_id in [1, 4, 7, 11, 15, 19, 22, 26, 29, 31, 32, 35, 38, 39, 42, 44, 45, 47, 49, 50, 53, 54, 56] {
+            let mut t = base.clone();
+            t.class_id = class_id;
+            all.push(t);
+        }
+        world.data.player_templates = crate::data::PlayerTemplateData::from_vec(all);
+    }
     for (item_id, name, is_quest_item, is_stackable) in [
         (702, "Wolf Pelt", true, true),
         (809, "Bone Fragment", true, true),

@@ -1160,3 +1160,102 @@ fn elf_human_change1_html_pages_exist_in_dist() {
         );
     }
 }
+
+/// DarkElfChange1: a Dark Fighter with the Gaze of Abyss becomes a Palus
+/// Knight. Note the bypass event is the CLASSES **row index** (0), not the
+/// class id — the opposite convention to the other Change1 scripts.
+#[test]
+fn dark_elf_change1_transfers_by_row_index() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1244, "Gaze of Abyss", true), (8869, "Coupon", false)]);
+    world.data.categories.insert_for_test("FIRST_CLASS_GROUP", &[32, 35, 39, 42]);
+    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[]);
+    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    add_test_npc(&mut world, NPC_OID, 30290, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 20;
+        p.race = 2; // Dark Elf
+        p.class_id = 31; // Dark Fighter
+        p.base_class_id = 31;
+    }
+    super::items::add_inventory_item(&mut world, 3001, 1244, 1);
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange1 0")));
+
+    let p = world.objects.get_component::<Player>(&3001).unwrap();
+    assert_eq!(p.class_id, 32, "row 0 is Palus Knight");
+    assert_eq!(item_count(&world, 3001, 1244), 0, "proof consumed");
+    assert_eq!(item_count(&world, 3001, 8869), 15, "coupons paid");
+}
+
+/// A Dark Mage cannot take a Dark Fighter row, even though the same NPC
+/// serves both — Java checks the source class per row.
+#[test]
+fn dark_elf_change1_rejects_the_wrong_source_class() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1244, "Gaze of Abyss", true), (8869, "Coupon", false)]);
+    world.data.categories.insert_for_test("FIRST_CLASS_GROUP", &[32, 35, 39, 42]);
+    add_test_npc(&mut world, NPC_OID, 30290, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 20;
+        p.race = 2;
+        p.class_id = 38; // Dark MAGE asking for the fighter row
+        p.base_class_id = 38;
+    }
+    super::items::add_inventory_item(&mut world, 3001, 1244, 1);
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange1 0")));
+
+    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().class_id, 38, "unchanged");
+    assert_eq!(item_count(&world, 3001, 1244), 1, "and nothing consumed");
+}
+
+/// A character standing on a subclass is refused outright — Java's
+/// `if (player.isSubClassActive()) return getNoQuestMsg(player);`.
+#[test]
+fn dark_elf_change1_refuses_while_a_subclass_is_active() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1244, "Gaze of Abyss", true)]);
+    add_test_npc(&mut world, NPC_OID, 30290, "VillageMaster", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.race = 2;
+        p.class_id = 31;
+        p.base_class_id = 31;
+        p.class_index = 1; // on a subclass
+    }
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange1")));
+
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("a reply");
+    assert!(!html.contains("30290-01"), "the class list must not be offered on a subclass");
+}
+
+/// Every page DarkElfChange1 can return exists — and note these are `.html`,
+/// not `.htm` like its siblings.
+#[test]
+fn dark_elf_change1_html_pages_exist_in_dist() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/village_master/DarkElfChange1/");
+    for npc in [30290, 30297, 30462] {
+        for page in [1, 8, 31, 32, 33] {
+            let path = format!("{DIST}{npc}-{page:02}.html");
+            assert!(std::path::Path::new(&path).exists(), "missing {npc}-{page:02}.html");
+        }
+        for page in 15..=30 {
+            let path = format!("{DIST}{npc}-{page}.html");
+            assert!(std::path::Path::new(&path).exists(), "missing {npc}-{page}.html");
+        }
+    }
+}

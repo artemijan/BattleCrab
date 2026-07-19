@@ -7,6 +7,7 @@
 pub mod clan_master;
 pub mod newbie_guide;
 pub mod npc_location_info;
+pub mod dark_elf_change1;
 pub mod dwarf_change1;
 pub mod elf_human_change1;
 pub mod orc_change1;
@@ -48,6 +49,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(clan_master::ClanMaster),
         Arc::new(newbie_guide::NewbieGuide),
         Arc::new(npc_location_info::NpcLocationInfo),
+        Arc::new(dark_elf_change1::DarkElfChange1),
         Arc::new(elf_human_change1::ElfHumanChange1::fighter()),
         Arc::new(elf_human_change1::ElfHumanChange1::wizard()),
         Arc::new(dwarf_change1::DwarfChange1::blacksmith()),
