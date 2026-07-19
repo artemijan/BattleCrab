@@ -35,6 +35,7 @@ mod clans_tests;
 mod combat_tests;
 mod community_board_tests;
 mod henna_tests;
+mod crafting_tests;
 mod items_tests;
 mod lobby_tests;
 mod misc_tests;
@@ -142,6 +143,7 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         items: vec![],
         skills: vec![],
         hennas: vec![],
+        recipe_book: vec![],
         shortcuts: vec![],
         macros: vec![],
         friends: vec![],
@@ -229,6 +231,7 @@ async fn character_create_inserts_into_real_schema() {
         multisells: crate::data::MultisellData::empty(),
         scheme_buffer: crate::data::SchemeBufferData::default(),
         hennas: crate::data::HennaData::empty(),
+        recipes: crate::data::RecipeData::empty(),
         categories: crate::data::CategoryData::empty(),
         cursed_weapons: crate::data::CursedWeaponData::empty(),
         siege_towers: std::collections::HashMap::new(),

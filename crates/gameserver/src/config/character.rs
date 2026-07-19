@@ -57,6 +57,19 @@ pub struct CharacterConfig {
     /// items are checked against this separate cap, never the ordinary one
     /// (`PlayerInventory.validateCapacity`'s `questItem` branch).
     pub inventory_max_quest_items: i32,
+    /// `CraftingEnabled`: master switch for the crafting subsystem (recipe
+    /// registration + item creation). True on this dist.
+    pub crafting_enabled: bool,
+    /// `DwarfRecipeLimit` / `CommonRecipeLimit`: max recipes registrable in each
+    /// book (`Player.getDwarfRecipeLimit` / `getCommonRecipeLimit`, before the
+    /// `Stat.RECIPE_DWARVEN/COMMON` modifiers — no source grants those here).
+    pub dwarf_recipe_limit: i32,
+    pub common_recipe_limit: i32,
+    /// `CraftMasterwork` + `CraftMasterworkChance`: whether a recipe's rare
+    /// (`productionRare`) output can roll, and the fallback rarity when the
+    /// recipe omits its own.
+    pub craft_masterwork: bool,
+    pub craft_masterwork_chance: i32,
     /// `AutoLearnSkills`: when true, `Player.rewardSkills` grants every class
     /// skill reachable at the player's level (not just autoGet skills), on
     /// enter-world and every level-up (Java `giveAvailableSkills`).
@@ -171,6 +184,11 @@ impl Default for CharacterConfig {
             inventory_max_no_dwarf: 80,
             inventory_max_dwarf: 100,
             inventory_max_quest_items: 100,
+            crafting_enabled: true,
+            dwarf_recipe_limit: 100,
+            common_recipe_limit: 100,
+            craft_masterwork: true,
+            craft_masterwork_chance: 10,
             auto_learn_skills: false,
             auto_learn_skills_without_items: true,
             auto_learn_divine_inspiration: false,
@@ -242,6 +260,11 @@ impl CharacterConfig {
             inventory_max_no_dwarf: p.get_int("MaximumSlotsForNoDwarf", d.inventory_max_no_dwarf),
             inventory_max_dwarf: p.get_int("MaximumSlotsForDwarf", d.inventory_max_dwarf),
             inventory_max_quest_items: p.get_int("MaximumSlotsForQuestItems", d.inventory_max_quest_items),
+            crafting_enabled: p.get_bool("CraftingEnabled", d.crafting_enabled),
+            dwarf_recipe_limit: p.get_int("DwarfRecipeLimit", d.dwarf_recipe_limit),
+            common_recipe_limit: p.get_int("CommonRecipeLimit", d.common_recipe_limit),
+            craft_masterwork: p.get_bool("CraftMasterwork", d.craft_masterwork),
+            craft_masterwork_chance: p.get_int("CraftMasterworkChance", d.craft_masterwork_chance),
             auto_learn_skills: p.get_bool("AutoLearnSkills", d.auto_learn_skills),
             auto_learn_skills_without_items: p
                 .get_bool("AutoLearnSkillsWithoutItems", d.auto_learn_skills_without_items),

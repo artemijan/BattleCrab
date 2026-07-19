@@ -316,6 +316,8 @@ pub struct PlayerData {
     /// Worn henna dyes (`character_hennas`); their stat bonus is already folded
     /// into `base_stats`.
     pub henna: components::HennaSlots,
+    /// Registered crafting recipes (`character_recipebook`), split by book.
+    pub recipe_book: components::RecipeBook,
     pub shortcuts: Shortcuts,
     pub macros: Macros,
     pub friends: components::Friends,
@@ -383,7 +385,7 @@ impl PlayerData {
                     components::ExpertisePenalty::default(),
                     components::PvpState::default(),
                 ),
-                (self.warehouse, self.freight, components::ClanSkills::default(), self.henna),
+                (self.warehouse, self.freight, components::ClanSkills::default(), self.henna, self.recipe_book),
             ),
         );
     }
@@ -709,6 +711,17 @@ impl Player {
         // stat maps now, so the enter-world `UserInfo` burst already carries them
         // (no separate post-spawn resend). Timed buffs aren't restored yet.
         let skills = SkillBook(c.skills.iter().copied().collect());
+        // Java `restoreRecipeBook`: classify each stored recipe-list id into the
+        // dwarven/common book by its `RecipeList.isDwarvenRecipe()`; ids with no
+        // matching recipe are dropped (Java's `recipe == null` continue).
+        let mut recipe_book = components::RecipeBook::default();
+        for &list_id in &c.recipe_book {
+            match data.recipes.get(list_id) {
+                Some(r) if r.is_dwarven => recipe_book.dwarven.push(list_id),
+                Some(_) => recipe_book.common.push(list_id),
+                None => {}
+            }
+        }
         for buff in conditioned_passive_buffs(data, &skills, &inventory) {
             p.apply_buff(data, &base_stats, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, buff);
         }
@@ -770,6 +783,7 @@ impl Player {
             freight,
             skills,
             henna,
+            recipe_book,
             shortcuts: Shortcuts::from_list(shortcuts),
             macros: Macros::from_list(c.macros.clone()),
             friends: components::Friends(c.friends.clone()),

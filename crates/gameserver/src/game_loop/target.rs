@@ -84,6 +84,8 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         let already_targeted = world.objects.get_component::<TargetRef>(&object_id).copied().unwrap_or_default().0 == Some(pkt.object_id);
         if already_targeted && pkt.object_id != object_id && super::private_store::is_store_owner(world, pkt.object_id) {
             super::private_store::open_buyer_view(world, client_id, object_id, pkt.object_id);
+        } else if already_targeted && pkt.object_id != object_id && super::crafting::is_manufacture_owner(world, pkt.object_id) {
+            super::crafting::open_sell_list(world, client_id, object_id, pkt.object_id);
         } else {
             set_target(world, client_id, object_id, Some(pkt.object_id));
         }

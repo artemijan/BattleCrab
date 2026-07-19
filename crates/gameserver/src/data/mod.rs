@@ -22,6 +22,7 @@ pub mod multisell_data;
 pub mod npc_data;
 pub mod player_template;
 pub mod pledge_skill_tree;
+pub mod recipe_data;
 pub mod scheme_buffer;
 pub mod skill_data;
 pub mod skill_tree;
@@ -51,6 +52,7 @@ pub use map_region::MapRegionData;
 pub use multisell_data::MultisellData;
 pub use npc_data::NpcData;
 pub use player_template::PlayerTemplateData;
+pub use recipe_data::RecipeData;
 pub use scheme_buffer::SchemeBufferData;
 pub use skill_data::SkillData;
 pub use pledge_skill_tree::PledgeSkillTreeData;
@@ -155,6 +157,7 @@ pub struct GameData {
     /// see [`SchemeBufferData`].
     pub scheme_buffer: SchemeBufferData,
     pub hennas: HennaData,
+    pub recipes: RecipeData,
     pub categories: CategoryData,
     pub cursed_weapons: CursedWeaponData,
     /// Control/flame tower spawns per castle, from `Siege.ini`.
@@ -213,6 +216,7 @@ impl GameData {
             multisells,
             scheme_buffer: SchemeBufferData::load_from(file_path),
             hennas: HennaData::load_from(file_path),
+            recipes: RecipeData::load_from(file_path),
             categories: CategoryData::load_from(file_path),
             cursed_weapons: CursedWeaponData::load_from(file_path),
             siege_towers: siege_data::load_siege_towers(file_path),
@@ -261,6 +265,7 @@ impl GameData {
             multisells: MultisellData::empty(),
             scheme_buffer: SchemeBufferData::default(),
             hennas: HennaData::empty(),
+            recipes: RecipeData::empty(),
             categories: CategoryData::empty(),
             cursed_weapons: CursedWeaponData::empty(),
             siege_towers: std::collections::HashMap::new(),

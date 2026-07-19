@@ -12,6 +12,7 @@ mod chat;
 mod clans;
 mod community_board;
 mod combat;
+mod crafting;
 mod augment;
 mod death;
 mod dispatch;

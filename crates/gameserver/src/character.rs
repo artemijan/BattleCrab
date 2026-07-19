@@ -89,6 +89,9 @@ pub struct CharData {
     pub skills: Vec<(i32, i32)>,
     /// `character_hennas` rows: (slot 1-3, dye/symbol id).
     pub hennas: Vec<(i32, i32)>,
+    /// `character_recipebook` rows: recipe-list ids (dwarven/common split
+    /// derived from `RecipeData` at `PlayerData::from_char`).
+    pub recipe_book: Vec<i32>,
     /// `character_shortcuts` rows (class_index 0).
     pub shortcuts: Vec<crate::model::shortcut::Shortcut>,
     /// `character_macroses` rows, commands already decoded.
