@@ -236,11 +236,17 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
 
     // Java `found = (geoPath != null) && (geoPath.size() > 1)`; a player
     // with no path gets ActionFailed (any in-flight move keeps running).
+    // NPCs share this reply path as of G21 and have no client, so every
+    // client-facing send is gated on the mover actually being a player rather
+    // than on `client_id` (which would be a sentinel for an NPC).
+    let is_player = world.objects.has_component::<Player>(&object_id);
     let points = match path {
         Some(p) if p.len() > 1 => p,
         _ => {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
+            if is_player {
+                if let Some(cs) = world.clients.get(&client_id) {
+                    cs.send(server_packets::action_failed());
+                }
             }
             return;
         }
@@ -249,8 +255,10 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
     // Move gates re-checked after the round-trip (same set as the click).
     let is_dead = world.objects.get_component::<Vitals>(&object_id).is_some_and(|v| v.dead);
     if world.objects.has_component::<Casting>(&object_id) || is_dead {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
+        if is_player {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
         }
         return;
     }
@@ -273,7 +281,7 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
 /// `MoveToLocation` — including the mover, who does not self-predict and
 /// only starts walking on the server's confirmation (Java `broadcastPacket`,
 /// which `Player` overrides with `includeSelf == true`).
-fn start_move(
+pub(crate) fn start_move(
     world: &mut World,
     client_id: u32,
     object_id: i32,
@@ -311,8 +319,12 @@ fn start_move(
 
     let move_pkt =
         server_packets::move_to_location(object_id, target_x, target_y, target_z, start_x, start_y, start_z);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(move_pkt.clone());
+    // The mover's own copy (Java's `includeSelf` override on `Player`); an NPC
+    // has no client, and `broadcast_to_others` covers the onlookers either way.
+    if world.objects.has_component::<Player>(&object_id) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(move_pkt.clone());
+        }
     }
     broadcast_to_others(world, object_id, &move_pkt);
 }

@@ -136,13 +136,15 @@ pub(crate) fn run_npc_regen_tick(world: &mut World) {
         let hp_regen = t.base_hp_reg * hp_mul;
         let mp_regen = t.base_mp_reg * mp_mul;
 
-        let Some(mut v) = world.objects.get_component_mut::<Vitals>(&oid) else { continue };
-        let before_hp = v.cur_hp;
-        v.cur_hp = (v.cur_hp + hp_regen).min(v.max_hp as f64);
-        v.cur_mp = (v.cur_mp + mp_regen).min(v.max_mp as f64);
-        let (cur_hp, max_hp) = (v.cur_hp as i32, v.max_hp);
-        let changed = v.cur_hp != before_hp;
-        drop(v);
+        // Scoped so the mutable borrow ends before the broadcast reads the
+        // store again.
+        let (cur_hp, max_hp, changed) = {
+            let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) else { continue };
+            let before_hp = v.cur_hp;
+            v.cur_hp = (v.cur_hp + hp_regen).min(v.max_hp as f64);
+            v.cur_mp = (v.cur_mp + mp_regen).min(v.max_mp as f64);
+            (v.cur_hp as i32, v.max_hp, v.cur_hp != before_hp)
+        };
 
         // `broadcastStatusUpdate` — refresh the HP bar for anyone targeting it.
         // Only on an actual HP change, so a full-HP/low-MP mob doesn't spam.
