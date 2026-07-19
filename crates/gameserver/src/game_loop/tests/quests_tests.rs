@@ -1259,3 +1259,130 @@ fn dark_elf_change1_html_pages_exist_in_dist() {
         }
     }
 }
+
+/// FirstClassTransferTalk: the seven headmasters only *talk* about transfers.
+/// The page name uses an underscore and `.html`, unlike every other
+/// village-master script.
+#[test]
+fn first_class_transfer_talk_picks_the_page_by_race_and_progress() {
+    let cases: [(i32, i32, bool, i32, &str); 7] = [
+        // (npc, player race, is_mage, class level, expected suffix)
+        (30026, 0, false, 0, "fighter"),      // Blitz, human fighter
+        (30026, 0, true, 0, "no"),            // a mage at the fighter guild
+        (30031, 0, true, 0, "mystic"),        // Biotin, human priest
+        (30154, 1, true, 0, "mystic"),        // Asterios serves both sides
+        (30520, 4, false, 0, "fighter"),      // Dwarves: fighter only
+        (30026, 0, false, 1, "transfer_1"),   // already first-occupation
+        (30026, 0, false, 2, "transfer_2"),   // second or beyond
+    ];
+    for (npc_id, race, is_mage, class_level, expected) in cases {
+        let (mut world, _db_rx, _link_rx) = quest_test_world();
+        // class 0 = base fighter, 1 = a first occupation, 4 = a second.
+        let class_id = match class_level {
+            0 => if is_mage { 10 } else { 0 },
+            1 => 1,
+            _ => 4,
+        };
+        world.data.categories.insert_for_test("MAGE_GROUP", &[10]);
+        world.data.categories.insert_for_test("FIRST_CLASS_GROUP", &[1]);
+        world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[4]);
+        world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+        world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+        add_test_npc(&mut world, NPC_OID, npc_id, "VillageMaster", 70, 100, 0, 0);
+        let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+        {
+            let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+            p.race = race;
+            p.class_id = class_id;
+            p.base_class_id = class_id;
+        }
+        drain(&mut rx);
+
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest FirstClassTransferTalk")),
+        );
+
+        let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).unwrap_or_default();
+        // Compare against the actual dist page, run through the same strip the
+        // cache applies — asserting "non-empty" would happily accept the
+        // *wrong* page.
+        let want_path = format!(
+            "{}/../../dist/game/data/scripts/village_master/FirstClassTransferTalk/{npc_id}_{expected}.html",
+            env!("CARGO_MANIFEST_DIR")
+        );
+        let want = crate::data::htm_cache::strip_htm(
+            &std::fs::read_to_string(&want_path).unwrap_or_else(|_| panic!("dist page {want_path}")),
+        )
+        .replace("%objectId%", &NPC_OID.to_string());
+        assert_eq!(
+            html, want,
+            "npc {npc_id} race {race} mage {is_mage} level {class_level}: wrong page (wanted {expected})"
+        );
+    }
+}
+
+/// A player of the wrong race gets the refusal page.
+#[test]
+fn first_class_transfer_talk_refuses_another_race() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30520, "VillageMaster", 70, 100, 0, 0); // Dwarf master
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.race = 0; // Human at a Dwarf headmaster
+        p.class_id = 0;
+        p.base_class_id = 0;
+    }
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest FirstClassTransferTalk")),
+    );
+
+    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("a reply");
+    let want = crate::data::htm_cache::strip_htm(
+        &std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../dist/game/data/scripts/village_master/FirstClassTransferTalk/30520_no.html"
+        ))
+        .expect("dist page"),
+    )
+    .replace("%objectId%", &NPC_OID.to_string());
+    assert_eq!(html, want, "a Human at a Dwarf headmaster gets the refusal page");
+}
+
+/// Every page the script can name must exist — and the availability is
+/// asymmetric: the Human fighter master ships no `mystic`, the priest no
+/// `fighter`, and neither Dwarf master ships a `mystic` at all.
+#[test]
+fn first_class_transfer_talk_pages_exist_in_dist() {
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/village_master/FirstClassTransferTalk/"
+    );
+    let expected: [(i32, &[&str]); 7] = [
+        (30026, &["fighter", "no", "transfer_1", "transfer_2"]),
+        (30031, &["mystic", "no", "transfer_1", "transfer_2"]),
+        (30154, &["fighter", "mystic", "no", "transfer_1", "transfer_2"]),
+        (30358, &["fighter", "mystic", "no", "transfer_1", "transfer_2"]),
+        (30565, &["fighter", "mystic", "no", "transfer_1", "transfer_2"]),
+        (30520, &["fighter", "no", "transfer_1", "transfer_2"]),
+        (30525, &["fighter", "no", "transfer_1", "transfer_2"]),
+    ];
+    for (npc, suffixes) in expected {
+        for s in suffixes {
+            let path = format!("{DIST}{npc}_{s}.html");
+            assert!(std::path::Path::new(&path).exists(), "missing {npc}_{s}.html");
+        }
+    }
+    // And the asymmetry is real, not an accident of my table: the Human
+    // fighter master genuinely ships no mystic page, which is why the script
+    // must answer `no` there rather than inventing one.
+    assert!(!std::path::Path::new(&format!("{DIST}30026_mystic.html")).exists());
+    assert!(!std::path::Path::new(&format!("{DIST}30031_fighter.html")).exists());
+    assert!(!std::path::Path::new(&format!("{DIST}30520_mystic.html")).exists());
+}
