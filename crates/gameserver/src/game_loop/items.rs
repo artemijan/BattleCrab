@@ -673,6 +673,19 @@ fn broadcast_shot_visual(world: &mut World, object_id: i32, skills: &[(i32, i32)
 /// `checkConsume` only withholds consumption for the `itemConsumeId`/
 /// `SKILL_REDUCE_ON_SKILL_SUCCESS` combo, which needs a skill-side item-
 /// consume effect this port doesn't have yet.
+///
+/// TODO(G15): Java only takes the instant `triggerCast` path when
+/// `itemSkill.isWithoutAction()` or the item has `immediate_effect`/
+/// `ex_immediate_effect`; everything else falls through to
+/// `playable.useMagic(itemSkill, item, ...)` — a **real cast with a cast bar,
+/// interruptible by damage**. This function always takes the instant path, so
+/// e.g. a Scroll of Escape (item 736 → skill 2013, `hitTime` 20000, no
+/// `immediate_effect`, not `isWithoutAction`) teleports the moment it is
+/// double-clicked instead of after a 20 s interruptible cast. Closing the gap
+/// needs `immediate_effect`/`ex_immediate_effect` parsed in `item_data`,
+/// `isWithoutAction` parsed in `skill_data`, and the non-instant branch routed
+/// through `cast::start_casting` (plus moving consumption to the skill's
+/// `itemConsumeId`/`itemConsumeCount` at landing rather than up front here).
 fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
     use crate::game_loop::skills::cast::{check_skill_reuse, resolve_cast_target, set_skill_reuse};
     use crate::game_loop::skills::effects::apply_skill_effects;
