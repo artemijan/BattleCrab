@@ -3748,3 +3748,184 @@ fn orc_raider_quest_pages_exist_in_dist() {
         assert!(std::path::Path::new(&format!("{DIST}30501-{p}.htm")).exists(), "missing 30501-{p}.htm");
     }
 }
+
+const Q415: &str = "Q00415_PathOfTheOrcMonk";
+
+/// An Orc Fighter with Q00415 accepted (Gantaki at NPC_OID). `weapon` is put
+/// straight into the RHand paperdoll when given.
+fn q415_world(weapon: Option<i32>) -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let ids = [
+        1593, 1594, 1595, 1596, 1597, 1598, 1599, 1600, 1601, 1602, 1603, 1604, 1605, 1606, 1607,
+        1608, 1609, 1610, 1611, 1612, 1613, 1614, 1615, 8545, 8546,
+    ];
+    let rows: Vec<(i32, &str, bool)> = ids.iter().map(|id| (*id, "Q415", true)).collect();
+    add_quest_items(&mut world, &rows);
+    for id in [20014, 20017, 20024, 20359, 20415, 20476, 20478, 20479, 21118] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 20;
+        t.base_hp_max = 1000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30587, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 19;
+        p.class_id = 44; // Orc Fighter
+        p.base_class_id = 44;
+        p.race = 3;
+    }
+    if let Some(w) = weapon {
+        equip_weapon_row(&mut world, 3001, w);
+    }
+    drain_db(&mut db_rx);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q415}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q415} ACCEPT")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q415} 30587-06.htm")));
+    assert_eq!(item_count(&world, 3001, 1593), 1, "the pomegranate");
+    drain(&mut rx);
+    (world, rx)
+}
+
+/// The weapon gate is the **inverse** of quests 401/403: bare hands pass, a
+/// sword fails, a fist weapon passes.
+#[test]
+fn quest_q00415_weapon_gate_wants_bare_hands_or_fists() {
+    // (equipped weapon, is it a fist type, expected claws after one kill)
+    let cases: [(Option<i32>, bool, i64); 3] = [
+        (None, false, 1),        // bare-handed — the pass case
+        (Some(7000), false, 0),  // a sword — disqualifies
+        (Some(7001), true, 1),   // a fist weapon — passes
+    ];
+    for (weapon, is_fist, expected) in cases {
+        let (mut world, _rx) = q415_world(weapon);
+        if let (Some(w), true) = (weapon, is_fist) {
+            world.data.item_data.set_weapon_type_for_test(w, crate::data::item_data::WeaponType::Fist);
+        }
+        // Get pouch 1 from Rosheek.
+        let rosheek = NPC_OID + 20;
+        add_test_npc(&mut world, rosheek, 30590, "Folk", 5, 100, 0, 0);
+        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{rosheek}_Quest {Q415}")));
+        assert_eq!(item_count(&world, 3001, 1594), 1, "first leather pouch");
+
+        let bear = NPC_OID + 100;
+        add_test_npc(&mut world, bear, 20479, "Monster", 20, 30, 0, 0);
+        combat::npc_receive_damage(&mut world, bear, 3001, 10.0);
+        death::npc_do_die(&mut world, bear, 3001);
+        assert_eq!(
+            item_count(&world, 3001, 1600),
+            expected,
+            "weapon {weapon:?} (fist={is_fist}): bare hands and fists pass, blades don't"
+        );
+    }
+}
+
+/// Each pouch takes **five** kills: four trophies, and the fifth converts.
+#[test]
+fn quest_q00415_pouch_takes_five_kills_not_four() {
+    let (mut world, _rx) = q415_world(None);
+    let rosheek = NPC_OID + 20;
+    add_test_npc(&mut world, rosheek, 30590, "Folk", 5, 100, 0, 0);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{rosheek}_Quest {Q415}")));
+
+    for i in 1..=4 {
+        let bear = NPC_OID + 100 + i;
+        add_test_npc(&mut world, bear, 20479, "Monster", 20, 30, 0, 0);
+        combat::npc_receive_damage(&mut world, bear, 3001, 10.0);
+        death::npc_do_die(&mut world, bear, 3001);
+        assert_eq!(item_count(&world, 3001, 1600), i as i64, "claw {i}");
+        assert_eq!(item_count(&world, 3001, 1597), 0, "pouch not full yet");
+    }
+    // The fifth kill converts and consumes the four claws.
+    let bear = NPC_OID + 200;
+    add_test_npc(&mut world, bear, 20479, "Monster", 20, 30, 0, 0);
+    combat::npc_receive_damage(&mut world, bear, 3001, 10.0);
+    death::npc_do_die(&mut world, bear, 3001);
+    assert_eq!(item_count(&world, 3001, 1597), 1, "the fifth kill fills the pouch");
+    assert_eq!(item_count(&world, 3001, 1600), 0, "claws consumed");
+    assert_eq!(item_count(&world, 3001, 1594), 0, "empty pouch handed over");
+    assert_eq!(quest_cond(&world, 3001, Q415), Some(3));
+
+    // Rosheek swaps the full pouch for the next empty one.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{rosheek}_Quest {Q415}")));
+    assert_eq!(item_count(&world, 3001, 1595), 1, "second pouch");
+    assert_eq!(quest_cond(&world, 3001, Q415), Some(4));
+}
+
+/// The fourth pouch spans four mobs at three trophies each and converts on the
+/// twelfth kill.
+#[test]
+fn quest_q00415_fourth_pouch_converts_on_the_twelfth_kill() {
+    let (mut world, _rx) = q415_world(None);
+    super::items::add_inventory_item(&mut world, 3001, 1607, 1); // the 4th pouch
+    let mut oid = NPC_OID + 300;
+    let mobs = [(20014, 1612), (20017, 1609), (20024, 1611), (20359, 1610)];
+    let mut killed = 0;
+    for (mob, trophy) in mobs {
+        for _ in 0..3 {
+            oid += 1;
+            add_test_npc(&mut world, oid, mob, "Monster", 20, 30, 0, 0);
+            combat::npc_receive_damage(&mut world, oid, 3001, 10.0);
+            death::npc_do_die(&mut world, oid, 3001);
+            killed += 1;
+            if killed < 12 {
+                assert_eq!(item_count(&world, 3001, 1608), 0, "not full at {killed} kills");
+            }
+        }
+        let _ = trophy;
+    }
+    assert_eq!(item_count(&world, 3001, 1608), 1, "the twelfth kill fills the pouch");
+    for id in [1609, 1610, 1611, 1612] {
+        assert_eq!(item_count(&world, 3001, id), 0, "trophy {id} consumed");
+    }
+    assert_eq!(quest_cond(&world, 3001, Q415), Some(12));
+}
+
+/// The alternate ending is dead at both ends: no page offers `09c`, and
+/// neither 31979 nor 32056 is registered anywhere — 13 orphaned pages.
+#[test]
+fn orc_monk_alternate_ending_is_dead_at_both_ends() {
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/quests/Q00415_PathOfTheOrcMonk/"
+    );
+    // The orphaned pages ship: 31979 x4, 32056 x9.
+    for p in ["01", "02", "03", "04"] {
+        assert!(std::path::Path::new(&format!("{DIST}31979-{p}.html")).exists(), "31979-{p} ships");
+    }
+    for n in 1..=9 {
+        assert!(
+            std::path::Path::new(&format!("{DIST}32056-0{n}.html")).exists(),
+            "32056-0{n} ships"
+        );
+    }
+    // ...and the fork page offers only 09b.
+    let fork = std::fs::read_to_string(format!("{DIST}30587-09a.html")).expect("the fork page");
+    assert!(fork.contains("30587-09b.html"), "09b is offered");
+    assert!(!fork.contains("30587-09c.html"), "09c is NOT offered — the route is unreachable");
+}
+
+#[test]
+fn orc_monk_quest_pages_exist_in_dist() {
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/quests/Q00415_PathOfTheOrcMonk/"
+    );
+    for p in ["01", "02", "02a", "03", "04", "05", "06"] {
+        assert!(std::path::Path::new(&format!("{DIST}30587-{p}.htm")).exists(), "missing 30587-{p}.htm");
+    }
+    for p in ["07", "08", "09a", "09b", "09c", "10", "11"] {
+        assert!(std::path::Path::new(&format!("{DIST}30587-{p}.html")).exists(), "missing 30587-{p}.html");
+    }
+    for n in 1..=4 {
+        assert!(std::path::Path::new(&format!("{DIST}30501-0{n}.html")).exists(), "missing 30501-0{n}");
+    }
+    for n in 1..=9 {
+        assert!(std::path::Path::new(&format!("{DIST}30590-0{n}.html")).exists(), "missing 30590-0{n}");
+    }
+    for n in 1..=4 {
+        assert!(std::path::Path::new(&format!("{DIST}30591-0{n}.html")).exists(), "missing 30591-0{n}");
+    }
+}
