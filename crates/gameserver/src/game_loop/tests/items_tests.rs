@@ -546,7 +546,11 @@ fn item_skill_potion_heals_and_enforces_reuse() {
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
-        single_target: true,
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
         effects: vec![SkillEffect::Heal { power: 30.0 }],
@@ -641,7 +645,11 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
-        single_target: true,
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
         effects: vec![SkillEffect::GiveItem { item_id: 21852, item_count: 5000, item_enchant_level: 0 }],
@@ -710,7 +718,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
 fn item_skill_give_item_random_grants_one_weighted_group() {
     use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
     use crate::model::inventory::Inventory;
-    use crate::model::skill::{RestorationGroup, RestorationItem, SkillEffect};
+    use crate::model::skill::{AffectObject, AffectScope, RestorationGroup, RestorationItem, SkillEffect};
 
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     world.id_pool = 0x4000_0000..0x4000_0100;
@@ -747,7 +755,11 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
-        single_target: true,
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
         effects: vec![SkillEffect::GiveItemRandom {
@@ -859,7 +871,11 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
-        single_target: true,
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
         effects: vec![SkillEffect::GiveItemRandom {

@@ -18,7 +18,7 @@ use quick_xml::events::Event;
 use quick_xml::Reader;
 use tracing::info;
 
-use crate::model::skill::{OperateType, RestorationGroup, RestorationItem, Skill, SkillEffect, StatModifierEffect, TargetType};
+use crate::model::skill::{AffectObject, AffectScope, OperateType, RestorationGroup, RestorationItem, Skill, SkillEffect, StatModifierEffect, TargetType};
 use crate::model::stats::{Stat, StatModifierType};
 
 pub const SKILLS_DIR: &str = "data/stats/skills";
@@ -362,8 +362,37 @@ fn finalize_skill(
             Some("ENEMY") => TargetType::Enemy,
             Some("ENEMY_ONLY") => TargetType::EnemyOnly,
             Some("NPC_BODY") => TargetType::NpcBody,
+            Some("NONE") => TargetType::None_,
             _ => TargetType::Other,
         };
+        let toggle_group_id = get_i("toggleGroupId", 0);
+        // `affectScope` defaults to SINGLE when absent (Java's Skill ctor).
+        let affect_scope = match value_at(values, "affectScope", level) {
+            Some("RANGE") => AffectScope::Range,
+            Some("POINT_BLANK") => AffectScope::PointBlank,
+            Some("PARTY") => AffectScope::Party,
+            Some("PLEDGE") => AffectScope::Pledge,
+            Some("SINGLE") | Some("NONE") | None => AffectScope::Single,
+            _ => AffectScope::Other,
+        };
+        // `affectObject` defaults to ALL. `*_PC` narrows Java's check to
+        // players only; with no non-player creature able to be a "friend" in
+        // the ported world they collapse onto the same filter.
+        let affect_object = match value_at(values, "affectObject", level) {
+            Some("NOT_FRIEND") | Some("NOT_FRIEND_PC") => AffectObject::NotFriend,
+            Some("FRIEND") | Some("FRIEND_PC") => AffectObject::Friend,
+            Some("CLAN") => AffectObject::Clan,
+            Some("ALL") | None => AffectObject::All,
+            _ => AffectObject::Other,
+        };
+        let affect_range = get_i("affectRange", 0);
+        // `<affectLimit>min-max</affectLimit>`; a bare value sets min only.
+        let affect_limit = value_at(values, "affectLimit", level)
+            .map(|v| {
+                let mut parts = v.split('-').map(|p| p.trim().parse::<i32>().unwrap_or(0));
+                (parts.next().unwrap_or(0), parts.next().unwrap_or(0))
+            })
+            .unwrap_or((0, 0));
 
         let skill_effects = effects
             .iter()
@@ -608,6 +637,11 @@ fn finalize_skill(
                 name: name.to_string(),
                 operate_type,
                 target_type,
+                toggle_group_id,
+                affect_scope,
+                affect_object,
+                affect_range,
+                affect_limit,
                 magic_type: get_i("isMagic", 0),
                 magic_level: get_i("magicLevel", 0),
                 activate_rate: get_i("activateRate", -1),
@@ -626,8 +660,6 @@ fn finalize_skill(
                 abnormal_time: get_i("abnormalTime", 0),
                 abnormal_level: get_i("abnormalLevel", 0),
                 abnormal_type: value_at(values, "abnormalType", level).unwrap_or("NONE").to_string(),
-                // Java `AffectScope` defaults to SINGLE when the tag is absent.
-                single_target: value_at(values, "affectScope", level).map_or(true, |s| s == "SINGLE"),
                 // Java `set.getBoolean("canBeDispelled", true)` / `("isDebuff", false)`.
                 can_be_dispelled: value_at(values, "canBeDispelled", level).map_or(true, |v| v == "true"),
                 is_debuff: value_at(values, "isDebuff", level).map_or(false, |v| v == "true"),
@@ -723,16 +755,43 @@ mod tests {
         // with a `Speed` PER -20% debuff, and the landing-rate inputs the
         // caster-feedback + resist roll read (`activateRate` 80, `lvlBonusRate` 30).
         let decrease_speed = sd.get(1160, 1).expect("Decrease Speed lvl 1");
-        assert!(decrease_speed.single_target && decrease_speed.is_bad());
+        assert!(decrease_speed.affect_scope == AffectScope::Single && decrease_speed.is_bad());
         assert_eq!(decrease_speed.activate_rate, 80);
         assert_eq!(decrease_speed.lvl_bonus_rate, 30);
         // An area skill (`affectScope RANGE`) is not single-target.
         let sonic_storm = sd.get(7, 1).expect("Sonic Storm lvl 1");
-        assert!(!sonic_storm.single_target);
+        assert!(sonic_storm.affect_scope != AffectScope::Single);
+
+        // Tempest 1176 — the canonical AoE nuke, and the reference case for the
+        // whole affect-scope block: RANGE scope, NOT_FRIEND filter, a 200-unit
+        // sweep around the target, and a 5-12 target cap.
+        let tempest = sd.get(1176, 1).expect("Tempest lvl 1");
+        assert_eq!(tempest.affect_scope, AffectScope::Range);
+        assert_eq!(tempest.affect_object, AffectObject::NotFriend);
+        assert_eq!(tempest.affect_range, 200);
+        assert_eq!(tempest.affect_limit, (5, 12));
+        // `getAffectLimit()` is `min + Rnd.get(max)`, so the "5-12" above can
+        // actually yield up to 16 targets — verified at both roll extremes.
+        assert_eq!(tempest.affect_limit(|_| 0), 5);
+        assert_eq!(tempest.affect_limit(|bound| bound - 1), 16);
+        // Sonic Storm carries the same 5-12 cap over a tighter 150 sweep.
+        assert_eq!(sonic_storm.affect_range, 150);
+        assert_eq!(sonic_storm.affect_limit, (5, 12));
+
+        // Thunder Storm 48 casts from SELF with a POINT_BLANK sweep — the
+        // scope that centres on the *caster* rather than the target, which is
+        // why its targetType is SELF even though it is an offensive skill.
+        let thunder_storm = sd.get(48, 1).expect("Thunder Storm lvl 1");
+        assert_eq!(thunder_storm.affect_scope, AffectScope::PointBlank);
+        assert_eq!(thunder_storm.target_type, TargetType::Self_);
+        assert_eq!(thunder_storm.affect_object, AffectObject::NotFriend);
+        assert_eq!(thunder_storm.affect_range, 150);
         // A skill with no `<activateRate>` defaults to -1 (always lands): the
         // buff Might 1068.
         let might = sd.get(1068, 1).expect("Might lvl 1");
         assert_eq!(might.activate_rate, -1);
+        // ...and, carrying no <affectLimit>, is uncapped.
+        assert_eq!(might.affect_limit(|_| 0), 0);
 
         // Skill 1011 "Heal": the reference datapack's effect body is
         // `<item>power</item>`, which parses to the param key `item` — so the

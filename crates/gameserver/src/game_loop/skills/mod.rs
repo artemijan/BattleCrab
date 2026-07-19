@@ -1,6 +1,7 @@
 //! Skill handlers: the casting pipeline (`cast`), effect application
 //! (`effects`), and skill acquisition (inline here).
 
+pub(crate) mod affect;
 pub(crate) mod cast;
 pub(crate) mod effects;
 

@@ -42,7 +42,7 @@ out-of-scope list.
 | G16 | Character variables, premium & vitality ✅ | Foundations | `//premium*` `//pccafepoints` `//primepoints` `//set_vitality_level` | — |
 | G17 | Sub-classes, class change & nobless | Progression | `//setnoble` `//setsubclass` (editchar) | G22¹ |
 | G18 | Clans — full | Progression | `//clan_*` `//pledge` `//add_clan_skill` | G15 |
-| G19 | Skills & effects breadth | Combat | `//ave_abnormal` `//setteam` `//settargetable` `//para` `//playmovie` … (AdminEffects) | — |
+| G19 | Skills & effects breadth 🚧 | Combat | `//ave_abnormal` `//setteam` `//settargetable` `//para` `//playmovie` … (AdminEffects) | — |
 | G20 | Combat breadth | Combat | — | G14, G19 |
 | G20.5 | Recommendations | Support | — | G16 |
 | G21 | NPC AI & world-content breadth | Combat | `//scan` extras, guard/faction | G20 |
@@ -411,6 +411,30 @@ skill switches on. **Unblocks:** the AdminEffects AVE subset (`//ave_abnormal`,
 
 **Audit additions (2026-07):** skill enchanting (`EnchantSkillGroupsData` +
 `RequestExEnchantSkill`/`Info`/`InfoDetail` — the level-76+ skill-enchant flow).
+
+🚧 **Affect scopes + toggles landed (2026-07-19)** — plan
+[PLAN_G19_EFFECTS.md](PLAN_G19_EFFECTS.md). The two structural gaps that stopped
+whole categories of skill from working: **affect scopes**
+(`game_loop/skills/affect.rs` — `SINGLE`/`RANGE`/`POINT_BLANK`/`PARTY`/`PLEDGE`
+sweeps with the `NOT_FRIEND`/`FRIEND`/`CLAN`/`ALL` object filters, the
+`affectLimit` cap incl. Java's `min + Rnd.get(max)` roll quirk, dead-skip,
+"range skills don't hit you unless you're the main target", the peace-zone leg
+and the target-centred LOS check), with `handle_skill_finish` fanned out over
+the affected list so effects, PvP flagging and monster hate apply per target;
+and **toggles** (recast switches off, `toggleGroupId` mutual exclusion, instant
+cast via `SkillCaster.run`'s short circuit, the new `targetType NONE`). Until
+this landed only `SINGLE` resolved, so all ~1900 area skills in the datapack hit
+exactly one creature and all 104 toggles were unreachable.
+
+**Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
+toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
+icon-only community-board buffs and G16's identity-valued
+`VITALITY_CONSUME_RATE`/`BONUS_EXP`/`BONUS_SP` are waiting on it; the geometric
+`FAN`/`FAN_PB`/`SQUARE`/`SQUARE_PB`/`RING_RANGE` scopes and `GROUND`-targeted
+casts; `calcMagicSuccess`; the abnormal-visual-effect runtime + per-creature
+team/targetable state (and the AdminEffects AVE subset it unblocks);
+`ExAbnormalStatusUpdateFromTarget`; the remaining `AcquireSkillType`s; and skill
+enchanting.
 
 ### G20 — Combat breadth
 `PhysicalAttack`-type skills; bows/crossbows (arrows, reuse gauge); dual-weapon

@@ -16,7 +16,7 @@ use crate::character::CharData;
 use crate::db::DbEvent;
 use crate::loginlink::LoginLinkCommand;
 use crate::model::formulas;
-use crate::model::skill::{OperateType, Skill, TargetType};
+use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
 use crate::model::components::{AdminFlags, Buffs, Casting, ClientPos, CombatStats, Intent, LastFolkNpc, Movement, PlayerVitals, Position, Reuses, SkillBook, Speeds, TargetRef, Vitals};
 use crate::model::Player;
 use crate::network::client_packets::{self as cp, opcodes as cop};
@@ -31,6 +31,7 @@ use crate::character::FriendInfo;
 use crate::model::components::Friends;
 
 mod admin_tests;
+mod affect_tests;
 mod clans_tests;
 mod combat_tests;
 mod community_board_tests;
@@ -395,7 +396,11 @@ fn cast_test_world() -> (
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
-        single_target: true,
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
         effects: vec![],
@@ -1110,7 +1115,11 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         abnormal_type: "NONE".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
-        single_target: true,
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
@@ -1154,7 +1163,11 @@ fn clan_advent_test_skill() -> Skill {
         abnormal_type: "CLAN_ADVENT".into(),
         activate_rate: -1,
         lvl_bonus_rate: 0,
-        single_target: true,
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
         can_be_dispelled: true,
         is_debuff: false,
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {

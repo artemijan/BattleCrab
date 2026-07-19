@@ -33,11 +33,60 @@ pub enum TargetType {
     /// `ENEMY_ONLY`: like `ENEMY` minus the "attack anything with ctrl"
     /// leniencies; identical to `Enemy` in a world with only players.
     EnemyOnly,
+    /// `NONE`: no selection involved — `targethandlers/None.java` returns the
+    /// caster, so it behaves like `SELF` minus the peace-zone gate. This is
+    /// what every toggle uses.
+    None_,
     /// `NPC_BODY`: a dead NPC corpse (Java `targethandlers/NpcBody.java`) —
     /// used by corpse skills (Sweeper). Unlike the other types this requires
     /// the target to be **dead**, so the cast pipeline's "no dead targets"
     /// gate is inverted for it.
     NpcBody,
+    Other,
+}
+
+/// Java `AffectScope` (`handlers/targethandlers/affectscope/*`) — how the
+/// primary target expands into the set the skill actually lands on.
+///
+/// Ported: the four scopes that cover the dist's non-single skills —
+/// `RANGE` (820 skills), `POINT_BLANK` (785), `PARTY` (272), `PLEDGE` (44).
+/// The geometric cone/rectangle scopes (`FAN`/`FAN_PB` 179, `SQUARE`/`SQUARE_PB`
+/// 52, `RING_RANGE` 18) and the niche ones (`SUMMON_EXCEPT_MASTER`,
+/// `BALAKAS_SCOPE`, `RANGE_SORT_BY_HP`, the `DEAD_*` family, `WYVERN_SCOPE`,
+/// `STATIC_OBJECT_SCOPE`, `PARTY_PLEDGE`) read as [`AffectScope::Other`] and
+/// fall back to single-target — see the TODO(G19) in `skills::affect`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AffectScope {
+    /// `SINGLE` (and the `NONE`/absent default): only the primary target.
+    Single,
+    /// `RANGE`: everything within `affect_range` of the **target**.
+    Range,
+    /// `POINT_BLANK`: everything within `affect_range` of the **caster**.
+    PointBlank,
+    /// `PARTY`: the target's party (or the target alone when unpartied).
+    Party,
+    /// `PLEDGE`: the target's clan mates in range.
+    Pledge,
+    /// Any scope not ported yet — treated as [`AffectScope::Single`].
+    Other,
+}
+
+/// Java `AffectObject` (`handlers/targethandlers/affectobject/*`) — the
+/// friend/foe filter applied to each candidate an [`AffectScope`] sweeps up.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AffectObject {
+    /// `ALL`: no filtering.
+    All,
+    /// `NOT_FRIEND` (1637 skills) / `NOT_FRIEND_PC`: everyone *except* the
+    /// caster, their party and their clan — the offensive-AoE filter.
+    NotFriend,
+    /// `FRIEND` (463) / `FRIEND_PC`: only the caster's own side.
+    Friend,
+    /// `CLAN`: clan mates only.
+    Clan,
+    /// Unported filters (`INVISIBLE`, `UNDEAD_REAL_ENEMY`, `HIDDEN_PLACE`,
+    /// `WYVERN_OBJECT`, `OBJECT_DEAD_NPC_BODY`) — no filtering, like Java's
+    /// null-handler path.
     Other,
 }
 
@@ -241,6 +290,21 @@ pub struct Skill {
     pub name: String,
     pub operate_type: OperateType,
     pub target_type: TargetType,
+    /// Java `toggleGroupId` — toggles sharing a group are mutually exclusive:
+    /// switching one on stops the others (`stopAllTogglesOfGroup`). 0 = no
+    /// group.
+    pub toggle_group_id: i32,
+    /// Java `affectScope` — how the primary target expands into the affected
+    /// set (`Skill.forEachTargetAffected`). Defaults to `SINGLE`.
+    pub affect_scope: AffectScope,
+    /// Java `affectObject` — the friend/foe filter each swept-up candidate must
+    /// pass. Defaults to `ALL` (Java's "no handler" = no filtering).
+    pub affect_object: AffectObject,
+    /// Java `affectRange` — the radius the scope sweeps (0 = no sweep).
+    pub affect_range: i32,
+    /// Java `_affectLimit` `[min, max]` from `<affectLimit>min-max</affectLimit>`.
+    /// Read through [`Skill::affect_limit`], which reproduces Java's roll.
+    pub affect_limit: (i32, i32),
     /// Java `isMagic`: 0 physical, 1 magic, 2 static, 3 dance/song, 4 trigger.
     /// Drives cast-time scaling (`calc_skill_time_factor`) and crit rolls.
     pub magic_type: i32,
@@ -286,11 +350,6 @@ pub struct Skill {
     /// only resolved to a client id, via `abnormal_type_client_id`, for the
     /// handful `AbnormalStatusUpdate` actually needs so far).
     pub abnormal_type: String,
-    /// Java `affectScope`, narrowed to the one distinction the cast pipeline
-    /// needs so far: `true` for `SINGLE` (the default when absent), `false` for
-    /// any area scope (`RANGE`/`SQUARE`/`FAN`/…). Used to gate the per-target
-    /// debuff-percentage message to single-target debuffs only.
-    pub single_target: bool,
     /// Java `Skill.canBeDispelled()` (`<canBeDispelled>`, default true) — whether
     /// the client's alt+click buff-cancel (`RequestDispel`) is allowed to strip it.
     pub can_be_dispelled: bool,
@@ -317,6 +376,24 @@ impl Skill {
     /// Java `Skill.isBad()`: `effectPoint < 0` (aggro/debuff/damage skills).
     pub fn is_bad(&self) -> bool {
         self.effect_point < 0
+    }
+
+    /// Java `Skill.getAffectLimit()` — the per-cast cap on how many targets a
+    /// scope may sweep up, rolled fresh each cast, or 0 for "no cap".
+    ///
+    /// The roll is `min + Rnd.get(max)`, **not** `Rnd.get(min..=max)`: Java
+    /// passes the *max* as the exclusive bound of a 0-based roll, so the
+    /// dist's common `5-12` yields 5..=16, and `10-10` yields 10..=19. That
+    /// reads like a datapack authoring assumption more than an intent, but it
+    /// is what the live server does, so it is reproduced exactly. `roll` takes
+    /// the exclusive bound, matching `World::roll`.
+    pub fn affect_limit(&self, roll: impl FnOnce(i32) -> i32) -> i32 {
+        let (min, max) = self.affect_limit;
+        if min > 0 || max > 0 {
+            min + if max > 0 { roll(max) } else { 0 }
+        } else {
+            0
+        }
     }
 
     /// Java `Skill.getBuffType()` collapsed to the [`BuffSlot`] pools: a

@@ -484,7 +484,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         // Java: resisted when `finalRate <= Rnd.get(100)` (0-99). Roll before the
         // message so the outcome line reflects it and the roll order stays stable.
         let resisted = rate <= world.roll(100) as f64;
-        if skill.single_target {
+        if skill.affect_scope == crate::model::skill::AffectScope::Single {
             let target_name = creature_name(world, target_oid);
             let text = if resisted {
                 format!("{} has resisted {}: {}%", target_name, skill.name, rate as i64)
