@@ -399,6 +399,22 @@ pub enum SkillEffect {
     /// of them. Unlike [`SkillEffect::DispelBySlot`] the spec carries no
     /// per-type level, so every level of a listed type is a candidate.
     DispelBySlotProbability { dispel: Vec<String>, rate: i32 },
+    /// `handlers/effecthandlers/DispelByCategory.java` — the "Cancel" family
+    /// (Cancellation 1056, Touch of Death 342: `BUFF`/`rate=25`/`max=5`;
+    /// Cleanse 1409, Purification Field 1425: `DEBUFF`/`rate=100`/`max=10`).
+    /// Unlike [`SkillEffect::DispelBySlot`]/[`SkillEffect::
+    /// DispelBySlotProbability`] (a fixed abnormal-type list) this strips
+    /// *whatever* is up, walking dances then buffs (`BUFF` slot) or debuffs
+    /// (`DEBUFF` slot) in reverse cast order, up to `max`, each gated by
+    /// `Formulas.calcCancelSuccess` (`BUFF`: `clamp(rate + (casterMagicLvl -
+    /// buffMagicLvl)*2 + (buffAbnormalTime/120)*Stat.RESIST_DISPEL_BUFF, 25,
+    /// 75)`, skipped entirely — treated as automatic — when `rate>=100`) or a
+    /// flat `rate`% roll (`DEBUFF`). This is `Stat::ResistDispelBuff`'s only
+    /// consumer, pumped by an earlier slice but unread until now. Java's
+    /// `ALL` slot is dead code — no shipped skill uses it — and is a no-op
+    /// here too. `isIrreplacableBuff()`/hero/GM/static-skill exclusions
+    /// aren't modeled, matching `DispelBySlotProbability`'s own precedent.
+    DispelByCategory { slot: DispelSlot, rate: i32, max: i32 },
     /// `handlers/effecthandlers/ProtectionBlessing.java` — the Newbie Helper's
     /// Blessing of Protection (5182): a chaotic (PK) character 10+ levels above
     /// the target cannot damage or be damaged by them. Carries no stat
@@ -758,6 +774,16 @@ pub enum BuffSlot {
     Dance,
     /// Debuff / toggle / passive — not slot-limited here.
     Uncapped,
+}
+
+/// Java `DispelSlotType` (`<effect name="DispelByCategory"><slot>…`) — which
+/// pool [`SkillEffect::DispelByCategory`] steals from.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DispelSlot {
+    Buff,
+    Debuff,
+    /// Dead in Java too — no shipped skill's `<slot>` is `ALL`.
+    All,
 }
 
 impl Skill {

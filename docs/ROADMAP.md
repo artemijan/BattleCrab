@@ -741,6 +741,32 @@ already-ported `faction_call`, which recruits reactively once the taunted NPC
 is actually landing hits, at most one think-tick later than Java's immediate
 pre-seed.
 
+**DispelByCategory** (plan:
+[PLAN_G19_DISPEL_CATEGORY.md](PLAN_G19_DISPEL_CATEGORY.md)) — the "Cancel"
+family (Cancellation, Cleanse, Purification Field, Touch of Death). Another
+tied cluster at 4 learnable skills each; picked over the cheaper
+`PhysicalAttackRange` (a same-shape repeat of the already-solved
+`ShieldDefenceRate` pattern, no new value) because it closes a real,
+previously-flagged gap: `Stat::ResistDispelBuff`, pumped by
+`ResistDispelByCategory` since the earlier abnormal-resist slice, was
+explicitly documented as "consumer-less until `Cancel` lands." Unlike
+`DispelBySlot`/`DispelBySlotProbability` (a fixed abnormal-type list), this
+steals *whatever* is up: `BUFF` slot walks dances then buffs in reverse cast
+order, each gated by a ported `calcCancelSuccess` (`clamp(rate +
+(casterMagicLvl - buffMagicLvl)*2 + (buffAbnormalTime/120)*
+ResistDispelBuff, 25, 75)`, skipped as automatic success when `rate>=100`);
+`DEBUFF` slot walks debuffs with a flatter `roll <= rate` (note the `<=`,
+matching Java's operator exactly rather than this codebase's usual `<`
+convention for per-item rolls). The dances-before-buffs ordering came free
+from the already-ported `BuffSlot` classification (`Skill::buff_slot()`
+already excludes passive/toggle/debuff from `Dance`/`Buff`, covering most of
+`canBeStolen()` without new code — only the `can_be_dispelled` flag needed
+an explicit check). Java's `ALL` slot is dead code — no shipped skill uses
+it — and stays a no-op here too. Deferred (matching `DispelBySlotProbability`'s
+own precedent): `isIrreplacableBuff()`/hero/GM/static-skill exclusions, none
+of which exist on the ported `Skill` struct and none of which any learnable
+skill on this dist needs.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued
