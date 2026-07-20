@@ -62,7 +62,14 @@ pub(crate) fn summon_servitor(
     };
     world.objects.add_components(
         &servitor_oid,
-        ServitorOf { owner_object_id: owner_oid, reference_skill, expires_at_tick, life_time_secs: life_time },
+        ServitorOf {
+            owner_object_id: owner_oid,
+            reference_skill,
+            expires_at_tick,
+            life_time_secs: life_time,
+            // Java: a fresh summon follows (`getFollowStatus()` defaults true).
+            following: true,
+        },
     );
     // `summon.setCurrentHp(getMaxHp()); setCurrentMp(getMaxMp())`.
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&servitor_oid) {
@@ -211,4 +218,177 @@ fn build_pet_info(world: &World, owner_oid: i32, servitor_oid: i32, kind: PetInf
     }
     w.write_u8(status);
     Some(w.into_bytes())
+}
+
+/// How close a servitor trails its owner before it stops — Java's
+/// `AI_INTENTION_FOLLOW` keeps roughly this spacing, and the port's own
+/// `FOLLOW_RANGE` for GM-controlled mobs uses the same figure.
+const FOLLOW_RANGE: f64 = 150.0;
+
+/// Java `SummonAI.onIntentionActive` → `setIntention(AI_INTENTION_FOLLOW,
+/// owner)`: an idle servitor trails its owner.
+///
+/// Run from the NPC AI tick. A servitor with an attack target is left alone —
+/// the ordinary NPC attack think drives it from that point, exactly as it does
+/// for a mob, because "attack whoever is on the aggro list" is the same
+/// behaviour once the owner's order has seeded that list.
+pub(crate) fn servitor_follow_tick(world: &mut World, servitor_oid: i32) {
+    let Some(link) = world.objects.get_component::<ServitorOf>(&servitor_oid).copied() else { return };
+    if !link.following {
+        return;
+    }
+    // Busy attacking? Leave it to the attack think.
+    if world
+        .objects
+        .get_component::<crate::model::npc::NpcAi>(&servitor_oid)
+        .is_some_and(|ai| ai.intention == crate::model::npc::NpcIntention::Attack)
+    {
+        return;
+    }
+    let (Some(owner), Some(me)) = (
+        world.objects.get_component::<Position>(&link.owner_object_id).copied(),
+        world.objects.get_component::<Position>(&servitor_oid).copied(),
+    ) else {
+        return;
+    };
+    let dx = (owner.x - me.x) as f64;
+    let dy = (owner.y - me.y) as f64;
+    if (dx * dx + dy * dy).sqrt() <= FOLLOW_RANGE {
+        return;
+    }
+    crate::game_loop::npc_ai::move_npc_to(world, servitor_oid, owner.x, owner.y, owner.z);
+}
+
+/// `ServitorAttack` (action 22) — order the servitor onto the owner's target.
+///
+/// Java bails to `AI_INTENTION_FOLLOW` when the target is more than 3000 units
+/// off, so a stray click doesn't send the summon across the map. Otherwise it
+/// seeds hate and switches the AI to attack, the same primitive `GetAgro` and
+/// `Confuse` use — the ported NPC AI derives its target from the aggro list
+/// each think rather than caching one.
+pub(crate) fn servitor_attack(world: &mut World, owner_oid: i32, target_oid: i32) -> bool {
+    let Some(servitor_oid) = servitor_of(world, owner_oid) else { return false };
+    let (Some(owner), Some(target)) = (
+        world.objects.get_component::<Position>(&owner_oid).copied(),
+        world.objects.get_component::<Position>(&target_oid).copied(),
+    ) else {
+        return false;
+    };
+    let dx = (owner.x - target.x) as f64;
+    let dy = (owner.y - target.y) as f64;
+    let dz = (owner.z - target.z) as f64;
+    if (dx * dx + dy * dy + dz * dz).sqrt() > 3000.0 {
+        // Too far — Java falls back to following rather than obeying.
+        if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
+            l.following = true;
+        }
+        return false;
+    }
+    // An ordered attack stops the follow, or the servitor would drift home
+    // between swings.
+    if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
+        l.following = false;
+    }
+    let max_hate = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&servitor_oid)
+        .map(|a| a.0.values().map(|i| i.hate).fold(0.0_f64, f64::max))
+        .unwrap_or(0.0);
+    if let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&servitor_oid) {
+        aggro.0.entry(target_oid).or_default().hate = max_hate + 1.0;
+    }
+    if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&servitor_oid) {
+        ai.intention = crate::model::npc::NpcIntention::Attack;
+        ai.attack_timeout_tick = world.tick + crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
+    }
+    true
+}
+
+/// `ServitorStop` (action 23) — `cancelAction()`: drop the target, stop moving,
+/// and go back to trailing the owner.
+pub(crate) fn servitor_stop(world: &mut World, owner_oid: i32) -> bool {
+    let Some(servitor_oid) = servitor_of(world, owner_oid) else { return false };
+    if let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&servitor_oid) {
+        aggro.0.clear();
+    }
+    world.objects.remove_component::<crate::model::components::Movement>(&servitor_oid);
+    if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&servitor_oid) {
+        ai.intention = crate::model::npc::NpcIntention::Active;
+    }
+    if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
+        l.following = true;
+    }
+    true
+}
+
+/// `ServitorHold` (action 21) — toggle "follow me" / "hold your ground".
+/// Returns the new follow state.
+pub(crate) fn servitor_toggle_follow(world: &mut World, owner_oid: i32) -> Option<bool> {
+    let servitor_oid = servitor_of(world, owner_oid)?;
+    let l = world.objects.get_component_mut::<ServitorOf>(&servitor_oid)?;
+    l.following = !l.following;
+    let now = l.following;
+    if !now {
+        // Holding ground: stop where you are.
+        world.objects.remove_component::<crate::model::components::Movement>(&servitor_oid);
+    }
+    Some(now)
+}
+
+/// Java action ids for the servitor commands (`dist/game/data/ActionData.xml`).
+pub mod action {
+    /// `ServitorHold` — follow me / hold your ground.
+    pub const SERVITOR_HOLD: i32 = 21;
+    /// `ServitorAttack` — attack my target.
+    pub const SERVITOR_ATTACK: i32 = 22;
+    /// `ServitorStop` — cancel what you are doing.
+    pub const SERVITOR_STOP: i32 = 23;
+}
+
+/// `RequestActionUse` — the servitor commands only. Other action ids (sit,
+/// socials, the per-summon skill buttons) are not handled here yet.
+pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body: &[u8]) {
+    use crate::network::server_packets::sm_ids;
+    let Some(pkt) = crate::network::client_packets::RequestActionUse::read(body) else { return };
+    if !matches!(pkt.action_id, action::SERVITOR_HOLD | action::SERVITOR_ATTACK | action::SERVITOR_STOP) {
+        return;
+    }
+    let Some(owner_oid) = (match world.clients.get(&client_id) {
+        Some(crate::session::ClientSession::InGame(s)) => Some(s.player_object_id()),
+        _ => None,
+    }) else {
+        return;
+    };
+    // Java's shared guard: dead or control-blocked players issue no actions.
+    if world.objects.get_component::<Vitals>(&owner_oid).is_none_or(|v| v.dead)
+        || crate::game_loop::abnormal::is_control_blocked(world, owner_oid)
+    {
+        return;
+    }
+    // Every handler opens with the same "do you even have one" check.
+    if servitor_of(world, owner_oid).is_none() {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(sm_ids::YOU_DO_NOT_HAVE_A_SERVITOR, &[]));
+        }
+        return;
+    }
+    match pkt.action_id {
+        action::SERVITOR_ATTACK => {
+            // `player.getTarget()` — no target, nothing to order.
+            let Some(target_oid) = world
+                .objects
+                .get_component::<crate::model::components::TargetRef>(&owner_oid)
+                .and_then(|t| t.0)
+            else {
+                return;
+            };
+            servitor_attack(world, owner_oid, target_oid);
+        }
+        action::SERVITOR_STOP => {
+            servitor_stop(world, owner_oid);
+        }
+        _ => {
+            servitor_toggle_follow(world, owner_oid);
+        }
+    }
 }

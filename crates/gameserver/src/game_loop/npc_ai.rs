@@ -176,6 +176,21 @@ fn think(world: &mut World, npc_oid: i32) {
         return;
     }
     let _ = npc;
+    // A servitor runs `SummonAI`, not `AttackableAI`: it trails its owner
+    // instead of scanning for prey, and only fights what its owner points it
+    // at. Once ordered, the ordinary attack think below drives it — "attack the
+    // most-hated" is the right behaviour once the order has seeded the list.
+    if world.objects.has_component::<crate::model::components::ServitorOf>(&npc_oid) {
+        super::servitor::servitor_follow_tick(world, npc_oid);
+        if world
+            .objects
+            .get_component::<NpcAi>(&npc_oid)
+            .is_some_and(|ai| ai.intention == NpcIntention::Attack)
+        {
+            think_attack(world, npc_oid);
+        }
+        return;
+    }
     let Some(ai) = world.objects.get_component::<NpcAi>(&npc_oid) else { return };
     match ai.intention {
         NpcIntention::Active => think_active(world, npc_oid),

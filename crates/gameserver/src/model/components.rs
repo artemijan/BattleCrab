@@ -564,6 +564,10 @@ pub struct ServitorOf {
     /// `lifeTime` as declared, for the `PetInfo` fed/max-fed pair (Java sends
     /// `getLifeTimeRemaining()` / `getLifeTime()` there for a servitor).
     pub life_time_secs: i32,
+    /// Java `SummonAI._startFollow` / `Summon.getFollowStatus()` — whether the
+    /// servitor trails its owner when it has nothing else to do. Toggled by the
+    /// "hold" action; cleared when it is ordered to attack.
+    pub following: bool,
 }
 
 /// Panel shortcuts (Java `Player._shortCuts`), keyed by

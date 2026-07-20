@@ -39,6 +39,7 @@ pub mod opcodes {
     pub const REQUEST_MAGIC_SKILL_USE: u8 = 0x39;
     pub const REQUEST_TARGET_CANCELD: u8 = 0x48;
     pub const REQUEST_RESTART: u8 = 0x57;
+    pub const REQUEST_ACTION_USE: u8 = 0x56;
     pub const VALIDATE_POSITION: u8 = 0x59;
     pub const REQUEST_ACQUIRE_SKILL: u8 = 0x7C;
     pub const REQUEST_ACQUIRE_SKILL_INFO: u8 = 0x73;
@@ -1102,4 +1103,23 @@ pub fn read_duel_answer(body: &[u8]) -> Option<i32> {
     let _party_duel = r.read_i32()?;
     let _unused = r.read_i32().unwrap_or(0);
     Some(r.read_i32().unwrap_or(0))
+}
+
+/// Port of `clientpackets/RequestActionUse` — the action bar's non-skill
+/// buttons (sit/stand, socials, and the servitor commands).
+#[derive(Debug, Clone, Copy)]
+pub struct RequestActionUse {
+    pub action_id: i32,
+    pub ctrl_pressed: bool,
+    pub shift_pressed: bool,
+}
+
+impl RequestActionUse {
+    pub fn read(body: &[u8]) -> Option<Self> {
+        let mut r = commons::network::PacketReader::new(body);
+        let action_id = r.read_i32()?;
+        let ctrl_pressed = r.read_i32()? == 1;
+        let shift_pressed = r.read_u8()? == 1;
+        Some(Self { action_id, ctrl_pressed, shift_pressed })
+    }
 }
