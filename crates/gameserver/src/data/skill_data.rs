@@ -532,6 +532,30 @@ fn finalize_skill(
                             .unwrap_or(100);
                         return vec![SkillEffect::TargetCancel { chance }];
                     }
+                    // Aggression 28/18, Judgment 401, Tribunal 400: no params.
+                    "GetAgro" => return vec![SkillEffect::GetAgro],
+                    // Charm 15, Lure 51: `power` (default 0, Java always
+                    // instantiates the handler even with no param).
+                    "AddHate" => return vec![SkillEffect::AddHate { power: param("power").unwrap_or(0.0) }],
+                    "DeleteHate" => {
+                        let chance = value_at(params, "chance", level)
+                            .and_then(|v| v.parse::<i32>().ok())
+                            .unwrap_or(100);
+                        return vec![SkillEffect::DeleteHate { chance }];
+                    }
+                    "DeleteHateOfMe" => {
+                        let chance = value_at(params, "chance", level)
+                            .and_then(|v| v.parse::<i32>().ok())
+                            .unwrap_or(100);
+                        return vec![SkillEffect::DeleteHateOfMe { chance }];
+                    }
+                    // TODO(G19+): `TargetMe` (paired with `GetAgro` on
+                    // Aggression 28/Aggression Aura 18) and `RandomizeHate`
+                    // (Confusion 2, Switch 12) fall through here unregistered
+                    // and are dropped — see PLAN_G19_HATE_EFFECTS.md's
+                    // "Deferred" section for why (a locked-target UI concept
+                    // and a general nearby-visible-creatures query,
+                    // respectively, neither of which exists on this port yet).
                     // Java instantiates these handlers whenever the `<effect>` is
                     // present and reads `params.getDouble("power", 0)` — the
                     // effect is always created, `power` defaulting to 0 when the
@@ -1729,6 +1753,77 @@ mod tests {
                 ]
             ),
             "both TRADE_BUY and TRADE_SELL land: {:?}", trade.effects
+        );
+    }
+
+    /// G19 hate-manipulation effects — real dist shapes: `GetAgro` is a
+    /// self-closing no-param tag (Aggression 28, paired with `TargetMe`,
+    /// which stays unported — no locked-target UI concept on this port);
+    /// `AddHate` reads `power`; `DeleteHate`/`DeleteHateOfMe` read `chance`.
+    /// Before this arm all four fell through to `EFFECT_REGISTRY`, weren't
+    /// found, and were silently dropped.
+    #[test]
+    fn hate_effects_parse_getagro_addhate_deletehate() {
+        let xml = r#"
+        <list>
+            <skill id="28" toLevel="1" name="Aggression">
+                <operateType>A1</operateType>
+                <targetType>ENEMY_ONLY</targetType>
+                <effects>
+                    <effect name="TargetMe" />
+                    <effect name="GetAgro" />
+                </effects>
+            </skill>
+            <skill id="15" toLevel="1" name="Charm">
+                <operateType>A1</operateType>
+                <targetType>ENEMY_ONLY</targetType>
+                <effects>
+                    <effect name="AddHate">
+                        <power>500</power>
+                    </effect>
+                </effects>
+            </skill>
+            <skill id="1273" toLevel="1" name="Eva's Serenade">
+                <operateType>A2</operateType>
+                <targetType>SELF</targetType>
+                <effects>
+                    <effect name="DeleteHate">
+                        <chance>80</chance>
+                    </effect>
+                </effects>
+            </skill>
+            <skill id="1156" toLevel="1" name="Forget">
+                <operateType>A2</operateType>
+                <targetType>ENEMY_ONLY</targetType>
+                <effects>
+                    <effect name="DeleteHateOfMe">
+                        <chance>80</chance>
+                    </effect>
+                </effects>
+            </skill>
+        </list>"#;
+        let mut out = HashMap::new();
+        parse_str(xml, &mut out);
+
+        let aggression = out.get(&(28, 1)).expect("Aggression parsed");
+        assert!(
+            matches!(aggression.effects.as_slice(), [SkillEffect::GetAgro]),
+            "GetAgro lands (TargetMe stays unported, dropped): {:?}", aggression.effects
+        );
+        let charm = out.get(&(15, 1)).expect("Charm parsed");
+        assert!(
+            matches!(charm.effects.as_slice(), [SkillEffect::AddHate { power }] if *power == 500.0),
+            "AddHate power=500: {:?}", charm.effects
+        );
+        let eva = out.get(&(1273, 1)).expect("Eva's Serenade parsed");
+        assert!(
+            matches!(eva.effects.as_slice(), [SkillEffect::DeleteHate { chance: 80 }]),
+            "DeleteHate chance=80: {:?}", eva.effects
+        );
+        let forget = out.get(&(1156, 1)).expect("Forget parsed");
+        assert!(
+            matches!(forget.effects.as_slice(), [SkillEffect::DeleteHateOfMe { chance: 80 }]),
+            "DeleteHateOfMe chance=80: {:?}", forget.effects
         );
     }
 

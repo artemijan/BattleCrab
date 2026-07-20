@@ -1740,6 +1740,131 @@ fn resisted_debuff_still_aggros_monster() {
     assert!(aggro.0.contains_key(&3001), "the caster is on the mob's aggro list");
 }
 
+/// G19 hate-manipulation effects (`GetAgro`/`AddHate`/`DeleteHate`/
+/// `DeleteHateOfMe`): before this slice all four effect names fell through
+/// unregistered, so Aggression/Charm/Peace/Trick — and every other skill on
+/// the same 6-effect family — cast but did nothing to the target's aggro
+/// list. The underlying `AggroList`/`NpcAi` primitives were already ported
+/// (used by combat/`faction_call`); these effects are thin wiring onto them.
+mod hate_effects {
+    use super::*;
+    use crate::model::npc::{AggroList, NpcAi, NpcIntention};
+    use crate::model::skill::SkillEffect;
+
+    const DECOY: i32 = 90001;
+
+    /// Build a synthetic instant skill by cloning a known-good fixture skill
+    /// (avoids repeating `Skill`'s ~35 fields) and swapping in the id/effect
+    /// under test.
+    fn hate_skill(world: &World, id: i32, name: &str, effect: SkillEffect) -> Skill {
+        let mut skill = world.data.skill_data.get(1160, 1).expect("fixture base").clone();
+        skill.id = id;
+        skill.name = name.into();
+        skill.effects = vec![effect];
+        skill
+    }
+
+    /// `GetAgro` (Aggression 28/Aggression Aura 18/Judgment 401/Tribunal 400):
+    /// the effected NPC intends to attack the caster, and the caster's hate
+    /// becomes dominant over whoever it was already fighting — the ported
+    /// AI re-derives its attack target from `AggroList::most_hated` every
+    /// think tick, so "force intend-attack" has to mean "become the top
+    /// entry," not just flipping the intention flag.
+    #[test]
+    fn get_agro_forces_the_npc_onto_the_caster() {
+        let (mut world, _db_rx, _link_rx) = combat_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
+        // A decoy already has strong hate — the NPC is mid-fight with someone else.
+        world.objects.get_component_mut::<AggroList>(&npc_oid).unwrap().0.insert(DECOY, crate::model::npc::AggroInfo { hate: 500.0, damage: 500.0 });
+
+        let skill = hate_skill(&world, 28, "Aggression", SkillEffect::GetAgro);
+        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+
+        let ai = world.objects.get_component::<NpcAi>(&npc_oid).unwrap();
+        assert_eq!(ai.intention, NpcIntention::Attack, "the mob intends to attack");
+        let aggro = world.objects.get_component::<AggroList>(&npc_oid).unwrap();
+        let caster_hate = aggro.0.get(&3001).map(|i| i.hate).unwrap_or(0.0);
+        let decoy_hate = aggro.0.get(&DECOY).map(|i| i.hate).unwrap_or(0.0);
+        assert!(caster_hate > decoy_hate, "caster hate ({caster_hate}) must outrank the decoy ({decoy_hate})");
+    }
+
+    /// `AddHate` (Charm 15/Lure 51): a flat hate change with no damage.
+    /// Positive raises hate and wakes the AI; negative (unused on this dist,
+    /// but Java supports it) lowers it, floored at 0.
+    #[test]
+    fn add_hate_raises_then_lowers_caster_hate() {
+        let (mut world, _db_rx, _link_rx) = combat_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
+
+        let up = hate_skill(&world, 15, "Charm", SkillEffect::AddHate { power: 500.0 });
+        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &up);
+        assert_eq!(world.objects.get_component::<AggroList>(&npc_oid).unwrap().0[&3001].hate, 500.0);
+        assert_eq!(world.objects.get_component::<NpcAi>(&npc_oid).unwrap().intention, NpcIntention::Attack, "positive power wakes the AI");
+
+        let down = hate_skill(&world, 15, "Charm", SkillEffect::AddHate { power: -800.0 });
+        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &down);
+        assert_eq!(world.objects.get_component::<AggroList>(&npc_oid).unwrap().0[&3001].hate, 0.0, "floored at 0, not negative");
+    }
+
+    /// `DeleteHate` (Eva's Serenade 1273/Peace 1075/Repose 1034): a
+    /// chance-rolled effect that wipes the target's *entire* aggro list and
+    /// disengages its AI, even though only the caster cast the skill —
+    /// whoever else was fighting it gets forgotten too (Java's own
+    /// behaviour, not an approximation).
+    #[test]
+    fn delete_hate_wipes_the_whole_list_and_disengages() {
+        let (mut world, _db_rx, _link_rx) = combat_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
+        {
+            let aggro = world.objects.get_component_mut::<AggroList>(&npc_oid).unwrap();
+            aggro.0.insert(3001, crate::model::npc::AggroInfo { hate: 50.0, damage: 50.0 });
+            aggro.0.insert(DECOY, crate::model::npc::AggroInfo { hate: 900.0, damage: 900.0 });
+            let ai = world.objects.get_component_mut::<NpcAi>(&npc_oid).unwrap();
+            ai.intention = NpcIntention::Attack;
+        }
+        // The first roll is `apply_skill_effects`' unconditional magic-crit
+        // roll (999_999 → no crit, irrelevant here); the second is the
+        // effect's own chance roll (0, well under the 80/100 chance).
+        world.forced_rolls.extend([999_999, 0]);
+
+        let skill = hate_skill(&world, 1273, "Eva's Serenade", SkillEffect::DeleteHate { chance: 80 });
+        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+
+        assert!(world.objects.get_component::<AggroList>(&npc_oid).unwrap().0.is_empty(), "the whole list is wiped, not just the caster's entry");
+        assert_eq!(world.objects.get_component::<NpcAi>(&npc_oid).unwrap().intention, NpcIntention::Active, "the mob disengages");
+    }
+
+    /// `DeleteHateOfMe` (Bluff 358/Forget 1156/Trick 11): chance-rolled,
+    /// zeroes only the caster's own aggro entry — but, matching Java
+    /// exactly, still disengages the AI wholesale even though the decoy's
+    /// hate is untouched and still in the list.
+    #[test]
+    fn delete_hate_of_me_clears_only_the_casters_entry() {
+        let (mut world, _db_rx, _link_rx) = combat_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
+        {
+            let aggro = world.objects.get_component_mut::<AggroList>(&npc_oid).unwrap();
+            aggro.0.insert(3001, crate::model::npc::AggroInfo { hate: 50.0, damage: 50.0 });
+            aggro.0.insert(DECOY, crate::model::npc::AggroInfo { hate: 900.0, damage: 900.0 });
+            let ai = world.objects.get_component_mut::<NpcAi>(&npc_oid).unwrap();
+            ai.intention = NpcIntention::Attack;
+        }
+        world.forced_rolls.extend([999_999, 0]);
+
+        let skill = hate_skill(&world, 358, "Bluff", SkillEffect::DeleteHateOfMe { chance: 80 });
+        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+
+        let aggro = world.objects.get_component::<AggroList>(&npc_oid).unwrap();
+        assert_eq!(aggro.0[&3001].hate, 0.0, "only the caster's own hate is zeroed");
+        assert_eq!(aggro.0[&DECOY].hate, 900.0, "the decoy's hate is untouched");
+        assert_eq!(world.objects.get_component::<NpcAi>(&npc_oid).unwrap().intention, NpcIntention::Active, "the AI still disengages wholesale, matching Java");
+    }
+}
+
 /// Cure Poison (1012) cleanses a POISON debuff via `DispelBySlot`: it removes a
 /// landed Poison (129) DoT whose `abnormalLevel` is at or below the cure's
 /// dispel level, and leaves a higher-level poison alone. Before the fix

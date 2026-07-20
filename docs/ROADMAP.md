@@ -716,6 +716,31 @@ private-store listing still aren't capacity-checked anywhere on this port —
 only the *number reported* to the client is accurate now, not an enforcement
 gate (`TODO(G29+)`).
 
+**Hate-manipulation effects** (plan:
+[PLAN_G19_HATE_EFFECTS.md](PLAN_G19_HATE_EFFECTS.md)). A fresh ranking sweep
+surfaced a tied cluster of six related effect names sharing one primitive —
+an NPC's `AggroList`, already ported. Rather than take the top name alone and
+defer the rest a fifth time (the `AttackTrait` pattern), bundled the four
+cheap ones: `GetAgro` (Aggression, Aggression Aura, Judgment, Tribunal),
+`AddHate` (Charm, Lure), `DeleteHate` (Eva's Serenade, Peace, Repose),
+`DeleteHateOfMe` (Bluff, Forget, Trick) — 12 learnable-skill instances.
+`GetAgro` needed the most thought: the ported AI derives its attack target
+fresh from `AggroList::most_hated` every think tick rather than caching a
+"current target" the way Java's AI object does, so "force intend-attack the
+caster" had to become "make the caster's hate dominant" (current max + 1, not
+an unbreakable magic constant) rather than a direct intention override.
+`DeleteHate`/`DeleteHateOfMe` both disengage the target's AI wholesale via a
+newly `pub(crate)` `npc_ai::set_active` — previously private, now shared with
+`think_attack`'s own timeout/leash disengage paths rather than a duplicate.
+Deferred: `TargetMe` (paired with `GetAgro` on the same 2 skills) needs a
+locked-target UI concept nothing on this port gates target-changes on;
+`RandomizeHate` (Confusion, Switch) needs a general nearby-visible-creatures
+query that doesn't exist yet (the closest analog, `faction_call`'s neighbour
+scan, only walks NPCs); `GetAgro`'s clan-mate pre-seed is left to the
+already-ported `faction_call`, which recruits reactively once the taunted NPC
+is actually landing hits, at most one think-tick later than Java's immediate
+pre-seed.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued
