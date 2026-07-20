@@ -7,3 +7,4 @@ tools/vector-dump/out/
 *.db-wal
 dist/game/log/*
 dist/login/log/*
+**/.DS_Store
