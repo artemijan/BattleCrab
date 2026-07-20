@@ -15,10 +15,10 @@ use egui::{Align, Color32, Layout, Pos2, Rect, Vec2, ViewportCommand};
 use crate::assets::Assets;
 use crate::config::{self, Config};
 use crate::install::{self, Cancel, InstallRequest};
-use crate::launch::{launch_game, GameProcess};
+use crate::launch::launch_game;
 use crate::progress::{Phase, ProgressRx, Reporter};
 use crate::relocate::{self, Relocation};
-use crate::theme::{self, palette};
+use crate::theme::{self, palette, Surfaces};
 
 /// Native aspect ratio of the logo art (1408x768).
 const LOGO_ASPECT: f32 = 1408.0 / 768.0;
@@ -40,9 +40,16 @@ const PANEL_CONTENT_HEIGHT: f32 = 234.0;
 /// One line, reserved whether or not there is anything to say.
 const STATUS_HEIGHT: f32 = 20.0;
 
+/// Secondary actions (Reinstall, Cancel) match the primary button's height so a row
+/// of them lines up.
+const SECONDARY_BUTTON: Vec2 = Vec2::new(140.0, 46.0);
+/// Play + gap + Reinstall, used to centre that row.
+const ACTION_ROW_WIDTH: f32 = 190.0 + 10.0 + 140.0;
+
 pub struct LauncherApp {
     config: Config,
     assets: Assets,
+    surfaces: Surfaces,
     /// `None` = idle. Otherwise the most recent report from the worker.
     phase: Option<Phase>,
     rx: Option<ProgressRx>,
@@ -52,11 +59,6 @@ pub struct LauncherApp {
     /// Bottom edge of the glass panel as last laid out. Recorded so a test can
     /// assert the panel never grows past the bottom of the fixed-size window.
     panel_bottom: f32,
-    /// The most recently launched client, while it is still running.
-    ///
-    /// Tracked so the UI can say what is actually true. Without it the status sits on
-    /// "Starting game…" indefinitely, which reads as stuck once the client is up.
-    game: Option<GameProcess>,
 }
 
 impl LauncherApp {
@@ -72,12 +74,12 @@ impl LauncherApp {
         Self {
             config: Config::load(),
             assets: Assets::load(ctx),
+            surfaces: Surfaces::load(ctx),
             phase: None,
             rx: None,
             cancel: Cancel::default(),
             status: None,
             panel_bottom: 0.0,
-            game: None,
         }
     }
 
@@ -134,23 +136,6 @@ impl LauncherApp {
         self.phase = Some(phase);
     }
 
-    /// Clears the "Game is running" status once the client actually exits.
-    ///
-    /// egui sleeps between frames unless asked otherwise, so a repaint has to be
-    /// scheduled or the status would only refresh when the user happened to move the
-    /// mouse. One second is far finer than a human notices for this.
-    fn poll_game(&mut self, ctx: &egui::Context) {
-        let Some(game) = &self.game else { return };
-        if game.is_running() {
-            ctx.request_repaint_after(std::time::Duration::from_secs(1));
-            return;
-        }
-        self.game = None;
-        if self.status.as_deref() == Some("Game is running.") {
-            self.status = None;
-        }
-    }
-
     fn pick_install_dir(&mut self) {
         if let Some(dir) = rfd::FileDialog::new()
             .set_title("Choose install folder")
@@ -197,10 +182,8 @@ impl LauncherApp {
             return;
         };
         match launch_game(&exe, config::SERVER_IP) {
-            Ok(game) => {
-                self.game = Some(game);
-                self.status = Some("Game is running.".into());
-            }
+            // Nothing to say: the game window appearing is the feedback.
+            Ok(()) => self.status = None,
             Err(e) => self.status = Some(format!("{e:#}")),
         }
     }
@@ -215,9 +198,8 @@ impl eframe::App for LauncherApp {
 
     /// Runs before every repaint, including repaints the worker requests while the
     /// window is hidden — so progress keeps advancing when minimised.
-    fn logic(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn logic(&mut self, _ctx: &egui::Context, _frame: &mut eframe::Frame) {
         self.poll_worker();
-        self.poll_game(ctx);
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
@@ -234,7 +216,7 @@ impl LauncherApp {
         // which would leave an unpainted strip along the top edge showing through to
         // the transparent background.
         let screen = ctx.viewport_rect();
-        theme::paint_backdrop(ui.painter(), screen);
+        theme::paint_backdrop(ui.painter(), screen, &self.surfaces);
 
         self.title_bar(ui, &ctx, screen);
 
@@ -243,10 +225,16 @@ impl LauncherApp {
             .show(ui, |ui| {
                 ui.vertical_centered(|ui| self.logo(ui));
                 ui.add_space(6.0);
-                let panel =
-                    theme::glass_group(ui, theme::PANEL_RADIUS, PANEL_CONTENT_HEIGHT, |ui| {
-                        self.body(ui, &ctx)
-                    });
+                // Cloned out of `self` first: `glass_group` borrows the surfaces for
+                // the duration of a closure that needs `&mut self`.
+                let surfaces = self.surfaces.clone();
+                let panel = theme::glass_group(
+                    ui,
+                    theme::PANEL_RADIUS,
+                    PANEL_CONTENT_HEIGHT,
+                    &surfaces,
+                    |ui| self.body(ui, &ctx),
+                );
                 self.panel_bottom = panel.response.rect.bottom();
             });
     }
@@ -262,6 +250,13 @@ impl LauncherApp {
     #[cfg(test)]
     pub fn panel_bottom(&self) -> f32 {
         self.panel_bottom
+    }
+
+    /// Pretends a client is installed, so the render test can reach the Play state.
+    /// That state has an extra button and is the tallest one — it needs covering.
+    #[cfg(test)]
+    pub fn set_installed_for_test(&mut self, game_exe: Option<std::path::PathBuf>) {
+        self.config.game_exe = game_exe;
     }
 
     /// Undecorated windows have no OS title bar, so this provides the drag region
@@ -414,18 +409,26 @@ impl LauncherApp {
 
     fn action_row(&mut self, ui: &mut egui::Ui, ctx: &egui::Context) {
         if self.busy() {
-            if theme::ghost_button(ui, "Cancel", true).clicked() {
+            if theme::ghost_button_sized(ui, "Cancel", true, SECONDARY_BUTTON).clicked() {
                 self.cancel.cancel();
             }
             return;
         }
 
         if self.config.is_installed() {
-            if theme::primary_button(ui, "Play").clicked() {
+            // Side by side, not stacked: `vertical_centered` would otherwise put
+            // Reinstall below Play, making this state taller than every other and
+            // pushing the panel past the bottom of the fixed-size window.
+            let (play, reinstall) = theme::centered_row(ui, ACTION_ROW_WIDTH, |ui| {
+                let play = theme::primary_button(ui, "Play").clicked();
+                let reinstall =
+                    theme::ghost_button_sized(ui, "Reinstall", true, SECONDARY_BUTTON).clicked();
+                (play, reinstall)
+            });
+            if play {
                 self.play();
             }
-            ui.add_space(6.0);
-            if theme::ghost_button(ui, "Reinstall", true).clicked() {
+            if reinstall {
                 self.start_install(ctx);
             }
         } else {
@@ -504,7 +507,11 @@ mod tests {
         let out = std::path::Path::new("target/ui-render");
         std::fs::create_dir_all(out).unwrap();
 
-        for (name, phase, status) in states() {
+        // A real file, because `is_installed` checks the path exists on disk.
+        let fake_exe = out.join("l2.exe");
+        std::fs::write(&fake_exe, b"MZ").unwrap();
+
+        for (name, phase, status, installed) in states() {
             let mut app: Option<LauncherApp> = None;
             // `Cell` rather than a plain `f32`: the closure is held by the harness
             // for its whole lifetime, so a mutable capture would still be borrowed
@@ -516,6 +523,7 @@ mod tests {
                 .build_ui(|ui| {
                     let app = app.get_or_insert_with(|| LauncherApp::with_context(ui.ctx()));
                     app.set_state_for_test(phase.clone(), status.clone());
+                    app.set_installed_for_test(installed.then(|| fake_exe.clone()));
                     app.draw(ui);
                     bottom.set(app.panel_bottom());
                 });
@@ -541,9 +549,9 @@ mod tests {
     /// straight past the bottom of the fixed-size window. Rendering the failed state
     /// with no status message at all is what let that ship.
     #[allow(clippy::type_complexity)]
-    fn states() -> Vec<(&'static str, Option<Phase>, Option<String>)> {
+    fn states() -> Vec<(&'static str, Option<Phase>, Option<String>, bool)> {
         vec![
-            ("idle", None, None),
+            ("idle", None, None, false),
             (
                 "downloading",
                 Some(Phase::Downloading {
@@ -551,22 +559,29 @@ mod tests {
                     total: Some(9_300_000_000),
                 }),
                 None,
+                false,
             ),
             (
                 "unpacking",
                 Some(Phase::Extracting { done: 7_000_000_000, total: 9_300_000_000 }),
                 None,
+                false,
             ),
             (
                 "failed",
                 Some(Phase::Failed(LONG_ERROR.into())),
                 Some(LONG_ERROR.into()),
+                false,
             ),
             (
                 "ready",
                 Some(Phase::Ready),
                 Some("Installation complete.".into()),
+                true,
             ),
+            // The tallest state: Play *and* Reinstall. Rendering only the
+            // not-installed states is what let the panel overflow the window here.
+            ("installed", None, None, true),
         ]
     }
 

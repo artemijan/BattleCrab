@@ -35,4 +35,4 @@ sevenz-rust2 = { version = "0.21.3", default-features = false, features = ["util
 # For ShellExecuteExW — the only way to start a program that requests elevation.
 # `Win32_System_Registry` is not used directly; SHELLEXECUTEINFOW is gated behind it
 # because the struct carries an HKEY field.
-windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging", "Win32_System_Registry", "Win32_System_Threading"] }
+windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging", "Win32_System_Registry"] }

@@ -51,6 +51,14 @@ faked in any renderer without a blur pass:
   transparency, is what actually reads as "pane of glass".
 - A hairline light stroke gives each pane a lit rim.
 
+Both gradients are **baked into textures** and drawn as texture-filled rounded rects
+(`RectShape::with_texture`), not as meshes. A mesh gradient is a sharp-cornered quad:
+painted over a rounded rect it spills past the rounding and leaves stray
+semi-transparent pixels just outside each corner. The radial glows were worse, since a
+circle centred near an edge extends beyond the window entirely. A rounded rect clips to
+its own rounding, so a texture fill cannot spill by construction. `theme::Surfaces`
+holds the two textures, uploaded once at startup.
+
 The window is undecorated and transparent so the rounded corners are not framed by an
 opaque OS title bar — which means `app.rs` owns the title bar: drag, minimise, close.
 
@@ -166,13 +174,8 @@ prompt would mean shipping a client whose manifest does not demand administrator
 Passing the path and arguments as separate fields also sidesteps quoting, which
 matters: real install paths contain spaces (`…\BattleCrab\The Game\system`).
 
-The process handle is kept (`SEE_MASK_NOCLOSEPROCESS`) and polled once a second, so
-the status reflects what is actually true — "Game is running", cleared when the client
-exits. Without it the status sat on "Starting game…" indefinitely and read as stuck.
-The poll needs an explicit `request_repaint_after`, since egui sleeps between frames.
-
-Play stays enabled while a client is running: multiboxing is normal in L2, so a second
-launch is deliberately allowed rather than blocked.
+Nothing is shown on success — the game window appearing is the feedback. Only
+failures produce a status line.
 
 ## Archive format
 
