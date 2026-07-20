@@ -1056,7 +1056,11 @@ impl Player {
 
         // Weapon range / damage spread replace the class template constants
         // while a weapon is equipped (`PRangeFinalizer` / `RandomDamageFinalizer`).
-        combat.atk_range = eq.weapon_atk_range.unwrap_or(t.base_atk_range);
+        // `PRangeFinalizer` is a plain `defaultValue(base*mul+add)` finalizer —
+        // Archery 431/Long Shot 113/Rapid Fire 413/Snipe 972 (`PhysicalAttackRange`,
+        // all `<weaponType>BOW</weaponType>`-conditioned) previously had no stat
+        // to land on here at all.
+        combat.atk_range = finalize(mods, Stat::PhysicalAttackRange, (eq.weapon_atk_range.unwrap_or(t.base_atk_range)) as f64) as i32;
         combat.random_dmg = eq.weapon_random_dmg.unwrap_or(10);
 
         // SpeedFinalizer: every player speed stat gets `Config.RUN_SPD_BOOST`
