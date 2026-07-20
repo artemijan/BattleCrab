@@ -166,6 +166,14 @@ prompt would mean shipping a client whose manifest does not demand administrator
 Passing the path and arguments as separate fields also sidesteps quoting, which
 matters: real install paths contain spaces (`…\BattleCrab\The Game\system`).
 
+The process handle is kept (`SEE_MASK_NOCLOSEPROCESS`) and polled once a second, so
+the status reflects what is actually true — "Game is running", cleared when the client
+exits. Without it the status sat on "Starting game…" indefinitely and read as stuck.
+The poll needs an explicit `request_repaint_after`, since egui sleeps between frames.
+
+Play stays enabled while a client is running: multiboxing is normal in L2, so a second
+launch is deliberately allowed rather than blocked.
+
 ## Archive format
 
 `client.7z`, decoded by `sevenz-rust2` — pure Rust, which matters because a C

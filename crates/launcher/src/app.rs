@@ -15,7 +15,7 @@ use egui::{Align, Color32, Layout, Pos2, Rect, Vec2, ViewportCommand};
 use crate::assets::Assets;
 use crate::config::{self, Config};
 use crate::install::{self, Cancel, InstallRequest};
-use crate::launch::launch_game;
+use crate::launch::{launch_game, GameProcess};
 use crate::progress::{Phase, ProgressRx, Reporter};
 use crate::relocate::{self, Relocation};
 use crate::theme::{self, palette};
@@ -52,6 +52,11 @@ pub struct LauncherApp {
     /// Bottom edge of the glass panel as last laid out. Recorded so a test can
     /// assert the panel never grows past the bottom of the fixed-size window.
     panel_bottom: f32,
+    /// The most recently launched client, while it is still running.
+    ///
+    /// Tracked so the UI can say what is actually true. Without it the status sits on
+    /// "Starting game…" indefinitely, which reads as stuck once the client is up.
+    game: Option<GameProcess>,
 }
 
 impl LauncherApp {
@@ -72,6 +77,7 @@ impl LauncherApp {
             cancel: Cancel::default(),
             status: None,
             panel_bottom: 0.0,
+            game: None,
         }
     }
 
@@ -128,6 +134,23 @@ impl LauncherApp {
         self.phase = Some(phase);
     }
 
+    /// Clears the "Game is running" status once the client actually exits.
+    ///
+    /// egui sleeps between frames unless asked otherwise, so a repaint has to be
+    /// scheduled or the status would only refresh when the user happened to move the
+    /// mouse. One second is far finer than a human notices for this.
+    fn poll_game(&mut self, ctx: &egui::Context) {
+        let Some(game) = &self.game else { return };
+        if game.is_running() {
+            ctx.request_repaint_after(std::time::Duration::from_secs(1));
+            return;
+        }
+        self.game = None;
+        if self.status.as_deref() == Some("Game is running.") {
+            self.status = None;
+        }
+    }
+
     fn pick_install_dir(&mut self) {
         if let Some(dir) = rfd::FileDialog::new()
             .set_title("Choose install folder")
@@ -174,7 +197,10 @@ impl LauncherApp {
             return;
         };
         match launch_game(&exe, config::SERVER_IP) {
-            Ok(()) => self.status = Some("Starting game…".into()),
+            Ok(game) => {
+                self.game = Some(game);
+                self.status = Some("Game is running.".into());
+            }
             Err(e) => self.status = Some(format!("{e:#}")),
         }
     }
@@ -189,8 +215,9 @@ impl eframe::App for LauncherApp {
 
     /// Runs before every repaint, including repaints the worker requests while the
     /// window is hidden — so progress keeps advancing when minimised.
-    fn logic(&mut self, _ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn logic(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         self.poll_worker();
+        self.poll_game(ctx);
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
