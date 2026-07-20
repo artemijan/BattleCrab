@@ -116,6 +116,12 @@ pub enum Stat {
     /// learnable skill grants it on this dist (7 non-learnable ones do), so it
     /// is folded for completeness and reads as the 1.0 default in practice.
     DefenceMagicCriticalDamage,
+    /// Java `Stat.MANA_CHARGE` ("manaCharge") — a flat bonus on the amount a
+    /// *recharge* skill restores, granted by Higher Mana Gain 285 (`ManaCharge`,
+    /// `mode=DIFF`, +22..81 by level). Read off the **recipient** by
+    /// `ManaHeal`/`ManaHealByLevel` as `getValue(MANA_CHARGE, amount)` —
+    /// i.e. `mul * amount + add`, so a DIFF grant is a flat addition.
+    ManaCharge,
     /// Java `Stat.INVENTORY_NORMAL` ("inventoryLimit") — a flat bonus on top
     /// of the race-based inventory-slot base. Expand Inventory (1372,
     /// `EnlargeSlot` with no `<type>`, which defaults to this) raises it.

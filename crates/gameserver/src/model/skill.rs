@@ -202,6 +202,25 @@ pub enum SkillEffect {
     /// effect that drops the victim's target and aborts their attack and cast
     /// (Trick 11, Switch 12, Aura Flash 1417).
     TargetCancel { chance: i32 },
+    /// The MP-restore family — four Java handlers that differ only in how they
+    /// compute the amount, then share one apply path (dead/door/`isMpBlocked`
+    /// gate, overheal clamp, `broadcastStatusUpdate`, and the self-vs-other
+    /// system message).
+    ///
+    /// | variant | Java handler | amount |
+    /// |---|---|---|
+    /// | [`Self::ManaHeal`] | `ManaHeal` | flat `power`, then `MANA_CHARGE` |
+    /// | [`Self::ManaHealByLevel`] | `ManaHealByLevel` | as above, then a level-gap penalty |
+    /// | [`Self::ManaHealPercent`] | `ManaHealPercent` | `maxMp * power / 100` |
+    /// | [`Self::MpRestore`] | `Mp` | flat, or `maxMp * amount / 100` in `PER` mode |
+    ///
+    /// Mortal Strike 410 is the one learnable `ManaHeal`; Recharge 1013,
+    /// Servitor Recharge 1126 and Mass Recharge 1428 are the `ManaHealByLevel`
+    /// ones; Pain of Sagittarius 417 and Body To Mind 1157 the `Mp` ones.
+    ManaHeal { power: f64 },
+    ManaHealByLevel { power: f64 },
+    ManaHealPercent { power: f64 },
+    MpRestore { amount: f64, percent: bool },
     /// `handlers/effecthandlers/MagicalAttackMp.java` — an MP drain (Mana Burn
     /// 1398, Mana Storm 1399, Aura Sink 1102, Seal of Gloom 1210). Damage is
     /// dealt to the target's **MP pool**, not HP, by its own `calcManaDam`
@@ -643,9 +662,9 @@ pub mod effect_flag {
     /// and **five** of them read `isMpBlocked()`: `MagicalAttackMp`, `Mp`,
     /// `ManaHeal`, `ManaHealByLevel`, `ManaHealPercent`. The flag is live, not
     /// dead code. `MagicalAttackMp`'s gate is ported
-    /// (`game_loop::abnormal::is_mp_blocked`); the four MP-restore handlers
-    /// should read it too as they land. TODO(G19): wire the `ManaHeal*` family
-    /// when those effects are ported.
+    /// (`game_loop::abnormal::is_mp_blocked`), and so is the whole MP-restore
+    /// family (`ManaHeal`/`ManaHealByLevel`/`ManaHealPercent`/`Mp`) — the flag
+    /// blocks restoration as well as drain.
     pub const MP_BLOCK: u32 = 1 << 8;
     /// `FEAR` — Java declares the flag on `Fear.getEffectFlags()`, but **no
     /// `isAfraid()` accessor exists and nothing reads the bit** (grepped the
