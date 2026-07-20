@@ -147,6 +147,27 @@ RUSTFLAGS="-C strip=symbols" cargo zigbuild -p launcher \
 Not set in `[profile.release]` because Cargo profiles are workspace-wide and that
 would change how the game and login servers are built too.
 
+### Windows on ARM
+
+Ship the x64 binary — it covers ARM machines too, via the x64 emulation built into
+Windows 11 on ARM.
+
+A native ARM64 build also works, if it is ever wanted:
+
+```
+rustup target add aarch64-pc-windows-gnullvm
+cargo zigbuild -p launcher --target aarch64-pc-windows-gnullvm --release
+```
+
+Produces `PE32+ executable (GUI) Aarch64`, 14 MB. Note `gnullvm`, not `gnu` — there
+is no `aarch64-pc-windows-gnu`, since mingw does not target ARM64.
+
+It is not shipped because the payoff is small: `l2.exe` is a 32-bit x86 binary and
+runs emulated on ARM regardless, so a native launcher only hands off to an emulated
+game. The one genuine gain is zstd decompression, which is CPU-bound and slower under
+emulation. That does not currently outweigh maintaining a second binary for an
+audience that is overwhelmingly x64 desktops.
+
 ### Why this is possible at all
 
 Only because TLS is `native-tls` (SChannel on Windows) rather than rustls. rustls
