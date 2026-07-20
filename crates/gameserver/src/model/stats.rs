@@ -118,6 +118,12 @@ pub enum Stat {
     /// (1368) and Expand Common Craft (1369) raise them.
     RecipeDwarven,
     RecipeCommon,
+    /// Java `Stat.PHYSICAL_ATTACK_RANGE` ("pAtkRange") — the melee/bow reach
+    /// added on top of the equipped weapon's own range (`PRangeFinalizer`).
+    /// Archery 431/Snipe 972 (`DIFF`, bow-conditioned) raise it; Long Shot 113
+    /// too (level-scaled DIFF); Rapid Fire 413 cuts it (`PER -50`, a stance
+    /// trading range for reload speed) — all four gated on `<weaponType>BOW`.
+    PhysicalAttackRange,
 }
 
 /// Java `StatModifierType` (`AbstractStatAddEffect`/`AbstractStatPercentEffect`):

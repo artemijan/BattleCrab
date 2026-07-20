@@ -2874,6 +2874,65 @@ fn shield_mastery_passive_raises_shield_block_stats() {
     );
 }
 
+/// G19 `PhysicalAttackRange`: Archery (431, real dist data — `<weaponType>
+/// BOW</weaponType>`-conditioned, `+50 DIFF`) raises the reach of a bow past
+/// its own `pAtkRange` (item 14 "Bow", 500). Before this slice the effect
+/// name fell through to nothing (`combat.atk_range` read the equipped
+/// weapon's raw range with no stat modifier applied at all — the same gap
+/// `ShieldDefenceRate` had before an earlier slice). The weapon condition
+/// gate is also checked: unarmed, Archery must be inert.
+#[test]
+fn archery_passive_raises_bow_attack_range() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
+    let mut data = GameData::for_test();
+    data.player_templates = crate::data::player_template::PlayerTemplateData::load_from(DIST);
+    data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
+    data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    data.skill_data = crate::data::skill_data::SkillData::load_from(DIST);
+    let world = World::new(link_tx, 7, 3, 0, data, db_tx);
+
+    let paperdoll = |object_id, item_id, slot| crate::character::ItemRow {
+        object_id,
+        item_id,
+        count: 1,
+        enchant_level: 0,
+        loc: "PAPERDOLL".into(),
+        loc_data: slot,
+        custom_type1: 0,
+        custom_type2: 0,
+        mana_left: -1,
+        time: 0,
+        augment_mineral: 0,
+        augment_option1: 0,
+        augment_option2: 0,
+    };
+    // Item 14 "Bow" (pAtkRange 500) in RHand (slot 5, two-handed).
+    let mut bare = dummy_char(5401, "Bare Bow");
+    bare.items = vec![paperdoll(1, 14, 5)];
+    let bare_bundle = Player::from_char(&world.data, &bare);
+    assert_eq!(bare_bundle.combat.atk_range, 500, "no skill: raw bow range unchanged");
+
+    let mut archer = dummy_char(5402, "Archer");
+    archer.items = vec![paperdoll(2, 14, 5)];
+    archer.skills = vec![(431, 1)]; // Archery
+    let archer_bundle = Player::from_char(&world.data, &archer);
+    assert_eq!(archer_bundle.combat.atk_range, 550, "Archery: +50 bow range");
+
+    // The `<weaponType>BOW</weaponType>` condition: unarmed, Archery must not
+    // leak its bonus onto the bare-fist range.
+    let unarmed_bare = dummy_char(5403, "Unarmed Bare");
+    let unarmed_bare_bundle = Player::from_char(&world.data, &unarmed_bare);
+    let mut unarmed_archer = dummy_char(5404, "Unarmed Archer");
+    unarmed_archer.skills = vec![(431, 1)];
+    let unarmed_archer_bundle = Player::from_char(&world.data, &unarmed_archer);
+    assert_eq!(
+        unarmed_archer_bundle.combat.atk_range, unarmed_bare_bundle.combat.atk_range,
+        "Archery is inert without a bow equipped"
+    );
+}
+
 /// G19 `EnlargeSlot`: Expand Inventory (1372, real dist data, no `<type>` so
 /// it defaults to `Stat::InventoryNormal`) raises the inventory-slot cap
 /// `UserInfo`'s INVENTORY_LIMIT block reports. Passives fold into

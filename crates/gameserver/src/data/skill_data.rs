@@ -64,6 +64,14 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // `Stat.SHIELD_DEFENCE` (single-stat `AbstractStatEffect`), folded into
     // `shield_stats` alongside `ShieldDefenceRate` above.
     ("ShieldDefence", Stat::ShieldDefence),
+    // Archery 431/Long Shot 113/Rapid Fire 413/Snipe 972: `PhysicalAttackRange`
+    // → `Stat.PHYSICAL_ATTACK_RANGE` (single-stat `AbstractStatEffect`, all
+    // four `<weaponType>BOW</weaponType>`-conditioned — the condition mask is
+    // already generic, read off `armor_condition`/`weapon_condition` like
+    // every other registry entry). Folded into `recalculate_stats`'
+    // `combat.atk_range` line, which previously read the equipped weapon's
+    // raw range directly with no stat modifier applied at all.
+    ("PhysicalAttackRange", Stat::PhysicalAttackRange),
 ];
 
 pub struct SkillData {
@@ -1892,6 +1900,60 @@ mod tests {
                 [SkillEffect::DispelByCategory { slot: DispelSlot::Debuff, rate: 100, max: 10 }]
             ),
             "DEBUFF/100/10: {:?}", cleanse.effects
+        );
+    }
+
+    /// G19 `PhysicalAttackRange`: real dist shapes — Archery (431, `DIFF
+    /// +50`) and Rapid Fire (413, `PER -50`, a stance trading range for
+    /// reload speed), both `<weaponType>BOW</weaponType>`-conditioned. Before
+    /// this it was unregistered in `EFFECT_REGISTRY` and fell through.
+    #[test]
+    fn physical_attack_range_parses_diff_and_per_bow_conditioned() {
+        let xml = r#"
+        <list>
+            <skill id="431" toLevel="1" name="Archery">
+                <operateType>P</operateType>
+                <targetType>SELF</targetType>
+                <effects>
+                    <effect name="PhysicalAttackRange">
+                        <amount>50</amount>
+                        <mode>DIFF</mode>
+                        <weaponType><item>BOW</item></weaponType>
+                    </effect>
+                </effects>
+            </skill>
+            <skill id="413" toLevel="1" name="Rapid Fire">
+                <operateType>T</operateType>
+                <targetType>SELF</targetType>
+                <effects>
+                    <effect name="PhysicalAttackRange">
+                        <amount>-50</amount>
+                        <mode>PER</mode>
+                        <weaponType><item>BOW</item></weaponType>
+                    </effect>
+                </effects>
+            </skill>
+        </list>"#;
+        let mut out = HashMap::new();
+        parse_str(xml, &mut out);
+
+        let archery = out.get(&(431, 1)).expect("Archery parsed");
+        assert!(
+            matches!(
+                archery.effects.as_slice(),
+                [SkillEffect::StatModifier(StatModifierEffect { stat: Stat::PhysicalAttackRange, mode: StatModifierType::Diff, amount, weapon_condition, .. })]
+                    if *amount == 50.0 && *weapon_condition != 0
+            ),
+            "DIFF +50, bow-conditioned: {:?}", archery.effects
+        );
+        let rapid_fire = out.get(&(413, 1)).expect("Rapid Fire parsed");
+        assert!(
+            matches!(
+                rapid_fire.effects.as_slice(),
+                [SkillEffect::StatModifier(StatModifierEffect { stat: Stat::PhysicalAttackRange, mode: StatModifierType::Per, amount, weapon_condition, .. })]
+                    if *amount == -50.0 && *weapon_condition != 0
+            ),
+            "PER -50, bow-conditioned: {:?}", rapid_fire.effects
         );
     }
 

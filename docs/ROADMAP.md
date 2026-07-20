@@ -767,6 +767,21 @@ own precedent): `isIrreplacableBuff()`/hero/GM/static-skill exclusions, none
 of which exist on the ported `Skill` struct and none of which any learnable
 skill on this dist needs.
 
+**PhysicalAttackRange** (plan:
+[PLAN_G19_PHYSICAL_ATTACK_RANGE.md](PLAN_G19_PHYSICAL_ATTACK_RANGE.md)) —
+Archery, Long Shot, Rapid Fire, Snipe. The cheapest of the tied-at-4 cluster
+`DispelByCategory` was picked from: a same-shape repeat of the already-solved
+`ShieldDefenceRate`/`AttackCancel` pattern (a single-`Stat`
+`AbstractStatEffect`), needing no new code shape — just an `EFFECT_REGISTRY`
+entry and wrapping `recalculate_stats`' bare `combat.atk_range =
+eq.weapon_atk_range.unwrap_or(t.base_atk_range)` line in `finalize()`, the
+same gap `ShieldDefenceRate` itself had before an earlier slice (parsed
+doesn't help if the finalizer never calls `finalize`). All four learnable
+instances are `<weaponType>BOW</weaponType>`-conditioned; the condition mask
+is generic across every `EFFECT_REGISTRY` entry already, so the four bow
+skills needed nothing extra to gate correctly — proven by a test showing
+Archery's `+50` is inert while unarmed.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued
