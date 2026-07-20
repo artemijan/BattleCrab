@@ -7,6 +7,20 @@
 use egui::{Color32, ColorImage, TextureHandle, TextureOptions};
 
 const LOGO_PNG: &[u8] = include_bytes!("../assets/logo.png");
+const ICON_PNG: &[u8] = include_bytes!("../assets/icon.png");
+
+/// Icon for the live window — title bar, taskbar, Alt-Tab.
+///
+/// Distinct from the icon `build.rs` compiles into the PE resource table: that one is
+/// what Explorer shows for the *file*, this one is what Windows shows for the
+/// *running window*. Both are needed; neither substitutes for the other.
+pub fn window_icon() -> egui::IconData {
+    let img = image::load_from_memory(ICON_PNG)
+        .expect("embedded icon.png is not a valid image")
+        .to_rgba8();
+    let (width, height) = img.dimensions();
+    egui::IconData { rgba: img.into_raw(), width, height }
+}
 
 /// Decodes the logo and keys its black background out to transparency.
 ///

@@ -116,6 +116,58 @@ to change. It also buys resumable downloads and per-chunk updates.
 - Free-disk-space check before starting a ~9 GB download.
 - Visual design.
 
+## Icons
+
+There are **two** icons, and they are unrelated mechanisms — neither substitutes for
+the other:
+
+- `assets/icon.ico` is compiled into the PE resource table by `build.rs`. This is what
+  Explorer shows for the *file*, and what a pinned taskbar shortcut uses.
+- `assets/icon.png` is loaded at runtime via `ViewportBuilder::with_icon`. This is
+  what Windows shows for the *running window* — title bar and Alt-Tab.
+
+Both are cropped from the logo's round medallion. The full wide logo is illegible
+below about 64px; the medallion keeps "L2R" readable down to 32px and degrades to a
+recognisable blue-and-gold disc at 16px.
+
+To regenerate them from `dist/images/logo2.png` (needs ImageMagick):
+
+```
+magick dist/images/logo2.png -crop 500x500+450+40 +repage \
+  \( -size 500x500 xc:black -fill white -draw "circle 250,250 250,6" \) \
+  -alpha off -compose CopyOpacity -composite -resize 512x512 /tmp/icon_src.png
+magick /tmp/icon_src.png -resize 256x256 crates/launcher/assets/icon.png
+magick /tmp/icon_src.png -define icon:auto-resize=256,128,64,48,32,16 \
+  crates/launcher/assets/icon.ico
+```
+
+`build.rs` needs a resource compiler, which Rust does not ship. It uses LLVM's
+(`brew install llvm`) and picks a route per target architecture:
+
+| Arch | Route |
+| --- | --- |
+| x86_64 / x86 | `llvm-windres --target=pe-x86-64` (or `pe-i386`) — one step to COFF |
+| aarch64 | `llvm-rc` then `llvm-cvtres /machine:ARM64` — `llvm-windres` has no ARM64 BFD name |
+
+Two traps, both already paid for:
+
+- The resource object must be built for the **target** machine. Building it for the
+  host gives `lld-link: error: machine type arm64 conflicts with x64`.
+- `llvm-rc` and `llvm-cvtres` take MSVC-style `/FLAG` options, which collide with
+  Unix absolute paths — `/Users/…/icon.res` parses as an option and fails with
+  "Exactly one input file should be provided". `build.rs` runs them from `OUT_DIR`
+  with bare relative filenames.
+
+If no resource compiler is found the build still succeeds, with a warning and no file
+icon, so the workspace stays buildable without LLVM.
+
+Verify a built binary really has it:
+
+```
+llvm-readobj --coff-resources target/x86_64-pc-windows-gnu/release/launcher.exe
+# expect: Total Number of Resources: 7, Type: ICON, Type: GROUP_ICON
+```
+
 ## Building the Windows binary from macOS
 
 Cross-compiles from an Apple Silicon Mac with no Windows machine involved:
