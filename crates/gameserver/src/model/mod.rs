@@ -185,6 +185,14 @@ pub struct Player {
     /// player currently wields (0 = none). Set by `CursedWeapon.activate`,
     /// cleared by `endOfLife`; suppresses karma decay and gates un-equip.
     pub cursed_weapon_equipped_id: i32,
+    /// Java `Player._charges` — the warrior "Force" resource (Sonic Focus →
+    /// Sonic Blaster/Buster, and the Orc/Dark Elf Force Burst/Storm/Blaster
+    /// equivalents). Transient, never persisted (matches Java: an
+    /// `AtomicInteger`, not a DB column). TODO(G19): Java also resets this to
+    /// 0 after 10 minutes of inactivity (`ResetChargesTask`,
+    /// `restartChargeTask`/`stopChargeTask`) — not ported; charges only ever
+    /// change via an explicit gain/consume here.
+    pub charges: i32,
     /// `PlayerStat._vitalityPoints` — always clamped to
     /// [`MIN_VITALITY_POINTS`]..=[`MAX_VITALITY_POINTS`]. Persisted in
     /// `characters.vitality_points`; consumed on monster kills and spent as an
@@ -776,6 +784,7 @@ impl Player {
             // Restored by CursedWeaponsManager at enter-world if held (TODO(G21):
             // cursedOnLogin); a fresh session starts unowned.
             cursed_weapon_equipped_id: 0,
+            charges: 0,
             vitality_points: c.vitality_points,
             pccafe_points: c.pccafe_points,
             prime_points: c.prime_points,

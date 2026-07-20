@@ -105,8 +105,9 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
                 .get_component::<crate::model::components::AdminFlags>(&object_id)
                 .is_some_and(|f| f.silence);
             let user_info = crate::network::user_info::user_info(&view, &world.data, &world.cfg.character, super::party::calculate_relation(world, view.p));
+            let charges = view.p.charges;
             if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(crate::network::enter_world::etc_status_update(weapon_penalty, armor_penalty, silence));
+                cs.send(crate::network::enter_world::etc_status_update(charges, weapon_penalty, armor_penalty, silence));
                 cs.send(user_info);
             }
         }

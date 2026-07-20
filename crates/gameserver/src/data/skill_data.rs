@@ -667,6 +667,28 @@ fn finalize_skill(
                     // effect fell through to `EFFECT_REGISTRY`, wasn't found,
                     // and the heal amount was silently 0.
                     "HealPercent" => vec![SkillEffect::HealPercent { power: param("power").unwrap_or(0.0) }],
+                    // Sonic Focus (8), Focus Force (50), Sonic Rage (345), …:
+                    // without this arm the effect fell through to
+                    // `EFFECT_REGISTRY`, wasn't found, and the "build Force"
+                    // toggle/skill did nothing.
+                    "FocusMomentum" => vec![SkillEffect::FocusMomentum {
+                        amount: param("amount").unwrap_or(1.0) as i32,
+                        max_charges: param("maxCharges").unwrap_or(0.0) as i32,
+                    }],
+                    // Double Sonic Slash (5), Sonic Blaster (6), Force Burst
+                    // (17), …: `chargeConsume` is a *skill-level* tag (a
+                    // sibling of `<targetType>`), not a child of the
+                    // `<effect name="EnergyAttack">` element itself — Java's
+                    // effect constructors read the skill's whole merged param
+                    // set, so it reaches `_chargeConsume` the same way. Without
+                    // this arm the effect fell through to `EFFECT_REGISTRY`,
+                    // wasn't found, and every Force-spend attack did nothing.
+                    "EnergyAttack" => vec![SkillEffect::EnergyAttack {
+                        power: param("power").unwrap_or(0.0),
+                        critical_chance: param("criticalChance").unwrap_or(10.0),
+                        p_def_mod: param("pDefMod").unwrap_or(1.0),
+                        charge_consume: value_at(values, "chargeConsume", level).and_then(|v| v.parse().ok()).unwrap_or(0),
+                    }],
                     "Restoration" => match (param("itemId"), param("itemCount")) {
                         (Some(item_id), Some(item_count)) => vec![SkillEffect::GiveItem {
                             item_id: item_id as i32,

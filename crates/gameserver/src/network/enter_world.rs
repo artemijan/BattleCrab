@@ -194,13 +194,14 @@ pub fn henna_info() -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `EtcStatusUpdate` (0xF9). Charges/weight/death-penalty/souls are still 0
-/// (not modeled yet); the weapon/armor grade-penalty bytes carry the levels
-/// computed by `refresh_expertise_penalty`.
-pub fn etc_status_update(weapon_grade_penalty: i32, armor_grade_penalty: i32, message_refusal: bool) -> Vec<u8> {
+/// `EtcStatusUpdate` (0xF9). Weight/death-penalty/souls are still 0 (not
+/// modeled yet); `charges` (G19, `Player.charges` — the Force resource) and
+/// the weapon/armor grade-penalty bytes (`refresh_expertise_penalty`) carry
+/// real state.
+pub fn etc_status_update(charges: i32, weapon_grade_penalty: i32, armor_grade_penalty: i32, message_refusal: bool) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0xF9);
-    w.write_u8(0); // charges
+    w.write_u8(charges as u8);
     w.write_i32(0); // weight penalty
     w.write_u8(weapon_grade_penalty as u8); // weapon grade penalty [1-4]
     w.write_u8(armor_grade_penalty as u8); // armor grade penalty [1-4]

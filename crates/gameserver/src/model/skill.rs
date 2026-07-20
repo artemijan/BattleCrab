@@ -215,6 +215,30 @@ pub enum SkillEffect {
     /// (`DamageBlock`'s `BLOCK_HP` flag) — not gated, since that effect isn't
     /// ported yet either.
     HealPercent { power: f64 },
+    /// `handlers/effecthandlers/FocusMomentum.java` — the "Force" gain half of
+    /// the Sonic/Force skill family (Sonic Focus 8, Focus Force 50, Sonic Rage
+    /// 345, Raging Force 346, …): `+amount` charges (default 1), capped at
+    /// `max_charges.min(8)` — Java's `MAX_MOMENTUM` stat is never set anywhere
+    /// in this datapack, so `8` (the hardcoded fallback `FocusMomentum.java`
+    /// itself passes to `getValue`) is the real cap on this build, not a
+    /// simplification. Already at the cap: refused with SM 324 (no gain).
+    /// Otherwise SM 323 (`"Your force has increased to level $s1"`) +
+    /// `EtcStatusUpdate` (the charge-count icon).
+    FocusMomentum { amount: i32, max_charges: i32 },
+    /// `handlers/effecthandlers/EnergyAttack.java` — the "Force" *spend* half:
+    /// instant physical damage (Double Sonic Slash 5, Sonic Blaster 6, Sonic
+    /// Buster 9, Force Burst/Storm/Blaster 17/35/54, …), sharing
+    /// [`SkillEffect::PhysicalAttack`]'s `77·((pAtk·levelMod) + power) /
+    /// (pDef·pDefMod)` core (same simplifications: no weapon/general trait,
+    /// weakness, attribute or PvP/PvE multiplier terms — none of those are
+    /// modeled here either) times `energyChargesBoost = 1 + charge·0.1`, where
+    /// `charge = min(charge_consume, player.charges)` is spent on landing.
+    /// `charge_consume` is a **skill-level** `<chargeConsume>` tag, not an
+    /// `<effect>` child — Java's effect constructors read the skill's whole
+    /// merged param set, not just their own element's children.
+    /// TODO(G20): shield-block `pDef` add / perfect-block-to-1-damage, same
+    /// gap `PhysicalAttack` already has — not modeled for either.
+    EnergyAttack { power: f64, critical_chance: f64, p_def_mod: f64, charge_consume: i32 },
     /// Dagger blow skills (`FatalBlow`/`Backstab`/`SoulBlow`) — instant physical
     /// damage via `Formulas.calcBlowDamage`, gated by a `calcBlowSuccess` land
     /// roll (blows can miss). `critical_chance` is `Some` for FatalBlow/Backstab
