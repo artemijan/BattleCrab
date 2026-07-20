@@ -895,6 +895,27 @@ fn finalize_skill(
                     "MagicMpCost" => vec![SkillEffect::MagicMpCost],
                     "Reuse" => vec![SkillEffect::Reuse],
                     "DamageShield" => vec![SkillEffect::DamageShield],
+                    // Expand Inventory/Warehouse/Trade/Common Craft/Dwarven
+                    // Craft (1368-1372, the craftsman-guild storage passives):
+                    // Java `EnlargeSlot extends AbstractStatEffect` reads
+                    // `amount` + a `type` string picking one of 6 `Stat`s; an
+                    // absent `type` (Expand Inventory) defaults to
+                    // INVENTORY_NORMAL. Expand Trade carries two effect blocks
+                    // per level, one TRADE_BUY one TRADE_SELL. The 1-name-1-stat
+                    // `EFFECT_REGISTRY` can't express the type-selected stat, so
+                    // without this arm the effect fell through and these
+                    // passives did nothing.
+                    "EnlargeSlot" => {
+                        let stat = match value_at(params, "type", level) {
+                            Some("STORAGE_PRIVATE") => Stat::StoragePrivate,
+                            Some("TRADE_SELL") => Stat::TradeSell,
+                            Some("TRADE_BUY") => Stat::TradeBuy,
+                            Some("RECIPE_DWARVEN") => Stat::RecipeDwarven,
+                            Some("RECIPE_COMMON") => Stat::RecipeCommon,
+                            _ => Stat::InventoryNormal,
+                        };
+                        param("amount").map(|amount| stat_mod(stat, amount)).into_iter().collect()
+                    }
                     _ => match EFFECT_REGISTRY.iter().find(|(n, _)| n == xml_name).map(|(_, s)| *s) {
                         Some(stat) => param("amount").map(|amount| stat_mod(stat, amount)).into_iter().collect(),
                         None => Vec::new(),
@@ -1633,6 +1654,81 @@ mod tests {
         assert!(
             matches!(sov.effects.as_slice(), [SkillEffect::DamageShield]),
             "DamageShield is not dropped"
+        );
+    }
+
+    /// G19 `EnlargeSlot`: the craftsman-guild storage passives (real dist
+    /// shapes — Expand Inventory has no `<type>`, defaulting to
+    /// `INVENTORY_NORMAL`; Expand Dwarven Craft picks `RECIPE_DWARVEN`; Expand
+    /// Trade carries two effect blocks, one `TRADE_BUY` one `TRADE_SELL`).
+    /// Before this arm the effect fell through to `EFFECT_REGISTRY` (a
+    /// 1-name-1-stat table that can't express the type-selected stat) and
+    /// these skills did nothing.
+    #[test]
+    fn enlarge_slot_picks_stat_by_type_param() {
+        let xml = r#"
+        <list>
+            <skill id="1372" toLevel="1" name="Expand Inventory">
+                <operateType>P</operateType>
+                <targetType>SELF</targetType>
+                <effects>
+                    <effect name="EnlargeSlot">
+                        <amount>6</amount>
+                        <mode>DIFF</mode>
+                    </effect>
+                </effects>
+            </skill>
+            <skill id="1368" toLevel="1" name="Expand Dwarven Craft">
+                <operateType>P</operateType>
+                <targetType>SELF</targetType>
+                <effects>
+                    <effect name="EnlargeSlot">
+                        <amount>6</amount>
+                        <mode>DIFF</mode>
+                        <type>RECIPE_DWARVEN</type>
+                    </effect>
+                </effects>
+            </skill>
+            <skill id="1370" toLevel="1" name="Expand Trade">
+                <operateType>P</operateType>
+                <targetType>SELF</targetType>
+                <effects>
+                    <effect name="EnlargeSlot">
+                        <amount>1</amount>
+                        <mode>DIFF</mode>
+                        <type>TRADE_BUY</type>
+                    </effect>
+                    <effect name="EnlargeSlot">
+                        <amount>1</amount>
+                        <mode>DIFF</mode>
+                        <type>TRADE_SELL</type>
+                    </effect>
+                </effects>
+            </skill>
+        </list>"#;
+        let mut out = HashMap::new();
+        parse_str(xml, &mut out);
+
+        let inv = out.get(&(1372, 1)).expect("Expand Inventory parsed");
+        assert!(
+            matches!(inv.effects.as_slice(), [SkillEffect::StatModifier(StatModifierEffect { stat: Stat::InventoryNormal, amount, .. })] if *amount == 6.0),
+            "no <type> defaults to INVENTORY_NORMAL: {:?}", inv.effects
+        );
+        let dwc = out.get(&(1368, 1)).expect("Expand Dwarven Craft parsed");
+        assert!(
+            matches!(dwc.effects.as_slice(), [SkillEffect::StatModifier(StatModifierEffect { stat: Stat::RecipeDwarven, amount, .. })] if *amount == 6.0),
+            "type=RECIPE_DWARVEN picked: {:?}", dwc.effects
+        );
+        let trade = out.get(&(1370, 1)).expect("Expand Trade parsed");
+        assert!(
+            matches!(
+                trade.effects.as_slice(),
+                [
+                    SkillEffect::StatModifier(StatModifierEffect { stat: Stat::TradeBuy, .. }),
+                    SkillEffect::StatModifier(StatModifierEffect { stat: Stat::TradeSell, .. }),
+                ]
+            ),
+            "both TRADE_BUY and TRADE_SELL land: {:?}", trade.effects
         );
     }
 

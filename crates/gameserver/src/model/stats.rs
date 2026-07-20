@@ -101,6 +101,23 @@ pub enum Stat {
     /// crit-damage bonus that `CriticalDamage` effects with `mode=DIFF` feed
     /// (the same handler picks this stat over `CRITICAL_DAMAGE` for diff mode).
     CriticalDamageAdd,
+    /// Java `Stat.INVENTORY_NORMAL` ("inventoryLimit") — a flat bonus on top
+    /// of the race-based inventory-slot base. Expand Inventory (1372,
+    /// `EnlargeSlot` with no `<type>`, which defaults to this) raises it.
+    InventoryNormal,
+    /// Java `Stat.STORAGE_PRIVATE` ("whLimit") — private-warehouse slot bonus.
+    /// Expand Warehouse (1371, `EnlargeSlot` type=STORAGE_PRIVATE) raises it.
+    StoragePrivate,
+    /// Java `Stat.TRADE_SELL`/`TRADE_BUY` ("tradeSellLimit"/"tradeBuyLimit") —
+    /// private-store listing slot bonuses. Expand Trade (1370) carries two
+    /// `EnlargeSlot` effects, one per stat.
+    TradeSell,
+    TradeBuy,
+    /// Java `Stat.RECIPE_DWARVEN`/`RECIPE_COMMON` ("dwarfRecipeLimit"/
+    /// "commonRecipeLimit") — recipe-book slot bonuses. Expand Dwarven Craft
+    /// (1368) and Expand Common Craft (1369) raise them.
+    RecipeDwarven,
+    RecipeCommon,
 }
 
 /// Java `StatModifierType` (`AbstractStatAddEffect`/`AbstractStatPercentEffect`):

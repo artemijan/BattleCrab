@@ -437,21 +437,28 @@ pub fn ex_user_info_inven_weight(
 /// window reports as "X out of Y available"; without this packet the client
 /// never learns a max and shows 0. `_inventory`/`_inventoryQuestItems` are
 /// the two limits this port actually enforces (`Inventory::non_quest_size`/
-/// `quest_size`); warehouse/freight/private-store/recipe slots come from
-/// systems not implemented yet, so those fields carry Java's static config
-/// defaults rather than anything computed.
-pub fn ex_storage_max_count(race: i32, cfg: &crate::config::CharacterConfig) -> Vec<u8> {
+/// `quest_size`). The inventory/warehouse/trade/recipe fields fold in the
+/// real `EnlargeSlot` passive bonuses (Expand Inventory/Warehouse/Trade/
+/// Common/Dwarven Craft) via `mods`; freight/clan-warehouse slots come from
+/// systems not implemented yet, so those two fields still carry Java's
+/// static config defaults. **Only the number reported changes here** —
+/// warehouse deposit and private-store listing aren't capacity-checked
+/// anywhere in this port yet (`TODO(G29+)`: `Warehouse.java`'s over-limit
+/// reject on deposit, `PrivateStore`'s slot-count reject on `handle_set_list`).
+pub fn ex_storage_max_count(race: i32, cfg: &crate::config::CharacterConfig, mods: &crate::model::components::StatModifiers) -> Vec<u8> {
+    use crate::model::stats::Stat;
     let is_dwarf = race == crate::enums::Race::Dwarf as i32;
+    let f = |stat: Stat, base: i32| crate::model::finalize(mods, stat, base as f64) as i32;
     let mut w = ex(0x2F);
-    w.write_i32(cfg.inventory_limit(race));
-    w.write_i32(if is_dwarf { 120 } else { 100 }); // warehouse (unimplemented; Java defaults)
+    w.write_i32(f(Stat::InventoryNormal, cfg.inventory_limit(race)));
+    w.write_i32(f(Stat::StoragePrivate, if is_dwarf { 120 } else { 100 })); // warehouse (Java defaults)
     w.write_i32(200); // freight (unimplemented; Java default)
     w.write_i32(150); // clan warehouse (unimplemented; Java default)
-    w.write_i32(if is_dwarf { 4 } else { 3 }); // private sell (unimplemented; Java defaults)
-    w.write_i32(if is_dwarf { 5 } else { 4 }); // private buy (unimplemented; Java defaults)
-    w.write_i32(50); // dwarf recipe book (unimplemented; Java default)
-    w.write_i32(50); // common recipe book (unimplemented; Java default)
-    w.write_i32(0); // belt-granted extra inventory slots (Stat.INVENTORY_NORMAL not wired)
+    w.write_i32(f(Stat::TradeSell, if is_dwarf { 4 } else { 3 })); // private sell (Java defaults)
+    w.write_i32(f(Stat::TradeBuy, if is_dwarf { 5 } else { 4 })); // private buy (Java defaults)
+    w.write_i32(f(Stat::RecipeDwarven, cfg.dwarf_recipe_limit)); // dwarf recipe book
+    w.write_i32(f(Stat::RecipeCommon, cfg.common_recipe_limit)); // common recipe book
+    w.write_i32(0); // belt-granted extra inventory slots (no belt items on this port)
     w.write_i32(cfg.inventory_max_quest_items);
     w.write_i32(40);
     w.write_i32(40);

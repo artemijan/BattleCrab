@@ -244,7 +244,7 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
     w.write_i16(UserInfoType::InventoryLimit.block_length() as i16);
     w.write_i16(0);
     w.write_i16(0);
-    w.write_i16(cfg.inventory_limit(p.race) as i16);
+    w.write_i16(crate::model::finalize(v.mods, crate::model::stats::Stat::InventoryNormal, cfg.inventory_limit(p.race) as f64) as i16);
     w.write_u8(0);
 
     // TRUE_HERO
