@@ -101,6 +101,15 @@ pub enum Stat {
     /// crit-damage bonus that `CriticalDamage` effects with `mode=DIFF` feed
     /// (the same handler picks this stat over `CRITICAL_DAMAGE` for diff mode).
     CriticalDamageAdd,
+    /// Java `Stat.DEFENCE_CRITICAL_RATE` / `DEFENCE_CRITICAL_RATE_ADD` — the
+    /// **defender's** modifier on an incoming autoattack's crit *chance*
+    /// (Light Armor Mastery 233 at `-15% PER`, Pa'agrio's Eye 1364 at `-30%`).
+    ///
+    /// Read as `getValue(DEFENCE_CRITICAL_RATE, attackerRate)` — the two-arg
+    /// form, so the defender's multiplier scales the *attacker's* rate rather
+    /// than standing alone.
+    DefenceCriticalRate,
+    DefenceCriticalRateAdd,
     /// Java `Stat.DEFENCE_CRITICAL_DAMAGE` — the **target-side** crit-damage
     /// multiplier (`DefenceCriticalDamage`, an `AbstractStatEffect` over the
     /// same mul/add pair as `CriticalDamage`). Read off the victim in

@@ -458,8 +458,22 @@ pub fn calc_critical_height_bonus(from_z: i32, to_z: i32) -> f64 {
 /// (`DEFENCE_CRITICAL_RATE` defaults to the attacker's rate, balance
 /// multipliers 1.0): `rate = posBonus · (critStat / 10) · heightBonus`,
 /// clamped to [3, 97] percent; crit when `rate > roll` (`Rnd.get(100)`).
-pub fn calc_auto_attack_crit(crit_stat: f64, position: Position, from_z: i32, to_z: i32, roll: i32) -> bool {
-    let rate = calc_critical_position_bonus(position) * (crit_stat / 10.0) * calc_critical_height_bonus(from_z, to_z);
+pub fn calc_auto_attack_crit(
+    crit_stat: f64,
+    defence_mul: f64,
+    defence_add: f64,
+    position: Position,
+    from_z: i32,
+    to_z: i32,
+    roll: i32,
+) -> bool {
+    // `criticalRateMod = (target.getValue(DEFENCE_CRITICAL_RATE, rate)
+    //                     + target.getValue(DEFENCE_CRITICAL_RATE_ADD, 0)) / 10`
+    // — the two-arg `getValue` is `mul * baseValue + add`, so the defender's
+    // multiplier scales the *attacker's* rate. Both default to identity
+    // (1.0 / 0.0), which reproduces the plain `crit_stat / 10` this had before.
+    let rate_mod = ((defence_mul * crit_stat) + defence_add) / 10.0;
+    let rate = calc_critical_position_bonus(position) * rate_mod * calc_critical_height_bonus(from_z, to_z);
     rate.clamp(3.0, 97.0) > roll as f64
 }
 
@@ -899,12 +913,12 @@ mod tests {
     fn auto_attack_crit_rate() {
         // stat 44 (displayed), front, level ground: 4.4 × 1.1 (height base
         // +10%) = 4.84 → roll 4 crits, roll 5 doesn't.
-        assert!(calc_auto_attack_crit(44.0, Position::Front, 0, 0, 4));
-        assert!(!calc_auto_attack_crit(44.0, Position::Front, 0, 0, 5));
+        assert!(calc_auto_attack_crit(44.0, 1.0, 0.0, Position::Front, 0, 0, 4));
+        assert!(!calc_auto_attack_crit(44.0, 1.0, 0.0, Position::Front, 0, 0, 5));
         // Floor: even 0 stat crits below 3%.
-        assert!(calc_auto_attack_crit(0.0, Position::Front, 0, 0, 2));
+        assert!(calc_auto_attack_crit(0.0, 1.0, 0.0, Position::Front, 0, 0, 2));
         // Cap: 97% — a 97 roll never crits.
-        assert!(!calc_auto_attack_crit(10_000.0, Position::Back, 25, 0, 97));
+        assert!(!calc_auto_attack_crit(10_000.0, 1.0, 0.0, Position::Back, 25, 0, 97));
     }
 
     /// `calcAutoAttackDamage`, melee/shotless: pAtk 100 vs pDef 50 → 154;

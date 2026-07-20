@@ -160,6 +160,20 @@ pub(crate) fn combatant(world: &World, object_id: i32) -> Option<Combatant> {
     })
 }
 
+/// The defender's `DEFENCE_CRITICAL_RATE` multiplier and `_ADD` term, both at
+/// Java's identity defaults when nothing grants them.
+fn defence_crit_rate(world: &World, target_oid: i32) -> (f64, f64) {
+    use crate::model::components::StatModifiers;
+    use crate::model::stats::Stat;
+    let Some(m) = world.objects.get_component::<StatModifiers>(&target_oid) else {
+        return (1.0, 0.0);
+    };
+    (
+        m.mul.get(&Stat::DefenceCriticalRate).copied().unwrap_or(1.0),
+        m.add.get(&Stat::DefenceCriticalRateAdd).copied().unwrap_or(0.0),
+    )
+}
+
 /// `Formulas.calcCritDamage` / `calcCritDamageAdd`, **autoattack branch**
 /// (`skill == null`) — the crit-damage stats for one attacker/target pair at a
 /// given attack position:
@@ -1053,8 +1067,14 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
             world.roll(100),
         );
         let crit_roll = world.roll(100);
+        // `DEFENCE_CRITICAL_RATE`/`_ADD` are read off the **defender** — Light
+        // Armor Mastery 233 makes its wearer harder to crit, it does not make
+        // its wearer crit less.
+        let (def_crit_mul, def_crit_add) = defence_crit_rate(world, target_oid);
         let crit = formulas::calc_auto_attack_crit(
             attacker.crit_stat,
+            def_crit_mul,
+            def_crit_add,
             position,
             attacker.z,
             target.z,

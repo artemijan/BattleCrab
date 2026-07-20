@@ -1250,6 +1250,17 @@ fn finalize_skill(
                         })
                         .into_iter()
                         .collect(),
+                    "DefenceCriticalRate" => param("amount")
+                        .map(|amount| {
+                            let stat = if modifier_mode == StatModifierType::Per {
+                                Stat::DefenceCriticalRate
+                            } else {
+                                Stat::DefenceCriticalRateAdd
+                            };
+                            stat_mod(stat, amount)
+                        })
+                        .into_iter()
+                        .collect(),
                     "DefenceCriticalDamage" => param("amount")
                         .map(|amount| {
                             let stat = if modifier_mode == StatModifierType::Per {
