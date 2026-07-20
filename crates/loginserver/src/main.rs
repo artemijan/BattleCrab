@@ -68,7 +68,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let restart_requested = tokio::select! {
-        _ = tokio::signal::ctrl_c() => false,
+        _ = commons::shutdown::wait_for_signal() => false,
         r = restart => r,
     };
 

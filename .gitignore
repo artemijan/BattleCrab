@@ -8,3 +8,7 @@ tools/vector-dump/out/
 dist/game/log/*
 dist/login/log/*
 **/.DS_Store
+
+# Personal deploy tooling — points at a specific operator's server.
+deploy.sh
+deploy.env

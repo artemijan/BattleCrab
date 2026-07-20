@@ -176,8 +176,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         config.server.maximum_online_users
     );
 
-    // Java: JVM shutdown hook -> Shutdown.
-    tokio::signal::ctrl_c().await?;
+    // Java: JVM shutdown hook -> Shutdown. Also handles SIGTERM (systemd's
+    // default stop signal), not just SIGINT — see commons::shutdown.
+    commons::shutdown::wait_for_signal().await;
 
     info!("GameServer: shutting down.");
     shutdown.request();
