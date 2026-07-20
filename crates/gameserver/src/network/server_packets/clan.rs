@@ -354,3 +354,32 @@ pub fn pledge_receive_member_info(m: &crate::model::clan::ClanMember, clan_name:
     w.write_string(""); // apprentice/sponsor name
     w.into_bytes()
 }
+
+/// Port of `serverpackets/PledgeReceiveWarList` — the clan window's war tab.
+/// Entries: `(clan_name, state_ordinal, remaining_time, score, kill_to_start)`.
+pub fn pledge_receive_war_list(tab: i32, wars: &[(String, i32, i32, i32, i32)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_RECEIVE_WAR_LIST);
+    w.write_i32(tab);
+    w.write_i32(wars.len() as i32);
+    for (name, state, remaining, score, to_start) in wars {
+        w.write_string(name);
+        w.write_i32(*state);
+        w.write_i32(*remaining);
+        w.write_i32(*score);
+        w.write_i32(0); // recent change in points
+        w.write_i32(*to_start);
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/SurrenderPledgeWar` — the ack sent to the player who
+/// declared defeat.
+pub fn surrender_pledge_war(pledge_name: &str, player_name: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::SURRENDER_PLEDGE_WAR);
+    w.write_string(pledge_name);
+    w.write_string(player_name);
+    w.into_bytes()
+}

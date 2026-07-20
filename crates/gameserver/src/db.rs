@@ -348,6 +348,23 @@ pub enum DbCommand {
     UpdateCharPowerGrade { char_id: i32, power_grade: i32 },
     /// `Clan.setNewLeaderId(id, true)` — the pending delegated leader transfer.
     UpdateClanNewLeader { clan_id: i32, new_leader_id: i32 },
+    /// `ClanTable.storeClanWars` — upsert one `clan_wars` row (ids, despite the
+    /// varchar columns — Java binds ints too).
+    SaveClanWar {
+        attacker: i32,
+        attacked: i32,
+        attacker_kills: i32,
+        attacked_kills: i32,
+        winner: i32,
+        start_time: i64,
+        end_time: i64,
+        state: i32,
+    },
+    /// `ClanTable.deleteClanWars` — drop the war row. Java deletes only the
+    /// `(clan1, clan2)` order it was called with (a surrender can miss the row
+    /// until the next boot's cleanup); both orders are deleted here — the same
+    /// eventual outcome without the stale row.
+    DeleteClanWar { clan1: i32, clan2: i32 },
     /// `ClanTable.destroyClan` — delete the `clan_data` row and reset every
     /// member's `characters` clan columns (online *and* offline, since the
     /// memory-first autosave never touches those columns). `leader_id` also gets
@@ -406,7 +423,7 @@ pub enum DbEvent {
     IdBlock { start: i64, end: i64 },
     /// The full clan table (`ClanTable` boot load), pushed unprompted at
     /// boot like the first `IdBlock`.
-    ClansLoaded { clans: Vec<crate::model::clan::Clan> },
+    ClansLoaded { clans: Vec<crate::model::clan::Clan>, wars: Vec<crate::model::clan::ClanWar> },
     /// The whole `npc_respawns` table (Java `DBSpawnManager.load`), pushed
     /// unprompted at boot. See [`NpcRespawnRow`].
     NpcRespawnsLoaded { rows: Vec<NpcRespawnRow> },
@@ -521,7 +538,7 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
     let _ = event_tx.send(DbEvent::SiegeGuardsLoaded { guards: load_siege_guards(&pool).await });
 
     // `ClanTable`'s boot restore, likewise unprompted.
-    let _ = event_tx.send(DbEvent::ClansLoaded { clans: load_clans(&pool).await });
+    let _ = event_tx.send(DbEvent::ClansLoaded { clans: load_clans(&pool).await, wars: load_clan_wars(&pool).await });
 
     while let Some(cmd) = cmd_rx.recv().await {
         match cmd {
@@ -787,6 +804,38 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                     sqlx::query("UPDATE characters SET power_grade=? WHERE charId=?")
                         .bind(power_grade)
                         .bind(char_id),
+                )
+                .await;
+            }
+            DbCommand::SaveClanWar { attacker, attacked, attacker_kills, attacked_kills, winner, start_time, end_time, state } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT INTO clan_wars (clan1, clan2, clan1Kill, clan2Kill, winnerClan, startTime, endTime, state) \
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?) \
+                         ON CONFLICT(clan1, clan2) DO UPDATE SET clan1Kill=excluded.clan1Kill, \
+                         clan2Kill=excluded.clan2Kill, winnerClan=excluded.winnerClan, \
+                         startTime=excluded.startTime, endTime=excluded.endTime, state=excluded.state",
+                    )
+                    .bind(attacker)
+                    .bind(attacked)
+                    .bind(attacker_kills)
+                    .bind(attacked_kills)
+                    .bind(winner)
+                    .bind(start_time)
+                    .bind(end_time)
+                    .bind(state),
+                )
+                .await;
+            }
+            DbCommand::DeleteClanWar { clan1, clan2 } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM clan_wars WHERE (clan1=? AND clan2=?) OR (clan1=? AND clan2=?)")
+                        .bind(clan1)
+                        .bind(clan2)
+                        .bind(clan2)
+                        .bind(clan1),
                 )
                 .await;
             }
@@ -2207,4 +2256,25 @@ fn getf(row: &sqlx::sqlite::SqliteRow, col: &str) -> f64 {
 }
 fn gets(row: &sqlx::sqlite::SqliteRow, col: &str) -> String {
     row.try_get::<String, _>(col).unwrap_or_default()
+}
+
+/// `ClanTable.restoreClanWars` — the `clan_wars` table (ids in the varchar
+/// columns, as Java writes them).
+async fn load_clan_wars(pool: &SqlitePool) -> Vec<crate::model::clan::ClanWar> {
+    let rows = sqlx::query("SELECT clan1, clan2, clan1Kill, clan2Kill, winnerClan, startTime, endTime, state FROM clan_wars")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
+    rows.iter()
+        .map(|r| crate::model::clan::ClanWar {
+            attacker_id: geti(r, "clan1") as i32,
+            attacked_id: geti(r, "clan2") as i32,
+            attacker_kills: geti(r, "clan1Kill") as i32,
+            attacked_kills: geti(r, "clan2Kill") as i32,
+            winner_id: geti(r, "winnerClan") as i32,
+            start_time: geti(r, "startTime"),
+            end_time: geti(r, "endTime"),
+            state: crate::model::clan::ClanWarState::from_i32(geti(r, "state") as i32),
+        })
+        .collect()
 }

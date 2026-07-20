@@ -103,11 +103,14 @@ pub(crate) fn check_if_pvp(world: &World, self_oid: i32, target_oid: i32) -> boo
     if is_pk(world, target_oid) || flag_of(world, target_oid) > 0 {
         return true;
     }
-    // Java's remaining branches — party mate, then the clan-war test — both
-    // end at `false` for everything this port models, so the fallthrough is
-    // the same answer. When clan wars land (G18) a mutual war must return true
-    // here.
-    false
+    // Party mates are explicitly not PvP (killing one is a PK) — checked
+    // before the war leg in Java; the fallthrough below covers it since a
+    // party mate in the same clan can't be at war with themselves.
+    // The clan-war leg (Java `Playable.checkIfPvP`'s tail): a MUTUAL war
+    // between the clans makes the kill lawful.
+    let self_clan = world.objects.get_component::<Player>(&self_oid).map(|p| p.clan_id).unwrap_or(0);
+    let target_clan = world.objects.get_component::<Player>(&target_oid).map(|p| p.clan_id).unwrap_or(0);
+    super::clans::mutual_war_between(world, self_clan, target_clan)
 }
 
 /// Java `Player.isAutoAttackable(attacker)` narrowed to the ported systems: a
@@ -136,6 +139,14 @@ pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target
     // TODO(G24): exempt same-side (attacker/attacker, defender/defender) clans
     // once siege-side relations land; for now the whole battlefield is hostile.
     if in_active_siege_together(world, attacker_oid, target_oid) {
+        return true;
+    }
+    // Mutual clan war → freely attackable (Java `isAutoAttackable`'s
+    // `isAtWarWith` both-ways test; the shared war object makes MUTUAL
+    // symmetric).
+    let attacker_clan = world.objects.get_component::<Player>(&attacker_oid).map(|p| p.clan_id).unwrap_or(0);
+    let target_clan = world.objects.get_component::<Player>(&target_oid).map(|p| p.clan_id).unwrap_or(0);
+    if super::clans::mutual_war_between(world, attacker_clan, target_clan) {
         return true;
     }
     is_pk(world, target_oid) || flag_of(world, target_oid) > 0
@@ -202,10 +213,11 @@ fn siege_relation_bits(world: &World, viewer_oid: i32, target_oid: i32) -> i32 {
 pub(crate) fn sendinfo_relation_changed(world: &World, subject_oid: i32, viewer_oid: i32) -> Vec<u8> {
     let base = super::party::relation_changed_base(world, subject_oid);
     let siege = siege_relation_bits(world, viewer_oid, subject_oid);
+    let war = super::clans::war_relation_bits(world, subject_oid, viewer_oid);
     let reputation = world.objects.get_component::<Player>(&subject_oid).map_or(0, |p| p.reputation);
     server_packets::relation_changed(
         subject_oid,
-        base | siege,
+        base | siege | war,
         is_player_auto_attackable(world, viewer_oid, subject_oid),
         reputation,
         flag_of(world, subject_oid),
@@ -242,7 +254,9 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
         // How `object_id` relates to (and is attackable by) this viewer.
         cs.send(server_packets::relation_changed(
             object_id,
-            my_relation | siege_relation_bits(world, viewer, object_id),
+            my_relation
+                | siege_relation_bits(world, viewer, object_id)
+                | super::clans::war_relation_bits(world, object_id, viewer),
             is_player_auto_attackable(world, viewer, object_id),
             my_rep,
             my_flag,
@@ -252,7 +266,9 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
             let (v_rel, v_rep, v_flag) = relation_parts(world, viewer);
             mc.send(server_packets::relation_changed(
                 viewer,
-                v_rel | siege_relation_bits(world, object_id, viewer),
+                v_rel
+                    | siege_relation_bits(world, object_id, viewer)
+                    | super::clans::war_relation_bits(world, viewer, object_id),
                 is_player_auto_attackable(world, object_id, viewer),
                 v_rep,
                 v_flag,

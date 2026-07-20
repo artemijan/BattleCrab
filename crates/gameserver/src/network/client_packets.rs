@@ -80,6 +80,9 @@ pub mod opcodes {
     pub const REQUEST_OUST_PLEDGE_MEMBER: u8 = 0x29;
     pub const REQUEST_PLEDGE_INFO: u8 = 0x65;
     pub const REQUEST_PLEDGE_POWER: u8 = 0xCC;
+    pub const REQUEST_START_PLEDGE_WAR: u8 = 0x03;
+    pub const REQUEST_STOP_PLEDGE_WAR: u8 = 0x05;
+    pub const REQUEST_SURRENDER_PLEDGE_WAR: u8 = 0x07;
     pub const REQUEST_BUY_ITEM: u8 = 0x40;
     pub const REQUEST_JOIN_PARTY: u8 = 0x42;
     pub const REQUEST_ANSWER_JOIN_PARTY: u8 = 0x43;
@@ -180,6 +183,7 @@ pub mod ex_opcodes {
     pub const REQUEST_PLEDGE_SET_MEMBER_POWER_GRADE: u16 = 0x15;
     pub const REQUEST_PLEDGE_MEMBER_INFO: u16 = 0x16;
     pub const REQUEST_PLEDGE_REORGANIZE_MEMBER: u16 = 0x2C;
+    pub const REQUEST_PLEDGE_WAR_LIST: u16 = 0x17;
     pub const REQUEST_PLEDGE_RECRUIT_INFO: u16 = 0xD3;
     pub const REQUEST_PLEDGE_RECRUIT_BOARD_SEARCH: u16 = 0xD4;
     pub const REQUEST_PLEDGE_WAITING_APPLIED: u16 = 0xD8;

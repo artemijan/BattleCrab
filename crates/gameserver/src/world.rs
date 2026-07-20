@@ -173,6 +173,10 @@ pub struct World {
     /// Every clan, keyed by clan id (Java `ClanTable._clans`). Loaded once
     /// at boot (`DbEvent::ClansLoaded`); `create_clan` inserts.
     pub clans: HashMap<i32, crate::model::clan::Clan>,
+    /// Live clan wars (Java: the shared `ClanWar` objects both clans map in
+    /// `_atWarWith`; here one flat list, looked up by either side's id).
+    /// Loaded from `clan_wars` at boot, mutated by `game_loop/clans.rs`.
+    pub clan_wars: Vec<crate::model::clan::ClanWar>,
 
     /// Grand-boss spawn/status records, keyed by boss NPC id (Java
     /// `GrandBossManager._storedInfo`/`_bossStatus`). Loaded once at boot
@@ -297,6 +301,7 @@ impl World {
             cfg: crate::config::CombatConfig::default(),
             quests: std::sync::Arc::new(crate::scripts::build_registry()),
             clans: HashMap::new(),
+            clan_wars: Vec::new(),
             grand_bosses: HashMap::new(),
             cursed_weapons: Vec::new(),
             castles: Vec::new(),

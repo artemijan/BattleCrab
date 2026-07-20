@@ -137,6 +137,9 @@ pub const SUBUNIT_ACADEMY: i32 = -1;
 /// `ClanPrivilege.CL_MANAGE_RANKS` (ordinal 4) — required to edit member ranks.
 pub const CL_MANAGE_RANKS: i32 = 1 << 4;
 
+/// `ClanPrivilege.CL_PLEDGE_WAR` (ordinal 5) — required to declare/stop wars.
+pub const CL_PLEDGE_WAR: i32 = 1 << 5;
+
 /// The only rights bestowable on rank 9 (academy): CL_VIEW_WAREHOUSE (3),
 /// CH_OPEN_DOOR (11), CS_OPEN_DOOR (15) — Java `RequestPledgePower`'s mask.
 pub const RANK9_PRIVS_MASK: i32 = (1 << 3) | (1 << 11) | (1 << 15);
@@ -198,5 +201,99 @@ impl Clan {
     /// otherwise it's tested against the member's stored `clan_privs`.
     pub fn has_privilege(&self, char_id: i32, member_privs: i32, privilege: i32) -> bool {
         char_id == self.leader_id || (member_privs & privilege) != 0
+    }
+}
+
+/// Java `ClanWarState` (ordinal = the wire/DB value).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ClanWarState {
+    Declaration = 0,
+    BloodDeclaration = 1,
+    Mutual = 2,
+    Win = 3,
+    Loss = 4,
+    Tie = 5,
+}
+
+impl ClanWarState {
+    pub fn from_i32(v: i32) -> Self {
+        match v {
+            1 => Self::BloodDeclaration,
+            2 => Self::Mutual,
+            3 => Self::Win,
+            4 => Self::Loss,
+            5 => Self::Tie,
+            _ => Self::Declaration,
+        }
+    }
+}
+
+/// Java `ClanWar` — one war between two clans (`clan_wars` row). The declarer
+/// is the *attacker*; the war turns MUTUAL when the attacked side declares
+/// back or kills 5 attackers during BLOOD_DECLARATION.
+#[derive(Debug, Clone)]
+pub struct ClanWar {
+    pub attacker_id: i32,
+    pub attacked_id: i32,
+    pub state: ClanWarState,
+    /// Set by a surrender (`cancel`): the other side won.
+    pub winner_id: i32,
+    pub start_time: i64,
+    pub end_time: i64,
+    pub attacker_kills: i32,
+    pub attacked_kills: i32,
+}
+
+/// `ClanWar.TIME_TO_CANCEL_NON_MUTUAL_CLAN_WAR` — 7 days.
+pub const WAR_TIMEOUT_MS: i64 = 7 * 86_400_000;
+
+impl ClanWar {
+    pub fn involves(&self, clan_id: i32) -> bool {
+        self.attacker_id == clan_id || self.attacked_id == clan_id
+    }
+
+    pub fn opposing(&self, clan_id: i32) -> i32 {
+        if self.attacker_id == clan_id {
+            self.attacked_id
+        } else {
+            self.attacker_id
+        }
+    }
+
+    /// Java `getClanWarState(clan)` — a set winner turns the shared state into
+    /// this side's WIN/LOSS view.
+    pub fn state_for(&self, clan_id: i32) -> ClanWarState {
+        if self.winner_id > 0 {
+            if self.winner_id == clan_id {
+                ClanWarState::Win
+            } else {
+                ClanWarState::Loss
+            }
+        } else {
+            self.state
+        }
+    }
+
+    /// Java `getKillDifference(clan)` — this side's score in the war list.
+    pub fn kill_difference(&self, clan_id: i32) -> i32 {
+        if self.attacker_id == clan_id {
+            self.attacker_kills - self.attacked_kills
+        } else {
+            self.attacked_kills - self.attacker_kills
+        }
+    }
+
+    /// Java `getKillToStart` — attacker kills still needed to force MUTUAL.
+    pub fn kill_to_start(&self) -> i32 {
+        if self.state == ClanWarState::BloodDeclaration {
+            5 - self.attacked_kills
+        } else {
+            0
+        }
+    }
+
+    /// Java `getRemainingTime` — the (whole-seconds) stamp the war list shows.
+    pub fn remaining_time(&self) -> i32 {
+        ((self.start_time + WAR_TIMEOUT_MS) / 1000) as i32
     }
 }
