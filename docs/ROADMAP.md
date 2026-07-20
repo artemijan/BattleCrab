@@ -555,6 +555,26 @@ is correctly now subject to the same drain, and the test's zero-MP setup
 (bare `skill_data` override, not the full datapack) needed the same
 `GameData::load_from` fix `Transformation`'s own test needed.
 
+🚧 **ShieldDefence / ShieldDefenceRate (2026-07-20)** — plan
+[PLAN_G19_SHIELD_DEFENCE.md](PLAN_G19_SHIELD_DEFENCE.md). Next after
+`MpConsumePerLevel`, setting `EnergyAttack` (9 learnable) aside — it needs the
+Dwarf Force/Charges resource, unmodeled on this port, a bigger lift than one
+effect. `ShieldDefence` (8 learnable) is cheap: a single-stat
+`AbstractStatEffect` like a dozen already-ported ones. The headline skill is
+**Shield Mastery (153)**, a passive every shield-using class can learn —
+`ShieldDefenceRate` turned out to already be *parsed* (an earlier slice put it
+in `EFFECT_REGISTRY`) but never actually *read*: `game_loop::combat::
+shield_stats` computed the block rate straight off the equipped shield's raw
+`rShld`, bypassing `StatModifiers` entirely; `ShieldDefence` wasn't parsed at
+all. So every shield-using character's real block chance and block-defence
+bonus were flatly wrong the moment they learned their class's own core shield
+passive. Both fold through `model::finalize` (bumped to `pub(crate)`) — the
+same `base * mul + add` Java's `ShieldDefenceFinalizer`/
+`ShieldDefenceRateFinalizer` use — over the shield's own `sDef`/`rShld`, gated
+behind the existing "no shield equipped" early return so a buff like
+Residence Shield Defense (603, +225 DIFF) still contributes nothing without an
+actual shield, matching `Formulas.calcShldUse`'s short-circuit order.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued

@@ -2552,3 +2552,62 @@ fn mp_consume_per_level_toggle_drains_mp_and_self_deactivates() {
         "deactivation SystemMessage sent"
     );
 }
+
+/// G19 `ShieldDefence`/`ShieldDefenceRate` effects: Shield Mastery (153, a
+/// widely-learned shield-user passive) level 4 pumps both `+60% ShieldDefence`
+/// and `+100% ShieldDefenceRate` (`PER` mode) on top of the equipped shield's
+/// own `sDef`/`rShld` — previously silently dropped (`ShieldDefenceRate` was
+/// already parsed but never folded into `game_loop::combat::shield_stats`,
+/// which read the raw item stat directly; `ShieldDefence` wasn't even parsed).
+/// Passives fold into `StatModifiers` at `Player::from_char`, so this checks
+/// `combat::combatant`'s finalized `shield_def`/`shield_rate` directly rather
+/// than going through the cast pipeline.
+#[test]
+fn shield_mastery_passive_raises_shield_block_stats() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
+    let mut data = GameData::for_test();
+    data.player_templates = crate::data::player_template::PlayerTemplateData::load_from(DIST);
+    data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
+    data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    data.skill_data = crate::data::skill_data::SkillData::load_from(DIST);
+    let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
+
+    let paperdoll = |object_id, item_id, slot| crate::character::ItemRow {
+        object_id,
+        item_id,
+        count: 1,
+        enchant_level: 0,
+        loc: "PAPERDOLL".into(),
+        loc_data: slot,
+        custom_type1: 0,
+        custom_type2: 0,
+        mana_left: -1,
+        time: 0,
+        augment_mineral: 0,
+        augment_option1: 0,
+        augment_option2: 0,
+    };
+    // Item 628 "Hoplon" (sDef 128, rShld 20) in LHand (slot 7).
+    let mut bare = dummy_char(5201, "Bare");
+    bare.items = vec![paperdoll(1, 628, 7)];
+    let bare_bundle = Player::from_char(&world.data, &bare);
+    bare_bundle.spawn_into(&mut world.objects);
+    let bare_shield = crate::game_loop::combat::combatant(&world, 5201).expect("bare combatant");
+    assert_eq!(bare_shield.shield_def, 128.0, "no skill: raw sDef unchanged");
+
+    let mut masted = dummy_char(5202, "Masted");
+    masted.items = vec![paperdoll(2, 628, 7)];
+    masted.skills = vec![(153, 4)];
+    let masted_bundle = Player::from_char(&world.data, &masted);
+    masted_bundle.spawn_into(&mut world.objects);
+    let masted_shield = crate::game_loop::combat::combatant(&world, 5202).expect("masted combatant");
+    assert_eq!(masted_shield.shield_def, 128.0 * 1.6, "Shield Mastery lvl4: sDef × 1.6 (+60% PER)");
+    assert!(
+        (masted_shield.shield_rate - bare_shield.shield_rate * 2.0).abs() < 1e-9,
+        "Shield Mastery lvl4: rShld × 2.0 (+100% PER), CON bonus cancels in the ratio: {} vs {}",
+        masted_shield.shield_rate,
+        bare_shield.shield_rate
+    );
+}

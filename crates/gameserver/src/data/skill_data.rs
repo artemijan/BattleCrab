@@ -59,6 +59,11 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // guard (community-board "Blessed Shield doesn't apply"). `CriticalDamage`
     // is NOT here — it is two-stat (mul/add by mode), handled in a match arm.
     ("ShieldDefenceRate", Stat::ShieldDefenceRate),
+    // Shield Mastery (153, a widely-learned shield-user passive), Shield
+    // Fortress (322), Knighthood (429), …: `ShieldDefence` →
+    // `Stat.SHIELD_DEFENCE` (single-stat `AbstractStatEffect`), folded into
+    // `shield_stats` alongside `ShieldDefenceRate` above.
+    ("ShieldDefence", Stat::ShieldDefence),
 ];
 
 pub struct SkillData {

@@ -62,9 +62,18 @@ pub enum Stat {
     /// (`ReduceCancel`) lowers it.
     AttackCancel,
     /// Java `Stat.SHIELD_DEFENCE_RATE` ("rShld") — the shield block chance.
-    /// Blessed Shield (`ShieldDefenceRate`) raises it. No finalizer yet, so it's
-    /// only a buff-modifier target (the buff lands with its icon regardless).
+    /// Blessed Shield (`ShieldDefenceRate`) and Shield Mastery (153) raise it;
+    /// folded into `game_loop::combat::shield_stats` before the CON-bonus
+    /// multiply, matching `ShieldDefenceRateFinalizer`'s `defaultValue(base *
+    /// mul + add)` over the shield's own `rShld`.
     ShieldDefenceRate,
+    /// Java `Stat.SHIELD_DEFENCE` ("sDef") — the flat defence added to pDef on
+    /// a successful shield block (`Formulas.calcShldUse`'s `SHIELD_SUCCEED`
+    /// branch). `ShieldDefence` (153 Shield Mastery, 322 Shield Fortress, 429
+    /// Knighthood, …) raises it; folded the same way as `ShieldDefenceRate`,
+    /// over the shield's own `sDef` (`ShieldDefenceFinalizer`'s
+    /// `calcWeaponPlusBaseValue`).
+    ShieldDefence,
     /// Java `Stat.ATTACK_COUNT_MAX` ("atkCountMax") — how many creatures one
     /// swing may hit. 1 by default; Polearm Mastery 216 (`HitNumber`) raises it
     /// to 5, which is what turns a polearm into a sweep weapon.

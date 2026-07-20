@@ -159,8 +159,9 @@ pub(crate) fn combatant(world: &World, object_id: i32) -> Option<Combatant> {
 /// Only players carry an inventory/shield here; NPCs return no shield with a
 /// neutral CON bonus.
 fn shield_stats(world: &World, object_id: i32) -> (f64, f64, f64) {
-    use crate::model::components::BaseStats;
+    use crate::model::components::{BaseStats, StatModifiers};
     use crate::model::inventory::{Inventory, PaperdollSlot};
+    use crate::model::stats::Stat;
     let Some(base) = world.objects.get_component::<BaseStats>(&object_id) else {
         return (0.0, 0.0, 1.0);
     };
@@ -170,9 +171,25 @@ fn shield_stats(world: &World, object_id: i32) -> (f64, f64, f64) {
         .get_component::<Inventory>(&object_id)
         .and_then(|inv| inv.paperdoll_item(PaperdollSlot::LHand).map(|it| it.item_id))
         .and_then(|id| world.data.item_data.item_stats(id));
-    let (def, rate) = shield
-        .map(|s| (s.shield_def.unwrap_or(0) as f64, s.shield_rate.unwrap_or(0) as f64))
-        .unwrap_or((0.0, 0.0));
+    // Java `Formulas.calcShldUse` bails on `!(secondaryWeaponItem instanceof
+    // Armor)` *before* ever reading `Stat.SHIELD_DEFENCE`/`_RATE` — so a buff
+    // like Residence Shield Defense (+225 DIFF) contributes nothing without an
+    // actual shield equipped, matching the early return here.
+    let Some(shield) = shield else { return (0.0, 0.0, con_bonus) };
+    let (def, rate) = (shield.shield_def.unwrap_or(0) as f64, shield.shield_rate.unwrap_or(0) as f64);
+    // `ShieldDefenceFinalizer`/`ShieldDefenceRateFinalizer`: `Stat.defaultValue`
+    // (`base * mul + add`) over `calcWeaponPlusBaseValue` — the shield's own
+    // sDef/rShld *is* that base value (no other item contributes to either
+    // stat), so folding the buff mods here reproduces `getShldDef()`/
+    // `getValue(SHIELD_DEFENCE_RATE)` exactly. The CON multiply on the rate
+    // happens after, in `calcShldUse` itself — not baked into the stat.
+    let (def, rate) = match world.objects.get_component::<StatModifiers>(&object_id) {
+        Some(mods) => (
+            crate::model::finalize(mods, Stat::ShieldDefence, def),
+            crate::model::finalize(mods, Stat::ShieldDefenceRate, rate),
+        ),
+        None => (def, rate),
+    };
     (def, rate * con_bonus, con_bonus)
 }
 
