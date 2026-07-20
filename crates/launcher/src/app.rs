@@ -78,7 +78,7 @@ impl LauncherApp {
     fn busy(&self) -> bool {
         matches!(
             self.phase,
-            Some(Phase::CheckingManifest | Phase::Downloading { .. } | Phase::Extracting { .. })
+            Some(Phase::Connecting | Phase::Downloading { .. } | Phase::Extracting { .. })
         )
     }
 
@@ -86,12 +86,12 @@ impl LauncherApp {
         let (tx, rx) = mpsc::channel();
         self.rx = Some(rx);
         self.cancel = Cancel::default();
-        self.phase = Some(Phase::CheckingManifest);
+        self.phase = Some(Phase::Connecting);
         self.status = None;
 
         let reporter = Reporter::new(tx, Some(ctx.clone()));
         let req = InstallRequest {
-            base_url: config::BASE_URL.to_string(),
+            client_url: config::CLIENT_URL.to_string(),
             install_dir: self.config.install_dir.clone(),
             cancel: self.cancel.clone(),
         };
@@ -110,12 +110,14 @@ impl LauncherApp {
 
         match &phase {
             Phase::Ready => {
-                self.config.installed_version = Some("installed".to_string());
+                // The archive decides its own layout, so find l2.exe rather than
+                // assuming install_dir/system/l2.exe.
+                self.config.refresh_game_exe();
+                self.rx = None;
+                self.status = Some(self.settle_into_game_folder());
                 if let Err(e) = self.config.save() {
                     tracing::warn!("could not persist config: {e:#}");
                 }
-                self.rx = None;
-                self.status = Some(self.settle_into_game_folder());
             }
             Phase::Failed(msg) => {
                 self.rx = None;
@@ -135,7 +137,7 @@ impl LauncherApp {
             self.config.install_dir = dir;
             // A new folder is a different install; re-check rather than assuming the
             // previous state carries over.
-            self.config.installed_version = None;
+            self.config.refresh_game_exe();
             if let Err(e) = self.config.save() {
                 tracing::warn!("could not persist config: {e:#}");
             }
@@ -167,7 +169,11 @@ impl LauncherApp {
     }
 
     fn play(&mut self) {
-        match launch_game(&self.config.game_exe(), config::SERVER_IP) {
+        let Some(exe) = self.config.game_exe.clone() else {
+            self.status = Some("Game executable not found — try reinstalling.".into());
+            return;
+        };
+        match launch_game(&exe, config::SERVER_IP) {
             Ok(()) => self.status = Some("Starting game…".into()),
             Err(e) => self.status = Some(format!("{e:#}")),
         }
@@ -342,7 +348,7 @@ impl LauncherApp {
         };
 
         let (caption, detail) = match phase {
-            Phase::CheckingManifest => ("Checking for updates".to_string(), String::new()),
+            Phase::Connecting => ("Connecting".to_string(), String::new()),
             Phase::Downloading { done, total } => (
                 "Downloading".to_string(),
                 match total {

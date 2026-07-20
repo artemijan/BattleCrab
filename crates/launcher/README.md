@@ -1,14 +1,16 @@
 # launcher
 
-Windows desktop launcher and updater for the BattleCrab game client.
+Windows desktop launcher for the BattleCrab game client.
 
-Downloads the packaged client from Cloudflare R2, unpacks it, and starts `l2.exe`
-pointed at the game server.
+Downloads `client.7z`, unpacks it, moves itself next to the installed game, and
+starts `l2.exe` pointed at the server.
 
-## Status
+## What it does
 
-Skeleton. The install pipeline is wired end to end and the UI is functional but
-deliberately unstyled — the visual design is still to be specified.
+1. Downloads `client.7z` from the URL baked in at build time.
+2. Unpacks it into the chosen install folder.
+3. Moves itself into that folder, next to the game.
+4. Shows **Play**, which starts `l2.exe` with `IP=<server>`.
 
 ## Why egui
 
@@ -30,10 +32,10 @@ CPU/disk-bound on decompression. Nothing is drawn that could be a bottleneck.
 | `app.rs` | egui shell — all UI, worker polling, no blocking work |
 | `theme.rs` | Palette, backdrop, frosted-glass surfaces, progress bar, buttons |
 | `assets.rs` | Embedded logo and its alpha keying |
-| `install.rs` | Worker thread: manifest → download → SHA-256 verify → unpack |
-| `progress.rs` | `Phase` messages and the counting reader driving the unpack bar |
-| `manifest.rs` | Remote `manifest.json` model |
-| `config.rs` | Persisted install path / base URL / server IP |
+| `install.rs` | Worker thread: download → unpack, with cancellation |
+| `progress.rs` | `Phase` snapshots sent to the UI |
+| `config.rs` | Build-time constants, persisted install path, locating `l2.exe` |
+| `relocate.rs` | Moving the launcher into the game folder |
 | `launch.rs` | Spawning `l2.exe` |
 
 ## The glass look
@@ -92,48 +94,73 @@ wake the UI, which is otherwise asleep between frames.
 
 ## Packaging the client
 
-The client is distributed as zstd-compressed tarballs:
-
-```
-tar -cf - client/ | zstd -19 --long=27 -T0 -o client.tar.zst
-```
-
-`--long=27` is a 128 MB window. The decoder **must** be told to allow it or the
-frame is rejected — see `ZSTD_WINDOW_LOG_MAX` in `install.rs`. This fails only on
-real archives; small test fixtures decode fine without it.
-
-The 19 GB client currently packs to ~9.3 GB, which fits R2's 10 GB free-tier cap —
-but leaves no room to stage a new version alongside the old one. Splitting into
-per-directory chunks (`textures`, `sounds`, `maps`, `system`) is the intended fix:
-`manifest.json` already lists chunks as an array, so only the packaging side needs
-to change. It also buys resumable downloads and per-chunk updates.
+The 19 GB client packs to roughly 9.3 GB. Publish it as `client.7z` at the URL in
+`.env`.
 
 ## Not done yet
 
-- The update flow. `manifest.rs` carries the version and per-chunk hashes needed for
-  it, but nothing compares them against a local record yet.
-- Resumable downloads (HTTP range requests).
-- Free-disk-space check before starting a ~9 GB download.
-- Visual design.
+- **The update flow.** Currently every install is a full re-download; there is no
+  version check and no way to patch. A manifest listing per-file hashes is the
+  natural shape, and was prototyped earlier, but it is not wired up.
+- **Resumable downloads.** A dropped connection at 8 GB restarts from zero.
+- **A free-disk-space check** before committing to a ~9 GB download plus ~19 GB of
+  unpacked client.
+- **Running it on Windows.** Everything here is verified by cross-compilation and
+  unit tests only.
 
 ## Configuring a build
 
-The download location and server address are baked in at build time:
+Settings live in `.env` next to `Cargo.toml`. It is **gitignored** — it points a build
+at a specific deployment — so copy `.env.example` to get started:
 
 ```
-LAUNCHER_BASE_URL=https://pub-xxxx.r2.dev \
-LAUNCHER_SERVER_IP=79.137.70.1 \
+LAUNCHER_CLIENT_URL=https://static.battlecrab.com/client.7z
+LAUNCHER_SERVER_IP=79.137.70.1
+```
+
+`build.rs` reads it and compiles both values in. A real environment variable of the
+same name wins, so CI can retarget a build without editing the file:
+
+```
+LAUNCHER_CLIENT_URL=https://staging.example.com/client.7z \
   cargo zigbuild -p launcher --target x86_64-pc-windows-gnu --release
 ```
 
-Both are optional; unset, `LAUNCHER_BASE_URL` falls back to a deliberately broken
-placeholder so a misconfigured release fails at the manifest fetch rather than
-quietly downloading from somewhere unintended. Trailing slashes are trimmed.
+With no `.env` and no environment variable, the URL falls back to
+`https://REPLACE-ME.invalid/client.7z` — deliberately unroutable, so a misconfigured
+release fails immediately instead of quietly downloading from somewhere unintended.
 
 These are **not** stored in the user's config file, on purpose. A persisted URL would
 mean anyone who ran an early build keeps a saved placeholder that silently overrides
-every later release — the config holds only the install directory and installed
-version.
+every later release. The config holds only the install directory and the resolved path
+to `l2.exe`.
+
+## Finding the game after install
+
+The Play button needs `l2.exe`, and the archive decides its own layout — it may put
+`system/` at the root or nest everything under a folder of its own. So the path is
+*resolved* after extraction (`config::locate_game_exe`) and stored, rather than assumed
+to be `install_dir/system/l2.exe`. It checks the root, then one level of
+subdirectories, case-insensitively. Not a recursive walk: scanning an unpacked 19 GB
+client for one file would be slow.
+
+Play stays hidden unless that recorded path still exists on disk, so deleting the game
+folder behind the launcher's back correctly returns it to the install flow.
+
+## Archive format
+
+`client.7z`, decoded by `sevenz-rust2` — pure Rust, which matters because a C
+dependency would break the macOS→Windows cross-build (see below).
+
+7z is a random-access format whose index sits at the end of the file, so it cannot be
+extracted from a forward-only stream. The archive is therefore staged to disk first and
+unpacked from there.
+
+Integrity comes from the per-entry CRCs the decoder verifies. There is no separate
+checksum manifest.
+
+Extraction progress is in *uncompressed* bytes — the 7z index carries the real total,
+so unlike a streamed tarball the bar reflects actual progress.
 
 ## Settling into the game folder
 

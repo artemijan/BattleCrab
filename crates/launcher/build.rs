@@ -16,11 +16,11 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-/// Used when `LAUNCHER_BASE_URL` is not set. Deliberately not a working URL: a
-/// release built without the real bucket should fail loudly at the manifest fetch,
-/// not silently download from somewhere unintended.
-const FALLBACK_BASE_URL: &str = "https://pub-REPLACE-ME.r2.dev";
-const FALLBACK_SERVER_IP: &str = "79.137.70.1";
+/// Used when `LAUNCHER_CLIENT_URL` is set neither in the environment nor in `.env`.
+/// Deliberately not a working URL: a release built without configuration should fail
+/// loudly on the first request, not silently download from somewhere unintended.
+const FALLBACK_CLIENT_URL: &str = "https://REPLACE-ME.invalid/client.7z";
+const FALLBACK_SERVER_IP: &str = "127.0.0.1";
 
 fn main() {
     println!("cargo:rerun-if-changed=assets/icon.ico");
@@ -71,31 +71,61 @@ fn main() {
     }
 }
 
-/// Bakes the download location and server address into the binary.
+/// Bakes the client URL and server address into the binary.
 ///
 /// These are build-time properties, not user settings — a given build talks to a
 /// given deployment. Keeping them out of the persisted config also avoids the stale
 /// -config trap, where a user who ran an early build keeps a saved placeholder URL
 /// that silently overrides the one compiled in.
 ///
-/// ```text
-/// LAUNCHER_BASE_URL=https://pub-xxxx.r2.dev cargo build --release
-/// ```
+/// Values come from `.env` next to this file, and a real environment variable of the
+/// same name overrides it — so CI can retarget a build without editing the file.
 fn bake_in_config() {
+    println!("cargo:rerun-if-changed=.env");
+    let dotenv = read_dotenv();
+
     for (var, fallback) in [
-        ("LAUNCHER_BASE_URL", FALLBACK_BASE_URL),
+        ("LAUNCHER_CLIENT_URL", FALLBACK_CLIENT_URL),
         ("LAUNCHER_SERVER_IP", FALLBACK_SERVER_IP),
     ] {
         println!("cargo:rerun-if-env-changed={var}");
-        let value = std::env::var(var).unwrap_or_else(|_| fallback.to_string());
-        // Trailing slashes would produce `…r2.dev//manifest.json`; the install code
-        // trims them too, but normalising once here keeps logs readable.
-        let value = value.trim().trim_end_matches('/').to_string();
+        let value = std::env::var(var)
+            .ok()
+            .or_else(|| dotenv.get(var).cloned())
+            .unwrap_or_else(|| fallback.to_string());
+        let value = value.trim().to_string();
         if value.is_empty() {
             panic!("{var} is set but empty");
         }
         println!("cargo:rustc-env={var}={value}");
     }
+}
+
+/// Minimal `KEY=VALUE` parser. A dependency would be overkill for this, and build
+/// dependencies are compiled for the host on every clean build.
+///
+/// Blank lines and `#` comments are skipped; surrounding quotes are stripped so both
+/// `KEY=value` and `KEY="value"` work.
+fn read_dotenv() -> std::collections::HashMap<String, String> {
+    let path = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap()).join(".env");
+    let Ok(text) = std::fs::read_to_string(&path) else {
+        println!("cargo:warning=no .env at {}; using defaults", path.display());
+        return Default::default();
+    };
+
+    text.lines()
+        .map(str::trim)
+        .filter(|l| !l.is_empty() && !l.starts_with('#'))
+        .filter_map(|line| line.split_once('='))
+        .map(|(k, v)| {
+            let v = v.trim();
+            let v = v
+                .strip_prefix('"')
+                .and_then(|v| v.strip_suffix('"'))
+                .unwrap_or(v);
+            (k.trim().to_string(), v.to_string())
+        })
+        .collect()
 }
 
 /// GNU-style single step: `.rc` straight to a COFF object.

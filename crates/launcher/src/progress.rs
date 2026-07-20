@@ -3,19 +3,18 @@
 //! The worker owns a [`Reporter`]; the UI drains the channel every frame. Messages
 //! are cheap and lossy-tolerant — the UI only ever renders the most recent state.
 
-use std::io::Read;
 use std::sync::mpsc::{Receiver, Sender};
 
 /// What the worker is currently doing. The UI maps this straight onto its progress bars.
 #[derive(Debug, Clone)]
 pub enum Phase {
-    /// Fetching the remote manifest to decide what needs downloading.
-    CheckingManifest,
+    /// Request sent, waiting on the response headers.
+    Connecting,
     /// Streaming the archive to disk. `total` is `None` when the server sends no
     /// `Content-Length` (progress is then indeterminate).
     Downloading { done: u64, total: Option<u64> },
-    /// Unpacking. Measured in *compressed* bytes consumed, so `total` is the archive
-    /// size — the uncompressed size is not known up front.
+    /// Unpacking, in *uncompressed* bytes — the 7z index carries the real total, so
+    /// this bar reflects actual progress rather than bytes consumed from the archive.
     Extracting { done: u64, total: u64 },
     /// Install finished; the client is playable.
     Ready,
@@ -63,38 +62,3 @@ impl Reporter {
 
 /// UI-side handle.
 pub type ProgressRx = Receiver<Phase>;
-
-/// Wraps a reader and reports how many bytes have passed through it.
-///
-/// Used to drive the extraction bar: we count bytes pulled *out of the compressed
-/// archive*, because the decompressed total is unknown until we finish.
-pub struct ProgressReader<R> {
-    inner: R,
-    read: u64,
-    total: u64,
-    reporter: Reporter,
-    /// Only report every ~4 MB — reporting per `read()` call floods the channel and
-    /// costs more than the copy itself.
-    last_reported: u64,
-}
-
-const REPORT_INTERVAL: u64 = 4 * 1024 * 1024;
-
-impl<R: Read> ProgressReader<R> {
-    pub fn new(inner: R, total: u64, reporter: Reporter) -> Self {
-        Self { inner, read: 0, total, reporter, last_reported: 0 }
-    }
-}
-
-impl<R: Read> Read for ProgressReader<R> {
-    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
-        let n = self.inner.read(buf)?;
-        self.read += n as u64;
-        if self.read - self.last_reported >= REPORT_INTERVAL || n == 0 {
-            self.last_reported = self.read;
-            self.reporter
-                .send(Phase::Extracting { done: self.read, total: self.total });
-        }
-        Ok(n)
-    }
-}

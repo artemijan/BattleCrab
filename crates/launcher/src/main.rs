@@ -7,7 +7,6 @@ mod assets;
 mod config;
 mod install;
 mod launch;
-mod manifest;
 mod progress;
 mod relocate;
 mod theme;

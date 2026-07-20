@@ -1,28 +1,27 @@
-//! The install worker: fetch manifest → download chunks → verify → unpack.
+//! The install worker: download `client.7z`, unpack it, done.
 //!
 //! Runs on a plain `std::thread`, not a tokio runtime. The work is a linear sequence
 //! of blocking I/O with no concurrency to exploit, so async would add a runtime and
 //! buy nothing. All progress reaches the UI over [`crate::progress`].
 
 use std::fs::File;
-use std::io::{BufReader, BufWriter, Read, Write};
+use std::io::{BufWriter, Read, Write};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use anyhow::{bail, Context};
-use sha2::{Digest, Sha256};
+use sevenz_rust2::{ArchiveReader, Password};
 
-use crate::manifest::{Chunk, Manifest};
-use crate::progress::{Phase, ProgressReader, Reporter};
+use crate::progress::{Phase, Reporter};
 
-/// Must match the `--long=27` used when packaging. zstd refuses to decode a frame
-/// whose window exceeds the decoder's limit, and the default limit is well below
-/// 128 MB — omitting this fails on real archives while test fixtures pass.
-const ZSTD_WINDOW_LOG_MAX: u32 = 27;
+/// Report at most this often, in bytes moved. Reporting per read floods the channel
+/// and costs more than the copy itself.
+const REPORT_INTERVAL: u64 = 4 * 1024 * 1024;
 
-/// Cooperative cancellation. Checked between chunks and inside the copy loops, so a
-/// cancel lands within a few megabytes rather than at the end of a 9 GB download.
+/// Cooperative cancellation. Checked inside the copy loops and between archive
+/// entries, so a cancel lands within a few megabytes rather than at the end of a
+/// multi-gigabyte download.
 #[derive(Clone, Default)]
 pub struct Cancel(Arc<AtomicBool>);
 
@@ -42,17 +41,17 @@ impl Cancel {
 }
 
 pub struct InstallRequest {
-    pub base_url: String,
+    pub client_url: String,
     pub install_dir: PathBuf,
     pub cancel: Cancel,
 }
 
-/// Runs a full install. Reports terminal state ([`Phase::Ready`] or
-/// [`Phase::Failed`]) before returning, so the UI never needs to poll the thread.
+/// Runs a full install, reporting terminal state ([`Phase::Ready`] or
+/// [`Phase::Failed`]) before returning so the UI never needs to poll the thread.
 pub fn run(req: InstallRequest, reporter: Reporter) {
     match install(&req, &reporter) {
-        Ok(version) => {
-            tracing::info!("install complete, version {version}");
+        Ok(()) => {
+            tracing::info!("install complete");
             reporter.send(Phase::Ready);
         }
         Err(e) if req.cancel.is_cancelled() => {
@@ -60,18 +59,45 @@ pub fn run(req: InstallRequest, reporter: Reporter) {
             reporter.send(Phase::Failed("Cancelled".into()));
         }
         Err(e) => {
-            // `{e:#}` prints the whole anyhow context chain, which is the difference
-            // between "install failed" and "install failed: connect timed out".
+            // `{e:#}` prints the whole anyhow context chain — the difference between
+            // "install failed" and "install failed: connect timed out".
             tracing::error!("install failed: {e:#}");
             reporter.send(Phase::Failed(format!("{e:#}")));
         }
     }
 }
 
-/// Returns the installed version tag on success.
-fn install(req: &InstallRequest, reporter: &Reporter) -> anyhow::Result<String> {
-    reporter.send(Phase::CheckingManifest);
+fn install(req: &InstallRequest, reporter: &Reporter) -> anyhow::Result<()> {
+    reporter.send(Phase::Connecting);
 
+    std::fs::create_dir_all(&req.install_dir)
+        .with_context(|| format!("cannot create {}", req.install_dir.display()))?;
+
+    // The archive is staged rather than streamed straight into the extractor: 7z is
+    // a random-access format whose index lives at the end of the file, so it cannot
+    // be extracted from a forward-only stream at all.
+    let staging = req.install_dir.join(".launcher-cache");
+    std::fs::create_dir_all(&staging)?;
+    let archive = staging.join("client.7z");
+
+    download(&req.client_url, &archive, req, reporter)?;
+    req.cancel.check()?;
+    extract(&archive, &req.install_dir, req, reporter)?;
+
+    // Frees ~9 GB straight away. Keeping it would allow a re-extract without
+    // re-downloading, but not at that price.
+    let _ = std::fs::remove_file(&archive);
+    let _ = std::fs::remove_dir(&staging);
+    Ok(())
+}
+
+/// Streams the archive to disk.
+fn download(
+    url: &str,
+    dest: &Path,
+    req: &InstallRequest,
+    reporter: &Reporter,
+) -> anyhow::Result<()> {
     let client = reqwest::blocking::Client::builder()
         .user_agent(concat!("battlecrab-launcher/", env!("CARGO_PKG_VERSION")))
         // No overall timeout: a multi-gigabyte download legitimately runs for hours.
@@ -79,77 +105,19 @@ fn install(req: &InstallRequest, reporter: &Reporter) -> anyhow::Result<String> 
         .connect_timeout(std::time::Duration::from_secs(30))
         .build()?;
 
-    let manifest = fetch_manifest(&client, &req.base_url)?;
-    tracing::info!(
-        "manifest version {} — {} chunk(s), {} bytes",
-        manifest.version,
-        manifest.chunks.len(),
-        manifest.total_size()
-    );
-
-    std::fs::create_dir_all(&req.install_dir)
-        .with_context(|| format!("cannot create {}", req.install_dir.display()))?;
-
-    // Archives are staged here rather than streamed straight into the extractor so
-    // the hash can be verified before anything touches the install directory, and so
-    // a failed run can later resume instead of restarting.
-    let staging = req.install_dir.join(".launcher-cache");
-    std::fs::create_dir_all(&staging)?;
-
-    for chunk in &manifest.chunks {
-        req.cancel.check()?;
-        let archive = download_chunk(&client, req, chunk, &staging, reporter)?;
-        req.cancel.check()?;
-        extract_chunk(&archive, &req.install_dir, req, reporter)?;
-        // Freeing ~9 GB immediately matters more than the resume it would enable;
-        // revisit when chunking makes individual archives small.
-        let _ = std::fs::remove_file(&archive);
-    }
-
-    let _ = std::fs::remove_dir_all(&staging);
-    Ok(manifest.version)
-}
-
-fn fetch_manifest(client: &reqwest::blocking::Client, base_url: &str) -> anyhow::Result<Manifest> {
-    let url = format!("{}/manifest.json", base_url.trim_end_matches('/'));
-    let resp = client
-        .get(&url)
-        .send()
-        .with_context(|| format!("requesting {url}"))?
-        .error_for_status()
-        .with_context(|| format!("bad status from {url}"))?;
-    resp.json().context("manifest.json is not valid JSON")
-}
-
-/// Streams one chunk to disk, verifying its SHA-256 as it goes.
-fn download_chunk(
-    client: &reqwest::blocking::Client,
-    req: &InstallRequest,
-    chunk: &Chunk,
-    staging: &Path,
-    reporter: &Reporter,
-) -> anyhow::Result<PathBuf> {
-    let url = format!("{}/{}", req.base_url.trim_end_matches('/'), chunk.path);
-    let filename = Path::new(&chunk.path)
-        .file_name()
-        .context("chunk path has no file name")?;
-    let dest = staging.join(filename);
-
     let mut resp = client
-        .get(&url)
+        .get(url)
         .send()
         .with_context(|| format!("requesting {url}"))?
         .error_for_status()
         .with_context(|| format!("bad status from {url}"))?;
 
-    // Prefer the manifest's size over Content-Length: it is what the hash was
-    // computed over, and it is known before the request starts.
-    let total = if chunk.size > 0 { Some(chunk.size) } else { resp.content_length() };
+    let total = resp.content_length();
+    tracing::info!("downloading {url} ({})", describe(total));
 
     let mut out = BufWriter::new(
-        File::create(&dest).with_context(|| format!("cannot write {}", dest.display()))?,
+        File::create(dest).with_context(|| format!("cannot write {}", dest.display()))?,
     );
-    let mut hasher = Sha256::new();
     let mut buf = vec![0u8; 1 << 20];
     let mut done: u64 = 0;
     let mut last_reported = 0u64;
@@ -160,10 +128,9 @@ fn download_chunk(
         if n == 0 {
             break;
         }
-        hasher.update(&buf[..n]);
         out.write_all(&buf[..n])?;
         done += n as u64;
-        if done - last_reported >= 1 << 22 {
+        if done - last_reported >= REPORT_INTERVAL {
             last_reported = done;
             reporter.send(Phase::Downloading { done, total });
         }
@@ -171,53 +138,227 @@ fn download_chunk(
     out.flush()?;
     reporter.send(Phase::Downloading { done, total });
 
-    let got = hex::encode(hasher.finalize());
-    // An empty hash in the manifest means "unverified" — useful while iterating on
-    // packaging, but it should never be empty in production.
-    if !chunk.sha256.is_empty() && !got.eq_ignore_ascii_case(&chunk.sha256) {
-        let _ = std::fs::remove_file(&dest);
-        bail!("checksum mismatch for {}: expected {}, got {got}", chunk.path, chunk.sha256);
+    // A truncated transfer that still returned 200 would otherwise surface later as a
+    // confusing "malformed archive".
+    if let Some(total) = total {
+        if done != total {
+            bail!("download incomplete: got {done} of {total} bytes");
+        }
     }
-
-    Ok(dest)
+    Ok(())
 }
 
-/// Unpacks a `.tar.zst` archive into `install_dir`.
-fn extract_chunk(
+/// Unpacks the 7z archive into `install_dir`.
+///
+/// Progress is in *uncompressed* bytes, which the archive index knows up front — so
+/// unlike a streamed tarball this bar is honest about the real total.
+///
+/// Per-entry CRCs are verified by the decoder, which is where integrity checking
+/// comes from now that there is no manifest carrying hashes.
+fn extract(
     archive: &Path,
     install_dir: &Path,
     req: &InstallRequest,
     reporter: &Reporter,
 ) -> anyhow::Result<()> {
-    let file = File::open(archive)?;
-    let compressed_size = file.metadata()?.len();
+    let mut reader = ArchiveReader::open(archive, Password::empty())
+        .with_context(|| format!("cannot open {}", archive.display()))?;
 
-    // The bar tracks *compressed* bytes consumed: the uncompressed total is not in
-    // the archive header, so this is the only figure known up front.
-    let counted = ProgressReader::new(
-        BufReader::with_capacity(1 << 20, file),
-        compressed_size,
-        reporter.clone(),
-    );
+    let total: u64 = reader
+        .archive()
+        .files
+        .iter()
+        .filter(|f| f.has_stream && !f.is_directory)
+        .map(|f| f.size)
+        .sum();
+    tracing::info!("unpacking {} bytes", total);
+    reporter.send(Phase::Extracting { done: 0, total });
 
-    let mut decoder = zstd::stream::Decoder::new(counted)?;
-    decoder
-        .window_log_max(ZSTD_WINDOW_LOG_MAX)
-        .context("failed to raise zstd window limit")?;
+    let mut done: u64 = 0;
+    let mut last_reported = 0u64;
+    let cancel = req.cancel.clone();
 
-    let mut tar = tar::Archive::new(decoder);
-    tar.set_overwrite(true);
+    reader
+        .for_each_entries(|entry, stream| {
+            if cancel.is_cancelled() {
+                // Ends iteration; `install` turns this into the cancelled path.
+                return Ok(false);
+            }
 
-    for entry in tar.entries()? {
-        req.cancel.check()?;
-        let mut entry = entry?;
-        // `unpack_in` refuses paths escaping the destination (`..`, absolute paths),
-        // so a malicious or malformed archive cannot write outside install_dir.
-        entry
-            .unpack_in(install_dir)
-            .with_context(|| format!("unpacking {:?}", entry.path().ok()))?;
+            let Some(dest) = safe_join(install_dir, &entry.name) else {
+                tracing::warn!("skipping entry outside the install dir: {}", entry.name);
+                return Ok(true);
+            };
+
+            if entry.is_directory {
+                std::fs::create_dir_all(&dest)?;
+                return Ok(true);
+            }
+            if let Some(parent) = dest.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+
+            let mut out = BufWriter::new(File::create(&dest)?);
+            let mut buf = vec![0u8; 1 << 20];
+            loop {
+                if cancel.is_cancelled() {
+                    return Ok(false);
+                }
+                let n = stream.read(&mut buf)?;
+                if n == 0 {
+                    break;
+                }
+                out.write_all(&buf[..n])?;
+                done += n as u64;
+                if done - last_reported >= REPORT_INTERVAL {
+                    last_reported = done;
+                    reporter.send(Phase::Extracting { done, total });
+                }
+            }
+            out.flush()?;
+            Ok(true)
+        })
+        .map_err(|e| anyhow::anyhow!("unpacking failed: {e}"))?;
+
+    req.cancel.check()?;
+    reporter.send(Phase::Extracting { done: total, total });
+    Ok(())
+}
+
+/// Joins an archive-supplied path onto `root`, refusing anything that escapes it.
+///
+/// A malicious or malformed archive can carry `../` components or absolute paths;
+/// without this check ("zip slip") an entry could be written anywhere the process can
+/// write. Backslashes are normalised because 7z archives built on Windows use them.
+fn safe_join(root: &Path, name: &str) -> Option<PathBuf> {
+    use std::path::Component;
+
+    let normalised = name.replace('\\', "/");
+    let mut out = root.to_path_buf();
+    for component in Path::new(&normalised).components() {
+        match component {
+            Component::Normal(part) => out.push(part),
+            // Ignore no-ops; reject anything that climbs or re-roots.
+            Component::CurDir => {}
+            Component::ParentDir | Component::RootDir | Component::Prefix(_) => return None,
+        }
+    }
+    (out != root).then_some(out)
+}
+
+fn describe(total: Option<u64>) -> String {
+    match total {
+        Some(t) => format!("{t} bytes"),
+        None => "size unknown".into(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn safe_join_accepts_normal_paths() {
+        let root = Path::new("/game");
+        assert_eq!(
+            safe_join(root, "system/l2.exe"),
+            Some(PathBuf::from("/game/system/l2.exe"))
+        );
+        // 7z archives written on Windows use backslashes.
+        assert_eq!(
+            safe_join(root, "system\\l2.exe"),
+            Some(PathBuf::from("/game/system/l2.exe"))
+        );
     }
 
-    reporter.send(Phase::Extracting { done: compressed_size, total: compressed_size });
-    Ok(())
+    /// Zip-slip: without this the entry would be written outside the install dir.
+    #[test]
+    fn safe_join_rejects_escapes() {
+        let root = Path::new("/game");
+        assert_eq!(safe_join(root, "../evil.exe"), None);
+        assert_eq!(safe_join(root, "system/../../evil.exe"), None);
+        assert_eq!(safe_join(root, "/etc/passwd"), None);
+        assert_eq!(safe_join(root, "..\\evil.exe"), None);
+    }
+
+    #[test]
+    fn safe_join_rejects_empty_and_self() {
+        assert_eq!(safe_join(Path::new("/game"), "."), None);
+        assert_eq!(safe_join(Path::new("/game"), ""), None);
+    }
+
+    fn scratch(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir()
+            .join(format!("launcher-install-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
+    /// Builds a real 7z archive laid out like the client, unpacks it through the
+    /// production path, and checks the result.
+    ///
+    /// This is the only test that exercises the actual 7z decoder rather than our
+    /// path handling around it — everything else could pass with extraction
+    /// completely broken.
+    #[test]
+    fn extracts_a_real_archive_and_the_game_is_then_findable() {
+        let root = scratch("roundtrip");
+        let src = root.join("src");
+        // Nested under a top-level folder, which is how 7z archives usually arrive.
+        std::fs::create_dir_all(src.join("L2_Client/system")).unwrap();
+        std::fs::write(src.join("L2_Client/system/l2.exe"), b"MZ fake game").unwrap();
+        std::fs::write(src.join("L2_Client/system/l2.ini"), b"[Game]\n").unwrap();
+
+        let archive = root.join("client.7z");
+        sevenz_rust2::compress_to_path(&src, &archive).expect("failed to build test archive");
+
+        let install_dir = root.join("install");
+        std::fs::create_dir_all(&install_dir).unwrap();
+        let (tx, _rx) = std::sync::mpsc::channel();
+        let req = InstallRequest {
+            client_url: String::new(),
+            install_dir: install_dir.clone(),
+            cancel: Cancel::default(),
+        };
+
+        extract(&archive, &install_dir, &req, &Reporter::new(tx, None)).expect("extraction failed");
+
+        let exe = install_dir.join("L2_Client/system/l2.exe");
+        assert!(exe.is_file(), "l2.exe should have been unpacked");
+        assert_eq!(std::fs::read(&exe).unwrap(), b"MZ fake game", "contents must survive");
+
+        // The whole point of unpacking: the Play button must light up afterwards.
+        assert_eq!(
+            crate::config::locate_game_exe(&install_dir),
+            Some(exe),
+            "the launcher must find the game it just installed"
+        );
+    }
+
+    /// Cancelling must stop promptly rather than unpacking the remaining gigabytes.
+    #[test]
+    fn extraction_stops_when_cancelled() {
+        let root = scratch("cancel");
+        let src = root.join("src");
+        std::fs::create_dir_all(src.join("system")).unwrap();
+        for i in 0..8 {
+            std::fs::write(src.join(format!("system/file{i}.dat")), vec![b'x'; 4096]).unwrap();
+        }
+        let archive = root.join("client.7z");
+        sevenz_rust2::compress_to_path(&src, &archive).unwrap();
+
+        let install_dir = root.join("install");
+        let cancel = Cancel::default();
+        cancel.cancel();
+        let (tx, _rx) = std::sync::mpsc::channel();
+        let req = InstallRequest {
+            client_url: String::new(),
+            install_dir: install_dir.clone(),
+            cancel,
+        };
+
+        let result = extract(&archive, &install_dir, &req, &Reporter::new(tx, None));
+        assert!(result.is_err(), "a cancelled extraction must not report success");
+    }
 }
