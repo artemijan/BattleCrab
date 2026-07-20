@@ -302,3 +302,55 @@ pub fn ex_pledge_recruit_info(clan: &crate::model::clan::Clan) -> Vec<u8> {
     w.write_i32(0); // sub-pledge count
     w.into_bytes()
 }
+
+/// Port of `serverpackets/ManagePledgePower` — the rank-privilege editor's
+/// answer: the (possibly just-updated) privilege mask of one rank.
+pub fn manage_pledge_power(rank: i32, action: i32, privs: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::MANAGE_PLEDGE_POWER);
+    w.write_i32(rank);
+    w.write_i32(action);
+    w.write_i32(privs);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgePowerGradeList` — the rank list (rank id +
+/// `party`, the latter always 0 as in Java's `RankPrivs`).
+pub fn pledge_power_grade_list(ranks: &[i32]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_POWER_GRADE_LIST);
+    w.write_i32(ranks.len() as i32);
+    for &rank in ranks {
+        w.write_i32(rank);
+        w.write_i32(0); // party
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeReceivePowerInfo` — one member's rank + the
+/// privilege mask that rank currently holds.
+pub fn pledge_receive_power_info(power_grade: i32, name: &str, privs: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_RECEIVE_POWER_INFO);
+    w.write_i32(power_grade);
+    w.write_string(name);
+    w.write_i32(privs);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeReceiveMemberInfo` — the member-detail pane of
+/// the clan window. Apprentice/sponsor stays empty (TODO(G18.6): academy).
+pub fn pledge_receive_member_info(m: &crate::model::clan::ClanMember, clan_name: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_RECEIVE_MEMBER_INFO);
+    w.write_i32(0); // pledge type (main)
+    w.write_string(&m.name);
+    w.write_string(&m.title);
+    w.write_i32(m.power_grade);
+    w.write_string(clan_name); // main pledge → the clan's own name
+    w.write_string(""); // apprentice/sponsor name
+    w.into_bytes()
+}

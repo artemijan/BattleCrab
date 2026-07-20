@@ -342,6 +342,12 @@ pub enum DbCommand {
     /// `Player.setClanJoinExpiryTime` persisted alone (invite accepted zeroes
     /// it; `characters.clan_join_expiry_time`).
     UpdateCharClanJoinExpiry { char_id: i32, expiry: i64 },
+    /// `Clan.setRankPrivs` — upsert one `clan_privs` row (party is always 0).
+    SaveClanRankPrivs { clan_id: i32, rank: i32, privs: i32 },
+    /// `ClanMember.updatePowerGrade` — persist a member's rank.
+    UpdateCharPowerGrade { char_id: i32, power_grade: i32 },
+    /// `Clan.setNewLeaderId(id, true)` — the pending delegated leader transfer.
+    UpdateClanNewLeader { clan_id: i32, new_leader_id: i32 },
     /// `ClanTable.destroyClan` — delete the `clan_data` row and reset every
     /// member's `characters` clan columns (online *and* offline, since the
     /// memory-first autosave never touches those columns). `leader_id` also gets
@@ -762,6 +768,37 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
+            DbCommand::SaveClanRankPrivs { clan_id, rank, privs } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT INTO clan_privs (clan_id, `rank`, party, privs) VALUES (?, ?, 0, ?) \
+                         ON CONFLICT(clan_id, `rank`, party) DO UPDATE SET privs=excluded.privs",
+                    )
+                    .bind(clan_id)
+                    .bind(rank)
+                    .bind(privs),
+                )
+                .await;
+            }
+            DbCommand::UpdateCharPowerGrade { char_id, power_grade } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE characters SET power_grade=? WHERE charId=?")
+                        .bind(power_grade)
+                        .bind(char_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateClanNewLeader { clan_id, new_leader_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET new_leader_id=? WHERE clan_id=?")
+                        .bind(new_leader_id)
+                        .bind(clan_id),
+                )
+                .await;
+            }
             DbCommand::UpdateCharClanJoinExpiry { char_id, expiry } => {
                 exec(
                     &pool,
@@ -1133,6 +1170,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             clan_privs: geti(row, "clan_privs") as i32,
             clan_create_expiry_time: geti(row, "clan_create_expiry_time"),
             clan_join_expiry_time: geti(row, "clan_join_expiry_time"),
+            power_grade: geti(row, "power_grade") as i32,
             race: geti(row, "race") as i32,
             class_id: geti(row, "classid") as i32,
             base_class_id: geti(row, "base_class") as i32,
@@ -1484,14 +1522,14 @@ async fn load_castles(pool: &SqlitePool) -> Vec<crate::model::castle::Castle> {
 }
 
 async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
-    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, leader_id, char_penalty_expiry_time, dissolving_expiry_time FROM clan_data")
+    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, leader_id, char_penalty_expiry_time, dissolving_expiry_time, new_leader_id FROM clan_data")
         .fetch_all(pool)
         .await
         .unwrap_or_default();
     let mut out = Vec::with_capacity(clan_rows.len());
     for row in &clan_rows {
         let clan_id = geti(row, "clan_id") as i32;
-        let member_rows = sqlx::query("SELECT charId, char_name, level, classid, sex, race FROM characters WHERE clanid=?")
+        let member_rows = sqlx::query("SELECT charId, char_name, level, classid, sex, race, power_grade, title FROM characters WHERE clanid=?")
             .bind(clan_id)
             .fetch_all(pool)
             .await
@@ -1510,6 +1548,17 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             .iter()
             .map(|s| (geti(s, "skill_id") as i32, geti(s, "skill_level") as i32))
             .collect();
+        // Rank → privilege-mask rows (Java `restoreRankPrivs`; rank -1 skipped).
+        let priv_rows = sqlx::query("SELECT `rank`, privs FROM clan_privs WHERE clan_id=?")
+            .bind(clan_id)
+            .fetch_all(pool)
+            .await
+            .unwrap_or_default();
+        let rank_privs = priv_rows
+            .iter()
+            .map(|r| (geti(r, "rank") as i32, geti(r, "privs") as i32))
+            .filter(|&(rank, _)| rank != -1)
+            .collect();
         out.push(crate::model::clan::Clan {
             id: clan_id,
             name: gets(row, "clan_name"),
@@ -1519,6 +1568,8 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             castle_id: geti(row, "hasCastle") as i32,
             char_penalty_expiry_time: geti(row, "char_penalty_expiry_time"),
             dissolving_expiry_time: geti(row, "dissolving_expiry_time"),
+            rank_privs,
+            new_leader_id: geti(row, "new_leader_id") as i32,
             skills,
             warehouse: crate::model::inventory::Warehouse::from_rows(&wh_rows),
             members: member_rows
@@ -1530,6 +1581,8 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
                     class_id: geti(m, "classid") as i32,
                     sex: geti(m, "sex") as i32,
                     race: geti(m, "race") as i32,
+                    power_grade: geti(m, "power_grade") as i32,
+                    title: gets(m, "title"),
                 })
                 .collect(),
         });

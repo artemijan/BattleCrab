@@ -96,6 +96,7 @@ pub const FRIEND_ADD_REQUEST: u8 = 0x83;
 pub const PLAY_SOUND: u8 = 0x9E;
 pub const QUEST_LIST: u8 = 0x86;
 pub const ASK_JOIN_PLEDGE: u8 = 0x2C;
+pub const MANAGE_PLEDGE_POWER: u8 = 0x2A;
 pub const JOIN_PLEDGE: u8 = 0x2D;
 pub const PLEDGE_SHOW_MEMBER_LIST_ADD: u8 = 0x5C;
 pub const PLEDGE_SHOW_MEMBER_LIST_DELETE: u8 = 0x5D;
@@ -137,6 +138,9 @@ pub const EX_PCCAFE_POINT_INFO: i16 = 0x32;
 pub const EX_VOTE_SYSTEM_INFO: i16 = 0xCA;
 /// `PledgeSkillList` — the clan window's skill tab (`(id, level)` list).
 pub const EX_PLEDGE_COUNT: i16 = 0x13D;
+pub const EX_PLEDGE_POWER_GRADE_LIST: i16 = 0x3D;
+pub const EX_PLEDGE_RECEIVE_POWER_INFO: i16 = 0x3E;
+pub const EX_PLEDGE_RECEIVE_MEMBER_INFO: i16 = 0x3F;
 pub const EX_ACQUIRABLE_SKILL_LIST_BY_CLASS: i16 = 0xFA;
 pub const EX_PLEDGE_SKILL_LIST: i16 = 0x3A;
 /// `PledgeSkillListAdd` — one newly-learned clan skill `(id, level)`.

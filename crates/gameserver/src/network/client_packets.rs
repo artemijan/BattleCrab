@@ -79,6 +79,7 @@ pub mod opcodes {
     pub const REQUEST_WITHDRAWAL_PLEDGE: u8 = 0x28;
     pub const REQUEST_OUST_PLEDGE_MEMBER: u8 = 0x29;
     pub const REQUEST_PLEDGE_INFO: u8 = 0x65;
+    pub const REQUEST_PLEDGE_POWER: u8 = 0xCC;
     pub const REQUEST_BUY_ITEM: u8 = 0x40;
     pub const REQUEST_JOIN_PARTY: u8 = 0x42;
     pub const REQUEST_ANSWER_JOIN_PARTY: u8 = 0x43;
@@ -174,6 +175,11 @@ pub mod ex_opcodes {
     /// recruit-board tab's filter search. The rest of the
     /// `RequestPledgeRecruit*` family (board access/detail, waiting
     /// list management, draft list) is the G18 `ClanEntryManager` port.
+    pub const REQUEST_PLEDGE_POWER_GRADE_LIST: u16 = 0x13;
+    pub const REQUEST_PLEDGE_MEMBER_POWER_INFO: u16 = 0x14;
+    pub const REQUEST_PLEDGE_SET_MEMBER_POWER_GRADE: u16 = 0x15;
+    pub const REQUEST_PLEDGE_MEMBER_INFO: u16 = 0x16;
+    pub const REQUEST_PLEDGE_REORGANIZE_MEMBER: u16 = 0x2C;
     pub const REQUEST_PLEDGE_RECRUIT_INFO: u16 = 0xD3;
     pub const REQUEST_PLEDGE_RECRUIT_BOARD_SEARCH: u16 = 0xD4;
     pub const REQUEST_PLEDGE_WAITING_APPLIED: u16 = 0xD8;

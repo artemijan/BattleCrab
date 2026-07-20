@@ -15,6 +15,12 @@ pub struct ClanMember {
     pub class_id: i32,
     pub sex: i32,
     pub race: i32,
+    /// Java `ClanMember._powerGrade` (`characters.power_grade`): the member's
+    /// rank (1 = leader, 5 = new member, 9 = academy). Privileges derive from
+    /// the clan's rank table at login and on rank edits.
+    pub power_grade: i32,
+    /// `characters.title` — shown in the member-detail pledge window.
+    pub title: String,
 }
 
 /// Java `Clan`, narrowed to the creation/display slice.
@@ -51,6 +57,15 @@ pub struct Clan {
     /// destroyed when it comes due (`ClanTable.scheduleRemoveClan`, re-armed
     /// from this stamp at boot).
     pub dissolving_expiry_time: i64,
+    /// Java `_privs` (`clan_privs` table): rank (power grade 1–9) → privilege
+    /// bitmask. Ranks without a row hold no privileges (Java initializes all 9
+    /// to an empty mask). Member privileges are derived from this at login and
+    /// refreshed when the leader edits a rank.
+    pub rank_privs: std::collections::HashMap<i32, i32>,
+    /// Java `_newLeaderId` (`clan_data.new_leader_id`): a pending delegated
+    /// leader transfer (`AltClanLeaderInstantActivation = False` flow). Applied
+    /// at the daily reset — TODO(G33): `DailyTaskManager.onClanLeaderChange`.
+    pub new_leader_id: i32,
 }
 
 impl Clan {
@@ -118,6 +133,20 @@ pub const CL_DISMISS: i32 = 1 << 6;
 
 /// The academy pledge type (Java `Clan.SUBUNIT_ACADEMY`).
 pub const SUBUNIT_ACADEMY: i32 = -1;
+
+/// `ClanPrivilege.CL_MANAGE_RANKS` (ordinal 4) — required to edit member ranks.
+pub const CL_MANAGE_RANKS: i32 = 1 << 4;
+
+/// The only rights bestowable on rank 9 (academy): CL_VIEW_WAREHOUSE (3),
+/// CH_OPEN_DOOR (11), CS_OPEN_DOOR (15) — Java `RequestPledgePower`'s mask.
+pub const RANK9_PRIVS_MASK: i32 = (1 << 3) | (1 << 11) | (1 << 15);
+
+impl Clan {
+    /// Java `getRankPrivs(rank).getBitmask()` — an unset rank is an empty mask.
+    pub fn rank_privs_of(&self, rank: i32) -> i32 {
+        self.rank_privs.get(&rank).copied().unwrap_or(0)
+    }
+}
 
 impl Clan {
     /// Java `Clan.getMaxNrOfMembers(pledgeType)` — the member cap per pledge

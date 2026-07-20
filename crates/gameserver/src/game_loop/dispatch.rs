@@ -178,6 +178,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_OUST_PLEDGE_MEMBER => {
             super::clans::handle_request_oust_pledge_member(world, client_id, body)
         }
+        cop::REQUEST_PLEDGE_POWER => super::clans::handle_request_pledge_power(world, client_id, body),
         cop::REQUEST_JOIN_PARTY => handle_request_join_party(world, client_id, body),
         cop::REQUEST_ANSWER_JOIN_PARTY => handle_request_answer_join_party(world, client_id, body),
         cop::REQUEST_WITH_DRAWAL_PARTY => handle_request_withdrawal_party(world, client_id),
@@ -374,6 +375,22 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             handle_answer_party_loot_modification(world, client_id, ex_body)
         }
         exop::REQUEST_VOTE_NEW => super::reco::handle_request_vote_new(world, client_id, ex_body),
+        // Clan ranks & power grades (G18 slice 3).
+        exop::REQUEST_PLEDGE_POWER_GRADE_LIST => {
+            super::clans::handle_request_pledge_power_grade_list(world, client_id)
+        }
+        exop::REQUEST_PLEDGE_MEMBER_POWER_INFO => {
+            super::clans::handle_request_pledge_member_power_info(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_SET_MEMBER_POWER_GRADE => {
+            super::clans::handle_request_pledge_set_member_power_grade(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_MEMBER_INFO => {
+            super::clans::handle_request_pledge_member_info(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_REORGANIZE_MEMBER => {
+            super::clans::handle_request_pledge_reorganize_member(world, client_id, ex_body)
+        }
         // Clan entry (recruitment) queries fired when the clan window opens.
         exop::REQUEST_PLEDGE_RECRUIT_INFO => {
             super::clans::handle_request_pledge_recruit_info(world, client_id, ex_body)

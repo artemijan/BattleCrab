@@ -160,6 +160,8 @@ fn a_defender_is_spared_by_its_own_castles_trap() {
             warehouse: Default::default(),
             char_penalty_expiry_time: 0,
             dissolving_expiry_time: 0,
+            rank_privs: Default::default(),
+            new_leader_id: 0,
         },
     );
     let before = hp(&world);
