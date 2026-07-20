@@ -298,6 +298,72 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     crate::game_loop::party::notify_party_vitals(world, target_oid);
                 }
             }
+            SkillEffect::HealPercent { power } => {
+                let power = *power;
+                let Some(max_hp) = world.objects.get_component::<Vitals>(&target_oid).map(|v| v.max_hp as f64) else {
+                    continue;
+                };
+                // Java `full = power == 100.0`, else `maxHp * power / 100`. No
+                // `HealEffect`/`HealEffectAdd` recipient scaling (unlike `Heal`).
+                let amount = if power == 100.0 { max_hp } else { max_hp * power / 100.0 };
+                if amount < 0.0 {
+                    // A negative-power instance (none learnable today) is
+                    // damage, not healing — Java's `reduceCurrentHp` +
+                    // `sendDamageMessage`, reusing the shared damage path.
+                    let caster_name = caster_display_name(world, caster_oid);
+                    apply_skill_damage(world, caster_oid, target_oid, -amount, false, skill.magic_type == 1, &caster_name, false);
+                    continue;
+                }
+                if crate::game_loop::combat::is_npc_oid(target_oid) {
+                    let hp = {
+                        let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid) else { continue };
+                        if vitals.dead {
+                            continue;
+                        }
+                        vitals.cur_hp = (vitals.cur_hp + amount).min(vitals.max_hp as f64);
+                        (vitals.cur_hp as i32, vitals.max_hp)
+                    };
+                    if let Some(region) = world.objects.get_component::<RegionCell>(&target_oid).map(|r| r.0) {
+                        crate::game_loop::helpers::broadcast_near_region(
+                            world,
+                            region,
+                            &server_packets::status_update(
+                                target_oid,
+                                &[
+                                    (server_packets::status_update_type::MAX_HP, hp.1),
+                                    (server_packets::status_update_type::CUR_HP, hp.0),
+                                ],
+                            ),
+                        );
+                    }
+                    continue;
+                }
+                let healed = {
+                    let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid) else { continue };
+                    let amount = amount.min((vitals.max_hp as f64 - vitals.cur_hp).max(0.0));
+                    vitals.cur_hp += amount;
+                    amount
+                };
+                let caster_name = caster_display_name(world, caster_oid);
+                if let Some(client_id) = client_for_player(world, target_oid) {
+                    if let Some(cs) = world.clients.get(&client_id) {
+                        if target_oid != caster_oid {
+                            cs.send(server_packets::system_message_with(
+                                sm_ids::S2_HP_HAS_BEEN_RESTORED_BY_C1,
+                                &[SmParam::PlayerName(caster_name), SmParam::Int(healed as i32)],
+                            ));
+                        } else {
+                            cs.send(server_packets::system_message_with(
+                                sm_ids::S1_HP_HAS_BEEN_RESTORED,
+                                &[SmParam::Int(healed as i32)],
+                            ));
+                        }
+                        let cur_hp = world.objects.get_component::<Vitals>(&target_oid).map(|v| v.cur_hp as i32).unwrap_or(0);
+                        cs.send(server_packets::status_update(target_oid, &[(server_packets::status_update_type::CUR_HP, cur_hp)]));
+                    }
+                    crate::game_loop::party::notify_party_vitals(world, target_oid);
+                }
+            }
             SkillEffect::GiveItem { item_id, item_count, item_enchant_level } => {
                 give_item(world, target_oid, *item_id, *item_count, *item_enchant_level);
             }

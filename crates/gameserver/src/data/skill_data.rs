@@ -661,6 +661,11 @@ fn finalize_skill(
                         critical_chance: param("criticalChance").unwrap_or(10.0),
                     }],
                     "Heal" => vec![SkillEffect::Heal { power: param("power").unwrap_or(0.0) }],
+                    // Miracle (1426), Benediction (1271), Restore Life (1258),
+                    // Revival (181), Touch of Life (341): without this arm the
+                    // effect fell through to `EFFECT_REGISTRY`, wasn't found,
+                    // and the heal amount was silently 0.
+                    "HealPercent" => vec![SkillEffect::HealPercent { power: param("power").unwrap_or(0.0) }],
                     "Restoration" => match (param("itemId"), param("itemCount")) {
                         (Some(item_id), Some(item_count)) => vec![SkillEffect::GiveItem {
                             item_id: item_id as i32,

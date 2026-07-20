@@ -575,6 +575,25 @@ behind the existing "no shield equipped" early return so a buff like
 Residence Shield Defense (603, +225 DIFF) still contributes nothing without an
 actual shield, matching `Formulas.calcShldUse`'s short-circuit order.
 
+🚧 **HealPercent (2026-07-20)** — plan
+[PLAN_G19_HEAL_PERCENT.md](PLAN_G19_HEAL_PERCENT.md). Next after
+`ShieldDefence`, setting `AttackTrait` (7 learnable) aside — it needs a whole
+`TraitType` attacker-bonus/weakness system unmodeled on this port, a bigger
+lift than one effect. `HealPercent` (5 learnable, 138 instances) is cheap —
+the same `instant()` shape as the already-ported `Heal` — and every one of
+its five learnable instances is core priest kit: **Miracle (1426)**,
+**Benediction (1271)**, **Restore Life (1258)**, **Revival (181)**, **Touch
+of Life (341)**. All five parsed to an empty effect list before this slice,
+so casting any of them healed nothing. New match arm mirrors `Heal`'s
+NPC-silent/player-with-SM split and overheal clamp, but computes the amount
+as a max-HP percentage and skips `Heal`'s recipient `HealEffect`/
+`HealEffectAdd` scaling, matching Java's real asymmetry; the negative-power
+(damage) branch is ported for parity even though no learnable instance uses
+it. Surfaced an unrelated gap while testing: `TargetType::EnemyNot` isn't
+modeled at all (34 instances, 4 learnable, including Restore Life itself) —
+falls through to `Other`, which `use_magic_on` silently no-ops on. Noted, not
+fixed here.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued
@@ -584,8 +603,9 @@ casts; the CC effects adjacent to the ported pair (`BlockControl` 81, `Fear` 68
 — needs forced flee movement, `DebuffBlock` 115, `DamageBlock` 162,
 `TargetCancel` 101, `KnockBack` 91, and the mute/disarm family); ~~`calcMagicSuccess`~~ (done); the abnormal-visual-effect runtime + per-creature
 team/targetable state (and the AdminEffects AVE subset it unblocks);
-`ExAbnormalStatusUpdateFromTarget`; the remaining `AcquireSkillType`s; and skill
-enchanting.
+`ExAbnormalStatusUpdateFromTarget`; the remaining `AcquireSkillType`s; skill
+enchanting; and `TargetType::EnemyNot` (34 instances, 4 learnable — found
+unmodeled while testing `HealPercent`).
 
 ### G20 — Combat breadth
 `PhysicalAttack`-type skills; bows/crossbows (arrows, reuse gauge); dual-weapon

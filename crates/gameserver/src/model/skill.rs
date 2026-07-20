@@ -191,6 +191,22 @@ pub enum SkillEffect {
     PhysicalAttack { power: f64, p_atk_mod: f64, p_def_mod: f64, critical_chance: f64 },
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.
     Heal { power: f64 },
+    /// `handlers/effecthandlers/HealPercent.java` — instant HP restore as a
+    /// `power`% share of the target's max HP (100 = full). Backs core priest
+    /// heals — Miracle (1426), Benediction (1271), Restore Life (1258),
+    /// Revival (181, self-res follow-up), Touch of Life (341, alongside its
+    /// own `HealOverTime`/`HealEffect`) — none of which had ever restored HP
+    /// on this port; the effect name wasn't recognized, so the buff/cast
+    /// landed but the heal amount was always 0. Unlike [`SkillEffect::Heal`]
+    /// this does **not** read the recipient's `HealEffect`/`HealEffectAdd`
+    /// stats (Java's `HealPercent.instant` never touches them). A negative
+    /// `power` (present elsewhere in the datapack, none of it learnable) is
+    /// damage instead of healing, via the shared `apply_skill_damage` path —
+    /// ported for parity even though no reachable skill exercises it today.
+    /// TODO(G19): Java also skips this while `effected.isHpBlocked()`
+    /// (`DamageBlock`'s `BLOCK_HP` flag) — not gated, since that effect isn't
+    /// ported yet either.
+    HealPercent { power: f64 },
     /// Dagger blow skills (`FatalBlow`/`Backstab`/`SoulBlow`) — instant physical
     /// damage via `Formulas.calcBlowDamage`, gated by a `calcBlowSuccess` land
     /// roll (blows can miss). `critical_chance` is `Some` for FatalBlow/Backstab

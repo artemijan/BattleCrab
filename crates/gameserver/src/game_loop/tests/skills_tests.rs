@@ -2611,3 +2611,40 @@ fn shield_mastery_passive_raises_shield_block_stats() {
         bare_shield.shield_rate
     );
 }
+
+/// G19 `HealPercent` effect: "Revival" (181, real dist data — a self-target,
+/// 100%-power heal) restores HP on cast. Before this slice every
+/// `HealPercent` skill — including the priest staples Miracle, Benediction,
+/// Restore Life, Touch of Life — parsed to an empty effect list, so the cast
+/// landed but healed nothing. (Self-cast rather than on another player: 1258
+/// "Restore Life"'s `targetType ENEMY_NOT` hits an unrelated, pre-existing
+/// gap — `TargetType::EnemyNot` isn't modeled and falls through to `Other`,
+/// which `use_magic_on` silently no-ops — out of scope for this slice.)
+#[test]
+fn heal_percent_restores_a_share_of_max_hp() {
+    let (mut world, ..) = test_world();
+    world.data = crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+
+    let mut rx = ingame_player_access(&mut world, 1, 5301, 0);
+    drain(&mut rx);
+    world.objects.get_component_mut::<SkillBook>(&5301).unwrap().0.insert(181, 1);
+
+    let max_hp = pvit(&world, 5301).max_hp as f64;
+    let low = max_hp * 0.2;
+    world.objects.get_component_mut::<Vitals>(&5301).unwrap().cur_hp = low;
+
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(181, false));
+    advance_world(&mut world, 40); // hitTime 1500 ms, well inside 40 × 100 ms ticks
+
+    assert!(
+        (pvit(&world, 5301).cur_hp - max_hp).abs() < 1e-6,
+        "Revival (power 100) fully restores HP: {} (max {})",
+        pvit(&world, 5301).cur_hp,
+        max_hp
+    );
+    let packets = drain(&mut rx);
+    assert!(
+        has_system_message(&packets, server_packets::sm_ids::S1_HP_HAS_BEEN_RESTORED),
+        "self-cast heal SystemMessage sent"
+    );
+}
