@@ -1411,6 +1411,12 @@ pub(crate) fn handle_attack_hit(
     }
 
     apply_physical_damage(world, attacker, target, damage as f64, false);
+
+    // Java `OnCreatureDamageDealt` — the event `TriggerSkillByAttack` listens
+    // on. Fired after the damage lands, and only for a *normal* attack (this
+    // is the autoattack path; `allowSkillAttack` defaults to false, so skill
+    // hits would be rejected anyway).
+    super::skills::effects::fire_attack_triggers(world, attacker, target, damage, crit);
 }
 
 /// How an attacker shows up in the *victim's* damage messages ($c2).

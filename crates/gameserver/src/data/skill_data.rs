@@ -1044,6 +1044,37 @@ fn finalize_skill(
                     "RandomizeHate" => vec![SkillEffect::RandomizeHate {
                         chance: value_at(params, "chance", level).and_then(|v| v.parse().ok()).unwrap_or(100),
                     }],
+                    // Sword/Blunt Weapon Mastery 205, Dagger Mastery 209,
+                    // Dance of Shadows 366. Only the params the reachable
+                    // content sets are read; the rest keep Java's defaults.
+                    "TriggerSkillByAttack" => {
+                        let int_param = |key: &str, default: i32| {
+                            value_at(params, key, level).and_then(|v| v.parse().ok()).unwrap_or(default)
+                        };
+                        let allow_weapons = value_at(params, "allowWeapons", level)
+                            .filter(|v| !v.eq_ignore_ascii_case("ALL"))
+                            .map(|v| {
+                                v.split(',')
+                                    .map(|w| crate::data::item_data::WeaponType::from_name(w.trim()).mask_bit())
+                                    .fold(0u32, |acc, b| acc | b)
+                            })
+                            .unwrap_or(0);
+                        let skill_id = int_param("skillId", 0);
+                        // Java bails when the skill id or level is 0.
+                        return if skill_id == 0 {
+                            Vec::new()
+                        } else {
+                            vec![SkillEffect::TriggerSkillByAttack {
+                                min_damage: int_param("minDamage", 1),
+                                chance: int_param("chance", 100),
+                                skill_id,
+                                skill_level: int_param("skillLevel", 1),
+                                on_party: value_at(params, "targetType", level) == Some("MY_PARTY"),
+                                is_critical: value_at(params, "isCritical", level) == Some("true"),
+                                allow_weapons,
+                            }]
+                        };
+                    }
                     "SilentMove" => vec![SkillEffect::SilentMove],
                     // Fake Death 60. Two halves: the `FAKE_DEATH` flag and an
                     // MP upkeep with the same `power * getTicksMultiplier()`

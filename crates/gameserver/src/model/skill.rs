@@ -227,6 +227,33 @@ pub enum SkillEffect {
     /// formula. Mana Burn and Mana Storm carry only this effect, so both were
     /// dropped whole before it was ported.
     MagicalAttackMp { power: f64, critical: bool, critical_limit: f64 },
+    /// `handlers/effecthandlers/TriggerSkillByAttack.java` — a chance to fire
+    /// another skill when this creature lands a hit (Sword/Blunt Weapon Mastery
+    /// 205, Dagger Mastery 209, Dance of Shadows 366).
+    ///
+    /// Java's handler takes 15 params; the fields here are the subset the
+    /// reachable content actually uses. The rest keep Java's defaults and are
+    /// documented as deferred in the slice plan — notably `triggerSkills` (a
+    /// multi-skill ladder), `skillLevelScaleTo`, `min`/`maxAttackerLevel` and
+    /// `attackerType`, none of which any learnable skill sets.
+    TriggerSkillByAttack {
+        /// The hit must deal at least this much damage (Java default 1).
+        min_damage: i32,
+        /// Percent chance, rolled per landed hit.
+        chance: i32,
+        /// The skill to cast, and at what level.
+        skill_id: i32,
+        skill_level: i32,
+        /// `targetType`: `SELF` casts on the attacker, `MY_PARTY` on their
+        /// party. Those are the only two the reachable content uses.
+        on_party: bool,
+        /// Java compares this for **equality** with the hit's own criticality —
+        /// `isCritical=false` means the trigger fires only on *non*-crits, not
+        /// "crits don't matter". Dance of Shadows 366 carries one of each.
+        is_critical: bool,
+        /// `allowWeapons` as a `WeaponType` mask (0 = ALL).
+        allow_weapons: u32,
+    },
     /// `handlers/effecthandlers/Confuse.java` — the victim turns on a random
     /// bystander (Madness 1105, Curse Discord 1163, Seal of Mirage 1213).
     /// Chance-gated by `calcProbability`. Madness and Curse Discord carry only
