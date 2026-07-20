@@ -749,13 +749,15 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 crate::game_loop::admin::transforms::apply_transform_state(world, target_oid, *transformation_id);
             }
             SkillEffect::ProtectionBlessing => {}
-            // DefenceTrait (Mental Shield / Resist Shock) and VampiricAttack
-            // (Vampiric Rage): no instant action — they land purely as an
-            // icon-only timed buff (kept off the empty-`buff_effects` bail via
-            // `has_iconless_buff`). Their real mechanics (trait resistances /
-            // melee HP absorb) aren't modeled yet.
+            // DefenceTrait (Mental Shield / Resist Shock), VampiricAttack
+            // (Vampiric Rage), and AttackTrait ("Detect <Category> Weakness"):
+            // no instant action — they land purely as an icon-only timed buff
+            // (kept off the empty-`buff_effects` bail via `has_iconless_buff`).
+            // DefenceTrait/VampiricAttack's real mechanics (trait resistances /
+            // melee HP absorb) aren't modeled yet; AttackTrait is inert on the
+            // real server too (see its doc comment) — nothing to model.
             // TODO(G16/G20): honor the trait-defense and HP-absorb effects.
-            SkillEffect::DefenceTrait | SkillEffect::VampiricAttack => {}
+            SkillEffect::DefenceTrait | SkillEffect::VampiricAttack | SkillEffect::AttackTrait => {}
             // Community-board dance/song buffs (Dance of Light, Song of Champion/
             // Renewal/Vengeance, Gift of Seraphim): no instant action — they land
             // purely as icon-only timed buffs (kept off the empty-`buff_effects`
@@ -848,6 +850,7 @@ pub(crate) fn apply_continuous_effects(
                 | SkillEffect::Reuse
                 | SkillEffect::DamageShield
                 | SkillEffect::Transform { .. }
+                | SkillEffect::AttackTrait
         )
     });
     if buff_effects.is_empty() && !has_periodic && !has_iconless_buff && !has_state_flag {

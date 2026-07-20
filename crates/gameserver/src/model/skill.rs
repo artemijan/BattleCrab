@@ -404,6 +404,33 @@ pub enum SkillEffect {
     /// icon-only timed `ActiveBuff` (abnormal + duration honored).
     /// TODO(G20): honor the actual HP absorb-on-hit in the melee combat path.
     VampiricAttack,
+    /// `handlers/effecthandlers/AttackTrait.java` — the "Detect &lt;Category&gt;
+    /// Weakness" family (Insect/Beast/Animal/Dragon/Plant 75/80/87/88/104, Eye
+    /// of Hunter/Slayer 359/360): raises the caster's bonus damage against a
+    /// set of creature-category `*_WEAKNESS` traits via `mergeAttackTrait`,
+    /// the attacker-side counterpart of [`SkillEffect::DefenceTrait`]'s
+    /// `mergeDefenceTrait`.
+    ///
+    /// Unlike every other icon-only effect on this port, this one turns out
+    /// to be **functionally inert in the real Java server too, not just
+    /// unported here**: `Formulas.calcWeaknessBonus` only applies a
+    /// `*_WEAKNESS` bonus when the *target* also carries a matching
+    /// `DefenceTrait` (`target.getStat().hasDefenceTrait(trait)`), and
+    /// nothing in this datapack — no NPC template, no skill, no Java
+    /// call site outside `CreatureStat`'s own definition — ever calls
+    /// `mergeDefenceTrait` for any monster. So even on the reference server,
+    /// landing "Detect Beast Weakness" changes nothing observable; a
+    /// completely faithful port is exactly as inert. Carries no stat
+    /// modifier and no state of its own (unlike `DefenceTrait`/
+    /// `VampiricAttack`, there's nothing worth storing if nothing would ever
+    /// read it), so it lands as an icon-only timed `ActiveBuff` like its
+    /// siblings.
+    /// TODO: if NPC-side `DefenceTrait`/creature-category resistance data
+    /// ever lands, this needs an actual per-creature attack-trait
+    /// accumulator (Java: `mergeAttackTrait`/`removeAttackTrait`, additive
+    /// per `TraitType`) and a real multiplier in `calcWeaknessBonus`'s
+    /// callers — until then there is nothing to wire it to.
+    AttackTrait,
     /// `handlers/effecthandlers/AttackAttribute.java` — adds `amount` to the
     /// target's `<attribute>_POWER` attack-element stat (`mergeAdd`). Backs the
     /// elemental dance/song buffs (Dance of Light 277 → HOLY, …). Attribute-based

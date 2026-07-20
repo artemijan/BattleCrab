@@ -864,6 +864,13 @@ fn finalize_skill(
                     // isn't modeled, so carry an icon-only marker rather than
                     // dropping the buff.
                     "VampiricAttack" => vec![SkillEffect::VampiricAttack],
+                    // "Detect <Category> Weakness" (75/80/87/88/104, 359/360):
+                    // Java `AttackTrait` merges a `*_WEAKNESS` bonus onto the
+                    // caster — genuinely inert in the reference server too (see
+                    // the doc comment on `SkillEffect::AttackTrait`), so this
+                    // carries an icon-only marker like `DefenceTrait`/
+                    // `VampiricAttack` rather than the per-trait param map.
+                    "AttackTrait" => vec![SkillEffect::AttackTrait],
                     // Community-board dance/song buffs whose combat/cost math
                     // isn't modeled yet — Dance of Light (277, `AttackAttribute`),
                     // Song of Champion/Renewal (`MagicMpCost`/`Reuse`), Gift of

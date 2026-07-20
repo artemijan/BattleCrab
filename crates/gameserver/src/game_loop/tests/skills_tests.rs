@@ -2913,3 +2913,33 @@ fn lethal_spares_a_raid_boss() {
          from ever compounding like that: {hp_before} -> {hp_after}"
     );
 }
+
+/// G19 `AttackTrait` effect: "Detect Beast Weakness" (80, real dist data,
+/// self-target, `abnormalTime` 600 s) lands as an icon-only buff — before
+/// this slice the effect name wasn't recognized, so the whole "Detect
+/// <Category> Weakness" family (Insect/Beast/Animal/Dragon/Plant, Eye of
+/// Hunter/Slayer) fell through the empty-effects guard and never landed at
+/// all (no icon, nothing). It's a peculiar effect to port: even on the real
+/// Java server it's functionally inert (see the doc comment on
+/// `SkillEffect::AttackTrait` — `Formulas.calcWeaknessBonus` needs a
+/// matching NPC-side `DefenceTrait`, and nothing in this datapack ever sets
+/// one), so this test only checks that the buff *lands and expires*
+/// correctly, not any damage change.
+#[test]
+fn attack_trait_lands_as_an_icon_only_buff() {
+    let (mut world, ..) = test_world();
+    world.data = crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+
+    let mut rx = ingame_player_access(&mut world, 1, 5701, 0);
+    drain(&mut rx);
+    world.objects.get_component_mut::<SkillBook>(&5701).unwrap().0.insert(80, 1);
+    world.objects.get_component_mut::<Vitals>(&5701).unwrap().cur_mp = 200.0;
+
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(80, false));
+    advance_world(&mut world, 30); // hitTime 1500 ms
+    assert_eq!(pbuffs(&world, 5701), 1, "Detect Beast Weakness lands as one buff");
+
+    world.tick += 6000; // abnormalTime 600 s
+    apply_due_tasks(&mut world);
+    assert_eq!(pbuffs(&world, 5701), 0, "expires after abnormalTime");
+}

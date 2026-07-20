@@ -648,6 +648,30 @@ before it, nothing in this datapack ever sets it, so Java's own roll against
 it always loses. Deferred: `DamageBlock`'s `BLOCK_HP` gate,
 `calcCounterAttack`'s reflect, `GrandBoss`/`Door` lethal-immunity.
 
+🚧 **AttackTrait (2026-07-20)** — plan
+[PLAN_G19_ATTACK_TRAIT.md](PLAN_G19_ATTACK_TRAIT.md). The last item on the
+learnable-skill ranking that started this run of G19 slices, investigated
+properly this time instead of deferred a fourth time. Turned out smaller
+than feared — all 7 learnable instances (Detect Insect/Beast/Animal/Dragon/
+Plant Weakness 75/80/87/88/104, Eye of Hunter/Slayer 359/360) use only the
+`*_WEAKNESS` category of `TraitType`, not the weapon-type or status-resist
+halves — **and** the consuming formula, `Formulas.calcWeaknessBonus`, turns
+out to be inert on the real Java server too: it needs a matching NPC-side
+`DefenceTrait`, and grepping the whole Java tree + datapack found exactly one
+call site for `mergeDefenceTrait` — its own definition. No NPC ever gets one.
+So this lands as an icon-only buff (unit variant, no per-trait data — nothing
+would ever read it) alongside `DefenceTrait`/`VampiricAttack`, closing a real
+regression (the effect name wasn't recognized at all, so the buff didn't even
+land) without needing to invent damage-formula wiring for a bonus that's
+provably inert either way. Collateral: `NpcTemplate.race`/`Race` extended
+from the six playable races to the full 26-member enum Java actually shares
+between players and creature categories (`UNDEAD`, `BEAST`, …) — costs
+nothing today, but the day NPC-side trait data lands, the race data
+`calcWeaknessBonus` would need is already there. Verified safe: the only
+other consumer (the Newbie Guide's own-race gate) only ever compares against
+guide NPCs, always a real playable race, and player/monster race ordinals
+(0-6 vs 7-25) never overlap.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued

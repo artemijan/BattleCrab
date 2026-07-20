@@ -2,7 +2,14 @@
 
 use crate::model::inventory::PaperdollSlot;
 
-/// Port of `enums/Race` (ordinals matter — sent on the wire).
+/// Port of `enums/Race` (ordinals matter — sent on the wire). The six
+/// playable races (plus Ertheia, unused by this dist's char-creation but
+/// present in the shared Java enum) were the only ones this port needed
+/// until G19's `AttackTrait` — Java's `Race` is one enum shared by players
+/// *and* the creature-category values every NPC's `<race>` also carries
+/// (`Npc.getRace()`/`TraitType`'s `*_WEAKNESS` family checks `target.
+/// getRace() == Race.X`) — so the monster-flavor variants join here rather
+/// than in a separate type, matching Java's actual design.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[repr(i32)]
 pub enum Race {
@@ -13,6 +20,25 @@ pub enum Race {
     Dwarf = 4,
     Kamael = 5,
     Ertheia = 6,
+    Animal = 7,
+    Beast = 8,
+    Bug = 9,
+    CastleGuard = 10,
+    Construct = 11,
+    Demonic = 12,
+    Divine = 13,
+    Dragon = 14,
+    Elemental = 15,
+    Etc = 16,
+    Fairy = 17,
+    Giant = 18,
+    Humanoid = 19,
+    Mercenary = 20,
+    None_ = 21,
+    Plant = 22,
+    SiegeWeapon = 23,
+    Undead = 24,
+    Friend = 25,
 }
 
 impl Race {
@@ -31,12 +57,32 @@ impl Race {
             4 => Race::Dwarf,
             5 => Race::Kamael,
             6 => Race::Ertheia,
+            7 => Race::Animal,
+            8 => Race::Beast,
+            9 => Race::Bug,
+            10 => Race::CastleGuard,
+            11 => Race::Construct,
+            12 => Race::Demonic,
+            13 => Race::Divine,
+            14 => Race::Dragon,
+            15 => Race::Elemental,
+            16 => Race::Etc,
+            17 => Race::Fairy,
+            18 => Race::Giant,
+            19 => Race::Humanoid,
+            20 => Race::Mercenary,
+            21 => Race::None_,
+            22 => Race::Plant,
+            23 => Race::SiegeWeapon,
+            24 => Race::Undead,
+            25 => Race::Friend,
             _ => return None,
         })
     }
 
     /// The XML/`Race.valueOf` name (`"DARK_ELF"`, …) → enum, as used by the
-    /// `<race name=…>` attributes in `respawn.xml`.
+    /// `<race name=…>` attributes in `respawn.xml` and every NPC template's
+    /// `<race>` (`data/npc_data.rs`'s `parse_race`).
     pub fn from_name(name: &str) -> Option<Race> {
         Some(match name {
             "HUMAN" => Race::Human,
@@ -46,6 +92,25 @@ impl Race {
             "DWARF" => Race::Dwarf,
             "KAMAEL" => Race::Kamael,
             "ERTHEIA" => Race::Ertheia,
+            "ANIMAL" => Race::Animal,
+            "BEAST" => Race::Beast,
+            "BUG" => Race::Bug,
+            "CASTLE_GUARD" => Race::CastleGuard,
+            "CONSTRUCT" => Race::Construct,
+            "DEMONIC" => Race::Demonic,
+            "DIVINE" => Race::Divine,
+            "DRAGON" => Race::Dragon,
+            "ELEMENTAL" => Race::Elemental,
+            "ETC" => Race::Etc,
+            "FAIRY" => Race::Fairy,
+            "GIANT" => Race::Giant,
+            "HUMANOID" => Race::Humanoid,
+            "MERCENARY" => Race::Mercenary,
+            "NONE" => Race::None_,
+            "PLANT" => Race::Plant,
+            "SIEGE_WEAPON" => Race::SiegeWeapon,
+            "UNDEAD" => Race::Undead,
+            "FRIEND" => Race::Friend,
             _ => return None,
         })
     }
