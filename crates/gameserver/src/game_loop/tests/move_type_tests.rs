@@ -210,6 +210,7 @@ fn move_type_effects_route_to_their_own_map() {
             armor_condition: 0,
             weapon_condition: 0,
             qualifier: Some(crate::model::stats::StatQualifier::MoveType(MoveType::Running)),
+            two_handed: false,
         },
     );
     assert!(mods.add.is_empty(), "not folded into the unconditional add map");

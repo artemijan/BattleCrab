@@ -1417,6 +1417,20 @@ pub(crate) fn armor_condition_passes(mask: u8, inventory: &Inventory, items: &cr
 /// `WeaponType::mask_bit`s) is satisfied by the currently equipped weapon. No
 /// weapon (or a type not in the mask) → `false`, so e.g. Weapon Mastery 249's
 /// `-30% MagicalAttackSpeed` only bites a BOW/POLE user, not a staff caster.
+/// Java `ConditionUsingSlotType(ItemTemplate.SLOT_LR_HAND)` — the equipped
+/// weapon occupies **both** hands.
+///
+/// Read off the weapon template's `bodypart`, which is how the datapack marks
+/// a two-hander, rather than by inferring it from the left hand being empty
+/// (that would also match an unarmed or shield-less one-hander).
+pub(crate) fn two_handed_weapon_equipped(inventory: &Inventory, items: &crate::data::item_data::ItemData) -> bool {
+    use crate::model::inventory::PaperdollSlot;
+    inventory
+        .paperdoll_item(PaperdollSlot::RHand)
+        .and_then(|w| items.get(w.item_id))
+        .is_some_and(|t| t.body_part == crate::data::item_data::SLOT_LR_HAND)
+}
+
 pub(crate) fn weapon_condition_passes(mask: u32, inventory: &Inventory, items: &crate::data::item_data::ItemData) -> bool {
     use crate::model::inventory::PaperdollSlot;
     let Some(weapon) = inventory.paperdoll_item(PaperdollSlot::RHand) else {
@@ -1449,6 +1463,10 @@ pub(crate) fn conditioned_passive_buffs(data: &GameData, skills: &SkillBook, inv
             .filter(|m| {
                 (m.armor_condition == 0 || armor_condition_passes(m.armor_condition, inventory, &data.item_data))
                     && (m.weapon_condition == 0 || weapon_condition_passes(m.weapon_condition, inventory, &data.item_data))
+                    // `ConditionUsingSlotType(SLOT_LR_HAND)` — a *separate*
+                    // axis from the weapon type: the same blunt bonus is off
+                    // while a one-handed mace is equipped.
+                    && (!m.two_handed || two_handed_weapon_equipped(inventory, &data.item_data))
             })
             .collect();
         if applicable.is_empty() {

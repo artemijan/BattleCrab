@@ -591,6 +591,7 @@ fn finalize_skill(
                         armor_condition: *armor_condition,
                         weapon_condition: *weapon_condition,
                         qualifier: None,
+                        two_handed: false,
                     })
                 };
                 match xml_name.as_str() {
@@ -617,6 +618,7 @@ fn finalize_skill(
                                 armor_condition: *armor_condition,
                                 weapon_condition: *weapon_condition,
                                 qualifier: Some(crate::model::stats::StatQualifier::MoveType(move_type)),
+                                two_handed: false,
                             })],
                             _ => Vec::new(),
                         };
@@ -644,6 +646,7 @@ fn finalize_skill(
                                     armor_condition: *armor_condition,
                                     weapon_condition: *weapon_condition,
                                     qualifier: None,
+                                    two_handed: false,
                                 })
                             })
                             .into_iter()
@@ -664,6 +667,7 @@ fn finalize_skill(
                                     armor_condition: *armor_condition,
                                     weapon_condition: *weapon_condition,
                                     qualifier: None,
+                                    two_handed: false,
                                 })
                             })
                             .into_iter()
@@ -1109,6 +1113,52 @@ fn finalize_skill(
                             }]
                         };
                     }
+                    // Rage 94, Frenzy 176, Two-handed Weapon Mastery 293.
+                    // Java's handler carries eleven stat/mode pairs; the only
+                    // ones any reachable skill sets are `pAtk` and
+                    // `pAccuracy`, so those two are read and the rest keep
+                    // their zero default (the same
+                    // scope-to-what-the-dist-reaches call `TriggerSkillByAttack`
+                    // made).
+                    //
+                    // Two conditions, both from Java's static fields:
+                    // `ConditionUsingItemType(BLUNT|SWORD)` — expressed through
+                    // the existing `weapon_condition` mask — and
+                    // `ConditionUsingSlotType(SLOT_LR_HAND)`, the new
+                    // `two_handed` axis.
+                    "TwoHandedBluntBonus" | "TwoHandedSwordBonus" => {
+                        let weapon = if xml_name == "TwoHandedBluntBonus" {
+                            crate::data::item_data::WeaponType::Blunt.mask_bit()
+                        } else {
+                            crate::data::item_data::WeaponType::Sword.mask_bit()
+                        };
+                        let pair = |amount_key: &str, mode_key: &str, stat: Stat| {
+                            let amount = value_at(params, amount_key, level).and_then(|v| v.parse::<f64>().ok())?;
+                            if amount == 0.0 {
+                                return None;
+                            }
+                            let mode = if value_at(params, mode_key, level) == Some("PER") {
+                                StatModifierType::Per
+                            } else {
+                                StatModifierType::Diff
+                            };
+                            Some(SkillEffect::StatModifier(StatModifierEffect {
+                                stat,
+                                mode,
+                                amount,
+                                weapon_condition: weapon,
+                                two_handed: true,
+                                ..Default::default()
+                            }))
+                        };
+                        return [
+                            pair("pAtkAmount", "pAtkMode", Stat::PhysicalAttack),
+                            pair("pAccuracyAmount", "pAccuracyMode", Stat::AccuracyCombat),
+                        ]
+                        .into_iter()
+                        .flatten()
+                        .collect();
+                    }
                     "BlockMove" => vec![SkillEffect::BlockMove],
                     // `type` picks the Java stat: PHYSICAL (the default) or
                     // MAGICAL. Physical Mirror 350 and Magical Mirror 351 carry
@@ -1238,6 +1288,7 @@ fn finalize_skill(
                                     armor_condition: *armor_condition,
                                     weapon_condition: *weapon_condition,
                                     qualifier: Some(crate::model::stats::StatQualifier::Position(position)),
+                                    two_handed: false,
                                 })
                             })
                             .into_iter()

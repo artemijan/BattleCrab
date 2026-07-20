@@ -98,6 +98,7 @@ fn zone_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<Login
             armor_condition: 0,
             weapon_condition: 0,
             qualifier: None,
+            two_handed: false,
         })],
         "MIGHT",
     ));

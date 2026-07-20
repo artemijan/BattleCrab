@@ -197,6 +197,7 @@ fn heal_effect_scales_received_healing() {
             armor_condition: 0,
             weapon_condition: 0,
             qualifier: None,
+            two_handed: false,
         })],
         false,
     ));

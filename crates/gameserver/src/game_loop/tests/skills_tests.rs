@@ -98,6 +98,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
             armor_condition: 0,
             weapon_condition: 0,
             qualifier: None,
+            two_handed: false,
         })],
     });
 
@@ -2059,7 +2060,7 @@ mod dispel_by_category {
     }
 
     fn stat_buff(stat: Stat, amount: f64) -> SkillEffect {
-        SkillEffect::StatModifier(StatModifierEffect { stat, mode: StatModifierType::Diff, amount, armor_condition: 0, weapon_condition: 0 , qualifier: None})
+        SkillEffect::StatModifier(StatModifierEffect { stat, mode: StatModifierType::Diff, amount, armor_condition: 0, weapon_condition: 0 , qualifier: None, two_handed: false })
     }
 
     /// `BUFF` slot: dances are tried before ordinary buffs (Java's
@@ -2356,6 +2357,7 @@ fn synthetic_buff(id: i32, level: i32, abnormal_type: &str, abnormal_level: i32,
             armor_condition: 0,
             weapon_condition: 0,
             qualifier: None,
+            two_handed: false,
         })],
     }
 }

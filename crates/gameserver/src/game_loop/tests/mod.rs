@@ -65,6 +65,7 @@ mod npc_path_tests;
 mod subclass_tests;
 mod target_reconsider_tests;
 mod trigger_skill_tests;
+mod two_handed_tests;
 mod walker_tests;
 mod npc_regen_tests;
 mod npc_tests;
@@ -493,6 +494,7 @@ fn cast_test_world() -> (
             armor_condition: 0,
             weapon_condition: 0,
             qualifier: None,
+            two_handed: false,
         })],
         ..base.clone()
     });
@@ -538,6 +540,7 @@ fn cast_test_world() -> (
                     armor_condition: 0,
                     weapon_condition: 0,
                     qualifier: None,
+                    two_handed: false,
                 })
             })
             .collect(),
@@ -592,6 +595,7 @@ fn cast_test_world() -> (
             armor_condition: 0,
             weapon_condition: 0,
             qualifier: None,
+            two_handed: false,
         })],
         ..base
     });
@@ -1235,6 +1239,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
             armor_condition: 0,
             weapon_condition: 0,
             qualifier: None,
+            two_handed: false,
         })],
     }
 }
@@ -1294,6 +1299,7 @@ fn clan_advent_test_skill() -> Skill {
             armor_condition: 0,
             weapon_condition: 0,
             qualifier: None,
+            two_handed: false,
         })],
     }
 }

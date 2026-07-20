@@ -131,6 +131,7 @@ fn position_qualified_stats_multiply_from_one() {
             armor_condition: 0,
             weapon_condition: 0,
             qualifier: Some(StatQualifier::Position(Position::Back)),
+            two_handed: false,
         },
     );
     assert!(mods.mul.is_empty(), "a position-qualified effect must not leak into the plain mul map");
