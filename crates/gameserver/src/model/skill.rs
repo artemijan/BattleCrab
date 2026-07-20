@@ -202,6 +202,15 @@ pub enum SkillEffect {
     /// effect that drops the victim's target and aborts their attack and cast
     /// (Trick 11, Switch 12, Aura Flash 1417).
     TargetCancel { chance: i32 },
+    /// `handlers/effecthandlers/SilentMove.java` — stealth (Silent Move 221,
+    /// Stealth 411, Dance of Shadows 366, Fake Death 60). A pure state flag:
+    /// the Java handler has an empty constructor and nothing but
+    /// `getEffectFlags`, and the whole mechanic is the aggro-scan gate.
+    SilentMove,
+    /// `handlers/effecthandlers/FakeDeath.java` — feign death (Fake Death 60).
+    /// A state flag *plus* an MP upkeep on the same 5-tick cadence as
+    /// `ManaDamOverTime`, which it shares the tick chain with.
+    FakeDeath { power: f64, ticks: i32 },
     /// `handlers/effecthandlers/Fear.java` — forced flight (Horror 65, Banish
     /// Undead 405, Banish Seraph 450, Fear 1092, Curse Fear 1169, Word of Fear
     /// 1272, Mass Curse Fear 1381, Turn Undead 1400).
@@ -636,6 +645,18 @@ pub mod effect_flag {
     /// for completeness, with no consumer, matching Java's own dead code the
     /// same way [`MP_BLOCK`] does.
     pub const FEAR: u32 = 1 << 9;
+    /// `SILENT_MOVE` — stealth (Silent Move 221, Stealth 411, Dance of Shadows
+    /// 366, and the `SilentMove` half of Fake Death 60). Read by
+    /// `AttackableAI.isAggressiveTowards`: an aggressive monster simply does
+    /// not notice a silent-moving playable. **Raid bosses see through it**, and
+    /// so would an NPC with `canSeeThroughSilentMove()` — except
+    /// `setSeeThroughSilentMove` has no callers anywhere in the Java tree, so
+    /// that flag is always false (the `MP_BLOCK`/`MAX_MOMENTUM` pattern again).
+    pub const SILENT_MOVE: u32 = 1 << 10;
+    /// `FAKE_DEATH` — feign death (Fake Death 60). Folds into
+    /// `Player.isAlikeDead()`, which is what takes the player out of every
+    /// aggro scan; the client side is the `ChangeWaitType`/`Revive` pair.
+    pub const FAKE_DEATH: u32 = 1 << 11;
 }
 
 /// Java `AbnormalVisualEffect` — the client-side *look* of an abnormal (the
@@ -891,6 +912,8 @@ impl Skill {
                 SkillEffect::DebuffBlock => effect_flag::DEBUFF_BLOCK,
                 SkillEffect::BlockControl => effect_flag::BLOCK_CONTROL,
                 SkillEffect::Fear { .. } => effect_flag::FEAR,
+                SkillEffect::SilentMove => effect_flag::SILENT_MOVE,
+                SkillEffect::FakeDeath { .. } => effect_flag::FAKE_DEATH,
                 SkillEffect::NoblesseBless => effect_flag::NOBLESS_BLESSING,
                 SkillEffect::DamageBlock { block_hp, block_mp } => {
                     (if *block_hp { effect_flag::HP_BLOCK } else { 0 })

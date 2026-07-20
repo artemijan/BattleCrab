@@ -88,6 +88,29 @@ pub fn die(object_id: i32, to_village: bool) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// `ChangeWaitType`'s `newMoveType` constants. Only the fake-death pair is
+/// used here; sitting/standing wait for the sitting state (`TODO(G29)`).
+pub mod wait_type {
+    pub const _SITTING: i32 = 0;
+    pub const _STANDING: i32 = 1;
+    pub const START_FAKEDEATH: i32 = 2;
+    pub const STOP_FAKEDEATH: i32 = 3;
+}
+
+/// Port of `serverpackets/ChangeWaitType` (0x29) — tells every observing
+/// client to drop the character into (or out of) the fake-death pose. Carries
+/// the position so late-arriving observers place the body correctly.
+pub fn change_wait_type(object_id: i32, move_type: i32, x: i32, y: i32, z: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::CHANGE_WAIT_TYPE);
+    w.write_i32(object_id);
+    w.write_i32(move_type);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/Revive`.
 pub fn revive(object_id: i32) -> Vec<u8> {
     let mut w = PacketWriter::new();

@@ -353,6 +353,10 @@ fn think_active(world: &mut World, npc_oid: i32) {
                 }
             });
         }
+        // Stealth / fake death (`isAggressiveTowards`): filtered after the
+        // sweep because the sweep closure holds `objects` mutably and the flag
+        // lookup needs it shared — the same shape the siege branch below uses.
+        in_range.retain(|&pid| notices_target(world, npc_oid, pid));
         if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
             for player_oid in in_range {
                 // `addDamageHate(t, 0, 0)` → first sight seeds 1 hate.
@@ -408,6 +412,7 @@ fn think_active(world: &mut World, npc_oid: i32) {
             }
             // Keep only actual enemies (attackers / non-defenders).
             in_range.retain(|&pid| super::siege::attackable_siege_guard(world, npc_oid, pid));
+            in_range.retain(|&pid| notices_target(world, npc_oid, pid));
             if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
                 for player_oid in in_range {
                     let entry = aggro.0.entry(player_oid).or_default();
@@ -784,6 +789,42 @@ pub(crate) fn move_npc_to(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i3
     broadcast_near_region(world, region, &server_packets::move_to_location(npc_oid, x, y, z, start.0, start.1, start.2));
 }
 
+/// `AttackableAI.isAggressiveTowards`'s playable-state gates — whether this NPC
+/// notices `target_oid` at all.
+///
+/// Two effect flags hide a player from an aggro scan, and Java checks them on
+/// adjacent lines of the same method:
+///
+/// - **`SILENT_MOVE`** (Silent Move 221, Stealth 411, Dance of Shadows 366):
+///   `!me.isRaid() && !me.canSeeThroughSilentMove() && target.isSilentMovingAffected()`.
+///   Raid bosses see through stealth; `canSeeThroughSilentMove` is always false
+///   on this dist (`setSeeThroughSilentMove` has no callers in the whole Java
+///   tree), so only the raid exemption is ported.
+/// - **`FAKE_DEATH`** via `isAlikeDead()`, which `Player` overrides to include
+///   it — the very first check in the method.
+///
+/// Java's third gate here, `player.isRecentFakeDeath()` (a grace window after
+/// standing up), is inert on this dist: `PlayerFakeDeathUpProtection = 0`.
+pub(crate) fn notices_target(world: &World, npc_oid: i32, target_oid: i32) -> bool {
+    use crate::model::skill::effect_flag;
+    let flags = super::abnormal::flags_of(world, target_oid);
+    // `isAlikeDead()` — a fake-dead player is, for aggro purposes, a corpse.
+    if flags & effect_flag::FAKE_DEATH != 0 {
+        return false;
+    }
+    if flags & effect_flag::SILENT_MOVE != 0 {
+        let is_raid = world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&npc_oid)
+            .and_then(|n| n.template(world))
+            .is_some_and(|t| t.is_raid());
+        if !is_raid {
+            return false;
+        }
+    }
+    true
+}
+
 /// Java `AttackableAI.isAggressiveTowards`, `me instanceof Guard` branch.
 /// Guards seed hate on nearby **PKs** (reputation < 0) so the ordinary attack
 /// loop takes over from there.
@@ -814,6 +855,9 @@ fn guard_aggro_scan(world: &mut World, npc_oid: i32, region: (i32, i32)) {
             }
         });
     }
+    // Guards run the same `isAggressiveTowards` (Java `Guard extends
+    // Attackable`), so stealth and fake death hide a PK from them too.
+    pks.retain(|&pid| notices_target(world, npc_oid, pid));
     if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
         for oid in pks {
             let entry = aggro.0.entry(oid).or_default();
