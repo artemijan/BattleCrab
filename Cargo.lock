@@ -2576,6 +2576,7 @@ dependencies = [
  "sevenz-rust2",
  "tracing",
  "tracing-subscriber",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

@@ -36,7 +36,7 @@ CPU/disk-bound on decompression. Nothing is drawn that could be a bottleneck.
 | `progress.rs` | `Phase` snapshots sent to the UI |
 | `config.rs` | Build-time constants, persisted install path, locating `l2.exe` |
 | `relocate.rs` | Moving the launcher into the game folder |
-| `launch.rs` | Spawning `l2.exe` |
+| `launch.rs` | Starting `l2.exe` via `ShellExecuteEx` (elevation) |
 
 ## The glass look
 
@@ -146,6 +146,25 @@ client for one file would be slow.
 
 Play stays hidden unless that recorded path still exists on disk, so deleting the game
 folder behind the launcher's back correctly returns it to the install flow.
+
+## Starting the game
+
+`l2.exe` requests administrator rights, so `std::process::Command` cannot start it —
+`CreateProcess` does not elevate and fails with `ERROR_ELEVATION_REQUIRED`
+(os error 740). Explorer works because double-clicking goes through `ShellExecuteEx`,
+which honours the request and raises the UAC prompt, so `launch.rs` does the same.
+
+The **default verb** is used rather than `runas`: with the default, Windows elevates
+only if the executable actually asks to, so a client that does not need administrator
+rights starts without a prompt.
+
+Consequence for players: **Play shows a UAC prompt every time.** That comes from
+`l2.exe`'s own manifest, not from where the game is installed — the default install
+lives under the user profile precisely so nothing else needs elevation. Removing the
+prompt would mean shipping a client whose manifest does not demand administrator.
+
+Passing the path and arguments as separate fields also sidesteps quoting, which
+matters: real install paths contain spaces (`…\BattleCrab\The Game\system`).
 
 ## Archive format
 
