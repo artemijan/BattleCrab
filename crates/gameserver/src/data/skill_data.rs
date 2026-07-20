@@ -1175,6 +1175,24 @@ fn finalize_skill(
                             cp_percent: int_param("cpPercent", 0),
                         }]
                     }
+                    // Java throws on an empty `Summon` param set; here a
+                    // missing/zero `npcId` simply yields no effect, matching how
+                    // every other arm handles unusable params.
+                    "Summon" => {
+                        let int_param =
+                            |key: &str, d: i32| value_at(params, key, level).and_then(|v| v.parse().ok()).unwrap_or(d);
+                        let npc_id = int_param("npcId", 0);
+                        return if npc_id == 0 {
+                            Vec::new()
+                        } else {
+                            vec![SkillEffect::Summon {
+                                npc_id,
+                                life_time: int_param("lifeTime", 0),
+                                consume_item_id: int_param("consumeItemId", 0),
+                                consume_item_count: int_param("consumeItemCount", 1) as i64,
+                            }]
+                        };
+                    }
                     "BlockMove" => vec![SkillEffect::BlockMove],
                     // `type` picks the Java stat: PHYSICAL (the default) or
                     // MAGICAL. Physical Mirror 350 and Magical Mirror 351 carry

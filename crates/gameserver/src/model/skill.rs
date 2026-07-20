@@ -290,6 +290,15 @@ pub enum SkillEffect {
     /// `calculateSkillResurrectRestorePercent` first); the three percentages are
     /// how much HP/MP/CP they come back with.
     Resurrection { power: i32, hp_percent: i32, mp_percent: i32, cp_percent: i32 },
+    /// `handlers/effecthandlers/Summon.java` — summon a **servitor** (24
+    /// learnable skills: Summon Dark Panther 283, Summon Kat the Cat 1111,
+    /// Summon Shadow 1128, the golems, …).
+    ///
+    /// `npc_id` is per skill *level*, so each level summons a stronger
+    /// template. `life_time` is in seconds and `<= 0` means "no expiry" (Java
+    /// maps it to `Integer.MAX_VALUE` with the note "Classic hack. Resummon
+    /// upon entering game.").
+    Summon { npc_id: i32, life_time: i32, consume_item_id: i32, consume_item_count: i64 },
     /// `handlers/effecthandlers/BlockMove.java` — `setImmobilized(true)` for
     /// the buff's duration (Ultimate Defense 110, Snipe 313, Vengeance 368).
     /// A pure state flag: the whole mechanic is `IMMOBILIZED` being read by the
