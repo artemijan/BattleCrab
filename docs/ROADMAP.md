@@ -607,6 +607,29 @@ the other three are self-target and worked regardless. New `TargetType`
 variant + parse arm + `resolve_cast_target` case, reusing the same
 `is_auto_attackable` helper `Enemy`/`EnemyOnly` already call, just inverted.
 
+🚧 **Force/charges — FocusMomentum + EnergyAttack (2026-07-20)** — plan
+[PLAN_G19_FORCE_CHARGES.md](PLAN_G19_FORCE_CHARGES.md). Unblocks the
+`EnergyAttack` slice set aside twice before: builds the warrior "Force"
+resource (`Player.charges`, transient, never persisted — matches Java) and
+both effects that touch it. Not niche — **Sonic Focus → Sonic Blaster/
+Buster** (and the Orc/Dark Elf Force Burst/Storm/Blaster equivalents) are
+core early warrior skills; 9 `EnergyAttack` + 6 `FocusMomentum` learnable
+skills all parsed to empty effect lists before this, so the Force-builders
+did nothing and the Force-spenders were silent no-ops. `FocusMomentum` gains
+`amount` charges capped at `max_charges.min(8)` — Java's `MAX_MOMENTUM` stat
+is never set anywhere in this datapack, so `8` (`FocusMomentum.java`'s own
+hardcoded fallback) is the *real* cap on this build. `EnergyAttack` shares
+`PhysicalAttack`'s damage core and simplifications (no trait/weakness/
+attribute/PvP-PvE terms — none of those are modeled anywhere on this port)
+times a new `1 + charge·0.1` boost; `chargeConsume` is a **skill-level** tag,
+not a child of the effect element, the one field this port needed pulled
+from outside the `<effect>` block. `EtcStatusUpdate` (0xF9) now carries the
+real charge count instead of a hardcoded 0. Deferred: Java's 10-minute
+charge-decay task; `GetMomentum` (dead code in this datapack — nothing sets
+`MAX_MOMENTUM`, so its own `0` fallback caps it at zero regardless); wiring
+the charge bonus into `PhysicalSoulAttack`/`MagicalSoulAttack`/`SoulBlow`'s
+existing `×1` stand-ins (their own TODOs, follow-on work).
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued

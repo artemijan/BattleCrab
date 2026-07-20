@@ -464,9 +464,10 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // is registered and re-sends the merged list) → empty clan set here.
     session.send(ew::skill_list(&bundle.skills, &crate::model::components::ClanSkills::default(), data));
     session.send(ew::acquire_skill_list(player, &bundle.skills, data));
-    // Initial burst carries 0/0; `refresh_expertise_penalty` (after the player
-    // is registered below) recomputes and resends if any gear is over-grade.
-    session.send(ew::etc_status_update(0, 0, false));
+    // Initial burst carries 0 charges/0/0; a fresh login never has Force built
+    // up. `refresh_expertise_penalty` (after the player is registered below)
+    // recomputes and resends if any gear is over-grade.
+    session.send(ew::etc_status_update(0, 0, 0, false));
     session.send(ew::ex_pledge_waiting_list_alarm());
     session.send(ew::ex_subjob_info(player));
     session.send(ew::ex_user_info_inven_weight(

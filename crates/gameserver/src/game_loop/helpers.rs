@@ -55,8 +55,9 @@ pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i
     use crate::model::components::{AdminFlags, ExpertisePenalty};
     let ep = world.objects.get_component::<ExpertisePenalty>(&object_id).copied().unwrap_or_default();
     let silence = world.objects.get_component::<AdminFlags>(&object_id).is_some_and(|f| f.silence);
+    let charges = world.objects.get_component::<crate::model::Player>(&object_id).map_or(0, |p| p.charges);
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::enter_world::etc_status_update(ep.weapon, ep.armor, silence));
+        cs.send(crate::network::enter_world::etc_status_update(charges, ep.weapon, ep.armor, silence));
     }
 }
 

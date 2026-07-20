@@ -402,6 +402,9 @@ pub mod sm_ids {
     pub const YOU_ALREADY_POLYMORPHED_AND_CANNOT_POLYMORPH_AGAIN: i16 = 2058;
     pub const YOU_CANNOT_POLYMORPH_INTO_THE_DESIRED_FORM_IN_WATER: i16 = 2060;
     pub const YOU_CANNOT_TRANSFORM_WHILE_RIDING_A_PET: i16 = 2063;
+    // Force/charges (G19): `FocusMomentum`/`GetMomentum`.
+    pub const YOUR_FORCE_HAS_INCREASED_TO_LEVEL_S1: i16 = 323;
+    pub const YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY: i16 = 324;
 }
 
 /// One `SystemMessage` parameter (Java `SystemMessage.SMParam`), scoped to the

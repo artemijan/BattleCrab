@@ -364,6 +364,75 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     crate::game_loop::party::notify_party_vitals(world, target_oid);
                 }
             }
+            SkillEffect::FocusMomentum { amount, max_charges } => {
+                // Java's own hardcoded fallback for the never-set-in-this-
+                // datapack `MAX_MOMENTUM` stat — see the type's doc comment.
+                let max = (*max_charges).min(8);
+                let current = world.objects.get_component::<crate::model::Player>(&target_oid).map(|p| p.charges).unwrap_or(0);
+                let Some(client_id) = client_for_player(world, target_oid) else { continue };
+                if current >= max {
+                    if let Some(cs) = world.clients.get(&client_id) {
+                        cs.send(server_packets::system_message_with(sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY, &[]));
+                    }
+                    continue;
+                }
+                let new_charge = (current + *amount).min(max);
+                if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&target_oid) {
+                    p.charges = new_charge;
+                }
+                if let Some(cs) = world.clients.get(&client_id) {
+                    if new_charge == max {
+                        cs.send(server_packets::system_message_with(sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY, &[]));
+                    } else {
+                        cs.send(server_packets::system_message_with(
+                            sm_ids::YOUR_FORCE_HAS_INCREASED_TO_LEVEL_S1,
+                            &[SmParam::Int(new_charge)],
+                        ));
+                    }
+                }
+                crate::game_loop::helpers::send_etc_status_update(world, client_id, target_oid);
+            }
+            SkillEffect::EnergyAttack { power, critical_chance, p_def_mod, charge_consume } => {
+                // `charge = min(chargeConsume, player.charges)` — pre-clamped,
+                // so Java's `decreaseCharges` (which only fails when asked to
+                // remove more than the player has) never actually refuses here.
+                let charge = {
+                    let cur = world.objects.get_component::<crate::model::Player>(&caster_oid).map(|p| p.charges).unwrap_or(0);
+                    (*charge_consume).min(cur)
+                };
+                if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&caster_oid) {
+                    p.charges -= charge;
+                }
+                if let Some(client_id) = client_for_player(world, caster_oid) {
+                    crate::game_loop::helpers::send_etc_status_update(world, client_id, caster_oid);
+                }
+                let (p_atk, level, str_bonus, caster_name) = {
+                    let p_atk = world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.p_atk).unwrap_or(0.0);
+                    let str_bonus = world
+                        .objects
+                        .get_component::<BaseStats>(&caster_oid)
+                        .map(|b| world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Str, b.str_))
+                        .unwrap_or(1.0);
+                    (p_atk, caster_level(world, caster_oid), str_bonus, caster_display_name(world, caster_oid))
+                };
+                let p_def = target_p_def(world, target_oid);
+                let crit = formulas::calc_physical_skill_crit(*critical_chance, str_bonus, world.roll(100));
+                // `energyChargesBoost = 1 + (charge * 0.1)` — 10% bonus damage
+                // per charge spent, the whole point of building Force first.
+                let energy_charges_boost = 1.0 + charge as f64 * 0.1;
+                let damage = formulas::calc_physical_skill_damage(
+                    p_atk,
+                    1.0, // no separate pAtkMod term in Java's EnergyAttack formula
+                    p_def,
+                    *p_def_mod,
+                    *power,
+                    formulas::level_mod(level),
+                    1.0, // no random-damage term in Java's EnergyAttack formula
+                    crit,
+                    ss,
+                ) * energy_charges_boost;
+                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit);
+            }
             SkillEffect::GiveItem { item_id, item_count, item_enchant_level } => {
                 give_item(world, target_oid, *item_id, *item_count, *item_enchant_level);
             }
