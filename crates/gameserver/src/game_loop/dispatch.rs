@@ -92,6 +92,17 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_ENCHANT_ITEM => super::enchant::handle_enchant(world, client_id, body),
         cop::REQUEST_MAGIC_SKILL_USE => handle_request_magic_skill_use(world, client_id, body),
         cop::REQUEST_ACQUIRE_SKILL => handle_request_acquire_skill(world, client_id, body),
+        cop::REQUEST_ACQUIRE_SKILL_INFO => {
+            // `RequestAcquireSkillInfo` (ddd): only the PLEDGE branch is
+            // answered (the class flow works off the enter-world skill list;
+            // TODO(G18.6): SUBPLEDGE squad-skill info).
+            let mut r = commons::network::PacketReader::new(body);
+            if let (Some(id), Some(level), Some(kind)) = (r.read_i32(), r.read_i32(), r.read_i32()) {
+                if kind == crate::network::client_packets::RequestAcquireSkill::PLEDGE {
+                    super::clans::handle_request_pledge_skill_info(world, client_id, id, level);
+                }
+            }
+        }
         cop::ACTION => handle_action(world, client_id, body),
         cop::ATTACK | cop::ATTACK_REQUEST => handle_attack_request(world, client_id, body),
         cop::APPEARING => handle_appearing(world, client_id),

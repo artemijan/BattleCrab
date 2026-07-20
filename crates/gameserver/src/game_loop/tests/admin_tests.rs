@@ -1940,7 +1940,7 @@ fn admin_give_clan_skills_command_grants_targeted_clan() {
     let (mut world, _tx, mut db_rx, _link) = admin_world();
     world.data.skill_data.insert_for_test(passive_clan_test_skill(370));
     world.data.pledge_skill_trees.insert_for_test(
-        PledgeSkillLearn { skill_id: 370, skill_level: 1, get_level: 3, social_class: Some(3), residencial: false },
+        PledgeSkillLearn { skill_id: 370, skill_level: 1, get_level: 3, social_class: Some(3), residencial: false, level_up_sp: 0 },
         false,
     );
 

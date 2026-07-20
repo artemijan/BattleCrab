@@ -497,6 +497,13 @@ pub(crate) fn set_clan_level(world: &mut World, clan_id: i32, level: i32) {
     let leader_id = world.clans.get(&clan_id).map(|c| c.leader_id).unwrap_or(0);
     if leader_id != 0 && client_for_player(world, leader_id).is_some() {
         apply_siege_skills_to_leader(world, clan_id, leader_id);
+        // Java `changeLevel`: crossing level 5 tells the leader the clan can now
+        // accumulate reputation.
+        if level > 4 {
+            if let Some(cid) = client_for_player(world, leader_id) {
+                send_sm(world, cid, sm_ids::NOW_THAT_YOUR_CLAN_LEVEL_IS_ABOVE_LEVEL_5_IT_CAN_ACCUMULATE_CLAN_REPUTATION);
+            }
+        }
     }
 }
 
@@ -1240,4 +1247,213 @@ pub(crate) fn handle_clan_dissolve_task(world: &mut World, clan_id: i32) {
         return;
     }
     destroy_clan(world, clan_id);
+}
+
+// --- G18 slice 2: clan level-up + rep-gated pledge skill learning ----------
+
+/// `AcquireSkillType.PLEDGE` on the wire (skill lists + acquire packets).
+const ACQUIRE_TYPE_PLEDGE: i16 = 2;
+
+/// Blood Mark — the proof item the level 3/4/5 upgrades consume.
+const BLOOD_MARK: i32 = 1419;
+const ADENA: i32 = 57;
+
+/// Java `Clan.levelUpClan`'s cost ladder (Classic values, `_level` → next):
+/// `(sp, item_id, item_count)` — levels 0/1 charge adena, 2..4 Blood Marks.
+const LEVEL_UP_COSTS: [(i64, i32, i64); 5] = [
+    (1_000, ADENA, 150_000),
+    (15_000, ADENA, 300_000),
+    (100_000, BLOOD_MARK, 100),
+    (1_000_000, BLOOD_MARK, 5_000),
+    (5_000_000, BLOOD_MARK, 10_000),
+];
+
+/// `VillageMaster.onBypassFeedback`'s `increase_clan_level` branch →
+/// `Clan.levelUpClan`: leader + not-dissolving gates, the SP/adena/proof-item
+/// price for the current level, then `changeLevel(level + 1)` and the level-up
+/// FX (`MagicSkillUse` 5103) broadcast from the leader.
+pub(crate) fn handle_increase_clan_level(world: &mut World, client_id: u32, player_oid: i32) {
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return };
+    let clan_id = p.clan_id;
+    let sp = p.sp;
+    if clan_id == 0 || !p.clan_leader {
+        send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
+        return;
+    }
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    if now_millis() < clan.dissolving_expiry_time {
+        send_sm(world, client_id, sm_ids::AS_YOU_ARE_SCHEDULED_FOR_CLAN_DISSOLUTION_LEVEL_CANNOT_INCREASE);
+        return;
+    }
+    let level = clan.level;
+    let Some(&(sp_cost, item_id, item_count)) = LEVEL_UP_COSTS.get(level as usize) else {
+        // Level 5+ has no village-master upgrade on this dist (Java returns
+        // false with no message past the ladder).
+        return;
+    };
+    let has_items = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&player_oid)
+        .is_some_and(|inv| inv.count_of(item_id) >= item_count);
+    if sp < sp_cost || !has_items {
+        send_sm(world, client_id, sm_ids::THE_CONDITIONS_TO_INCREASE_THE_CLAN_S_LEVEL_HAVE_NOT_BEEN_MET);
+        return;
+    }
+    if !super::quests::take_items(world, client_id, player_oid, item_id, item_count) {
+        send_sm(world, client_id, sm_ids::THE_CONDITIONS_TO_INCREASE_THE_CLAN_S_LEVEL_HAVE_NOT_BEEN_MET);
+        return;
+    }
+    // The consumption messages: adena sends its own line (Java `reduceAdena
+    // (sendMessage=true)`), proof items send the destroy line + `levelUpClan`'s
+    // explicit `S1_DISAPPEARED` (Java double-messages here — kept faithful).
+    if item_id == ADENA {
+        send_sm_with(world, player_oid, sm_ids::S1_ADENA_DISAPPEARED, &[SmParam::Long(item_count)]);
+    } else {
+        send_sm_with(
+            world,
+            player_oid,
+            sm_ids::S2_S1_S_DISAPPEARED,
+            &[SmParam::ItemName(item_id), SmParam::Long(item_count)],
+        );
+        send_sm_with(world, player_oid, sm_ids::S1_DISAPPEARED, &[SmParam::ItemName(item_id)]);
+    }
+    if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
+        p.sp -= sp_cost;
+    }
+    send_sm_with(world, player_oid, sm_ids::YOUR_SP_HAS_DECREASED_BY_S1, &[SmParam::Int(sp_cost as i32)]);
+
+    // Java refreshes the leader's SP (UserInfo CURRENT_HPMPCP_EXP_SP) + item
+    // list; the full re-send stands in (the port's usual substitution).
+    super::party::broadcast_user_info(world, player_oid);
+
+    set_clan_level(world, clan_id, level + 1);
+
+    // The level-up flourish: `MagicSkillUse(player, 5103, 1, 0, 0)` +
+    // `MagicSkillLaunched`, broadcast from the leader.
+    if let Some(pos) = world.objects.get_component::<crate::model::components::Position>(&player_oid).copied() {
+        let use_pkt = server_packets::magic_skill_use_raw(
+            (player_oid, pos.x, pos.y, pos.z),
+            (player_oid, pos.x, pos.y, pos.z),
+            5103,
+            1,
+            0,
+        );
+        super::helpers::broadcast_including_self(world, player_oid, &use_pkt);
+        let launched = server_packets::magic_skill_launched(player_oid, 5103, 1, &[player_oid]);
+        super::helpers::broadcast_including_self(world, player_oid, &launched);
+    }
+}
+
+/// `VillageMaster.showPledgeSkillList`: the leader-only learnable pledge-skill
+/// window. Non-leaders get `NotClanLeader.htm`; an empty list explains when to
+/// come back (SM 607 below clan level 8, `NoMoreSkills.htm` at 8+); otherwise
+/// `ExAcquirableSkillListByClass(PLEDGE)`.
+pub(crate) fn show_pledge_skill_list(world: &World, client_id: u32, player_oid: i32) {
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return };
+    let clan_id = p.clan_id;
+    if clan_id == 0 || !p.clan_leader {
+        send_villagemaster_html(world, client_id, "NotClanLeader.htm");
+        return;
+    }
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    let available = world.data.pledge_skill_trees.available_pledge_skills(clan.level, &clan.skills);
+    if available.is_empty() {
+        if clan.level < 8 {
+            let next = if clan.level < 5 { 5 } else { clan.level + 1 };
+            send_sm_with(
+                world,
+                player_oid,
+                sm_ids::YOU_DO_NOT_HAVE_ANY_FURTHER_SKILLS_TO_LEARN_COME_BACK_AT_LEVEL_S1,
+                &[SmParam::Int(next)],
+            );
+        } else {
+            send_villagemaster_html(world, client_id, "NoMoreSkills.htm");
+        }
+        return;
+    }
+    let rows: Vec<(i32, i32, i32, i64)> =
+        available.iter().map(|l| (l.skill_id, l.skill_level, l.get_level, l.level_up_sp)).collect();
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::ex_acquirable_skill_list_by_class(ACQUIRE_TYPE_PLEDGE, &rows));
+    }
+}
+
+/// Serve a `data/html/villagemaster/<file>` window (Java `NpcHtmlMessage.
+/// setFile` with no NPC binding — object id 0).
+fn send_villagemaster_html(world: &World, client_id: u32, file: &str) {
+    let html = crate::data::htm_cache::read_htm(format!("{}data/html/villagemaster/{file}", world.data.root))
+        .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string());
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::npc_html_message(0, &html));
+    }
+}
+
+/// `RequestAcquireSkillInfo`'s PLEDGE branch: the leader clicked a skill in the
+/// pledge list — answer with the reputation cost (`AcquireSkillInfo`).
+pub(crate) fn handle_request_pledge_skill_info(world: &World, client_id: u32, skill_id: i32, skill_level: i32) {
+    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    let Some(p) = world.objects.get_component::<Player>(&player) else { return };
+    if p.clan_id == 0 || !p.clan_leader {
+        return;
+    }
+    let Some(learn) = world.data.pledge_skill_trees.pledge_skill(skill_id, skill_level) else { return };
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::acquire_skill_info(
+            learn.skill_id,
+            learn.skill_level,
+            learn.level_up_sp,
+            ACQUIRE_TYPE_PLEDGE as i32,
+        ));
+    }
+}
+
+/// `RequestAcquireSkill`'s PLEDGE case: the leader confirms a pledge-skill
+/// learn — validate it is the clan's next level of a tree entry the clan
+/// level qualifies for, spend clan reputation, and grant through
+/// `add_clan_skill` (which broadcasts `PledgeSkillListAdd` + applies the
+/// passive to qualifying members). No required items on this dist's pledge
+/// tree, so `LifeCrystalNeeded`'s item loop has nothing to consume.
+pub(crate) fn handle_learn_pledge_skill(world: &mut World, client_id: u32, skill_id: i32, skill_level: i32) {
+    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    let Some(p) = world.objects.get_component::<Player>(&player) else { return };
+    let clan_id = p.clan_id;
+    if clan_id == 0 || !p.clan_leader {
+        return;
+    }
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    let Some(learn) = world.data.pledge_skill_trees.pledge_skill(skill_id, skill_level).cloned() else { return };
+    // Java's hack checks: the previous level must be the clan's current one
+    // (`prevSkillLevel != _level - 1` reject) and the clan level must qualify
+    // (the client list only ever offers qualifying entries).
+    if clan.skills.get(&skill_id).copied().unwrap_or(0) != skill_level - 1 || clan.level < learn.get_level {
+        return;
+    }
+    let rep_cost = learn.level_up_sp as i32;
+    if clan.reputation_score < rep_cost {
+        send_sm_with(world, player, sm_ids::SKILL_ACQUIRE_FAILED_INSUFFICIENT_CLAN_REPUTATION, &[]);
+        show_pledge_skill_list(world, client_id, player);
+        return;
+    }
+    // `takeReputationScore` (negative add: clamp + persist + pledge-window
+    // refresh to every online member).
+    add_clan_reputation(world, clan_id, -rep_cost);
+    send_sm_with(
+        world,
+        player,
+        sm_ids::S1_POINTS_HAVE_BEEN_DEDUCTED_FROM_THE_CLAN_S_REPUTATION,
+        &[SmParam::Int(rep_cost)],
+    );
+    add_clan_skill(world, clan_id, skill_id, skill_level);
+    // Java broadcasts the full `PledgeSkillList` to online members, acks the
+    // dialog, and re-opens the (now shorter) learnable list.
+    let pkt = server_packets::pledge_skill_list(&clan_skill_pairs(world, clan_id));
+    for oid in online_members(world, clan_id) {
+        send_to_member(world, oid, pkt.clone());
+    }
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::acquire_skill_done());
+    }
+    show_pledge_skill_list(world, client_id, player);
 }

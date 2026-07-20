@@ -41,6 +41,7 @@ pub mod opcodes {
     pub const REQUEST_RESTART: u8 = 0x57;
     pub const VALIDATE_POSITION: u8 = 0x59;
     pub const REQUEST_ACQUIRE_SKILL: u8 = 0x7C;
+    pub const REQUEST_ACQUIRE_SKILL_INFO: u8 = 0x73;
     /// `RequestEnchantItem` — perform the enchant (`objectId`, `supportId`).
     pub const REQUEST_ENCHANT_ITEM: u8 = 0x5F;
     pub const REQUEST_SKILL_LIST: u8 = 0x50;
@@ -567,6 +568,7 @@ pub struct RequestAcquireSkill {
 
 impl RequestAcquireSkill {
     pub const CLASS: i32 = 0;
+    pub const PLEDGE: i32 = 2;
     pub const SUBPLEDGE: i32 = 3;
 
     pub fn read(body_after_opcode: &[u8]) -> Option<Self> {

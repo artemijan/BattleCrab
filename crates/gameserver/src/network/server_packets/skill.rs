@@ -119,3 +119,40 @@ pub fn acquire_skill_done() -> Vec<u8> {
     w.write_u8(opcodes::ACQUIRE_SKILL_DONE);
     w.into_bytes()
 }
+
+/// Port of `serverpackets/ExAcquirableSkillListByClass` — the learnable-skill
+/// window for the non-class trees; G18 uses it for the village master's
+/// pledge-skill list (`AcquireSkillType.PLEDGE` = 2). Entries are
+/// `(skill_id, skill_level, get_level, level_up_sp)`; the required-items
+/// count is always 0 (no pledge entry on this dist carries items).
+pub fn ex_acquirable_skill_list_by_class(type_id: i16, skills: &[(i32, i32, i32, i64)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_ACQUIRABLE_SKILL_LIST_BY_CLASS);
+    w.write_i16(type_id);
+    w.write_i16(skills.len() as i16);
+    for &(id, level, get_level, sp) in skills {
+        w.write_i32(id);
+        w.write_i16(level as i16);
+        w.write_i16(level as i16);
+        w.write_u8(get_level as u8);
+        w.write_i64(sp);
+        w.write_u8(0); // required items
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/AcquireSkillInfo` — the cost detail the client asks
+/// for (`RequestAcquireSkillInfo`) before confirming a learn. For pledge
+/// skills `sp_cost` is the clan-reputation price; no required items on this
+/// dist's pledge tree.
+pub fn acquire_skill_info(skill_id: i32, skill_level: i32, sp_cost: i64, type_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::ACQUIRE_SKILL_INFO);
+    w.write_i32(skill_id);
+    w.write_i32(skill_level);
+    w.write_i64(sp_cost);
+    w.write_i32(type_id);
+    w.write_i32(0); // requirements
+    w.into_bytes()
+}

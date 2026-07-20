@@ -29,6 +29,9 @@ pub struct PledgeSkillLearn {
     /// Java `isResidencialSkill` — castle/clan-hall skills, excluded from
     /// `getMaxPledgeSkills`. No entry in this dist sets it, but parsed for parity.
     pub residencial: bool,
+    /// Java `getLevelUpSp` — for pledge skills this is the **clan reputation**
+    /// cost the leader pays at the village master (`levelUpSp` attribute).
+    pub level_up_sp: i64,
 }
 
 pub struct PledgeSkillTreeData {
@@ -103,6 +106,28 @@ impl PledgeSkillTreeData {
         result.into_iter().collect()
     }
 
+    /// Java `SkillTreeData.getAvailablePledgeSkills(clan)`: the next learnable
+    /// level of every non-residence pledge skill the clan qualifies for at its
+    /// level — the known level + 1, or level 1 for an unknown skill.
+    pub fn available_pledge_skills(
+        &self,
+        clan_level: i32,
+        current: &HashMap<i32, i32>,
+    ) -> Vec<PledgeSkillLearn> {
+        self.pledge
+            .iter()
+            .filter(|l| !l.residencial && clan_level >= l.get_level)
+            .filter(|l| current.get(&l.skill_id).copied().unwrap_or(0) + 1 == l.skill_level)
+            .cloned()
+            .collect()
+    }
+
+    /// Java `getPledgeSkill(id, lvl)` — one pledge-tree entry (the learn
+    /// request's validation + reputation cost).
+    pub fn pledge_skill(&self, skill_id: i32, skill_level: i32) -> Option<&PledgeSkillLearn> {
+        self.pledge.iter().find(|l| l.skill_id == skill_id && l.skill_level == skill_level)
+    }
+
     /// Java `addSkillEffects`'s per-skill gate: the `<socialClass>` ordinal a
     /// member must reach (as `pledgeClass + 1 >= ordinal`) to receive clan skill
     /// `(id, level)`. `None` = no gate (every member gets it) — covering both an
@@ -155,6 +180,7 @@ fn new_learn(e: &quick_xml::events::BytesStart) -> PledgeSkillLearn {
         get_level: attr_i32(e, b"getLevel").unwrap_or(99),
         social_class: None,
         residencial: attr_str(e, b"residenceSkill").as_deref() == Some("true"),
+        level_up_sp: attr_str(e, b"levelUpSp").and_then(|s| s.parse().ok()).unwrap_or(0),
     }
 }
 

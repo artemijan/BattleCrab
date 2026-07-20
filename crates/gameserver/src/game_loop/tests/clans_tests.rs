@@ -360,7 +360,7 @@ fn give_clan_skills_grants_gates_and_persists() {
     // Two clan skills: 370 gated at HEIR (ordinal 3), 371 gated at COUNT (8).
     world.data.skill_data.insert_for_test(passive_clan_test_skill(370));
     world.data.skill_data.insert_for_test(passive_clan_test_skill(371));
-    let learn = |id, social| PledgeSkillLearn { skill_id: id, skill_level: 1, get_level: 3, social_class: Some(social), residencial: false };
+    let learn = |id, social| PledgeSkillLearn { skill_id: id, skill_level: 1, get_level: 3, social_class: Some(social), residencial: false, level_up_sp: 0 };
     world.data.pledge_skill_trees.insert_for_test(learn(370, 3), false);
     world.data.pledge_skill_trees.insert_for_test(learn(371, 8), false);
 
@@ -433,9 +433,9 @@ fn give_clan_skills_purges_residence_and_reapplies() {
     world.data.skill_data.insert_for_test(passive_clan_test_skill(370));
     world.data.skill_data.insert_for_test(passive_clan_test_skill(590));
     world.data.pledge_skill_trees.insert_for_test(
-        PledgeSkillLearn { skill_id: 370, skill_level: 1, get_level: 3, social_class: Some(3), residencial: false }, false);
+        PledgeSkillLearn { skill_id: 370, skill_level: 1, get_level: 3, social_class: Some(3), residencial: false, level_up_sp: 0 }, false);
     world.data.pledge_skill_trees.insert_for_test(
-        PledgeSkillLearn { skill_id: 590, skill_level: 1, get_level: 4, social_class: None, residencial: true }, false);
+        PledgeSkillLearn { skill_id: 590, skill_level: 1, get_level: 4, social_class: None, residencial: true, level_up_sp: 0 }, false);
 
     let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     drain_db(&mut db_rx);
@@ -589,7 +589,7 @@ fn clan_skills_move_max_hp_mp_cp() {
             .collect();
         world.data.skill_data.insert_for_test(s);
         world.data.pledge_skill_trees.insert_for_test(
-            PledgeSkillLearn { skill_id: id, skill_level: 1, get_level: 1, social_class: None, residencial: false }, false);
+            PledgeSkillLearn { skill_id: id, skill_level: 1, get_level: 1, social_class: None, residencial: false, level_up_sp: 0 }, false);
     }
 
     let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -687,7 +687,7 @@ fn clan_skills_reapply_on_member_login() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     world.data.skill_data.insert_for_test(passive_clan_test_skill(370));
     world.data.pledge_skill_trees.insert_for_test(
-        PledgeSkillLearn { skill_id: 370, skill_level: 1, get_level: 3, social_class: Some(3), residencial: false },
+        PledgeSkillLearn { skill_id: 370, skill_level: 1, get_level: 3, social_class: Some(3), residencial: false, level_up_sp: 0 },
         false,
     );
     let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -1072,4 +1072,167 @@ fn clan_dissolve_and_recover() {
     assert_eq!(world.objects.get_component::<Player>(&3002).unwrap().clan_id, 0);
     assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::CLAN_HAS_DISPERSED));
     assert!(drain(&mut b_rx).iter().any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_MEMBER_LIST_DELETE_ALL));
+}
+
+// --- G18 slice 2: clan level-up + pledge skill learning ---
+
+/// The village-master `increase_clan_level` ladder: leader/dissolution gates,
+/// the not-met reject, and a successful 0→1 upgrade (SP + adena consumed,
+/// level broadcast + FX) and 2→3 (Blood Mark proof items).
+#[test]
+fn clan_level_up_ladder() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30026, "VillageMaster", 5, 100, 0, 0);
+    add_quest_items(&mut world, &[(57, "Adena", false), (1419, "Blood Mark", false)]);
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut b_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001, 3002]);
+    world.clans.get_mut(&5000).unwrap().level = 0;
+    drain_db(&mut db_rx);
+
+    let bypass = |world: &mut World, client: u32| {
+        handle_request_bypass_to_server(world, client, &bypass_body(&format!("npc_{NPC_OID}_increase_clan_level")));
+    };
+
+    // Non-leader.
+    bypass(&mut world, 2);
+    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT));
+
+    // Pending dissolution.
+    world.clans.get_mut(&5000).unwrap().dissolving_expiry_time = i64::MAX;
+    bypass(&mut world, 1);
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&server_packets::sm_ids::AS_YOU_ARE_SCHEDULED_FOR_CLAN_DISSOLUTION_LEVEL_CANNOT_INCREASE));
+    world.clans.get_mut(&5000).unwrap().dissolving_expiry_time = 0;
+
+    // No SP / no adena.
+    bypass(&mut world, 1);
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&server_packets::sm_ids::THE_CONDITIONS_TO_INCREASE_THE_CLAN_S_LEVEL_HAVE_NOT_BEEN_MET));
+
+    // 0 → 1: 1000 SP + 150k adena.
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.sp = 5_000;
+    }
+    world.objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(
+        &world.data.item_data,
+        900_001,
+        57,
+        200_000,
+    );
+    bypass(&mut world, 1);
+    assert_eq!(world.clans[&5000].level, 1);
+    let p = world.objects.get_component::<Player>(&3001).unwrap();
+    assert_eq!(p.sp, 4_000, "1000 SP consumed");
+    assert_eq!(adena_of(&world, 3001), 50_000, "150k adena consumed");
+    let a_pkts = drain(&mut a_rx);
+    let a_sms = sm_ids_of(&a_pkts);
+    assert!(a_sms.contains(&server_packets::sm_ids::S1_ADENA_DISAPPEARED));
+    assert!(a_sms.contains(&server_packets::sm_ids::YOUR_SP_HAS_DECREASED_BY_S1));
+    assert!(a_sms.contains(&server_packets::sm_ids::YOUR_CLAN_S_LEVEL_HAS_INCREASED));
+    assert!(a_pkts.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE), "level-up FX");
+    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::YOUR_CLAN_S_LEVEL_HAS_INCREASED));
+    assert!(drain_db(&mut db_rx)
+        .iter()
+        .any(|c| matches!(c, db::DbCommand::UpdateClanLevel { clan_id: 5000, level: 1 })));
+
+    // 2 → 3: 100k SP + 100 Blood Marks.
+    world.clans.get_mut(&5000).unwrap().level = 2;
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.sp = 200_000;
+    }
+    world.objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(
+        &world.data.item_data,
+        900_002,
+        1419,
+        150,
+    );
+    bypass(&mut world, 1);
+    assert_eq!(world.clans[&5000].level, 3);
+    assert_eq!(count_of_item(&world, 3001, 1419), 50, "100 Blood Marks consumed");
+    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().sp, 100_000);
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::S1_DISAPPEARED));
+}
+
+/// The pledge-skill learn flow: the leader-only list (`ExAcquirableSkillListBy
+/// Class` PLEDGE), the reputation gate, and a successful learn — rep deducted
+/// + persisted, the skill stored/broadcast, and the refreshed list offering
+/// the next level.
+#[test]
+fn pledge_skill_learning_spends_reputation() {
+    use crate::data::pledge_skill_tree::PledgeSkillLearn;
+
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30026, "VillageMaster", 5, 100, 0, 0);
+    world.data.skill_data.insert_for_test(passive_clan_test_skill(370));
+    let learn = |lvl: i32, sp: i64| PledgeSkillLearn {
+        skill_id: 370,
+        skill_level: lvl,
+        get_level: 3,
+        social_class: None,
+        residencial: false,
+        level_up_sp: sp,
+    };
+    world.data.pledge_skill_trees.insert_for_test(learn(1, 1_500), false);
+    world.data.pledge_skill_trees.insert_for_test(learn(2, 3_000), false);
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut b_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001, 3002]);
+    world.clans.get_mut(&5000).unwrap().level = 3;
+    drain_db(&mut db_rx);
+
+    // Non-leader asking for the list → NotClanLeader.htm (an NpcHtmlMessage).
+    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_learn_clan_skills")));
+    assert!(drain(&mut b_rx).iter().any(|p| decode_npc_html(p).is_some()), "NotClanLeader html shown");
+
+    // Leader: the PLEDGE learnable list with the level-1 entry.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_learn_clan_skills")));
+    let pkts = drain(&mut a_rx);
+    let list = pkts
+        .iter()
+        .find(|p| p[0] == 0xFE && p.len() > 3 && i16::from_le_bytes([p[1], p[2]]) == 0xFA)
+        .expect("ExAcquirableSkillListByClass sent");
+    assert_eq!(i16::from_le_bytes([list[3], list[4]]), 2, "PLEDGE type");
+
+    // The info request answers with the reputation cost.
+    clans::handle_request_pledge_skill_info(&world, 1, 370, 1);
+    let info = drain(&mut a_rx);
+    assert!(info.iter().any(|p| p[0] == server_packets::opcodes::ACQUIRE_SKILL_INFO));
+
+    // Learning without reputation fails.
+    clans::handle_learn_pledge_skill(&mut world, 1, 370, 1);
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&server_packets::sm_ids::SKILL_ACQUIRE_FAILED_INSUFFICIENT_CLAN_REPUTATION));
+    assert!(world.clans[&5000].skills.is_empty());
+
+    // Skipping a level is silently refused (Java's prev-level hack check).
+    world.clans.get_mut(&5000).unwrap().reputation_score = 10_000;
+    clans::handle_learn_pledge_skill(&mut world, 1, 370, 2);
+    assert!(world.clans[&5000].skills.is_empty());
+
+    // A successful learn: rep −1500 (persisted), skill stored + pushed.
+    drain_db(&mut db_rx);
+    clans::handle_learn_pledge_skill(&mut world, 1, 370, 1);
+    assert_eq!(world.clans[&5000].skills.get(&370), Some(&1));
+    assert_eq!(world.clans[&5000].reputation_score, 8_500);
+    let a_pkts = drain(&mut a_rx);
+    let a_sms = sm_ids_of(&a_pkts);
+    assert!(a_sms.contains(&server_packets::sm_ids::S1_POINTS_HAVE_BEEN_DEDUCTED_FROM_THE_CLAN_S_REPUTATION));
+    assert!(a_sms.contains(&server_packets::sm_ids::THE_CLAN_SKILL_S1_HAS_BEEN_ADDED));
+    assert!(a_pkts.iter().any(|p| p[0] == server_packets::opcodes::ACQUIRE_SKILL_DONE));
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::UpdateClanReputation { clan_id: 5000, reputation: 8_500 })));
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::SaveClanSkill { clan_id: 5000, skill_id: 370, skill_level: 1, .. })));
+    // The member got the passive too (no social gate on the fixture).
+    assert!(world
+        .objects
+        .get_component::<crate::model::components::ClanSkills>(&3002)
+        .is_some_and(|c| c.0.get(&370) == Some(&1)));
+
+    // The re-shown list now offers level 2.
+    clans::handle_learn_pledge_skill(&mut world, 1, 370, 2);
+    assert_eq!(world.clans[&5000].skills.get(&370), Some(&2));
+    assert_eq!(world.clans[&5000].reputation_score, 5_500);
 }
