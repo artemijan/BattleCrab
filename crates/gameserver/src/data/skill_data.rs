@@ -1075,6 +1075,25 @@ fn finalize_skill(
                             }]
                         };
                     }
+                    "BlockMove" => vec![SkillEffect::BlockMove],
+                    // `type` picks the Java stat: PHYSICAL (the default) or
+                    // MAGICAL. Physical Mirror 350 and Magical Mirror 351 carry
+                    // *only* this effect, so both were dropped whole before it.
+                    // `type` is a `BasicProperty`: `NONE`, `PHYSICAL` (the
+                    // default) or **`MAGIC`** — not "MAGICAL", which is the
+                    // spelling this port first guessed and which would have
+                    // silently routed every magic reflect into the physical
+                    // stat. Both Mirrors carry one effect of each kind.
+                    //
+                    // Their `<armorTYpe>SHIELD</armorTYpe>` gate is a datapack
+                    // typo (10 occurrences against 220 correct `<armorType>`).
+                    // Java matches element names exactly too, so the condition
+                    // is inert on both sides and is faithfully reproduced by
+                    // not special-casing it.
+                    "ReflectSkill" => vec![SkillEffect::ReflectSkill {
+                        magic: value_at(params, "type", level) == Some("MAGIC"),
+                        amount: param("amount").unwrap_or(0.0),
+                    }],
                     "SilentMove" => vec![SkillEffect::SilentMove],
                     // Fake Death 60. Two halves: the `FAKE_DEATH` flag and an
                     // MP upkeep with the same `power * getTicksMultiplier()`

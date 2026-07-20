@@ -116,6 +116,14 @@ pub enum Stat {
     /// learnable skill grants it on this dist (7 non-learnable ones do), so it
     /// is folded for completeness and reads as the 1.0 default in practice.
     DefenceMagicCriticalDamage,
+    /// Java `Stat.REFLECT_SKILL_PHYSIC` / `REFLECT_SKILL_MAGIC` — the percent
+    /// chance that an incoming **debuff** is bounced back onto its caster
+    /// (Riposte Stance 340, Physical Mirror 350, Magical Mirror 351). Additive,
+    /// read off the *target* in `Formulas.calcBuffDebuffReflection`. Which of
+    /// the two applies is decided by the incoming skill's `isMagic`, not by the
+    /// defender.
+    ReflectSkillPhysic,
+    ReflectSkillMagic,
     /// Java `Stat.MANA_CHARGE` ("manaCharge") — a flat bonus on the amount a
     /// *recharge* skill restores, granted by Higher Mana Gain 285 (`ManaCharge`,
     /// `mode=DIFF`, +22..81 by level). Read off the **recipient** by

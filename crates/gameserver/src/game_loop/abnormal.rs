@@ -111,5 +111,5 @@ pub(crate) fn is_hp_blocked(world: &World, object_id: i32) -> bool {
 /// blocks movement, and so does a root (which leaves attacking and casting
 /// alone).
 pub(crate) fn is_movement_disabled(world: &World, object_id: i32) -> bool {
-    flags_of(world, object_id) & (effect_flag::BLOCK_ACTIONS | effect_flag::ROOTED) != 0
+    flags_of(world, object_id) & (effect_flag::BLOCK_ACTIONS | effect_flag::ROOTED | effect_flag::IMMOBILIZED) != 0
 }

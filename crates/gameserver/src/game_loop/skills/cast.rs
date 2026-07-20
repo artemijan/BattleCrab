@@ -1041,7 +1041,17 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         if target_state(world, target_oid).is_none() {
             continue;
         }
-        apply_skill_effects(world, player_object_id, target_oid, &skill);
+        // `Skill.applyEffects`' reflection branch: a debuff can be bounced
+        // back onto its own caster by the target's `ReflectSkill` chance.
+        if calc_buff_debuff_reflection(world, target_oid, &skill) {
+            // Java swaps the roles — `applyEffects(target, caster, …)` — so the
+            // debuff lands on the caster with the target as effector.
+            apply_skill_effects(world, target_oid, player_object_id, &skill);
+        } else {
+            apply_skill_effects(world, player_object_id, target_oid, &skill);
+        }
+        // The hate/PvP consequences are unconditional: the caster still *cast*
+        // a bad skill at this target, reflected or not.
         apply_cast_consequences(world, player_object_id, target_oid, &skill);
     }
 
@@ -1076,6 +1086,35 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
 /// the AI wake. Split out of [`handle_skill_finish`] when affect scopes landed
 /// so every creature an AoE touches gets the same treatment the single target
 /// used to get.
+/// `Formulas.calcBuffDebuffReflection` — the chance that `target` bounces this
+/// skill back at its caster.
+///
+/// ```java
+/// if (!skill.isDebuff() || (skill.getActivateRate() == -1)) return false;
+/// return target.getStat().getValue(skill.isMagic() ? REFLECT_SKILL_MAGIC : REFLECT_SKILL_PHYSIC, 0) > Rnd.get(100);
+/// ```
+///
+/// Two gates before the roll: the skill must be a **debuff**, and it must
+/// declare an `activateRate` (a skill with the default `-1` — i.e. one that
+/// always lands — is never reflected). Which of the two stats is read depends
+/// on the *incoming skill's* `isMagic`, not on the defender.
+fn calc_buff_debuff_reflection(world: &mut World, target_oid: i32, skill: &Skill) -> bool {
+    use crate::model::stats::Stat;
+    if !skill.is_debuff || skill.activate_rate == -1 {
+        return false;
+    }
+    let stat = if skill.magic_type == 1 { Stat::ReflectSkillMagic } else { Stat::ReflectSkillPhysic };
+    let chance = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&target_oid)
+        .and_then(|m| m.add.get(&stat).copied())
+        .unwrap_or(0.0);
+    if chance <= 0.0 {
+        return false;
+    }
+    chance > world.roll(100) as f64
+}
+
 fn apply_cast_consequences(world: &mut World, player_object_id: i32, target_oid: i32, skill: &Skill) {
     let target_is_player = world.objects.has_component::<Player>(&target_oid);
     // Monster proxy: an NPC whose template is auto-attackable (same test the
