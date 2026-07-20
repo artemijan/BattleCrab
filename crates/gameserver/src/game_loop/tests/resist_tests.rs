@@ -51,6 +51,7 @@ fn base_skill(id: i32, effects: Vec<SkillEffect>) -> Skill {
         is_debuff: false,
         stay_after_death: false,
         effects,
+        ..Default::default()
     }
 }
 

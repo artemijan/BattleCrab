@@ -73,6 +73,7 @@ fn cast(world: &mut World, skill_id: i32, effects: Vec<SkillEffect>, magic_level
         is_debuff: false,
         stay_after_death: false,
         effects,
+        ..Default::default()
     };
     world.data.skill_data.insert_for_test(skill.clone());
     crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);

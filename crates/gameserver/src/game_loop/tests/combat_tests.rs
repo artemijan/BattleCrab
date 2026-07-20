@@ -1561,6 +1561,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
         is_debuff: false,
         stay_after_death: false,
         effects,
+        ..Default::default()
     };
     let spoil = make(254, TargetType::EnemyOnly, 10, vec![SkillEffect::Spoil]);
     let sweeper = make(42, TargetType::NpcBody, 0, vec![SkillEffect::Sweeper, SkillEffect::ConsumeBody]);

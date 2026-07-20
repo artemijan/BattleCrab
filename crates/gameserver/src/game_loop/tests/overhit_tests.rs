@@ -53,6 +53,7 @@ fn nuke(id: i32, power: f64, over_hit: bool) -> Skill {
         is_debuff: false,
         stay_after_death: false,
         effects: vec![SkillEffect::MagicalAttack { power }],
+        ..Default::default()
     }
 }
 

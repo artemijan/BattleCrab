@@ -914,7 +914,77 @@ pub struct Skill {
     /// TODO: fold in `<irreplacableBuff>`/`<isNecessaryToggle>` when parsed.
     pub stay_after_death: bool,
     pub effects: Vec<SkillEffect>,
+    /// Java `EffectScope.SELF` (`<selfEffects>`) — applied to the **caster**,
+    /// as a separate `applyEffects(caster, caster, …)` after the target loop.
+    /// Blinding Blow 321, Sonic Rage 345, Raging Force 346, Vengeance 368,
+    /// Evade Shot 369, Critical Blow 409 all put a real self-buff here, and the
+    /// parser used to read only `<effects>` — so none of them landed.
+    pub self_effects: Vec<SkillEffect>,
+    /// Java `EffectScope.PVE` / `PVP` (`<pveEffects>`/`<pvpEffects>`) — applied
+    /// to the same target as `effects`, but only for the matching matchup:
+    /// `effector.isPlayable() && effected.isAttackable()` → PVE, else
+    /// `effector.isPlayable() && effected.isPlayable()` → PVP, else neither.
+    pub pve_effects: Vec<SkillEffect>,
+    pub pvp_effects: Vec<SkillEffect>,
 }
+impl Default for Skill {
+    /// A blank skill: no effects, no costs, single-target, instant.
+    ///
+    /// Exists so struct literals can use `..Default::default()` and stop
+    /// breaking every time a field is added — adding `magic_critical_rate` once
+    /// churned 15 test files and was backed out partly for that reason. Only
+    /// the non-zero defaults below need thought; the rest are Java's own
+    /// zero/absent values.
+    fn default() -> Self {
+        Self {
+            id: 0,
+            level: 1,
+            name: String::new(),
+            operate_type: OperateType::Active,
+            is_continuous: false,
+            target_type: TargetType::Self_,
+            over_hit: false,
+            abnormal_visuals: Vec::new(),
+            toggle_group_id: 0,
+            affect_scope: AffectScope::Single,
+            affect_object: AffectObject::All,
+            affect_range: 0,
+            affect_limit: (0, 0),
+            magic_type: 0,
+            magic_level: 0,
+            // Java's "no declared rate", which several gates test for
+            // explicitly (a skill with -1 always lands and is never reflected).
+            activate_rate: -1,
+            lvl_bonus_rate: 0,
+            effect_point: 0,
+            cast_range: 0,
+            effect_range: 0,
+            hit_time: 0,
+            hit_cancel_time: 0.0,
+            cool_time: 0,
+            reuse_delay: 0,
+            // Java's "no group" sentinel.
+            reuse_delay_group: -1,
+            mp_consume: 0,
+            mp_initial_consume: 0,
+            hp_consume: 0,
+            without_action: false,
+            item_consume_id: 0,
+            item_consume_count: 0,
+            abnormal_time: 0,
+            abnormal_level: 0,
+            abnormal_type: "NONE".to_string(),
+            can_be_dispelled: true,
+            is_debuff: false,
+            stay_after_death: false,
+            effects: Vec::new(),
+            self_effects: Vec::new(),
+            pve_effects: Vec::new(),
+            pvp_effects: Vec::new(),
+        }
+    }
+}
+
 
 /// Which count-cap pool a landed buff occupies (Java `SkillBuffType`, trimmed
 /// to the pools the caps use). `Uncapped` folds Java's DEBUFF/TOGGLE/TRIGGER/

@@ -57,6 +57,7 @@ fn cc_skill(id: i32, effect: SkillEffect, abnormal: &str) -> Skill {
         is_debuff: true,
         stay_after_death: false,
         effects: vec![effect],
+        ..Default::default()
     }
 }
 

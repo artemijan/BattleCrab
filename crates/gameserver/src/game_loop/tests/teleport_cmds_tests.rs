@@ -151,6 +151,7 @@ fn unstuck_casts_escape_and_teleports_to_town() {
         is_debuff: false,
         stay_after_death: false,
         effects: vec![crate::model::skill::SkillEffect::EscapeToTown],
+        ..Default::default()
     });
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     // The bare test template spawns at 0 HP; the finish phase's HP re-check
