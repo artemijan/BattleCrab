@@ -180,6 +180,11 @@ fn think(world: &mut World, npc_oid: i32) {
     match ai.intention {
         NpcIntention::Active => think_active(world, npc_oid),
         NpcIntention::Attack => think_attack(world, npc_oid),
+        // `AttackableAI.onEvtThink`'s switch has no `AI_INTENTION_MOVE_TO`
+        // case: a mob committed to a destination walk (today, a feared one)
+        // thinks about nothing until it arrives. Without this arm the very
+        // next think tick would re-issue a chase and cancel the flight.
+        NpcIntention::MoveTo => {}
     }
 }
 

@@ -361,6 +361,17 @@ pub(crate) fn movement_tick(world: &mut World) {
     for id in outcome.moved_npcs {
         update_npc_region(world, id);
     }
+    // `CreatureAI.onEvtArrived`: "if the Intention was AI_INTENTION_MOVE_TO,
+    // set the Intention to AI_INTENTION_ACTIVE" — a mob that finishes its flee
+    // leg starts thinking again (and re-acquires a target if the fear has since
+    // worn off; if it hasn't, the next fear tick shoves it onward).
+    for id in &outcome.arrived {
+        if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(id) {
+            if ai.intention == crate::model::npc::NpcIntention::MoveTo {
+                ai.intention = crate::model::npc::NpcIntention::Active;
+            }
+        }
+    }
     // Route advances need a `MoveToLocation` for the new segment — unlike
     // plain moves, the client only knows the previous segment's endpoint
     // (Java `moveToNextRoutePoint` → `broadcastMoveToLocation`).

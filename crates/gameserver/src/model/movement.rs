@@ -112,6 +112,10 @@ pub struct TickOutcome {
     /// caller broadcasts `MoveToLocation` for the new segment (Java
     /// `moveToNextRoutePoint` → `broadcastMoveToLocation`).
     pub route_advanced: Vec<i32>,
+    /// Movers that reached their destination this tick — Java's
+    /// `CreatureAI.onEvtArrived`. Only the `AI_INTENTION_MOVE_TO` → `ACTIVE`
+    /// reset is ported off it (see `visibility::movement_tick`).
+    pub arrived: Vec<i32>,
 }
 
 /// `Creature.updatePosition`: advance **every** mover — player or NPC — one
@@ -156,9 +160,10 @@ pub fn tick(world: &mut crate::world::World) -> TickOutcome {
             }
         }
     });
-    for id in arrived {
+    for &id in &arrived {
         world.objects.remove_component::<Movement>(&id);
     }
+    out.arrived = arrived;
     out
 }
 
