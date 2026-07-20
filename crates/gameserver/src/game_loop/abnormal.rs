@@ -74,6 +74,18 @@ pub(crate) fn is_physical_muted(world: &World, object_id: i32) -> bool {
     flags_of(world, object_id) & effect_flag::PHYSICAL_MUTED != 0
 }
 
+/// Java `Creature.isMpBlocked()` — MP cannot be drained *or restored* while
+/// this is up.
+///
+/// **This flag was previously documented as having no callers.** That grep
+/// covered `java/` only; every effect handler lives under
+/// `dist/game/data/scripts/handlers/effecthandlers/`, and five of them read it
+/// (`MagicalAttackMp`, `Mp`, `ManaHeal`, `ManaHealByLevel`, `ManaHealPercent`).
+/// The `MP_BLOCK` doc comment has been corrected accordingly.
+pub(crate) fn is_mp_blocked(world: &World, object_id: i32) -> bool {
+    flags_of(world, object_id) & effect_flag::MP_BLOCK != 0
+}
+
 /// Java `Creature.isDebuffBlocked()` — incoming debuffs fail outright. (Java
 /// also ORs `isInvul()`; GM invulnerability is tracked separately in this port
 /// and is not folded in here.)

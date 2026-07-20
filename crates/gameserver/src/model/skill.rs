@@ -202,6 +202,12 @@ pub enum SkillEffect {
     /// effect that drops the victim's target and aborts their attack and cast
     /// (Trick 11, Switch 12, Aura Flash 1417).
     TargetCancel { chance: i32 },
+    /// `handlers/effecthandlers/MagicalAttackMp.java` — an MP drain (Mana Burn
+    /// 1398, Mana Storm 1399, Aura Sink 1102, Seal of Gloom 1210). Damage is
+    /// dealt to the target's **MP pool**, not HP, by its own `calcManaDam`
+    /// formula. Mana Burn and Mana Storm carry only this effect, so both were
+    /// dropped whole before it was ported.
+    MagicalAttackMp { power: f64, critical: bool, critical_limit: f64 },
     /// `handlers/effecthandlers/SilentMove.java` — stealth (Silent Move 221,
     /// Stealth 411, Dance of Shadows 366, Fake Death 60). A pure state flag:
     /// the Java handler has an empty constructor and nothing but
@@ -629,12 +635,17 @@ pub mod effect_flag {
     /// (creature.isHpBlocked() && !(isDOT || isHPConsumption)) return;` — a
     /// DoT tick or a skill's own HP cost still goes through.
     pub const HP_BLOCK: u32 = 1 << 7;
-    /// `MP_BLOCK` — Java defines `isMpBlocked()`, but **nothing in the whole
-    /// Java tree ever calls it** (grepped exhaustively) — no MP-drain path
-    /// checks it, unlike `HP_BLOCK`'s real `reduceHp` gate. Folded here for
-    /// completeness (every learnable `DamageBlock` skill sets both HP and MP
-    /// in separate `<effect>` elements) but has no consumer, faithfully
-    /// matching Java's own dead code.
+    /// `MP_BLOCK` — MP cannot be drained or restored while this is up.
+    ///
+    /// **Correction:** this was previously documented here as having no callers
+    /// anywhere in Java. That grep covered `java/` only — every effect handler
+    /// actually lives under `dist/game/data/scripts/handlers/effecthandlers/`,
+    /// and **five** of them read `isMpBlocked()`: `MagicalAttackMp`, `Mp`,
+    /// `ManaHeal`, `ManaHealByLevel`, `ManaHealPercent`. The flag is live, not
+    /// dead code. `MagicalAttackMp`'s gate is ported
+    /// (`game_loop::abnormal::is_mp_blocked`); the four MP-restore handlers
+    /// should read it too as they land. TODO(G19): wire the `ManaHeal*` family
+    /// when those effects are ported.
     pub const MP_BLOCK: u32 = 1 << 8;
     /// `FEAR` — Java declares the flag on `Fear.getEffectFlags()`, but **no
     /// `isAfraid()` accessor exists and nothing reads the bit** (grepped the

@@ -906,6 +906,20 @@ fn finalize_skill(
                     // the stealth half of Fake Death 60. Java's handler is an
                     // empty constructor plus `getEffectFlags` — a pure state
                     // flag, no params at all.
+                    // Mana Burn 1398, Mana Storm 1399, Aura Sink 1102, Seal of
+                    // Gloom 1210 — MP drain. `critical`/`criticalLimit` are the
+                    // effect's own params (all four declare `critical=true`);
+                    // the crit *rate* comes from the skill's
+                    // `<magicCriticalRate>`, not from here.
+                    //
+                    // Mana Burn and Mana Storm carry only this effect, so before
+                    // this arm both parsed to an empty effect list and were
+                    // dropped whole — the nukes cast and drained nothing.
+                    "MagicalAttackMp" => vec![SkillEffect::MagicalAttackMp {
+                        power: param("power").unwrap_or(0.0),
+                        critical: value_at(params, "critical", level) == Some("true"),
+                        critical_limit: param("criticalLimit").unwrap_or(0.0),
+                    }],
                     "SilentMove" => vec![SkillEffect::SilentMove],
                     // Fake Death 60. Two halves: the `FAKE_DEATH` flag and an
                     // MP upkeep with the same `power * getTicksMultiplier()`

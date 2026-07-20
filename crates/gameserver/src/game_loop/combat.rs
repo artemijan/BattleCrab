@@ -237,7 +237,7 @@ fn move_type_evasion_bonus(world: &World, object_id: i32) -> i32 {
 /// A creature's shield block stats: `(shieldDef, shieldRate×CON, conBonus)`.
 /// Only players carry an inventory/shield here; NPCs return no shield with a
 /// neutral CON bonus.
-fn shield_stats(world: &World, object_id: i32) -> (f64, f64, f64) {
+pub(crate) fn shield_stats(world: &World, object_id: i32) -> (f64, f64, f64) {
     use crate::model::components::{BaseStats, StatModifiers};
     use crate::model::inventory::{Inventory, PaperdollSlot};
     use crate::model::stats::Stat;

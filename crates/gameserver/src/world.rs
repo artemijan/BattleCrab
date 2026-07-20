@@ -461,6 +461,21 @@ impl World {
         self.roll(1_000_000) as f64 / 1_000_000.0
     }
 
+    /// Java `Rnd.nextGaussian()` — a standard normal draw (mean 0, sd 1),
+    /// used by `Formulas.calcMagicAffected`.
+    ///
+    /// Box–Muller over two [`roll_f64`](Self::roll_f64) draws rather than a
+    /// distribution crate, so tests can still force the outcome through the
+    /// same `forced_rolls` queue every other roll uses. The stream will not
+    /// match Java's `java.util.Random` draw-for-draw — no RNG on this port
+    /// does — only the distribution.
+    pub fn roll_gaussian(&mut self) -> f64 {
+        // `u1` must be non-zero for `ln`; `roll_f64` is [0, 1).
+        let u1 = self.roll_f64().max(f64::MIN_POSITIVE);
+        let u2 = self.roll_f64();
+        (-2.0 * u1.ln()).sqrt() * (std::f64::consts::TAU * u2).cos()
+    }
+
     /// Roll an augmentation's two option ids (Java `generateRandomVariation`).
     /// Lives here so the split borrow — `data.variations` (read) vs. the RNG
     /// draw — stays disjoint; the closure mirrors [`roll_f64`] so tests can
