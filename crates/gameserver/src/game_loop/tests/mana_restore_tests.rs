@@ -280,11 +280,21 @@ fn the_rest_of_the_family_parses() {
         );
     }
 
+    // Mortal Strike 410 was described in this slice's plan as "the one
+    // learnable `ManaHeal`". That was wrong, and the per-effect level gating
+    // added afterwards proves it: its `ManaHeal` is
+    // `fromSubLevel="2001" toSubLevel="2020"` — an **enchant-route** effect,
+    // and this port has no enchanted skills. So `ManaHeal` has *zero*
+    // reachable learnable skills here, and the slice's real reach was 6, not 7.
     let mortal = skills.get(410, 1).unwrap();
-    assert!(mortal.effects.iter().any(|e| matches!(e, SkillEffect::ManaHeal { .. })), "Mortal Strike restores MP");
+    assert!(
+        !mortal.effects.iter().any(|e| matches!(e, SkillEffect::ManaHeal { .. })),
+        "Mortal Strike's ManaHeal is enchant-only and must not apply: {:?}",
+        mortal.effects
+    );
     assert!(
         mortal.effects.iter().any(|e| matches!(e, SkillEffect::StatModifier(m) if m.stat == Stat::BlowRate)),
-        "and keeps the FatalBlowRate it already had"
+        "but its ungated FatalBlowRate is untouched"
     );
 }
 

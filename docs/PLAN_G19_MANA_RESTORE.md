@@ -13,11 +13,11 @@ pair, differing only in how they compute the amount.
 |---|---|---|
 | `ManaHealByLevel` | 3 | Recharge 1013, Servitor Recharge 1126, Mass Recharge 1428 |
 | `Mp` | 2 | Pain of Sagittarius 417, Body To Mind 1157 |
-| `ManaHeal` | 1 | Mortal Strike 410 |
+| `ManaHeal` | ~~1~~ **0** | ~~Mortal Strike 410~~ — see correction below |
 | `ManaCharge` | 1 | Higher Mana Gain 285 (the stat the above read) |
 | `ManaHealPercent` | 0 | 46 item/potion skills |
 
-**7 learnable skills** — more than any single tied entry — and it closes the
+**6 learnable skills** (see the correction below) — more than any single tied entry — and it closes the
 `TODO(G19)` the `MagicalAttackMp` slice left behind on `isMpBlocked`.
 
 **Recharge 1013, Servitor Recharge 1126 and Mass Recharge 1428 each carry only
@@ -104,3 +104,19 @@ Two things checked rather than assumed:
 - **`MAX_RECOVERABLE_MP`** — no skill grants it on this dist.
 - The rest of the tied-at-3 cluster: `TriggerSkillByAttack`, `ReflectSkill`,
   `BlockMove`, `TwoHandedBluntBonus`, `Confuse`.
+
+## Correction (added by the effect-level-gating slice)
+
+This plan counted Mortal Strike 410 as "the one learnable `ManaHeal`" and the
+cluster as 7 learnable skills. Both were wrong.
+
+Mortal Strike's `ManaHeal` is declared
+`fromLevel="7" toLevel="8" fromSubLevel="2001" toSubLevel="2020"` — an
+**enchant-route** effect. This port has no enchanted skills, so it never
+applies, and `ManaHeal` in fact has **zero** reachable learnable skills on this
+dist. The cluster's real reach is **6**.
+
+The error was invisible until the next slice taught the parser to honour
+`fromLevel`/`toLevel`/`subLevel` on effect elements; the regression it caused
+in `the_rest_of_the_family_parses` is what surfaced it. The effect itself is
+still correctly ported — it is simply reached only by item/NPC skills here.

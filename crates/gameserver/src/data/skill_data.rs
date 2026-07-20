@@ -174,6 +174,20 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<(i32, i32), Skill>) {
     parse_str(&content, out);
 }
 
+/// The level-range attributes on an `<effect>` element, with Java's defaulting:
+/// `level` supplies the default for both `fromLevel` and `toLevel`, and
+/// `subLevel` for both sub-level bounds.
+fn effect_level_attrs(e: &quick_xml::events::BytesStart) -> (Option<i32>, Option<i32>, Option<i32>, Option<i32>) {
+    let level = attr_i32(e, b"level");
+    let sub_level = attr_i32(e, b"subLevel");
+    (
+        attr_i32(e, b"fromLevel").or(level),
+        attr_i32(e, b"toLevel").or(level),
+        attr_i32(e, b"fromSubLevel").or(sub_level),
+        attr_i32(e, b"toSubLevel").or(sub_level),
+    )
+}
+
 fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
     let mut reader = Reader::from_str(content);
 
@@ -188,7 +202,9 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
     // Effects collected for the current skill: (xml name, per-level params
     // keyed by param name — `amount` for stat modifiers, `power` for the
     // instant damage/heal handlers —, mode, RestorationRandom groups).
-    let mut effects: Vec<(String, LeveledValues, String, Vec<RestorationGroup>, u8, u32)> = Vec::new();
+    let mut effects: Vec<ParsedEffect> = Vec::new();
+    // The current `<effect>`'s level-range attributes (Java `NamedParamInfo`).
+    let mut cur_effect_levels: (Option<i32>, Option<i32>, Option<i32>, Option<i32>) = (None, None, None, None);
     let mut in_effects = false;
     let mut in_conditions = false;
     let mut cur_effect_name: Option<String> = None;
@@ -239,7 +255,19 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                     // otherwise the effect is silently dropped and the skill
                     // becomes a no-op.
                     if let Some(effect_name) = attr_str(&e, b"name") {
-                        effects.push((effect_name, HashMap::new(), String::from("DIFF"), Vec::new(), 0, 0));
+                        let (from_level, to_level, from_sub_level, to_sub_level) = effect_level_attrs(&e);
+                        effects.push(ParsedEffect {
+                            name: effect_name,
+                            params: HashMap::new(),
+                            mode: String::from("DIFF"),
+                            groups: Vec::new(),
+                            armor_condition: 0,
+                            weapon_condition: 0,
+                            from_level,
+                            to_level,
+                            from_sub_level,
+                            to_sub_level,
+                        });
                     }
                 }
             }
@@ -271,6 +299,7 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                     pending_level = attr_i32(&e, b"level").unwrap_or(0);
                 } else if path.len() == 2 && in_effects && name == "effect" {
                     cur_effect_name = attr_str(&e, b"name");
+                    cur_effect_levels = effect_level_attrs(&e);
                     cur_effect_params = HashMap::new();
                     cur_effect_mode = String::from("DIFF");
                     cur_effect_armor = 0;
@@ -352,7 +381,18 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                         .push(RestorationGroup { chance: cur_group_chance, items: std::mem::take(&mut cur_group_items) });
                 } else if closed == "effect" && in_effects {
                     if let Some(name) = cur_effect_name.take() {
-                        effects.push((name, cur_effect_params.clone(), cur_effect_mode.clone(), std::mem::take(&mut cur_restoration_groups), cur_effect_armor, cur_effect_weapon));
+                        effects.push(ParsedEffect {
+                            name,
+                            params: cur_effect_params.clone(),
+                            mode: cur_effect_mode.clone(),
+                            groups: std::mem::take(&mut cur_restoration_groups),
+                            armor_condition: cur_effect_armor,
+                            weapon_condition: cur_effect_weapon,
+                            from_level: cur_effect_levels.0,
+                            to_level: cur_effect_levels.1,
+                            from_sub_level: cur_effect_levels.2,
+                            to_sub_level: cur_effect_levels.3,
+                        });
                     }
                 }
             }
@@ -363,12 +403,66 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
     }
 }
 
+/// One `<effect>` element as parsed, before it is resolved into a per-level
+/// [`Skill`]. Java's `SkillData.NamedParamInfo`.
+struct ParsedEffect {
+    name: String,
+    params: LeveledValues,
+    mode: String,
+    groups: Vec<RestorationGroup>,
+    armor_condition: u8,
+    weapon_condition: u32,
+    /// `fromLevel`/`toLevel`, with the `level` attribute as the default for
+    /// **both** (Java: `parseInteger(attributes, "fromLevel", level)`), so
+    /// `level="3"` means exactly level 3.
+    from_level: Option<i32>,
+    to_level: Option<i32>,
+    /// `fromSubLevel`/`toSubLevel`, likewise defaulting from `subLevel`.
+    /// Sub-levels are the **skill-enchant** routes (1001+/2001+); this port has
+    /// no enchanted skills, so a sub-level always reads as 0 and any effect
+    /// gated on a positive range never applies — see [`Self::applies_at`].
+    from_sub_level: Option<i32>,
+    to_sub_level: Option<i32>,
+}
+
+impl ParsedEffect {
+    /// Java `SkillData.forEachNamedParamInfoParam`'s gate:
+    ///
+    /// ```java
+    /// ((fromLevel == null && toLevel == null) || (fromLevel <= level && toLevel >= level))
+    ///   && ((fromSubLevel == null && toSubLevel == null) || (fromSubLevel <= subLevel && toSubLevel >= subLevel))
+    /// ```
+    ///
+    /// An effect with no level attributes applies at every level — which is
+    /// what the parser previously assumed for *all* effects, so the 775
+    /// level-gated elements in this datapack were applying outside their
+    /// range. Frenzy 176's `PAtk`/`CriticalRate` (`fromLevel="6" toLevel="9"`)
+    /// were live at levels 1-5, for instance.
+    ///
+    /// `sub_level` is fixed at 0 here: skill enchanting isn't modelled, so the
+    /// sub-level clause rejects every effect that names a range (all of which
+    /// start at 1001 or 2001) — matching what Java would do for an unenchanted
+    /// skill.
+    fn applies_at(&self, level: i32) -> bool {
+        const SUB_LEVEL: i32 = 0;
+        let level_ok = match (self.from_level, self.to_level) {
+            (None, None) => true,
+            (from, to) => from.is_none_or(|f| f <= level) && to.is_none_or(|t| t >= level),
+        };
+        let sub_ok = match (self.from_sub_level, self.to_sub_level) {
+            (None, None) => true,
+            (from, to) => from.is_none_or(|f| f <= SUB_LEVEL) && to.is_none_or(|t| t >= SUB_LEVEL),
+        };
+        level_ok && sub_ok
+    }
+}
+
 fn finalize_skill(
     id: i32,
     name: &str,
     to_level: i32,
     values: &LeveledValues,
-    effects: &[(String, LeveledValues, String, Vec<RestorationGroup>, u8, u32)],
+    effects: &[ParsedEffect],
     out: &mut HashMap<(i32, i32), Skill>,
 ) {
     if id < 0 {
@@ -414,8 +508,8 @@ fn finalize_skill(
         // damage effect in practice, so hoisting "any effect declares it" to the
         // skill is behaviourally identical and avoids threading the flag
         // through every `SkillEffect` variant.
-        let over_hit = effects.iter().any(|(_, params, ..)| {
-            value_at(params, "overHit", level).is_some_and(|v| v.trim().eq_ignore_ascii_case("true"))
+        let over_hit = effects.iter().filter(|e| e.applies_at(level)).any(|e| {
+            value_at(&e.params, "overHit", level).is_some_and(|v| v.trim().eq_ignore_ascii_case("true"))
         });
         let toggle_group_id = get_i("toggleGroupId", 0);
         // `affectScope` defaults to SINGLE when absent (Java's Skill ctor).
@@ -448,7 +542,12 @@ fn finalize_skill(
 
         let skill_effects = effects
             .iter()
-            .flat_map(|(xml_name, params, mode, groups, armor_condition, weapon_condition)| {
+            // Java `forEachNamedParamInfoParam`: an effect whose declared level
+            // range excludes this level is simply not part of the skill here.
+            .filter(|e| e.applies_at(level))
+            .flat_map(|e| {
+                let (xml_name, params, mode, groups, armor_condition, weapon_condition) =
+                    (&e.name, &e.params, &e.mode, &e.groups, &e.armor_condition, &e.weapon_condition);
                 let param = |key: &str| -> Option<f64> { value_at(params, key, level).and_then(|v| v.parse().ok()) };
                 let modifier_mode = if mode == "PER" { StatModifierType::Per } else { StatModifierType::Diff };
                 let stat_mod = |stat: Stat, amount: f64| {

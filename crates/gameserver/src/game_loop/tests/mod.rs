@@ -54,6 +54,7 @@ mod move_type_tests;
 mod movement_tests;
 mod boss_respawn_tests;
 mod damage_swamp_tests;
+mod effect_level_tests;
 mod effect_zone_tests;
 mod guard_aggro_tests;
 mod minion_tests;
