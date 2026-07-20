@@ -5,6 +5,7 @@
 
 pub mod castle;
 pub mod clan;
+pub mod clan_entry;
 pub mod components;
 pub mod cursed_weapon;
 pub mod door;
@@ -227,6 +228,22 @@ pub struct Player {
     /// `characters.clan_join_expiry_time` — the 1-day rejoin penalty after
     /// leaving/being ousted from a clan (`Player.getClanJoinExpiryTime`).
     pub clan_join_expiry_time: i64,
+    /// Java `Player._powerGrade` — the clan rank (1 leader … 9 academy);
+    /// fixed up at enter-world (leader → 1, unset → 5) alongside `clan_privs`.
+    pub power_grade: i32,
+    /// Java `Player.getAllyId()` (via the clan) — denormalized here so the
+    /// store-only UserInfo/CharInfo builders can write it; synced at
+    /// enter-world and on every ally change.
+    pub ally_id: i32,
+    /// Java `Player._pledgeType` — 0 main pledge, -1 academy, 100/200 royal
+    /// guard, 1001/1002/2001/2002 knight order. Drives `pledge_class_of` and
+    /// the sub-pledge member caps.
+    pub pledge_type: i32,
+    /// Java `clan.getCrestId()`/`getAllyCrestId()`, denormalized like
+    /// `ally_id` so the store-only UserInfo/CharInfo builders can write them;
+    /// synced at enter-world and whenever a crest changes.
+    pub clan_crest_id: i32,
+    pub ally_crest_id: i32,
 
     pub face: i32,
     pub hair_style: i32,
@@ -777,6 +794,11 @@ impl Player {
             pledge_class: 0,    // recomputed with clan_leader from World.clans
             clan_create_expiry_time: c.clan_create_expiry_time,
             clan_join_expiry_time: c.clan_join_expiry_time,
+            power_grade: c.power_grade,
+            ally_id: 0, // synced from the clan at enter-world
+            pledge_type: c.pledge_type,
+            clan_crest_id: 0, // synced from the clan at enter-world
+            ally_crest_id: 0, // synced from the clan at enter-world
             face: c.face,
             hair_style: c.hair_style,
             hair_color: c.hair_color,

@@ -124,9 +124,9 @@ pub fn char_info(v: &crate::model::PlayerView, visuals: &[i16]) -> Vec<u8> {
     w.write_i32(p.face);
     w.write_string(&p.title);
     w.write_i32(p.clan_id);
-    w.write_i32(0); // clan crest id
-    w.write_i32(0); // ally id
-    w.write_i32(0); // ally crest id
+    w.write_i32(p.clan_crest_id);
+    w.write_i32(p.ally_id);
+    w.write_i32(p.ally_crest_id);
     w.write_u8(1); // !isSitting — standing
     w.write_u8(speeds.running as u8);
     w.write_u8(0); // in combat

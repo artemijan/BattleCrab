@@ -79,6 +79,20 @@ pub mod opcodes {
     pub const REQUEST_WITHDRAWAL_PLEDGE: u8 = 0x28;
     pub const REQUEST_OUST_PLEDGE_MEMBER: u8 = 0x29;
     pub const REQUEST_PLEDGE_INFO: u8 = 0x65;
+    pub const REQUEST_PLEDGE_POWER: u8 = 0xCC;
+    pub const REQUEST_START_PLEDGE_WAR: u8 = 0x03;
+    pub const REQUEST_ALLY_INFO: u8 = 0x2E;
+    pub const REQUEST_SET_PLEDGE_CREST: u8 = 0x09;
+    pub const REQUEST_PLEDGE_CREST: u8 = 0x67;
+    pub const REQUEST_JOIN_ALLY: u8 = 0x8C;
+    pub const REQUEST_ANSWER_JOIN_ALLY: u8 = 0x8D;
+    pub const ALLY_LEAVE: u8 = 0x8E;
+    pub const ALLY_DISMISS: u8 = 0x8F;
+    pub const REQUEST_DISMISS_ALLY: u8 = 0x90;
+    pub const REQUEST_SET_ALLY_CREST: u8 = 0x91;
+    pub const REQUEST_ALLY_CREST: u8 = 0x92;
+    pub const REQUEST_STOP_PLEDGE_WAR: u8 = 0x05;
+    pub const REQUEST_SURRENDER_PLEDGE_WAR: u8 = 0x07;
     pub const REQUEST_BUY_ITEM: u8 = 0x40;
     pub const REQUEST_JOIN_PARTY: u8 = 0x42;
     pub const REQUEST_ANSWER_JOIN_PARTY: u8 = 0x43;
@@ -171,17 +185,30 @@ pub mod ex_opcodes {
     /// summary; the waiting/apply ones are empty-bodied status polls, and
     /// `RequestPledgeRecruitBoardSearch` (`clanLevel`, `karma`, `type`,
     /// `query:string`, `sort`, `descending`, `page`, `applicationType`) is the
-    /// recruit-board tab's filter search, and
-    /// `RequestPledgeDraftListSearch` (`levelMin`, `levelMax`, `classId`,
-    /// `query:string`, `sortBy`, `descending`) filters the waiting list of
-    /// clanless players. The rest of the `RequestPledgeRecruit*` family
-    /// (board access/detail, waiting list management) is the G18
-    /// `ClanEntryManager` port.
+    /// recruit-board tab's filter search. The rest of the
+    /// `RequestPledgeRecruit*` family (board access/detail, waiting
+    /// list management, draft list) is the G18 `ClanEntryManager` port.
+    pub const REQUEST_PLEDGE_POWER_GRADE_LIST: u16 = 0x13;
+    pub const REQUEST_PLEDGE_MEMBER_POWER_INFO: u16 = 0x14;
+    pub const REQUEST_PLEDGE_SET_MEMBER_POWER_GRADE: u16 = 0x15;
+    pub const REQUEST_PLEDGE_MEMBER_INFO: u16 = 0x16;
+    pub const REQUEST_PLEDGE_REORGANIZE_MEMBER: u16 = 0x2C;
+    pub const REQUEST_PLEDGE_WAR_LIST: u16 = 0x17;
+    pub const REQUEST_EX_PLEDGE_CREST_LARGE: u16 = 0x10;
+    pub const REQUEST_EX_SET_PLEDGE_CREST_LARGE: u16 = 0x11;
     pub const REQUEST_PLEDGE_RECRUIT_INFO: u16 = 0xD3;
     pub const REQUEST_PLEDGE_RECRUIT_BOARD_SEARCH: u16 = 0xD4;
     pub const REQUEST_PLEDGE_WAITING_APPLIED: u16 = 0xD8;
-    pub const REQUEST_PLEDGE_DRAFT_LIST_SEARCH: u16 = 0xDC;
     pub const REQUEST_PLEDGE_RECRUIT_APPLY_INFO: u16 = 0xDE;
+    pub const REQUEST_PLEDGE_RECRUIT_BOARD_ACCESS: u16 = 0xD5;
+    pub const REQUEST_PLEDGE_RECRUIT_BOARD_DETAIL: u16 = 0xD6;
+    pub const REQUEST_PLEDGE_WAITING_APPLY: u16 = 0xD7;
+    pub const REQUEST_PLEDGE_WAITING_LIST: u16 = 0xD9;
+    pub const REQUEST_PLEDGE_WAITING_USER: u16 = 0xDA;
+    pub const REQUEST_PLEDGE_WAITING_USER_ACCEPT: u16 = 0xDB;
+    pub const REQUEST_PLEDGE_DRAFT_LIST_SEARCH: u16 = 0xDC;
+    pub const REQUEST_PLEDGE_DRAFT_LIST_APPLY: u16 = 0xDD;
+    pub const REQUEST_PLEDGE_SIGN_IN_FOR_OPEN_JOINING_METHOD: u16 = 0x111;
 }
 
 /// Split an extended-packet body (after the `0xD0` opcode) into its 2-byte LE

@@ -173,6 +173,31 @@ pub struct World {
     /// Every clan, keyed by clan id (Java `ClanTable._clans`). Loaded once
     /// at boot (`DbEvent::ClansLoaded`); `create_clan` inserts.
     pub clans: HashMap<i32, crate::model::clan::Clan>,
+    /// Live clan wars (Java: the shared `ClanWar` objects both clans map in
+    /// `_atWarWith`; here one flat list, looked up by either side's id).
+    /// Loaded from `clan_wars` at boot, mutated by `game_loop/clans.rs`.
+    pub clan_wars: Vec<crate::model::clan::ClanWar>,
+    /// Java `CrestTable._crests` — every stored crest bitmap, keyed by id.
+    /// Loaded from `crests` at boot, mutated by `game_loop/clans.rs`.
+    pub crests: HashMap<i32, crate::model::clan::Crest>,
+    /// Java `CrestTable._nextId` — the next id `create_crest` allocates.
+    /// Never reused even after the crest is deleted, so a stale client-side
+    /// cache never shows the wrong image for a new crest at the same id.
+    pub next_crest_id: i32,
+    /// Java `ClanEntryManager._waitingList` — clanless players advertising
+    /// themselves, keyed by player id.
+    pub recruit_waiting: HashMap<i32, crate::model::clan_entry::PledgeWaitingInfo>,
+    /// Java `ClanEntryManager._clanList` — clans advertising on the
+    /// recruitment board, keyed by clan id.
+    pub recruit_clans: HashMap<i32, crate::model::clan_entry::PledgeRecruitInfo>,
+    /// Java `ClanEntryManager._applicantList` — pending applications, keyed
+    /// by clan id then applicant player id.
+    pub recruit_applicants: HashMap<i32, HashMap<i32, crate::model::clan_entry::PledgeApplicantInfo>>,
+    /// Java `ClanEntryManager._playerLocked`/`_clanLocked` — the 5-minute
+    /// re-registration cooldown after a cancelled waiting-list/board entry,
+    /// as the tick it expires at.
+    pub recruit_player_lock: HashMap<i32, u64>,
+    pub recruit_clan_lock: HashMap<i32, u64>,
 
     /// Grand-boss spawn/status records, keyed by boss NPC id (Java
     /// `GrandBossManager._storedInfo`/`_bossStatus`). Loaded once at boot
@@ -297,6 +322,14 @@ impl World {
             cfg: crate::config::CombatConfig::default(),
             quests: std::sync::Arc::new(crate::scripts::build_registry()),
             clans: HashMap::new(),
+            clan_wars: Vec::new(),
+            crests: HashMap::new(),
+            next_crest_id: 1,
+            recruit_waiting: HashMap::new(),
+            recruit_clans: HashMap::new(),
+            recruit_applicants: HashMap::new(),
+            recruit_player_lock: HashMap::new(),
+            recruit_clan_lock: HashMap::new(),
             grand_bosses: HashMap::new(),
             cursed_weapons: Vec::new(),
             castles: Vec::new(),

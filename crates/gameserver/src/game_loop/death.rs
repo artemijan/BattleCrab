@@ -1139,6 +1139,11 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     // their inventory on the ground. Runs before the XP penalty, as in Java.
     on_die_drop_item(world, player_oid, killer_oid);
 
+    // Clan-war kill bookkeeping (Java `Player.doDie` → `ClanWar.onKill`):
+    // only outside PVP/siege zones, killer and victim both clanned players.
+    // (Java also runs an AntiFeed check and exempts academy members —
+    // AntiFeedManager unported, academy TODO(G18.6).)
+
     // Death XP penalty — Java skips it entirely when the victim died inside a
     // PVP or siege zone (`!isLucky() && !insidePvpZone && !isOnEvent()`).
     // Arena and siege deaths are free.
@@ -1149,8 +1154,18 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
             f.contains(crate::data::zone_data::ZoneKind::Pvp)
                 || f.contains(crate::data::zone_data::ZoneKind::Siege)
         });
+    if !in_free_death_zone && world.objects.has_component::<crate::model::Player>(&killer_oid) {
+        super::clans::clan_war_on_kill(world, killer_oid, player_oid);
+    }
     if !in_free_death_zone {
-        apply_death_exp_penalty(world, player_oid);
+        // Java `calculateDeathExpPenalty(killer)` quarters the loss when the
+        // killer is a clan-war enemy (`atWarWith`, any war state).
+        let at_war = {
+            let kc = world.objects.get_component::<crate::model::Player>(&killer_oid).map(|p| p.clan_id).unwrap_or(0);
+            let vc = world.objects.get_component::<crate::model::Player>(&player_oid).map(|p| p.clan_id).unwrap_or(0);
+            super::clans::at_war_between(world, kc, vc)
+        };
+        apply_death_exp_penalty_ex(world, player_oid, at_war);
     }
 
     broadcast_including_self(world, player_oid, &server_packets::die(player_oid, true));
@@ -1207,6 +1222,12 @@ fn stop_effects_on_death(world: &mut World, player_oid: i32) {
 /// `Player.calculateDeathExpPenalty` + `PlayableStat.removeExp` (with the
 /// `Delevel`/`DelevelMinimum` clamping) + the SM 539 notice.
 pub(crate) fn apply_death_exp_penalty(world: &mut World, player_oid: i32) {
+    apply_death_exp_penalty_ex(world, player_oid, false);
+}
+
+/// The killer-aware variant: `at_war_with_killer` quarters the loss (Java's
+/// `lostExp /= 4` for a clan-war death).
+pub(crate) fn apply_death_exp_penalty_ex(world: &mut World, player_oid: i32, at_war_with_killer: bool) {
     let (level, exp) = {
         let Some(p) = world.objects.get_component::<crate::model::Player>(&player_oid) else { return };
         (p.level, p.exp)
@@ -1219,6 +1240,9 @@ pub(crate) fn apply_death_exp_penalty(world: &mut World, player_oid: i32) {
         (world.data.experience.exp_for_level(max_level - 1), world.data.experience.exp_for_level(max_level))
     };
     let mut lost = (((hi - lo) as f64) * percent / 100.0).round() as i64;
+    if at_war_with_killer {
+        lost /= 4;
+    }
 
     // `removeExp`'s delevel clamp: without delevel (or at/below the floor)
     // exp can't drop below the current level's threshold.

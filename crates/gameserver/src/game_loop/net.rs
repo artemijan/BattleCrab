@@ -643,9 +643,29 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 tracing::info!("GameLoop: loaded {total} siege guards for {} castles.", by_castle.len());
                 world.siege_guards = by_castle;
             }
-            DbEvent::ClansLoaded { clans } => {
-                tracing::info!("GameLoop: loaded {} clans.", clans.len());
+            DbEvent::ClansLoaded { clans, wars, crests, recruit_clans, recruit_waiting, recruit_applicants } => {
+                tracing::info!(
+                    "GameLoop: loaded {} clans, {} clan wars, {} crests, {} recruiting clans, \
+                     {} waiting players, {} applications.",
+                    clans.len(),
+                    wars.len(),
+                    crests.len(),
+                    recruit_clans.len(),
+                    recruit_waiting.len(),
+                    recruit_applicants.iter().len()
+                );
                 world.clans = clans.into_iter().map(|c| (c.id, c)).collect();
+                world.clan_wars = wars;
+                world.next_crest_id = crests.iter().map(|c| c.id + 1).max().unwrap_or(1);
+                world.crests = crests.into_iter().map(|c| (c.id, c)).collect();
+                // `ClanEntryManager.load`: drop recruiting entries for clans
+                // that no longer exist.
+                world.recruit_clans = recruit_clans.into_iter().filter(|r| world.clans.contains_key(&r.clan_id)).map(|r| (r.clan_id, r)).collect();
+                world.recruit_waiting = recruit_waiting.into_iter().map(|w| (w.player_id, w)).collect();
+                for a in recruit_applicants {
+                    world.recruit_applicants.entry(a.clan_id).or_default().insert(a.player_id, a);
+                }
+                super::clans::rearm_clan_wars_at_boot(world);
                 // Re-arm pending dissolutions (Java `ClanTable`'s constructor:
                 // past-due stamps fire immediately).
                 let pending: Vec<(i32, i64)> = world

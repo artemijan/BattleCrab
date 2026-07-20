@@ -178,6 +178,28 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_OUST_PLEDGE_MEMBER => {
             super::clans::handle_request_oust_pledge_member(world, client_id, body)
         }
+        cop::REQUEST_PLEDGE_POWER => super::clans::handle_request_pledge_power(world, client_id, body),
+        cop::REQUEST_START_PLEDGE_WAR => {
+            super::clans::handle_request_start_pledge_war(world, client_id, body)
+        }
+        cop::REQUEST_STOP_PLEDGE_WAR => {
+            super::clans::handle_request_stop_pledge_war(world, client_id, body)
+        }
+        cop::REQUEST_SURRENDER_PLEDGE_WAR => {
+            super::clans::handle_request_surrender_pledge_war(world, client_id, body)
+        }
+        cop::REQUEST_ALLY_INFO => super::clans::handle_request_ally_info(world, client_id),
+        cop::REQUEST_SET_PLEDGE_CREST => super::clans::handle_request_set_pledge_crest(world, client_id, body),
+        cop::REQUEST_PLEDGE_CREST => super::clans::handle_request_pledge_crest(world, client_id, body),
+        cop::REQUEST_SET_ALLY_CREST => super::clans::handle_request_set_ally_crest(world, client_id, body),
+        cop::REQUEST_ALLY_CREST => super::clans::handle_request_ally_crest(world, client_id, body),
+        cop::REQUEST_JOIN_ALLY => super::clans::handle_request_join_ally(world, client_id, body),
+        cop::REQUEST_ANSWER_JOIN_ALLY => {
+            super::clans::handle_request_answer_join_ally(world, client_id, body)
+        }
+        cop::ALLY_LEAVE => super::clans::handle_ally_leave(world, client_id),
+        cop::ALLY_DISMISS => super::clans::handle_ally_dismiss(world, client_id, body),
+        cop::REQUEST_DISMISS_ALLY => super::clans::handle_request_dismiss_ally(world, client_id),
         cop::REQUEST_JOIN_PARTY => handle_request_join_party(world, client_id, body),
         cop::REQUEST_ANSWER_JOIN_PARTY => handle_request_answer_join_party(world, client_id, body),
         cop::REQUEST_WITH_DRAWAL_PARTY => handle_request_withdrawal_party(world, client_id),
@@ -374,23 +396,73 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             handle_answer_party_loot_modification(world, client_id, ex_body)
         }
         exop::REQUEST_VOTE_NEW => super::reco::handle_request_vote_new(world, client_id, ex_body),
-        // Clan entry (recruitment) queries fired when the clan window opens.
+        // Clan ranks & power grades (G18 slice 3).
+        exop::REQUEST_PLEDGE_POWER_GRADE_LIST => {
+            super::clans::handle_request_pledge_power_grade_list(world, client_id)
+        }
+        exop::REQUEST_PLEDGE_MEMBER_POWER_INFO => {
+            super::clans::handle_request_pledge_member_power_info(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_SET_MEMBER_POWER_GRADE => {
+            super::clans::handle_request_pledge_set_member_power_grade(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_MEMBER_INFO => {
+            super::clans::handle_request_pledge_member_info(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_REORGANIZE_MEMBER => {
+            super::clans::handle_request_pledge_reorganize_member(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_WAR_LIST => {
+            super::clans::handle_request_pledge_war_list(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_PLEDGE_CREST_LARGE => {
+            super::clans::handle_request_ex_pledge_crest_large(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_SET_PLEDGE_CREST_LARGE => {
+            super::clans::handle_request_ex_set_pledge_crest_large(world, client_id, ex_body)
+        }
+        // Clan recruitment registry (G18 slice 8): the board (browse/search/
+        // register/detail), the applicant queue (view/accept/reject), the
+        // global waiting list (browse/register), and open-joining sign-in.
         exop::REQUEST_PLEDGE_RECRUIT_INFO => {
             super::clans::handle_request_pledge_recruit_info(world, client_id, ex_body)
         }
         exop::REQUEST_PLEDGE_RECRUIT_BOARD_SEARCH => {
             super::clans::handle_request_pledge_recruit_board_search(world, client_id, ex_body)
         }
+        exop::REQUEST_PLEDGE_RECRUIT_BOARD_ACCESS => {
+            super::clans::handle_request_pledge_recruit_board_access(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_RECRUIT_BOARD_DETAIL => {
+            super::clans::handle_request_pledge_recruit_board_detail(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_WAITING_APPLY => {
+            super::clans::handle_request_pledge_waiting_apply(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_WAITING_LIST => {
+            super::clans::handle_request_pledge_waiting_list(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_WAITING_USER => {
+            super::clans::handle_request_pledge_waiting_user(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_WAITING_USER_ACCEPT => {
+            super::clans::handle_request_pledge_waiting_user_accept(world, client_id, ex_body)
+        }
         exop::REQUEST_PLEDGE_DRAFT_LIST_SEARCH => {
             super::clans::handle_request_pledge_draft_list_search(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_DRAFT_LIST_APPLY => {
+            super::clans::handle_request_pledge_draft_list_apply(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_SIGN_IN_FOR_OPEN_JOINING_METHOD => {
+            super::clans::handle_request_pledge_sign_in_for_open_joining_method(world, client_id, ex_body)
         }
         exop::REQUEST_PLEDGE_RECRUIT_APPLY_INFO => {
             super::clans::handle_request_pledge_recruit_apply_info(world, client_id)
         }
-        // RequestPledgeWaitingApplied: only answered when the clanless player
-        // has an application in ClanEntryManager (`clanId > 0`); the registry
-        // is unported (TODO(G18)), so Java on an empty registry sends nothing.
-        exop::REQUEST_PLEDGE_WAITING_APPLIED => {}
+        exop::REQUEST_PLEDGE_WAITING_APPLIED => {
+            super::clans::handle_request_pledge_waiting_applied(world, client_id)
+        }
         // RequestDispel (IN_GAME): alt+click a buff icon to cancel the buff.
         exop::REQUEST_DISPEL => handle_request_dispel(world, client_id, ex_body),
         exop::REQUEST_GOTO_LOBBY => {

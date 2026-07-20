@@ -41,7 +41,7 @@ out-of-scope list.
 | G15.7 | Crafting & recipes ✅ | Foundations | — | G15 |
 | G16 | Character variables, premium & vitality ✅ | Foundations | `//premium*` `//pccafepoints` `//primepoints` `//set_vitality_level` | — |
 | G17 | Sub-classes, class change & nobless | Progression | `//setnoble` `//setsubclass` (editchar) | G22¹ |
-| G18 | Clans — full 🚧 | Progression | `//clan_*` `//pledge` `//add_clan_skill` | G15 |
+| G18 | Clans — full ✅ | Progression | `//clan_*` `//pledge` `//add_clan_skill` | G15 |
 | G19 | Skills & effects breadth 🚧 | Combat | `//ave_abnormal` `//setteam` `//settargetable` `//para` `//playmovie` … (AdminEffects) | — |
 | G20 | Combat breadth ✅ | Combat | — | G14, G19 |
 | G20.5 | Recommendations | Support | — | G16 |
@@ -380,7 +380,7 @@ fuller `//setclass`, `//setsubclass`.
 `config/MentorCoins.xml` — graduation triggers off class change), per the
 scope gate.
 
-### G18 — Clans (full)
+### G18 — Clans (full) ✅ COMPLETE — see [PROGRESS.md](PROGRESS.md) and [PLAN_G18_CLANS.md](PLAN_G18_CLANS.md) for the full 8-slice breakdown
 Everything past G11's creation slice: invite/join/leave/oust/dissolve; clan
 level-up + reputation; sub-pledges (royal guard / order of knights) + academy;
 clan skills + `PledgeSkillList`; crests (pledge/ally/large); notices; clan

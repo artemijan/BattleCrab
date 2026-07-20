@@ -349,6 +349,12 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::ClanDissolve { clan_id } => {
                 clans::handle_clan_dissolve_task(world, clan_id);
             }
+            ScheduledTask::ClanWarTimeout { attacker, attacked } => {
+                clans::handle_clan_war_timeout(world, attacker, attacked);
+            }
+            ScheduledTask::ClanWarDelete { clan1, clan2 } => {
+                clans::delete_clan_wars(world, clan1, clan2);
+            }
             ScheduledTask::PartyPositionBroadcast { party_id, seq } => {
                 party::handle_position_broadcast(world, party_id, seq);
             }

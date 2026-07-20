@@ -12,7 +12,7 @@ pub fn pledge_show_info_update(clan: &crate::model::clan::Clan) -> Vec<u8> {
     w.write_u8(opcodes::PLEDGE_SHOW_INFO_UPDATE);
     w.write_i32(clan.id);
     w.write_i32(1); // Config.SERVER_ID
-    w.write_i32(0); // crest id
+    w.write_i32(clan.crest_id);
     w.write_i32(clan.level);
     w.write_i32(0); // castle id
     w.write_i32(0); // castle state
@@ -22,9 +22,9 @@ pub fn pledge_show_info_update(clan: &crate::model::clan::Clan) -> Vec<u8> {
     w.write_i32(clan.reputation_score); // reputation score
     w.write_i32(0);
     w.write_i32(0);
-    w.write_i32(0); // ally id
-    w.write_string(""); // ally name
-    w.write_i32(0); // ally crest id
+    w.write_i32(clan.ally_id);
+    w.write_string(&clan.ally_name);
+    w.write_i32(clan.ally_crest_id);
     w.write_i32(0); // at war
     w.write_i32(0);
     w.write_i32(0);
@@ -41,13 +41,16 @@ pub fn pledge_info(clan: &crate::model::clan::Clan) -> Vec<u8> {
     w.write_i32(1); // Config.SERVER_ID
     w.write_i32(clan.id);
     w.write_string(&clan.name);
-    w.write_string(""); // ally name
+    w.write_string(&clan.ally_name);
     w.into_bytes()
 }
 
 /// Port of `serverpackets/PledgeShowMemberListAll` for the main pledge
-/// (`_pledgeId` 0): the full roster with per-member online status resolved
-/// live against the world registry.
+/// (`_pledgeId` 0): the roster of main-pledge members with per-member online
+/// status resolved live against the world registry. Java sends one of these
+/// per pledge tab (main + each sub-unit) filtered to that `_pledgeId` — the
+/// port only ever opens the main-pledge tab, so sub-unit rosters aren't shown
+/// in the clan window yet (TODO(G18.6c): per-tab `PledgeShowMemberListAll`).
 pub fn pledge_show_member_list_all(
     clan: &crate::model::clan::Clan,
     objects: &crate::store::EntityStore,
@@ -60,7 +63,7 @@ pub fn pledge_show_member_list_all(
     w.write_i32(0); // pledge id (main)
     w.write_string(&clan.name);
     w.write_string(clan.leader_name());
-    w.write_i32(0); // crest id
+    w.write_i32(clan.crest_id);
     w.write_i32(clan.level);
     w.write_i32(0); // castle id
     w.write_i32(0);
@@ -70,13 +73,14 @@ pub fn pledge_show_member_list_all(
     w.write_i32(clan.reputation_score); // reputation score
     w.write_i32(0);
     w.write_i32(0);
-    w.write_i32(0); // ally id
-    w.write_string(""); // ally name
-    w.write_i32(0); // ally crest id
+    w.write_i32(clan.ally_id);
+    w.write_string(&clan.ally_name);
+    w.write_i32(clan.ally_crest_id);
     w.write_i32(0); // at war
     w.write_i32(0); // territory castle id
-    w.write_i32(clan.members.len() as i32);
-    for m in &clan.members {
+    let main: Vec<_> = clan.members.iter().filter(|m| m.pledge_type == 0).collect();
+    w.write_i32(main.len() as i32);
+    for m in main {
         let online = objects.has_component::<crate::model::Player>(&m.char_id);
         w.write_string(&m.name);
         w.write_i32(m.level);
@@ -223,7 +227,7 @@ pub fn gm_view_pledge_info(
     w.write_i32(0);
     w.write_string(&clan.name);
     w.write_string(clan.leader_name());
-    w.write_i32(0); // crest id
+    w.write_i32(clan.crest_id);
     w.write_i32(clan.level);
     w.write_i32(0); // castle id
     w.write_i32(0); // hideout id
@@ -233,9 +237,9 @@ pub fn gm_view_pledge_info(
     w.write_i32(0);
     w.write_i32(0);
     w.write_i32(0);
-    w.write_i32(0); // ally id
-    w.write_string(""); // ally name
-    w.write_i32(0); // ally crest id
+    w.write_i32(clan.ally_id);
+    w.write_string(&clan.ally_name);
+    w.write_i32(clan.ally_crest_id);
     w.write_i32(0); // at war
     w.write_i32(0); // T3 unknown
     w.write_i32(clan.members.len() as i32);
@@ -276,41 +280,330 @@ pub fn ex_pledge_recruit_apply_info(status: i32) -> Vec<u8> {
 }
 
 /// Port of `serverpackets/ExPledgeRecruitBoardSearch` (0xFE:0x141) — one page
-/// of the clan recruitment board. Java pages a `PledgeRecruitInfo` list from
-/// `ClanEntryManager` 12 clans at a time; the registry is unported
-/// (TODO(G18): `ClanEntryManager` + the board entry lists), so the board is
-/// always empty — `currentPage` echoed, 0 total pages, 0 clans on the page,
-/// no entries: exactly Java's answer on an empty registry.
-pub fn ex_pledge_recruit_board_search_empty(current_page: i32) -> Vec<u8> {
+/// (`CLAN_PER_PAGE` = 12) of the clan recruitment board. `entries` are
+/// `(clan_id, ally_id, crest_id, ally_crest_id, name, leader_name, level,
+/// member_count, karma, information, application_type, recruit_type)` —
+/// already the caller's sorted/filtered/paginated slice.
+pub fn ex_pledge_recruit_board_search(
+    current_page: i32,
+    total_matching: usize,
+    entries: &[(i32, i32, i32, i32, String, String, i32, i32, i32, String, i32, i32)],
+) -> Vec<u8> {
+    const CLAN_PER_PAGE: usize = 12;
     let mut w = ex(0x141);
     w.write_i32(current_page);
-    w.write_i32(0); // total pages: ceil(0 / 12)
-    w.write_i32(0); // clans on this page
-    w.into_bytes()
-}
-
-/// Port of `serverpackets/ExPledgeDraftListSearch` (0xFE:0x146) — the
-/// draft-list tab's search result: a list of clanless players waiting to be
-/// recruited (`playerId`, `name:string`, `karma`, `classId`, `level` each).
-/// The waiting list lives in `ClanEntryManager`, which is unported
-/// (TODO(G18)), so the count is 0 and no entries follow — exactly Java's
-/// answer on an empty registry.
-pub fn ex_pledge_draft_list_search_empty() -> Vec<u8> {
-    let mut w = ex(0x146);
-    w.write_i32(0); // waiting-list entries
+    w.write_i32(total_matching.div_ceil(CLAN_PER_PAGE) as i32);
+    w.write_i32(entries.len() as i32);
+    for e in entries {
+        w.write_i32(e.0); // clan id
+        w.write_i32(e.1); // ally id
+    }
+    for e in entries {
+        w.write_i32(e.2); // crest id
+        w.write_i32(e.3); // ally crest id
+        w.write_string(&e.4); // clan name
+        w.write_string(&e.5); // leader name
+        w.write_i32(e.6); // level
+        w.write_i32(e.7); // member count
+        w.write_i32(e.8); // karma
+        w.write_string(&e.9); // information
+        w.write_i32(e.10); // application type
+        w.write_i32(e.11); // recruit type
+    }
     w.into_bytes()
 }
 
 /// Port of `serverpackets/ExPledgeRecruitInfo` (0xFE:0x13F) — a clan's
-/// summary for the recruitment UI. Java appends the sub-pledge list
-/// (`getAllSubPledges`); the port has no sub-units yet (G18), so the count
-/// is 0 and no entries follow.
+/// summary for the recruitment UI, with its founded sub-units.
 pub fn ex_pledge_recruit_info(clan: &crate::model::clan::Clan) -> Vec<u8> {
     let mut w = ex(0x13F);
     w.write_string(&clan.name);
     w.write_string(clan.leader_name());
     w.write_i32(clan.level);
     w.write_i32(clan.members.len() as i32);
-    w.write_i32(0); // sub-pledge count
+    w.write_i32(clan.sub_pledges.len() as i32);
+    for sp in clan.sub_pledges.values() {
+        w.write_i32(sp.id);
+        w.write_string(&sp.name);
+    }
     w.into_bytes()
+}
+
+/// Port of `serverpackets/ManagePledgePower` — the rank-privilege editor's
+/// answer: the (possibly just-updated) privilege mask of one rank.
+pub fn manage_pledge_power(rank: i32, action: i32, privs: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::MANAGE_PLEDGE_POWER);
+    w.write_i32(rank);
+    w.write_i32(action);
+    w.write_i32(privs);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgePowerGradeList` — the rank list (rank id +
+/// `party`, the latter always 0 as in Java's `RankPrivs`).
+pub fn pledge_power_grade_list(ranks: &[i32]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_POWER_GRADE_LIST);
+    w.write_i32(ranks.len() as i32);
+    for &rank in ranks {
+        w.write_i32(rank);
+        w.write_i32(0); // party
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeReceivePowerInfo` — one member's rank + the
+/// privilege mask that rank currently holds.
+pub fn pledge_receive_power_info(power_grade: i32, name: &str, privs: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_RECEIVE_POWER_INFO);
+    w.write_i32(power_grade);
+    w.write_string(name);
+    w.write_i32(privs);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeReceiveMemberInfo` — the member-detail pane of
+/// the clan window. Apprentice/sponsor stays empty (TODO(G18.6): academy).
+pub fn pledge_receive_member_info(m: &crate::model::clan::ClanMember, clan_name: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_RECEIVE_MEMBER_INFO);
+    w.write_i32(0); // pledge type (main)
+    w.write_string(&m.name);
+    w.write_string(&m.title);
+    w.write_i32(m.power_grade);
+    w.write_string(clan_name); // main pledge → the clan's own name
+    w.write_string(""); // apprentice/sponsor name
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeReceiveWarList` — the clan window's war tab.
+/// Entries: `(clan_name, state_ordinal, remaining_time, score, kill_to_start)`.
+pub fn pledge_receive_war_list(tab: i32, wars: &[(String, i32, i32, i32, i32)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_RECEIVE_WAR_LIST);
+    w.write_i32(tab);
+    w.write_i32(wars.len() as i32);
+    for (name, state, remaining, score, to_start) in wars {
+        w.write_string(name);
+        w.write_i32(*state);
+        w.write_i32(*remaining);
+        w.write_i32(*score);
+        w.write_i32(0); // recent change in points
+        w.write_i32(*to_start);
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/SurrenderPledgeWar` — the ack sent to the player who
+/// declared defeat.
+pub fn surrender_pledge_war(pledge_name: &str, player_name: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::SURRENDER_PLEDGE_WAR);
+    w.write_string(pledge_name);
+    w.write_string(player_name);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/AskJoinAlly` — the alliance-invite dialog on the
+/// target clan leader's screen (the two null strings match Java's writes).
+pub fn ask_join_ally(requestor_oid: i32, requestor_name: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::ASK_JOIN_ALLIANCE);
+    w.write_i32(requestor_oid);
+    w.write_string(""); // ally name — Java writes null
+    w.write_string(""); // unknown — Java writes null
+    w.write_string(requestor_name);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/AllianceInfo` — the ally window: header (name,
+/// totals, leader clan + player) and one row per member clan
+/// `(name, level, leader_name, total, online)`.
+pub fn alliance_info(
+    ally_name: &str,
+    total: i32,
+    online: i32,
+    leader_clan: &str,
+    leader_player: &str,
+    clans: &[(String, i32, String, i32, i32)],
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::ALLIANCE_INFO);
+    w.write_string(ally_name);
+    w.write_i32(total);
+    w.write_i32(online);
+    w.write_string(leader_clan);
+    w.write_string(leader_player);
+    w.write_i32(clans.len() as i32);
+    for (name, level, leader, c_total, c_online) in clans {
+        w.write_string(name);
+        w.write_i32(0);
+        w.write_i32(*level);
+        w.write_string(leader);
+        w.write_i32(*c_total);
+        w.write_i32(*c_online);
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeReceiveSubPledgeCreated` — announces a newly
+/// founded sub-unit to the clan window.
+pub fn pledge_receive_sub_pledge_created(pledge_id: i32, name: &str, leader_name: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_RECEIVE_SUB_PLEDGE_CREATED);
+    w.write_i32(1);
+    w.write_i32(pledge_id);
+    w.write_string(name);
+    w.write_string(leader_name);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeCrest` — the small clan-crest bitmap answer
+/// to `RequestPledgeCrest`. `data` is `None` for a missing/unset crest.
+pub fn pledge_crest(crest_id: i32, data: Option<&[u8]>) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLEDGE_CREST);
+    w.write_i32(1); // Config.SERVER_ID
+    w.write_i32(crest_id);
+    match data {
+        Some(d) => {
+            w.write_i32(d.len() as i32);
+            w.write_bytes(d);
+        }
+        None => w.write_i32(0),
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/AllyCrest` — the ally-crest bitmap answer to
+/// `RequestAllyCrest`.
+pub fn ally_crest(crest_id: i32, data: Option<&[u8]>) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::ALLIANCE_CREST);
+    w.write_i32(1); // Config.SERVER_ID
+    w.write_i32(crest_id);
+    match data {
+        Some(d) => {
+            w.write_i32(d.len() as i32);
+            w.write_bytes(d);
+        }
+        None => w.write_i32(0),
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExPledgeEmblem` — one 14336-byte chunk of the large
+/// clan-crest bitmap (Java sends up to 5 chunks; on this dist's 2176-byte cap
+/// a large crest always fits in a single chunk, but the loop is kept general).
+pub fn ex_pledge_emblem(clan_id: i32, crest_id: i32, chunk_id: i32, chunk: &[u8]) -> Vec<u8> {
+    const TOTAL_SIZE: i32 = 65_664;
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_EMBLEM);
+    w.write_i32(1); // Config.SERVER_ID
+    w.write_i32(clan_id);
+    w.write_i32(crest_id);
+    w.write_i32(chunk_id);
+    w.write_i32(TOTAL_SIZE);
+    w.write_i32(chunk.len() as i32);
+    w.write_bytes(chunk);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExPledgeRecruitBoardDetail` (0xFE:0x142) — the
+/// full detail pane for one recruiting clan (the board search only carries
+/// the short `information` blurb).
+pub fn ex_pledge_recruit_board_detail(
+    clan_id: i32,
+    karma: i32,
+    information: &str,
+    detailed_information: &str,
+    application_type: i32,
+    recruit_type: i32,
+) -> Vec<u8> {
+    let mut w = ex(opcodes::EX_PLEDGE_RECRUIT_BOARD_DETAIL);
+    w.write_i32(clan_id);
+    w.write_i32(karma);
+    w.write_string(information);
+    w.write_string(detailed_information);
+    w.write_i32(application_type);
+    w.write_i32(recruit_type);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExPledgeWaitingListApplied` (0xFE:0x143) — the
+/// clan + application detail shown to a clanless player checking their own
+/// pending application.
+pub fn ex_pledge_waiting_list_applied(
+    clan_id: i32,
+    clan_name: &str,
+    leader_name: &str,
+    clan_level: i32,
+    member_count: i32,
+    karma: i32,
+    information: &str,
+    applicant_message: &str,
+) -> Vec<u8> {
+    let mut w = ex(opcodes::EX_PLEDGE_WAITING_LIST_APPLIED);
+    w.write_i32(clan_id);
+    w.write_string(clan_name);
+    w.write_string(leader_name);
+    w.write_i32(clan_level);
+    w.write_i32(member_count);
+    w.write_i32(karma);
+    w.write_string(information);
+    w.write_string(applicant_message);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExPledgeWaitingList` (0xFE:0x144) — a clan
+/// leader's applicant queue, `(player_id, name, class_id, level)` rows.
+pub fn ex_pledge_waiting_list(applicants: &[(i32, String, i32, i32)]) -> Vec<u8> {
+    let mut w = ex(opcodes::EX_PLEDGE_WAITING_LIST);
+    w.write_i32(applicants.len() as i32);
+    for a in applicants {
+        w.write_i32(a.0);
+        w.write_string(&a.1);
+        w.write_i32(a.2);
+        w.write_i32(a.3);
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExPledgeWaitingUser` (0xFE:0x145) — one
+/// applicant's detail (their message to the clan).
+pub fn ex_pledge_waiting_user(player_id: i32, message: &str) -> Vec<u8> {
+    let mut w = ex(opcodes::EX_PLEDGE_WAITING_USER);
+    w.write_i32(player_id);
+    w.write_string(message);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExPledgeDraftListSearch` (0xFE:0x146) — the
+/// leader's search of clanless players, `(player_id, name, karma, class_id,
+/// level)` rows.
+pub fn ex_pledge_draft_list_search(rows: &[(i32, String, i32, i32, i32)]) -> Vec<u8> {
+    let mut w = ex(opcodes::EX_PLEDGE_DRAFT_LIST_SEARCH);
+    w.write_i32(rows.len() as i32);
+    for r in rows {
+        w.write_i32(r.0);
+        w.write_string(&r.1);
+        w.write_i32(r.2);
+        w.write_i32(r.3);
+        w.write_i32(r.4);
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExPledgeWaitingListAlarm` (0xFE:0x147) — the
+/// opcode-only ping that tells a clan leader a new application arrived.
+pub fn ex_pledge_waiting_list_alarm() -> Vec<u8> {
+    ex(opcodes::EX_PLEDGE_WAITING_LIST_ALARM).into_bytes()
 }

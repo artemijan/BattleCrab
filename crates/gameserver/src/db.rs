@@ -342,6 +342,82 @@ pub enum DbCommand {
     /// `Player.setClanJoinExpiryTime` persisted alone (invite accepted zeroes
     /// it; `characters.clan_join_expiry_time`).
     UpdateCharClanJoinExpiry { char_id: i32, expiry: i64 },
+    /// `Clan.setRankPrivs` — upsert one `clan_privs` row (party is always 0).
+    SaveClanRankPrivs { clan_id: i32, rank: i32, privs: i32 },
+    /// `ClanMember.updatePowerGrade` — persist a member's rank.
+    UpdateCharPowerGrade { char_id: i32, power_grade: i32 },
+    /// `Clan.setNewLeaderId(id, true)` — the pending delegated leader transfer.
+    UpdateClanNewLeader { clan_id: i32, new_leader_id: i32 },
+    /// `ClanEntryManager.addPlayerApplicationToClan` — upsert one applicant row.
+    UpsertPledgeApplicant { player_id: i32, clan_id: i32, karma: i32, message: String },
+    /// `ClanEntryManager.removePlayerApplication`.
+    DeletePledgeApplicant { player_id: i32, clan_id: i32 },
+    /// `ClanEntryManager.addToWaitingList`.
+    InsertPledgeWaiting { player_id: i32, karma: i32 },
+    /// `ClanEntryManager.removeFromWaitingList`.
+    DeletePledgeWaiting { player_id: i32 },
+    /// `ClanEntryManager.addToClanList`.
+    InsertPledgeRecruit {
+        clan_id: i32,
+        karma: i32,
+        information: String,
+        detailed_information: String,
+        application_type: i32,
+        recruit_type: i32,
+    },
+    /// `ClanEntryManager.updateClanList`.
+    UpdatePledgeRecruit {
+        clan_id: i32,
+        karma: i32,
+        information: String,
+        detailed_information: String,
+        application_type: i32,
+        recruit_type: i32,
+    },
+    /// `ClanEntryManager.removeFromClanList`.
+    DeletePledgeRecruit { clan_id: i32 },
+    /// `CrestTable.createCrest` — insert a new stored bitmap.
+    InsertCrest { id: i32, data: Vec<u8>, kind: i32 },
+    /// `CrestTable.removeCrest` (skipped by the caller when `id` is the most
+    /// recently allocated one — Java never reuses the last id).
+    DeleteCrest { id: i32 },
+    /// `Clan.changeClanCrest` — the small pledge crest column.
+    UpdateClanCrest { clan_id: i32, crest_id: i32 },
+    /// `Clan.changeLargeCrest` — the large pledge crest column.
+    UpdateClanCrestLarge { clan_id: i32, crest_large_id: i32 },
+    /// `Clan.changeAllyCrest(id, onlyThisClan=true)` — one clan's own row
+    /// (a member who just joined/left inherits the leader's crest id this way).
+    UpdateClanAllyCrestSelf { clan_id: i32, ally_crest_id: i32 },
+    /// `Clan.changeAllyCrest(id, onlyThisClan=false)` — every clan in the
+    /// alliance at once (`WHERE ally_id=?`), the leader's own registration path.
+    UpdateAllyCrestForAlliance { ally_id: i32, ally_crest_id: i32 },
+    /// The ally half of `Clan.updateClanInDB` — membership + penalty stamps.
+    UpdateClanAlly { clan_id: i32, ally_id: i32, ally_name: String, penalty_expiry: i64, penalty_type: i32 },
+    /// `Clan.createSubPledge`'s insert — a new academy/royal/knight unit.
+    InsertSubPledge { clan_id: i32, pledge_type: i32, name: String, leader_id: i32 },
+    /// `Clan.updateSubPledgeInDB` — rename and/or leader reassignment.
+    UpdateSubPledge { clan_id: i32, pledge_type: i32, name: String, leader_id: i32 },
+    /// `ClanMember.updatePowerGrade`'s sibling for pledge type — persisted
+    /// whenever a member's sub-unit membership changes (join/reorganize/
+    /// leave-clears-captaincy).
+    UpdateCharPledgeType { char_id: i32, pledge_type: i32 },
+    /// `ClanTable.storeClanWars` — upsert one `clan_wars` row (ids, despite the
+    /// varchar columns — Java binds ints too).
+    SaveClanWar {
+        attacker: i32,
+        attacked: i32,
+        attacker_kills: i32,
+        attacked_kills: i32,
+        winner: i32,
+        start_time: i64,
+        end_time: i64,
+        state: i32,
+    },
+    /// `ClanTable.deleteClanWars` — drop the war row. Java deletes only the
+    /// `(clan1, clan2)` order it was called with (a surrender can miss the row
+    /// until the next boot's cleanup); both orders are deleted here — the same
+    /// eventual outcome without the stale row.
+    DeleteClanWar { clan1: i32, clan2: i32 },
     /// `ClanTable.destroyClan` — delete the `clan_data` row and reset every
     /// member's `characters` clan columns (online *and* offline, since the
     /// memory-first autosave never touches those columns). `leader_id` also gets
@@ -400,7 +476,14 @@ pub enum DbEvent {
     IdBlock { start: i64, end: i64 },
     /// The full clan table (`ClanTable` boot load), pushed unprompted at
     /// boot like the first `IdBlock`.
-    ClansLoaded { clans: Vec<crate::model::clan::Clan> },
+    ClansLoaded {
+        clans: Vec<crate::model::clan::Clan>,
+        wars: Vec<crate::model::clan::ClanWar>,
+        crests: Vec<crate::model::clan::Crest>,
+        recruit_clans: Vec<crate::model::clan_entry::PledgeRecruitInfo>,
+        recruit_waiting: Vec<crate::model::clan_entry::PledgeWaitingInfo>,
+        recruit_applicants: Vec<crate::model::clan_entry::PledgeApplicantInfo>,
+    },
     /// The whole `npc_respawns` table (Java `DBSpawnManager.load`), pushed
     /// unprompted at boot. See [`NpcRespawnRow`].
     NpcRespawnsLoaded { rows: Vec<NpcRespawnRow> },
@@ -515,7 +598,14 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
     let _ = event_tx.send(DbEvent::SiegeGuardsLoaded { guards: load_siege_guards(&pool).await });
 
     // `ClanTable`'s boot restore, likewise unprompted.
-    let _ = event_tx.send(DbEvent::ClansLoaded { clans: load_clans(&pool).await });
+    let _ = event_tx.send(DbEvent::ClansLoaded {
+        clans: load_clans(&pool).await,
+        wars: load_clan_wars(&pool).await,
+        crests: load_crests(&pool).await,
+        recruit_clans: load_recruit_clans(&pool).await,
+        recruit_waiting: load_recruit_waiting(&pool).await,
+        recruit_applicants: load_recruit_applicants(&pool).await,
+    });
 
     while let Some(cmd) = cmd_rx.recv().await {
         match cmd {
@@ -759,6 +849,224 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                     .bind(clan_join_expiry)
                     .bind(clan_create_expiry)
                     .bind(char_id),
+                )
+                .await;
+            }
+            DbCommand::SaveClanRankPrivs { clan_id, rank, privs } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT INTO clan_privs (clan_id, `rank`, party, privs) VALUES (?, ?, 0, ?) \
+                         ON CONFLICT(clan_id, `rank`, party) DO UPDATE SET privs=excluded.privs",
+                    )
+                    .bind(clan_id)
+                    .bind(rank)
+                    .bind(privs),
+                )
+                .await;
+            }
+            DbCommand::UpdateCharPowerGrade { char_id, power_grade } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE characters SET power_grade=? WHERE charId=?")
+                        .bind(power_grade)
+                        .bind(char_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateClanAlly { clan_id, ally_id, ally_name, penalty_expiry, penalty_type } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "UPDATE clan_data SET ally_id=?, ally_name=?, ally_penalty_expiry_time=?, ally_penalty_type=? WHERE clan_id=?",
+                    )
+                    .bind(ally_id)
+                    .bind(ally_name)
+                    .bind(penalty_expiry)
+                    .bind(penalty_type)
+                    .bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::InsertSubPledge { clan_id, pledge_type, name, leader_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT INTO clan_subpledges (clan_id, sub_pledge_id, name, leader_id) VALUES (?, ?, ?, ?)")
+                        .bind(clan_id)
+                        .bind(pledge_type)
+                        .bind(name)
+                        .bind(leader_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateSubPledge { clan_id, pledge_type, name, leader_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_subpledges SET leader_id=?, name=? WHERE clan_id=? AND sub_pledge_id=?")
+                        .bind(leader_id)
+                        .bind(name)
+                        .bind(clan_id)
+                        .bind(pledge_type),
+                )
+                .await;
+            }
+            DbCommand::UpdateCharPledgeType { char_id, pledge_type } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE characters SET subpledge=? WHERE charId=?").bind(pledge_type).bind(char_id),
+                )
+                .await;
+            }
+            DbCommand::InsertCrest { id, data, kind } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT INTO crests (crest_id, data, type) VALUES (?, ?, ?)")
+                        .bind(id)
+                        .bind(data)
+                        .bind(kind),
+                )
+                .await;
+            }
+            DbCommand::DeleteCrest { id } => {
+                exec(&pool, sqlx::query("DELETE FROM crests WHERE crest_id=?").bind(id)).await;
+            }
+            DbCommand::UpdateClanCrest { clan_id, crest_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET crest_id=? WHERE clan_id=?").bind(crest_id).bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateClanCrestLarge { clan_id, crest_large_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET crest_large_id=? WHERE clan_id=?")
+                        .bind(crest_large_id)
+                        .bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateClanAllyCrestSelf { clan_id, ally_crest_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET ally_crest_id=? WHERE clan_id=?")
+                        .bind(ally_crest_id)
+                        .bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateAllyCrestForAlliance { ally_id, ally_crest_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET ally_crest_id=? WHERE ally_id=?")
+                        .bind(ally_crest_id)
+                        .bind(ally_id),
+                )
+                .await;
+            }
+            DbCommand::UpsertPledgeApplicant { player_id, clan_id, karma, message } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT INTO pledge_applicant (charId, clanId, karma, message) VALUES (?, ?, ?, ?) \
+                         ON CONFLICT(charId, clanId) DO UPDATE SET karma=excluded.karma, message=excluded.message",
+                    )
+                    .bind(player_id)
+                    .bind(clan_id)
+                    .bind(karma)
+                    .bind(message),
+                )
+                .await;
+            }
+            DbCommand::DeletePledgeApplicant { player_id, clan_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM pledge_applicant WHERE charId=? AND clanId=?").bind(player_id).bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::InsertPledgeWaiting { player_id, karma } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT INTO pledge_waiting_list (char_id, karma) VALUES (?, ?)").bind(player_id).bind(karma),
+                )
+                .await;
+            }
+            DbCommand::DeletePledgeWaiting { player_id } => {
+                exec(&pool, sqlx::query("DELETE FROM pledge_waiting_list WHERE char_id=?").bind(player_id)).await;
+            }
+            DbCommand::InsertPledgeRecruit { clan_id, karma, information, detailed_information, application_type, recruit_type } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT INTO pledge_recruit (clan_id, karma, information, detailed_information, application_type, recruit_type) \
+                         VALUES (?, ?, ?, ?, ?, ?)",
+                    )
+                    .bind(clan_id)
+                    .bind(karma)
+                    .bind(information)
+                    .bind(detailed_information)
+                    .bind(application_type)
+                    .bind(recruit_type),
+                )
+                .await;
+            }
+            DbCommand::UpdatePledgeRecruit { clan_id, karma, information, detailed_information, application_type, recruit_type } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "UPDATE pledge_recruit SET karma=?, information=?, detailed_information=?, application_type=?, recruit_type=? WHERE clan_id=?",
+                    )
+                    .bind(karma)
+                    .bind(information)
+                    .bind(detailed_information)
+                    .bind(application_type)
+                    .bind(recruit_type)
+                    .bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::DeletePledgeRecruit { clan_id } => {
+                exec(&pool, sqlx::query("DELETE FROM pledge_recruit WHERE clan_id=?").bind(clan_id)).await;
+            }
+            DbCommand::SaveClanWar { attacker, attacked, attacker_kills, attacked_kills, winner, start_time, end_time, state } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT INTO clan_wars (clan1, clan2, clan1Kill, clan2Kill, winnerClan, startTime, endTime, state) \
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?) \
+                         ON CONFLICT(clan1, clan2) DO UPDATE SET clan1Kill=excluded.clan1Kill, \
+                         clan2Kill=excluded.clan2Kill, winnerClan=excluded.winnerClan, \
+                         startTime=excluded.startTime, endTime=excluded.endTime, state=excluded.state",
+                    )
+                    .bind(attacker)
+                    .bind(attacked)
+                    .bind(attacker_kills)
+                    .bind(attacked_kills)
+                    .bind(winner)
+                    .bind(start_time)
+                    .bind(end_time)
+                    .bind(state),
+                )
+                .await;
+            }
+            DbCommand::DeleteClanWar { clan1, clan2 } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM clan_wars WHERE (clan1=? AND clan2=?) OR (clan1=? AND clan2=?)")
+                        .bind(clan1)
+                        .bind(clan2)
+                        .bind(clan2)
+                        .bind(clan1),
+                )
+                .await;
+            }
+            DbCommand::UpdateClanNewLeader { clan_id, new_leader_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET new_leader_id=? WHERE clan_id=?")
+                        .bind(new_leader_id)
+                        .bind(clan_id),
                 )
                 .await;
             }
@@ -1133,6 +1441,8 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             clan_privs: geti(row, "clan_privs") as i32,
             clan_create_expiry_time: geti(row, "clan_create_expiry_time"),
             clan_join_expiry_time: geti(row, "clan_join_expiry_time"),
+            power_grade: geti(row, "power_grade") as i32,
+            pledge_type: geti(row, "subpledge") as i32,
             race: geti(row, "race") as i32,
             class_id: geti(row, "classid") as i32,
             base_class_id: geti(row, "base_class") as i32,
@@ -1484,14 +1794,14 @@ async fn load_castles(pool: &SqlitePool) -> Vec<crate::model::castle::Castle> {
 }
 
 async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
-    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, leader_id, char_penalty_expiry_time, dissolving_expiry_time FROM clan_data")
+    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, leader_id, char_penalty_expiry_time, dissolving_expiry_time, new_leader_id, ally_id, ally_name, ally_penalty_expiry_time, ally_penalty_type, crest_id, crest_large_id, ally_crest_id FROM clan_data")
         .fetch_all(pool)
         .await
         .unwrap_or_default();
     let mut out = Vec::with_capacity(clan_rows.len());
     for row in &clan_rows {
         let clan_id = geti(row, "clan_id") as i32;
-        let member_rows = sqlx::query("SELECT charId, char_name, level, classid, sex, race FROM characters WHERE clanid=?")
+        let member_rows = sqlx::query("SELECT charId, char_name, level, classid, sex, race, power_grade, title, subpledge FROM characters WHERE clanid=?")
             .bind(clan_id)
             .fetch_all(pool)
             .await
@@ -1510,6 +1820,30 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             .iter()
             .map(|s| (geti(s, "skill_id") as i32, geti(s, "skill_level") as i32))
             .collect();
+        // Rank → privilege-mask rows (Java `restoreRankPrivs`; rank -1 skipped).
+        let priv_rows = sqlx::query("SELECT `rank`, privs FROM clan_privs WHERE clan_id=?")
+            .bind(clan_id)
+            .fetch_all(pool)
+            .await
+            .unwrap_or_default();
+        let rank_privs = priv_rows
+            .iter()
+            .map(|r| (geti(r, "rank") as i32, geti(r, "privs") as i32))
+            .filter(|&(rank, _)| rank != -1)
+            .collect();
+        // Sub-pledges (Java `Clan.restoreSubPledges`).
+        let sub_rows = sqlx::query("SELECT sub_pledge_id, name, leader_id FROM clan_subpledges WHERE clan_id=?")
+            .bind(clan_id)
+            .fetch_all(pool)
+            .await
+            .unwrap_or_default();
+        let sub_pledges: std::collections::HashMap<i32, crate::model::clan::SubPledge> = sub_rows
+            .iter()
+            .map(|r| {
+                let id = geti(r, "sub_pledge_id") as i32;
+                (id, crate::model::clan::SubPledge { id, name: gets(r, "name"), leader_id: geti(r, "leader_id") as i32 })
+            })
+            .collect();
         out.push(crate::model::clan::Clan {
             id: clan_id,
             name: gets(row, "clan_name"),
@@ -1519,6 +1853,16 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             castle_id: geti(row, "hasCastle") as i32,
             char_penalty_expiry_time: geti(row, "char_penalty_expiry_time"),
             dissolving_expiry_time: geti(row, "dissolving_expiry_time"),
+            rank_privs,
+            new_leader_id: geti(row, "new_leader_id") as i32,
+            sub_pledges,
+            ally_id: geti(row, "ally_id") as i32,
+            ally_name: gets(row, "ally_name"),
+            ally_penalty_expiry_time: geti(row, "ally_penalty_expiry_time"),
+            ally_penalty_type: geti(row, "ally_penalty_type") as i32,
+            crest_id: geti(row, "crest_id") as i32,
+            crest_large_id: geti(row, "crest_large_id") as i32,
+            ally_crest_id: geti(row, "ally_crest_id") as i32,
             skills,
             warehouse: crate::model::inventory::Warehouse::from_rows(&wh_rows),
             members: member_rows
@@ -1530,6 +1874,9 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
                     class_id: geti(m, "classid") as i32,
                     sex: geti(m, "sex") as i32,
                     race: geti(m, "race") as i32,
+                    power_grade: geti(m, "power_grade") as i32,
+                    title: gets(m, "title"),
+                    pledge_type: geti(m, "subpledge") as i32,
                 })
                 .collect(),
         });
@@ -2154,4 +2501,97 @@ fn getf(row: &sqlx::sqlite::SqliteRow, col: &str) -> f64 {
 }
 fn gets(row: &sqlx::sqlite::SqliteRow, col: &str) -> String {
     row.try_get::<String, _>(col).unwrap_or_default()
+}
+
+/// `ClanTable.restoreClanWars` — the `clan_wars` table (ids in the varchar
+/// columns, as Java writes them).
+async fn load_clan_wars(pool: &SqlitePool) -> Vec<crate::model::clan::ClanWar> {
+    let rows = sqlx::query("SELECT clan1, clan2, clan1Kill, clan2Kill, winnerClan, startTime, endTime, state FROM clan_wars")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
+    rows.iter()
+        .map(|r| crate::model::clan::ClanWar {
+            attacker_id: geti(r, "clan1") as i32,
+            attacked_id: geti(r, "clan2") as i32,
+            attacker_kills: geti(r, "clan1Kill") as i32,
+            attacked_kills: geti(r, "clan2Kill") as i32,
+            winner_id: geti(r, "winnerClan") as i32,
+            start_time: geti(r, "startTime"),
+            end_time: geti(r, "endTime"),
+            state: crate::model::clan::ClanWarState::from_i32(geti(r, "state") as i32),
+        })
+        .collect()
+}
+
+/// `CrestTable.load` — every stored crest bitmap (`crests` table).
+async fn load_crests(pool: &SqlitePool) -> Vec<crate::model::clan::Crest> {
+    let rows = sqlx::query("SELECT crest_id, data, type FROM crests").fetch_all(pool).await.unwrap_or_default();
+    rows.iter()
+        .map(|r| crate::model::clan::Crest {
+            id: geti(r, "crest_id") as i32,
+            data: r.try_get::<Vec<u8>, _>("data").unwrap_or_default(),
+            kind: geti(r, "type") as i32,
+        })
+        .collect()
+}
+
+/// `ClanEntryManager.load`'s `pledge_recruit` half (the boot-time removal of
+/// entries for clans that no longer exist is done by the caller, which
+/// already has the loaded clan set).
+async fn load_recruit_clans(pool: &SqlitePool) -> Vec<crate::model::clan_entry::PledgeRecruitInfo> {
+    let rows = sqlx::query("SELECT clan_id, karma, information, detailed_information, application_type, recruit_type FROM pledge_recruit")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
+    rows.iter()
+        .map(|r| crate::model::clan_entry::PledgeRecruitInfo {
+            clan_id: geti(r, "clan_id") as i32,
+            karma: geti(r, "karma") as i32,
+            information: gets(r, "information"),
+            detailed_information: gets(r, "detailed_information"),
+            application_type: geti(r, "application_type") as i32,
+            recruit_type: geti(r, "recruit_type") as i32,
+        })
+        .collect()
+}
+
+/// `ClanEntryManager.load`'s `pledge_waiting_list` half (joined with
+/// `characters` for the display fields, as Java's own query does).
+async fn load_recruit_waiting(pool: &SqlitePool) -> Vec<crate::model::clan_entry::PledgeWaitingInfo> {
+    let rows = sqlx::query(
+        "SELECT a.char_id, a.karma, b.base_class, b.level, b.char_name          FROM pledge_waiting_list AS a LEFT JOIN characters AS b ON a.char_id = b.charId",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    rows.iter()
+        .map(|r| crate::model::clan_entry::PledgeWaitingInfo {
+            player_id: geti(r, "char_id") as i32,
+            level: geti(r, "level") as i32,
+            karma: geti(r, "karma") as i32,
+            class_id: geti(r, "base_class") as i32,
+            name: gets(r, "char_name"),
+        })
+        .collect()
+}
+
+/// `ClanEntryManager.load`'s `pledge_applicant` half.
+async fn load_recruit_applicants(pool: &SqlitePool) -> Vec<crate::model::clan_entry::PledgeApplicantInfo> {
+    let rows = sqlx::query(
+        "SELECT a.charId, a.clanId, a.karma, a.message, b.base_class, b.level, b.char_name          FROM pledge_applicant AS a LEFT JOIN characters AS b ON a.charId = b.charId",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    rows.iter()
+        .map(|r| crate::model::clan_entry::PledgeApplicantInfo {
+            player_id: geti(r, "charId") as i32,
+            name: gets(r, "char_name"),
+            level: geti(r, "level") as i32,
+            karma: geti(r, "karma") as i32,
+            clan_id: geti(r, "clanId") as i32,
+            message: gets(r, "message"),
+        })
+        .collect()
 }

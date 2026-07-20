@@ -71,6 +71,14 @@ pub enum ScheduledTask {
     /// still set (a `recover_clan` zeroes it → no-op). Re-armed at boot from
     /// the persisted stamp.
     ClanDissolve { clan_id: i32 },
+    /// A non-mutual clan war's 7-day answer window elapsed (`ClanWar.
+    /// clanWarTimeout`): if still BLOOD_DECLARATION the war becomes TIE and is
+    /// torn down. Re-armed at boot; a war gone MUTUAL makes this a no-op.
+    ClanWarTimeout { attacker: i32, attacked: i32 },
+    /// The post-end deletion of a finished war's row/memory (Java schedules it
+    /// seconds after cancel/timeout — the 5/21-day retention in the constants
+    /// is dead code in the live Java path, mirrored as-is).
+    ClanWarDelete { clan1: i32, clan2: i32 },
     /// A party/friend invite went unanswered (Java `PartyRequest.
     /// scheduleTimeout` / `_requestExpireTime`): clear the player's
     /// `PendingRequest` if `seq` still matches.
