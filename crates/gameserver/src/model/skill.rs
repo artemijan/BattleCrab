@@ -349,6 +349,31 @@ pub enum SkillEffect {
     /// (abnormal + duration honored).
     /// TODO(G20): reflect `amount`% of received damage in the combat path.
     DamageShield,
+    /// `handlers/effecthandlers/Transformation.java` — polymorph the caster
+    /// into `transformation_id` (Java `TransformData.getTransform`), backing
+    /// the "Transform <Monster>" scroll family (541-558, 617-674: Grail
+    /// Apostle, Unicorn, Doom Wraith, …). Self-target, `abnormalType
+    /// TRANSFORM`, always `<targetType>SELF</targetType>`. Reuses the
+    /// `//transform` admin runtime's state mutation
+    /// ([`crate::game_loop::admin::transforms::apply_transform_state`]) —
+    /// display id, collision, granted transform skills, recomputed speed —
+    /// but not its broadcast, since the buff-landing path in
+    /// `apply_continuous_effects` already sends `UserInfo`/`CharInfo`; only
+    /// the transform-specific self packets (`ExUserInfoAbnormalVisualEffect`
+    /// carrying the display id + refreshed `SkillList`) are added on top via
+    /// [`crate::game_loop::admin::transforms::refresh_transform_visuals`].
+    /// Reverts on `BuffExpire`/dispel/death like any other timed buff, via
+    /// [`crate::game_loop::admin::transforms::remove_transform_state`].
+    ///
+    /// Java's `ConditionPlayerCanTransform` gates the *cast* (refused while
+    /// already transformed, sitting, in water, mounted, alike-dead or
+    /// cursed-weapon-equipped) — ported at the cast-condition check in
+    /// `game_loop::skills::cast` for the already-transformed, in-water and
+    /// cursed-weapon-equipped legs (mounted collapses into "already
+    /// transformed" on this port, since a horse/bike mount is itself a
+    /// transform); TODO(G19): the sitting and registered-on-event legs have
+    /// no modeled state on this port yet.
+    Transform { transformation_id: i32 },
 }
 
 /// Java `EffectFlag` — the abnormal-state bitmask a creature carries while

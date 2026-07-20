@@ -526,6 +526,16 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     broadcast_vitals(world, target_oid);
                 }
             }
+            // `Transformation.instant` — the state mutation half of
+            // `//transform` (display id, collision, granted transform skills,
+            // recomputed speed); no broadcast here, since the buff landing
+            // below sends `UserInfo`/`CharInfo` and the transform-specific
+            // extras (self AVE + SkillList refresh). The cast-time gate in
+            // `skills::cast` already refuses a second transform, so this is
+            // never reached while `transform_id != 0`.
+            SkillEffect::Transform { transformation_id } => {
+                crate::game_loop::admin::transforms::apply_transform_state(world, target_oid, *transformation_id);
+            }
             SkillEffect::ProtectionBlessing => {}
             // DefenceTrait (Mental Shield / Resist Shock) and VampiricAttack
             // (Vampiric Rage): no instant action — they land purely as an
@@ -611,6 +621,9 @@ pub(crate) fn apply_continuous_effects(
     // `BlockAbnormalSlot`'s blocked-type set. Both must survive the
     // empty-effects guard or the buff is dropped whole and never lands.
     let has_state_flag = skill.effect_flags() != 0 || !skill.blocked_abnormals().is_empty();
+    // `Transformation` also carries no stat modifier of its own (the transform
+    // template's stat/speed overrides apply separately) but must still land as
+    // a timed `TRANSFORM` buff — that buff's expiry is what drives the revert.
     let has_iconless_buff = skill.effects.iter().any(|e| {
         matches!(
             e,
@@ -621,6 +634,7 @@ pub(crate) fn apply_continuous_effects(
                 | SkillEffect::MagicMpCost
                 | SkillEffect::Reuse
                 | SkillEffect::DamageShield
+                | SkillEffect::Transform { .. }
         )
     });
     if buff_effects.is_empty() && !has_periodic && !has_iconless_buff && !has_state_flag {
@@ -802,6 +816,15 @@ pub(crate) fn apply_continuous_effects(
         // changed anything, so it sends nothing.
         if !skill.abnormal_visuals.is_empty() {
             refresh_abnormal_visuals(world, target_oid);
+        }
+        // `Transformation` landed: the `UserInfo`/`CharInfo` broadcast above
+        // already carries the new display id, but the client also needs the
+        // self-only `ExUserInfoAbnormalVisualEffect` (transform display id) and
+        // a refreshed `SkillList` for the transform's granted skills to show up
+        // — the two extras `admin::transforms::apply_transform`'s broadcast
+        // sends on top of `broadcast_user_info`.
+        if skill.effects.iter().any(|e| matches!(e, SkillEffect::Transform { .. })) {
+            crate::game_loop::admin::transforms::refresh_transform_visuals(world, target_oid);
         }
     }
 }
@@ -1814,6 +1837,25 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         broadcast_target_buffs(world, player_object_id);
         return;
     }
+    // `Transformation` buffs carry no stat modifier — `remove_buff` below is a
+    // no-op for them — so the revert lives here: drop the display id/collision/
+    // granted skills before the generic removal, and defer the extra self
+    // packets (AVE + SkillList) to piggyback on the `broadcast_user_info` call
+    // a few lines down rather than sending a second `UserInfo`.
+    let skill_level = world
+        .objects
+        .get_component::<Buffs>(&player_object_id)
+        .and_then(|b| b.0.iter().find(|x| x.skill_id == skill_id).map(|x| x.skill_level));
+    let is_transform = skill_level.is_some_and(|lvl| {
+        world
+            .data
+            .skill_data
+            .get(skill_id, lvl)
+            .is_some_and(|s| s.effects.iter().any(|e| matches!(e, SkillEffect::Transform { .. })))
+    });
+    if is_transform {
+        crate::game_loop::admin::transforms::remove_transform_state(world, player_object_id);
+    }
     if let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world
         .objects
         .get_many_mut::<(
@@ -1834,6 +1876,9 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     // Removing the buff reverted its stat contribution — rebroadcast so the
     // client (and nearby players, for speed) see the stats return to normal.
     crate::game_loop::party::broadcast_user_info(world, player_object_id);
+    if is_transform {
+        crate::game_loop::admin::transforms::refresh_transform_visuals(world, player_object_id);
+    }
     if had_visuals {
         refresh_abnormal_visuals(world, player_object_id);
     }

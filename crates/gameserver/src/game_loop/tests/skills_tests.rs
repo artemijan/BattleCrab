@@ -2451,3 +2451,57 @@ fn queued_far_retarget_with_real_datapack_timings() {
     let cast = world.objects.get_component::<Casting>(&3001).expect("cast started after the walk");
     assert_eq!(cast.0.target_object_id, far, "cast aimed at the far monster");
 }
+
+/// G19 `Transformation` effect: casting "Transform Doom Wraith" (618, real
+/// dist data → `transformationId` 2) polymorphs the caster — durable
+/// transform id + display id, the transform template's granted skill (586,
+/// Rolling Attack) in the `SkillBook` — exactly like `//transform` (the admin
+/// runtime `admin_ride_bike_transforms_and_reverts` covers), but reached
+/// through the ordinary cast pipeline instead of the GM command. Re-casting
+/// while transformed is refused (`ConditionPlayerCanTransform`'s
+/// already-polymorphed leg); `handle_buff_expire` on the `TRANSFORM` buff
+/// reverts everything, matching the buff's `BuffExpire`/dispel/death path.
+#[test]
+fn transformation_skill_polymorphs_and_reverts_on_expiry() {
+    let (mut world, ..) = test_world();
+    // The full real datapack, not just `transforms`/`skill_data`: `checkUseConditions`'
+    // MP/HP prechecks need a real class template's hp/mp tables (`for_test`'s
+    // `player_templates` is empty, so a level-1 dummy char would compute 0 max HP).
+    world.data = crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+
+    let mut rx = ingame_player_access(&mut world, 1, 5001, 0);
+    drain(&mut rx);
+    world.objects.get_component_mut::<SkillBook>(&5001).unwrap().0.insert(618, 1);
+    let base_run = world.objects.get_component::<Speeds>(&5001).unwrap().run_spd;
+
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(618, false));
+    advance_world(&mut world, 40); // hitTime 2500 ms + finish, well inside 40 × 100 ms ticks
+
+    {
+        let p = world.objects.get_component::<Player>(&5001).unwrap();
+        assert_eq!(p.transform_id, 2, "transformed into Doom Wraith (transformationId 2)");
+        assert_eq!(p.transform_display_id, 2, "display id == id on this dist");
+    }
+    assert!(world.objects.get_component::<SkillBook>(&5001).unwrap().0.contains_key(&586), "transform's granted skill (Rolling Attack) present");
+    assert_ne!(world.objects.get_component::<Speeds>(&5001).unwrap().run_spd, base_run, "run speed overridden by the transform template");
+    assert_eq!(pbuffs(&world, 5001), 1, "lands as one TRANSFORM buff (drives the expiry-based revert)");
+
+    // Re-casting while transformed is refused (Java's polymorph SystemMessage).
+    drain(&mut rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(618, false));
+    let refused = drain(&mut rx);
+    assert!(
+        has_system_message(&refused, server_packets::sm_ids::YOU_ALREADY_POLYMORPHED_AND_CANNOT_POLYMORPH_AGAIN),
+        "already-polymorphed refusal sent"
+    );
+    assert!(!world.objects.has_component::<Casting>(&5001), "the refused click never starts a cast");
+
+    // Expiry (natural `BuffExpire`, dispel, or death all route through this).
+    crate::game_loop::skills::effects::handle_buff_expire(&mut world, 5001, 618);
+    let p = world.objects.get_component::<Player>(&5001).unwrap();
+    assert_eq!(p.transform_id, 0, "reverted");
+    assert_eq!(p.transform_display_id, 0, "display cleared");
+    assert!(!world.objects.get_component::<SkillBook>(&5001).unwrap().0.contains_key(&586), "transform skill removed");
+    assert_eq!(world.objects.get_component::<Speeds>(&5001).unwrap().run_spd, base_run, "run speed restored");
+    assert_eq!(pbuffs(&world, 5001), 0, "buff cleared");
+}

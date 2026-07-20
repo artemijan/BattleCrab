@@ -762,6 +762,17 @@ fn finalize_skill(
                     // to `EFFECT_REGISTRY`, wasn't found, and the buff was
                     // dropped whole (the skill cast but nothing landed).
                     "NoblesseBless" => vec![SkillEffect::NoblesseBless],
+                    // "Transform <Monster>" scroll family (541-558, 617-674):
+                    // polymorph the caster into `transformationId`. No stat
+                    // modifier of its own — the transform template's own
+                    // stat/speed/skill overrides apply via
+                    // `admin::transforms::apply_transform_state` — so without
+                    // this arm the effect fell through to `EFFECT_REGISTRY`,
+                    // wasn't found, and the buff was dropped whole.
+                    "Transformation" => match param("transformationId") {
+                        Some(id) if id != 0.0 => vec![SkillEffect::Transform { transformation_id: id as i32 }],
+                        _ => Vec::new(),
+                    },
                     // Death Whisper (1242) & co.: Java `CriticalDamage extends
                     // AbstractStatEffect(params, CRITICAL_DAMAGE, CRITICAL_DAMAGE_ADD)`
                     // — a two-stat effect that pumps the multiplicative
