@@ -161,6 +161,8 @@ pub mod sm_ids {
     pub const S1_HP_HAS_BEEN_RESTORED: i16 = 1066;
     pub const S2_HP_HAS_BEEN_RESTORED_BY_C1: i16 = 1067;
     pub const M_CRITICAL: i16 = 1280;
+    /// "You do not have a servitor."
+    pub const YOU_DO_NOT_HAVE_A_SERVITOR: i16 = 2310;
     /// "Resurrection has already been proposed."
     pub const RESURRECTION_HAS_ALREADY_BEEN_PROPOSED: i16 = 1512;
     /// "$s1 MP has been restored." — a self-cast recharge.

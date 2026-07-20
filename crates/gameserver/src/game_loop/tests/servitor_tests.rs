@@ -10,11 +10,21 @@ use super::*;
 use crate::model::components::ServitorOf;
 use crate::model::skill::SkillEffect;
 
-use crate::game_loop::servitor::{servitor_of, summon_servitor, unsummon_servitor};
+use crate::game_loop::servitor::{
+    servitor_attack, servitor_follow_tick, servitor_of, servitor_stop, servitor_toggle_follow, summon_servitor,
+    unsummon_servitor,
+};
 
 const OWNER: i32 = 9901;
 const CID: u32 = 1;
 const PANTHER: i32 = 14799;
+/// A distinct object id for the sparring dummy.
+///
+/// **Not `NPC_OID`.** A servitor is spawned through the runtime allocator,
+/// which starts at `FIRST_NPC_OBJECT_ID` — the very id `NPC_OID` is — so a
+/// fixture NPC placed there silently *replaces* the servitor. Three tests
+/// failed on exactly that before this constant existed.
+const FOE: i32 = NPC_OID + 10;
 const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
 
 fn servitor_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
@@ -182,4 +192,144 @@ fn every_learnable_summon_skill_parses() {
             skill.effects
         );
     }
+}
+
+// ---------------------------------------------------------------------------
+// Follow / attack (slice 2)
+// ---------------------------------------------------------------------------
+
+/// A fresh servitor follows (Java's `getFollowStatus()` defaults true) and
+/// closes the gap when its owner walks away.
+#[test]
+fn an_idle_servitor_trails_its_owner() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    assert!(world.objects.get_component::<ServitorOf>(&oid).unwrap().following, "follows by default");
+
+    // Owner walks well beyond the follow range.
+    world.objects.get_component_mut::<Position>(&OWNER).unwrap().x = 900;
+    servitor_follow_tick(&mut world, oid);
+
+    let m = world.objects.get_component::<crate::model::components::Movement>(&oid);
+    assert!(m.is_some(), "the servitor set off after its owner");
+}
+
+/// Inside the follow range it stays put rather than jittering.
+#[test]
+fn a_servitor_already_close_does_not_move() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+
+    world.objects.get_component_mut::<Position>(&OWNER).unwrap().x = 100; // < FOLLOW_RANGE
+    servitor_follow_tick(&mut world, oid);
+    assert!(
+        world.objects.get_component::<crate::model::components::Movement>(&oid).is_none(),
+        "no pointless walk"
+    );
+}
+
+/// "Hold your ground" stops the following, and toggling again resumes it.
+#[test]
+fn hold_toggles_following() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+
+    assert_eq!(servitor_toggle_follow(&mut world, OWNER), Some(false), "now holding");
+    world.objects.get_component_mut::<Position>(&OWNER).unwrap().x = 900;
+    servitor_follow_tick(&mut world, oid);
+    assert!(
+        world.objects.get_component::<crate::model::components::Movement>(&oid).is_none(),
+        "a holding servitor ignores its owner walking off"
+    );
+
+    assert_eq!(servitor_toggle_follow(&mut world, OWNER), Some(true), "and back to following");
+    servitor_follow_tick(&mut world, oid);
+    assert!(world.objects.get_component::<crate::model::components::Movement>(&oid).is_some());
+}
+
+/// An ordered attack seeds hate on the target and switches the servitor to the
+/// attack intention, which is what the ordinary NPC attack think drives from.
+#[test]
+fn an_ordered_attack_targets_the_owners_target() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 200, 0, 0);
+
+    assert!(servitor_attack(&mut world, OWNER, FOE), "the order was accepted");
+
+    let hate = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&oid)
+        .and_then(|a| a.0.get(&FOE))
+        .map(|i| i.hate)
+        .unwrap_or(0.0);
+    assert!(hate > 0.0, "the target is now hated");
+    assert_eq!(
+        world.objects.get_component::<crate::model::npc::NpcAi>(&oid).unwrap().intention,
+        crate::model::npc::NpcIntention::Attack
+    );
+    assert!(
+        !world.objects.get_component::<ServitorOf>(&oid).unwrap().following,
+        "and it stops trailing, or it would drift home between swings"
+    );
+}
+
+/// Java refuses an order at a target more than 3000 units from the owner and
+/// falls back to following, so a stray click doesn't send the summon across the
+/// map.
+#[test]
+fn a_far_target_is_refused_and_the_servitor_keeps_following() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 9_000, 0, 0);
+
+    assert!(!servitor_attack(&mut world, OWNER, FOE), "refused");
+    assert!(world.objects.get_component::<ServitorOf>(&oid).unwrap().following, "falls back to following");
+    assert_eq!(
+        world.objects.get_component::<crate::model::npc::AggroList>(&oid).map(|a| a.0.len()),
+        Some(0),
+        "and never took the target"
+    );
+}
+
+/// "Stop" clears the target, halts movement and resumes following.
+#[test]
+fn stop_cancels_the_attack_and_resumes_following() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 200, 0, 0);
+    servitor_attack(&mut world, OWNER, FOE);
+
+    assert!(servitor_stop(&mut world, OWNER));
+    assert_eq!(world.objects.get_component::<crate::model::npc::AggroList>(&oid).map(|a| a.0.len()), Some(0));
+    assert_eq!(
+        world.objects.get_component::<crate::model::npc::NpcAi>(&oid).unwrap().intention,
+        crate::model::npc::NpcIntention::Active
+    );
+    assert!(world.objects.get_component::<ServitorOf>(&oid).unwrap().following, "back to trailing its owner");
+}
+
+/// A servitor does **not** hunt on its own — unlike a monster it never seeds
+/// hate from an aggro scan, only from its owner's order.
+#[test]
+fn a_servitor_does_not_pick_its_own_fights() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    // A monster stands right next to it.
+    add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 50, 0, 0);
+
+    advance_world(&mut world, 200);
+
+    assert_eq!(
+        world.objects.get_component::<crate::model::npc::AggroList>(&oid).map(|a| a.0.len()),
+        Some(0),
+        "no unbidden aggro"
+    );
 }
