@@ -405,6 +405,11 @@ pub mod sm_ids {
     // Force/charges (G19): `FocusMomentum`/`GetMomentum`.
     pub const YOUR_FORCE_HAS_INCREASED_TO_LEVEL_S1: i16 = 323;
     pub const YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY: i16 = 324;
+    // Lethal (G19): `Lethal.instant`'s outcome messages.
+    pub const LETHAL_STRIKE: i16 = 1667;
+    pub const HIT_WITH_LETHAL_STRIKE: i16 = 1668;
+    pub const HALF_KILL: i16 = 2336;
+    pub const YOUR_CP_WAS_DRAINED_BECAUSE_YOU_WERE_HIT_WITH_A_HALF_KILL_SKILL: i16 = 2337;
 }
 
 /// One `SystemMessage` parameter (Java `SystemMessage.SMParam`), scoped to the

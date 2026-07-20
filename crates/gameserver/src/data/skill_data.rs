@@ -627,7 +627,8 @@ fn finalize_skill(
                     // Dagger blows (calcBlowDamage). FatalBlow/Backstab roll
                     // `criticalChance` (default 0) to double; SoulBlow doesn't
                     // (its charged-soul boost is unmodeled → ×1). Backstab also
-                    // requires flanking. Their `Lethal` sibling effect drops.
+                    // requires flanking. Their `Lethal` sibling effect is a
+                    // separate `<effect>` block, parsed in its own arm below.
                     "FatalBlow" => vec![SkillEffect::Blow {
                         power: param("power").unwrap_or(0.0),
                         chance_boost: param("chanceBoost").unwrap_or(0.0),
@@ -645,6 +646,17 @@ fn finalize_skill(
                         chance_boost: param("chanceBoost").unwrap_or(0.0),
                         critical_chance: None,
                         backstab: false,
+                    }],
+                    // Backstab (30), Lethal Blow (344), Deadly Blow (263),
+                    // Critical Blow (409), Lethal Shot (343), Turn/Banish
+                    // Undead/Seraph (1400/405/450): without this arm the
+                    // effect fell through to `EFFECT_REGISTRY`, wasn't found,
+                    // and the bonus instant-kill/half-kill chance never
+                    // rolled — only these skills' other (already-ported)
+                    // effect landed.
+                    "Lethal" => vec![SkillEffect::Lethal {
+                        full_lethal: param("fullLethal").unwrap_or(0.0),
+                        half_lethal: param("halfLethal").unwrap_or(0.0),
                     }],
                     // Physical skill damage. `PhysicalSoulAttack` runs the
                     // identical `77·((pAtk·pAtkMod)·levelMod + power)/(pDef·pDefMod)`

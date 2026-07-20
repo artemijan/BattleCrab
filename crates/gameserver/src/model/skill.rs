@@ -245,9 +245,30 @@ pub enum SkillEffect {
     /// (rolls `calcCrit` to double the hit) and `None` for SoulBlow (whose
     /// charged-soul boost is ×1 until charges land). `backstab` requires the
     /// caster to be outside the target's front arc.
-    /// TODO(G20): SoulBlow charged-soul boost; the accompanying `Lethal`
-    /// instant-kill effect is still dropped.
+    /// TODO(G20): SoulBlow charged-soul boost.
     Blow { power: f64, chance_boost: f64, critical_chance: Option<f64>, backstab: bool },
+    /// `handlers/effecthandlers/Lethal.java` — the instant-kill/half-kill
+    /// secondary effect riding alongside `Backstab`/`FatalBlow`/
+    /// `PhysicalAttack` on Backstab (30), Lethal Blow (344), Deadly Blow
+    /// (263), Critical Blow (409), Lethal Shot (343), … — previously dropped
+    /// (the doc-comment TODO on [`SkillEffect::Blow`] above named it), so
+    /// those skills' damage landed but the bonus kill chance never rolled.
+    /// `full_lethal`/`half_lethal` are already 0-100 percentages (unlike
+    /// Java's `AttackTrait` effect, this constructor doesn't `/100` these).
+    /// A landed full-lethal sets HP (and CP, for a player) to 1; a half-kill
+    /// sets a player's CP to 1 or halves a monster's HP. Java's
+    /// `chanceMultiplier` (attribute/general-trait bonus) is 1.0 here — no
+    /// trait/attribute math is modeled anywhere on this port. Raid bosses are
+    /// immune (`isLethalable()`, mirroring the same raid-immunity check
+    /// `Mute`'s cast-interrupt already has); `INSTANT_KILL_RESIST` isn't
+    /// rolled at all — like `MAX_MOMENTUM`, no skill/item/npc in this
+    /// datapack ever sets it, so Java's own roll against it is unconditionally
+    /// lost and would never change the outcome.
+    /// TODO(G19): `isHpBlocked()` (this port's `DamageBlock` gap, same as
+    /// `HealPercent`'s); `calcCounterAttack`'s reflect-on-lethal (no counter
+    /// mechanic modeled yet); grand-boss/door lethal-immunity (only the raid
+    /// case is covered).
+    Lethal { full_lethal: f64, half_lethal: f64 },
     /// `handlers/effecthandlers/HpDrain.java` — magic damage (same
     /// `calcMagicDam` core as `MagicalAttack`) that also heals the caster by
     /// `percentage`% of the HP actually drained (CP absorbs first, clamped to
