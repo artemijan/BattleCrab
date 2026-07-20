@@ -116,8 +116,49 @@ to change. It also buys resumable downloads and per-chunk updates.
 - Free-disk-space check before starting a ~9 GB download.
 - Visual design.
 
-## Build notes
+## Building the Windows binary from macOS
 
-TLS goes through rustls, which pulls `aws-lc-rs` — that needs CMake and NASM on the
-Windows build machine. See the comment in `Cargo.toml` for why the SChannel route is
-currently closed and what the escape hatch is.
+Cross-compiles from an Apple Silicon Mac with no Windows machine involved:
+
+```
+brew install zig                          # once
+cargo install cargo-zigbuild              # once
+rustup target add x86_64-pc-windows-gnu   # once
+
+cargo zigbuild -p launcher --target x86_64-pc-windows-gnu --release
+# -> target/x86_64-pc-windows-gnu/release/launcher.exe
+```
+
+Verified to produce `PE32+ executable (GUI) x86-64` — "GUI" meaning the console is
+correctly suppressed. It has **not** been run on Windows yet; a clean cross-link is
+not proof it works at runtime, particularly for `wgpu` picking a DX12 adapter.
+
+`zig` supplies the C cross-toolchain, which is needed because `zstd-sys` compiles C.
+The `ignoring deprecated linker optimization setting '1'` warning during linking is
+harmless.
+
+The binary is ~27 MB because release builds keep debug symbols. To strip:
+
+```
+RUSTFLAGS="-C strip=symbols" cargo zigbuild -p launcher \
+  --target x86_64-pc-windows-gnu --release
+```
+
+Not set in `[profile.release]` because Cargo profiles are workspace-wide and that
+would change how the game and login servers are built too.
+
+### Why this is possible at all
+
+Only because TLS is `native-tls` (SChannel on Windows) rather than rustls. rustls
+pulls `aws-lc-rs`, which needs CMake and NASM and does not cross-compile easily —
+with it in the tree there is no Windows build from macOS at all. That is also why
+`reqwest` is pinned to 0.12; see the comment in `Cargo.toml`.
+
+Keep the dependency tree free of C code and this keeps working. If something pulls
+in a `-sys` crate, expect to fight the linker.
+
+### The alternative
+
+A GitHub Actions `windows-latest` runner builds natively, which sidesteps
+cross-compilation entirely and can produce release artifacts. Worth adding when the
+launcher starts shipping to players; the local path above is for iterating.

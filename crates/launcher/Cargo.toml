@@ -12,12 +12,15 @@ eframe = "0.35.0"
 egui = "0.35.0"
 hex = "0.4.3"
 image = { version = "0.25.10", default-features = false, features = ["png"] }
-# TLS is rustls, which drags in aws-lc-rs — that needs CMake and NASM on the Windows
-# build machine. SChannel via `native-tls` would avoid both, but reqwest 0.13.4 pins
-# `native-tls ^0.2.16`, which is not published (crates.io stops at 0.2.14), so that
-# route is closed until it is. If the Windows toolchain proves painful, the escape
-# hatch is `rustls-no-provider` plus the `ring` provider installed in main().
-reqwest = { version = "0.13.4", default-features = false, features = ["blocking", "json", "http2", "charset", "rustls"] }
+# Pinned to 0.12, not 0.13, specifically to get `native-tls` — which on Windows is
+# SChannel, the OS's own TLS stack.
+#
+# 0.13's rustls path drags in aws-lc-rs, which needs CMake and NASM to build and so
+# blocks a Windows build entirely, cross-compiled or not. 0.13 cannot use native-tls
+# either: it pins `native-tls ^0.2.16`, unpublished (crates.io stops at 0.2.14). 0.12
+# has no such pin. SChannel also leaves zero C dependencies in the tree, which is
+# what makes cross-compiling from macOS viable at all.
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "http2", "charset", "native-tls"] }
 rfd = "0.17.2"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.151"
