@@ -1236,3 +1236,33 @@ fn pledge_skill_learning_spends_reputation() {
     assert_eq!(world.clans[&5000].skills.get(&370), Some(&2));
     assert_eq!(world.clans[&5000].reputation_score, 5_500);
 }
+
+/// `RequestPledgeDraftListSearch` (ex 0xDC): the draft-list tab always gets
+/// an `ExPledgeDraftListSearch` back — empty until the G18 `ClanEntryManager`
+/// lands (0 waiting-list entries), and a short/malformed packet is dropped
+/// without an answer.
+#[test]
+fn clan_draft_list_search() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain(&mut rx);
+
+    // levelMin=0, levelMax=107, classId=-1, query="", sortBy=1, descending=1
+    // — the clan window's default "show all" draft search.
+    let mut body = Vec::new();
+    body.extend(0i32.to_le_bytes());
+    body.extend(107i32.to_le_bytes());
+    body.extend((-1i32).to_le_bytes());
+    body.extend(0u16.to_le_bytes()); // empty UTF-16 string (terminator only)
+    body.extend(1i32.to_le_bytes());
+    body.extend(1i32.to_le_bytes());
+    super::clans::handle_request_pledge_draft_list_search(&world, 1, &body);
+    let pkts = drain(&mut rx);
+    let list = pkts.iter().find(|p| p[0] == 0xFE && p[1] == 0x46 && p[2] == 0x01).expect("ExPledgeDraftListSearch");
+    let mut r = commons::network::PacketReader::new(&list[3..]);
+    assert_eq!(r.read_i32().unwrap(), 0); // waiting-list entries
+
+    // Truncated packet (missing the sort ints): dropped silently.
+    super::clans::handle_request_pledge_draft_list_search(&world, 1, &body[..body.len() - 8]);
+    assert!(drain(&mut rx).is_empty());
+}

@@ -626,6 +626,31 @@ pub(crate) fn handle_request_pledge_recruit_board_search(
     }
 }
 
+/// `RequestPledgeDraftListSearch` (ex 0xDC): the draft-list tab's filter
+/// search over clanless players waiting to be recruited, answered with
+/// `ExPledgeDraftListSearch`. Java filters/sorts `ClanEntryManager`'s waiting
+/// list (or queries it by name when `query` is non-empty); the registry is
+/// unported (TODO(G18): `ClanEntryManager` + the `RequestPledgeRecruit*`
+/// board/apply family), so both branches yield an empty list — exactly Java's
+/// answer on an empty registry. The full field order is still read so a
+/// malformed packet is dropped like Java's failed `readImpl`.
+pub(crate) fn handle_request_pledge_draft_list_search(
+    world: &World,
+    client_id: u32,
+    ex_body: &[u8],
+) {
+    let mut r = PacketReader::new(ex_body);
+    let Some(_level_min) = r.read_i32() else { return };
+    let Some(_level_max) = r.read_i32() else { return };
+    let Some(_class_id) = r.read_i32() else { return };
+    let Some(_query) = r.read_string() else { return };
+    let Some(_sort_by) = r.read_i32() else { return };
+    let Some(_descending) = r.read_i32() else { return };
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::ex_pledge_draft_list_search_empty());
+    }
+}
+
 /// `RequestPledgeRecruitApplyInfo` (ex 0xDE): the clan window polls the
 /// player's clan-entry status on open. Java answers ORDERED for the leader
 /// of a clan registered in `ClanEntryManager` and WAITING for a clanless

@@ -1077,7 +1077,9 @@ creation through the ClanMaster dialog. Script breadth is G12.
   → always-DEFAULT `ExPledgeRecruitApplyInfo`, ex 0xD8
   `RequestPledgeWaitingApplied` consumed silently, ex 0xD4
   `RequestPledgeRecruitBoardSearch` → empty-board
-  `ExPledgeRecruitBoardSearch` page) — the registration side
+  `ExPledgeRecruitBoardSearch` page, ex 0xDC
+  `RequestPledgeDraftListSearch` → empty-list
+  `ExPledgeDraftListSearch`) — the registration side
   (`ClanEntryManager`, board search/apply/waiting/draft lists) is
   G18's recruitment audit addition.
 - **Tests**: cond-flags/bit-unpack units; `char_persistence::
