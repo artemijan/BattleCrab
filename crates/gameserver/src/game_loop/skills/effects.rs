@@ -507,7 +507,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             }
             // Periodic effects do nothing on application; their work happens on
             // the tick chain armed by `schedule_dam_over_time`.
-            SkillEffect::HealOverTime { .. } | SkillEffect::ManaDamOverTime { .. } => {}
+            SkillEffect::HealOverTime { .. } | SkillEffect::ManaDamOverTime { .. } | SkillEffect::MpConsumePerLevel { .. } => {}
             // `Cp.instant` — an immediate CP change, clamped so it never takes
             // the target past full CP (Java caps the *gain* at the recoverable
             // headroom; a negative amount is applied as-is and floored at 0).
@@ -609,6 +609,7 @@ pub(crate) fn apply_continuous_effects(
             SkillEffect::DamOverTime { .. }
                 | SkillEffect::HealOverTime { .. }
                 | SkillEffect::ManaDamOverTime { .. }
+                | SkillEffect::MpConsumePerLevel { .. }
         )
     });
     // Blessing of Protection, DefenceTrait (Mental Shield / Resist Shock) and
@@ -1622,6 +1623,7 @@ fn schedule_dam_over_time(world: &mut World, caster_oid: i32, target_oid: i32, s
             SkillEffect::DamOverTime { ticks, .. }
             | SkillEffect::HealOverTime { ticks, .. }
             | SkillEffect::ManaDamOverTime { ticks, .. }
+            | SkillEffect::MpConsumePerLevel { ticks, .. }
                 if *ticks > 0 =>
             {
                 Some(dot_interval_ticks(*ticks))
@@ -1740,8 +1742,16 @@ pub(crate) fn handle_dam_over_time_tick(
                 }
                 broadcast_vitals(world, target_oid);
             }
-            // `ManaDamOverTime.onActionTime` — MP upkeep.
-            SkillEffect::ManaDamOverTime { power, ticks } if *ticks > 0 => {
+            // `ManaDamOverTime.onActionTime` — MP upkeep. Shares this arm with
+            // `MpConsumePerLevel` (the fighter-toggle upkeep effect): Java's
+            // formula for the latter is `power * getTicksMultiplier()` whenever
+            // the skill has no `abnormalTime`, which is every instance in this
+            // datapack (all 19 are toggles/`AU` skills), so the two are
+            // computed identically here. TODO(G19): split them out if a skill
+            // ever needs `MpConsumePerLevel`'s level-scaled `abnormalTime > 0`
+            // branch (`((level-1)/7.5) * base * abnormalTime`), unexercised
+            // today.
+            SkillEffect::ManaDamOverTime { power, ticks } | SkillEffect::MpConsumePerLevel { power, ticks } if *ticks > 0 => {
                 interval = dot_interval_ticks(*ticks);
                 let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else { continue };
                 let drain = dot_tick_damage(*power, *ticks);

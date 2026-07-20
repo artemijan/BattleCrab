@@ -2505,3 +2505,50 @@ fn transformation_skill_polymorphs_and_reverts_on_expiry() {
     assert_eq!(world.objects.get_component::<Speeds>(&5001).unwrap().run_spd, base_run, "run speed restored");
     assert_eq!(pbuffs(&world, 5001), 0, "buff cleared");
 }
+
+/// G19 `MpConsumePerLevel` effect: the fighter-toggle upkeep half of
+/// "Accuracy" (256, real dist data — `<effects>` carries both a real
+/// `+3 Accuracy` `StatModifier`, already landing before this slice, and an
+/// `MpConsumePerLevel` that previously fell through unrecognised, so the
+/// toggle was a free buff). Toggling it on lands the stat *and* starts a
+/// periodic MP drain; running the MP pool dry switches the toggle back off
+/// (Java's `false`-return-cancels-a-toggle path, SM 140) and reverts the
+/// stat, exactly like the DoT/ManaDamOverTime tick chain this effect shares.
+#[test]
+fn mp_consume_per_level_toggle_drains_mp_and_self_deactivates() {
+    let (mut world, ..) = test_world();
+    world.data = crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+
+    let mut rx = ingame_player_access(&mut world, 1, 5101, 0);
+    drain(&mut rx);
+    world.objects.get_component_mut::<SkillBook>(&5101).unwrap().0.insert(256, 1);
+    let base_accuracy = pcs(&world, 5101).accuracy;
+    let mp_before = pvit(&world, 5101).cur_mp;
+
+    // Toggle on: instant (no cast bar) — `+3 Accuracy` lands immediately.
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(256, false));
+    assert_eq!(pbuffs(&world, 5101), 1, "toggle landed as one buff");
+    assert_eq!(pcs(&world, 5101).accuracy, base_accuracy + 3, "Accuracy +3 (DIFF) applied");
+    assert_eq!(pvit(&world, 5101).cur_mp, mp_before, "no MP deducted at cast time (pre-existing gap, not this slice)");
+
+    // One upkeep tick: `power(0.4) * ticksMultiplier(5 × 666 / 1000 = 3.33) ≈ 1.332` MP.
+    advance_world(&mut world, 40); // interval = (5 × 666) / 100 = 33 ticks
+    let mp_after_one_tick = pvit(&world, 5101).cur_mp;
+    assert!(
+        (mp_before - mp_after_one_tick - 1.332).abs() < 1e-6,
+        "first tick drained ~1.332 MP: {mp_before} -> {mp_after_one_tick}"
+    );
+    assert_eq!(pbuffs(&world, 5101), 1, "toggle still up (MP not exhausted yet)");
+
+    // Drain the rest of the pool: the toggle self-deactivates the moment a
+    // tick's drain would exceed current MP (Java's `false` return).
+    drain(&mut rx);
+    advance_world(&mut world, 40 * (mp_after_one_tick / 1.332).ceil() as u64 + 40);
+    assert_eq!(pbuffs(&world, 5101), 0, "toggle switched itself off once MP ran dry");
+    assert_eq!(pcs(&world, 5101).accuracy, base_accuracy, "Accuracy reverted");
+    let packets = drain(&mut rx);
+    assert!(
+        has_system_message(&packets, server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP),
+        "deactivation SystemMessage sent"
+    );
+}

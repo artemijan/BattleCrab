@@ -1104,8 +1104,14 @@ fn admin_buff_applies_skill_to_self() {
 fn admin_superhaste_applies_and_persists() {
     use crate::model::components::{Buffs, Speeds};
     let (mut world, ..) = admin_world();
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    // Full datapack, not just `skill_data`: Super Haste also carries
+    // `MpConsumePerLevel` (G19) — Java's `AdminSuperHaste` casts it through
+    // the real `applyEffects` path (`superHasteSkill.applyEffects(player,
+    // player, true, time)`), so it drains MP like any other toggle. The drain
+    // is negligible (`power` 0.0001) but still needs a real MP pool: with
+    // `for_test()`'s empty `player_templates` a level-1 dummy char computes 0
+    // max MP, and the very first tick would exceed it and cancel the toggle.
+    world.data = crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
     let mut gm_rx = ingame_player_access(&mut world, 1, 8202, 100);
     drain(&mut gm_rx);
 

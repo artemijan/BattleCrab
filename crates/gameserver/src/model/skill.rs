@@ -230,6 +230,23 @@ pub enum SkillEffect {
     /// paying MP upkeep; when a tick's drain exceeds current MP the toggle is
     /// switched off (Java returns `false`, which cancels a toggle).
     ManaDamOverTime { power: f64, ticks: i32 },
+    /// `handlers/effecthandlers/MpConsumePerLevel.java` — periodic MP drain
+    /// for fighter-class toggles (Accuracy 256, Guard Stance 288, Vicious
+    /// Stance 312, Parry/Riposte Stance 339/340, War Frenzy 424, Super Haste
+    /// 7029, …): every learnable/reachable skill carrying this pairs it with
+    /// a real `StatModifier` (e.g. Accuracy's own `+3 ACCUSTOM_COMBAT`), which
+    /// already landed via `EFFECT_REGISTRY` — without this effect the toggle
+    /// was a free buff with no MP upkeep at all. Ticks and toggle-off-on-
+    /// insufficient-MP share `SkillEffect::ManaDamOverTime`'s tick-chain arm
+    /// (`handle_dam_over_time_tick`): Java's formula is `power *
+    /// getTicksMultiplier()` when the skill has no `abnormalTime` (every
+    /// instance in this datapack — all 19 are toggles/`AU` skills with none
+    /// set), identical to `ManaDamOverTime`'s. TODO(G19): Java also has a
+    /// level-scaled branch (`((level-1)/7.5) * base * abnormalTime`) for a
+    /// skill *with* an `abnormalTime` — unexercised by any skill in this
+    /// datapack, so not ported; split out of the shared arm if one ever needs
+    /// it.
+    MpConsumePerLevel { power: f64, ticks: i32 },
     /// `handlers/effecthandlers/Restoration.java` — instant single-item
     /// grant. Backs item-use skills wrapping a fixed pack/box reward (e.g.
     /// spiritshot packs): the item's `<skills>` entry casts this, which is

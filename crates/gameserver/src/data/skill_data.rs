@@ -773,6 +773,19 @@ fn finalize_skill(
                         Some(id) if id != 0.0 => vec![SkillEffect::Transform { transformation_id: id as i32 }],
                         _ => Vec::new(),
                     },
+                    // Fighter-class toggle upkeep (Accuracy 256, Guard Stance
+                    // 288, War Frenzy 424, Super Haste 7029, …): without this
+                    // arm the effect fell through to `EFFECT_REGISTRY`, wasn't
+                    // found, and the toggle's *stat* half (parsed separately,
+                    // below) landed as a free buff with no MP cost at all.
+                    "MpConsumePerLevel" => {
+                        return match (param("power"), value_at(params, "ticks", level).and_then(|v| v.parse::<i32>().ok())) {
+                            (Some(power), Some(ticks)) if ticks > 0 => {
+                                vec![SkillEffect::MpConsumePerLevel { power, ticks }]
+                            }
+                            _ => Vec::new(),
+                        };
+                    }
                     // Death Whisper (1242) & co.: Java `CriticalDamage extends
                     // AbstractStatEffect(params, CRITICAL_DAMAGE, CRITICAL_DAMAGE_ADD)`
                     // — a two-stat effect that pumps the multiplicative

@@ -534,6 +534,27 @@ collapses into "already transformed" here, since mounts are themselves
 transforms on this port); the sitting and registered-on-event legs have no
 modeled state yet.
 
+🚧 **MpConsumePerLevel (2026-07-20)** — plan
+[PLAN_G19_MP_CONSUME_PER_LEVEL.md](PLAN_G19_MP_CONSUME_PER_LEVEL.md). Next
+after `Transformation`, skipping `Summon`/`SummonCubic`/`SummonNpc` (G29) and
+the already-written-off `StatUp`/`Fear`: the MP-upkeep half of the core
+fighter-class toggles (Accuracy 256, Guard Stance 288, Vicious Stance 312,
+Parry/Riposte Stance 339/340, War Frenzy 424, Super Haste 7029, …), each of
+which already carries a real `StatModifier` that lands correctly — this was
+the *other* effect on the same skill, silently dropped, so every one of these
+toggles has been a free, uncosted buff on this port. A datapack survey found
+every instance (all 19, not just the 11 learnable ones) is a toggle with no
+`abnormalTime`, which collapses Java's formula to exactly
+`ManaDamOverTime`'s `power * getTicksMultiplier()` — so it shares that
+effect's tick-chain arm (periodic drain, self-deactivate + SM 140 on
+insufficient MP) rather than duplicating it; the level-scaled `abnormalTime >
+0` branch is unexercised by this datapack and left as a TODO. Broke
+`admin_tests::admin_superhaste_applies_and_persists` as a side effect — Java's
+`AdminSuperHaste` casts through the real `applyEffects` path, so `//superhaste`
+is correctly now subject to the same drain, and the test's zero-MP setup
+(bare `skill_data` override, not the full datapack) needed the same
+`GameData::load_from` fix `Transformation`'s own test needed.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued
