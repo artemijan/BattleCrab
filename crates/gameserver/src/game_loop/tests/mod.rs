@@ -35,6 +35,7 @@ mod admin_tests;
 mod affect_tests;
 mod clans_tests;
 mod combat_tests;
+mod confuse_tests;
 mod crit_damage_tests;
 mod community_board_tests;
 mod death_buff_tests;

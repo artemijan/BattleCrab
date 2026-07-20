@@ -61,6 +61,23 @@ pub fn calc_magic_dam(
     damage * if mcrit { crit_mul } else { 1.0 }
 }
 
+/// `Formulas.calcProbability` — the chance gate on `Confuse`/`RandomizeHate`.
+///
+/// ```java
+/// return Rnd.get(100) < (((skill.getMagicLevel() + baseChance) - target.getLevel()
+///        - getAbnormalResist(...)) * calcAttributeBonus(...) * calcGeneralTraitBonus(...));
+/// ```
+///
+/// The attribute and trait bonuses are 1.0 and the abnormal resist 0 for every
+/// actor this port models, leaving `magicLevel + chance - targetLevel` — so a
+/// target far above the skill's level shrugs it off, and the threshold can go
+/// negative (never lands) or above 100 (always lands), exactly as Java's
+/// unclamped comparison does. Java's `Double.isNaN(baseChance)` branch is
+/// unreachable here: the parser defaults a missing `<chance>` to 100.
+pub fn calc_probability(magic_level: i32, base_chance: i32, target_level: i32, roll: i32) -> bool {
+    roll < (magic_level + base_chance - target_level)
+}
+
 /// `Formulas.calcManaDam` — the MP-drain damage formula, which is *not* the
 /// HP one: `(sqrt(mAtk) * power * (targetMaxMp / 97)) / mDef`.
 ///
