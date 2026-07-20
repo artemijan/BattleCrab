@@ -346,6 +346,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::RequestTimeout { object_id, seq } => {
                 party::handle_request_timeout(world, object_id, seq);
             }
+            ScheduledTask::ClanDissolve { clan_id } => {
+                clans::handle_clan_dissolve_task(world, clan_id);
+            }
             ScheduledTask::PartyPositionBroadcast { party_id, seq } => {
                 party::handle_position_broadcast(world, party_id, seq);
             }

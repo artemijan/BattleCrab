@@ -646,6 +646,17 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
             DbEvent::ClansLoaded { clans } => {
                 tracing::info!("GameLoop: loaded {} clans.", clans.len());
                 world.clans = clans.into_iter().map(|c| (c.id, c)).collect();
+                // Re-arm pending dissolutions (Java `ClanTable`'s constructor:
+                // past-due stamps fire immediately).
+                let pending: Vec<(i32, i64)> = world
+                    .clans
+                    .values()
+                    .filter(|c| c.dissolving_expiry_time > 0)
+                    .map(|c| (c.id, c.dissolving_expiry_time))
+                    .collect();
+                for (clan_id, due) in pending {
+                    super::clans::schedule_clan_dissolve(world, clan_id, due);
+                }
                 // Clans are the last boot-load data (static datapack already
                 // loaded synchronously at startup); release the login-link task
                 // to connect now that the world is fully populated.

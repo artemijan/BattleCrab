@@ -224,6 +224,9 @@ pub struct Player {
     pub pledge_class: u8,
     /// `characters.clan_create_expiry_time` — the 10-day recreate cooldown.
     pub clan_create_expiry_time: i64,
+    /// `characters.clan_join_expiry_time` — the 1-day rejoin penalty after
+    /// leaving/being ousted from a clan (`Player.getClanJoinExpiryTime`).
+    pub clan_join_expiry_time: i64,
 
     pub face: i32,
     pub hair_style: i32,
@@ -773,6 +776,7 @@ impl Player {
             clan_leader: false, // fixed up at enter-world from World.clans
             pledge_class: 0,    // recomputed with clan_leader from World.clans
             clan_create_expiry_time: c.clan_create_expiry_time,
+            clan_join_expiry_time: c.clan_join_expiry_time,
             face: c.face,
             hair_style: c.hair_style,
             hair_color: c.hair_color,

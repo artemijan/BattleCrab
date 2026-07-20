@@ -42,6 +42,15 @@ pub struct Clan {
     /// The shared clan warehouse (Java `Clan._warehouse`, a `ClanWarehouse`
     /// container). Persisted with `owner_id = clan id`, `loc = "CLANWH"`.
     pub warehouse: crate::model::inventory::Warehouse,
+    /// Java `_charPenaltyExpiryTime` (`clan_data.char_penalty_expiry_time`):
+    /// after ousting a member the clan cannot invite anyone for a day (SM 231
+    /// on the inviter).
+    pub char_penalty_expiry_time: i64,
+    /// Java `_dissolvingExpiryTime` (`clan_data.dissolving_expiry_time`):
+    /// non-zero while a leader-requested dissolution is pending; the clan is
+    /// destroyed when it comes due (`ClanTable.scheduleRemoveClan`, re-armed
+    /// from this stamp at boot).
+    pub dissolving_expiry_time: i64,
 }
 
 impl Clan {
@@ -97,9 +106,62 @@ impl Clan {
 /// DUMMY included) = bits 0..24.
 pub const ALL_CLAN_PRIVILEGES: i32 = (1 << 24) - 1;
 
+/// `ClanPrivilege.CL_JOIN_CLAN` (ordinal 1) — required to invite into the clan.
+pub const CL_JOIN_CLAN: i32 = 1 << 1;
+
 /// `ClanPrivilege.CL_VIEW_WAREHOUSE` (ordinal 3) — required to withdraw from
 /// the clan warehouse.
 pub const CL_VIEW_WAREHOUSE: i32 = 1 << 3;
+
+/// `ClanPrivilege.CL_DISMISS` (ordinal 6) — required to oust a member.
+pub const CL_DISMISS: i32 = 1 << 6;
+
+/// The academy pledge type (Java `Clan.SUBUNIT_ACADEMY`).
+pub const SUBUNIT_ACADEMY: i32 = -1;
+
+impl Clan {
+    /// Java `Clan.getMaxNrOfMembers(pledgeType)` — the member cap per pledge
+    /// type at this clan's level. The full retail table is ported even though
+    /// only the main pledge (0) can be joined until sub-units land (G18
+    /// slice 6).
+    pub fn max_members_of(&self, pledge_type: i32) -> usize {
+        match pledge_type {
+            0 => match self.level {
+                0 => 10,
+                1 => 15,
+                2 => 20,
+                3 => 30,
+                _ => 40,
+            },
+            -1 => 20,
+            100 | 200 => {
+                if self.level == 11 {
+                    30
+                } else {
+                    20
+                }
+            }
+            1001 | 1002 | 2001 | 2002 => {
+                if self.level >= 9 {
+                    25
+                } else {
+                    10
+                }
+            }
+            _ => 0,
+        }
+    }
+
+    /// Java `getSubPledgeMembersCount(pledgeType)`, narrowed: every member the
+    /// port models is in the main pledge (type 0) until sub-units land.
+    pub fn sub_pledge_members_count(&self, pledge_type: i32) -> usize {
+        if pledge_type == 0 {
+            self.members.len()
+        } else {
+            0
+        }
+    }
+}
 
 impl Clan {
     /// Whether `char_id` holds `privilege` (a `CL_*` bit): the leader always

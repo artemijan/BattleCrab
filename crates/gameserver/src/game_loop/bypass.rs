@@ -180,6 +180,22 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
             let args = command.strip_prefix("create_clan").unwrap_or("").trim();
             super::clans::handle_create_clan(world, client_id, object_id, args);
         }
+        // `VillageMaster.onBypassFeedback`: leader-requested clan dissolution
+        // (delayed 7 days) and its cancellation.
+        "dissolve_clan" if is_village_master(world, npc_object_id) => {
+            super::clans::handle_dissolve_clan(world, client_id, object_id);
+        }
+        "recover_clan" if is_village_master(world, npc_object_id) => {
+            super::clans::handle_recover_clan(world, client_id, object_id);
+        }
+        // `VillageMaster`: clan level-up (SP + adena/Blood Mark ladder) and the
+        // leader's learnable pledge-skill window.
+        "increase_clan_level" if is_village_master(world, npc_object_id) => {
+            super::clans::handle_increase_clan_level(world, client_id, object_id);
+        }
+        "learn_clan_skills" if is_village_master(world, npc_object_id) => {
+            super::clans::show_pledge_skill_list(world, client_id, object_id);
+        }
         // `bypasshandlers/PrivateWarehouse.java`: the keeper's deposit/withdraw
         // windows (the bypass only appears on warehouse-keeper htmls).
         "WithdrawP" => {

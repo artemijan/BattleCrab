@@ -332,6 +332,16 @@ pub enum DbCommand {
     /// Fire-and-forget clan reputation persist (`Clan.setReputationScore`, which
     /// Java writes via `updateClanScoreInDb`).
     UpdateClanReputation { clan_id: i32, reputation: i32 },
+    /// `RequestOustPledgeMember` / village-master dissolve/recover — the two
+    /// clan-side penalty stamps (`Clan.updateClanInDB`, narrowed).
+    UpdateClanPenalties { clan_id: i32, char_penalty_expiry_time: i64, dissolving_expiry_time: i64 },
+    /// A member left/was ousted (`Clan.removeClanMember` →
+    /// `removeMemberInDatabase`): reset the character's clan columns and stamp
+    /// the rejoin penalty (+ recreate penalty when the ex-member led the clan).
+    RemoveClanMember { char_id: i32, clan_join_expiry: i64, clan_create_expiry: i64 },
+    /// `Player.setClanJoinExpiryTime` persisted alone (invite accepted zeroes
+    /// it; `characters.clan_join_expiry_time`).
+    UpdateCharClanJoinExpiry { char_id: i32, expiry: i64 },
     /// `ClanTable.destroyClan` — delete the `clan_data` row and reset every
     /// member's `characters` clan columns (online *and* offline, since the
     /// memory-first autosave never touches those columns). `leader_id` also gets
@@ -727,6 +737,40 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
+            DbCommand::UpdateClanPenalties { clan_id, char_penalty_expiry_time, dissolving_expiry_time } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "UPDATE clan_data SET char_penalty_expiry_time=?, dissolving_expiry_time=? WHERE clan_id=?",
+                    )
+                    .bind(char_penalty_expiry_time)
+                    .bind(dissolving_expiry_time)
+                    .bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::RemoveClanMember { char_id, clan_join_expiry, clan_create_expiry } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "UPDATE characters SET clanid=0, title='', clan_privs=0, \
+                         clan_join_expiry_time=?, clan_create_expiry_time=? WHERE charId=?",
+                    )
+                    .bind(clan_join_expiry)
+                    .bind(clan_create_expiry)
+                    .bind(char_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateCharClanJoinExpiry { char_id, expiry } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE characters SET clan_join_expiry_time=? WHERE charId=?")
+                        .bind(expiry)
+                        .bind(char_id),
+                )
+                .await;
+            }
             DbCommand::DestroyClan { clan_id, leader_id, leader_expiry } => {
                 exec(&pool, sqlx::query("DELETE FROM clan_data WHERE clan_id=?").bind(clan_id)).await;
                 exec(&pool, sqlx::query("DELETE FROM clan_skills WHERE clan_id=?").bind(clan_id)).await;
@@ -1088,6 +1132,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             clan_id: geti(row, "clanid") as i32,
             clan_privs: geti(row, "clan_privs") as i32,
             clan_create_expiry_time: geti(row, "clan_create_expiry_time"),
+            clan_join_expiry_time: geti(row, "clan_join_expiry_time"),
             race: geti(row, "race") as i32,
             class_id: geti(row, "classid") as i32,
             base_class_id: geti(row, "base_class") as i32,
@@ -1439,7 +1484,7 @@ async fn load_castles(pool: &SqlitePool) -> Vec<crate::model::castle::Castle> {
 }
 
 async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
-    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, leader_id FROM clan_data")
+    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, leader_id, char_penalty_expiry_time, dissolving_expiry_time FROM clan_data")
         .fetch_all(pool)
         .await
         .unwrap_or_default();
@@ -1472,6 +1517,8 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             level: geti(row, "clan_level") as i32,
             reputation_score: geti(row, "reputation_score") as i32,
             castle_id: geti(row, "hasCastle") as i32,
+            char_penalty_expiry_time: geti(row, "char_penalty_expiry_time"),
+            dissolving_expiry_time: geti(row, "dissolving_expiry_time"),
             skills,
             warehouse: crate::model::inventory::Warehouse::from_rows(&wh_rows),
             members: member_rows

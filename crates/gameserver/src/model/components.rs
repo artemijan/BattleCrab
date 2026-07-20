@@ -653,6 +653,11 @@ pub enum RequestKind {
     PartyInvite { party_id: u32 },
     /// A `FriendAddRequest` is on the target's screen.
     FriendInvite,
+    /// An `AskJoinPledge` is on the target's screen; answering joins the
+    /// inviter's clan. `pledge_type` rides along (Java keeps it on the stored
+    /// `RequestJoinPledge` packet) — only 0 (main pledge) is accepted until
+    /// sub-units land (G18 slice 6).
+    ClanInvite { clan_id: i32, pledge_type: i32 },
 }
 
 /// The one outstanding transaction-request slot — **present only while a

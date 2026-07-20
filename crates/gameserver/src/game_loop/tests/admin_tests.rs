@@ -1805,6 +1805,8 @@ fn admin_castlemanage_ownership_and_side() {
             members: vec![ClanMember { char_id: 8002, name: "P8002".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
             skills: Default::default(),
             warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
         },
     );
     let mut rx = ingame_player_access(&mut world, 1, 8001, 100);
@@ -1874,6 +1876,8 @@ fn admin_castlemanage_siege_registration_and_state() {
             members: vec![ClanMember { char_id: 8102, name: "P8102".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
             skills: Default::default(),
             warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
         },
     );
     let mut rx = ingame_player_access(&mut world, 1, 8101, 100);
@@ -1936,7 +1940,7 @@ fn admin_give_clan_skills_command_grants_targeted_clan() {
     let (mut world, _tx, mut db_rx, _link) = admin_world();
     world.data.skill_data.insert_for_test(passive_clan_test_skill(370));
     world.data.pledge_skill_trees.insert_for_test(
-        PledgeSkillLearn { skill_id: 370, skill_level: 1, get_level: 3, social_class: Some(3), residencial: false },
+        PledgeSkillLearn { skill_id: 370, skill_level: 1, get_level: 3, social_class: Some(3), residencial: false, level_up_sp: 0 },
         false,
     );
 
@@ -1954,6 +1958,8 @@ fn admin_give_clan_skills_command_grants_targeted_clan() {
             members: vec![ClanMember { char_id: 6500, name: "P6500".into(), level: 80, class_id: 0, sex: 0, race: 0 }],
             skills: Default::default(),
             warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
         },
     );
     world.objects.get_component_mut::<Player>(&6500).unwrap().clan_id = clan_id;

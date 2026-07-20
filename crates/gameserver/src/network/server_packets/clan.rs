@@ -112,6 +112,64 @@ pub fn pledge_show_member_list_update(m: &crate::model::clan::ClanMember, online
     w.into_bytes()
 }
 
+/// Port of `serverpackets/AskJoinPledge` — the clan-invite confirm dialog on
+/// the invited player's screen. Java appends the pledge-type int only when
+/// non-zero (the academy/sub-unit variant of the dialog).
+pub fn ask_join_pledge(requestor_oid: i32, requestor_name: &str, pledge_type: i32, pledge_name: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::ASK_JOIN_PLEDGE);
+    w.write_i32(requestor_oid);
+    w.write_string(requestor_name);
+    w.write_string(pledge_name);
+    if pledge_type != 0 {
+        w.write_i32(pledge_type);
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/JoinPledge` — tells the accepting client which clan
+/// it just entered (sent before the roster/info burst).
+pub fn join_pledge(clan_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::JOIN_PLEDGE);
+    w.write_i32(clan_id);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeShowMemberListAdd` — one new member appended
+/// to the other members' open clan windows.
+pub fn pledge_show_member_list_add(m: &crate::model::clan::ClanMember) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLEDGE_SHOW_MEMBER_LIST_ADD);
+    w.write_string(&m.name);
+    w.write_i32(m.level);
+    w.write_i32(m.class_id);
+    w.write_i32(0);
+    w.write_i32(1);
+    w.write_i32(1); // 1 = online (the member just accepted, so they are)
+    w.write_i32(0); // pledge type (main)
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeShowMemberListDelete` — one member removed
+/// from the online members' clan windows (leave/oust).
+pub fn pledge_show_member_list_delete(name: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLEDGE_SHOW_MEMBER_LIST_DELETE);
+    w.write_string(name);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExPledgeCount` — the member-count refresh the
+/// Classic client shows in the clan window header.
+pub fn ex_pledge_count(count: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_COUNT);
+    w.write_i32(count);
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/PledgeShowMemberListDeleteAll` — the opcode-only
 /// packet that tells the client to close/clear its clan window. Sent to each
 /// member when their clan is dissolved (`//pledge dismiss`).

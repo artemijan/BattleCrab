@@ -60,6 +60,11 @@ pub(crate) fn handle_request_dispel(world: &mut World, client_id: u32, ex_body: 
 /// ignored, same as Java ignores an out-of-state/unsupported request).
 pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::RequestAcquireSkill::read(body) else { return };
+    if pkt.acquire_type == cp::RequestAcquireSkill::PLEDGE {
+        // The rep-gated clan-skill learn (G18) lives with the clan handlers.
+        super::clans::handle_learn_pledge_skill(world, client_id, pkt.skill_id, pkt.skill_level);
+        return;
+    }
     if pkt.acquire_type != cp::RequestAcquireSkill::CLASS {
         return;
     }

@@ -41,6 +41,7 @@ pub mod opcodes {
     pub const REQUEST_RESTART: u8 = 0x57;
     pub const VALIDATE_POSITION: u8 = 0x59;
     pub const REQUEST_ACQUIRE_SKILL: u8 = 0x7C;
+    pub const REQUEST_ACQUIRE_SKILL_INFO: u8 = 0x73;
     /// `RequestEnchantItem` — perform the enchant (`objectId`, `supportId`).
     pub const REQUEST_ENCHANT_ITEM: u8 = 0x5F;
     pub const REQUEST_SKILL_LIST: u8 = 0x50;
@@ -73,6 +74,10 @@ pub mod opcodes {
     pub const DLG_ANSWER: u8 = 0xC6;
     pub const REQUEST_QUEST_ABORT: u8 = 0x63;
     /// `RequestPledgeInfo` — asks for a clan's name/ally name by clan id.
+    pub const REQUEST_JOIN_PLEDGE: u8 = 0x26;
+    pub const REQUEST_ANSWER_JOIN_PLEDGE: u8 = 0x27;
+    pub const REQUEST_WITHDRAWAL_PLEDGE: u8 = 0x28;
+    pub const REQUEST_OUST_PLEDGE_MEMBER: u8 = 0x29;
     pub const REQUEST_PLEDGE_INFO: u8 = 0x65;
     pub const REQUEST_BUY_ITEM: u8 = 0x40;
     pub const REQUEST_JOIN_PARTY: u8 = 0x42;
@@ -563,6 +568,7 @@ pub struct RequestAcquireSkill {
 
 impl RequestAcquireSkill {
     pub const CLASS: i32 = 0;
+    pub const PLEDGE: i32 = 2;
     pub const SUBPLEDGE: i32 = 3;
 
     pub fn read(body_after_opcode: &[u8]) -> Option<Self> {

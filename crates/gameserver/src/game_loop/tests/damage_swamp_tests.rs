@@ -158,6 +158,8 @@ fn a_defender_is_spared_by_its_own_castles_trap() {
             members: Vec::new(),
             skills: Default::default(),
             warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
         },
     );
     let before = hp(&world);
