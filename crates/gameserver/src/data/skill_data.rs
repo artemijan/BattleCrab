@@ -902,6 +902,22 @@ fn finalize_skill(
                     // the `BLOCK_CONTROL` flag); what was missing was the flight
                     // itself, so the debuff simply never moved anyone.
                     "Fear" => vec![SkillEffect::Fear { ticks: FEAR_TICKS }],
+                    // Silent Move 221, Stealth 411, Dance of Shadows 366, and
+                    // the stealth half of Fake Death 60. Java's handler is an
+                    // empty constructor plus `getEffectFlags` — a pure state
+                    // flag, no params at all.
+                    "SilentMove" => vec![SkillEffect::SilentMove],
+                    // Fake Death 60. Two halves: the `FAKE_DEATH` flag and an
+                    // MP upkeep with the same `power * getTicksMultiplier()`
+                    // shape as `ManaDamOverTime`, which it shares the tick
+                    // chain with. Skill 60 carries *only* this and
+                    // `SilentMove`, so with both unported the effect list came
+                    // out empty and the whole skill was dropped — it cast and
+                    // did nothing at all.
+                    "FakeDeath" => vec![SkillEffect::FakeDeath {
+                        power: param("power").unwrap_or(0.0),
+                        ticks: value_at(params, "ticks", level).and_then(|v| v.parse().ok()).unwrap_or(0),
+                    }],
                     // "Transform <Monster>" scroll family (541-558, 617-674):
                     // polymorph the caster into `transformationId`. No stat
                     // modifier of its own — the transform template's own

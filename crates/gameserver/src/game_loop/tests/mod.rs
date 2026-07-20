@@ -71,6 +71,7 @@ mod resist_tests;
 mod shortcuts_tests;
 mod skills_tests;
 mod social_tests;
+mod stealth_tests;
 mod teleport_cmds_tests;
 mod visibility_tests;
 mod vitality_tests;

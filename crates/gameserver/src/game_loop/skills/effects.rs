@@ -801,6 +801,9 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             | SkillEffect::PhysicalMute
             | SkillEffect::DebuffBlock
             | SkillEffect::BlockControl
+            // Stealth: the whole mechanic is the `SILENT_MOVE` flag the aggro
+            // scan reads (`npc_ai::notices_target`).
+            | SkillEffect::SilentMove
             // Noblesse Blessing: nothing at application time either — the death
             // path reads its `NOBLESS_BLESSING` flag off the landed buff.
             | SkillEffect::NoblesseBless
@@ -808,6 +811,27 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             // choke point (`game_loop::combat::is_hp_blocked`) reads the
             // `HP_BLOCK` flag off the landed buff.
             | SkillEffect::DamageBlock { .. } => {}
+            // `FakeDeath.onStart` → `Creature.startFakeDeath()`: drop whatever
+            // you were doing and hit the deck. `isAlikeDead()` then covers the
+            // rest (no aggro, no being targeted), and the client is told with
+            // `ChangeWaitType(WT_START_FAKEDEATH)`.
+            //
+            // Java's `FAKE_DEATH_UNTARGET` block (clearing the fake-dead player
+            // off everyone else's target) is **False** on this dist's
+            // `Character.ini`, so it is deliberately not ported.
+            SkillEffect::FakeDeath { .. } => {
+                // Players only — Java's `startFakeDeath` returns immediately
+                // for anything else.
+                if client_for_player(world, target_oid).is_none() {
+                    continue;
+                }
+                world.objects.remove_component::<crate::model::components::Intent>(&target_oid);
+                if world.objects.has_component::<crate::model::components::Casting>(&target_oid) {
+                    crate::game_loop::skills::cast::stop_casting(world, target_oid);
+                }
+                world.objects.remove_component::<crate::model::components::Movement>(&target_oid);
+                broadcast_change_wait_type(world, target_oid, server_packets::wait_type::START_FAKEDEATH);
+            }
             // `Fear.onStart` — the first shove, directly away from the caster.
             // The repeats come off the tick chain (`handle_dam_over_time_tick`),
             // which `schedule_dam_over_time` arms alongside the buff.
@@ -1012,6 +1036,7 @@ pub(crate) fn apply_continuous_effects(
                 | SkillEffect::ManaDamOverTime { .. }
                 | SkillEffect::MpConsumePerLevel { .. }
                 | SkillEffect::Fear { .. }
+                | SkillEffect::FakeDeath { .. }
         )
     });
     // Blessing of Protection, DefenceTrait (Mental Shield / Resist Shock) and
@@ -1277,6 +1302,57 @@ fn refresh_abnormal_visuals(world: &World, object_id: i32) {
         cs.send(crate::network::user_info::ex_user_info_abnormal_visual_effect(
             object_id, invisible, transform, &visuals,
         ));
+    }
+}
+
+/// `broadcastPacket(new ChangeWaitType(creature, moveType))` — the fake-death
+/// pose, sent to observers **and** the player themselves (Java's `Player`
+/// override makes `broadcastPacket` include self).
+fn broadcast_change_wait_type(world: &mut World, object_id: i32, move_type: i32) {
+    let Some(pos) = world.objects.get_component::<crate::model::components::Position>(&object_id).copied() else {
+        return;
+    };
+    let pkt = server_packets::change_wait_type(object_id, move_type, pos.x, pos.y, pos.z);
+    crate::game_loop::helpers::broadcast_including_self(world, object_id, &pkt);
+}
+
+/// `Creature.stopFakeDeath` — get back up: tell every client to end the pose
+/// and re-`Revive` the body (Java sends both, with a comment about a client
+/// quirk that needs the second one).
+///
+/// Java also calls `setRecentFakeDeath(true)` here, starting the
+/// `isRecentFakeDeath()` grace period during which mobs still ignore you.
+/// **`PlayerFakeDeathUpProtection = 0` on this dist**, so that window is zero
+/// seconds wide and the flag can never read true — not ported, matching the
+/// `MP_BLOCK`/`MAX_MOMENTUM` precedent for config-disabled behaviour.
+pub(crate) fn stop_fake_death(world: &mut World, object_id: i32) {
+    broadcast_change_wait_type(world, object_id, server_packets::wait_type::STOP_FAKEDEATH);
+    let pkt = server_packets::revive(object_id);
+    crate::game_loop::helpers::broadcast_including_self(world, object_id, &pkt);
+}
+
+/// `Creature.reduceCurrentHp`'s fake-death branch: any real damage taken while
+/// playing dead ends the act (`stopFakeDeath(true)` — note the `true`, which
+/// *removes the effect*, not just the pose). Finds whichever active buff
+/// carries the `FAKE_DEATH` flag and expires it, which routes through
+/// `handle_buff_expire` → [`stop_fake_death`] for the client-side stand-up.
+pub(crate) fn break_fake_death_on_damage(world: &mut World, object_id: i32) {
+    use crate::model::skill::effect_flag;
+    if super::super::abnormal::flags_of(world, object_id) & effect_flag::FAKE_DEATH == 0 {
+        return;
+    }
+    let skill_ids: Vec<i32> = world
+        .objects
+        .get_component::<Buffs>(&object_id)
+        .map(|b| {
+            b.0.iter()
+                .filter(|x| x.effect_flags & effect_flag::FAKE_DEATH != 0)
+                .map(|x| x.skill_id)
+                .collect()
+        })
+        .unwrap_or_default();
+    for skill_id in skill_ids {
+        handle_buff_expire(world, object_id, skill_id);
     }
 }
 
@@ -2102,6 +2178,7 @@ fn schedule_dam_over_time(world: &mut World, caster_oid: i32, target_oid: i32, s
             | SkillEffect::ManaDamOverTime { ticks, .. }
             | SkillEffect::MpConsumePerLevel { ticks, .. }
             | SkillEffect::Fear { ticks }
+            | SkillEffect::FakeDeath { ticks, .. }
                 if *ticks > 0 =>
             {
                 Some(dot_interval_ticks(*ticks))
@@ -2238,7 +2315,13 @@ pub(crate) fn handle_dam_over_time_tick(
                 interval = dot_interval_ticks(*ticks);
                 fear_action(world, None, target_oid);
             }
-            SkillEffect::ManaDamOverTime { power, ticks } | SkillEffect::MpConsumePerLevel { power, ticks } if *ticks > 0 => {
+            SkillEffect::ManaDamOverTime { power, ticks }
+            | SkillEffect::MpConsumePerLevel { power, ticks }
+            // `FakeDeath.onActionTime` is the same `power * getTicksMultiplier()`
+            // MP drain, with the same toggle self-deactivate on empty MP.
+            | SkillEffect::FakeDeath { power, ticks }
+                if *ticks > 0 =>
+            {
                 interval = dot_interval_ticks(*ticks);
                 let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else { continue };
                 let drain = dot_tick_damage(*power, *ticks);
@@ -2368,6 +2451,16 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     });
     if is_transform {
         crate::game_loop::admin::transforms::remove_transform_state(world, player_object_id);
+    }
+    // `FakeDeath.onExit` — stand back up. Read the flag off the *expiring buff*
+    // (not the skill template) so this fires only for fake death, and keeps
+    // working for a buff whose skill row is no longer loadable — the same
+    // source `Fear`'s own `onExit` and `break_fake_death_on_damage` use.
+    let was_fake_dead = world.objects.get_component::<Buffs>(&player_object_id).is_some_and(|b| {
+        b.0.iter().any(|x| x.skill_id == skill_id && x.effect_flags & crate::model::skill::effect_flag::FAKE_DEATH != 0)
+    });
+    if was_fake_dead {
+        stop_fake_death(world, player_object_id);
     }
     if let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world
         .objects

@@ -1448,6 +1448,14 @@ pub(crate) fn apply_physical_damage(world: &mut World, attacker: i32, target: i3
     if is_npc_oid(target) {
         npc_receive_damage(world, target, attacker, damage);
     } else {
+        // `Creature.reduceCurrentHp`: `if (isPlayer() && isFakeDeath() &&
+        // Config.FAKE_DEATH_DAMAGE_STAND && amount > 0) stopFakeDeath(true)`.
+        // `FakeDeathDamageStand = True` on this dist, so taking a hit while
+        // playing dead stands you back up — otherwise a rogue could feign
+        // death and soak a whole fight from the floor.
+        if damage > 0.0 {
+            super::skills::effects::break_fake_death_on_damage(world, target);
+        }
         player_receive_damage(world, target, attacker, damage);
     }
 }
