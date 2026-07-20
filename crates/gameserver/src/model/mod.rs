@@ -1203,8 +1203,12 @@ impl Player {
 }
 
 /// `Stat.defaultValue`: `base * mul + add` from the accumulated modifier
-/// maps (1.0/0.0 when nothing has touched this stat).
-fn finalize(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
+/// maps (1.0/0.0 when nothing has touched this stat). `pub(crate)`: also used
+/// by `game_loop::combat::shield_stats`, which finalizes `ShieldDefence`/
+/// `ShieldDefenceRate` over the equipped shield's own `sDef`/`rShld` outside
+/// the `recalculate_stats` pass (shield block stats aren't cached on
+/// `CombatStats`, so they're finalized fresh at combat-lookup time instead).
+pub(crate) fn finalize(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
     if let Some(&fixed) = mods.fixed.get(&stat) {
         return fixed;
     }
