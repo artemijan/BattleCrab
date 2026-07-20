@@ -438,9 +438,10 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
             race: p.race,
             power_grade: 1, // Java restore: the leader holds grade 1
             title: p.title.clone(),
+            pledge_type: 0,
         }
     };
-    let clan = Clan { id: clan_id, name: name.clone(), leader_id: leader_oid, level: 0, reputation_score: 0, castle_id: 0, members: vec![leader], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 };
+    let clan = Clan { id: clan_id, name: name.clone(), leader_id: leader_oid, level: 0, reputation_score: 0, castle_id: 0, members: vec![leader], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 };
     let _ = world.db.send(DbCommand::InsertClan { clan_id, name: name.clone(), leader_id: leader_oid });
     let _ = world.db.send(DbCommand::UpdateCharClan {
         char_id: leader_oid,
@@ -886,11 +887,12 @@ pub(crate) fn handle_request_join_pledge(world: &mut World, client_id: u32, body
     if !check_clan_join_condition(world, player, target_oid, pledge_type) {
         return;
     }
-    if pledge_type != 0 {
-        // TODO(G18.6): academy/royal/knight-unit invites need sub-pledges; the
-        // Java accept path files the member under the sub-unit and (for the
-        // academy) sets power grade 9 + lvlJoinedAcademy.
-        warn!("Clan invite with pledge type {pledge_type} refused — sub-pledges unported.");
+    if pledge_type != 0 && !world.clans.get(&clan_id).is_some_and(|c| c.sub_pledges.contains_key(&pledge_type)) {
+        // The client only ever offers real sub-units in the invite dialog; a
+        // request naming a pledge type the clan hasn't founded is dropped
+        // (Java trusts the client here too — this is the port's own guard
+        // against corrupting the roster on a malformed/hacked packet).
+        warn!("Clan invite with pledge type {pledge_type} refused — no such sub-unit.");
         return;
     }
     // Java `player.getRequest().setRequest(target, this)` — busy targets answer
@@ -965,16 +967,19 @@ pub(crate) fn handle_request_answer_join_pledge(world: &mut World, client_id: u3
     if world.objects.get_component::<Player>(&player).map(|p| p.clan_id).unwrap_or(0) != 0 {
         return;
     }
-    add_clan_member(world, clan_id, player);
+    add_clan_member(world, clan_id, player, pledge_type);
 }
 
 /// Java `RequestAnswerJoinPledge`'s accept half + `Clan.addClanMember`: put the
 /// new member in the roster, wire their clan fields, and send the join burst.
 /// New members start at power grade 5 with no rank privileges (the rank-privs
 /// table is a later slice — Java's fresh-clan `getRankPrivs(5)` is CP_NOTHING).
-fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32) {
+fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, pledge_type: i32) {
     send_to_member(world, player_oid, server_packets::join_pledge(clan_id));
 
+    // Java: academy members start at power grade 9, everyone else at 5
+    // ("not confirmed" per Java's own comment, kept faithfully).
+    let grade = if pledge_type == crate::model::clan::SUBUNIT_ACADEMY { 9 } else { 5 };
     let member = {
         let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return };
         ClanMember {
@@ -984,28 +989,33 @@ fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32) {
             class_id: p.class_id,
             sex: p.is_female as i32,
             race: p.race,
-            power_grade: 5, // Java: "new member starts at 5"
+            power_grade: grade,
             title: p.title.clone(),
+            pledge_type,
         }
     };
     let Some(clan) = world.clans.get_mut(&clan_id) else { return };
     clan.members.push(member.clone());
     let pledge_class = clan.pledge_class_of(player_oid);
     // Java `player.setClanPrivileges(clan.getRankPrivs(player.getPowerGrade()))`.
-    let privs = clan.rank_privs_of(5);
+    let privs = clan.rank_privs_of(grade);
     let ally_id = world.clans.get(&clan_id).map(|c| c.ally_id).unwrap_or(0);
     if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
         p.clan_id = clan_id;
         p.clan_privs = privs;
         p.clan_leader = false;
-        p.power_grade = 5;
+        p.power_grade = grade;
+        p.pledge_type = pledge_type;
         p.pledge_class = pledge_class;
         p.ally_id = ally_id;
         p.clan_join_expiry_time = 0; // Java `setClanJoinExpiryTime(0)`
     }
     let _ = world.db.send(DbCommand::UpdateCharClan { char_id: player_oid, clan_id, clan_privs: privs });
-    let _ = world.db.send(DbCommand::UpdateCharPowerGrade { char_id: player_oid, power_grade: 5 });
+    let _ = world.db.send(DbCommand::UpdateCharPowerGrade { char_id: player_oid, power_grade: grade });
+    let _ = world.db.send(DbCommand::UpdateCharPledgeType { char_id: player_oid, pledge_type });
     let _ = world.db.send(DbCommand::UpdateCharClanJoinExpiry { char_id: player_oid, expiry: 0 });
+    // TODO(G18.6b): Java also sets `lvlJoinedAcademy` for the eventual academy
+    // graduation reward (apprentice/sponsor links) — unported, no consumer yet.
 
     send_sm_with(world, player_oid, sm_ids::ENTERED_THE_CLAN, &[]);
     let joined = server_packets::system_message_with(
@@ -1065,6 +1075,18 @@ fn remove_clan_member(world: &mut World, clan_id: i32, member_oid: i32, clan_joi
     clan.members.remove(idx);
     let was_leader = clan.leader_id == member_oid;
     let leader_expiry = if was_leader { now_millis() + CLAN_CREATE_COOLDOWN_MS } else { 0 };
+
+    // Java `removeClanMember`: a departing sub-unit captain leaves the slot
+    // vacant ("position becomes vacant and leader should appoint new via NPC").
+    let vacated_sub_pledge = clan.leader_sub_pledge_of(member_oid);
+    if vacated_sub_pledge != 0 {
+        if let Some(sp) = clan.sub_pledges.get_mut(&vacated_sub_pledge) {
+            sp.leader_id = 0;
+        }
+        let (name, leader_id) =
+            clan.sub_pledges.get(&vacated_sub_pledge).map(|sp| (sp.name.clone(), sp.leader_id)).unwrap_or_default();
+        let _ = world.db.send(DbCommand::UpdateSubPledge { clan_id, pledge_type: vacated_sub_pledge, name, leader_id });
+    }
 
     let online = world.objects.get_component::<Player>(&member_oid).is_some();
     if online {
@@ -1682,17 +1704,67 @@ pub(crate) fn handle_request_pledge_set_member_power_grade(world: &mut World, cl
     broadcast_clan_status(world, clan_id);
 }
 
-/// `RequestPledgeReorganizeMember` (ex 0x2C): swaps two members between
-/// sub-units. With only the main pledge modelled the old and new pledge types
-/// always match, which is Java's own early-out — parsed and dropped.
-/// TODO(G18.6): real sub-unit moves.
-pub(crate) fn handle_request_pledge_reorganize_member(_world: &mut World, _client_id: u32, ex_body: &[u8]) {
+/// `RequestPledgeReorganizeMember` (ex 0x2C): the leader (or a
+/// CL_MANAGE_RANKS holder) swaps two main-pledge-or-below members' sub-unit
+/// membership — `member_name` takes `new_pledge_type`, `selected_member`
+/// takes whatever `member_name` had.
+pub(crate) fn handle_request_pledge_reorganize_member(world: &mut World, client_id: u32, ex_body: &[u8]) {
+    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
     let mut r = PacketReader::new(ex_body);
-    let (Some(_selected), Some(_name), Some(_new_type), Some(_other)) =
-        (r.read_i32(), r.read_string(), r.read_i32(), r.read_string())
-    else {
+    let Some(is_selected) = r.read_i32() else { return };
+    let Some(member_name) = r.read_string() else { return };
+    let Some(new_pledge_type) = r.read_i32() else { return };
+    let Some(selected_member) = r.read_string() else { return };
+    if is_selected == 0 {
+        return;
+    }
+    let Some(p) = world.objects.get_component::<Player>(&player) else { return };
+    let clan_id = p.clan_id;
+    let privs = p.clan_privs;
+    if clan_id == 0 {
+        return;
+    }
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    if !clan.has_privilege(player, privs, CL_MANAGE_RANKS) {
+        return;
+    }
+    // A malformed/hacked target type: the client only ever offers 0 or a real
+    // sub-unit id, so anything else is dropped defensively.
+    if new_pledge_type != 0 && !clan.sub_pledges.contains_key(&new_pledge_type) {
+        return;
+    }
+    let leader_id = clan.leader_id;
+    let Some(m1) = clan.members.iter().find(|m| m.name.eq_ignore_ascii_case(&member_name)).cloned() else { return };
+    let Some(m2) = clan.members.iter().find(|m| m.name.eq_ignore_ascii_case(&selected_member)).cloned() else {
         return;
     };
+    if m1.char_id == leader_id || m2.char_id == leader_id {
+        return;
+    }
+    let old_pledge_type = m1.pledge_type;
+    if old_pledge_type == new_pledge_type {
+        return;
+    }
+
+    if let Some(c) = world.clans.get_mut(&clan_id) {
+        if let Some(m) = c.members.iter_mut().find(|m| m.char_id == m1.char_id) {
+            m.pledge_type = new_pledge_type;
+        }
+        if let Some(m) = c.members.iter_mut().find(|m| m.char_id == m2.char_id) {
+            m.pledge_type = old_pledge_type;
+        }
+    }
+    for (oid, pledge_type) in [(m1.char_id, new_pledge_type), (m2.char_id, old_pledge_type)] {
+        let _ = world.db.send(DbCommand::UpdateCharPledgeType { char_id: oid, pledge_type });
+        let pledge_class = world.clans.get(&clan_id).map(|c| c.pledge_class_of(oid)).unwrap_or(0);
+        if let Some(mp) = world.objects.get_component_mut::<Player>(&oid) {
+            mp.pledge_type = pledge_type;
+            mp.pledge_class = pledge_class;
+        }
+        super::party::broadcast_user_info(world, oid);
+    }
+    broadcast_clan_status(world, clan_id);
 }
 
 /// `VillageMaster`'s `change_clan_leader <name>` bypass — the delegated
@@ -2805,4 +2877,302 @@ pub(crate) fn handle_request_ally_info(world: &World, client_id: u32) {
         ));
         cs.send(server_packets::system_message_with(sm_ids::EMPTY_4, &[]));
     }
+}
+
+// --- G18 slice 6: sub-pledges & academy ------------------------------------
+
+use crate::model::clan::{SubPledge, SUBUNIT_ACADEMY, SUBUNIT_KNIGHT1, SUBUNIT_ROYAL1};
+
+/// `CreateRoyalGuardCost = 5000` (Feature.ini) — the reputation price of a
+/// royal-guard unit.
+const ROYAL_GUARD_COST: i32 = 5000;
+/// `CreateKnightUnitCost = 10000` — the reputation price of a knight unit.
+const KNIGHT_UNIT_COST: i32 = 10_000;
+
+/// `VillageMaster.isValidName`/name-length checks shared by clan/sub-pledge
+/// names: alphanumeric, 2..=16 chars (this dist's `ClanNameTemplate = .*`, so
+/// the retail regex itself is not ported — same simplification `create_clan`
+/// makes).
+fn valid_pledge_name(name: &str) -> bool {
+    name.chars().all(|c| c.is_ascii_alphanumeric()) && (2..=16).contains(&name.len())
+}
+
+/// `VillageMaster.createSubPledge`: the shared academy/royal-guard/knight
+/// creation flow. `requested_type` is the *family* id (`SUBUNIT_ACADEMY`,
+/// `SUBUNIT_ROYAL1`, or `SUBUNIT_KNIGHT1`) — `Clan.getAvailablePledgeTypes`
+/// resolves it to the next open slot in that family.
+fn create_sub_pledge(
+    world: &mut World,
+    client_id: u32,
+    player_oid: i32,
+    requested_type: i32,
+    min_clan_lvl: i32,
+    name: &str,
+    leader_name: Option<&str>,
+) {
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return };
+    let clan_id = p.clan_id;
+    if clan_id == 0 || !p.clan_leader {
+        send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
+        return;
+    }
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    if clan.level < min_clan_lvl {
+        let sm = if requested_type == SUBUNIT_ACADEMY {
+            sm_ids::TO_ESTABLISH_A_CLAN_ACADEMY_YOUR_CLAN_MUST_BE_LEVEL_5_OR_HIGHER
+        } else {
+            sm_ids::THE_CONDITIONS_NECESSARY_TO_CREATE_A_MILITARY_UNIT_HAVE_NOT_BEEN_MET
+        };
+        send_sm(world, client_id, sm);
+        return;
+    }
+    if !valid_pledge_name(name) {
+        send_sm(world, client_id, sm_ids::CLAN_NAME_IS_INVALID);
+        return;
+    }
+    if name.len() > 16 {
+        send_sm(world, client_id, sm_ids::CLAN_NAME_S_LENGTH_IS_INCORRECT);
+        return;
+    }
+    // Java scans every clan's sub-pledges for a name clash; the port's
+    // `ClanTable` equivalent is `World.clans`.
+    let name_taken = world.clans.values().any(|c| c.sub_pledges.values().any(|sp| sp.name.eq_ignore_ascii_case(name)));
+    if name_taken {
+        if requested_type == SUBUNIT_ACADEMY {
+            send_sm_with(world, player_oid, sm_ids::S1_ALREADY_EXISTS, &[SmParam::Text(name.to_string())]);
+        } else {
+            send_sm(world, client_id, sm_ids::ANOTHER_MILITARY_UNIT_ALREADY_USES_THAT_NAME);
+        }
+        return;
+    }
+
+    // The leader-designate (royal/knight only): must be a main-pledge member
+    // who doesn't already captain a sub-unit.
+    let leader_id = if requested_type != SUBUNIT_ACADEMY {
+        let Some(leader_name) = leader_name else { return };
+        let eligible = clan
+            .members
+            .iter()
+            .find(|m| m.name.eq_ignore_ascii_case(leader_name))
+            .filter(|m| m.pledge_type == 0)
+            .filter(|m| clan.leader_sub_pledge_of(m.char_id) == 0);
+        let Some(member) = eligible else {
+            let sm = if requested_type >= SUBUNIT_KNIGHT1 {
+                sm_ids::THE_CAPTAIN_OF_THE_ORDER_OF_KNIGHTS_CANNOT_BE_APPOINTED
+            } else {
+                sm_ids::THE_ROYAL_GUARD_CAPTAIN_CANNOT_BE_APPOINTED
+            };
+            send_sm(world, client_id, sm);
+            return;
+        };
+        member.char_id
+    } else {
+        0
+    };
+    // `Clan.createSubPledge`'s own reject: the clan leader can't also
+    // captain a sub-unit ("Leader is not correct" — a plain message, no SM).
+    if leader_id != 0 && leader_id == clan.leader_id {
+        send_sm_with(world, player_oid, sm_ids::S1_TEXT, &[SmParam::Text("Leader is not correct".to_string())]);
+        return;
+    }
+
+    // `Clan.createSubPledge`'s own guard chain: the resolved slot in the
+    // requested family, then (royal/knight only) the reputation price.
+    let pledge_type = clan.available_pledge_type(requested_type);
+    if pledge_type == 0 {
+        if requested_type == SUBUNIT_ACADEMY {
+            send_sm(world, client_id, sm_ids::YOUR_CLAN_HAS_ALREADY_ESTABLISHED_A_CLAN_ACADEMY);
+        } else {
+            send_sm_with(
+                world,
+                player_oid,
+                sm_ids::S1_TEXT,
+                &[SmParam::Text("You can't create any more sub-units of this type".to_string())],
+            );
+        }
+        return;
+    }
+    let cost = if requested_type == SUBUNIT_ACADEMY {
+        0
+    } else if pledge_type < SUBUNIT_KNIGHT1 {
+        ROYAL_GUARD_COST
+    } else {
+        KNIGHT_UNIT_COST
+    };
+    if cost > 0 && clan.reputation_score < cost {
+        send_sm(world, client_id, sm_ids::THE_CLAN_REPUTATION_IS_TOO_LOW);
+        return;
+    }
+
+    let sub_pledge = SubPledge { id: pledge_type, name: name.to_string(), leader_id };
+    let clan = world.clans.get_mut(&clan_id).expect("checked above");
+    clan.sub_pledges.insert(pledge_type, sub_pledge);
+    if cost > 0 {
+        clan.reputation_score -= cost;
+    }
+    let reputation = clan.reputation_score;
+    let _ = world.db.send(DbCommand::InsertSubPledge { clan_id, pledge_type, name: name.to_string(), leader_id });
+    if cost > 0 {
+        let _ = world.db.send(DbCommand::UpdateClanReputation { clan_id, reputation });
+    }
+    let info = server_packets::pledge_show_info_update(world.clans.get(&clan_id).expect("checked above"));
+    let leader_display_name = if leader_id != 0 { player_name(world, leader_id) } else { String::new() };
+    let created = server_packets::pledge_receive_sub_pledge_created(pledge_type, name, &leader_display_name);
+    for oid in online_members(world, clan_id) {
+        send_to_member(world, oid, info.clone());
+        send_to_member(world, oid, created.clone());
+    }
+
+    let clan_name = world.clans.get(&clan_id).map(|c| c.name.clone()).unwrap_or_default();
+    let sm = if requested_type == SUBUNIT_ACADEMY {
+        server_packets::system_message_with(
+            sm_ids::CONGRATULATIONS_THE_S1_S_CLAN_ACADEMY_HAS_BEEN_CREATED,
+            &[SmParam::Text(clan_name)],
+        )
+    } else if pledge_type >= SUBUNIT_KNIGHT1 {
+        server_packets::system_message_with(sm_ids::THE_KNIGHTS_OF_S1_HAVE_BEEN_CREATED, &[SmParam::Text(clan_name)])
+    } else {
+        server_packets::system_message_with(sm_ids::THE_ROYAL_GUARD_OF_S1_HAVE_BEEN_CREATED, &[SmParam::Text(clan_name)])
+    };
+    send_to_member(world, player_oid, sm);
+
+    if leader_id != 0 {
+        let pledge_class = world.clans.get(&clan_id).map(|c| c.pledge_class_of(leader_id)).unwrap_or(0);
+        if let Some(lp) = world.objects.get_component_mut::<Player>(&leader_id) {
+            lp.pledge_class = pledge_class;
+        }
+        super::party::broadcast_user_info(world, leader_id);
+    }
+}
+
+/// `VillageMaster`'s `create_academy <name>` bypass.
+pub(crate) fn handle_create_academy(world: &mut World, client_id: u32, player_oid: i32, args: &str) {
+    let mut it = args.split_whitespace();
+    let Some(name) = it.next() else { return };
+    create_sub_pledge(world, client_id, player_oid, SUBUNIT_ACADEMY, 5, name, None);
+}
+
+/// `VillageMaster`'s `create_royal <name> <leaderName>` bypass.
+pub(crate) fn handle_create_royal(world: &mut World, client_id: u32, player_oid: i32, args: &str) {
+    let mut it = args.split_whitespace();
+    let Some(name) = it.next() else { return };
+    let leader = it.next();
+    create_sub_pledge(world, client_id, player_oid, SUBUNIT_ROYAL1, 6, name, leader);
+}
+
+/// `VillageMaster`'s `create_knight <name> <leaderName>` bypass.
+pub(crate) fn handle_create_knight(world: &mut World, client_id: u32, player_oid: i32, args: &str) {
+    let mut it = args.split_whitespace();
+    let Some(name) = it.next() else { return };
+    let leader = it.next();
+    create_sub_pledge(world, client_id, player_oid, SUBUNIT_KNIGHT1, 7, name, leader);
+}
+
+/// `VillageMaster.renameSubPledge` (`rename_pledge <pledgeTypeId> <newName>`).
+pub(crate) fn handle_rename_pledge(world: &mut World, client_id: u32, player_oid: i32, args: &str) {
+    let mut it = args.split_whitespace();
+    let Some(Ok(pledge_type)) = it.next().map(str::parse::<i32>) else { return };
+    let Some(new_name) = it.next() else { return };
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return };
+    let clan_id = p.clan_id;
+    if clan_id == 0 || !p.clan_leader {
+        send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
+        return;
+    }
+    if !world.clans.get(&clan_id).is_some_and(|c| c.sub_pledges.contains_key(&pledge_type)) {
+        return; // "Pledge don't exists." (Java's own plain-text message)
+    }
+    if !valid_pledge_name(new_name) {
+        send_sm(world, client_id, sm_ids::CLAN_NAME_IS_INVALID);
+        return;
+    }
+    if new_name.len() > 16 {
+        send_sm(world, client_id, sm_ids::CLAN_NAME_S_LENGTH_IS_INCORRECT);
+        return;
+    }
+    let leader_id = {
+        let Some(c) = world.clans.get_mut(&clan_id) else { return };
+        let Some(sp) = c.sub_pledges.get_mut(&pledge_type) else { return };
+        sp.name = new_name.to_string();
+        sp.leader_id
+    };
+    let _ = world.db.send(DbCommand::UpdateSubPledge {
+        clan_id,
+        pledge_type,
+        name: new_name.to_string(),
+        leader_id,
+    });
+    broadcast_clan_status(world, clan_id);
+}
+
+/// `VillageMaster.assignSubPledgeLeader` (`assign_subpl_leader <unitName>
+/// <memberName>`).
+pub(crate) fn handle_assign_subpledge_leader(world: &mut World, client_id: u32, player_oid: i32, args: &str) {
+    let mut it = args.split_whitespace();
+    let Some(unit_name) = it.next() else { return };
+    let Some(member_name) = it.next() else { return };
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return };
+    let clan_id = p.clan_id;
+    let player_display_name = p.name.clone();
+    if clan_id == 0 || !p.clan_leader {
+        send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
+        return;
+    }
+    if member_name.len() > 16 {
+        send_sm(world, client_id, sm_ids::YOUR_TITLE_CANNOT_EXCEED_16_CHARACTERS);
+        return;
+    }
+    if player_display_name.eq_ignore_ascii_case(member_name) {
+        send_sm(world, client_id, sm_ids::THE_ROYAL_GUARD_CAPTAIN_CANNOT_BE_APPOINTED);
+        return;
+    }
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    let Some(sub_pledge) = clan.sub_pledges.values().find(|sp| sp.name.eq_ignore_ascii_case(unit_name)) else {
+        send_sm(world, client_id, sm_ids::CLAN_NAME_IS_INVALID);
+        return;
+    };
+    if sub_pledge.id == SUBUNIT_ACADEMY {
+        send_sm(world, client_id, sm_ids::CLAN_NAME_IS_INVALID);
+        return;
+    }
+    let sub_pledge_id = sub_pledge.id;
+    let eligible = clan
+        .members
+        .iter()
+        .find(|m| m.name.eq_ignore_ascii_case(member_name))
+        .filter(|m| m.pledge_type == 0)
+        .filter(|m| clan.leader_sub_pledge_of(m.char_id) == 0);
+    let Some(member) = eligible.cloned() else {
+        let sm = if sub_pledge_id >= SUBUNIT_KNIGHT1 {
+            sm_ids::THE_CAPTAIN_OF_THE_ORDER_OF_KNIGHTS_CANNOT_BE_APPOINTED
+        } else {
+            sm_ids::THE_ROYAL_GUARD_CAPTAIN_CANNOT_BE_APPOINTED
+        };
+        send_sm(world, client_id, sm);
+        return;
+    };
+
+    if let Some(c) = world.clans.get_mut(&clan_id) {
+        if let Some(sp) = c.sub_pledges.get_mut(&sub_pledge_id) {
+            sp.leader_id = member.char_id;
+        }
+    }
+    let _ = world.db.send(DbCommand::UpdateSubPledge {
+        clan_id,
+        pledge_type: sub_pledge_id,
+        name: unit_name.to_string(),
+        leader_id: member.char_id,
+    });
+
+    let pledge_class = world.clans.get(&clan_id).map(|c| c.pledge_class_of(member.char_id)).unwrap_or(0);
+    if let Some(lp) = world.objects.get_component_mut::<Player>(&member.char_id) {
+        lp.pledge_class = pledge_class;
+    }
+    super::party::broadcast_user_info(world, member.char_id);
+    broadcast_clan_status(world, clan_id);
+    let sm = server_packets::system_message_with(
+        sm_ids::C1_HAS_BEEN_SELECTED_AS_THE_CAPTAIN_OF_S2,
+        &[SmParam::Text(member.name.clone()), SmParam::Text(unit_name.to_string())],
+    );
+    broadcast_to_clan(world, clan_id, &sm);
 }

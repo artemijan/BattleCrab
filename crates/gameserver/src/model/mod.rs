@@ -234,6 +234,10 @@ pub struct Player {
     /// store-only UserInfo/CharInfo builders can write it; synced at
     /// enter-world and on every ally change.
     pub ally_id: i32,
+    /// Java `Player._pledgeType` — 0 main pledge, -1 academy, 100/200 royal
+    /// guard, 1001/1002/2001/2002 knight order. Drives `pledge_class_of` and
+    /// the sub-pledge member caps.
+    pub pledge_type: i32,
 
     pub face: i32,
     pub hair_style: i32,
@@ -786,6 +790,7 @@ impl Player {
             clan_join_expiry_time: c.clan_join_expiry_time,
             power_grade: c.power_grade,
             ally_id: 0, // synced from the clan at enter-world
+            pledge_type: c.pledge_type,
             face: c.face,
             hair_style: c.hair_style,
             hair_color: c.hair_color,

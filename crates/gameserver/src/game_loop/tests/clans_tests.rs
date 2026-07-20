@@ -131,7 +131,7 @@ fn clan_roster_notifications_and_chat() {
         level: 1,
         class_id: 0,
         sex: 0,
-        race: 0, power_grade: 5, title: String::new() };
+        race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
     world.clans.insert(
         clan_id,
         crate::model::clan::Clan {
@@ -148,6 +148,7 @@ fn clan_roster_notifications_and_chat() {
             dissolving_expiry_time: 0,
             rank_privs: Default::default(),
             new_leader_id: 0,
+            sub_pledges: Default::default(),
             ally_id: 0,
             ally_name: String::new(),
             ally_penalty_expiry_time: 0,
@@ -208,8 +209,8 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
 
     // A level-1 clan: 3001 leader, 3002 plain member (no privileges).
     let clan_id = 0x7000_0001;
-    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new() };
-    world.clans.insert(clan_id, Clan { id: clan_id, name: "WhClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 });
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
+    world.clans.insert(clan_id, Clan { id: clan_id, name: "WhClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 });
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
     }
@@ -263,6 +264,7 @@ fn pledge_class_table_matches_calculate_pledge_class() {
         dissolving_expiry_time: 0,
         rank_privs: Default::default(),
         new_leader_id: 0,
+        sub_pledges: Default::default(),
         ally_id: 0,
         ally_name: String::new(),
         ally_penalty_expiry_time: 0,
@@ -327,10 +329,10 @@ fn clan_advent_aura_tracks_leader_online_state() {
     let _b = ingame_player(&mut world, 2, 3002, 0, 0, 0);
     drain_db(&mut db_rx);
     let clan_id = 0x3000_0001;
-    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new() };
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "AdventClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
+        Clan { id: clan_id, name: "AdventClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
     );
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
@@ -381,10 +383,10 @@ fn give_clan_skills_grants_gates_and_persists() {
     let _b = ingame_player(&mut world, 2, 3002, 0, 0, 0);
     drain_db(&mut db_rx);
     let clan_id = 0x3000_0055;
-    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new() };
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
+        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
     );
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
@@ -451,7 +453,7 @@ fn give_clan_skills_purges_residence_and_reapplies() {
     let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     drain_db(&mut db_rx);
     let clan_id = 0x3000_0056;
-    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new() };
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
     // The clan already "owns" 370 and a residence 590 (as a pre-fix grant left it),
     // and the residence skill is applied to the online leader.
     let mut skills = std::collections::HashMap::new();
@@ -459,7 +461,7 @@ fn give_clan_skills_purges_residence_and_reapplies() {
     skills.insert(590, 1);
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "ResClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
+        Clan { id: clan_id, name: "ResClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
     );
     world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
     world.objects.add_components(&3001, ClanSkills(std::collections::HashMap::from([(590, 1)])));
@@ -620,10 +622,10 @@ fn clan_skills_move_max_hp_mp_cp() {
     };
 
     let clan_id = 0x3000_00AA;
-    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new() };
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "VitalClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
+        Clan { id: clan_id, name: "VitalClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
     );
     world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
 
@@ -653,10 +655,10 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
     let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let _b = ingame_player(&mut world, 2, 3002, 0, 0, 0);
     let clan_id = 0x3000_0077;
-    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new() };
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "SiegeClan".into(), leader_id: 3001, level: 4, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
+        Clan { id: clan_id, name: "SiegeClan".into(), leader_id: 3001, level: 4, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
     );
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
@@ -704,13 +706,13 @@ fn clan_skills_reapply_on_member_login() {
     let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     drain_db(&mut db_rx);
     let clan_id = 0x3000_0066;
-    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new() };
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
     // The clan already knows skill 370 (as if loaded from clan_skills).
     let mut skills = std::collections::HashMap::new();
     skills.insert(370, 1);
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
+        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
     );
     world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
 
@@ -739,8 +741,8 @@ fn clan_entry_queries() {
     drain(&mut rx);
 
     let clan_id = 0x7000_0002;
-    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 40, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new() };
-    world.clans.insert(clan_id, Clan { id: clan_id, name: "Recruiters".into(), leader_id: 3001, level: 3, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 });
+    let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 40, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
+    world.clans.insert(clan_id, Clan { id: clan_id, name: "Recruiters".into(), leader_id: 3001, level: 3, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 });
 
     // ExPledgeRecruitApplyInfo: status DEFAULT (0) — nothing is registered.
     super::clans::handle_request_pledge_recruit_apply_info(&world, 1);
@@ -813,6 +815,7 @@ fn install_clan(world: &mut World, clan_id: i32, member_oids: &[i32]) {
         race: 0,
         power_grade: 5,
         title: String::new(),
+        pledge_type: 0,
     };
     world.clans.insert(
         clan_id,
@@ -839,6 +842,7 @@ fn install_clan(world: &mut World, clan_id: i32, member_oids: &[i32]) {
             dissolving_expiry_time: 0,
             rank_privs: Default::default(),
             new_leader_id: 0,
+            sub_pledges: Default::default(),
             ally_id: 0,
             ally_name: String::new(),
             ally_penalty_expiry_time: 0,
@@ -870,6 +874,15 @@ fn answer_body(answer: i32) -> Vec<u8> {
 fn oust_body(name: &str) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_string(name);
+    w.into_bytes()
+}
+
+fn reorganize_body(member_name: &str, new_pledge_type: i32, selected_member: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(1); // isMemberSelected
+    w.write_string(member_name);
+    w.write_i32(new_pledge_type);
+    w.write_string(selected_member);
     w.into_bytes()
 }
 
@@ -928,6 +941,7 @@ fn clan_invite_guards_decline_and_accept() {
             race: 0,
             power_grade: 5,
             title: String::new(),
+            pledge_type: 0,
         };
         world.clans.get_mut(&5000).unwrap().members.push(cm);
     }
@@ -1040,7 +1054,7 @@ fn clan_withdraw_and_oust() {
         level: 1,
         class_id: 0,
         sex: 0,
-        race: 0, power_grade: 5, title: String::new() });
+        race: 0, power_grade: 5, title: String::new(), pledge_type: 0 });
     clans::handle_request_oust_pledge_member(&mut world, 1, &oust_body("P3005"));
     assert!(world.clans[&5000].member(3005).is_none());
     assert!(world.clans[&5000].char_penalty_expiry_time > 0, "clan invite penalty stamped");
@@ -1467,6 +1481,7 @@ fn pad_clan(world: &mut World, clan_id: i32, to: usize) {
             race: 0,
             power_grade: 5,
             title: String::new(),
+            pledge_type: 0,
         });
         i += 1;
     }
@@ -1861,4 +1876,167 @@ fn ally_leave_dismiss_dissolve_penalties() {
     assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::THE_ALLIANCE_HAS_BEEN_DISSOLVED));
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_create_ally NewPact")));
     assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::CANNOT_CREATE_A_NEW_ALLIANCE_WITHIN_1_DAY_OF_DISSOLUTION));
+}
+
+// --- G18 slice 6: sub-pledges & academy ---
+
+fn create_academy_bypass(world: &mut World, client: u32, name: &str) {
+    handle_request_bypass_to_server(world, client, &bypass_body(&format!("npc_{NPC_OID}_create_academy {name}")));
+}
+fn create_royal_bypass(world: &mut World, client: u32, name: &str, leader: &str) {
+    handle_request_bypass_to_server(
+        world,
+        client,
+        &bypass_body(&format!("npc_{NPC_OID}_create_royal {name} {leader}")),
+    );
+}
+fn create_knight_bypass(world: &mut World, client: u32, name: &str, leader: &str) {
+    handle_request_bypass_to_server(
+        world,
+        client,
+        &bypass_body(&format!("npc_{NPC_OID}_create_knight {name} {leader}")),
+    );
+}
+
+/// Academy creation + the invite/accept flow: the level-5 gate, name clash
+/// with an existing sub-unit, and a full accept — pledge type -1, power grade
+/// 9, pledge class 1, and the roster count now honoring the real per-type cap.
+#[test]
+fn academy_create_and_join() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30026, "VillageMaster", 5, 100, 0, 0);
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut b_rx = ingame_player(&mut world, 2, 3003, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001]);
+    drain_db(&mut db_rx);
+
+    // Below level 5.
+    create_academy_bypass(&mut world, 1, "YoungGuns");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::TO_ESTABLISH_A_CLAN_ACADEMY_YOUR_CLAN_MUST_BE_LEVEL_5_OR_HIGHER));
+    world.clans.get_mut(&5000).unwrap().level = 5;
+
+    // Success.
+    create_academy_bypass(&mut world, 1, "YoungGuns");
+    assert!(world.clans[&5000].sub_pledges.contains_key(&crate::model::clan::SUBUNIT_ACADEMY));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::CONGRATULATIONS_THE_S1_S_CLAN_ACADEMY_HAS_BEEN_CREATED));
+    assert!(drain_db(&mut db_rx).iter().any(|c| matches!(c, db::DbCommand::InsertSubPledge { clan_id: 5000, pledge_type: -1, .. })));
+
+    // A second academy is refused (already established).
+    create_academy_bypass(&mut world, 1, "Another");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::YOUR_CLAN_HAS_ALREADY_ESTABLISHED_A_CLAN_ACADEMY));
+
+    // A royal-guard name clash with the academy.
+    world.clans.get_mut(&5000).unwrap().level = 6;
+    create_royal_bypass(&mut world, 1, "YoungGuns", "P3001");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::ANOTHER_MILITARY_UNIT_ALREADY_USES_THAT_NAME));
+
+    // Invite into the academy, accept: pledge type -1, power grade 9, pledge
+    // class 1 (per the verified formula).
+    clans::handle_request_join_pledge(&mut world, 1, &invite_body(3003, crate::model::clan::SUBUNIT_ACADEMY));
+    drain(&mut b_rx);
+    clans::handle_request_answer_join_pledge(&mut world, 2, &answer_body(1));
+    let b = world.objects.get_component::<Player>(&3003).unwrap();
+    assert_eq!((b.pledge_type, b.power_grade, b.pledge_class), (crate::model::clan::SUBUNIT_ACADEMY, 9, 1));
+    assert_eq!(world.clans[&5000].member(3003).unwrap().pledge_type, crate::model::clan::SUBUNIT_ACADEMY);
+    assert!(drain_db(&mut db_rx)
+        .iter()
+        .any(|c| matches!(c, db::DbCommand::UpdateCharPledgeType { char_id: 3003, pledge_type: -1 })));
+
+    // The academy's own 20-member cap is now real (not the main pledge's).
+    assert_eq!(world.clans[&5000].sub_pledge_members_count(crate::model::clan::SUBUNIT_ACADEMY), 1);
+}
+
+/// Royal-guard and knight-order creation: leader-eligibility guard,
+/// reputation cost, the family-full reject (2 royal slots), and the pledge
+/// class a captain/member gets once joined.
+#[test]
+fn royal_and_knight_creation_and_pledge_class() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30026, "VillageMaster", 5, 100, 0, 0);
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, 3003, 0, 0, 0);
+    let _c = ingame_player(&mut world, 3, 3005, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001, 3003, 3005]);
+    world.clans.get_mut(&5000).unwrap().level = 7;
+    drain_db(&mut db_rx);
+
+    // Insufficient reputation.
+    create_royal_bypass(&mut world, 1, "Vanguard", "P3003");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::THE_CLAN_REPUTATION_IS_TOO_LOW));
+
+    world.clans.get_mut(&5000).unwrap().reputation_score = 20_000;
+    // Unknown / ineligible leader name.
+    create_royal_bypass(&mut world, 1, "Vanguard", "Nobody");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::THE_ROYAL_GUARD_CAPTAIN_CANNOT_BE_APPOINTED));
+
+    // Success: reputation spent, captain wired.
+    create_royal_bypass(&mut world, 1, "Vanguard", "P3003");
+    assert_eq!(world.clans[&5000].reputation_score, 15_000);
+    assert_eq!(world.clans[&5000].sub_pledges[&100].leader_id, 3003);
+    assert_eq!(world.objects.get_component::<Player>(&3003).unwrap().pledge_class, 6, "royal captain at level 7");
+    assert!(drain_db(&mut db_rx).iter().any(|c| matches!(c, db::DbCommand::UpdateClanReputation { clan_id: 5000, reputation: 15_000 })));
+
+    // A second royal unit succeeds (2 slots), a third is refused (family full).
+    create_royal_bypass(&mut world, 1, "Rearguard", "P3005");
+    assert_eq!(world.clans[&5000].reputation_score, 10_000);
+    drain(&mut a_rx);
+    create_royal_bypass(&mut world, 1, "Thirdguard", "P3001");
+    let a_sms = sm_ids_of(&drain(&mut a_rx));
+    assert!(a_sms.contains(&server_packets::sm_ids::S1_TEXT), "family-full plain message");
+    assert_eq!(world.clans[&5000].reputation_score, 10_000, "no charge on the refused attempt");
+
+    // Knight unit: captain must not already lead the royal unit.
+    create_knight_bypass(&mut world, 1, "Blades", "P3003");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::THE_CAPTAIN_OF_THE_ORDER_OF_KNIGHTS_CANNOT_BE_APPOINTED));
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 40;
+    create_knight_bypass(&mut world, 1, "Blades", "P3001");
+    // P3001 is the clan leader — Java's `_leader.getObjectId() == leaderId` reject.
+    assert!(!world.clans[&5000].sub_pledges.contains_key(&1001));
+}
+
+/// Rename, leader assignment, and reorganize between units; a departing
+/// captain vacates their unit's leader slot.
+#[test]
+fn rename_assign_reorganize_and_vacate_on_leave() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30026, "VillageMaster", 5, 100, 0, 0);
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, 3003, 0, 0, 0);
+    let _c = ingame_player(&mut world, 3, 3005, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001, 3003, 3005]);
+    world.clans.get_mut(&5000).unwrap().level = 7;
+    world.clans.get_mut(&5000).unwrap().reputation_score = 20_000;
+    create_royal_bypass(&mut world, 1, "Vanguard", "P3003");
+    drain(&mut a_rx);
+    drain_db(&mut db_rx);
+
+    // Rename.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_rename_pledge 100 Sentinels")));
+    assert_eq!(world.clans[&5000].sub_pledges[&100].name, "Sentinels");
+    assert!(drain_db(&mut db_rx)
+        .iter()
+        .any(|c| matches!(c, db::DbCommand::UpdateSubPledge { clan_id: 5000, pledge_type: 100, .. })));
+
+    // Assign a new captain (P3003 steps down for P3005).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_assign_subpl_leader Sentinels P3005")));
+    assert_eq!(world.clans[&5000].sub_pledges[&100].leader_id, 3005);
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::C1_HAS_BEEN_SELECTED_AS_THE_CAPTAIN_OF_S2));
+
+    // Reorganize: P3003 (main pledge) trades places with the royal unit's
+    // plain roster slot — captaincy (a separate `leader_id` lookup) stays with
+    // P3005 regardless of P3005's own `pledge_type`, matching Java where a
+    // captain's `pledge_type` never changes just because they lead a unit.
+    clans::handle_request_pledge_reorganize_member(&mut world, 1, &reorganize_body("P3003", 100, "P3005"));
+    assert_eq!(world.clans[&5000].member(3003).unwrap().pledge_type, 100);
+    assert_eq!(world.clans[&5000].member(3005).unwrap().pledge_type, 0);
+    assert_eq!(world.objects.get_component::<Player>(&3003).unwrap().pledge_type, 100);
+    assert_eq!(world.clans[&5000].sub_pledges[&100].leader_id, 3005, "captaincy untouched by the roster swap");
+
+    // The captain (P3005) leaves the clan — Java clears the vacated
+    // captaincy on departure.
+    clans::handle_request_withdrawal_pledge(&mut world, 3);
+    assert_eq!(world.clans[&5000].sub_pledges[&100].leader_id, 0, "captaincy vacated on departure");
+    assert!(drain_db(&mut db_rx)
+        .iter()
+        .any(|c| matches!(c, db::DbCommand::UpdateSubPledge { clan_id: 5000, pledge_type: 100, leader_id: 0, .. })));
 }

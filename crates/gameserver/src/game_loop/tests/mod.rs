@@ -155,6 +155,7 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         clan_create_expiry_time: 0,
         clan_join_expiry_time: 0,
         power_grade: 0,
+        pledge_type: 0,
         race: 0,
         class_id: 0,
         base_class_id: 0,

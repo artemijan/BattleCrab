@@ -74,6 +74,8 @@ pub struct CharData {
     pub clan_join_expiry_time: i64,
     /// `characters.power_grade` (clan rank; 0 = never set → 5 at login).
     pub power_grade: i32,
+    /// `characters.subpledge` (sub-unit membership; 0 = main pledge).
+    pub pledge_type: i32,
     pub race: i32,
     pub class_id: i32,
     pub base_class_id: i32,

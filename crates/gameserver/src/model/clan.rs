@@ -21,6 +21,10 @@ pub struct ClanMember {
     pub power_grade: i32,
     /// `characters.title` — shown in the member-detail pledge window.
     pub title: String,
+    /// Java `ClanMember._pledgeType` (`characters.subpledge`): 0 = main pledge,
+    /// -1 = academy, 100/200 = royal guard units, 1001/1002/2001/2002 = knight
+    /// units. Mirrors the live `Player.pledge_type` for online members.
+    pub pledge_type: i32,
 }
 
 /// Java `Clan`, narrowed to the creation/display slice.
@@ -66,6 +70,10 @@ pub struct Clan {
     /// leader transfer (`AltClanLeaderInstantActivation = False` flow). Applied
     /// at the daily reset — TODO(G33): `DailyTaskManager.onClanLeaderChange`.
     pub new_leader_id: i32,
+    /// Java `_subPledges` (`clan_subpledges` table): the academy + up to 2
+    /// royal-guard + up to 4 knight-order sub-units this clan has founded,
+    /// keyed by pledge-type id.
+    pub sub_pledges: std::collections::HashMap<i32, SubPledge>,
     /// Java `_allyId` (`clan_data.ally_id`): the alliance this clan belongs to
     /// — the *leader clan's own id* doubles as the alliance id (0 = none).
     pub ally_id: i32,
@@ -87,27 +95,47 @@ impl Clan {
     }
 
     /// The pledge class a member of this clan holds — Java
-    /// `ClanMember.calculatePledgeClass`, narrowed to the main clan (`pledgeType
-    /// == 0`) with the default sub-pledge, the only pledge shape the port models
-    /// (no academy/royal/order sub-pledges yet). Clan levels run to 11 on this
-    /// dist; a clan below level 4 yields 0 for everyone, so the on-head rank
-    /// crown (which the client draws from this value, sent in UserInfo/CharInfo)
-    /// only appears once the clan is developed enough — matching retail. A clan
-    /// leader's value climbs with the clan level (…7→7, 8→8, …, 11→11), which is
-    /// what puts the crown over a high-level leader's head.
+    /// `ClanMember.calculatePledgeClass`, a direct port of its per-level nested
+    /// switch on `player.getPledgeType()` (own sub-unit membership) and
+    /// `clan.getLeaderSubPledge` (which sub-unit, if any, they captain). Clan
+    /// levels run to 11 on this dist; a clan below level 4 yields 0 for
+    /// everyone, so the on-head rank crown (which the client draws from this
+    /// value, sent in UserInfo/CharInfo) only appears once the clan is
+    /// developed enough — matching retail.
     pub fn pledge_class_of(&self, char_id: i32) -> u8 {
         let is_leader = char_id == self.leader_id;
-        match self.level {
-            4 if is_leader => 3,
-            5 => if is_leader { 4 } else { 2 },
-            6 => if is_leader { 5 } else { 3 },
-            7 => if is_leader { 7 } else { 4 },
-            8 => if is_leader { 8 } else { 5 },
-            9 => if is_leader { 9 } else { 6 },
-            10 => if is_leader { 10 } else { 7 },
-            11 => if is_leader { 11 } else { 8 },
-            _ => 0,
+        let pledge_type = self.member(char_id).map(|m| m.pledge_type).unwrap_or(0);
+        let level = self.level;
+        if level < 4 {
+            return 0;
         }
+        if level == 4 {
+            return if is_leader { 3 } else { 0 };
+        }
+        if level == 5 {
+            return if is_leader { 4 } else { 2 };
+        }
+        // level 6..=11: verified against ClanMember.calculatePledgeClass's
+        // per-level switch — `default_member`/`royal_member` are uniform
+        // across this range; only the plain leader value (6→5, not 6) and the
+        // sub-unit-captain bonus (+1 at level 6 where knights don't exist yet,
+        // +2 from level 7 on) are level-6-irregular.
+        let leader_val: i32 = if level == 6 { 5 } else { level };
+        let default_member: i32 = level - 3; // 6→3, 7→4, …, 11→8
+        let royal_member: i32 = level - 4; // 6→2, …, 11→7
+        let knight_member: i32 = level - 5; // only reachable level 7..=11: 7→2 … 11→6
+        let class: i32 = match pledge_type {
+            SUBUNIT_ACADEMY => 1,
+            SUBUNIT_ROYAL1 | SUBUNIT_ROYAL2 => royal_member,
+            SUBUNIT_KNIGHT1 | SUBUNIT_KNIGHT2 | SUBUNIT_KNIGHT3 | SUBUNIT_KNIGHT4 => knight_member,
+            _ if is_leader => leader_val,
+            _ => match self.leader_sub_pledge_of(char_id) {
+                SUBUNIT_ROYAL1 | SUBUNIT_ROYAL2 => default_member + if level == 6 { 1 } else { 2 },
+                SUBUNIT_KNIGHT1 | SUBUNIT_KNIGHT2 | SUBUNIT_KNIGHT3 | SUBUNIT_KNIGHT4 => default_member + 1,
+                _ => default_member,
+            },
+        };
+        class as u8
     }
 }
 
@@ -129,6 +157,48 @@ impl Clan {
 /// ClanPrivilege.class, true)` over the 24-entry enum (ordinal = bit index,
 /// DUMMY included) = bits 0..24.
 pub const ALL_CLAN_PRIVILEGES: i32 = (1 << 24) - 1;
+
+/// One `clan_subpledges` row — a founded sub-unit (Java `Clan.SubPledge`).
+#[derive(Debug, Clone)]
+pub struct SubPledge {
+    pub id: i32,
+    pub name: String,
+    /// 0 while vacant (Java: a departed leader's slot, or the academy, which
+    /// never has a sub-pledge leader of its own).
+    pub leader_id: i32,
+}
+
+/// Java `Clan.SUBUNIT_*` pledge-type ids.
+pub const SUBUNIT_ROYAL1: i32 = 100;
+pub const SUBUNIT_ROYAL2: i32 = 200;
+pub const SUBUNIT_KNIGHT1: i32 = 1001;
+pub const SUBUNIT_KNIGHT2: i32 = 1002;
+pub const SUBUNIT_KNIGHT3: i32 = 2001;
+pub const SUBUNIT_KNIGHT4: i32 = 2002;
+
+impl Clan {
+    /// Java `Clan.getLeaderSubPledge(leaderId)` — the pledge-type id of the
+    /// sub-unit `leaderId` captains, or 0 if they don't lead one.
+    pub fn leader_sub_pledge_of(&self, leader_id: i32) -> i32 {
+        self.sub_pledges.values().find(|sp| sp.leader_id != 0 && sp.leader_id == leader_id).map(|sp| sp.id).unwrap_or(0)
+    }
+
+    /// Java `Clan.getAvailablePledgeTypes(pledgeType)`: 0 when every slot of
+    /// that family is taken, else the next open id in the chain (Royal 1→2,
+    /// Knight 1→2→3→4).
+    pub fn available_pledge_type(&self, requested: i32) -> i32 {
+        if !self.sub_pledges.contains_key(&requested) {
+            return requested;
+        }
+        match requested {
+            SUBUNIT_ROYAL1 => self.available_pledge_type(SUBUNIT_ROYAL2),
+            SUBUNIT_KNIGHT1 => self.available_pledge_type(SUBUNIT_KNIGHT2),
+            SUBUNIT_KNIGHT2 => self.available_pledge_type(SUBUNIT_KNIGHT3),
+            SUBUNIT_KNIGHT3 => self.available_pledge_type(SUBUNIT_KNIGHT4),
+            _ => 0, // SUBUNIT_ACADEMY, SUBUNIT_ROYAL2, SUBUNIT_KNIGHT4: no fallback
+        }
+    }
+}
 
 /// `ClanPrivilege.CL_JOIN_CLAN` (ordinal 1) — required to invite into the clan.
 pub const CL_JOIN_CLAN: i32 = 1 << 1;
@@ -199,14 +269,9 @@ impl Clan {
         }
     }
 
-    /// Java `getSubPledgeMembersCount(pledgeType)`, narrowed: every member the
-    /// port models is in the main pledge (type 0) until sub-units land.
+    /// Java `getSubPledgeMembersCount(pledgeType)`.
     pub fn sub_pledge_members_count(&self, pledge_type: i32) -> usize {
-        if pledge_type == 0 {
-            self.members.len()
-        } else {
-            0
-        }
+        self.members.iter().filter(|m| m.pledge_type == pledge_type).count()
     }
 }
 
@@ -310,5 +375,103 @@ impl ClanWar {
     /// Java `getRemainingTime` — the (whole-seconds) stamp the war list shows.
     pub fn remaining_time(&self) -> i32 {
         ((self.start_time + WAR_TIMEOUT_MS) / 1000) as i32
+    }
+}
+
+#[cfg(test)]
+mod pledge_class_tests {
+    use super::*;
+
+    fn clan_at(level: i32, leader: i32, members: Vec<(i32, i32)>) -> Clan {
+        Clan {
+            id: 1,
+            name: "T".into(),
+            leader_id: leader,
+            level,
+            reputation_score: 0,
+            castle_id: 0,
+            members: members
+                .iter()
+                .map(|&(id, pt)| ClanMember {
+                    char_id: id,
+                    name: format!("P{id}"),
+                    level: 1,
+                    class_id: 0,
+                    sex: 0,
+                    race: 0,
+                    power_grade: 5,
+                    title: String::new(),
+                    pledge_type: pt,
+                })
+                .collect(),
+            skills: Default::default(),
+            warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
+            rank_privs: Default::default(),
+            new_leader_id: 0,
+            sub_pledges: Default::default(),
+            ally_id: 0,
+            ally_name: String::new(),
+            ally_penalty_expiry_time: 0,
+            ally_penalty_type: 0,
+        }
+    }
+
+    /// Every `(level, leader_class, plain_member_class, academy, royal_member,
+    /// knight_member, royal_captain, knight_captain)` row hand-transcribed from
+    /// `ClanMember.calculatePledgeClass`'s per-level switch (levels 4..=11).
+    #[test]
+    fn matches_java_calculate_pledge_class_table() {
+        // level 4: leader 3, member 0 (no sub-units possible).
+        {
+            let c = clan_at(4, 1, vec![(1, 0), (2, 0)]);
+            assert_eq!(c.pledge_class_of(1), 3);
+            assert_eq!(c.pledge_class_of(2), 0);
+        }
+        // level 5: leader 4, member 2 (still no per-pledge-type split).
+        {
+            let c = clan_at(5, 1, vec![(1, 0), (2, 0), (2, -1)]);
+            assert_eq!(c.pledge_class_of(1), 4);
+            assert_eq!(c.pledge_class_of(2), 2);
+        }
+        // (leader, default_member, academy, royal_member, royal_captain,
+        //  knight_member, knight_captain) per level 6..=11.
+        let table: &[(i32, u8, u8, u8, u8, u8, Option<u8>, Option<u8>)] = &[
+            (6, 5, 3, 1, 2, 4, None, None),
+            (7, 7, 4, 1, 3, 6, Some(2), Some(5)),
+            (8, 8, 5, 1, 4, 7, Some(3), Some(6)),
+            (9, 9, 6, 1, 5, 8, Some(4), Some(7)),
+            (10, 10, 7, 1, 6, 9, Some(5), Some(8)),
+            (11, 11, 8, 1, 7, 10, Some(6), Some(9)),
+        ];
+        for &(level, leader, default_member, academy, royal_member, royal_captain, knight_member, knight_captain) in
+            table
+        {
+            let mut members = vec![
+                (1, 0),   // leader, main pledge
+                (2, 0),   // plain main-pledge member
+                (3, -1),  // academy member
+                (4, 100), // royal-unit member
+                (5, 0),   // the royal captain: main-pledge member who leads unit 100
+            ];
+            let mut c = clan_at(level, 1, members.clone());
+            c.sub_pledges.insert(100, SubPledge { id: 100, name: "Royal".into(), leader_id: 5 });
+            assert_eq!(c.pledge_class_of(1), leader, "level {level} leader");
+            assert_eq!(c.pledge_class_of(2), default_member, "level {level} plain member");
+            assert_eq!(c.pledge_class_of(3), academy, "level {level} academy");
+            assert_eq!(c.pledge_class_of(4), royal_member, "level {level} royal member");
+            assert_eq!(c.pledge_class_of(5), royal_captain, "level {level} royal captain");
+
+            if let (Some(km), Some(kc)) = (knight_member, knight_captain) {
+                members.push((6, 1001)); // knight-unit member
+                members.push((7, 0)); // the knight captain
+                c = clan_at(level, 1, members.clone());
+                c.sub_pledges.insert(100, SubPledge { id: 100, name: "Royal".into(), leader_id: 5 });
+                c.sub_pledges.insert(1001, SubPledge { id: 1001, name: "Knights".into(), leader_id: 7 });
+                assert_eq!(c.pledge_class_of(6), km, "level {level} knight member");
+                assert_eq!(c.pledge_class_of(7), kc, "level {level} knight captain");
+            }
+        }
     }
 }

@@ -214,6 +214,28 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
         "dissolve_ally" if is_village_master(world, npc_object_id) => {
             super::clans::handle_dissolve_ally(world, client_id, object_id);
         }
+        // `VillageMaster`: sub-pledge (academy/royal-guard/knight-order)
+        // creation, renaming, and captain assignment.
+        "create_academy" if is_village_master(world, npc_object_id) => {
+            let args = command.strip_prefix("create_academy").unwrap_or("").trim();
+            super::clans::handle_create_academy(world, client_id, object_id, args);
+        }
+        "create_royal" if is_village_master(world, npc_object_id) => {
+            let args = command.strip_prefix("create_royal").unwrap_or("").trim();
+            super::clans::handle_create_royal(world, client_id, object_id, args);
+        }
+        "create_knight" if is_village_master(world, npc_object_id) => {
+            let args = command.strip_prefix("create_knight").unwrap_or("").trim();
+            super::clans::handle_create_knight(world, client_id, object_id, args);
+        }
+        "rename_pledge" if is_village_master(world, npc_object_id) => {
+            let args = command.strip_prefix("rename_pledge").unwrap_or("").trim();
+            super::clans::handle_rename_pledge(world, client_id, object_id, args);
+        }
+        "assign_subpl_leader" if is_village_master(world, npc_object_id) => {
+            let args = command.strip_prefix("assign_subpl_leader").unwrap_or("").trim();
+            super::clans::handle_assign_subpledge_leader(world, client_id, object_id, args);
+        }
         // `bypasshandlers/PrivateWarehouse.java`: the keeper's deposit/withdraw
         // windows (the bypass only appears on warehouse-keeper htmls).
         "WithdrawP" => {

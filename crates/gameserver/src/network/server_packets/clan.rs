@@ -46,8 +46,11 @@ pub fn pledge_info(clan: &crate::model::clan::Clan) -> Vec<u8> {
 }
 
 /// Port of `serverpackets/PledgeShowMemberListAll` for the main pledge
-/// (`_pledgeId` 0): the full roster with per-member online status resolved
-/// live against the world registry.
+/// (`_pledgeId` 0): the roster of main-pledge members with per-member online
+/// status resolved live against the world registry. Java sends one of these
+/// per pledge tab (main + each sub-unit) filtered to that `_pledgeId` — the
+/// port only ever opens the main-pledge tab, so sub-unit rosters aren't shown
+/// in the clan window yet (TODO(G18.6c): per-tab `PledgeShowMemberListAll`).
 pub fn pledge_show_member_list_all(
     clan: &crate::model::clan::Clan,
     objects: &crate::store::EntityStore,
@@ -75,8 +78,9 @@ pub fn pledge_show_member_list_all(
     w.write_i32(0); // ally crest id — TODO(G18.7): crests
     w.write_i32(0); // at war
     w.write_i32(0); // territory castle id
-    w.write_i32(clan.members.len() as i32);
-    for m in &clan.members {
+    let main: Vec<_> = clan.members.iter().filter(|m| m.pledge_type == 0).collect();
+    w.write_i32(main.len() as i32);
+    for m in main {
         let online = objects.has_component::<crate::model::Player>(&m.char_id);
         w.write_string(&m.name);
         w.write_i32(m.level);
@@ -423,5 +427,18 @@ pub fn alliance_info(
         w.write_i32(*c_total);
         w.write_i32(*c_online);
     }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeReceiveSubPledgeCreated` — announces a newly
+/// founded sub-unit to the clan window.
+pub fn pledge_receive_sub_pledge_created(pledge_id: i32, name: &str, leader_name: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_RECEIVE_SUB_PLEDGE_CREATED);
+    w.write_i32(1);
+    w.write_i32(pledge_id);
+    w.write_string(name);
+    w.write_string(leader_name);
     w.into_bytes()
 }

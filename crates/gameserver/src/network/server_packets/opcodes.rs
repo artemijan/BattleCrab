@@ -145,6 +145,7 @@ pub const EX_PLEDGE_POWER_GRADE_LIST: i16 = 0x3D;
 pub const EX_PLEDGE_RECEIVE_POWER_INFO: i16 = 0x3E;
 pub const EX_PLEDGE_RECEIVE_MEMBER_INFO: i16 = 0x3F;
 pub const EX_PLEDGE_RECEIVE_WAR_LIST: i16 = 0x40;
+pub const EX_PLEDGE_RECEIVE_SUB_PLEDGE_CREATED: i16 = 0x41;
 pub const EX_ACQUIRABLE_SKILL_LIST_BY_CLASS: i16 = 0xFA;
 pub const EX_PLEDGE_SKILL_LIST: i16 = 0x3A;
 /// `PledgeSkillListAdd` — one newly-learned clan skill `(id, level)`.
