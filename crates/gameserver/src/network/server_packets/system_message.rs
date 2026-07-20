@@ -161,6 +161,12 @@ pub mod sm_ids {
     pub const S1_HP_HAS_BEEN_RESTORED: i16 = 1066;
     pub const S2_HP_HAS_BEEN_RESTORED_BY_C1: i16 = 1067;
     pub const M_CRITICAL: i16 = 1280;
+    /// "$s2's MP has been drained by $c1." — the drain victim's notice.
+    pub const S2_S_MP_HAS_BEEN_DRAINED_BY_C1: i16 = 970;
+    /// "Your opponent's MP was reduced by $s1." — the caster's own.
+    pub const YOUR_OPPONENT_S_MP_WAS_REDUCED_BY_S1: i16 = 1867;
+    /// "$c1 resisted $c2's drain." — the victim's notice when `calcMagicAffected` fails.
+    pub const C1_RESISTED_C2_S_DRAIN: i16 = 2267;
     pub const C1_HAS_INFLICTED_S3_DAMAGE_ON_C2: i16 = 2261;
     pub const C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2: i16 = 2262;
     pub const S2_SECONDS_REMAINING_FOR_REUSE: i16 = 2303;

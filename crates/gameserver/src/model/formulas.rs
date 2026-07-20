@@ -61,6 +61,76 @@ pub fn calc_magic_dam(
     damage * if mcrit { crit_mul } else { 1.0 }
 }
 
+/// `Formulas.calcManaDam` — the MP-drain damage formula, which is *not* the
+/// HP one: `(sqrt(mAtk) * power * (targetMaxMp / 97)) / mDef`.
+///
+/// Note the target's **max MP** is a direct multiplier, so the same nuke drains
+/// far more from a high-MP mage than from a fighter. `shots_bonus` is Java's
+/// `bss ? 4 : sps ? 2 : 1` applied to `mAtk` *before* the square root (unlike
+/// [`calc_magic_dam`], where it scales the finished damage).
+///
+/// A magic crit triples the result and then **clamps to `crit_limit`** — a
+/// per-skill cap (1600 on Aura Sink / Seal of Gloom, 7000 on Mana Burn / Mana
+/// Storm) with no equivalent anywhere in the HP formulas.
+///
+/// Dropped terms, all identity here: `calcGeneralTraitBonus`,
+/// `calculatePvpPveBonus`, and the sapphire-jewel bonus (a later chronicle's
+/// item, absent from this dist).
+pub fn calc_mana_dam(
+    m_atk: f64,
+    m_def: f64,
+    target_max_mp: f64,
+    power: f64,
+    shots_bonus: f64,
+    failure: MagicFailure,
+    mcrit: bool,
+    crit_limit: f64,
+) -> f64 {
+    let m_atk = m_atk * shots_bonus;
+    let mut damage = (m_atk.sqrt() * power * (target_max_mp / 97.0)) / m_def.max(1.0);
+    // The `ALT_GAME_MAGICFAILURES` block, applied at Java's point in the
+    // formula — before the crit, like `calc_magic_dam`. Java has no
+    // `damage = 1` floor on the full-resist branch here, only the halving,
+    // so `Resisted` and `Half` do the same thing: ported as written.
+    match failure {
+        MagicFailure::None => {}
+        MagicFailure::Half | MagicFailure::Resisted => damage /= 2.0,
+    }
+    if mcrit {
+        damage = (damage * 3.0).min(crit_limit);
+    }
+    damage
+}
+
+/// `Formulas.calcMagicAffected` — the drain's own landing roll, separate from
+/// the `calcMagicSuccess` resist check.
+///
+/// ```java
+/// double defence = (skill.isActive() && skill.isBad()) ? target.getMDef() : 0;
+/// double attack  = 2 * actor.getMAtk() * traitBonus;      // traitBonus 1 here
+/// double d = (attack - defence) / (attack + defence) + 0.5 * Rnd.nextGaussian();
+/// return d > 0;
+/// ```
+///
+/// So it is a *noisy* mAtk-vs-mDef comparison: with equal attack and defence
+/// the deterministic term is 0 and the coin flip is even; a large mAtk edge
+/// pushes it toward certainty without ever quite reaching it.
+///
+/// `gaussian` is supplied by the caller (`World::roll_gaussian`) to keep this
+/// function pure. `defence` is passed as 0 for a skill that is not both active
+/// and bad, matching the Java branch.
+pub fn calc_magic_affected(m_atk: f64, defence: f64, gaussian: f64) -> bool {
+    let attack = 2.0 * m_atk;
+    let sum = attack + defence;
+    // Java would divide by zero here for a 0-mAtk actor and get NaN, which
+    // compares false; guard explicitly rather than relying on that.
+    if sum <= 0.0 {
+        return false;
+    }
+    let d = ((attack - defence) / sum) + (0.5 * gaussian);
+    d > 0.0
+}
+
 /// `Formulas.calcCrit`'s magic branch for both-below-level-78 actors (base
 /// classes cap at 40/76 here). `m_crit_rate` is the per-mille
 /// `Player.m_crit_hit`; `roll` is `Rnd.get(1000)`. Good skills cap at 320‰,

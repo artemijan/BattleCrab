@@ -75,6 +75,114 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 );
                 apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false);
             }
+            // `MagicalAttackMp.instant()` — drain the target's **MP**, not HP.
+            // Distinct from `MagicalAttack` in three ways: its own
+            // `calcManaDam` formula (target max MP is a multiplier), a
+            // per-skill `criticalLimit` cap on a crit, and its own
+            // `calcSuccess` gate (`calcMagicAffected`).
+            SkillEffect::MagicalAttackMp { power, critical, critical_limit } => {
+                // `calcSuccess`: `isMpBlocked()` refuses outright.
+                if crate::game_loop::abnormal::is_mp_blocked(world, target_oid) {
+                    continue;
+                }
+                let m_atk = world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
+                let m_def = target_m_def(world, target_oid);
+                // `calcMagicAffected`: `defence` is the target's mDef only for
+                // an *active bad* skill — all four of these are.
+                let defence = if skill.is_bad() { m_def } else { 0.0 };
+                let gaussian = world.roll_gaussian();
+                if !formulas::calc_magic_affected(m_atk, defence, gaussian) {
+                    // Java messages both sides and bails.
+                    if let Some(cid) = client_for_player(world, caster_oid) {
+                        if let Some(cs) = world.clients.get(&cid) {
+                            cs.send(server_packets::system_message_with(sm_ids::YOUR_ATTACK_HAS_FAILED, &[]));
+                        }
+                    }
+                    if let Some(cid) = client_for_player(world, target_oid) {
+                        if let Some(cs) = world.clients.get(&cid) {
+                            cs.send(server_packets::system_message_with(
+                                sm_ids::C1_RESISTED_C2_S_DRAIN,
+                                &[
+                                    SmParam::Text(caster_display_name(world, target_oid)),
+                                    SmParam::Text(caster_display_name(world, caster_oid)),
+                                ],
+                            ));
+                        }
+                    }
+                    continue;
+                }
+
+                // `calcShldUse` — a perfect block cuts the drain to 1.
+                let (shield_def, shield_rate, con_bonus) = crate::game_loop::combat::shield_stats(world, target_oid);
+                let (rate_roll, perfect_roll) = (world.roll(100), world.roll(100));
+                let shield = formulas::calc_shield_use(shield_rate, con_bonus, false, false, rate_roll, perfect_roll);
+
+                // Java: `mcrit = _critical && Formulas.calcCrit(skill.getMagicCriticalRate(), …)`.
+                // All four skills are `<isMagic>1</isMagic>`, and `calcCrit`'s
+                // magic branch **discards the rate it was passed** and reads
+                // the caster's `MAGIC_CRITICAL_RATE` stat instead — so
+                // `<magicCriticalRate>` is dead input here, and the roll is
+                // exactly the per-cast `mcrit` already computed above (same
+                // stat, same `min(rate, isBad ? 200 : 320) > Rnd.get(1000)`).
+                // Only the effect's own `critical` flag gates it.
+                let drain_crit = *critical && mcrit;
+                let target_max_mp =
+                    world.objects.get_component::<Vitals>(&target_oid).map(|v| v.max_mp as f64).unwrap_or(0.0);
+                let failure = roll_magic_failure(world, caster_oid, target_oid, skill, false);
+                let damage = if shield == formulas::SHIELD_PERFECT {
+                    1.0
+                } else {
+                    formulas::calc_mana_dam(
+                        m_atk,
+                        m_def + if shield == formulas::SHIELD_SUCCEED { shield_def } else { 0.0 },
+                        target_max_mp,
+                        *power,
+                        magic_shots_bonus,
+                        failure,
+                        drain_crit,
+                        *critical_limit,
+                    )
+                };
+
+                // `mp = Math.min(effected.getCurrentMp(), damage)` — you cannot
+                // drain more than is there, and the *reported* figure is the
+                // clamped one.
+                let drained = {
+                    let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) else { continue };
+                    let drained = v.cur_mp.min(damage.max(0.0));
+                    if damage > 0.0 {
+                        v.cur_mp -= drained;
+                    }
+                    drained
+                };
+                if drain_crit {
+                    if let Some(cid) = client_for_player(world, caster_oid) {
+                        if let Some(cs) = world.clients.get(&cid) {
+                            cs.send(server_packets::system_message_with(sm_ids::M_CRITICAL, &[]));
+                        }
+                    }
+                }
+                if let Some(cid) = client_for_player(world, target_oid) {
+                    if let Some(cs) = world.clients.get(&cid) {
+                        cs.send(server_packets::system_message_with(
+                            sm_ids::S2_S_MP_HAS_BEEN_DRAINED_BY_C1,
+                            &[
+                                SmParam::Text(caster_display_name(world, caster_oid)),
+                                SmParam::Int(drained as i32),
+                            ],
+                        ));
+                    }
+                }
+                if let Some(cid) = client_for_player(world, caster_oid) {
+                    if let Some(cs) = world.clients.get(&cid) {
+                        cs.send(server_packets::system_message_with(
+                            sm_ids::YOUR_OPPONENT_S_MP_WAS_REDUCED_BY_S1,
+                            &[SmParam::Int(drained as i32)],
+                        ));
+                    }
+                }
+                broadcast_vitals(world, target_oid);
+            }
             SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance } => {
                 // `PhysicalAttack.instant()`: crit is rolled here (per-effect in
                 // Java), not the once-per-cast magic roll above.
