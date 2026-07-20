@@ -206,6 +206,7 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
     // The current `<effect>`'s level-range attributes (Java `NamedParamInfo`).
     let mut cur_effect_levels: (Option<i32>, Option<i32>, Option<i32>, Option<i32>) = (None, None, None, None);
     let mut in_effects = false;
+    let mut cur_scope = EffectScope::General;
     let mut in_conditions = false;
     let mut cur_effect_name: Option<String> = None;
     let mut cur_effect_params: LeveledValues = HashMap::new();
@@ -257,6 +258,7 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                     if let Some(effect_name) = attr_str(&e, b"name") {
                         let (from_level, to_level, from_sub_level, to_sub_level) = effect_level_attrs(&e);
                         effects.push(ParsedEffect {
+                            scope: cur_scope,
                             name: effect_name,
                             params: HashMap::new(),
                             mode: String::from("DIFF"),
@@ -290,8 +292,11 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                     in_conditions = false;
                 } else if path.len() == 1 {
                     cur_field = name.clone();
-                    if name == "effects" {
+                    // Any `<*Effects>` block opens the effect section; which one
+                    // it is decides the scope every effect inside gets.
+                    if name.ends_with("ffects") {
                         in_effects = true;
+                        cur_scope = EffectScope::from_xml(&name);
                     } else if name == "conditions" {
                         in_conditions = true;
                     }
@@ -369,7 +374,7 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                 if closed == "skill" {
                     finalize_skill(skill_id, &skill_name, to_level, &values, &effects, out);
                     skill_id = -1;
-                } else if closed == "effects" {
+                } else if closed.ends_with("ffects") {
                     in_effects = false;
                 } else if closed == "conditions" {
                     in_conditions = false;
@@ -382,6 +387,7 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                 } else if closed == "effect" && in_effects {
                     if let Some(name) = cur_effect_name.take() {
                         effects.push(ParsedEffect {
+                            scope: cur_scope,
                             name,
                             params: cur_effect_params.clone(),
                             mode: cur_effect_mode.clone(),
@@ -403,9 +409,36 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
     }
 }
 
+/// Which `<*Effects>` block an effect was declared in — Java `EffectScope`.
+///
+/// `START`, `END` and `CHANNELING` are parsed as [`Self::Other`] and dropped:
+/// they hang off lifecycle hooks this port doesn't have (cast start, buff end,
+/// channelling ticks). See the slice plan for their reach.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum EffectScope {
+    General,
+    SelfScope,
+    Pve,
+    Pvp,
+    Other,
+}
+
+impl EffectScope {
+    fn from_xml(node: &str) -> Self {
+        match node {
+            "effects" => Self::General,
+            "selfEffects" => Self::SelfScope,
+            "pveEffects" => Self::Pve,
+            "pvpEffects" => Self::Pvp,
+            _ => Self::Other,
+        }
+    }
+}
+
 /// One `<effect>` element as parsed, before it is resolved into a per-level
 /// [`Skill`]. Java's `SkillData.NamedParamInfo`.
 struct ParsedEffect {
+    scope: EffectScope,
     name: String,
     params: LeveledValues,
     mode: String,
@@ -540,11 +573,11 @@ fn finalize_skill(
             })
             .unwrap_or((0, 0));
 
-        let skill_effects = effects
+        let build_scope = |want: EffectScope| effects
             .iter()
             // Java `forEachNamedParamInfoParam`: an effect whose declared level
             // range excludes this level is simply not part of the skill here.
-            .filter(|e| e.applies_at(level))
+            .filter(|e| e.applies_at(level) && e.scope == want)
             .flat_map(|e| {
                 let (xml_name, params, mode, groups, armor_condition, weapon_condition) =
                     (&e.name, &e.params, &e.mode, &e.groups, &e.armor_condition, &e.weapon_condition);
@@ -927,6 +960,7 @@ fn finalize_skill(
                                     Some((ty, lvl))
                                 })
                                 .collect::<Vec<_>>();
+
                             if dispel.is_empty() {
                                 Vec::new()
                             } else {
@@ -1281,6 +1315,14 @@ fn finalize_skill(
                 }
             })
             .collect::<Vec<_>>();
+        // Java keeps one effect list per `EffectScope`; the port carries the
+        // three it can act on. `START`/`END`/`CHANNELING` parse as `Other` and
+        // are dropped — they hang off lifecycle hooks this port doesn't have.
+        let skill_effects = build_scope(EffectScope::General);
+        let self_effects = build_scope(EffectScope::SelfScope);
+        let pve_effects = build_scope(EffectScope::Pve);
+        let pvp_effects = build_scope(EffectScope::Pvp);
+
 
         // Effect names present in the XML but not in `EFFECT_REGISTRY` are
         // silently dropped (see module docs) — expected for the vast majority
@@ -1331,6 +1373,9 @@ fn finalize_skill(
                 stay_after_death: value_at(values, "stayAfterDeath", level)
                     .is_some_and(|v| v.eq_ignore_ascii_case("true")),
                 effects: skill_effects,
+                self_effects,
+                pve_effects,
+                pvp_effects,
             },
         );
     }

@@ -55,6 +55,7 @@ mod movement_tests;
 mod boss_respawn_tests;
 mod damage_swamp_tests;
 mod effect_level_tests;
+mod effect_scope_tests;
 mod effect_zone_tests;
 mod guard_aggro_tests;
 mod minion_tests;
@@ -453,6 +454,9 @@ fn cast_test_world() -> (
         can_be_dispelled: true,
         is_debuff: false,
         stay_after_death: false,
+        self_effects: Vec::new(),
+        pve_effects: Vec::new(),
+        pvp_effects: Vec::new(),
         effects: vec![],
     };
     data.skill_data.insert_for_test(Skill {
@@ -1221,6 +1225,9 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         can_be_dispelled: true,
         is_debuff: false,
         stay_after_death: false,
+        self_effects: Vec::new(),
+        pve_effects: Vec::new(),
+        pvp_effects: Vec::new(),
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalAttack,
             mode: StatModifierType::Diff,
@@ -1277,6 +1284,9 @@ fn clan_advent_test_skill() -> Skill {
         can_be_dispelled: true,
         is_debuff: false,
         stay_after_death: false,
+        self_effects: Vec::new(),
+        pve_effects: Vec::new(),
+        pvp_effects: Vec::new(),
         effects: vec![SkillEffect::StatModifier(StatModifierEffect {
             stat: Stat::PhysicalAttack,
             mode: StatModifierType::Per,

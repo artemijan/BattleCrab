@@ -633,6 +633,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
         is_debuff: false,
         stay_after_death: false,
         effects: vec![SkillEffect::Heal { power: 30.0 }],
+        ..Default::default()
     });
     world.data.item_data.insert_for_test(ItemTemplate {
         immediate_effect: true,
@@ -758,6 +759,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
         is_debuff: false,
         stay_after_death: false,
         effects: vec![SkillEffect::EscapeToTown],
+        ..Default::default()
     });
     world.data.item_data.insert_for_test(ItemTemplate {
         immediate_effect: false,
@@ -874,6 +876,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         is_debuff: false,
         stay_after_death: false,
         effects: vec![SkillEffect::GiveItem { item_id: 21852, item_count: 5000, item_enchant_level: 0 }],
+        ..Default::default()
     });
     world.data.item_data.insert_for_test(ItemTemplate {
         immediate_effect: true,
@@ -1022,6 +1025,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
                 },
             ],
         }],
+        ..Default::default()
     });
     world.data.item_data.insert_for_test(ItemTemplate {
         immediate_effect: false,
@@ -1151,6 +1155,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
                 items: vec![RestorationItem { item_id: 6001, count: 1, min_enchant: 3, max_enchant: 5 }],
             }],
         }],
+        ..Default::default()
     });
     // The reward is a non-stackable weapon so it carries an enchant.
     world.data.item_data.insert_for_test(ItemTemplate {

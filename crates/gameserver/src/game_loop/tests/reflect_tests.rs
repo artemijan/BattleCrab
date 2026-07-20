@@ -72,8 +72,8 @@ fn an_immobilised_creature_can_still_act() {
 /// it, and keep the effects they already had.
 ///
 /// **Vengeance 368 is deliberately absent.** Its `BlockMove` lives in
-/// `<selfEffects>`, an effect scope this port does not read at all — see
-/// `vengeance_block_move_is_in_an_unread_effect_scope` below.
+/// `<selfEffects>` and so lands on the caster rather than the target — see
+/// `vengeance_block_move_loads_from_its_self_effect_scope` below.
 #[test]
 fn real_dist_block_move_skills_parse() {
     let skills = dist_skills();
@@ -90,25 +90,25 @@ fn real_dist_block_move_skills_parse() {
     }
 }
 
-/// Documents a gap this slice found but does **not** fix: the parser only reads
-/// the default `<effects>` block. Vengeance 368 puts its `BlockMove` in
-/// `<selfEffects>`, so the skill's other effects load and the immobilise does
-/// not.
-///
-/// Datapack-wide the unread scopes are `selfEffects` (91 skills, 7 learnable),
-/// `endEffects` (58/1), `pvpEffects` (38/1), `pveEffects` (33/1),
-/// `channelingEffects` (24/4) and `startEffects` (3/0). This test will start
-/// failing when that lands, which is the point.
+/// **Gap closed.** The `BlockMove` slice found that Vengeance 368's immobilise
+/// sat in `<selfEffects>`, a scope the parser did not read; the effect-scopes
+/// slice ported it. This test flipped from "still unread" to asserting the
+/// effect loads — into `self_effects`, not the general list, because it buffs
+/// the caster rather than the target.
 #[test]
-fn vengeance_block_move_is_in_an_unread_effect_scope() {
+fn vengeance_block_move_loads_from_its_self_effect_scope() {
     let skills = dist_skills();
     let vengeance = skills.get(368, 1).expect("Vengeance loads");
     assert!(
-        !vengeance.effects.iter().any(|e| matches!(e, SkillEffect::BlockMove)),
-        "still unread — flip this assertion when <selfEffects> is ported: {:?}",
-        vengeance.effects
+        vengeance.self_effects.iter().any(|e| matches!(e, SkillEffect::BlockMove)),
+        "now read from <selfEffects>: {:?}",
+        vengeance.self_effects
     );
-    assert!(vengeance.effects.len() >= 3, "its ordinary <effects> do load");
+    assert!(
+        !vengeance.effects.iter().any(|e| matches!(e, SkillEffect::BlockMove)),
+        "and not merged into the general list, which would apply it to the target"
+    );
+    assert!(vengeance.effects.len() >= 3, "its ordinary <effects> still load");
 }
 
 // ---------------------------------------------------------------------------

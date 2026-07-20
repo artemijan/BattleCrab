@@ -1050,9 +1050,29 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         } else {
             apply_skill_effects(world, player_object_id, target_oid, &skill);
         }
+        // `EffectScope.PVE`/`PVP` — applied to the same target as GENERAL, but
+        // only for the matching matchup:
+        //   playable → attackable  ⇒ PVE
+        //   playable → playable    ⇒ PVP
+        //   otherwise              ⇒ neither
+        if let Some(extra) = matchup_effects(world, player_object_id, target_oid, &skill) {
+            if !extra.is_empty() {
+                let scoped = Skill { effects: extra, ..skill.clone() };
+                apply_skill_effects(world, player_object_id, target_oid, &scoped);
+            }
+        }
         // The hate/PvP consequences are unconditional: the caster still *cast*
         // a bad skill at this target, reflected or not.
         apply_cast_consequences(world, player_object_id, target_oid, &skill);
+    }
+
+    // `EffectScope.SELF` — a separate `applyEffects(caster, caster, …)` after
+    // the target loop, so a skill can buff its caster while debuffing its
+    // target (Blinding Blow 321, Critical Blow 409, Vengeance 368, …). The
+    // parser used to read only `<effects>`, so none of these landed.
+    if !skill.self_effects.is_empty() {
+        let self_skill = Skill { effects: skill.self_effects.clone(), ..skill.clone() };
+        apply_skill_effects(world, player_object_id, player_object_id, &self_skill);
     }
 
     // Attack stance is caster-scoped, so it fires once per cast rather than
@@ -1113,6 +1133,31 @@ fn calc_buff_debuff_reflection(world: &mut World, target_oid: i32, skill: &Skill
         return false;
     }
     chance > world.roll(100) as f64
+}
+
+/// Java's PVE/PVP scope selector:
+///
+/// ```java
+/// effector.isPlayable() && effected.isAttackable() ? PVE
+///   : effector.isPlayable() && effected.isPlayable() ? PVP : null
+/// ```
+///
+/// Returns `None` when neither applies (an NPC caster, or a player hitting
+/// something that is neither attackable nor playable).
+fn matchup_effects(world: &World, caster_oid: i32, target_oid: i32, skill: &Skill) -> Option<Vec<SkillEffect>> {
+    // `isPlayable()` — a player (summons are TODO(G29)).
+    if !world.objects.has_component::<Player>(&caster_oid) {
+        return None;
+    }
+    if world.objects.has_component::<Player>(&target_oid) {
+        return Some(skill.pvp_effects.clone());
+    }
+    let attackable = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&target_oid)
+        .and_then(|n| n.template(world))
+        .is_some_and(|t| t.is_attackable_class());
+    attackable.then(|| skill.pve_effects.clone())
 }
 
 fn apply_cast_consequences(world: &mut World, player_object_id: i32, target_oid: i32, skill: &Skill) {

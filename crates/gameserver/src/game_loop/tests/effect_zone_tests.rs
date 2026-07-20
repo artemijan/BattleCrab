@@ -52,6 +52,7 @@ fn zone_skill(id: i32, effects: Vec<SkillEffect>, abnormal: &str) -> Skill {
         is_debuff: !abnormal.is_empty(),
         stay_after_death: false,
         effects,
+        ..Default::default()
     }
 }
 

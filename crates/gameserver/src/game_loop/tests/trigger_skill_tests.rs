@@ -74,6 +74,7 @@ fn install(world: &mut World, effect: SkillEffect) {
         is_debuff: false,
         stay_after_death: false,
         effects,
+        ..Default::default()
     };
     world.data.skill_data.insert_for_test(base(CARRIER, vec![effect], 0, OperateType::Passive));
     world.data.skill_data.insert_for_test(base(

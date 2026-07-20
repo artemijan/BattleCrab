@@ -61,6 +61,7 @@ fn buff_skill(id: i32, effects: Vec<SkillEffect>, stay_after_death: bool) -> Ski
         is_debuff: false,
         stay_after_death,
         effects,
+        ..Default::default()
     }
 }
 

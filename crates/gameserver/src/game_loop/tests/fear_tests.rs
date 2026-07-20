@@ -61,6 +61,7 @@ fn fear_skill(id: i32) -> Skill {
         is_debuff: true,
         stay_after_death: false,
         effects: vec![SkillEffect::Fear { ticks: 5 }],
+        ..Default::default()
     }
 }
 

@@ -93,6 +93,7 @@ fn cast(world: &mut World, skill_id: i32, effects: Vec<SkillEffect>, magic_level
         is_debuff: true,
         stay_after_death: false,
         effects,
+        ..Default::default()
     };
     world.data.skill_data.insert_for_test(skill.clone());
     crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);
@@ -147,8 +148,17 @@ fn a_confused_mob_turns_on_a_bystander() {
     // The victim is currently fixated on the caster.
     set_hate(&mut world, VICTIM_OID, CASTER, 500.0);
 
-    // roll(100) for the chance gate, then roll(len) for the candidate index.
-    world.forced_rolls.extend([0, 1]);
+    // Three rolls are consumed, in this order:
+    //   1. `apply_skill_effects`' unconditional per-cast magic-crit `roll(1000)`
+    //   2. `Confuse`'s chance gate, `roll(100)`
+    //   3. the candidate index, `roll(len)`
+    //
+    // The first one is easy to miss — it is charged before any effect runs. An
+    // earlier version of this test forced only two values, so the *index* fell
+    // through to the real RNG and the assertion below passed or failed on a
+    // coin flip. It happened to pass for two slices before a later change
+    // shifted the draw and exposed it.
+    world.forced_rolls.extend([0, 0, 1]);
     cast(&mut world, 9801, vec![SkillEffect::Confuse { chance: 100 }], 80, VICTIM_OID);
 
     let on_bystander = hate_on(&world, VICTIM_OID, BYSTANDER_OID);

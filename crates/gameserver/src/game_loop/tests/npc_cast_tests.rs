@@ -56,6 +56,7 @@ fn npc_skill(id: i32, name: &str, effects: Vec<SkillEffect>) -> Skill {
         is_debuff: false,
         stay_after_death: false,
         effects,
+        ..Default::default()
     }
 }
 
