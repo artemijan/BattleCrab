@@ -672,13 +672,34 @@ other consumer (the Newbie Guide's own-race gate) only ever compares against
 guide NPCs, always a real playable race, and player/monster race ordinals
 (0-6 vs 7-25) never overlap.
 
+🚧 **DamageBlock (2026-07-20)** — plan
+[PLAN_G19_DAMAGE_BLOCK.md](PLAN_G19_DAMAGE_BLOCK.md). Next on a fresh ranking
+sweep (5 learnable, 84 skills, 162 instances — highest raw count left, since
+a skill carries two `<effect>` elements, one per block kind). Already flagged
+by two existing TODOs (`HealPercent`/`Lethal` both noted "Java also skips
+this while `isHpBlocked()` — not gated, since that effect isn't ported yet").
+The five learnable instances (Celestial Shield 1418, Flames of Invincibility
+1427, Dance of Medusa 367, Sonic/Force Barrier 442/443) are short (10-30s)
+full-invulnerability shields. `HP_BLOCK` has a real single choke-point
+consumer in Java (`CreatureStatus.reduceHp`, refusing essentially all
+incoming HP damage except a DoT tick or a skill's own HP cost) — matched here
+by adding an `is_dot: bool` parameter + an early return to `game_loop::
+combat::apply_physical_damage`, already the one function every damage path on
+this port funnels through (auto-attack, every instant-damage `SkillEffect`,
+DoT ticks, damage zones), so this needed no new choke point, just gating the
+existing one. `MP_BLOCK` is the same "genuinely dead code in Java too"
+pattern this run of slices keeps finding (`AttackTrait`'s `MAX_MOMENTUM`,
+`Lethal`'s `INSTANT_KILL_RESIST`): `isMpBlocked()` has zero callers anywhere
+in the Java tree, so it's folded for completeness but wired to nothing.
+Closed both existing TODOs along the way.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued
 `VITALITY_CONSUME_RATE`/`BONUS_EXP`/`BONUS_SP` are waiting on it; the geometric
 `FAN`/`FAN_PB`/`SQUARE`/`SQUARE_PB`/`RING_RANGE` scopes and `GROUND`-targeted
 casts; the CC effects adjacent to the ported pair (`BlockControl` 81, `Fear` 68
-— needs forced flee movement, `DebuffBlock` 115, `DamageBlock` 162,
+— needs forced flee movement, `DebuffBlock` 115,
 `TargetCancel` 101, `KnockBack` 91, and the mute/disarm family); ~~`calcMagicSuccess`~~ (done); the abnormal-visual-effect runtime + per-creature
 team/targetable state (and the AdminEffects AVE subset it unblocks);
 `ExAbnormalStatusUpdateFromTarget`; the remaining `AcquireSkillType`s; skill

@@ -176,7 +176,10 @@ pub(crate) fn damage_zone_tick(world: &mut World) {
                 continue;
             }
             if params.hp_per_tick > 0 {
-                super::combat::apply_physical_damage(world, oid, oid, params.hp_per_tick as f64);
+                // Java's `DamageZone` calls the plain 3-arg `reduceCurrentHp`
+                // (`isDOT` defaults `false`) — a damage zone *is* blocked by
+                // `HP_BLOCK`, unlike an abnormal-effect DoT tick.
+                super::combat::apply_physical_damage(world, oid, oid, params.hp_per_tick as f64, false);
             }
             if params.mp_per_tick > 0 {
                 if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {

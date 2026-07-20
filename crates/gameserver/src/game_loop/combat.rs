@@ -1328,7 +1328,7 @@ pub(crate) fn handle_attack_hit(
         }
     }
 
-    apply_physical_damage(world, attacker, target, damage as f64);
+    apply_physical_damage(world, attacker, target, damage as f64, false);
 }
 
 /// How an attacker shows up in the *victim's* damage messages ($c2).
@@ -1356,8 +1356,13 @@ fn target_display_param(world: &World, target: i32) -> SmParam {
 
 /// Damage application shared by auto-attacks (and reusable by future physical
 /// skills): route to the right victim kind, waking NPC AI / breaking player
-/// casts / killing at 0 HP.
-pub(crate) fn apply_physical_damage(world: &mut World, attacker: i32, target: i32, damage: f64) {
+/// casts / killing at 0 HP. `is_dot` is Java `CreatureStatus.reduceHp`'s
+/// `isDOT` — the one exemption from `HP_BLOCK` (Celestial Shield, …) besides
+/// a skill's own HP cost, which never reaches this shared path at all.
+pub(crate) fn apply_physical_damage(world: &mut World, attacker: i32, target: i32, damage: f64, is_dot: bool) {
+    if !is_dot && super::abnormal::is_hp_blocked(world, target) {
+        return;
+    }
     if is_npc_oid(target) {
         npc_receive_damage(world, target, attacker, damage);
     } else {
