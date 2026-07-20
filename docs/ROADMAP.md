@@ -782,6 +782,21 @@ is generic across every `EFFECT_REGISTRY` entry already, so the four bow
 skills needed nothing extra to gate correctly — proven by a test showing
 Archery's `+50` is inert while unarmed.
 
+**FatalBlowRate** (plan:
+[PLAN_G19_FATAL_BLOW_RATE.md](PLAN_G19_FATAL_BLOW_RATE.md)) — Assassination,
+Critical Blow, Focus Death, Mortal Strike, another tied-at-4 pick, this one
+directly tied to the already-ported `Blow`/`Lethal`/`FatalBlow` mechanics:
+`formulas::calc_blow_success`'s own doc comment flagged `Stat.BLOW_RATE`/
+`BLOW_RATE_DEFENCE` as hardcoded identity, closing an already-documented gap
+rather than an isolated new stat. Same `EFFECT_REGISTRY` wiring as
+`PhysicalAttackRange`; the formula gained one `blow_rate_mod: f64` parameter
+multiplied into the existing rate expression, matching Java's `blowRateMod`
+term exactly, threaded from the caster's finalized `StatModifiers` at the
+one production call site (`SkillEffect::Blow`'s handler). `Stat.BLOW_RATE_
+DEFENCE`/`FatalBlowRateDefence` is genuinely dead in Java too — a registered
+handler no shipped skill ever grants — matching the recurring `MAX_MOMENTUM`/
+`INSTANT_KILL_RESIST` pattern, so only the attacker-side term was wired.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued

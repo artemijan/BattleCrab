@@ -72,6 +72,12 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // `combat.atk_range` line, which previously read the equipped weapon's
     // raw range directly with no stat modifier applied at all.
     ("PhysicalAttackRange", Stat::PhysicalAttackRange),
+    // Focus Death 355/Critical Blow 409/Mortal Strike 410/Assassination 432
+    // (all `PER`): `FatalBlowRate` → `Stat.BLOW_RATE` (single-stat
+    // `AbstractStatEffect`, multiplicative). Folded into
+    // `formulas::calc_blow_success`, which previously had no term for it at
+    // all — `BLOW_RATE` was identity 1.0 no matter what a caster had learned.
+    ("FatalBlowRate", Stat::BlowRate),
 ];
 
 pub struct SkillData {

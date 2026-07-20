@@ -117,7 +117,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     continue;
                 }
 
-                let (p_atk, crit_rate, str_bonus, random_dmg, caster_name) = {
+                let (p_atk, crit_rate, str_bonus, random_dmg, blow_rate_mod, caster_name) = {
                     let cs = world.objects.get_component::<CombatStats>(&caster_oid);
                     let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
                     let crit_rate = cs.map(|c| c.crit_hit).unwrap_or(0.0);
@@ -127,9 +127,16 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                         .get_component::<BaseStats>(&caster_oid)
                         .map(|b| world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Str, b.str_))
                         .unwrap_or(1.0);
+                    // `Stat.BLOW_RATE` (`FatalBlowRate` — Focus Death, Critical
+                    // Blow, Mortal Strike, Assassination), default 1.0.
+                    let blow_rate_mod = world
+                        .objects
+                        .get_component::<StatModifiers>(&caster_oid)
+                        .and_then(|m| m.mul.get(&crate::model::stats::Stat::BlowRate).copied())
+                        .unwrap_or(1.0);
                     let name =
                         caster_display_name(world, caster_oid);
-                    (p_atk, crit_rate, str_bonus, random_dmg, name)
+                    (p_atk, crit_rate, str_bonus, random_dmg, blow_rate_mod, name)
                 };
 
                 // `calcBlowSuccess`: does the blow land? A miss is silent
@@ -140,6 +147,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     a.z,
                     t.z,
                     *chance_boost,
+                    blow_rate_mod,
                     world.cfg.character.blow_rate_chance_limit,
                     world.roll(100),
                 );
