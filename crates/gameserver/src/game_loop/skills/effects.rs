@@ -75,6 +75,37 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 );
                 apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false);
             }
+            // The MP-restore family (`ManaHeal`, `ManaHealByLevel`,
+            // `ManaHealPercent`, `Mp`). Four Java handlers, four amount
+            // formulas, one shared apply path — see `restore_mp`.
+            SkillEffect::ManaHeal { power }
+            | SkillEffect::ManaHealByLevel { power }
+            | SkillEffect::ManaHealPercent { power } => {
+                let max_mp = world.objects.get_component::<Vitals>(&target_oid).map(|v| v.max_mp as f64).unwrap_or(0.0);
+                let amount = match effect {
+                    // `ManaHealPercent`: a straight share of the pool. Java
+                    // special-cases `power == 100` to the full pool, which is
+                    // the same number the multiply gives — kept as one branch.
+                    SkillEffect::ManaHealPercent { .. } => (max_mp * *power) / 100.0,
+                    // `ManaHeal`: flat power, then the recipient's
+                    // `MANA_CHARGE`. Java skips that for a *static* skill; no
+                    // skill in this family is static, so it always applies.
+                    SkillEffect::ManaHeal { .. } => mana_charge_of(world, target_oid, *power),
+                    // `ManaHealByLevel`: `MANA_CHARGE` first, *then* the
+                    // level-gap penalty.
+                    _ => {
+                        let charged = mana_charge_of(world, target_oid, *power);
+                        charged * recharge_level_penalty(target_level(world, target_oid), skill.magic_level)
+                    }
+                };
+                restore_mp(world, caster_oid, target_oid, amount);
+            }
+            // Java's `Mp` handler: `amount`, flat or as a share of max MP.
+            SkillEffect::MpRestore { amount, percent } => {
+                let max_mp = world.objects.get_component::<Vitals>(&target_oid).map(|v| v.max_mp as f64).unwrap_or(0.0);
+                let amount = if *percent { (max_mp * *amount) / 100.0 } else { *amount };
+                restore_mp(world, caster_oid, target_oid, amount);
+            }
             // `MagicalAttackMp.instant()` — drain the target's **MP**, not HP.
             // Distinct from `MagicalAttack` in three ways: its own
             // `calcManaDam` formula (target max MP is a multiplier), a
@@ -1437,6 +1468,95 @@ pub(crate) fn stop_fake_death(world: &mut World, object_id: i32) {
     broadcast_change_wait_type(world, object_id, server_packets::wait_type::STOP_FAKEDEATH);
     let pkt = server_packets::revive(object_id);
     crate::game_loop::helpers::broadcast_including_self(world, object_id, &pkt);
+}
+
+/// `effected.getStat().getValue(Stat.MANA_CHARGE, amount)` — the recipient's
+/// recharge bonus. Java's two-arg `getValue` is `mul * baseValue + add`, so
+/// Higher Mana Gain 285 (`mode=DIFF`, +22..81 by level) is a flat addition.
+fn mana_charge_of(world: &World, target_oid: i32, amount: f64) -> f64 {
+    use crate::model::stats::Stat;
+    let Some(mods) = world.objects.get_component::<crate::model::components::StatModifiers>(&target_oid) else {
+        return amount;
+    };
+    let mul = mods.mul.get(&Stat::ManaCharge).copied().unwrap_or(1.0);
+    let add = mods.add.get(&Stat::ManaCharge).copied().unwrap_or(0.0);
+    (mul * amount) + add
+}
+
+/// `ManaHealByLevel`'s recharge penalty: a target more than 5 levels above the
+/// skill's `magicLevel` gets progressively less, and 15+ levels above gets
+/// **nothing at all**.
+///
+/// Java writes it as an `if/else if` ladder from `levelDiff == 6` (×0.9) down
+/// to `== 14` (×0.1) with `>= 15` → 0; that is exactly `1 - (diff - 5)/10`
+/// over the ladder's range, so it collapses to arithmetic here rather than
+/// nine branches. A gap of 5 or less is unpenalised.
+pub(crate) fn recharge_level_penalty(target_level: i32, skill_magic_level: i32) -> f64 {
+    let diff = target_level - skill_magic_level;
+    if diff <= 5 {
+        return 1.0;
+    }
+    if diff >= 15 {
+        return 0.0;
+    }
+    1.0 - ((diff - 5) as f64 / 10.0)
+}
+
+fn target_level(world: &World, oid: i32) -> i32 {
+    if let Some(p) = world.objects.get_component::<crate::model::Player>(&oid) {
+        return p.level;
+    }
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&oid)
+        .and_then(|n| n.template(world))
+        .map(|t| t.level)
+        .unwrap_or(1)
+}
+
+/// The tail every MP-restore handler shares: the dead / `isMpBlocked` gate, the
+/// overheal clamp, the write, `broadcastStatusUpdate`, and the self-vs-other
+/// system message.
+///
+/// Java clamps against `getMaxRecoverableMp()` (`MAX_RECOVERABLE_MP` over
+/// `maxMp`). **No skill on this dist grants that stat** — the `LimitMp` handler
+/// exists but nothing uses it — so the ceiling is plain `maxMp` here.
+fn restore_mp(world: &mut World, caster_oid: i32, target_oid: i32, amount: f64) {
+    use server_packets::{sm_ids, SmParam};
+    // `effected.isDead() || effected.isDoor() || effected.isMpBlocked()`.
+    if world.objects.get_component::<Vitals>(&target_oid).is_none_or(|v| v.dead) {
+        return;
+    }
+    if crate::game_loop::abnormal::is_mp_blocked(world, target_oid) {
+        return;
+    }
+    // "Prevents overheal and negative amount".
+    let restored = {
+        let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) else { return };
+        let headroom = (v.max_mp as f64 - v.cur_mp).max(0.0);
+        let restored = amount.min(headroom).max(0.0);
+        if restored != 0.0 {
+            v.cur_mp += restored;
+        }
+        restored
+    };
+    if restored != 0.0 {
+        broadcast_vitals(world, target_oid);
+    }
+    // Java sends the message even when the amount rounded to nothing.
+    if let Some(cid) = client_for_player(world, target_oid) {
+        let pkt = if caster_oid != target_oid {
+            server_packets::system_message_with(
+                sm_ids::S2_MP_HAS_BEEN_RESTORED_BY_C1,
+                &[SmParam::Text(caster_display_name(world, caster_oid)), SmParam::Int(restored as i32)],
+            )
+        } else {
+            server_packets::system_message_with(sm_ids::S1_MP_HAS_BEEN_RESTORED, &[SmParam::Int(restored as i32)])
+        };
+        if let Some(cs) = world.clients.get(&cid) {
+            cs.send(pkt);
+        }
+    }
 }
 
 /// `Creature.reduceCurrentHp`'s fake-death branch: any real damage taken while

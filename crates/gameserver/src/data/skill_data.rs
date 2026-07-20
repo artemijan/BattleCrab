@@ -81,6 +81,11 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // `formulas::calc_blow_success`, which previously had no term for it at
     // all — `BLOW_RATE` was identity 1.0 no matter what a caster had learned.
     ("FatalBlowRate", Stat::BlowRate),
+    // Higher Mana Gain (285), a learnable passive: `ManaCharge` →
+    // `Stat.MANA_CHARGE`, a flat bonus the recharge skills read off their
+    // *recipient*. A plain single-stat `AbstractStatEffect`, so the generic
+    // registry wiring is all it needs.
+    ("ManaCharge", Stat::ManaCharge),
 ];
 
 pub struct SkillData {
@@ -919,6 +924,17 @@ fn finalize_skill(
                         power: param("power").unwrap_or(0.0),
                         critical: value_at(params, "critical", level) == Some("true"),
                         critical_limit: param("criticalLimit").unwrap_or(0.0),
+                    }],
+                    // The MP-restore family. All four are instant effects that
+                    // differ only in how the amount is computed; the shared
+                    // apply path lives in `restore_mp`.
+                    "ManaHeal" => vec![SkillEffect::ManaHeal { power: param("power").unwrap_or(0.0) }],
+                    "ManaHealByLevel" => vec![SkillEffect::ManaHealByLevel { power: param("power").unwrap_or(0.0) }],
+                    "ManaHealPercent" => vec![SkillEffect::ManaHealPercent { power: param("power").unwrap_or(0.0) }],
+                    // Java's `Mp` handler reads `amount`/`mode`, not `power`.
+                    "Mp" => vec![SkillEffect::MpRestore {
+                        amount: param("amount").unwrap_or(0.0),
+                        percent: modifier_mode == StatModifierType::Per,
                     }],
                     "SilentMove" => vec![SkillEffect::SilentMove],
                     // Fake Death 60. Two halves: the `FAKE_DEATH` flag and an

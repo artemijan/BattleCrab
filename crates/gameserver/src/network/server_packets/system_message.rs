@@ -161,6 +161,10 @@ pub mod sm_ids {
     pub const S1_HP_HAS_BEEN_RESTORED: i16 = 1066;
     pub const S2_HP_HAS_BEEN_RESTORED_BY_C1: i16 = 1067;
     pub const M_CRITICAL: i16 = 1280;
+    /// "$s1 MP has been restored." — a self-cast recharge.
+    pub const S1_MP_HAS_BEEN_RESTORED: i16 = 1067;
+    /// "$s2 MP has been restored by $c1." — someone else recharged you.
+    pub const S2_MP_HAS_BEEN_RESTORED_BY_C1: i16 = 1068;
     /// "$s2's MP has been drained by $c1." — the drain victim's notice.
     pub const S2_S_MP_HAS_BEEN_DRAINED_BY_C1: i16 = 970;
     /// "Your opponent's MP was reduced by $s1." — the caster's own.
