@@ -161,6 +161,19 @@ pub(crate) fn resolve_cast_target(
             }
             t
         }
+        // `EnemyNot.java`: "any friendly selected target" — the exact inverse
+        // of `Enemy`/`EnemyOnly`'s gate, self always allowed, and **no**
+        // force-use (ctrl) override; a hostile target is refused outright.
+        TargetType::EnemyNot => {
+            let t = caster_target.ok_or(sm_ids::INVALID_TARGET)?;
+            if t == caster.object_id {
+                return Ok(t);
+            }
+            if crate::game_loop::target::is_auto_attackable(world, caster.object_id, t) {
+                return Err(sm_ids::INVALID_TARGET);
+            }
+            t
+        }
         // `NpcBody.java`: a dead NPC corpse. Used by the Sweeper family, which
         // also carries the `OpSweeper` skill-condition — since there's no
         // condition-handler layer yet, that gate (dead + spoiled + owner) is
@@ -196,9 +209,10 @@ pub(crate) fn resolve_cast_target(
         TargetType::Other => return Err(sm_ids::INVALID_TARGET),
     };
     let (tx, ty, tz, target_dead) = target_state(world, resolved).ok_or(sm_ids::INVALID_TARGET)?;
-    // A corpse (`NPC_BODY`) is *supposed* to be dead; every other target type
-    // rejects the dead.
-    if target_dead && skill.target_type != TargetType::NpcBody {
+    // A corpse (`NPC_BODY`) is *supposed* to be dead; `EnemyNot` explicitly
+    // "works on dead targets... as well" (a heal landing on a fresh corpse
+    // ahead of a resurrection); every other target type rejects the dead.
+    if target_dead && !matches!(skill.target_type, TargetType::NpcBody | TargetType::EnemyNot) {
         return Err(sm_ids::INVALID_TARGET);
     }
     // "Geodata check when character is within range" — every non-self

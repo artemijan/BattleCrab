@@ -375,6 +375,7 @@ fn finalize_skill(
             Some("TARGET") => TargetType::Target,
             Some("ENEMY") => TargetType::Enemy,
             Some("ENEMY_ONLY") => TargetType::EnemyOnly,
+            Some("ENEMY_NOT") => TargetType::EnemyNot,
             Some("NPC_BODY") => TargetType::NpcBody,
             Some("NONE") => TargetType::None_,
             _ => TargetType::Other,

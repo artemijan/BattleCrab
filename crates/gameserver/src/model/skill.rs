@@ -33,6 +33,14 @@ pub enum TargetType {
     /// `ENEMY_ONLY`: like `ENEMY` minus the "attack anything with ctrl"
     /// leniencies; identical to `Enemy` in a world with only players.
     EnemyOnly,
+    /// `ENEMY_NOT` (`targethandlers/EnemyNot.java`) — "any friendly selected
+    /// target": the exact inverse gate of `Enemy`/`EnemyOnly` (refused when
+    /// `is_auto_attackable`, not when it isn't), self always allowed, **no**
+    /// force-use override. Also exempt from the general "no dead targets"
+    /// gate (Java: "works on dead targets or doors as well") — backs the
+    /// priest heals that need to land on a fresh corpse ahead of a
+    /// resurrection.
+    EnemyNot,
     /// `NONE`: no selection involved — `targethandlers/None.java` returns the
     /// caster, so it behaves like `SELF` minus the peace-zone gate. This is
     /// what every toggle uses.
