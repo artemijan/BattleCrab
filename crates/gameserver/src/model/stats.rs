@@ -124,6 +124,14 @@ pub enum Stat {
     /// too (level-scaled DIFF); Rapid Fire 413 cuts it (`PER -50`, a stance
     /// trading range for reload speed) — all four gated on `<weaponType>BOW`.
     PhysicalAttackRange,
+    /// Java `Stat.BLOW_RATE` ("blowRate", multiplicative) — a factor on the
+    /// `Blow`/`FatalBlow` landing roll (`Formulas.calcBlowSuccess`). Focus
+    /// Death 355, Critical Blow 409, Mortal Strike 410 and Assassination 432
+    /// (`FatalBlowRate`, all `PER`) raise it. `Stat.BLOW_RATE_DEFENCE`
+    /// (`FatalBlowRateDefence`) is *not* ported — grepped the whole datapack,
+    /// nothing grants it, matching `INSTANT_KILL_RESIST`/`MAX_MOMENTUM`'s
+    /// established "dead in Java too" pattern.
+    BlowRate,
 }
 
 /// Java `StatModifierType` (`AbstractStatAddEffect`/`AbstractStatPercentEffect`):

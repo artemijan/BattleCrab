@@ -2933,6 +2933,36 @@ fn archery_passive_raises_bow_attack_range() {
     );
 }
 
+/// G19 `FatalBlowRate`: Assassination (432, real dist data, unconditioned
+/// `PER +3`) raises `Stat::BlowRate`, the caster-side multiplier
+/// `formulas::calc_blow_success` folds into the Backstab/Lethal-Blow-style
+/// landing roll. Before this slice `Stat::BlowRate` didn't exist and the
+/// formula had no term for it at all — the skill was a passive that did
+/// nothing. Checked at the `StatModifiers` level (the formula's own boundary
+/// shift is covered by `formulas::tests::blow_success_rate_cap_and_threshold`).
+#[test]
+fn assassination_passive_raises_blow_rate_stat() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
+    let mut data = GameData::for_test();
+    data.player_templates = crate::data::player_template::PlayerTemplateData::load_from(DIST);
+    data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
+    data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    data.skill_data = crate::data::skill_data::SkillData::load_from(DIST);
+    let world = World::new(link_tx, 7, 3, 0, data, db_tx);
+
+    let bare = dummy_char(5501, "Bare");
+    let bare_bundle = Player::from_char(&world.data, &bare);
+    assert_eq!(bare_bundle.stat_modifiers.mul.get(&crate::model::stats::Stat::BlowRate), None, "no skill: no modifier at all");
+
+    let mut assassin = dummy_char(5502, "Assassin");
+    assassin.skills = vec![(432, 1)]; // Assassination
+    let assassin_bundle = Player::from_char(&world.data, &assassin);
+    let mul = assassin_bundle.stat_modifiers.mul.get(&crate::model::stats::Stat::BlowRate).copied().unwrap_or(0.0);
+    assert!((mul - 1.03).abs() < 1e-9, "Assassination: +3% PER -> ×1.03, got {mul}");
+}
+
 /// G19 `EnlargeSlot`: Expand Inventory (1372, real dist data, no `<type>` so
 /// it defaults to `Stat::InventoryNormal`) raises the inventory-slot cap
 /// `UserInfo`'s INVENTORY_LIMIT block reports. Passives fold into
