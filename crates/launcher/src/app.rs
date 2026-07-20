@@ -13,10 +13,11 @@ use std::thread;
 use egui::{Align, Color32, Layout, Pos2, Rect, Vec2, ViewportCommand};
 
 use crate::assets::Assets;
-use crate::config::Config;
+use crate::config::{self, Config};
 use crate::install::{self, Cancel, InstallRequest};
 use crate::launch::launch_game;
 use crate::progress::{Phase, ProgressRx, Reporter};
+use crate::relocate::{self, Relocation};
 use crate::theme::{self, palette};
 
 /// Native aspect ratio of the logo art (1408x768).
@@ -90,7 +91,7 @@ impl LauncherApp {
 
         let reporter = Reporter::new(tx, Some(ctx.clone()));
         let req = InstallRequest {
-            base_url: self.config.base_url.clone(),
+            base_url: config::BASE_URL.to_string(),
             install_dir: self.config.install_dir.clone(),
             cancel: self.cancel.clone(),
         };
@@ -114,7 +115,7 @@ impl LauncherApp {
                     tracing::warn!("could not persist config: {e:#}");
                 }
                 self.rx = None;
-                self.status = Some("Installation complete.".into());
+                self.status = Some(self.settle_into_game_folder());
             }
             Phase::Failed(msg) => {
                 self.rx = None;
@@ -141,8 +142,32 @@ impl LauncherApp {
         }
     }
 
+    /// Moves the launcher next to the installed client and returns the status line.
+    ///
+    /// A failure here is cosmetic — the client is installed and playable either way —
+    /// so it is reported and swallowed rather than turned into a failed install.
+    fn settle_into_game_folder(&mut self) -> String {
+        match relocate::relocate_self(&self.config.install_dir) {
+            Ok(Relocation::AlreadyInPlace) => "Installation complete.".into(),
+            Ok(Relocation::Moved(path)) => {
+                tracing::info!("launcher moved to {}", path.display());
+                "Installation complete. Launcher moved to the game folder.".into()
+            }
+            Ok(Relocation::CopiedLeftOriginal(path)) => {
+                tracing::info!("launcher copied to {}, original left behind", path.display());
+                "Installation complete. Launcher copied to the game folder — \
+                 you can delete the one you downloaded."
+                    .into()
+            }
+            Err(e) => {
+                tracing::warn!("could not move launcher into the game folder: {e:#}");
+                "Installation complete.".into()
+            }
+        }
+    }
+
     fn play(&mut self) {
-        match launch_game(&self.config.game_exe(), &self.config.server_ip) {
+        match launch_game(&self.config.game_exe(), config::SERVER_IP) {
             Ok(()) => self.status = Some("Starting game…".into()),
             Err(e) => self.status = Some(format!("{e:#}")),
         }

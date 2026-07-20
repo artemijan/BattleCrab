@@ -16,9 +16,19 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+/// Used when `LAUNCHER_BASE_URL` is not set. Deliberately not a working URL: a
+/// release built without the real bucket should fail loudly at the manifest fetch,
+/// not silently download from somewhere unintended.
+const FALLBACK_BASE_URL: &str = "https://pub-REPLACE-ME.r2.dev";
+const FALLBACK_SERVER_IP: &str = "79.137.70.1";
+
 fn main() {
     println!("cargo:rerun-if-changed=assets/icon.ico");
     println!("cargo:rerun-if-changed=build.rs");
+
+    // Must run before the non-Windows early return below, or host builds and tests
+    // would have no value for `env!` to read and would fail to compile.
+    bake_in_config();
 
     // Target, not host: cross-compiling from macOS must still embed this.
     if std::env::var("CARGO_CFG_TARGET_OS").as_deref() != Ok("windows") {
@@ -58,6 +68,33 @@ fn main() {
     if built {
         // Linking the object is what puts the resource into the PE image.
         println!("cargo:rustc-link-arg-bins={}", obj.display());
+    }
+}
+
+/// Bakes the download location and server address into the binary.
+///
+/// These are build-time properties, not user settings — a given build talks to a
+/// given deployment. Keeping them out of the persisted config also avoids the stale
+/// -config trap, where a user who ran an early build keeps a saved placeholder URL
+/// that silently overrides the one compiled in.
+///
+/// ```text
+/// LAUNCHER_BASE_URL=https://pub-xxxx.r2.dev cargo build --release
+/// ```
+fn bake_in_config() {
+    for (var, fallback) in [
+        ("LAUNCHER_BASE_URL", FALLBACK_BASE_URL),
+        ("LAUNCHER_SERVER_IP", FALLBACK_SERVER_IP),
+    ] {
+        println!("cargo:rerun-if-env-changed={var}");
+        let value = std::env::var(var).unwrap_or_else(|_| fallback.to_string());
+        // Trailing slashes would produce `…r2.dev//manifest.json`; the install code
+        // trims them too, but normalising once here keeps logs readable.
+        let value = value.trim().trim_end_matches('/').to_string();
+        if value.is_empty() {
+            panic!("{var} is set but empty");
+        }
+        println!("cargo:rustc-env={var}={value}");
     }
 }
 

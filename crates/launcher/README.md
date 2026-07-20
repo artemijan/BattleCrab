@@ -116,6 +116,42 @@ to change. It also buys resumable downloads and per-chunk updates.
 - Free-disk-space check before starting a ~9 GB download.
 - Visual design.
 
+## Configuring a build
+
+The download location and server address are baked in at build time:
+
+```
+LAUNCHER_BASE_URL=https://pub-xxxx.r2.dev \
+LAUNCHER_SERVER_IP=79.137.70.1 \
+  cargo zigbuild -p launcher --target x86_64-pc-windows-gnu --release
+```
+
+Both are optional; unset, `LAUNCHER_BASE_URL` falls back to a deliberately broken
+placeholder so a misconfigured release fails at the manifest fetch rather than
+quietly downloading from somewhere unintended. Trailing slashes are trimmed.
+
+These are **not** stored in the user's config file, on purpose. A persisted URL would
+mean anyone who ran an early build keeps a saved placeholder that silently overrides
+every later release — the config holds only the install directory and installed
+version.
+
+## Settling into the game folder
+
+After a successful install the launcher moves itself into the install root, next to
+`system/`, so it travels with the client instead of being left in Downloads.
+
+Windows locks a running image against writing and deletion but **not** renaming, so
+`rename` succeeds on ourselves and the running process is unaffected — its image is
+already mapped. That only holds within one volume. Across volumes the fallback is
+copy-then-delete, where the delete necessarily fails because it is the running image;
+the copy is placed and the original left behind, and the UI says so. Cleaning it up
+would need a helper process outliving us, which is not worth it for a file the player
+can delete.
+
+Skipped in debug builds — otherwise `cargo run` plus an install would move
+`target/debug/launcher` into the game folder, which is baffling mid-development. The
+logic is covered by unit tests in `relocate.rs` that operate on ordinary files.
+
 ## Icons
 
 There are **two** icons, and they are unrelated mechanisms — neither substitutes for

@@ -8,22 +8,22 @@ use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
-/// Where the packaged client lives on R2. Overridable at runtime for testing against
-/// a local file server.
-pub const DEFAULT_BASE_URL: &str = "https://pub-REPLACE-ME.r2.dev";
+/// Where the packaged client lives, baked in at build time from
+/// `LAUNCHER_BASE_URL`. See `bake_in_config` in `build.rs`.
+///
+/// Compiled in rather than persisted deliberately: it is a property of the build, not
+/// a user setting. Storing it in the config file would mean a user who ran an early
+/// build keeps a saved placeholder that silently overrides every later release.
+pub const BASE_URL: &str = env!("LAUNCHER_BASE_URL");
 
-/// Server address baked into the `l2.exe` command line.
-pub const DEFAULT_SERVER_IP: &str = "79.137.70.1";
+/// Server address passed to `l2.exe`, baked in from `LAUNCHER_SERVER_IP`.
+pub const SERVER_IP: &str = env!("LAUNCHER_SERVER_IP");
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Config {
     /// Root the client is unpacked into. `system/l2.exe` is resolved beneath it.
     pub install_dir: PathBuf,
-    /// Base URL for the manifest and archives.
-    pub base_url: String,
-    /// Game server IP passed to `l2.exe`.
-    pub server_ip: String,
     /// Version string of the currently installed client, if any. `None` means "not
     /// installed" and drives the UI into the install flow.
     pub installed_version: Option<String>,
@@ -31,12 +31,7 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Self {
-        Self {
-            install_dir: default_install_dir(),
-            base_url: DEFAULT_BASE_URL.to_string(),
-            server_ip: DEFAULT_SERVER_IP.to_string(),
-            installed_version: None,
-        }
+        Self { install_dir: default_install_dir(), installed_version: None }
     }
 }
 
