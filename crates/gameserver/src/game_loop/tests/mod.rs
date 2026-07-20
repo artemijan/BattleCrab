@@ -63,6 +63,7 @@ mod npc_cast_tests;
 mod npc_path_tests;
 mod subclass_tests;
 mod target_reconsider_tests;
+mod trigger_skill_tests;
 mod walker_tests;
 mod npc_regen_tests;
 mod npc_tests;

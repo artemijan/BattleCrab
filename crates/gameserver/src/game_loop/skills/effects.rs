@@ -983,6 +983,10 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             // Stealth: the whole mechanic is the `SILENT_MOVE` flag the aggro
             // scan reads (`npc_ai::notices_target`).
             | SkillEffect::SilentMove
+            // A chance-on-hit trigger does nothing when the *carrying* skill is
+            // applied; the attack path reads it off the attacker's skill book
+            // (`fire_attack_triggers`).
+            | SkillEffect::TriggerSkillByAttack { .. }
             // Noblesse Blessing: nothing at application time either — the death
             // path reads its `NOBLESS_BLESSING` flag off the landed buff.
             | SkillEffect::NoblesseBless
@@ -1508,6 +1512,105 @@ pub(crate) fn stop_fake_death(world: &mut World, object_id: i32) {
     broadcast_change_wait_type(world, object_id, server_packets::wait_type::STOP_FAKEDEATH);
     let pkt = server_packets::revive(object_id);
     crate::game_loop::helpers::broadcast_including_self(world, object_id, &pkt);
+}
+
+/// `TriggerSkillByAttack`'s `onAttackEvent`, evaluated for every hit the
+/// attacker lands (`combat::handle_attack_hit`).
+///
+/// Java subscribes each effect to `OnCreatureDamageDealt` when the carrying
+/// skill starts. These carriers are *passives* (weapon masteries), whose
+/// effects this port folds into `StatModifiers` rather than keeping as a live
+/// effect list — so instead of a subscription the attacker's skill book is
+/// scanned at hit time. That is a handful of `HashMap` lookups per swing; if it
+/// ever shows up in a profile it should become a cached index like
+/// `NpcAiSkillIndex`, not a behavioural change.
+///
+/// Ported gates, in Java's order: damage floor, **criticality equality**
+/// (`isCritical != event.isCritical()` bails — so an `isCritical=false` trigger
+/// fires only on non-crits), no self-hits, the chance roll, and the
+/// `allowWeapons` mask. `allowSkillAttack` defaults to false and this is the
+/// normal-attack path, so the skill-attack clause is satisfied by construction.
+pub(crate) fn fire_attack_triggers(world: &mut World, attacker_oid: i32, target_oid: i32, damage: i32, crit: bool) {
+    // `event.getAttacker() == event.getTarget()` bails.
+    if attacker_oid == target_oid {
+        return;
+    }
+    // Only players carry these skills on this dist (the three learnable
+    // carriers are all class passives/dances).
+    let Some(book) = world.objects.get_component::<crate::model::components::SkillBook>(&attacker_oid) else {
+        return;
+    };
+    let known: Vec<(i32, i32)> = book.0.iter().map(|(&id, &lvl)| (id, lvl)).collect();
+
+    let mut fired: Vec<(i32, i32, bool)> = Vec::new();
+    for (skill_id, skill_level) in known {
+        let Some(carrier) = world.data.skill_data.get(skill_id, skill_level).cloned() else { continue };
+        for effect in &carrier.effects {
+            let SkillEffect::TriggerSkillByAttack {
+                min_damage,
+                chance,
+                skill_id: trigger_id,
+                skill_level: trigger_level,
+                on_party,
+                is_critical,
+                allow_weapons,
+            } = effect
+            else {
+                continue;
+            };
+            if *chance == 0 || damage < *min_damage || *is_critical != crit {
+                continue;
+            }
+            // `Rnd.get(100) > _chance` bails — note `>`, so `chance` itself
+            // still fires (a 100 chance is certain).
+            if world.roll(100) > *chance {
+                continue;
+            }
+            if *allow_weapons != 0 && !attacker_weapon_allowed(world, attacker_oid, *allow_weapons) {
+                continue;
+            }
+            fired.push((*trigger_id, *trigger_level, *on_party));
+        }
+    }
+
+    for (trigger_id, trigger_level, on_party) in fired {
+        let Some(trigger) = world.data.skill_data.get(trigger_id, trigger_level).cloned() else { continue };
+        // `targetType`: SELF or MY_PARTY. The party case reduces to the caster
+        // when unpartied, which is how Java's PARTY target handler behaves too.
+        let mut targets = vec![attacker_oid];
+        if on_party {
+            // Java's PARTY target handler treats an unpartied caster as a
+            // party of one, which is also what `skills::affect` does.
+            targets = world
+                .objects
+                .get_component::<crate::model::components::PartyRef>(&attacker_oid)
+                .and_then(|r| world.parties.get(&r.0))
+                .map(|p| p.members.clone())
+                .unwrap_or_else(|| vec![attacker_oid]);
+        }
+        for t in targets {
+            // Java's refresh guard: `if (buffInfo == null || buffInfo.getSkill()
+            // .getLevel() < triggerSkill.getLevel())` — don't re-cast while the
+            // same buff is already up at that level or higher.
+            let already = world
+                .objects
+                .get_component::<Buffs>(&t)
+                .is_some_and(|b| b.0.iter().any(|x| x.skill_id == trigger_id && x.skill_level >= trigger_level));
+            if already {
+                continue;
+            }
+            // `SkillCaster.triggerCast` — no cast time, no MP, no reuse.
+            apply_skill_effects(world, attacker_oid, t, &trigger);
+        }
+    }
+}
+
+/// `event.getAttacker().getActiveWeaponItem().getItemType().mask() & _allowWeapons`.
+fn attacker_weapon_allowed(world: &World, attacker_oid: i32, mask: u32) -> bool {
+    let Some(inv) = world.objects.get_component::<crate::model::inventory::Inventory>(&attacker_oid) else {
+        return false;
+    };
+    crate::model::weapon_condition_passes(mask, inv, &world.data.item_data)
 }
 
 /// `Formulas.calcProbability` against the *effected* creature's level — the
