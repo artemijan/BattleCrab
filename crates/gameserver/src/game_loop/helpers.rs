@@ -158,3 +158,42 @@ pub(crate) fn run_queued_action(world: &mut World, object_id: i32) {
 }
 
 
+
+/// Java `World.forEachVisibleObject(origin, Creature.class, …)` — every living
+/// creature (player **or** NPC) in `origin`'s own region cell or an adjacent
+/// one, excluding `origin` itself.
+///
+/// Java's "visible" is exactly this region-neighbourhood test; there is no
+/// line-of-sight or radius term in `forEachVisibleObject`, so none is applied
+/// here either. Callers that need a distance or LOS filter add it themselves.
+///
+/// This is the general neighbour query the `RandomizeHate` deferral in the
+/// hate-effects slice was waiting on: `faction_call`'s scan only ever walked
+/// NPCs, so a mob could never be pointed at a *player* it wasn't already
+/// fighting.
+pub(crate) fn visible_creatures(world: &mut World, origin_object_id: i32) -> Vec<i32> {
+    use crate::model::components::{RegionCell, Vitals};
+    let Some(origin) = world.objects.get_component::<RegionCell>(&origin_object_id).map(|r| r.0) else {
+        return Vec::new();
+    };
+    let mut out: Vec<i32> = Vec::new();
+    // `for_each_mut` is the store's only sweep; the query itself borrows
+    // everything shared, matching how the aggro scan reads the world.
+    world.objects.for_each_mut::<(&RegionCell, &Vitals, Option<&crate::model::Player>, Option<&crate::model::npc::Npc>)>(
+        |(region, vitals, player, npc)| {
+            if vitals.dead || !crate::world::regions_adjacent(origin, region.0) {
+                return;
+            }
+            let Some(oid) = player.map(|p| p.object_id).or(npc.map(|n| n.object_id)) else { return };
+            if oid != origin_object_id {
+                out.push(oid);
+            }
+        },
+    );
+    // Sorted so the caller's `Rnd.get(size)` index maps to a stable candidate.
+    // Java's iteration order is arbitrary too, and a uniform index over a
+    // sorted list is still uniform — but this makes a forced roll in tests
+    // pick a *known* creature instead of whatever the ECS happened to yield.
+    out.sort_unstable();
+    out
+}

@@ -106,6 +106,46 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 let amount = if *percent { (max_mp * *amount) / 100.0 } else { *amount };
                 restore_mp(world, caster_oid, target_oid, amount);
             }
+            // `Confuse.instant` — the victim turns on a random bystander.
+            //
+            // Java sets the victim's target and `AI_INTENTION_ATTACK` directly.
+            // The ported NPC AI derives its attack target fresh from
+            // `AggroList::most_hated` each think tick (no cached "current
+            // target" to override), so — exactly as `GetAgro` already does —
+            // the faithful equivalent is making the chosen bystander's hate
+            // dominant. A confused *player* just gets their target swapped;
+            // Java's player-side gate lives behind the `CONFUSED` flag, which
+            // is unreachable on this dist (see `effect_flag::CONFUSED`).
+            SkillEffect::Confuse { chance } => {
+                if !confuse_chance_passes(world, target_oid, skill, *chance) {
+                    continue;
+                }
+                let Some(victim) = random_bystander(world, target_oid, caster_oid, false) else { continue };
+                retarget_onto(world, target_oid, victim);
+            }
+            // `RandomizeHate.instant` — move the *caster's* accumulated hate
+            // onto a random bystander, so the mob rounds on someone else
+            // instead of simply forgetting (Confusion 2, Switch 12).
+            SkillEffect::RandomizeHate { chance } => {
+                // Java: `if ((effected == effector) || !effected.isAttackable()) return;`
+                if target_oid == caster_oid || !crate::game_loop::combat::is_npc_oid(target_oid) {
+                    continue;
+                }
+                if !confuse_chance_passes(world, target_oid, skill, *chance) {
+                    continue;
+                }
+                // The exclusions are wider here than for `Confuse`: never the
+                // caster, and never a same-faction attackable ("aggro cannot be
+                // transfered to a mob of the same faction").
+                let Some(victim) = random_bystander(world, target_oid, caster_oid, true) else { continue };
+                if let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&target_oid) {
+                    // `getHating` → `stopHating` → `addDamageHate(target, 0, hate)`:
+                    // the hate is *moved*, not duplicated.
+                    let hate = aggro.0.get(&caster_oid).map(|i| i.hate).unwrap_or(0.0);
+                    aggro.0.remove(&caster_oid);
+                    aggro.0.entry(victim).or_default().hate += hate;
+                }
+            }
             // `MagicalAttackMp.instant()` — drain the target's **MP**, not HP.
             // Distinct from `MagicalAttack` in three ways: its own
             // `calcManaDam` formula (target max MP is a multiplier), a
@@ -1468,6 +1508,76 @@ pub(crate) fn stop_fake_death(world: &mut World, object_id: i32) {
     broadcast_change_wait_type(world, object_id, server_packets::wait_type::STOP_FAKEDEATH);
     let pkt = server_packets::revive(object_id);
     crate::game_loop::helpers::broadcast_including_self(world, object_id, &pkt);
+}
+
+/// `Formulas.calcProbability` against the *effected* creature's level — the
+/// shared chance gate on `Confuse` and `RandomizeHate`.
+fn confuse_chance_passes(world: &mut World, target_oid: i32, skill: &Skill, chance: i32) -> bool {
+    let level = target_level(world, target_oid);
+    let roll = world.roll(100);
+    formulas::calc_probability(skill.magic_level, chance, level, roll)
+}
+
+/// Java's `forEachVisibleObject(effected, Creature.class, …)` plus each
+/// handler's own exclusions, then `targetList.get(Rnd.get(size))`.
+///
+/// `Confuse` excludes only the victim themselves (which the query already
+/// does). `RandomizeHate` additionally excludes the caster and any attackable
+/// **of the victim's own faction** — "aggro cannot be transfered to a mob of
+/// the same faction" — which `exclude_caster_and_clan` selects.
+fn random_bystander(
+    world: &mut World,
+    victim_oid: i32,
+    caster_oid: i32,
+    exclude_caster_and_clan: bool,
+) -> Option<i32> {
+    let mut candidates = crate::game_loop::helpers::visible_creatures(world, victim_oid);
+    if exclude_caster_and_clan {
+        candidates.retain(|&oid| oid != caster_oid && !same_npc_faction(world, victim_oid, oid));
+    }
+    if candidates.is_empty() {
+        return None;
+    }
+    let idx = world.roll(candidates.len() as i32) as usize;
+    candidates.get(idx).copied()
+}
+
+/// Java `((Attackable) cha).isInMyClan(effectedMob)` — two NPCs sharing a clan
+/// tag. A player is never in an NPC's faction.
+fn same_npc_faction(world: &World, a_oid: i32, b_oid: i32) -> bool {
+    let clan_of = |oid: i32| {
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&oid)
+            .and_then(|n| n.template(world))
+            .map(|t| t.clans.clone())
+    };
+    match (clan_of(a_oid), clan_of(b_oid)) {
+        (Some(a), Some(b)) => a.iter().any(|c| b.contains(c)),
+        _ => false,
+    }
+}
+
+/// `effected.setTarget(target)` + `setIntention(AI_INTENTION_ATTACK, target)`,
+/// in the two shapes this port has: hate for an NPC, a plain target swap for a
+/// player.
+fn retarget_onto(world: &mut World, victim_oid: i32, new_target_oid: i32) {
+    if crate::game_loop::combat::is_npc_oid(victim_oid) {
+        let max_hate = world
+            .objects
+            .get_component::<crate::model::npc::AggroList>(&victim_oid)
+            .map(|a| a.0.values().map(|i| i.hate).fold(0.0_f64, f64::max))
+            .unwrap_or(0.0);
+        if let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&victim_oid) {
+            aggro.0.entry(new_target_oid).or_default().hate = max_hate + 1.0;
+        }
+        if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&victim_oid) {
+            ai.intention = crate::model::npc::NpcIntention::Attack;
+            ai.attack_timeout_tick = world.tick + crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
+        }
+    } else if let Some(client_id) = client_for_player(world, victim_oid) {
+        crate::game_loop::target::set_target(world, client_id, victim_oid, Some(new_target_oid));
+    }
 }
 
 /// `effected.getStat().getValue(Stat.MANA_CHARGE, amount)` — the recipient's

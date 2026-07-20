@@ -936,6 +936,15 @@ fn finalize_skill(
                         amount: param("amount").unwrap_or(0.0),
                         percent: modifier_mode == StatModifierType::Per,
                     }],
+                    // Java defaults `chance` to 100 when the tag is absent —
+                    // which is every Confuse skill on this dist (only the two
+                    // `RandomizeHate` ones declare 80).
+                    "Confuse" => vec![SkillEffect::Confuse {
+                        chance: value_at(params, "chance", level).and_then(|v| v.parse().ok()).unwrap_or(100),
+                    }],
+                    "RandomizeHate" => vec![SkillEffect::RandomizeHate {
+                        chance: value_at(params, "chance", level).and_then(|v| v.parse().ok()).unwrap_or(100),
+                    }],
                     "SilentMove" => vec![SkillEffect::SilentMove],
                     // Fake Death 60. Two halves: the `FAKE_DEATH` flag and an
                     // MP upkeep with the same `power * getTicksMultiplier()`

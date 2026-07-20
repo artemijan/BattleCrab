@@ -227,6 +227,15 @@ pub enum SkillEffect {
     /// formula. Mana Burn and Mana Storm carry only this effect, so both were
     /// dropped whole before it was ported.
     MagicalAttackMp { power: f64, critical: bool, critical_limit: f64 },
+    /// `handlers/effecthandlers/Confuse.java` — the victim turns on a random
+    /// bystander (Madness 1105, Curse Discord 1163, Seal of Mirage 1213).
+    /// Chance-gated by `calcProbability`. Madness and Curse Discord carry only
+    /// this effect, so both were dropped whole before it was ported.
+    Confuse { chance: i32 },
+    /// `handlers/effecthandlers/RandomizeHate.java` — move the caster's hate
+    /// onto a random bystander (Confusion 2, Switch 12). Confusion carries only
+    /// this effect. Same chance gate as [`Self::Confuse`].
+    RandomizeHate { chance: i32 },
     /// `handlers/effecthandlers/SilentMove.java` — stealth (Silent Move 221,
     /// Stealth 411, Dance of Shadows 366, Fake Death 60). A pure state flag:
     /// the Java handler has an empty constructor and nothing but
@@ -687,6 +696,15 @@ pub mod effect_flag {
     /// `Player.isAlikeDead()`, which is what takes the player out of every
     /// aggro scan; the client side is the `ChangeWaitType`/`Revive` pair.
     pub const FAKE_DEATH: u32 = 1 << 11;
+    /// `CONFUSED` — declared by `Confuse.getEffectFlags()`, but **unreachable
+    /// on this dist**: `Confuse.isInstant()` is true, so the effect is never
+    /// added to a `BuffInfo`'s effect list, and none of the five skills that
+    /// carry it declares an `<abnormalTime>` for a buff to live in anyway.
+    /// Java's two readers (`AttackableAI`'s "attack the effect's target rather
+    /// than the most-hated" branch and `Creature.onActionRequest`'s player
+    /// gate) therefore never fire. Folded for completeness with no consumer —
+    /// the same `FEAR`/`MP_BLOCK` pattern.
+    pub const CONFUSED: u32 = 1 << 12;
 }
 
 /// Java `AbnormalVisualEffect` — the client-side *look* of an abnormal (the
@@ -942,6 +960,7 @@ impl Skill {
                 SkillEffect::DebuffBlock => effect_flag::DEBUFF_BLOCK,
                 SkillEffect::BlockControl => effect_flag::BLOCK_CONTROL,
                 SkillEffect::Fear { .. } => effect_flag::FEAR,
+                SkillEffect::Confuse { .. } => effect_flag::CONFUSED,
                 SkillEffect::SilentMove => effect_flag::SILENT_MOVE,
                 SkillEffect::FakeDeath { .. } => effect_flag::FAKE_DEATH,
                 SkillEffect::NoblesseBless => effect_flag::NOBLESS_BLESSING,
