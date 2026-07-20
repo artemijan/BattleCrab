@@ -18,7 +18,7 @@ use quick_xml::events::Event;
 use quick_xml::Reader;
 use tracing::info;
 
-use crate::model::skill::{AffectObject, AffectScope, OperateType, RestorationGroup, RestorationItem, Skill, SkillEffect, StatModifierEffect, TargetType};
+use crate::model::skill::{AffectObject, AffectScope, DispelSlot, OperateType, RestorationGroup, RestorationItem, Skill, SkillEffect, StatModifierEffect, TargetType};
 use crate::model::stats::{Stat, StatModifierType};
 
 pub const SKILLS_DIR: &str = "data/stats/skills";
@@ -784,6 +784,20 @@ fn finalize_skill(
                         }
                         _ => Vec::new(),
                     },
+                    // The "Cancel" family: Cancellation 1056/Touch of Death
+                    // 342 (BUFF, rate 25, max 5), Cleanse 1409/Purification
+                    // Field 1425 (DEBUFF, rate 100, max 10). `slot` defaults
+                    // to BUFF (Java's `DispelSlotType` default) when absent.
+                    "DispelByCategory" => {
+                        let slot = match value_at(params, "slot", level) {
+                            Some("DEBUFF") => DispelSlot::Debuff,
+                            Some("ALL") => DispelSlot::All,
+                            _ => DispelSlot::Buff,
+                        };
+                        let rate = value_at(params, "rate", level).and_then(|v| v.parse::<i32>().ok()).unwrap_or(0);
+                        let max = value_at(params, "max", level).and_then(|v| v.parse::<i32>().ok()).unwrap_or(0);
+                        return vec![SkillEffect::DispelByCategory { slot, rate, max }];
+                    }
                     // Both the basic (247) and advanced HQ skills carry this;
                     // isAdvanced is not yet behaviorally distinct (see the effect).
                     "HeadquarterCreate" => vec![SkillEffect::CreateHeadquarter],
@@ -1824,6 +1838,60 @@ mod tests {
         assert!(
             matches!(forget.effects.as_slice(), [SkillEffect::DeleteHateOfMe { chance: 80 }]),
             "DeleteHateOfMe chance=80: {:?}", forget.effects
+        );
+    }
+
+    /// G19 `DispelByCategory` — the "Cancel" family, real dist shapes:
+    /// Cancellation (`BUFF`/25/5) and Cleanse (`DEBUFF`/100/10, no `<slot>`
+    /// exercised here since Cancellation already covers the explicit-BUFF
+    /// path — Cleanse's own tag is DEBUFF). Before this arm the effect fell
+    /// through to `EFFECT_REGISTRY`, wasn't found, and these skills stripped
+    /// nothing.
+    #[test]
+    fn dispel_by_category_parses_slot_rate_max() {
+        let xml = r#"
+        <list>
+            <skill id="1056" toLevel="1" name="Cancellation">
+                <operateType>A1</operateType>
+                <targetType>TARGET</targetType>
+                <effects>
+                    <effect name="DispelByCategory">
+                        <slot>BUFF</slot>
+                        <rate>25</rate>
+                        <max>5</max>
+                    </effect>
+                </effects>
+            </skill>
+            <skill id="1409" toLevel="1" name="Cleanse">
+                <operateType>A1</operateType>
+                <targetType>SELF</targetType>
+                <effects>
+                    <effect name="DispelByCategory">
+                        <slot>DEBUFF</slot>
+                        <rate>100</rate>
+                        <max>10</max>
+                    </effect>
+                </effects>
+            </skill>
+        </list>"#;
+        let mut out = HashMap::new();
+        parse_str(xml, &mut out);
+
+        let cancellation = out.get(&(1056, 1)).expect("Cancellation parsed");
+        assert!(
+            matches!(
+                cancellation.effects.as_slice(),
+                [SkillEffect::DispelByCategory { slot: DispelSlot::Buff, rate: 25, max: 5 }]
+            ),
+            "BUFF/25/5: {:?}", cancellation.effects
+        );
+        let cleanse = out.get(&(1409, 1)).expect("Cleanse parsed");
+        assert!(
+            matches!(
+                cleanse.effects.as_slice(),
+                [SkillEffect::DispelByCategory { slot: DispelSlot::Debuff, rate: 100, max: 10 }]
+            ),
+            "DEBUFF/100/10: {:?}", cleanse.effects
         );
     }
 

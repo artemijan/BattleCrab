@@ -1989,6 +1989,143 @@ fn cure_poison_dispels_matching_poison_debuff() {
     );
 }
 
+/// G19 `DispelByCategory` (the "Cancel" family: Cancellation, Cleanse,
+/// Purification Field, Touch of Death) — unlike `DispelBySlot`/
+/// `DispelBySlotProbability` (a fixed abnormal-type list) this steals
+/// *whatever* is up. Before this slice the effect name fell through
+/// unregistered and every skill in the family cast but stripped nothing.
+mod dispel_by_category {
+    use super::*;
+    use crate::model::components::Buffs;
+    use crate::model::skill::{AffectObject, AffectScope, DispelSlot, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType};
+    use crate::model::stats::{Stat, StatModifierType};
+
+    /// A minimal continuous skill — override `id`/`magic_type`/`effect_point`/
+    /// `can_be_dispelled`/`is_debuff`/`effects` per case.
+    fn base_skill(id: i32, name: &str) -> Skill {
+        Skill {
+            without_action: false,
+            item_consume_id: 0,
+            item_consume_count: 0,
+            id,
+            level: 1,
+            name: name.into(),
+            operate_type: OperateType::Active,
+            is_continuous: true,
+            target_type: TargetType::Target,
+            magic_type: 1,
+            magic_level: 20,
+            effect_point: 100,
+            cast_range: 600,
+            effect_range: 900,
+            hit_time: 1000,
+            hit_cancel_time: 0.0,
+            cool_time: 0,
+            reuse_delay: 0,
+            reuse_delay_group: -1,
+            mp_consume: 0,
+            mp_initial_consume: 0,
+            hp_consume: 0,
+            abnormal_time: 120,
+            abnormal_level: 1,
+            abnormal_type: "NONE".into(),
+            activate_rate: -1,
+            lvl_bonus_rate: 0,
+            over_hit: false,
+            abnormal_visuals: Vec::new(),
+            toggle_group_id: 0,
+            affect_scope: AffectScope::Single,
+            affect_object: AffectObject::All,
+            affect_range: 0,
+            affect_limit: (0, 0),
+            can_be_dispelled: true,
+            is_debuff: false,
+            stay_after_death: false,
+            effects: Vec::new(),
+        }
+    }
+
+    fn stat_buff(stat: Stat, amount: f64) -> SkillEffect {
+        SkillEffect::StatModifier(StatModifierEffect { stat, mode: StatModifierType::Diff, amount, armor_condition: 0, weapon_condition: 0 })
+    }
+
+    /// `BUFF` slot: dances are tried before ordinary buffs (Java's
+    /// `getDances()` walked before `getBuffs()`, both in reverse cast order),
+    /// and `can_be_dispelled=false` is respected.
+    #[test]
+    fn buff_slot_prefers_dances_and_respects_cant_dispel() {
+        let (mut world, _db_rx, _link_rx) = combat_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let npc_oid = NPC_OID + 40;
+        spawn_targeted_monster(&mut world, &mut a_rx, npc_oid, 50);
+
+        let mut buff = base_skill(9001, "Regular Buff");
+        buff.target_type = TargetType::Target;
+        buff.effects = vec![stat_buff(Stat::MaxHp, 100.0)];
+
+        let mut undispellable = base_skill(9002, "Undispellable Buff");
+        undispellable.target_type = TargetType::Target;
+        undispellable.can_be_dispelled = false;
+        undispellable.effects = vec![stat_buff(Stat::MaxMp, 100.0)];
+
+        let mut dance = base_skill(9003, "A Dance");
+        dance.target_type = TargetType::Target;
+        dance.magic_type = 3; // isMagic==3 -> Dance slot
+        dance.effects = vec![stat_buff(Stat::MaxCp, 100.0)];
+
+        let mut cancel = base_skill(1056, "Cancellation");
+        cancel.target_type = TargetType::Target;
+        cancel.magic_level = 40; // higher than the buffs' 20 so calcCancelSuccess isn't needed at rate=100
+        cancel.effects = vec![SkillEffect::DispelByCategory { slot: DispelSlot::Buff, rate: 100, max: 1 }];
+
+        for s in [&buff, &undispellable, &dance] {
+            world.data.skill_data.insert_for_test(s.clone());
+            crate::game_loop::skills::effects::apply_continuous_effects(&mut world, 3001, npc_oid, s, None);
+        }
+        assert_eq!(world.objects.get_component::<Buffs>(&npc_oid).unwrap().0.len(), 3, "all three landed");
+
+        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &cancel);
+
+        let remaining: Vec<i32> = world.objects.get_component::<Buffs>(&npc_oid).unwrap().0.iter().map(|b| b.skill_id).collect();
+        assert_eq!(remaining, vec![9001, 9002], "the dance (9003) is stolen first, max=1 stops there");
+    }
+
+    /// `DEBUFF` slot (Cleanse/Purification Field, rate 100): strips debuffs
+    /// only, leaving positive buffs on the same target untouched.
+    #[test]
+    fn debuff_slot_strips_only_debuffs() {
+        let (mut world, _db_rx, _link_rx) = combat_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let npc_oid = NPC_OID + 41;
+        spawn_targeted_monster(&mut world, &mut a_rx, npc_oid, 50);
+
+        let mut buff = base_skill(9001, "Regular Buff");
+        buff.target_type = TargetType::Target;
+        buff.effects = vec![stat_buff(Stat::MaxHp, 100.0)];
+
+        let mut debuff = base_skill(9010, "A Debuff");
+        debuff.target_type = TargetType::Target;
+        debuff.effect_point = -50;
+        debuff.is_debuff = true;
+        debuff.effects = vec![stat_buff(Stat::PhysicalDefence, -20.0)];
+
+        let mut cleanse = base_skill(1409, "Cleanse");
+        cleanse.target_type = TargetType::Target;
+        cleanse.effects = vec![SkillEffect::DispelByCategory { slot: DispelSlot::Debuff, rate: 100, max: 10 }];
+
+        world.data.skill_data.insert_for_test(buff.clone());
+        world.data.skill_data.insert_for_test(debuff.clone());
+        crate::game_loop::skills::effects::apply_continuous_effects(&mut world, 3001, npc_oid, &buff, None);
+        crate::game_loop::skills::effects::apply_continuous_effects(&mut world, 3001, npc_oid, &debuff, None);
+        assert_eq!(world.objects.get_component::<Buffs>(&npc_oid).unwrap().0.len(), 2, "both landed");
+
+        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &cleanse);
+
+        let remaining: Vec<i32> = world.objects.get_component::<Buffs>(&npc_oid).unwrap().0.iter().map(|b| b.skill_id).collect();
+        assert_eq!(remaining, vec![9001], "the debuff is stripped, the buff stays");
+    }
+}
+
 /// `RequestAcquireSkill.checkPlayerSkill` gates: an under-level request sends
 /// `YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS`, an unaffordable one sends
 /// `YOU_DO_NOT_HAVE_ENOUGH_SP_TO_LEARN_THIS_SKILL` — instead of silently dropping.

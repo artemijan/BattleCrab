@@ -4,7 +4,7 @@
 use crate::game_loop::helpers::client_for_player;
 use crate::model::components::{BaseStats, Buffs, CombatStats, RegionCell, Speeds, StatModifiers, Vitals};
 use crate::model::formulas;
-use crate::model::skill::{abnormal_type_client_id, ActiveBuff, RestorationGroup, Skill, SkillEffect};
+use crate::model::skill::{abnormal_type_client_id, ActiveBuff, BuffSlot, DispelSlot, RestorationGroup, Skill, SkillEffect};
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -680,6 +680,79 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     if matches && world.roll(100) < *rate {
                         to_dispel.push(sid);
                     }
+                }
+                for skill_id in to_dispel {
+                    handle_buff_expire(world, target_oid, skill_id);
+                }
+            }
+            // `DispelByCategory.instant` — the "Cancel" family (Cancellation,
+            // Cleanse, Purification Field, Touch of Death): unlike
+            // `DispelBySlot`/`DispelBySlotProbability` (a fixed abnormal-type
+            // list) this steals *whatever* is up. `BUFF` walks dances then
+            // buffs in reverse cast order (Java's `getDances()`/`getBuffs()`
+            // reversed); `DEBUFF` walks debuffs. Both stop once `max` buffs
+            // are collected. `ALL` is dead in Java too (no shipped skill uses
+            // it) and is a no-op here.
+            SkillEffect::DispelByCategory { slot, rate, max } => {
+                if world.objects.get_component::<Vitals>(&target_oid).is_some_and(|v| v.dead) {
+                    continue;
+                }
+                let candidates: Vec<(i32, i32, BuffSlot)> = world
+                    .objects
+                    .get_component::<Buffs>(&target_oid)
+                    .map(|buffs| buffs.0.iter().rev().map(|b| (b.skill_id, b.skill_level, b.slot)).collect())
+                    .unwrap_or_default();
+                let mut to_dispel: Vec<i32> = Vec::new();
+                match slot {
+                    DispelSlot::Buff => {
+                        // `Formulas.calcCancelSuccess`'s only consumer of
+                        // `Stat.RESIST_DISPEL_BUFF` — pumped by `ResistDispelByCategory`
+                        // since an earlier slice but unread until now.
+                        let resist = world
+                            .objects
+                            .get_component::<StatModifiers>(&target_oid)
+                            .map(|m| crate::model::finalize(m, crate::model::stats::Stat::ResistDispelBuff, 1.0))
+                            .unwrap_or(1.0);
+                        for want in [BuffSlot::Dance, BuffSlot::Buff] {
+                            for &(sid, slvl, _) in candidates.iter().filter(|&&(_, _, s)| s == want) {
+                                if to_dispel.len() >= *max as usize {
+                                    break;
+                                }
+                                let Some(bs) = world.data.skill_data.get(sid, slvl) else { continue };
+                                // `canBeStolen()`: passive/toggle/debuff are
+                                // already excluded by the `Dance`/`Buff` slot
+                                // filter above. `isIrreplacableBuff()`/hero/GM/
+                                // static-skill exclusions aren't modeled.
+                                if !bs.can_be_dispelled {
+                                    continue;
+                                }
+                                let hit = *rate >= 100 || {
+                                    let chance = *rate as f64
+                                        + ((skill.magic_level - bs.magic_level) as f64 * 2.0)
+                                        + ((bs.abnormal_time / 120) as f64 * resist);
+                                    world.roll(100) < (chance as i32).clamp(25, 75)
+                                };
+                                if hit {
+                                    to_dispel.push(sid);
+                                }
+                            }
+                        }
+                    }
+                    DispelSlot::Debuff => {
+                        for &(sid, slvl, _) in &candidates {
+                            if to_dispel.len() >= *max as usize {
+                                break;
+                            }
+                            let Some(bs) = world.data.skill_data.get(sid, slvl) else { continue };
+                            if !bs.is_debuff || !bs.can_be_dispelled {
+                                continue;
+                            }
+                            if world.roll(100) <= *rate {
+                                to_dispel.push(sid);
+                            }
+                        }
+                    }
+                    DispelSlot::All => {}
                 }
                 for skill_id in to_dispel {
                     handle_buff_expire(world, target_oid, skill_id);
