@@ -48,6 +48,7 @@ pub fn calc_magic_dam(
     m_def: f64,
     power: f64,
     mcrit: bool,
+    crit_mul: f64,
     shots_bonus: f64,
     failure: MagicFailure,
 ) -> f64 {
@@ -57,7 +58,7 @@ pub fn calc_magic_dam(
         MagicFailure::Half => damage /= 2.0,
         MagicFailure::Resisted => damage = 1.0,
     }
-    damage * if mcrit { 2.0 } else { 1.0 }
+    damage * if mcrit { crit_mul } else { 1.0 }
 }
 
 /// `Formulas.calcCrit`'s magic branch for both-below-level-78 actors (base
@@ -409,12 +410,44 @@ pub fn calc_shield_use(shield_rate: f64, con_bonus: f64, ranged: bool, from_behi
     }
 }
 
+/// `Formulas.calcCritDamage` / `calcCritDamageAdd` — the crit-damage
+/// multiplier and flat bonus for one attacker/target pair.
+///
+/// [`Self::default`] is Java's stat-free result (`2 * 1 * 1 * 1` and `0`),
+/// which is what every actor without a crit-damage buff gets, and what the
+/// whole port hard-coded before this slice.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CritDamage {
+    /// `cAtk` — `2 · criticalDamage · defenceCriticalDamage · balanceMod`.
+    /// The 2 is Java's, baked into `calcCritDamage` itself.
+    pub mul: f64,
+    /// `cAtkAdd` — `criticalDamageAdd + defenceCriticalDamageAdd`.
+    pub add: f64,
+}
+
+impl Default for CritDamage {
+    fn default() -> Self {
+        Self { mul: 2.0, add: 0.0 }
+    }
+}
+
 /// `Formulas.calcAutoAttackDamage`, melee/shotless narrowing (see the module
-/// note): `attack = pAtk·randomMul + proxBonus`, ×77, doubled by a crit
-/// (`calcCritDamage` = 2 with default crit-damage stats), over the target's
+/// note): `attack = pAtk·randomMul + proxBonus`, ×77, over the target's
 /// `pDef`. `position` is the attacker's position relative to the target
 /// (front 0, side +5%, back +20% of pAtk).
-pub fn calc_auto_attack_damage(p_atk: f64, random_mul: f64, position: Position, p_def: f64, crit: bool, ss: bool) -> f64 {
+///
+/// `cd` carries the crit-damage stats (Death Whisper, Focus Attack, Vicious
+/// Stance, …). It was a hard-coded ×2 before this slice, so every one of those
+/// buffs was inert on autoattacks.
+pub fn calc_auto_attack_damage(
+    p_atk: f64,
+    random_mul: f64,
+    position: Position,
+    p_def: f64,
+    crit: bool,
+    cd: CritDamage,
+    ss: bool,
+) -> f64 {
     let prox_bonus = match position {
         Position::Front => 0.0,
         Position::Side => 0.05,
@@ -423,7 +456,14 @@ pub fn calc_auto_attack_damage(p_atk: f64, random_mul: f64, position: Position, 
     // `ssBonus` = `ss ? 2 : 1` (blessed soulshots — 2.15 — don't exist in
     // Interlude; times `SHOTS_BONUS`, 1.0 here).
     let ss_bonus = if ss { 2.0 } else { 1.0 };
-    let attack = (p_atk * random_mul + prox_bonus) * ss_bonus * if crit { 2.0 } else { 1.0 } * 77.0;
+    let attack = p_atk * random_mul + prox_bonus;
+    // Java's two-section expression, with the melee `critMod` of 1 (the ranged
+    // 0.5 belongs with the deferred 154 weapon mod):
+    //   attack = (((attack·cAtk·ss) + cAtkAdd)·critMod)·77
+    //          + (attack·(1 − critMod)·ss·77)
+    // — a crit takes the first term only, a non-crit the second. Note
+    // `cAtkAdd` lands *after* the soulshot multiply and *inside* the ×77.
+    let attack = if crit { (attack * cd.mul * ss_bonus) + cd.add } else { attack * ss_bonus } * 77.0;
     (attack / p_def.max(1.0)).max(0.0)
 }
 
@@ -458,13 +498,14 @@ pub fn calc_physical_skill_damage(
     level_mod: f64,
     random_mul: f64,
     crit: bool,
+    crit_mul: f64,
     ss: bool,
 ) -> f64 {
     let attack = p_atk * p_atk_mod;
     let defence = (p_def * p_def_mod).max(1.0);
     let weapon_mod = 77.0;
     let ss_mod = if ss { 2.0 } else { 1.0 };
-    let crit_mod = if crit { 2.0 } else { 1.0 };
+    let crit_mod = if crit { crit_mul } else { 1.0 };
     let base_mod = (weapon_mod * ((attack * level_mod) + power)) / defence;
     (base_mod * ss_mod * crit_mod * random_mul).max(0.0)
 }
@@ -571,19 +612,19 @@ mod tests {
     #[test]
     fn magic_dam_matches_java_formula() {
         let none = MagicFailure::None;
-        let dmg = calc_magic_dam(100.0, 60.0, 12.0, false, 1.0, none);
+        let dmg = calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, none);
         assert!((dmg - 154.0).abs() < 1e-9);
-        let crit = calc_magic_dam(100.0, 60.0, 12.0, true, 1.0, none);
+        let crit = calc_magic_dam(100.0, 60.0, 12.0, true, 2.0, 1.0, none);
         assert!((crit - 308.0).abs() < 1e-9);
         // Spiritshot doubles, blessed spiritshot quadruples the base.
-        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, none) - 308.0).abs() < 1e-9);
-        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 4.0, none) - 616.0).abs() < 1e-9);
+        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 2.0, none) - 308.0).abs() < 1e-9);
+        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 4.0, none) - 616.0).abs() < 1e-9);
     }
 
     /// mDef is floored at 1 so a zero-defence target can't divide by zero.
     #[test]
     fn magic_dam_survives_zero_mdef() {
-        assert!(calc_magic_dam(100.0, 0.0, 12.0, false, 1.0, MagicFailure::None).is_finite());
+        assert!(calc_magic_dam(100.0, 0.0, 12.0, false, 2.0, 1.0, MagicFailure::None).is_finite());
     }
 
     /// Java applies the `MagicFailures` adjustment to the *base* damage and only
@@ -591,10 +632,10 @@ mod tests {
     /// a halved crit keeps the full ×2.
     #[test]
     fn magic_failure_applies_before_the_crit_multiplier() {
-        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 1.0, MagicFailure::Half) - 77.0).abs() < 1e-9);
-        assert!((calc_magic_dam(100.0, 60.0, 12.0, true, 1.0, MagicFailure::Half) - 154.0).abs() < 1e-9);
-        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 1.0, MagicFailure::Resisted) - 1.0).abs() < 1e-9);
-        assert!((calc_magic_dam(100.0, 60.0, 12.0, true, 1.0, MagicFailure::Resisted) - 2.0).abs() < 1e-9);
+        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, MagicFailure::Half) - 77.0).abs() < 1e-9);
+        assert!((calc_magic_dam(100.0, 60.0, 12.0, true, 2.0, 1.0, MagicFailure::Half) - 154.0).abs() < 1e-9);
+        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, MagicFailure::Resisted) - 1.0).abs() < 1e-9);
+        assert!((calc_magic_dam(100.0, 60.0, 12.0, true, 2.0, 1.0, MagicFailure::Resisted) - 2.0).abs() < 1e-9);
     }
 
     /// A PvE cast with no level gap and no level-78 penalty: `1.3^0 = 1`, so
@@ -783,13 +824,13 @@ mod tests {
     /// crit doubles; back position adds 20% of pAtk before the ×77.
     #[test]
     fn auto_attack_damage_matches_java() {
-        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false, false) - 154.0).abs() < 1e-9);
-        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, true, false) - 308.0).abs() < 1e-9);
-        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Back, 50.0, false, false) - 184.8).abs() < 1e-9);
+        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false, CritDamage::default(), false) - 154.0).abs() < 1e-9);
+        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, true, CritDamage::default(), false) - 308.0).abs() < 1e-9);
+        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Back, 50.0, false, CritDamage::default(), false) - 184.8).abs() < 1e-9);
         // A soulshot doubles the swing (×2 ssBonus): 154 → 308.
-        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false, true) - 308.0).abs() < 1e-9);
+        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false, CritDamage::default(), true) - 308.0).abs() < 1e-9);
         // pDef floors at 1.
-        assert!(calc_auto_attack_damage(100.0, 1.0, Position::Front, 0.0, false, false).is_finite());
+        assert!(calc_auto_attack_damage(100.0, 1.0, Position::Front, 0.0, false, CritDamage::default(), false).is_finite());
     }
 
     /// `calcShldUse`: no shield → never blocks; a back attack can't be blocked;
@@ -819,13 +860,13 @@ mod tests {
     #[test]
     fn physical_skill_damage_matches_java() {
         let lm = level_mod(40);
-        let base = calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, false);
+        let base = calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, false);
         assert!((base - (77.0 * ((100.0 * 1.29) + 50.0) / 60.0)).abs() < 1e-9);
-        assert!((calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, true, false) - base * 2.0).abs() < 1e-9);
-        assert!((calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, true) - base * 2.0).abs() < 1e-9);
-        assert!((calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.1, false, false) - base * 1.1).abs() < 1e-9);
+        assert!((calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, true, 2.0, false) - base * 2.0).abs() < 1e-9);
+        assert!((calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, true) - base * 2.0).abs() < 1e-9);
+        assert!((calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.1, false, 2.0, false) - base * 1.1).abs() < 1e-9);
         // pAtkMod/pDefMod scale attack and defence; defence floors at 1.
-        assert!(calc_physical_skill_damage(100.0, 1.0, 0.0, 0.0, 50.0, lm, 1.0, false, false).is_finite());
+        assert!(calc_physical_skill_damage(100.0, 1.0, 0.0, 0.0, 50.0, lm, 1.0, false, 2.0, false).is_finite());
     }
 
     /// Physical skill crit: `critChance · strBonus` clamped [5, 90] vs Rnd(100).

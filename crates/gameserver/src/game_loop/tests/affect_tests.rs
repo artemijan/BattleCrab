@@ -57,7 +57,7 @@ fn aoe_skill(id: i32, scope: AffectScope, object: AffectObject, range: i32) -> S
             amount: -10.0,
             armor_condition: 0,
             weapon_condition: 0,
-            move_type: None,
+            qualifier: None,
         })],
     }
 }

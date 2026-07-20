@@ -453,7 +453,7 @@ fn finalize_skill(
                         amount,
                         armor_condition: *armor_condition,
                         weapon_condition: *weapon_condition,
-                        move_type: None,
+                        qualifier: None,
                     })
                 };
                 match xml_name.as_str() {
@@ -479,7 +479,7 @@ fn finalize_skill(
                                 amount,
                                 armor_condition: *armor_condition,
                                 weapon_condition: *weapon_condition,
-                                move_type: Some(move_type),
+                                qualifier: Some(crate::model::stats::StatQualifier::MoveType(move_type)),
                             })],
                             _ => Vec::new(),
                         };
@@ -506,7 +506,7 @@ fn finalize_skill(
                                     amount,
                                     armor_condition: *armor_condition,
                                     weapon_condition: *weapon_condition,
-                                    move_type: None,
+                                    qualifier: None,
                                 })
                             })
                             .into_iter()
@@ -526,7 +526,7 @@ fn finalize_skill(
                                     amount,
                                     armor_condition: *armor_condition,
                                     weapon_condition: *weapon_condition,
-                                    move_type: None,
+                                    qualifier: None,
                                 })
                             })
                             .into_iter()
@@ -935,6 +935,11 @@ fn finalize_skill(
                     // mode here (like `Speed`). Without this the effect fell
                     // through, produced no modifier, and the buff was dropped
                     // whole (community-board "Death Whisper doesn't apply").
+                    // The `AbstractStatEffect` crit-damage family: one handler,
+                    // two stats, picked by mode (PER → the multiplier, DIFF →
+                    // the flat add). Every one of these was parsed *before* this
+                    // slice and pumped a stat that nothing read — see
+                    // `formulas::crit_damage_multiplier`.
                     "CriticalDamage" => param("amount")
                         .map(|amount| {
                             let stat = if modifier_mode == StatModifierType::Per {
@@ -946,6 +951,60 @@ fn finalize_skill(
                         })
                         .into_iter()
                         .collect(),
+                    "DefenceCriticalDamage" => param("amount")
+                        .map(|amount| {
+                            let stat = if modifier_mode == StatModifierType::Per {
+                                Stat::DefenceCriticalDamage
+                            } else {
+                                Stat::DefenceCriticalDamageAdd
+                            };
+                            stat_mod(stat, amount)
+                        })
+                        .into_iter()
+                        .collect(),
+                    // Prophecy of Wind (1357), Victories of Pa'agrio (1414).
+                    // Java's `MAGIC_CRITICAL_DAMAGE_ADD` half is dropped: the
+                    // magic branch of `calcCritDamage` reads only the
+                    // multiplier, and `calcCritDamageAdd`'s magic result is
+                    // never applied (see `Formulas.calcMagicDam`'s own TODO).
+                    "MagicCriticalDamage" => param("amount")
+                        .filter(|_| modifier_mode == StatModifierType::Per)
+                        .map(|amount| stat_mod(Stat::MagicCriticalDamage, amount))
+                        .into_iter()
+                        .collect(),
+                    "DefenceMagicCriticalDamage" => param("amount")
+                        .filter(|_| modifier_mode == StatModifierType::Per)
+                        .map(|amount| stat_mod(Stat::DefenceMagicCriticalDamage, amount))
+                        .into_iter()
+                        .collect(),
+                    // Focus Death (355), Focus Power (357): a crit-damage
+                    // multiplier that applies only from a given attack
+                    // position. Java merges `(amount/100)+1` multiplicatively
+                    // into `_positionTypeStats` — a different map, merge and
+                    // identity from the move-type one, so the qualifier routes
+                    // it accordingly. Read only by the *autoattack* branch of
+                    // `calcCritDamage`, matching Java.
+                    "CriticalDamagePosition" => {
+                        let position = match value_at(params, "position", level) {
+                            // Java `params.getEnum("position", Position.class, Position.FRONT)`.
+                            Some("BACK") => crate::model::movement::Position::Back,
+                            Some("SIDE") => crate::model::movement::Position::Side,
+                            _ => crate::model::movement::Position::Front,
+                        };
+                        return param("amount")
+                            .map(|amount| {
+                                SkillEffect::StatModifier(StatModifierEffect {
+                                    stat: Stat::CriticalDamage,
+                                    mode: StatModifierType::Per,
+                                    amount,
+                                    armor_condition: *armor_condition,
+                                    weapon_condition: *weapon_condition,
+                                    qualifier: Some(crate::model::stats::StatQualifier::Position(position)),
+                                })
+                            })
+                            .into_iter()
+                            .collect();
+                    }
                     // Mental Shield (1035) / Stun Resistance ("Resist Shock",
                     // 1259): Java `DefenceTrait` raises per-`TraitType` resistance
                     // (HOLD/SLEEP/SHOCK…) — not a single `Stat`, and its params

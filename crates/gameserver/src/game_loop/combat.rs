@@ -160,6 +160,67 @@ pub(crate) fn combatant(world: &World, object_id: i32) -> Option<Combatant> {
     })
 }
 
+/// `Formulas.calcCritDamage` / `calcCritDamageAdd`, **autoattack branch**
+/// (`skill == null`) — the crit-damage stats for one attacker/target pair at a
+/// given attack position:
+///
+/// ```java
+/// criticalDamage = getValue(CRITICAL_DAMAGE, 1) * getPositionTypeValue(CRITICAL_DAMAGE, position);
+/// defenceCriticalDamage = target.getValue(DEFENCE_CRITICAL_DAMAGE, 1);
+/// return 2 * criticalDamage * defenceCriticalDamage * balanceMod;   // balanceMod 1
+/// ```
+///
+/// This is where Death Whisper 1242, Focus Attack 317, Vicious Stance 312,
+/// Frenzy 176, Dance of Fire 274 and the rest of the 18 learnable
+/// `CriticalDamage` skills finally land — every one was inert before, pumping
+/// a stat with no reader anywhere. The position term is
+/// `CriticalDamagePosition` (Focus Death 355, Focus Power 357), read *only*
+/// here, matching Java.
+fn crit_damage_auto(
+    world: &World,
+    attacker_oid: i32,
+    target_oid: i32,
+    position: crate::model::movement::Position,
+) -> formulas::CritDamage {
+    use crate::model::components::StatModifiers;
+    use crate::model::stats::Stat;
+    let attacker = world.objects.get_component::<StatModifiers>(&attacker_oid);
+    let target = world.objects.get_component::<StatModifiers>(&target_oid);
+    // `getValue(stat, 1)` / `getValue(stat, 0)`: the mul map defaults to 1.0
+    // and the add map to 0.0, so an actor with no `StatModifiers` at all (most
+    // NPCs) yields Java's stat-free `2.0` / `0.0` — what the whole port
+    // hard-coded before this slice.
+    let mul_of = |m: Option<&StatModifiers>, s: Stat| m.and_then(|m| m.mul.get(&s).copied()).unwrap_or(1.0);
+    let add_of = |m: Option<&StatModifiers>, s: Stat| m.and_then(|m| m.add.get(&s).copied()).unwrap_or(0.0);
+    let position_mul = attacker.map(|m| m.position_value(Stat::CriticalDamage, position)).unwrap_or(1.0);
+    formulas::CritDamage {
+        mul: 2.0 * mul_of(attacker, Stat::CriticalDamage) * position_mul * mul_of(target, Stat::DefenceCriticalDamage),
+        add: add_of(attacker, Stat::CriticalDamageAdd) + add_of(target, Stat::DefenceCriticalDamageAdd),
+    }
+}
+
+/// `calcCritDamage`'s **skill** branches, which take neither the position term
+/// nor any additive one (`PhysicalAttack` and `calcMagicDam` apply only
+/// `critMod`).
+///
+/// The physical half reads `PHYSICAL_SKILL_CRITICAL_DAMAGE`, which **no
+/// learnable skill on this dist grants** (40 non-learnable ones do), so it
+/// stays the stat-free 2.0 — the established `BLOW_RATE_DEFENCE`/`MP_BLOCK`
+/// precedent of not inventing plumbing for a stat nothing reachable sets.
+/// The magic half is real: Prophecy of Wind 1357 and Victories of Pa'agrio
+/// 1414 grant `MAGIC_CRITICAL_DAMAGE`.
+pub(crate) fn crit_damage_skill(world: &World, attacker_oid: i32, target_oid: i32, magic: bool) -> f64 {
+    use crate::model::components::StatModifiers;
+    use crate::model::stats::Stat;
+    if !magic {
+        return 2.0;
+    }
+    let mul_of = |oid: i32, s: Stat| {
+        world.objects.get_component::<StatModifiers>(&oid).and_then(|m| m.mul.get(&s).copied()).unwrap_or(1.0)
+    };
+    2.0 * mul_of(attacker_oid, Stat::MagicCriticalDamage) * mul_of(target_oid, Stat::DefenceMagicCriticalDamage)
+}
+
 /// The `StatByMoveType` contribution to evasion for whoever is being snapshot
 /// — Acrobatic Move 225's `+4..6 EVASION_RATE` while `RUNNING`, the only
 /// non-regen use of the effect among learnable skills. Truncated to an `i32`
@@ -458,6 +519,8 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
         crate::model::movement::Position::Front,
         door_pdef,
         false,
+        // A door swing never crits, so the crit stats are never read.
+        formulas::CritDamage::default(),
         false,
     ) as i32;
 
@@ -1011,6 +1074,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
                 position,
                 eff_pdef,
                 crit,
+                crit_damage_auto(world, attacker_oid, target_oid, position),
                 ss,
             )
         };

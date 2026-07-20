@@ -174,6 +174,7 @@ fn melee_kill_rewards_and_decay() {
         crate::model::movement::Position::Back,
         p_def,
         false,
+        formulas::CritDamage::default(),
         false,
     );
     assert!(expected > 100.0, "sanity: one swing must kill the 100 HP monster ({expected})");

@@ -101,6 +101,21 @@ pub enum Stat {
     /// crit-damage bonus that `CriticalDamage` effects with `mode=DIFF` feed
     /// (the same handler picks this stat over `CRITICAL_DAMAGE` for diff mode).
     CriticalDamageAdd,
+    /// Java `Stat.DEFENCE_CRITICAL_DAMAGE` — the **target-side** crit-damage
+    /// multiplier (`DefenceCriticalDamage`, an `AbstractStatEffect` over the
+    /// same mul/add pair as `CriticalDamage`). Read off the victim in
+    /// `calcCritDamage`'s autoattack branch.
+    DefenceCriticalDamage,
+    /// Java `Stat.DEFENCE_CRITICAL_DAMAGE_ADD` — its flat twin.
+    DefenceCriticalDamageAdd,
+    /// Java `Stat.MAGIC_CRITICAL_DAMAGE` — the magic-crit multiplier
+    /// (Prophecy of Wind 1357, Victories of Pa'agrio 1414), read in
+    /// `calcCritDamage`'s `skill.isMagic()` branch.
+    MagicCriticalDamage,
+    /// Java `Stat.DEFENCE_MAGIC_CRITICAL_DAMAGE` — the target-side twin. No
+    /// learnable skill grants it on this dist (7 non-learnable ones do), so it
+    /// is folded for completeness and reads as the 1.0 default in practice.
+    DefenceMagicCriticalDamage,
     /// Java `Stat.INVENTORY_NORMAL` ("inventoryLimit") — a flat bonus on top
     /// of the race-based inventory-slot base. Expand Inventory (1372,
     /// `EnlargeSlot` with no `<type>`, which defaults to this) raises it.
@@ -182,6 +197,28 @@ impl MoveType {
             _ => return None,
         })
     }
+}
+
+/// A condition narrowing *when* a [`StatModifierEffect`](crate::model::skill::StatModifierEffect)
+/// contributes. Java keeps one map per kind on `CreatureStat`, each with its
+/// own merge function and identity — which is why these stay two maps on
+/// [`StatModifiers`](crate::model::components::StatModifiers) rather than one:
+///
+/// | variant | Java map | merge | identity |
+/// |---|---|---|---|
+/// | [`Self::MoveType`] | `_moveTypeStats` | `MathUtil::add` | `0.0` |
+/// | [`Self::Position`] | `_positionTypeStats` | `MathUtil::mul` | `1.0` |
+///
+/// Both are read at finalize time against the creature's *live* state, so the
+/// value swings as they move or as the attacker circles the target, with no
+/// stat recompute anywhere.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum StatQualifier {
+    /// `StatByMoveType` — counts only in this locomotion state.
+    MoveType(MoveType),
+    /// `CriticalDamagePosition` — counts only when the *attacker* stands in
+    /// this position relative to the target (Focus Death 355, Focus Power 357).
+    Position(crate::model::movement::Position),
 }
 
 /// Java `StatModifierType` (`AbstractStatAddEffect`/`AbstractStatPercentEffect`):

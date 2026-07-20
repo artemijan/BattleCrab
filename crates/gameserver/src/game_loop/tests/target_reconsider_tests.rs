@@ -93,7 +93,7 @@ fn support_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<Lo
             amount: 1.2,
             armor_condition: 0,
             weapon_condition: 0,
-            move_type: None,
+            qualifier: None,
         })],
         true,
     ));

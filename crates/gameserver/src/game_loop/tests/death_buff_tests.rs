@@ -72,7 +72,7 @@ fn death_buff_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver
         amount: 8.0,
         armor_condition: 0,
         weapon_condition: 0,
-        move_type: None,
+        qualifier: None,
     });
     world.data.skill_data.insert_for_test(buff_skill(MIGHT_ID, vec![pump.clone()], false));
     world.data.skill_data.insert_for_test(buff_skill(BLESS_ID, vec![SkillEffect::NoblesseBless], false));
