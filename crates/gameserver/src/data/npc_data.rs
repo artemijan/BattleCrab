@@ -83,10 +83,11 @@ pub struct NpcTemplate {
     pub title: String,
     pub server_side_name: bool,
     pub server_side_title: bool,
-    /// `<race>` → Java `NpcTemplate.getRace()`, as the `Race` enum ordinal
-    /// (`HUMAN`=0 … `KAMAEL`=5) so it compares directly against
-    /// `Player.race`. `None` for the templates that declare no race — Java
-    /// leaves the field null there, and a null never equals a player race.
+    /// `<race>` → Java `NpcTemplate.getRace()`, the full `Race` enum ordinal
+    /// (playable races *and* the creature-category values — `UNDEAD`,
+    /// `BEAST`, … — G19's `AttackTrait`/`*_WEAKNESS` reads those). `None` for
+    /// the templates that declare no race — Java leaves the field null
+    /// there, and a null never equals anything, playable or not.
     pub race: Option<i32>,
 
     // <stats str/int/dex/wit/con/men> — parsed for G9 formulas.
@@ -770,20 +771,18 @@ fn finish_template(mut t: NpcTemplate, out: &mut HashMap<i32, NpcTemplate>) {
     out.insert(t.id, t);
 }
 
-/// `<race>` → `Race` ordinal. Only the six playable races matter (they are
-/// the ones compared against `Player.race`); the monster-flavor values the
-/// enum also carries (`UNDEAD`, `BEAST`, …) resolve to `None`, which never
-/// matches a player — the same outcome as Java's `!=` on a non-player race.
+/// `<race>` → `Race` ordinal — playable races *and* the creature-category
+/// values (`UNDEAD`, `BEAST`, …), via the same shared enum
+/// [`crate::enums::Race`] uses for `Player.race`/`respawn.xml`. A playable
+/// race here still never equals a monster's, and vice versa — the ordinals
+/// don't overlap — so extending past the original six playable-only values
+/// doesn't change any existing `npc.race == player.race` comparison.
 fn parse_race(text: &str) -> Option<i32> {
-    match text.to_ascii_uppercase().as_str() {
-        "HUMAN" => Some(0),
-        "ELF" => Some(1),
-        "DARKELF" | "DARK_ELF" => Some(2),
-        "ORC" => Some(3),
-        "DWARF" => Some(4),
-        "KAMAEL" => Some(5),
-        _ => None,
-    }
+    let upper = text.to_ascii_uppercase();
+    // "DARKELF" (no underscore) isn't a real `<race>` value on this dist, but
+    // predates this function's move to `Race::from_name` — kept for safety.
+    let normalized = if upper == "DARKELF" { "DARK_ELF" } else { upper.as_str() };
+    crate::enums::Race::from_name(normalized).map(|r| r.ordinal())
 }
 
 fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
@@ -1019,9 +1018,11 @@ mod race_tests {
 
     const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
 
-    /// `<race>` parses to the `Race` ordinal for the five playable races and
-    /// to `None` for the monster-flavor values — the Newbie Guides' own-race
-    /// gate reads this field.
+    /// `<race>` parses to the `Race` ordinal for both the five playable races
+    /// (the Newbie Guides' own-race gate reads this field) and the
+    /// creature-category values (G19's `AttackTrait`/`*_WEAKNESS` reads
+    /// those) — the ordinals never collide, so a monster's race still never
+    /// equals a player's.
     #[test]
     fn parses_playable_races_from_dist() {
         let data = NpcData::load_from(DIST);
@@ -1032,7 +1033,12 @@ mod race_tests {
             let t = data.get(npc_id).unwrap_or_else(|| panic!("{npc_id} loads"));
             assert_eq!(t.race, Some(race), "npc {npc_id} race");
         }
-        // A monster's `<race>UNDEAD</race>` is not a player race.
-        assert_eq!(data.get(20015).and_then(|t| t.race), None, "undead is not a playable race");
+        // A monster's `<race>UNDEAD</race>` now parses too (24), and it's
+        // still never equal to any playable race's ordinal (0-6).
+        assert_eq!(
+            data.get(20015).and_then(|t| t.race),
+            Some(crate::enums::Race::Undead.ordinal()),
+            "undead parses to its own Race ordinal"
+        );
     }
 }
