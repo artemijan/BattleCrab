@@ -29,6 +29,9 @@ pub const SKILLS_DIR: &str = "data/stats/skills";
 /// everything else (damage effects, CC, heals, …) is unregistered and simply
 /// dropped from the skill's effect list — the skill still loads. TODO(G9+):
 /// grow this table (and add non-stat-modifier effect kinds) as combat lands.
+/// Java `Fear.getTicks()` — hard-coded, not a datapack param.
+const FEAR_TICKS: i32 = 5;
+
 const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     ("PAtk", Stat::PhysicalAttack),
     ("PhysicalDefence", Stat::PhysicalDefence),
@@ -859,6 +862,16 @@ fn finalize_skill(
                     // to `EFFECT_REGISTRY`, wasn't found, and the buff was
                     // dropped whole (the skill cast but nothing landed).
                     "NoblesseBless" => vec![SkillEffect::NoblesseBless],
+                    // Fear (65/405/450/1092/1169/1272/1381/1400): forced flight.
+                    // The `<effect name="Fear"/>` element carries no params in
+                    // this dist — Java's `Fear` constructor ignores its `StatSet`
+                    // outright and `getTicks()` returns a hard-coded 5 — so the
+                    // cadence is a literal, not a parsed value. Every one of
+                    // these skills also carries `BlockControl`, so the *buff*
+                    // already landed before this arm existed (icon, duration and
+                    // the `BLOCK_CONTROL` flag); what was missing was the flight
+                    // itself, so the debuff simply never moved anyone.
+                    "Fear" => vec![SkillEffect::Fear { ticks: FEAR_TICKS }],
                     // "Transform <Monster>" scroll family (541-558, 617-674):
                     // polymorph the caster into `transformationId`. No stat
                     // modifier of its own — the transform template's own

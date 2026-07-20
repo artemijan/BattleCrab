@@ -790,6 +790,15 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             // choke point (`game_loop::combat::is_hp_blocked`) reads the
             // `HP_BLOCK` flag off the landed buff.
             | SkillEffect::DamageBlock { .. } => {}
+            // `Fear.onStart` — the first shove, directly away from the caster.
+            // The repeats come off the tick chain (`handle_dam_over_time_tick`),
+            // which `schedule_dam_over_time` arms alongside the buff.
+            SkillEffect::Fear { .. } => {
+                if !fear_can_start(world, target_oid) {
+                    continue;
+                }
+                fear_action(world, Some(caster_oid), target_oid);
+            }
             // `TargetCancel.instant` — roll `chance`, then drop the victim's
             // target and abort whatever they were doing (Java also sets the AI
             // to IDLE; the ported AI reaches the same state once the intent is
@@ -984,6 +993,7 @@ pub(crate) fn apply_continuous_effects(
                 | SkillEffect::HealOverTime { .. }
                 | SkillEffect::ManaDamOverTime { .. }
                 | SkillEffect::MpConsumePerLevel { .. }
+                | SkillEffect::Fear { .. }
         )
     });
     // Blessing of Protection, DefenceTrait (Mental Shield / Resist Shock) and
@@ -1249,6 +1259,75 @@ fn refresh_abnormal_visuals(world: &World, object_id: i32) {
         cs.send(crate::network::user_info::ex_user_info_abnormal_visual_effect(
             object_id, invisible, transform, &visuals,
         ));
+    }
+}
+
+/// How far one fear shove throws the victim — Java `Fear.FEAR_RANGE`.
+const FEAR_RANGE: f64 = 500.0;
+
+/// `Fear.canStart` — who can be feared at all. Raid bosses are immune (the
+/// same `isRaid()` bail `Mute` has), and on the NPC side only the `Attackable`
+/// subtree qualifies, minus the siege-defence family: a fear must not scatter
+/// stationed defenders off a castle wall or push a siege golem around.
+/// A player is always fearable. (Java's `isSummon()` leg has no ported
+/// counterpart — servitors are `TODO(G29)` — and folds into the player case
+/// once they exist.)
+fn fear_can_start(world: &World, target_oid: i32) -> bool {
+    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&target_oid) else {
+        return true;
+    };
+    let Some(t) = npc.template(world) else { return false };
+    if t.is_raid() {
+        return false;
+    }
+    t.is_attackable_class()
+        && !matches!(t.type_name.as_str(), "Defender" | "FortCommander" | "SiegeFlag")
+        && t.race != Some(crate::enums::Race::SiegeWeapon as i32)
+}
+
+/// `Fear.fearAction` — one shove: pick a flight direction, project
+/// [`FEAR_RANGE`] units along it, clamp the destination to walkable geodata and
+/// walk there.
+///
+/// The direction is `Util.calculateAngleFrom(effector, effected)` on the first
+/// shove — the angle *from the caster to the victim*, so the victim runs
+/// directly away — and the victim's own heading (`convertHeadingToDegree`) on
+/// every later tick, which keeps them fleeing the way they were first thrown
+/// rather than re-deriving a bearing from a caster who may be dead or gone.
+/// Java's `toRadians(atan2-in-degrees)` round-trip collapses to the raw
+/// `atan2`, so the first case is computed directly in radians here.
+fn fear_action(world: &mut World, effector: Option<i32>, effected: i32) {
+    use crate::model::components::Position;
+    // `Creature.moveToLocation`'s own bail — a rooted or stunned victim can't
+    // be driven anywhere, though the fear's timer keeps running.
+    if crate::game_loop::abnormal::is_movement_disabled(world, effected)
+        || crate::game_loop::abnormal::is_blocked_from_actions(world, effected)
+    {
+        return;
+    }
+    let Some(pos) = world.objects.get_component::<Position>(&effected).copied() else { return };
+    let radians = match effector.and_then(|e| world.objects.get_component::<Position>(&e).copied()) {
+        Some(src) => ((pos.y - src.y) as f64).atan2((pos.x - src.x) as f64),
+        // `Util.convertHeadingToDegree`: heading / 182.044444444, in degrees.
+        None => (pos.heading as f64 / 182.044_444_444).to_radians(),
+    };
+    let dest_x = (pos.x as f64 + FEAR_RANGE * radians.cos()) as i32;
+    let dest_y = (pos.y as f64 + FEAR_RANGE * radians.sin()) as i32;
+    // Java projects at the victim's *own* z and lets geodata correct it.
+    let (vx, vy, vz) = world.geo.get_valid_location(pos.x, pos.y, pos.z, dest_x, dest_y, pos.z);
+
+    // `getAI().setIntention(AI_INTENTION_MOVE_TO, destination)` — the player and
+    // NPC halves of Java's shared `Creature.moveToLocation` (each already does
+    // its own geodata/pathfinding pass on top of the clamp above).
+    if let Some(client_id) = client_for_player(world, effected) {
+        crate::game_loop::position::intention_move_to(world, client_id, effected, pos, (vx, vy, vz));
+    } else {
+        // Set before the move: `move_npc_to` can bail (no speed, no path), and
+        // Java changes the intention regardless of whether the walk starts.
+        if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&effected) {
+            ai.intention = crate::model::npc::NpcIntention::MoveTo;
+        }
+        crate::game_loop::npc_ai::move_npc_to(world, effected, vx, vy, vz);
     }
 }
 
@@ -2004,6 +2083,7 @@ fn schedule_dam_over_time(world: &mut World, caster_oid: i32, target_oid: i32, s
             | SkillEffect::HealOverTime { ticks, .. }
             | SkillEffect::ManaDamOverTime { ticks, .. }
             | SkillEffect::MpConsumePerLevel { ticks, .. }
+            | SkillEffect::Fear { ticks }
                 if *ticks > 0 =>
             {
                 Some(dot_interval_ticks(*ticks))
@@ -2131,6 +2211,15 @@ pub(crate) fn handle_dam_over_time_tick(
             // ever needs `MpConsumePerLevel`'s level-scaled `abnormalTime > 0`
             // branch (`((level-1)/7.5) * base * abnormalTime`), unexercised
             // today.
+            // `Fear.onActionTime` — keep running. Java passes `null` for the
+            // effector here (not the caster it had at `onStart`), so every
+            // repeat steers by the victim's current heading: they keep going
+            // the way the first shove threw them instead of being re-aimed
+            // away from a caster who may be dead, gone or long out of range.
+            SkillEffect::Fear { ticks } if *ticks > 0 => {
+                interval = dot_interval_ticks(*ticks);
+                fear_action(world, None, target_oid);
+            }
             SkillEffect::ManaDamOverTime { power, ticks } | SkillEffect::MpConsumePerLevel { power, ticks } if *ticks > 0 => {
                 interval = dot_interval_ticks(*ticks);
                 let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else { continue };
@@ -2220,8 +2309,24 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill_id && !x.abnormal_visuals.is_empty()));
     // NPC: drop the buff and recompute from the template (no icons/broadcast).
     if crate::game_loop::combat::is_npc_oid(player_object_id) {
+        // `Fear.onExit`: `if (!effected.isPlayer()) notifyEvent(EVT_THINK)` —
+        // a mob left mid-flight is still on `MOVE_TO`, whose think arm does
+        // nothing, so without this it would keep walking out its last leg
+        // before ever re-engaging. Reading the flag *before* the buff is
+        // dropped is what makes this specific to fear rather than to any
+        // expiring NPC buff.
+        let was_afraid = world.objects.get_component::<Buffs>(&player_object_id).is_some_and(|b| {
+            b.0.iter().any(|x| x.skill_id == skill_id && x.effect_flags & crate::model::skill::effect_flag::FEAR != 0)
+        });
         if let Some(b) = world.objects.get_component_mut::<Buffs>(&player_object_id) {
             b.0.retain(|x| x.skill_id != skill_id);
+        }
+        if was_afraid {
+            if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&player_object_id) {
+                if ai.intention == crate::model::npc::NpcIntention::MoveTo {
+                    ai.intention = crate::model::npc::NpcIntention::Active;
+                }
+            }
         }
         recompute_npc_buffed_stats(world, player_object_id);
         broadcast_target_buffs(world, player_object_id);

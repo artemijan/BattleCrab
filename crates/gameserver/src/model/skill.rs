@@ -184,6 +184,18 @@ pub enum SkillEffect {
     /// effect that drops the victim's target and aborts their attack and cast
     /// (Trick 11, Switch 12, Aura Flash 1417).
     TargetCancel { chance: i32 },
+    /// `handlers/effecthandlers/Fear.java` — forced flight (Horror 65, Banish
+    /// Undead 405, Banish Seraph 450, Fear 1092, Curse Fear 1169, Word of Fear
+    /// 1272, Mass Curse Fear 1381, Turn Undead 1400).
+    ///
+    /// Periodic: `onStart` shoves the victim 500 units directly away from the
+    /// caster, then every tick repeats the shove along the victim's *current
+    /// heading*, so they keep running in the direction they were first thrown.
+    /// `ticks` is Java's hard-coded `getTicks() == 5` — a `Fear` element in
+    /// this dist carries no params at all — kept as a field so the effect
+    /// shares the DoT tick chain's cadence arithmetic rather than hard-coding
+    /// an interval of its own.
+    Fear { ticks: i32 },
     /// `handlers/effecthandlers/GetAgro.java` — forces the effected NPC to
     /// intend-attack the caster (Aggression 28, Aggression Aura 18, plus the
     /// aggro side-effect on the debuffs Judgment 401/Tribunal 400). No params.
@@ -597,6 +609,15 @@ pub mod effect_flag {
     /// in separate `<effect>` elements) but has no consumer, faithfully
     /// matching Java's own dead code.
     pub const MP_BLOCK: u32 = 1 << 8;
+    /// `FEAR` — Java declares the flag on `Fear.getEffectFlags()`, but **no
+    /// `isAfraid()` accessor exists and nothing reads the bit** (grepped the
+    /// whole Java tree: the only hits are the `EffectFlag` declaration itself
+    /// and two unrelated dist scripts with their own `isAfraid` fields). The
+    /// entire fear mechanic is the forced movement in the handler, not a gate
+    /// — a feared player is *not* stopped from walking or acting. Folded here
+    /// for completeness, with no consumer, matching Java's own dead code the
+    /// same way [`MP_BLOCK`] does.
+    pub const FEAR: u32 = 1 << 9;
 }
 
 /// Java `AbnormalVisualEffect` — the client-side *look* of an abnormal (the
@@ -851,6 +872,7 @@ impl Skill {
                 SkillEffect::PhysicalMute => effect_flag::PHYSICAL_MUTED,
                 SkillEffect::DebuffBlock => effect_flag::DEBUFF_BLOCK,
                 SkillEffect::BlockControl => effect_flag::BLOCK_CONTROL,
+                SkillEffect::Fear { .. } => effect_flag::FEAR,
                 SkillEffect::NoblesseBless => effect_flag::NOBLESS_BLESSING,
                 SkillEffect::DamageBlock { block_hp, block_mp } => {
                     (if *block_hp { effect_flag::HP_BLOCK } else { 0 })

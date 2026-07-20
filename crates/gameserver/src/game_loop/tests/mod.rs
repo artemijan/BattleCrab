@@ -39,6 +39,7 @@ mod community_board_tests;
 mod death_buff_tests;
 mod death_drop_tests;
 mod duel_tests;
+mod fear_tests;
 mod henna_tests;
 mod crafting_tests;
 mod items_tests;

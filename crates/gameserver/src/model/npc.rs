@@ -21,14 +21,21 @@ pub const FIRST_NPC_OBJECT_ID: i32 = 0x4000_0000;
 /// (not 65536; kept as-is for parity).
 const RANDOM_HEADING_BOUND: i32 = 61794;
 
-/// `AttackableAI`'s intention, narrowed to the two states the G9 slice
-/// drives (IDLE folds into `Active` — there is no think-task registry to
-/// drop out of; inactive-region NPCs are simply skipped by the AI tick).
+/// `AttackableAI`'s intention, narrowed to the states this port drives (IDLE
+/// folds into `Active` — there is no think-task registry to drop out of;
+/// inactive-region NPCs are simply skipped by the AI tick).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum NpcIntention {
     #[default]
     Active,
     Attack,
+    /// `AI_INTENTION_MOVE_TO` — committed to a destination walk, currently only
+    /// entered by `Fear`. Load-bearing rather than cosmetic: Java's
+    /// `AttackableAI.onEvtThink` switches on the intention and has **no case for
+    /// `MOVE_TO`**, so a fleeing mob thinks about nothing until it arrives —
+    /// which is the only reason the flee isn't instantly overridden by the next
+    /// think tick re-issuing a chase. `onEvtArrived` puts it back to `Active`.
+    MoveTo,
 }
 
 /// One `Attackable._aggroList` entry (Java `AggroInfo`, minus the
