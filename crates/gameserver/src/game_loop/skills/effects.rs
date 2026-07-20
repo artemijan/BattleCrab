@@ -2182,6 +2182,13 @@ fn magic_success_input<'a>(
         target_is_raid,
         min_npc_level_for_magic_penalty: world.cfg.npc.min_npc_level_for_magic_penalty,
         skill_chance_penalty: penalty,
+        // `target.getStat().getMul(MAGIC_SUCCESS_RES, 1)` — read off the
+        // *target*, and 1.0 for anyone without Anti Magic / M. Def.
+        res_modifier: world
+            .objects
+            .get_component::<crate::model::components::StatModifiers>(&target_oid)
+            .and_then(|m| m.mul.get(&crate::model::stats::Stat::MagicSuccessRes).copied())
+            .unwrap_or(1.0),
         magic_accuracy: world
             .objects
             .get_component::<CombatStats>(&caster_oid)

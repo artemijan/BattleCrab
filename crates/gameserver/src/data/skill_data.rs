@@ -86,6 +86,11 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // *recipient*. A plain single-stat `AbstractStatEffect`, so the generic
     // registry wiring is all it needs.
     ("ManaCharge", Stat::ManaCharge),
+    // Anti Magic (146), M. Def. (147): `ResistDDMagic` →
+    // `Stat.MAGIC_SUCCESS_RES`. An `AbstractStatPercentEffect`, so it is always
+    // `PER` and the generic registry wiring (which honours the effect's own
+    // `<mode>`, `PER` here) is all it needs.
+    ("ResistDDMagic", Stat::MagicSuccessRes),
 ];
 
 pub struct SkillData {

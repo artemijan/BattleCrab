@@ -47,6 +47,7 @@ mod henna_tests;
 mod crafting_tests;
 mod items_tests;
 mod lobby_tests;
+mod magic_resist_tests;
 mod mana_drain_tests;
 mod mana_restore_tests;
 mod melee_variants_tests;

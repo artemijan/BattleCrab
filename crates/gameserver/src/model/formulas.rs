@@ -185,6 +185,10 @@ pub struct MagicSuccess<'a> {
     /// only on the non-PvE branch.
     pub magic_accuracy: i32,
     pub magic_evasion: i32,
+    /// The target's `Stat.MAGIC_SUCCESS_RES` multiplier (Java's `resModifier`,
+    /// `getMul(..., 1)`), applied to the whole failure term — so a value above
+    /// 1 makes the attacker *less* likely to land the spell.
+    pub res_modifier: f64,
 }
 
 /// `Formulas.calcMagicSuccess` — the percent chance (may fall below 0, meaning
@@ -198,10 +202,16 @@ pub struct MagicSuccess<'a> {
 ///
 /// PvP branch: a step table on `magicAccuracy - magicEvasion`.
 ///
-/// Java's `resModifier` (`getMul(MAGIC_SUCCESS_RES, 1)`) is fixed at 1.0 here.
-/// The only two dist items touching `magicSuccRes` (10207/10208, the enhanced
-/// shirts) declare it in a `<stats>` block, which Java parses into an *additive*
-/// func — `getMul` never sees it, so the term is 1.0 on this dist for Java too.
+/// Java's `resModifier` is `getMul(MAGIC_SUCCESS_RES, 1)`, applied to the whole
+/// failure term.
+///
+/// **Correction:** this was previously documented as fixed at 1.0 on this dist,
+/// on the grounds that the only two items touching `magicSuccRes` (10207/10208,
+/// the enhanced shirts) declare it in a `<stats>` block that Java parses into an
+/// *additive* func `getMul` never sees. That is true of the items — but it
+/// overlooked **skills**: Anti Magic 146 and M. Def. 147 grant the stat through
+/// `ResistDDMagic`, an `AbstractStatPercentEffect`, which merges
+/// *multiplicatively* and so is exactly what `getMul` reads.
 pub fn calc_magic_success_rate(i: &MagicSuccess) -> i32 {
     let mut lvl_modifier = 1.0f64;
     let mut target_modifier = 1.0f64;
@@ -235,7 +245,7 @@ pub fn calc_magic_success_rate(i: &MagicSuccess) -> i32 {
         };
     }
 
-    100 - java_round_float(m_acc_modifier as f64 * lvl_modifier * target_modifier)
+    100 - java_round_float(m_acc_modifier as f64 * lvl_modifier * target_modifier * i.res_modifier)
 }
 
 /// `Rnd.get(100) < rate` — `roll` is 0-99.
@@ -752,6 +762,7 @@ mod tests {
             skill_chance_penalty: &[2.5, 3.0, 3.25, 3.5],
             magic_accuracy: 0,
             magic_evasion: 0,
+            res_modifier: 1.0,
         }
     }
 
