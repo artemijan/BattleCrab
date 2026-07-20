@@ -35,6 +35,7 @@ mod admin_tests;
 mod affect_tests;
 mod clans_tests;
 mod combat_tests;
+mod crit_damage_tests;
 mod community_board_tests;
 mod death_buff_tests;
 mod death_drop_tests;
@@ -480,7 +481,7 @@ fn cast_test_world() -> (
             amount: 8.0,
             armor_condition: 0,
             weapon_condition: 0,
-            move_type: None,
+            qualifier: None,
         })],
         ..base.clone()
     });
@@ -525,7 +526,7 @@ fn cast_test_world() -> (
                     amount: -20.0,
                     armor_condition: 0,
                     weapon_condition: 0,
-                    move_type: None,
+                    qualifier: None,
                 })
             })
             .collect(),
@@ -579,7 +580,7 @@ fn cast_test_world() -> (
             amount: 8.0,
             armor_condition: 0,
             weapon_condition: 0,
-            move_type: None,
+            qualifier: None,
         })],
         ..base
     });
@@ -1219,7 +1220,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
             amount: 10.0,
             armor_condition: 0,
             weapon_condition: 0,
-            move_type: None,
+            qualifier: None,
         })],
     }
 }
@@ -1275,7 +1276,7 @@ fn clan_advent_test_skill() -> Skill {
             amount: 5.0,
             armor_condition: 0,
             weapon_condition: 0,
-            move_type: None,
+            qualifier: None,
         })],
     }
 }

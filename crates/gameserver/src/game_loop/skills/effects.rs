@@ -64,7 +64,15 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 };
                 let m_def = target_m_def(world, target_oid);
                 let failure = roll_magic_failure(world, caster_oid, target_oid, skill, false);
-                let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit, magic_shots_bonus, failure);
+                let damage = formulas::calc_magic_dam(
+                    m_atk,
+                    m_def,
+                    power,
+                    mcrit,
+                    crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
+                    magic_shots_bonus,
+                    failure,
+                );
                 apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false);
             }
             SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance } => {
@@ -93,6 +101,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     formulas::level_mod(level),
                     formulas::random_damage_multiplier(rand_roll),
                     crit,
+                    crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
                     ss,
                 );
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false);
@@ -268,7 +277,15 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 // `is_drain` swaps the caster-side failure lines for the drain
                 // wording (Java checks `skill.hasEffectType(HP_DRAIN)`).
                 let failure = roll_magic_failure(world, caster_oid, target_oid, skill, true);
-                let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit, magic_shots_bonus, failure);
+                let damage = formulas::calc_magic_dam(
+                    m_atk,
+                    m_def,
+                    power,
+                    mcrit,
+                    crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
+                    magic_shots_bonus,
+                    failure,
+                );
 
                 // `HpDrain.instant()`: the drained HP is what's actually removed
                 // — CP absorbs first (player targets only; NPCs have no CP),
@@ -524,6 +541,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     formulas::level_mod(level),
                     1.0, // no random-damage term in Java's EnergyAttack formula
                     crit,
+                    crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
                     ss,
                 ) * energy_charges_boost;
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false);

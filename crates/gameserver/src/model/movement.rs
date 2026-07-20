@@ -65,7 +65,7 @@ pub fn calculate_heading(dx: f64, dy: f64) -> i32 {
 /// Port of `enums/Position` — where the attacker stands relative to the
 /// target's facing (drives positional crit/hit bonuses and the proximity
 /// damage bonus).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Position {
     Front,
     Side,

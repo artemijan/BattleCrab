@@ -1174,6 +1174,7 @@ impl Player {
         mods.add.clear();
         mods.mul.clear();
         mods.by_move_type.clear();
+        mods.by_position.clear();
         for b in &buffs.0 {
             for effect in &b.effects {
                 apply_modifier(mods, effect);
@@ -1202,6 +1203,7 @@ impl Player {
         mods.add.clear();
         mods.mul.clear();
         mods.by_move_type.clear();
+        mods.by_position.clear();
         for buff in &buffs.0 {
             for effect in &buff.effects {
                 apply_modifier(mods, effect);
@@ -1471,19 +1473,30 @@ pub(crate) fn conditioned_passive_buffs(data: &GameData, skills: &SkillBook, inv
     out
 }
 
-/// Java `CreatureStat.mergeAdd`/`mergeMul`/`mergeMoveTypeValue` — accumulate
-/// one effect's contribution into the modifier maps (multiple buffs on the
-/// same stat stack).
+/// Java `CreatureStat.mergeAdd`/`mergeMul`/`mergeMoveTypeValue`/
+/// `mergePositionTypeValue` — accumulate one effect's contribution into the
+/// modifier maps (multiple buffs on the same stat stack).
 ///
-/// A move-type-qualified effect (`StatByMoveType`) goes to its own map instead
-/// of `add`/`mul`, exactly as Java routes it to `_moveTypeStats`: it must not
-/// be folded into `add`, or it would apply in *every* locomotion state rather
-/// than the one it names. It is always additive — `mergeMoveTypeValue` has no
-/// percent form — so `mode` is not consulted on that path.
+/// A *qualified* effect goes to its own map instead of `add`/`mul`, exactly as
+/// Java routes it: it must not be folded into `add`/`mul`, or it would apply in
+/// every state rather than the one it names. Each kind keeps Java's own merge
+/// and identity — move type adds into 0.0, position multiplies into 1.0 — so
+/// `mode` is not consulted on either path.
 pub(crate) fn apply_modifier(mods: &mut StatModifiers, effect: &StatModifierEffect) {
-    if let Some(move_type) = effect.move_type {
-        *mods.by_move_type.entry((effect.stat, move_type)).or_insert(0.0) += effect.amount;
-        return;
+    use crate::model::stats::StatQualifier;
+    match effect.qualifier {
+        Some(StatQualifier::MoveType(move_type)) => {
+            *mods.by_move_type.entry((effect.stat, move_type)).or_insert(0.0) += effect.amount;
+            return;
+        }
+        Some(StatQualifier::Position(position)) => {
+            // `mergePositionTypeValue(stat, position, (amount/100)+1, MathUtil::mul)`
+            // — the percentage is turned into a multiplier by the *handler*,
+            // not the merge, and stacking positions multiply.
+            *mods.by_position.entry((effect.stat, position)).or_insert(1.0) *= (effect.amount / 100.0) + 1.0;
+            return;
+        }
+        None => {}
     }
     match effect.mode {
         StatModifierType::Diff => {

@@ -94,7 +94,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
             amount: 8.0,
             armor_condition: 0,
             weapon_condition: 0,
-            move_type: None,
+            qualifier: None,
         })],
     });
 
@@ -700,7 +700,7 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
 
     let m_atk = pcs(&world, 3001).m_atk;
     let m_def = pcs(&world, 3002).m_def;
-    let damage = formulas::calc_magic_dam(m_atk, m_def, 12.0, false, 1.0, formulas::MagicFailure::None);
+    let damage = formulas::calc_magic_dam(m_atk, m_def, 12.0, false, 2.0, 1.0, formulas::MagicFailure::None);
     assert!(damage > 100.0, "sanity: the nuke must overflow B's CP ({damage})");
     {
         let b = pvit(&world, 3002);
@@ -1528,7 +1528,7 @@ fn nuke_on_a_same_level_monster_deals_full_damage() {
     add_test_npc(&mut world, npc_oid, 40098, "Monster", 5, 100, 0, 0);
     let m_atk = pcs(&world, 3001).m_atk;
     let m_def = pcs(&world, npc_oid).m_def; // `pcs` reads any object's CombatStats
-    let unresisted = formulas::calc_magic_dam(m_atk, m_def, 12.0, false, 1.0, formulas::MagicFailure::None);
+    let unresisted = formulas::calc_magic_dam(m_atk, m_def, 12.0, false, 2.0, 1.0, formulas::MagicFailure::None);
     assert!(unresisted > 100.0, "sanity: an unresisted nuke overkills a 100 HP mob ({unresisted})");
 
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
@@ -2047,7 +2047,7 @@ mod dispel_by_category {
     }
 
     fn stat_buff(stat: Stat, amount: f64) -> SkillEffect {
-        SkillEffect::StatModifier(StatModifierEffect { stat, mode: StatModifierType::Diff, amount, armor_condition: 0, weapon_condition: 0 , move_type: None})
+        SkillEffect::StatModifier(StatModifierEffect { stat, mode: StatModifierType::Diff, amount, armor_condition: 0, weapon_condition: 0 , qualifier: None})
     }
 
     /// `BUFF` slot: dances are tried before ordinary buffs (Java's
@@ -2340,7 +2340,7 @@ fn synthetic_buff(id: i32, level: i32, abnormal_type: &str, abnormal_level: i32,
             amount: 8.0,
             armor_condition: 0,
             weapon_condition: 0,
-            move_type: None,
+            qualifier: None,
         })],
     }
 }

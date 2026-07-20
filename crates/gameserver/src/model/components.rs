@@ -511,14 +511,20 @@ pub struct StatModifiers {
     /// recomputes (not cleared with `add`/`mul`); cleared by `//unsetparam`.
     pub fixed: HashMap<crate::model::stats::Stat, f64>,
     /// Java `CreatureStat._moveTypeStats` (`mergeMoveTypeValue`): flat
-    /// contributions that only count while the creature is in a particular
-    /// locomotion state, from `StatByMoveType` effects.
+    /// contributions that only count in a particular locomotion state, from
+    /// `StatByMoveType`. **Additive**, identity `0.0`.
     ///
     /// Deliberately *not* folded into `add`: Java reads this at finalize time
-    /// against the creature's live move type, so the value swings as the
-    /// player stands/walks/runs with no stat recompute anywhere. Consumers
-    /// call [`StatModifiers::move_type_value`] with the current move type.
+    /// against the creature's live move type, so the value swings as the player
+    /// stands/walks/runs with no stat recompute anywhere.
     pub by_move_type: HashMap<(crate::model::stats::Stat, crate::model::stats::MoveType), f64>,
+    /// Java `CreatureStat._positionTypeStats` (`mergePositionTypeValue`):
+    /// contributions that only count when the attacker stands in a particular
+    /// position relative to the target, from `CriticalDamagePosition`.
+    /// **Multiplicative**, identity `1.0` — a different merge and a different
+    /// identity from `by_move_type`, which is why Java keeps two maps and so
+    /// does this.
+    pub by_position: HashMap<(crate::model::stats::Stat, crate::model::movement::Position), f64>,
 }
 
 impl StatModifiers {
@@ -527,6 +533,13 @@ impl StatModifiers {
     /// no `StatByMoveType` contribution for that pairing).
     pub fn move_type_value(&self, stat: crate::model::stats::Stat, move_type: crate::model::stats::MoveType) -> f64 {
         self.by_move_type.get(&(stat, move_type)).copied().unwrap_or(0.0)
+    }
+
+    /// Java `CreatureStat.getPositionTypeValue(stat, position)` — the
+    /// multiplier for this stat at the given attacker position (**1.0**, not
+    /// 0.0, when nothing contributes: this map multiplies).
+    pub fn position_value(&self, stat: crate::model::stats::Stat, position: crate::model::movement::Position) -> f64 {
+        self.by_position.get(&(stat, position)).copied().unwrap_or(1.0)
     }
 }
 

@@ -209,7 +209,7 @@ fn move_type_effects_route_to_their_own_map() {
             amount: 1.9,
             armor_condition: 0,
             weapon_condition: 0,
-            move_type: Some(MoveType::Running),
+            qualifier: Some(crate::model::stats::StatQualifier::MoveType(MoveType::Running)),
         },
     );
     assert!(mods.add.is_empty(), "not folded into the unconditional add map");
@@ -265,7 +265,10 @@ fn real_dist_stat_by_move_type_skills_parse() {
             .effects
             .iter()
             .filter_map(|e| match e {
-                SkillEffect::StatModifier(m) => m.move_type.map(|mt| (m.stat, mt, m.amount)),
+                SkillEffect::StatModifier(m) => match m.qualifier {
+                    Some(crate::model::stats::StatQualifier::MoveType(mt)) => Some((m.stat, mt, m.amount)),
+                    _ => None,
+                },
                 _ => None,
             })
             .collect()
