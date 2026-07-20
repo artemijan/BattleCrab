@@ -200,6 +200,15 @@ pub mod ex_opcodes {
     pub const REQUEST_PLEDGE_RECRUIT_BOARD_SEARCH: u16 = 0xD4;
     pub const REQUEST_PLEDGE_WAITING_APPLIED: u16 = 0xD8;
     pub const REQUEST_PLEDGE_RECRUIT_APPLY_INFO: u16 = 0xDE;
+    pub const REQUEST_PLEDGE_RECRUIT_BOARD_ACCESS: u16 = 0xD5;
+    pub const REQUEST_PLEDGE_RECRUIT_BOARD_DETAIL: u16 = 0xD6;
+    pub const REQUEST_PLEDGE_WAITING_APPLY: u16 = 0xD7;
+    pub const REQUEST_PLEDGE_WAITING_LIST: u16 = 0xD9;
+    pub const REQUEST_PLEDGE_WAITING_USER: u16 = 0xDA;
+    pub const REQUEST_PLEDGE_WAITING_USER_ACCEPT: u16 = 0xDB;
+    pub const REQUEST_PLEDGE_DRAFT_LIST_SEARCH: u16 = 0xDC;
+    pub const REQUEST_PLEDGE_DRAFT_LIST_APPLY: u16 = 0xDD;
+    pub const REQUEST_PLEDGE_SIGN_IN_FOR_OPEN_JOINING_METHOD: u16 = 0x111;
 }
 
 /// Split an extended-packet body (after the `0xD0` opcode) into its 2-byte LE

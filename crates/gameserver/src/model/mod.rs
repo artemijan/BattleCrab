@@ -5,6 +5,7 @@
 
 pub mod castle;
 pub mod clan;
+pub mod clan_entry;
 pub mod components;
 pub mod cursed_weapon;
 pub mod door;

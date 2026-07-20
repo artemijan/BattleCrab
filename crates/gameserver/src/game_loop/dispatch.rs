@@ -421,20 +421,48 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_EX_SET_PLEDGE_CREST_LARGE => {
             super::clans::handle_request_ex_set_pledge_crest_large(world, client_id, ex_body)
         }
-        // Clan entry (recruitment) queries fired when the clan window opens.
+        // Clan recruitment registry (G18 slice 8): the board (browse/search/
+        // register/detail), the applicant queue (view/accept/reject), the
+        // global waiting list (browse/register), and open-joining sign-in.
         exop::REQUEST_PLEDGE_RECRUIT_INFO => {
             super::clans::handle_request_pledge_recruit_info(world, client_id, ex_body)
         }
         exop::REQUEST_PLEDGE_RECRUIT_BOARD_SEARCH => {
             super::clans::handle_request_pledge_recruit_board_search(world, client_id, ex_body)
         }
+        exop::REQUEST_PLEDGE_RECRUIT_BOARD_ACCESS => {
+            super::clans::handle_request_pledge_recruit_board_access(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_RECRUIT_BOARD_DETAIL => {
+            super::clans::handle_request_pledge_recruit_board_detail(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_WAITING_APPLY => {
+            super::clans::handle_request_pledge_waiting_apply(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_WAITING_LIST => {
+            super::clans::handle_request_pledge_waiting_list(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_WAITING_USER => {
+            super::clans::handle_request_pledge_waiting_user(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_WAITING_USER_ACCEPT => {
+            super::clans::handle_request_pledge_waiting_user_accept(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_DRAFT_LIST_SEARCH => {
+            super::clans::handle_request_pledge_draft_list_search(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_DRAFT_LIST_APPLY => {
+            super::clans::handle_request_pledge_draft_list_apply(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_SIGN_IN_FOR_OPEN_JOINING_METHOD => {
+            super::clans::handle_request_pledge_sign_in_for_open_joining_method(world, client_id, ex_body)
+        }
         exop::REQUEST_PLEDGE_RECRUIT_APPLY_INFO => {
             super::clans::handle_request_pledge_recruit_apply_info(world, client_id)
         }
-        // RequestPledgeWaitingApplied: only answered when the clanless player
-        // has an application in ClanEntryManager (`clanId > 0`); the registry
-        // is unported (TODO(G18)), so Java on an empty registry sends nothing.
-        exop::REQUEST_PLEDGE_WAITING_APPLIED => {}
+        exop::REQUEST_PLEDGE_WAITING_APPLIED => {
+            super::clans::handle_request_pledge_waiting_applied(world, client_id)
+        }
         // RequestDispel (IN_GAME): alt+click a buff icon to cancel the buff.
         exop::REQUEST_DISPEL => handle_request_dispel(world, client_id, ex_body),
         exop::REQUEST_GOTO_LOBBY => {
