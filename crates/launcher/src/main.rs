@@ -23,7 +23,7 @@ fn main() -> eframe::Result<()> {
 
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([900.0, 520.0])
+            .with_inner_size(app::WINDOW_SIZE)
             // Undecorated and transparent so the frosted panels and rounded corners
             // are not framed by an opaque OS title bar. The cost is that we own the
             // title bar — drag, minimise and close live in `app::title_bar`.

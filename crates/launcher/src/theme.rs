@@ -171,24 +171,35 @@ pub fn glass_panel_shape(rect: Rect, radius: u8) -> Shape {
     ])
 }
 
-/// Lays out `add_contents` inside a frosted pane.
+/// Lays out `add_contents` inside a frosted pane of fixed content height.
 ///
 /// The pane cannot be measured until its contents are laid out, but it has to be
 /// painted *behind* them. So a slot in the paint list is reserved up front and
 /// filled in once the final rect is known — the standard egui idiom for
 /// content-sized backgrounds.
+///
+/// `content_height` is pinned rather than left to the content because the window is
+/// a fixed size: a pane that grows with its contents — a long error message, say —
+/// grows straight past the bottom edge of the window, which cannot scroll or
+/// resize. Callers must keep their contents within it.
+/// Returns the pane's rect alongside the inner value so callers can assert it stays
+/// within the window.
 pub fn glass_group<R>(
     ui: &mut egui::Ui,
     radius: u8,
+    content_height: f32,
     add_contents: impl FnOnce(&mut egui::Ui) -> R,
-) -> R {
+) -> egui::InnerResponse<R> {
     let bg = ui.painter().add(Shape::Noop);
     let inner = egui::Frame::NONE
         .inner_margin(egui::Margin::symmetric(16, 14))
-        .show(ui, add_contents);
+        .show(ui, |ui| {
+            ui.set_min_height(content_height);
+            add_contents(ui)
+        });
     ui.painter()
         .set(bg, glass_panel_shape(inner.response.rect, radius));
-    inner.inner
+    inner
 }
 
 const BAR_HEIGHT: f32 = 10.0;

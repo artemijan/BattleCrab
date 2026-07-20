@@ -21,8 +21,23 @@ use crate::theme::{self, palette};
 
 /// Native aspect ratio of the logo art (1408x768).
 const LOGO_ASPECT: f32 = 1408.0 / 768.0;
-const LOGO_WIDTH: f32 = 430.0;
+const LOGO_WIDTH: f32 = 380.0;
 const TITLE_BAR_HEIGHT: f32 = 38.0;
+
+/// The window is a fixed size, so this is shared with the render test — which
+/// asserts the layout fits inside it.
+pub const WINDOW_SIZE: [f32; 2] = [900.0, 520.0];
+
+/// Fixed height of the glass panel's contents.
+///
+/// The window is a fixed size and cannot scroll, so the panel must not be
+/// content-sized — a long error message would push its bottom edge past the bottom
+/// of the window. Every state reserves the same space instead, which also stops the
+/// layout jumping as an install progresses.
+const PANEL_CONTENT_HEIGHT: f32 = 234.0;
+
+/// One line, reserved whether or not there is anything to say.
+const STATUS_HEIGHT: f32 = 20.0;
 
 pub struct LauncherApp {
     config: Config,
@@ -33,6 +48,9 @@ pub struct LauncherApp {
     cancel: Cancel,
     /// Surfaced under the action button; cleared on the next successful action.
     status: Option<String>,
+    /// Bottom edge of the glass panel as last laid out. Recorded so a test can
+    /// assert the panel never grows past the bottom of the fixed-size window.
+    panel_bottom: f32,
 }
 
 impl LauncherApp {
@@ -52,6 +70,7 @@ impl LauncherApp {
             rx: None,
             cancel: Cancel::default(),
             status: None,
+            panel_bottom: 0.0,
         }
     }
 
@@ -166,14 +185,25 @@ impl LauncherApp {
             .show(ui, |ui| {
                 ui.vertical_centered(|ui| self.logo(ui));
                 ui.add_space(6.0);
-                theme::glass_group(ui, theme::PANEL_RADIUS, |ui| self.body(ui, &ctx));
+                let panel =
+                    theme::glass_group(ui, theme::PANEL_RADIUS, PANEL_CONTENT_HEIGHT, |ui| {
+                        self.body(ui, &ctx)
+                    });
+                self.panel_bottom = panel.response.rect.bottom();
             });
     }
 
     /// Forces a state for the render test, which has no worker thread.
     #[cfg(test)]
-    pub fn set_phase_for_test(&mut self, phase: Option<Phase>) {
+    pub fn set_state_for_test(&mut self, phase: Option<Phase>, status: Option<String>) {
         self.phase = phase;
+        self.status = status;
+    }
+
+    /// Bottom edge of the glass panel, for the overflow test.
+    #[cfg(test)]
+    pub fn panel_bottom(&self) -> f32 {
+        self.panel_bottom
     }
 
     /// Undecorated windows have no OS title bar, so this provides the drag region
@@ -223,16 +253,34 @@ impl LauncherApp {
 
         ui.vertical_centered(|ui| {
             self.action_row(ui, ctx);
-            if let Some(status) = &self.status {
-                ui.add_space(8.0);
-                let colour = if matches!(self.phase, Some(Phase::Failed(_))) {
-                    palette::DANGER
-                } else {
-                    palette::TEXT_WEAK
-                };
-                ui.label(egui::RichText::new(status).size(13.0).color(colour));
-            }
+            ui.add_space(6.0);
+            self.status_line(ui);
         });
+    }
+
+    /// Always occupies [`STATUS_HEIGHT`], message or not.
+    ///
+    /// The text is truncated to a single line: failures carry a full `anyhow`
+    /// context chain ("install failed: requesting https://…: connect timed out"),
+    /// which wraps to several lines and would otherwise overflow the panel. The
+    /// whole message stays available on hover.
+    fn status_line(&mut self, ui: &mut egui::Ui) {
+        let width = ui.available_width();
+        let Some(status) = self.status.clone() else {
+            ui.allocate_exact_size(Vec2::new(width, STATUS_HEIGHT), egui::Sense::hover());
+            return;
+        };
+
+        let colour = if matches!(self.phase, Some(Phase::Failed(_))) {
+            palette::DANGER
+        } else {
+            palette::TEXT_WEAK
+        };
+        ui.add_sized(
+            Vec2::new(width, STATUS_HEIGHT),
+            egui::Label::new(egui::RichText::new(&status).size(13.0).color(colour)).truncate(),
+        )
+        .on_hover_text(&status);
     }
 
     fn install_dir_row(&mut self, ui: &mut egui::Ui) {
@@ -398,29 +446,20 @@ mod tests {
         let out = std::path::Path::new("target/ui-render");
         std::fs::create_dir_all(out).unwrap();
 
-        for (name, phase) in [
-            ("idle", None),
-            (
-                "downloading",
-                Some(Phase::Downloading {
-                    done: 3_400_000_000,
-                    total: Some(9_300_000_000),
-                }),
-            ),
-            (
-                "unpacking",
-                Some(Phase::Extracting { done: 7_000_000_000, total: 9_300_000_000 }),
-            ),
-            ("failed", Some(Phase::Failed("Checksum mismatch".into()))),
-        ] {
+        for (name, phase, status) in states() {
             let mut app: Option<LauncherApp> = None;
+            // `Cell` rather than a plain `f32`: the closure is held by the harness
+            // for its whole lifetime, so a mutable capture would still be borrowed
+            // when the assertion below wants to read it.
+            let bottom = std::cell::Cell::new(0.0_f32);
             let mut harness = egui_kittest::Harness::builder()
-                .with_size(egui::vec2(900.0, 520.0))
+                .with_size(egui::vec2(WINDOW_SIZE[0], WINDOW_SIZE[1]))
                 .renderer(egui_kittest::wgpu::WgpuTestRenderer::default())
                 .build_ui(|ui| {
                     let app = app.get_or_insert_with(|| LauncherApp::with_context(ui.ctx()));
-                    app.set_phase_for_test(phase.clone());
+                    app.set_state_for_test(phase.clone(), status.clone());
                     app.draw(ui);
+                    bottom.set(app.panel_bottom());
                 });
 
             // `run()` waits for repaints to settle, which never happens while the
@@ -429,8 +468,54 @@ mod tests {
             harness.run_steps(3);
             let image = harness.render().expect("headless render failed");
             image.save(out.join(format!("{name}.png"))).unwrap();
+
+            assert!(
+                bottom.get() <= WINDOW_SIZE[1],
+                "[{name}] panel bottom {} overflows the {}px window",
+                bottom.get(),
+                WINDOW_SIZE[1]
+            );
         }
     }
+
+    /// The states worth rendering. A *long* failure message is included on purpose:
+    /// the panel used to be content-sized, so a full `anyhow` context chain grew it
+    /// straight past the bottom of the fixed-size window. Rendering the failed state
+    /// with no status message at all is what let that ship.
+    #[allow(clippy::type_complexity)]
+    fn states() -> Vec<(&'static str, Option<Phase>, Option<String>)> {
+        vec![
+            ("idle", None, None),
+            (
+                "downloading",
+                Some(Phase::Downloading {
+                    done: 3_400_000_000,
+                    total: Some(9_300_000_000),
+                }),
+                None,
+            ),
+            (
+                "unpacking",
+                Some(Phase::Extracting { done: 7_000_000_000, total: 9_300_000_000 }),
+                None,
+            ),
+            (
+                "failed",
+                Some(Phase::Failed(LONG_ERROR.into())),
+                Some(LONG_ERROR.into()),
+            ),
+            (
+                "ready",
+                Some(Phase::Ready),
+                Some("Installation complete.".into()),
+            ),
+        ]
+    }
+
+    /// Representative of what `install()` actually produces via `{e:#}`.
+    const LONG_ERROR: &str = "install failed: requesting \
+        https://pub-example.r2.dev/chunks/textures.tar.zst: error sending request \
+        for url: connect timed out after 30s";
 
     /// The logo is keyed to transparency at load; a regression here would put a
     /// black box over the backdrop.

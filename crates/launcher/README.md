@@ -74,6 +74,18 @@ That test is ignored by default because it needs a GPU adapter. It is how the la
 was actually verified — it caught a tofu close-button glyph, an unpainted strip along
 the top edge, and a failed install animating an indeterminate "still working" bar.
 
+It also asserts the glass panel's bottom edge stays inside the window. The window is
+a fixed size and cannot scroll, so a content-sized panel overflows it the moment a
+message gets long — which is exactly what a failed install produces, since `{e:#}`
+prints the whole `anyhow` context chain. Hence `PANEL_CONTENT_HEIGHT`: every state
+reserves the same space, and the status line is one truncated row with the full text
+on hover. When adding anything to the panel, re-run the render test; if it trips,
+raise `PANEL_CONTENT_HEIGHT` and shrink `LOGO_WIDTH` to pay for it.
+
+Reserving identical space in every state also stops the action button moving when an
+install starts. That is deliberate, and it is why the idle panel has some empty space
+at its foot.
+
 The UI thread never blocks. All install work happens on a `std::thread` that reports
 `Phase` snapshots over an `mpsc` channel and calls `Context::request_repaint()` to
 wake the UI, which is otherwise asleep between frames.
