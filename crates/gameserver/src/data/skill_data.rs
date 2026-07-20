@@ -526,6 +526,7 @@ fn finalize_skill(
             Some("ENEMY_ONLY") => TargetType::EnemyOnly,
             Some("ENEMY_NOT") => TargetType::EnemyNot,
             Some("NPC_BODY") => TargetType::NpcBody,
+            Some("PC_BODY") => TargetType::PcBody,
             Some("NONE") => TargetType::None_,
             _ => TargetType::Other,
         };
@@ -1158,6 +1159,16 @@ fn finalize_skill(
                         .into_iter()
                         .flatten()
                         .collect();
+                    }
+                    "Resurrection" => {
+                        let int_param =
+                            |key: &str, d: i32| value_at(params, key, level).and_then(|v| v.parse().ok()).unwrap_or(d);
+                        vec![SkillEffect::Resurrection {
+                            power: int_param("power", 0),
+                            hp_percent: int_param("hpPercent", 0),
+                            mp_percent: int_param("mpPercent", 0),
+                            cp_percent: int_param("cpPercent", 0),
+                        }]
                     }
                     "BlockMove" => vec![SkillEffect::BlockMove],
                     // `type` picks the Java stat: PHYSICAL (the default) or

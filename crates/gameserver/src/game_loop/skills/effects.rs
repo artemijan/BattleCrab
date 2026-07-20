@@ -106,6 +106,21 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 let amount = if *percent { (max_mp * *amount) / 100.0 } else { *amount };
                 restore_mp(world, caster_oid, target_oid, amount);
             }
+            // `Resurrection.instant` → `Player.reviveRequest`: this does not
+            // revive anyone. It *proposes* a revive and puts a `ConfirmDlg` on
+            // the corpse's screen; the actual revive happens in the answer
+            // handler (`death::handle_revive_answer`).
+            SkillEffect::Resurrection { power, hp_percent, mp_percent, cp_percent } => {
+                crate::game_loop::death::revive_request(
+                    world,
+                    caster_oid,
+                    target_oid,
+                    *power,
+                    *hp_percent,
+                    *mp_percent,
+                    *cp_percent,
+                );
+            }
             // `Confuse.instant` — the victim turns on a random bystander.
             //
             // Java sets the victim's target and `AI_INTENTION_ATTACK` directly.

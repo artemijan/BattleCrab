@@ -206,13 +206,24 @@ pub(crate) fn resolve_cast_target(
             }
             t
         }
+        // `targethandlers/PcBody.java` — a dead **player**, which is what a
+        // resurrection is cast on.
+        TargetType::PcBody => {
+            let t = caster_target.ok_or(sm_ids::INVALID_TARGET)?;
+            let is_dead_player = world.objects.has_component::<Player>(&t)
+                && world.objects.get_component::<Vitals>(&t).is_some_and(|v| v.dead);
+            if !is_dead_player {
+                return Err(sm_ids::INVALID_TARGET);
+            }
+            t
+        }
         TargetType::Other => return Err(sm_ids::INVALID_TARGET),
     };
     let (tx, ty, tz, target_dead) = target_state(world, resolved).ok_or(sm_ids::INVALID_TARGET)?;
     // A corpse (`NPC_BODY`) is *supposed* to be dead; `EnemyNot` explicitly
     // "works on dead targets... as well" (a heal landing on a fresh corpse
     // ahead of a resurrection); every other target type rejects the dead.
-    if target_dead && !matches!(skill.target_type, TargetType::NpcBody | TargetType::EnemyNot) {
+    if target_dead && !matches!(skill.target_type, TargetType::NpcBody | TargetType::PcBody | TargetType::EnemyNot) {
         return Err(sm_ids::INVALID_TARGET);
     }
     // "Geodata check when character is within range" — every non-self

@@ -274,6 +274,14 @@ pub struct Player {
     /// `Player._reviveRequested`-ish: die → "to village" → teleport →
     /// revive on `Appearing` (Java `setPendingRevive` → `onTeleported`).
     pub pending_revive: bool,
+    /// XP lost to the most recent death — Java's `expBeforeDeath - getExp()`,
+    /// recorded here rather than the pre-death total because that difference is
+    /// the only thing a resurrection reads. Cleared on revive.
+    pub lost_exp_on_death: i64,
+    /// A resurrection proposal awaiting this (dead) player's `ConfirmDlg`
+    /// answer: `(reviver, restore_percent, hp%, mp%, cp%)`. Java's
+    /// `_reviveRequested`/`_revivePower`/`_revive*Percent` block.
+    pub revive_request: Option<(i32, f64, i32, i32, i32)>,
     /// Java `Creature._isTeleporting`: position pushed server-side, waiting
     /// for the client's `Appearing`.
     pub teleporting: bool,
@@ -818,6 +826,8 @@ impl Player {
             hair_color: c.hair_color,
             cast_seq: 0,
             pending_revive: false,
+            lost_exp_on_death: 0,
+            revive_request: None,
             teleporting: false,
             quest_zone_id: -1,
             charged_shots: 0,

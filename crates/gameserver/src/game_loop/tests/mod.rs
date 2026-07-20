@@ -76,6 +76,7 @@ mod quests_tests;
 mod ranged_tests;
 mod reflect_tests;
 mod resist_tests;
+mod resurrection_tests;
 mod shortcuts_tests;
 mod skills_tests;
 mod social_tests;

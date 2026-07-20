@@ -45,6 +45,10 @@ pub enum TargetType {
     /// caster, so it behaves like `SELF` minus the peace-zone gate. This is
     /// what every toggle uses.
     None_,
+    /// `PC_BODY`: a dead **player** corpse (Java `targethandlers/PcBody.java`)
+    /// — what a resurrection targets. Like `NpcBody` this inverts the usual
+    /// "no dead targets" gate, but requires a player rather than an NPC.
+    PcBody,
     /// `NPC_BODY`: a dead NPC corpse (Java `targethandlers/NpcBody.java`) —
     /// used by corpse skills (Sweeper). Unlike the other types this requires
     /// the target to be **dead**, so the cast pipeline's "no dead targets"
@@ -279,6 +283,13 @@ pub enum SkillEffect {
         /// `allowWeapons` as a `WeaponType` mask (0 = ALL).
         allow_weapons: u32,
     },
+    /// `handlers/effecthandlers/Resurrection.java` — Resurrection 1016, Mass
+    /// Resurrection 1254. Does not revive directly: it *proposes* a revive, and
+    /// the dead player accepts through a `ConfirmDlg`. `power` is the percentage
+    /// of XP lost on death that the revive restores (run through
+    /// `calculateSkillResurrectRestorePercent` first); the three percentages are
+    /// how much HP/MP/CP they come back with.
+    Resurrection { power: i32, hp_percent: i32, mp_percent: i32, cp_percent: i32 },
     /// `handlers/effecthandlers/BlockMove.java` — `setImmobilized(true)` for
     /// the buff's duration (Ultimate Defense 110, Snipe 313, Vengeance 368).
     /// A pure state flag: the whole mechanic is `IMMOBILIZED` being read by the
@@ -775,6 +786,12 @@ pub mod effect_flag {
     /// This is the `_isImmobilized` term `game_loop::abnormal`'s module docs
     /// listed as having "no ported source".
     pub const IMMOBILIZED: u32 = 1 << 13;
+    /// `BLOCK_RESURRECTION` — Java `Creature.isResurrectionBlocked()`, read by
+    /// `Player.reviveRequest`. `BlockResurrection` has **no learnable source on
+    /// this dist** (4 non-learnable skills carry it), so the gate is ported but
+    /// nothing reachable trips it — the recurring "declared, unreachable here"
+    /// shape.
+    pub const BLOCK_RESURRECTION: u32 = 1 << 14;
 }
 
 /// Java `AbnormalVisualEffect` — the client-side *look* of an abnormal (the
