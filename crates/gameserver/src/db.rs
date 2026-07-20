@@ -348,6 +348,21 @@ pub enum DbCommand {
     UpdateCharPowerGrade { char_id: i32, power_grade: i32 },
     /// `Clan.setNewLeaderId(id, true)` — the pending delegated leader transfer.
     UpdateClanNewLeader { clan_id: i32, new_leader_id: i32 },
+    /// `CrestTable.createCrest` — insert a new stored bitmap.
+    InsertCrest { id: i32, data: Vec<u8>, kind: i32 },
+    /// `CrestTable.removeCrest` (skipped by the caller when `id` is the most
+    /// recently allocated one — Java never reuses the last id).
+    DeleteCrest { id: i32 },
+    /// `Clan.changeClanCrest` — the small pledge crest column.
+    UpdateClanCrest { clan_id: i32, crest_id: i32 },
+    /// `Clan.changeLargeCrest` — the large pledge crest column.
+    UpdateClanCrestLarge { clan_id: i32, crest_large_id: i32 },
+    /// `Clan.changeAllyCrest(id, onlyThisClan=true)` — one clan's own row
+    /// (a member who just joined/left inherits the leader's crest id this way).
+    UpdateClanAllyCrestSelf { clan_id: i32, ally_crest_id: i32 },
+    /// `Clan.changeAllyCrest(id, onlyThisClan=false)` — every clan in the
+    /// alliance at once (`WHERE ally_id=?`), the leader's own registration path.
+    UpdateAllyCrestForAlliance { ally_id: i32, ally_crest_id: i32 },
     /// The ally half of `Clan.updateClanInDB` — membership + penalty stamps.
     UpdateClanAlly { clan_id: i32, ally_id: i32, ally_name: String, penalty_expiry: i64, penalty_type: i32 },
     /// `Clan.createSubPledge`'s insert — a new academy/royal/knight unit.
@@ -433,7 +448,11 @@ pub enum DbEvent {
     IdBlock { start: i64, end: i64 },
     /// The full clan table (`ClanTable` boot load), pushed unprompted at
     /// boot like the first `IdBlock`.
-    ClansLoaded { clans: Vec<crate::model::clan::Clan>, wars: Vec<crate::model::clan::ClanWar> },
+    ClansLoaded {
+        clans: Vec<crate::model::clan::Clan>,
+        wars: Vec<crate::model::clan::ClanWar>,
+        crests: Vec<crate::model::clan::Crest>,
+    },
     /// The whole `npc_respawns` table (Java `DBSpawnManager.load`), pushed
     /// unprompted at boot. See [`NpcRespawnRow`].
     NpcRespawnsLoaded { rows: Vec<NpcRespawnRow> },
@@ -548,7 +567,11 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
     let _ = event_tx.send(DbEvent::SiegeGuardsLoaded { guards: load_siege_guards(&pool).await });
 
     // `ClanTable`'s boot restore, likewise unprompted.
-    let _ = event_tx.send(DbEvent::ClansLoaded { clans: load_clans(&pool).await, wars: load_clan_wars(&pool).await });
+    let _ = event_tx.send(DbEvent::ClansLoaded {
+        clans: load_clans(&pool).await,
+        wars: load_clan_wars(&pool).await,
+        crests: load_crests(&pool).await,
+    });
 
     while let Some(cmd) = cmd_rx.recv().await {
         match cmd {
@@ -857,6 +880,53 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 exec(
                     &pool,
                     sqlx::query("UPDATE characters SET subpledge=? WHERE charId=?").bind(pledge_type).bind(char_id),
+                )
+                .await;
+            }
+            DbCommand::InsertCrest { id, data, kind } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT INTO crests (crest_id, data, type) VALUES (?, ?, ?)")
+                        .bind(id)
+                        .bind(data)
+                        .bind(kind),
+                )
+                .await;
+            }
+            DbCommand::DeleteCrest { id } => {
+                exec(&pool, sqlx::query("DELETE FROM crests WHERE crest_id=?").bind(id)).await;
+            }
+            DbCommand::UpdateClanCrest { clan_id, crest_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET crest_id=? WHERE clan_id=?").bind(crest_id).bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateClanCrestLarge { clan_id, crest_large_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET crest_large_id=? WHERE clan_id=?")
+                        .bind(crest_large_id)
+                        .bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateClanAllyCrestSelf { clan_id, ally_crest_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET ally_crest_id=? WHERE clan_id=?")
+                        .bind(ally_crest_id)
+                        .bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateAllyCrestForAlliance { ally_id, ally_crest_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET ally_crest_id=? WHERE ally_id=?")
+                        .bind(ally_crest_id)
+                        .bind(ally_id),
                 )
                 .await;
             }
@@ -1625,7 +1695,7 @@ async fn load_castles(pool: &SqlitePool) -> Vec<crate::model::castle::Castle> {
 }
 
 async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
-    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, leader_id, char_penalty_expiry_time, dissolving_expiry_time, new_leader_id, ally_id, ally_name, ally_penalty_expiry_time, ally_penalty_type FROM clan_data")
+    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, leader_id, char_penalty_expiry_time, dissolving_expiry_time, new_leader_id, ally_id, ally_name, ally_penalty_expiry_time, ally_penalty_type, crest_id, crest_large_id, ally_crest_id FROM clan_data")
         .fetch_all(pool)
         .await
         .unwrap_or_default();
@@ -1691,6 +1761,9 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             ally_name: gets(row, "ally_name"),
             ally_penalty_expiry_time: geti(row, "ally_penalty_expiry_time"),
             ally_penalty_type: geti(row, "ally_penalty_type") as i32,
+            crest_id: geti(row, "crest_id") as i32,
+            crest_large_id: geti(row, "crest_large_id") as i32,
+            ally_crest_id: geti(row, "ally_crest_id") as i32,
             skills,
             warehouse: crate::model::inventory::Warehouse::from_rows(&wh_rows),
             members: member_rows
@@ -2348,6 +2421,18 @@ async fn load_clan_wars(pool: &SqlitePool) -> Vec<crate::model::clan::ClanWar> {
             start_time: geti(r, "startTime"),
             end_time: geti(r, "endTime"),
             state: crate::model::clan::ClanWarState::from_i32(geti(r, "state") as i32),
+        })
+        .collect()
+}
+
+/// `CrestTable.load` — every stored crest bitmap (`crests` table).
+async fn load_crests(pool: &SqlitePool) -> Vec<crate::model::clan::Crest> {
+    let rows = sqlx::query("SELECT crest_id, data, type FROM crests").fetch_all(pool).await.unwrap_or_default();
+    rows.iter()
+        .map(|r| crate::model::clan::Crest {
+            id: geti(r, "crest_id") as i32,
+            data: r.try_get::<Vec<u8>, _>("data").unwrap_or_default(),
+            kind: geti(r, "type") as i32,
         })
         .collect()
 }

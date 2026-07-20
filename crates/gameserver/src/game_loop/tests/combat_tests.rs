@@ -840,6 +840,9 @@ fn siege_start_evicts_non_owners_to_town() {
             ally_name: String::new(),
             ally_penalty_expiry_time: 0,
             ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
         },
     );
     let _o = ingame_player(&mut world, 1, 9002, 500, 500, 0); // owner-clan member in the zone
@@ -889,6 +892,9 @@ fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
         ally_name: String::new(),
         ally_penalty_expiry_time: 0,
         ally_penalty_type: 0,
+        crest_id: 0,
+        crest_large_id: 0,
+        ally_crest_id: 0,
     };
     world.clans.insert(500, clan(500, "Defenders", 8002, 3)); // owns castle 3
     world.clans.insert(700, clan(700, "Attackers", 8003, 0));
@@ -1158,6 +1164,9 @@ fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
             ally_name: String::new(),
             ally_penalty_expiry_time: 0,
             ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
         },
     );
     // The Giran Holy Artifact (type Artefact) at (100, 0) inside the siege zone.
@@ -1242,6 +1251,9 @@ fn siege_defender_respawns_at_castle_on_to_castle() {
             ally_name: String::new(),
             ally_penalty_expiry_time: 0,
             ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
         },
     );
     let mut siege = Siege::new(3);
@@ -1301,6 +1313,9 @@ fn siege_attacker_hq_flag_is_respawn_point_and_destructible() {
             ally_name: String::new(),
             ally_penalty_expiry_time: 0,
             ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
         },
     );
     let mut siege = Siege::new(3);
@@ -1375,6 +1390,9 @@ fn attacker_clan(world: &mut World, player_oid: i32) {
             ally_name: String::new(),
             ally_penalty_expiry_time: 0,
             ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
         },
     );
     world.objects.get_component_mut::<Player>(&player_oid).unwrap().clan_id = 700;

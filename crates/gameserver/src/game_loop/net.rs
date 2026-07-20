@@ -643,10 +643,17 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 tracing::info!("GameLoop: loaded {total} siege guards for {} castles.", by_castle.len());
                 world.siege_guards = by_castle;
             }
-            DbEvent::ClansLoaded { clans, wars } => {
-                tracing::info!("GameLoop: loaded {} clans, {} clan wars.", clans.len(), wars.len());
+            DbEvent::ClansLoaded { clans, wars, crests } => {
+                tracing::info!(
+                    "GameLoop: loaded {} clans, {} clan wars, {} crests.",
+                    clans.len(),
+                    wars.len(),
+                    crests.len()
+                );
                 world.clans = clans.into_iter().map(|c| (c.id, c)).collect();
                 world.clan_wars = wars;
+                world.next_crest_id = crests.iter().map(|c| c.id + 1).max().unwrap_or(1);
+                world.crests = crests.into_iter().map(|c| (c.id, c)).collect();
                 super::clans::rearm_clan_wars_at_boot(world);
                 // Re-arm pending dissolutions (Java `ClanTable`'s constructor:
                 // past-due stamps fire immediately).

@@ -12,7 +12,7 @@ pub fn pledge_show_info_update(clan: &crate::model::clan::Clan) -> Vec<u8> {
     w.write_u8(opcodes::PLEDGE_SHOW_INFO_UPDATE);
     w.write_i32(clan.id);
     w.write_i32(1); // Config.SERVER_ID
-    w.write_i32(0); // crest id
+    w.write_i32(clan.crest_id);
     w.write_i32(clan.level);
     w.write_i32(0); // castle id
     w.write_i32(0); // castle state
@@ -24,7 +24,7 @@ pub fn pledge_show_info_update(clan: &crate::model::clan::Clan) -> Vec<u8> {
     w.write_i32(0);
     w.write_i32(clan.ally_id);
     w.write_string(&clan.ally_name);
-    w.write_i32(0); // ally crest id — TODO(G18.7): crests
+    w.write_i32(clan.ally_crest_id);
     w.write_i32(0); // at war
     w.write_i32(0);
     w.write_i32(0);
@@ -63,7 +63,7 @@ pub fn pledge_show_member_list_all(
     w.write_i32(0); // pledge id (main)
     w.write_string(&clan.name);
     w.write_string(clan.leader_name());
-    w.write_i32(0); // crest id
+    w.write_i32(clan.crest_id);
     w.write_i32(clan.level);
     w.write_i32(0); // castle id
     w.write_i32(0);
@@ -75,7 +75,7 @@ pub fn pledge_show_member_list_all(
     w.write_i32(0);
     w.write_i32(clan.ally_id);
     w.write_string(&clan.ally_name);
-    w.write_i32(0); // ally crest id — TODO(G18.7): crests
+    w.write_i32(clan.ally_crest_id);
     w.write_i32(0); // at war
     w.write_i32(0); // territory castle id
     let main: Vec<_> = clan.members.iter().filter(|m| m.pledge_type == 0).collect();
@@ -227,7 +227,7 @@ pub fn gm_view_pledge_info(
     w.write_i32(0);
     w.write_string(&clan.name);
     w.write_string(clan.leader_name());
-    w.write_i32(0); // crest id
+    w.write_i32(clan.crest_id);
     w.write_i32(clan.level);
     w.write_i32(0); // castle id
     w.write_i32(0); // hideout id
@@ -237,9 +237,9 @@ pub fn gm_view_pledge_info(
     w.write_i32(0);
     w.write_i32(0);
     w.write_i32(0);
-    w.write_i32(0); // ally id
-    w.write_string(""); // ally name
-    w.write_i32(0); // ally crest id
+    w.write_i32(clan.ally_id);
+    w.write_string(&clan.ally_name);
+    w.write_i32(clan.ally_crest_id);
     w.write_i32(0); // at war
     w.write_i32(0); // T3 unknown
     w.write_i32(clan.members.len() as i32);
@@ -440,5 +440,57 @@ pub fn pledge_receive_sub_pledge_created(pledge_id: i32, name: &str, leader_name
     w.write_i32(pledge_id);
     w.write_string(name);
     w.write_string(leader_name);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/PledgeCrest` — the small clan-crest bitmap answer
+/// to `RequestPledgeCrest`. `data` is `None` for a missing/unset crest.
+pub fn pledge_crest(crest_id: i32, data: Option<&[u8]>) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLEDGE_CREST);
+    w.write_i32(1); // Config.SERVER_ID
+    w.write_i32(crest_id);
+    match data {
+        Some(d) => {
+            w.write_i32(d.len() as i32);
+            w.write_bytes(d);
+        }
+        None => w.write_i32(0),
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/AllyCrest` — the ally-crest bitmap answer to
+/// `RequestAllyCrest`.
+pub fn ally_crest(crest_id: i32, data: Option<&[u8]>) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::ALLIANCE_CREST);
+    w.write_i32(1); // Config.SERVER_ID
+    w.write_i32(crest_id);
+    match data {
+        Some(d) => {
+            w.write_i32(d.len() as i32);
+            w.write_bytes(d);
+        }
+        None => w.write_i32(0),
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExPledgeEmblem` — one 14336-byte chunk of the large
+/// clan-crest bitmap (Java sends up to 5 chunks; on this dist's 2176-byte cap
+/// a large crest always fits in a single chunk, but the loop is kept general).
+pub fn ex_pledge_emblem(clan_id: i32, crest_id: i32, chunk_id: i32, chunk: &[u8]) -> Vec<u8> {
+    const TOTAL_SIZE: i32 = 65_664;
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PLEDGE_EMBLEM);
+    w.write_i32(1); // Config.SERVER_ID
+    w.write_i32(clan_id);
+    w.write_i32(crest_id);
+    w.write_i32(chunk_id);
+    w.write_i32(TOTAL_SIZE);
+    w.write_i32(chunk.len() as i32);
+    w.write_bytes(chunk);
     w.into_bytes()
 }

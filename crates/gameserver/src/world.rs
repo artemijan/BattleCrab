@@ -177,6 +177,13 @@ pub struct World {
     /// `_atWarWith`; here one flat list, looked up by either side's id).
     /// Loaded from `clan_wars` at boot, mutated by `game_loop/clans.rs`.
     pub clan_wars: Vec<crate::model::clan::ClanWar>,
+    /// Java `CrestTable._crests` — every stored crest bitmap, keyed by id.
+    /// Loaded from `crests` at boot, mutated by `game_loop/clans.rs`.
+    pub crests: HashMap<i32, crate::model::clan::Crest>,
+    /// Java `CrestTable._nextId` — the next id `create_crest` allocates.
+    /// Never reused even after the crest is deleted, so a stale client-side
+    /// cache never shows the wrong image for a new crest at the same id.
+    pub next_crest_id: i32,
 
     /// Grand-boss spawn/status records, keyed by boss NPC id (Java
     /// `GrandBossManager._storedInfo`/`_bossStatus`). Loaded once at boot
@@ -302,6 +309,8 @@ impl World {
             quests: std::sync::Arc::new(crate::scripts::build_registry()),
             clans: HashMap::new(),
             clan_wars: Vec::new(),
+            crests: HashMap::new(),
+            next_crest_id: 1,
             grand_bosses: HashMap::new(),
             cursed_weapons: Vec::new(),
             castles: Vec::new(),

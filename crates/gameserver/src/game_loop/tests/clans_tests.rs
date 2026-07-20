@@ -153,6 +153,9 @@ fn clan_roster_notifications_and_chat() {
             ally_name: String::new(),
             ally_penalty_expiry_time: 0,
             ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
         },
     );
     for oid in [3001, 3002] {
@@ -210,7 +213,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
     // A level-1 clan: 3001 leader, 3002 plain member (no privileges).
     let clan_id = 0x7000_0001;
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
-    world.clans.insert(clan_id, Clan { id: clan_id, name: "WhClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 });
+    world.clans.insert(clan_id, Clan { id: clan_id, name: "WhClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0, crest_id: 0, crest_large_id: 0, ally_crest_id: 0 });
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
     }
@@ -269,6 +272,9 @@ fn pledge_class_table_matches_calculate_pledge_class() {
         ally_name: String::new(),
         ally_penalty_expiry_time: 0,
         ally_penalty_type: 0,
+        crest_id: 0,
+        crest_large_id: 0,
+        ally_crest_id: 0,
     };
     // (leader, member) expected pledge class per clan level.
     for (level, leader, member) in [
@@ -332,7 +338,7 @@ fn clan_advent_aura_tracks_leader_online_state() {
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "AdventClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
+        Clan { id: clan_id, name: "AdventClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0, crest_id: 0, crest_large_id: 0, ally_crest_id: 0 },
     );
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
@@ -386,7 +392,7 @@ fn give_clan_skills_grants_gates_and_persists() {
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
+        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0, crest_id: 0, crest_large_id: 0, ally_crest_id: 0 },
     );
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
@@ -461,7 +467,7 @@ fn give_clan_skills_purges_residence_and_reapplies() {
     skills.insert(590, 1);
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "ResClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
+        Clan { id: clan_id, name: "ResClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0, crest_id: 0, crest_large_id: 0, ally_crest_id: 0 },
     );
     world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
     world.objects.add_components(&3001, ClanSkills(std::collections::HashMap::from([(590, 1)])));
@@ -625,7 +631,7 @@ fn clan_skills_move_max_hp_mp_cp() {
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "VitalClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
+        Clan { id: clan_id, name: "VitalClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0, crest_id: 0, crest_large_id: 0, ally_crest_id: 0 },
     );
     world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
 
@@ -658,7 +664,7 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "SiegeClan".into(), leader_id: 3001, level: 4, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
+        Clan { id: clan_id, name: "SiegeClan".into(), leader_id: 3001, level: 4, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0, crest_id: 0, crest_large_id: 0, ally_crest_id: 0 },
     );
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
@@ -712,7 +718,7 @@ fn clan_skills_reapply_on_member_login() {
     skills.insert(370, 1);
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
+        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0, crest_id: 0, crest_large_id: 0, ally_crest_id: 0 },
     );
     world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
 
@@ -742,7 +748,7 @@ fn clan_entry_queries() {
 
     let clan_id = 0x7000_0002;
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 40, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new(), pledge_type: 0 };
-    world.clans.insert(clan_id, Clan { id: clan_id, name: "Recruiters".into(), leader_id: 3001, level: 3, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 });
+    world.clans.insert(clan_id, Clan { id: clan_id, name: "Recruiters".into(), leader_id: 3001, level: 3, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0, crest_id: 0, crest_large_id: 0, ally_crest_id: 0 });
 
     // ExPledgeRecruitApplyInfo: status DEFAULT (0) — nothing is registered.
     super::clans::handle_request_pledge_recruit_apply_info(&world, 1);
@@ -847,6 +853,9 @@ fn install_clan(world: &mut World, clan_id: i32, member_oids: &[i32]) {
             ally_name: String::new(),
             ally_penalty_expiry_time: 0,
             ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
         },
     );
     for (i, &oid) in member_oids.iter().enumerate() {
@@ -2039,4 +2048,170 @@ fn rename_assign_reorganize_and_vacate_on_leave() {
     assert!(drain_db(&mut db_rx)
         .iter()
         .any(|c| matches!(c, db::DbCommand::UpdateSubPledge { clan_id: 5000, pledge_type: 100, leader_id: 0, .. })));
+}
+
+// --- G18 slice 7: crests ---
+
+fn crest_bytes(len: usize, fill: u8) -> Vec<u8> {
+    vec![fill; len]
+}
+
+fn set_pledge_crest_body(data: &[u8]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(data.len() as i32);
+    w.write_bytes(data);
+    w.into_bytes()
+}
+
+fn pledge_crest_query_body(crest_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(crest_id);
+    w.into_bytes()
+}
+
+/// Small clan-crest set/delete: the level-3 gate, privilege gate, dissolution
+/// gate, oversized-payload reject, and a full set→query→delete round trip
+/// that keeps UserInfo's crest id in sync for every online member.
+#[test]
+fn small_pledge_crest_set_query_delete() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut b_rx = ingame_player(&mut world, 2, 3003, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001, 3003]);
+    drain_db(&mut db_rx);
+
+    // Oversized payload (readImpl itself bails on this dist's 256-byte cap).
+    let mut w = PacketWriter::new();
+    w.write_i32(300);
+    clans::handle_request_set_pledge_crest(&mut world, 1, &w.into_bytes());
+    assert!(world.crests.is_empty(), "oversized request never reaches runImpl");
+
+    // Below level 3.
+    let img = crest_bytes(64, 7);
+    clans::handle_request_set_pledge_crest(&mut world, 1, &set_pledge_crest_body(&img));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::A_CLAN_CREST_CAN_ONLY_BE_REGISTERED_WHEN_THE_CLAN_S_SKILL_LEVEL_IS_3_OR_ABOVE));
+
+    // Dissolving gate.
+    world.clans.get_mut(&5000).unwrap().level = 3;
+    world.clans.get_mut(&5000).unwrap().dissolving_expiry_time = i64::MAX;
+    clans::handle_request_set_pledge_crest(&mut world, 1, &set_pledge_crest_body(&img));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::AS_YOU_ARE_SCHEDULED_FOR_CLAN_DISSOLUTION_CANNOT_REGISTER_OR_DELETE_CREST));
+    world.clans.get_mut(&5000).unwrap().dissolving_expiry_time = 0;
+
+    // No CL_REGISTER_CREST privilege.
+    clans::handle_request_set_pledge_crest(&mut world, 2, &set_pledge_crest_body(&img));
+    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT));
+
+    // Success: stored, persisted, id on the clan + every online member.
+    clans::handle_request_set_pledge_crest(&mut world, 1, &set_pledge_crest_body(&img));
+    let crest_id = world.clans[&5000].crest_id;
+    assert_ne!(crest_id, 0);
+    assert_eq!(world.crests[&crest_id].data, img);
+    assert_eq!(world.objects.get_component::<Player>(&3003).unwrap().clan_crest_id, crest_id);
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::THE_CREST_WAS_SUCCESSFULLY_REGISTERED));
+    assert!(drain_db(&mut db_rx).iter().any(|c| matches!(c, db::DbCommand::InsertCrest { id, kind: 1, .. } if *id == crest_id)));
+
+    // Query answers with the stored bitmap.
+    clans::handle_request_pledge_crest(&world, 1, &pledge_crest_query_body(crest_id));
+    let pkts = drain(&mut a_rx);
+    let pkt = pkts.iter().find(|p| p[0] == server_packets::opcodes::PLEDGE_CREST).expect("PledgeCrest sent");
+    assert_eq!(&pkt[13..13 + img.len()], img.as_slice());
+
+    // Delete.
+    clans::handle_request_set_pledge_crest(&mut world, 1, &set_pledge_crest_body(&[]));
+    assert_eq!(world.clans[&5000].crest_id, 0);
+    assert!(world.crests.is_empty(), "the last-allocated id is never reused, but the bitmap itself is dropped");
+    assert_eq!(world.objects.get_component::<Player>(&3003).unwrap().clan_crest_id, 0);
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::THE_CLAN_MARK_HAS_BEEN_DELETED));
+}
+
+/// Large clan crest: same guard chain at the 2176-byte cap, and the chunked
+/// query answer.
+#[test]
+fn large_pledge_crest_set_and_chunked_query() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001]);
+    world.clans.get_mut(&5000).unwrap().level = 3;
+    drain_db(&mut db_rx);
+
+    let mut w = PacketWriter::new();
+    w.write_i32(3000); // over the 2176 cap
+    clans::handle_request_ex_set_pledge_crest_large(&mut world, 1, &w.into_bytes());
+    assert!(world.crests.is_empty());
+
+    let img = crest_bytes(2000, 9);
+    let mut w = PacketWriter::new();
+    w.write_i32(img.len() as i32);
+    w.write_bytes(&img);
+    clans::handle_request_ex_set_pledge_crest_large(&mut world, 1, &w.into_bytes());
+    let crest_id = world.clans[&5000].crest_large_id;
+    assert_ne!(crest_id, 0);
+    assert_eq!(world.crests[&crest_id].data, img);
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::THE_CLAN_MARK_WAS_SUCCESSFULLY_REGISTERED_ON_ITEMS));
+
+    let mut qw = PacketWriter::new();
+    qw.write_i32(crest_id);
+    qw.write_i32(5000);
+    clans::handle_request_ex_pledge_crest_large(&world, 1, &qw.into_bytes());
+    let pkts = drain(&mut a_rx);
+    let emblem = pkts.iter().find(|p| p[0] == 0xFE && i16::from_le_bytes([p[1], p[2]]) == 0x1B).expect("ExPledgeEmblem");
+    // header: opcode(1) + ex-id(2) + serverId(4) + clanId(4) + crestId(4) + chunkId(4) + totalSize(4) + chunkLen(4) = 27
+    assert_eq!(i32::from_le_bytes([emblem[23], emblem[24], emblem[25], emblem[26]]), img.len() as i32);
+    assert_eq!(&emblem[27..27 + img.len()], img.as_slice());
+}
+
+/// Ally crest: only the alliance leader may set it; joining/leaving syncs
+/// `Player.ally_crest_id`.
+#[test]
+fn ally_crest_set_and_sync_on_membership_change() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut b_rx = ingame_player(&mut world, 2, 3003, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001]);
+    install_clan(&mut world, 5001, &[3003]);
+    for (id, ally) in [(5000, 5000), (5001, 5000)] {
+        let c = world.clans.get_mut(&id).unwrap();
+        c.level = 5;
+        c.ally_id = ally;
+        c.ally_name = "Pact".into();
+    }
+    world.objects.get_component_mut::<Player>(&3001).unwrap().ally_id = 5000;
+    world.objects.get_component_mut::<Player>(&3003).unwrap().ally_id = 5000;
+    drain_db(&mut db_rx);
+
+    // A member clan's leader cannot set the ally crest.
+    let img = crest_bytes(50, 3);
+    let mut w = PacketWriter::new();
+    w.write_i32(img.len() as i32);
+    w.write_bytes(&img);
+    clans::handle_request_set_ally_crest(&mut world, 2, &w.into_bytes());
+    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::THIS_FEATURE_IS_ONLY_AVAILABLE_TO_ALLIANCE_LEADERS));
+
+    // The alliance leader sets it — every member clan's online players sync.
+    let mut w = PacketWriter::new();
+    w.write_i32(img.len() as i32);
+    w.write_bytes(&img);
+    clans::handle_request_set_ally_crest(&mut world, 1, &w.into_bytes());
+    let crest_id = world.clans[&5000].ally_crest_id;
+    assert_ne!(crest_id, 0);
+    assert_eq!(world.clans[&5001].ally_crest_id, crest_id, "pushed to every clan in the alliance");
+    assert_eq!(world.objects.get_component::<Player>(&3003).unwrap().ally_crest_id, crest_id);
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::THE_CREST_WAS_SUCCESSFULLY_REGISTERED));
+
+    // A member leaving picks up ally_crest_id = 0 (their own row only).
+    clans::handle_ally_leave(&mut world, 2);
+    assert_eq!(world.clans[&5001].ally_crest_id, 0);
+    assert_eq!(world.objects.get_component::<Player>(&3003).unwrap().ally_crest_id, 0);
+    assert_eq!(world.clans[&5000].ally_crest_id, crest_id, "the leader clan keeps its own crest");
+
+    // A fresh join inherits the leader clan's current ally crest.
+    let mut c_rx = ingame_player(&mut world, 3, 3005, 0, 0, 0);
+    install_clan(&mut world, 5002, &[3005]);
+    world.clans.get_mut(&5002).unwrap().level = 5;
+    clans::handle_request_join_ally(&mut world, 1, &oid_body(3005));
+    drain(&mut c_rx);
+    clans::handle_request_answer_join_ally(&mut world, 3, &answer_body(1));
+    assert_eq!(world.clans[&5002].ally_crest_id, crest_id);
+    assert_eq!(world.objects.get_component::<Player>(&3005).unwrap().ally_crest_id, crest_id);
 }

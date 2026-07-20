@@ -167,6 +167,9 @@ fn a_defender_is_spared_by_its_own_castles_trap() {
             ally_name: String::new(),
             ally_penalty_expiry_time: 0,
             ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
         },
     );
     let before = hp(&world);

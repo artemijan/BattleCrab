@@ -441,7 +441,7 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
             pledge_type: 0,
         }
     };
-    let clan = Clan { id: clan_id, name: name.clone(), leader_id: leader_oid, level: 0, reputation_score: 0, castle_id: 0, members: vec![leader], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 };
+    let clan = Clan { id: clan_id, name: name.clone(), leader_id: leader_oid, level: 0, reputation_score: 0, castle_id: 0, members: vec![leader], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, sub_pledges: Default::default(), ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0, crest_id: 0, crest_large_id: 0, ally_crest_id: 0 };
     let _ = world.db.send(DbCommand::InsertClan { clan_id, name: name.clone(), leader_id: leader_oid });
     let _ = world.db.send(DbCommand::UpdateCharClan {
         char_id: leader_oid,
@@ -669,11 +669,14 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
             (grade, c.rank_privs_of(grade))
         })
     };
-    let ally_id = world.clans.get(&clan_id).map(|c| c.ally_id).unwrap_or(0);
+    let (ally_id, ally_crest_id, clan_crest_id) =
+        world.clans.get(&clan_id).map(|c| (c.ally_id, c.ally_crest_id, c.crest_id)).unwrap_or((0, 0, 0));
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.clan_leader = is_leader;
         p.pledge_class = pledge_class;
         p.ally_id = ally_id;
+        p.ally_crest_id = ally_crest_id;
+        p.clan_crest_id = clan_crest_id;
         if is_leader {
             p.clan_privs = ALL_CLAN_PRIVILEGES;
             p.power_grade = 1;
@@ -999,7 +1002,8 @@ fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, pledge_type
     let pledge_class = clan.pledge_class_of(player_oid);
     // Java `player.setClanPrivileges(clan.getRankPrivs(player.getPowerGrade()))`.
     let privs = clan.rank_privs_of(grade);
-    let ally_id = world.clans.get(&clan_id).map(|c| c.ally_id).unwrap_or(0);
+    let (ally_id, ally_crest_id, clan_crest_id) =
+        world.clans.get(&clan_id).map(|c| (c.ally_id, c.ally_crest_id, c.crest_id)).unwrap_or((0, 0, 0));
     if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
         p.clan_id = clan_id;
         p.clan_privs = privs;
@@ -1008,6 +1012,8 @@ fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, pledge_type
         p.pledge_type = pledge_type;
         p.pledge_class = pledge_class;
         p.ally_id = ally_id;
+        p.ally_crest_id = ally_crest_id;
+        p.clan_crest_id = clan_crest_id;
         p.clan_join_expiry_time = 0; // Java `setClanJoinExpiryTime(0)`
     }
     let _ = world.db.send(DbCommand::UpdateCharClan { char_id: player_oid, clan_id, clan_privs: privs });
@@ -2431,10 +2437,12 @@ fn store_clan_ally(world: &World, clan_id: i32) {
 /// Sync every online member's denormalized `Player.ally_id` with the clan and
 /// re-broadcast their UserInfo/CharInfo (the ally id rides both).
 fn refresh_ally_on_members(world: &mut World, clan_id: i32) {
-    let ally_id = world.clans.get(&clan_id).map(|c| c.ally_id).unwrap_or(0);
+    let (ally_id, ally_crest_id) =
+        world.clans.get(&clan_id).map(|c| (c.ally_id, c.ally_crest_id)).unwrap_or((0, 0));
     for oid in online_members(world, clan_id) {
         if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
             p.ally_id = ally_id;
+            p.ally_crest_id = ally_crest_id;
         }
         super::party::broadcast_user_info(world, oid);
     }
@@ -2548,7 +2556,7 @@ pub(crate) fn handle_dissolve_ally(world: &mut World, client_id: u32, player_oid
     if let Some(c) = world.clans.get_mut(&clan_id) {
         c.ally_id = 0;
         c.ally_name.clear();
-        // TODO(G18.7): `changeAllyCrest(0, false)`.
+        c.ally_crest_id = 0; // `changeAllyCrest(0, false)`
         c.ally_penalty_expiry_time = now_millis() + ALLY_PENALTY_MS;
         c.ally_penalty_type = ALLY_PENALTY_TYPE_DISSOLVE_ALLY;
     }
@@ -2709,12 +2717,13 @@ pub(crate) fn handle_request_answer_join_ally(world: &mut World, client_id: u32,
     }
     let ally_name = world.clans.get(&ally_id).map(|c| c.ally_name.clone()).unwrap_or_default();
     let target_clan_id = world.objects.get_component::<Player>(&player).map(|p| p.clan_id).unwrap_or(0);
+    let leader_crest = world.clans.get(&ally_id).map(|c| c.ally_crest_id).unwrap_or(0);
     if let Some(c) = world.clans.get_mut(&target_clan_id) {
         c.ally_id = ally_id;
         c.ally_name = ally_name;
         c.ally_penalty_expiry_time = 0;
         c.ally_penalty_type = 0;
-        // TODO(G18.7): `changeAllyCrest(leader crest, true)`.
+        c.ally_crest_id = leader_crest; // `changeAllyCrest(leaderCrest, true)`
     }
     store_clan_ally(world, target_clan_id);
     refresh_ally_on_members(world, target_clan_id);
@@ -2749,7 +2758,7 @@ pub(crate) fn handle_ally_leave(world: &mut World, client_id: u32) {
     if let Some(c) = world.clans.get_mut(&clan_id) {
         c.ally_id = 0;
         c.ally_name.clear();
-        // TODO(G18.7): `changeAllyCrest(0, true)`.
+        c.ally_crest_id = 0; // `changeAllyCrest(0, true)`
         c.ally_penalty_expiry_time = now_millis() + ALLY_PENALTY_MS;
         c.ally_penalty_type = ALLY_PENALTY_TYPE_CLAN_LEAVED;
     }
@@ -2803,7 +2812,7 @@ pub(crate) fn handle_ally_dismiss(world: &mut World, client_id: u32, body: &[u8]
     if let Some(c) = world.clans.get_mut(&target_id) {
         c.ally_id = 0;
         c.ally_name.clear();
-        // TODO(G18.7): `changeAllyCrest(0, true)`.
+        c.ally_crest_id = 0; // `changeAllyCrest(0, true)`
         c.ally_penalty_expiry_time = now + ALLY_PENALTY_MS;
         c.ally_penalty_type = ALLY_PENALTY_TYPE_CLAN_DISMISSED;
     }
@@ -3175,4 +3184,262 @@ pub(crate) fn handle_assign_subpledge_leader(world: &mut World, client_id: u32, 
         &[SmParam::Text(member.name.clone()), SmParam::Text(unit_name.to_string())],
     );
     broadcast_to_clan(world, clan_id, &sm);
+}
+
+// --- G18 slice 7: crests ----------------------------------------------------
+
+use crate::model::clan::{Crest, CL_REGISTER_CREST, CREST_TYPE_ALLY, CREST_TYPE_PLEDGE, CREST_TYPE_PLEDGE_LARGE};
+
+/// `CrestTable.createCrest`: allocate the next id, store the bitmap, persist.
+fn create_crest(world: &mut World, data: &[u8], kind: i32) -> i32 {
+    let id = world.next_crest_id;
+    world.next_crest_id += 1;
+    world.crests.insert(id, Crest { id, data: data.to_vec(), kind });
+    let _ = world.db.send(DbCommand::InsertCrest { id, data: data.to_vec(), kind });
+    id
+}
+
+/// `CrestTable.removeCrest`: drop the bitmap, but never delete (or let a
+/// caller reuse) the most recently allocated id — Java's guard against a
+/// stale client cache showing the wrong image for a brand-new crest.
+fn remove_crest(world: &mut World, crest_id: i32) {
+    world.crests.remove(&crest_id);
+    if crest_id == world.next_crest_id - 1 {
+        return;
+    }
+    let _ = world.db.send(DbCommand::DeleteCrest { id: crest_id });
+}
+
+/// Sync every online member's denormalized `Player.clan_crest_id` with the
+/// clan and re-broadcast their UserInfo/CharInfo — the small-crest half of
+/// `Clan.changeClanCrest`'s `for (member : getOnlineMembers()) broadcastUserInfo()`.
+fn refresh_clan_crest_on_members(world: &mut World, clan_id: i32) {
+    let crest_id = world.clans.get(&clan_id).map(|c| c.crest_id).unwrap_or(0);
+    for oid in online_members(world, clan_id) {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
+            p.clan_crest_id = crest_id;
+        }
+        super::party::broadcast_user_info(world, oid);
+    }
+}
+
+/// `RequestSetPledgeCrest` (0x09): the small (≤256-byte) clan crest.
+pub(crate) fn handle_request_set_pledge_crest(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    let mut r = PacketReader::new(body);
+    let Some(length) = r.read_i32() else { return };
+    if length > 256 {
+        return; // Java's own readImpl bails before the length even reaches runImpl
+    }
+    let data = if length > 0 { r.read_bytes(length as usize).map(|d| d.to_vec()) } else { Some(Vec::new()) };
+    let Some(data) = data else { return };
+
+    let Some(p) = world.objects.get_component::<Player>(&player) else { return };
+    let clan_id = p.clan_id;
+    let privs = p.clan_privs;
+    if clan_id == 0 {
+        return;
+    }
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    if clan.dissolving_expiry_time > now_millis() {
+        send_sm_with(world, player, sm_ids::AS_YOU_ARE_SCHEDULED_FOR_CLAN_DISSOLUTION_CANNOT_REGISTER_OR_DELETE_CREST, &[]);
+        return;
+    }
+    if !clan.has_privilege(player, privs, CL_REGISTER_CREST) {
+        send_sm_with(world, player, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT, &[]);
+        return;
+    }
+    if data.is_empty() {
+        if clan.crest_id != 0 {
+            let old = clan.crest_id;
+            remove_crest(world, old);
+            if let Some(c) = world.clans.get_mut(&clan_id) {
+                c.crest_id = 0;
+            }
+            let _ = world.db.send(DbCommand::UpdateClanCrest { clan_id, crest_id: 0 });
+            refresh_clan_crest_on_members(world, clan_id);
+            send_sm_with(world, player, sm_ids::THE_CLAN_MARK_HAS_BEEN_DELETED, &[]);
+        }
+        return;
+    }
+    if clan.level < 3 {
+        send_sm_with(world, player, sm_ids::A_CLAN_CREST_CAN_ONLY_BE_REGISTERED_WHEN_THE_CLAN_S_SKILL_LEVEL_IS_3_OR_ABOVE, &[]);
+        return;
+    }
+    let crest_id = create_crest(world, &data, CREST_TYPE_PLEDGE);
+    if let Some(c) = world.clans.get_mut(&clan_id) {
+        c.crest_id = crest_id;
+    }
+    let _ = world.db.send(DbCommand::UpdateClanCrest { clan_id, crest_id });
+    refresh_clan_crest_on_members(world, clan_id);
+    send_sm_with(world, player, sm_ids::THE_CREST_WAS_SUCCESSFULLY_REGISTERED, &[]);
+}
+
+/// `RequestPledgeCrest` (0x67): answer with the small crest's bitmap.
+pub(crate) fn handle_request_pledge_crest(world: &World, client_id: u32, body: &[u8]) {
+    let mut r = PacketReader::new(body);
+    let Some(crest_id) = r.read_i32() else { return };
+    let data = world.crests.get(&crest_id).map(|c| c.data.as_slice());
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::pledge_crest(crest_id, data));
+    }
+}
+
+/// `RequestExSetPledgeCrestLarge` (ex 0x11): the large (≤2176-byte) crest,
+/// shown on clan-hall/castle items.
+pub(crate) fn handle_request_ex_set_pledge_crest_large(world: &mut World, client_id: u32, ex_body: &[u8]) {
+    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    let mut r = PacketReader::new(ex_body);
+    let Some(length) = r.read_i32() else { return };
+    if length > 2176 {
+        return;
+    }
+    let data = if length > 0 { r.read_bytes(length as usize).map(|d| d.to_vec()) } else { Some(Vec::new()) };
+    let Some(data) = data else { return };
+
+    let Some(p) = world.objects.get_component::<Player>(&player) else { return };
+    let clan_id = p.clan_id;
+    let privs = p.clan_privs;
+    if clan_id == 0 {
+        return;
+    }
+    if length < 0 || length > 2176 {
+        send_sm_with(world, player, sm_ids::THE_SIZE_OF_THE_UPLOADED_SYMBOL_DOES_NOT_MEET_STANDARDS, &[]);
+        return;
+    }
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    if clan.dissolving_expiry_time > now_millis() {
+        send_sm_with(world, player, sm_ids::AS_YOU_ARE_SCHEDULED_FOR_CLAN_DISSOLUTION_CANNOT_REGISTER_OR_DELETE_CREST, &[]);
+        return;
+    }
+    if !clan.has_privilege(player, privs, CL_REGISTER_CREST) {
+        send_sm_with(world, player, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT, &[]);
+        return;
+    }
+    if data.is_empty() {
+        if clan.crest_large_id != 0 {
+            let old = clan.crest_large_id;
+            remove_crest(world, old);
+            if let Some(c) = world.clans.get_mut(&clan_id) {
+                c.crest_large_id = 0;
+            }
+            let _ = world.db.send(DbCommand::UpdateClanCrestLarge { clan_id, crest_large_id: 0 });
+            // Java broadcasts UserInfo to every online member here too, even
+            // though the large crest id isn't part of that packet (only
+            // fetched on demand via `RequestExPledgeCrestLarge`) — kept
+            // faithful; it's a no-op refresh for everyone but the actor.
+            for oid in online_members(world, clan_id) {
+                super::party::broadcast_user_info(world, oid);
+            }
+            send_sm_with(world, player, sm_ids::THE_CLAN_MARK_HAS_BEEN_DELETED, &[]);
+        }
+        return;
+    }
+    if clan.level < 3 {
+        send_sm_with(world, player, sm_ids::A_CLAN_CREST_CAN_ONLY_BE_REGISTERED_WHEN_THE_CLAN_S_SKILL_LEVEL_IS_3_OR_ABOVE, &[]);
+        return;
+    }
+    let crest_id = create_crest(world, &data, CREST_TYPE_PLEDGE_LARGE);
+    if let Some(c) = world.clans.get_mut(&clan_id) {
+        c.crest_large_id = crest_id;
+    }
+    let _ = world.db.send(DbCommand::UpdateClanCrestLarge { clan_id, crest_large_id: crest_id });
+    for oid in online_members(world, clan_id) {
+        super::party::broadcast_user_info(world, oid);
+    }
+    send_sm_with(world, player, sm_ids::THE_CLAN_MARK_WAS_SUCCESSFULLY_REGISTERED_ON_ITEMS, &[]);
+}
+
+/// `RequestExPledgeCrestLarge` (ex 0x10): answer with the large crest's
+/// bitmap, chunked into ≤14336-byte `ExPledgeEmblem` packets (always a single
+/// chunk on this dist's 2176-byte cap, but the loop stays general).
+pub(crate) fn handle_request_ex_pledge_crest_large(world: &World, client_id: u32, ex_body: &[u8]) {
+    let mut r = PacketReader::new(ex_body);
+    let Some(crest_id) = r.read_i32() else { return };
+    let Some(clan_id) = r.read_i32() else { return };
+    let Some(data) = world.crests.get(&crest_id).map(|c| c.data.clone()) else { return };
+    let Some(cs) = world.clients.get(&client_id) else { return };
+    const CHUNK: usize = 14_336;
+    for i in 0..5 {
+        let start = CHUNK * i;
+        if start >= data.len() {
+            continue;
+        }
+        let end = (start + CHUNK).min(data.len());
+        cs.send(server_packets::ex_pledge_emblem(clan_id, crest_id, i as i32, &data[start..end]));
+    }
+}
+
+/// `RequestSetAllyCrest` (0x91): the alliance crest (≤192 bytes) — only the
+/// alliance leader (the leader-clan's own clan leader) may set it.
+pub(crate) fn handle_request_set_ally_crest(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    let mut r = PacketReader::new(body);
+    let Some(length) = r.read_i32() else { return };
+    if length > 192 {
+        return;
+    }
+    let data = if length > 0 { r.read_bytes(length as usize).map(|d| d.to_vec()) } else { Some(Vec::new()) };
+    let Some(data) = data else { return };
+
+    let Some(p) = world.objects.get_component::<Player>(&player) else { return };
+    let ally_id = p.ally_id;
+    let clan_id = p.clan_id;
+    let is_leader = p.clan_leader;
+    if length < 0 {
+        send_sm_with(world, player, sm_ids::S1_TEXT, &[SmParam::Text("File transfer error.".to_string())]);
+        return;
+    }
+    if length > 192 {
+        send_sm_with(world, player, sm_ids::PLEASE_ADJUST_THE_IMAGE_SIZE_TO_8X12, &[]);
+        return;
+    }
+    if ally_id == 0 || clan_id != ally_id || !is_leader {
+        send_sm_with(world, player, sm_ids::THIS_FEATURE_IS_ONLY_AVAILABLE_TO_ALLIANCE_LEADERS, &[]);
+        return;
+    }
+    if data.is_empty() {
+        let old = world.clans.get(&clan_id).map(|c| c.ally_crest_id).unwrap_or(0);
+        if old != 0 {
+            remove_crest(world, old);
+            set_alliance_crest(world, ally_id, 0);
+        }
+        return;
+    }
+    let crest_id = create_crest(world, &data, CREST_TYPE_ALLY);
+    set_alliance_crest(world, ally_id, crest_id);
+    send_sm_with(world, player, sm_ids::THE_CREST_WAS_SUCCESSFULLY_REGISTERED, &[]);
+}
+
+/// `Clan.changeAllyCrest(id, onlyThisClan=false)`: push the crest id to every
+/// clan in the alliance and refresh their online members.
+fn set_alliance_crest(world: &mut World, ally_id: i32, crest_id: i32) {
+    let clan_ids = ally_clan_ids(world, ally_id);
+    for cid in &clan_ids {
+        if let Some(c) = world.clans.get_mut(cid) {
+            c.ally_crest_id = crest_id;
+        }
+    }
+    let _ = world.db.send(DbCommand::UpdateAllyCrestForAlliance { ally_id, ally_crest_id: crest_id });
+    for cid in clan_ids {
+        for oid in online_members(world, cid) {
+            if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
+                p.ally_crest_id = crest_id;
+            }
+            super::party::broadcast_user_info(world, oid);
+        }
+    }
+}
+
+/// `RequestAllyCrest` (0x92): answer with the alliance crest's bitmap.
+pub(crate) fn handle_request_ally_crest(world: &World, client_id: u32, body: &[u8]) {
+    let mut r = PacketReader::new(body);
+    let Some(crest_id) = r.read_i32() else { return };
+    let data = world.crests.get(&crest_id).map(|c| c.data.as_slice());
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::ally_crest(crest_id, data));
+    }
 }

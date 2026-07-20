@@ -83,6 +83,11 @@ pub struct Clan {
     /// penalties ([`ALLY_PENALTY_TYPE_CLAN_LEAVED`] …).
     pub ally_penalty_expiry_time: i64,
     pub ally_penalty_type: i32,
+    /// Java `_crestId`/`_crestLargeId`/`_allyCrestId` — ids into
+    /// [`crate::world::World::crests`]; 0 = none.
+    pub crest_id: i32,
+    pub crest_large_id: i32,
+    pub ally_crest_id: i32,
 }
 
 impl Clan {
@@ -218,6 +223,23 @@ pub const CL_MANAGE_RANKS: i32 = 1 << 4;
 
 /// `ClanPrivilege.CL_PLEDGE_WAR` (ordinal 5) — required to declare/stop wars.
 pub const CL_PLEDGE_WAR: i32 = 1 << 5;
+
+/// `ClanPrivilege.CL_REGISTER_CREST` (ordinal 7) — required to register/
+/// delete a clan or large crest.
+pub const CL_REGISTER_CREST: i32 = 1 << 7;
+
+/// Java `CrestType` ordinals (`crests.type` column).
+pub const CREST_TYPE_PLEDGE: i32 = 1;
+pub const CREST_TYPE_PLEDGE_LARGE: i32 = 2;
+pub const CREST_TYPE_ALLY: i32 = 3;
+
+/// One `crests` row — a stored bitmap (Java `Crest`).
+#[derive(Debug, Clone)]
+pub struct Crest {
+    pub id: i32,
+    pub data: Vec<u8>,
+    pub kind: i32,
+}
 
 /// Java `Clan.PENALTY_TYPE_*` — what the running ally penalty forbids.
 pub const ALLY_PENALTY_TYPE_CLAN_LEAVED: i32 = 1;
@@ -415,6 +437,9 @@ mod pledge_class_tests {
             ally_name: String::new(),
             ally_penalty_expiry_time: 0,
             ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
         }
     }
 

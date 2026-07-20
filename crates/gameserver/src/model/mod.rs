@@ -238,6 +238,11 @@ pub struct Player {
     /// guard, 1001/1002/2001/2002 knight order. Drives `pledge_class_of` and
     /// the sub-pledge member caps.
     pub pledge_type: i32,
+    /// Java `clan.getCrestId()`/`getAllyCrestId()`, denormalized like
+    /// `ally_id` so the store-only UserInfo/CharInfo builders can write them;
+    /// synced at enter-world and whenever a crest changes.
+    pub clan_crest_id: i32,
+    pub ally_crest_id: i32,
 
     pub face: i32,
     pub hair_style: i32,
@@ -791,6 +796,8 @@ impl Player {
             power_grade: c.power_grade,
             ally_id: 0, // synced from the clan at enter-world
             pledge_type: c.pledge_type,
+            clan_crest_id: 0, // synced from the clan at enter-world
+            ally_crest_id: 0, // synced from the clan at enter-world
             face: c.face,
             hair_style: c.hair_style,
             hair_color: c.hair_color,

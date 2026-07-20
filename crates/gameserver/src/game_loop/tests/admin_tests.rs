@@ -1814,6 +1814,9 @@ fn admin_castlemanage_ownership_and_side() {
             ally_name: String::new(),
             ally_penalty_expiry_time: 0,
             ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
         },
     );
     let mut rx = ingame_player_access(&mut world, 1, 8001, 100);
@@ -1892,6 +1895,9 @@ fn admin_castlemanage_siege_registration_and_state() {
             ally_name: String::new(),
             ally_penalty_expiry_time: 0,
             ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
         },
     );
     let mut rx = ingame_player_access(&mut world, 1, 8101, 100);
@@ -1981,6 +1987,9 @@ fn admin_give_clan_skills_command_grants_targeted_clan() {
             ally_name: String::new(),
             ally_penalty_expiry_time: 0,
             ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
         },
     );
     world.objects.get_component_mut::<Player>(&6500).unwrap().clan_id = clan_id;

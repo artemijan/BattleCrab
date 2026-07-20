@@ -189,6 +189,10 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             super::clans::handle_request_surrender_pledge_war(world, client_id, body)
         }
         cop::REQUEST_ALLY_INFO => super::clans::handle_request_ally_info(world, client_id),
+        cop::REQUEST_SET_PLEDGE_CREST => super::clans::handle_request_set_pledge_crest(world, client_id, body),
+        cop::REQUEST_PLEDGE_CREST => super::clans::handle_request_pledge_crest(world, client_id, body),
+        cop::REQUEST_SET_ALLY_CREST => super::clans::handle_request_set_ally_crest(world, client_id, body),
+        cop::REQUEST_ALLY_CREST => super::clans::handle_request_ally_crest(world, client_id, body),
         cop::REQUEST_JOIN_ALLY => super::clans::handle_request_join_ally(world, client_id, body),
         cop::REQUEST_ANSWER_JOIN_ALLY => {
             super::clans::handle_request_answer_join_ally(world, client_id, body)
@@ -410,6 +414,12 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         }
         exop::REQUEST_PLEDGE_WAR_LIST => {
             super::clans::handle_request_pledge_war_list(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_PLEDGE_CREST_LARGE => {
+            super::clans::handle_request_ex_pledge_crest_large(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_SET_PLEDGE_CREST_LARGE => {
+            super::clans::handle_request_ex_set_pledge_crest_large(world, client_id, ex_body)
         }
         // Clan entry (recruitment) queries fired when the clan window opens.
         exop::REQUEST_PLEDGE_RECRUIT_INFO => {
