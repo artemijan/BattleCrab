@@ -147,10 +147,21 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::BYPASS_USER_CMD => {
             super::user_commands::handle_bypass_user_cmd(world, client_id, body)
         }
-        // DlgAnswer (IN_GAME): reply to a ConfirmDlg — the admin-confirm flow.
+        // DlgAnswer (IN_GAME): reply to a ConfirmDlg. Two flows share the
+        // packet — a resurrection proposal and the admin confirm — so the
+        // revive handler gets first refusal and reports whether the reply was
+        // its own.
         cop::DLG_ANSWER => {
             if let Some(answer) = cp::DlgAnswer::read(body) {
-                super::admin::handle_dlg_answer(world, client_id, answer);
+                let oid = match world.clients.get(&client_id) {
+                    Some(crate::session::ClientSession::InGame(s)) => Some(s.player_object_id()),
+                    _ => None,
+                };
+                let claimed =
+                    oid.is_some_and(|oid| super::death::handle_revive_answer(world, oid, answer.answer == 1));
+                if !claimed {
+                    super::admin::handle_dlg_answer(world, client_id, answer);
+                }
             }
         }
         cop::REQUEST_BUY_ITEM => super::shop::handle_request_buy_item(world, client_id, body),

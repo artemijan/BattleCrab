@@ -1258,6 +1258,9 @@ pub(crate) fn apply_death_exp_penalty_ex(world: &mut World, player_oid: i32, at_
     let new_exp = exp - lost;
     if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&player_oid) {
         p.exp = new_exp;
+        // Java keeps `_expBeforeDeath` and subtracts; the difference is the
+        // only thing a resurrection reads, so record that directly.
+        p.lost_exp_on_death = lost;
     }
     if let Some(client_id) = client_for_player(world, player_oid) {
         if let Some(cs) = world.clients.get(&client_id) {
@@ -1422,6 +1425,165 @@ pub(crate) fn handle_appearing(world: &mut World, client_id: u32) {
     {
         cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, super::party::calculate_relation(world, v.p)));
     }
+}
+
+/// `Formulas.calculateSkillResurrectRestorePercent` — the reviver's WIT scales
+/// how much of the lost XP their resurrection gives back.
+///
+/// ```java
+/// if (base == 0 || base == 100) return base;
+/// restore = base * WIT.calcBonus(caster);
+/// if ((restore - base) > 20.0) restore += 20.0;
+/// return min(max(restore, base), 90.0);
+/// ```
+///
+/// Note the quirk on the third line: a bonus that already exceeds +20 gets a
+/// *further* flat +20, so high-WIT revivers jump rather than scale smoothly.
+/// Ported as written.
+pub(crate) fn resurrect_restore_percent(base: f64, wit_bonus: f64) -> f64 {
+    if base == 0.0 || base == 100.0 {
+        return base;
+    }
+    let mut restore = base * wit_bonus;
+    if (restore - base) > 20.0 {
+        restore += 20.0;
+    }
+    restore.max(base).min(90.0)
+}
+
+/// `Player.reviveRequest` — propose a resurrection to a dead player.
+///
+/// Nothing is restored here: the corpse gets a `ConfirmDlg` and decides.
+/// A second proposal while one is outstanding is refused with Java's
+/// "Resurrection has already been proposed" notice, which is what stops two
+/// clerics from racing.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn revive_request(
+    world: &mut World,
+    reviver_oid: i32,
+    target_oid: i32,
+    power: i32,
+    hp_percent: i32,
+    mp_percent: i32,
+    cp_percent: i32,
+) {
+    use crate::network::server_packets::sm_ids;
+    // `isResurrectionBlocked()` — Java also ORs `isInvul()`; the flag is the
+    // ported half (`BlockResurrection` has no learnable source on this dist).
+    if crate::game_loop::abnormal::flags_of(world, target_oid) & crate::model::skill::effect_flag::BLOCK_RESURRECTION != 0
+    {
+        return;
+    }
+    let Some(target) = world.objects.get_component::<crate::model::Player>(&target_oid) else { return };
+    if world.objects.get_component::<Vitals>(&target_oid).is_none_or(|v| !v.dead) {
+        return;
+    }
+    if target.revive_request.is_some() {
+        if let Some(cid) = client_for_player(world, reviver_oid) {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(server_packets::system_message_with(sm_ids::RESURRECTION_HAS_ALREADY_BEEN_PROPOSED, &[]));
+            }
+        }
+        return;
+    }
+    // `calculateSkillResurrectRestorePercent(power, reviver)`.
+    let wit_bonus = world
+        .objects
+        .get_component::<crate::model::components::BaseStats>(&reviver_oid)
+        .map(|b| world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Wit, b.wit))
+        .unwrap_or(1.0);
+    let restore_percent = resurrect_restore_percent(power as f64, wit_bonus);
+
+    let lost = world
+        .objects
+        .get_component::<crate::model::Player>(&target_oid)
+        .map(|p| p.lost_exp_on_death)
+        .unwrap_or(0);
+    let restore_exp = ((lost as f64 * restore_percent) / 100.0).round() as i64;
+
+    if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&target_oid) {
+        p.revive_request = Some((reviver_oid, restore_percent, hp_percent, mp_percent, cp_percent));
+    }
+    // Java's `ConfirmDlg(C1_IS_ATTEMPTING_TO_DO_A_RESURRECTION_THAT_RESTORES_S2_S3_XP_ACCEPT)`.
+    // This port has only the generic text dialog, so the message is rendered
+    // rather than composed from the client's string table.
+    let reviver_name = world
+        .objects
+        .get_component::<crate::model::Player>(&reviver_oid)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    if let Some(cid) = client_for_player(world, target_oid) {
+        if let Some(cs) = world.clients.get(&cid) {
+            cs.send(server_packets::confirm_dlg_text(&format!(
+                "{reviver_name} is attempting to resurrect you, restoring {restore_exp} XP ({restore_percent:.0}%). Accept?"
+            )));
+        }
+    }
+}
+
+/// `Player.reviveAnswer` — the corpse's `ConfirmDlg` reply.
+///
+/// Returns `true` when a pending proposal was consumed, so the shared
+/// `DlgAnswer` dispatch knows this reply was ours and not the admin flow's.
+pub(crate) fn handle_revive_answer(world: &mut World, player_oid: i32, accepted: bool) -> bool {
+    let Some(request) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&player_oid)
+        .and_then(|p| p.revive_request.take())
+    else {
+        return false;
+    };
+    // Java re-checks the corpse is still dead — it may have used "to village"
+    // while the dialog sat on screen.
+    if world.objects.get_component::<Vitals>(&player_oid).is_none_or(|v| !v.dead) {
+        return true;
+    }
+    if !accepted {
+        return true;
+    }
+    let (_reviver, restore_percent, hp_percent, mp_percent, cp_percent) = request;
+    do_revive_with(world, player_oid, hp_percent, mp_percent, cp_percent, restore_percent);
+    true
+}
+
+/// `Player.doRevive(double revivePower)` — revive with the skill's own
+/// percentages rather than the config respawn ones, and give back
+/// `revivePower`% of the XP the death cost.
+pub(crate) fn do_revive_with(
+    world: &mut World,
+    player_oid: i32,
+    hp_percent: i32,
+    mp_percent: i32,
+    cp_percent: i32,
+    restore_percent: f64,
+) {
+    do_revive(world, player_oid);
+    let restored = {
+        let Some((mut p, mut vitals, mut pvitals)) = world
+            .objects
+            .get_many_mut::<(&mut crate::model::Player, &mut Vitals, &mut PlayerVitals)>(&player_oid)
+        else {
+            return;
+        };
+        // The skill's percentages override `do_revive`'s config defaults. A
+        // zero means "leave what the config gave", matching Java's
+        // `if (reviveHp > 0)` guards.
+        if hp_percent > 0 {
+            vitals.cur_hp = (vitals.max_hp as f64 * hp_percent as f64 / 100.0).min(vitals.max_hp as f64);
+        }
+        if mp_percent > 0 {
+            vitals.cur_mp = (vitals.max_mp as f64 * mp_percent as f64 / 100.0).min(vitals.max_mp as f64);
+        }
+        if cp_percent > 0 {
+            pvitals.cur_cp = (pvitals.max_cp as f64 * cp_percent as f64 / 100.0).min(pvitals.max_cp as f64);
+        }
+        let restored = ((p.lost_exp_on_death as f64 * restore_percent) / 100.0).round() as i64;
+        p.exp += restored;
+        p.lost_exp_on_death = 0;
+        restored
+    };
+    let _ = restored;
+    crate::game_loop::party::broadcast_user_info(world, player_oid);
 }
 
 /// `Player.doRevive`: restore the configured percentages (`RespawnRestoreHP`
