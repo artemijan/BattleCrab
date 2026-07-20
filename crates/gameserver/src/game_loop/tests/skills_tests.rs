@@ -2616,10 +2616,10 @@ fn shield_mastery_passive_raises_shield_block_stats() {
 /// 100%-power heal) restores HP on cast. Before this slice every
 /// `HealPercent` skill — including the priest staples Miracle, Benediction,
 /// Restore Life, Touch of Life — parsed to an empty effect list, so the cast
-/// landed but healed nothing. (Self-cast rather than on another player: 1258
-/// "Restore Life"'s `targetType ENEMY_NOT` hits an unrelated, pre-existing
-/// gap — `TargetType::EnemyNot` isn't modeled and falls through to `Other`,
-/// which `use_magic_on` silently no-ops — out of scope for this slice.)
+/// landed but healed nothing. Self-cast rather than on another player only
+/// because that's what this particular skill is — see
+/// `enemy_not_targets_a_friendly_player_but_refuses_a_hostile_one` for
+/// Restore Life healing someone else (its `targetType ENEMY_NOT`).
 #[test]
 fn heal_percent_restores_a_share_of_max_hp() {
     let (mut world, ..) = test_world();
@@ -2647,4 +2647,94 @@ fn heal_percent_restores_a_share_of_max_hp() {
         has_system_message(&packets, server_packets::sm_ids::S1_HP_HAS_BEEN_RESTORED),
         "self-cast heal SystemMessage sent"
     );
+}
+
+/// G19 `TargetType::EnemyNot` — the "any friendly selected target" gate
+/// `targethandlers/EnemyNot.java` backs (34 instances, 4 learnable, including
+/// "Restore Life" itself), found unmodeled while testing `HealPercent`: it
+/// fell through to `Other`, and `use_magic_on` silently no-ops on that (no
+/// packet, no cast). Restore Life (1258, real dist data, level 1 heals 15%
+/// of max HP) now lands on a friendly player.
+#[test]
+fn enemy_not_targets_a_friendly_player() {
+    let (mut world, ..) = test_world();
+    world.data = crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+
+    // Restore Life is `isMagic`, so its cast time scales by the caster's
+    // *magic* casting speed — a level-1 default (Human Fighter, class 0) has
+    // a near-zero one, stretching an 8 s cast into minutes. Use a Mystic
+    // (class 10, as the real-data spellcraft test does) for a sane cast time.
+    let mut chr = dummy_char(5401, "Healer");
+    chr.class_id = 10;
+    chr.base_class_id = 10;
+    chr.skills = vec![(1258, 1)];
+    let bundle = Player::from_char(&world.data, &chr);
+    let (out_tx, mut a_rx) = tokio::sync::mpsc::unbounded_channel();
+    let s = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
+        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+        .into_lobby(vec![])
+        .into_entering(bundle);
+    let (session, bundle) = s.into_ingame();
+    bundle.spawn_into(&mut world.objects);
+    world.clients.insert(1, ClientSession::InGame(session));
+    // `chr.cur_mp` gets clamped to the class's computed max MP at spawn (59
+    // for a level-1 Mystic) — below level-1 Restore Life's 80 MP cost, so
+    // bump it directly rather than fighting the clamp through `CharData`.
+    world.objects.get_component_mut::<Vitals>(&5401).unwrap().cur_mp = 200.0;
+
+    let mut b_rx = ingame_player_access(&mut world, 2, 5402, 0);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+    // Distinct position from the caster's default (1, 2, 3) — same-position
+    // casters/targets aren't exercised elsewhere in this suite.
+    world.objects.get_component_mut::<crate::model::components::Position>(&5402).unwrap().x = 50;
+
+    let max_hp = pvit(&world, 5402).max_hp as f64;
+    let half = max_hp * 0.5;
+    world.objects.get_component_mut::<Vitals>(&5402).unwrap().cur_hp = half;
+
+    handle_action(&mut world, 1, &action_body(5402, 0));
+    drain(&mut a_rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1258, false));
+    advance_world(&mut world, 200); // hitTime 8000 ms at a Mystic's casting speed
+
+    let expected = half + max_hp * 0.15; // level 1 power = 15%, no overheal clamp hit
+    assert!(
+        (pvit(&world, 5402).cur_hp - expected).abs() < 1e-6,
+        "healed a friendly player 15% of max HP: {} (expected {})",
+        pvit(&world, 5402).cur_hp,
+        expected
+    );
+    let b_packets = drain(&mut b_rx);
+    assert!(
+        has_system_message(&b_packets, server_packets::sm_ids::S2_HP_HAS_BEEN_RESTORED_BY_C1),
+        "target sees the heal SystemMessage"
+    );
+}
+
+/// The other half of `TargetType::EnemyNot`: the exact inverse of `Enemy`'s
+/// gate, so a hostile target is refused outright (no ctrl/force-use override,
+/// unlike `Enemy`).
+#[test]
+fn enemy_not_refuses_a_hostile_target() {
+    let (mut world, ..) = test_world();
+    world.data = crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+
+    let mut a_rx = ingame_player_access(&mut world, 1, 5411, 0);
+    drain(&mut a_rx);
+    world.objects.get_component_mut::<SkillBook>(&5411).unwrap().0.insert(1258, 1);
+    world.objects.get_component_mut::<Vitals>(&5411).unwrap().cur_mp = 200.0;
+
+    // A real dist monster (20001 Gremlin) is auto-attackable.
+    let npc_oid = 90001;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 20001, 50, 0, 0, 1000, 30);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(20001).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    drain(&mut a_rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1258, false));
+    assert!(!world.objects.has_component::<Casting>(&5411), "refused: no cast against a hostile target");
 }

@@ -591,8 +591,21 @@ as a max-HP percentage and skips `Heal`'s recipient `HealEffect`/
 (damage) branch is ported for parity even though no learnable instance uses
 it. Surfaced an unrelated gap while testing: `TargetType::EnemyNot` isn't
 modeled at all (34 instances, 4 learnable, including Restore Life itself) —
-falls through to `Other`, which `use_magic_on` silently no-ops on. Noted, not
-fixed here.
+falls through to `Other`, which `use_magic_on` silently no-ops on.
+
+🚧 **TargetType::EnemyNot (2026-07-20)** — plan
+[PLAN_G19_ENEMY_NOT_TARGET.md](PLAN_G19_ENEMY_NOT_TARGET.md). Closed the gap
+`HealPercent` surfaced: `targethandlers/EnemyNot.java` is "any friendly
+selected target" — the precise inverse of `Enemy`/`EnemyOnly`'s
+`is_auto_attackable` gate, self always allowed, no force-use (ctrl)
+override — plus an explicit exemption from the general dead-target rejection
+("works on dead targets or doors as well", for a heal landing on a fresh
+corpse ahead of a resurrection). Small in scope (34 instances) but it was
+quietly capping two of `HealPercent`'s five learnable skills — Restore Life
+and Touch of Life, the two that heal someone *other* than the caster — since
+the other three are self-target and worked regardless. New `TargetType`
+variant + parse arm + `resolve_cast_target` case, reusing the same
+`is_auto_attackable` helper `Enemy`/`EnemyOnly` already call, just inverted.
 
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
