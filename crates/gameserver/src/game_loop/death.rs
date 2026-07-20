@@ -1206,7 +1206,7 @@ fn stop_effects_on_death(world: &mut World, player_oid: i32) {
 
 /// `Player.calculateDeathExpPenalty` + `PlayableStat.removeExp` (with the
 /// `Delevel`/`DelevelMinimum` clamping) + the SM 539 notice.
-fn apply_death_exp_penalty(world: &mut World, player_oid: i32) {
+pub(crate) fn apply_death_exp_penalty(world: &mut World, player_oid: i32) {
     let (level, exp) = {
         let Some(p) = world.objects.get_component::<crate::model::Player>(&player_oid) else { return };
         (p.level, p.exp)

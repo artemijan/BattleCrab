@@ -4,14 +4,18 @@
 //! (`ClanMaster`'s login/logout listeners), and clan (pledge) skills —
 //! `//give_clan_skills`, re-applied to each member on login and stripped on
 //! dispersal (Java `Clan.addNewSkill`/`addSkillEffects`/`removeSkillEffects`).
-//! Invites/wars/levels/crests and everything else clan stay deferred (see the
-//! G11 plan).
+//! G18 slice 1 adds the membership lifecycle: invite (`RequestJoinPledge` /
+//! `RequestAnswerJoinPledge` through the `PendingRequest` transaction slot),
+//! leave (`RequestWithdrawalPledge`), oust (`RequestOustPledgeMember`), and
+//! the village-master `dissolve_clan`/`recover_clan` verbs with the delayed
+//! `ScheduledTask::ClanDissolve` removal — see PLAN_G18_CLANS.md.
+//! Wars/levels/crests/ranks/sub-pledges stay deferred (later G18 slices).
 
 use commons::network::PacketReader;
 use tracing::warn;
 
 use crate::db::DbCommand;
-use crate::model::clan::{Clan, ClanMember, ALL_CLAN_PRIVILEGES};
+use crate::model::clan::{Clan, ClanMember, ALL_CLAN_PRIVILEGES, CL_DISMISS, CL_JOIN_CLAN};
 use crate::model::components::ClanSkills;
 use crate::model::skill::ActiveBuff;
 use crate::model::Player;
@@ -434,7 +438,7 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
             race: p.race,
         }
     };
-    let clan = Clan { id: clan_id, name: name.clone(), leader_id: leader_oid, level: 0, reputation_score: 0, castle_id: 0, members: vec![leader], skills: Default::default(), warehouse: Default::default() };
+    let clan = Clan { id: clan_id, name: name.clone(), leader_id: leader_oid, level: 0, reputation_score: 0, castle_id: 0, members: vec![leader], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0 };
     let _ = world.db.send(DbCommand::InsertClan { clan_id, name: name.clone(), leader_id: leader_oid });
     let _ = world.db.send(DbCommand::UpdateCharClan {
         char_id: leader_oid,
@@ -716,4 +720,524 @@ pub(crate) fn broadcast_to_clan(world: &World, clan_id: i32, pkt: &[u8]) {
             }
         }
     }
+}
+
+// --- G18 slice 1: membership lifecycle -------------------------------------
+
+/// `DaysBeforeJoinAClan = 1` on this dist → the rejoin penalty in millis
+/// (stamped on a leaver/oustee and on the ousting clan).
+const CLAN_JOIN_PENALTY_MS: i64 = 86_400_000;
+
+/// `DaysToPassToDissolveAClan = 7` on this dist → the dissolution delay.
+const CLAN_DISSOLVE_DELAY_MS: i64 = 7 * 86_400_000;
+
+/// The game loop runs at 10 ticks/s — wall-clock millis to scheduler ticks.
+const MS_PER_TICK: i64 = 100;
+
+fn send_sm_with(world: &World, oid: i32, id: i16, params: &[SmParam]) {
+    if let Some(cs) = client_for_player(world, oid).and_then(|cid| world.clients.get(&cid)) {
+        cs.send(server_packets::system_message_with(id, params));
+    }
+}
+
+fn send_to_member(world: &World, oid: i32, pkt: Vec<u8>) {
+    if let Some(cs) = client_for_player(world, oid).and_then(|cid| world.clients.get(&cid)) {
+        cs.send(pkt);
+    }
+}
+
+fn player_name(world: &World, oid: i32) -> String {
+    world.objects.get_component::<Player>(&oid).map(|p| p.name.clone()).unwrap_or_default()
+}
+
+/// `ClassId.level()` — occupation tier via the `*_CLASS_GROUP` categories
+/// (same mapping the henna/support-magic gates use).
+fn class_level(world: &World, class_id: i32) -> i32 {
+    let c = &world.data.categories;
+    if c.contains("FOURTH_CLASS_GROUP", class_id) {
+        3
+    } else if c.contains("THIRD_CLASS_GROUP", class_id) {
+        2
+    } else if c.contains("SECOND_CLASS_GROUP", class_id) {
+        1
+    } else {
+        0
+    }
+}
+
+/// Java `Clan.checkClanJoinCondition(player, target, pledgeType)` — the invite
+/// guard chain, with each reject's system message sent to the inviter. Run at
+/// invite time and re-run when the answer arrives (conditions can change while
+/// the dialog is up — Java's "double check").
+fn check_clan_join_condition(world: &World, requestor_oid: i32, target_oid: i32, pledge_type: i32) -> bool {
+    let Some(req) = world.objects.get_component::<Player>(&requestor_oid) else { return false };
+    let clan_id = req.clan_id;
+    let requestor_privs = req.clan_privs;
+    let Some(clan) = world.clans.get(&clan_id) else { return false };
+    if !clan.has_privilege(requestor_oid, requestor_privs, CL_JOIN_CLAN) {
+        send_sm_with(world, requestor_oid, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT, &[]);
+        return false;
+    }
+    let Some(target) = world.objects.get_component::<Player>(&target_oid) else {
+        send_sm_with(world, requestor_oid, sm_ids::YOU_HAVE_INVITED_THE_WRONG_TARGET, &[]);
+        return false;
+    };
+    if requestor_oid == target_oid {
+        send_sm_with(world, requestor_oid, sm_ids::YOU_CANNOT_ASK_YOURSELF_TO_APPLY_TO_A_CLAN, &[]);
+        return false;
+    }
+    if clan.char_penalty_expiry_time > now_millis() {
+        send_sm_with(world, requestor_oid, sm_ids::AFTER_A_CLAN_MEMBER_IS_DISMISSED_THE_CLAN_MUST_WAIT_A_DAY, &[]);
+        return false;
+    }
+    if target.clan_id != 0 {
+        send_sm_with(
+            world,
+            requestor_oid,
+            sm_ids::S1_IS_ALREADY_A_MEMBER_OF_ANOTHER_CLAN,
+            &[SmParam::Text(target.name.clone())],
+        );
+        return false;
+    }
+    if target.clan_join_expiry_time > now_millis() {
+        send_sm_with(
+            world,
+            requestor_oid,
+            sm_ids::C1_CANNOT_JOIN_THE_CLAN_ONE_DAY_HAS_NOT_PASSED_SINCE_LEAVING,
+            &[SmParam::Text(target.name.clone())],
+        );
+        return false;
+    }
+    if (target.level > 40 || class_level(world, target.class_id) >= 2) && pledge_type == -1 {
+        send_sm_with(
+            world,
+            requestor_oid,
+            sm_ids::S1_DOES_NOT_MEET_THE_REQUIREMENTS_TO_JOIN_A_CLAN_ACADEMY,
+            &[SmParam::Text(target.name.clone())],
+        );
+        send_sm_with(world, requestor_oid, sm_ids::IN_ORDER_TO_JOIN_THE_CLAN_ACADEMY_YOU_MUST_BE_UNAFFILIATED, &[]);
+        return false;
+    }
+    if clan.sub_pledge_members_count(pledge_type) >= clan.max_members_of(pledge_type) {
+        if pledge_type == 0 {
+            send_sm_with(
+                world,
+                requestor_oid,
+                sm_ids::S1_IS_FULL_AND_CANNOT_ACCEPT_ADDITIONAL_CLAN_MEMBERS,
+                &[SmParam::Text(clan.name.clone())],
+            );
+        } else {
+            send_sm_with(world, requestor_oid, sm_ids::THE_CLAN_IS_FULL, &[]);
+        }
+        return false;
+    }
+    true
+}
+
+/// `RequestJoinPledge` (0x26): a clan member invites the target player. Guards,
+/// then parks the invite in the `PendingRequest` slot and puts `AskJoinPledge`
+/// on the target's screen.
+pub(crate) fn handle_request_join_pledge(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    let mut r = PacketReader::new(body);
+    let Some(target_oid) = r.read_i32() else { return };
+    let Some(pledge_type) = r.read_i32() else { return };
+
+    let clan_id = world.objects.get_component::<Player>(&player).map(|p| p.clan_id).unwrap_or(0);
+    if clan_id == 0 {
+        return; // Java: getClan() == null → silent
+    }
+    // Java resolves the target through `World.getPlayer(objectId)` (online only).
+    if client_for_player(world, target_oid).is_none() {
+        send_sm_with(world, player, sm_ids::YOU_HAVE_INVITED_THE_WRONG_TARGET, &[]);
+        return;
+    }
+    if !check_clan_join_condition(world, player, target_oid, pledge_type) {
+        return;
+    }
+    if pledge_type != 0 {
+        // TODO(G18.6): academy/royal/knight-unit invites need sub-pledges; the
+        // Java accept path files the member under the sub-unit and (for the
+        // academy) sets power grade 9 + lvlJoinedAcademy.
+        warn!("Clan invite with pledge type {pledge_type} refused — sub-pledges unported.");
+        return;
+    }
+    // Java `player.getRequest().setRequest(target, this)` — busy targets answer
+    // "on another task" (the shared transaction-slot behavior).
+    if world.objects.has_component::<crate::model::components::PendingRequest>(&player)
+        || world.objects.has_component::<crate::model::components::PendingRequest>(&target_oid)
+    {
+        send_sm_with(
+            world,
+            player,
+            sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER,
+            &[SmParam::Text(player_name(world, target_oid))],
+        );
+        return;
+    }
+    super::party::install_request(
+        world,
+        player,
+        target_oid,
+        crate::model::components::RequestKind::ClanInvite { clan_id, pledge_type },
+        super::party::REQUEST_TIMEOUT_TICKS,
+    );
+    let clan_name = world.clans.get(&clan_id).map(|c| c.name.clone()).unwrap_or_default();
+    send_to_member(
+        world,
+        target_oid,
+        server_packets::ask_join_pledge(player, &player_name(world, player), pledge_type, &clan_name),
+    );
+}
+
+/// `RequestAnswerJoinPledge` (0x27): the invited player answered the
+/// `AskJoinPledge` dialog. Decline notifies both sides; accept re-checks the
+/// join condition and runs `Clan.addClanMember` (roster + packets + skills).
+pub(crate) fn handle_request_answer_join_pledge(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    let answer = PacketReader::new(body).read_i32().unwrap_or(0);
+
+    let Some(req) = world.objects.get_component::<crate::model::components::PendingRequest>(&player).copied() else {
+        return;
+    };
+    let crate::model::components::RequestKind::ClanInvite { clan_id, pledge_type } = req.kind else { return };
+    if !req.answerer {
+        return;
+    }
+    super::party::clear_linked_request(world, player);
+    let requestor = req.other;
+
+    if answer == 0 {
+        send_sm_with(
+            world,
+            player,
+            sm_ids::YOU_DIDN_T_RESPOND_TO_S1_S_INVITATION_JOINING_HAS_BEEN_CANCELLED,
+            &[SmParam::Text(player_name(world, requestor))],
+        );
+        send_sm_with(
+            world,
+            requestor,
+            sm_ids::S1_DID_NOT_RESPOND_INVITATION_TO_THE_CLAN_HAS_BEEN_CANCELLED,
+            &[SmParam::Text(player_name(world, player))],
+        );
+        return;
+    }
+    // "conditions can be changed, i.e. another player could join" — re-check,
+    // and the requestor must still be in the clan the invite was for.
+    if world.objects.get_component::<Player>(&requestor).map(|p| p.clan_id) != Some(clan_id) {
+        return;
+    }
+    if !check_clan_join_condition(world, requestor, player, pledge_type) {
+        return;
+    }
+    if world.objects.get_component::<Player>(&player).map(|p| p.clan_id).unwrap_or(0) != 0 {
+        return;
+    }
+    add_clan_member(world, clan_id, player);
+}
+
+/// Java `RequestAnswerJoinPledge`'s accept half + `Clan.addClanMember`: put the
+/// new member in the roster, wire their clan fields, and send the join burst.
+/// New members start at power grade 5 with no rank privileges (the rank-privs
+/// table is a later slice — Java's fresh-clan `getRankPrivs(5)` is CP_NOTHING).
+fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32) {
+    send_to_member(world, player_oid, server_packets::join_pledge(clan_id));
+
+    let member = {
+        let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return };
+        ClanMember {
+            char_id: player_oid,
+            name: p.name.clone(),
+            level: p.level,
+            class_id: p.class_id,
+            sex: p.is_female as i32,
+            race: p.race,
+        }
+    };
+    let Some(clan) = world.clans.get_mut(&clan_id) else { return };
+    clan.members.push(member.clone());
+    let pledge_class = clan.pledge_class_of(player_oid);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
+        p.clan_id = clan_id;
+        p.clan_privs = 0;
+        p.clan_leader = false;
+        p.pledge_class = pledge_class;
+        p.clan_join_expiry_time = 0; // Java `setClanJoinExpiryTime(0)`
+    }
+    let _ = world.db.send(DbCommand::UpdateCharClan { char_id: player_oid, clan_id, clan_privs: 0 });
+    let _ = world.db.send(DbCommand::UpdateCharClanJoinExpiry { char_id: player_oid, expiry: 0 });
+
+    send_sm_with(world, player_oid, sm_ids::ENTERED_THE_CLAN, &[]);
+    let joined = server_packets::system_message_with(
+        sm_ids::S1_HAS_JOINED_THE_CLAN,
+        &[SmParam::Text(player_name(world, player_oid))],
+    );
+    broadcast_to_clan(world, clan_id, &joined);
+
+    // TODO(G24): Java gives castle/fort residential skills here when the clan
+    // owns a residence, then `player.sendSkillList()`.
+    // Clan skills + the merged skill list (Java `addClanMember` →
+    // `addSkillEffects(player)` + `PledgeSkillList`).
+    apply_clan_skills_to_member(world, clan_id, player_oid);
+    // Clan Advent — Java fires ON_PLAYER_CLAN_JOIN, the ClanMaster script
+    // lights the aura on the joiner when the leader is online.
+    let leader_online = world
+        .clans
+        .get(&clan_id)
+        .map(|c| c.leader_id)
+        .is_some_and(|lid| client_for_player(world, lid).is_some());
+    if leader_online {
+        apply_clan_advent(world, player_oid);
+    }
+
+    let add = server_packets::pledge_show_member_list_add(&member);
+    let info = server_packets::pledge_show_info_update(world.clans.get(&clan_id).expect("inserted above"));
+    let count =
+        server_packets::ex_pledge_count(world.clans.get(&clan_id).map(|c| c.members.len()).unwrap_or(0) as i32);
+    for oid in online_members(world, clan_id) {
+        if oid != player_oid {
+            send_to_member(world, oid, add.clone());
+        }
+        send_to_member(world, oid, info.clone());
+        send_to_member(world, oid, count.clone());
+    }
+    // "this activates the clan tab on the new member".
+    let all = server_packets::pledge_show_member_list_all(
+        world.clans.get(&clan_id).expect("inserted above"),
+        &world.objects,
+    );
+    send_to_member(world, player_oid, all);
+    super::party::broadcast_user_info(world, player_oid);
+}
+
+/// Java `Clan.removeClanMember(objectId, clanJoinExpiryTime)`, narrowed to the
+/// main pledge: drop the roster row, tear the member's clan state down (online)
+/// or push the column reset (offline), and stamp the rejoin penalty. The
+/// caller sends the leave/oust messages and the roster-delete broadcasts.
+/// Apprentice/sponsor and sub-pledge-leader cleanup: TODO(G18.6); castle
+/// circlet removal and residential-skill teardown: TODO(G24).
+fn remove_clan_member(world: &mut World, clan_id: i32, member_oid: i32, clan_join_expiry: i64) {
+    let Some(clan) = world.clans.get_mut(&clan_id) else { return };
+    let Some(idx) = clan.members.iter().position(|m| m.char_id == member_oid) else {
+        warn!("Member {member_oid} not found in clan {clan_id} while trying to remove.");
+        return;
+    };
+    clan.members.remove(idx);
+    let was_leader = clan.leader_id == member_oid;
+    let leader_expiry = if was_leader { now_millis() + CLAN_CREATE_COOLDOWN_MS } else { 0 };
+
+    let online = world.objects.get_component::<Player>(&member_oid).is_some();
+    if online {
+        // Java: title cleared unless noble, clan skills + Clan Advent stripped,
+        // clan fields zeroed, join penalty stamped, window closed.
+        remove_clan_advent(world, member_oid);
+        remove_clan_skills_from_member(world, member_oid);
+        if let Some(p) = world.objects.get_component_mut::<Player>(&member_oid) {
+            if !p.is_noble {
+                p.title.clear();
+            }
+            p.clan_id = 0;
+            p.clan_privs = 0;
+            p.clan_leader = false;
+            p.pledge_class = 0;
+            p.clan_join_expiry_time = clan_join_expiry;
+            if was_leader {
+                p.clan_create_expiry_time = leader_expiry;
+            }
+        }
+        send_to_member(world, member_oid, server_packets::pledge_show_member_list_delete_all());
+        super::party::broadcast_user_info(world, member_oid);
+    }
+    let _ = world.db.send(DbCommand::RemoveClanMember {
+        char_id: member_oid,
+        clan_join_expiry,
+        clan_create_expiry: leader_expiry,
+    });
+}
+
+/// `RequestWithdrawalPledge` (0x28): a member (never the leader) leaves their
+/// clan, taking the 1-day rejoin penalty.
+pub(crate) fn handle_request_withdrawal_pledge(world: &mut World, client_id: u32) {
+    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    let Some(p) = world.objects.get_component::<Player>(&player) else { return };
+    let clan_id = p.clan_id;
+    if clan_id == 0 {
+        send_sm_with(world, player, sm_ids::YOU_ARE_NOT_A_CLAN_MEMBER_AND_CANNOT_PERFORM_THIS_ACTION, &[]);
+        return;
+    }
+    if p.clan_leader {
+        send_sm_with(world, player, sm_ids::A_CLAN_LEADER_CANNOT_WITHDRAW_FROM_THEIR_OWN_CLAN, &[]);
+        return;
+    }
+    if super::combat::has_attack_stance(world, player) {
+        send_sm_with(world, player, sm_ids::YOU_CANNOT_LEAVE_A_CLAN_WHILE_ENGAGED_IN_COMBAT, &[]);
+        return;
+    }
+
+    let name = player_name(world, player);
+    remove_clan_member(world, clan_id, player, now_millis() + CLAN_JOIN_PENALTY_MS);
+
+    let withdrew =
+        server_packets::system_message_with(sm_ids::S1_HAS_WITHDRAWN_FROM_THE_CLAN, &[SmParam::Text(name.clone())]);
+    broadcast_to_clan(world, clan_id, &withdrew);
+    broadcast_to_clan(world, clan_id, &server_packets::pledge_show_member_list_delete(&name));
+    let count =
+        server_packets::ex_pledge_count(world.clans.get(&clan_id).map(|c| c.members.len()).unwrap_or(0) as i32);
+    broadcast_to_clan(world, clan_id, &count);
+    send_sm_with(world, player, sm_ids::YOU_HAVE_WITHDRAWN_FROM_THE_CLAN, &[]);
+    send_sm_with(world, player, sm_ids::AFTER_LEAVING_A_CLAN_YOU_MUST_WAIT_A_DAY_BEFORE_JOINING_ANOTHER, &[]);
+}
+
+/// `RequestOustPledgeMember` (0x29): a member with CL_DISMISS expels another
+/// member by name. Both sides take a 1-day penalty: the oustee cannot join a
+/// clan, the clan cannot invite (`setCharPenaltyExpiryTime`).
+pub(crate) fn handle_request_oust_pledge_member(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let player = session.player_object_id();
+    let Some(target_name) = PacketReader::new(body).read_string() else { return };
+    let Some(p) = world.objects.get_component::<Player>(&player) else { return };
+    let clan_id = p.clan_id;
+    let privs = p.clan_privs;
+    if clan_id == 0 {
+        send_sm_with(world, player, sm_ids::YOU_ARE_NOT_A_CLAN_MEMBER_AND_CANNOT_PERFORM_THIS_ACTION, &[]);
+        return;
+    }
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    if !clan.has_privilege(player, privs, CL_DISMISS) {
+        send_sm_with(world, player, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT, &[]);
+        return;
+    }
+    if player_name(world, player).eq_ignore_ascii_case(&target_name) {
+        send_sm_with(world, player, sm_ids::YOU_CANNOT_DISMISS_YOURSELF, &[]);
+        return;
+    }
+    let Some(member) = clan.members.iter().find(|m| m.name.eq_ignore_ascii_case(&target_name)).cloned() else {
+        warn!("Oust target ({target_name}) is not a member of clan {clan_id}.");
+        return;
+    };
+    let member_online = client_for_player(world, member.char_id).is_some();
+    if member_online && super::combat::has_attack_stance(world, member.char_id) {
+        send_sm_with(world, player, sm_ids::A_CLAN_MEMBER_MAY_NOT_BE_DISMISSED_DURING_COMBAT, &[]);
+        return;
+    }
+
+    let penalty_until = now_millis() + CLAN_JOIN_PENALTY_MS;
+    remove_clan_member(world, clan_id, member.char_id, penalty_until);
+    let dissolving = world.clans.get(&clan_id).map(|c| c.dissolving_expiry_time).unwrap_or(0);
+    if let Some(c) = world.clans.get_mut(&clan_id) {
+        c.char_penalty_expiry_time = penalty_until;
+    }
+    let _ = world.db.send(DbCommand::UpdateClanPenalties {
+        clan_id,
+        char_penalty_expiry_time: penalty_until,
+        dissolving_expiry_time: dissolving,
+    });
+
+    let expelled = server_packets::system_message_with(
+        sm_ids::CLAN_MEMBER_S1_HAS_BEEN_EXPELLED,
+        &[SmParam::Text(member.name.clone())],
+    );
+    broadcast_to_clan(world, clan_id, &expelled);
+    send_sm_with(world, player, sm_ids::YOU_HAVE_SUCCEEDED_IN_EXPELLING_THE_CLAN_MEMBER, &[]);
+    send_sm_with(world, player, sm_ids::AFTER_A_CLAN_MEMBER_IS_DISMISSED_THE_CLAN_MUST_WAIT_A_DAY, &[]);
+    broadcast_to_clan(world, clan_id, &server_packets::pledge_show_member_list_delete(&member.name));
+    let count =
+        server_packets::ex_pledge_count(world.clans.get(&clan_id).map(|c| c.members.len()).unwrap_or(0) as i32);
+    broadcast_to_clan(world, clan_id, &count);
+    if member_online {
+        send_sm_with(world, member.char_id, sm_ids::YOU_HAVE_RECENTLY_BEEN_DISMISSED_FROM_A_CLAN, &[]);
+    }
+}
+
+/// `VillageMaster.dissolveClan` (the `dissolve_clan` bypass): guard chain,
+/// then stamp `dissolving_expiry_time`, hit the leader with a full death-XP
+/// penalty, and schedule the delayed removal.
+pub(crate) fn handle_dissolve_clan(world: &mut World, client_id: u32, player_oid: i32) {
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return };
+    let clan_id = p.clan_id;
+    if clan_id == 0 || !p.clan_leader {
+        send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
+        return;
+    }
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    // TODO(G18.5): Java rejects while in an alliance (SM 554) — no alliances yet.
+    // TODO(G18.4): Java rejects while at war (SM 264) — no clan wars yet.
+    if clan.castle_id != 0 {
+        // Java folds castle/clan-hall/fort ownership into SM 266.
+        send_sm(world, client_id, sm_ids::YOU_CANNOT_DISSOLVE_A_CLAN_WHILE_OWNING_A_CLAN_HALL_OR_CASTLE);
+        return;
+    }
+    if world.sieges.values().any(|s| s.is_registered(clan_id)) {
+        send_sm(world, client_id, sm_ids::YOU_CANNOT_DISSOLVE_A_CLAN_DURING_A_SIEGE);
+        return;
+    }
+    if let Some(pos) = world.objects.get_component::<crate::model::components::Position>(&player_oid) {
+        if world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z).is_some() {
+            send_sm(world, client_id, sm_ids::YOU_CANNOT_DISSOLVE_A_CLAN_DURING_A_SIEGE);
+            return;
+        }
+    }
+    if clan.dissolving_expiry_time > now_millis() {
+        send_sm(world, client_id, sm_ids::YOU_HAVE_ALREADY_REQUESTED_THE_DISSOLUTION_OF_YOUR_CLAN);
+        return;
+    }
+
+    let due = now_millis() + CLAN_DISSOLVE_DELAY_MS;
+    let char_penalty = clan.char_penalty_expiry_time;
+    if let Some(c) = world.clans.get_mut(&clan_id) {
+        c.dissolving_expiry_time = due;
+    }
+    let _ = world.db.send(DbCommand::UpdateClanPenalties {
+        clan_id,
+        char_penalty_expiry_time: char_penalty,
+        dissolving_expiry_time: due,
+    });
+    // "The clan leader should take the XP penalty of a full death."
+    super::death::apply_death_exp_penalty(world, player_oid);
+    schedule_clan_dissolve(world, clan_id, due);
+}
+
+/// `VillageMaster.recoverClan` (the `recover_clan` bypass): the leader cancels
+/// a pending dissolution — the stamp is zeroed, the scheduled removal no-ops.
+pub(crate) fn handle_recover_clan(world: &mut World, client_id: u32, player_oid: i32) {
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return };
+    let clan_id = p.clan_id;
+    if clan_id == 0 || !p.clan_leader {
+        send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
+        return;
+    }
+    let char_penalty = {
+        let Some(c) = world.clans.get_mut(&clan_id) else { return };
+        c.dissolving_expiry_time = 0;
+        c.char_penalty_expiry_time
+    };
+    let _ = world.db.send(DbCommand::UpdateClanPenalties {
+        clan_id,
+        char_penalty_expiry_time: char_penalty,
+        dissolving_expiry_time: 0,
+    });
+}
+
+/// Arm the `ClanDissolve` task for `due` (wall clock) — used by the dissolve
+/// bypass and re-armed at boot for persisted stamps (`ClanTable`'s constructor
+/// schedules past-due dissolutions to fire immediately).
+pub(crate) fn schedule_clan_dissolve(world: &mut World, clan_id: i32, due: i64) {
+    let delay_ticks = ((due - now_millis()).max(0) / MS_PER_TICK) as u64;
+    world
+        .scheduler
+        .schedule(world.tick + delay_ticks, crate::scheduler::ScheduledTask::ClanDissolve { clan_id });
+}
+
+/// `ClanTable.scheduleRemoveClan`'s body at fire time: destroy only if the
+/// dissolution is still requested and has come due (a `recover_clan` in the
+/// meantime zeroes the stamp and turns this into a no-op).
+pub(crate) fn handle_clan_dissolve_task(world: &mut World, clan_id: i32) {
+    let Some(clan) = world.clans.get(&clan_id) else { return };
+    if clan.dissolving_expiry_time == 0 || clan.dissolving_expiry_time > now_millis() {
+        return;
+    }
+    destroy_clan(world, clan_id);
 }

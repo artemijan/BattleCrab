@@ -831,6 +831,8 @@ fn siege_start_evicts_non_owners_to_town() {
             members: vec![ClanMember { char_id: 9002, name: "P9002".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
             skills: Default::default(),
             warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
         },
     );
     let _o = ingame_player(&mut world, 1, 9002, 500, 500, 0); // owner-clan member in the zone
@@ -871,6 +873,8 @@ fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
         members: vec![ClanMember { char_id: leader, name: format!("P{leader}"), level: 40, class_id: 0, sex: 0, race: 0 }],
         skills: Default::default(),
         warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
     };
     world.clans.insert(500, clan(500, "Defenders", 8002, 3)); // owns castle 3
     world.clans.insert(700, clan(700, "Attackers", 8003, 0));
@@ -1131,6 +1135,8 @@ fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
             members: vec![ClanMember { char_id: 8003, name: "P8003".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
             skills: Default::default(),
             warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
         },
     );
     // The Giran Holy Artifact (type Artefact) at (100, 0) inside the siege zone.
@@ -1206,6 +1212,8 @@ fn siege_defender_respawns_at_castle_on_to_castle() {
             members: vec![ClanMember { char_id: 3001, name: "P3001".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
             skills: Default::default(),
             warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
         },
     );
     let mut siege = Siege::new(3);
@@ -1256,6 +1264,8 @@ fn siege_attacker_hq_flag_is_respawn_point_and_destructible() {
             members: vec![ClanMember { char_id: 3001, name: "P3001".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
             skills: Default::default(),
             warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
         },
     );
     let mut siege = Siege::new(3);
@@ -1321,6 +1331,8 @@ fn attacker_clan(world: &mut World, player_oid: i32) {
             members: vec![ClanMember { char_id: player_oid, name: "P".into(), level: 40, class_id: 0, sex: 0, race: 0 }],
             skills: Default::default(),
             warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
         },
     );
     world.objects.get_component_mut::<Player>(&player_oid).unwrap().clan_id = 700;

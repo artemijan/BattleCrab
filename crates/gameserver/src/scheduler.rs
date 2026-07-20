@@ -66,6 +66,11 @@ pub enum ScheduledTask {
     /// `RespawnTaskManager` → `Spawn.respawnNpc`: re-run the spawn line the
     /// dead NPC came from (indices into `GameData.spawn_data`).
     NpcRespawn { spawn_idx: usize, group_idx: usize, npc_idx: usize },
+    /// A leader-requested clan dissolution came due (`ClanTable.
+    /// scheduleRemoveClan`): destroy the clan if `dissolving_expiry_time` is
+    /// still set (a `recover_clan` zeroes it → no-op). Re-armed at boot from
+    /// the persisted stamp.
+    ClanDissolve { clan_id: i32 },
     /// A party/friend invite went unanswered (Java `PartyRequest.
     /// scheduleTimeout` / `_requestExpireTime`): clear the player's
     /// `PendingRequest` if `seq` still matches.

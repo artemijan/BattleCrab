@@ -145,6 +145,8 @@ fn clan_roster_notifications_and_chat() {
             members: vec![member(3001, "P3001"), member(3002, "P3002")],
             skills: Default::default(),
             warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
         },
     );
     for oid in [3001, 3002] {
@@ -202,7 +204,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
     // A level-1 clan: 3001 leader, 3002 plain member (no privileges).
     let clan_id = 0x7000_0001;
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0 };
-    world.clans.insert(clan_id, Clan { id: clan_id, name: "WhClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default() });
+    world.clans.insert(clan_id, Clan { id: clan_id, name: "WhClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0 });
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
     }
@@ -252,6 +254,8 @@ fn pledge_class_table_matches_calculate_pledge_class() {
         members: Vec::new(),
         skills: Default::default(),
         warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
     };
     // (leader, member) expected pledge class per clan level.
     for (level, leader, member) in [
@@ -315,7 +319,7 @@ fn clan_advent_aura_tracks_leader_online_state() {
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0 };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "AdventClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default() },
+        Clan { id: clan_id, name: "AdventClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0 },
     );
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
@@ -369,7 +373,7 @@ fn give_clan_skills_grants_gates_and_persists() {
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0 };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default() },
+        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0 },
     );
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
@@ -444,7 +448,7 @@ fn give_clan_skills_purges_residence_and_reapplies() {
     skills.insert(590, 1);
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "ResClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default() },
+        Clan { id: clan_id, name: "ResClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0 },
     );
     world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
     world.objects.add_components(&3001, ClanSkills(std::collections::HashMap::from([(590, 1)])));
@@ -608,7 +612,7 @@ fn clan_skills_move_max_hp_mp_cp() {
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0 };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "VitalClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills: Default::default(), warehouse: Default::default() },
+        Clan { id: clan_id, name: "VitalClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0 },
     );
     world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
 
@@ -641,7 +645,7 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0 };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "SiegeClan".into(), leader_id: 3001, level: 4, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default() },
+        Clan { id: clan_id, name: "SiegeClan".into(), leader_id: 3001, level: 4, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0 },
     );
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
@@ -695,7 +699,7 @@ fn clan_skills_reapply_on_member_login() {
     skills.insert(370, 1);
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default() },
+        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0 },
     );
     world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
 
@@ -725,7 +729,7 @@ fn clan_entry_queries() {
 
     let clan_id = 0x7000_0002;
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 40, class_id: 0, sex: 0, race: 0 };
-    world.clans.insert(clan_id, Clan { id: clan_id, name: "Recruiters".into(), leader_id: 3001, level: 3, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default() });
+    world.clans.insert(clan_id, Clan { id: clan_id, name: "Recruiters".into(), leader_id: 3001, level: 3, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0 });
 
     // ExPledgeRecruitApplyInfo: status DEFAULT (0) — nothing is registered.
     super::clans::handle_request_pledge_recruit_apply_info(&world, 1);
@@ -781,4 +785,291 @@ fn clan_recruit_board_search() {
     // Truncated packet (missing the page int): dropped silently.
     super::clans::handle_request_pledge_recruit_board_search(&world, 1, &body[..body.len() - 8]);
     assert!(drain(&mut rx).is_empty());
+}
+
+// --- G18 slice 1: membership lifecycle ---
+
+/// Build a clan of `members` (first is leader) directly in the world and wire
+/// the members' Player clan fields — the fixture every lifecycle test starts
+/// from.
+fn install_clan(world: &mut World, clan_id: i32, member_oids: &[i32]) {
+    let cm = |char_id: i32| crate::model::clan::ClanMember {
+        char_id,
+        name: format!("P{char_id}"),
+        level: 1,
+        class_id: 0,
+        sex: 0,
+        race: 0,
+    };
+    world.clans.insert(
+        clan_id,
+        crate::model::clan::Clan {
+            id: clan_id,
+            name: format!("Clan{clan_id}"),
+            leader_id: member_oids[0],
+            level: 1,
+            reputation_score: 0,
+            castle_id: 0,
+            members: member_oids.iter().map(|&o| cm(o)).collect(),
+            skills: Default::default(),
+            warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
+        },
+    );
+    for (i, &oid) in member_oids.iter().enumerate() {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
+            p.clan_id = clan_id;
+            p.clan_leader = i == 0;
+            p.clan_privs = if i == 0 { crate::model::clan::ALL_CLAN_PRIVILEGES } else { 0 };
+        }
+    }
+}
+
+fn invite_body(target_oid: i32, pledge_type: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(target_oid);
+    w.write_i32(pledge_type);
+    w.into_bytes()
+}
+
+fn answer_body(answer: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(answer);
+    w.into_bytes()
+}
+
+fn oust_body(name: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_string(name);
+    w.into_bytes()
+}
+
+/// Invite guards (Java `checkClanJoinCondition` order), decline, and the full
+/// accept burst: JoinPledge + roster + info/count broadcasts + SMs + persistence.
+#[test]
+fn clan_invite_guards_decline_and_accept() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut b_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001]);
+    drain_db(&mut db_rx);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    // Wrong target: the object id is not an online player.
+    clans::handle_request_join_pledge(&mut world, 1, &invite_body(9999, 0));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::YOU_HAVE_INVITED_THE_WRONG_TARGET));
+
+    // Self-invite.
+    clans::handle_request_join_pledge(&mut world, 1, &invite_body(3001, 0));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::YOU_CANNOT_ASK_YOURSELF_TO_APPLY_TO_A_CLAN));
+
+    // No CL_JOIN_CLAN privilege: a plain member inviting.
+    let mut c_rx = ingame_player(&mut world, 3, 3003, 0, 0, 0);
+    install_clan(&mut world, 5001, &[3004, 3003]); // 3003 is a plain member of another clan
+    clans::handle_request_join_pledge(&mut world, 3, &invite_body(3002, 0));
+    assert!(sm_ids_of(&drain(&mut c_rx)).contains(&server_packets::sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT));
+
+    // Target already clanned.
+    clans::handle_request_join_pledge(&mut world, 1, &invite_body(3003, 0));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::S1_IS_ALREADY_A_MEMBER_OF_ANOTHER_CLAN));
+
+    // Target under the rejoin penalty.
+    world.objects.get_component_mut::<Player>(&3002).unwrap().clan_join_expiry_time = i64::MAX;
+    clans::handle_request_join_pledge(&mut world, 1, &invite_body(3002, 0));
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&server_packets::sm_ids::C1_CANNOT_JOIN_THE_CLAN_ONE_DAY_HAS_NOT_PASSED_SINCE_LEAVING));
+    world.objects.get_component_mut::<Player>(&3002).unwrap().clan_join_expiry_time = 0;
+
+    // Clan under the post-oust penalty.
+    world.clans.get_mut(&5000).unwrap().char_penalty_expiry_time = i64::MAX;
+    clans::handle_request_join_pledge(&mut world, 1, &invite_body(3002, 0));
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&server_packets::sm_ids::AFTER_A_CLAN_MEMBER_IS_DISMISSED_THE_CLAN_MUST_WAIT_A_DAY));
+    world.clans.get_mut(&5000).unwrap().char_penalty_expiry_time = 0;
+
+    // Clan full (level 1 main pledge caps at 15).
+    for i in 0..14 {
+        let cm = crate::model::clan::ClanMember {
+            char_id: 8000 + i,
+            name: format!("F{i}"),
+            level: 1,
+            class_id: 0,
+            sex: 0,
+            race: 0,
+        };
+        world.clans.get_mut(&5000).unwrap().members.push(cm);
+    }
+    clans::handle_request_join_pledge(&mut world, 1, &invite_body(3002, 0));
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&server_packets::sm_ids::S1_IS_FULL_AND_CANNOT_ACCEPT_ADDITIONAL_CLAN_MEMBERS));
+    world.clans.get_mut(&5000).unwrap().members.retain(|m| m.char_id < 8000);
+
+    // Valid invite → AskJoinPledge on B, the request slot armed on both sides.
+    clans::handle_request_join_pledge(&mut world, 1, &invite_body(3002, 0));
+    let pkts = drain(&mut b_rx);
+    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::ASK_JOIN_PLEDGE));
+    assert!(world.objects.has_component::<crate::model::components::PendingRequest>(&3001));
+    assert!(world.objects.has_component::<crate::model::components::PendingRequest>(&3002));
+
+    // A second invite while the slot is busy → "on another task".
+    clans::handle_request_join_pledge(&mut world, 1, &invite_body(3002, 0));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER));
+
+    // Decline: both sides notified, slots freed.
+    clans::handle_request_answer_join_pledge(&mut world, 2, &answer_body(0));
+    assert!(sm_ids_of(&drain(&mut b_rx))
+        .contains(&server_packets::sm_ids::YOU_DIDN_T_RESPOND_TO_S1_S_INVITATION_JOINING_HAS_BEEN_CANCELLED));
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&server_packets::sm_ids::S1_DID_NOT_RESPOND_INVITATION_TO_THE_CLAN_HAS_BEEN_CANCELLED));
+    assert!(!world.objects.has_component::<crate::model::components::PendingRequest>(&3001));
+    assert!(!world.objects.has_component::<crate::model::components::PendingRequest>(&3002));
+
+    // Accept: the join burst.
+    world.objects.get_component_mut::<Player>(&3002).unwrap().clan_join_expiry_time = 0;
+    clans::handle_request_join_pledge(&mut world, 1, &invite_body(3002, 0));
+    drain(&mut b_rx);
+    drain_db(&mut db_rx);
+    clans::handle_request_answer_join_pledge(&mut world, 2, &answer_body(1));
+
+    let b = world.objects.get_component::<Player>(&3002).unwrap();
+    assert_eq!((b.clan_id, b.clan_privs, b.clan_leader), (5000, 0, false));
+    assert!(world.clans[&5000].member(3002).is_some());
+    let b_pkts = drain(&mut b_rx);
+    assert!(b_pkts.iter().any(|p| p[0] == server_packets::opcodes::JOIN_PLEDGE));
+    assert!(b_pkts.iter().any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_MEMBER_LIST_ALL));
+    let b_sms = sm_ids_of(&b_pkts);
+    assert!(b_sms.contains(&server_packets::sm_ids::ENTERED_THE_CLAN));
+    assert!(b_sms.contains(&server_packets::sm_ids::S1_HAS_JOINED_THE_CLAN));
+    let a_pkts = drain(&mut a_rx);
+    assert!(a_pkts.iter().any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_MEMBER_LIST_ADD));
+    assert!(a_pkts.iter().any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_INFO_UPDATE));
+    assert!(sm_ids_of(&a_pkts).contains(&server_packets::sm_ids::S1_HAS_JOINED_THE_CLAN));
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::UpdateCharClan { char_id: 3002, clan_id: 5000, clan_privs: 0 })));
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::UpdateCharClanJoinExpiry { char_id: 3002, expiry: 0 })));
+}
+
+/// Withdraw and oust: the leader/combat/membership guards, the rejoin penalty
+/// on the leaver, and the clan-side invite penalty on an oust.
+#[test]
+fn clan_withdraw_and_oust() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut b_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001, 3002]);
+    drain_db(&mut db_rx);
+
+    // Clanless player withdrawing.
+    let mut c_rx = ingame_player(&mut world, 3, 3003, 0, 0, 0);
+    clans::handle_request_withdrawal_pledge(&mut world, 3);
+    assert!(sm_ids_of(&drain(&mut c_rx))
+        .contains(&server_packets::sm_ids::YOU_ARE_NOT_A_CLAN_MEMBER_AND_CANNOT_PERFORM_THIS_ACTION));
+
+    // The leader cannot withdraw.
+    clans::handle_request_withdrawal_pledge(&mut world, 1);
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&server_packets::sm_ids::A_CLAN_LEADER_CANNOT_WITHDRAW_FROM_THEIR_OWN_CLAN));
+
+    // A member in combat cannot withdraw / be dismissed.
+    super::combat::refresh_attack_stance(&mut world, 3002);
+    clans::handle_request_withdrawal_pledge(&mut world, 2);
+    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::YOU_CANNOT_LEAVE_A_CLAN_WHILE_ENGAGED_IN_COMBAT));
+    clans::handle_request_oust_pledge_member(&mut world, 1, &oust_body("P3002"));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::A_CLAN_MEMBER_MAY_NOT_BE_DISMISSED_DURING_COMBAT));
+    world.tick += 10_000; // combat stance expires
+
+    // Self-oust.
+    clans::handle_request_oust_pledge_member(&mut world, 1, &oust_body("P3001"));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::YOU_CANNOT_DISMISS_YOURSELF));
+
+    // Withdraw: penalty stamped, roster shrinks, both sides messaged.
+    clans::handle_request_withdrawal_pledge(&mut world, 2);
+    let b = world.objects.get_component::<Player>(&3002).unwrap();
+    assert_eq!(b.clan_id, 0);
+    assert!(b.clan_join_expiry_time > 0, "rejoin penalty stamped");
+    assert!(world.clans[&5000].member(3002).is_none());
+    let b_pkts = drain(&mut b_rx);
+    assert!(b_pkts.iter().any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_MEMBER_LIST_DELETE_ALL));
+    let b_sms = sm_ids_of(&b_pkts);
+    assert!(b_sms.contains(&server_packets::sm_ids::YOU_HAVE_WITHDRAWN_FROM_THE_CLAN));
+    assert!(b_sms.contains(&server_packets::sm_ids::AFTER_LEAVING_A_CLAN_YOU_MUST_WAIT_A_DAY_BEFORE_JOINING_ANOTHER));
+    let a_pkts = drain(&mut a_rx);
+    assert!(sm_ids_of(&a_pkts).contains(&server_packets::sm_ids::S1_HAS_WITHDRAWN_FROM_THE_CLAN));
+    assert!(a_pkts.iter().any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_MEMBER_LIST_DELETE));
+    assert!(drain_db(&mut db_rx)
+        .iter()
+        .any(|c| matches!(c, db::DbCommand::RemoveClanMember { char_id: 3002, .. })));
+
+    // Oust an offline member: roster row goes, the clan takes the invite
+    // penalty, the DB reset covers the offline character.
+    world.clans.get_mut(&5000).unwrap().members.push(crate::model::clan::ClanMember {
+        char_id: 3005,
+        name: "P3005".into(),
+        level: 1,
+        class_id: 0,
+        sex: 0,
+        race: 0,
+    });
+    clans::handle_request_oust_pledge_member(&mut world, 1, &oust_body("P3005"));
+    assert!(world.clans[&5000].member(3005).is_none());
+    assert!(world.clans[&5000].char_penalty_expiry_time > 0, "clan invite penalty stamped");
+    let a_sms = sm_ids_of(&drain(&mut a_rx));
+    assert!(a_sms.contains(&server_packets::sm_ids::CLAN_MEMBER_S1_HAS_BEEN_EXPELLED));
+    assert!(a_sms.contains(&server_packets::sm_ids::YOU_HAVE_SUCCEEDED_IN_EXPELLING_THE_CLAN_MEMBER));
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::RemoveClanMember { char_id: 3005, .. })));
+    assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::UpdateClanPenalties { clan_id: 5000, .. })));
+}
+
+/// Village-master dissolve/recover: the leader gate, the 7-day stamp, the
+/// double-request reject, recover zeroing the stamp (the scheduled task then
+/// no-ops), and the actual destruction when the stamp comes due.
+#[test]
+fn clan_dissolve_and_recover() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30026, "VillageMaster", 5, 100, 0, 0);
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut b_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001, 3002]);
+    drain_db(&mut db_rx);
+
+    let bypass = |world: &mut World, client: u32, verb: &str| {
+        handle_request_bypass_to_server(world, client, &bypass_body(&format!("npc_{NPC_OID}_{verb}")));
+    };
+
+    // A non-leader asking for dissolution.
+    bypass(&mut world, 2, "dissolve_clan");
+    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT));
+
+    // The leader: stamp + persistence + the scheduled removal armed.
+    bypass(&mut world, 1, "dissolve_clan");
+    assert!(world.clans[&5000].dissolving_expiry_time > 0);
+    assert!(drain_db(&mut db_rx)
+        .iter()
+        .any(|c| matches!(c, db::DbCommand::UpdateClanPenalties { clan_id: 5000, dissolving_expiry_time, .. }
+            if *dissolving_expiry_time > 0)));
+
+    // Asking again while pending.
+    bypass(&mut world, 1, "dissolve_clan");
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&server_packets::sm_ids::YOU_HAVE_ALREADY_REQUESTED_THE_DISSOLUTION_OF_YOUR_CLAN));
+
+    // Recover: the stamp is zeroed and a firing task no-ops.
+    bypass(&mut world, 1, "recover_clan");
+    assert_eq!(world.clans[&5000].dissolving_expiry_time, 0);
+    clans::handle_clan_dissolve_task(&mut world, 5000);
+    assert!(world.clans.contains_key(&5000), "recovered clan survives the stale task");
+
+    // A due stamp destroys the clan (members reset, windows closed).
+    world.clans.get_mut(&5000).unwrap().dissolving_expiry_time = 1;
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+    clans::handle_clan_dissolve_task(&mut world, 5000);
+    assert!(!world.clans.contains_key(&5000));
+    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().clan_id, 0);
+    assert_eq!(world.objects.get_component::<Player>(&3002).unwrap().clan_id, 0);
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::CLAN_HAS_DISPERSED));
+    assert!(drain(&mut b_rx).iter().any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_MEMBER_LIST_DELETE_ALL));
 }

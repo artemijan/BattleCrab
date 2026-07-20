@@ -157,6 +157,16 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             super::quests::handle_request_quest_abort(world, client_id, body)
         }
         cop::REQUEST_PLEDGE_INFO => super::clans::handle_request_pledge_info(world, client_id, body),
+        cop::REQUEST_JOIN_PLEDGE => super::clans::handle_request_join_pledge(world, client_id, body),
+        cop::REQUEST_ANSWER_JOIN_PLEDGE => {
+            super::clans::handle_request_answer_join_pledge(world, client_id, body)
+        }
+        cop::REQUEST_WITHDRAWAL_PLEDGE => {
+            super::clans::handle_request_withdrawal_pledge(world, client_id)
+        }
+        cop::REQUEST_OUST_PLEDGE_MEMBER => {
+            super::clans::handle_request_oust_pledge_member(world, client_id, body)
+        }
         cop::REQUEST_JOIN_PARTY => handle_request_join_party(world, client_id, body),
         cop::REQUEST_ANSWER_JOIN_PARTY => handle_request_answer_join_party(world, client_id, body),
         cop::REQUEST_WITH_DRAWAL_PARTY => handle_request_withdrawal_party(world, client_id),

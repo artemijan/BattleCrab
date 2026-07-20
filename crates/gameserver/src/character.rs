@@ -69,6 +69,9 @@ pub struct CharData {
     pub clan_privs: i32,
     /// `characters.clan_create_expiry_time` (10-day recreate cooldown).
     pub clan_create_expiry_time: i64,
+    /// `characters.clan_join_expiry_time` (1-day rejoin penalty after
+    /// leaving/being ousted from a clan).
+    pub clan_join_expiry_time: i64,
     pub race: i32,
     pub class_id: i32,
     pub base_class_id: i32,
