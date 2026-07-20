@@ -72,6 +72,7 @@ mod periodic_tests;
 mod pvp_kill_tests;
 mod quests_tests;
 mod ranged_tests;
+mod reflect_tests;
 mod resist_tests;
 mod shortcuts_tests;
 mod skills_tests;

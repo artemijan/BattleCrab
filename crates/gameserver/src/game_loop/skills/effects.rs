@@ -983,6 +983,12 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             // Stealth: the whole mechanic is the `SILENT_MOVE` flag the aggro
             // scan reads (`npc_ai::notices_target`).
             | SkillEffect::SilentMove
+            // `BlockMove`: the whole mechanic is the `IMMOBILIZED` flag the
+            // movement gate reads.
+            | SkillEffect::BlockMove
+            // `ReflectSkill` is a `pump` — a passive stat contribution folded
+            // into `StatModifiers` below, nothing to do at application time.
+            | SkillEffect::ReflectSkill { .. }
             // A chance-on-hit trigger does nothing when the *carrying* skill is
             // applied; the attack path reads it off the attacker's skill book
             // (`fire_attack_triggers`).

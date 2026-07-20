@@ -254,6 +254,16 @@ pub enum SkillEffect {
         /// `allowWeapons` as a `WeaponType` mask (0 = ALL).
         allow_weapons: u32,
     },
+    /// `handlers/effecthandlers/BlockMove.java` — `setImmobilized(true)` for
+    /// the buff's duration (Ultimate Defense 110, Snipe 313, Vengeance 368).
+    /// A pure state flag: the whole mechanic is `IMMOBILIZED` being read by the
+    /// movement gate.
+    BlockMove,
+    /// `handlers/effecthandlers/ReflectSkill.java` — a percent chance to bounce
+    /// an incoming **debuff** back at its caster (Riposte Stance 340, Physical
+    /// Mirror 350, Magical Mirror 351). `magic` selects which of the two Java
+    /// stats it pumps; the incoming skill's own `isMagic` decides which is read.
+    ReflectSkill { magic: bool, amount: f64 },
     /// `handlers/effecthandlers/Confuse.java` — the victim turns on a random
     /// bystander (Madness 1105, Curse Discord 1163, Seal of Mirage 1213).
     /// Chance-gated by `calcProbability`. Madness and Curse Discord carry only
@@ -732,6 +742,14 @@ pub mod effect_flag {
     /// gate) therefore never fire. Folded for completeness with no consumer —
     /// the same `FEAR`/`MP_BLOCK` pattern.
     pub const CONFUSED: u32 = 1 << 12;
+    /// `IMMOBILIZED` — Java `Creature._isImmobilized`, set by `BlockMove`
+    /// (Ultimate Defense 110, Snipe 313, Vengeance 368). Folded into
+    /// `isMovementDisabled()` beside `ROOTED`: the creature is rooted in place
+    /// but can still attack and cast, which is the point of these stances.
+    ///
+    /// This is the `_isImmobilized` term `game_loop::abnormal`'s module docs
+    /// listed as having "no ported source".
+    pub const IMMOBILIZED: u32 = 1 << 13;
 }
 
 /// Java `AbnormalVisualEffect` — the client-side *look* of an abnormal (the
@@ -988,6 +1006,7 @@ impl Skill {
                 SkillEffect::BlockControl => effect_flag::BLOCK_CONTROL,
                 SkillEffect::Fear { .. } => effect_flag::FEAR,
                 SkillEffect::Confuse { .. } => effect_flag::CONFUSED,
+                SkillEffect::BlockMove => effect_flag::IMMOBILIZED,
                 SkillEffect::SilentMove => effect_flag::SILENT_MOVE,
                 SkillEffect::FakeDeath { .. } => effect_flag::FAKE_DEATH,
                 SkillEffect::NoblesseBless => effect_flag::NOBLESS_BLESSING,
@@ -1018,6 +1037,20 @@ impl Skill {
             .iter()
             .filter_map(|e| match e {
                 SkillEffect::StatModifier(m) => Some(*m),
+                // `ReflectSkill.pump` is `mergeAdd(stat, amount)` — an ordinary
+                // additive stat contribution that happens to have its own
+                // handler class in Java rather than being an
+                // `AbstractStatEffect`. Expressed here as the equivalent
+                // `StatModifierEffect` so it rides the existing buff/passive
+                // pipeline instead of needing its own plumbing.
+                SkillEffect::ReflectSkill { magic, amount } => Some(StatModifierEffect {
+                    stat: if *magic { Stat::ReflectSkillMagic } else { Stat::ReflectSkillPhysic },
+                    mode: StatModifierType::Diff,
+                    amount: *amount,
+                    armor_condition: 0,
+                    weapon_condition: 0,
+                    qualifier: None,
+                }),
                 _ => None,
             })
             .collect()
