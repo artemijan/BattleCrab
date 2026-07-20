@@ -101,6 +101,15 @@ pub enum Stat {
     /// crit-damage bonus that `CriticalDamage` effects with `mode=DIFF` feed
     /// (the same handler picks this stat over `CRITICAL_DAMAGE` for diff mode).
     CriticalDamageAdd,
+    /// Java `Stat.MAGIC_SUCCESS_RES` ("magicSuccRes") — the target's general
+    /// magic resistance, read by `Formulas.calcMagicSuccess` as
+    /// `getMul(MAGIC_SUCCESS_RES, 1)`. It multiplies the *failure* term, so a
+    /// value above 1 lowers the attacker's success rate.
+    ///
+    /// Granted by Anti Magic 146 and M. Def. 147 (`ResistDDMagic`, an
+    /// `AbstractStatPercentEffect`, so it merges multiplicatively and
+    /// `getMul` does see it).
+    MagicSuccessRes,
     /// Java `Stat.DEFENCE_CRITICAL_RATE` / `DEFENCE_CRITICAL_RATE_ADD` — the
     /// **defender's** modifier on an incoming autoattack's crit *chance*
     /// (Light Armor Mastery 233 at `-15% PER`, Pa'agrio's Eye 1364 at `-30%`).
