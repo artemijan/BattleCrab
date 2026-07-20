@@ -577,8 +577,10 @@ fn think_attack(world: &mut World, npc_oid: i32) {
 }
 
 /// Back to the scan loop: walking move type + Active intention (Java
-/// `setIntention(AI_INTENTION_ACTIVE)` + `setWalking`).
-fn set_active(world: &mut World, npc_oid: i32) {
+/// `setIntention(AI_INTENTION_ACTIVE)` + `setWalking`). `pub(crate)` so the
+/// `DeleteHate`/`DeleteHateOfMe` skill effects (`skills/effects.rs`) can
+/// disengage a target's AI the same way Java's handlers do.
+pub(crate) fn set_active(world: &mut World, npc_oid: i32) {
     let was_running = {
         let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) else { return };
         ai.intention = NpcIntention::Active;

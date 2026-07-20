@@ -184,6 +184,32 @@ pub enum SkillEffect {
     /// effect that drops the victim's target and aborts their attack and cast
     /// (Trick 11, Switch 12, Aura Flash 1417).
     TargetCancel { chance: i32 },
+    /// `handlers/effecthandlers/GetAgro.java` — forces the effected NPC to
+    /// intend-attack the caster (Aggression 28, Aggression Aura 18, plus the
+    /// aggro side-effect on the debuffs Judgment 401/Tribunal 400). No params.
+    /// Java also pre-seeds nearby clan-mates with `addDamageHate(effector, 1,
+    /// 200)`; this port leaves that to the already-ported
+    /// `npc_ai::faction_call`, which pulls clan-mates in on its own once the
+    /// taunted NPC is actually landing hits on the caster (at most one
+    /// think-tick later than Java's immediate pre-seed) — `TODO(G21+)` if
+    /// that one-tick gap ever turns out to matter.
+    GetAgro,
+    /// `handlers/effecthandlers/AddHate.java` — a flat hate change with no
+    /// damage. Positive `power` (Charm 15, Lure 51) adds hate for the caster;
+    /// negative reduces it (unused on this dist, but Java supports it).
+    AddHate { power: f64 },
+    /// `handlers/effecthandlers/DeleteHate.java` — chance-rolled: wipes the
+    /// target's *entire* aggro list and disengages its AI (Java
+    /// `setWalking()` + `setIntention(ACTIVE)`). Eva's Serenade 1273, Peace
+    /// 1075, Repose 1034.
+    DeleteHate { chance: i32 },
+    /// `handlers/effecthandlers/DeleteHateOfMe.java` — chance-rolled: zeroes
+    /// just the caster's own aggro entry (`stopHating`), but — matching Java
+    /// exactly — still disengages the target's AI wholesale (`setWalking()` +
+    /// `setIntention(ACTIVE)`) even if other attackers remain in the list;
+    /// the AI naturally re-picks the next-most-hated target on its following
+    /// think tick if any hate remains. Bluff 358, Forget 1156, Trick 11.
+    DeleteHateOfMe { chance: i32 },
     /// `handlers/effecthandlers/Root.java` — immobilised. Unlike a stun the
     /// target may still attack and cast.
     Root,

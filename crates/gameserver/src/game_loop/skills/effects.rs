@@ -731,6 +731,71 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     crate::game_loop::skills::cast::stop_casting(world, target_oid);
                 }
             }
+            // `GetAgro.instant` — the ported AI derives its attack target
+            // fresh from `AggroList::most_hated` every think tick (no cached
+            // "current target" field to force directly, unlike Java's AI
+            // object), so the faithful equivalent of "force intend-attack the
+            // caster" is making the caster's hate dominant: above the current
+            // highest entry, not an arbitrary huge constant that would make
+            // the taunt unbreakable. `NpcAi::intention` is set the same way
+            // `minions::add_hate` does, waking a currently-idle target.
+            SkillEffect::GetAgro => {
+                let Some(aggro) = world.objects.get_component::<crate::model::npc::AggroList>(&target_oid) else { continue };
+                let max_hate = aggro.0.values().map(|i| i.hate).fold(0.0_f64, f64::max);
+                if let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&target_oid) {
+                    aggro.0.entry(caster_oid).or_default().hate = max_hate + 1.0;
+                }
+                if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&target_oid) {
+                    ai.intention = crate::model::npc::NpcIntention::Attack;
+                    ai.attack_timeout_tick = world.tick + crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
+                }
+            }
+            // `AddHate.instant` — a flat hate change with no damage
+            // (positive: Charm/Lure; negative: unused on this dist but
+            // supported). Mirrors the add/reduce shape already used by
+            // `minions.rs`/`faction_call`.
+            SkillEffect::AddHate { power } => {
+                let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&target_oid) else { continue };
+                if *power >= 0.0 {
+                    aggro.0.entry(caster_oid).or_default().hate += *power;
+                } else if let Some(entry) = aggro.0.get_mut(&caster_oid) {
+                    entry.hate = (entry.hate + *power).max(0.0);
+                }
+                if *power > 0.0 {
+                    if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&target_oid) {
+                        if ai.intention != crate::model::npc::NpcIntention::Attack {
+                            ai.intention = crate::model::npc::NpcIntention::Attack;
+                            ai.attack_timeout_tick = world.tick + crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
+                        }
+                    }
+                }
+            }
+            // `DeleteHate.instant` — chance-rolled: wipe the *whole* aggro
+            // list and disengage (Java `setWalking()` + `setIntention(ACTIVE)`).
+            SkillEffect::DeleteHate { chance } => {
+                if world.roll(100) >= *chance {
+                    continue;
+                }
+                if let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&target_oid) {
+                    aggro.0.clear();
+                }
+                crate::game_loop::npc_ai::set_active(world, target_oid);
+            }
+            // `DeleteHateOfMe.instant` — chance-rolled: `stopHating` just the
+            // caster's own entry, but Java disengages the AI wholesale
+            // regardless of whatever other hate remains — the next think tick
+            // re-picks the next-most-hated target on its own if any is left.
+            SkillEffect::DeleteHateOfMe { chance } => {
+                if world.roll(100) >= *chance {
+                    continue;
+                }
+                if let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&target_oid) {
+                    if let Some(entry) = aggro.0.get_mut(&caster_oid) {
+                        entry.hate = 0.0;
+                    }
+                }
+                crate::game_loop::npc_ai::set_active(world, target_oid);
+            }
             // Periodic effects do nothing on application; their work happens on
             // the tick chain armed by `schedule_dam_over_time`.
             SkillEffect::HealOverTime { .. } | SkillEffect::ManaDamOverTime { .. } | SkillEffect::MpConsumePerLevel { .. } => {}
