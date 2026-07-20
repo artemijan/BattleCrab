@@ -39,7 +39,7 @@ mod mounts;
 mod skills;
 mod spawn;
 mod teleport;
-mod transforms;
+pub(crate) mod transforms;
 pub(crate) mod vitals;
 mod world_cmds;
 

@@ -398,6 +398,10 @@ pub mod sm_ids {
     pub const YOUR_VITALITY_HAS_INCREASED: i16 = 2315;
     pub const YOUR_VITALITY_HAS_DECREASED: i16 = 2316;
     pub const YOUR_VITALITY_IS_FULLY_EXHAUSTED: i16 = 2317;
+    // Transformation (G19): `ConditionPlayerCanTransform`'s cast refusals.
+    pub const YOU_ALREADY_POLYMORPHED_AND_CANNOT_POLYMORPH_AGAIN: i16 = 2058;
+    pub const YOU_CANNOT_POLYMORPH_INTO_THE_DESIRED_FORM_IN_WATER: i16 = 2060;
+    pub const YOU_CANNOT_TRANSFORM_WHILE_RIDING_A_PET: i16 = 2063;
 }
 
 /// One `SystemMessage` parameter (Java `SystemMessage.SMParam`), scoped to the

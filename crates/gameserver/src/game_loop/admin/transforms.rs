@@ -76,8 +76,21 @@ fn ride_target(world: &World, object_id: i32) -> i32 {
 }
 
 /// Apply a transform: set the display state, override collision, grant the
-/// template's transform skills, recompute speed, and broadcast.
+/// template's transform skills, recompute speed, and broadcast. Used by the
+/// admin `//transform`/`//ride_*` commands, which are instantaneous and want
+/// the broadcast immediately; the `Transformation` skill effect
+/// (`game_loop::skills::effects`) instead calls [`apply_transform_state`]
+/// directly and lets the buff-landing path own the broadcast, since it's
+/// already sending `UserInfo`/`CharInfo` for the buff that carries this.
 pub(super) fn apply_transform(world: &mut World, target: i32, transform_id: i32) {
+    apply_transform_state(world, target, transform_id);
+    broadcast_transform(world, target);
+}
+
+/// The state half of [`apply_transform`], without the broadcast: set the
+/// display state, override collision, grant the template's transform skills,
+/// recompute speed.
+pub(crate) fn apply_transform_state(world: &mut World, target: i32, transform_id: i32) {
     let is_female = world.objects.get_component::<Player>(&target).is_some_and(|p| p.is_female);
     let Some(tf) = world.data.transforms.get(transform_id) else { return };
     let display_id = tf.display_id;
@@ -98,15 +111,30 @@ pub(super) fn apply_transform(world: &mut World, target: i32, transform_id: i32)
         }
     }
     recompute_speeds(world, target);
-    broadcast_transform(world, target);
 }
 
 /// Remove a transform: clear the display state, restore the class collision,
-/// drop the template's transform skills, recompute, and broadcast.
-pub(super) fn remove_transform(world: &mut World, target: i32) {
+/// drop the template's transform skills, recompute, and broadcast. Used by the
+/// admin `//untransform`/dismount commands, which want the broadcast
+/// immediately.
+pub(crate) fn remove_transform(world: &mut World, target: i32) {
+    if remove_transform_state(world, target) {
+        broadcast_transform(world, target);
+    }
+}
+
+/// The state half of [`remove_transform`], without the broadcast: clear the
+/// display state, restore the class collision, drop the template's transform
+/// skills, recompute speed. Returns `false` (no-op) if the target wasn't
+/// transformed. Used directly by the `Transformation` skill effect's
+/// `BuffExpire`/dispel/death cleanup
+/// (`game_loop::skills::effects::handle_buff_expire`), which folds the
+/// broadcast into the generic buff-removal `UserInfo` it already sends rather
+/// than sending a second one.
+pub(crate) fn remove_transform_state(world: &mut World, target: i32) -> bool {
     let transform_id = world.objects.get_component::<Player>(&target).map_or(0, |p| p.transform_id);
     if transform_id == 0 {
-        return;
+        return false;
     }
     // Skills the transform granted (removed on revert; Java tracks these in
     // `_transformSkills` — here we re-derive them from the template).
@@ -136,7 +164,7 @@ pub(super) fn remove_transform(world: &mut World, target: i32) {
         world.objects.add_components(&target, Collision { radius: t.collision_radius, height: t.collision_height });
     }
     recompute_speeds(world, target);
-    broadcast_transform(world, target);
+    true
 }
 
 /// Gather the stat components and re-run `recalculate_stats` so the transform
@@ -158,10 +186,19 @@ fn recompute_speeds(world: &mut World, target: i32) {
 }
 
 /// Broadcast the transform change: UserInfo to self + CharInfo to nearby (via
-/// `broadcast_user_info`), the self-view abnormal-visual packet carrying the
-/// transform model, and a refreshed SkillList.
+/// `broadcast_user_info`), then [`refresh_transform_visuals`].
 fn broadcast_transform(world: &World, target: i32) {
     super::party::broadcast_user_info(world, target);
+    refresh_transform_visuals(world, target);
+}
+
+/// The self-view abnormal-visual packet carrying the transform model, and a
+/// refreshed SkillList (the transform's granted skills need to show up in the
+/// client's skill window immediately). Split out from [`broadcast_transform`]
+/// so the `Transformation` skill effect can send these on top of the
+/// `UserInfo`/`CharInfo` its buff-landing path already broadcasts, without a
+/// second full `UserInfo` send.
+pub(crate) fn refresh_transform_visuals(world: &World, target: i32) {
     let display_id = world.objects.get_component::<Player>(&target).map_or(0, |p| p.transform_display_id);
     let hidden = world.objects.get_component::<crate::model::components::AdminFlags>(&target).is_some_and(|f| f.hidden);
     if let Some(cid) = super::helpers::client_for_player(world, target) {

@@ -514,6 +514,26 @@ the rest of the AdminEffects AVE subset (`//setteam`, `//settargetable`,
 `//set_displayeffect`, `//playmovie`, `//event_trigger`) is now *unblocked* but
 each needs its own per-creature state and packet field.
 
+🚧 **Transformation (2026-07-20)** — plan
+[PLAN_G19_TRANSFORMATION.md](PLAN_G19_TRANSFORMATION.md). The next rung on the
+learnable-skill ranking after ruling out `DefenceAttribute` (33 learnable
+skills, but Kamael-era elemental attributes are out of scope): `Transformation`
+(32 learnable skills) backs the "Transform &lt;Monster&gt;" scroll family
+(Grail Apostle, Unicorn, Doom Wraith, Zaken, …). Wires the skill-cast path into
+the G13.B `//transform` admin runtime's existing `Player.transform_id`/
+`TransformData` plumbing rather than building a second one — `admin::transforms`
+split into state-only and state+broadcast halves so the buff-landing path can
+mutate transform state and fold the transform-specific extras
+(`ExUserInfoAbnormalVisualEffect` + refreshed `SkillList`) onto the `UserInfo`
+broadcast the buff already sends, instead of a duplicate one. Reverts on
+`BuffExpire` like any timed buff, which — since the death path already routes
+every stripped buff through the same removal function — also covers death with
+no extra hook. Cast-time gate ports `ConditionPlayerCanTransform`'s
+already-transformed/in-water/cursed-weapon-equipped legs (a horse/bike mount
+collapses into "already transformed" here, since mounts are themselves
+transforms on this port); the sitting and registered-on-event legs have no
+modeled state yet.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued
