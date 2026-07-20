@@ -510,6 +510,24 @@ pub struct StatModifiers {
     /// returns this value verbatim, ignoring base/buffs. Persists across buff
     /// recomputes (not cleared with `add`/`mul`); cleared by `//unsetparam`.
     pub fixed: HashMap<crate::model::stats::Stat, f64>,
+    /// Java `CreatureStat._moveTypeStats` (`mergeMoveTypeValue`): flat
+    /// contributions that only count while the creature is in a particular
+    /// locomotion state, from `StatByMoveType` effects.
+    ///
+    /// Deliberately *not* folded into `add`: Java reads this at finalize time
+    /// against the creature's live move type, so the value swings as the
+    /// player stands/walks/runs with no stat recompute anywhere. Consumers
+    /// call [`StatModifiers::move_type_value`] with the current move type.
+    pub by_move_type: HashMap<(crate::model::stats::Stat, crate::model::stats::MoveType), f64>,
+}
+
+impl StatModifiers {
+    /// Java `CreatureStat.getMoveTypeValue(stat, type)` — the flat term for
+    /// this stat in the creature's *current* locomotion state (0 when there is
+    /// no `StatByMoveType` contribution for that pairing).
+    pub fn move_type_value(&self, stat: crate::model::stats::Stat, move_type: crate::model::stats::MoveType) -> f64 {
+        self.by_move_type.get(&(stat, move_type)).copied().unwrap_or(0.0)
+    }
 }
 
 /// Panel shortcuts (Java `Player._shortCuts`), keyed by

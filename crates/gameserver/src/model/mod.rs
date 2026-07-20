@@ -23,7 +23,6 @@ pub mod skill;
 pub mod static_object;
 pub mod stats;
 
-use std::collections::HashMap;
 
 use crate::character::CharData;
 use crate::data::admin_data::AccessLevel;
@@ -1128,7 +1127,7 @@ impl Player {
         // or count against the caps; fold and push as before.
         if buff.passive {
             for effect in &buff.effects {
-                apply_modifier(&mut mods.add, &mut mods.mul, effect);
+                apply_modifier(mods, effect);
             }
             buffs.0.push(buff);
             self.recalculate_stats(data, base, mods, inventory, speeds, combat);
@@ -1174,9 +1173,10 @@ impl Player {
         // (can't just fold the new one in) — same as `remove_buff`.
         mods.add.clear();
         mods.mul.clear();
+        mods.by_move_type.clear();
         for b in &buffs.0 {
             for effect in &b.effects {
-                apply_modifier(&mut mods.add, &mut mods.mul, effect);
+                apply_modifier(mods, effect);
             }
         }
         self.recalculate_stats(data, base, mods, inventory, speeds, combat);
@@ -1201,9 +1201,10 @@ impl Player {
         buffs.0.retain(|b| b.skill_id != skill_id);
         mods.add.clear();
         mods.mul.clear();
+        mods.by_move_type.clear();
         for buff in &buffs.0 {
             for effect in &buff.effects {
-                apply_modifier(&mut mods.add, &mut mods.mul, effect);
+                apply_modifier(mods, effect);
             }
         }
         self.recalculate_stats(data, base, mods, inventory, speeds, combat);
@@ -1285,7 +1286,7 @@ fn npc_passive_mods(data: &GameData, t: &crate::data::npc_data::NpcTemplate) -> 
         for effect in &skill.effects {
             if let SkillEffect::StatModifier(m) = effect {
                 if m.armor_condition == 0 && m.weapon_condition == 0 {
-                    apply_modifier(&mut mods.add, &mut mods.mul, m);
+                    apply_modifier(&mut mods, m);
                 }
             }
         }
@@ -1312,7 +1313,7 @@ pub(crate) fn npc_finalized_stats(
     let mut mods = npc_passive_mods(data, t);
     for buff in &buffs.0 {
         for effect in &buff.effects {
-            apply_modifier(&mut mods.add, &mut mods.mul, effect);
+            apply_modifier(&mut mods, effect);
         }
     }
     let combat = CombatStats {
@@ -1470,15 +1471,26 @@ pub(crate) fn conditioned_passive_buffs(data: &GameData, skills: &SkillBook, inv
     out
 }
 
-/// Java `CreatureStat.mergeAdd`/`mergeMul` — accumulate one effect's
-/// contribution into the add/mul maps (multiple buffs on the same stat stack).
-fn apply_modifier(add: &mut HashMap<Stat, f64>, mul: &mut HashMap<Stat, f64>, effect: &StatModifierEffect) {
+/// Java `CreatureStat.mergeAdd`/`mergeMul`/`mergeMoveTypeValue` — accumulate
+/// one effect's contribution into the modifier maps (multiple buffs on the
+/// same stat stack).
+///
+/// A move-type-qualified effect (`StatByMoveType`) goes to its own map instead
+/// of `add`/`mul`, exactly as Java routes it to `_moveTypeStats`: it must not
+/// be folded into `add`, or it would apply in *every* locomotion state rather
+/// than the one it names. It is always additive — `mergeMoveTypeValue` has no
+/// percent form — so `mode` is not consulted on that path.
+pub(crate) fn apply_modifier(mods: &mut StatModifiers, effect: &StatModifierEffect) {
+    if let Some(move_type) = effect.move_type {
+        *mods.by_move_type.entry((effect.stat, move_type)).or_insert(0.0) += effect.amount;
+        return;
+    }
     match effect.mode {
         StatModifierType::Diff => {
-            *add.entry(effect.stat).or_insert(0.0) += effect.amount;
+            *mods.add.entry(effect.stat).or_insert(0.0) += effect.amount;
         }
         StatModifierType::Per => {
-            let entry = mul.entry(effect.stat).or_insert(1.0);
+            let entry = mods.mul.entry(effect.stat).or_insert(1.0);
             *entry *= (effect.amount / 100.0) + 1.0;
         }
     }

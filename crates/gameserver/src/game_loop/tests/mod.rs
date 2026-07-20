@@ -46,6 +46,7 @@ mod items_tests;
 mod lobby_tests;
 mod melee_variants_tests;
 mod misc_tests;
+mod move_type_tests;
 mod movement_tests;
 mod boss_respawn_tests;
 mod damage_swamp_tests;
@@ -479,6 +480,7 @@ fn cast_test_world() -> (
             amount: 8.0,
             armor_condition: 0,
             weapon_condition: 0,
+            move_type: None,
         })],
         ..base.clone()
     });
@@ -523,6 +525,7 @@ fn cast_test_world() -> (
                     amount: -20.0,
                     armor_condition: 0,
                     weapon_condition: 0,
+                    move_type: None,
                 })
             })
             .collect(),
@@ -576,6 +579,7 @@ fn cast_test_world() -> (
             amount: 8.0,
             armor_condition: 0,
             weapon_condition: 0,
+            move_type: None,
         })],
         ..base
     });
@@ -1215,6 +1219,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
             amount: 10.0,
             armor_condition: 0,
             weapon_condition: 0,
+            move_type: None,
         })],
     }
 }
@@ -1270,6 +1275,7 @@ fn clan_advent_test_skill() -> Skill {
             amount: 5.0,
             armor_condition: 0,
             weapon_condition: 0,
+            move_type: None,
         })],
     }
 }

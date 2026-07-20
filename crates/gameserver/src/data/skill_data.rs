@@ -453,9 +453,37 @@ fn finalize_skill(
                         amount,
                         armor_condition: *armor_condition,
                         weapon_condition: *weapon_condition,
+                        move_type: None,
                     })
                 };
                 match xml_name.as_str() {
+                    // Vital Force (148), Esprit (171), Acrobatic Move (225),
+                    // Clear Mind (1297): a flat stat bonus that only counts
+                    // while the creature is in the named locomotion state.
+                    // Java names its own `<stat>`/`<type>`/`<value>` rather
+                    // than using the generic `amount`/`mode` pair, and merges
+                    // into `_moveTypeStats` — always additive, never percent —
+                    // so `modifier_mode` is deliberately not consulted.
+                    //
+                    // Before this arm the effect fell through to
+                    // `EFFECT_REGISTRY`, wasn't found, and was dropped: Vital
+                    // Force and Clear Mind carry *only* `StatByMoveType`, so
+                    // both were passives that did precisely nothing.
+                    "StatByMoveType" => {
+                        let stat = value_at(params, "stat", level).and_then(Stat::from_xml);
+                        let move_type = value_at(params, "type", level).and_then(crate::model::stats::MoveType::from_xml);
+                        return match (stat, move_type, param("value")) {
+                            (Some(stat), Some(move_type), Some(amount)) => vec![SkillEffect::StatModifier(StatModifierEffect {
+                                stat,
+                                mode: StatModifierType::Diff,
+                                amount,
+                                armor_condition: *armor_condition,
+                                weapon_condition: *weapon_condition,
+                                move_type: Some(move_type),
+                            })],
+                            _ => Vec::new(),
+                        };
+                    }
                     // Guts (139) / Touch of Life (341) / Touch of Death (342):
                     // a multiplier on how likely an incoming *debuff* is to
                     // land. Java `mergeMul(RESIST_ABNORMAL_DEBUFF,
@@ -478,6 +506,7 @@ fn finalize_skill(
                                     amount,
                                     armor_condition: *armor_condition,
                                     weapon_condition: *weapon_condition,
+                                    move_type: None,
                                 })
                             })
                             .into_iter()
@@ -497,6 +526,7 @@ fn finalize_skill(
                                     amount,
                                     armor_condition: *armor_condition,
                                     weapon_condition: *weapon_condition,
+                                    move_type: None,
                                 })
                             })
                             .into_iter()

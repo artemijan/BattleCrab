@@ -118,6 +118,22 @@ pub struct StatModifierEffect {
     /// `-30% MagicalAttackSpeed` applies only with a BOW/POLE in hand) — the
     /// weapon-side counterpart of `armor_condition`.
     pub weapon_condition: u32,
+    /// `StatByMoveType` (Vital Force 148, Esprit 171, Acrobatic Move 225,
+    /// Clear Mind 1297): the contribution only counts while the creature is in
+    /// this locomotion state. `None` — every other effect — always counts.
+    ///
+    /// Java keeps these in a *separate* map on `CreatureStat`
+    /// (`_moveTypeStats`, written by `mergeMoveTypeValue`) rather than the
+    /// add/mul maps, and reads it at finalize time against the creature's
+    /// *current* move type. Riding along on this struct keeps the whole buff
+    /// pipeline (landing, stacking, removal, passive folding) unchanged; the
+    /// split happens in `apply_modifier`, which routes a qualified effect into
+    /// [`crate::model::components::StatModifiers::by_move_type`] rather than
+    /// `add`/`mul`.
+    ///
+    /// Always additive: `mergeMoveTypeValue` has no percent counterpart, so
+    /// `mode` is ignored when this is `Some`.
+    pub move_type: Option<crate::model::stats::MoveType>,
 }
 
 /// One entry inside a `RestorationRandom` reward group (Java

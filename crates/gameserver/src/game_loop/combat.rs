@@ -145,7 +145,12 @@ pub(crate) fn combatant(world: &World, object_id: i32) -> Option<Combatant> {
         p_def: cs.p_def,
         crit_stat: cs.crit_hit,
         accuracy: cs.accuracy,
-        evasion: cs.evasion,
+        // `EvasionRateFinalizer` ends in `Stat.defaultValue`, whose move-type
+        // term is read against the creature's *live* move type — so it belongs
+        // on this per-attack snapshot rather than the cached `CombatStats`
+        // (Acrobatic Move 225 grants evasion only while running, and a cached
+        // value would need invalidating on every start and stop of movement).
+        evasion: cs.evasion + move_type_evasion_bonus(world, object_id),
         p_atk_spd: cs.p_atk_spd,
         random_dmg: cs.random_dmg,
         atk_range: cs.atk_range,
@@ -153,6 +158,19 @@ pub(crate) fn combatant(world: &World, object_id: i32) -> Option<Combatant> {
         shield_rate,
         con_bonus,
     })
+}
+
+/// The `StatByMoveType` contribution to evasion for whoever is being snapshot
+/// — Acrobatic Move 225's `+4..6 EVASION_RATE` while `RUNNING`, the only
+/// non-regen use of the effect among learnable skills. Truncated to an `i32`
+/// like every other evasion term on this port; zero for anyone without the
+/// passive or standing still.
+fn move_type_evasion_bonus(world: &World, object_id: i32) -> i32 {
+    let Some(mods) = world.objects.get_component::<crate::model::components::StatModifiers>(&object_id) else {
+        return 0;
+    };
+    let move_type = crate::game_loop::regen::move_type_of(world, object_id);
+    mods.move_type_value(crate::model::stats::Stat::EvasionRate, move_type) as i32
 }
 
 /// A creature's shield block stats: `(shieldDef, shieldRate×CON, conBonus)`.
