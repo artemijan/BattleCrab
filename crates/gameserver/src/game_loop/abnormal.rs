@@ -86,6 +86,15 @@ pub(crate) fn is_control_blocked(world: &World, object_id: i32) -> bool {
     flags_of(world, object_id) & effect_flag::BLOCK_CONTROL != 0
 }
 
+/// Java `Creature.isHpBlocked()` — incoming HP damage is refused outright
+/// (Celestial Shield, Flames of Invincibility, …). (Java also ORs
+/// `isInvul()`; GM invulnerability is checked separately at the one real
+/// consumer, `game_loop::combat::player_receive_damage`, which already has
+/// its own `AdminFlags.invul` gate right next to this one.)
+pub(crate) fn is_hp_blocked(world: &World, object_id: i32) -> bool {
+    flags_of(world, object_id) & effect_flag::HP_BLOCK != 0
+}
+
 /// Java `Creature.isMovementDisabled()`, effect-driven terms only: a stun
 /// blocks movement, and so does a root (which leaves attacking and casting
 /// alone).

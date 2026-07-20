@@ -211,9 +211,9 @@ pub enum SkillEffect {
     /// `power` (present elsewhere in the datapack, none of it learnable) is
     /// damage instead of healing, via the shared `apply_skill_damage` path —
     /// ported for parity even though no reachable skill exercises it today.
-    /// TODO(G19): Java also skips this while `effected.isHpBlocked()`
-    /// (`DamageBlock`'s `BLOCK_HP` flag) — not gated, since that effect isn't
-    /// ported yet either.
+    /// Also skips a *positive*-power (heal) landing while
+    /// `effected.isHpBlocked()` — the negative-power (damage) branch already
+    /// gets this for free through the shared `apply_skill_damage` path.
     HealPercent { power: f64 },
     /// `handlers/effecthandlers/FocusMomentum.java` — the "Force" gain half of
     /// the Sonic/Force skill family (Sonic Focus 8, Focus Force 50, Sonic Rage
@@ -431,6 +431,17 @@ pub enum SkillEffect {
     /// per `TraitType`) and a real multiplier in `calcWeaknessBonus`'s
     /// callers — until then there is nothing to wire it to.
     AttackTrait,
+    /// `handlers/effecthandlers/DamageBlock.java` — one `<effect>` instance
+    /// per block kind (a skill carrying both writes two separate elements,
+    /// e.g. Celestial Shield 1418's `BLOCK_HP` + `BLOCK_MP`). Carries no stat
+    /// modifier; the whole mechanic is the [`effect_flag::HP_BLOCK`]/
+    /// [`effect_flag::MP_BLOCK`] bits, folded into `Skill::effect_flags()`
+    /// like `BlockActions`/`Root`/… — so it lands via `has_state_flag`, not
+    /// `has_iconless_buff`. `HP_BLOCK` has a real consumer (`game_loop::
+    /// combat::is_hp_blocked`, gating `player_receive_damage`/
+    /// `npc_receive_damage`); `MP_BLOCK` doesn't, matching Java's own dead
+    /// `isMpBlocked()`.
+    DamageBlock { block_hp: bool, block_mp: bool },
     /// `handlers/effecthandlers/AttackAttribute.java` — adds `amount` to the
     /// target's `<attribute>_POWER` attack-element stat (`mergeAdd`). Backs the
     /// elemental dance/song buffs (Dance of Light 277 → HOLY, …). Attribute-based
@@ -531,6 +542,19 @@ pub mod effect_flag {
     /// ported, so the flag has no source yet.
     /// TODO(G22): add RESURRECTION_SPECIAL alongside the self-res effect.
     pub const NOBLESS_BLESSING: u32 = 1 << 6;
+    /// `HP_BLOCK` — incoming HP damage is refused outright (Celestial Shield
+    /// 1418, Flames of Invincibility 1427, Dance of Medusa 367, Sonic/Force
+    /// Barrier 442/443). `CreatureStatus.reduceHp`'s real gate: `if
+    /// (creature.isHpBlocked() && !(isDOT || isHPConsumption)) return;` — a
+    /// DoT tick or a skill's own HP cost still goes through.
+    pub const HP_BLOCK: u32 = 1 << 7;
+    /// `MP_BLOCK` — Java defines `isMpBlocked()`, but **nothing in the whole
+    /// Java tree ever calls it** (grepped exhaustively) — no MP-drain path
+    /// checks it, unlike `HP_BLOCK`'s real `reduceHp` gate. Folded here for
+    /// completeness (every learnable `DamageBlock` skill sets both HP and MP
+    /// in separate `<effect>` elements) but has no consumer, faithfully
+    /// matching Java's own dead code.
+    pub const MP_BLOCK: u32 = 1 << 8;
 }
 
 /// Java `AbnormalVisualEffect` — the client-side *look* of an abnormal (the
@@ -776,6 +800,10 @@ impl Skill {
                 SkillEffect::DebuffBlock => effect_flag::DEBUFF_BLOCK,
                 SkillEffect::BlockControl => effect_flag::BLOCK_CONTROL,
                 SkillEffect::NoblesseBless => effect_flag::NOBLESS_BLESSING,
+                SkillEffect::DamageBlock { block_hp, block_mp } => {
+                    (if *block_hp { effect_flag::HP_BLOCK } else { 0 })
+                        | (if *block_mp { effect_flag::MP_BLOCK } else { 0 })
+                }
                 _ => 0,
             }
         })

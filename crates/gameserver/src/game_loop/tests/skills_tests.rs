@@ -2943,3 +2943,61 @@ fn attack_trait_lands_as_an_icon_only_buff() {
     apply_due_tasks(&mut world);
     assert_eq!(pbuffs(&world, 5701), 0, "expires after abnormalTime");
 }
+
+/// G19 `DamageBlock` effect: Celestial Shield (1418, real dist data,
+/// `isMagic`, self-targetable via `targetType TARGET`) sets `HP_BLOCK` +
+/// `MP_BLOCK` — previously silently dropped, so this and the other four
+/// short invulnerability shields (Flames of Invincibility, Dance of Medusa,
+/// Sonic/Force Barrier) did nothing on cast. `HP_BLOCK`'s real consumer is
+/// `game_loop::combat::apply_physical_damage`'s new choke-point gate: a huge
+/// non-DoT hit does nothing while the shield is up, but a DoT tick (Java's
+/// one exemption besides a skill's own HP cost) still lands.
+#[test]
+fn damage_block_refuses_incoming_hp_damage_except_a_dot() {
+    let (mut world, ..) = test_world();
+    world.data = crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+
+    // isMagic: needs a real magic casting speed, like the EnemyNot slice's
+    // own test found — a level-1 default (Fighter, class 0) stretches the
+    // nominal 4 s cast into minutes.
+    let mut chr = dummy_char(5801, "Shielded");
+    chr.class_id = 10;
+    chr.base_class_id = 10;
+    chr.skills = vec![(1418, 1)];
+    let bundle = Player::from_char(&world.data, &chr);
+    let (out_tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+    let s = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
+        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+        .into_lobby(vec![])
+        .into_entering(bundle);
+    let (session, bundle) = s.into_ingame();
+    bundle.spawn_into(&mut world.objects);
+    world.clients.insert(1, ClientSession::InGame(session));
+    world.objects.get_component_mut::<Vitals>(&5801).unwrap().cur_mp = 200.0;
+    drain(&mut rx);
+
+    handle_action(&mut world, 1, &action_body(5801, 0)); // self-target
+    drain(&mut rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1418, false));
+    advance_world(&mut world, 60); // hitTime 4000 ms
+
+    assert_eq!(pbuffs(&world, 5801), 1, "Celestial Shield lands as one buff");
+    assert_eq!(
+        world.objects.get_component::<Buffs>(&5801).unwrap().0[0].effect_flags
+            & (crate::model::skill::effect_flag::HP_BLOCK | crate::model::skill::effect_flag::MP_BLOCK),
+        crate::model::skill::effect_flag::HP_BLOCK | crate::model::skill::effect_flag::MP_BLOCK,
+        "both HP_BLOCK and MP_BLOCK set"
+    );
+
+    // Zero CP so a landed hit reduces HP directly, not absorbed by CP first
+    // (the synthetic attacker oid below reads as "playable", which triggers
+    // that absorb branch in `player_receive_damage`).
+    world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&5801).unwrap().cur_cp = 0.0;
+    let hp_before = pvit(&world, 5801).cur_hp;
+    // A huge non-DoT hit: refused outright.
+    crate::game_loop::combat::apply_physical_damage(&mut world, 90001, 5801, 999_999.0, false);
+    assert_eq!(pvit(&world, 5801).cur_hp, hp_before, "HP_BLOCK refuses a normal hit");
+    // A DoT tick: Java's one exemption besides a skill's own HP cost.
+    crate::game_loop::combat::apply_physical_damage(&mut world, 90001, 5801, 5.0, true);
+    assert_eq!(pvit(&world, 5801).cur_hp, hp_before - 5.0, "a DoT tick still lands through HP_BLOCK");
+}

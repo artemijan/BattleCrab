@@ -871,6 +871,18 @@ fn finalize_skill(
                     // carries an icon-only marker like `DefenceTrait`/
                     // `VampiricAttack` rather than the per-trait param map.
                     "AttackTrait" => vec![SkillEffect::AttackTrait],
+                    // Celestial Shield (1418), Flames of Invincibility (1427),
+                    // Dance of Medusa (367), Sonic/Force Barrier (442/443): a
+                    // skill carries two of these, one `BLOCK_HP` and one
+                    // `BLOCK_MP` (`<effect name="DamageBlock"><type>BLOCK_HP
+                    // </type></effect>`, a plain string param, not `param()`'s
+                    // f64). Without this arm the effect fell through to
+                    // `EFFECT_REGISTRY`, wasn't found, and these short
+                    // invulnerability shields did nothing.
+                    "DamageBlock" => {
+                        let ty = value_at(params, "type", level);
+                        vec![SkillEffect::DamageBlock { block_hp: ty == Some("BLOCK_HP"), block_mp: ty == Some("BLOCK_MP") }]
+                    }
                     // Community-board dance/song buffs whose combat/cost math
                     // isn't modeled yet — Dance of Light (277, `AttackAttribute`),
                     // Song of Champion/Renewal (`MagicMpCost`/`Reuse`), Gift of

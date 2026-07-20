@@ -65,7 +65,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 let m_def = target_m_def(world, target_oid);
                 let failure = roll_magic_failure(world, caster_oid, target_oid, skill, false);
                 let damage = formulas::calc_magic_dam(m_atk, m_def, power, mcrit, magic_shots_bonus, failure);
-                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit);
+                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false);
             }
             SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance } => {
                 // `PhysicalAttack.instant()`: crit is rolled here (per-effect in
@@ -95,7 +95,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     crit,
                     ss,
                 );
-                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit);
+                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false);
             }
             SkillEffect::Blow { power, chance_boost, critical_chance, backstab } => {
                 use crate::model::components::Position as PosComp;
@@ -166,7 +166,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 }
                 // Java passes `critical = true` to `doAttack` for every blow, so
                 // it always shows as a critical hit.
-                apply_skill_damage(world, caster_oid, target_oid, damage, true, false, &caster_name, skill.over_hit);
+                apply_skill_damage(world, caster_oid, target_oid, damage, true, false, &caster_name, skill.over_hit, false);
             }
             SkillEffect::Lethal { full_lethal, half_lethal } => {
                 // `skill.getMagicLevel() < effected.getLevel() - 6`: silently
@@ -176,15 +176,19 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     continue;
                 }
                 // `isLethalable()`: raid bosses are immune — the same check
-                // `apply_mute_interrupt` already uses. `isHpBlocked()` (a
-                // `DamageBlock` gate) and grand-boss/door immunity aren't
-                // modeled, so they're not checked here.
+                // `apply_mute_interrupt` already uses. Grand-boss/door
+                // immunity isn't modeled, so it's not checked here.
                 let is_raid = world
                     .objects
                     .get_component::<crate::model::npc::Npc>(&target_oid)
                     .and_then(|n| n.template(world))
                     .is_some_and(|t| t.is_raid());
                 if is_raid {
+                    continue;
+                }
+                // `isHpBlocked()` (Celestial Shield, …): a landed `DamageBlock`
+                // refuses this too, now that it's modeled.
+                if crate::game_loop::abnormal::is_hp_blocked(world, target_oid) {
                     continue;
                 }
                 // `INSTANT_KILL_RESIST` is never set by anything in this
@@ -292,7 +296,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                         crate::game_loop::party::notify_party_vitals(world, caster_oid);
                     }
                 }
-                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit);
+                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false);
             }
             SkillEffect::Heal { power } => {
                 let power = *power;
@@ -388,7 +392,13 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     // damage, not healing — Java's `reduceCurrentHp` +
                     // `sendDamageMessage`, reusing the shared damage path.
                     let caster_name = caster_display_name(world, caster_oid);
-                    apply_skill_damage(world, caster_oid, target_oid, -amount, false, skill.magic_type == 1, &caster_name, false);
+                    apply_skill_damage(world, caster_oid, target_oid, -amount, false, skill.magic_type == 1, &caster_name, false, false);
+                    continue;
+                }
+                // `isHpBlocked()`: a landed `DamageBlock` refuses a positive
+                // heal too (the damage branch above already gets this for
+                // free through `apply_skill_damage`).
+                if crate::game_loop::abnormal::is_hp_blocked(world, target_oid) {
                     continue;
                 }
                 if crate::game_loop::combat::is_npc_oid(target_oid) {
@@ -508,7 +518,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     crit,
                     ss,
                 ) * energy_charges_boost;
-                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit);
+                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false);
             }
             SkillEffect::GiveItem { item_id, item_count, item_enchant_level } => {
                 give_item(world, target_oid, *item_id, *item_count, *item_enchant_level);
@@ -602,7 +612,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                             .get_component::<crate::model::Player>(&caster_oid)
                             .map(|p| p.name.clone())
                             .unwrap_or_default();
-                        apply_skill_damage(world, caster_oid, target_oid, damage, true, true, &caster_name, skill.over_hit);
+                        apply_skill_damage(world, caster_oid, target_oid, damage, true, true, &caster_name, skill.over_hit, false);
                     }
                 }
             }
@@ -694,7 +704,11 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             | SkillEffect::BlockControl
             // Noblesse Blessing: nothing at application time either — the death
             // path reads its `NOBLESS_BLESSING` flag off the landed buff.
-            | SkillEffect::NoblesseBless => {}
+            | SkillEffect::NoblesseBless
+            // DamageBlock: nothing at application time either — the damage
+            // choke point (`game_loop::combat::is_hp_blocked`) reads the
+            // `HP_BLOCK` flag off the landed buff.
+            | SkillEffect::DamageBlock { .. } => {}
             // `TargetCancel.instant` — roll `chance`, then drop the victim's
             // target and abort whatever they were doing (Java also sets the AI
             // to IDLE; the ported AI reaches the same state once the intent is
@@ -1629,6 +1643,11 @@ pub(crate) fn apply_skill_damage(
     // Passed explicitly rather than re-read, because the damage value this
     // needs only exists at the call site.
     over_hit: bool,
+    // `CreatureStatus.reduceHp`'s `isDOT` — a DoT tick (and only a DoT tick)
+    // still applies through `HP_BLOCK` (`isHpBlocked() && !(isDOT || …)`).
+    // Every instant-effect call site passes `false`; only
+    // `handle_dam_over_time_tick` passes `true`.
+    is_dot: bool,
 ) {
     record_overhit(world, caster_oid, target_oid, damage, over_hit);
     use server_packets::{sm_ids, SmParam};
@@ -1688,7 +1707,7 @@ pub(crate) fn apply_skill_damage(
     // Victim-side application: CP soak/HP/death/cast-break for players
     // (including the C1_HAS_RECEIVED message), hate + AI wake + death for
     // NPCs — the same receivers the auto-attack hits go through.
-    crate::game_loop::combat::apply_physical_damage(world, caster_oid, target_oid, damage);
+    crate::game_loop::combat::apply_physical_damage(world, caster_oid, target_oid, damage, is_dot);
 }
 
 /// Land a buff on an NPC: store it (a re-cast of the same skill replaces the
@@ -2011,7 +2030,7 @@ pub(crate) fn handle_dam_over_time_tick(
             // Java `effector.doAttack(damage, effected, skill, isDOT=true, …,
             // critical=false, …)`: no crit line; reuses the shared victim-side
             // path (CP soak / NPC hate / AI wake / death).
-            apply_skill_damage(world, caster_oid, target_oid, damage, false, skill.magic_type == 1, &caster_name, false);
+            apply_skill_damage(world, caster_oid, target_oid, damage, false, skill.magic_type == 1, &caster_name, false, true);
             // A `canKill` tick can kill outright — stop then.
             if world.objects.get_component::<Vitals>(&target_oid).is_none_or(|v| v.dead) {
                 return;
