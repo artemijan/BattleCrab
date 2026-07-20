@@ -28,11 +28,51 @@ CPU/disk-bound on decompression. Nothing is drawn that could be a bottleneck.
 | --- | --- |
 | `main.rs` | Window setup, logging, `windows_subsystem` for a console-free release build |
 | `app.rs` | egui shell — all UI, worker polling, no blocking work |
+| `theme.rs` | Palette, backdrop, frosted-glass surfaces, progress bar, buttons |
+| `assets.rs` | Embedded logo and its alpha keying |
 | `install.rs` | Worker thread: manifest → download → SHA-256 verify → unpack |
 | `progress.rs` | `Phase` messages and the counting reader driving the unpack bar |
 | `manifest.rs` | Remote `manifest.json` model |
 | `config.rs` | Persisted install path / base URL / server IP |
 | `launch.rs` | Spawning `l2.exe` |
+
+## The glass look
+
+egui has **no backdrop blur** — there is no way to sample and blur what is behind a
+widget, so real glassmorphism is not directly achievable. It is faked the way it is
+faked in any renderer without a blur pass:
+
+- The backdrop is a smooth gradient plus soft radial glows. Blur only visibly changes
+  high-frequency content; against a low-frequency background, plain translucency is
+  indistinguishable from a blurred one.
+- Panels carry a specular sheen along the top edge. That gradient, more than the
+  transparency, is what actually reads as "pane of glass".
+- A hairline light stroke gives each pane a lit rim.
+
+The window is undecorated and transparent so the rounded corners are not framed by an
+opaque OS title bar — which means `app.rs` owns the title bar: drag, minimise, close.
+
+Windows 11 could do the real thing via `DwmSetWindowAttribute` (Mica / acrylic),
+blurring the actual desktop behind the window. That needs the `windows` crate and a
+raw window handle, and cannot be tested from macOS — left as a future upgrade.
+
+The logo is bright art on solid black with no alpha channel. It is keyed at load with
+`alpha = max(r, g, b)`, the classic screen-blend trick: black becomes transparent,
+bright pixels opaque, and the cyan glow fades smoothly instead of ending at a hard
+edge. The result is premultiplied by construction, which is what egui expects.
+
+## Looking at the UI
+
+`cargo run -p launcher`, or render every state headlessly without a display:
+
+```
+cargo test -p launcher -- --ignored render_window
+# PNGs land in crates/launcher/target/ui-render/
+```
+
+That test is ignored by default because it needs a GPU adapter. It is how the layout
+was actually verified — it caught a tofu close-button glyph, an unpainted strip along
+the top edge, and a failed install animating an indeterminate "still working" bar.
 
 The UI thread never blocks. All install work happens on a `std::thread` that reports
 `Phase` snapshots over an `mpsc` channel and calls `Context::request_repaint()` to

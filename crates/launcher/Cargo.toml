@@ -11,6 +11,7 @@ directories = "6.0.0"
 eframe = "0.35.0"
 egui = "0.35.0"
 hex = "0.4.3"
+image = { version = "0.25.10", default-features = false, features = ["png"] }
 # TLS is rustls, which drags in aws-lc-rs — that needs CMake and NASM on the Windows
 # build machine. SChannel via `native-tls` would avoid both, but reqwest 0.13.4 pins
 # `native-tls ^0.2.16`, which is not published (crates.io stops at 0.2.14), so that
@@ -25,3 +26,6 @@ tar = "0.4.46"
 tracing.workspace = true
 tracing-subscriber.workspace = true
 zstd = "0.13.3"
+
+[dev-dependencies]
+egui_kittest = { version = "0.35.0", features = ["wgpu", "snapshot"] }

@@ -1,40 +1,53 @@
 //! egui application shell.
 //!
-//! Deliberately plain: this is a working skeleton, and the visual design is expected
-//! to be specified separately. What is load-bearing here is the *structure* — the UI
-//! thread never blocks, all install work lives on a worker, and every state the user
-//! can reach is reflected in [`LauncherApp::phase`].
+//! The window is undecorated and transparent so the frosted panels and rounded
+//! corners are not framed by an opaque OS title bar — which means this file also
+//! owns the title bar: dragging, minimise, and close.
+//!
+//! Structurally: the UI thread never blocks. All install work lives on a worker
+//! thread, and every state the user can reach is reflected in [`LauncherApp::phase`].
 
 use std::sync::mpsc;
 use std::thread;
 
+use egui::{Align, Color32, Layout, Pos2, Rect, Vec2, ViewportCommand};
+
+use crate::assets::Assets;
 use crate::config::Config;
 use crate::install::{self, Cancel, InstallRequest};
 use crate::launch::launch_game;
 use crate::progress::{Phase, ProgressRx, Reporter};
+use crate::theme::{self, palette};
+
+/// Native aspect ratio of the logo art (1408x768).
+const LOGO_ASPECT: f32 = 1408.0 / 768.0;
+const LOGO_WIDTH: f32 = 430.0;
+const TITLE_BAR_HEIGHT: f32 = 38.0;
 
 pub struct LauncherApp {
     config: Config,
+    assets: Assets,
     /// `None` = idle. Otherwise the most recent report from the worker.
     phase: Option<Phase>,
     rx: Option<ProgressRx>,
     cancel: Cancel,
-    /// Surfaced under the buttons; cleared on the next successful action.
+    /// Surfaced under the action button; cleared on the next successful action.
     status: Option<String>,
 }
 
 impl LauncherApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        // Slightly larger default text — the stock egui size is cramped for a
-        // consumer-facing app.
-        cc.egui_ctx.all_styles_mut(|s| {
-            for font in s.text_styles.values_mut() {
-                font.size *= 1.15;
-            }
-        });
+        Self::with_context(&cc.egui_ctx)
+    }
 
+    /// Construction from a bare [`egui::Context`], so the UI can be built by the
+    /// headless render harness — `CreationContext` cannot be constructed outside
+    /// eframe's own startup.
+    pub fn with_context(ctx: &egui::Context) -> Self {
+        theme::install(ctx);
         Self {
             config: Config::load(),
+            assets: Assets::load(ctx),
             phase: None,
             rx: None,
             cancel: Cancel::default(),
@@ -77,9 +90,6 @@ impl LauncherApp {
 
         match &phase {
             Phase::Ready => {
-                // Record the install so the next launch skips straight to Play. The
-                // version is filled in by the worker's manifest; until the update
-                // flow lands, presence is what matters.
                 self.config.installed_version = Some("installed".to_string());
                 if let Err(e) = self.config.save() {
                     tracing::warn!("could not persist config: {e:#}");
@@ -103,8 +113,8 @@ impl LauncherApp {
             .pick_folder()
         {
             self.config.install_dir = dir;
-            // A new folder is a different install; re-check whether a client is
-            // already there rather than assuming the previous state carries over.
+            // A new folder is a different install; re-check rather than assuming the
+            // previous state carries over.
             self.config.installed_version = None;
             if let Err(e) = self.config.save() {
                 tracing::warn!("could not persist config: {e:#}");
@@ -121,118 +131,226 @@ impl LauncherApp {
 }
 
 impl eframe::App for LauncherApp {
-    /// Runs before every repaint, including repaints the worker thread requests
-    /// while the window is hidden — so progress keeps advancing when minimised.
+    /// The window is transparent; the backdrop is painted by us, not cleared to a
+    /// solid colour, so the rounded corners stay see-through.
+    fn clear_color(&self, _visuals: &egui::Visuals) -> [f32; 4] {
+        [0.0, 0.0, 0.0, 0.0]
+    }
+
+    /// Runs before every repaint, including repaints the worker requests while the
+    /// window is hidden — so progress keeps advancing when minimised.
     fn logic(&mut self, _ctx: &egui::Context, _frame: &mut eframe::Frame) {
         self.poll_worker();
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-        let ctx = ui.ctx().clone();
-
-        egui::CentralPanel::default().show(ui, |ui| {
-            ui.add_space(8.0);
-            ui.heading("BattleCrab");
-            ui.label(egui::RichText::new("Lineage II Interlude Classic").weak());
-            ui.add_space(16.0);
-
-            self.install_dir_row(ui);
-            ui.add_space(12.0);
-            self.progress_section(ui);
-            ui.add_space(12.0);
-            self.action_row(ui, &ctx);
-
-            if let Some(status) = &self.status {
-                ui.add_space(8.0);
-                ui.label(egui::RichText::new(status).weak());
-            }
-        });
+        self.draw(ui);
     }
 }
 
 impl LauncherApp {
-    fn install_dir_row(&mut self, ui: &mut egui::Ui) {
-        ui.horizontal(|ui| {
-            ui.label("Install folder:");
-            // Truncating keeps a deep path from stretching the window.
-            let shown = self.config.install_dir.display().to_string();
-            ui.add(
-                egui::Label::new(egui::RichText::new(shown).monospace())
-                    .truncate(),
-            );
-        });
-        ui.horizontal(|ui| {
-            // Changing the target mid-download would strand a partial install.
-            if ui
-                .add_enabled(!self.busy(), egui::Button::new("Change folder…"))
-                .clicked()
-            {
-                self.pick_install_dir();
+    /// The whole composition. Separate from the `eframe::App` impl so the headless
+    /// render test can drive it without an `eframe::Frame`.
+    pub fn draw(&mut self, ui: &mut egui::Ui) {
+        let ctx = ui.ctx().clone();
+        // The whole window, not `ui.max_rect()` — that is inset by the root margin,
+        // which would leave an unpainted strip along the top edge showing through to
+        // the transparent background.
+        let screen = ctx.viewport_rect();
+        theme::paint_backdrop(ui.painter(), screen);
+
+        self.title_bar(ui, &ctx, screen);
+
+        egui::Frame::NONE
+            .inner_margin(egui::Margin::symmetric(34, 8))
+            .show(ui, |ui| {
+                ui.vertical_centered(|ui| self.logo(ui));
+                ui.add_space(6.0);
+                theme::glass_group(ui, theme::PANEL_RADIUS, |ui| self.body(ui, &ctx));
+            });
+    }
+
+    /// Forces a state for the render test, which has no worker thread.
+    #[cfg(test)]
+    pub fn set_phase_for_test(&mut self, phase: Option<Phase>) {
+        self.phase = phase;
+    }
+
+    /// Undecorated windows have no OS title bar, so this provides the drag region
+    /// and the window buttons.
+    fn title_bar(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, screen: Rect) {
+        let bar = Rect::from_min_size(screen.min, Vec2::new(screen.width(), TITLE_BAR_HEIGHT));
+        let response = ui.interact(
+            bar,
+            ui.id().with("title_bar"),
+            egui::Sense::click_and_drag(),
+        );
+        if response.drag_started() {
+            ctx.send_viewport_cmd(ViewportCommand::StartDrag);
+        }
+
+        let mut bar_ui = ui.new_child(
+            egui::UiBuilder::new()
+                .max_rect(bar.shrink2(Vec2::new(12.0, 6.0)))
+                .layout(Layout::right_to_left(Align::Center)),
+        );
+        // `×` (U+00D7) rather than `✕` (U+2715): the latter is not in egui's default
+        // font and renders as a tofu box.
+        if window_button(&mut bar_ui, "×", palette::DANGER).clicked() {
+            ctx.send_viewport_cmd(ViewportCommand::Close);
+        }
+        if window_button(&mut bar_ui, "—", palette::TEXT_WEAK).clicked() {
+            ctx.send_viewport_cmd(ViewportCommand::Minimized(true));
+        }
+    }
+
+    fn logo(&mut self, ui: &mut egui::Ui) {
+        let size = Vec2::new(LOGO_WIDTH, LOGO_WIDTH / LOGO_ASPECT);
+        let (rect, _) = ui.allocate_exact_size(size, egui::Sense::hover());
+        ui.painter().image(
+            self.assets.logo.id(),
+            rect,
+            Rect::from_min_max(Pos2::ZERO, Pos2::new(1.0, 1.0)),
+            Color32::WHITE,
+        );
+    }
+
+    fn body(&mut self, ui: &mut egui::Ui, ctx: &egui::Context) {
+        self.install_dir_row(ui);
+        ui.add_space(12.0);
+        self.progress_section(ui);
+        ui.add_space(14.0);
+
+        ui.vertical_centered(|ui| {
+            self.action_row(ui, ctx);
+            if let Some(status) = &self.status {
+                ui.add_space(8.0);
+                let colour = if matches!(self.phase, Some(Phase::Failed(_))) {
+                    palette::DANGER
+                } else {
+                    palette::TEXT_WEAK
+                };
+                ui.label(egui::RichText::new(status).size(13.0).color(colour));
             }
         });
+    }
+
+    fn install_dir_row(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            ui.label(
+                egui::RichText::new("INSTALL FOLDER")
+                    .size(11.0)
+                    .color(palette::TEXT_WEAK),
+            );
+            // Right-aligned so the button keeps its position regardless of path length.
+            ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                // Changing the target mid-download would strand a partial install.
+                if theme::ghost_button(ui, "Change…", !self.busy()).clicked() {
+                    self.pick_install_dir();
+                }
+            });
+        });
+        ui.add_space(2.0);
+        ui.add(
+            egui::Label::new(
+                egui::RichText::new(self.config.install_dir.display().to_string())
+                    .monospace()
+                    .size(13.0),
+            )
+            .truncate(),
+        );
     }
 
     fn progress_section(&mut self, ui: &mut egui::Ui) {
         let Some(phase) = &self.phase else {
+            // Keep the layout from jumping when an install starts.
+            ui.add_space(theme::progress_section_height());
             return;
         };
 
-        let caption = match phase {
-            Phase::CheckingManifest => "Checking for updates…".to_string(),
-            Phase::Downloading { done, total } => match total {
-                Some(t) => format!("Downloading — {} / {}", human(*done), human(*t)),
-                None => format!("Downloading — {}", human(*done)),
-            },
-            Phase::Extracting { done, total } => {
-                format!("Unpacking — {} / {}", human(*done), human(*total))
-            }
-            Phase::Ready => "Ready to play".to_string(),
-            Phase::Failed(_) => "Failed".to_string(),
+        let (caption, detail) = match phase {
+            Phase::CheckingManifest => ("Checking for updates".to_string(), String::new()),
+            Phase::Downloading { done, total } => (
+                "Downloading".to_string(),
+                match total {
+                    Some(t) => format!("{} / {}", human(*done), human(*t)),
+                    None => human(*done),
+                },
+            ),
+            Phase::Extracting { done, total } => (
+                "Unpacking".to_string(),
+                format!("{} / {}", human(*done), human(*total)),
+            ),
+            Phase::Ready => ("Ready to play".to_string(), String::new()),
+            Phase::Failed(_) => ("Failed".to_string(), String::new()),
         };
 
-        ui.label(caption);
-        let mut bar = egui::ProgressBar::new(phase.fraction().unwrap_or(0.0)).desired_width(f32::INFINITY);
-        if phase.fraction().is_none() && self.busy() {
-            // Indeterminate: a server with no Content-Length, or the manifest fetch.
-            bar = bar.animate(true);
-        }
-        ui.add(bar);
+        ui.horizontal(|ui| {
+            ui.label(egui::RichText::new(caption).size(13.0));
+            ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                ui.label(
+                    egui::RichText::new(detail)
+                        .size(13.0)
+                        .monospace()
+                        .color(palette::TEXT_WEAK),
+                );
+            });
+        });
+        ui.add_space(6.0);
+        // A failed install must not animate — an indeterminate sweep reads as "still
+        // working", which is the opposite of what happened. Show an empty track.
+        let fraction = match phase {
+            Phase::Failed(_) => Some(0.0),
+            _ => phase.fraction(),
+        };
+        theme::glass_progress(ui, fraction);
     }
 
     fn action_row(&mut self, ui: &mut egui::Ui, ctx: &egui::Context) {
-        ui.horizontal(|ui| {
-            if self.busy() {
-                if ui.button("Cancel").clicked() {
-                    self.cancel.cancel();
-                }
-                return;
+        if self.busy() {
+            if theme::ghost_button(ui, "Cancel", true).clicked() {
+                self.cancel.cancel();
             }
+            return;
+        }
 
-            if self.config.is_installed() {
-                if ui
-                    .add(egui::Button::new(egui::RichText::new("Play").strong()))
-                    .clicked()
-                {
-                    self.play();
-                }
-                if ui.button("Reinstall").clicked() {
-                    self.start_install(ctx);
-                }
-            } else {
-                let label = if matches!(self.phase, Some(Phase::Failed(_))) {
-                    "Retry"
-                } else {
-                    "Install"
-                };
-                if ui
-                    .add(egui::Button::new(egui::RichText::new(label).strong()))
-                    .clicked()
-                {
-                    self.start_install(ctx);
-                }
+        if self.config.is_installed() {
+            if theme::primary_button(ui, "Play").clicked() {
+                self.play();
             }
-        });
+            ui.add_space(6.0);
+            if theme::ghost_button(ui, "Reinstall", true).clicked() {
+                self.start_install(ctx);
+            }
+        } else {
+            let label = if matches!(self.phase, Some(Phase::Failed(_))) {
+                "Retry"
+            } else {
+                "Install"
+            };
+            if theme::primary_button(ui, label).clicked() {
+                self.start_install(ctx);
+            }
+        }
     }
+}
+
+/// Small square title-bar button. Tinted on hover only, so the bar stays quiet.
+fn window_button(ui: &mut egui::Ui, glyph: &str, hover_colour: Color32) -> egui::Response {
+    let response = ui.add(
+        egui::Button::new(egui::RichText::new(glyph).size(15.0))
+            .fill(Color32::TRANSPARENT)
+            .stroke(egui::Stroke::NONE)
+            .min_size(Vec2::new(26.0, 26.0)),
+    );
+    if response.hovered() {
+        ui.painter().rect_filled(
+            response.rect,
+            egui::CornerRadius::same(6),
+            hover_colour.gamma_multiply(0.22),
+        );
+    }
+    response
 }
 
 /// Byte count in the units a player expects to see.
@@ -265,9 +383,82 @@ mod tests {
     #[test]
     fn fraction_is_none_when_total_unknown() {
         assert!(Phase::Downloading { done: 10, total: None }.fraction().is_none());
+        assert_eq!(Phase::Extracting { done: 5, total: 10 }.fraction(), Some(0.5));
+    }
+
+    /// Rasterizes the full window headlessly so the composition can actually be
+    /// inspected — a theme that compiles is not a theme that looks right.
+    ///
+    /// Ignored by default: it needs a GPU adapter, which CI may not have. Run with
+    /// `cargo test -p launcher -- --ignored render_window` and look at the PNGs in
+    /// `target/ui-render/`.
+    #[test]
+    #[ignore = "requires a GPU adapter; run manually to inspect the UI"]
+    fn render_window() {
+        let out = std::path::Path::new("target/ui-render");
+        std::fs::create_dir_all(out).unwrap();
+
+        for (name, phase) in [
+            ("idle", None),
+            (
+                "downloading",
+                Some(Phase::Downloading {
+                    done: 3_400_000_000,
+                    total: Some(9_300_000_000),
+                }),
+            ),
+            (
+                "unpacking",
+                Some(Phase::Extracting { done: 7_000_000_000, total: 9_300_000_000 }),
+            ),
+            ("failed", Some(Phase::Failed("Checksum mismatch".into()))),
+        ] {
+            let mut app: Option<LauncherApp> = None;
+            let mut harness = egui_kittest::Harness::builder()
+                .with_size(egui::vec2(900.0, 520.0))
+                .renderer(egui_kittest::wgpu::WgpuTestRenderer::default())
+                .build_ui(|ui| {
+                    let app = app.get_or_insert_with(|| LauncherApp::with_context(ui.ctx()));
+                    app.set_phase_for_test(phase.clone());
+                    app.draw(ui);
+                });
+
+            // `run()` waits for repaints to settle, which never happens while the
+            // indeterminate bar is animating. A fixed number of steps is enough to
+            // lay out and paint.
+            harness.run_steps(3);
+            let image = harness.render().expect("headless render failed");
+            image.save(out.join(format!("{name}.png"))).unwrap();
+        }
+    }
+
+    /// The logo is keyed to transparency at load; a regression here would put a
+    /// black box over the backdrop.
+    #[test]
+    fn logo_black_is_keyed_transparent() {
+        let img = crate::assets::decode_logo_for_test();
+        let [w, h] = img.size;
+
+        // Corners of the source art are solid black.
         assert_eq!(
-            Phase::Extracting { done: 5, total: 10 }.fraction(),
-            Some(0.5)
+            img.pixels[0].a(),
+            0,
+            "top-left pixel should be fully transparent"
         );
+
+        // Note the centre must be indexed as row-major (`y * w + x`) — `len / 2`
+        // lands on column 0 of the middle row, which is background, not artwork.
+        let centre = img.pixels[(h / 2) * w + w / 2];
+        assert!(
+            centre.a() > 0,
+            "centre of the logo should be visible, got alpha {}",
+            centre.a()
+        );
+
+        // Guard against the key eating the art wholesale: a meaningful share of the
+        // image must survive.
+        let visible = img.pixels.iter().filter(|p| p.a() > 16).count();
+        let ratio = visible as f32 / img.pixels.len() as f32;
+        assert!(ratio > 0.10, "only {:.1}% of the logo survived keying", ratio * 100.0);
     }
 }
