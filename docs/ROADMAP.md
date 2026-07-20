@@ -630,6 +630,24 @@ charge-decay task; `GetMomentum` (dead code in this datapack — nothing sets
 the charge bonus into `PhysicalSoulAttack`/`MagicalSoulAttack`/`SoulBlow`'s
 existing `×1` stand-ins (their own TODOs, follow-on work).
 
+🚧 **Lethal (2026-07-20)** — plan [PLAN_G19_LETHAL.md](PLAN_G19_LETHAL.md).
+`AttackTrait` set aside a third time — needs the `TraitType` system, a
+cross-cutting project (attacker trait map + wiring trait/weakness bonuses
+into every physical damage formula), not a slice. `Lethal` (9 learnable) was
+already flagged in `SkillEffect::Blow`'s own doc comment as a TODO — every
+learnable instance pairs it with an already-ported damage effect (Backstab
+30, Lethal Blow 344, Deadly Blow 263, Critical Blow 409, Lethal Shot 343,
+Turn/Banish Undead/Seraph 1400/405/450), so those skills' damage landed but
+the bonus instant-kill/half-kill chance they're *named* for never rolled.
+Level gate (`skill.magicLevel < target.level - 6`) and raid-boss immunity
+(reusing `Mute`'s own `is_raid()` check) ported; full-lethal/half-lethal
+rolls set a player's CP (and HP, on a full lethal) to 1, or halve a monster's
+HP, with `chanceMultiplier` at `1.0` (no trait/attribute math anywhere on
+this port). `INSTANT_KILL_RESIST` isn't rolled at all — like `MAX_MOMENTUM`
+before it, nothing in this datapack ever sets it, so Java's own roll against
+it always loses. Deferred: `DamageBlock`'s `BLOCK_HP` gate,
+`calcCounterAttack`'s reflect, `GrandBoss`/`Door` lethal-immunity.
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued

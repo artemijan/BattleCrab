@@ -168,6 +168,83 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 // it always shows as a critical hit.
                 apply_skill_damage(world, caster_oid, target_oid, damage, true, false, &caster_name, skill.over_hit);
             }
+            SkillEffect::Lethal { full_lethal, half_lethal } => {
+                // `skill.getMagicLevel() < effected.getLevel() - 6`: silently
+                // refused against a target too far above the skill's level.
+                let target_level = creature_level(world, target_oid);
+                if skill.magic_level < target_level - 6 {
+                    continue;
+                }
+                // `isLethalable()`: raid bosses are immune — the same check
+                // `apply_mute_interrupt` already uses. `isHpBlocked()` (a
+                // `DamageBlock` gate) and grand-boss/door immunity aren't
+                // modeled, so they're not checked here.
+                let is_raid = world
+                    .objects
+                    .get_component::<crate::model::npc::Npc>(&target_oid)
+                    .and_then(|n| n.template(world))
+                    .is_some_and(|t| t.is_raid());
+                if is_raid {
+                    continue;
+                }
+                // `INSTANT_KILL_RESIST` is never set by anything in this
+                // datapack (like `MAX_MOMENTUM`), so Java's resist roll would
+                // always lose against a 0 stat — not rolled here at all.
+                // None of the four outcome SystemMessages below take
+                // parameters (`"Lethal Strike!"`, `"Half-Kill!"`, …).
+                let caster_client = client_for_player(world, caster_oid);
+                let is_player_target = world.objects.get_component::<crate::model::Player>(&target_oid).is_some();
+                if world.roll(100) < (*full_lethal) as i32 {
+                    if is_player_target {
+                        if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&target_oid) {
+                            v.cur_cp = 1.0;
+                        }
+                        if let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) {
+                            v.cur_hp = 1.0;
+                        }
+                        if let Some(client_id) = client_for_player(world, target_oid) {
+                            if let Some(cs) = world.clients.get(&client_id) {
+                                cs.send(server_packets::system_message_with(sm_ids::LETHAL_STRIKE, &[]));
+                            }
+                        }
+                    } else if crate::game_loop::combat::is_npc_oid(target_oid) {
+                        if let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) {
+                            v.cur_hp = 1.0;
+                        }
+                    }
+                    broadcast_vitals(world, target_oid);
+                    if let Some(client_id) = caster_client {
+                        if let Some(cs) = world.clients.get(&client_id) {
+                            cs.send(server_packets::system_message_with(sm_ids::HIT_WITH_LETHAL_STRIKE, &[]));
+                        }
+                    }
+                } else if world.roll(100) < (*half_lethal) as i32 {
+                    if is_player_target {
+                        if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&target_oid) {
+                            v.cur_cp = 1.0;
+                        }
+                        if let Some(client_id) = client_for_player(world, target_oid) {
+                            if let Some(cs) = world.clients.get(&client_id) {
+                                cs.send(server_packets::system_message_with(sm_ids::HALF_KILL, &[]));
+                                cs.send(server_packets::system_message_with(
+                                    sm_ids::YOUR_CP_WAS_DRAINED_BECAUSE_YOU_WERE_HIT_WITH_A_HALF_KILL_SKILL,
+                                    &[],
+                                ));
+                            }
+                        }
+                    } else if crate::game_loop::combat::is_npc_oid(target_oid) {
+                        if let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) {
+                            v.cur_hp *= 0.5;
+                        }
+                    }
+                    broadcast_vitals(world, target_oid);
+                    if let Some(client_id) = caster_client {
+                        if let Some(cs) = world.clients.get(&client_id) {
+                            cs.send(server_packets::system_message_with(sm_ids::HALF_KILL, &[]));
+                        }
+                    }
+                }
+            }
             SkillEffect::HpDrain { power, percentage } => {
                 let power = *power;
                 let (m_atk, caster_name) = {

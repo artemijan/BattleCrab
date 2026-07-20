@@ -2819,3 +2819,97 @@ fn energy_attack_spends_charges_for_bonus_damage() {
         base * 2.0
     );
 }
+
+/// G19 `Lethal` effect: Lethal Blow (344, real dist data — pairs `FatalBlow`
+/// with `fullLethal` 0 / `halfLethal` 15) sets the target's CP to 1 on a
+/// landed half-kill — previously dropped, so Backstab/Lethal Blow/Deadly
+/// Blow/Critical Blow/Lethal Shot dealt their (already-ported) damage but
+/// never rolled the bonus kill chance. Force-targets a second player (`ctrl`)
+/// so the assertion (CP → 1) is decoupled from FatalBlow's own HP damage,
+/// which lands first in the same effect list. Every `world.roll` is flooded
+/// with `0` — not just the half-kill roll, since `FatalBlow`'s own land/crit
+/// rolls (and the spawned NPC's periodic AI think tick, present in other
+/// tests in this file) also draw from the same queue ahead of it.
+#[test]
+fn lethal_half_kill_sets_player_cp_to_1() {
+    let (mut world, ..) = test_world();
+    world.data = crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+
+    let mut a_rx = ingame_player_access(&mut world, 1, 5601, 0);
+    let mut b_rx = ingame_player_access(&mut world, 2, 5602, 0);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+    world.objects.get_component_mut::<crate::model::components::Position>(&5602).unwrap().x = 30;
+    world.objects.get_component_mut::<SkillBook>(&5601).unwrap().0.insert(344, 1);
+    world.objects.get_component_mut::<Vitals>(&5601).unwrap().cur_mp = 200.0;
+    // A level-1 default has a tiny naked CP pool (possibly already ≤ 1) —
+    // give the target real headroom so "drained to 1" is an observable drop.
+    {
+        let pv = world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&5602).unwrap();
+        pv.max_cp = 50;
+        pv.cur_cp = 50.0;
+    }
+
+    handle_action(&mut world, 1, &action_body(5602, 0));
+    drain(&mut a_rx);
+    world.forced_rolls.extend(std::iter::repeat(0).take(30));
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(344, true)); // ctrl: force a clean player target
+    advance_world(&mut world, 30); // hitTime 1080 ms
+
+    assert_eq!(
+        world.objects.get_component::<crate::model::components::PlayerVitals>(&5602).unwrap().cur_cp,
+        1.0,
+        "half-kill drains CP to 1"
+    );
+    let b_packets = drain(&mut b_rx);
+    assert!(
+        has_system_message(&b_packets, server_packets::sm_ids::HALF_KILL)
+            && has_system_message(&b_packets, server_packets::sm_ids::YOUR_CP_WAS_DRAINED_BECAUSE_YOU_WERE_HIT_WITH_A_HALF_KILL_SKILL),
+        "target sees both Half-Kill SystemMessages"
+    );
+}
+
+/// The other half of `Lethal`: raid bosses are immune (`isLethalable()`),
+/// mirroring the same raid-immunity check `Mute`'s cast-interrupt already
+/// has. A real dist raid boss (3404 "Tracker Captain Sharuk", level 23 — well
+/// under Lethal Blow's magicLevel 76, so the separate level gate doesn't
+/// interfere) takes `FatalBlow`'s damage but keeps its Force/CP-equivalent
+/// untouched: HP drops from the blow, but never gets forced to 1 or halved
+/// again on top of that by a landed Lethal.
+#[test]
+fn lethal_spares_a_raid_boss() {
+    let (mut world, ..) = test_world();
+    world.data = crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+
+    let mut a_rx = ingame_player_access(&mut world, 1, 5611, 0);
+    drain(&mut a_rx);
+    world.objects.get_component_mut::<SkillBook>(&5611).unwrap().0.insert(344, 1);
+    world.objects.get_component_mut::<Vitals>(&5611).unwrap().cur_mp = 200.0;
+
+    let npc_oid = NPC_OID + 10;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 3404, 30, 0, 0, 1_000_000, 100);
+    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(3404).unwrap(), &world.data.stat_bonus);
+    world.objects.add_components(&npc_oid, cs);
+    assert!(
+        world.data.npc_data.get(3404).unwrap().is_raid(),
+        "sanity: 3404 really is a RaidBoss template"
+    );
+    let hp_before = pvit(&world, npc_oid).cur_hp;
+
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    drain(&mut a_rx);
+    world.forced_rolls.extend(std::iter::repeat(0).take(30));
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(344, false));
+    advance_world(&mut world, 30); // hitTime 1080 ms
+
+    let hp_after = pvit(&world, npc_oid).cur_hp;
+    assert!(hp_after < hp_before, "sanity: FatalBlow's own damage still landed");
+    assert!(
+        hp_after > hp_before * 0.4,
+        "a landed Lethal half-kill would have halved *whatever HP FatalBlow left* on top \
+         of the blow's own damage — well below 50% of the pre-cast HP; immunity keeps it \
+         from ever compounding like that: {hp_before} -> {hp_after}"
+    );
+}
