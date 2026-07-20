@@ -74,6 +74,8 @@ pub const RELATION_CHANGED: u8 = 0xCE;
 pub const SOCIAL_ACTION: u8 = 0x27;
 pub const CHANGE_MOVE_TYPE: u8 = 0x28;
 pub const CHANGE_WAIT_TYPE: u8 = 0x29;
+/// `PetSummonInfo` — what a summon's **owner** sees (others get `SummonInfo`).
+pub const PET_INFO: u8 = 0xB2;
 pub const ATTACK: u8 = 0x33;
 pub const MOVE_TO_PAWN: u8 = 0x72;
 pub const SHORT_CUT_REGISTER: u8 = 0x44;

@@ -543,6 +543,29 @@ impl StatModifiers {
     }
 }
 
+/// A summoned servitor's link to its owner — Java `Summon._owner` plus the
+/// `Servitor` bookkeeping the `Summon` effect sets up.
+///
+/// Lives on the servitor NPC entity. The owner side is [`ServitorOf`]'s inverse
+/// lookup (`Player.getServitors()`), which this port does by scanning rather
+/// than caching a second index: a player has at most one servitor on this
+/// dist, so there is nothing to iterate.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct ServitorOf {
+    pub owner_object_id: i32,
+    /// Java `Servitor.setReferenceSkill` — the skill that summoned it, used to
+    /// re-summon on login and to identify the servitor's own skill set.
+    pub reference_skill: i32,
+    /// Absolute tick the servitor expires at (Java's `lifeTime`, in seconds in
+    /// the XML). `u64::MAX` for the `lifeTime <= 0` case, which Java maps to
+    /// `Integer.MAX_VALUE` with the comment "Classic hack. Resummon upon
+    /// entering game."
+    pub expires_at_tick: u64,
+    /// `lifeTime` as declared, for the `PetInfo` fed/max-fed pair (Java sends
+    /// `getLifeTimeRemaining()` / `getLifeTime()` there for a servitor).
+    pub life_time_secs: i32,
+}
+
 /// Panel shortcuts (Java `Player._shortCuts`), keyed by
 /// `slot + page * 12` — a `BTreeMap` so `ShortCutInit` order is stable.
 /// Player-only; registry logic in `model/shortcut.rs`.

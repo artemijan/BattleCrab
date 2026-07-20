@@ -47,6 +47,7 @@ mod ranged;
 mod reco;
 pub(crate) mod regen;
 mod shop;
+mod servitor;
 mod shortcuts;
 mod siege;
 mod skills;
