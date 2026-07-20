@@ -658,6 +658,9 @@ pub enum RequestKind {
     /// `RequestJoinPledge` packet) — only 0 (main pledge) is accepted until
     /// sub-units land (G18 slice 6).
     ClanInvite { clan_id: i32, pledge_type: i32 },
+    /// An `AskJoinAlly` is on the target clan leader's screen; accepting puts
+    /// their whole clan into `ally_id`'s alliance.
+    AllyInvite { ally_id: i32 },
 }
 
 /// The one outstanding transaction-request slot — **present only while a

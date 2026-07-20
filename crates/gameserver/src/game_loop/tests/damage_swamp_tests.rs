@@ -162,6 +162,10 @@ fn a_defender_is_spared_by_its_own_castles_trap() {
             dissolving_expiry_time: 0,
             rank_privs: Default::default(),
             new_leader_id: 0,
+            ally_id: 0,
+            ally_name: String::new(),
+            ally_penalty_expiry_time: 0,
+            ally_penalty_type: 0,
         },
     );
     let before = hp(&world);

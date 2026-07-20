@@ -188,6 +188,14 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_SURRENDER_PLEDGE_WAR => {
             super::clans::handle_request_surrender_pledge_war(world, client_id, body)
         }
+        cop::REQUEST_ALLY_INFO => super::clans::handle_request_ally_info(world, client_id),
+        cop::REQUEST_JOIN_ALLY => super::clans::handle_request_join_ally(world, client_id, body),
+        cop::REQUEST_ANSWER_JOIN_ALLY => {
+            super::clans::handle_request_answer_join_ally(world, client_id, body)
+        }
+        cop::ALLY_LEAVE => super::clans::handle_ally_leave(world, client_id),
+        cop::ALLY_DISMISS => super::clans::handle_ally_dismiss(world, client_id, body),
+        cop::REQUEST_DISMISS_ALLY => super::clans::handle_request_dismiss_ally(world, client_id),
         cop::REQUEST_JOIN_PARTY => handle_request_join_party(world, client_id, body),
         cop::REQUEST_ANSWER_JOIN_PARTY => handle_request_answer_join_party(world, client_id, body),
         cop::REQUEST_WITH_DRAWAL_PARTY => handle_request_withdrawal_party(world, client_id),

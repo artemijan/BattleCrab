@@ -81,6 +81,12 @@ pub mod opcodes {
     pub const REQUEST_PLEDGE_INFO: u8 = 0x65;
     pub const REQUEST_PLEDGE_POWER: u8 = 0xCC;
     pub const REQUEST_START_PLEDGE_WAR: u8 = 0x03;
+    pub const REQUEST_ALLY_INFO: u8 = 0x2E;
+    pub const REQUEST_JOIN_ALLY: u8 = 0x8C;
+    pub const REQUEST_ANSWER_JOIN_ALLY: u8 = 0x8D;
+    pub const ALLY_LEAVE: u8 = 0x8E;
+    pub const ALLY_DISMISS: u8 = 0x8F;
+    pub const REQUEST_DISMISS_ALLY: u8 = 0x90;
     pub const REQUEST_STOP_PLEDGE_WAR: u8 = 0x05;
     pub const REQUEST_SURRENDER_PLEDGE_WAR: u8 = 0x07;
     pub const REQUEST_BUY_ITEM: u8 = 0x40;

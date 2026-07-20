@@ -148,6 +148,10 @@ fn clan_roster_notifications_and_chat() {
             dissolving_expiry_time: 0,
             rank_privs: Default::default(),
             new_leader_id: 0,
+            ally_id: 0,
+            ally_name: String::new(),
+            ally_penalty_expiry_time: 0,
+            ally_penalty_type: 0,
         },
     );
     for oid in [3001, 3002] {
@@ -205,7 +209,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
     // A level-1 clan: 3001 leader, 3002 plain member (no privileges).
     let clan_id = 0x7000_0001;
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new() };
-    world.clans.insert(clan_id, Clan { id: clan_id, name: "WhClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0 });
+    world.clans.insert(clan_id, Clan { id: clan_id, name: "WhClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 });
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
     }
@@ -259,6 +263,10 @@ fn pledge_class_table_matches_calculate_pledge_class() {
         dissolving_expiry_time: 0,
         rank_privs: Default::default(),
         new_leader_id: 0,
+        ally_id: 0,
+        ally_name: String::new(),
+        ally_penalty_expiry_time: 0,
+        ally_penalty_type: 0,
     };
     // (leader, member) expected pledge class per clan level.
     for (level, leader, member) in [
@@ -322,7 +330,7 @@ fn clan_advent_aura_tracks_leader_online_state() {
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new() };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "AdventClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0 },
+        Clan { id: clan_id, name: "AdventClan".into(), leader_id: 3001, level: 1, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
     );
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
@@ -376,7 +384,7 @@ fn give_clan_skills_grants_gates_and_persists() {
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new() };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0 },
+        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
     );
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
@@ -451,7 +459,7 @@ fn give_clan_skills_purges_residence_and_reapplies() {
     skills.insert(590, 1);
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "ResClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0 },
+        Clan { id: clan_id, name: "ResClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
     );
     world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
     world.objects.add_components(&3001, ClanSkills(std::collections::HashMap::from([(590, 1)])));
@@ -615,7 +623,7 @@ fn clan_skills_move_max_hp_mp_cp() {
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new() };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "VitalClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0 },
+        Clan { id: clan_id, name: "VitalClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
     );
     world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
 
@@ -648,7 +656,7 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 1, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new() };
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "SiegeClan".into(), leader_id: 3001, level: 4, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0 },
+        Clan { id: clan_id, name: "SiegeClan".into(), leader_id: 3001, level: 4, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
     );
     for oid in [3001, 3002] {
         world.objects.get_component_mut::<Player>(&oid).unwrap().clan_id = clan_id;
@@ -702,7 +710,7 @@ fn clan_skills_reapply_on_member_login() {
     skills.insert(370, 1);
     world.clans.insert(
         clan_id,
-        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0 },
+        Clan { id: clan_id, name: "SkillClan".into(), leader_id: 3001, level: 8, reputation_score: 0, castle_id: 0, members: vec![cm(3001)], skills, warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 },
     );
     world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
 
@@ -732,7 +740,7 @@ fn clan_entry_queries() {
 
     let clan_id = 0x7000_0002;
     let cm = |id: i32| ClanMember { char_id: id, name: format!("P{id}"), level: 40, class_id: 0, sex: 0, race: 0, power_grade: 5, title: String::new() };
-    world.clans.insert(clan_id, Clan { id: clan_id, name: "Recruiters".into(), leader_id: 3001, level: 3, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0 });
+    world.clans.insert(clan_id, Clan { id: clan_id, name: "Recruiters".into(), leader_id: 3001, level: 3, reputation_score: 0, castle_id: 0, members: vec![cm(3001), cm(3002)], skills: Default::default(), warehouse: Default::default(), char_penalty_expiry_time: 0, dissolving_expiry_time: 0, rank_privs: Default::default(), new_leader_id: 0, ally_id: 0, ally_name: String::new(), ally_penalty_expiry_time: 0, ally_penalty_type: 0 });
 
     // ExPledgeRecruitApplyInfo: status DEFAULT (0) — nothing is registered.
     super::clans::handle_request_pledge_recruit_apply_info(&world, 1);
@@ -831,6 +839,10 @@ fn install_clan(world: &mut World, clan_id: i32, member_oids: &[i32]) {
             dissolving_expiry_time: 0,
             rank_privs: Default::default(),
             new_leader_id: 0,
+            ally_id: 0,
+            ally_name: String::new(),
+            ally_penalty_expiry_time: 0,
+            ally_penalty_type: 0,
         },
     );
     for (i, &oid) in member_oids.iter().enumerate() {
@@ -1666,4 +1678,187 @@ fn clan_war_stop_surrender_timeout() {
     world.clan_wars.push(mutual_war());
     clans::handle_clan_war_timeout(&mut world, 5000, 5001);
     assert_eq!(clans::war_between(&world, 5000, 5001).unwrap().state, crate::model::clan::ClanWarState::Mutual);
+}
+
+// --- G18 slice 5: alliances ---
+
+fn oid_body(oid: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(oid);
+    w.into_bytes()
+}
+
+/// Alliance creation + the invite/accept flow: guards, the AskJoinAlly dialog,
+/// the target clan folded in (members' ally id synced), the 3-clan cap, the
+/// at-war reject, the ally window, and the same-ally war/dissolve interlocks.
+#[test]
+fn ally_create_join_and_interlocks() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30026, "VillageMaster", 5, 100, 0, 0);
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut b_rx = ingame_player(&mut world, 2, 3003, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001]);
+    install_clan(&mut world, 5001, &[3003]);
+    drain_db(&mut db_rx);
+
+    let bypass = |world: &mut World, client: u32, cmd: &str| {
+        handle_request_bypass_to_server(world, client, &bypass_body(&format!("npc_{NPC_OID}_{cmd}")));
+    };
+
+    // Clan level < 5.
+    bypass(&mut world, 1, "create_ally GoldenPact");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::TO_CREATE_AN_ALLIANCE_YOUR_CLAN_MUST_BE_LEVEL_5_OR_HIGHER));
+    world.clans.get_mut(&5000).unwrap().level = 5;
+    world.clans.get_mut(&5001).unwrap().level = 5;
+
+    // Bad name.
+    bypass(&mut world, 1, "create_ally Bad Name");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::INCORRECT_ALLIANCE_NAME));
+
+    // Success: the clan becomes its own alliance.
+    bypass(&mut world, 1, "create_ally GoldenPact");
+    let clan = &world.clans[&5000];
+    assert_eq!((clan.ally_id, clan.ally_name.as_str()), (5000, "GoldenPact"));
+    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().ally_id, 5000, "leader's ally id synced");
+    assert!(drain_db(&mut db_rx).iter().any(|c| matches!(c, db::DbCommand::UpdateClanAlly { clan_id: 5000, ally_id: 5000, .. })));
+    drain(&mut a_rx);
+
+    // A second clan cannot reuse the ally name.
+    world.clans.get_mut(&5001).unwrap().level = 5;
+    bypass(&mut world, 2, "create_ally GoldenPact");
+    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::THAT_ALLIANCE_NAME_ALREADY_EXISTS));
+
+    // At war → no invite.
+    world.clan_wars.push(crate::model::clan::ClanWar {
+        attacker_id: 5000,
+        attacked_id: 5001,
+        state: crate::model::clan::ClanWarState::Mutual,
+        winner_id: 0,
+        start_time: 1,
+        end_time: 0,
+        attacker_kills: 0,
+        attacked_kills: 0,
+    });
+    clans::handle_request_join_ally(&mut world, 1, &oid_body(3003));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::YOU_MAY_NOT_ALLY_WITH_A_CLAN_YOU_ARE_AT_WAR_WITH));
+    world.clan_wars.clear();
+
+    // Invite → dialog; decline → both notified.
+    clans::handle_request_join_ally(&mut world, 1, &oid_body(3003));
+    let b_pkts = drain(&mut b_rx);
+    assert!(b_pkts.iter().any(|p| p[0] == server_packets::opcodes::ASK_JOIN_ALLIANCE));
+    assert!(sm_ids_of(&b_pkts).contains(&server_packets::sm_ids::S1_LEADER_S2_HAS_REQUESTED_AN_ALLIANCE));
+    clans::handle_request_answer_join_ally(&mut world, 2, &answer_body(0));
+    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::NO_RESPONSE_YOUR_ENTRANCE_TO_THE_ALLIANCE_HAS_BEEN_CANCELLED));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::NO_RESPONSE_INVITATION_TO_JOIN_AN_ALLIANCE_HAS_BEEN_CANCELLED));
+
+    // Accept: the whole clan joins.
+    clans::handle_request_join_ally(&mut world, 1, &oid_body(3003));
+    drain(&mut b_rx);
+    clans::handle_request_answer_join_ally(&mut world, 2, &answer_body(1));
+    assert_eq!(world.clans[&5001].ally_id, 5000);
+    assert_eq!(world.clans[&5001].ally_name, "GoldenPact");
+    assert_eq!(world.objects.get_component::<Player>(&3003).unwrap().ally_id, 5000);
+    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::YOU_HAVE_ACCEPTED_THE_ALLIANCE));
+
+    // The 3-clan cap: two more member clans fill the alliance.
+    install_clan(&mut world, 5002, &[3005]);
+    let mut c_rx = ingame_player(&mut world, 3, 3007, 0, 0, 0);
+    install_clan(&mut world, 5003, &[3007]);
+    world.clans.get_mut(&5002).unwrap().ally_id = 5000;
+    clans::handle_request_join_ally(&mut world, 1, &oid_body(3007));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::YOU_HAVE_EXCEEDED_THE_LIMIT));
+    drain(&mut c_rx);
+
+    // The ally window.
+    clans::handle_request_ally_info(&world, 2);
+    let b_pkts = drain(&mut b_rx);
+    assert!(b_pkts.iter().any(|p| p[0] == server_packets::opcodes::ALLIANCE_INFO));
+    assert!(sm_ids_of(&b_pkts).contains(&server_packets::sm_ids::ALLIANCE_INFORMATION));
+
+    // Same-ally war declaration is refused; an allied clan cannot dissolve.
+    world.clans.get_mut(&5000).unwrap().level = 3;
+    world.clans.get_mut(&5001).unwrap().level = 3;
+    pad_clan(&mut world, 5000, 15);
+    pad_clan(&mut world, 5001, 15);
+    clans::handle_request_start_pledge_war(&mut world, 1, &name_body("Clan5001"));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::CANNOT_DECLARE_WAR_ON_ALLIED_CLAN));
+    bypass(&mut world, 1, "dissolve_clan");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::YOU_CANNOT_DISPERSE_THE_CLANS_IN_YOUR_ALLIANCE));
+}
+
+/// Leave, dismiss, and dissolution: the penalty types 1–4 and their gates.
+#[test]
+fn ally_leave_dismiss_dissolve_penalties() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, 30026, "VillageMaster", 5, 100, 0, 0);
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut b_rx = ingame_player(&mut world, 2, 3003, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001]);
+    install_clan(&mut world, 5001, &[3003]);
+    for (id, ally) in [(5000, 5000), (5001, 5000)] {
+        let c = world.clans.get_mut(&id).unwrap();
+        c.level = 5;
+        c.ally_id = ally;
+        c.ally_name = "GoldenPact".into();
+    }
+    drain_db(&mut db_rx);
+
+    // The alliance leader cannot leave their own alliance.
+    clans::handle_ally_leave(&mut world, 1);
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::ALLIANCE_LEADERS_CANNOT_WITHDRAW));
+
+    // A member clan leaves: penalty type 1 stamped.
+    clans::handle_ally_leave(&mut world, 2);
+    let b = &world.clans[&5001];
+    assert_eq!(b.ally_id, 0);
+    assert_eq!(b.ally_penalty_type, crate::model::clan::ALLY_PENALTY_TYPE_CLAN_LEAVED);
+    assert!(b.ally_penalty_expiry_time > 0);
+    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::YOU_HAVE_WITHDRAWN_FROM_THE_ALLIANCE));
+
+    // The leave penalty blocks rejoining.
+    clans::handle_request_join_ally(&mut world, 1, &oid_body(3003));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::S1_CLAN_CANNOT_JOIN_ALLIANCE_ONE_DAY_NOT_PASSED));
+
+    // Re-admit directly, then the leader dismisses the clan: penalties 2 + 3.
+    {
+        let c = world.clans.get_mut(&5001).unwrap();
+        c.ally_id = 5000;
+        c.ally_name = "GoldenPact".into();
+        c.ally_penalty_expiry_time = 0;
+        c.ally_penalty_type = 0;
+    }
+    clans::handle_ally_dismiss(&mut world, 1, &name_body("Clan5001"));
+    assert_eq!(world.clans[&5001].ally_id, 0);
+    assert_eq!(world.clans[&5001].ally_penalty_type, crate::model::clan::ALLY_PENALTY_TYPE_CLAN_DISMISSED);
+    assert_eq!(world.clans[&5000].ally_penalty_type, crate::model::clan::ALLY_PENALTY_TYPE_DISMISS_CLAN);
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::YOU_HAVE_SUCCEEDED_IN_EXPELLING_THE_CLAN));
+
+    // The dismiss penalty blocks inviting anyone.
+    {
+        let c = world.clans.get_mut(&5001).unwrap();
+        c.ally_penalty_expiry_time = 0;
+        c.ally_penalty_type = 0;
+    }
+    clans::handle_request_join_ally(&mut world, 1, &oid_body(3003));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::MAY_NOT_ACCEPT_ANY_CLAN_WITHIN_A_DAY_AFTER_EXPELLING));
+
+    // Dissolution: everyone out, penalty 4 on the ex-leader clan, and the
+    // re-create gate.
+    {
+        let a = world.clans.get_mut(&5000).unwrap();
+        a.ally_penalty_expiry_time = 0;
+        a.ally_penalty_type = 0;
+        let b = world.clans.get_mut(&5001).unwrap();
+        b.ally_id = 5000;
+        b.ally_name = "GoldenPact".into();
+    }
+    clans::handle_request_dismiss_ally(&mut world, 1);
+    assert_eq!(world.clans[&5000].ally_id, 0);
+    assert_eq!(world.clans[&5001].ally_id, 0);
+    assert_eq!(world.clans[&5000].ally_penalty_type, crate::model::clan::ALLY_PENALTY_TYPE_DISSOLVE_ALLY);
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::THE_ALLIANCE_HAS_BEEN_DISSOLVED));
+    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::THE_ALLIANCE_HAS_BEEN_DISSOLVED));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_create_ally NewPact")));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::CANNOT_CREATE_A_NEW_ALLIANCE_WITHIN_1_DAY_OF_DISSOLUTION));
 }

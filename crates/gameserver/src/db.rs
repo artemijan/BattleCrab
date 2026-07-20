@@ -348,6 +348,8 @@ pub enum DbCommand {
     UpdateCharPowerGrade { char_id: i32, power_grade: i32 },
     /// `Clan.setNewLeaderId(id, true)` — the pending delegated leader transfer.
     UpdateClanNewLeader { clan_id: i32, new_leader_id: i32 },
+    /// The ally half of `Clan.updateClanInDB` — membership + penalty stamps.
+    UpdateClanAlly { clan_id: i32, ally_id: i32, ally_name: String, penalty_expiry: i64, penalty_type: i32 },
     /// `ClanTable.storeClanWars` — upsert one `clan_wars` row (ids, despite the
     /// varchar columns — Java binds ints too).
     SaveClanWar {
@@ -804,6 +806,20 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                     sqlx::query("UPDATE characters SET power_grade=? WHERE charId=?")
                         .bind(power_grade)
                         .bind(char_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateClanAlly { clan_id, ally_id, ally_name, penalty_expiry, penalty_type } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "UPDATE clan_data SET ally_id=?, ally_name=?, ally_penalty_expiry_time=?, ally_penalty_type=? WHERE clan_id=?",
+                    )
+                    .bind(ally_id)
+                    .bind(ally_name)
+                    .bind(penalty_expiry)
+                    .bind(penalty_type)
+                    .bind(clan_id),
                 )
                 .await;
             }
@@ -1571,7 +1587,7 @@ async fn load_castles(pool: &SqlitePool) -> Vec<crate::model::castle::Castle> {
 }
 
 async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
-    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, leader_id, char_penalty_expiry_time, dissolving_expiry_time, new_leader_id FROM clan_data")
+    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, leader_id, char_penalty_expiry_time, dissolving_expiry_time, new_leader_id, ally_id, ally_name, ally_penalty_expiry_time, ally_penalty_type FROM clan_data")
         .fetch_all(pool)
         .await
         .unwrap_or_default();
@@ -1619,6 +1635,10 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             dissolving_expiry_time: geti(row, "dissolving_expiry_time"),
             rank_privs,
             new_leader_id: geti(row, "new_leader_id") as i32,
+            ally_id: geti(row, "ally_id") as i32,
+            ally_name: gets(row, "ally_name"),
+            ally_penalty_expiry_time: geti(row, "ally_penalty_expiry_time"),
+            ally_penalty_type: geti(row, "ally_penalty_type") as i32,
             skills,
             warehouse: crate::model::inventory::Warehouse::from_rows(&wh_rows),
             members: member_rows

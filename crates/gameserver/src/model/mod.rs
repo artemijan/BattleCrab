@@ -230,6 +230,10 @@ pub struct Player {
     /// Java `Player._powerGrade` — the clan rank (1 leader … 9 academy);
     /// fixed up at enter-world (leader → 1, unset → 5) alongside `clan_privs`.
     pub power_grade: i32,
+    /// Java `Player.getAllyId()` (via the clan) — denormalized here so the
+    /// store-only UserInfo/CharInfo builders can write it; synced at
+    /// enter-world and on every ally change.
+    pub ally_id: i32,
 
     pub face: i32,
     pub hair_style: i32,
@@ -781,6 +785,7 @@ impl Player {
             clan_create_expiry_time: c.clan_create_expiry_time,
             clan_join_expiry_time: c.clan_join_expiry_time,
             power_grade: c.power_grade,
+            ally_id: 0, // synced from the clan at enter-world
             face: c.face,
             hair_style: c.hair_style,
             hair_color: c.hair_color,

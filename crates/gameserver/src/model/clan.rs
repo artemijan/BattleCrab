@@ -66,6 +66,15 @@ pub struct Clan {
     /// leader transfer (`AltClanLeaderInstantActivation = False` flow). Applied
     /// at the daily reset — TODO(G33): `DailyTaskManager.onClanLeaderChange`.
     pub new_leader_id: i32,
+    /// Java `_allyId` (`clan_data.ally_id`): the alliance this clan belongs to
+    /// — the *leader clan's own id* doubles as the alliance id (0 = none).
+    pub ally_id: i32,
+    /// Java `_allyName` (`clan_data.ally_name`).
+    pub ally_name: String,
+    /// Java `_allyPenaltyExpiryTime`/`_allyPenaltyType` — the 1-day ally
+    /// penalties ([`ALLY_PENALTY_TYPE_CLAN_LEAVED`] …).
+    pub ally_penalty_expiry_time: i64,
+    pub ally_penalty_type: i32,
 }
 
 impl Clan {
@@ -139,6 +148,12 @@ pub const CL_MANAGE_RANKS: i32 = 1 << 4;
 
 /// `ClanPrivilege.CL_PLEDGE_WAR` (ordinal 5) — required to declare/stop wars.
 pub const CL_PLEDGE_WAR: i32 = 1 << 5;
+
+/// Java `Clan.PENALTY_TYPE_*` — what the running ally penalty forbids.
+pub const ALLY_PENALTY_TYPE_CLAN_LEAVED: i32 = 1;
+pub const ALLY_PENALTY_TYPE_CLAN_DISMISSED: i32 = 2;
+pub const ALLY_PENALTY_TYPE_DISMISS_CLAN: i32 = 3;
+pub const ALLY_PENALTY_TYPE_DISSOLVE_ALLY: i32 = 4;
 
 /// The only rights bestowable on rank 9 (academy): CL_VIEW_WAREHOUSE (3),
 /// CH_OPEN_DOOR (11), CS_OPEN_DOOR (15) — Java `RequestPledgePower`'s mask.

@@ -201,8 +201,8 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
     w.write_i32(0); // clan crest
     w.write_i32(p.clan_privs);
     w.write_u8(p.clan_leader as u8);
-    w.write_i32(0); // ally id
-    w.write_i32(0); // ally crest
+    w.write_i32(p.ally_id);
+    w.write_i32(0); // ally crest — TODO(G18.7): crests
     w.write_u8(0); // in matching room
 
     // SOCIAL

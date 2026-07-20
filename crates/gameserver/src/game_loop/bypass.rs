@@ -205,6 +205,15 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
         "cancel_clan_leader_change" if is_village_master(world, npc_object_id) => {
             super::clans::handle_cancel_clan_leader_change(world, client_id, object_id, npc_object_id);
         }
+        // `VillageMaster`: alliance creation/dissolution (`Clan.createAlly`/
+        // `dissolveAlly`).
+        "create_ally" if is_village_master(world, npc_object_id) => {
+            let args = command.strip_prefix("create_ally").unwrap_or("").trim();
+            super::clans::handle_create_ally(world, client_id, object_id, args);
+        }
+        "dissolve_ally" if is_village_master(world, npc_object_id) => {
+            super::clans::handle_dissolve_ally(world, client_id, object_id);
+        }
         // `bypasshandlers/PrivateWarehouse.java`: the keeper's deposit/withdraw
         // windows (the bypass only appears on warehouse-keeper htmls).
         "WithdrawP" => {

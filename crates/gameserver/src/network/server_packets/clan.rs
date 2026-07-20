@@ -22,9 +22,9 @@ pub fn pledge_show_info_update(clan: &crate::model::clan::Clan) -> Vec<u8> {
     w.write_i32(clan.reputation_score); // reputation score
     w.write_i32(0);
     w.write_i32(0);
-    w.write_i32(0); // ally id
-    w.write_string(""); // ally name
-    w.write_i32(0); // ally crest id
+    w.write_i32(clan.ally_id);
+    w.write_string(&clan.ally_name);
+    w.write_i32(0); // ally crest id — TODO(G18.7): crests
     w.write_i32(0); // at war
     w.write_i32(0);
     w.write_i32(0);
@@ -41,7 +41,7 @@ pub fn pledge_info(clan: &crate::model::clan::Clan) -> Vec<u8> {
     w.write_i32(1); // Config.SERVER_ID
     w.write_i32(clan.id);
     w.write_string(&clan.name);
-    w.write_string(""); // ally name
+    w.write_string(&clan.ally_name);
     w.into_bytes()
 }
 
@@ -70,9 +70,9 @@ pub fn pledge_show_member_list_all(
     w.write_i32(clan.reputation_score); // reputation score
     w.write_i32(0);
     w.write_i32(0);
-    w.write_i32(0); // ally id
-    w.write_string(""); // ally name
-    w.write_i32(0); // ally crest id
+    w.write_i32(clan.ally_id);
+    w.write_string(&clan.ally_name);
+    w.write_i32(0); // ally crest id — TODO(G18.7): crests
     w.write_i32(0); // at war
     w.write_i32(0); // territory castle id
     w.write_i32(clan.members.len() as i32);
@@ -381,5 +381,47 @@ pub fn surrender_pledge_war(pledge_name: &str, player_name: &str) -> Vec<u8> {
     w.write_u8(opcodes::SURRENDER_PLEDGE_WAR);
     w.write_string(pledge_name);
     w.write_string(player_name);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/AskJoinAlly` — the alliance-invite dialog on the
+/// target clan leader's screen (the two null strings match Java's writes).
+pub fn ask_join_ally(requestor_oid: i32, requestor_name: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::ASK_JOIN_ALLIANCE);
+    w.write_i32(requestor_oid);
+    w.write_string(""); // ally name — Java writes null
+    w.write_string(""); // unknown — Java writes null
+    w.write_string(requestor_name);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/AllianceInfo` — the ally window: header (name,
+/// totals, leader clan + player) and one row per member clan
+/// `(name, level, leader_name, total, online)`.
+pub fn alliance_info(
+    ally_name: &str,
+    total: i32,
+    online: i32,
+    leader_clan: &str,
+    leader_player: &str,
+    clans: &[(String, i32, String, i32, i32)],
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::ALLIANCE_INFO);
+    w.write_string(ally_name);
+    w.write_i32(total);
+    w.write_i32(online);
+    w.write_string(leader_clan);
+    w.write_string(leader_player);
+    w.write_i32(clans.len() as i32);
+    for (name, level, leader, c_total, c_online) in clans {
+        w.write_string(name);
+        w.write_i32(0);
+        w.write_i32(*level);
+        w.write_string(leader);
+        w.write_i32(*c_total);
+        w.write_i32(*c_online);
+    }
     w.into_bytes()
 }
