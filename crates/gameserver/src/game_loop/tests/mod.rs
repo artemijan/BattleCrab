@@ -39,6 +39,7 @@ mod confuse_tests;
 mod crit_damage_tests;
 mod community_board_tests;
 mod death_buff_tests;
+mod defence_crit_tests;
 mod death_drop_tests;
 mod duel_tests;
 mod fear_tests;
