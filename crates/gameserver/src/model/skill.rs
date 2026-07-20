@@ -136,6 +136,31 @@ pub struct StatModifierEffect {
     /// multiplicative for position — so `mode` is not consulted on either path.
     /// See [`crate::model::stats::StatQualifier`].
     pub qualifier: Option<crate::model::stats::StatQualifier>,
+    /// `TwoHandedBluntBonus` / `TwoHandedSwordBonus`: the contribution counts
+    /// only while the equipped weapon occupies **both hands**.
+    ///
+    /// Java expresses this as a second condition beside the weapon-type one —
+    /// `ConditionUsingSlotType(SLOT_LR_HAND)` — so it is a separate axis from
+    /// [`Self::weapon_condition`] rather than another mask bit: "a blunt" and
+    /// "a two-handed weapon" are independent tests that both have to pass.
+    pub two_handed: bool,
+}
+
+impl Default for StatModifierEffect {
+    /// An unconditioned flat modifier. Exists so literals can use
+    /// `..Default::default()` and stop breaking when a condition axis is added
+    /// — the same reason [`Skill`] has one.
+    fn default() -> Self {
+        Self {
+            stat: Stat::PhysicalAttack,
+            mode: StatModifierType::Diff,
+            amount: 0.0,
+            armor_condition: 0,
+            weapon_condition: 0,
+            qualifier: None,
+            two_handed: false,
+        }
+    }
 }
 
 /// One entry inside a `RestorationRandom` reward group (Java
@@ -1120,6 +1145,7 @@ impl Skill {
                     armor_condition: 0,
                     weapon_condition: 0,
                     qualifier: None,
+                    two_handed: false,
                 }),
                 _ => None,
             })
