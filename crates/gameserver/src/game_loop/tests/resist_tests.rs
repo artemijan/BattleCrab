@@ -82,6 +82,7 @@ fn resist_buff_pumps_a_multiplier() {
             amount: -50.0,
             armor_condition: 0,
             weapon_condition: 0,
+            move_type: None,
         })],
     );
     world.data.skill_data.insert_for_test(resist);
@@ -150,6 +151,7 @@ fn blocked_abnormal_types_cannot_land() {
                 amount: 10.0,
                 armor_condition: 0,
                 weapon_condition: 0,
+                move_type: None,
             })],
         );
         s.abnormal_type = abnormal.into();
@@ -198,6 +200,7 @@ fn seed_dispel_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceive
                 amount: 5.0,
                 armor_condition: 0,
                 weapon_condition: 0,
+                move_type: None,
             })],
         );
         s.abnormal_type = abnormal.into();

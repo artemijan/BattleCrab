@@ -195,6 +195,7 @@ fn heal_effect_scales_received_healing() {
             amount: -50.0,
             armor_condition: 0,
             weapon_condition: 0,
+            move_type: None,
         })],
         false,
     ));

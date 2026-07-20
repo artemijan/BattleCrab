@@ -569,6 +569,7 @@ fn passive_max_mp_skill_boosts_mp_at_login() {
         amount: 100.0,
         armor_condition: 0,
         weapon_condition: 0,
+        move_type: None,
     })];
     world.data.skill_data.insert_for_test(s);
 
@@ -604,7 +605,7 @@ fn clan_skills_move_max_hp_mp_cp() {
         let mut s = passive_clan_test_skill(id);
         s.effects = effs
             .into_iter()
-            .map(|(stat, mode, amount)| SkillEffect::StatModifier(StatModifierEffect { stat, mode, amount, armor_condition: 0, weapon_condition: 0 }))
+            .map(|(stat, mode, amount)| SkillEffect::StatModifier(StatModifierEffect { stat, mode, amount, armor_condition: 0, weapon_condition: 0 , move_type: None}))
             .collect();
         world.data.skill_data.insert_for_test(s);
         world.data.pledge_skill_trees.insert_for_test(

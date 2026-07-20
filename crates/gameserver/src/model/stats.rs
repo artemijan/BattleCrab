@@ -134,6 +134,56 @@ pub enum Stat {
     BlowRate,
 }
 
+impl Stat {
+    /// Java `Stat.valueOf(name)` — the datapack's `<stat>` element name.
+    ///
+    /// Java's enum covers all ~200 stats; only the names actually used by a
+    /// `<stat>` element in this dist are mapped, since that is the sole caller
+    /// (`StatByMoveType`). An unmapped name yields `None` and the effect is
+    /// dropped, matching Java's own behaviour on an unknown enum constant
+    /// (`getEnum` throws and the handler is skipped with a log).
+    pub fn from_xml(name: &str) -> Option<Self> {
+        Some(match name {
+            "REGENERATE_HP_RATE" => Stat::RegenerateHpRate,
+            "REGENERATE_MP_RATE" => Stat::RegenerateMpRate,
+            "REGENERATE_CP_RATE" => Stat::RegenerateCpRate,
+            "EVASION_RATE" => Stat::EvasionRate,
+            _ => return None,
+        })
+    }
+}
+
+/// Java `model/stats/MoveType` — the creature's current locomotion state,
+/// which `StatByMoveType` effects are conditioned on.
+///
+/// Derived, not stored: Java computes it fresh in `Creature.getMoveType`
+/// (`isMoving() && isRunning()` → `Running`, `isMoving()` → `Walking`, else
+/// `Standing`), with `Player` overriding it to return `Sitting` while seated.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum MoveType {
+    Walking,
+    Running,
+    /// No source on this port yet — sitting isn't modeled — and the only skill
+    /// in this dist that conditions on it is a non-learnable belt-item skill
+    /// (13200). Parsed anyway so the datapack round-trips completely instead of
+    /// silently discarding those effects. TODO(G29): derive this once sitting
+    /// exists, and the effects start applying with no further work.
+    Sitting,
+    Standing,
+}
+
+impl MoveType {
+    pub fn from_xml(name: &str) -> Option<Self> {
+        Some(match name {
+            "WALKING" => MoveType::Walking,
+            "RUNNING" => MoveType::Running,
+            "SITTING" => MoveType::Sitting,
+            "STANDING" => MoveType::Standing,
+            _ => return None,
+        })
+    }
+}
+
 /// Java `StatModifierType` (`AbstractStatAddEffect`/`AbstractStatPercentEffect`):
 /// a buff either adds a flat amount or multiplies by `1 + amount/100`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
