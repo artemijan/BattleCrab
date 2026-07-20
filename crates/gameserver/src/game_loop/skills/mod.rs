@@ -108,6 +108,12 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
         // and persist on the next flush.
         book.0.insert(skill_id, skill_level);
     }
+    // A newly learned passive (e.g. Shield Mastery, Expand Inventory) must
+    // contribute its `StatModifier` immediately, not just at the next login —
+    // `recompute_conditioned_passives` already diffs "book vs currently-applied
+    // passive buffs" generically (it isn't armor-condition-specific despite the
+    // module name), so this reuses it rather than a bespoke re-apply.
+    super::passive_skills::recompute_conditioned_passives(world, object_id);
 
     if let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) {
         if let Some(cs) = world.clients.get(&client_id) {

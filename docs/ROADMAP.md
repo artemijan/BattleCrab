@@ -693,6 +693,29 @@ pattern this run of slices keeps finding (`AttackTrait`'s `MAX_MOMENTUM`,
 in the Java tree, so it's folded for completeness but wired to nothing.
 Closed both existing TODOs along the way.
 
+**EnlargeSlot** (plan: [PLAN_G19_ENLARGE_SLOT.md](PLAN_G19_ENLARGE_SLOT.md)).
+Re-ran the ranking sweep with `EFFECT_REGISTRY`'s generic stat-modifier table
+(`PAtk`, `MaxHp`, `ShieldDefence`, …) correctly excluded — it had been
+quietly absorbing dozens of effect names and inflating earlier raw counts.
+With it excluded, `EnlargeSlot` topped the list: Expand Inventory/Warehouse/
+Trade/Common Craft/Dwarven Craft (5 learnable, 162 raw instances — Trade
+carries two per level). A `type`-selected `Stat` passive, same shape as
+`ShieldDefence`/`CriticalDamage`: 6 new `Stat` variants (`InventoryNormal`,
+`StoragePrivate`, `TradeSell`, `TradeBuy`, `RecipeDwarven`, `RecipeCommon`)
+folded through `model::finalize` into `UserInfo`'s INVENTORY_LIMIT block,
+`ExStorageMaxCount` (which previously reported all six capacity numbers as
+Java's static placeholder defaults — one literally commented
+"`Stat.INVENTORY_NORMAL` not wired"), and `crafting::learn_recipe`'s
+recipe-book cap, the one consumer with real enforcement behind it. Surfaced
+and fixed a wider, pre-existing gap along the way: a newly learned passive
+skill only took effect at the *next login* — `recompute_conditioned_passives`
+(built for armor-swap re-evaluation, but generic underneath) is now also
+called from `RequestAcquireSkill`, so any stat-modifier passive (this one
+included) applies the moment it's learned. Deferred: warehouse deposit and
+private-store listing still aren't capacity-checked anywhere on this port —
+only the *number reported* to the client is accurate now, not an enforcement
+gate (`TODO(G29+)`).
+
 **Still open (the milestone's continuous half):** `EFFECT_REGISTRY` growth
 toward the 369 Java effect classes and the 230-entry `Stat` enum — the ~11
 icon-only community-board buffs and G16's identity-valued

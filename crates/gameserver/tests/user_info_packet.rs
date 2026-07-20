@@ -1,6 +1,6 @@
 use gameserver::config::CharacterConfig;
 use gameserver::data::GameData;
-use gameserver::model::components::{BaseStats, Collision, CombatStats, PlayerVitals, Position, Speeds, Vitals};
+use gameserver::model::components::{BaseStats, Collision, CombatStats, PlayerVitals, Position, Speeds, StatModifiers, Vitals};
 use gameserver::model::Player;
 use gameserver::model::PlayerView;
 use gameserver::network::user_info::user_info;
@@ -108,6 +108,7 @@ async fn user_info_test() {
     let collision = Collision { radius: 0.0, height: 0.0 };
     let combat = CombatStats { accuracy: 31, magic_accuracy: 31, ..Default::default() };
     let inventory = gameserver::model::inventory::Inventory::default();
+    let mods = StatModifiers::default();
     let view = PlayerView {
         p: &player,
         pos: &position,
@@ -119,6 +120,7 @@ async fn user_info_test() {
         combat: &combat,
         inventory: &inventory,
         pvp_flag: 0,
+        mods: &mods,
     };
     let gd = GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
     let cfg = CharacterConfig::default();

@@ -2612,6 +2612,41 @@ fn shield_mastery_passive_raises_shield_block_stats() {
     );
 }
 
+/// G19 `EnlargeSlot`: Expand Inventory (1372, real dist data, no `<type>` so
+/// it defaults to `Stat::InventoryNormal`) raises the inventory-slot cap
+/// `UserInfo`'s INVENTORY_LIMIT block reports. Passives fold into
+/// `StatModifiers` at `Player::from_char`, matching the `ShieldDefence` test
+/// above; before this slice the effect fell through and the skill did
+/// nothing (the client always showed the bare race-based cap).
+#[test]
+fn enlarge_slot_expand_inventory_raises_reported_cap() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
+    let mut data = GameData::for_test();
+    data.player_templates = crate::data::player_template::PlayerTemplateData::load_from(DIST);
+    data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
+    data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    data.skill_data = crate::data::skill_data::SkillData::load_from(DIST);
+    let world = World::new(link_tx, 7, 3, 0, data, db_tx);
+    let cfg = world.cfg.character.clone();
+
+    let mut bare = dummy_char(5301, "Bare");
+    bare.race = 0; // human, not a dwarf
+    let bare_bundle = Player::from_char(&world.data, &bare);
+    let bare_view = bare_bundle.view();
+    let bare_limit = crate::model::finalize(bare_view.mods, crate::model::stats::Stat::InventoryNormal, cfg.inventory_limit(0) as f64) as i32;
+    assert_eq!(bare_limit, cfg.inventory_limit(0), "no skill: unmodified race base");
+
+    let mut expanded = dummy_char(5302, "Expanded");
+    expanded.race = 0;
+    expanded.skills = vec![(1372, 3)]; // Expand Inventory lvl3, real dist: +18
+    let expanded_bundle = Player::from_char(&world.data, &expanded);
+    let expanded_view = expanded_bundle.view();
+    let expanded_limit = crate::model::finalize(expanded_view.mods, crate::model::stats::Stat::InventoryNormal, cfg.inventory_limit(0) as f64) as i32;
+    assert_eq!(expanded_limit, cfg.inventory_limit(0) + 18, "Expand Inventory lvl3: +18 slots");
+}
+
 /// G19 `HealPercent` effect: "Revival" (181, real dist data — a self-target,
 /// 100%-power heal) restores HP on cast. Before this slice every
 /// `HealPercent` skill — including the priest staples Miracle, Benediction,

@@ -11,11 +11,13 @@
 //!
 //! Deferred (identity in the ported set): `Stat.CRAFT_RATE` (success bonus),
 //! `Stat.CRAFTING_CRITICAL` (double-output crit) — no item/skill grants either,
-//! so they stay `+0`; `Stat.RECIPE_DWARVEN/COMMON` (recipe-limit modifiers).
+//! so they stay `+0`. `Stat.RECIPE_DWARVEN/COMMON` (Expand Dwarven/Common
+//! Craft, G19 `EnlargeSlot`) *is* wired — see `learn_recipe`'s limit lookup.
 
 use crate::data::recipe_data::RecipeList;
-use crate::model::components::{ManufactureStore, RecipeBook, SkillBook, Vitals};
+use crate::model::components::{ManufactureStore, RecipeBook, SkillBook, StatModifiers, Vitals};
 use crate::model::inventory::Inventory;
+use crate::model::stats::Stat;
 use crate::network::client_packets as cp;
 use crate::network::enter_world as ew;
 use crate::network::server_packets::{self as sp, sm_ids, status_update_type, SmParam};
@@ -143,11 +145,18 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
     let craft_level = craft_skill_level(world, object_id, recipe.is_dwarven);
     let (limit, book_len) = {
         let book = world.objects.get_component::<RecipeBook>(&object_id);
-        if recipe.is_dwarven {
-            (world.cfg.character.dwarf_recipe_limit, book.map(|b| b.dwarven.len()).unwrap_or(0))
+        let (stat, base, len) = if recipe.is_dwarven {
+            (Stat::RecipeDwarven, world.cfg.character.dwarf_recipe_limit, book.map(|b| b.dwarven.len()).unwrap_or(0))
         } else {
-            (world.cfg.character.common_recipe_limit, book.map(|b| b.common.len()).unwrap_or(0))
-        }
+            (Stat::RecipeCommon, world.cfg.character.common_recipe_limit, book.map(|b| b.common.len()).unwrap_or(0))
+        };
+        // Expand Dwarven/Common Craft (1368/1369, `EnlargeSlot`): the base
+        // config limit plus whatever the learned passive raises it to.
+        let limit = match world.objects.get_component::<StatModifiers>(&object_id) {
+            Some(mods) => crate::model::finalize(mods, stat, base as f64) as i32,
+            None => base,
+        };
+        (limit, len)
     };
 
     // `hasDwarvenCraft` / `hasCommonCraft`: the create-item skill (level ≥ 1).

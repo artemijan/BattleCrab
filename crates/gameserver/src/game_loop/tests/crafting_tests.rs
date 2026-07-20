@@ -258,3 +258,41 @@ fn manufacture_store_craft_for_customer() {
     // Customer sees the earned message.
     assert!(has_sm(&drain(&mut c_rx), server_packets::sm_ids::YOU_HAVE_EARNED_S1));
 }
+
+/// G19 `EnlargeSlot`: Expand Dwarven Craft (1368, real dist data) raises
+/// `dwarf_recipe_limit` via `Stat::RecipeDwarven`. Before this slice the
+/// effect fell through (unregistered `<effect name>`) and the skill did
+/// nothing — a book capped at the config base stayed capped forever.
+/// Learning it goes through the same `recompute_conditioned_passives` path
+/// `handle_request_acquire_skill` now calls, so this also exercises that a
+/// freshly learned passive contributes its stat immediately.
+#[test]
+fn enlarge_slot_expand_dwarven_craft_raises_recipe_limit() {
+    let (mut world, ..) = cast_test_world();
+    install_fixtures(&mut world);
+    world.data.skill_data = crate::data::skill_data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    learn_skill(&mut world, 3001, 172); // Create Dwarven
+    give(&mut world, 3001, 9001, RECIPE_ITEM, 1);
+
+    // Fill the book to the config base limit with unrelated ids.
+    let base = world.cfg.character.dwarf_recipe_limit;
+    world.objects.get_component_mut::<RecipeBook>(&3001).unwrap().dwarven = (100..100 + base).collect();
+    drain(&mut rx);
+
+    items::handle_use_item(&mut world, 1, &use_item_body(9001));
+    assert!(!world.objects.get_component::<RecipeBook>(&3001).unwrap().dwarven.contains(&RECIPE_LIST), "refused at the base limit");
+    assert!(has_sm(&drain(&mut rx), server_packets::sm_ids::UP_TO_S1_RECIPES_CAN_BE_REGISTERED));
+
+    // Learn Expand Dwarven Craft lvl1 (+6, real dist data) and retry.
+    learn_skill(&mut world, 3001, 1368);
+    crate::game_loop::passive_skills::recompute_conditioned_passives(&mut world, 3001);
+    give(&mut world, 3001, 9002, RECIPE_ITEM, 1);
+    drain(&mut rx);
+
+    items::handle_use_item(&mut world, 1, &use_item_body(9002));
+    assert!(
+        world.objects.get_component::<RecipeBook>(&3001).unwrap().dwarven.contains(&RECIPE_LIST),
+        "registered once the passive raises the limit past the book's current size"
+    );
+}
