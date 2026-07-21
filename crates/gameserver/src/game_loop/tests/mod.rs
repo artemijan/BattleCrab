@@ -81,6 +81,7 @@ mod resist_tests;
 mod resurrection_tests;
 mod cubic_tests;
 mod boss_zone_tests;
+mod grand_boss_tests;
 mod raid_curse_tests;
 mod servitor_tests;
 mod shortcuts_tests;

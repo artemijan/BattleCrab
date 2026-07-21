@@ -55,6 +55,13 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     };
     let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
 
+    // A grand boss dying: mark it dead, roll and persist its respawn window,
+    // arm the timer. No-op for every other NPC.
+    if let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) {
+        let npc_id = npc.npc_id;
+        super::grand_boss::on_grand_boss_killed(world, npc_id);
+    }
+
     // `Pet.doDie`: the exp penalty, the owner's warning and the state capture.
     // No-op for every NPC that is not a pet.
     super::servitor::pet_do_die(world, npc_oid);

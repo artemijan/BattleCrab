@@ -320,6 +320,11 @@ pub enum DbCommand {
     /// `RequestDestroyItem`). Object ids are recycled, so leaving the row would
     /// let a future item inherit a stale pet.
     DeletePetRow { collar_object_id: i32 },
+    /// Write a grand boss's state back (Java `GrandBossManager.setStatus` +
+    /// `setStatSet`, which both hit `grandboss_data`). Sent when a boss dies
+    /// and when it respawns, so the respawn window survives a restart —
+    /// **the point of the table**.
+    StoreGrandBoss { boss: crate::model::grand_boss::GrandBoss },
     /// Char count + deletion times for the login server's `ReplyCharacters`.
     CountCharacters { account: String },
     /// Name availability check for `RequestCharacterNameCreatable` (name already
@@ -735,6 +740,23 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
             }
             DbCommand::DeleteCharacter { char_id } => {
                 delete_char(&pool, char_id).await;
+            }
+            DbCommand::StoreGrandBoss { boss } => {
+                let _ = sqlx::query(
+                    "UPDATE grandboss_data SET loc_x=?, loc_y=?, loc_z=?, heading=?, \
+                     respawn_time=?, currentHP=?, currentMP=?, status=? WHERE boss_id=?",
+                )
+                .bind(boss.loc_x)
+                .bind(boss.loc_y)
+                .bind(boss.loc_z)
+                .bind(boss.heading)
+                .bind(boss.respawn_time)
+                .bind(boss.current_hp)
+                .bind(boss.current_mp)
+                .bind(boss.status)
+                .bind(boss.boss_id)
+                .execute(&pool)
+                .await;
             }
             DbCommand::DeletePetRow { collar_object_id } => {
                 let _ = sqlx::query("DELETE FROM pets WHERE item_obj_id=?")

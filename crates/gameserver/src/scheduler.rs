@@ -20,6 +20,8 @@ pub enum ScheduledTask {
     /// countdown, periodic item consumption, the remain-time packet and the
     /// far-from-owner leash. Reschedules itself while the servitor lives.
     ServitorLifeTick { servitor_oid: i32 },
+    /// A grand boss's respawn window elapsing (Java's `*_unlock` quest timer).
+    GrandBossRespawn { boss_id: i32 },
     /// Java `Cubic._skillUseTask` — one action attempt by a player's cubic.
     CubicAction { owner_oid: i32, cubic_id: i32 },
     /// Java `Pet.FeedTask` — a fixed 10 s period that burns food and
