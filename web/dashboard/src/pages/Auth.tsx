@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ApiError, api, type Account } from "../lib/api";
 import { Alert, Button, Field, Panel } from "../components/ui";
 
-function AuthShell({
+export function AuthShell({
   title,
   subtitle,
   children,
@@ -31,7 +31,7 @@ function AuthShell({
 }
 
 /** Turns an ApiError into something worth showing a player. */
-function messageFor(error: unknown): string {
+export function messageFor(error: unknown): string {
   if (error instanceof ApiError) {
     switch (error.code) {
       case "invalid_credentials":
@@ -100,6 +100,15 @@ export function Login() {
           autoComplete="current-password"
           required
         />
+        {/* Without this the reset flow is unreachable: nothing else in the UI
+            can trigger a reset email. */}
+        <Link
+          to="/forgot-password"
+          className="-mt-1 self-end text-xs font-medium text-[var(--text-muted)]
+                     transition-colors hover:text-brand-600 dark:hover:text-brand-300"
+        >
+          Forgot your password?
+        </Link>
         <Button type="submit" loading={submit.isPending} className="mt-1 w-full py-3">
           Log in
         </Button>

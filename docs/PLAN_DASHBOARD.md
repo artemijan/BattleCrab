@@ -629,11 +629,12 @@ the next person doesn't trust a spec the implementation has already moved past.
   was found escaping the header at 360px, and verified to fail on the pre-fix markup. Nothing else
   covers the UI; there is no test of the register/login *flows* through the browser yet.
   Requires a built `dist/` and Google Chrome; skips with a message when either is absent.
-- **`/auth/reset-password` and `/account/email/verify` have no UI routes.** This is now the top
-  gap: the endpoints work, and as of this slice real emails are sent containing those links — but
-  the SPA has no `/reset-password` or `/verify-email` route, so a clicked link hits the catch-all
-  and lands on the homepage with the token silently discarded (verified in a browser). Neither flow
-  is usable end to end until those two pages exist.
+- ~~**`/auth/reset-password` and `/account/email/verify` have no UI routes.**~~ **Done.** The SPA
+  now has `/forgot-password`, `/reset-password` and `/verify-email`, plus the "Forgot your
+  password?" link on the login form — without which the flow was unreachable, since nothing in the
+  UI could trigger a reset email at all. All three are public and deliberately outside
+  `RedirectIfAuthed`: the links are opened from an inbox, sometimes in another browser, and
+  bouncing a signed-in user to /account would swallow the token.
 - **Class names.** The character list shows level and race; `classId` is returned but not resolved
   to a name, which needs the datapack's class table.
 - Landing page "Download client" button is disabled pending a real launcher URL.
