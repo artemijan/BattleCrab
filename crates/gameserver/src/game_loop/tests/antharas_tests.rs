@@ -372,3 +372,203 @@ fn a_full_lair_refuses_immediately() {
         EntryVerdict::LairFull
     );
 }
+
+// ---------------------------------------------------------------------------
+// Skill selection (slice 19)
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::antharas::Choice;
+
+const ANTH_JUMP: i32 = 4106;
+const ANTH_TAIL: i32 = 4107;
+const ANTH_DEBUFF: i32 = 4109;
+const ANTH_MOUTH: i32 = 4110;
+const ANTH_NORM_ATTACK: i32 = 4112;
+const ATTACKER: i32 = 9950;
+
+/// Antharas at the origin, and a target placed by hand so the arcs are exact.
+fn skill_world(target_at: (i32, i32)) -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+    let (mut world, db, l) = antharas_world();
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
+    add_test_npc(&mut world, ATTACKER, BEHEMOTH, "Monster", 80, target_at.0, target_at.1, 0);
+    (world, db, l)
+}
+
+fn wound_to(world: &mut World, fraction: f64) {
+    let v = world.objects.get_component_mut::<Vitals>(&ANTHARAS_OID).unwrap();
+    v.cur_hp = v.max_hp as f64 * fraction;
+}
+
+/// Force a run of rolls, then choose.
+fn choose(world: &mut World, rolls: &[i32]) -> Option<Choice> {
+    for r in rolls {
+        world.forced_rolls.push_back(*r);
+    }
+    crate::game_loop::antharas::choose_skill(world, ANTHARAS_OID, ATTACKER)
+}
+
+/// **The tail sweep is gated on an absolute world angle, not on Antharas's
+/// facing.** Java compares `calculateDirectionTo(target)` — plain `atan2` —
+/// against a window around 180°, and never subtracts his heading. So the sweep
+/// lands on a target due **west** of him whichever way he is turned.
+///
+/// This reads like a rear-arc check that lost its heading term, but the
+/// datapack is the specification and "fixing" it would change how often the
+/// tail lands. Pinned here so a later reader can see it is deliberate.
+#[test]
+fn the_tail_sweep_is_gated_on_world_west_not_on_facing() {
+    // Due west, well inside 1423 units.
+    let (mut world, _db, _l) = skill_world((-800, 0));
+    world.objects.get_component_mut::<Position>(&ANTHARAS_OID).unwrap().heading = 0; // facing east
+    let c = choose(&mut world, &[0]).unwrap();
+    assert_eq!(c.skill_id, ANTH_TAIL, "west of him: the tail lands even facing away");
+
+    // Same distance, due east — the mirror position, and no tail.
+    let (mut world, _db, _l) = skill_world((800, 0));
+    world.objects.get_component_mut::<Position>(&ANTHARAS_OID).unwrap().heading = 32_768; // facing west
+    let c = choose(&mut world, &[0, 99, 99, 99, 99, 1, 99]).unwrap();
+    assert_ne!(c.skill_id, ANTH_TAIL, "east of him: no tail, however he faces");
+}
+
+/// The arc gate is a **distance-and-angle pair**: the wide window is short
+/// ranged and the narrow one reaches further. A target 1000 units west is
+/// inside the far window; the same target at 1500 is outside both.
+#[test]
+fn the_tail_arc_has_two_windows() {
+    for (x, expect_tail) in [(-1000, true), (-1500, false)] {
+        let (mut world, _db, _l) = skill_world((x, 0));
+        let c = choose(&mut world, &[0, 99, 99, 99, 99, 1, 99]).unwrap();
+        assert_eq!(c.skill_id == ANTH_TAIL, expect_tail, "target at x={x}");
+    }
+}
+
+/// **The curse only exists below half health.** A party that has seen Curse of
+/// Antharas has burnt him past 50% — above it the branch is not even rolled.
+#[test]
+fn the_curse_is_a_below_half_health_skill() {
+    // Inside the debuff arc (west, 400 units) but outside the tail's far
+    // window, so the tail cannot pre-empt it.
+    let angles = |w: &mut World| choose(w, &[99, 0]);
+
+    let (mut world, _db, _l) = skill_world((-400, -100));
+    wound_to(&mut world, 0.4);
+    assert_eq!(angles(&mut world).unwrap().skill_id, ANTH_DEBUFF, "below half: cursed");
+
+    let (mut world, _db, _l) = skill_world((-400, -100));
+    wound_to(&mut world, 0.6);
+    assert_ne!(angles(&mut world).unwrap().skill_id, ANTH_DEBUFF, "above half: never");
+}
+
+/// **Below 25% he leads with the Breath Attack**, before distance or angle is
+/// consulted at all — the one skill that opens a band rather than closing it.
+#[test]
+fn the_breath_attack_opens_the_final_band() {
+    let (mut world, _db, _l) = skill_world((5000, 5000)); // far away, out of every arc
+    wound_to(&mut world, 0.1);
+    assert_eq!(choose(&mut world, &[0]).unwrap().skill_id, ANTH_MOUTH);
+
+    // At 26% the same roll gets nothing of the sort.
+    let (mut world, _db, _l) = skill_world((5000, 5000));
+    wound_to(&mut world, 0.26);
+    assert_ne!(choose(&mut world, &[0]).unwrap().skill_id, ANTH_MOUTH);
+}
+
+/// Every roll missing falls through to the ordinary attack, in **all four
+/// bands** — the ladder always yields something.
+#[test]
+fn every_band_falls_back_to_the_ordinary_attack() {
+    for fraction in [1.0, 0.6, 0.4, 0.1] {
+        let (mut world, _db, _l) = skill_world((5000, 5000));
+        wound_to(&mut world, fraction);
+        let c = choose(&mut world, &[99; 12]).unwrap();
+        assert_eq!(c.skill_id, ANTH_NORM_ATTACK, "at {fraction} health");
+        assert!(!c.on_self, "the ordinary attack is aimed at the target");
+    }
+}
+
+/// **The areas are cast on Antharas himself.** Java's `castOnTarget == false`
+/// means the tail sweep, the curse and the stomp take *him* as their target —
+/// they are centred on the boss, not on the player who drew them. Dropping
+/// that distinction would make each of them a single-target hit.
+#[test]
+fn the_area_skills_are_cast_on_antharas_himself() {
+    let (mut world, _db, _l) = skill_world((-800, 0));
+    assert!(choose(&mut world, &[0]).unwrap().on_self, "tail");
+
+    let (mut world, _db, _l) = skill_world((-400, -100));
+    wound_to(&mut world, 0.4);
+    assert!(choose(&mut world, &[99, 0]).unwrap().on_self, "curse");
+
+    // The stomp: inside 1100 units but out of both arcs (due east).
+    let (mut world, _db, _l) = skill_world((900, 0));
+    wound_to(&mut world, 0.4);
+    let c = choose(&mut world, &[99, 99, 0]).unwrap();
+    assert_eq!(c.skill_id, ANTH_JUMP);
+    assert!(c.on_self, "stomp");
+}
+
+/// **The end of the chain: a hit actually makes him cast.**
+///
+/// `manage_skills` and its Baium twin choose a skill; nothing called either
+/// until this slice, so both bosses decided into the void and only ever swung.
+/// This test goes through the real damage hook and asserts a `MagicSkillUse`
+/// leaves the server — it fails against the previous commit.
+#[test]
+fn a_hit_makes_antharas_cast() {
+    let (mut world, _db, _l) = antharas_world();
+    let mut rx = ingame_caster(&mut world, 1, ATTACKER, -800, 0);
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
+    {
+        let v = world.objects.get_component_mut::<Vitals>(&ANTHARAS_OID).unwrap();
+        v.max_mp = 10_000;
+        v.cur_mp = 10_000.0;
+    }
+    world.data.skill_data.insert_for_test(crate::model::skill::Skill {
+        id: ANTH_TAIL,
+        level: 1,
+        ..Default::default()
+    });
+    while rx.try_recv().is_ok() {}
+
+    // No jitter, then the tail's opening roll.
+    world.forced_rolls.push_back(0);
+    world.forced_rolls.push_back(0);
+    world.forced_rolls.push_back(0);
+    crate::game_loop::antharas::on_antharas_damage(&mut world, ANTHARAS_OID, ATTACKER, 500, true);
+
+    let casts = std::iter::from_fn(|| rx.try_recv().ok()).filter(|p| p.first() == Some(&0x48)).count();
+    assert_eq!(casts, 1, "the damage hook chose a skill and cast it");
+}
+
+/// He does not start a second cast while one is running — Java's
+/// `if (npc.isCastingNow()) return`, which is what makes calling `manageSkills`
+/// on *every* hit safe.
+#[test]
+fn a_second_hit_mid_cast_starts_nothing() {
+    let (mut world, _db, _l) = antharas_world();
+    let mut rx = ingame_caster(&mut world, 1, ATTACKER, -800, 0);
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
+    {
+        let v = world.objects.get_component_mut::<Vitals>(&ANTHARAS_OID).unwrap();
+        v.max_mp = 10_000;
+        v.cur_mp = 10_000.0;
+    }
+    world.data.skill_data.insert_for_test(crate::model::skill::Skill {
+        id: ANTH_TAIL,
+        level: 1,
+        hit_time: 5_000,
+        ..Default::default()
+    });
+    for _ in 0..3 {
+        world.forced_rolls.push_back(0);
+    }
+    crate::game_loop::antharas::on_antharas_damage(&mut world, ANTHARAS_OID, ATTACKER, 500, true);
+    while rx.try_recv().is_ok() {}
+
+    for _ in 0..3 {
+        world.forced_rolls.push_back(0);
+    }
+    crate::game_loop::antharas::on_antharas_damage(&mut world, ANTHARAS_OID, ATTACKER, 500, true);
+    let casts = std::iter::from_fn(|| rx.try_recv().ok()).filter(|p| p.first() == Some(&0x48)).count();
+    assert_eq!(casts, 0, "still casting the first");
+}

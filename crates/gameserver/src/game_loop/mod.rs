@@ -51,6 +51,7 @@ mod cubic;
 mod grand_boss;
 mod antharas;
 mod baium;
+mod boss_threat;
 mod core_boss;
 mod orfen;
 mod queen_ant;

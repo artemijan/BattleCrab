@@ -346,3 +346,212 @@ fn players_in_lair(world: &World) -> usize {
         })
         .count()
 }
+
+// ---------------------------------------------------------------------------
+// Skill selection (`manageSkills`)
+// ---------------------------------------------------------------------------
+
+/// Antharas's ten skills.
+const ANTH_JUMP: i32 = 4106;
+const ANTH_TAIL: i32 = 4107;
+const ANTH_FEAR: i32 = 4108;
+const ANTH_DEBUFF: i32 = 4109;
+const ANTH_MOUTH: i32 = 4110;
+const ANTH_BREATH: i32 = 4111;
+const ANTH_NORM_ATTACK: i32 = 4112;
+const ANTH_NORM_ATTACK_EX: i32 = 4113;
+const ANTH_FEAR_SHORT: i32 = 5092;
+const ANTH_METEOR: i32 = 5093;
+
+/// A chosen skill and whether it is cast on the target or on Antharas himself.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Choice {
+    pub skill_id: i32,
+    /// Java's `castOnTarget == false` — the skill is cast **with Antharas as
+    /// its own target**, because the tail sweep, the curse and the stomp are
+    /// areas centred on him rather than on the player who drew them.
+    pub on_self: bool,
+}
+
+const fn on_target(skill_id: i32) -> Choice {
+    Choice { skill_id, on_self: false }
+}
+const fn on_self(skill_id: i32) -> Choice {
+    Choice { skill_id, on_self: true }
+}
+
+/// `Util.calculateAngleFrom` — the angle from `a` to `b` in degrees, `0..360`.
+fn angle_between(ax: i32, ay: i32, bx: i32, by: i32) -> f64 {
+    let deg = ((by - ay) as f64).atan2((bx - ax) as f64).to_degrees();
+    if deg < 0.0 { deg + 360.0 } else { deg }
+}
+
+/// **The tail sweep and curse are gated on an absolute world angle, not on
+/// where Antharas is facing.**
+///
+/// Java computes `npc.calculateDirectionTo(c2)`, which is
+/// `atan2(targetY - npcY, targetX - npcX)` — the direction from Antharas to his
+/// target **in world coordinates**. His `heading` never enters the comparison.
+/// So "within 8° of 180" does not mean *behind him*; it means the target is
+/// due **west** of him, whichever way he happens to be turned.
+///
+/// That reads like a bug — the windows are plainly shaped like a rear arc, and
+/// every other cone check in the codebase (`Creature.isBehind`,
+/// `Formulas.calcCastBreak`) subtracts `convertHeadingToDegree(getHeading())`
+/// first. But the datapack is the specification, and a "fix" here would change
+/// how often the tail lands, so it is ported exactly as written and pinned by a
+/// test that puts the target due west while Antharas faces east.
+fn in_arc(dist: f64, angle: f64, near: (f64, f64, f64), far: (f64, f64, f64)) -> bool {
+    let (d1, lo1, hi1) = near;
+    let (d2, lo2, hi2) = far;
+    (dist < d1 && angle < hi1 && angle > lo1) || (dist < d2 && angle < hi2 && angle > lo2)
+}
+
+fn tail_arc(dist: f64, angle: f64) -> bool {
+    in_arc(dist, angle, (1423.0, 172.0, 188.0), (802.0, 166.0, 194.0))
+}
+
+fn debuff_arc(dist: f64, angle: f64) -> bool {
+    in_arc(dist, angle, (850.0, 150.0, 210.0), (425.0, 90.0, 270.0))
+}
+
+/// `manageSkills` — choose what Antharas does to his current top threat.
+///
+/// The ladder is **a chain of `else if`, not a weighted table**: each roll is
+/// only taken when every roll above it has already failed, so the printed
+/// percentages are conditional. `getRandomBoolean()` sitting two-thirds of the
+/// way down means the options *below* it are reached less than half the time
+/// they are eligible.
+///
+/// Four health bands, and the repertoire opens up as he is worn down. Only
+/// below 25% does he use the Breath Attack at all — and he leads with it, at a
+/// 30% chance, before anything else is considered.
+pub(crate) fn choose_skill(world: &mut World, antharas_oid: i32, target_oid: i32) -> Option<Choice> {
+    let (cur, max) = match world.objects.get_component::<crate::model::components::Vitals>(&antharas_oid) {
+        Some(v) => (v.cur_hp, v.max_hp as f64),
+        None => return None,
+    };
+    let (dist, angle) = {
+        let a = world.objects.get_component::<crate::model::components::Position>(&antharas_oid)?;
+        let b = world.objects.get_component::<crate::model::components::Position>(&target_oid)?;
+        let (dx, dy, dz) = ((a.x - b.x) as f64, (a.y - b.y) as f64, (a.z - b.z) as f64);
+        ((dx * dx + dy * dy + dz * dz).sqrt(), angle_between(a.x, a.y, b.x, b.y))
+    };
+
+    let fear = |w: &mut World| {
+        if w.roll(2) == 0 { on_target(ANTH_FEAR) } else { on_target(ANTH_FEAR_SHORT) }
+    };
+
+    if cur < max * 0.25 {
+        if world.roll(100) < 30 {
+            return Some(on_target(ANTH_MOUTH));
+        }
+        if world.roll(100) < 80 && tail_arc(dist, angle) {
+            return Some(on_self(ANTH_TAIL));
+        }
+        if world.roll(100) < 40 && debuff_arc(dist, angle) {
+            return Some(on_self(ANTH_DEBUFF));
+        }
+        if world.roll(100) < 10 && dist < 1100.0 {
+            return Some(on_self(ANTH_JUMP));
+        }
+        if world.roll(100) < 10 {
+            return Some(on_target(ANTH_METEOR));
+        }
+        if world.roll(100) < 6 {
+            return Some(on_target(ANTH_BREATH));
+        }
+        if world.roll(2) == 0 {
+            return Some(on_target(ANTH_NORM_ATTACK_EX));
+        }
+        if world.roll(100) < 5 {
+            return Some(fear(world));
+        }
+        return Some(on_target(ANTH_NORM_ATTACK));
+    }
+
+    if cur < max * 0.5 {
+        if world.roll(100) < 80 && tail_arc(dist, angle) {
+            return Some(on_self(ANTH_TAIL));
+        }
+        if world.roll(100) < 40 && debuff_arc(dist, angle) {
+            return Some(on_self(ANTH_DEBUFF));
+        }
+        if world.roll(100) < 10 && dist < 1100.0 {
+            return Some(on_self(ANTH_JUMP));
+        }
+        if world.roll(100) < 7 {
+            return Some(on_target(ANTH_METEOR));
+        }
+        if world.roll(100) < 6 {
+            return Some(on_target(ANTH_BREATH));
+        }
+        if world.roll(2) == 0 {
+            return Some(on_target(ANTH_NORM_ATTACK_EX));
+        }
+        if world.roll(100) < 5 {
+            return Some(fear(world));
+        }
+        return Some(on_target(ANTH_NORM_ATTACK));
+    }
+
+    if cur < max * 0.75 {
+        // The curse drops out of this band — above half health Antharas never
+        // casts it, so a party that burns him past 50% has *seen* it appear.
+        if world.roll(100) < 80 && tail_arc(dist, angle) {
+            return Some(on_self(ANTH_TAIL));
+        }
+        if world.roll(100) < 10 && dist < 1100.0 {
+            return Some(on_self(ANTH_JUMP));
+        }
+        if world.roll(100) < 5 {
+            return Some(on_target(ANTH_METEOR));
+        }
+        if world.roll(100) < 6 {
+            return Some(on_target(ANTH_BREATH));
+        }
+        if world.roll(2) == 0 {
+            return Some(on_target(ANTH_NORM_ATTACK_EX));
+        }
+        if world.roll(100) < 5 {
+            return Some(fear(world));
+        }
+        return Some(on_target(ANTH_NORM_ATTACK));
+    }
+
+    // Above 75%: the stomp goes too, leaving the tail, meteor, breath and the
+    // two ordinary attacks.
+    if world.roll(100) < 80 && tail_arc(dist, angle) {
+        return Some(on_self(ANTH_TAIL));
+    }
+    if world.roll(100) < 3 {
+        return Some(on_target(ANTH_METEOR));
+    }
+    if world.roll(100) < 6 {
+        return Some(on_target(ANTH_BREATH));
+    }
+    if world.roll(2) == 0 {
+        return Some(on_target(ANTH_NORM_ATTACK_EX));
+    }
+    if world.roll(100) < 5 {
+        return Some(fear(world));
+    }
+    Some(on_target(ANTH_NORM_ATTACK))
+}
+
+/// `manageSkills`' guard and body: skip while already casting, take the top
+/// threat, choose, cast.
+pub(crate) fn manage_and_cast(world: &mut World, antharas_oid: i32) {
+    if world.objects.has_component::<crate::model::components::Casting>(&antharas_oid) {
+        return;
+    }
+    let Some(target) = super::boss_threat::take_top_threat(world, antharas_oid) else { return };
+    let Some(choice) = choose_skill(world, antharas_oid, target) else { return };
+    super::boss_threat::cast_boss_skill(world, antharas_oid, target, choice.skill_id, choice.on_self);
+}
+
+/// `Antharas.onAttack` — the threat half and the skill half, in Java's order.
+pub(crate) fn on_antharas_damage(world: &mut World, antharas_oid: i32, attacker_oid: i32, damage: i32, is_melee: bool) {
+    super::boss_threat::on_boss_damage(world, antharas_oid, attacker_oid, damage, is_melee);
+    manage_and_cast(world, antharas_oid);
+}
