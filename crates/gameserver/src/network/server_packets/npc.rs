@@ -309,3 +309,151 @@ mod tests {
         assert_eq!(super::npc_title(&t, &cfg), "Raid Fighter");
     }
 }
+
+/// Port of `serverpackets/SummonInfo` (masked, same 37-bit `NpcInfoType`
+/// format as [`npc_info`]) — a servitor as seen by players **other than** its
+/// owner. The owner gets `PetSummonInfo` (`PET_INFO`) instead, which is a flat
+/// packet with the fed/lifetime bar.
+///
+/// The differences from `npc_info` are all summon-specific:
+/// * `TITLE` is always present and carries the **owner's name**, which is what
+///   draws "Servitor of X" under the model;
+/// * `PVP_FLAG` is always present (Java adds it unconditionally);
+/// * `NAME` rides along when the template's display id differs from its own id;
+/// * `SUMMONED` marks the spawn animation.
+///
+/// Not modelled and left at Java's defaults: clan crests (the owner's), team,
+/// reputation, water/fly, enchant and transformation.
+#[allow(clippy::too_many_arguments)]
+pub fn summon_info(
+    object_id: i32,
+    t: &NpcTemplate,
+    pos: &crate::model::components::Position,
+    vitals: &crate::model::components::Vitals,
+    speeds: &crate::model::components::Speeds,
+    combat: &crate::model::components::CombatStats,
+    owner_name: &str,
+    relation: i32,
+    summoned: bool,
+) -> Vec<u8> {
+    use NpcInfoType as T;
+
+    let mut mask_bytes: [u8; 5] = [0x00, 0x0C, 0x0C, 0x00, 0x00];
+    let mut init_size: i32 = 0;
+    let mut block_size: i32 = 0;
+    let mut add = |mask_bytes: &mut [u8; 5], ty: T| {
+        masks::add_mask(mask_bytes, ty.mask());
+        match ty {
+            T::Attackable | T::Relations => init_size += ty.block_length(),
+            T::Title => init_size += ty.block_length() + owner_name.len() as i32 * 2,
+            T::Name => block_size += ty.block_length() + t.name.len() as i32 * 2,
+            _ => block_size += ty.block_length(),
+        }
+    };
+
+    // Java's unconditional set for a summon.
+    add(&mut mask_bytes, T::Attackable);
+    add(&mut mask_bytes, T::Relations);
+    add(&mut mask_bytes, T::Title);
+    add(&mut mask_bytes, T::Id);
+    add(&mut mask_bytes, T::Position);
+    add(&mut mask_bytes, T::StopMode);
+    add(&mut mask_bytes, T::MoveMode);
+    add(&mut mask_bytes, T::PvpFlag);
+    if t.display_id != t.id {
+        add(&mut mask_bytes, T::Name);
+    }
+    if pos.heading > 0 {
+        add(&mut mask_bytes, T::Heading);
+    }
+    if combat.p_atk_spd > 0 || combat.m_atk_spd > 0 {
+        add(&mut mask_bytes, T::AtkCastSpeed);
+    }
+    if speeds.run_spd > 0.0 {
+        add(&mut mask_bytes, T::SpeedMultiplier);
+    }
+    if vitals.max_hp > 0 {
+        add(&mut mask_bytes, T::MaxHp);
+    }
+    if vitals.max_mp > 0 {
+        add(&mut mask_bytes, T::MaxMp);
+    }
+    if vitals.cur_hp <= vitals.max_hp as f64 {
+        add(&mut mask_bytes, T::CurrentHp);
+    }
+    if vitals.cur_mp <= vitals.max_mp as f64 {
+        add(&mut mask_bytes, T::CurrentMp);
+    }
+    if summoned {
+        add(&mut mask_bytes, T::Summoned);
+    }
+    add(&mut mask_bytes, T::PetEvolutionId);
+    // 0x01 in combat, 0x02 dead, 0x04 targetable, 0x08 always.
+    let mut status_mask = 0x08u8;
+    if vitals.dead {
+        status_mask |= 0x02;
+    }
+    if t.targetable {
+        status_mask |= 0x04;
+    }
+    add(&mut mask_bytes, T::VisualState);
+
+    let contains = |ty: T| masks::contains_mask(&mask_bytes, ty.mask());
+
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::SUMMON_INFO);
+    w.write_i32(object_id);
+    w.write_u8(if summoned { 2 } else { 1 }); // 0=teleported 1=default 2=summoned
+    w.write_i16(37); // mask_bits_37
+    w.write_bytes(&mask_bytes);
+
+    // Block 1.
+    w.write_u8(init_size as u8);
+    // `isAutoAttackable(attacker)` — a servitor is only auto-attackable in a
+    // PvP state this port doesn't resolve per-viewer yet, so 0.
+    w.write_u8(0);
+    w.write_i32(relation);
+    w.write_string(owner_name);
+
+    // Block 2.
+    w.write_i16(block_size as i16);
+    w.write_i32(t.display_id + 1_000_000);
+    w.write_i32(pos.x);
+    w.write_i32(pos.y);
+    w.write_i32(pos.z);
+    if contains(T::Heading) {
+        w.write_i32(pos.heading);
+    }
+    if contains(T::AtkCastSpeed) {
+        w.write_i32(combat.p_atk_spd);
+        w.write_i32(combat.m_atk_spd);
+    }
+    if contains(T::SpeedMultiplier) {
+        w.write_f32(speeds.move_multiplier as f32);
+        w.write_f32(1.0);
+    }
+    w.write_u8(u8::from(!vitals.dead)); // STOP_MODE
+    w.write_u8(speeds.running as u8); // MOVE_MODE
+    w.write_i32(0); // PET_EVOLUTION_ID
+    if contains(T::CurrentHp) {
+        w.write_i32(vitals.cur_hp as i32);
+    }
+    if contains(T::CurrentMp) {
+        w.write_i32(vitals.cur_mp as i32);
+    }
+    if contains(T::MaxHp) {
+        w.write_i32(vitals.max_hp);
+    }
+    if contains(T::MaxMp) {
+        w.write_i32(vitals.max_mp);
+    }
+    if contains(T::Summoned) {
+        w.write_u8(2); // "do some animation on spawn"
+    }
+    if contains(T::Name) {
+        w.write_string(&t.name);
+    }
+    w.write_u8(0); // PVP_FLAG
+    w.write_u8(status_mask); // VISUAL_STATE
+    w.into_bytes()
+}

@@ -333,3 +333,74 @@ fn a_servitor_does_not_pick_its_own_fights() {
         "no unbidden aggro"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Visibility to other players (slice 3)
+// ---------------------------------------------------------------------------
+
+/// The owner sees `PetInfo`; **everyone else** sees `SummonInfo` (0x8B). Before
+/// this slice a servitor was invisible to every player but its summoner.
+#[test]
+fn other_players_are_sent_summon_info_and_the_owner_is_not() {
+    let (mut world, _db, _l) = servitor_world();
+    let mut owner_rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let mut other_rx = ingame_caster(&mut world, 2, OWNER + 1, 60, 0);
+    let _ = drain(&mut owner_rx);
+    let _ = drain(&mut other_rx);
+
+    summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+
+    let owner_ops: Vec<u8> = drain(&mut owner_rx).iter().filter_map(|p| p.first().copied()).collect();
+    let other_ops: Vec<u8> = drain(&mut other_rx).iter().filter_map(|p| p.first().copied()).collect();
+
+    assert!(owner_ops.contains(&server_packets::opcodes::PET_INFO), "owner gets PetInfo: {owner_ops:?}");
+    assert!(
+        !owner_ops.contains(&server_packets::opcodes::SUMMON_INFO),
+        "and not the bystander packet as well"
+    );
+    assert!(other_ops.contains(&server_packets::opcodes::SUMMON_INFO), "others get SummonInfo: {other_ops:?}");
+    assert!(!other_ops.contains(&server_packets::opcodes::PET_INFO), "and never the owner-only one");
+}
+
+/// The packet carries the **owner's name** in its title slot — that is what
+/// draws the "of X" label under a summon, and it is the field most likely to be
+/// wired to the wrong string.
+#[test]
+fn summon_info_carries_the_owners_name() {
+    let (mut world, _db, _l) = servitor_world();
+    let _owner_rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let mut other_rx = ingame_caster(&mut world, 2, OWNER + 1, 60, 0);
+    let _ = drain(&mut other_rx);
+
+    summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+
+    let owner_name = world.objects.get_component::<crate::model::Player>(&OWNER).unwrap().name.clone();
+    let pkt = drain(&mut other_rx)
+        .into_iter()
+        .find(|p| p.first() == Some(&server_packets::opcodes::SUMMON_INFO))
+        .expect("SummonInfo sent");
+    // The name is UTF-16LE in the packet body.
+    let wide: Vec<u8> = owner_name.encode_utf16().flat_map(|c| c.to_le_bytes()).collect();
+    assert!(
+        pkt.windows(wide.len()).any(|w| w == wide),
+        "the owner's name appears in the packet"
+    );
+}
+
+/// A servitor that walks into view is introduced with `SummonInfo` too, not
+/// `NpcInfo` — the visibility delta path has to make the same choice as the
+/// summon path.
+#[test]
+fn a_servitor_entering_view_is_introduced_as_a_summon() {
+    let (mut world, _db, _l) = servitor_world();
+    let _owner_rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+
+    // A second player logs in nearby *after* the summon.
+    let mut late_rx = ingame_caster(&mut world, 2, OWNER + 1, 60, 0);
+    let _ = drain(&mut late_rx);
+    crate::game_loop::visibility::on_enter_world(&world, 2, OWNER + 1);
+
+    let ops: Vec<u8> = drain(&mut late_rx).iter().filter_map(|p| p.first().copied()).collect();
+    assert!(ops.contains(&server_packets::opcodes::SUMMON_INFO), "introduced as a summon: {ops:?}");
+}

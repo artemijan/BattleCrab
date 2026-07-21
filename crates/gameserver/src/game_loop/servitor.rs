@@ -77,6 +77,9 @@ pub(crate) fn summon_servitor(
         v.cur_mp = v.max_mp as f64;
     }
     send_pet_info(world, owner_oid, servitor_oid, PetInfoKind::Summoned);
+    // Everyone else nearby gets `SummonInfo` with the spawn animation — Java's
+    // `setShowSummonAnimation(true)` before `spawnMe()`.
+    broadcast_summon_info(world, servitor_oid, true);
     Some(servitor_oid)
 }
 
@@ -389,6 +392,42 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
         }
         _ => {
             servitor_toggle_follow(world, owner_oid);
+        }
+    }
+}
+
+/// `SummonInfo` to every nearby player except the owner (who has the
+/// `PetInfo` view). Used when the servitor first appears.
+pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summoned: bool) {
+    use crate::model::components::RegionCell;
+    let Some(link) = world.objects.get_component::<ServitorOf>(&servitor_oid).copied() else { return };
+    let Some(region) = world.objects.get_component::<RegionCell>(&servitor_oid).map(|r| r.0) else { return };
+    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&servitor_oid) else { return };
+    let Some(t) = npc.template(world) else { return };
+    let (Some(pos), Some(vitals), Some(speeds), Some(combat)) = (
+        world.objects.get_component::<Position>(&servitor_oid),
+        world.objects.get_component::<Vitals>(&servitor_oid),
+        world.objects.get_component::<Speeds>(&servitor_oid),
+        world.objects.get_component::<CombatStats>(&servitor_oid),
+    ) else {
+        return;
+    };
+    let owner_name = world
+        .objects
+        .get_component::<crate::model::Player>(&link.owner_object_id)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    let pkt =
+        server_packets::summon_info(servitor_oid, t, pos, vitals, speeds, combat, &owner_name, 0, summoned);
+    for cs in world.clients.values() {
+        let crate::session::ClientSession::InGame(session) = cs else { continue };
+        let viewer = session.player_object_id();
+        if viewer == link.owner_object_id {
+            continue; // the owner has the PetInfo view
+        }
+        let Some(vr) = world.objects.get_component::<RegionCell>(&viewer) else { continue };
+        if crate::world::regions_adjacent(region, vr.0) {
+            cs.send(pkt.clone());
         }
     }
 }
