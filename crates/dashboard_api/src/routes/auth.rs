@@ -73,9 +73,7 @@ fn session_headers(app: &AppState, subject: &str, password_hash: &str) -> ApiRes
 /// the user their account does not exist when it does. `/resend-verification`
 /// is the retry path.
 async fn send_verification(app: &AppState, email: &str) {
-    // Subject and payload are both the address: for a master account the
-    // address *is* the account, and there is no separate pending value.
-    let raw = token::issue_verify_email(&app.key, email, email);
+    let raw = token::issue_verify_email(&app.key, email);
     // site_base_url: /verify-email is an SPA route, not an API one.
     let link = format!("{}/verify-email?token={raw}", app.config.site_base_url);
 

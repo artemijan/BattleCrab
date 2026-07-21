@@ -278,8 +278,9 @@ Prefix everything with `/api/v1`. JSON in, JSON out. Errors use a consistent env
 | `POST` | `/auth/forgot-password` | — | Email a stateless reset token (always 200, never leak existence) |
 | `POST` | `/auth/reset-password` | token | Verify token, rewrite hash (invalidates sessions) |
 | `POST` | `/account/password` | cookie | Change password (requires current) |
-| `POST` | `/account/email` | cookie | Request email change → verification mail |
-| `GET`  | `/account/email/verify` | token | Consume token, write `accounts.email` |
+| `GET`  | `/account/email/verify` | token | Consume token, set `accounts.is_verified` |
+| `GET`  | `/account/game-accounts` | cookie | The master's game account logins |
+| `POST` | `/account/game-accounts` | cookie | Create a game account (§15.6) |
 | `GET`  | `/account/characters` | cookie | Character list (read-only projection) |
 | `GET`  | `/server/status` | — | Online/offline + player count |
 
@@ -757,10 +758,17 @@ An unverified account **can still sign in**, carrying `isVerified: false` so the
 Blocking login would strand any user whose verification mail bounced, with no authenticated way to
 ask for another; `/auth/resend-verification` is that path, and it requires a session.
 
-One handler serves both links, distinguished by whether the token's payload differs from its
-subject: `(email, email)` confirms, `(old, new)` moves the account. A move rewrites the master row
-*and every game account under it* in one transaction — they are joined by the address itself, so a
-partial update would orphan the lot.
+**There is no change-email flow.** `/account/email` was removed along with `db::accounts::
+change_master_email`. A master's address is simultaneously its identity, its login, and the only
+record of which game accounts belong to it — moving one has to rewrite every game account row in
+the same transaction, which makes it an account migration rather than a setting. `/account/email/
+verify` remains, and now only ever sets `is_verified`.
+
+The removal has a tail: that flow issued `(old, new)` tokens, which are correctly signed and stay
+valid for their TTL. `token::verify_email` therefore **refuses any token whose payload differs from
+its subject**, so a change link still sitting in an inbox cannot move an account after the feature
+was withdrawn. That equality check is the whole guard — unit-tested by forging a two-address token
+directly, since `issue_verify_email` can no longer produce one.
 
 ### 15.6 Creating game accounts
 

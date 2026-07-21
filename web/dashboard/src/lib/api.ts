@@ -132,7 +132,9 @@ export const api = {
   changePassword: (currentPassword: string, newPassword: string) =>
     post<void>("/account/password", { currentPassword, newPassword }),
 
-  changeEmail: (email: string) => post<void>("/account/email", { email }),
+  // There is deliberately no changeEmail: the address is the account's identity
+  // and the only record of which game accounts belong to it, so moving it is an
+  // account migration rather than a setting. The API has no endpoint for it.
 
   // GET with the token in the query string, and deliberately no session
   // required: the link is clicked from an inbox, often in a different browser

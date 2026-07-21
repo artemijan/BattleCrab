@@ -73,14 +73,26 @@ pub fn verify_reset(key: &SigningKey, raw: &str, current_password_hash: &str) ->
     (payload == current_password_hash).then_some(login)
 }
 
-/// Email verification link, carrying the pending address.
-pub fn issue_verify_email(key: &SigningKey, login: &str, new_email: &str) -> String {
-    encode(key, PURPOSE_VERIFY, login, new_email, VERIFY_EMAIL_TTL_SECS)
+/// Email confirmation link.
+///
+/// Subject and payload are the *same* address. There is no pending-address
+/// flow: an account's address is its identity and cannot be changed from the
+/// dashboard, so a token naming two addresses is not something this system
+/// issues.
+pub fn issue_verify_email(key: &SigningKey, email: &str) -> String {
+    encode(key, PURPOSE_VERIFY, email, email, VERIFY_EMAIL_TTL_SECS)
 }
 
-/// Returns `(login, email)` to write, iff the token is valid.
-pub fn verify_email(key: &SigningKey, raw: &str) -> Option<(String, String)> {
-    decode(key, PURPOSE_VERIFY, raw)
+/// Returns the address to confirm, iff the token is valid **and** names a
+/// single address.
+///
+/// The equality check is load-bearing rather than cosmetic: the removed
+/// change-email flow issued `(old, new)` tokens, and any of those still sitting
+/// in an inbox would otherwise keep working and move an account after the
+/// feature was withdrawn.
+pub fn verify_email(key: &SigningKey, raw: &str) -> Option<String> {
+    let (subject, payload) = decode(key, PURPOSE_VERIFY, raw)?;
+    (payload == subject).then_some(subject)
 }
 
 #[cfg(test)]
@@ -108,7 +120,7 @@ mod tests {
 
     #[test]
     fn a_verify_token_cannot_be_used_as_a_reset_token() {
-        let t = issue_verify_email(&key(), "alice", "a@b.c");
+        let t = issue_verify_email(&key(), "a@b.c");
         assert!(verify_reset(&key(), &t, HASH).is_none());
     }
 
@@ -119,12 +131,24 @@ mod tests {
     }
 
     #[test]
-    fn verify_email_carries_the_pending_address() {
-        let t = issue_verify_email(&key(), "alice", "new@example.com");
-        assert_eq!(
-            verify_email(&key(), &t),
-            Some(("alice".into(), "new@example.com".into()))
+    fn verify_email_roundtrips_the_address() {
+        let t = issue_verify_email(&key(), "alice@example.com");
+        assert_eq!(verify_email(&key(), &t).as_deref(), Some("alice@example.com"));
+    }
+
+    /// A leftover change-email link from before that feature was removed is
+    /// correctly signed and unexpired — the *only* thing that stops it moving
+    /// an account is this equality check.
+    #[test]
+    fn a_token_naming_two_addresses_is_refused() {
+        let forged = encode(
+            &key(),
+            PURPOSE_VERIFY,
+            "alice@example.com",
+            "attacker@example.com",
+            VERIFY_EMAIL_TTL_SECS,
         );
+        assert!(verify_email(&key(), &forged).is_none());
     }
 
     #[test]

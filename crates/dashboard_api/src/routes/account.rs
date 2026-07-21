@@ -1,5 +1,12 @@
-//! Authenticated master-account management: password, email, game accounts,
-//! character list.
+//! Authenticated master-account management: password, game accounts, character
+//! list.
+//!
+//! There is deliberately **no** change-email endpoint. A master account's
+//! address is its identity, its login, and the only record of which game
+//! accounts belong to it — moving it is an account migration rather than an
+//! account setting, and every game account underneath has to move in the same
+//! breath. `/email/verify` remains, but only to confirm the address a
+//! registration was made with.
 
 use axum::extract::{Query, State};
 use axum::http::{HeaderMap, HeaderValue, StatusCode};
@@ -7,16 +14,15 @@ use axum::response::IntoResponse;
 use axum::{Json, Router};
 use serde::Deserialize;
 
-use crate::auth::{cookie, token, verify_password};
+use crate::auth::{cookie, verify_password};
 use crate::db::{accounts, characters};
 use crate::error::{ApiError, ApiResult};
-use crate::routes::{current_account, validate_email, validate_login, validate_password};
+use crate::routes::{current_account, validate_login, validate_password};
 use crate::state::AppState;
 
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/password", axum::routing::post(change_password))
-        .route("/email", axum::routing::post(change_email))
         .route("/email/verify", axum::routing::get(verify_email))
         .route(
             "/game-accounts",
@@ -68,65 +74,17 @@ async fn change_password(
 }
 
 #[derive(Deserialize)]
-pub struct ChangeEmailRequest {
-    pub email: String,
-}
-
-async fn change_email(
-    State(app): State<AppState>,
-    headers: HeaderMap,
-    Json(body): Json<ChangeEmailRequest>,
-) -> ApiResult<StatusCode> {
-    let account = current_account(&app, &headers).await?;
-    let new_email = validate_email(&body.email)?;
-    let subject = account.subject().to_string();
-
-    if new_email == subject {
-        return Err(ApiError::BadRequest(
-            "that is already your email address".into(),
-        ));
-    }
-    // Cheap pre-check for a clear error message. The real guard is the partial
-    // unique index, enforced when the link is followed — by then the address
-    // may have been taken by someone else.
-    if accounts::find_master_by_email(&app.pool, &new_email)
-        .await?
-        .is_some()
-    {
-        return Err(ApiError::EmailTaken);
-    }
-
-    // Deliberately does NOT write the column: the address is this account's
-    // identity, so moving it before the new one is proven would lock the user
-    // out of an address they may have mistyped.
-    let raw = token::issue_verify_email(&app.key, &subject, &new_email);
-    // site_base_url: /verify-email is an SPA route, not an API one.
-    let link = format!("{}/verify-email?token={raw}", app.config.site_base_url);
-
-    // Unlike the reset flow there is nothing to hide here — the caller is
-    // authenticated and chose this address — so a delivery failure is reported.
-    // Otherwise the UI would claim "check your inbox" for mail that never left.
-    app.mailer
-        .send_email_verification(&new_email, &new_email, &link)
-        .await
-        .map_err(|e| {
-            tracing::error!("failed to send verification email for {subject}: {e}");
-            ApiError::Internal(crate::error::anyhow_lite::Error(
-                "could not send the verification email".into(),
-            ))
-        })?;
-
-    Ok(StatusCode::ACCEPTED)
-}
-
-#[derive(Deserialize)]
 pub struct VerifyEmailQuery {
     pub token: String,
 }
 
-/// Handles both verification links, told apart by whether the payload differs
-/// from the subject: registration issues `(email, email)` and only confirms the
-/// address, while a change issues `(old, new)` and moves the account.
+/// Confirms the address a registration was made with.
+///
+/// This only ever sets `is_verified`; it never moves an account to a different
+/// address. `token::verify_email` refuses any token whose payload differs from
+/// its subject, which is what neutralises the change-email links the removed
+/// flow used to issue — those are still correctly signed and may still be
+/// sitting in inboxes.
 ///
 /// Unauthenticated by design — the signed token is the credential, and the user
 /// may well open the link in a browser they are not signed in on.
@@ -134,22 +92,16 @@ async fn verify_email(
     State(app): State<AppState>,
     Query(query): Query<VerifyEmailQuery>,
 ) -> ApiResult<StatusCode> {
-    let (subject, target) =
-        token::verify_email(&app.key, &query.token).ok_or(ApiError::InvalidToken)?;
+    let subject =
+        crate::auth::token::verify_email(&app.key, &query.token).ok_or(ApiError::InvalidToken)?;
 
-    // Confirm the account still exists — and is still at the address the token
-    // was issued for — before writing.
+    // Confirm the account still exists at the address the token names.
     accounts::find_master_by_email(&app.pool, &subject)
         .await?
         .ok_or(ApiError::InvalidToken)?;
 
-    if target == subject {
-        accounts::mark_verified(&app.pool, &subject).await?;
-        tracing::info!("email verified for {subject}");
-    } else {
-        accounts::change_master_email(&app.pool, &subject, &target).await?;
-        tracing::info!("email changed from {subject} to {target}");
-    }
+    accounts::mark_verified(&app.pool, &subject).await?;
+    tracing::info!("email verified for {subject}");
 
     Ok(StatusCode::NO_CONTENT)
 }
