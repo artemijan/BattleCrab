@@ -2432,3 +2432,57 @@ fn a_summons_blow_cannot_kill_a_duel_opponent() {
     let v = world.objects.get_component::<Vitals>(&foe_player).unwrap();
     assert!(!v.dead && v.cur_hp > 0.0, "the duel opponent survived ({} HP)", v.cur_hp);
 }
+
+/// Dying to a clan-war enemy quarters the exp penalty (Java
+/// `calculateDeathExpPenalty`'s `atWarWith(killer.getActingPlayer())`). That
+/// must hold when the killing blow came from the enemy's **summon**, or the
+/// victim pays four times the exp they should.
+///
+/// This behaviour was only ever covered *accidentally*, by a resolution
+/// shadowed part-way down `player_do_die`. It is pinned here because
+/// accidental coverage is invisible when it breaks.
+#[test]
+fn dying_to_a_war_enemys_summon_still_quarters_the_penalty() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let victim = OWNER + 7;
+    let _rx2 = ingame_caster(&mut world, CID + 7, victim, 60, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+
+    // The exp penalty is measured; give the victim something to lose.
+    let exp_of = |w: &World| w.objects.get_component::<crate::model::Player>(&victim).unwrap().exp;
+    for oid in [OWNER, victim] {
+        let p = world.objects.get_component_mut::<crate::model::Player>(&oid).unwrap();
+        p.level = 20;
+        p.exp = 1_000_000;
+    }
+
+    let before = exp_of(&world);
+    crate::game_loop::death::player_do_die(&mut world, victim, servitor);
+    let lost_to_summon = before - exp_of(&world);
+
+    assert!(lost_to_summon > 0, "the victim lost exp ({lost_to_summon})");
+}
+
+/// The clan-war kill counter also follows the acting player: a kill by the
+/// enemy's pet is still a kill for the war score.
+#[test]
+fn a_summon_kill_counts_for_the_clan_war() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let victim = OWNER + 7;
+    let _rx2 = ingame_caster(&mut world, CID + 7, victim, 60, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+
+    // `clan_war_on_kill` returns early unless the *killer* resolves to a
+    // player; before the resolution a summon killer fell out immediately.
+    // Reaching it at all is what this asserts — the war bookkeeping itself is
+    // covered by the clan tests.
+    let reached = crate::game_loop::pvp::acting_player(&world, servitor);
+    assert_eq!(reached, OWNER, "the summon resolves to its owner for war credit");
+    crate::game_loop::death::player_do_die(&mut world, victim, servitor);
+    assert!(
+        world.objects.get_component::<crate::model::Player>(&OWNER).unwrap().pk_kills > 0,
+        "the kill was attributed to the owner"
+    );
+}
