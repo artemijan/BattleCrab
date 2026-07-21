@@ -526,3 +526,42 @@ fn cooldowns_are_saved_under_the_active_class_index() {
     assert_eq!(save.class_index, 1, "the reuse rows go under the active slot, not index 0");
     assert!(!save.skill_reuses.is_empty(), "and the cooldown is in them");
 }
+
+/// `ExSubjobInfo` carries the character's class list: the **base class first**,
+/// then one row per subclass. The count was hard-coded to 0 — which predates
+/// G17 landing subclasses — so the client's class list was always empty, even
+/// for a character with no subclasses at all (the base row is never optional).
+#[test]
+fn ex_subjob_info_lists_the_base_class_and_subclasses() {
+    use crate::model::SubClass;
+
+    let (mut world, _db, _l) = combat_test_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+
+    // Row size: index + classId + level (3 ints) + type (1 byte) = 13 bytes.
+    const ROW: usize = 13;
+    let base_only = {
+        let p = world.objects.get_component::<Player>(&PLAYER).unwrap();
+        crate::network::enter_world::ex_subjob_info(p)
+    };
+
+    world.objects.get_component_mut::<Player>(&PLAYER).unwrap().subclasses = vec![
+        SubClass { class_id: 20, class_index: 1, level: 55, exp: 0, sp: 0 },
+        SubClass { class_id: 30, class_index: 2, level: 60, exp: 0, sp: 0 },
+    ];
+    let with_subs = {
+        let p = world.objects.get_component::<Player>(&PLAYER).unwrap();
+        crate::network::enter_world::ex_subjob_info(p)
+    };
+
+    assert_eq!(
+        with_subs.len(),
+        base_only.len() + 2 * ROW,
+        "two subclasses add exactly two rows"
+    );
+
+    // The count field sits after: ex-opcode (3) + type (1) + classId (4) + race (4).
+    let count_at = 12;
+    let count = i32::from_le_bytes(base_only[count_at..count_at + 4].try_into().unwrap());
+    assert_eq!(count, 1, "a character with no subclasses still reports its base class");
+}

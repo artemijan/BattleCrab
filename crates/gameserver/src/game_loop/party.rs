@@ -63,7 +63,35 @@ pub(crate) fn member_view(world: &World, object_id: i32) -> Option<PartyMemberVi
         level: p.level,
         class_id: p.class_id,
         race: p.race,
+        summons: summon_views(world, object_id),
     })
+}
+
+/// A member's pet and servitor as party-window rows (Java writes the pet
+/// first, then servitors). Reads the owner's `SummonRef` link rather than
+/// sweeping — which is what makes this callable from `&World`.
+fn summon_views(world: &World, owner_oid: i32) -> Vec<crate::network::server_packets::PartySummonView> {
+    use crate::game_loop::servitor::{pet_of, servitor_of};
+    [(pet_of(world, owner_oid), 1u8), (servitor_of(world, owner_oid), 2u8)]
+        .into_iter()
+        .filter_map(|(oid, summon_type)| {
+            let oid = oid?;
+            let npc = world.objects.get_component::<crate::model::npc::Npc>(&oid)?;
+            let v = world.objects.get_component::<Vitals>(&oid)?;
+            let name = npc.template(world).map(|t| t.name.clone()).unwrap_or_default();
+            Some(crate::network::server_packets::PartySummonView {
+                object_id: oid,
+                npc_id: npc.npc_id,
+                summon_type,
+                name,
+                hp: v.cur_hp as i32,
+                max_hp: v.max_hp,
+                mp: v.cur_mp as i32,
+                max_mp: v.max_mp,
+                level: npc.template(world).map(|t| t.level).unwrap_or(1),
+            })
+        })
+        .collect()
 }
 
 fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {

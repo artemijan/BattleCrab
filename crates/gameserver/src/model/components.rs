@@ -601,6 +601,24 @@ pub struct PetOf {
     pub sp: i64,
 }
 
+/// The owner's side of the summon link — Java's `Player._pet` / `_servitors`
+/// fields.
+///
+/// The port originally derived this by sweeping the store for a matching
+/// [`ServitorOf`], which needed `&mut World` (the ECS builds its `QueryState`
+/// mutably) and so could not be read from the packet builders, which take
+/// `&World`. Holding the reverse link is both faster and closer to Java, where
+/// `getPet()` is a field read, not a world scan.
+///
+/// The ids are **validated on read** (`servitor_of`/`pet_of` check the entity
+/// still exists), so a despawn path that forgets to clear this yields `None`
+/// rather than a dangling reference.
+#[derive(Component, Debug, Clone, Copy, Default)]
+pub struct SummonRef {
+    pub servitor: Option<i32>,
+    pub pet: Option<i32>,
+}
+
 /// Every saved pet row belonging to a character, keyed by the **collar's object
 /// id** — Java's `pets` primary key (`item_obj_id`).
 ///

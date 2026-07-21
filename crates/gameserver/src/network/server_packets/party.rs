@@ -20,6 +20,44 @@ pub struct PartyMemberView {
     pub level: i32,
     pub class_id: i32,
     pub race: i32,
+    /// The member's pet and servitors, in Java's order (pet first). Empty
+    /// until G29 — the count used to be hard-coded to 0, so a party member's
+    /// summon never appeared in anyone else's party window.
+    pub summons: Vec<PartySummonView>,
+}
+
+/// One summon row inside a party-window member entry.
+#[derive(Debug, Clone)]
+pub struct PartySummonView {
+    pub object_id: i32,
+    /// Java writes `getId() + 1000000` — the client's summon-template space.
+    pub npc_id: i32,
+    /// 1 = pet, 2 = servitor (the same discriminator `PetInfo` carries).
+    pub summon_type: u8,
+    pub name: String,
+    pub hp: i32,
+    pub max_hp: i32,
+    pub mp: i32,
+    pub max_mp: i32,
+    pub level: i32,
+}
+
+/// Java's offset into the client's summon-template space.
+const SUMMON_TEMPLATE_OFFSET: i32 = 1_000_000;
+
+fn write_summons(w: &mut PacketWriter, summons: &[PartySummonView]) {
+    w.write_i32(summons.len() as i32);
+    for s in summons {
+        w.write_i32(s.object_id);
+        w.write_i32(s.npc_id + SUMMON_TEMPLATE_OFFSET);
+        w.write_u8(s.summon_type);
+        w.write_string(&s.name);
+        w.write_i32(s.hp);
+        w.write_i32(s.max_hp);
+        w.write_i32(s.mp);
+        w.write_i32(s.max_mp);
+        w.write_u8(s.level as u8);
+    }
 }
 
 /// `serverpackets/AskJoinParty`.
@@ -67,7 +105,7 @@ pub fn party_small_window_all(leader_object_id: i32, loot_rule_id: i32, others: 
         write_party_member(&mut w, m);
         w.write_u8(1); // unk
         w.write_i16(m.race as i16);
-        w.write_i32(0); // summon count — no pets/servitors
+        write_summons(&mut w, &m.summons);
     }
     w.into_bytes()
 }

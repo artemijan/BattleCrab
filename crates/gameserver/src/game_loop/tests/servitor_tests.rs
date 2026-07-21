@@ -1161,3 +1161,59 @@ fn the_real_wolf_food_skill_parses_its_feed_value() {
         .expect("Wolf Food carries a Feed effect");
     assert_eq!(feed, 100, "the <normal> value from 2048");
 }
+
+// ---------------------------------------------------------------------------
+// Client-visibility gaps (slice 10)
+// ---------------------------------------------------------------------------
+
+/// A party member's summon must appear in everyone else's party window. The
+/// count was hard-coded to 0, so it never did — the third hard-coded-zero
+/// count found by the sweep that started with `CharInfo`'s cubics.
+#[test]
+fn the_party_window_carries_a_members_summon() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+
+    let before = crate::game_loop::party::member_view(&world, OWNER).unwrap();
+    assert!(before.summons.is_empty(), "no summon, no rows");
+
+    summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+
+    let after = crate::game_loop::party::member_view(&world, OWNER).unwrap();
+    assert_eq!(after.summons.len(), 1, "the servitor shows up in the party window");
+    assert_eq!(after.summons[0].summon_type, 2, "2 = servitor");
+    assert!(after.summons[0].max_hp > 0, "and carries real vitals for the HP bar");
+}
+
+/// A pet is reported with the pet discriminator, not the servitor one — the
+/// client uses it to decide what the party window row looks like.
+#[test]
+fn a_pet_reports_the_pet_summon_type_in_the_party_window() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    summon_pet(&mut world, OWNER).unwrap();
+
+    let view = crate::game_loop::party::member_view(&world, OWNER).unwrap();
+    assert_eq!(view.summons.len(), 1);
+    assert_eq!(view.summons[0].summon_type, 1, "1 = pet");
+}
+
+/// The owner→summon link is what makes the lookup readable from `&World`.
+/// Unsummoning must clear it, or the party window would keep showing a
+/// creature that no longer exists.
+#[test]
+fn unsummoning_clears_the_owner_link() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+    assert!(servitor_of(&world, OWNER).is_some());
+
+    unsummon_servitor(&mut world, OWNER);
+    assert!(servitor_of(&world, OWNER).is_none(), "link cleared");
+    assert!(
+        crate::game_loop::party::member_view(&world, OWNER).unwrap().summons.is_empty(),
+        "and the party window row goes with it"
+    );
+}
