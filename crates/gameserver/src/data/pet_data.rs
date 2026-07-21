@@ -281,6 +281,8 @@ mod tests {
         assert!((l1.p_def - 11.111_111_11).abs() < 1e-6, "org_pdefend: {}", l1.p_def);
         assert!((l1.max_hp - 19.873).abs() < 1e-6, "org_hp: {}", l1.max_hp);
         assert_eq!(l1.max_mp, 20.0, "org_mp");
+        assert_eq!(l1.regen_hp, 2.0, "org_hp_regen");
+        assert!((l1.regen_mp - 0.9).abs() < 1e-9, "org_mp_regen: {}", l1.regen_mp);
         assert_eq!(l1.owner_exp_taken, 73, "get_exp_type is the owner's percentage share");
 
         // Growth is the whole point: a higher level must be strictly stronger.
@@ -288,6 +290,7 @@ mod tests {
         let ltop = wolf.levels.get(&top).unwrap();
         assert!(ltop.p_atk > l1.p_atk, "p.atk grows with level ({} → {})", l1.p_atk, ltop.p_atk);
         assert!(ltop.max_hp > l1.max_hp, "HP grows with level ({} → {})", l1.max_hp, ltop.max_hp);
+        assert!(ltop.regen_hp > l1.regen_hp, "regen grows with level ({} → {})", l1.regen_hp, ltop.regen_hp);
         assert_eq!(wolf.max_meal(1), 248, "level 1 food capacity");
 
         // The collar lookup is what `SummonPet` uses.

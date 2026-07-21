@@ -1829,3 +1829,81 @@ fn a_decayed_servitor_does_not_take_the_pet_path() {
     assert_eq!(owner_has(&world, WOLF_COLLAR), 1, "an unrelated collar is untouched");
     let _ = collar;
 }
+
+// ---------------------------------------------------------------------------
+// Pet regen (slice 17)
+// ---------------------------------------------------------------------------
+
+/// A pet regenerates from its **per-level pet row**, not the NPC template.
+/// The fixture's pet row says 2.0 HP/tick; the Wolf NPC template says nothing,
+/// so a template-driven pet would not heal at all.
+#[test]
+fn a_pet_regenerates_from_its_pet_row() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    {
+        let v = world.objects.get_component_mut::<Vitals>(&pet_oid).unwrap();
+        v.cur_hp = 10.0;
+        v.cur_mp = 1.0;
+    }
+
+    crate::game_loop::regen::run_npc_regen_tick(&mut world);
+
+    let v = world.objects.get_component::<Vitals>(&pet_oid).unwrap();
+    assert_eq!(v.cur_hp, 12.0, "regen_hp 2.0 from the pet row");
+    assert!((v.cur_mp - 1.9).abs() < 1e-6, "regen_mp 0.9 from the pet row ({})", v.cur_mp);
+}
+
+/// Regen is capped at the maximum like any other — a nearly-full pet does not
+/// overshoot.
+#[test]
+fn pet_regen_stops_at_full() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    let max_hp = world.objects.get_component::<Vitals>(&pet_oid).unwrap().max_hp;
+    world.objects.get_component_mut::<Vitals>(&pet_oid).unwrap().cur_hp = max_hp as f64 - 0.5;
+
+    crate::game_loop::regen::run_npc_regen_tick(&mut world);
+    assert_eq!(
+        world.objects.get_component::<Vitals>(&pet_oid).unwrap().cur_hp,
+        max_hp as f64,
+        "clamped, not overshot"
+    );
+}
+
+/// The pet multipliers are separate from the NPC ones — a server that retunes
+/// monster regen must not accidentally retune pets, and vice versa.
+#[test]
+fn pet_regen_uses_the_pet_multiplier() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    world.objects.get_component_mut::<Vitals>(&pet_oid).unwrap().cur_hp = 10.0;
+    // Double pets, and set the *monster* multiplier to something absurd that
+    // must not apply.
+    world.cfg.npc.pet_hp_regen_multiplier = 2.0;
+    world.cfg.npc.hp_regen_multiplier = 100.0;
+
+    crate::game_loop::regen::run_npc_regen_tick(&mut world);
+    assert_eq!(
+        world.objects.get_component::<Vitals>(&pet_oid).unwrap().cur_hp,
+        14.0,
+        "2.0 regen × the pet multiplier, untouched by the monster one"
+    );
+}
+
+/// A dead pet does not regenerate back to life while its corpse waits to decay.
+#[test]
+fn a_dead_pet_does_not_regenerate() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+
+    crate::game_loop::regen::run_npc_regen_tick(&mut world);
+    let v = world.objects.get_component::<Vitals>(&pet_oid).unwrap();
+    assert_eq!(v.cur_hp, 0.0, "a corpse stays a corpse");
+    assert!(v.dead);
+}
