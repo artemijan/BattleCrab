@@ -2821,3 +2821,85 @@ fn an_unlearned_summon_skill_restores_nothing_and_is_not_retried() {
         "and the row was consumed rather than retried forever"
     );
 }
+
+/// A Summoner's investment in buffing their servitor survives a relog — Java
+/// keeps `character_summon_skills_save` for exactly this. Slice 27 brought the
+/// servitor back but dropped everything cast on it.
+#[test]
+fn a_servitors_buffs_survive_a_relog() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let summon_skill = 1111;
+    world.data.skill_data.insert_for_test(crate::model::skill::Skill {
+        id: summon_skill,
+        level: 1,
+        effects: vec![SkillEffect::Summon {
+            npc_id: PANTHER,
+            life_time: 1200,
+            consume_item_id: 0,
+            consume_item_count: 0,
+        }],
+        ..Default::default()
+    });
+    world.objects.get_component_mut::<crate::model::components::SkillBook>(&OWNER).unwrap().0.insert(summon_skill, 1);
+
+    // Servitor Wind Walk's shape, cast on the servitor.
+    let buff = crate::model::skill::Skill {
+        id: 1144,
+        level: 1,
+        abnormal_time: 1200,
+        effects: vec![SkillEffect::StatModifier(crate::model::skill::StatModifierEffect {
+            stat: crate::model::stats::Stat::RunSpeed,
+            mode: crate::model::stats::StatModifierType::Diff,
+            amount: 50.0,
+            ..Default::default()
+        })],
+        ..Default::default()
+    };
+    world.data.skill_data.insert_for_test(buff.clone());
+
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, summon_skill, 1200, 0, 0).unwrap();
+    crate::game_loop::skills::effects::apply_continuous_effects(&mut world, OWNER, servitor, &buff, None);
+    let buffed_speed = world.objects.get_component::<Speeds>(&servitor).unwrap().run_spd;
+
+    on_owner_leave_world(&mut world, OWNER);
+    let saved = world.objects.get_component::<crate::model::components::PlayerSummons>(&OWNER).unwrap().0[0].clone();
+    assert_eq!(saved.buffs.len(), 1, "the servitor's buff was captured");
+    assert!(saved.buffs[0].remaining_time_secs > 0, "with time left on it");
+
+    crate::game_loop::servitor::restore_servitor_on_login(&mut world, OWNER);
+    let back = servitor_of(&world, OWNER).expect("servitor restored");
+    assert_eq!(
+        world.objects.get_component::<Speeds>(&back).unwrap().run_spd,
+        buffed_speed,
+        "and it came back still buffed"
+    );
+}
+
+/// An expired buff is not carried across — otherwise relogging would resurrect
+/// buffs that had already run out.
+#[test]
+fn an_expired_servitor_buff_is_not_saved() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1111, 1200, 0, 0).unwrap();
+    let buff = crate::model::skill::Skill {
+        id: 1144,
+        level: 1,
+        abnormal_time: 10,
+        effects: vec![SkillEffect::StatModifier(crate::model::skill::StatModifierEffect {
+            stat: crate::model::stats::Stat::RunSpeed,
+            mode: crate::model::stats::StatModifierType::Diff,
+            amount: 50.0,
+            ..Default::default()
+        })],
+        ..Default::default()
+    };
+    crate::game_loop::skills::effects::apply_continuous_effects(&mut world, OWNER, servitor, &buff, None);
+
+    world.tick += 20 * 10; // past its 10 s
+    crate::game_loop::servitor::sync_summon_row(&mut world, OWNER);
+
+    let saved = world.objects.get_component::<crate::model::components::PlayerSummons>(&OWNER).unwrap().0[0].clone();
+    assert!(saved.buffs.is_empty(), "an expired buff is not carried across a relog");
+}
