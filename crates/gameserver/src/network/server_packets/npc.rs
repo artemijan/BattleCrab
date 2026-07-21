@@ -487,3 +487,47 @@ pub fn pet_item_list(inventory: &crate::model::inventory::Inventory, data: &crat
     }
     w.into_bytes()
 }
+
+/// `SpecialCamera` (0xD6) — the cinematic camera, used by the grand-boss
+/// entry sequences (Valakas 19 times, Antharas 7).
+///
+/// **`range` is accepted and dropped.** Java's canonical constructor takes it,
+/// stores every other parameter, and never assigns it — the wire carries eleven
+/// ints and `range` is not one of them. It is kept in the signature so call
+/// sites transcribe the Java argument list literally rather than silently
+/// shifting every following parameter by one.
+///
+/// (Java also ships an 11-arg overload that forwards `duration` and `range` into
+/// each other's slots, so a caller's *range* is written as the duration. No
+/// boss script uses it — all 26 call sites take the 12-arg form — so the port
+/// does not reproduce the swap.)
+#[allow(clippy::too_many_arguments)]
+pub fn special_camera(
+    object_id: i32,
+    force: i32,
+    angle1: i32,
+    angle2: i32,
+    time: i32,
+    _range: i32,
+    duration: i32,
+    rel_yaw: i32,
+    rel_pitch: i32,
+    is_wide: i32,
+    rel_angle: i32,
+    unk: i32,
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(0xD6);
+    w.write_i32(object_id);
+    w.write_i32(force);
+    w.write_i32(angle1);
+    w.write_i32(angle2);
+    w.write_i32(time);
+    w.write_i32(duration);
+    w.write_i32(rel_yaw);
+    w.write_i32(rel_pitch);
+    w.write_i32(is_wide);
+    w.write_i32(rel_angle);
+    w.write_i32(unk);
+    w.into_bytes()
+}

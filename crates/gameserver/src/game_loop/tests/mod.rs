@@ -86,6 +86,7 @@ mod core_boss_tests;
 mod grand_boss_tests;
 mod orfen_tests;
 mod queen_ant_tests;
+mod special_camera_tests;
 mod valakas_tests;
 mod raid_curse_tests;
 mod servitor_tests;
