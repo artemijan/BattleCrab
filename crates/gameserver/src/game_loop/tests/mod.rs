@@ -80,6 +80,7 @@ mod reflect_tests;
 mod resist_tests;
 mod resurrection_tests;
 mod cubic_tests;
+mod antharas_tests;
 mod baium_tests;
 mod boss_zone_tests;
 mod core_boss_tests;

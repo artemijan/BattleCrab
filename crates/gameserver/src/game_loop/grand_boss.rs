@@ -130,6 +130,9 @@ fn spawn_from_record(world: &mut World, boss_id: i32) {
     if boss_id == crate::game_loop::baium::BAIUM {
         crate::game_loop::baium::on_baium_spawned(world);
     }
+    if boss_id == crate::game_loop::antharas::ANTHARAS {
+        crate::game_loop::antharas::begin_waves(world, oid);
+    }
 
     // A stored HP of 0 means "was never wounded" (a fresh respawn), so only a
     // positive value overrides the template's full vitals.
