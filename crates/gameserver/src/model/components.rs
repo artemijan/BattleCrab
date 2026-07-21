@@ -662,6 +662,13 @@ pub struct SummonRef {
 #[derive(Component, Debug, Clone, Default)]
 pub struct PlayerPets(pub HashMap<i32, crate::db::PetRow>);
 
+/// The servitor this character had out at logout (`character_summons`).
+///
+/// At most one on this dist. Held on the owner because a servitor has no
+/// persistent identity of its own — it is rebuilt by re-casting the skill.
+#[derive(Component, Debug, Clone, Default)]
+pub struct PlayerSummons(pub Vec<crate::db::SummonRow>);
+
 /// Panel shortcuts (Java `Player._shortCuts`), keyed by
 /// `slot + page * 12` — a `BTreeMap` so `ShortCutInit` order is stable.
 /// Player-only; registry logic in `model/shortcut.rs`.

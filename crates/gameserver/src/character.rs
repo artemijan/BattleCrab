@@ -115,6 +115,8 @@ pub struct CharData {
     /// `pets` rows owned by this character — the `PlayerPets` store, keyed by
     /// collar object id.
     pub pets: Vec<crate::db::PetRow>,
+    /// `character_summons` rows — the servitor that was out at logout.
+    pub summons: Vec<crate::db::SummonRow>,
     /// `character_shortcuts` rows (class_index 0).
     pub shortcuts: Vec<crate::model::shortcut::Shortcut>,
     /// `character_macroses` rows, commands already decoded.

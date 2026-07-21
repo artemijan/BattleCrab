@@ -212,6 +212,30 @@ pub struct PlayerSaveData {
     /// keyed by a collar this character may trade away rather than by the
     /// character (Java writes one pet at a time for the same reason).
     pub pets: Vec<PetRow>,
+    /// `character_summons` rows — at most one on this dist. Replaced as a set
+    /// (unlike `pets`), because a servitor row is keyed by its **owner** and
+    /// so cannot be traded away.
+    pub summons: Vec<SummonRow>,
+}
+
+/// One `character_summons` row — a servitor that was out when its owner logged
+/// off, so the next login brings it back.
+///
+/// Unlike a pet, a servitor has no collar and no identity of its own: it is
+/// recreated by **re-casting the skill that summoned it** (Java's restore is
+/// literally `skill.applyEffects(player, player)`), then having its saved
+/// vitals and remaining lifetime stamped back on.
+#[derive(Debug, Clone, Copy)]
+pub struct SummonRow {
+    /// `summonSkillId` — the skill to re-cast. The player's *current* level of
+    /// it is used, as Java does, so a servitor restored after a level-up comes
+    /// back at the stronger tier.
+    pub summon_skill_id: i32,
+    pub cur_hp: i32,
+    pub cur_mp: i32,
+    /// `time` — seconds of lifetime left, so a servitor does not get a fresh
+    /// full duration for free by relogging.
+    pub remaining_secs: i32,
 }
 
 /// One `pets` row — a pet's saved state, keyed by the **object id of its
@@ -1444,6 +1468,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
         let recipe_book = load_recipe_book(pool, object_id).await;
         let variables = load_variables(pool, object_id).await;
         let pets = load_pets(pool, object_id).await;
+        let summons = load_summons(pool, object_id).await;
         let shortcuts_by_index = load_shortcuts(pool, object_id).await;
         let macros = load_macros(pool, object_id).await;
         let friends = load_friends(pool, object_id).await;
@@ -1502,6 +1527,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             recipe_book,
             variables,
             pets,
+            summons,
             shortcuts: shortcuts_by_index.get(&active_index).cloned().unwrap_or_default(),
             shortcuts_by_index,
             macros,
@@ -1586,6 +1612,26 @@ async fn load_variables(pool: &SqlitePool, owner_id: i32) -> Vec<(String, String
 /// to per-login — see `PlayerPets`). Java reads one row by collar object id at
 /// summon time; loading the whole set here keeps the summon path off the DB
 /// thread and costs one extra query per login.
+/// The servitor this character had out at logout, if any (Java
+/// `CharSummonTable.LOAD_SUMMON`).
+async fn load_summons(pool: &SqlitePool, owner_id: i32) -> Vec<SummonRow> {
+    let rows = sqlx::query(
+        "SELECT summonSkillId, curHp, curMp, time FROM character_summons WHERE ownerId=?",
+    )
+    .bind(owner_id)
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    rows.iter()
+        .map(|r| SummonRow {
+            summon_skill_id: geti(r, "summonSkillId") as i32,
+            cur_hp: geti(r, "curHp") as i32,
+            cur_mp: geti(r, "curMp") as i32,
+            remaining_secs: geti(r, "time") as i32,
+        })
+        .collect()
+}
+
 async fn load_pets(pool: &SqlitePool, owner_id: i32) -> Vec<PetRow> {
     let rows = sqlx::query(
         "SELECT item_obj_id, name, level, curHp, curMp, exp, sp, fed, restore FROM pets WHERE ownerId=?",
@@ -2418,6 +2464,31 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
         .bind(if pet.restore { "true" } else { "false" })
         .execute(&mut *tx)
         .await?;
+    }
+
+    // character_summons — a servitor row is keyed by its **owner**, not by a
+    // tradeable item, so unlike `pets` this is a delete-then-insert set
+    // (Java `removeServitor` + insert on store).
+    //
+    // Errors are swallowed rather than propagated with `?`: this is the newest
+    // table in the flush, and a `?` here would abort the *entire* character
+    // save on any schema that lacks it — losing items, skills and position over
+    // an absent servitor row. Same best-effort rationale as `load_account_var`,
+    // applied to a write because a write inside the transaction takes
+    // everything else down with it.
+    let _ = sqlx::query("DELETE FROM character_summons WHERE ownerId=?").bind(char_id).execute(&mut *tx).await;
+    for s in &s.summons {
+        let _ = sqlx::query(
+            "INSERT INTO character_summons \
+             (ownerId, summonId, summonSkillId, curHp, curMp, time) VALUES (?, 0, ?, ?, ?, ?)",
+        )
+        .bind(char_id)
+        .bind(s.summon_skill_id)
+        .bind(s.cur_hp)
+        .bind(s.cur_mp)
+        .bind(s.remaining_secs)
+        .execute(&mut *tx)
+        .await;
     }
 
     // shortcuts (Java's delete+insert, here scoped to the transaction).
