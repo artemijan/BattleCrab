@@ -133,10 +133,10 @@ fn the_strider_debuff_is_not_recast_while_it_holds() {
 // The threat table (slice 12)
 // ---------------------------------------------------------------------------
 
-use crate::game_loop::baium::BaiumThreat;
+use crate::game_loop::boss_threat::BossThreat;
 
 fn threat(world: &World, oid: i32) -> [(i32, i32); 3] {
-    world.objects.get_component::<BaiumThreat>(&oid).map(|t| t.slots).unwrap_or_default()
+    world.objects.get_component::<BossThreat>(&oid).map(|t| t.slots).unwrap_or_default()
 }
 
 fn wound_baium_to(world: &mut World, fraction: f64) {
@@ -144,6 +144,13 @@ fn wound_baium_to(world: &mut World, fraction: f64) {
     v.cur_hp = v.max_hp as f64 * fraction;
 }
 
+/// These two read the table straight after weighting, via `on_boss_damage`
+/// rather than the `onAttack` hook — because the hook goes on to *choose* a
+/// target, and choosing knocks the top threat down to 500 seven times out of
+/// ten. That is Java's order (`refreshAiParams` then `manageSkills`), so the
+/// weighting has to be observed where it is written, not after the boss has
+/// acted on it.
+///
 /// **Melee threat is worth fifty times a caster's at full health** — `×1000`
 /// against `(damage/3) × 20`. That asymmetry is the fight, so it is asserted
 /// as a ratio rather than two independent numbers.
@@ -155,9 +162,9 @@ fn melee_threat_dwarfs_caster_threat_at_full_health() {
     let caster = PLAYER + 1;
     // No jitter, so the ladder alone decides.
     world.forced_rolls.push_back(0);
-    crate::game_loop::baium::on_baium_damage(&mut world, BAIUM_OID, melee, 300, true);
+    crate::game_loop::boss_threat::on_boss_damage(&mut world, BAIUM_OID, melee, 300, true);
     world.forced_rolls.push_back(0);
-    crate::game_loop::baium::on_baium_damage(&mut world, BAIUM_OID, caster, 300, false);
+    crate::game_loop::boss_threat::on_boss_damage(&mut world, BAIUM_OID, caster, 300, false);
 
     let t = threat(&world, BAIUM_OID);
     let melee_v = t.iter().find(|(id, _)| *id == melee).unwrap().1;
@@ -176,7 +183,7 @@ fn caster_threat_climbs_as_baium_weakens() {
         add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
         wound_baium_to(&mut world, fraction);
         world.forced_rolls.push_back(0);
-        crate::game_loop::baium::on_baium_damage(&mut world, BAIUM_OID, PLAYER, 300, false);
+        crate::game_loop::boss_threat::on_boss_damage(&mut world, BAIUM_OID, PLAYER, 300, false);
         threat(&world, BAIUM_OID).iter().find(|(id, _)| *id == PLAYER).unwrap().1
     };
 
@@ -197,11 +204,11 @@ fn a_fourth_attacker_displaces_the_weakest() {
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
     for (oid, dmg) in [(101, 500), (102, 100), (103, 400)] {
         world.forced_rolls.push_back(0);
-        crate::game_loop::baium::refresh_threat(&mut world, BAIUM_OID, oid, dmg, dmg);
+        crate::game_loop::boss_threat::refresh_threat(&mut world, BAIUM_OID, oid, dmg, dmg);
     }
     // 102 is the weakest at 100.
     world.forced_rolls.push_back(0);
-    crate::game_loop::baium::refresh_threat(&mut world, BAIUM_OID, 104, 300, 300);
+    crate::game_loop::boss_threat::refresh_threat(&mut world, BAIUM_OID, 104, 300, 300);
 
     let ids: Vec<i32> = threat(&world, BAIUM_OID).iter().map(|(id, _)| *id).collect();
     assert!(ids.contains(&104), "the newcomer got on the table");
@@ -216,13 +223,13 @@ fn an_existing_entry_is_not_ratcheted_by_small_hits() {
     let (mut world, _db, _l) = baium_world();
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
     world.forced_rolls.push_back(0);
-    crate::game_loop::baium::refresh_threat(&mut world, BAIUM_OID, PLAYER, 10_000, 10_000);
+    crate::game_loop::boss_threat::refresh_threat(&mut world, BAIUM_OID, PLAYER, 10_000, 10_000);
     let after_big = threat(&world, BAIUM_OID)[0].1;
 
     // A small follow-up: its floor (50 + 1000) is far below the stored value,
     // so nothing changes.
     world.forced_rolls.push_back(0);
-    crate::game_loop::baium::refresh_threat(&mut world, BAIUM_OID, PLAYER, 50, 50);
+    crate::game_loop::boss_threat::refresh_threat(&mut world, BAIUM_OID, PLAYER, 50, 50);
     assert_eq!(threat(&world, BAIUM_OID)[0].1, after_big, "a small hit does not move a large threat");
 }
 
@@ -240,7 +247,7 @@ const GROUP_HOLD: i32 = 4131;
 fn seed_threat(world: &mut World, oid: i32, value: i32) {
     add_test_npc(world, oid, ARCHANGEL, "Monster", 75, 20, 0, 0);
     world.forced_rolls.push_back(0);
-    crate::game_loop::baium::refresh_threat(world, BAIUM_OID, oid, value, value);
+    crate::game_loop::boss_threat::refresh_threat(world, BAIUM_OID, oid, value, value);
 }
 
 /// Baium acts on the **highest** threat.
@@ -347,4 +354,37 @@ fn an_empty_threat_table_yields_no_action() {
     let (mut world, _db, _l) = baium_world();
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
     assert!(crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).is_none());
+}
+
+/// **Baium casts too.** His `manage_skills` had existed since the threat slice
+/// with no caller anywhere in the crate — he chose skills into the void and
+/// only ever swung. The chooser being correct and tested is exactly what made
+/// it invisible: nothing about it looked unfinished.
+///
+/// This asserts through the real damage hook, so it fails against the previous
+/// commit for both bosses.
+#[test]
+fn a_hit_makes_baium_cast() {
+    let (mut world, _db, _l) = baium_world();
+    let mut rx = ingame_caster(&mut world, CID, PLAYER, 20, 0);
+    add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
+    {
+        let v = world.objects.get_component_mut::<Vitals>(&BAIUM_OID).unwrap();
+        v.max_mp = 10_000;
+        v.cur_mp = 10_000.0;
+    }
+    // BAIUM_ATTACK, the fallback every band ends on.
+    world.data.skill_data.insert_for_test(crate::model::skill::Skill { id: 4127, level: 1, ..Default::default() });
+    while rx.try_recv().is_ok() {}
+
+    // Jitter 0, no decay, then every ladder roll missing -> the basic attack.
+    world.forced_rolls.push_back(0);
+    world.forced_rolls.push_back(99);
+    for _ in 0..6 {
+        world.forced_rolls.push_back(99);
+    }
+    crate::game_loop::baium::on_baium_damage(&mut world, BAIUM_OID, PLAYER, 500, true);
+
+    let casts = std::iter::from_fn(|| rx.try_recv().ok()).filter(|p| p.first() == Some(&0x48)).count();
+    assert_eq!(casts, 1, "the damage hook chose a skill and cast it");
 }
