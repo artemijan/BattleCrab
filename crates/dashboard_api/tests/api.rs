@@ -46,7 +46,7 @@ fn test_config() -> DashboardConfig {
         port: 0,
         public_base_url: "http://localhost".into(),
         site_base_url: "https://battlecrab.com".into(),
-        allowed_origins: vec!["https://battlecrab.com".into()],
+        allowed_origins: "battlecrab.com".into(),
         database_url: String::new(),
         database_max_connections: 1,
         session_secret: "test-secret".into(),
@@ -659,4 +659,42 @@ async fn session_cookie_is_usable_cross_origin() {
     assert!(set_cookie.contains("SameSite=Lax"), "got: {set_cookie}");
     assert!(set_cookie.contains("HttpOnly"), "got: {set_cookie}");
     assert!(!set_cookie.contains("SameSite=Strict"), "got: {set_cookie}");
+}
+
+#[tokio::test]
+async fn subdomains_of_the_site_domain_are_allowed_over_http_layer() {
+    for origin in [
+        "https://battlecrab.com",
+        "https://www.battlecrab.com",
+        "https://api.battlecrab.com",
+        "https://play.battlecrab.com",
+    ] {
+        let (app, _pool) = test_app().await;
+        let response = app.oneshot(preflight("/api/v1/auth/login", origin, "POST")).await.unwrap();
+        assert_eq!(
+            response.headers().get(header::ACCESS_CONTROL_ALLOW_ORIGIN).map(|v| v.to_str().unwrap()),
+            Some(origin),
+            "{origin} should be allowed",
+        );
+    }
+}
+
+#[tokio::test]
+async fn foreign_and_lookalike_origins_are_refused_over_http_layer() {
+    // `evilbattlecrab.com` is the one that a naive suffix match would let in,
+    // and it is registerable by anyone.
+    for origin in [
+        "https://evilbattlecrab.com",
+        "https://battlecrab.com.evil.example",
+        "https://evil.example",
+        "http://battlecrab.com",
+        "null",
+    ] {
+        let (app, _pool) = test_app().await;
+        let response = app.oneshot(preflight("/api/v1/auth/login", origin, "POST")).await.unwrap();
+        assert!(
+            response.headers().get(header::ACCESS_CONTROL_ALLOW_ORIGIN).is_none(),
+            "{origin} must NOT be granted access",
+        );
+    }
 }

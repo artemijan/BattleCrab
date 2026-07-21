@@ -415,8 +415,10 @@ are echoes of the Java package names and there is no reason to extend that conve
 same-origin assumption below no longer holds in production. Consequences, all
 implemented:
 
-- CORS with an explicit credentialed origin allowlist (`AllowedOrigins`); a
-  wildcard is impossible once credentials are involved.
+- CORS restricted to `battlecrab.com` and its subdomains over HTTPS
+  (`AllowedOrigins`, implemented in `cors::OriginPolicy`). A wildcard is
+  impossible once credentials are involved, and the match is per DNS label so
+  lookalikes like `evilbattlecrab.com` are refused.
 - `SiteBaseUrl` is separate from `PublicBaseUrl`, because reset and verification
   links are *frontend* routes.
 - The SPA's API base is substituted at build time (`API_BASE_URL`), defaulting

@@ -27,12 +27,15 @@ pub struct DashboardConfig {
     /// API host would hand the user a URL with no page behind it.
     pub site_base_url: String,
 
-    /// Browser origins allowed to call this API with credentials.
+    /// Browser origins allowed to call this API with credentials, as the raw
+    /// config string. Parsed by `cors::OriginPolicy`, which is where the
+    /// matching rules and their tests live.
     ///
-    /// Must be exact origins — with `Access-Control-Allow-Credentials` a
-    /// wildcard is rejected by every browser, and accepting arbitrary origins
-    /// would let any site drive a logged-in user's account.
-    pub allowed_origins: Vec<String>,
+    /// A bare domain means that domain and its subdomains over HTTPS; an entry
+    /// with a scheme is matched exactly. Never a wildcard: with
+    /// `Access-Control-Allow-Credentials` browsers reject `*`, and accepting
+    /// arbitrary origins would let any site drive a logged-in user's account.
+    pub allowed_origins: String,
 
     /// Must point at the *same* SQLite file the login/game servers use — a
     /// stale copy would silently create accounts nobody can log in with.
@@ -64,11 +67,8 @@ impl DashboardConfig {
             bind_address: p.get_string("BindAddress", "0.0.0.0"),
             port: p.get_int("Port", 8080) as u16,
             public_base_url: p.get_string("PublicBaseUrl", "http://localhost:8080"),
-            site_base_url: p.get_string("SiteBaseUrl", "http://localhost:3000"),
-            allowed_origins: parse_origins(&p.get_string(
-                "AllowedOrigins",
-                "http://localhost:3000,http://127.0.0.1:3000",
-            )),
+            site_base_url: p.get_string("SiteBaseUrl", "https://battlecrab.com"),
+            allowed_origins: p.get_string("AllowedOrigins", "battlecrab.com"),
 
             // Key names match `LoginServer.ini` (`URL`,
             // `MaximumDatabaseConnections`) so both servers are configured the
@@ -96,44 +96,3 @@ impl DashboardConfig {
     }
 }
 
-/// Splits and normalises the `AllowedOrigins` list.
-///
-/// An origin is scheme + host + port and nothing else, so a trailing slash or a
-/// path makes the browser's comparison fail — silently, as a CORS error with no
-/// server-side trace. Trim them here rather than making that a deployment
-/// puzzle.
-fn parse_origins(raw: &str) -> Vec<String> {
-    raw.split(',')
-        .map(|origin| origin.trim().trim_end_matches('/'))
-        .filter(|origin| !origin.is_empty())
-        .map(|origin| origin.to_string())
-        .collect()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::parse_origins;
-
-    #[test]
-    fn splits_and_trims_origins() {
-        assert_eq!(
-            parse_origins("https://battlecrab.com, https://www.battlecrab.com"),
-            vec!["https://battlecrab.com", "https://www.battlecrab.com"]
-        );
-    }
-
-    #[test]
-    fn strips_trailing_slashes_and_blanks() {
-        // "https://x.com/" never matches a browser Origin header.
-        assert_eq!(
-            parse_origins("https://battlecrab.com/,, "),
-            vec!["https://battlecrab.com"]
-        );
-    }
-
-    #[test]
-    fn empty_config_yields_no_origins() {
-        assert!(parse_origins("").is_empty());
-        assert!(parse_origins("  ").is_empty());
-    }
-}

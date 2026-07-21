@@ -11,6 +11,7 @@
 
 pub mod auth;
 pub mod config;
+pub mod cors;
 pub mod csrf;
 pub mod db;
 pub mod error;
@@ -20,10 +21,11 @@ pub mod web;
 
 use std::time::Duration;
 
+use axum::http::request::Parts;
 use axum::http::{header, HeaderValue, Method};
 use axum::Router;
 use tower_http::compression::CompressionLayer;
-use tower_http::cors::CorsLayer;
+use tower_http::cors::{AllowOrigin, CorsLayer};
 use tower_http::trace::TraceLayer;
 
 use crate::state::AppState;
@@ -33,7 +35,8 @@ use crate::state::AppState;
 ///
 /// Credentialed CORS is strict, and each rule below is load-bearing:
 ///
-/// - The allowed origin must be an explicit list. `Allow-Origin: *` is rejected
+/// - The allowed origin is decided by `cors::OriginPolicy` — `battlecrab.com`
+///   and its subdomains over HTTPS, nothing else. `Allow-Origin: *` is rejected
 ///   by browsers whenever credentials are sent, and echoing back whatever
 ///   `Origin` arrives would let any website drive a logged-in user's account.
 /// - `Allow-Credentials: true` is required or the browser sends no session
@@ -50,28 +53,30 @@ use crate::state::AppState;
 /// domain would need `SameSite=None`, which is a deliberate change, not a
 /// default.
 fn cors_layer(state: &AppState) -> CorsLayer {
-    let origins: Vec<HeaderValue> = state
-        .config
-        .allowed_origins
-        .iter()
-        .filter_map(|origin| match origin.parse::<HeaderValue>() {
-            Ok(value) => Some(value),
-            Err(_) => {
-                tracing::error!("ignoring malformed AllowedOrigins entry: {origin}");
-                None
-            }
-        })
-        .collect();
+    let policy = state.origin_policy.clone();
 
-    if origins.is_empty() {
+    if policy.is_empty() {
         tracing::warn!(
             "AllowedOrigins is empty — no browser origin may call this API. \
-             Set it to the site's origin, e.g. https://battlecrab.com"
+             Set it to the site's domain, e.g. battlecrab.com"
         );
+    } else {
+        tracing::info!("CORS origin rules: {:?}", policy.rules());
     }
 
+    // A predicate rather than a fixed list, so `battlecrab.com` covers every
+    // current and future subdomain without redeploying. `OriginPolicy` decides;
+    // it is the only place the matching rules live, and it is tested against
+    // lookalike domains.
+    let allow_origin = AllowOrigin::predicate(move |origin: &HeaderValue, _parts: &Parts| {
+        origin
+            .to_str()
+            .map(|origin| policy.allows(origin))
+            .unwrap_or(false)
+    });
+
     CorsLayer::new()
-        .allow_origin(origins)
+        .allow_origin(allow_origin)
         .allow_credentials(true)
         .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
         .allow_headers([header::CONTENT_TYPE, header::HeaderName::from_static("x-requested-with")])

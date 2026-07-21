@@ -91,7 +91,7 @@ from the browser:
 
 | Where | Setting | Production value |
 | --- | --- | --- |
-| API | `AllowedOrigins` | `https://battlecrab.com,https://www.battlecrab.com` |
+| API | `AllowedOrigins` | `battlecrab.com` (the domain and all its subdomains) |
 | API | `SiteBaseUrl` | `https://battlecrab.com` |
 | SPA build | `API_BASE_URL` | `https://api.battlecrab.com/api/v1` |
 
@@ -107,11 +107,15 @@ Things worth knowing before debugging this:
   `SameSite=None; Secure` — a deliberate change, not a default.
 - **`Allow-Origin` can never be `*` here.** Browsers reject a wildcard whenever
   credentials are sent, and echoing back any `Origin` would let any site drive a
-  logged-in user's account. Hence the explicit list.
+  logged-in user's account. Hence the policy in `cors.rs`.
+- **The domain rule is a label match, not a string suffix.** `battlecrab.com`
+  accepts `battlecrab.com` and any subdomain over HTTPS, and refuses
+  `evilbattlecrab.com` (registerable by anyone), `battlecrab.com.evil.example`,
+  and plain `http://`. Entries containing `://` are matched exactly instead,
+  which is how a localhost origin would be added.
 - **CORS wraps the error paths too.** A 401 without CORS headers reaches the SPA
   as an opaque network error, so it could not tell the user what went wrong.
 - **`X-Requested-With` must stay in the allowed headers**: the client sends it on
   every mutation and the CSRF gate rejects requests without it.
 - **A trailing slash breaks matching.** `https://battlecrab.com/` never equals the
-  browser's `Origin`; the config parser strips it, but a hand-set env var is on
-  its own.
+  browser's `Origin`; the parser strips it, but be careful with hand-set env vars.
