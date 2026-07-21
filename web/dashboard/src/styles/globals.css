@@ -1,0 +1,341 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Design tokens.
+
+   Palette is the Ukrainian flag: blue carries the UI, yellow is the accent and
+   is used sparingly — primary actions, focus rings, and highlights. Yellow on
+   blue is a very loud pairing, so the discipline is: one yellow element per
+   view, everything else blue or neutral.
+   --------------------------------------------------------------------------- */
+@theme {
+  --color-brand-50: #eaf2ff;
+  --color-brand-100: #d3e4ff;
+  --color-brand-200: #a8c8ff;
+  --color-brand-300: #74a6ff;
+  --color-brand-400: #3d81f5;
+  --color-brand-500: #0057b7; /* flag blue */
+  --color-brand-600: #004795;
+  --color-brand-700: #003a7a;
+  --color-brand-800: #002c5c;
+  --color-brand-900: #001d3d;
+  --color-brand-950: #00122a;
+
+  --color-accent-50: #fffbe6;
+  --color-accent-100: #fff4bf;
+  --color-accent-200: #ffe985;
+  --color-accent-300: #ffdd4d;
+  --color-accent-400: #ffd700; /* flag yellow */
+  --color-accent-500: #e8bf00;
+  --color-accent-600: #bd9800;
+  --color-accent-700: #8f7200;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ---------------------------------------------------------------------------
+   Theme surfaces.
+
+   Both themes are defined explicitly rather than relying on `prefers-color-
+   scheme` alone, because the toggle has to be able to override the OS.
+   --------------------------------------------------------------------------- */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --page-bg: #eef4fd;
+  --blob-a: rgba(0, 87, 183, 0.28);
+  --blob-b: rgba(255, 215, 0, 0.22);
+  --blob-c: rgba(61, 129, 245, 0.2);
+
+  --surface: rgba(255, 255, 255, 0.62);
+  --surface-strong: rgba(255, 255, 255, 0.82);
+  --surface-border: rgba(255, 255, 255, 0.9);
+  --surface-ring: rgba(0, 87, 183, 0.12);
+  --surface-shadow: 0 18px 40px -18px rgba(0, 44, 92, 0.35);
+
+  --text: #0a1a30;
+  --text-muted: #4a5f7e;
+  --text-faint: #7387a3;
+
+  --field-bg: rgba(255, 255, 255, 0.75);
+  --field-border: rgba(0, 87, 183, 0.18);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --page-bg: #050b18;
+  --blob-a: rgba(0, 87, 183, 0.55);
+  --blob-b: rgba(255, 215, 0, 0.16);
+  --blob-c: rgba(61, 129, 245, 0.32);
+
+  --surface: rgba(255, 255, 255, 0.055);
+  --surface-strong: rgba(255, 255, 255, 0.09);
+  --surface-border: rgba(255, 255, 255, 0.12);
+  --surface-ring: rgba(116, 166, 255, 0.18);
+  --surface-shadow: 0 22px 50px -20px rgba(0, 0, 0, 0.75);
+
+  --text: #e9f1fc;
+  --text-muted: #9db2d0;
+  --text-faint: #6d84a5;
+
+  --field-bg: rgba(255, 255, 255, 0.05);
+  --field-border: rgba(255, 255, 255, 0.14);
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+* {
+  /* Theme switching animates surfaces rather than snapping. Deliberately not
+     `transition: all` — that would drag layout properties into the animation
+     and make every hover janky. */
+  transition:
+    background-color 0.35s var(--ease-out-soft),
+    border-color 0.35s var(--ease-out-soft),
+    color 0.25s var(--ease-out-soft);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--page-bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* The ambient background: three slow-drifting colour fields behind everything.
+   `position: fixed` keeps them out of the scroll flow so they never cause a
+   scrollbar or repaint on scroll. */
+.bg-field {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-field span {
+  position: absolute;
+  display: block;
+  border-radius: 9999px;
+  filter: blur(90px);
+  will-change: transform;
+}
+
+.bg-field span:nth-child(1) {
+  width: 46rem;
+  height: 46rem;
+  top: -14rem;
+  left: -10rem;
+  background: var(--blob-a);
+  animation: drift-a 26s var(--ease-out-soft) infinite alternate;
+}
+
+.bg-field span:nth-child(2) {
+  width: 34rem;
+  height: 34rem;
+  top: 30%;
+  right: -12rem;
+  background: var(--blob-b);
+  animation: drift-b 32s var(--ease-out-soft) infinite alternate;
+}
+
+.bg-field span:nth-child(3) {
+  width: 40rem;
+  height: 40rem;
+  bottom: -16rem;
+  left: 25%;
+  background: var(--blob-c);
+  animation: drift-c 38s var(--ease-out-soft) infinite alternate;
+}
+
+@keyframes drift-a {
+  to {
+    transform: translate3d(6rem, 4rem, 0) scale(1.15);
+  }
+}
+@keyframes drift-b {
+  to {
+    transform: translate3d(-7rem, -5rem, 0) scale(1.2);
+  }
+}
+@keyframes drift-c {
+  to {
+    transform: translate3d(4rem, -6rem, 0) scale(0.9);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Glass
+   --------------------------------------------------------------------------- */
+@utility glass {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: var(--surface-shadow);
+}
+
+@utility glass-strong {
+  background: var(--surface-strong);
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  box-shadow: var(--surface-shadow);
+}
+
+/* Hairline highlight along the top edge — the detail that reads as "glass"
+   rather than "translucent rectangle". */
+@utility glass-sheen {
+  position: relative;
+}
+
+.glass-sheen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding-top: 1px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, white 55%, transparent),
+    transparent 45%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+:root[data-theme="dark"] .glass-sheen::before {
+  opacity: 0.28;
+}
+
+/* ---------------------------------------------------------------------------
+   Motion
+   --------------------------------------------------------------------------- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sweep {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(220%);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent-400) 55%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 12px transparent;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@utility animate-rise {
+  animation: rise 0.55s var(--ease-out-soft) both;
+}
+
+@utility animate-fade {
+  animation: fade 0.4s var(--ease-out-soft) both;
+}
+
+/* Staggering children by index keeps a list from arriving all at once, which is
+   what makes the entrance read as deliberate rather than as a page reflow. */
+.stagger > * {
+  animation: rise 0.5s var(--ease-out-soft) both;
+}
+.stagger > *:nth-child(1) { animation-delay: 0.04s; }
+.stagger > *:nth-child(2) { animation-delay: 0.10s; }
+.stagger > *:nth-child(3) { animation-delay: 0.16s; }
+.stagger > *:nth-child(4) { animation-delay: 0.22s; }
+.stagger > *:nth-child(5) { animation-delay: 0.28s; }
+.stagger > *:nth-child(6) { animation-delay: 0.34s; }
+.stagger > *:nth-child(7) { animation-delay: 0.40s; }
+.stagger > *:nth-child(8) { animation-delay: 0.46s; }
+
+/* Everything above is decoration. Users who ask for less motion get none of it —
+   including the ambient background, which is the most distracting piece. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .bg-field span {
+    animation: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Focus — a single visible treatment everywhere, in accent yellow so it reads
+   against the blue UI.
+   --------------------------------------------------------------------------- */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent-400);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent-400) 45%, transparent);
+  color: var(--text);
+}
+
+/* Scrollbar, dark-theme only — the light default is fine as-is. */
+:root[data-theme="dark"] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+}
+:root[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: transparent;
+}

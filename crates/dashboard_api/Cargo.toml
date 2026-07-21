@@ -1,0 +1,30 @@
+[package]
+name = "dashboard_api"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Web dashboard REST API — account registration and management"
+
+[dependencies]
+commons = { path = "../commons" }
+tokio.workspace = true
+sqlx.workspace = true
+rand.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+thiserror.workspace = true
+base64.workspace = true
+
+axum = { version = "0.8", features = ["macros"] }
+tower-http = { version = "0.6", features = ["compression-gzip", "trace"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+hmac = "0.12"
+sha2 = "0.10"
+subtle = "2"
+rust-embed = { version = "8", features = ["mime-guess"] }
+mime_guess = "2"
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
