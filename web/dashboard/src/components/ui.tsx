@@ -138,7 +138,18 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
         className={cx(
-          "w-full rounded-xl border px-4 py-2.5 text-sm outline-none",
+          // 16px on phones, and not for looks: iOS Safari zooms the viewport
+          // whenever a focused control computes below 16px, and it does not
+          // zoom back out on blur. At 14px, tapping this field zoomed the page
+          // in, left it scrolling sideways, and kept it that way after signing
+          // in. `sm:text-sm` restores the smaller size from 640px up, where no
+          // such behaviour exists.
+          //
+          // The usual shortcut — user-scalable=no or maximum-scale=1 in the
+          // viewport meta — also stops the zoom, by removing pinch-to-zoom from
+          // everyone, including people who need it to read at all. Sizing the
+          // control correctly costs nothing.
+          "w-full rounded-xl border px-4 py-2.5 text-base outline-none sm:text-sm",
           "bg-[var(--field-bg)] text-[var(--text)] backdrop-blur-md",
           "placeholder:text-[var(--text-faint)]",
           "transition-[border-color,box-shadow] duration-200",
