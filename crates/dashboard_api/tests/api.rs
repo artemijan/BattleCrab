@@ -1178,3 +1178,46 @@ async fn foreign_and_lookalike_origins_are_refused_over_http_layer() {
         );
     }
 }
+
+/// The link-preview card has to be reachable at the exact, unhashed URL that
+/// `index.html` advertises in `og:image` — a crawler follows that URL and
+/// nothing else.
+///
+/// Skips when the SPA has not been built, matching the frontend tests: a plain
+/// `cargo test` should not require a `bun run build` first.
+#[tokio::test]
+async fn the_link_preview_image_is_served_at_a_stable_url() {
+    let dist = concat!(env!("CARGO_MANIFEST_DIR"), "/../../web/dashboard/dist/og-image.jpg");
+    if !std::path::Path::new(dist).exists() {
+        eprintln!("skipped: run `bun run build` in web/dashboard first");
+        return;
+    }
+
+    let (app, _pool) = test_app().await;
+    let response = app
+        .oneshot(with_peer(
+            Request::builder().uri("/og-image.jpg").body(Body::empty()).unwrap(),
+        ))
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(
+        response.headers().get(header::CONTENT_TYPE).unwrap(),
+        "image/jpeg",
+        "a wrong content type makes some crawlers discard the image"
+    );
+
+    // It is NOT content-hashed, so the year-long immutable policy the hashed
+    // bundles get would pin stale artwork that no deploy could replace.
+    let cache = response.headers().get(header::CACHE_CONTROL).unwrap().to_str().unwrap();
+    assert!(
+        !cache.contains("immutable"),
+        "og-image.jpg must not be immutably cached, got {cache:?}"
+    );
+
+    let body = response.into_body().collect().await.unwrap().to_bytes();
+    // JPEG magic — proves a real image came back rather than the SPA fallback,
+    // which would be a 200 full of HTML.
+    assert_eq!(&body[..2], &[0xff, 0xd8], "expected a JPEG, not the index.html fallback");
+}

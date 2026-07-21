@@ -40,12 +40,17 @@ fn asset(path: &str) -> Option<Response> {
     let file = Assets::get(path)?;
     let mime = mime_guess::from_path(path).first_or_octet_stream();
 
-    // Hashed filenames can be cached hard; index.html must not be, or a deploy
-    // leaves clients on a stale shell that references deleted bundles.
-    let cache_control = if path == "index.html" {
-        "no-cache"
-    } else {
-        "public, max-age=31536000, immutable"
+    // Hashed filenames can be cached hard. The two that are NOT hashed cannot
+    // be: a year-long immutable cache on either pins a stale copy that no
+    // deploy can dislodge.
+    let cache_control = match path {
+        // A stale shell references bundles the deploy has already deleted.
+        "index.html" => "no-cache",
+        // The link-preview card. Its URL is fixed and public, so platforms and
+        // CDNs re-fetch it on their own schedule — `immutable` would mean new
+        // artwork never reaches anyone who has already scraped the site.
+        "og-image.jpg" => "public, max-age=86400",
+        _ => "public, max-age=31536000, immutable",
     };
 
     Some(

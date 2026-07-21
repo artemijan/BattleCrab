@@ -250,10 +250,22 @@ describe("game accounts", () => {
       };
     });
 
-    // Mid-flight: partway shut, but neither end state yet.
+    // Sampled through the browser's own animation registry rather than by
+    // measuring the height at a chosen instant. An earlier version waited 120ms
+    // and asserted a height strictly between the two end states; that flaked
+    // when the machine was loaded, because the sample landed after the
+    // transition had already finished. A running transition is observable for
+    // its whole duration, and only exists at all if one was really started.
     await page.locator('button[aria-controls="game-account-alice1"]').click();
-    await page.waitForTimeout(120);
-    const midHeight = await page.evaluate(
+    const running = await page.evaluate(() =>
+      document
+        .querySelector("#game-account-alice1")!
+        .getAnimations()
+        .map((animation) => (animation as CSSTransition).transitionProperty),
+    );
+
+    await page.waitForTimeout(600);
+    const restingHeight = await page.evaluate(
       () => document.querySelector("#game-account-alice1")!.getBoundingClientRect().height,
     );
     await page.close();
@@ -261,8 +273,9 @@ describe("game accounts", () => {
     expect(style.property).toContain("grid-template-rows");
     expect(style.duration).not.toBe("0s");
     expect(style.fullHeight).toBeGreaterThan(0);
-    expect(midHeight).toBeGreaterThan(0);
-    expect(midHeight).toBeLessThan(style.fullHeight);
+    expect(running).toContain("grid-template-rows");
+    // And it still arrives at the collapsed state rather than easing forever.
+    expect(restingHeight).toBe(0);
   });
 
   test("a collapse survives a reload", async () => {
