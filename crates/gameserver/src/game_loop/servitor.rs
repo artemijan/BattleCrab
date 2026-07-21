@@ -40,15 +40,11 @@ use super::helpers::client_for_player;
 
 /// Java `Player.getServitors()` — this port scans rather than caching a second
 /// index, because a player has at most one servitor on this dist.
-pub(crate) fn servitor_of(world: &mut World, owner_oid: i32) -> Option<i32> {
-    let mut found = None;
-    // `for_each_mut` is the store's only sweep; the query borrows shared.
-    world.objects.for_each_mut::<(&crate::model::npc::Npc, &ServitorOf)>(|(npc, s)| {
-        if s.owner_object_id == owner_oid {
-            found = Some(npc.object_id);
-        }
-    });
-    found
+pub(crate) fn servitor_of(world: &World, owner_oid: i32) -> Option<i32> {
+    let oid = world.objects.get_component::<crate::model::components::SummonRef>(&owner_oid)?.servitor?;
+    // Validated on read: a despawn path that forgot to clear the link yields
+    // `None` here rather than a dangling id.
+    world.objects.get_component::<crate::model::npc::Npc>(&oid).map(|_| oid)
 }
 
 /// `Summon.instant` — spawn a servitor for `owner_oid`.
@@ -102,6 +98,7 @@ pub(crate) fn summon_servitor(
         v.cur_hp = v.max_hp as f64;
         v.cur_mp = v.max_mp as f64;
     }
+    set_summon_link(world, owner_oid, Some(servitor_oid), None, false);
     // Java arms `_summonLifeTask` at a fixed 5 s period.
     world.scheduler.schedule(
         world.tick + LIFE_TICK_SECS * TICKS_PER_SECOND,
@@ -118,7 +115,11 @@ pub(crate) fn summon_servitor(
 ///
 /// Returns the object id that went away, so callers can report it.
 pub(crate) fn unsummon_servitor(world: &mut World, owner_oid: i32) -> Option<i32> {
-    let servitor_oid = servitor_of(world, owner_oid)?;
+    // A pet also carries `ServitorOf`, so this one path retires either kind;
+    // clear both halves of the link rather than guessing which it was.
+    let servitor_oid = servitor_of(world, owner_oid).or_else(|| pet_of(world, owner_oid))?;
+    set_summon_link(world, owner_oid, None, None, false);
+    set_summon_link(world, owner_oid, None, None, true);
     let region = world.objects.get_component::<crate::model::components::RegionCell>(&servitor_oid)?.0;
     crate::game_loop::death::despawn_npc(world, servitor_oid, region);
     Some(servitor_oid)
@@ -583,16 +584,24 @@ pub(crate) fn on_owner_leave_world(world: &mut World, owner_oid: i32) {
 // ---------------------------------------------------------------------------
 
 /// Java `Player.getPet()` — a player has at most one.
-pub(crate) fn pet_of(world: &mut World, owner_oid: i32) -> Option<i32> {
-    let mut found = None;
-    world.objects.for_each_mut::<(&crate::model::npc::Npc, &ServitorOf, &crate::model::components::PetOf)>(
-        |(npc, s, _)| {
-            if s.owner_object_id == owner_oid {
-                found = Some(npc.object_id);
-            }
-        },
-    );
-    found
+pub(crate) fn pet_of(world: &World, owner_oid: i32) -> Option<i32> {
+    let oid = world.objects.get_component::<crate::model::components::SummonRef>(&owner_oid)?.pet?;
+    world.objects.get_component::<crate::model::npc::Npc>(&oid).map(|_| oid)
+}
+
+/// Set or clear the owner's summon link. Every spawn and despawn path goes
+/// through here, so the link can never be updated in only one direction.
+fn set_summon_link(world: &mut World, owner_oid: i32, servitor: Option<i32>, pet: Option<i32>, is_pet: bool) {
+    if world.objects.get_component::<crate::model::components::SummonRef>(&owner_oid).is_none() {
+        world.objects.add_components(&owner_oid, crate::model::components::SummonRef::default());
+    }
+    if let Some(r) = world.objects.get_component_mut::<crate::model::components::SummonRef>(&owner_oid) {
+        if is_pet {
+            r.pet = pet;
+        } else {
+            r.servitor = servitor;
+        }
+    }
 }
 
 /// `SummonPet.instant` — bring out the pet bound to the collar the player just
@@ -761,6 +770,7 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
     // (`setDead(true)` + `stopHpMpRegeneration()`) and summons the corpse. This
     // port has no pet death yet, so a pet can never be stored dead; wire this
     // when pet death/resurrection lands, or the branch is untestable.
+    set_summon_link(world, owner_oid, None, Some(pet_oid), true);
     // Java `Pet.spawnMe` → `startFeed()`: the food clock runs from summon.
     start_feed(world, pet_oid);
     send_pet_info(world, owner_oid, pet_oid, PetInfoKind::Summoned);

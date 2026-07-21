@@ -179,21 +179,6 @@ pub fn acquire_skill_list(p: &Player, skills: &crate::model::components::SkillBo
     w.into_bytes()
 }
 
-/// `HennaInfo` (0xE5) — no dyes.
-pub fn henna_info() -> Vec<u8> {
-    let mut w = PacketWriter::new();
-    w.write_u8(0xE5);
-    for _ in 0..8 {
-        w.write_i16(0); // INT/STR/CON/MEN/DEX/WIT/LUC/CHA
-    }
-    w.write_i32(0); // used slots (3 - empty)
-    w.write_i32(0); // henna count
-    w.write_i32(0); // premium slot dye id
-    w.write_i32(0); // premium slot dye time left
-    w.write_i32(0); // premium slot dye valid
-    w.into_bytes()
-}
-
 /// `EtcStatusUpdate` (0xF9). Weight/death-penalty/souls are still 0 (not
 /// modeled yet); `charges` (G19, `Player.charges` — the Force resource) and
 /// the weapon/armor grade-penalty bytes (`refresh_expertise_penalty`) carry
@@ -410,7 +395,27 @@ pub fn ex_subjob_info(p: &Player) -> Vec<u8> {
     w.write_u8(0); // type = NO_CHANGES
     w.write_i32(p.class_id);
     w.write_i32(p.race);
-    w.write_i32(0); // subclass count
+
+    // Java `_subs.add(0, new SubInfo(player))` puts the **base class** first,
+    // then one row per subclass — so the count is never 0, even for a
+    // character that has never subclassed. It was hard-coded to 0 here, which
+    // predates G17 landing subclasses; the client's class list stayed empty.
+    //
+    // `SubclassType`: 0 = BASECLASS, 1 = DUALCLASS, 2 = SUBCLASS. Interlude
+    // has no dual class, so a subclass row is always type 2.
+    const TYPE_BASECLASS: u8 = 0;
+    const TYPE_SUBCLASS: u8 = 2;
+    w.write_i32(1 + p.subclasses.len() as i32);
+    w.write_i32(0); // index 0 — the base class
+    w.write_i32(p.base_class_id);
+    w.write_i32(p.base_level);
+    w.write_u8(TYPE_BASECLASS);
+    for sub in &p.subclasses {
+        w.write_i32(sub.class_index);
+        w.write_i32(sub.class_id);
+        w.write_i32(sub.level);
+        w.write_u8(TYPE_SUBCLASS);
+    }
     w.into_bytes()
 }
 
