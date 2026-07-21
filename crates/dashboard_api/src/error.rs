@@ -22,6 +22,17 @@ pub enum ApiError {
     #[error("username is already taken")]
     LoginTaken,
 
+    /// Yes, this lets someone probe which addresses are registered. So does
+    /// `LoginTaken`, and the alternative — "check your inbox" for an address
+    /// that already has an account — strands users who forgot they signed up.
+    /// The password-reset flow stays non-enumerating; this one does not.
+    #[error("an account already exists for that email address")]
+    EmailTaken,
+
+    /// The address on file has not been confirmed, and the endpoint requires it.
+    #[error("please confirm your email address first")]
+    EmailNotVerified,
+
     #[error("registration is currently disabled")]
     RegistrationDisabled,
 
@@ -57,6 +68,8 @@ impl ApiError {
             ApiError::InvalidCredentials => (StatusCode::UNAUTHORIZED, "invalid_credentials"),
             ApiError::Unauthorized => (StatusCode::UNAUTHORIZED, "unauthorized"),
             ApiError::LoginTaken => (StatusCode::CONFLICT, "login_taken"),
+            ApiError::EmailTaken => (StatusCode::CONFLICT, "email_taken"),
+            ApiError::EmailNotVerified => (StatusCode::FORBIDDEN, "email_not_verified"),
             ApiError::RegistrationDisabled => (StatusCode::FORBIDDEN, "registration_disabled"),
             ApiError::RateLimited => (StatusCode::TOO_MANY_REQUESTS, "rate_limited"),
             ApiError::InvalidToken => (StatusCode::BAD_REQUEST, "invalid_token"),

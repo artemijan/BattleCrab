@@ -35,9 +35,11 @@ export function messageFor(error: unknown): string {
   if (error instanceof ApiError) {
     switch (error.code) {
       case "invalid_credentials":
-        return "That username and password don't match.";
+        return "That email and password don't match.";
       case "login_taken":
         return "That username is already taken.";
+      case "email_taken":
+        return "An account already exists for that email address.";
       case "rate_limited":
         return "Too many attempts. Wait a few minutes and try again.";
       case "registration_disabled":
@@ -52,11 +54,11 @@ export function messageFor(error: unknown): string {
 export function Login() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [login, setLogin] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const submit = useMutation({
-    mutationFn: () => api.login(login, password),
+    mutationFn: () => api.login(email, password),
     onSuccess: (account: Account) => {
       queryClient.setQueryData(["me"], account);
       navigate("/account");
@@ -71,7 +73,7 @@ export function Login() {
   return (
     <AuthShell
       title="Welcome back"
-      subtitle="Log in to manage your account and characters."
+      subtitle="Log in with your email to manage your account and characters."
       footer={
         <>
           No account yet?{" "}
@@ -84,11 +86,14 @@ export function Login() {
       <form onSubmit={onSubmit} className="flex flex-col gap-3.5">
         {submit.isError && <Alert kind="error">{messageFor(submit.error)}</Alert>}
 
+        {/* type="email" gets the right mobile keyboard and lets the browser
+            catch a malformed address before the request is made. */}
         <Field
-          label="Username"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
-          autoComplete="username"
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
           autoFocus
           required
         />
@@ -120,7 +125,7 @@ export function Login() {
 export function Register() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [login, setLogin] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
 
@@ -129,7 +134,7 @@ export function Register() {
   const mismatch = confirm.length > 0 && confirm !== password;
 
   const submit = useMutation({
-    mutationFn: () => api.register(login, password),
+    mutationFn: () => api.register(email, password),
     onSuccess: (account: Account) => {
       queryClient.setQueryData(["me"], account);
       navigate("/account");
@@ -145,7 +150,7 @@ export function Register() {
   return (
     <AuthShell
       title="Create your account"
-      subtitle="One account works for both the website and the game client."
+      subtitle="Sign up with your email. You'll create game logins afterwards."
       footer={
         <>
           Already registered?{" "}
@@ -159,13 +164,14 @@ export function Register() {
         {submit.isError && <Alert kind="error">{messageFor(submit.error)}</Alert>}
 
         <Field
-          label="Username"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           // Kept to one line at the panel's width — a wrapping hint costs 16px
           // of height on the page that least affords it.
-          hint="4–45 letters and digits — you'll type this in the game client."
-          autoComplete="username"
+          hint="We'll send a confirmation link here."
+          autoComplete="email"
           autoFocus
           required
         />

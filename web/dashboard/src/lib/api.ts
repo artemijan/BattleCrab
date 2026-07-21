@@ -11,6 +11,8 @@ export type ApiErrorCode =
   | "invalid_credentials"
   | "unauthorized"
   | "login_taken"
+  | "email_taken"
+  | "email_not_verified"
   | "registration_disabled"
   | "rate_limited"
   | "invalid_token"
@@ -27,12 +29,21 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * The signed-in *master* account. It has no game login of its own — the address
+ * is the identity — and owns zero or more game accounts (`GameAccount`).
+ */
 export type Account = {
-  login: string;
   email: string | null;
+  isVerified: boolean;
 };
 
+/** A game account's login name, as typed into the game client. */
+export type GameAccount = string;
+
 export type Character = {
+  /** Which of the master's game accounts this character sits on. */
+  accountName: string;
   name: string;
   level: number;
   classId: number;
@@ -101,10 +112,12 @@ const post = <T,>(path: string, body: unknown) =>
   request<T>(path, { method: "POST", body: JSON.stringify(body) });
 
 export const api = {
-  register: (login: string, password: string) =>
-    post<Account>("/auth/register", { login, password }),
+  register: (email: string, password: string) =>
+    post<Account>("/auth/register", { email, password }),
 
-  login: (login: string, password: string) => post<Account>("/auth/login", { login, password }),
+  login: (email: string, password: string) => post<Account>("/auth/login", { email, password }),
+
+  resendVerification: () => post<void>("/auth/resend-verification", {}),
 
   logout: () => post<void>("/auth/logout", {}),
 
@@ -125,6 +138,8 @@ export const api = {
   // from the one that requested it.
   verifyEmail: (token: string) =>
     request<void>(`/account/email/verify?token=${encodeURIComponent(token)}`),
+
+  gameAccounts: () => request<GameAccount[]>("/account/game-accounts"),
 
   characters: () => request<Character[]>("/account/characters"),
 

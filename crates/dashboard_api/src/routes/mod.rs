@@ -18,22 +18,25 @@ pub fn api_router() -> Router<AppState> {
         .merge(status::router())
 }
 
-/// Resolves the session cookie to an account.
+/// Resolves the session cookie to the master account that owns the session.
 ///
 /// Re-reads the account on every request so the cookie's signature can be
 /// checked against the *current* password hash — that check is what makes a
 /// password change invalidate outstanding sessions (PLAN_DASHBOARD.md §5.3).
+///
+/// The lookup goes through `find_master_by_email`, so a game account can never
+/// become the subject of a session even if one is forged into the cookie.
 pub async fn current_account(app: &AppState, headers: &HeaderMap) -> ApiResult<Account> {
     let raw = cookie::extract(headers).ok_or(ApiError::Unauthorized)?;
 
-    // The login inside the cookie is untrusted until the HMAC verifies; it is
+    // The address inside the cookie is untrusted until the HMAC verifies; it is
     // used only to find which account's hash to verify against.
     let hint = raw.split('|').next().unwrap_or_default();
     if hint.is_empty() {
         return Err(ApiError::Unauthorized);
     }
 
-    let account = accounts::find(&app.pool, hint)
+    let account = accounts::find_master_by_email(&app.pool, hint)
         .await?
         .ok_or(ApiError::Unauthorized)?;
 
@@ -93,20 +96,36 @@ pub fn validate_password(password: &str, config: &DashboardConfig) -> ApiResult<
     Ok(())
 }
 
-/// Intentionally minimal: real validation is "the verification mail arrived".
+/// Shape check only — real validation is still "the verification mail arrived".
+/// It is deliberately not an RFC 5322 parser; the goal is to reject typos and
+/// non-addresses (the address is now the account identity), not to litigate
+/// exotic-but-legal forms.
+///
+/// Returns the normalized (trimmed, lowercased) address, which is what gets
+/// stored and compared.
 pub fn validate_email(email: &str) -> ApiResult<String> {
-    let email = email.trim();
-    let looks_like_address = email.len() >= 3
-        && email.len() <= 254
-        && email.matches('@').count() == 1
-        && !email.starts_with('@')
-        && !email.ends_with('@')
-        && !email.contains(char::is_whitespace);
+    let email = accounts::normalize_email(email);
 
-    if !looks_like_address {
-        return Err(ApiError::BadRequest("that doesn't look like an email address".into()));
+    let reject = || ApiError::BadRequest("that doesn't look like an email address".into());
+
+    if email.len() < 3 || email.len() > 254 || email.contains(char::is_whitespace) {
+        return Err(reject());
     }
-    Ok(email.to_string())
+
+    let (local, domain) = email.split_once('@').ok_or_else(reject)?;
+
+    // A second '@' lands in `domain`; catching it here also rejects "a@@b".
+    if local.is_empty() || domain.contains('@') {
+        return Err(reject());
+    }
+    // Require a dotted domain with non-empty labels: "user@localhost" and
+    // "user@example." cannot receive the verification mail this flow depends on.
+    let labels: Vec<&str> = domain.split('.').collect();
+    if labels.len() < 2 || labels.iter().any(|l| l.is_empty()) {
+        return Err(reject());
+    }
+
+    Ok(email)
 }
 
 #[cfg(test)]
@@ -168,10 +187,20 @@ mod tests {
     #[test]
     fn email_shape_is_checked_loosely() {
         assert!(validate_email("a@b.c").is_ok());
-        assert!(validate_email(" a@b.c ").unwrap() == "a@b.c");
+        assert_eq!(validate_email(" A@B.c ").unwrap(), "a@b.c");
         assert!(validate_email("nope").is_err());
         assert!(validate_email("a@@b").is_err());
         assert!(validate_email("@b.c").is_err());
         assert!(validate_email("a b@c.d").is_err());
+    }
+
+    #[test]
+    fn email_must_have_a_deliverable_domain() {
+        // The whole flow hangs on a verification mail arriving, so an address
+        // that cannot receive one is rejected up front.
+        assert!(validate_email("user@localhost").is_err());
+        assert!(validate_email("user@example.").is_err());
+        assert!(validate_email("user@.com").is_err());
+        assert!(validate_email("user@sub.example.com").is_ok());
     }
 }

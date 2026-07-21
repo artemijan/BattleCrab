@@ -16,15 +16,24 @@ use sqlx::SqlitePool;
 use tower::ServiceExt;
 
 const ACCOUNTS_DDL: &str = "CREATE TABLE accounts (
-    login VARCHAR(45) NOT NULL default '' PRIMARY KEY,
+    login VARCHAR(45) DEFAULT NULL,
     password VARCHAR(45),
     email varchar(255) DEFAULT NULL,
+    is_verified TINYINT DEFAULT NULL,
     created_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     lastactive bigint NOT NULL DEFAULT '0',
     accessLevel TINYINT NOT NULL DEFAULT 0,
     lastIP CHAR(15) NULL DEFAULT NULL,
-    lastServer TINYINT DEFAULT 1
+    lastServer TINYINT DEFAULT 1,
+    UNIQUE (login)
 )";
+
+/// The partial unique index is the only thing stopping two master accounts from
+/// sharing an address, so it belongs in the test schema — without it,
+/// `duplicate_registration_is_rejected` would pass for the wrong reason.
+const ACCOUNTS_MASTER_EMAIL_INDEX: &str =
+    "CREATE UNIQUE INDEX accounts_master_email ON accounts (email COLLATE NOCASE) \
+     WHERE login IS NULL";
 
 const CHARACTERS_DDL: &str = "CREATE TABLE characters (
     account_name VARCHAR(45) DEFAULT NULL,
@@ -70,10 +79,25 @@ fn test_config() -> DashboardConfig {
 async fn test_app() -> (axum::Router, SqlitePool) {
     let pool = SqlitePool::connect("sqlite::memory:").await.unwrap();
     sqlx::query(ACCOUNTS_DDL).execute(&pool).await.unwrap();
+    sqlx::query(ACCOUNTS_MASTER_EMAIL_INDEX).execute(&pool).await.unwrap();
     sqlx::query(CHARACTERS_DDL).execute(&pool).await.unwrap();
 
     let state = Arc::new(App::new(pool.clone(), test_config()));
     (dashboard_api::app(state), pool)
+}
+
+/// Adds a game account under a master address — the row the dashboard will
+/// create in a later milestone, and the only thing `characters` can hang off.
+async fn add_game_account(pool: &SqlitePool, email: &str, login: &str) {
+    sqlx::query(
+        "INSERT INTO accounts (login, password, email, is_verified, lastactive, accessLevel)
+         VALUES (?, 'x', ?, NULL, 0, 0)",
+    )
+    .bind(login)
+    .bind(email)
+    .execute(pool)
+    .await
+    .unwrap();
 }
 
 /// axum's ConnectInfo extractor needs a peer address; `oneshot` doesn't set one.
@@ -130,22 +154,75 @@ async fn register_stores_the_hash_the_game_client_expects() {
     let response = app
         .oneshot(post(
             "/api/v1/auth/register",
-            serde_json::json!({ "login": "Alice", "password": "correct-horse" }),
+            serde_json::json!({ "email": "Alice@Example.com", "password": "correct-horse" }),
         ))
         .await
         .unwrap();
     assert_eq!(response.status(), StatusCode::CREATED);
 
     // This is the acceptance test for the whole design: the stored value must be
-    // Base64(SHA1(pw)) and the login lowercased, exactly as the login server
-    // writes it — otherwise the account cannot log into the real client.
-    let (login, password): (String, String) =
-        sqlx::query_as("SELECT login, password FROM accounts")
+    // Base64(SHA1(pw)), exactly as the login server writes it — the game
+    // accounts created under this master reuse the hash, so a mismatch here
+    // produces accounts the real client cannot log into.
+    //
+    // `login` must be NULL and the address stored lowercased: that pair is what
+    // marks the row a master account rather than something the game can see.
+    let (login, email, password, is_verified): (Option<String>, String, String, Option<i64>) =
+        sqlx::query_as("SELECT login, email, password, is_verified FROM accounts")
             .fetch_one(&pool)
             .await
             .unwrap();
-    assert_eq!(login, "alice");
+    assert_eq!(login, None, "a master account has no game login");
+    assert_eq!(email, "alice@example.com");
     assert_eq!(password, commons::crypt::hash_password("correct-horse"));
+    assert_eq!(is_verified, Some(0), "a fresh registration is unverified");
+}
+
+#[tokio::test]
+async fn a_game_account_cannot_sign_into_the_dashboard() {
+    let (app, pool) = test_app().await;
+
+    // A game account carrying the same address as a master must never satisfy
+    // the dashboard login — otherwise a leaked sub-account password would open
+    // the owner's dashboard.
+    sqlx::query(
+        "INSERT INTO accounts (login, password, email, is_verified, lastactive, accessLevel)
+         VALUES ('alice', ?, 'alice@example.com', NULL, 0, 0)",
+    )
+    .bind(commons::crypt::hash_password("correct-horse"))
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    let response = app
+        .oneshot(post(
+            "/api/v1/auth/login",
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+}
+
+#[tokio::test]
+async fn registration_requires_something_that_looks_like_an_address() {
+    let (app, _pool) = test_app().await;
+
+    for bad in ["alice", "alice@localhost", "alice@", "@example.com", "a b@c.d"] {
+        let response = app
+            .clone()
+            .oneshot(post(
+                "/api/v1/auth/register",
+                serde_json::json!({ "email": bad, "password": "correct-horse" }),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(
+            response.status(),
+            StatusCode::BAD_REQUEST,
+            "{bad} should not be accepted as an email address"
+        );
+    }
 }
 
 #[tokio::test]
@@ -156,15 +233,18 @@ async fn register_then_login_then_read_characters() {
         .clone()
         .oneshot(post(
             "/api/v1/auth/register",
-            serde_json::json!({ "login": "alice", "password": "correct-horse" }),
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
         ))
         .await
         .unwrap();
     assert_eq!(registered.status(), StatusCode::CREATED);
 
+    // Characters hang off a *game* account, which is linked to the master by
+    // the shared address.
+    add_game_account(&pool, "alice@example.com", "alice1").await;
     sqlx::query(
         "INSERT INTO characters (account_name, charId, char_name, level, sex, race, classid, online, onlinetime, lastAccess)
-         VALUES ('alice', 1, 'Shen', 42, 0, 1, 10, 1, 3600, 100)",
+         VALUES ('alice1', 1, 'Shen', 42, 0, 1, 10, 1, 3600, 100)",
     )
     .execute(&pool)
     .await
@@ -174,7 +254,7 @@ async fn register_then_login_then_read_characters() {
         .clone()
         .oneshot(post(
             "/api/v1/auth/login",
-            serde_json::json!({ "login": "alice", "password": "correct-horse" }),
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
         ))
         .await
         .unwrap();
@@ -199,18 +279,19 @@ async fn register_then_login_then_read_characters() {
 async fn characters_are_scoped_to_the_session_account() {
     let (app, pool) = test_app().await;
 
-    for name in ["alice", "mallory"] {
+    for name in ["alice@example.com", "mallory@example.com"] {
         app.clone()
             .oneshot(post(
                 "/api/v1/auth/register",
-                serde_json::json!({ "login": name, "password": "correct-horse" }),
+                serde_json::json!({ "email": name, "password": "correct-horse" }),
             ))
             .await
             .unwrap();
     }
+    add_game_account(&pool, "alice@example.com", "alice1").await;
     sqlx::query(
         "INSERT INTO characters (account_name, charId, char_name, level, lastAccess)
-         VALUES ('alice', 1, 'AliceChar', 10, 1)",
+         VALUES ('alice1', 1, 'AliceChar', 10, 1)",
     )
     .execute(&pool)
     .await
@@ -220,7 +301,7 @@ async fn characters_are_scoped_to_the_session_account() {
         .clone()
         .oneshot(post(
             "/api/v1/auth/login",
-            serde_json::json!({ "login": "mallory", "password": "correct-horse" }),
+            serde_json::json!({ "email": "mallory@example.com", "password": "correct-horse" }),
         ))
         .await
         .unwrap();
@@ -240,13 +321,14 @@ async fn deleted_characters_are_hidden() {
     app.clone()
         .oneshot(post(
             "/api/v1/auth/register",
-            serde_json::json!({ "login": "alice", "password": "correct-horse" }),
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
         ))
         .await
         .unwrap();
+    add_game_account(&pool, "alice@example.com", "alice1").await;
     sqlx::query(
         "INSERT INTO characters (account_name, charId, char_name, level, deletetime, lastAccess)
-         VALUES ('alice', 1, 'Doomed', 10, 999999, 1)",
+         VALUES ('alice1', 1, 'Doomed', 10, 999999, 1)",
     )
     .execute(&pool)
     .await
@@ -256,7 +338,7 @@ async fn deleted_characters_are_hidden() {
         .clone()
         .oneshot(post(
             "/api/v1/auth/login",
-            serde_json::json!({ "login": "alice", "password": "correct-horse" }),
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
         ))
         .await
         .unwrap();
@@ -270,18 +352,124 @@ async fn deleted_characters_are_hidden() {
 }
 
 #[tokio::test]
+async fn characters_from_every_game_account_are_listed_together() {
+    let (app, pool) = test_app().await;
+
+    let registered = app
+        .clone()
+        .oneshot(post(
+            "/api/v1/auth/register",
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
+        ))
+        .await
+        .unwrap();
+    let cookie = session_cookie(&registered);
+
+    // Two game accounts under one master, plus a third under someone else.
+    add_game_account(&pool, "alice@example.com", "alice1").await;
+    add_game_account(&pool, "alice@example.com", "alice2").await;
+    add_game_account(&pool, "mallory@example.com", "mallory1").await;
+    sqlx::query(
+        "INSERT INTO characters (account_name, charId, char_name, level, lastAccess) VALUES
+         ('alice1', 1, 'First', 10, 200),
+         ('alice2', 2, 'Second', 20, 100),
+         ('mallory1', 3, 'NotYours', 30, 300)",
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    let chars = app
+        .clone()
+        .oneshot(get_with_cookie("/api/v1/account/characters", &cookie))
+        .await
+        .unwrap();
+    let body = body_json(chars).await;
+    let names: Vec<&str> = body
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|c| c["name"].as_str().unwrap())
+        .collect();
+    assert_eq!(names, vec!["First", "Second"], "ordered by lastAccess desc");
+    // The owning game account has to come along, or the UI cannot group them.
+    assert_eq!(body[0]["accountName"], "alice1");
+    assert_eq!(body[1]["accountName"], "alice2");
+
+    let listed = app
+        .oneshot(get_with_cookie("/api/v1/account/game-accounts", &cookie))
+        .await
+        .unwrap();
+    assert_eq!(
+        body_json(listed).await,
+        serde_json::json!(["alice1", "alice2"])
+    );
+}
+
+#[tokio::test]
+async fn a_master_account_starts_unverified_and_the_link_verifies_it() {
+    let (app, pool) = test_app().await;
+
+    let registered = app
+        .clone()
+        .oneshot(post(
+            "/api/v1/auth/register",
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
+        ))
+        .await
+        .unwrap();
+    let cookie = session_cookie(&registered);
+    assert_eq!(body_json(registered).await["isVerified"], false);
+
+    // The token is what the mail would have carried; mail is disabled in tests,
+    // so mint the same one the handler does.
+    let key = dashboard_api::auth::SigningKey::new("test-secret");
+    let token = dashboard_api::auth::token::issue_verify_email(
+        &key,
+        "alice@example.com",
+        "alice@example.com",
+    );
+
+    let verified = app
+        .clone()
+        .oneshot(with_peer(
+            Request::builder()
+                .uri(format!("/api/v1/account/email/verify?token={token}"))
+                .body(Body::empty())
+                .unwrap(),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(verified.status(), StatusCode::NO_CONTENT);
+
+    let is_verified: Option<i64> =
+        sqlx::query_scalar("SELECT is_verified FROM accounts WHERE login IS NULL")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert_eq!(is_verified, Some(1));
+
+    let me = app
+        .oneshot(get_with_cookie("/api/v1/auth/me", &cookie))
+        .await
+        .unwrap();
+    assert_eq!(body_json(me).await["isVerified"], true);
+}
+
+#[tokio::test]
 async fn duplicate_registration_is_rejected() {
     let (app, _pool) = test_app().await;
-    let body = serde_json::json!({ "login": "alice", "password": "correct-horse" });
+    let body = serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" });
 
     let first = app.clone().oneshot(post("/api/v1/auth/register", body.clone())).await.unwrap();
     assert_eq!(first.status(), StatusCode::CREATED);
 
-    // Same name in different case must still collide — logins are normalized.
+    // Same address in different case must still collide — addresses are
+    // normalized, and the partial unique index is case-insensitive to match.
     let second = app
         .oneshot(post(
             "/api/v1/auth/register",
-            serde_json::json!({ "login": "ALICE", "password": "correct-horse" }),
+            serde_json::json!({ "email": "ALICE@EXAMPLE.COM", "password": "correct-horse" }),
         ))
         .await
         .unwrap();
@@ -294,7 +482,7 @@ async fn login_with_a_wrong_password_is_rejected() {
     app.clone()
         .oneshot(post(
             "/api/v1/auth/register",
-            serde_json::json!({ "login": "alice", "password": "correct-horse" }),
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
         ))
         .await
         .unwrap();
@@ -302,7 +490,7 @@ async fn login_with_a_wrong_password_is_rejected() {
     let response = app
         .oneshot(post(
             "/api/v1/auth/login",
-            serde_json::json!({ "login": "alice", "password": "wrong-horse" }),
+            serde_json::json!({ "email": "alice@example.com", "password": "wrong-horse" }),
         ))
         .await
         .unwrap();
@@ -315,7 +503,7 @@ async fn unknown_account_and_wrong_password_are_indistinguishable() {
     app.clone()
         .oneshot(post(
             "/api/v1/auth/register",
-            serde_json::json!({ "login": "alice", "password": "correct-horse" }),
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
         ))
         .await
         .unwrap();
@@ -324,14 +512,14 @@ async fn unknown_account_and_wrong_password_are_indistinguishable() {
         .clone()
         .oneshot(post(
             "/api/v1/auth/login",
-            serde_json::json!({ "login": "alice", "password": "nope-nope-nope" }),
+            serde_json::json!({ "email": "alice@example.com", "password": "nope-nope-nope" }),
         ))
         .await
         .unwrap();
     let no_such_account = app
         .oneshot(post(
             "/api/v1/auth/login",
-            serde_json::json!({ "login": "nobody", "password": "nope-nope-nope" }),
+            serde_json::json!({ "email": "nobody@example.com", "password": "nope-nope-nope" }),
         ))
         .await
         .unwrap();
@@ -346,7 +534,7 @@ async fn protected_routes_reject_missing_and_forged_cookies() {
     app.clone()
         .oneshot(post(
             "/api/v1/auth/register",
-            serde_json::json!({ "login": "alice", "password": "correct-horse" }),
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
         ))
         .await
         .unwrap();
@@ -380,7 +568,7 @@ async fn changing_the_password_invalidates_the_old_session() {
         .clone()
         .oneshot(post(
             "/api/v1/auth/register",
-            serde_json::json!({ "login": "alice", "password": "correct-horse" }),
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
         ))
         .await
         .unwrap();
@@ -431,7 +619,7 @@ async fn login_is_rate_limited() {
     app.clone()
         .oneshot(post(
             "/api/v1/auth/register",
-            serde_json::json!({ "login": "alice", "password": "correct-horse" }),
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
         ))
         .await
         .unwrap();
@@ -442,7 +630,7 @@ async fn login_is_rate_limited() {
             .clone()
             .oneshot(post(
                 "/api/v1/auth/login",
-                serde_json::json!({ "login": "alice", "password": "wrong-horse" }),
+                serde_json::json!({ "email": "alice@example.com", "password": "wrong-horse" }),
             ))
             .await
             .unwrap();
@@ -460,7 +648,7 @@ async fn weak_passwords_are_rejected_at_registration() {
     let response = app
         .oneshot(post(
             "/api/v1/auth/register",
-            serde_json::json!({ "login": "alice", "password": "short" }),
+            serde_json::json!({ "email": "alice@example.com", "password": "short" }),
         ))
         .await
         .unwrap();
@@ -479,7 +667,7 @@ async fn mutations_without_the_csrf_header_are_refused() {
                 .uri("/api/v1/auth/login")
                 .header(header::CONTENT_TYPE, "application/json")
                 .body(Body::from(
-                    serde_json::json!({ "login": "alice", "password": "correct-horse" }).to_string(),
+                    serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }).to_string(),
                 ))
                 .unwrap(),
         ))
@@ -648,7 +836,7 @@ async fn session_cookie_is_usable_cross_origin() {
         .clone()
         .oneshot(post(
             "/api/v1/auth/register",
-            serde_json::json!({ "login": "alice", "password": "correct-horse" }),
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
         ))
         .await
         .unwrap();
