@@ -1156,6 +1156,16 @@ fn recompute_passives_after_skill_change(world: &mut World, player_oid: i32, cha
 /// `Player.doDie`: mark dead, stop everything, apply the XP penalty,
 /// broadcast `Die` with the to-village flag.
 pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32) {
+    // Every consequence of this death is Java's `killer.getActingPlayer()`, not
+    // "the killer object": a kill landed by someone's **summon** carries the
+    // same PK counter, karma, clan-war credit and exp-penalty relief as one
+    // they landed themselves.
+    //
+    // Resolved once at the top rather than at each site. It was previously
+    // shadowed part-way down, which happened to cover everything below it —
+    // but any code added *above* that point would silently have used the raw
+    // id, and there is no signal when that goes wrong.
+    let killer_oid = super::pvp::acting_player(world, killer_oid);
     {
         let Some((p, mut vitals)) =
             world.objects.get_many_mut::<(&mut crate::model::Player, &mut Vitals)>(&player_oid)
@@ -1184,11 +1194,7 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     stop_effects_on_death(world, player_oid);
 
     // `Player.doDie`'s reputation block: a player killer takes the PvP/PK
-    // consequences (counters, karma) for this death. Java reads
-    // `killer.getActingPlayer()`, so a kill landed by someone's **summon**
-    // carries the same consequences as one they landed themselves — otherwise
-    // setting a pet on someone is a free kill with no PK counter and no karma.
-    let killer_oid = super::pvp::acting_player(world, killer_oid);
+    // consequences (counters, karma) for this death.
     if world.objects.has_component::<crate::model::Player>(&killer_oid) {
         super::pvp::on_kill_update_pvp_reputation(world, killer_oid, player_oid);
     }
