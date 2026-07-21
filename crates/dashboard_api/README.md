@@ -11,13 +11,19 @@ Design and rationale: [`docs/PLAN_DASHBOARD.md`](../../docs/PLAN_DASHBOARD.md).
 # 1. Set the secret — the server refuses to start without it.
 export DIST_GAME_CONFIG_DASHBOARD_SESSIONSECRET="$(openssl rand -hex 32)"
 
-# 2. Build the frontend (rust-embed reads dist/ at compile time in release;
-#    in debug it reads from disk, so this is optional for `cargo run`).
+# 2. Build the frontend. Optional for `cargo run` — a debug build reads dist/
+#    from disk at runtime, and without it you get a "frontend not built"
+#    placeholder while the API works normally. Required for a release build,
+#    which embeds dist/ into the binary.
 cd web/dashboard && bun install && bun run build && cd -
 
 # 3. Run from the repo root, so the relative DB path in Dashboard.ini resolves.
 cargo run -p dashboard_api
 ```
+
+`cargo build` never requires Bun: `build.rs` creates the (gitignored) `web/dashboard/dist`
+directory if it is absent, because `#[derive(RustEmbed)]` fails to *compile* against a missing
+folder. It emits a `cargo:warning` pointing here when the directory is empty.
 
 Config lives in `dist/game/config/Dashboard.ini`. Every key can be overridden with an environment
 variable named `DIST_GAME_CONFIG_DASHBOARD_<KEY>` — the prefix comes from the *file path*, so

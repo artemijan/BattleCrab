@@ -415,13 +415,26 @@ with an SPA fallback (unknown paths → `index.html`). One binary, one port, no 
 static host, cookies trivially same-origin. In development, run `bun --hot` (Bun's dev server) with
 a proxy to the API port for hot reload.
 
-**Build order matters**: the SPA must be built *before* the Rust crate compiles, because
-`rust-embed` reads `web/dashboard/dist` at compile time. Two options — a `build.rs` in
-`dashboard_api` that shells out to `bun build`, or an explicit ordered step in the Dockerfile/CI.
-Prefer the explicit CI step: a `build.rs` that invokes a JS toolchain makes `cargo build` fail on a
-machine without Bun, which would break the other crates' developer experience for no benefit. Use
-`rust-embed`'s debug-mode filesystem fallback so local Rust-only work doesn't require a built SPA
-at all.
+**Build order matters**: a *release* build embeds `web/dashboard/dist` at compile time, so the SPA
+must be built first to end up in the binary. That ordering is an explicit step in CI/Docker, not a
+`build.rs` that shells out to Bun — invoking a JS toolchain from `build.rs` would make `cargo build`
+fail on a machine without Bun, breaking the other crates' developer experience for no benefit.
+
+There is one thing `build.rs` **must** do, though, and its absence was a real bug: `dist/` is
+gitignored, and `#[derive(RustEmbed)]` treats a *missing* folder as a compile error — so a fresh
+checkout of `main` could not build `dashboard_api` at all, and therefore could not build the
+workspace. `crates/dashboard_api/build.rs` now creates the directory, and only that (it never runs
+Bun), so:
+
+- A Rust-only checkout compiles and runs; `web::serve_spa` answers with a "frontend not built"
+  message and the API works normally.
+- `cargo:warning` points at `bun run build` when the directory is empty.
+- Debug builds read `dist/` from the filesystem at runtime, so building the frontend afterwards
+  needs no recompile.
+
+Verified end to end: with `dist/` absent the workspace builds and the API serves; after
+`bun run build` the debug server serves the real SPA with no rebuild; and a release binary still
+serves it with `dist/` moved away — which is what proves the assets are genuinely embedded.
 
 **Docker**: multi-stage — an `oven/bun` stage runs `bun install --frozen-lockfile && bun run build`,
 then the Rust builder stage copies `dist/` in before `cargo build --release`. The final image
