@@ -107,10 +107,23 @@ async fn main() {
         // Not fatal — the API is fully usable without it — but password reset
         // and email verification silently do nothing useful, so it must not be
         // discoverable only by a user never receiving mail.
-        tracing::warn!(
-            "email is DISABLED (SmtpHost / ${} / ${} not all set). Password-reset and              verification links will be written to this log instead of being sent.",
+        // Name the variables that are actually missing rather than the whole
+        // set: "one of these is unset" is the message that sent the last
+        // debugging session looking at the wrong one.
+        let missing: Vec<&str> = [
+            dashboard_api::config::SMTP_HOST_ENV,
             dashboard_api::config::SMTP_USERNAME_ENV,
             dashboard_api::config::SMTP_PASSWORD_ENV,
+        ]
+        .into_iter()
+        .filter(|var| std::env::var(var).unwrap_or_default().trim().is_empty())
+        .collect();
+
+        tracing::warn!(
+            "email is DISABLED — unset or empty: {}. Password-reset and verification links \
+             will be written to this log instead of being sent. Every SMTP setting comes from \
+             the environment (systemd EnvironmentFile), never from Dashboard.ini.",
+            missing.join(", "),
         );
     }
     let app = dashboard_api::app(state);

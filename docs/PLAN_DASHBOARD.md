@@ -674,6 +674,19 @@ fonts. Bun content-hashes all of these at build time, which is what makes the im
 
 ### Operational notes
 
+- **SMTP is environment-only — all of it**, not just the credentials:
+  `DASHBOARD_SMTP_HOST`, `_PORT`, `_FROM`, `_USERNAME`, `_PASSWORD`. There are
+  no `Smtp*` keys in `Dashboard.ini`; the server logs an error naming any it
+  finds, because they are ignored. The host/port/from moved out of the ini
+  after the deploy script's `sed "s|^SmtpHost.*|...|"` silently no-oped against
+  a remote ini that predated those keys — sed exits 0 when it matches nothing,
+  so the deploy reported success while mail stayed disabled. A key that does
+  not exist cannot be missed.
+- Values in the systemd `EnvironmentFile` must be **single-quoted**: systemd
+  treats an unquoted `#` as a comment, which truncates any secret containing
+  one. The failure is nasty — the value stays non-empty, so email reports as
+  *enabled* and then fails authentication.
+
 - `SessionSecret` is empty in the committed `Dashboard.ini` and the server **refuses to start**
   without it — deliberate, since a generated-per-boot key silently logs everyone out on each deploy.
 - Cookies are marked `Secure` only when `PublicBaseUrl` is `https://`; the server warns loudly at

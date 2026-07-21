@@ -26,15 +26,50 @@ pub const SESSION_SECRET_ENV: &str = "DASHBOARD_SESSION_SECRET";
 /// cookies. `openssl rand -hex 32` produces 64.
 pub const MIN_SESSION_SECRET_LEN: usize = 32;
 
-/// SMTP credentials, environment-only for the same reason as the session key:
-/// `Dashboard.ini` is committed, so no secret may live in it.
+/// The **entire** SMTP configuration is environment-only — not just the
+/// credentials.
 ///
-/// With Amazon SES these are **SES SMTP credentials** (SES console -> SMTP
-/// settings -> Create SMTP credentials), not AWS access keys. SES derives the
-/// SMTP password from a secret access key; pasting the access key itself is a
-/// common and confusing failure.
+/// The secrets have to be, because `Dashboard.ini` is committed. The host, port
+/// and from-address moved out for a different reason: the deploy script used to
+/// write them into the remote ini with `sed "s|^SmtpHost.*|...|"`, which exits
+/// 0 having changed nothing when the key is absent. A remote ini seeded before
+/// those keys existed therefore never received them, and mail stayed silently
+/// disabled while the deploy reported success. With no ini key to miss, the
+/// value either arrives in the environment or is visibly absent at boot.
+///
+/// With Amazon SES the username/password are **SES SMTP credentials** (SES
+/// console -> SMTP settings -> Create SMTP credentials), not AWS access keys.
+/// SES derives the SMTP password from a secret access key; pasting the access
+/// key itself is a common and confusing failure.
+pub const SMTP_HOST_ENV: &str = "DASHBOARD_SMTP_HOST";
+pub const SMTP_PORT_ENV: &str = "DASHBOARD_SMTP_PORT";
+pub const SMTP_FROM_ENV: &str = "DASHBOARD_SMTP_FROM";
 pub const SMTP_USERNAME_ENV: &str = "DASHBOARD_SMTP_USERNAME";
 pub const SMTP_PASSWORD_ENV: &str = "DASHBOARD_SMTP_PASSWORD";
+
+/// Every SMTP variable, for the boot diagnostics. Kept in one place so a newly
+/// added one cannot be left out of the "what is missing" report.
+pub const SMTP_ENV_VARS: [&str; 5] = [
+    SMTP_HOST_ENV,
+    SMTP_PORT_ENV,
+    SMTP_FROM_ENV,
+    SMTP_USERNAME_ENV,
+    SMTP_PASSWORD_ENV,
+];
+
+/// Ini keys that used to configure SMTP. Presence now means a stale config that
+/// is being silently ignored, which is worth saying out loud.
+pub const OBSOLETE_SMTP_INI_KEYS: [&str; 6] = [
+    "SmtpHost",
+    "SmtpPort",
+    "SmtpFrom",
+    "SmtpUsername",
+    "SmtpPassword",
+    "SmtpUser",
+];
+
+/// Default envelope sender, used when `DASHBOARD_SMTP_FROM` is unset.
+const DEFAULT_SMTP_FROM: &str = "BattleCrab <no-reply@battlecrab.com>";
 
 pub struct DashboardConfig {
     pub bind_address: String,
@@ -109,17 +144,22 @@ impl DashboardConfig {
     pub fn load() -> Self {
         let p = PropertiesParser::load(DASHBOARD_CONFIG_FILE);
 
-        // A secret in the committed ini is ignored, but its presence means one
-        // may already have been committed — say so loudly rather than silently
-        // doing the right thing.
-        for key in ["SmtpUsername", "SmtpPassword", "SmtpUser"] {
+        // Any SMTP key left in the ini is now dead weight. For the credentials
+        // it also means one may have been committed at some point; for the rest
+        // it means someone is editing a file the server no longer reads, and
+        // wondering why nothing changes.
+        for key in OBSOLETE_SMTP_INI_KEYS {
             if p.contains_key(key) {
                 tracing::error!(
-                    "{} defines {key} — it is IGNORED (SMTP credentials come from ${} / ${} only). \
-                     Remove the key, and rotate the credential if it was ever committed.",
+                    "{} defines {key} — it is IGNORED. All SMTP settings come from the \
+                     environment now ({}). Remove the key{}",
                     DASHBOARD_CONFIG_FILE,
-                    SMTP_USERNAME_ENV,
-                    SMTP_PASSWORD_ENV,
+                    SMTP_ENV_VARS.join(", "),
+                    if key.contains("assword") || key.contains("ser") {
+                        ", and rotate the credential if it was ever committed."
+                    } else {
+                        "."
+                    },
                 );
             }
         }
@@ -165,10 +205,22 @@ impl DashboardConfig {
             login_rate_limit: p.get_int("LoginRateLimit", 10) as u32,
             login_rate_window_secs: p.get_long("LoginRateWindowSecs", 300) as u64,
 
-            smtp_host: p.get_string("SmtpHost", ""),
-            smtp_port: p.get_int("SmtpPort", 587) as u16,
-            smtp_from: p.get_string("SmtpFrom", "BattleCrab <no-reply@battlecrab.com>"),
-            // Secrets: environment only, like the session key.
+            // SMTP is environment-only, all of it — see SMTP_HOST_ENV.
+            smtp_host: std::env::var(SMTP_HOST_ENV).unwrap_or_default(),
+            // A malformed port is not silently coerced to the default: that
+            // would turn a typo into a connection failure against the wrong
+            // port, diagnosed nowhere.
+            smtp_port: match std::env::var(SMTP_PORT_ENV) {
+                Ok(v) if !v.trim().is_empty() => v.trim().parse().unwrap_or_else(|_| {
+                    tracing::error!("${SMTP_PORT_ENV} is not a port number: {v:?} — using 587");
+                    587
+                }),
+                _ => 587,
+            },
+            smtp_from: std::env::var(SMTP_FROM_ENV)
+                .ok()
+                .filter(|v| !v.trim().is_empty())
+                .unwrap_or_else(|| DEFAULT_SMTP_FROM.to_string()),
             smtp_username: std::env::var(SMTP_USERNAME_ENV).unwrap_or_default(),
             smtp_password: std::env::var(SMTP_PASSWORD_ENV).unwrap_or_default(),
         }
@@ -229,6 +281,38 @@ mod secret_tests {
         assert!(validate_session_secret(&"a".repeat(MIN_SESSION_SECRET_LEN)).is_ok());
         // What `openssl rand -hex 32` actually emits.
         assert!(validate_session_secret(&"0123456789abcdef".repeat(4)).is_ok());
+    }
+
+    /// The shipped ini must define no SMTP key at all.
+    ///
+    /// This is the actual regression: the deploy script rewrote these keys with
+    /// `sed "s|^SmtpHost.*|...|"`, which changes nothing and still exits 0 when
+    /// the key is absent from the remote copy — so mail stayed disabled while
+    /// the deploy reported success. Re-adding a key here would revive that
+    /// whole failure mode, and would look like it works locally.
+    #[test]
+    fn the_shipped_ini_defines_no_smtp_keys() {
+        let ini = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../dist/game/config/Dashboard.ini"
+        ))
+        .expect("dist/game/config/Dashboard.ini should be readable");
+
+        for line in ini.lines() {
+            let line = line.trim();
+            // Comments are where these keys are *documented*, which is fine.
+            if line.starts_with('#') || line.is_empty() {
+                continue;
+            }
+            for key in OBSOLETE_SMTP_INI_KEYS {
+                assert!(
+                    !line.starts_with(key),
+                    "Dashboard.ini still defines {key} ({line:?}) — SMTP is environment-only; \
+                     see {} ",
+                    SMTP_ENV_VARS.join(", "),
+                );
+            }
+        }
     }
 
     #[test]
