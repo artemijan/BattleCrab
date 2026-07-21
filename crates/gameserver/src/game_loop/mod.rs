@@ -47,6 +47,7 @@ mod ranged;
 mod reco;
 pub(crate) mod regen;
 mod shop;
+mod cubic;
 mod servitor;
 mod shortcuts;
 mod siege;
@@ -319,6 +320,9 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::ServitorLifeTick { servitor_oid } => {
                 servitor::handle_life_tick(world, servitor_oid);
+            }
+            ScheduledTask::CubicAction { owner_oid, cubic_id } => {
+                cubic::handle_cubic_action(world, owner_oid, cubic_id);
             }
             ScheduledTask::PetFeedTick { pet_oid } => {
                 servitor::handle_feed_tick(world, pet_oid);

@@ -79,6 +79,7 @@ mod ranged_tests;
 mod reflect_tests;
 mod resist_tests;
 mod resurrection_tests;
+mod cubic_tests;
 mod servitor_tests;
 mod shortcuts_tests;
 mod skills_tests;
@@ -270,6 +271,7 @@ async fn character_create_inserts_into_real_schema() {
         initial_shortcuts: crate::data::InitialShortcutData::empty(),
         skill_data: crate::data::SkillData::empty(),
         npc_data: crate::data::NpcData::empty(),
+        cubic_data: crate::data::CubicData::empty(),
         pet_data: Default::default(),
         npc_ai_skills: Default::default(),
         spawn_data: crate::data::SpawnData::empty(),

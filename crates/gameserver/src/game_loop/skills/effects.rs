@@ -60,6 +60,9 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             // rather than the caster — so it is a no-op here rather than a
             // second, divergent implementation.
             SkillEffect::Feed { .. } => {}
+            SkillEffect::SummonCubic { cubic_id, cubic_level } => {
+                crate::game_loop::cubic::summon_cubic(world, target_oid, *cubic_id, *cubic_level);
+            }
             SkillEffect::MagicalAttack { power } => {
                 let power = *power;
                 let (m_atk, caster_name) = {
