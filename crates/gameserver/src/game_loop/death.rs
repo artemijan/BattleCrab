@@ -63,6 +63,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         // Core's script-spawned minions: respawn one, or clear them all when
         // Core itself falls.
         if npc_id == super::core_boss::CORE {
+            super::core_boss::say_death_lines(world, npc_oid);
             super::core_boss::on_core_killed(world);
         } else if super::core_boss::is_core_minion(npc_id) {
             super::core_boss::on_minion_killed(world, npc_id);

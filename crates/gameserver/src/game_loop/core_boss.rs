@@ -34,6 +34,17 @@ const MINION_SPAWNS: [(i32, i32, i32, i32); 3] = [
     (SUSCEPTOR, 17849, 109388, -6480),
 ];
 
+/// Core's lines (`NpcStringId`). The two intro lines fire **once**, on the
+/// first hit of a life; `REMOVING_INTRUDERS` is a 1-in-100 taunt thereafter.
+const A_NON_PERMITTED_TARGET_HAS_BEEN_DISCOVERED: i32 = 1_000_001;
+const INTRUDER_REMOVAL_SYSTEM_INITIATED: i32 = 1_000_002;
+const REMOVING_INTRUDERS: i32 = 1_000_003;
+const A_FATAL_ERROR_HAS_OCCURRED: i32 = 1_000_004;
+const SYSTEM_IS_BEING_SHUT_DOWN: i32 = 1_000_005;
+
+/// `getRandom(100) == 0`.
+const TAUNT_CHANCE: i32 = 100;
+
 const TICKS_PER_SECOND: u64 = 10;
 /// `startQuestTimer("spawn_minion", 60000, npc, null)`.
 const MINION_RESPAWN_SECS: u64 = 60;
@@ -45,6 +56,34 @@ pub(crate) fn on_core_spawned(world: &mut World) {
     for (npc_id, x, y, z) in MINION_SPAWNS {
         crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, 0);
     }
+}
+
+/// Java's `_firstAttacked` — reset on death, so the intro plays once per life
+/// rather than once per server run.
+#[derive(bevy_ecs::component::Component, Debug, Clone, Copy, Default)]
+pub struct CoreState {
+    pub first_attacked: bool,
+}
+
+/// `Core.onAttack` — the intro pair on the first hit, a rare taunt after.
+pub(crate) fn on_core_attacked(world: &mut World, core_oid: i32) {
+    let first = world.objects.get_component::<CoreState>(&core_oid).is_some_and(|s| s.first_attacked);
+    if first {
+        // `if (getRandom(100) == 0)` — a rare line, not every swing.
+        if world.roll(TAUNT_CHANCE) == 0 {
+            crate::game_loop::helpers::npc_say(world, core_oid, REMOVING_INTRUDERS);
+        }
+        return;
+    }
+    if world.objects.get_component::<CoreState>(&core_oid).is_none() {
+        world.objects.add_components(&core_oid, CoreState::default());
+    }
+    if let Some(s) = world.objects.get_component_mut::<CoreState>(&core_oid) {
+        s.first_attacked = true;
+    }
+    // Both intro lines, in order.
+    crate::game_loop::helpers::npc_say(world, core_oid, A_NON_PERMITTED_TARGET_HAS_BEEN_DISCOVERED);
+    crate::game_loop::helpers::npc_say(world, core_oid, INTRUDER_REMOVAL_SYSTEM_INITIATED);
 }
 
 /// Is this npc id one of Core's script-spawned minions?
@@ -78,6 +117,18 @@ pub(crate) fn handle_minion_respawn(world: &mut World, npc_id: i32) {
 
 /// Core died: clear its minions after 20 s (Java's `despawn_minions` timer).
 pub(crate) fn on_core_killed(world: &mut World) {
+    // `_firstAttacked = false` — the intro plays again next life.
+    let mut cores = Vec::new();
+    world.objects.for_each_mut::<(&crate::model::npc::Npc, &CoreState)>(|(n, _)| {
+        if n.npc_id == CORE {
+            cores.push(n.object_id);
+        }
+    });
+    for oid in cores {
+        if let Some(s) = world.objects.get_component_mut::<CoreState>(&oid) {
+            s.first_attacked = false;
+        }
+    }
     world
         .scheduler
         .schedule(world.tick + DESPAWN_DELAY_SECS * TICKS_PER_SECOND, ScheduledTask::CoreDespawnMinions);
@@ -96,4 +147,10 @@ pub(crate) fn handle_despawn_minions(world: &mut World) {
             crate::game_loop::death::despawn_npc(world, oid, region);
         }
     }
+}
+
+/// Core's death lines, said before the minions are cleared.
+pub(crate) fn say_death_lines(world: &mut World, core_oid: i32) {
+    crate::game_loop::helpers::npc_say(world, core_oid, A_FATAL_ERROR_HAS_OCCURRED);
+    crate::game_loop::helpers::npc_say(world, core_oid, SYSTEM_IS_BEING_SHUT_DOWN);
 }

@@ -828,14 +828,7 @@ impl<'w> QuestCtx<'w> {
 
     /// `npc.broadcastPacket(new NpcSay(npc, NPC_GENERAL, npcStringId))`.
     pub fn npc_say(&mut self, npc_string_id: i32) {
-        let Some(npc) = self.world.objects.get_component::<crate::model::npc::Npc>(&self.npc) else { return };
-        let Some(region) =
-            self.world.objects.get_component::<crate::model::components::RegionCell>(&self.npc).map(|r| r.0)
-        else {
-            return;
-        };
-        let pkt = server_packets::npc_say(self.npc, npc.npc_id, npc_string_id);
-        super::helpers::broadcast_near_region(self.world, region, &pkt);
+        super::helpers::npc_say(self.world, self.npc, npc_string_id);
     }
 
     /// `attacker.sendPacket(new NpcSay(npc, NPC_GENERAL, npcStringId))` — the

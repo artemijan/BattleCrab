@@ -114,6 +114,22 @@ pub(crate) fn send_sm_and_action_failed(world: &World, client_id: u32, message_i
     }
 }
 
+/// `npc.broadcastPacket(new NpcSay(npc, NPC_GENERAL, npcStringId))` — an NPC
+/// says a line to everyone nearby.
+///
+/// Lifted out of `QuestCtx` so a **boss script** can use it: the body only ever
+/// needed the world and the speaker, and the quest coupling was incidental.
+/// `QuestCtx::npc_say` now delegates here.
+pub(crate) fn npc_say(world: &World, npc_oid: i32, npc_string_id: i32) {
+    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) else { return };
+    let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&npc_oid).map(|r| r.0)
+    else {
+        return;
+    };
+    let pkt = crate::network::server_packets::npc_say(npc_oid, npc.npc_id, npc_string_id);
+    broadcast_near_region(world, region, &pkt);
+}
+
 /// Send `packet` to a player's own client (if still connected) and every
 /// player that can see them — Java `Creature.broadcastPacket(packet)` with
 /// `includeSelf == true`.
