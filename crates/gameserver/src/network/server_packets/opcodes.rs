@@ -2,6 +2,9 @@
 
 pub const DELETE_OBJECT: u8 = 0x08;
 pub const NPC_INFO: u8 = 0x0C;
+/// `SummonInfo` — a summon as seen by players **other than** its owner (the
+/// owner gets `PET_INFO`).
+pub const SUMMON_INFO: u8 = 0x8B;
 pub const NPC_HTML_MESSAGE: u8 = 0x19;
 pub const CHARACTER_SELECTION_INFO: u8 = 0x09;
 pub const LOGIN_FAIL: u8 = 0x0A;

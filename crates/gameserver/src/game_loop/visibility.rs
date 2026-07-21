@@ -51,6 +51,47 @@ fn send_char_info(world: &World, observer: &ClientSession, player_id: i32) {
 
 /// Send one NPC's `NpcInfo` to a session (skipping NPCs whose template went
 /// missing — can't happen with a consistent datapack).
+/// A servitor is introduced with `SummonInfo` rather than `NpcInfo` — the
+/// client needs the summon packet to render the owner's name under it and to
+/// treat it as a summon rather than a monster.
+///
+/// The **owner** is excluded here: they already got `PetSummonInfo` when it was
+/// summoned, and Java likewise splits the two in `Summon.sendInfo`.
+fn send_summon_info(world: &World, session: &ClientSession, servitor_oid: i32, viewer_oid: i32) -> bool {
+    use crate::model::components::{CombatStats, Position, ServitorOf, Speeds, Vitals};
+    let Some(link) = world.objects.get_component::<ServitorOf>(&servitor_oid).copied() else { return false };
+    if link.owner_object_id == viewer_oid {
+        return true; // the owner's view is the PetInfo one
+    }
+    let (Some(npc), Some(pos), Some(vitals), Some(speeds), Some(combat)) = (
+        world.objects.get_component::<crate::model::npc::Npc>(&servitor_oid),
+        world.objects.get_component::<Position>(&servitor_oid),
+        world.objects.get_component::<Vitals>(&servitor_oid),
+        world.objects.get_component::<Speeds>(&servitor_oid),
+        world.objects.get_component::<CombatStats>(&servitor_oid),
+    ) else {
+        return true;
+    };
+    let Some(t) = npc.template(world) else { return true };
+    let owner_name = world
+        .objects
+        .get_component::<crate::model::Player>(&link.owner_object_id)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    session.send(server_packets::summon_info(
+        servitor_oid,
+        t,
+        pos,
+        vitals,
+        speeds,
+        combat,
+        &owner_name,
+        0, // relation — the per-viewer PvP relation isn't resolved here yet
+        false,
+    ));
+    true
+}
+
 fn send_npc_info(world: &World, session: &ClientSession, npc_id: i32) {
     let Some(v) = crate::model::npc::NpcView::of(&world.objects, npc_id) else { return };
     let Some(t) = v.npc.template(world) else { return };
@@ -83,6 +124,10 @@ pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
         }
     }
     for npc_id in world.npcs_visible_from(my_region) {
+        // A servitor takes the summon packet; everything else the NPC one.
+        if send_summon_info(world, my_session, npc_id, object_id) {
+            continue;
+        }
         send_npc_info(world, my_session, npc_id);
     }
     // Doors render like NPCs (Java `Door.sendInfo`: StaticObjectInfo +
@@ -174,7 +219,9 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
         for npc_id in world.npcs_visible_from(new) {
             let Some(npc_region) = world.objects.get_component::<RegionCell>(&npc_id) else { continue };
             if !regions_adjacent(old, npc_region.0) {
-                send_npc_info(world, cs, npc_id);
+                if !send_summon_info(world, cs, npc_id, object_id) {
+                    send_npc_info(world, cs, npc_id);
+                }
             }
         }
         for npc_id in world.npcs_visible_from(old) {
