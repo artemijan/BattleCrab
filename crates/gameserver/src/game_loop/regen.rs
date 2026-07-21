@@ -203,8 +203,22 @@ pub(crate) fn run_npc_regen_tick(world: &mut World) {
         } else {
             (world.cfg.npc.hp_regen_multiplier, world.cfg.npc.mp_regen_multiplier)
         };
-        let hp_regen = t.base_hp_reg * hp_mul;
-        let mp_regen = t.base_mp_reg * mp_mul;
+        // Java `RegenHPFinalizer`/`RegenMPFinalizer` pet branch: a pet regens
+        // from its **per-level pet row**, under its own multipliers — the same
+        // "substitute the base, keep the pipeline" shape as every other pet
+        // stat (slice 13). Read live here because regen re-reads the template
+        // each tick rather than caching onto a component.
+        let pet_row = world
+            .objects
+            .get_component::<crate::model::components::PetOf>(&oid)
+            .and_then(|p| world.data.pet_data.get(npc_id).and_then(|pt| pt.levels.get(&p.level)));
+        let (hp_regen, mp_regen) = match pet_row {
+            Some(row) => (
+                row.regen_hp * world.cfg.npc.pet_hp_regen_multiplier,
+                row.regen_mp * world.cfg.npc.pet_mp_regen_multiplier,
+            ),
+            None => (t.base_hp_reg * hp_mul, t.base_mp_reg * mp_mul),
+        };
 
         // Scoped so the mutable borrow ends before the broadcast reads the
         // store again.

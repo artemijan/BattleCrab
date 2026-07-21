@@ -71,6 +71,13 @@ pub struct NpcConfig {
     /// `HpRegenMultiplier` / `MpRegenMultiplier` from `Character.ini`, applied
     /// to non-raid NPCs (Java reads the same globals for players and NPCs).
     pub hp_regen_multiplier: f64,
+    /// `PetHpRegenMultiplier` / `PetMpRegenMultiplier` — Java's
+    /// `RegenHPFinalizer`/`RegenMPFinalizer` pet branch applies these to the
+    /// pet's own per-level regen, not the NPC multipliers above. Both 100
+    /// (×1.0) on this dist, so they only matter to a server that retunes them —
+    /// which is exactly why they should not be silently inlined as 1.0.
+    pub pet_hp_regen_multiplier: f64,
+    pub pet_mp_regen_multiplier: f64,
     pub mp_regen_multiplier: f64,
     /// `MinNPCLevelForMagicPenalty` (78) — the Gracia rule "when a character is
     /// 3+ levels below a level-78+ monster, that monster resists magic more
@@ -105,6 +112,8 @@ impl Default for NpcConfig {
             raid_minion_respawn_time: 300_000,
             custom_minions_respawn_time: std::collections::HashMap::new(),
             force_delete_minions: false,
+            pet_hp_regen_multiplier: 1.0,
+            pet_mp_regen_multiplier: 1.0,
             raid_hp_regen_multiplier: 1.0,
             raid_mp_regen_multiplier: 1.0,
             hp_regen_multiplier: 1.0,
@@ -152,6 +161,8 @@ impl NpcConfig {
                 &p.get_string("CustomMinionsRespawnTime", ""),
             ),
             force_delete_minions: p.get_bool("ForceDeleteMinions", d.force_delete_minions),
+            pet_hp_regen_multiplier: p.get_int("PetHpRegenMultiplier", 100) as f64 / 100.0,
+            pet_mp_regen_multiplier: p.get_int("PetMpRegenMultiplier", 100) as f64 / 100.0,
             raid_hp_regen_multiplier: p.get_int("RaidHpRegenMultiplier", 100) as f64 / 100.0,
             raid_mp_regen_multiplier: p.get_int("RaidMpRegenMultiplier", 100) as f64 / 100.0,
             hp_regen_multiplier: c.get_int("HpRegenMultiplier", 100) as f64 / 100.0,
