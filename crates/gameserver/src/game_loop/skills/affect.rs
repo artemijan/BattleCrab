@@ -7,12 +7,15 @@
 //! live here; the caller ([`super::cast::handle_skill_finish`]) just iterates
 //! the returned list.
 //!
-//! **Ported scopes** — the four that cover the dist's non-single skills:
-//! `RANGE` (820 skills), `POINT_BLANK` (785), `PARTY` (272), `PLEDGE` (44).
-//! **Not ported (`TODO(G19)`), all falling back to single-target:** the
-//! geometric cone/rectangle scopes `FAN`/`FAN_PB` (179) and `SQUARE`/`SQUARE_PB`
-//! (52) — they need the caster-heading arc/rect math; `RING_RANGE` (18, an
-//! annulus with an inner radius); `RANGE_SORT_BY_HP` (4); `SUMMON_EXCEPT_MASTER`
+//! **Ported scopes** — the four radius/group scopes that cover the dist's
+//! non-single skills: `RANGE` (820 skills), `POINT_BLANK` (785), `PARTY`
+//! (272), `PLEDGE` (44) — and the geometric family
+//! (PLAN_G19_GEOMETRIC_SCOPES.md): `FAN`/`FAN_PB` (163+16, 5 learnable —
+//! Sonic Buster, Force Burst, Wild Sweep, Wrath, Frost Wall), `SQUARE`/
+//! `SQUARE_PB` (35+17) and `RING_RANGE` (18), which read the `<fanRange>`
+//! tuple for their arc/rect/annulus geometry.
+//! **Not ported (`TODO(G19)`), all falling back to single-target:**
+//! `RANGE_SORT_BY_HP` (4); `SUMMON_EXCEPT_MASTER`
 //! (22) and `WYVERN_SCOPE`/`BALAKAS_SCOPE`, which need summons (G29) or boss
 //! scripting (G23); the `DEAD_*` family (mass resurrect — needs the res flow);
 //! `PARTY_PLEDGE` (5); and `STATIC_OBJECT_SCOPE`.
@@ -29,13 +32,15 @@ use crate::model::skill::{AffectObject, AffectScope, Skill, TargetType};
 use crate::model::Player;
 use crate::world::{regions_adjacent, World};
 
-/// Resolve the full set of creatures a cast lands on, primary target first.
+/// Resolve the full set of creatures a cast lands on.
 ///
-/// Java `Skill.getTargetsAffected(creature, target)`. The order matters: the
-/// primary target is always first (and always included — the scope filters
-/// never drop it), so callers that treat the first entry specially — the
-/// resist-message path, the "main target" damage — behave as they did before
-/// scopes existed.
+/// Java `Skill.getTargetsAffected(creature, target)`. For the radius/group
+/// scopes the primary target is always first and always included, so callers
+/// that treat the first entry specially behave as they did before scopes
+/// existed. The **geometric scopes are different**: their geometry applies to
+/// the primary target too — a FAN cast at someone behind the caster misses
+/// them, and RING_RANGE *never* hits its epicenter target (the donut hole) —
+/// so the affected set can come back without the target, or empty.
 pub(crate) fn targets_affected(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) -> Vec<i32> {
     // The limit is rolled once per cast (Java calls `getAffectLimit()` once at
     // the top of each handler), so it must be drawn before the sweep.
@@ -50,6 +55,9 @@ pub(crate) fn targets_affected(world: &mut World, caster_oid: i32, target_oid: i
         AffectScope::PointBlank => sweep_radius(world, caster_oid, target_oid, skill, limit, Centre::Caster),
         AffectScope::Party => sweep_group(world, caster_oid, target_oid, skill, limit, Group::Party),
         AffectScope::Pledge => sweep_group(world, caster_oid, target_oid, skill, limit, Group::Clan),
+        AffectScope::Fan | AffectScope::FanPointBlank => sweep_fan(world, caster_oid, target_oid, skill, limit),
+        AffectScope::Square | AffectScope::SquarePointBlank => sweep_square(world, caster_oid, target_oid, skill, limit),
+        AffectScope::RingRange => sweep_ring(world, caster_oid, target_oid, skill, limit),
     }
 }
 
@@ -108,6 +116,17 @@ fn sweep_radius(
             continue;
         }
         if is_dead(world, candidate) && !corpse_skill(skill) {
+            continue;
+        }
+        // Dist-local fix in `Range.java` (82a54bbc, "Fix minion buffs are
+        // given to players"): a monster's *good* skill never sweeps players
+        // in, so a mob's mass-buff can't land on bystanders. The primary
+        // target is exempt, like the affect-object bypass Java gives it.
+        if candidate != target_oid
+            && !skill.is_bad()
+            && is_monster(world, caster_oid)
+            && world.objects.has_component::<Player>(&candidate)
+        {
             continue;
         }
         let Some(pos) = world.objects.get_component::<Position>(&candidate).copied() else { continue };
@@ -190,6 +209,204 @@ fn sweep_group(
     out
 }
 
+/// `Fan.java` / `FanPB.java` — an arc of `fan_range[3]` degrees around the
+/// caster's heading (rotated by `fan_range[1]`), radius `fan_range[2]`.
+///
+/// The primary target gets no free pass through the *geometry*: a fan cast at
+/// a target behind the caster misses it (Java runs the same filter over
+/// everyone; only the affect-object check is bypassed for the target, FAN
+/// only). Two quirks ported as written:
+///
+/// - **No wrap-around normalization** on the angle test. `angle_from` returns
+///   [0, 360), so a caster whose heading maps to 350° does *not* hit a target
+///   at bearing 10° (|10 − 350| = 340 > half-angle) even though it is 20°
+///   away — the live server misses across the 0°/360° seam and so does this.
+/// - `fanHalfAngle = fanAngle / 2` is **integer division** widened to double
+///   (a 35° fan tests against 17.0, not 17.5).
+///
+/// FAN also runs the filter over the caster themselves ("including origin
+/// itself") — self-bearing is `atan2(0,0) = 0°`, so that passes only when
+/// `headingDeg + startDeg` lands inside the half-angle, and NOT_FRIEND drops
+/// the caster anyway; ported literally rather than special-cased. LOS is
+/// measured from the **caster** (unlike RANGE, which measures from the
+/// target).
+fn sweep_fan(world: &World, caster_oid: i32, target_oid: i32, skill: &Skill, limit: i32) -> Vec<i32> {
+    let pb = skill.affect_scope == AffectScope::FanPointBlank;
+    let Some(origin) = world.objects.get_component::<Position>(&caster_oid).copied() else {
+        return Vec::new();
+    };
+    let heading_deg = heading_to_degree(origin.heading);
+    let start_deg = skill.fan_range[1] as f64;
+    let radius = skill.fan_range[2];
+    let half_angle = (skill.fan_range[3] / 2) as f64;
+
+    let mut out = Vec::new();
+    let mut affected = 0;
+    // FAN tests the origin explicitly before the sweep; FAN_PB doesn't.
+    let mut pool = if pb { Vec::new() } else { vec![caster_oid] };
+    pool.extend(candidates(world, caster_oid).into_iter().filter(|&c| c != caster_oid));
+    for candidate in pool {
+        if limit > 0 && affected >= limit {
+            break;
+        }
+        // FAN_PB has no corpse-target exemption: the dead are always dropped.
+        if is_dead(world, candidate) && (pb || !corpse_skill(skill)) {
+            continue;
+        }
+        let Some(pos) = world.objects.get_component::<Position>(&candidate).copied() else { continue };
+        if candidate != caster_oid && !within(&origin, &pos, radius) {
+            continue;
+        }
+        if (angle_from(&origin, &pos) - (heading_deg + start_deg)).abs() > half_angle {
+            continue;
+        }
+        // FAN bypasses the friend/foe filter for the primary target; FAN_PB
+        // checks everyone ("without taking target into account").
+        if (pb || candidate != target_oid)
+            && !passes_affect_object(world, caster_oid, candidate, skill.affect_object)
+        {
+            continue;
+        }
+        if !world.geo.can_see_target(origin.x, origin.y, origin.z, pos.x, pos.y, pos.z) {
+            continue;
+        }
+        out.push(candidate);
+        affected += 1;
+    }
+    out
+}
+
+/// `Square.java` / `SquarePB.java` — a `fan_range[2]` × `fan_range[3]`
+/// rectangle extending from the caster along their heading (rotated by
+/// `fan_range[1]`).
+///
+/// The rect test is Java's exact expression — rotate the candidate by the
+/// negated heading around the caster, then compare against an axis-aligned
+/// rect at `(x, y − width/2)` — including the integer division in `width / 2`
+/// and the `(int)` truncation of the rotated coordinates. The strict `>`
+/// against `rectX` means the caster's own corner position never passes, so
+/// Java's origin self-test is dead code here; running the same filter
+/// reproduces that for free. LOS from the caster, like FAN.
+fn sweep_square(world: &World, caster_oid: i32, target_oid: i32, skill: &Skill, limit: i32) -> Vec<i32> {
+    let pb = skill.affect_scope == AffectScope::SquarePointBlank;
+    let Some(origin) = world.objects.get_component::<Position>(&caster_oid).copied() else {
+        return Vec::new();
+    };
+    let length = skill.fan_range[2];
+    let width = skill.fan_range[3];
+    // Java: `(int) Math.sqrt(len² + w²)` — the radius handed to the world
+    // sweep, truncated.
+    let radius = (((length * length) + (width * width)) as f64).sqrt() as i32;
+    let rect_x = origin.x;
+    let rect_y = origin.y - (width / 2);
+    let heading = (skill.fan_range[1] as f64 + heading_to_degree(origin.heading)).to_radians();
+    let (sin, cos) = (-heading).sin_cos();
+
+    let mut out = Vec::new();
+    let mut affected = 0;
+    let mut pool = if pb { Vec::new() } else { vec![caster_oid] };
+    pool.extend(candidates(world, caster_oid).into_iter().filter(|&c| c != caster_oid));
+    for candidate in pool {
+        if limit > 0 && affected >= limit {
+            break;
+        }
+        if is_dead(world, candidate) && (pb || !corpse_skill(skill)) {
+            continue;
+        }
+        let Some(pos) = world.objects.get_component::<Position>(&candidate).copied() else { continue };
+        if candidate != caster_oid && !within(&origin, &pos, radius) {
+            continue;
+        }
+        let xp = (pos.x - origin.x) as f64;
+        let yp = (pos.y - origin.y) as f64;
+        let xr = (origin.x as f64 + (xp * cos) - (yp * sin)) as i32;
+        let yr = (origin.y as f64 + (xp * sin) + (yp * cos)) as i32;
+        if !(xr > rect_x && xr < rect_x + length && yr > rect_y && yr < rect_y + width) {
+            continue;
+        }
+        if (pb || candidate != target_oid)
+            && !passes_affect_object(world, caster_oid, candidate, skill.affect_object)
+        {
+            continue;
+        }
+        if !world.geo.can_see_target(origin.x, origin.y, origin.z, pos.x, pos.y, pos.z) {
+            continue;
+        }
+        out.push(candidate);
+        affected += 1;
+    }
+    out
+}
+
+/// `RingRange.java` — an annulus around the **target**: inside `affect_range`
+/// (3D, the world sweep's bound) but not inside `fan_range[2]` of the target
+/// (2D, Java's `isInsideRadius2D`).
+///
+/// The epicenter target is never affected: the world sweep skips its own
+/// origin object, and the 2D inner-radius test would drop it anyway — that is
+/// the donut hole. No corpse exemption, no affect-object bypass for anyone,
+/// and LOS is measured from the **target** (like RANGE).
+fn sweep_ring(world: &World, caster_oid: i32, target_oid: i32, skill: &Skill, limit: i32) -> Vec<i32> {
+    let Some(centre) = world.objects.get_component::<Position>(&target_oid).copied() else {
+        return Vec::new();
+    };
+    let range = skill.affect_range;
+    let start_range = skill.fan_range[2];
+
+    let mut out = Vec::new();
+    let mut affected = 0;
+    for candidate in candidates(world, target_oid) {
+        if candidate == target_oid {
+            continue; // Java's sweep skips its origin object.
+        }
+        if limit > 0 && affected >= limit {
+            break;
+        }
+        if is_dead(world, candidate) {
+            continue;
+        }
+        let Some(pos) = world.objects.get_component::<Position>(&candidate).copied() else { continue };
+        if !within(&centre, &pos, range) {
+            continue;
+        }
+        // "Targets before the start range are unaffected."
+        if within_2d(&centre, &pos, start_range) {
+            continue;
+        }
+        if !passes_affect_object(world, caster_oid, candidate, skill.affect_object) {
+            continue;
+        }
+        if !world.geo.can_see_target(centre.x, centre.y, centre.z, pos.x, pos.y, pos.z) {
+            continue;
+        }
+        out.push(candidate);
+        affected += 1;
+    }
+    out
+}
+
+/// Java `Util.convertHeadingToDegree` — client heading units (0..65536, 0 =
+/// east, counter-clockwise) to degrees, with Java's exact divisor.
+fn heading_to_degree(heading: i32) -> f64 {
+    heading as f64 / 182.044444444
+}
+
+/// Java `Util.calculateAngleFrom` — the world-plane bearing from `a` to `b`
+/// in degrees, normalized to [0, 360).
+fn angle_from(a: &Position, b: &Position) -> f64 {
+    let mut deg = ((b.y - a.y) as f64).atan2((b.x - a.x) as f64).to_degrees();
+    if deg < 0.0 {
+        deg += 360.0;
+    }
+    deg
+}
+
+/// 2D radius test (Java `isInsideRadius2D`).
+fn within_2d(a: &Position, b: &Position, range: i32) -> bool {
+    let (dx, dy) = ((a.x - b.x) as f64, (a.y - b.y) as f64);
+    dx * dx + dy * dy <= (range as f64) * (range as f64)
+}
+
 /// Every creature (player or NPC) that could be swept up around `centre_oid` —
 /// the port's stand-in for `World.forEachVisibleObjectInRange`'s candidate set.
 fn candidates(world: &World, centre_oid: i32) -> Vec<i32> {
@@ -225,10 +442,21 @@ fn is_dead(world: &World, oid: i32) -> bool {
     world.objects.get_component::<Vitals>(&oid).map(|v| v.dead).unwrap_or(true)
 }
 
-/// Java's dead-target exemption: only the corpse target types keep dead
-/// creatures in the affected set.
+/// Java's dead-target exemption: only the corpse target types (`NPC_BODY`,
+/// `PC_BODY`) keep dead creatures in the affected set. The `*_PB` geometric
+/// scopes don't grant it — they drop the dead unconditionally.
 fn corpse_skill(skill: &Skill) -> bool {
-    matches!(skill.target_type, TargetType::NpcBody)
+    matches!(skill.target_type, TargetType::NpcBody | TargetType::PcBody)
+}
+
+/// The same "is this a monster" test the targeting code uses: an NPC whose
+/// template is auto-attackable.
+fn is_monster(world: &World, oid: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&oid)
+        .and_then(|n| n.template(world))
+        .is_some_and(|t| t.is_auto_attackable())
 }
 
 /// 3D radius test (Java `isInsideRadius3D`).

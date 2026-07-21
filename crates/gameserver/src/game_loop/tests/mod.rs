@@ -34,6 +34,7 @@ mod abnormal_tests;
 mod admin_tests;
 mod affect_tests;
 mod clans_tests;
+mod geometric_scope_tests;
 mod combat_tests;
 mod confuse_tests;
 mod crit_damage_tests;
@@ -472,6 +473,7 @@ fn cast_test_world() -> (
         affect_object: AffectObject::All,
         affect_range: 0,
         affect_limit: (0, 0),
+        fan_range: [0; 4],
         can_be_dispelled: true,
         is_debuff: false,
         stay_after_death: false,
@@ -1246,6 +1248,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         affect_object: AffectObject::All,
         affect_range: 0,
         affect_limit: (0, 0),
+        fan_range: [0; 4],
         can_be_dispelled: true,
         is_debuff: false,
         stay_after_death: false,
@@ -1306,6 +1309,7 @@ fn clan_advent_test_skill() -> Skill {
         affect_object: AffectObject::All,
         affect_range: 0,
         affect_limit: (0, 0),
+        fan_range: [0; 4],
         can_be_dispelled: true,
         is_debuff: false,
         stay_after_death: false,
