@@ -606,6 +606,20 @@ pub struct PetOf {
     pub exp_before_death: i64,
 }
 
+/// A **summon's** charged shots — Java's `Creature._chargedShots`.
+///
+/// Java keeps that field on `Creature`, so players and summons share it; this
+/// port grew the player half first (`Player.is_charged_shot`) and only needs
+/// the summon half now. Kept as a separate component rather than moved off
+/// `Player`, because unifying them touches every player-shot call site for no
+/// behavioural gain today.
+/// `TODO(G29+)`: fold `Player`'s shot bits into this component.
+#[derive(Component, Debug, Clone, Copy, Default)]
+pub struct ChargedShots {
+    pub soulshot: bool,
+    pub spiritshot: bool,
+}
+
 /// Marks a cubic's stats-only caster entity and links it back to its owner.
 ///
 /// Java's `Cubic.getLevel()` is `return _owner.getLevel()` — a cubic borrows

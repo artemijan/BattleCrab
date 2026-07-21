@@ -368,19 +368,24 @@ pub enum ItemHandler {
     /// `handlers/itemhandlers/Recipes` — registers the recipe the item teaches
     /// into the player's dwarven/common recipe book (G15.7).
     Recipes,
+    /// `handlers/itemhandlers/BeastSoulShot` / `BeastSpiritShot` — a **pet's**
+    /// shots. Toggled on the owner like any auto-shot, but spent by
+    /// `Summon.rechargeShots` when the summon swings, not by the owner.
+    BeastSoulShot,
+    BeastSpiritShot,
 }
 
 impl ItemHandler {
     /// Whether this handler charges a physical (soulshot) shot — the
     /// `rechargeShots(physical=…)` category (Java `ActionType.SOULSHOT`).
     pub fn is_soulshot(self) -> bool {
-        matches!(self, ItemHandler::SoulShots)
+        matches!(self, ItemHandler::SoulShots | ItemHandler::BeastSoulShot)
     }
 
     /// Whether this handler charges a magic (spirit/blessed) shot — the
     /// `rechargeShots(magic=…)` category (Java `ActionType.SPIRITSHOT`).
     pub fn is_spiritshot(self) -> bool {
-        matches!(self, ItemHandler::SpiritShot | ItemHandler::BlessedSpiritShot)
+        matches!(self, ItemHandler::SpiritShot | ItemHandler::BlessedSpiritShot | ItemHandler::BeastSpiritShot)
     }
 }
 
@@ -405,6 +410,12 @@ pub enum ActionType {
     /// The item is destroyed by `SkillCaster.finishSkill` when the cast
     /// actually lands, never by the item handler.
     SkillReduceOnSkillSuccess,
+    /// Beast Soulshot / Beast Spiritshot — a **summon's** shots, charged from
+    /// the owner's inventory before the summon swings (Java
+    /// `Summon.rechargeShots`). Distinct from the player's own shots, which
+    /// carry no `default_action` of this kind.
+    SummonSoulshot,
+    SummonSpiritshot,
 }
 
 impl ActionType {
@@ -413,6 +424,8 @@ impl ActionType {
             Some("CAPSULE") => ActionType::Capsule,
             Some("SKILL_REDUCE") => ActionType::SkillReduce,
             Some("SKILL_REDUCE_ON_SKILL_SUCCESS") => ActionType::SkillReduceOnSkillSuccess,
+            Some("SUMMON_SOULSHOT") => ActionType::SummonSoulshot,
+            Some("SUMMON_SPIRITSHOT") => ActionType::SummonSpiritshot,
             _ => ActionType::Other,
         }
     }
@@ -1071,6 +1084,8 @@ fn make_template(
         Some("BlessedSpiritShot") => ItemHandler::BlessedSpiritShot,
         Some("EnchantScrolls") => ItemHandler::EnchantScrolls,
         Some("Recipes") => ItemHandler::Recipes,
+        Some("BeastSoulShot") => ItemHandler::BeastSoulShot,
+        Some("BeastSpiritShot") => ItemHandler::BeastSpiritShot,
         _ => ItemHandler::None,
     };
 

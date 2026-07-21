@@ -445,6 +445,10 @@ fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
                 charge_shot(world, object_id, item_id, handler, false);
             }
         }
+        // A Beast shot used by hand does nothing: it is spent by the summon's
+        // swing (`Summon.rechargeShots`), not by the owner clicking it. Java's
+        // `BeastSoulShot` handler likewise only ever runs *from* that path.
+        ItemHandler::BeastSoulShot | ItemHandler::BeastSpiritShot => {}
         ItemHandler::EnchantScrolls => {
             super::enchant::open(world, client_id, object_id, item_object_id)
         }
@@ -585,6 +589,35 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
             cs.send(server_packets::system_message_with(msg, params));
         }
     };
+
+    // A **summon** shot takes Java's `isSummonShot` branch, which checks that
+    // the player *has* a summon and never looks at their weapon — the shots
+    // are for the pet's swing, not the owner's.
+    let is_summon_shot = matches!(
+        handler,
+        crate::data::item_data::ItemHandler::BeastSoulShot | crate::data::item_data::ItemHandler::BeastSpiritShot
+    );
+    if enable && is_summon_shot {
+        if crate::game_loop::servitor::pet_of(world, object_id).is_none()
+            && crate::game_loop::servitor::servitor_of(world, object_id).is_none()
+        {
+            send(world, sm_ids::YOU_DO_NOT_HAVE_A_SERVITOR_FOR_AUTO_USE, &[]);
+            return;
+        }
+        if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&object_id) {
+            if !p.auto_shots.contains(&item_id) {
+                p.auto_shots.push(item_id);
+            }
+        }
+        send(world, sm_ids::THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_ACTIVATED, &[SmParam::ItemName(item_id)]);
+        // Java charges the summon immediately on activation.
+        if let Some(summon) = crate::game_loop::servitor::pet_of(world, object_id)
+            .or_else(|| crate::game_loop::servitor::servitor_of(world, object_id))
+        {
+            crate::game_loop::servitor::recharge_shots(world, summon, true);
+        }
+        return;
+    }
 
     if enable {
         // Grade check (`item.getCrystalType() != weapon.getCrystalTypePlus()`,
@@ -808,6 +841,10 @@ fn check_consume(
         // false today would let these be used without ever being spent. Only
         // items 8058/8060 are in the Interlude range.
         ActionType::SkillReduceOnSkillSuccess => true,
+        // Summon shots are never consumed by a direct item-use: they are spent
+        // by `servitor::recharge_shots` when the summon swings, in the count
+        // the pet's level demands. Using one by hand does nothing.
+        ActionType::SummonSoulshot | ActionType::SummonSpiritshot => false,
         ActionType::Other => has_consume_skill,
     }
 }

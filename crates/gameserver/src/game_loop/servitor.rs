@@ -1442,3 +1442,102 @@ pub(crate) fn pet_decay(world: &mut World, pet_oid: i32) {
     set_summon_link(world, owner, None, None, true);
     send_pet_item_list(world, owner);
 }
+
+// ---------------------------------------------------------------------------
+// Summon shots (slice 18)
+// ---------------------------------------------------------------------------
+
+/// Java `Summon.rechargeShots` — charge a summon from its **owner's** Beast
+/// shots before it swings.
+///
+/// The owner's auto-shot list is the switch: a Beast Soulshot only fires if the
+/// player toggled it on. Each charge costs `soulshot_count` from the *pet's
+/// current level row*, so a high-level pet is markedly more expensive to keep
+/// shotted — which is the mechanic, not an incidental detail.
+///
+/// Returns true when the summon ends up charged.
+pub(crate) fn recharge_shots(world: &mut World, summon_oid: i32, physical: bool) -> bool {
+    use crate::data::item_data::ActionType;
+    use crate::model::components::ChargedShots;
+
+    let already = world.objects.get_component::<ChargedShots>(&summon_oid).is_some_and(|c| c.soulshot);
+    if already || !physical {
+        return already;
+    }
+    let Some(owner) = world.objects.get_component::<ServitorOf>(&summon_oid).map(|s| s.owner_object_id) else {
+        return false;
+    };
+    // How many the swing costs: from the pet's level row. A servitor has no
+    // pet row, so it uses one — Java reads `getSoulShotsPerHit()`, which for a
+    // plain servitor is its template's.
+    let per_hit = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&summon_oid)
+        .and_then(|p| {
+            npc_template_id(world, summon_oid)
+                .and_then(|id| world.data.pet_data.get(id))
+                .and_then(|t| t.levels.get(&p.level))
+                .map(|l| l.soulshot_count)
+        })
+        .unwrap_or(1)
+        .max(1) as i64;
+
+    // Java iterates the owner's auto-shot list and picks the entries whose
+    // `default_action` marks them as *summon* shots.
+    let shots: Vec<i32> = world
+        .objects
+        .get_component::<crate::model::Player>(&owner)
+        .map(|p| p.auto_shots.clone())
+        .unwrap_or_default();
+    for item_id in shots {
+        let is_summon_soulshot =
+            world.data.item_data.get(item_id).map(|t| t.default_action) == Some(ActionType::SummonSoulshot);
+        if !is_summon_soulshot {
+            continue;
+        }
+        let have = world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&owner)
+            .map(|inv| inv.count_of(item_id))
+            .unwrap_or(0);
+        if have < per_hit {
+            // Java drops the toggle when the item runs out entirely.
+            if have == 0 {
+                if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&owner) {
+                    p.auto_shots.retain(|&id| id != item_id);
+                }
+            }
+            continue;
+        }
+        let changes = world
+            .objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&owner)
+            .map(|inv| inv.remove_item(item_id, per_hit))
+            .unwrap_or_default();
+        let packet = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
+        if let Some(cs) = client_for_player(world, owner).and_then(|c| world.clients.get(&c)) {
+            cs.send(packet);
+        }
+        if world.objects.get_component::<ChargedShots>(&summon_oid).is_none() {
+            world.objects.add_components(&summon_oid, ChargedShots::default());
+        }
+        if let Some(c) = world.objects.get_component_mut::<ChargedShots>(&summon_oid) {
+            c.soulshot = true;
+        }
+        return true;
+    }
+    false
+}
+
+/// Spend a summon's charged soulshot (Java `unchargeShot(SOULSHOTS)`), which
+/// happens on a landed hit only — a miss keeps the charge.
+pub(crate) fn uncharge_soulshot(world: &mut World, summon_oid: i32) -> bool {
+    use crate::model::components::ChargedShots;
+    match world.objects.get_component_mut::<ChargedShots>(&summon_oid) {
+        Some(c) if c.soulshot => {
+            c.soulshot = false;
+            true
+        }
+        _ => false,
+    }
+}

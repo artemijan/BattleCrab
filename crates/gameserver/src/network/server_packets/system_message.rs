@@ -401,6 +401,11 @@ pub mod sm_ids {
     pub const YOU_MAY_NOT_USE_SPIRITSHOTS: i16 = 532;
     pub const YOUR_SPIRITSHOT_HAS_BEEN_ENABLED: i16 = 533;
     pub const THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_ACTIVATED: i16 = 1433;
+    /// "You do not have a servitor and therefore cannot use the
+    /// automatic-use function."
+    pub const YOU_DO_NOT_HAVE_A_SERVITOR_FOR_AUTO_USE: i16 = 1676;
+    /// "You don't have enough soulshots needed for a servitor."
+    pub const NOT_ENOUGH_SOULSHOTS_FOR_A_SERVITOR: i16 = 1701;
     pub const THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_DEACTIVATED: i16 = 1434;
     pub const DUE_TO_INSUFFICIENT_S1_THE_AUTOMATIC_USE_FUNCTION_HAS_BEEN_DEACTIVATED: i16 = 1435;
     pub const DUE_TO_INSUFFICIENT_S1_THE_AUTOMATIC_USE_FUNCTION_CANNOT_BE_ACTIVATED: i16 = 1436;

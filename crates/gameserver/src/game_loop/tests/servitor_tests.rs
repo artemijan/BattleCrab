@@ -1252,6 +1252,10 @@ fn wolf_with_exp_curve(world: &mut World) {
                 max_mp: 50.0 * lvl as f64,
                 regen_hp: 2.0,
                 regen_mp: 0.9,
+                // Cost rises with level, so "does the cost follow the level?"
+                // is answerable rather than vacuous.
+                soulshot_count: 1 + lvl,
+                spiritshot_count: 1 + lvl,
             },
         );
     }
@@ -1906,4 +1910,133 @@ fn a_dead_pet_does_not_regenerate() {
     let v = world.objects.get_component::<Vitals>(&pet_oid).unwrap();
     assert_eq!(v.cur_hp, 0.0, "a corpse stays a corpse");
     assert!(v.dead);
+}
+
+// ---------------------------------------------------------------------------
+// Summon shots (slice 18)
+// ---------------------------------------------------------------------------
+
+const BEAST_SOULSHOT: i32 = 6645;
+
+fn register_beast_soulshot(world: &mut World) {
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = BEAST_SOULSHOT;
+    t.name = "Beast Soulshot".into();
+    t.is_stackable = true;
+    t.handler = crate::data::item_data::ItemHandler::BeastSoulShot;
+    t.default_action = crate::data::item_data::ActionType::SummonSoulshot;
+    world.data.item_data.insert_for_test(t);
+}
+
+fn give_owner_shots(world: &mut World, count: i64) {
+    let World { data, objects, .. } = world;
+    objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .unwrap()
+        .add_item(&data.item_data, 7_500_001, BEAST_SOULSHOT, count);
+    objects.get_component_mut::<crate::model::Player>(&OWNER).unwrap().auto_shots.push(BEAST_SOULSHOT);
+}
+
+fn owner_shot_count(world: &World) -> i64 {
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .map(|inv| inv.count_of(BEAST_SOULSHOT))
+        .unwrap_or(0)
+}
+
+/// A pet charges from its **owner's** Beast shots, spending the count its
+/// level demands.
+#[test]
+fn a_pet_charges_shots_from_its_owner() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_beast_soulshot(&mut world);
+    let pet_oid = summoned_pet(&mut world);
+    give_owner_shots(&mut world, 10);
+
+    assert!(crate::game_loop::servitor::recharge_shots(&mut world, pet_oid, true), "charged");
+    assert_eq!(owner_shot_count(&world), 8, "the level-1 row costs 2 shots per hit");
+    assert!(
+        world.objects.get_component::<crate::model::components::ChargedShots>(&pet_oid).unwrap().soulshot
+    );
+}
+
+/// The cost follows the pet's level, so a levelled pet is more expensive to
+/// keep shotted — the mechanic, not an incidental detail.
+#[test]
+fn the_shot_cost_follows_the_pets_level() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_beast_soulshot(&mut world);
+    let pet_oid = summoned_pet(&mut world);
+    give_owner_shots(&mut world, 20);
+
+    add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
+    assert_eq!(world.objects.get_component::<PetOf>(&pet_oid).unwrap().level, 2);
+
+    crate::game_loop::servitor::recharge_shots(&mut world, pet_oid, true);
+    assert_eq!(owner_shot_count(&world), 17, "level 2 costs 3 per hit, not 2");
+}
+
+/// Already charged, no second charge — and no second cost.
+#[test]
+fn a_charged_pet_does_not_recharge() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_beast_soulshot(&mut world);
+    let pet_oid = summoned_pet(&mut world);
+    give_owner_shots(&mut world, 10);
+
+    crate::game_loop::servitor::recharge_shots(&mut world, pet_oid, true);
+    let after_first = owner_shot_count(&world);
+    crate::game_loop::servitor::recharge_shots(&mut world, pet_oid, true);
+    assert_eq!(owner_shot_count(&world), after_first, "no double spend while charged");
+}
+
+/// Too few shots left for one hit: nothing is spent and the pet stays
+/// uncharged, rather than a partial charge on a partial payment.
+#[test]
+fn a_partial_stack_buys_nothing() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_beast_soulshot(&mut world);
+    let pet_oid = summoned_pet(&mut world);
+    give_owner_shots(&mut world, 1); // level 1 costs 2
+
+    assert!(!crate::game_loop::servitor::recharge_shots(&mut world, pet_oid, true));
+    assert_eq!(owner_shot_count(&world), 1, "the odd shot is not consumed");
+}
+
+/// Spending the charge is a one-shot: the second swing is unshotted.
+#[test]
+fn the_charge_is_spent_once() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_beast_soulshot(&mut world);
+    let pet_oid = summoned_pet(&mut world);
+    give_owner_shots(&mut world, 10);
+    crate::game_loop::servitor::recharge_shots(&mut world, pet_oid, true);
+
+    assert!(crate::game_loop::servitor::uncharge_soulshot(&mut world, pet_oid), "first swing is shotted");
+    assert!(!crate::game_loop::servitor::uncharge_soulshot(&mut world, pet_oid), "the second is not");
+}
+
+/// A pet with no owner shots toggled on charges nothing — the auto-use switch
+/// is what arms it.
+#[test]
+fn without_the_toggle_a_pet_charges_nothing() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_beast_soulshot(&mut world);
+    let pet_oid = summoned_pet(&mut world);
+    // Shots in the bag, but never toggled on.
+    let World { data, objects, .. } = &mut world;
+    objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .unwrap()
+        .add_item(&data.item_data, 7_500_002, BEAST_SOULSHOT, 10);
+
+    assert!(!crate::game_loop::servitor::recharge_shots(&mut world, pet_oid, true));
+    assert_eq!(owner_shot_count(&world), 10, "untouched");
 }
