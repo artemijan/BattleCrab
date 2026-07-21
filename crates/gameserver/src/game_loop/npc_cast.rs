@@ -279,6 +279,12 @@ fn check_skill_target(world: &World, npc_oid: i32, target_oid: i32, skill: &Skil
 /// no shots, no queued action, no cast bar or `YOU_USE_S1` (nobody to send
 /// them to), no MP-initial-consume message — just face, broadcast, schedule.
 pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill: &Skill) {
+    // Java `Summon.doCast` → `rechargeShots(false, true, false)`: a summon
+    // charges its magic shot before casting, the mirror of the soulshot charge
+    // the attack loop does before swinging. No-op for a plain monster.
+    if skill.magic_type == 1 {
+        super::servitor::recharge_spiritshots(world, npc_oid);
+    }
     let Some((tx, ty, tz)) = position_of(world, target_oid) else {
         return;
     };

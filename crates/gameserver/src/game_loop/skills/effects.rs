@@ -28,7 +28,16 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     // post-`applyEffects`). `caster_is_player` stands in for `isMageClass()` in
     // the heal static bonus — this fn's caster is always a player.
     let caster_is_player = world.objects.get_component::<crate::model::Player>(&caster_oid).is_some();
-    let (sps, bss) = if skill.magic_type == 1 {
+    let (sps, bss) = if skill.magic_type != 1 {
+        (false, false)
+    } else if crate::game_loop::combat::is_npc_oid(caster_oid) {
+        // A **summon** charges Beast Spiritshots from its owner, the magic
+        // counterpart of the soulshot path. Spending is here rather than in the
+        // attack loop because a summon's magic shot is consumed by the *cast*,
+        // not by a swing. Blessed Beast Spiritshots do not exist on this dist,
+        // so only the ×2 tier is reachable.
+        (crate::game_loop::servitor::uncharge_spiritshot(world, caster_oid), false)
+    } else {
         world
             .objects
             .get_component::<crate::model::Player>(&caster_oid)
@@ -39,8 +48,6 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 )
             })
             .unwrap_or((false, false))
-    } else {
-        (false, false)
     };
     let magic_shots_bonus = if bss { 4.0 } else if sps { 2.0 } else { 1.0 };
 
