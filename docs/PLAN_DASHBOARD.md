@@ -410,6 +410,24 @@ l2r_interlude/
 Crate name `dashboard_api` (underscored) as requested — the squashed names of the existing crates
 are echoes of the Java package names and there is no reason to extend that convention here.
 
+**Deployment has since moved cross-origin.** The SPA is served from
+`https://battlecrab.com` and the API from `https://api.battlecrab.com`, so the
+same-origin assumption below no longer holds in production. Consequences, all
+implemented:
+
+- CORS with an explicit credentialed origin allowlist (`AllowedOrigins`); a
+  wildcard is impossible once credentials are involved.
+- `SiteBaseUrl` is separate from `PublicBaseUrl`, because reset and verification
+  links are *frontend* routes.
+- The SPA's API base is substituted at build time (`API_BASE_URL`), defaulting
+  to the production subdomain.
+- The session cookie stays `SameSite=Lax`: the two hosts are cross-origin but
+  same-*site*, so it is still sent. A different registrable domain would require
+  `SameSite=None`.
+
+The embedded-SPA path below still works and is still how `cargo run` serves the
+app locally; it is simply not the production topology any more.
+
 **Serving**: embed `web/dashboard/dist` into the binary with `rust-embed` and serve it from axum
 with an SPA fallback (unknown paths → `index.html`). One binary, one port, no CORS, no separate
 static host, cookies trivially same-origin. In development, run `bun --hot` (Bun's dev server) with

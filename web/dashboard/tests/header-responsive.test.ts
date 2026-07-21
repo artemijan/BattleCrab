@@ -48,6 +48,29 @@ afterAll(async () => {
   server?.stop();
 });
 
+
+/**
+ * A page that never depends on a reachable API.
+ *
+ * The production bundle points at https://api.battlecrab.com, so `networkidle`
+ * would wait on a host that does not answer in CI and the test would time out
+ * having proved nothing about layout. API calls are stubbed instead, and we
+ * wait for `load` rather than network silence.
+ */
+async function openPage(width: number, height: number, path: string) {
+  const page = await browser!.newPage({ viewport: { width, height } });
+  await page.route("**/api/v1/**", (route) =>
+    route.fulfill({
+      status: 401,
+      contentType: "application/json",
+      body: JSON.stringify({ error: { code: "unauthorized", message: "stubbed" } }),
+    }),
+  );
+  await page.goto(`http://localhost:${server!.port}${path}`, { waitUntil: "load" });
+  await page.waitForTimeout(250);
+  return page;
+}
+
 /** Widths that actually ship on phones, plus the narrowest we support. */
 const WIDTHS = [320, 360, 390, 412, 480];
 
@@ -63,8 +86,7 @@ describe("header layout", () => {
         return;
       }
 
-      const page = await browser.newPage({ viewport: { width, height: 740 } });
-      await page.goto(`http://localhost:${server.port}/`, { waitUntil: "networkidle" });
+      const page = await openPage(width, 740, "/");
 
       const measured = await page.evaluate(() => {
         const panel = document.querySelector("header > div");
@@ -104,8 +126,7 @@ describe("header layout", () => {
     // Truncation ("Battl…") reads as breakage; below the cutoff the wordmark
     // must be absent entirely rather than ellipsised.
     for (const width of WIDTHS) {
-      const page = await browser.newPage({ viewport: { width, height: 740 } });
-      await page.goto(`http://localhost:${server.port}/`, { waitUntil: "networkidle" });
+      const page = await openPage(width, 740, "/");
 
       const clipped = await page.evaluate(() => {
         const word = document.querySelector("header a > span:last-child");
@@ -145,9 +166,7 @@ describe("page height", () => {
         return;
       }
 
-      const page = await browser.newPage({ viewport: { width, height } });
-      await page.goto(`http://localhost:${server.port}/login`, { waitUntil: "networkidle" });
-      await page.waitForTimeout(200);
+      const page = await openPage(width, height, "/login");
 
       const measured = await page.evaluate(() => ({
         scrollHeight: document.documentElement.scrollHeight,

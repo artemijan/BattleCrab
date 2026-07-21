@@ -81,3 +81,37 @@ cargo test -p dashboard_api
 DB using the shipped `accounts`/`characters` DDL. The most important one is
 `register_stores_the_hash_the_game_client_expects` — it is the acceptance test for the whole
 design.
+
+## Cross-origin deployment
+
+The SPA and the API are served from different origins in production
+(`https://battlecrab.com` → `https://api.battlecrab.com`), so CORS applies.
+Three settings must agree or authentication fails in ways that are hard to read
+from the browser:
+
+| Where | Setting | Production value |
+| --- | --- | --- |
+| API | `AllowedOrigins` | `https://battlecrab.com,https://www.battlecrab.com` |
+| API | `SiteBaseUrl` | `https://battlecrab.com` |
+| SPA build | `API_BASE_URL` | `https://api.battlecrab.com/api/v1` |
+
+```bash
+API_BASE_URL=https://api.battlecrab.com/api/v1 bun run build
+```
+
+Things worth knowing before debugging this:
+
+- **The cookie stays `SameSite=Lax`.** `battlecrab.com` and `api.battlecrab.com`
+  are cross-*origin* but same-*site* (same registrable domain), so Lax cookies
+  are still sent. A frontend on a genuinely different domain would need
+  `SameSite=None; Secure` — a deliberate change, not a default.
+- **`Allow-Origin` can never be `*` here.** Browsers reject a wildcard whenever
+  credentials are sent, and echoing back any `Origin` would let any site drive a
+  logged-in user's account. Hence the explicit list.
+- **CORS wraps the error paths too.** A 401 without CORS headers reaches the SPA
+  as an opaque network error, so it could not tell the user what went wrong.
+- **`X-Requested-With` must stay in the allowed headers**: the client sends it on
+  every mutation and the CSRF gate rejects requests without it.
+- **A trailing slash breaks matching.** `https://battlecrab.com/` never equals the
+  browser's `Origin`; the config parser strips it, but a hand-set env var is on
+  its own.

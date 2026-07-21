@@ -78,7 +78,8 @@ async fn change_email(
     // by the verification handler, which is what makes a stored address mean
     // "verified" without an `email_verified` column (PLAN_DASHBOARD.md §5.4).
     let raw = token::issue_verify_email(&app.key, &account.login, &email);
-    let link = format!("{}/verify-email?token={raw}", app.config.public_base_url);
+    // site_base_url: /verify-email is an SPA route, not an API one.
+    let link = format!("{}/verify-email?token={raw}", app.config.site_base_url);
     // TODO(D3): send via lettre once SMTP config lands.
     tracing::debug!("email verification link for {}: {link}", account.login);
 

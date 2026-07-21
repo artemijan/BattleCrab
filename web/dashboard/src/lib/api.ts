@@ -48,7 +48,25 @@ export type ServerStatus = {
   playersOnline: number;
 };
 
-const BASE = "/api/v1";
+/**
+ * Where the API lives.
+ *
+ * `__API_BASE__` is substituted at build time from the `API_BASE_URL` env var
+ * (see `build.ts`), defaulting to the production API on its own subdomain. When
+ * it is absent — `bun run dev`, which applies no defines — this falls back to a
+ * same-origin relative path, which the dev server proxies to a local backend
+ * and which therefore needs no CORS at all.
+ *
+ * It must be a bare identifier rather than `process.env.X`. `process` does not
+ * exist in the browser, so any `typeof process` guard around it short-circuits
+ * to the fallback at runtime and the substituted value is never read — the
+ * absolute URL sits in the bundle looking correct while every request quietly
+ * goes to the site's own origin. `typeof` on an *undeclared* identifier is
+ * safe, so this form works whether or not the define was applied.
+ */
+declare const __API_BASE__: string | undefined;
+
+const BASE = (typeof __API_BASE__ !== "undefined" && __API_BASE__) || "/api/v1";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${BASE}${path}`, {
