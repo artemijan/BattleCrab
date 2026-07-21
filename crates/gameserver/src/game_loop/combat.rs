@@ -1568,6 +1568,9 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
         }
         if npc_id == super::baium::BAIUM {
             super::baium::on_baium_attacked(world, npc_oid, attacker_oid);
+            // A physical swing is Java's `skill == null` branch — the ×1000
+            // melee weighting.
+            super::baium::on_baium_damage(world, npc_oid, attacker_oid, damage as i32, true);
         }
         if npc_id == super::valakas::VALAKAS {
             super::valakas::on_valakas_attacked(world, npc_oid, attacker_oid);
