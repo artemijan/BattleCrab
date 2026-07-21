@@ -45,8 +45,20 @@ function Brand({ compact = false }: { compact?: boolean }) {
         alt=""
         width={36}
         height={36}
-        className="size-9 shrink-0 rounded-xl shadow-[0_8px_22px_-8px_rgba(0,87,183,0.9)]
-                   transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105"
+        // Hover is a slow, even magnification — no rotation. The long duration
+        // and a soft ease-out (decelerating, no overshoot) are what make it read
+        // as smooth zoom rather than a pop. The shadow deepens on the same curve
+        // so the mark appears to rise toward the cursor.
+        //
+        // Scaling is transform-only, so it never reflows the wordmark beside it,
+        // and the global prefers-reduced-motion rule collapses the transition.
+        className="size-9 shrink-0 transform-gpu rounded-xl
+                   shadow-[0_8px_22px_-8px_rgba(0,87,183,0.9)]
+                   transition-[scale,box-shadow] duration-500
+                   [transition-timing-function:var(--ease-out-soft)]
+                   group-hover:scale-[1.18]
+                   group-hover:shadow-[0_14px_30px_-8px_rgba(0,87,183,1)]
+                   group-active:scale-[1.06] group-active:duration-150"
       />
       <span
         className={cx(

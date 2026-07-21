@@ -78,7 +78,7 @@ export function Landing() {
         {FEATURES.map((feature) => (
           <Panel
             key={feature.title}
-            className="p-6 transition-transform duration-300 hover:-translate-y-1"
+            className="p-6 transition-[translate] duration-300 hover:-translate-y-1"
           >
             <h2 className="text-base font-semibold">{feature.title}</h2>
             <p className="mt-2 text-sm leading-relaxed text-[var(--text-muted)]">{feature.body}</p>

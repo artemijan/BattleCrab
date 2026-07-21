@@ -67,10 +67,10 @@ export function AccountPage() {
 
 function CharacterCard({ character }: { character: Character }) {
   return (
-    <Panel className="group flex items-center gap-4 p-5 transition-transform duration-300 hover:-translate-y-1">
+    <Panel className="group flex items-center gap-4 p-5 transition-[translate] duration-300 hover:-translate-y-1">
       <div
         className="grid size-12 shrink-0 place-items-center rounded-xl bg-brand-500/12 text-lg font-black
-                   text-brand-600 ring-1 ring-brand-500/20 transition-transform duration-300
+                   text-brand-600 ring-1 ring-brand-500/20 transition-[scale] duration-300
                    group-hover:scale-105 dark:text-brand-200"
         aria-hidden
       >

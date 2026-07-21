@@ -15,8 +15,11 @@ export function ThemeToggle() {
       aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
       aria-pressed={isDark}
       title={isDark ? "Light theme" : "Dark theme"}
+      // Tailwind v4 compiles these to the standalone `translate` and `scale`
+      // properties, which `transition-transform` does not animate.
       className="glass glass-sheen relative grid size-9 shrink-0 place-items-center rounded-xl
-                 transition-transform duration-200 hover:-translate-y-0.5 active:scale-95 sm:size-10"
+                 transition-[translate,scale] duration-200 hover:-translate-y-0.5
+                 active:scale-95 sm:size-10"
     >
       <span className="relative block size-5">
         <svg
