@@ -11,6 +11,8 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import type { Browser, Page } from "playwright";
 
+import { STATUS } from "../src/lib/status";
+
 const DIST = new URL("../dist", import.meta.url).pathname;
 
 const distBuilt = await Bun.file(`${DIST}/index.html`).exists();
@@ -138,5 +140,37 @@ describe("landing page calls to action", () => {
       await page.close();
       expect(body).toContain("Download launcher");
     }
+  });
+  /**
+   * The stage the server is at is the first thing a visitor needs, and the
+   * easiest thing to leave stale. Driving these from STATUS means the copy and
+   * the constant cannot disagree.
+   */
+  test("the current phase and the next milestone are both stated", async () => {
+    if (skip()) return;
+
+    const page = await openLanding(false);
+    const body = (await page.textContent("body")) ?? "";
+    await page.close();
+
+    expect(body).toContain(STATUS.phase);
+    expect(body).toContain(STATUS.next);
+    // The date has to be here too — "open beta soon" is not a status.
+    expect(body).toContain(STATUS.nextWhen);
+    // And that it is playable today, which "alpha" alone does not imply.
+    expect(body).toContain("open to everyone");
+  });
+
+  test("the status is shown to signed-in visitors too", async () => {
+    if (skip()) return;
+
+    // It sits outside the auth-dependent CTA block; a regression there could
+    // easily take it with it.
+    const page = await openLanding(true);
+    const body = (await page.textContent("body")) ?? "";
+    await page.close();
+
+    expect(body).toContain(STATUS.phase);
+    expect(body).toContain(STATUS.nextWhen);
   });
 });
