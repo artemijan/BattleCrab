@@ -80,7 +80,10 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     {
         let npc_id = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).map(|n| n.npc_id);
         if let Some(npc_id) = npc_id {
-            super::quests::notify_kill(world, killer_oid, npc_oid, npc_id);
+            // Quest kill credit also follows the acting player: a pet's kill
+            // has to advance its owner's quest.
+            let quest_killer = crate::game_loop::pvp::acting_player(world, killer_oid);
+            super::quests::notify_kill(world, quest_killer, npc_oid, npc_id);
         }
     }
 
@@ -239,26 +242,54 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
     let mut shares: Vec<(i32, f64)> = Vec::new();
     let mut total_damage = 0.0;
     let mut max_dealer: Option<(i32, f64)> = None;
-    let Some(aggro) = world.objects.get_component::<crate::model::npc::AggroList>(&npc_oid) else { return };
-    for (&player_oid, info) in &aggro.0 {
+    // Java `calculateRewards`: `info.getAttacker().getActingPlayer()` — every
+    // damage dealer is resolved to the player behind it, so a **summon's**
+    // damage counts for its owner. Without this a summoner's pet did all the
+    // work and the owner earned nothing.
+    //
+    // Collected first because resolving borrows the store while the aggro list
+    // is still borrowed.
+    let entries: Vec<(i32, f64)> = {
+        let Some(aggro) = world.objects.get_component::<crate::model::npc::AggroList>(&npc_oid) else { return };
+        aggro.0.iter().map(|(&oid, info)| (oid, info.damage)).collect()
+    };
+    for (dealer_oid, damage) in entries {
+        let player_oid = crate::game_loop::pvp::acting_player(world, dealer_oid);
+        // Only players earn. A summon resolves to its owner; a mob to itself,
+        // which is not a player and so is skipped as before.
+        if !world.objects.has_component::<crate::model::Player>(&player_oid) {
+            continue;
+        }
+        // Range is measured from the **earner**, as Java does — a pet fighting
+        // out of its owner's reward range earns them nothing.
         let Some(ppos) = world.objects.get_component::<Position>(&player_oid) else { continue };
-        if info.damage <= 1.0 {
+        if damage <= 1.0 {
             continue;
         }
         let dist = (((ppos.x - nx) as f64).powi(2) + ((ppos.y - ny) as f64).powi(2)).sqrt();
         if dist > reward_range {
             continue;
         }
-        total_damage += info.damage;
-        shares.push((player_oid, info.damage));
-        if max_dealer.is_none_or(|(_, d)| info.damage > d) {
-            max_dealer = Some((player_oid, info.damage));
+        total_damage += damage;
+        // A player who both hit the mob and had a pet hit it appears twice;
+        // merge rather than double-counting them in the share split.
+        if let Some(existing) = shares.iter_mut().find(|(id, _)| *id == player_oid) {
+            existing.1 += damage;
+        } else {
+            shares.push((player_oid, damage));
+        }
+        let merged = shares.iter().find(|(id, _)| *id == player_oid).map(|(_, d)| *d).unwrap_or(damage);
+        if max_dealer.is_none_or(|(_, d)| merged > d) {
+            max_dealer = Some((player_oid, merged));
         }
     }
 
     // Drops go to the top damage dealer (fall back to the killer); a looter
     // in a party routes every item through `Party.distributeItem`
     // (`Player.doAutoLoot`).
+    // The killer fallback resolves too: a pet's killing blow loots for its
+    // owner.
+    let killer_oid = crate::game_loop::pvp::acting_player(world, killer_oid);
     let looter = max_dealer.map(|(id, _)| id).or_else(|| world.objects.has_component::<crate::model::Player>(&killer_oid).then_some(killer_oid));
     if let Some(looter) = looter {
         // `doItemDrop`: a mob that died spoiled rolls its `<spoil>` list into
