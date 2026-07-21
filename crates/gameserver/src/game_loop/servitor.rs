@@ -1681,7 +1681,26 @@ pub(crate) fn sync_summon_row(world: &mut World, owner_oid: i32) {
         .get_component::<Vitals>(&servitor_oid)
         .map(|v| (v.cur_hp as i32, v.cur_mp as i32))
         .unwrap_or((0, 0));
-    let row = crate::db::SummonRow { summon_skill_id: link.reference_skill, cur_hp, cur_mp, remaining_secs };
+    // The servitor's own buffs go with it — a Summoner's investment in
+    // buffing their servitor should survive a relog, which is exactly why Java
+    // keeps `character_summon_skills_save`.
+    let now = world.tick;
+    let buffs = world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&servitor_oid)
+        .map(|b| {
+            b.0.iter()
+                .filter(|buf| buf.expires_at_tick > now)
+                .map(|buf| crate::db::SkillBuffRow {
+                    skill_id: buf.skill_id,
+                    skill_level: buf.skill_level,
+                    remaining_time_secs: ((buf.expires_at_tick - now) / TICKS_PER_SECOND) as i32,
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+    let row =
+        crate::db::SummonRow { summon_skill_id: link.reference_skill, cur_hp, cur_mp, remaining_secs, buffs };
     if world.objects.get_component::<crate::model::components::PlayerSummons>(&owner_oid).is_none() {
         world.objects.add_components(&owner_oid, crate::model::components::PlayerSummons::default());
     }
@@ -1707,7 +1726,7 @@ pub(crate) fn restore_servitor_on_login(world: &mut World, owner_oid: i32) {
     let Some(row) = world
         .objects
         .get_component::<crate::model::components::PlayerSummons>(&owner_oid)
-        .and_then(|s| s.0.first().copied())
+        .and_then(|s| s.0.first().cloned())
     else {
         return;
     };
@@ -1737,6 +1756,11 @@ pub(crate) fn restore_servitor_on_login(world: &mut World, owner_oid: i32) {
         if let Some(s) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
             s.expires_at_tick = expires;
         }
+    }
+    // Its buffs come back too, through the same path the player's own
+    // persisted buffs use — relative remaining time, frozen while offline.
+    if !row.buffs.is_empty() {
+        crate::game_loop::skills::effects::restore_persisted_buffs(world, servitor_oid, &row.buffs);
     }
     send_pet_info(world, owner_oid, servitor_oid, PetInfoKind::Summoned);
     broadcast_summon_info(world, servitor_oid, true);

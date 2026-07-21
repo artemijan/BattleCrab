@@ -786,7 +786,7 @@ async fn pets_persist() {
     let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables", "pets", "character_summons"] {
+        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables", "pets", "character_summons", "character_summon_skills_save"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -838,6 +838,8 @@ async fn pets_persist() {
         cur_hp: 320,
         cur_mp: 45,
         remaining_secs: 900,
+        // The servitor's own buffs ride with it.
+        buffs: vec![db::SkillBuffRow { skill_id: 1144, skill_level: 1, remaining_time_secs: 480 }],
     }];
     cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
     cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
@@ -856,6 +858,9 @@ async fn pets_persist() {
             assert_eq!(c.summons.len(), 1, "the servitor row came back");
             assert_eq!(c.summons[0].summon_skill_id, 1111);
             assert_eq!(c.summons[0].remaining_secs, 900, "its lifetime is not reset by a relog");
+            assert_eq!(c.summons[0].buffs.len(), 1, "and its own buffs came back");
+            assert_eq!(c.summons[0].buffs[0].skill_id, 1144);
+            assert_eq!(c.summons[0].buffs[0].remaining_time_secs, 480, "with their remaining time");
             assert_eq!(c.items.len(), 1, "the collar itself is untouched");
             c.clone()
         }

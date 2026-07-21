@@ -225,7 +225,7 @@ pub struct PlayerSaveData {
 /// recreated by **re-casting the skill that summoned it** (Java's restore is
 /// literally `skill.applyEffects(player, player)`), then having its saved
 /// vitals and remaining lifetime stamped back on.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct SummonRow {
     /// `summonSkillId` — the skill to re-cast. The player's *current* level of
     /// it is used, as Java does, so a servitor restored after a level-up comes
@@ -236,6 +236,11 @@ pub struct SummonRow {
     /// `time` — seconds of lifetime left, so a servitor does not get a fresh
     /// full duration for free by relogging.
     pub remaining_secs: i32,
+    /// The servitor's **own** buffs (`character_summon_skills_save`), so a
+    /// Summoner's investment in their servitor is not wiped by a relog.
+    /// Reuses [`SkillBuffRow`]: same relative-remaining-time semantics as the
+    /// player's own buffs, frozen while offline.
+    pub buffs: Vec<SkillBuffRow>,
 }
 
 /// One `pets` row — a pet's saved state, keyed by the **object id of its
@@ -1622,12 +1627,38 @@ async fn load_summons(pool: &SqlitePool, owner_id: i32) -> Vec<SummonRow> {
     .fetch_all(pool)
     .await
     .unwrap_or_default();
-    rows.iter()
-        .map(|r| SummonRow {
-            summon_skill_id: geti(r, "summonSkillId") as i32,
+    let mut out = Vec::new();
+    for r in &rows {
+        let summon_skill_id = geti(r, "summonSkillId") as i32;
+        out.push(SummonRow {
+            summon_skill_id,
             cur_hp: geti(r, "curHp") as i32,
             cur_mp: geti(r, "curMp") as i32,
             remaining_secs: geti(r, "time") as i32,
+            buffs: load_summon_buffs(pool, owner_id, summon_skill_id).await,
+        });
+    }
+    out
+}
+
+/// A servitor's saved buffs (Java `Servitor.RESTORE_SKILL_SAVE`), ordered by
+/// `buff_index` so they come back in the order they were applied — which
+/// matters for the buff-slot cap.
+async fn load_summon_buffs(pool: &SqlitePool, owner_id: i32, summon_skill_id: i32) -> Vec<SkillBuffRow> {
+    let rows = sqlx::query(
+        "SELECT skill_id, skill_level, remaining_time FROM character_summon_skills_save \
+         WHERE ownerId=? AND ownerClassIndex=0 AND summonSkillId=? ORDER BY buff_index ASC",
+    )
+    .bind(owner_id)
+    .bind(summon_skill_id)
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    rows.iter()
+        .map(|r| SkillBuffRow {
+            skill_id: geti(r, "skill_id") as i32,
+            skill_level: geti(r, "skill_level") as i32,
+            remaining_time_secs: geti(r, "remaining_time") as i32,
         })
         .collect()
 }
@@ -2489,6 +2520,30 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
         .bind(s.remaining_secs)
         .execute(&mut *tx)
         .await;
+        // The servitor's own buffs. Best-effort for the same reason as the row
+        // above: a missing table must not cost the character everything else.
+        let _ = sqlx::query(
+            "DELETE FROM character_summon_skills_save WHERE ownerId=? AND ownerClassIndex=0 AND summonSkillId=?",
+        )
+        .bind(char_id)
+        .bind(s.summon_skill_id)
+        .execute(&mut *tx)
+        .await;
+        for (i, b) in s.buffs.iter().enumerate() {
+            let _ = sqlx::query(
+                "INSERT INTO character_summon_skills_save \
+                 (ownerId, ownerClassIndex, summonSkillId, skill_id, skill_level, skill_sub_level, remaining_time, buff_index) \
+                 VALUES (?, 0, ?, ?, ?, 0, ?, ?)",
+            )
+            .bind(char_id)
+            .bind(s.summon_skill_id)
+            .bind(b.skill_id)
+            .bind(b.skill_level)
+            .bind(b.remaining_time_secs)
+            .bind(i as i32)
+            .execute(&mut *tx)
+            .await;
+        }
     }
 
     // shortcuts (Java's delete+insert, here scoped to the transaction).
