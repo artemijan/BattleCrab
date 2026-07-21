@@ -4,9 +4,71 @@ import logoSmall from "../../assets/logo-420.webp";
 import logo from "../../assets/logo.webp";
 import { Button, Panel, cx } from "../components/ui";
 import { useAccount } from "../lib/session";
+import { STATUS } from "../lib/status";
 
 /** The launcher installs and updates the game client. */
 const LAUNCHER_URL = "https://static.battlecrab.com/launcher.exe";
+
+/**
+ * Says plainly what stage the server is at.
+ *
+ * Deliberately concrete about the downside — an alpha that only advertises
+ * upside sets people up to feel misled by the first bug, and they leave for
+ * good. Saying "expect rough edges" up front buys the patience to report one
+ * instead.
+ */
+function ProjectStatus() {
+  return (
+    <section className="animate-rise">
+      <Panel className="p-6 sm:p-7">
+        {/* The next milestone and its date are not repeated here: each phase
+            below already carries its own chip, two lines away. */}
+        <h2 className="text-xl font-bold">Where the project is</h2>
+
+        <ol className="mt-5 space-y-4">
+          <li className="flex gap-3.5">
+            <span
+              className="mt-1.5 size-2.5 shrink-0 rounded-full bg-accent-400 ring-4 ring-accent-400/20"
+              aria-hidden
+            />
+            <div className="min-w-0">
+              <p className="font-semibold">
+                {STATUS.phase}
+                <span className="ml-2 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-300">
+                  Live now
+                </span>
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-[var(--text-muted)]">
+                The server is up and open to everyone — no key or invite. It is genuinely early, so
+                expect rough edges, occasional restarts and content that is still landing. Bug
+                reports are worth a lot right now.
+              </p>
+            </div>
+          </li>
+
+          <li className="flex gap-3.5">
+            <span
+              className="mt-1.5 size-2.5 shrink-0 rounded-full border-2 border-[var(--text-faint)] bg-transparent"
+              aria-hidden
+            />
+            <div className="min-w-0">
+              <p className="font-semibold text-[var(--text-muted)]">
+                {STATUS.next}
+                <span className="ml-2 rounded-full bg-[var(--surface-strong)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-faint)]">
+                  {STATUS.nextWhen}
+                </span>
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-[var(--text-muted)]">
+                Roughly a month out. The target is a server steady enough to play properly, with the
+                rest of the Interlude Classic content in place.
+              </p>
+            </div>
+          </li>
+        </ol>
+      </Panel>
+    </section>
+  );
+}
 
 const FEATURES = [
   {
@@ -55,8 +117,13 @@ export function Landing() {
           className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--surface-border)]
                      bg-[var(--surface)] px-3.5 py-1.5 text-xs font-medium text-[var(--text-muted)] backdrop-blur-md"
         >
-          <span className="size-1.5 rounded-full bg-accent-400" aria-hidden />
-          Custom server — Interlude Classic
+          {/* The pulse reads as "running right now", which is the part people
+              miss: an alpha is usually something you wait for. */}
+          <span className="relative flex size-1.5" aria-hidden>
+            <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent-400 opacity-70" />
+            <span className="relative inline-flex size-1.5 rounded-full bg-accent-400" />
+          </span>
+          {STATUS.phase} — open to everyone
         </p>
 
         <h1 className="mx-auto max-w-3xl text-balance text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl">
@@ -68,6 +135,8 @@ export function Landing() {
         </h1>
 
         <p className="mx-auto mt-5 max-w-xl text-pretty text-lg text-[var(--text-muted)]">
+          {/* The phase is in the badge directly above and spelled out in the
+              status panel below — a third mention in between is just noise. */}
           BattleCrab is a custom server built on Lineage II Interlude Classic, written from scratch
           in Rust. Create an account and play in under a minute.
         </p>
@@ -101,7 +170,9 @@ export function Landing() {
         </div>
       </section>
 
-      <section className="stagger grid gap-4 sm:grid-cols-3">
+      <ProjectStatus />
+
+      <section className="stagger mt-4 grid gap-4 sm:grid-cols-3">
         {FEATURES.map((feature) => (
           <Panel
             key={feature.title}

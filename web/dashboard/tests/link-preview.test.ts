@@ -8,6 +8,8 @@
  */
 import { describe, expect, test } from "bun:test";
 
+import { STATUS } from "../src/lib/status";
+
 const DIST = new URL("../dist", import.meta.url).pathname;
 
 const distBuilt = await Bun.file(`${DIST}/index.html`).exists();
@@ -91,6 +93,21 @@ describe("link preview", () => {
     // Well inside every platform's limit (Twitter's is 5 MB), and small enough
     // that a chat unfurl is instant. PNG at this size was ~470 KiB.
     expect(size).toBeLessThan(300_000);
+  });
+
+  /**
+   * index.html cannot import `STATUS`, so the phase is written out twice. This
+   * is what stops the two drifting: a shared link still advertising "early
+   * alpha" months into open beta is worse than one carrying no status at all,
+   * and nobody re-reads their own meta tags.
+   */
+  test("the preview description names the same phase as the site", async () => {
+    if (skip()) return;
+
+    const html = await Bun.file(`${DIST}/index.html`).text();
+    const description = html.match(/property="og:description"\s+content="([^"]+)"/)?.[1] ?? "";
+
+    expect(description.toLowerCase()).toContain(STATUS.phase.toLowerCase());
   });
 
   test("the wide-card type is declared", async () => {

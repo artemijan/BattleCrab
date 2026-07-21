@@ -92,10 +92,10 @@ const html = `<!doctype html>
   <body>
     <img class="logo" src="${logoDataUri}" alt="" />
     <div>
-      <span class="badge"><span class="dot"></span>Interlude Classic</span>
+      <span class="badge"><span class="dot"></span>Early alpha &middot; Interlude Classic</span>
       <!-- nbsp: the product name must never break across lines. -->
       <h1>The world of <span class="accent">Lineage&nbsp;II</span>, made our own.</h1>
-      <p>A custom server written from scratch in Rust.<br />battlecrab.com</p>
+      <p>A custom server written from scratch in Rust.<br />Open to everyone &middot; battlecrab.com</p>
     </div>
   </body>
 </html>`;
