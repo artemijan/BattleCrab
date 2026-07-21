@@ -124,6 +124,10 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             // `Summon.instant` — bring out a servitor. Java re-summons over any
             // existing one rather than stacking, which `summon_servitor`
             // handles.
+            // `SummonPet.instant` — the collar is already parked on the player.
+            SkillEffect::SummonPet => {
+                crate::game_loop::servitor::summon_pet(world, target_oid);
+            }
             SkillEffect::Summon { npc_id, life_time, consume_item_id, consume_item_count } => {
                 crate::game_loop::servitor::summon_servitor(
                     world,

@@ -161,6 +161,8 @@ pub mod sm_ids {
     pub const S1_HP_HAS_BEEN_RESTORED: i16 = 1066;
     pub const S2_HP_HAS_BEEN_RESTORED_BY_C1: i16 = 1067;
     pub const M_CRITICAL: i16 = 1280;
+    /// "You already have a pet."
+    pub const YOU_ALREADY_HAVE_A_PET: i16 = 542;
     /// "Your servitor passed away." — its lifetime ran out.
     pub const YOUR_SERVITOR_PASSED_AWAY: i16 = 1519;
     /// "A summoned monster uses $s1." — the periodic upkeep item.

@@ -577,6 +577,22 @@ pub struct ServitorOf {
     pub next_consume_tick: u64,
 }
 
+/// The pet-specific half of an owned summon. The **owner link, follow state and
+/// AI all come from [`ServitorOf`]**, which a pet also carries — "owned summon"
+/// is the same relationship whether it came from a skill or a collar, so pets
+/// inherit follow/attack/leash for free. This holds only what a servitor has no
+/// equivalent of.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct PetOf {
+    /// The **object id** of the collar that summoned it — a pet's identity in
+    /// Java's `pets` table (`item_obj_id`), and why two collars of the same
+    /// kind are two different pets.
+    pub collar_object_id: i32,
+    /// Java `Pet.getCurrentFed()` — the food bar.
+    pub fed: i32,
+    pub max_fed: i32,
+}
+
 /// Panel shortcuts (Java `Player._shortCuts`), keyed by
 /// `slot + page * 12` — a `BTreeMap` so `ShortCutInit` order is stable.
 /// Player-only; registry logic in `model/shortcut.rs`.
