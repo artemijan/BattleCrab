@@ -451,9 +451,22 @@ Keys: `BindAddress`, `Port`, `PublicBaseUrl`, `URL`, `MaximumDatabaseConnections
 
 `URL` and `MaximumDatabaseConnections` deliberately reuse `LoginServer.ini`'s key names so the
 value can be copied across verbatim. It must point at the *same* `interlude_classic.db` the
-login/game servers use. Pointing it at a stale copy would silently create accounts nobody can log
-in with, and that failure is invisible until a player complains — so the server logs the resolved
-database path at boot.
+login/game servers use.
+
+**This is the setting that actually goes wrong.** `URL` is relative to the working directory and
+the database is gitignored, so it exists in the main checkout but not in a fresh git worktree —
+and `commons::db::init` opens with `create_if_missing(true)`. A wrong path therefore did not fail:
+it created an empty database, and every request 500'd with `no such table: characters` forever.
+That happened in practice.
+
+Two startup checks now make it loud instead (`db::sqlite_path`, `db::missing_tables`), both naming
+the absolute path that was opened:
+
+1. **File missing** → refuse to start; `dashboard_api` never creates a database.
+2. **File present but lacking `accounts`/`characters`** → refuse to start, and say it is probably
+   an empty file from an earlier run with the wrong working directory.
+
+The server also logs the resolved absolute path at boot, not the raw URL.
 
 Secrets (`SessionSecret`, SMTP password) must come from env in production. Never commit them.
 `SessionSecret` must be stable across restarts — a generated-per-boot key logs every user out on

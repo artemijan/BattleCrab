@@ -23,6 +23,24 @@ Config lives in `dist/game/config/Dashboard.ini`. Every key can be overridden wi
 variable named `DIST_GAME_CONFIG_DASHBOARD_<KEY>` — the prefix comes from the *file path*, so
 moving the ini renames the variables.
 
+### The database path is the thing that goes wrong
+
+`URL` is relative to the **working directory**, and the database is gitignored — so it exists in
+your main checkout but *not* in a fresh git worktree. Start the server from the wrong directory and
+you are pointing at a file that isn't there.
+
+The server now refuses to start in both failure modes, naming the absolute path it tried:
+
+- **File missing** — it will not create one. Run from the directory holding the real
+  `interlude_classic.db`, or set an absolute path:
+  `DIST_GAME_CONFIG_DASHBOARD_URL="jdbc:sqlite:/abs/path/interlude_classic.db?journal_mode=WAL&busy_timeout=5000"`.
+- **File present but not the game DB** (no `accounts`/`characters`) — typically a 4 KB empty file
+  left behind by an earlier run from the wrong directory. Delete it and fix the path.
+
+Both used to be silent: `commons::db::init` opens with `create_if_missing(true)`, so a wrong path
+produced an empty database and every request then failed with `no such table: characters` — a
+stream of 500s at runtime instead of one clear error at boot.
+
 ### Frontend dev loop
 
 ```bash
