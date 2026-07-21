@@ -501,7 +501,11 @@ the absolute path that was opened:
 
 The server also logs the resolved absolute path at boot, not the raw URL.
 
-Secrets (`SessionSecret`, SMTP password) must come from env in production. Never commit them.
+**Secrets are environment-only.** `Dashboard.ini` is committed, so it holds no secret at all:
+`DASHBOARD_SESSION_SECRET` is read solely from the environment (its own variable, not the
+path-derived override), and the server refuses to boot if it is unset or under 32 characters. A
+`SessionSecret` key found in the ini is ignored and logged as an error. The same rule applies to
+the SMTP password when D3 lands.
 `SessionSecret` must be stable across restarts — a generated-per-boot key logs every user out on
 every deploy.
 

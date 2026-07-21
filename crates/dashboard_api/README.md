@@ -8,8 +8,10 @@ Design and rationale: [`docs/PLAN_DASHBOARD.md`](../../docs/PLAN_DASHBOARD.md).
 ## Running it
 
 ```bash
-# 1. Set the secret — the server refuses to start without it.
-export DIST_GAME_CONFIG_DASHBOARD_SESSIONSECRET="$(openssl rand -hex 32)"
+# 1. Set the session signing key. Environment only — never a config-file key,
+#    because Dashboard.ini is committed. Minimum 32 chars; the server refuses
+#    to start without it.
+export DASHBOARD_SESSION_SECRET="$(openssl rand -hex 32)"
 
 # 2. Build the frontend. Optional for `cargo run` — a debug build reads dist/
 #    from disk at runtime, and without it you get a "frontend not built"
@@ -28,6 +30,26 @@ folder. It emits a `cargo:warning` pointing here when the directory is empty.
 Config lives in `dist/game/config/Dashboard.ini`. Every key can be overridden with an environment
 variable named `DIST_GAME_CONFIG_DASHBOARD_<KEY>` — the prefix comes from the *file path*, so
 moving the ini renames the variables.
+
+### Secrets never live in the config file
+
+`Dashboard.ini` is committed to the repository, so nothing secret belongs in it — a value pasted
+there is one `git add` from being in history permanently, and is copied to every clone and CI
+runner. `DASHBOARD_SESSION_SECRET` is therefore read **only** from the environment, with its own
+variable name rather than the path-derived override, so there is no file-shaped path for it to leak
+through at all.
+
+The server refuses to boot when it is unset or shorter than 32 characters: an absent or weak HMAC
+key means forgeable session cookies and forgeable password-reset links. If a `SessionSecret` key is
+found in the ini it is ignored, and logged as an error — its presence suggests a secret may already
+have been committed and should be rotated.
+
+It must also stay stable across restarts. Changing it invalidates every session and every
+outstanding reset link, which makes rotation the deliberate "log everyone out" switch.
+
+`deploy-dashboard.sh` writes it to a chmod-600 env file on the server, loaded by the systemd unit
+via `EnvironmentFile=`, so it appears neither in the unit (`systemctl cat`) nor in the repo. Apply
+the same rule to the SMTP password when D3 lands.
 
 ### The database path is the thing that goes wrong
 
