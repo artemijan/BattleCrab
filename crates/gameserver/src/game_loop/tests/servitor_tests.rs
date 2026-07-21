@@ -11,6 +11,7 @@ use crate::model::components::ServitorOf;
 use crate::model::skill::SkillEffect;
 
 use crate::game_loop::servitor::{
+    pet_of, summon_pet,
     handle_life_tick, on_owner_leave_world,
     servitor_attack, servitor_follow_tick, servitor_of, servitor_stop, servitor_toggle_follow, summon_servitor,
     unsummon_servitor,
@@ -543,4 +544,168 @@ fn a_dead_servitor_stops_ticking() {
     world.tick += 100_000;
     handle_life_tick(&mut world, oid);
     assert!(world.objects.get_component::<ServitorOf>(&oid).is_some(), "left for the death path to clean up");
+}
+
+// ---------------------------------------------------------------------------
+// Pets (slice 6)
+// ---------------------------------------------------------------------------
+
+const WOLF_NPC: i32 = 12077;
+const WOLF_COLLAR: i32 = 2375;
+
+/// Register the Wolf's pet template + NPC template, and give the owner a
+/// collar. Returns the collar's **object id**, which is the pet's identity.
+fn give_collar(world: &mut World) -> i32 {
+    let mut t = crate::data::npc_data::default_template(WOLF_NPC);
+    t.type_name = "Pet".into();
+    t.name = "Wolf".into();
+    t.level = 1;
+    t.base_hp_max = 300.0;
+    t.base_mp_max = 100.0;
+    t.collision_radius = 10.0;
+    world.data.npc_data.insert_for_test(t);
+    world.data.pet_data.insert_for_test(crate::data::pet_data::PetTemplate {
+        npc_id: WOLF_NPC,
+        item_id: WOLF_COLLAR,
+        food_item_id: 2515,
+        hungry_limit: 55,
+        load: 54_510,
+        levels: [(1, crate::data::pet_data::PetLevel { max_meal: 248, ..Default::default() })].into_iter().collect(),
+    });
+    let World { data, objects, .. } = world;
+    objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .unwrap()
+        .add_item(&data.item_data, 7_100_001, WOLF_COLLAR, 1);
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|i| i.item_id == WOLF_COLLAR)
+        .unwrap()
+        .object_id
+}
+
+fn park_collar(world: &mut World, collar_oid: i32) {
+    world.objects.get_component_mut::<crate::model::Player>(&OWNER).unwrap().pending_pet_collar = Some(collar_oid);
+}
+
+/// The collar summons its pet, bound to that **collar's object id** — the
+/// identity two collars of the same kind are distinguished by.
+#[test]
+fn a_collar_summons_its_pet() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+
+    let pet = summon_pet(&mut world, OWNER).expect("summoned");
+
+    let link = world.objects.get_component::<crate::model::components::PetOf>(&pet).unwrap();
+    assert_eq!(link.collar_object_id, collar, "bound to this collar, not the item type");
+    assert_eq!(link.fed, 248, "starts on a full food bar from PetData");
+    assert_eq!(pet_of(&mut world, OWNER), Some(pet));
+}
+
+/// A pet reuses the servitor owner-link, so it inherits follow for free.
+#[test]
+fn a_pet_follows_like_a_servitor() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet = summon_pet(&mut world, OWNER).unwrap();
+
+    assert!(world.objects.get_component::<ServitorOf>(&pet).unwrap().following);
+    world.objects.get_component_mut::<Position>(&OWNER).unwrap().x = 900;
+    servitor_follow_tick(&mut world, pet);
+    assert!(world.objects.get_component::<crate::model::components::Movement>(&pet).is_some());
+}
+
+/// The collar is **taken**, not copied — Java's `removeScript`. A second
+/// summon with nothing parked must not produce a second pet.
+#[test]
+fn the_parked_collar_is_consumed_by_the_summon() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    summon_pet(&mut world, OWNER).unwrap();
+
+    assert!(
+        world.objects.get_component::<crate::model::Player>(&OWNER).unwrap().pending_pet_collar.is_none(),
+        "the holder was taken"
+    );
+    assert_eq!(summon_pet(&mut world, OWNER), None, "nothing parked, nothing summoned");
+}
+
+/// Reaching the effect without going through the item handler summons nothing
+/// — Java logs a warning and bails.
+#[test]
+fn summoning_without_a_parked_collar_does_nothing() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    give_collar(&mut world);
+    assert_eq!(summon_pet(&mut world, OWNER), None);
+}
+
+/// "You already have a pet." — a second collar does not stack.
+#[test]
+fn a_second_pet_is_refused() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let first = summon_pet(&mut world, OWNER).unwrap();
+
+    park_collar(&mut world, collar);
+    assert_eq!(summon_pet(&mut world, OWNER), None, "refused");
+    assert_eq!(pet_of(&mut world, OWNER), Some(first), "the first one is untouched");
+}
+
+/// A collar the owner no longer holds cannot summon — Java re-checks the
+/// inventory, which is what stops a traded/dropped collar working.
+#[test]
+fn a_collar_not_in_the_inventory_cannot_summon() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    world
+        .objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .unwrap()
+        .remove_item(WOLF_COLLAR, 1);
+
+    assert_eq!(summon_pet(&mut world, OWNER), None, "no collar, no pet");
+}
+
+/// A pet's `PetInfo` declares `summonType` **1**, where a servitor's is 2 —
+/// that byte is how the client decides to offer the pet inventory and food bar.
+#[test]
+fn a_pet_declares_the_pet_summon_type() {
+    let (mut world, _db, _l) = servitor_world();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let _ = drain(&mut rx);
+    summon_pet(&mut world, OWNER).unwrap();
+
+    let pkt = drain(&mut rx)
+        .into_iter()
+        .find(|p| p.first() == Some(&server_packets::opcodes::PET_INFO))
+        .expect("PetInfo sent");
+    assert_eq!(pkt[1], 1, "summonType 1 = pet");
+
+    // And the servitor path still says 2.
+    let mut rx2 = ingame_caster(&mut world, 3, OWNER + 2, 0, 0);
+    let _ = drain(&mut rx2);
+    summon_servitor(&mut world, OWNER + 2, PANTHER, 283, 0, 0, 0).unwrap();
+    let s_pkt = drain(&mut rx2)
+        .into_iter()
+        .find(|p| p.first() == Some(&server_packets::opcodes::PET_INFO))
+        .expect("PetInfo sent");
+    assert_eq!(s_pkt[1], 2, "summonType 2 = servitor");
 }

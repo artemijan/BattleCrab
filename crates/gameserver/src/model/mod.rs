@@ -282,6 +282,15 @@ pub struct Player {
     /// answer: `(reviver, restore_percent, hp%, mp%, cp%)`. Java's
     /// `_reviveRequested`/`_revivePower`/`_revive*Percent` block.
     pub revive_request: Option<(i32, f64, i32, i32, i32)>,
+    /// The collar item object id a pet summon is about to consume — Java's
+    /// `PetItemHolder`, which `SummonItems` attaches to the player as a script
+    /// and `SummonPet.instant` pulls back out with `removeScript`.
+    ///
+    /// It exists because the effect never receives the item: the item-use path
+    /// and the effect are separated by the whole cast pipeline, so the item
+    /// identity has to be parked somewhere in between. Taken (not copied) by
+    /// the effect, so a stale collar can never summon a second pet.
+    pub pending_pet_collar: Option<i32>,
     /// Java `Creature._isTeleporting`: position pushed server-side, waiting
     /// for the client's `Appearing`.
     pub teleporting: bool,
@@ -828,6 +837,7 @@ impl Player {
             pending_revive: false,
             lost_exp_on_death: 0,
             revive_request: None,
+            pending_pet_collar: None,
             teleporting: false,
             quest_zone_id: -1,
             charged_shots: 0,

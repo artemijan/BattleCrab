@@ -299,6 +299,11 @@ pub enum SkillEffect {
     /// maps it to `Integer.MAX_VALUE` with the note "Classic hack. Resummon
     /// upon entering game.").
     Summon { npc_id: i32, life_time: i32, consume_item_id: i32, consume_item_count: i64 },
+    /// `handlers/effecthandlers/SummonPet.java` — bring out the pet bound to
+    /// the collar the player just used. Carries no params: the collar arrives
+    /// through `Player.pending_pet_collar` (Java's `PetItemHolder`), and every
+    /// stat comes from `PetData`.
+    SummonPet,
     /// `handlers/effecthandlers/BlockMove.java` — `setImmobilized(true)` for
     /// the buff's duration (Ultimate Defense 110, Snipe 313, Vengeance 368).
     /// A pure state flag: the whole mechanic is `IMMOBILIZED` being read by the

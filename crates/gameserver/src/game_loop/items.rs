@@ -711,6 +711,20 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     if item_skills.is_empty() {
         return;
     }
+    // Java's `SummonItems` handler attaches a `PetItemHolder` to the player
+    // before casting, because the `SummonPet` effect never receives the item.
+    // Park the collar's object id the same way; the effect *takes* it, so an
+    // unused one cannot linger into an unrelated cast.
+    {
+        let is_collar = world
+            .objects
+            .get_component::<Inventory>(&object_id)
+            .and_then(|inv| inv.items().iter().find(|i| i.object_id == item_object_id).map(|i| i.item_id))
+            .is_some_and(|item_id| world.data.pet_data.is_pet_collar(item_id));
+        if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&object_id) {
+            p.pending_pet_collar = if is_collar { Some(item_object_id) } else { None };
+        }
+    }
 
     let mut used = false;
     // `hasConsumeSkill` — Java sets it for every listed skill, *before* any of

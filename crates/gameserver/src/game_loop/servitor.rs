@@ -149,6 +149,7 @@ fn build_pet_info(world: &World, owner_oid: i32, servitor_oid: i32, kind: PetInf
     let speeds = world.objects.get_component::<Speeds>(&servitor_oid)?;
     let collision = world.objects.get_component::<Collision>(&servitor_oid)?;
     let servitor = world.objects.get_component::<ServitorOf>(&servitor_oid)?;
+    let pet = world.objects.get_component::<crate::model::components::PetOf>(&servitor_oid).copied();
     let owner_name = world.objects.get_component::<crate::model::Player>(&owner_oid).map(|p| p.name.clone())?;
 
     // Java divides the wire speeds by the move multiplier (the client
@@ -160,16 +161,23 @@ fn build_pet_info(world: &World, owner_oid: i32, servitor_oid: i32, kind: PetInf
 
     // `getLifeTimeRemaining()` / `getLifeTime()` ride in the fed/max-fed pair
     // for a servitor — this is what draws the summon's remaining-time bar.
-    let (cur_fed, max_fed) = if servitor.life_time_secs > 0 {
-        let remaining = servitor.expires_at_tick.saturating_sub(world.tick) / TICKS_PER_SECOND;
-        (remaining as i32, servitor.life_time_secs)
-    } else {
-        (0, 0)
+    // For a **pet** this pair is the real food bar; for a servitor Java reuses
+    // the same two fields for its remaining lifetime, which is what draws the
+    // summon time bar.
+    let (cur_fed, max_fed) = match pet {
+        Some(p) => (p.fed, p.max_fed),
+        None if servitor.life_time_secs > 0 => {
+            let remaining = servitor.expires_at_tick.saturating_sub(world.tick) / TICKS_PER_SECOND;
+            (remaining as i32, servitor.life_time_secs)
+        }
+        None => (0, 0),
     };
 
     let mut w = PacketWriter::new();
     w.write_u8(server_packets::opcodes::PET_INFO);
-    w.write_u8(2); // `getSummonType()` — 2 = servitor (1 is a pet)
+    // `getSummonType()`: 1 = pet, 2 = servitor. The client uses it to decide
+    // whether to offer the pet inventory and food bar.
+    w.write_u8(if pet.is_some() { 1 } else { 2 });
     w.write_i32(servitor_oid);
     w.write_i32(template.display_id + 1_000_000);
     w.write_i32(pos.x);
@@ -561,4 +569,98 @@ fn notify_owner(world: &World, owner_oid: i32, sm: i16, params: &[crate::network
 /// persistence is a later slice, so this just removes it.
 pub(crate) fn on_owner_leave_world(world: &mut World, owner_oid: i32) {
     unsummon_servitor(world, owner_oid);
+}
+
+// ---------------------------------------------------------------------------
+// Pets
+// ---------------------------------------------------------------------------
+
+/// Java `Player.getPet()` — a player has at most one.
+pub(crate) fn pet_of(world: &mut World, owner_oid: i32) -> Option<i32> {
+    let mut found = None;
+    world.objects.for_each_mut::<(&crate::model::npc::Npc, &ServitorOf, &crate::model::components::PetOf)>(
+        |(npc, s, _)| {
+            if s.owner_object_id == owner_oid {
+                found = Some(npc.object_id);
+            }
+        },
+    );
+    found
+}
+
+/// `SummonPet.instant` — bring out the pet bound to the collar the player just
+/// used.
+///
+/// The collar arrives through `Player.pending_pet_collar` (Java's
+/// `PetItemHolder`) and is **taken**, so a stale value can never summon a
+/// second pet. Every stat comes from `PetData`, keyed by the collar's *item*
+/// id; the collar's *object* id becomes the pet's identity.
+///
+/// A pet reuses [`ServitorOf`] for the owner link and follow state, so it
+/// inherits follow/attack/leash from the servitor AI — "owned summon" is the
+/// same relationship whether it came from a skill or a collar. Its own state
+/// (collar, food bar) lives in `PetOf`.
+pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
+    use crate::model::components::PetOf;
+    use crate::network::server_packets::sm_ids;
+
+    if world.objects.get_component::<crate::model::Player>(&owner_oid).is_none() {
+        return None;
+    }
+    // `if (player.hasPet() || player.isMounted())` → "You already have a pet."
+    if pet_of(world, owner_oid).is_some() {
+        if let Some(cid) = client_for_player(world, owner_oid) {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(server_packets::system_message_with(sm_ids::YOU_ALREADY_HAVE_A_PET, &[]));
+            }
+        }
+        return None;
+    }
+    // Java logs and bails when the holder is missing — the effect was reached
+    // without going through the item handler.
+    let collar_object_id = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&owner_oid)
+        .and_then(|p| p.pending_pet_collar.take())?;
+
+    // The collar must still be in the owner's inventory (Java re-checks).
+    let collar_item_id = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&owner_oid)
+        .and_then(|inv| inv.items().iter().find(|i| i.object_id == collar_object_id).map(|i| i.item_id))?;
+
+    let (npc_id, max_fed) = {
+        let t = world.data.pet_data.by_item_id(collar_item_id)?;
+        (t.npc_id, t.max_meal(1))
+    };
+
+    // Java spawns the pet beside its owner, not on top of them.
+    let pos = world.objects.get_component::<Position>(&owner_oid).copied()?;
+    let pet_oid = crate::model::npc::spawn_npc_at(world, npc_id, pos.x + 50, pos.y + 100, pos.z, pos.heading)?;
+
+    world.objects.add_components(
+        &pet_oid,
+        ServitorOf {
+            owner_object_id: owner_oid,
+            // A pet is not tied to a skill and never expires or pays upkeep —
+            // it is fed instead, which `PetOf` tracks.
+            reference_skill: 0,
+            expires_at_tick: u64::MAX,
+            life_time_secs: 0,
+            following: true,
+            consume_item_id: 0,
+            consume_item_count: 0,
+            next_consume_tick: u64::MAX,
+        },
+    );
+    world.objects.add_components(&pet_oid, PetOf { collar_object_id, fed: max_fed, max_fed });
+
+    // `setCurrentHp(getMaxHp())` / `setCurrentMp(getMaxMp())` for a fresh pet.
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&pet_oid) {
+        v.cur_hp = v.max_hp as f64;
+        v.cur_mp = v.max_mp as f64;
+    }
+    send_pet_info(world, owner_oid, pet_oid, PetInfoKind::Summoned);
+    broadcast_summon_info(world, pet_oid, true);
+    Some(pet_oid)
 }

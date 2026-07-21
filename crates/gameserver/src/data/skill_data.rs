@@ -1193,6 +1193,7 @@ fn finalize_skill(
                             }]
                         };
                     }
+                    "SummonPet" => vec![SkillEffect::SummonPet],
                     "BlockMove" => vec![SkillEffect::BlockMove],
                     // `type` picks the Java stat: PHYSICAL (the default) or
                     // MAGICAL. Physical Mirror 350 and Magical Mirror 351 carry
