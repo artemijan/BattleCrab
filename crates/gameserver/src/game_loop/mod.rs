@@ -338,6 +338,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::QueenAntHeal { queen_oid } => {
                 queen_ant::handle_heal_tick(world, queen_oid);
             }
+            ScheduledTask::ValakasCinematic { valakas_oid, step } => {
+                valakas::handle_cinematic_step(world, valakas_oid, step);
+            }
             ScheduledTask::CoreMinionRespawn { npc_id } => {
                 core_boss::handle_minion_respawn(world, npc_id);
             }

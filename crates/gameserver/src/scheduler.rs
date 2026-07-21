@@ -24,6 +24,8 @@ pub enum ScheduledTask {
     GrandBossRespawn { boss_id: i32 },
     /// Queen Ant's 1 s nurse-heal beat.
     QueenAntHeal { queen_oid: i32 },
+    /// One beat of Valakas's entry cinematic.
+    ValakasCinematic { valakas_oid: i32, step: u8 },
     /// A Core minion's 60 s respawn.
     CoreMinionRespawn { npc_id: i32 },
     /// Clearing Core's minions 20 s after it dies.
@@ -189,6 +191,13 @@ impl Scheduler {
             due.push(self.heap.pop().unwrap().task);
         }
         due
+    }
+
+    /// Ticks that currently have work queued — a test hook for asserting a
+    /// scheduled sequence's *shape* rather than its individual entries.
+    #[cfg(test)]
+    pub fn pending_ticks_for_test(&self) -> Vec<u64> {
+        self.heap.iter().map(|e| e.fire_at).collect()
     }
 
     pub fn len(&self) -> usize {
