@@ -749,6 +749,7 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
             // datapack curve can't demote a pet the player already levelled.
             exp: saved.as_ref().map(|r| r.exp.max(exp_floor)).unwrap_or(exp_floor),
             sp: saved.as_ref().map(|r| r.sp).unwrap_or(0),
+            exp_before_death: 0,
         },
     );
 
@@ -771,10 +772,15 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
             }
         }
     }
-    // TODO(G29): Java's restore marks a pet stored with `curHp < 1` as dead
-    // (`setDead(true)` + `stopHpMpRegeneration()`) and summons the corpse. This
-    // port has no pet death yet, so a pet can never be stored dead; wire this
-    // when pet death/resurrection lands, or the branch is untestable.
+    // Java's restore marks a pet stored with `curHp < 1` as dead
+    // (`setDead(true)` + `stopHpMpRegeneration()`) and summons the corpse.
+    // Reachable now that pets can die (slice 14).
+    if saved.as_ref().is_some_and(|r| r.cur_hp < 1.0) {
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&pet_oid) {
+            v.dead = true;
+            v.cur_hp = 0.0;
+        }
+    }
     set_summon_link(world, owner_oid, None, Some(pet_oid), true);
     // Java `Pet.spawnMe` → `startFeed()`: the food clock runs from summon.
     start_feed(world, pet_oid);
@@ -1294,4 +1300,78 @@ pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
     }
     world.objects.add_components(&pet_oid, combat);
     world.objects.add_components(&pet_oid, speeds);
+}
+
+// ---------------------------------------------------------------------------
+// Pet death (slice 14)
+// ---------------------------------------------------------------------------
+
+/// Java `Pet.doDie` — the pet-specific half, called from the NPC death path
+/// once a dying NPC turns out to be a pet.
+///
+/// Returns the owner so the caller can finish its own bookkeeping.
+pub(crate) fn pet_do_die(world: &mut World, pet_oid: i32) -> Option<i32> {
+    use crate::network::server_packets::sm_ids;
+    let owner = world.objects.get_component::<ServitorOf>(&pet_oid)?.owner_object_id;
+    world.objects.get_component::<crate::model::components::PetOf>(&pet_oid)?;
+
+    // `if (owner != null && !owner.isInDuel() && (!isInsideZone(PVP) || isInsideZone(SIEGE)))`
+    // — no exp is lost to a duel or an arena death.
+    if !crate::game_loop::duel::is_in_duel(world, owner) {
+        pet_death_penalty(world, pet_oid);
+    }
+
+    // `stopFeed()` — the food clock stops with the pet. The scheduled tick
+    // checks `dead` and ends its own chain, so there is nothing to cancel.
+    notify_owner(world, owner, sm_ids::THE_PET_HAS_BEEN_KILLED, &[]);
+    // The pet's state is captured now: the corpse can decay or be resurrected,
+    // but either way the exp penalty is already what should persist.
+    sync_pet_row(world, owner);
+    send_pet_info(world, owner, pet_oid, PetInfoKind::Default);
+    Some(owner)
+}
+
+/// Java `Pet.deathPenalty` (its own "TODO: Need Correct Penalty" and all).
+///
+/// `percentLost = -0.07 × level + 6.5`, applied to the size of the pet's
+/// *current* level band — so the loss is a share of one level's worth of exp,
+/// and it shrinks as the pet levels.
+fn pet_death_penalty(world: &mut World, pet_oid: i32) {
+    let Some(pet) = world.objects.get_component::<crate::model::components::PetOf>(&pet_oid).copied() else {
+        return;
+    };
+    let Some(npc_id) = npc_template_id(world, pet_oid) else { return };
+    let (this_level, next_level) = {
+        let Some(t) = world.data.pet_data.get(npc_id) else { return };
+        (t.exp_for_level(pet.level), t.exp_for_level(pet.level + 1))
+    };
+    let band = (next_level - this_level).max(0) as f64;
+    let percent_lost = (-0.07 * pet.level as f64) + 6.5;
+    let lost = ((band * percent_lost) / 100.0).round() as i64;
+
+    if let Some(p) = world.objects.get_component_mut::<crate::model::components::PetOf>(&pet_oid) {
+        // Captured *before* the penalty — `restoreExp` gives back a share of
+        // the gap between this and the post-penalty total.
+        p.exp_before_death = p.exp;
+        // Java's `addExp(-lostExp)` cannot take a pet below its level floor.
+        p.exp = (p.exp - lost).max(this_level);
+    }
+}
+
+/// Java `Pet.restoreExp(restorePercent)` — hand back a share of what the death
+/// penalty took. Called from the resurrection path with the skill's power.
+pub(crate) fn pet_restore_exp(world: &mut World, pet_oid: i32, restore_percent: f64) {
+    let Some(pet) = world.objects.get_component::<crate::model::components::PetOf>(&pet_oid).copied() else {
+        return;
+    };
+    if pet.exp_before_death <= 0 {
+        return;
+    }
+    let regained = (((pet.exp_before_death - pet.exp) as f64 * restore_percent) / 100.0).round() as i64;
+    if let Some(p) = world.objects.get_component_mut::<crate::model::components::PetOf>(&pet_oid) {
+        p.exp += regained.max(0);
+        // One resurrection consumes the record — a second revive restores
+        // nothing, as in Java.
+        p.exp_before_death = 0;
+    }
 }

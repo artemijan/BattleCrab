@@ -55,6 +55,10 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     };
     let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
 
+    // `Pet.doDie`: the exp penalty, the owner's warning and the state capture.
+    // No-op for every NPC that is not a pet.
+    super::servitor::pet_do_die(world, npc_oid);
+
     // `ControlTower.onDeath` → `Siege.killedCT`: a felled control tower weakens
     // the defenders (no-op for every other NPC).
     super::siege::killed_control_tower(world, npc_oid);

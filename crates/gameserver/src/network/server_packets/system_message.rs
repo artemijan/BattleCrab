@@ -178,7 +178,13 @@ pub mod sm_ids {
     /// "Your pet is starving and will not obey until it gets it's food. Feed your pet!"
     pub const YOUR_PET_IS_STARVING: i16 = 3213;
     /// "Your servitor passed away." — its lifetime ran out.
-    pub const YOUR_SERVITOR_PASSED_AWAY: i16 = 1519;
+    pub const YOUR_SERVITOR_PASSED_AWAY: i16 = 1520;
+    /// "The pet has been killed. If you don't resurrect it within 24 hours,
+    /// the pet's body will disappear along with all the pet's items."
+    ///
+    /// Note 1519 vs 1520: this was written as the servitor-expiry id in G29
+    /// slice 1, so an expiring servitor showed *this* text instead.
+    pub const THE_PET_HAS_BEEN_KILLED: i16 = 1519;
     /// "A summoned monster uses $s1." — the periodic upkeep item.
     pub const A_SUMMONED_MONSTER_USES_S1: i16 = 1027;
     /// "Since you do not have enough items to maintain the servitor's stay, the
