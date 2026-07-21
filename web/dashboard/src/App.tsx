@@ -8,6 +8,8 @@ import { ApiError, api } from "./lib/api";
 import { ThemeProvider } from "./lib/theme";
 import { AccountPage } from "./pages/AccountPage";
 import { Login, Register } from "./pages/Auth";
+import { ForgotPassword, ResetPassword } from "./pages/PasswordReset";
+import { VerifyEmail } from "./pages/VerifyEmail";
 import { Landing } from "./pages/Landing";
 
 const queryClient = new QueryClient({
@@ -84,6 +86,13 @@ function Shell() {
             </RedirectIfAuthed>
           }
         />
+        {/* Token-bearing links from email. Deliberately NOT wrapped in
+            RedirectIfAuthed: they are opened from an inbox, sometimes while
+            already signed in, and bouncing to /account would swallow the
+            token. */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route
           path="/account"
           element={

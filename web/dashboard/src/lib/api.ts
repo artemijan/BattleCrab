@@ -120,6 +120,12 @@ export const api = {
 
   changeEmail: (email: string) => post<void>("/account/email", { email }),
 
+  // GET with the token in the query string, and deliberately no session
+  // required: the link is clicked from an inbox, often in a different browser
+  // from the one that requested it.
+  verifyEmail: (token: string) =>
+    request<void>(`/account/email/verify?token=${encodeURIComponent(token)}`),
+
   characters: () => request<Character[]>("/account/characters"),
 
   status: () => request<ServerStatus>("/server/status"),

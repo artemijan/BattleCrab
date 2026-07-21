@@ -181,3 +181,51 @@ describe("page height", () => {
     });
   }
 });
+
+/**
+ * Regression test for emailed links.
+ *
+ * These routes did not exist at first: password-reset and verification emails
+ * were being sent with links that hit the SPA catch-all and redirected to the
+ * landing page, silently discarding the token. Nothing in the API tests could
+ * catch that — the endpoints were fine, the client just never reached them.
+ */
+describe("email link routes", () => {
+  const CASES = [
+    { path: "/forgot-password", expect: /reset your password/i },
+    { path: "/reset-password?token=abc123", expect: /choose a new password/i },
+    { path: "/verify-email?token=abc123", expect: /confirm your email/i },
+  ];
+
+  for (const { path, expect: expected } of CASES) {
+    test(`${path} renders its own page and keeps the URL`, async () => {
+      if (!distBuilt || !browser || !server) {
+        console.warn("skipped: needs a built dist and Google Chrome");
+        return;
+      }
+
+      const page = await openPage(1100, 800, path);
+      const url = new URL(page.url());
+      const heading = (await page.locator("h1").first().textContent()) ?? "";
+      await page.close();
+
+      // The catch-all sends unknown paths to "/" — landing on the homepage here
+      // is exactly the failure this guards against.
+      expect(url.pathname + url.search).toBe(path);
+      expect(heading).toMatch(expected);
+    });
+  }
+
+  test("a reset link stripped of its token explains itself", async () => {
+    if (!distBuilt || !browser || !server) {
+      console.warn("skipped: needs a built dist and Google Chrome");
+      return;
+    }
+    const page = await openPage(1100, 800, "/reset-password");
+    const body = await page.locator("main").innerText();
+    await page.close();
+
+    // Must not silently show an empty form the user can never submit.
+    expect(body).toMatch(/missing its token/i);
+  });
+});
