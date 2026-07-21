@@ -158,3 +158,121 @@ pub(crate) fn on_baium_attacked(world: &mut World, baium_oid: i32, attacker_oid:
     }
     crate::game_loop::npc_cast::start_cast(world, baium_oid, attacker_oid, &skill);
 }
+
+// ---------------------------------------------------------------------------
+// Skill selection (`manageSkills`)
+// ---------------------------------------------------------------------------
+
+/// Baium's five skills.
+const BAIUM_ATTACK: i32 = 4127;
+const ENERGY_WAVE: i32 = 4128;
+const EARTH_QUAKE: i32 = 4129;
+const THUNDERBOLT: i32 = 4130;
+const GROUP_HOLD: i32 = 4131;
+
+/// `calculateDistance3D(attacker) > 9000` — beyond this a threat is cleared.
+const THREAT_RANGE: f64 = 9000.0;
+/// After acting on the top threat, Java knocks it down to this 70% of the time.
+const THREAT_DECAY_TO: i32 = 500;
+const THREAT_DECAY_CHANCE: i32 = 70;
+
+/// `manageSkills` — prune the table, pick the top threat, decay it, and choose
+/// a skill for Baium's current health.
+///
+/// Returns `(target, skill_id)`, or `None` when there is nobody to act on.
+pub(crate) fn manage_skills(world: &mut World, baium_oid: i32) -> Option<(i32, i32)> {
+    prune_threat(world, baium_oid);
+
+    let (target, value) = {
+        let t = world.objects.get_component::<BaiumThreat>(&baium_oid)?;
+        let mut best = 0usize;
+        for i in 1..3 {
+            if t.slots[i].1 > t.slots[best].1 {
+                best = i;
+            }
+        }
+        t.slots[best]
+    };
+    if value <= 0 || target == 0 {
+        return None;
+    }
+
+    // **The rotation.** 70% of the time the top threat is knocked down to 500
+    // *after* being chosen, so Baium does not lock onto one player for the whole
+    // fight — the next-highest gets a turn. Without it he would tunnel the
+    // single biggest damage dealer indefinitely.
+    if world.roll(100) < THREAT_DECAY_CHANCE {
+        if let Some(t) = world.objects.get_component_mut::<BaiumThreat>(&baium_oid) {
+            for slot in t.slots.iter_mut() {
+                if slot.0 == target {
+                    slot.1 = THREAT_DECAY_TO;
+                }
+            }
+        }
+    }
+
+    let skill = choose_skill(world, baium_oid);
+    Some((target, skill))
+}
+
+/// Clear the entry for any attacker that has died or run beyond 9000 units —
+/// so a fled or dead player stops holding a slot the living could use.
+fn prune_threat(world: &mut World, baium_oid: i32) {
+    let Some(t) = world.objects.get_component::<BaiumThreat>(&baium_oid).copied() else { return };
+    let boss_pos = world.objects.get_component::<crate::model::components::Position>(&baium_oid).copied();
+    let mut cleared = [false; 3];
+    for (i, (oid, _)) in t.slots.iter().enumerate() {
+        if *oid == 0 {
+            continue;
+        }
+        let dead = world
+            .objects
+            .get_component::<crate::model::components::Vitals>(oid)
+            .is_none_or(|v| v.dead);
+        let far = match (boss_pos, world.objects.get_component::<crate::model::components::Position>(oid)) {
+            (Some(a), Some(b)) => {
+                let (dx, dy, dz) = ((a.x - b.x) as f64, (a.y - b.y) as f64, (a.z - b.z) as f64);
+                (dx * dx + dy * dy + dz * dz).sqrt() > THREAT_RANGE
+            }
+            _ => true,
+        };
+        cleared[i] = dead || far;
+    }
+    if let Some(t) = world.objects.get_component_mut::<BaiumThreat>(&baium_oid) {
+        for (i, c) in cleared.iter().enumerate() {
+            if *c {
+                t.slots[i].1 = 0;
+            }
+        }
+    }
+}
+
+/// The skill ladder. Each 10% roll is taken **in order**, and the pool widens
+/// as Baium weakens: two options above 75%, three above 50%, four above 25%,
+/// and all four below — with `BAIUM_ATTACK` as the fallback throughout.
+///
+/// So a party sees Baium's repertoire grow as the fight goes on, which is the
+/// same shape as his threat weighting.
+fn choose_skill(world: &mut World, baium_oid: i32) -> i32 {
+    let (cur, max) = match world.objects.get_component::<crate::model::components::Vitals>(&baium_oid) {
+        Some(v) => (v.cur_hp, v.max_hp as f64),
+        None => return BAIUM_ATTACK,
+    };
+    // Java's ladders share a tail, so the pool is expressed as the list of
+    // skills tried before falling back — top band first.
+    let pool: &[i32] = if cur > max * 0.75 {
+        &[ENERGY_WAVE, EARTH_QUAKE]
+    } else if cur > max * 0.5 {
+        &[GROUP_HOLD, ENERGY_WAVE, EARTH_QUAKE]
+    } else if cur > max * 0.25 {
+        &[THUNDERBOLT, GROUP_HOLD, ENERGY_WAVE, EARTH_QUAKE]
+    } else {
+        &[THUNDERBOLT, GROUP_HOLD, ENERGY_WAVE, EARTH_QUAKE]
+    };
+    for skill in pool {
+        if world.roll(100) < 10 {
+            return *skill;
+        }
+    }
+    BAIUM_ATTACK
+}

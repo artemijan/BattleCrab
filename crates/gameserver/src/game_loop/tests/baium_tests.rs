@@ -225,3 +225,126 @@ fn an_existing_entry_is_not_ratcheted_by_small_hits() {
     crate::game_loop::baium::refresh_threat(&mut world, BAIUM_OID, PLAYER, 50, 50);
     assert_eq!(threat(&world, BAIUM_OID)[0].1, after_big, "a small hit does not move a large threat");
 }
+
+// ---------------------------------------------------------------------------
+// Skill selection (slice 13)
+// ---------------------------------------------------------------------------
+
+const BAIUM_ATTACK: i32 = 4127;
+const ENERGY_WAVE: i32 = 4128;
+const EARTH_QUAKE: i32 = 4129;
+const THUNDERBOLT: i32 = 4130;
+const GROUP_HOLD: i32 = 4131;
+
+/// Put an attacker on the table next to Baium so it survives pruning.
+fn seed_threat(world: &mut World, oid: i32, value: i32) {
+    add_test_npc(world, oid, ARCHANGEL, "Monster", 75, 20, 0, 0);
+    world.forced_rolls.push_back(0);
+    crate::game_loop::baium::refresh_threat(world, BAIUM_OID, oid, value, value);
+}
+
+/// Baium acts on the **highest** threat.
+#[test]
+fn baium_targets_the_highest_threat() {
+    let (mut world, _db, _l) = baium_world();
+    add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
+    seed_threat(&mut world, 201, 100);
+    seed_threat(&mut world, 202, 9_000);
+    seed_threat(&mut world, 203, 500);
+
+    world.forced_rolls.push_back(99); // skip the decay
+    world.forced_rolls.push_back(99); // and the skill rolls
+    world.forced_rolls.push_back(99);
+    let (target, _) = crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).expect("a target");
+    assert_eq!(target, 202, "the biggest threat");
+}
+
+/// **The rotation**: 70% of the time the chosen threat is knocked down to 500,
+/// so Baium doesn't tunnel one player for the whole fight.
+#[test]
+fn the_top_threat_is_knocked_down_so_others_get_a_turn() {
+    let (mut world, _db, _l) = baium_world();
+    add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
+    seed_threat(&mut world, 201, 9_000);
+    seed_threat(&mut world, 202, 4_000);
+
+    world.forced_rolls.push_back(10); // < 70: the decay fires
+    for _ in 0..4 {
+        world.forced_rolls.push_back(99);
+    }
+    crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID);
+
+    let slots = threat(&world, BAIUM_OID);
+    let top = slots.iter().find(|(id, _)| *id == 201).unwrap().1;
+    assert_eq!(top, 500, "knocked down");
+    let other = slots.iter().find(|(id, _)| *id == 202).unwrap().1;
+    assert!(other > top, "so the next player is now the biggest threat");
+}
+
+/// A dead or fled attacker stops holding a slot.
+#[test]
+fn dead_and_distant_attackers_are_pruned() {
+    let (mut world, _db, _l) = baium_world();
+    add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
+    seed_threat(&mut world, 201, 9_000);
+    seed_threat(&mut world, 202, 4_000);
+    world.objects.get_component_mut::<Vitals>(&201).unwrap().dead = true;
+    world.objects.get_component_mut::<Position>(&202).unwrap().x = 999_999;
+    seed_threat(&mut world, 203, 100);
+
+    world.forced_rolls.push_back(99);
+    for _ in 0..4 {
+        world.forced_rolls.push_back(99);
+    }
+    let (target, _) = crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).expect("a target");
+    assert_eq!(target, 203, "the only live, nearby attacker — despite the lowest raw threat");
+}
+
+/// **The skill pool widens as Baium weakens.** Above 75% he has two options
+/// beyond his basic attack; below 25% he has four. Each roll is forced to miss
+/// so the fallback is reached, then forced to hit so the *first* option of each
+/// band is revealed.
+#[test]
+fn the_skill_pool_widens_as_baium_weakens() {
+    let first_option_at = |fraction: f64| {
+        let (mut world, _db, _l) = baium_world();
+        add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
+        seed_threat(&mut world, 201, 9_000);
+        {
+            let v = world.objects.get_component_mut::<Vitals>(&BAIUM_OID).unwrap();
+            v.cur_hp = v.max_hp as f64 * fraction;
+        }
+        world.forced_rolls.push_back(99); // skip the decay
+        world.forced_rolls.push_back(5); // the first skill roll hits
+        crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).unwrap().1
+    };
+
+    assert_eq!(first_option_at(1.0), ENERGY_WAVE, "above 75%: Energy Wave leads");
+    assert_eq!(first_option_at(0.6), GROUP_HOLD, "below 75%: Group Hold joins and leads");
+    assert_eq!(first_option_at(0.4), THUNDERBOLT, "below 50%: Thunderbolt joins and leads");
+    assert_eq!(first_option_at(0.1), THUNDERBOLT, "below 25%: the full repertoire");
+}
+
+/// Every roll missing falls back to the basic attack — the common case.
+#[test]
+fn all_rolls_missing_falls_back_to_the_basic_attack() {
+    let (mut world, _db, _l) = baium_world();
+    add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
+    seed_threat(&mut world, 201, 9_000);
+
+    world.forced_rolls.push_back(99); // no decay
+    for _ in 0..4 {
+        world.forced_rolls.push_back(99); // every skill roll misses
+    }
+    let (_, skill) = crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).unwrap();
+    assert_eq!(skill, BAIUM_ATTACK);
+    let _ = (EARTH_QUAKE,);
+}
+
+/// An empty table means nothing to act on.
+#[test]
+fn an_empty_threat_table_yields_no_action() {
+    let (mut world, _db, _l) = baium_world();
+    add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
+    assert!(crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).is_none());
+}
