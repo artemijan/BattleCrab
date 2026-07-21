@@ -224,3 +224,151 @@ fn spawning_starts_the_cinematic_not_the_waves() {
         "no adds before the fight begins"
     );
 }
+
+// ---------------------------------------------------------------------------
+// The entry gate (slice 18)
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::antharas::{EntryVerdict, PORTAL_STONE};
+
+const LEADER: i32 = 9940;
+const MEMBER: i32 = 9941;
+
+fn gate_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+    let (mut world, db, l) = antharas_world();
+    world.grand_bosses.insert(
+        ANTHARAS,
+        crate::model::grand_boss::GrandBoss {
+            boss_id: ANTHARAS,
+            loc_x: 0,
+            loc_y: 0,
+            loc_z: 0,
+            heading: 0,
+            respawn_time: 0,
+            current_hp: 0.0,
+            current_mp: 0.0,
+            status: 0, // ALIVE — entry open
+        },
+    );
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = PORTAL_STONE;
+    t.name = "Portal Stone".into();
+    t.is_stackable = true;
+    world.data.item_data.insert_for_test(t);
+    (world, db, l)
+}
+
+fn give_stone(world: &mut World, oid: i32) {
+    let World { data, objects, .. } = world;
+    objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&oid)
+        .unwrap()
+        .add_item(&data.item_data, 7_900_000 + oid, PORTAL_STONE, 1);
+}
+
+/// A solo player with a Portal Stone gets in.
+#[test]
+fn a_solo_player_with_a_stone_is_admitted() {
+    let (mut world, _db, _l) = gate_world();
+    let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
+    give_stone(&mut world, LEADER);
+
+    assert_eq!(crate::game_loop::antharas::try_enter(&mut world, LEADER), EntryVerdict::Admitted(vec![LEADER]));
+}
+
+/// Without the stone, nobody enters.
+#[test]
+fn no_stone_no_entry() {
+    let (mut world, _db, _l) = gate_world();
+    let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
+
+    assert_eq!(crate::game_loop::antharas::try_enter(&mut world, LEADER), EntryVerdict::NoStone);
+}
+
+/// A dead or already-fighting Antharas refuses everyone, stone or not — and
+/// **before** the stone is even checked, so the player is told the real reason.
+#[test]
+fn the_boss_state_is_checked_before_the_ticket() {
+    for (status, expected) in [(3, EntryVerdict::BossDead), (2, EntryVerdict::AlreadyFighting)] {
+        let (mut world, _db, _l) = gate_world();
+        let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
+        // No stone: if the ladder were reordered this would report NoStone.
+        world.grand_bosses.get_mut(&ANTHARAS).unwrap().status = status;
+
+        assert_eq!(crate::game_loop::antharas::try_enter(&mut world, LEADER), expected);
+    }
+}
+
+/// **Only the leader may bring a group in.** A member who talks to the Heart
+/// is refused rather than entering alone.
+#[test]
+fn a_party_member_cannot_let_the_group_in() {
+    let (mut world, _db, _l) = gate_world();
+    let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
+    let _rx2 = ingame_caster(&mut world, 2, MEMBER, 20, 0);
+    make_party(&mut world, &[LEADER, MEMBER], LootRule::FindersKeepers);
+    give_stone(&mut world, MEMBER);
+
+    assert_eq!(crate::game_loop::antharas::try_enter(&mut world, MEMBER), EntryVerdict::NotLeader);
+}
+
+/// The leader brings the party — but **only members gathered at the Heart**.
+#[test]
+fn the_leader_brings_only_nearby_members() {
+    let (mut world, _db, _l) = gate_world();
+    let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
+    let _rx2 = ingame_caster(&mut world, 2, MEMBER, 20, 0);
+    let straggler = MEMBER + 1;
+    let _rx3 = ingame_caster(&mut world, 3, straggler, 0, 0);
+    world.objects.get_component_mut::<Position>(&straggler).unwrap().x = 500_000;
+    make_party(&mut world, &[LEADER, MEMBER, straggler], LootRule::FindersKeepers);
+    give_stone(&mut world, LEADER);
+
+    match crate::game_loop::antharas::try_enter(&mut world, LEADER) {
+        EntryVerdict::Admitted(v) => {
+            assert!(v.contains(&LEADER) && v.contains(&MEMBER), "the gathered two came");
+            assert!(!v.contains(&straggler), "the one who wandered off did not");
+        }
+        other => panic!("expected admission, got {other:?}"),
+    }
+}
+
+/// **A group that would overfill the lair is refused outright**, not admitted
+/// up to the limit — a raid is never split in half by the doorway.
+///
+/// Reached via `try_enter_with_occupancy`, which exists precisely so this rung
+/// is testable: filling a 200-player lair for real is impractical, and a branch
+/// no test can reach is a branch nothing checks.
+#[test]
+fn a_group_too_large_for_the_remaining_room_is_refused() {
+    let (mut world, _db, _l) = gate_world();
+    let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
+    let _rx2 = ingame_caster(&mut world, 2, MEMBER, 20, 0);
+    make_party(&mut world, &[LEADER, MEMBER], LootRule::FindersKeepers);
+    give_stone(&mut world, LEADER);
+
+    // 199 already inside: room for one, and the party is two.
+    assert_eq!(
+        crate::game_loop::antharas::try_enter_with_occupancy(&mut world, LEADER, 199),
+        EntryVerdict::LairFull,
+        "refused outright rather than admitting only the leader"
+    );
+    // Room for both, and they get in.
+    assert!(matches!(
+        crate::game_loop::antharas::try_enter_with_occupancy(&mut world, LEADER, 198),
+        EntryVerdict::Admitted(_)
+    ));
+}
+
+/// A full lair refuses before anything else is considered.
+#[test]
+fn a_full_lair_refuses_immediately() {
+    let (mut world, _db, _l) = gate_world();
+    let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
+    give_stone(&mut world, LEADER);
+
+    assert_eq!(
+        crate::game_loop::antharas::try_enter_with_occupancy(&mut world, LEADER, 200),
+        EntryVerdict::LairFull
+    );
+}
