@@ -50,7 +50,10 @@ export function Button({
 }: ButtonProps) {
   const base =
     "relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl px-5 py-2.5 " +
-    "text-sm font-semibold transition-[transform,box-shadow,background-color,opacity] duration-200 " +
+    // v4 compiles -translate-y/scale to the `translate`/`scale` properties,
+    // so both must be named here or the hover lift will not animate.
+    "text-sm font-semibold duration-200 " +
+    "transition-[translate,scale,box-shadow,background-color,opacity] " +
     "disabled:cursor-not-allowed disabled:opacity-55 " +
     "not-disabled:hover:-translate-y-0.5 not-disabled:active:translate-y-0 not-disabled:active:scale-[0.99]";
 

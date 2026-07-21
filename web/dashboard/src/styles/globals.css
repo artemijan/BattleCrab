@@ -90,14 +90,22 @@
 /* ---------------------------------------------------------------------------
    Base
    --------------------------------------------------------------------------- */
-* {
-  /* Theme switching animates surfaces rather than snapping. Deliberately not
-     `transition: all` — that would drag layout properties into the animation
-     and make every hover janky. */
-  transition:
-    background-color 0.35s var(--ease-out-soft),
-    border-color 0.35s var(--ease-out-soft),
-    color 0.25s var(--ease-out-soft);
+@layer base {
+  * {
+    /* Theme switching animates surfaces rather than snapping. Deliberately not
+       `transition: all` — that would drag layout properties into the animation
+       and make every hover janky.
+
+       This MUST stay inside `@layer base`. Unlayered rules beat layered ones in
+       the cascade, so while this was unlayered it silently overrode the
+       `transition-*` utility on *every* element: computed transition-property
+       came out as this list no matter what a component asked for, and every
+       hover effect in the app snapped instead of easing. */
+    transition:
+      background-color 0.35s var(--ease-out-soft),
+      border-color 0.35s var(--ease-out-soft),
+      color 0.25s var(--ease-out-soft);
+  }
 }
 
 html,
