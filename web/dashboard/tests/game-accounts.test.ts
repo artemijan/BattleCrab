@@ -126,13 +126,16 @@ describe("game accounts", () => {
     });
 
     // Read back the rendered grouping: heading -> the names beneath it.
+    // Keyed off each account's region rather than by walking siblings, so
+    // wrapping the list for animation does not break the walk.
     const grouped = await page.evaluate(() => {
       const out: Record<string, string[]> = {};
-      for (const panel of document.querySelectorAll("section ul")) {
-        const header = panel.previousElementSibling;
-        const login = header?.querySelector("p")?.textContent?.trim();
+      for (const region of document.querySelectorAll('[id^="game-account-"]')) {
+        // The heading is what the user actually reads the login from, so take
+        // it from there rather than from the id we generated.
+        const login = region.previousElementSibling?.querySelector("p")?.textContent?.trim();
         if (!login) continue;
-        out[login] = [...panel.querySelectorAll("li p:first-child")].map((n) =>
+        out[login] = [...region.querySelectorAll("li p:first-child")].map((n) =>
           (n.textContent ?? "").trim(),
         );
       }
@@ -146,8 +149,8 @@ describe("game accounts", () => {
       alice2: ["Mage"],
     });
 
-    // alice3 has no characters, so it renders no <ul> at all — but the account
-    // itself must still be on the page, with its own empty state.
+    // alice3 has no characters, so it gets no collapsible region at all — but
+    // the account itself must still be on the page, with its own empty state.
     expect(bodyText).toContain("alice3");
     expect(bodyText).toContain("No characters");
   });
@@ -185,28 +188,81 @@ describe("game accounts", () => {
     expect(await toggle.getAttribute("aria-expanded")).toBe("true");
 
     await toggle.click();
-    await page.waitForTimeout(150);
+    // Past the 300ms transition, so this measures the resting state.
+    await page.waitForTimeout(600);
 
-    const after = await page.evaluate(() => ({
-      alice1Visible: !!document.querySelector("#game-account-alice1"),
-      alice2Visible: !!document.querySelector("#game-account-alice2"),
-      expanded: document
-        .querySelector('button[aria-controls="game-account-alice1"]')
-        ?.getAttribute("aria-expanded"),
-      body: document.body.textContent ?? "",
-    }));
+    // The list stays in the DOM to be animated, so "hidden" is a measurement,
+    // not an absence. `inert` is what carries the meaning unmounting used to:
+    // no focus, and out of the accessibility tree.
+    const after = await page.evaluate(() => {
+      const region = (login: string) => document.querySelector(`#game-account-${login}`);
+      return {
+        alice1Height: region("alice1")?.getBoundingClientRect().height ?? -1,
+        alice2Height: region("alice2")?.getBoundingClientRect().height ?? -1,
+        alice1Inert: (region("alice1") as HTMLElement | null)?.hasAttribute("inert"),
+        alice2Inert: (region("alice2") as HTMLElement | null)?.hasAttribute("inert"),
+        expanded: document
+          .querySelector('button[aria-controls="game-account-alice1"]')
+          ?.getAttribute("aria-expanded"),
+        body: document.body.textContent ?? "",
+      };
+    });
     await page.close();
 
-    expect(after.alice1Visible).toBe(false);
+    expect(after.alice1Height).toBe(0);
+    expect(after.alice1Inert).toBe(true);
     expect(after.expanded).toBe("false");
+
     // Collapsing one panel must not touch its neighbour.
-    expect(after.alice2Visible).toBe(true);
+    expect(after.alice2Height).toBeGreaterThan(0);
+    expect(after.alice2Inert).toBe(false);
     expect(after.body).toContain("Mage");
-    expect(after.body).not.toContain("Warrior");
+
     // The count is what is left to judge a collapsed account by, so it stays.
     expect(after.body).toContain("1 character");
-    // And the account itself is obviously still listed.
     expect(after.body).toContain("alice1");
+  });
+
+  /**
+   * The collapse has to be driven by a transition rather than a class that
+   * simply swaps the end states — that would pass every height assertion above
+   * while snapping shut.
+   */
+  test("the collapse is animated rather than snapping", async () => {
+    if (skip()) return;
+
+    const page = await openAccountPage({
+      gameAccounts: ["alice1"],
+      characters: [
+        character("alice1", "Warrior", 40),
+        character("alice1", "Healer", 22),
+        character("alice1", "Rogue", 31),
+      ],
+    });
+
+    const style = await page.evaluate(() => {
+      const region = document.querySelector("#game-account-alice1")!;
+      const computed = getComputedStyle(region);
+      return {
+        property: computed.transitionProperty,
+        duration: computed.transitionDuration,
+        fullHeight: region.getBoundingClientRect().height,
+      };
+    });
+
+    // Mid-flight: partway shut, but neither end state yet.
+    await page.locator('button[aria-controls="game-account-alice1"]').click();
+    await page.waitForTimeout(120);
+    const midHeight = await page.evaluate(
+      () => document.querySelector("#game-account-alice1")!.getBoundingClientRect().height,
+    );
+    await page.close();
+
+    expect(style.property).toContain("grid-template-rows");
+    expect(style.duration).not.toBe("0s");
+    expect(style.fullHeight).toBeGreaterThan(0);
+    expect(midHeight).toBeGreaterThan(0);
+    expect(midHeight).toBeLessThan(style.fullHeight);
   });
 
   test("a collapse survives a reload", async () => {
@@ -218,17 +274,17 @@ describe("game accounts", () => {
     });
 
     await page.locator('button[aria-controls="game-account-alice1"]').click();
-    await page.waitForTimeout(150);
+    await page.waitForTimeout(600);
     await page.reload({ waitUntil: "load" });
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(600);
 
     // A panel that springs back open on every visit is not really collapsible.
-    const stillCollapsed = await page.evaluate(
-      () => !document.querySelector("#game-account-alice1"),
+    const height = await page.evaluate(
+      () => document.querySelector("#game-account-alice1")?.getBoundingClientRect().height ?? -1,
     );
     await page.close();
 
-    expect(stillCollapsed).toBe(true);
+    expect(height).toBe(0);
   });
 
   test("an account with no characters has no collapse toggle", async () => {
