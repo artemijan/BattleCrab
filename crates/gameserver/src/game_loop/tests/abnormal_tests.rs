@@ -491,7 +491,7 @@ fn char_info_carries_the_visual_list() {
 
     let visuals_of = |world: &World| {
         let v = crate::model::PlayerView::of(&world.objects, VICTIM).expect("view");
-        server_packets::char_info(&v, &crate::game_loop::abnormal::visual_effects(world, VICTIM))
+        server_packets::char_info(&v, &crate::game_loop::abnormal::visual_effects(world, VICTIM), &[])
     };
 
     let before = visuals_of(&world);

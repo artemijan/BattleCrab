@@ -21,6 +21,7 @@ pub mod item_data;
 pub mod map_region;
 pub mod multisell_data;
 pub mod npc_ai_skills;
+pub mod cubic_data;
 pub mod npc_data;
 pub mod pet_data;
 pub mod player_template;
@@ -55,6 +56,7 @@ pub use item_data::ItemData;
 pub use map_region::MapRegionData;
 pub use multisell_data::MultisellData;
 pub use npc_ai_skills::{AiSkillScope, NpcAiSkillIndex, NpcAiSkills};
+pub use cubic_data::CubicData;
 pub use npc_data::NpcData;
 pub use player_template::PlayerTemplateData;
 pub use recipe_data::RecipeData;
@@ -148,6 +150,7 @@ pub struct GameData {
     pub initial_shortcuts: InitialShortcutData,
     pub skill_data: SkillData,
     pub npc_data: NpcData,
+    pub cubic_data: CubicData,
     /// Pet templates (collar → npc, food, hunger) — see [`pet_data::PetData`].
     pub pet_data: pet_data::PetData,
     /// Per-template AI skill buckets — see [`NpcAiSkillIndex`].
@@ -209,6 +212,7 @@ impl GameData {
         // (Java does the same bucketing inline at the end of `NpcData.parse`).
         let skill_data = SkillData::load_from(file_path);
         let npc_data = NpcData::load_from(file_path);
+        let cubic_data = CubicData::load_from(file_path);
         let npc_ai_skills = NpcAiSkillIndex::build(&npc_data, &skill_data);
         Self {
             root: file_path.to_string(),
@@ -223,6 +227,7 @@ impl GameData {
             initial_shortcuts: InitialShortcutData::load_from(file_path),
             skill_data,
             npc_data,
+            cubic_data,
             pet_data: pet_data::PetData::load_from(file_path),
             npc_ai_skills,
             spawn_data: SpawnData::load_from(file_path),
@@ -275,6 +280,7 @@ impl GameData {
             initial_shortcuts: InitialShortcutData::empty(),
             skill_data: SkillData::empty(),
             npc_data: NpcData::empty(),
+            cubic_data: CubicData::empty(),
             pet_data: Default::default(),
             npc_ai_skills: NpcAiSkillIndex::default(),
             spawn_data: SpawnData::empty(),

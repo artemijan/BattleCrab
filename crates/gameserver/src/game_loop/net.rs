@@ -55,6 +55,8 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     // later slice, so for now it simply goes away with them — which is at
     // least better than leaking an ownerless NPC into the world.
     super::servitor::on_owner_leave_world(world, player_object_id);
+    // Cubics do not outlive their owner; nothing persists them.
+    super::cubic::on_owner_leave_world(world, player_object_id);
     // deleteMe → clan.broadcastToOnlineMembers(PledgeShowMemberListUpdate offline).
     {
         let clan_id = world

@@ -255,6 +255,9 @@ pub enum SkillEffect {
     /// not ported, so only `normal` is carried.
     /// TODO(G29): apply `ride`/`wyvern` when mounts land.
     Feed { normal: i32 },
+
+    /// `SummonCubic` — attaches a cubic to the caster (see `game_loop/cubic`).
+    SummonCubic { cubic_id: i32, cubic_level: i32 },
     MpRestore { amount: f64, percent: bool },
     /// `handlers/effecthandlers/MagicalAttackMp.java` — an MP drain (Mana Burn
     /// 1398, Mana Storm 1399, Aura Sink 1102, Seal of Gloom 1210). Damage is

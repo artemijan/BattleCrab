@@ -26,6 +26,27 @@ fn describe_state(observer: &ClientSession, p: &Player, pos: &Position, movement
     }
 }
 
+/// Re-send a player's `CharInfo` to everyone who can currently see them.
+///
+/// Used when a field that only `CharInfo` carries changes — the cubic id list
+/// has no incremental packet on this chronicle, so the whole record goes again.
+pub(crate) fn refresh_char_info(world: &World, player_id: i32) {
+    use crate::model::components::RegionCell;
+    let Some(from) = world.objects.get_component::<RegionCell>(&player_id).copied() else { return };
+    for cs in world.clients.values() {
+        if let ClientSession::InGame(s) = cs {
+            let other_id = s.player_object_id();
+            if other_id == player_id {
+                continue;
+            }
+            let Some(other) = world.objects.get_component::<RegionCell>(&other_id) else { continue };
+            if crate::world::regions_adjacent(from.0, other.0) {
+                send_char_info(world, cs, player_id);
+            }
+        }
+    }
+}
+
 /// `CharInfo` + follow-up state for one player, to one observer session.
 /// A GM with `//hide` on (`AdminFlags.hidden`) is not described to others —
 /// Java's `isInvisible()` filter in `Creature.broadcastInfo`/knownlist.
@@ -38,7 +59,12 @@ fn send_char_info(world: &World, observer: &ClientSession, player_id: i32) {
         return;
     }
     let Some(v) = crate::model::PlayerView::of(&world.objects, player_id) else { return };
-    observer.send(server_packets::char_info(&v, &super::abnormal::visual_effects(world, player_id)));
+    let cubics = world
+        .objects
+        .get_component::<super::cubic::Cubics>(&player_id)
+        .map(|c| c.ids())
+        .unwrap_or_default();
+    observer.send(server_packets::char_info(&v, &super::abnormal::visual_effects(world, player_id), &cubics));
     // Java `Player.sendInfo` pairs each CharInfo with a RelationChanged, so the
     // viewer learns the relation bits CharInfo can't carry — notably the
     // clan-leader crown (`RELATION_LEADER`). Without it a leader shows no crown

@@ -72,7 +72,7 @@ const CHAR_INFO_PAPERDOLL_ORDER_VISUAL_ID: [PaperdollSlot; 9] = [
 /// `visuals` is the creature's live abnormal-visual client-id list
 /// (`game_loop::abnormal::visual_effects`), passed in rather than read off the
 /// view because `PlayerView` carries no `Buffs`.
-pub fn char_info(v: &crate::model::PlayerView, visuals: &[i16]) -> Vec<u8> {
+pub fn char_info(v: &crate::model::PlayerView, visuals: &[i16], cubics: &[i32]) -> Vec<u8> {
     let crate::model::PlayerView { p, pos, vitals, pvitals, speeds, collision, combat, inventory, .. } = v;
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::CHAR_INFO);
@@ -134,7 +134,13 @@ pub fn char_info(v: &crate::model::PlayerView, visuals: &[i16]) -> Vec<u8> {
     w.write_u8(0); // invisible
     w.write_u8(p.mount_type); // mount type (1 strider, 2 wyvern, 3 wolf, 0 none)
     w.write_u8(p.store_type); // private store type
-    w.write_i16(0); // cubic count (+ cubic ids)
+    // Cubic count then one short per cubic id. This was hard-coded to 0, so a
+    // summoned cubic was invisible to every other player — the same shape as
+    // the abnormal-visual-effect count before G19 fixed it.
+    w.write_i16(cubics.len() as i16);
+    for id in cubics {
+        w.write_i16(*id as i16);
+    }
     w.write_u8(0); // in matching room
     w.write_u8(if p.mount_type == 2 { 2 } else { 0 }); // 1 water, 2 flying mount (wyvern)
     w.write_i16(p.rec_have as i16); // recom have
