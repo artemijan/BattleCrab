@@ -52,6 +52,7 @@ mod grand_boss;
 mod core_boss;
 mod orfen;
 mod queen_ant;
+mod valakas;
 mod raid_curse;
 mod servitor;
 mod shortcuts;
