@@ -101,11 +101,39 @@ export function Header({ account }: { account?: { email: string | null } | null 
 
   const logout = useMutation({
     mutationFn: () => api.logout(),
-    // Clear cached account/character data on the way out so a subsequent login
-    // as a different account can't flash the previous one's characters.
+    // onSettled, not onSuccess: if the request fails we are still logging out
+    // locally, and leaving the UI signed in would strand the user.
     onSettled: () => {
-      queryClient.clear();
+      // Leave the guarded page BEFORE clearing the session, in that order.
+      //
+      // Both updates flush in one render, and at that point the router has to
+      // already be on "/". Clearing first means RequireAuth re-renders while
+      // still mounted on /account, sees no session and redirects to /login —
+      // so logging out dumps the user on a "please sign in" screen instead of
+      // the home page. Masked until now by the stale-cache bug below, which
+      // left RequireAuth reading a session that was supposedly gone.
       navigate("/");
+
+      // Write the signed-out session rather than dropping it.
+      //
+      // This used to be `queryClient.clear()`, which is why the header kept
+      // showing the old address after logging out: clear() removes the query
+      // objects, but observers that are already mounted stay bound to the
+      // removed one and go on rendering the last result it gave them. A
+      // component mounting *after* the clear got a fresh observer and the right
+      // answer, so the landing page updated while the header did not — the two
+      // disagreeing on the same page is the tell.
+      //
+      // Setting the value notifies the live observers instead of orphaning
+      // them, and null is the truth here, so there is nothing to re-fetch.
+      queryClient.setQueryData(["me"], null);
+
+      // Everything else is account-scoped — characters, game accounts — and
+      // must not survive into the next login, or signing in as someone else
+      // flashes the previous account's data. A predicate rather than a list of
+      // keys so a query added later is dropped without anyone remembering to
+      // come back here.
+      queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== "me" });
     },
   });
 
