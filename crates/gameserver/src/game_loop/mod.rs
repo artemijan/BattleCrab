@@ -49,6 +49,7 @@ pub(crate) mod regen;
 mod shop;
 mod cubic;
 mod grand_boss;
+mod baium;
 mod core_boss;
 mod orfen;
 mod queen_ant;
