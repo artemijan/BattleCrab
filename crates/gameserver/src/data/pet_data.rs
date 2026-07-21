@@ -49,6 +49,12 @@ pub struct PetLevel {
     pub max_mp: f64,
     pub regen_hp: f64,
     pub regen_mp: f64,
+    /// `soulshot_count` / `spiritshot_count` — how many of the **owner's**
+    /// Beast shots one of this pet's swings consumes (Java
+    /// `Pet.getSoulShotsPerHit`). Grows with level, so a high-level pet is
+    /// markedly more expensive to keep shotted.
+    pub soulshot_count: i32,
+    pub spiritshot_count: i32,
 }
 
 /// Port of `model/actor/templates/PetData` — one pet species.
@@ -223,6 +229,8 @@ fn parse_str(content: &str, by_npc: &mut HashMap<i32, PetTemplate>, by_item: &mu
                                 "org_hp" => row.max_hp = val.parse().unwrap_or(0.0),
                                 "org_mp" => row.max_mp = val.parse().unwrap_or(0.0),
                                 "org_hp_regen" => row.regen_hp = val.parse().unwrap_or(0.0),
+                                "soulshot_count" => row.soulshot_count = val.parse().unwrap_or(0),
+                                "spiritshot_count" => row.spiritshot_count = val.parse().unwrap_or(0),
                                 "org_mp_regen" => row.regen_mp = val.parse().unwrap_or(0.0),
                                 "consume_meal_in_normal" => row.consume_meal_in_normal = val.parse().unwrap_or(0),
                                 "consume_meal_in_battle" => row.consume_meal_in_battle = val.parse().unwrap_or(0),
@@ -283,6 +291,8 @@ mod tests {
         assert_eq!(l1.max_mp, 20.0, "org_mp");
         assert_eq!(l1.regen_hp, 2.0, "org_hp_regen");
         assert!((l1.regen_mp - 0.9).abs() < 1e-9, "org_mp_regen: {}", l1.regen_mp);
+        assert_eq!(l1.soulshot_count, 1, "soulshot_count");
+        assert_eq!(l1.spiritshot_count, 1, "spiritshot_count");
         assert_eq!(l1.owner_exp_taken, 73, "get_exp_type is the owner's percentage share");
 
         // Growth is the whole point: a higher level must be strictly stronger.
@@ -291,6 +301,12 @@ mod tests {
         assert!(ltop.p_atk > l1.p_atk, "p.atk grows with level ({} → {})", l1.p_atk, ltop.p_atk);
         assert!(ltop.max_hp > l1.max_hp, "HP grows with level ({} → {})", l1.max_hp, ltop.max_hp);
         assert!(ltop.regen_hp > l1.regen_hp, "regen grows with level ({} → {})", l1.regen_hp, ltop.regen_hp);
+        assert!(
+            ltop.soulshot_count > l1.soulshot_count,
+            "shot cost grows with level ({} → {})",
+            l1.soulshot_count,
+            ltop.soulshot_count
+        );
         assert_eq!(wolf.max_meal(1), 248, "level 1 food capacity");
 
         // The collar lookup is what `SummonPet` uses.

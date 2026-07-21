@@ -1029,11 +1029,14 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
 
     // Java `doAttack`: "Always try to charge soulshots" before the swing —
     // the auto-use toggle re-charges the physical shot if the player set one.
-    if !is_npc_oid(attacker_oid)
-        && !world
-            .objects
-            .get_component::<crate::model::Player>(&attacker_oid)
-            .is_some_and(|p| p.is_charged_shot(crate::model::ShotType::Soulshots))
+    if is_npc_oid(attacker_oid) {
+        // A **summon** charges from its owner's Beast shots (Java
+        // `Summon.rechargeShots`); a plain monster has no owner and no-ops.
+        super::servitor::recharge_shots(world, attacker_oid, true);
+    } else if !world
+        .objects
+        .get_component::<crate::model::Player>(&attacker_oid)
+        .is_some_and(|p| p.is_charged_shot(crate::model::ShotType::Soulshots))
     {
         super::items::recharge_shots(world, attacker_oid, true, false);
     }
@@ -1051,10 +1054,14 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     } else {
         // `generateHit`: a charged soulshot is spent on a non-miss and doubles
         // the swing (`unchargeShot(SOULSHOTS)` → `ss` into `calcAutoAttackDamage`).
-        let ss = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&attacker_oid)
-            .is_some_and(|p| p.uncharge_shot(crate::model::ShotType::Soulshots));
+        let ss = if is_npc_oid(attacker_oid) {
+            super::servitor::uncharge_soulshot(world, attacker_oid)
+        } else {
+            world
+                .objects
+                .get_component_mut::<crate::model::Player>(&attacker_oid)
+                .is_some_and(|p| p.uncharge_shot(crate::model::ShotType::Soulshots))
+        };
         // Shield block (`calcShldUse`): a back attack (attacker outside the 120°
         // front arc) can't be blocked; melee only until bows land (G20).
         let from_behind = matches!(position, crate::model::movement::Position::Back);
