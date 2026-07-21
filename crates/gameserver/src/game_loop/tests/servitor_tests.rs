@@ -1239,6 +1239,16 @@ fn wolf_with_exp_curve(world: &mut World) {
                 // The owner keeps 73%, so the pet takes 27% — the real value
                 // on this species.
                 owner_exp_taken: 73,
+                // Level 2 is strictly stronger, so "did levelling do anything?"
+                // is answerable rather than vacuous.
+                p_atk: 10.0 * lvl as f64,
+                m_atk: 8.0 * lvl as f64,
+                p_def: 20.0 * lvl as f64,
+                m_def: 15.0 * lvl as f64,
+                max_hp: 100.0 * lvl as f64,
+                max_mp: 50.0 * lvl as f64,
+                regen_hp: 2.0,
+                regen_mp: 0.9,
             },
         );
     }
@@ -1385,4 +1395,87 @@ fn the_reward_path_actually_splits_with_the_pet() {
     assert_eq!(pet_fed, 270, "a nearby pet takes 27% of the kill");
     assert_eq!(owner_alone, 1000, "without a pet in range the owner keeps it all");
     assert_eq!(owner_shared, 730, "with a pet in range the owner keeps only 73%");
+}
+
+// ---------------------------------------------------------------------------
+// Pet stats (slice 13)
+// ---------------------------------------------------------------------------
+
+fn combat(world: &World, oid: i32) -> crate::model::components::CombatStats {
+    *world.objects.get_component::<crate::model::components::CombatStats>(&oid).unwrap()
+}
+
+/// A pet's stats come from its **per-level pet row**, not its NPC template.
+/// The Wolf's NPC fixture is level 1 with 300 HP; its pet row says 100.
+#[test]
+fn a_pets_stats_come_from_the_pet_table_not_the_npc_template() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+
+    let max_hp = world.objects.get_component::<Vitals>(&pet_oid).unwrap().max_hp;
+    let template_hp = world.data.npc_data.get(WOLF_NPC).unwrap().base_hp_max;
+    assert_ne!(
+        max_hp as f64, template_hp,
+        "the NPC template's HP ({template_hp}) must not be what the pet uses"
+    );
+    assert!(max_hp > 0, "and the pet has real HP ({max_hp})");
+}
+
+/// The point of the whole slice: levelling has to make the pet *stronger*.
+/// Before this, the level number moved and every combat stat stayed put.
+#[test]
+fn levelling_makes_the_pet_stronger() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+
+    let before = combat(&world, pet_oid);
+    let hp_before = world.objects.get_component::<Vitals>(&pet_oid).unwrap().max_hp;
+
+    add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
+    assert_eq!(world.objects.get_component::<PetOf>(&pet_oid).unwrap().level, 2, "it levelled");
+
+    let after = combat(&world, pet_oid);
+    let hp_after = world.objects.get_component::<Vitals>(&pet_oid).unwrap().max_hp;
+    assert!(after.p_atk > before.p_atk, "p.atk grew ({} → {})", before.p_atk, after.p_atk);
+    assert!(after.m_atk > before.m_atk, "m.atk grew ({} → {})", before.m_atk, after.m_atk);
+    assert!(after.p_def > before.p_def, "p.def grew ({} → {})", before.p_def, after.p_def);
+    assert!(hp_after > hp_before, "max HP grew ({hp_before} → {hp_after})");
+}
+
+/// Levelling must neither heal nor wound the pet — Java's stat recompute keeps
+/// the bar where it was, and a level-up that silently full-heals would be a
+/// free heal on demand.
+#[test]
+fn levelling_preserves_the_hp_fraction() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    {
+        let v = world.objects.get_component_mut::<Vitals>(&pet_oid).unwrap();
+        v.cur_hp = v.max_hp as f64 / 2.0;
+    }
+
+    add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
+    let v = world.objects.get_component::<Vitals>(&pet_oid).unwrap();
+    let frac = v.cur_hp / v.max_hp as f64;
+    assert!((frac - 0.5).abs() < 0.01, "still at half health after levelling ({frac})");
+}
+
+/// A row missing a stat falls back to the NPC template rather than zeroing it.
+/// Without this a single datapack gap gives the pet 0 max HP — which is how
+/// this guard was found, when the shared fixture (no `org_hp`) produced a pet
+/// that restored at 0 HP.
+#[test]
+fn a_missing_stat_row_falls_back_to_the_npc_template() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    // `give_collar`'s fixture carries no combat stats at all.
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+
+    let max_hp = world.objects.get_component::<Vitals>(&pet_oid).unwrap().max_hp;
+    assert!(max_hp > 0, "fell back to the template instead of zeroing the pet");
 }
