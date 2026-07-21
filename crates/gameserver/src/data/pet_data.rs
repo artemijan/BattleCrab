@@ -35,6 +35,20 @@ pub struct PetLevel {
     /// pet gets nothing) so an unparsed species can't silently drain its
     /// owner's exp.
     pub owner_exp_taken: i32,
+
+    /// The per-level combat bases. A pet does **not** use its NPC template's
+    /// stats: Java's finalizers substitute these as the base value and then run
+    /// the *same* bonus math (`MaxHpFinalizer`, `PDefenseFinalizer`,
+    /// `IStatFunction.calcWeaponBaseValue`, …). Without them a levelled pet's
+    /// level number moved but it never got stronger.
+    pub p_atk: f64,
+    pub m_atk: f64,
+    pub p_def: f64,
+    pub m_def: f64,
+    pub max_hp: f64,
+    pub max_mp: f64,
+    pub regen_hp: f64,
+    pub regen_mp: f64,
 }
 
 /// Port of `model/actor/templates/PetData` — one pet species.
@@ -202,6 +216,14 @@ fn parse_str(content: &str, by_npc: &mut HashMap<i32, PetTemplate>, by_item: &mu
                                 // — the **owner's** percentage share; the pet
                                 // takes the remainder. 73 on most species.
                                 "get_exp_type" => row.owner_exp_taken = val.parse().unwrap_or(100),
+                                "org_pattack" => row.p_atk = val.parse().unwrap_or(0.0),
+                                "org_mattack" => row.m_atk = val.parse().unwrap_or(0.0),
+                                "org_pdefend" => row.p_def = val.parse().unwrap_or(0.0),
+                                "org_mdefend" => row.m_def = val.parse().unwrap_or(0.0),
+                                "org_hp" => row.max_hp = val.parse().unwrap_or(0.0),
+                                "org_mp" => row.max_mp = val.parse().unwrap_or(0.0),
+                                "org_hp_regen" => row.regen_hp = val.parse().unwrap_or(0.0),
+                                "org_mp_regen" => row.regen_mp = val.parse().unwrap_or(0.0),
                                 "consume_meal_in_normal" => row.consume_meal_in_normal = val.parse().unwrap_or(0),
                                 "consume_meal_in_battle" => row.consume_meal_in_battle = val.parse().unwrap_or(0),
                                 "exp" => row.exp = val.parse().unwrap_or(0),
@@ -249,6 +271,23 @@ mod tests {
         assert_eq!(wolf.item_id, 2375, "summoned by the Wolf Collar");
         assert_eq!(wolf.food_item_id, 2515, "eats Pet Food");
         assert_eq!(wolf.hungry_limit, 55);
+
+        // The per-level combat stats (slice 13) — a pet's real bases, which
+        // the finalizers substitute for the NPC template's. Fixtures can't
+        // catch a parse-arm slip here, so read the shipped Wolf.
+        let l1 = wolf.levels.get(&1).expect("Wolf level 1");
+        assert!((l1.p_atk - 2.118_644_068).abs() < 1e-6, "org_pattack: {}", l1.p_atk);
+        assert!((l1.m_atk - 1.446_759_259).abs() < 1e-6, "org_mattack: {}", l1.m_atk);
+        assert!((l1.p_def - 11.111_111_11).abs() < 1e-6, "org_pdefend: {}", l1.p_def);
+        assert!((l1.max_hp - 19.873).abs() < 1e-6, "org_hp: {}", l1.max_hp);
+        assert_eq!(l1.max_mp, 20.0, "org_mp");
+        assert_eq!(l1.owner_exp_taken, 73, "get_exp_type is the owner's percentage share");
+
+        // Growth is the whole point: a higher level must be strictly stronger.
+        let top = wolf.levels.keys().copied().max().expect("levels");
+        let ltop = wolf.levels.get(&top).unwrap();
+        assert!(ltop.p_atk > l1.p_atk, "p.atk grows with level ({} → {})", l1.p_atk, ltop.p_atk);
+        assert!(ltop.max_hp > l1.max_hp, "HP grows with level ({} → {})", l1.max_hp, ltop.max_hp);
         assert_eq!(wolf.max_meal(1), 248, "level 1 food capacity");
 
         // The collar lookup is what `SummonPet` uses.
