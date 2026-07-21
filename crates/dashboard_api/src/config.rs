@@ -15,7 +15,27 @@ pub const DASHBOARD_CONFIG_FILE: &str = "dist/game/config/Dashboard.ini";
 pub struct DashboardConfig {
     pub bind_address: String,
     pub port: u16,
+
+    /// The API's own public origin (e.g. `https://api.battlecrab.com`).
+    /// Only decides whether session cookies get the `Secure` flag.
     pub public_base_url: String,
+
+    /// Where the SPA is served (e.g. `https://battlecrab.com`).
+    ///
+    /// Distinct from `public_base_url` because password-reset and email
+    /// verification links must land on *frontend* routes; pointing them at the
+    /// API host would hand the user a URL with no page behind it.
+    pub site_base_url: String,
+
+    /// Browser origins allowed to call this API with credentials, as the raw
+    /// config string. Parsed by `cors::OriginPolicy`, which is where the
+    /// matching rules and their tests live.
+    ///
+    /// A bare domain means that domain and its subdomains over HTTPS; an entry
+    /// with a scheme is matched exactly. Never a wildcard: with
+    /// `Access-Control-Allow-Credentials` browsers reject `*`, and accepting
+    /// arbitrary origins would let any site drive a logged-in user's account.
+    pub allowed_origins: String,
 
     /// Must point at the *same* SQLite file the login/game servers use — a
     /// stale copy would silently create accounts nobody can log in with.
@@ -47,6 +67,8 @@ impl DashboardConfig {
             bind_address: p.get_string("BindAddress", "0.0.0.0"),
             port: p.get_int("Port", 8080) as u16,
             public_base_url: p.get_string("PublicBaseUrl", "http://localhost:8080"),
+            site_base_url: p.get_string("SiteBaseUrl", "https://battlecrab.com"),
+            allowed_origins: p.get_string("AllowedOrigins", "battlecrab.com"),
 
             // Key names match `LoginServer.ini` (`URL`,
             // `MaximumDatabaseConnections`) so both servers are configured the
@@ -73,3 +95,4 @@ impl DashboardConfig {
         }
     }
 }
+

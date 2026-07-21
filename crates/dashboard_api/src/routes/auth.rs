@@ -163,7 +163,9 @@ async fn forgot_password(
     // becomes an account-enumeration oracle.
     if let Some(account) = accounts::find_by_email(&app.pool, &body.email).await? {
         let raw = token::issue_reset(&app.key, &account.login, &account.password);
-        let link = format!("{}/reset-password?token={raw}", app.config.public_base_url);
+        // site_base_url, not public_base_url: /reset-password is a route in the
+        // SPA, which no longer lives on the API's origin.
+        let link = format!("{}/reset-password?token={raw}", app.config.site_base_url);
         // TODO(D3): send via lettre once SMTP config lands. Logged at debug so a
         // dev instance without SMTP is still usable; must not reach production
         // logs at info level.

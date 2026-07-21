@@ -118,6 +118,8 @@ mod tests {
             bind_address: "127.0.0.1".into(),
             port: 0,
             public_base_url: "http://localhost".into(),
+            site_base_url: "http://localhost:3000".into(),
+            allowed_origins: "battlecrab.com".into(),
             database_url: String::new(),
             database_max_connections: 1,
             session_secret: "s".into(),

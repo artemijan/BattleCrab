@@ -45,6 +45,8 @@ fn test_config() -> DashboardConfig {
         bind_address: "127.0.0.1".into(),
         port: 0,
         public_base_url: "http://localhost".into(),
+        site_base_url: "https://battlecrab.com".into(),
+        allowed_origins: "battlecrab.com".into(),
         database_url: String::new(),
         database_max_connections: 1,
         session_secret: "test-secret".into(),
@@ -516,4 +518,183 @@ async fn server_status_is_public_and_counts_online_players() {
         .unwrap();
     assert_eq!(response.status(), StatusCode::OK);
     assert_eq!(body_json(response).await["playersOnline"], 1);
+}
+
+// ---------------------------------------------------------------------------
+// CORS
+//
+// The SPA calls this API from another origin (battlecrab.com ->
+// api.battlecrab.com). Credentialed CORS fails closed and silently — the
+// browser just reports a network error — so these assert the exact headers a
+// browser requires rather than trusting the layer's defaults.
+// ---------------------------------------------------------------------------
+
+const SITE: &str = "https://battlecrab.com";
+
+fn preflight(path: &str, origin: &str, method: &str) -> Request<Body> {
+    with_peer(
+        Request::builder()
+            .method("OPTIONS")
+            .uri(path)
+            .header(header::ORIGIN, origin)
+            .header(header::ACCESS_CONTROL_REQUEST_METHOD, method)
+            .header(header::ACCESS_CONTROL_REQUEST_HEADERS, "content-type,x-requested-with")
+            .body(Body::empty())
+            .unwrap(),
+    )
+}
+
+#[tokio::test]
+async fn preflight_from_the_site_is_allowed_with_credentials() {
+    let (app, _pool) = test_app().await;
+
+    let response = app.oneshot(preflight("/api/v1/auth/login", SITE, "POST")).await.unwrap();
+    let headers = response.headers();
+
+    assert!(response.status().is_success(), "preflight must not fail: {}", response.status());
+    // Must echo the exact origin — "*" is rejected by browsers when credentials
+    // are involved.
+    assert_eq!(
+        headers.get(header::ACCESS_CONTROL_ALLOW_ORIGIN).unwrap(),
+        SITE
+    );
+    // Without this the browser sends no session cookie at all.
+    assert_eq!(headers.get(header::ACCESS_CONTROL_ALLOW_CREDENTIALS).unwrap(), "true");
+
+    // X-Requested-With must be allowed or every mutation is blocked by the
+    // CSRF gate it exists to satisfy.
+    let allowed = headers
+        .get(header::ACCESS_CONTROL_ALLOW_HEADERS)
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_ascii_lowercase();
+    assert!(allowed.contains("x-requested-with"), "got: {allowed}");
+    assert!(allowed.contains("content-type"), "got: {allowed}");
+}
+
+#[tokio::test]
+async fn preflight_from_an_unknown_origin_gets_no_grant() {
+    let (app, _pool) = test_app().await;
+
+    let response = app
+        .oneshot(preflight("/api/v1/auth/login", "https://evil.example", "POST"))
+        .await
+        .unwrap();
+
+    // The absence of the header is what makes the browser block it; a body or
+    // status alone would not.
+    assert!(
+        response.headers().get(header::ACCESS_CONTROL_ALLOW_ORIGIN).is_none(),
+        "must not grant access to an unlisted origin"
+    );
+}
+
+#[tokio::test]
+async fn actual_response_carries_cors_headers() {
+    let (app, _pool) = test_app().await;
+
+    let response = app
+        .oneshot(with_peer(
+            Request::builder()
+                .uri("/api/v1/server/status")
+                .header(header::ORIGIN, SITE)
+                .body(Body::empty())
+                .unwrap(),
+        ))
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(response.headers().get(header::ACCESS_CONTROL_ALLOW_ORIGIN).unwrap(), SITE);
+    // Shared caches must not serve one origin's grant to another.
+    let vary = response.headers().get(header::VARY).unwrap().to_str().unwrap().to_ascii_lowercase();
+    assert!(vary.contains("origin"), "expected Vary: Origin, got: {vary}");
+}
+
+#[tokio::test]
+async fn error_responses_also_carry_cors_headers() {
+    let (app, _pool) = test_app().await;
+
+    // A 401 without CORS headers reaches the SPA as an opaque network error,
+    // so it could not tell the user their credentials were wrong.
+    let response = app
+        .oneshot(with_peer(
+            Request::builder()
+                .uri("/api/v1/auth/me")
+                .header(header::ORIGIN, SITE)
+                .body(Body::empty())
+                .unwrap(),
+        ))
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    assert_eq!(response.headers().get(header::ACCESS_CONTROL_ALLOW_ORIGIN).unwrap(), SITE);
+}
+
+#[tokio::test]
+async fn session_cookie_is_usable_cross_origin() {
+    let (app, _pool) = test_app().await;
+
+    let registered = app
+        .clone()
+        .oneshot(post(
+            "/api/v1/auth/register",
+            serde_json::json!({ "login": "alice", "password": "correct-horse" }),
+        ))
+        .await
+        .unwrap();
+
+    let set_cookie = registered
+        .headers()
+        .get(header::SET_COOKIE)
+        .unwrap()
+        .to_str()
+        .unwrap();
+
+    // battlecrab.com and api.battlecrab.com are cross-origin but same-*site*,
+    // so Lax still sends the cookie. It must NOT be SameSite=Strict, which
+    // would block it, and it must stay HttpOnly so script cannot read it.
+    assert!(set_cookie.contains("SameSite=Lax"), "got: {set_cookie}");
+    assert!(set_cookie.contains("HttpOnly"), "got: {set_cookie}");
+    assert!(!set_cookie.contains("SameSite=Strict"), "got: {set_cookie}");
+}
+
+#[tokio::test]
+async fn subdomains_of_the_site_domain_are_allowed_over_http_layer() {
+    for origin in [
+        "https://battlecrab.com",
+        "https://www.battlecrab.com",
+        "https://api.battlecrab.com",
+        "https://play.battlecrab.com",
+    ] {
+        let (app, _pool) = test_app().await;
+        let response = app.oneshot(preflight("/api/v1/auth/login", origin, "POST")).await.unwrap();
+        assert_eq!(
+            response.headers().get(header::ACCESS_CONTROL_ALLOW_ORIGIN).map(|v| v.to_str().unwrap()),
+            Some(origin),
+            "{origin} should be allowed",
+        );
+    }
+}
+
+#[tokio::test]
+async fn foreign_and_lookalike_origins_are_refused_over_http_layer() {
+    // `evilbattlecrab.com` is the one that a naive suffix match would let in,
+    // and it is registerable by anyone.
+    for origin in [
+        "https://evilbattlecrab.com",
+        "https://battlecrab.com.evil.example",
+        "https://evil.example",
+        "http://battlecrab.com",
+        "null",
+    ] {
+        let (app, _pool) = test_app().await;
+        let response = app.oneshot(preflight("/api/v1/auth/login", origin, "POST")).await.unwrap();
+        assert!(
+            response.headers().get(header::ACCESS_CONTROL_ALLOW_ORIGIN).is_none(),
+            "{origin} must NOT be granted access",
+        );
+    }
 }

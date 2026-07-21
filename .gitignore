@@ -11,6 +11,7 @@ dist/login/log/*
 
 # Personal deploy tooling — points at a specific operator's server.
 deploy.sh
+deploy-dashboard.sh
 deploy.env
 # Launcher build-time config: points a build at a specific deployment
 crates/launcher/.env
