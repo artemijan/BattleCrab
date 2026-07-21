@@ -9,9 +9,11 @@ dist/game/log/*
 dist/login/log/*
 **/.DS_Store
 
-# Personal deploy tooling — points at a specific operator's server.
+# Personal deploy tooling — points at a specific operator's server, and holds
+# credentials (deploy-web.sh carries a Cloudflare API token).
 deploy.sh
 deploy-dashboard.sh
+deploy-web.sh
 deploy.env
 # Launcher build-time config: points a build at a specific deployment
 crates/launcher/.env
