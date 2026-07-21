@@ -2374,3 +2374,61 @@ fn an_owner_and_their_summon_share_one_slice() {
     assert!(owner_exp > 0 && rival_exp > 0, "both earned ({owner_exp} / {rival_exp})");
     assert_eq!(owner_exp, rival_exp, "equal damage earns equal exp — the pair merged into one slice");
 }
+
+// ---------------------------------------------------------------------------
+// getActingPlayer audit, part 2 (slice 23)
+// ---------------------------------------------------------------------------
+
+/// Java's PK/karma block reads `killer.getActingPlayer()`, so killing a player
+/// **with your pet** carries the same consequences as killing them yourself.
+/// Without it, a pet kill is a free kill: no PK counter, no karma.
+#[test]
+fn a_summon_killing_a_player_gives_its_owner_the_karma() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let victim = OWNER + 7;
+    let _rx2 = ingame_caster(&mut world, CID + 7, victim, 60, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+
+    let before = world.objects.get_component::<crate::model::Player>(&OWNER).unwrap().pk_kills;
+    crate::game_loop::death::player_do_die(&mut world, victim, servitor);
+    let after = world.objects.get_component::<crate::model::Player>(&OWNER).unwrap().pk_kills;
+
+    assert!(after > before, "the owner took the PK for their summon's kill ({before} → {after})");
+}
+
+/// **A duel never kills** (G20's invariant). The lethal guard resolves the
+/// attacker to its acting player, or a summon's blow slips past it and really
+/// kills the opponent.
+#[test]
+fn a_summons_blow_cannot_kill_a_duel_opponent() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let foe_player = OWNER + 7;
+    let _rx2 = ingame_caster(&mut world, CID + 7, foe_player, 60, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+
+    // Put the two players in a duel with each other.
+    world.objects.add_components(&OWNER, crate::model::components::DuelRef(1));
+    world.objects.add_components(&foe_player, crate::model::components::DuelRef(1));
+    world.duels.insert(
+        1,
+        crate::game_loop::duel::Duel {
+            id: 1,
+            player_a: OWNER,
+            player_b: foe_player,
+            countdown: 0,
+            ends_at_tick: u64::MAX,
+            surrender: 0,
+        },
+    );
+    world.objects.get_component_mut::<Vitals>(&foe_player).unwrap().cur_hp = 50.0;
+
+    let capped = crate::game_loop::duel::duel_lethal_guard(&mut world, servitor, foe_player, 9999.0);
+    assert!(capped, "the summon's lethal blow was capped");
+    // The cap sets 1 HP and ends the duel, and ending it runs
+    // `restorePlayerConditions`, which heals both sides — so the observable
+    // post-condition is "alive", not "at 1 HP".
+    let v = world.objects.get_component::<Vitals>(&foe_player).unwrap();
+    assert!(!v.dead && v.cur_hp > 0.0, "the duel opponent survived ({} HP)", v.cur_hp);
+}

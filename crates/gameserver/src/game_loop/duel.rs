@@ -343,6 +343,11 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
 /// Returns true when the blow was capped, i.e. the target is a duel opponent of
 /// the attacker and this hit would have finished them.
 pub(crate) fn duel_lethal_guard(world: &mut World, attacker: i32, target: i32, damage: f64) -> bool {
+    // The duellist is the acting player: a summon carries no `DuelRef`, so
+    // without resolving, its blow is not recognised as duel damage and slips
+    // past the cap — really killing the opponent and breaking the invariant
+    // this function exists to hold.
+    let attacker = crate::game_loop::pvp::acting_player(world, attacker);
     if !are_dueling(world, attacker, target) {
         return false;
     }

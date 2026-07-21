@@ -1184,7 +1184,11 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     stop_effects_on_death(world, player_oid);
 
     // `Player.doDie`'s reputation block: a player killer takes the PvP/PK
-    // consequences (counters, karma) for this death.
+    // consequences (counters, karma) for this death. Java reads
+    // `killer.getActingPlayer()`, so a kill landed by someone's **summon**
+    // carries the same consequences as one they landed themselves — otherwise
+    // setting a pet on someone is a free kill with no PK counter and no karma.
+    let killer_oid = super::pvp::acting_player(world, killer_oid);
     if world.objects.has_component::<crate::model::Player>(&killer_oid) {
         super::pvp::on_kill_update_pvp_reputation(world, killer_oid, player_oid);
     }
