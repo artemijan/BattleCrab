@@ -2200,3 +2200,99 @@ fn buffing_a_servitor_refreshes_its_client_info() {
     }
     assert!(saw_pet_info, "the owner was told its servitor's stats changed");
 }
+
+// ---------------------------------------------------------------------------
+// Summon PvP flagging (slice 21)
+// ---------------------------------------------------------------------------
+
+/// Java `Creature.doAttack` flags `getActingPlayer()`, and `Summon`'s is its
+/// **owner** — so setting your pet on another player flags *you*.
+///
+/// Without this a player can attack through their summon and never go purple:
+/// the victim can't retaliate without taking the karma, which is the shape of
+/// an exploit rather than a cosmetic gap.
+#[test]
+fn a_summon_attacking_a_player_flags_its_owner() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let victim = OWNER + 7;
+    let _rx2 = ingame_caster(&mut world, CID + 7, victim, 60, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+
+    crate::game_loop::pvp::update_pvp_status_target(&mut world, servitor, victim);
+
+    let flagged = world
+        .objects
+        .get_component::<crate::model::components::PvpState>(&OWNER)
+        .is_some_and(|s| s.flag > 0);
+    assert!(flagged, "the owner is flagged for their summon's attack");
+}
+
+/// End-to-end: a real summon swing must flag the owner, not just the helper
+/// called directly. The unit test above proves `update_pvp_status_target`
+/// resolves the owner; this proves the attack path actually reaches it.
+#[test]
+fn a_real_summon_swing_flags_the_owner() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let victim = OWNER + 7;
+    let _rx2 = ingame_caster(&mut world, CID + 7, victim, 60, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+
+    crate::game_loop::combat::do_auto_attack(&mut world, servitor, victim);
+
+    let flagged = world
+        .objects
+        .get_component::<crate::model::components::PvpState>(&OWNER)
+        .is_some_and(|s| s.flag > 0);
+    assert!(flagged, "the owner is flagged by their summon's actual swing");
+}
+
+/// The owner also enters combat stance — Java hands the stance to
+/// `getActingPlayer()`, and it is the owner's stance that blocks their own
+/// sit/logout, not the summon's.
+#[test]
+fn a_summon_swing_puts_its_owner_in_combat_stance() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let victim = OWNER + 7;
+    let _rx2 = ingame_caster(&mut world, CID + 7, victim, 60, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+
+    crate::game_loop::combat::do_auto_attack(&mut world, servitor, victim);
+
+    let now = world.tick;
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::AttackState>(&OWNER)
+            .is_some_and(|s| s.stance_until_tick > now),
+        "the owner is in combat stance"
+    );
+}
+
+/// The counterpart guard: a **plain monster** hitting a player must still flag
+/// nobody. Moving the flag/stance block out of the player-only branch is only
+/// safe because `acting_player` resolves a mob to itself, and a mob is not a
+/// player.
+#[test]
+fn a_monster_attacking_a_player_flags_nobody() {
+    let (mut world, _db, _l) = servitor_world();
+    let victim = OWNER + 7;
+    let _rx = ingame_caster(&mut world, CID + 7, victim, 60, 0);
+    add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 40, 0, 0);
+
+    crate::game_loop::combat::do_auto_attack(&mut world, FOE, victim);
+
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::PvpState>(&victim)
+            .is_none_or(|s| s.flag == 0),
+        "the victim is not flagged by being attacked"
+    );
+    assert!(
+        world.objects.get_component::<crate::model::components::PvpState>(&FOE).is_none_or(|s| s.flag == 0),
+        "and neither is the monster"
+    );
+}

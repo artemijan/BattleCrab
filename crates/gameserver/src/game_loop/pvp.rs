@@ -152,6 +152,24 @@ pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target
     is_pk(world, target_oid) || flag_of(world, target_oid) > 0
 }
 
+/// Java `Creature.getActingPlayer()` — the player behind an actor.
+///
+/// A player is their own acting player; a **summon's** is its owner (Java
+/// `Summon.getActingPlayer()` returns `_owner`). Everything else has none, and
+/// is returned unchanged so caller guards still reject it.
+///
+/// The port had no equivalent, so every rule expressed in Java as "do X to
+/// `getActingPlayer()`" silently skipped summons. PvP flagging was the case
+/// with teeth: a player could attack through their pet and never go purple,
+/// leaving the victim unable to retaliate without taking the karma.
+pub(crate) fn acting_player(world: &World, object_id: i32) -> i32 {
+    world
+        .objects
+        .get_component::<crate::model::components::ServitorOf>(&object_id)
+        .map(|s| s.owner_object_id)
+        .unwrap_or(object_id)
+}
+
 /// Java `Player.updatePvPStatus()` (no target): self-flag from a "supporting"
 /// action (buffing a monster or a flagged/PK player). No-op inside a PVP zone.
 pub(crate) fn update_pvp_status(world: &mut World, object_id: i32) {
@@ -167,6 +185,12 @@ pub(crate) fn update_pvp_status(world: &mut World, object_id: i32) {
 /// action toward a player `target`. Duration is `PVP_PVP_TIME` when the target
 /// is already in PvP (`checkIfPvP`), else `PVP_NORMAL_TIME`.
 pub(crate) fn update_pvp_status_target(world: &mut World, object_id: i32, target_oid: i32) {
+    // Java flags `getActingPlayer()`, and a `Summon`'s is its **owner** — so
+    // setting your pet or servitor on another player flags *you*. Resolving
+    // here rather than at each call site is what `getActingPlayer()` buys:
+    // every flagging path gets the summon case for free.
+    let object_id = acting_player(world, object_id);
+
     // The target must resolve to a player, and can't be the actor itself.
     if object_id == target_oid || !world.objects.has_component::<Player>(&target_oid) {
         return;
