@@ -30,6 +30,11 @@ pub struct PetLevel {
     pub consume_meal_in_battle: i32,
     /// Cumulative experience required to *be* this level.
     pub exp: i64,
+    /// `get_exp_type` — the share of the owner's exp/sp the **owner keeps**,
+    /// as a percentage. The pet receives `100 - this`. Defaults to 100 (the
+    /// pet gets nothing) so an unparsed species can't silently drain its
+    /// owner's exp.
+    pub owner_exp_taken: i32,
 }
 
 /// Port of `model/actor/templates/PetData` — one pet species.
@@ -193,6 +198,10 @@ fn parse_str(content: &str, by_npc: &mut HashMap<i32, PetTemplate>, by_item: &mu
                         } else if let Some(row) = t.levels.get_mut(&cur_level) {
                             match key.as_str() {
                                 "max_meal" => row.max_meal = val.parse().unwrap_or(0),
+                                // Java `PetLevelData._ownerExpTaken = set.getInt("get_exp_type")`
+                                // — the **owner's** percentage share; the pet
+                                // takes the remainder. 73 on most species.
+                                "get_exp_type" => row.owner_exp_taken = val.parse().unwrap_or(100),
                                 "consume_meal_in_normal" => row.consume_meal_in_normal = val.parse().unwrap_or(0),
                                 "consume_meal_in_battle" => row.consume_meal_in_battle = val.parse().unwrap_or(0),
                                 "exp" => row.exp = val.parse().unwrap_or(0),
