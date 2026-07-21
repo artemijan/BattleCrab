@@ -2903,3 +2903,90 @@ fn an_expired_servitor_buff_is_not_saved() {
     let saved = world.objects.get_component::<crate::model::components::PlayerSummons>(&OWNER).unwrap().0[0].clone();
     assert!(saved.buffs.is_empty(), "an expired buff is not carried across a relog");
 }
+
+// ---------------------------------------------------------------------------
+// ServitorSkillUse (slice 29)
+// ---------------------------------------------------------------------------
+
+/// The owner presses one of the summon's action-bar buttons and the
+/// **servitor** casts it. 105 `ServitorSkillUse` rows ship in `ActionData.xml`;
+/// the port handled only hold/attack/stop, so every one of them was dead.
+#[test]
+fn a_servitor_casts_the_skill_its_action_button_names() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    const ACTION: i32 = 1000;
+    const SKILL: i32 = 4079;
+    world.data.action_data.insert_servitor_skill_for_test(ACTION, SKILL);
+
+    // Give the servitor template the skill, and register it.
+    {
+        let mut t = world.data.npc_data.get(PANTHER).unwrap().clone();
+        t.skill_list.push((SKILL, 1));
+        world.data.npc_data.insert_for_test(t);
+    }
+    world.data.skill_data.insert_for_test(crate::model::skill::Skill {
+        id: SKILL,
+        level: 1,
+        target_type: crate::model::skill::TargetType::Self_,
+        effects: vec![crate::model::skill::SkillEffect::Heal { power: 100.0 }],
+        ..Default::default()
+    });
+
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+    world.objects.get_component_mut::<Vitals>(&servitor).unwrap().cur_hp = 10.0;
+
+    crate::game_loop::servitor::use_servitor_skill(&mut world, OWNER, SKILL);
+    // `start_cast` schedules the finish; run the scheduler out to land it.
+    for _ in 0..40 {
+        advance_ticks(&mut world, 1);
+    }
+
+    assert!(
+        world.objects.get_component::<Vitals>(&servitor).unwrap().cur_hp > 10.0,
+        "the servitor cast its own heal"
+    );
+}
+
+/// **A summon may only use skills it actually has.** `ActionData.xml` binds
+/// buttons for every summon in the game, so most rows name a skill this
+/// particular servitor has never had — casting one anyway would let any summon
+/// borrow another's abilities.
+#[test]
+fn a_servitor_refuses_a_skill_it_does_not_have() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    const SKILL: i32 = 4079;
+    world.data.skill_data.insert_for_test(crate::model::skill::Skill {
+        id: SKILL,
+        level: 1,
+        target_type: crate::model::skill::TargetType::Self_,
+        effects: vec![crate::model::skill::SkillEffect::Heal { power: 100.0 }],
+        ..Default::default()
+    });
+    // The Panther template is left without the skill.
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+    world.objects.get_component_mut::<Vitals>(&servitor).unwrap().cur_hp = 10.0;
+
+    crate::game_loop::servitor::use_servitor_skill(&mut world, OWNER, SKILL);
+    for _ in 0..40 {
+        advance_ticks(&mut world, 1);
+    }
+
+    assert_eq!(
+        world.objects.get_component::<Vitals>(&servitor).unwrap().cur_hp,
+        10.0,
+        "nothing was cast"
+    );
+}
+
+/// The real `ActionData.xml` binds servitor skills — a fixture cannot catch a
+/// parse regression, so read the shipped file.
+#[test]
+fn the_real_action_data_binds_servitor_skills() {
+    let data = crate::data::ActionData::load_from(DIST);
+    // Action 1000 → skill 4079, one of the 13 reachable on this dist.
+    assert_eq!(data.servitor_skill(1000), Some(4079));
+    assert_eq!(data.servitor_skill(32), Some(4230), "the attack/move toggle");
+    assert_eq!(data.servitor_skill(0), None, "a non-servitor action binds nothing");
+}
