@@ -415,6 +415,8 @@ pub struct PlayerData {
     pub variables: components::PlayerVariables,
     /// Saved pet rows, keyed by collar object id (Java's `pets` table).
     pub pets: components::PlayerPets,
+    /// Items held by the player's pet (Java `PetInventory`, `loc="PET"`).
+    pub pet_inventory: inventory::PetInventory,
     pub shortcuts: Shortcuts,
     pub macros: Macros,
     pub friends: components::Friends,
@@ -505,6 +507,7 @@ impl PlayerData {
                     self.recipe_book,
                     self.variables,
                     self.pets,
+                    self.pet_inventory,
                 ),
             ),
         );
@@ -705,9 +708,13 @@ impl Player {
         // Split stored items by location: warehouse / freight rows go to their
         // own containers, everything else (inventory + paperdoll) to inventory.
         let (wh_rows, rest): (Vec<_>, Vec<_>) = c.items.iter().cloned().partition(|r| r.loc == "WAREHOUSE");
-        let (freight_rows, inv_rows): (Vec<_>, Vec<_>) = rest.into_iter().partition(|r| r.loc == "FREIGHT");
+        let (freight_rows, rest): (Vec<_>, Vec<_>) = rest.into_iter().partition(|r| r.loc == "FREIGHT");
+        // Pet-held items (Java `ItemLocation.PET`) are stored against the
+        // *player's* owner id, so they arrive in the same batch.
+        let (pet_rows, inv_rows): (Vec<_>, Vec<_>) = rest.into_iter().partition(|r| r.loc == "PET");
         let warehouse = inventory::Warehouse::from_rows(&wh_rows);
         let freight = inventory::Freight::from_rows(&freight_rows);
+        let pet_inventory = inventory::PetInventory::from_rows(&pet_rows);
 
         // Built early so equipped gear feeds every finalizer below — max HP/MP
         // (item +MP jewelry) as well as the combat recompute further down.
@@ -939,6 +946,7 @@ impl Player {
             pets: components::PlayerPets(
                 c.pets.iter().map(|p| (p.collar_object_id, p.clone())).collect(),
             ),
+            pet_inventory,
             shortcuts: Shortcuts::from_list(shortcuts),
             macros: Macros::from_list(c.macros.clone()),
             friends: components::Friends(c.friends.clone()),

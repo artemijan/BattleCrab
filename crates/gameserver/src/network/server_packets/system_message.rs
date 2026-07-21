@@ -163,6 +163,18 @@ pub mod sm_ids {
     pub const M_CRITICAL: i16 = 1280;
     /// "You already have a pet."
     pub const YOU_ALREADY_HAVE_A_PET: i16 = 542;
+    /// "Your pet ate a little, but is still hungry."
+    pub const YOUR_PET_ATE_A_LITTLE_BUT_IS_STILL_HUNGRY: i16 = 596;
+    /// "This pet cannot use this item."
+    pub const THIS_PET_CANNOT_USE_THIS_ITEM: i16 = 972;
+    /// "Your pet was hungry so it ate $s1."
+    pub const YOUR_PET_WAS_HUNGRY_SO_IT_ATE_S1: i16 = 1527;
+    /// "There is not much time remaining until the pet leaves."
+    pub const THERE_IS_NOT_MUCH_TIME_REMAINING_UNTIL_THE_PET_LEAVES: i16 = 2372;
+    /// "The pet is now leaving."
+    pub const THE_PET_IS_NOW_LEAVING: i16 = 2373;
+    /// "Your pet is starving and will not obey until it gets it's food. Feed your pet!"
+    pub const YOUR_PET_IS_STARVING: i16 = 3213;
     /// "Your servitor passed away." — its lifetime ran out.
     pub const YOUR_SERVITOR_PASSED_AWAY: i16 = 1519;
     /// "A summoned monster uses $s1." — the periodic upkeep item.

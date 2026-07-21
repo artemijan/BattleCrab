@@ -55,6 +55,11 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
 
     for effect in &skill.effects {
         match effect {
+            // Pet food. The generic cast path never reaches this — a pet eats
+            // through `servitor::apply_food_skill`, which targets the pet
+            // rather than the caster — so it is a no-op here rather than a
+            // second, divergent implementation.
+            SkillEffect::Feed { .. } => {}
             SkillEffect::MagicalAttack { power } => {
                 let power = *power;
                 let (m_atk, caster_name) = {

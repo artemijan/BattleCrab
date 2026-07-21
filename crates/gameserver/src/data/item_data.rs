@@ -113,10 +113,13 @@ fn body_part(name: &str) -> i32 {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ItemKind {
     Weapon,
     Armor,
+    /// The default: most items are `EtcItem`, and it is the harmless choice for
+    /// a template built field-by-field in a test.
+    #[default]
     Etc,
 }
 
@@ -612,7 +615,7 @@ pub struct ItemStats {
     pub shield_rate: Option<i32>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ItemTemplate {
     pub item_id: i32,
     pub name: String,
@@ -858,6 +861,9 @@ impl ItemData {
 
     /// Register one synthetic template (same hook as `NpcData`'s).
     #[doc(hidden)]
+    /// A neutral template to build test fixtures from — a plain, weightless,
+    /// non-stackable `EtcItem`. Only exists so tests can name the two or three
+    /// fields they care about instead of spelling out all thirty.
     pub fn insert_for_test(&mut self, t: ItemTemplate) {
         self.by_id.insert(t.item_id, t);
     }

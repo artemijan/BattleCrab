@@ -20,6 +20,9 @@ pub enum ScheduledTask {
     /// countdown, periodic item consumption, the remain-time packet and the
     /// far-from-owner leash. Reschedules itself while the servitor lives.
     ServitorLifeTick { servitor_oid: i32 },
+    /// Java `Pet.FeedTask` — a fixed 10 s period that burns food and
+    /// auto-eats from the pet's own inventory when it gets hungry.
+    PetFeedTick { pet_oid: i32 },
     /// `SkillCaster.run` phase 1 (`launchSkill`), fires `_hitTime` ms after
     /// `startCasting`. The skill/target live in the player's `CastState`;
     /// `cast_seq` must match it or the task is stale (aborted/replaced cast)

@@ -167,6 +167,9 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         // RequestActionUse (IN_GAME): the action bar's non-skill buttons. Only
         // the servitor commands are handled so far.
         cop::REQUEST_ACTION_USE => super::servitor::handle_request_action_use(world, client_id, body),
+        cop::REQUEST_GIVE_ITEM_TO_PET => super::servitor::handle_give_item_to_pet(world, client_id, body),
+        cop::REQUEST_GET_ITEM_FROM_PET => super::servitor::handle_get_item_from_pet(world, client_id, body),
+        cop::REQUEST_PET_USE_ITEM => super::servitor::handle_pet_use_item(world, client_id, body),
         cop::REQUEST_BUY_ITEM => super::shop::handle_request_buy_item(world, client_id, body),
         cop::REQUEST_SELL_ITEM => super::shop::handle_request_sell_item(world, client_id, body),
         cop::MULTI_SELL_CHOOSE => super::multisell::handle_multi_sell_choose(world, client_id, body),

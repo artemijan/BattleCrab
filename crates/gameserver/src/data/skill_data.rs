@@ -919,6 +919,9 @@ fn finalize_skill(
                         p_def_mod: param("pDefMod").unwrap_or(1.0),
                         charge_consume: value_at(values, "chargeConsume", level).and_then(|v| v.parse().ok()).unwrap_or(0),
                     }],
+                    // Pet food (Wolf Food 2048, etc.). Without this arm the
+                    // food item was consumed and restored nothing.
+                    "Feed" => vec![SkillEffect::Feed { normal: param("normal").unwrap_or(0.0) as i32 }],
                     "Restoration" => match (param("itemId"), param("itemCount")) {
                         (Some(item_id), Some(item_count)) => vec![SkillEffect::GiveItem {
                             item_id: item_id as i32,
