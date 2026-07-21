@@ -50,6 +50,7 @@ mod shop;
 mod cubic;
 mod grand_boss;
 mod core_boss;
+mod orfen;
 mod queen_ant;
 mod raid_curse;
 mod servitor;

@@ -1559,6 +1559,17 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
         }
         (vitals.cur_hp as i32, vitals.max_hp)
     };
+    // Orfen's `onAttack`: the half-HP relocation and the mid-range drag. Both
+    // react to a hit that has already landed, so they sit alongside the raid
+    // curse below. No-op for every other NPC.
+    if let Some(npc_id) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).map(|n| n.npc_id) {
+        if npc_id == super::orfen::ORFEN {
+            super::orfen::on_orfen_attacked(world, npc_oid, attacker_oid);
+        } else if npc_id == super::orfen::RIBA_IREN {
+            super::orfen::on_riba_iren_attacked(world, npc_oid);
+        }
+    }
+
     // `Attackable.reduceCurrentHp`'s raid-curse check, and Java's own comment
     // is the reason it sits **here** rather than before the damage block:
     // "In retail you deal damage to raid before curse." The hit that earns the
