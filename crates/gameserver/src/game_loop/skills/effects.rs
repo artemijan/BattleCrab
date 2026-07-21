@@ -2002,6 +2002,11 @@ fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) {
 /// landing-rate math — an NPC reads its template, a player its record. Defaults
 /// to 1, matching the Spoil landing-level fallback.
 fn creature_level(world: &World, oid: i32) -> i32 {
+    // Java `Cubic.getLevel()` → `_owner.getLevel()`. Checked before the NPC/
+    // player split because a cubic's caster entity is neither.
+    if let Some(c) = world.objects.get_component::<crate::model::components::CubicOf>(&oid) {
+        return world.objects.get_component::<crate::model::Player>(&c.owner_object_id).map(|p| p.level).unwrap_or(1);
+    }
     if crate::game_loop::combat::is_npc_oid(oid) {
         world
             .objects
@@ -2012,6 +2017,12 @@ fn creature_level(world: &World, oid: i32) -> i32 {
     } else {
         world.objects.get_component::<crate::model::Player>(&oid).map(|p| p.level).unwrap_or(1)
     }
+}
+
+/// Test hook for [`creature_level`], which is private to this module.
+#[cfg(test)]
+pub(crate) fn creature_level_for_test(world: &World, oid: i32) -> i32 {
+    creature_level(world, oid)
 }
 
 /// A target creature's display name (Java `Creature.getName()`) for the debuff

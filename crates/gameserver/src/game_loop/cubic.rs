@@ -27,6 +27,21 @@ pub struct ActiveCubic {
     pub id: i32,
     pub level: i32,
     pub slot: i32,
+    /// The cubic's own object id.
+    ///
+    /// Java's `Cubic extends Creature`, and **the cubic — not its owner — is
+    /// the caster**: `skill.activateSkill(this, target)`, with the cubic's
+    /// `getBasePAtk()`/`getBaseMAtk()` both returning the template's
+    /// `power / 10`. Passing the owner instead scaled cubic damage off the
+    /// *player's* m.atk, which for a levelled mage is many times the intended
+    /// value (Storm Cubic level 1 is `power=282` → m.atk **28.2**).
+    ///
+    /// So the cubic gets a real entity carrying `CombatStats` and `Vitals`,
+    /// but **no `Npc`, `Player`, `RegionCell` or `Movement`** — every store
+    /// sweep in the server is anchored on one of those, so it stays invisible
+    /// to visibility, targeting, movement and AI while still being a valid
+    /// caster for the damage formulas.
+    pub caster_oid: i32,
     /// Absolute tick the cubic expires (`duration` seconds after summon).
     pub expires_at_tick: u64,
     /// Actions left before it goes away (`maxCount`); `i32::MAX` when the
@@ -90,10 +105,12 @@ pub(crate) fn summon_cubic(world: &mut World, owner_oid: i32, cubic_id: i32, cub
         }
     }
 
+    let Some(caster_oid) = spawn_cubic_caster(world, owner_oid, &template) else { return };
     let active = ActiveCubic {
         id: cubic_id,
         level: cubic_level,
         slot: template.slot,
+        caster_oid,
         expires_at_tick: world.tick + (template.duration.max(0) as u64) * TICKS_PER_SECOND,
         remaining_count: if template.max_count > 0 { template.max_count } else { i32::MAX },
     };
@@ -118,10 +135,49 @@ fn schedule_action(world: &mut World, owner_oid: i32, cubic_id: i32, delay_secs:
     );
 }
 
+/// The cubic's stats-only caster entity.
+///
+/// `power / 10` is Java's, in `CubicTemplate`'s constructor — the XML value is
+/// ten times the base attack, and dropping the divide would overstate every
+/// cubic hit tenfold.
+fn spawn_cubic_caster(world: &mut World, owner_oid: i32, template: &CubicTemplate) -> Option<i32> {
+    let oid = world.alloc_object_id()?;
+    let atk = template.power / 10.0;
+    let mut stats = crate::model::components::CombatStats::default();
+    stats.p_atk = atk;
+    stats.m_atk = atk;
+    // `spawn` first — `add_components` silently no-ops on an id the store has
+    // never seen, which is how the first draft of this ended up with a caster
+    // that had no stats at all.
+    world.objects.spawn(oid, stats);
+    // The level link — see `CubicOf`. Without it every cast is resisted.
+    world.objects.add_components(&oid, crate::model::components::CubicOf { owner_object_id: owner_oid });
+    // A cubic is never attacked, but the damage path reads the caster's
+    // vitals; give it something alive rather than a zeroed corpse.
+    world.objects.add_components(
+        &oid,
+        Vitals::hp_full(1, 1),
+    );
+    // Position is read for range/aggro bookkeeping; the cubic floats at its
+    // owner, and follows them because it is re-read at cast time.
+    if let Some(pos) = world.objects.get_component::<Position>(&owner_oid).copied() {
+        world.objects.add_components(&oid, pos);
+    }
+    Some(oid)
+}
+
 /// Java `Cubic.deactivate()` — drop it and tell everyone.
 pub(crate) fn remove_cubic(world: &mut World, owner_oid: i32, cubic_id: i32) {
+    let caster = world
+        .objects
+        .get_component::<Cubics>(&owner_oid)
+        .and_then(|c| c.0.iter().find(|c| c.id == cubic_id).map(|c| c.caster_oid));
     if let Some(c) = world.objects.get_component_mut::<Cubics>(&owner_oid) {
         c.0.retain(|c| c.id != cubic_id);
+    }
+    // The caster entity dies with the cubic, or it leaks one entity per summon.
+    if let Some(caster) = caster {
+        world.objects.despawn(&caster);
     }
     broadcast_cubic_change(world, owner_oid);
 }
@@ -156,7 +212,7 @@ pub(crate) fn handle_cubic_action(world: &mut World, owner_oid: i32, cubic_id: i
         return;
     };
 
-    if try_action(world, owner_oid, &template) {
+    if try_action(world, owner_oid, active.caster_oid, &template) {
         // `maxCount` counts *actions*, not attempts — a cubic that fails its
         // success roll has not spent one of its charges.
         let mut exhausted = false;
@@ -178,7 +234,7 @@ pub(crate) fn handle_cubic_action(world: &mut World, owner_oid: i32, cubic_id: i
 }
 
 /// Returns true when a skill actually fired.
-fn try_action(world: &mut World, owner_oid: i32, template: &CubicTemplate) -> bool {
+fn try_action(world: &mut World, owner_oid: i32, caster_oid: i32, template: &CubicTemplate) -> bool {
     // `<hp type="GREATER" percent="33"/>` gates the *owner*: a badly wounded
     // player's attack cubic stops firing.
     if let Some(cond) = template.hp_condition {
@@ -220,7 +276,7 @@ fn try_action(world: &mut World, owner_oid: i32, template: &CubicTemplate) -> bo
         return false;
     }
 
-    cast(world, owner_oid, target, &skill);
+    cast(world, owner_oid, caster_oid, target, &skill);
     true
 }
 
@@ -299,7 +355,7 @@ fn distance(world: &World, a: i32, b: i32) -> Option<f64> {
 /// `Cubic.activateCubicSkill` — the cast animation is broadcast **from the
 /// owner**, since the cubic has no object id of its own, and the effects are
 /// applied with the owner as caster.
-fn cast(world: &mut World, owner_oid: i32, target: i32, cubic_skill: &CubicSkill) {
+fn cast(world: &mut World, owner_oid: i32, caster_oid: i32, target: i32, cubic_skill: &CubicSkill) {
     let Some(skill) = world.data.skill_data.get(cubic_skill.skill_id, cubic_skill.skill_level).cloned() else {
         return;
     };
@@ -321,7 +377,16 @@ fn cast(world: &mut World, owner_oid: i32, target: i32, cubic_skill: &CubicSkill
         );
         crate::game_loop::helpers::broadcast_including_self(world, owner_oid, &pkt);
     }
-    crate::game_loop::skills::effects::apply_skill_effects(world, owner_oid, target, &skill);
+    // The cubic floats with its owner — keep its position current so range and
+    // aggro bookkeeping resolve from where the owner actually is.
+    if let Some(pos) = world.objects.get_component::<Position>(&owner_oid).copied() {
+        if let Some(p) = world.objects.get_component_mut::<Position>(&caster_oid) {
+            *p = pos;
+        }
+    }
+    // `skill.activateSkill(this, target)` — **the cubic** is the caster, so the
+    // damage scales off the template's power, not the owner's m.atk.
+    crate::game_loop::skills::effects::apply_skill_effects(world, caster_oid, target, &skill);
 }
 
 fn broadcast_cubic_change(world: &mut World, owner_oid: i32) {
