@@ -682,11 +682,7 @@ async fn a_master_account_starts_unverified_and_the_link_verifies_it() {
     // The token is what the mail would have carried; mail is disabled in tests,
     // so mint the same one the handler does.
     let key = dashboard_api::auth::SigningKey::new("test-secret");
-    let token = dashboard_api::auth::token::issue_verify_email(
-        &key,
-        "alice@example.com",
-        "alice@example.com",
-    );
+    let token = dashboard_api::auth::token::issue_verify_email(&key, "alice@example.com");
 
     let verified = app
         .clone()
@@ -712,6 +708,37 @@ async fn a_master_account_starts_unverified_and_the_link_verifies_it() {
         .await
         .unwrap();
     assert_eq!(body_json(me).await["isVerified"], true);
+}
+
+/// The address is the account's identity and the only record of which game
+/// accounts belong to it, so there is no endpoint to change it. A session must
+/// not be able to reach one by any spelling.
+#[tokio::test]
+async fn there_is_no_change_email_endpoint() {
+    let (app, pool) = test_app().await;
+    let cookie = verified_master(&pool, &app, "alice@example.com").await;
+
+    let response = app
+        .clone()
+        .oneshot(post_with_cookie(
+            "/api/v1/account/email",
+            &cookie,
+            serde_json::json!({ "email": "attacker@example.com" }),
+        ))
+        .await
+        .unwrap();
+    assert!(
+        response.status().is_client_error(),
+        "POST /account/email answered {} — the change-email flow is supposed to be gone",
+        response.status()
+    );
+
+    // And nothing moved.
+    let (email,): (String,) = sqlx::query_as("SELECT email FROM accounts WHERE login IS NULL")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    assert_eq!(email, "alice@example.com");
 }
 
 #[tokio::test]

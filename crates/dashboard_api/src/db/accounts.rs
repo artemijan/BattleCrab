@@ -238,49 +238,11 @@ pub async fn set_game_account_password(
     Ok(())
 }
 
-/// Moves a master account to a new address, carrying its game accounts with it
-/// and marking the new address verified (the caller reaches here only from a
-/// verification link).
-///
-/// One transaction: the master row and its game accounts are joined *by the
-/// address itself*, so a partial update would orphan every game account under
-/// an address whose master no longer exists.
-pub async fn change_master_email(
-    pool: &SqlitePool,
-    old_email: &str,
-    new_email: &str,
-) -> ApiResult<()> {
-    let old_email = normalize_email(old_email);
-    let new_email = normalize_email(new_email);
-
-    let mut tx = pool.begin().await?;
-
-    let result = sqlx::query(
-        "UPDATE accounts SET email = ?, is_verified = 1 \
-         WHERE login IS NULL AND email = ? COLLATE NOCASE",
-    )
-    .bind(&new_email)
-    .bind(&old_email)
-    .execute(&mut *tx)
-    .await;
-
-    match result {
-        Ok(_) => {}
-        Err(sqlx::Error::Database(e)) if e.is_unique_violation() => return Err(ApiError::EmailTaken),
-        Err(e) => return Err(e.into()),
-    }
-
-    sqlx::query(
-        "UPDATE accounts SET email = ? WHERE login IS NOT NULL AND email = ? COLLATE NOCASE",
-    )
-    .bind(&new_email)
-    .bind(&old_email)
-    .execute(&mut *tx)
-    .await?;
-
-    tx.commit().await?;
-    Ok(())
-}
+// There is deliberately no `change_master_email`. A master's address is the
+// only record of which game accounts belong to it, so moving one would have to
+// rewrite every game account row in the same transaction — and the address is
+// simultaneously the account's login. That makes it an account migration
+// rather than a settable field, and the dashboard does not offer it.
 
 /// Written *only* by the verification-link handler. Registration now stores the
 /// address up front, so `is_verified` — not the mere presence of `email` — is

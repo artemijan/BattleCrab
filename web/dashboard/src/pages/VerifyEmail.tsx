@@ -8,14 +8,13 @@ import { AuthShell } from "./Auth";
 /**
  * Consume an email-verification link: `/verify-email?token=...`.
  *
- * Serves both links the API issues, which differ only in what the token says:
- * a registration link confirms the address already on the account (setting
- * `is_verified`), while a change-of-address link moves the account — and its
- * game accounts — onto the new address. Either way nothing is committed until
- * the link is clicked, because the address is the account's login.
+ * Confirms the address a registration was made with, setting `is_verified`. It
+ * never moves an account to a different address — the change-email flow was
+ * removed, and the API refuses the two-address tokens it used to issue, so an
+ * old link of that kind lands here as "invalid or expired".
  *
  * Deliberately works logged out: the link is usually opened from a mail client,
- * often in a different browser from the one that requested the change.
+ * often in a different browser from the one that registered.
  */
 export function VerifyEmail() {
   const queryClient = useQueryClient();

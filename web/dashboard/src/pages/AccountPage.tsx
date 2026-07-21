@@ -32,9 +32,10 @@ export function AccountPage() {
 
       <GameAccountsSection />
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      {/* One card, so no grid — a two-column grid would strand it at half
+          width now that the email card beside it is gone. */}
+      <section>
         <ChangePasswordCard />
-        <ChangeEmailCard />
       </section>
     </div>
   );
@@ -382,59 +383,6 @@ function ChangePasswordCard() {
         />
         <Button type="submit" variant="secondary" loading={submit.isPending} className="self-start">
           Update password
-        </Button>
-      </form>
-    </Panel>
-  );
-}
-
-function ChangeEmailCard() {
-  const me = useQuery({ queryKey: ["me"], queryFn: api.me });
-  const [email, setEmail] = useState("");
-
-  const submit = useMutation({
-    mutationFn: () => api.changeEmail(email),
-    onSuccess: () => setEmail(""),
-  });
-
-  const onSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    submit.mutate();
-  };
-
-  return (
-    <Panel className="animate-rise p-6">
-      <h2 className="font-semibold">Email address</h2>
-      <p className="mt-1 text-sm text-[var(--text-muted)]">
-        {me.data?.email
-          ? `Currently ${me.data.email}. This is how you sign in.`
-          : "Add an email so you can reset your password if you forget it."}
-      </p>
-
-      <form onSubmit={onSubmit} className="mt-4 flex flex-col gap-3.5">
-        {submit.isError && (
-          <Alert kind="error">
-            {submit.error instanceof ApiError ? submit.error.message : "Something went wrong."}
-          </Alert>
-        )}
-        {/* The move happens only once the link is clicked: the address is the
-            login, so switching before it is proven would lock the user out. */}
-        {submit.isSuccess && (
-          <Alert kind="success">
-            Check your inbox — you'll sign in with the new address once you click the link.
-          </Alert>
-        )}
-
-        <Field
-          label="New email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          autoComplete="email"
-          required
-        />
-        <Button type="submit" variant="secondary" loading={submit.isPending} className="self-start">
-          Send verification
         </Button>
       </form>
     </Panel>

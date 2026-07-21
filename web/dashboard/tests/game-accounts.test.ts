@@ -173,6 +173,24 @@ describe("game accounts", () => {
     expect(bodyText).toContain("Confirm your email address first");
   });
 
+  test("the account page offers no way to change the email address", async () => {
+    if (skip()) return;
+
+    const page = await openAccountPage({ gameAccounts: ["alice1"] });
+    const bodyText = (await page.textContent("body")) ?? "";
+    const emailInputs = await page.evaluate(
+      () => document.querySelectorAll('input[type="email"]').length,
+    );
+    await page.close();
+
+    // The address is the account's identity and the only record of which game
+    // accounts belong to it, so the API has no endpoint to move it. A form here
+    // would be a dead control.
+    expect(emailInputs).toBe(0);
+    expect(bodyText).not.toContain("This is how you sign in");
+    expect(bodyText).not.toContain("Send verification");
+  });
+
   test("a verified account with no game accounts is offered the form", async () => {
     if (skip()) return;
 
