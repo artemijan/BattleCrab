@@ -58,6 +58,8 @@ pub struct CharData {
     pub sp: i64,
     pub reputation: i32,
     pub pk_kills: i32,
+    /// `characters.raidbossPoints`.
+    pub raidboss_points: i32,
     pub pvp_kills: i32,
     /// `character_reco_bonus.rec_have` / `.rec_left` (a separate table, not
     /// `characters`). Loaded by `db::load_reco_bonus`; 0/0 when the row is

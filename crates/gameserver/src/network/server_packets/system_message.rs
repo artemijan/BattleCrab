@@ -161,6 +161,10 @@ pub mod sm_ids {
     pub const S1_HP_HAS_BEEN_RESTORED: i16 = 1066;
     pub const S2_HP_HAS_BEEN_RESTORED_BY_C1: i16 = 1067;
     pub const M_CRITICAL: i16 = 1280;
+    /// "Congratulations. Your raid was successful."
+    pub const CONGRATULATIONS_YOUR_RAID_WAS_SUCCESSFUL: i16 = 1209;
+    /// "You have earned $s1 raid point(s)."
+    pub const YOU_HAVE_EARNED_S1_RAID_POINTS: i16 = 1725;
     /// "You already have a pet."
     pub const YOU_ALREADY_HAVE_A_PET: i16 = 542;
     /// "Your pet gained $s1 XP."

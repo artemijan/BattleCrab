@@ -104,6 +104,7 @@ pub struct PlayerSnapshot {
     pub reputation: i32,
     pub pvp_kills: i32,
     pub pk_kills: i32,
+    pub raidboss_points: i32,
     pub rec_have: i32,
     pub rec_left: i32,
     pub race: i32,
@@ -144,6 +145,7 @@ impl PlayerSnapshot {
             reputation: p.reputation,
             pvp_kills: p.pvp_kills,
             pk_kills: p.pk_kills,
+            raidboss_points: p.raidboss_points,
             rec_have: p.rec_have,
             rec_left: p.rec_left,
             race: p.race,
@@ -1501,6 +1503,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             sp: geti(row, "sp"),
             reputation: geti(row, "reputation") as i32,
             pk_kills: geti(row, "pkkills") as i32,
+            raidboss_points: geti(row, "raidbossPoints") as i32,
             pvp_kills: geti(row, "pvpkills") as i32,
             rec_have,
             rec_left,
@@ -2309,7 +2312,7 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     sqlx::query(
         "UPDATE characters SET level=?, maxHp=?, curHp=?, maxCp=?, curCp=?, maxMp=?, curMp=?, \
          face=?, hairStyle=?, hairColor=?, sex=?, heading=?, x=?, y=?, z=?, exp=?, sp=?, \
-         reputation=?, pvpkills=?, pkkills=?, race=?, classid=?, base_class=?, \
+         reputation=?, pvpkills=?, pkkills=?, raidbossPoints=?, race=?, classid=?, base_class=?, \
          vitality_points=?, pccafe_points=?, nobless=?, online=0, lastAccess=? WHERE charId=?",
     )
     .bind(b.level)
@@ -2332,6 +2335,7 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     .bind(b.reputation)
     .bind(b.pvp_kills)
     .bind(b.pk_kills)
+    .bind(b.raidboss_points)
     .bind(b.race)
     .bind(b.class_id)
     .bind(b.base_class_id)

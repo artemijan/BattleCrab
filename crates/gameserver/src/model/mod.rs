@@ -194,6 +194,9 @@ pub struct Player {
     pub reputation: i32,
     pub pk_kills: i32,
     pub pvp_kills: i32,
+    /// `characters.raidbossPoints` — accumulated raid points. Awarded on a
+    /// raid boss kill and spent on clan reputation; a pure counter here.
+    pub raidboss_points: i32,
     /// Java `Player._cursedWeaponEquippedId` — the cursed weapon item id the
     /// player currently wields (0 = none). Set by `CursedWeapon.activate`,
     /// cleared by `endOfLife`; suppresses karma decay and gates un-equip.
@@ -831,6 +834,7 @@ impl Player {
             sp: c.sp,
             reputation: c.reputation,
             pk_kills: c.pk_kills,
+            raidboss_points: c.raidboss_points,
             pvp_kills: c.pvp_kills,
             // Restored by CursedWeaponsManager at enter-world if held (TODO(G21):
             // cursedOnLogin); a fresh session starts unowned.

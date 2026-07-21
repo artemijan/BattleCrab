@@ -58,6 +58,7 @@ fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
             reputation: c.reputation,
             pvp_kills: c.pvp_kills,
             pk_kills: c.pk_kills,
+            raidboss_points: c.raidboss_points,
             rec_have: c.rec_have,
             rec_left: c.rec_left,
             race: c.race,
@@ -365,6 +366,8 @@ async fn shortcuts_and_macros_persist() {
     let mut save = save_from(&loaded);
     // A base `characters` column (pccafe_points) round-trips through the flush.
     save.base.pccafe_points = 4200;
+    // Raid points ride the same `characters` row (G23).
+    save.base.raidboss_points = 137;
     for sc in save.shortcuts.iter_mut().filter(|s| s.slot == 0 && s.page == 0) {
         sc.kind = ShortcutType::Skill;
         sc.id = 1177;
@@ -387,6 +390,7 @@ async fn shortcuts_and_macros_persist() {
             assert_eq!(c.items.len(), 1, "item preserved");
             assert!(c.skills.iter().any(|&(id, lvl)| id == 1177 && lvl == 1), "skill preserved");
             assert_eq!(c.pccafe_points, 4200, "pccafe points persisted");
+            assert_eq!(c.raidboss_points, 137, "raid points persisted");
         }
         _ => panic!("expected CharactersLoaded"),
     }
