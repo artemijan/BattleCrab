@@ -467,3 +467,23 @@ pub fn set_summon_remain_time(max_time: i32, remaining: i32) -> Vec<u8> {
     w.write_i32(remaining);
     w.into_bytes()
 }
+
+/// `PetItemList` (0xB3) — the contents of the pet's own inventory.
+///
+/// Just a count and the standard item entries; unlike the player's
+/// `ItemList` (0x11) there is no "open window" flag or trailing block.
+pub fn pet_item_list(inventory: &crate::model::inventory::Inventory, data: &crate::data::GameData) -> Vec<u8> {
+    let entries: Vec<_> = inventory
+        .items()
+        .iter()
+        .filter_map(|item| data.item_data.get(item.item_id).map(|t| (item, t)))
+        .collect();
+
+    let mut w = PacketWriter::new();
+    w.write_u8(0xB3);
+    w.write_i16(entries.len() as i16);
+    for (item, template) in &entries {
+        crate::network::enter_world::write_item_entry(&mut w, item, template, false);
+    }
+    w.into_bytes()
+}

@@ -320,6 +320,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::ServitorLifeTick { servitor_oid } => {
                 servitor::handle_life_tick(world, servitor_oid);
             }
+            ScheduledTask::PetFeedTick { pet_oid } => {
+                servitor::handle_feed_tick(world, pet_oid);
+            }
             ScheduledTask::DamOverTimeTick { caster, target, skill_id, skill_level } => {
                 skills::effects::handle_dam_over_time_tick(world, caster, target, skill_id, skill_level);
             }

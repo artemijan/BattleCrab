@@ -570,7 +570,17 @@ fn give_collar(world: &mut World) -> i32 {
         food_item_id: 2515,
         hungry_limit: 55,
         load: 54_510,
-        levels: [(1, crate::data::pet_data::PetLevel { max_meal: 248, ..Default::default() })].into_iter().collect(),
+        levels: [(
+            1,
+            crate::data::pet_data::PetLevel {
+                max_meal: 248,
+                consume_meal_in_normal: 10,
+                consume_meal_in_battle: 15,
+                ..Default::default()
+            },
+        )]
+        .into_iter()
+        .collect(),
     });
     let World { data, objects, .. } = world;
     objects
@@ -876,4 +886,278 @@ fn destroying_the_collar_drops_the_saved_pet() {
         !world.objects.get_component::<PlayerPets>(&OWNER).unwrap().0.contains_key(&collar),
         "and its saved row goes with it"
     );
+}
+
+// ---------------------------------------------------------------------------
+// Pet feeding (slice 8)
+// ---------------------------------------------------------------------------
+
+use crate::model::inventory::PetInventory;
+
+const WOLF_FOOD: i32 = 2515;
+/// The Wolf Food skill (2048) — a single `Feed` effect restoring 100.
+const WOLF_FOOD_SKILL: i32 = 2048;
+
+/// Register the food item + its `Feed` skill so the eat path has something
+/// real to run. Without the skill the item would be consumed for nothing,
+/// which is exactly the bug the `Feed` parse arm fixes.
+fn register_food(world: &mut World, restores: i32) {
+    let mut item = crate::data::item_data::ItemTemplate::default();
+    item.item_id = WOLF_FOOD;
+    item.name = "Wolf Food".into();
+    item.is_stackable = true;
+    item.item_skills = vec![(WOLF_FOOD_SKILL, 1)];
+    world.data.item_data.insert_for_test(item);
+
+    let skill = crate::model::skill::Skill {
+        id: WOLF_FOOD_SKILL,
+        level: 1,
+        effects: vec![crate::model::skill::SkillEffect::Feed { normal: restores }],
+        ..Default::default()
+    };
+    world.data.skill_data.insert_for_test(skill);
+}
+
+fn put_food_in_pet(world: &mut World, count: i64) {
+    let World { data, objects, .. } = world;
+    objects
+        .get_component_mut::<PetInventory>(&OWNER)
+        .unwrap()
+        .0
+        .add_item(&data.item_data, 7_200_001, WOLF_FOOD, count);
+}
+
+fn fed(world: &World, pet_oid: i32) -> i32 {
+    world.objects.get_component::<PetOf>(&pet_oid).unwrap().fed
+}
+
+/// A summoned pet burns food on every tick — the drain that makes feeding
+/// necessary at all.
+#[test]
+fn the_feed_tick_burns_food() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    register_food(&mut world, 100);
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    assert_eq!(fed(&world, pet_oid), 248, "starts full");
+
+    crate::game_loop::servitor::handle_feed_tick(&mut world, pet_oid);
+    assert_eq!(fed(&world, pet_oid), 238, "one normal-rate helping burned");
+}
+
+/// The bar is not allowed below zero — Java's `fed > consume ? fed - consume : 0`.
+#[test]
+fn the_feed_tick_floors_at_zero() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    register_food(&mut world, 100);
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    world.objects.get_component_mut::<PetOf>(&pet_oid).unwrap().fed = 4;
+
+    crate::game_loop::servitor::handle_feed_tick(&mut world, pet_oid);
+    assert_eq!(fed(&world, pet_oid), 0, "cost exceeded the bar — floored, not negative");
+    assert!(crate::game_loop::servitor::is_uncontrollable(&world, pet_oid), "an empty bar means starving");
+}
+
+/// A hungry pet with food in *its own* inventory eats without being told.
+/// `hungry_limit` is 55%, so the bar must be under 136 for this to fire.
+#[test]
+fn a_hungry_pet_eats_from_its_own_inventory() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    register_food(&mut world, 100);
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    put_food_in_pet(&mut world, 2);
+    world.objects.get_component_mut::<PetOf>(&pet_oid).unwrap().fed = 100;
+
+    crate::game_loop::servitor::handle_feed_tick(&mut world, pet_oid);
+    // 100 - 10 burned = 90, hungry (< 136), so it eats one 100-point helping.
+    assert_eq!(fed(&world, pet_oid), 190, "burned 10, then ate 100");
+    assert_eq!(
+        world.objects.get_component::<PetInventory>(&OWNER).unwrap().0.count_of(WOLF_FOOD),
+        1,
+        "exactly one helping consumed"
+    );
+}
+
+/// A pet that is not hungry leaves its food alone — otherwise a full bar would
+/// eat through the whole stack.
+#[test]
+fn a_full_pet_does_not_eat() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    register_food(&mut world, 100);
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    put_food_in_pet(&mut world, 2);
+
+    crate::game_loop::servitor::handle_feed_tick(&mut world, pet_oid);
+    assert_eq!(
+        world.objects.get_component::<PetInventory>(&OWNER).unwrap().0.count_of(WOLF_FOOD),
+        2,
+        "full pet leaves the stack alone"
+    );
+}
+
+/// Feeding is capped at the level's `max_meal` — Java's `setCurrentFed` clamp.
+/// Measured from a bar with room in it, so the clamp is what's under test
+/// rather than an already-full bar.
+#[test]
+fn feeding_is_capped_at_max_meal() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    register_food(&mut world, 100);
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    world.objects.get_component_mut::<PetOf>(&pet_oid).unwrap().fed = 200;
+
+    crate::game_loop::servitor::apply_feed(&mut world, pet_oid, 100);
+    assert_eq!(fed(&world, pet_oid), 248, "200 + 100 clamped to max_meal, not banked");
+}
+
+/// Food reaches the pet by transfer from the owner — the client's only route,
+/// since Java's `PetFood` handler refuses an unmounted player.
+#[test]
+fn food_transfers_to_the_pet_and_back() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    register_food(&mut world, 100);
+    park_collar(&mut world, collar);
+    let _ = summon_pet(&mut world, OWNER).unwrap();
+
+    let food_oid = {
+        let World { data, objects, .. } = &mut world;
+        objects.get_component_mut::<crate::model::inventory::Inventory>(&OWNER).unwrap().add_item(
+            &data.item_data,
+            7_300_001,
+            WOLF_FOOD,
+            5,
+        )
+    };
+
+    let mut body = Vec::new();
+    body.extend_from_slice(&food_oid.to_le_bytes());
+    body.extend_from_slice(&3i64.to_le_bytes());
+    crate::game_loop::servitor::handle_give_item_to_pet(&mut world, CID, &body);
+
+    assert_eq!(world.objects.get_component::<PetInventory>(&OWNER).unwrap().0.count_of(WOLF_FOOD), 3);
+    assert_eq!(
+        world.objects.get_component::<crate::model::inventory::Inventory>(&OWNER).unwrap().count_of(WOLF_FOOD),
+        2,
+        "the owner keeps the remainder"
+    );
+
+    // And back again.
+    let pet_food_oid =
+        world.objects.get_component::<PetInventory>(&OWNER).unwrap().0.items()[0].object_id;
+    let mut body = Vec::new();
+    body.extend_from_slice(&pet_food_oid.to_le_bytes());
+    body.extend_from_slice(&3i64.to_le_bytes());
+    crate::game_loop::servitor::handle_get_item_from_pet(&mut world, CID, &body);
+    assert_eq!(world.objects.get_component::<PetInventory>(&OWNER).unwrap().0.count_of(WOLF_FOOD), 0);
+    assert_eq!(
+        world.objects.get_component::<crate::model::inventory::Inventory>(&OWNER).unwrap().count_of(WOLF_FOOD),
+        5,
+        "all five back with the owner"
+    );
+}
+
+/// The collar can't be stored inside the pet it summons — it would become
+/// unreachable the moment the pet is unsummoned.
+#[test]
+fn the_collar_cannot_be_given_to_its_own_pet() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    register_food(&mut world, 100);
+    park_collar(&mut world, collar);
+    let _ = summon_pet(&mut world, OWNER).unwrap();
+
+    let mut body = Vec::new();
+    body.extend_from_slice(&collar.to_le_bytes());
+    body.extend_from_slice(&1i64.to_le_bytes());
+    crate::game_loop::servitor::handle_give_item_to_pet(&mut world, CID, &body);
+
+    assert_eq!(world.objects.get_component::<PetInventory>(&OWNER).unwrap().0.count_of(WOLF_COLLAR), 0);
+}
+
+/// Manual feeding through the pet window, and the refusal for anything the
+/// species does not eat.
+#[test]
+fn the_owner_can_feed_the_pet_by_hand() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    register_food(&mut world, 100);
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    put_food_in_pet(&mut world, 1);
+    world.objects.get_component_mut::<PetOf>(&pet_oid).unwrap().fed = 50;
+
+    let food_oid = world.objects.get_component::<PetInventory>(&OWNER).unwrap().0.items()[0].object_id;
+    let body = food_oid.to_le_bytes().to_vec();
+    crate::game_loop::servitor::handle_pet_use_item(&mut world, CID, &body);
+
+    assert_eq!(fed(&world, pet_oid), 150, "hand-fed one helping");
+    assert_eq!(world.objects.get_component::<PetInventory>(&OWNER).unwrap().0.count_of(WOLF_FOOD), 0);
+}
+
+/// A pet only eats its own species' food (Java `canEatFoodId`).
+#[test]
+fn a_pet_refuses_food_it_does_not_eat() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    register_food(&mut world, 100);
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    world.objects.get_component_mut::<PetOf>(&pet_oid).unwrap().fed = 50;
+
+    // A different item entirely, sitting in the pet's bag.
+    let mut other = crate::data::item_data::ItemTemplate::default();
+    other.item_id = 57;
+    other.is_stackable = true;
+    world.data.item_data.insert_for_test(other);
+    let oid = {
+        let World { data, objects, .. } = &mut world;
+        objects.get_component_mut::<PetInventory>(&OWNER).unwrap().0.add_item(&data.item_data, 7_400_001, 57, 1)
+    };
+
+    let body = oid.to_le_bytes().to_vec();
+    crate::game_loop::servitor::handle_pet_use_item(&mut world, CID, &body);
+
+    assert_eq!(fed(&world, pet_oid), 50, "bar untouched");
+    assert_eq!(
+        world.objects.get_component::<PetInventory>(&OWNER).unwrap().0.count_of(57),
+        1,
+        "and the item is not consumed"
+    );
+}
+
+/// The fixture above uses a hand-built skill, so it cannot catch a parse-arm
+/// mistake. This reads the **real** Wolf Food skill out of the datapack: if
+/// `<effect name="Feed"><normal>100</normal>` stops reaching `SkillEffect::Feed`,
+/// every pet food in the game silently restores nothing.
+#[test]
+fn the_real_wolf_food_skill_parses_its_feed_value() {
+    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skill = skills.get(2048, 1).expect("Wolf Food skill 2048 exists in the datapack");
+    let feed = skill
+        .effects
+        .iter()
+        .find_map(|e| match e {
+            crate::model::skill::SkillEffect::Feed { normal } => Some(*normal),
+            _ => None,
+        })
+        .expect("Wolf Food carries a Feed effect");
+    assert_eq!(feed, 100, "the <normal> value from 2048");
 }

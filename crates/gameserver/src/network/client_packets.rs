@@ -40,6 +40,14 @@ pub mod opcodes {
     pub const REQUEST_TARGET_CANCELD: u8 = 0x48;
     pub const REQUEST_RESTART: u8 = 0x57;
     pub const REQUEST_ACTION_USE: u8 = 0x56;
+    /// `RequestGetItemFromPet` — move an item from the pet's inventory back
+    /// to the owner's.
+    pub const REQUEST_GET_ITEM_FROM_PET: u8 = 0x2C;
+    /// `RequestPetUseItem` — the owner clicks an item in the pet's window.
+    pub const REQUEST_PET_USE_ITEM: u8 = 0x94;
+    /// `RequestGiveItemToPet` — move an item from the owner's inventory into
+    /// the pet's.
+    pub const REQUEST_GIVE_ITEM_TO_PET: u8 = 0x95;
     pub const VALIDATE_POSITION: u8 = 0x59;
     pub const REQUEST_ACQUIRE_SKILL: u8 = 0x7C;
     pub const REQUEST_ACQUIRE_SKILL_INFO: u8 = 0x73;

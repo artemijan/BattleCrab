@@ -104,6 +104,11 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     if let Some(fr) = world.objects.get_component::<crate::model::inventory::Freight>(&object_id) {
         items.extend(fr.to_rows());
     }
+    // Pet-held items persist against the player (Java `PetInventory.getOwnerId`
+    // returns the *owner's* id), so they join the same reconciled set.
+    if let Some(pi) = world.objects.get_component::<crate::model::inventory::PetInventory>(&object_id) {
+        items.extend(pi.to_rows());
+    }
     let skills = world
         .objects
         .get_component::<SkillBook>(&object_id)
@@ -398,7 +403,14 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
                     // rows loaded at login are still current — but they must be
                     // written back, since `store_player` reconciles.
                     pets: b.pets.0.values().cloned().collect(),
-                    items: b.inventory.to_rows().into_iter().chain(b.warehouse.to_rows()).chain(b.freight.to_rows()).collect(),
+                    items: b
+                        .inventory
+                        .to_rows()
+                        .into_iter()
+                        .chain(b.warehouse.to_rows())
+                        .chain(b.freight.to_rows())
+                        .chain(b.pet_inventory.to_rows())
+                        .collect(),
                     skills: b.skills.0.iter().map(|(id, lvl)| (*id, *lvl)).collect(),
                     skills_by_index: Default::default(),
                     hennas_by_index: Default::default(),

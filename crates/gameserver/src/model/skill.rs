@@ -249,6 +249,12 @@ pub enum SkillEffect {
     ManaHeal { power: f64 },
     ManaHealByLevel { power: f64 },
     ManaHealPercent { power: f64 },
+
+    /// `Feed` — restores a pet's food bar (Java `effecthandlers/Feed`). The
+    /// `ride`/`wyvern` params feed a *mounted player's* bar instead; mounts are
+    /// not ported, so only `normal` is carried.
+    /// TODO(G29): apply `ride`/`wyvern` when mounts land.
+    Feed { normal: i32 },
     MpRestore { amount: f64, percent: bool },
     /// `handlers/effecthandlers/MagicalAttackMp.java` — an MP drain (Mana Burn
     /// 1398, Mana Storm 1399, Aura Sink 1102, Seal of Gloom 1210). Damage is

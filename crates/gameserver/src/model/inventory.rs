@@ -885,6 +885,38 @@ impl Warehouse {
     }
 }
 
+/// A pet's inventory (Java `PetInventory` / `ItemLocation.PET`).
+///
+/// Java keys these rows by the **player-owner's** object id, not the pet's
+/// (`PetInventory.getOwnerId()` returns `_owner.getOwner().getObjectId()`), so
+/// they ride along with the character's items exactly like the warehouse does
+/// — the pet entity is transient, the rows are not.
+///
+/// A consequence worth knowing rather than "fixing": because the rows carry no
+/// per-pet discriminator, a player with two collars sees the *same* pet
+/// inventory on both pets. That is Java's behaviour on this dist.
+#[derive(Debug, Clone, Default, bevy_ecs::component::Component)]
+pub struct PetInventory(pub Inventory);
+
+impl PetInventory {
+    pub fn from_rows(rows: &[crate::character::ItemRow]) -> Self {
+        Self(Inventory::from_rows(rows))
+    }
+
+    /// Serialize to `items` rows with `loc="PET"`. Pet paperdoll
+    /// (`PET_EQUIP` — armour/weapon for battle pets) is not modelled yet, so
+    /// everything serializes flat.
+    /// TODO(G29): remap equipped rows to `PET_EQUIP` when pet gear lands.
+    pub fn to_rows(&self) -> Vec<crate::character::ItemRow> {
+        let mut rows = self.0.to_rows();
+        for r in &mut rows {
+            r.loc = "PET".to_string();
+            r.loc_data = 0;
+        }
+        rows
+    }
+}
+
 /// The character's freight (Java `PlayerFreight` / `ItemLocation.FREIGHT`) —
 /// the account-package warehouse other characters send items *to*. Like
 /// [`Warehouse`] it's a flat, per-owner container persisted in the player's
