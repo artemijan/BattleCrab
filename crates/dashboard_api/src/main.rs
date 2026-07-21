@@ -13,14 +13,11 @@ async fn main() {
 
     let config = DashboardConfig::load();
 
-    if config.session_secret.is_empty() {
-        // Refuse rather than generate: a per-boot key silently logs every user
-        // out on each deploy, and an empty HMAC key is not a secret at all.
-        eprintln!(
-            "FATAL: SessionSecret is not set. Set it in {} \
-             or via DIST_GAME_CONFIG_DASHBOARD_SESSIONSECRET.",
-            dashboard_api::config::DASHBOARD_CONFIG_FILE
-        );
+    // Refuse rather than generate: a per-boot key silently logs every user out
+    // on each deploy, and an absent or weak HMAC key means forgeable session
+    // cookies and forgeable password-reset links.
+    if let Err(reason) = dashboard_api::config::validate_session_secret(&config.session_secret) {
+        eprintln!("FATAL: {reason}");
         std::process::exit(1);
     }
 

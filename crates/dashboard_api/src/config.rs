@@ -12,6 +12,20 @@ use commons::config::PropertiesParser;
 
 pub const DASHBOARD_CONFIG_FILE: &str = "dist/game/config/Dashboard.ini";
 
+/// The only place the session signing key is read from.
+///
+/// A dedicated variable rather than `PropertiesParser`'s path-derived override
+/// (`DIST_GAME_CONFIG_DASHBOARD_SESSIONSECRET`), because this value must not be
+/// settable from the config file at all — the point is that there is no
+/// file-shaped path for it to leak through.
+pub const SESSION_SECRET_ENV: &str = "DASHBOARD_SESSION_SECRET";
+
+/// Minimum accepted length for the signing key.
+///
+/// 32 hex chars is 128 bits, the floor for an HMAC key that guards session
+/// cookies. `openssl rand -hex 32` produces 64.
+pub const MIN_SESSION_SECRET_LEN: usize = 32;
+
 pub struct DashboardConfig {
     pub bind_address: String,
     pub port: u16,
@@ -42,9 +56,16 @@ pub struct DashboardConfig {
     pub database_url: String,
     pub database_max_connections: u32,
 
-    /// HMAC key for session cookies and stateless tokens. Must be stable across
-    /// restarts (a per-boot key logs everyone out on every deploy) and must come
-    /// from the environment in production.
+    /// HMAC key for session cookies and password-reset / email-verification
+    /// tokens.
+    ///
+    /// Read from the `DASHBOARD_SESSION_SECRET` environment variable **only**,
+    /// never from `Dashboard.ini`. That file is committed to the repository, so
+    /// a secret placed in it is one `git add` away from living in history
+    /// forever — and from being copied to every clone and CI runner.
+    ///
+    /// Must also be stable across restarts: regenerating it invalidates every
+    /// session and every outstanding reset link.
     pub session_secret: String,
     pub session_ttl_days: i64,
 
@@ -63,6 +84,19 @@ pub struct DashboardConfig {
 impl DashboardConfig {
     pub fn load() -> Self {
         let p = PropertiesParser::load(DASHBOARD_CONFIG_FILE);
+
+        // A secret in the committed ini is ignored, but its presence means one
+        // may already have been committed — say so loudly rather than silently
+        // doing the right thing.
+        if p.contains_key("SessionSecret") {
+            tracing::error!(
+                "{} defines SessionSecret — it is IGNORED (the secret comes from ${} only). \
+                 Remove the key, and rotate the value if it was ever committed.",
+                DASHBOARD_CONFIG_FILE,
+                SESSION_SECRET_ENV,
+            );
+        }
+
         Self {
             bind_address: p.get_string("BindAddress", "0.0.0.0"),
             port: p.get_int("Port", 8080) as u16,
@@ -79,7 +113,9 @@ impl DashboardConfig {
             ),
             database_max_connections: p.get_int("MaximumDatabaseConnections", 5).max(1) as u32,
 
-            session_secret: p.get_string("SessionSecret", ""),
+            // Deliberately NOT p.get_string: the value must never be readable
+            // from the committed config file. See `SESSION_SECRET_ENV`.
+            session_secret: std::env::var(SESSION_SECRET_ENV).unwrap_or_default(),
             session_ttl_days: p.get_long("SessionTtlDays", 7),
 
             registration_enabled: p.get_bool("RegistrationEnabled", true),
@@ -96,3 +132,68 @@ impl DashboardConfig {
     }
 }
 
+
+/// Why a session secret is unusable, if it is.
+///
+/// Checked at startup and fatal: booting with a weak or absent signing key
+/// would mean forgeable session cookies and forgeable password-reset links.
+pub fn validate_session_secret(secret: &str) -> Result<(), String> {
+    if secret.is_empty() {
+        return Err(format!(
+            "${SESSION_SECRET_ENV} is not set.\n\n\
+             The session signing key is read from the environment only — never from \
+             {DASHBOARD_CONFIG_FILE}, which is committed to the repository.\n\n\
+             Generate one:    openssl rand -hex 32\n\
+             Then export it:  {SESSION_SECRET_ENV}=<value>\n\n\
+             It must stay the same across restarts; changing it invalidates every session \
+             and every outstanding password-reset link."
+        ));
+    }
+
+    if secret.chars().count() < MIN_SESSION_SECRET_LEN {
+        return Err(format!(
+            "${SESSION_SECRET_ENV} is too short ({} chars, minimum {MIN_SESSION_SECRET_LEN}).\n\
+             A short key can be brute-forced, which would let an attacker forge session \
+             cookies and password-reset links.\n\n\
+             Generate one:    openssl rand -hex 32",
+            secret.chars().count(),
+        ));
+    }
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod secret_tests {
+    use super::*;
+
+    #[test]
+    fn rejects_an_empty_secret() {
+        let err = validate_session_secret("").unwrap_err();
+        assert!(err.contains(SESSION_SECRET_ENV));
+        // The message has to say how to produce one, not just that it is wrong.
+        assert!(err.contains("openssl rand -hex 32"));
+    }
+
+    #[test]
+    fn rejects_a_short_secret() {
+        assert!(validate_session_secret("tooshort").is_err());
+        assert!(validate_session_secret(&"a".repeat(MIN_SESSION_SECRET_LEN - 1)).is_err());
+    }
+
+    #[test]
+    fn accepts_a_secret_at_or_above_the_floor() {
+        assert!(validate_session_secret(&"a".repeat(MIN_SESSION_SECRET_LEN)).is_ok());
+        // What `openssl rand -hex 32` actually emits.
+        assert!(validate_session_secret(&"0123456789abcdef".repeat(4)).is_ok());
+    }
+
+    #[test]
+    fn counts_characters_not_bytes() {
+        // A multi-byte string long enough in bytes but not in characters must
+        // still be rejected — otherwise `len()` would wave it through.
+        let short_but_multibyte = "é".repeat(MIN_SESSION_SECRET_LEN - 1);
+        assert!(short_but_multibyte.len() >= MIN_SESSION_SECRET_LEN);
+        assert!(validate_session_secret(&short_but_multibyte).is_err());
+    }
+}
