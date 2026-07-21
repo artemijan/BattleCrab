@@ -147,6 +147,14 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
         })
         .unwrap_or_default();
 
+    // A live servitor's row is captured the same way the pet's is: by the
+    // caller, before the summon leaves the world.
+    let summons = world
+        .objects
+        .get_component::<crate::model::components::PlayerSummons>(&object_id)
+        .map(|s| s.0.clone())
+        .unwrap_or_default();
+
     // `PlayerPets` is expected to already carry the live pet's state: callers
     // run `servitor::sync_pet_row` first (it needs `&mut World` for the store
     // sweep, which this read-only builder does not have).
@@ -174,6 +182,7 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     Some(db::PlayerSaveData {
         base,
         pets,
+        summons,
         items,
         skills,
         skills_by_index,
@@ -401,10 +410,11 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
             let _ = world.db.send(db::DbCommand::StorePlayer {
                 save: db::PlayerSaveData {
                     base: db::PlayerSnapshot::of(&b.player, &b.position, &b.vitals, &b.player_vitals),
-                    // No pet can be summoned before entering the world, so the
+                    // No summon can exist before entering the world, so the
                     // rows loaded at login are still current — but they must be
                     // written back, since `store_player` reconciles.
                     pets: b.pets.0.values().cloned().collect(),
+                    summons: b.summons.0.clone(),
                     items: b
                         .inventory
                         .to_rows()

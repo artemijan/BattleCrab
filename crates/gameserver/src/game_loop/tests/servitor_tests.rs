@@ -2737,3 +2737,87 @@ fn the_reconnect_config_is_honoured() {
     crate::game_loop::servitor::restore_pet_on_login(&mut world, OWNER);
     assert!(pet_of(&world, OWNER).is_none(), "config off, no restore");
 }
+
+/// A servitor that was out at logout comes back — rebuilt by **re-casting its
+/// summoning skill**, as Java does, with the saved vitals and remaining
+/// lifetime stamped back on.
+#[test]
+fn a_servitor_that_was_out_at_logout_comes_back() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let summon_skill = 1111;
+    world.data.skill_data.insert_for_test(crate::model::skill::Skill {
+        id: summon_skill,
+        level: 1,
+        effects: vec![SkillEffect::Summon {
+            npc_id: PANTHER,
+            life_time: 1200,
+            consume_item_id: 0,
+            consume_item_count: 0,
+        }],
+        ..Default::default()
+    });
+    world
+        .objects
+        .get_component_mut::<crate::model::components::SkillBook>(&OWNER)
+        .unwrap()
+        .0
+        .insert(summon_skill, 1);
+
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, summon_skill, 1200, 0, 0).unwrap();
+    world.objects.get_component_mut::<Vitals>(&servitor).unwrap().cur_hp = 77.0;
+    world.tick += 200 * 10; // 200 s of its 1200 s spent
+
+    on_owner_leave_world(&mut world, OWNER);
+    assert!(servitor_of(&world, OWNER).is_none(), "it left with its owner");
+
+    crate::game_loop::servitor::restore_servitor_on_login(&mut world, OWNER);
+    let back = servitor_of(&world, OWNER).expect("the servitor came back");
+    assert_eq!(
+        world.objects.get_component::<Vitals>(&back).unwrap().cur_hp,
+        77.0,
+        "with the HP it had"
+    );
+    let remaining = (world.objects.get_component::<ServitorOf>(&back).unwrap().expires_at_tick - world.tick) / 10;
+    assert!(
+        (990..=1005).contains(&remaining),
+        "and roughly its remaining lifetime, not a fresh 1200 s ({remaining})"
+    );
+}
+
+/// A servitor dismissed before logout stays dismissed — the row is cleared
+/// when nothing is out, or it would come back anyway.
+#[test]
+fn a_servitor_dismissed_before_logout_stays_away() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    summon_servitor(&mut world, OWNER, PANTHER, 1111, 1200, 0, 0).unwrap();
+    crate::game_loop::servitor::sync_summon_row(&mut world, OWNER);
+    unsummon_servitor(&mut world, OWNER);
+
+    on_owner_leave_world(&mut world, OWNER);
+    assert!(
+        world.objects.get_component::<crate::model::components::PlayerSummons>(&OWNER).unwrap().0.is_empty(),
+        "the stale row was cleared"
+    );
+    crate::game_loop::servitor::restore_servitor_on_login(&mut world, OWNER);
+    assert!(servitor_of(&world, OWNER).is_none());
+}
+
+/// A skill the player no longer knows (a subclass change between sessions)
+/// restores nothing, and the row is consumed so it is not retried every login.
+#[test]
+fn an_unlearned_summon_skill_restores_nothing_and_is_not_retried() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    summon_servitor(&mut world, OWNER, PANTHER, 1111, 1200, 0, 0).unwrap();
+    on_owner_leave_world(&mut world, OWNER);
+    // The owner never had the skill in their book.
+
+    crate::game_loop::servitor::restore_servitor_on_login(&mut world, OWNER);
+    assert!(servitor_of(&world, OWNER).is_none(), "nothing restored");
+    assert!(
+        world.objects.get_component::<crate::model::components::PlayerSummons>(&OWNER).unwrap().0.is_empty(),
+        "and the row was consumed rather than retried forever"
+    );
+}

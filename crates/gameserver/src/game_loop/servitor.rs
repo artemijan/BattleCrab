@@ -573,9 +573,10 @@ fn notify_owner(world: &World, owner_oid: i32, sm: i16, params: &[crate::network
 /// them. Java stores it in `CharSummonTable` for `RestoreServitorOnReconnect`;
 /// persistence is a later slice, so this just removes it.
 pub(crate) fn on_owner_leave_world(world: &mut World, owner_oid: i32) {
-    // Capture the pet's state before the entity goes away — after
+    // Capture the summon's state before the entity goes away — after
     // `unsummon_servitor` there is nothing left to read it from.
     sync_pet_row(world, owner_oid);
+    sync_summon_row(world, owner_oid);
     unsummon_servitor(world, owner_oid);
 }
 
@@ -1650,4 +1651,93 @@ pub(crate) fn restore_pet_on_login(world: &mut World, owner_oid: i32) {
         p.pending_pet_collar = Some(collar);
     }
     summon_pet(world, owner_oid);
+}
+
+/// Capture the owner's live servitor into `PlayerSummons` (Java's
+/// `character_summons` write). The pet counterpart is `sync_pet_row`; this runs
+/// in the same place, before the summon leaves the world.
+pub(crate) fn sync_summon_row(world: &mut World, owner_oid: i32) {
+    if !world.cfg.character.restore_servitor_on_reconnect {
+        return;
+    }
+    let Some(servitor_oid) = servitor_of(world, owner_oid) else {
+        // Nothing out: clear any stale row, or a servitor dismissed before
+        // logout would come back anyway.
+        if let Some(s) = world.objects.get_component_mut::<crate::model::components::PlayerSummons>(&owner_oid) {
+            s.0.clear();
+        }
+        return;
+    };
+    let Some(link) = world.objects.get_component::<ServitorOf>(&servitor_oid).copied() else { return };
+    // A servitor summoned with no lifetime (`lifeTime <= 0` → `u64::MAX`) has
+    // nothing to count down; store 0 and let the re-cast decide again.
+    let remaining_secs = if link.expires_at_tick == u64::MAX {
+        0
+    } else {
+        ((link.expires_at_tick.saturating_sub(world.tick)) / TICKS_PER_SECOND) as i32
+    };
+    let (cur_hp, cur_mp) = world
+        .objects
+        .get_component::<Vitals>(&servitor_oid)
+        .map(|v| (v.cur_hp as i32, v.cur_mp as i32))
+        .unwrap_or((0, 0));
+    let row = crate::db::SummonRow { summon_skill_id: link.reference_skill, cur_hp, cur_mp, remaining_secs };
+    if world.objects.get_component::<crate::model::components::PlayerSummons>(&owner_oid).is_none() {
+        world.objects.add_components(&owner_oid, crate::model::components::PlayerSummons::default());
+    }
+    if let Some(s) = world.objects.get_component_mut::<crate::model::components::PlayerSummons>(&owner_oid) {
+        s.0.clear();
+        s.0.push(row);
+    }
+}
+
+/// Java `CharSummonTable.restoreServitor` — bring back the servitor that was
+/// out when the owner logged off.
+///
+/// Java restores by **re-casting the summoning skill**
+/// (`skill.applyEffects(player, player)`) and then stamping the saved vitals
+/// and remaining lifetime onto the result. Doing the same here means a restored
+/// servitor is built by the ordinary summon path, so it can never drift from a
+/// freshly summoned one — and it comes back at the player's *current* level of
+/// the skill, so levelling up between sessions is not punished.
+pub(crate) fn restore_servitor_on_login(world: &mut World, owner_oid: i32) {
+    if !world.cfg.character.restore_servitor_on_reconnect {
+        return;
+    }
+    let Some(row) = world
+        .objects
+        .get_component::<crate::model::components::PlayerSummons>(&owner_oid)
+        .and_then(|s| s.0.first().copied())
+    else {
+        return;
+    };
+    // The row is consumed either way (Java `removeServitor` before the recast):
+    // a skill the player no longer knows must not be retried every login.
+    if let Some(s) = world.objects.get_component_mut::<crate::model::components::PlayerSummons>(&owner_oid) {
+        s.0.clear();
+    }
+    let Some(level) = world
+        .objects
+        .get_component::<crate::model::components::SkillBook>(&owner_oid)
+        .and_then(|b| b.0.get(&row.summon_skill_id).copied())
+    else {
+        return; // unlearned across a subclass change — nothing to restore
+    };
+    let Some(skill) = world.data.skill_data.get(row.summon_skill_id, level).cloned() else { return };
+    crate::game_loop::skills::effects::apply_skill_effects(world, owner_oid, owner_oid, &skill);
+
+    // Stamp the saved state back over the fresh summon.
+    let Some(servitor_oid) = servitor_of(world, owner_oid) else { return };
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&servitor_oid) {
+        v.cur_hp = (row.cur_hp as f64).clamp(1.0, v.max_hp as f64);
+        v.cur_mp = (row.cur_mp as f64).clamp(0.0, v.max_mp as f64);
+    }
+    if row.remaining_secs > 0 {
+        let expires = world.tick + (row.remaining_secs as u64) * TICKS_PER_SECOND;
+        if let Some(s) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
+            s.expires_at_tick = expires;
+        }
+    }
+    send_pet_info(world, owner_oid, servitor_oid, PetInfoKind::Summoned);
+    broadcast_summon_info(world, servitor_oid, true);
 }

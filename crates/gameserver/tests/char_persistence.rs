@@ -77,6 +77,7 @@ fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
         recipe_book: c.recipe_book.iter().map(|&id| (id, true)).collect(),
         variables: c.variables.clone(),
         pets: c.pets.clone(),
+        summons: c.summons.clone(),
         shortcuts: c.shortcuts.clone(),
         macros: c.macros.clone(),
         quests: c.quests.clone(),
@@ -785,7 +786,7 @@ async fn pets_persist() {
     let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables", "pets"] {
+        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables", "pets", "character_summons"] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -830,6 +831,14 @@ async fn pets_persist() {
         // resummon reads it back to decide whether the pet was out at logout.
         restore: true,
     }];
+    // A servitor row rides along: unlike a pet it has no collar, so it is
+    // rebuilt from the summoning skill id on the next login.
+    save.summons = vec![db::SummonRow {
+        summon_skill_id: 1111,
+        cur_hp: 320,
+        cur_mp: 45,
+        remaining_secs: 900,
+    }];
     cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
     cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
     let reloaded = match recv(&event_rx) {
@@ -844,6 +853,9 @@ async fn pets_persist() {
             assert_eq!(p.fed, 140);
             assert_eq!(p.cur_hp, 91.5, "fractional HP survives the column type");
             assert!(p.restore, "the 'was out at logout' flag round-trips as a string column");
+            assert_eq!(c.summons.len(), 1, "the servitor row came back");
+            assert_eq!(c.summons[0].summon_skill_id, 1111);
+            assert_eq!(c.summons[0].remaining_secs, 900, "its lifetime is not reset by a relog");
             assert_eq!(c.items.len(), 1, "the collar itself is untouched");
             c.clone()
         }

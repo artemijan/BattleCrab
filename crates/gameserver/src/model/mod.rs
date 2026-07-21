@@ -430,6 +430,8 @@ pub struct PlayerData {
     pub variables: components::PlayerVariables,
     /// Saved pet rows, keyed by collar object id (Java's `pets` table).
     pub pets: components::PlayerPets,
+    /// The servitor that was out at logout (`character_summons`).
+    pub summons: components::PlayerSummons,
     /// Items held by the player's pet (Java `PetInventory`, `loc="PET"`).
     pub pet_inventory: inventory::PetInventory,
     pub shortcuts: Shortcuts,
@@ -523,6 +525,7 @@ impl PlayerData {
                     self.variables,
                     self.pets,
                     self.pet_inventory,
+                    self.summons,
                 ),
             ),
         );
@@ -962,6 +965,7 @@ impl Player {
             pets: components::PlayerPets(
                 c.pets.iter().map(|p| (p.collar_object_id, p.clone())).collect(),
             ),
+            summons: components::PlayerSummons(c.summons.clone()),
             pet_inventory,
             shortcuts: Shortcuts::from_list(shortcuts),
             macros: Macros::from_list(c.macros.clone()),
