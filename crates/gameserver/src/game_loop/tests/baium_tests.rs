@@ -128,3 +128,100 @@ fn the_strider_debuff_is_not_recast_while_it_holds() {
     }
     assert_eq!(casts, 0, "already hindered, nothing recast");
 }
+
+// ---------------------------------------------------------------------------
+// The threat table (slice 12)
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::baium::BaiumThreat;
+
+fn threat(world: &World, oid: i32) -> [(i32, i32); 3] {
+    world.objects.get_component::<BaiumThreat>(&oid).map(|t| t.slots).unwrap_or_default()
+}
+
+fn wound_baium_to(world: &mut World, fraction: f64) {
+    let v = world.objects.get_component_mut::<Vitals>(&BAIUM_OID).unwrap();
+    v.cur_hp = v.max_hp as f64 * fraction;
+}
+
+/// **Melee threat is worth fifty times a caster's at full health** — `×1000`
+/// against `(damage/3) × 20`. That asymmetry is the fight, so it is asserted
+/// as a ratio rather than two independent numbers.
+#[test]
+fn melee_threat_dwarfs_caster_threat_at_full_health() {
+    let (mut world, _db, _l) = baium_world();
+    add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
+    let melee = PLAYER;
+    let caster = PLAYER + 1;
+    // No jitter, so the ladder alone decides.
+    world.forced_rolls.push_back(0);
+    crate::game_loop::baium::on_baium_damage(&mut world, BAIUM_OID, melee, 300, true);
+    world.forced_rolls.push_back(0);
+    crate::game_loop::baium::on_baium_damage(&mut world, BAIUM_OID, caster, 300, false);
+
+    let t = threat(&world, BAIUM_OID);
+    let melee_v = t.iter().find(|(id, _)| *id == melee).unwrap().1;
+    let caster_v = t.iter().find(|(id, _)| *id == caster).unwrap().1;
+    assert_eq!(melee_v, 300 * 1000);
+    assert_eq!(caster_v, (300 / 3) * 20);
+    assert_eq!(melee_v / caster_v, 150, "melee is worth 150x this caster hit");
+}
+
+/// **The caster weighting climbs as Baium weakens** — a caster who is beneath
+/// notice at full health becomes a real threat below 25%.
+#[test]
+fn caster_threat_climbs_as_baium_weakens() {
+    let weighted_at = |fraction: f64| {
+        let (mut world, _db, _l) = baium_world();
+        add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
+        wound_baium_to(&mut world, fraction);
+        world.forced_rolls.push_back(0);
+        crate::game_loop::baium::on_baium_damage(&mut world, BAIUM_OID, PLAYER, 300, false);
+        threat(&world, BAIUM_OID).iter().find(|(id, _)| *id == PLAYER).unwrap().1
+    };
+
+    let full = weighted_at(1.0); // (300/3)*20 = 2000
+    let three_quarters = weighted_at(0.6); // *10 = 3000
+    let half = weighted_at(0.4); // *20 = 6000
+    let quarter = weighted_at(0.1); // (300/3)*100 = 10000
+
+    assert_eq!((full, three_quarters, half, quarter), (2000, 3000, 6000, 10000));
+    assert!(quarter > full * 4, "a caster matters five times more once Baium is nearly dead");
+}
+
+/// The table holds **three** attackers, and a fourth displaces the weakest —
+/// not the oldest, and not nobody.
+#[test]
+fn a_fourth_attacker_displaces_the_weakest() {
+    let (mut world, _db, _l) = baium_world();
+    add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
+    for (oid, dmg) in [(101, 500), (102, 100), (103, 400)] {
+        world.forced_rolls.push_back(0);
+        crate::game_loop::baium::refresh_threat(&mut world, BAIUM_OID, oid, dmg, dmg);
+    }
+    // 102 is the weakest at 100.
+    world.forced_rolls.push_back(0);
+    crate::game_loop::baium::refresh_threat(&mut world, BAIUM_OID, 104, 300, 300);
+
+    let ids: Vec<i32> = threat(&world, BAIUM_OID).iter().map(|(id, _)| *id).collect();
+    assert!(ids.contains(&104), "the newcomer got on the table");
+    assert!(!ids.contains(&102), "by displacing the weakest, not the oldest");
+    assert!(ids.contains(&101) && ids.contains(&103), "the stronger two stayed");
+}
+
+/// An attacker already on the table is **only raised when it is below the
+/// floor** — repeated small hits don't ratchet a threat upward forever.
+#[test]
+fn an_existing_entry_is_not_ratcheted_by_small_hits() {
+    let (mut world, _db, _l) = baium_world();
+    add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
+    world.forced_rolls.push_back(0);
+    crate::game_loop::baium::refresh_threat(&mut world, BAIUM_OID, PLAYER, 10_000, 10_000);
+    let after_big = threat(&world, BAIUM_OID)[0].1;
+
+    // A small follow-up: its floor (50 + 1000) is far below the stored value,
+    // so nothing changes.
+    world.forced_rolls.push_back(0);
+    crate::game_loop::baium::refresh_threat(&mut world, BAIUM_OID, PLAYER, 50, 50);
+    assert_eq!(threat(&world, BAIUM_OID)[0].1, after_big, "a small hit does not move a large threat");
+}
