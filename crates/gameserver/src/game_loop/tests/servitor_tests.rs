@@ -2539,3 +2539,102 @@ fn an_npc_skill_on_cooldown_cannot_be_recast() {
         "ready again once it expires"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Pet equipment (slice 25)
+// ---------------------------------------------------------------------------
+
+const WOLF_ARMOR: i32 = 3891;
+
+/// Register Wolf's Hide Armor — a real chest-slot pet armour with defence.
+fn register_pet_armor(world: &mut World) {
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = WOLF_ARMOR;
+    t.name = "Wolf's Hide Armor".into();
+    t.kind = crate::data::item_data::ItemKind::Armor;
+    t.body_part = crate::data::item_data::SLOT_CHEST;
+    world.data.item_data.insert_for_test(t);
+    world
+        .data
+        .item_data
+        .insert_stats_for_test(WOLF_ARMOR, vec![(crate::model::stats::Stat::PhysicalDefence, 31.0)]);
+}
+
+fn give_pet_armor(world: &mut World) -> i32 {
+    let World { data, objects, .. } = world;
+    objects.get_component_mut::<PetInventory>(&OWNER).unwrap().0.add_item(&data.item_data, 7_600_001, WOLF_ARMOR, 1)
+}
+
+/// A pet's armour goes on its **own** paperdoll, and its defence counts.
+#[test]
+fn a_pet_can_wear_armour_and_gains_its_defence() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_pet_armor(&mut world);
+    let pet_oid = summoned_pet(&mut world);
+    let armor = give_pet_armor(&mut world);
+
+    let before = world.objects.get_component::<crate::model::components::CombatStats>(&pet_oid).unwrap().p_def;
+    crate::game_loop::servitor::equip_pet_item(&mut world, OWNER, pet_oid, armor);
+
+    assert!(
+        world.objects.get_component::<PetInventory>(&OWNER).unwrap().0.paperdoll_slot_of(armor).is_some(),
+        "the armour is worn"
+    );
+    let after = world.objects.get_component::<crate::model::components::CombatStats>(&pet_oid).unwrap().p_def;
+    assert!(after > before, "and its defence counts ({before} → {after})");
+}
+
+/// Clicking a worn item takes it off again (Java `useEquippableItem` toggles),
+/// and the defence goes with it.
+#[test]
+fn clicking_worn_pet_armour_takes_it_off() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_pet_armor(&mut world);
+    let pet_oid = summoned_pet(&mut world);
+    let armor = give_pet_armor(&mut world);
+
+    let naked = world.objects.get_component::<crate::model::components::CombatStats>(&pet_oid).unwrap().p_def;
+    crate::game_loop::servitor::equip_pet_item(&mut world, OWNER, pet_oid, armor);
+    crate::game_loop::servitor::equip_pet_item(&mut world, OWNER, pet_oid, armor);
+
+    assert!(
+        world.objects.get_component::<PetInventory>(&OWNER).unwrap().0.paperdoll_slot_of(armor).is_none(),
+        "taken off"
+    );
+    assert_eq!(
+        world.objects.get_component::<crate::model::components::CombatStats>(&pet_oid).unwrap().p_def,
+        naked,
+        "and the defence went with it"
+    );
+}
+
+/// Worn pet armour persists as `PET_EQUIP`, carried items as `PET` — and the
+/// slot survives the round trip, so a pet's armour comes back **on** rather
+/// than loose in its bag. This closes the `TODO(G29)` slice 8 left behind.
+#[test]
+fn pet_equipment_round_trips_through_its_own_location() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_pet_armor(&mut world);
+    register_food(&mut world, 100);
+    let pet_oid = summoned_pet(&mut world);
+    let armor = give_pet_armor(&mut world);
+    put_food_in_pet(&mut world, 3);
+    crate::game_loop::servitor::equip_pet_item(&mut world, OWNER, pet_oid, armor);
+
+    let rows = world.objects.get_component::<PetInventory>(&OWNER).unwrap().to_rows();
+    let worn = rows.iter().find(|r| r.item_id == WOLF_ARMOR).expect("armour row");
+    let carried = rows.iter().find(|r| r.item_id == WOLF_FOOD).expect("food row");
+    assert_eq!(worn.loc, "PET_EQUIP", "worn gear gets its own location");
+    assert_ne!(worn.loc_data, 0, "and keeps the slot it was in");
+    assert_eq!(carried.loc, "PET", "carried items stay in the bag");
+
+    // Back again.
+    let restored = crate::model::inventory::PetInventory::from_rows(&rows);
+    assert!(
+        restored.0.paperdoll_slot_of(worn.object_id).is_some(),
+        "the pet's armour comes back on, not loose in its bag"
+    );
+}

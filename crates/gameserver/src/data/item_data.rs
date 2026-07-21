@@ -877,6 +877,12 @@ impl ItemData {
     /// A neutral template to build test fixtures from — a plain, weightless,
     /// non-stackable `EtcItem`. Only exists so tests can name the two or three
     /// fields they care about instead of spelling out all thirty.
+    /// Attach `<stats>` bonuses to an item in a test fixture.
+    #[cfg(test)]
+    pub fn insert_stats_for_test(&mut self, item_id: i32, bonuses: Vec<(crate::model::stats::Stat, f64)>) {
+        self.stat_bonuses.insert(item_id, ItemStats { bonuses, ..Default::default() });
+    }
+
     pub fn insert_for_test(&mut self, t: ItemTemplate) {
         self.by_id.insert(t.item_id, t);
     }
