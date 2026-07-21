@@ -1,9 +1,9 @@
 # Web Dashboard — Technical Design
 
-Status: **D1–D2 implemented** on branch `feat/dashboard` (written 2026-07-21).
-`crates/dashboard_api` and `web/dashboard` exist and work end to end — register, log in, list
-characters, change password/email. §14 records exactly what is built, where the implementation
-deviated from this plan, and what is still stubbed.
+Status: **D1–D2 implemented** on branch `feat/dashboard` (written 2026-07-21), then reworked onto
+**email identity** on `feat/dashboard-email-auth` (§15). `crates/dashboard_api` and `web/dashboard`
+exist and work end to end — register, log in, list characters, change password/email. §14 records
+exactly what is built, where the implementation deviated from this plan, and what is still stubbed.
 
 Scope: a public web application for the BattleCrab L2 server offering account **registration**,
 **account management** (login, change password, email, view characters), and a
@@ -13,6 +13,12 @@ Scope: a public web application for the BattleCrab L2 server offering account **
 `accounts` (read/write, narrowly) and `characters` (read-only). No new tables.** That constraint
 is the single most shaping decision in this document; §5 explains how auth works without any
 storage of its own, and §7 covers what has to change when the coin shop eventually lands.
+
+> **Amendment (2026-07-21) — §15 supersedes parts of §5.** The dashboard identity is now an
+> **email address**, not a game login name, and `accounts` gained an `is_verified` column. Where
+> §5.4/§5.5 say the session subject is `login`, or that a stored `accounts.email` means "verified",
+> read §15 instead — those passages describe the original design, kept for the reasoning behind
+> the stateless-token construction, which is unchanged.
 
 ---
 
@@ -214,11 +220,12 @@ plus the plaintext `login` and `expiry`. Verification recomputes the HMAC using 
 changes, and the token no longer validates. Expiry caps the window (e.g. 1 hour). This is the same
 construction Django uses for its reset links.
 
-**Email verification.** Issue a token over `login ‖ new_email ‖ expiry` and **only write
-`accounts.email` when the link is clicked**. Because the column is written solely by that path, an
-email present in `accounts.email` is verified *by construction* — which is what lets us skip the
-`email_verified` boolean we have nowhere to store. An unverified address simply isn't persisted;
-it lives only inside the signed token in the user's inbox.
+**Email verification.** Issue a token over `subject ‖ new_email ‖ expiry` and **only write the
+address when the link is clicked**.
+
+> Superseded in part by §15: the "a stored address is verified by construction" trick is gone,
+> because registration now stores the address up front — it *is* the login. An explicit
+> `accounts.is_verified` column records proof instead. The token construction is unchanged.
 
 One consequence to accept: a user who requests a change and never clicks the link keeps their old
 email, with nothing in the UI showing "pending". Re-request is the remedy. Cheap, and no storage.
@@ -234,8 +241,10 @@ URL and sets WAL + `busy_timeout`).
 - `UPDATE` on `password` and `email` **only**.
 - **Never** write `accessLevel` (privilege escalation), `lastIP`/`pcIp`/`hop*` (the login server
   owns those), `lastServer`, or `lastactive`.
-- Registration must handle the race with in-game auto-creation: rely on the `login` PRIMARY KEY and
-  treat a constraint violation as "username taken", rather than a check-then-insert.
+- Registration must handle the race with in-game auto-creation: rely on a unique constraint and
+  treat a violation as "taken", rather than a check-then-insert. (Since §15, `login` is a UNIQUE
+  index rather than the primary key, and master accounts are made unique by the
+  `accounts_master_email` partial index.)
 
 **`characters` — read-only**
 
@@ -586,7 +595,8 @@ the next person doesn't trust a spec the implementation has already moved past.
   per-account login throttling, embedded SPA with client-route fallback.
 - `web/dashboard` — React 19 + TS on Bun. Landing, login, register, and account pages; glass
   surfaces, blue/yellow palette, light/dark toggle, staggered entrance animations.
-- **45 Rust tests** (31 unit + 14 HTTP-level integration against a real SQLite schema).
+- **Rust tests**: unit + HTTP-level integration against a real SQLite schema (25 integration cases
+  after the §15 rework, including the game-account-cannot-sign-in guard).
 - Verified against a running server: registering `Smoke`/`correct-horse` stored
   `NstYn3QVe0WBGmkMWLQ0CV9I6fo=`, which equals an independently computed
   `base64(sha1("correct-horse"))`. **The D2 acceptance criterion — a web-created account is
@@ -670,3 +680,78 @@ fonts. Bun content-hashes all of these at build time, which is what makes the im
   boot when it isn't.
 - `dist/` must be built (`bun run build`) before `cargo build --release`, because `rust-embed` reads
   it at compile time. In debug it reads from disk, so `cargo run` works without a built frontend.
+
+---
+
+## 15. Master accounts — email identity (2026-07-21)
+
+Supersedes the parts of §5 that treat the game login name as the dashboard identity.
+
+### 15.1 The problem
+
+The original design gave each player exactly one row in `accounts`, used as both the game login and
+the website login. That forecloses the thing players actually want: several game accounts (to park
+characters, to mule, to play alongside a friend on one household) under one person. It also makes
+the website login name a game-client constraint — ASCII alphanumerics, 45 chars — for no reason the
+user can see.
+
+### 15.2 The model
+
+One table, two kinds of row, told apart by `login`:
+
+| | `login` | `email` | `is_verified` |
+|---|---|---|---|
+| **Master account** (dashboard identity) | `NULL` | the address, unique among masters | `0` or `1` |
+| **Game account** (typed into the client) | the login name | copy of its master's address | `NULL` |
+
+The address is the link between them. A master account **cannot log into the game**: every
+login-server query is `WHERE login = ?`, and no NULL row matches that — so the model needs no new
+guard on the game side, which is why `login IS NULL` was chosen over, say, an `is_master` flag.
+
+`is_verified` is deliberately three-valued. `NULL` means "not an identity, question doesn't apply",
+which is what makes a game account's row self-describing rather than only meaningful in contrast to
+its master.
+
+### 15.3 Schema
+
+`login` becomes nullable, so it can no longer be the primary key. It is a `UNIQUE` index instead;
+the table has no primary key, which is fine because every query keys on `login` or `email`.
+
+Master-account uniqueness is a *partial* constraint — unique on `email` **where `login IS NULL`**,
+since game accounts deliberately share their master's address. sqlite and postgresql express this
+as a partial unique index (`accounts_master_email`). **MariaDB cannot**, and enforces it only in
+the application; the note in `dist/db_installer/sql/mariadb/login/accounts.sql` records this. The
+dashboard runs on SQLite today, so nothing depends on the MariaDB gap right now — but a future
+MariaDB deployment would need a `BEFORE INSERT` trigger or a generated-column index.
+
+### 15.4 Sessions and tokens
+
+The cookie and one-time tokens are unchanged in construction (§5.3, §5.4); only the **subject**
+changed, from the login name to the address. `Account::subject()` is the single place that decides
+this, so nothing else has to know.
+
+`current_account` resolves the cookie through `find_master_by_email`, whose `login IS NULL`
+predicate is load-bearing: without it a game account sharing the address would satisfy the lookup,
+and a leaked sub-account password would open the owner's dashboard. The test
+`a_game_account_cannot_sign_into_the_dashboard` fails if that predicate is removed.
+
+### 15.5 Verification
+
+Registration now stores the address immediately — it is the login — so §5.4's "a stored address is
+verified by construction" no longer holds, and `is_verified` records proof explicitly.
+
+An unverified account **can still sign in**, carrying `isVerified: false` so the SPA can nag.
+Blocking login would strand any user whose verification mail bounced, with no authenticated way to
+ask for another; `/auth/resend-verification` is that path, and it requires a session.
+
+One handler serves both links, distinguished by whether the token's payload differs from its
+subject: `(email, email)` confirms, `(old, new)` moves the account. A move rewrites the master row
+*and every game account under it* in one transaction — they are joined by the address itself, so a
+partial update would orphan the lot.
+
+### 15.6 Not yet built
+
+Creating game accounts from the dashboard. The schema, `accounts::create_game_account`, and the
+`GET /account/game-accounts` listing are in place; the create endpoint and its UI are not. When
+added, it must validate the login with `validate_login` (the game-client rules still apply to
+*that* name) and hash with the same `commons::crypt::hash_password`.

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { ApiError, api } from "../lib/api";
@@ -8,14 +8,17 @@ import { AuthShell } from "./Auth";
 /**
  * Consume an email-verification link: `/verify-email?token=...`.
  *
- * Clicking the link is what actually writes `accounts.email` — the address is
- * never stored before it is proven, which is how "an address on the account"
- * can mean "a verified address" without a separate column.
+ * Serves both links the API issues, which differ only in what the token says:
+ * a registration link confirms the address already on the account (setting
+ * `is_verified`), while a change-of-address link moves the account — and its
+ * game accounts — onto the new address. Either way nothing is committed until
+ * the link is clicked, because the address is the account's login.
  *
  * Deliberately works logged out: the link is usually opened from a mail client,
  * often in a different browser from the one that requested the change.
  */
 export function VerifyEmail() {
+  const queryClient = useQueryClient();
   const [params] = useSearchParams();
   const token = params.get("token") ?? "";
 
@@ -23,6 +26,10 @@ export function VerifyEmail() {
     queryKey: ["verify-email", token],
     queryFn: async () => {
       await api.verifyEmail(token);
+      // The cached account still says unverified (and may hold the old
+      // address), which would leave the "confirm your email" banner up on a
+      // page the user is about to navigate to.
+      await queryClient.invalidateQueries({ queryKey: ["me"] });
       // Must return something. The endpoint answers 204, so the client resolves
       // to `undefined` — which TanStack Query treats as a failed query, and the
       // page would report an error for a verification that actually succeeded.
@@ -74,8 +81,7 @@ export function VerifyEmail() {
 
       {verify.isSuccess && (
         <Alert kind="success">
-          Your email address is confirmed. You can use it to reset your password if you ever lose
-          it.
+          Your email address is confirmed. This is the address you sign in with.
         </Alert>
       )}
 

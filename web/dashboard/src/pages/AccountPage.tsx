@@ -30,6 +30,8 @@ export function AccountPage() {
         </p>
       </section>
 
+      <UnverifiedEmailBanner />
+
       <section>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--text-faint)]">
           Characters
@@ -45,7 +47,7 @@ export function AccountPage() {
           <Panel className="p-8 text-center">
             <p className="font-medium">No characters yet</p>
             <p className="mt-1.5 text-sm text-[var(--text-muted)]">
-              Log into the game client with this account to create your first one.
+              Characters live on a game account. Create one, then log into the game client with it.
             </p>
           </Panel>
         ) : (
@@ -93,9 +95,47 @@ function CharacterCard({ character }: { character: Character }) {
         <p className="mt-0.5 truncate text-sm text-[var(--text-muted)]">
           Level {character.level} · {raceName(character.race)}
         </p>
-        <p className="mt-0.5 text-xs text-[var(--text-faint)]">{playtime(character.onlineTime)}</p>
+        {/* One master account can own several game accounts, so the character
+            alone does not say which login it is reached through. */}
+        <p className="mt-0.5 truncate text-xs text-[var(--text-faint)]">
+          {character.accountName} · {playtime(character.onlineTime)}
+        </p>
       </div>
     </Panel>
+  );
+}
+
+/**
+ * An unverified address can still sign in, so nothing blocks the user — but it
+ * is the account's only identity and its only password-recovery route, which
+ * makes leaving it unconfirmed worth being loud about.
+ */
+function UnverifiedEmailBanner() {
+  const me = useQuery({ queryKey: ["me"], queryFn: api.me });
+  const resend = useMutation({ mutationFn: api.resendVerification });
+
+  if (!me.data || me.data.isVerified) return null;
+
+  return (
+    <Alert kind="error">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span>
+          Confirm {me.data.email} to secure your account — without it you can't reset your password.
+        </span>
+        {resend.isSuccess ? (
+          <span className="text-sm font-medium">Sent — check your inbox.</span>
+        ) : (
+          <Button
+            type="button"
+            variant="secondary"
+            loading={resend.isPending}
+            onClick={() => resend.mutate()}
+          >
+            Resend link
+          </Button>
+        )}
+      </div>
+    </Alert>
   );
 }
 
@@ -183,7 +223,7 @@ function ChangeEmailCard() {
       <h2 className="font-semibold">Email address</h2>
       <p className="mt-1 text-sm text-[var(--text-muted)]">
         {me.data?.email
-          ? `Currently ${me.data.email}. Used only for password resets.`
+          ? `Currently ${me.data.email}. This is how you sign in.`
           : "Add an email so you can reset your password if you forget it."}
       </p>
 
@@ -193,11 +233,11 @@ function ChangeEmailCard() {
             {submit.error instanceof ApiError ? submit.error.message : "Something went wrong."}
           </Alert>
         )}
-        {/* The address is stored only once the link is clicked — that is what
-            makes a stored address mean "verified" (PLAN_DASHBOARD.md §5.4). */}
+        {/* The move happens only once the link is clicked: the address is the
+            login, so switching before it is proven would lock the user out. */}
         {submit.isSuccess && (
           <Alert kind="success">
-            Check your inbox — the address is saved once you click the link.
+            Check your inbox — you'll sign in with the new address once you click the link.
           </Alert>
         )}
 

@@ -95,7 +95,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
   );
 }
 
-export function Header({ account }: { account?: { login: string } | null }) {
+export function Header({ account }: { account?: { email: string | null } | null }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -124,8 +124,13 @@ export function Header({ account }: { account?: { login: string } | null }) {
           {account ? (
             <>
               <NavItem to="/account">Account</NavItem>
-              <span className="mx-2 hidden text-sm text-[var(--text-muted)] md:inline">
-                {account.login}
+              {/* An address is far longer than the login name this replaced, so
+                  it is truncated rather than allowed to push the nav around. */}
+              <span
+                className="mx-2 hidden max-w-[16ch] truncate text-sm text-[var(--text-muted)] md:inline"
+                title={account.email ?? undefined}
+              >
+                {account.email}
               </span>
               <Button
                 variant="ghost"
@@ -223,7 +228,7 @@ export function Page({
   account,
   children,
 }: {
-  account?: { login: string } | null;
+  account?: { email: string | null } | null;
   children: ReactNode;
 }) {
   return (
