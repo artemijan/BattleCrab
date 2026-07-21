@@ -568,6 +568,13 @@ pub struct ServitorOf {
     /// servitor trails its owner when it has nothing else to do. Toggled by the
     /// "hold" action; cleared when it is ordered to attack.
     pub following: bool,
+    /// Java `Servitor._itemConsume` — the upkeep item the owner pays
+    /// periodically (a gemstone on the golems). `0` = no upkeep.
+    pub consume_item_id: i32,
+    pub consume_item_count: i64,
+    /// Absolute tick the next upkeep payment falls due; `u64::MAX` when there
+    /// is no upkeep item.
+    pub next_consume_tick: u64,
 }
 
 /// Panel shortcuts (Java `Player._shortCuts`), keyed by

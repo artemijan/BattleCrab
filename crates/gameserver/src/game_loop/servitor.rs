@@ -20,6 +20,18 @@ use commons::network::PacketWriter;
 /// 100 ms).
 const TICKS_PER_SECOND: u64 = 10;
 
+/// Java's `Servitor.run()` period — a fixed `usedtime = 5000` ms.
+const LIFE_TICK_SECS: u64 = 5;
+
+/// Java's default `consumeItemInterval` for a non-siege-weapon servitor: 240 s
+/// (siege weapons use 60). The per-skill override is rare on this dist, so the
+/// default is what almost every summon runs on.
+const CONSUME_INTERVAL_SECS: u64 = 240;
+
+/// Java's leash: further than this from its owner and the servitor is forced
+/// back into follow, regardless of what it was doing.
+const LEASH_DISTANCE: f64 = 2000.0;
+
 use super::helpers::client_for_player;
 
 /// Java `Player.getServitors()` — this port scans rather than caching a second
@@ -39,12 +51,15 @@ pub(crate) fn servitor_of(world: &mut World, owner_oid: i32) -> Option<i32> {
 ///
 /// Java unsummons any existing servitors first (`player.getServitors().values()
 /// .forEach(s -> s.unSummon(player))`), so re-casting swaps rather than stacks.
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn summon_servitor(
     world: &mut World,
     owner_oid: i32,
     npc_id: i32,
     reference_skill: i32,
     life_time: i32,
+    consume_item_id: i32,
+    consume_item_count: i64,
 ) -> Option<i32> {
     // Players only (Java's `if (!effected.isPlayer()) return`).
     world.objects.get_component::<crate::model::Player>(&owner_oid)?;
@@ -69,6 +84,13 @@ pub(crate) fn summon_servitor(
             life_time_secs: life_time,
             // Java: a fresh summon follows (`getFollowStatus()` defaults true).
             following: true,
+            consume_item_id,
+            consume_item_count,
+            next_consume_tick: if consume_item_id > 0 {
+                world.tick + CONSUME_INTERVAL_SECS * TICKS_PER_SECOND
+            } else {
+                u64::MAX
+            },
         },
     );
     // `summon.setCurrentHp(getMaxHp()); setCurrentMp(getMaxMp())`.
@@ -76,6 +98,11 @@ pub(crate) fn summon_servitor(
         v.cur_hp = v.max_hp as f64;
         v.cur_mp = v.max_mp as f64;
     }
+    // Java arms `_summonLifeTask` at a fixed 5 s period.
+    world.scheduler.schedule(
+        world.tick + LIFE_TICK_SECS * TICKS_PER_SECOND,
+        crate::scheduler::ScheduledTask::ServitorLifeTick { servitor_oid },
+    );
     send_pet_info(world, owner_oid, servitor_oid, PetInfoKind::Summoned);
     // Everyone else nearby gets `SummonInfo` with the spawn animation — Java's
     // `setShowSummonAnimation(true)` before `spawnMe()`.
@@ -430,4 +457,108 @@ pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summon
             cs.send(pkt.clone());
         }
     }
+}
+
+/// Java `Servitor.run()` — the 5-second upkeep tick.
+///
+/// In order: lifetime countdown (expiry → "Your servitor passed away" +
+/// unsummon), the periodic upkeep item (missing → "not enough items" +
+/// unsummon), the remain-time bar, and the far-from-owner leash. Reschedules
+/// itself while the servitor lives, which is Java's `_summonLifeTask` cancelled
+/// on death/despawn.
+pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
+    use crate::network::server_packets::{sm_ids, SmParam};
+    let Some(link) = world.objects.get_component::<ServitorOf>(&servitor_oid).copied() else { return };
+    // Dead or already gone → the chain ends (Java cancels the task).
+    if world.objects.get_component::<Vitals>(&servitor_oid).is_none_or(|v| v.dead) {
+        return;
+    }
+    let owner = link.owner_object_id;
+
+    // 1. Lifetime.
+    if world.tick >= link.expires_at_tick {
+        notify_owner(world, owner, sm_ids::YOUR_SERVITOR_PASSED_AWAY, &[]);
+        unsummon_servitor(world, owner);
+        return;
+    }
+
+    // 2. Upkeep item.
+    if link.consume_item_id > 0 && world.tick >= link.next_consume_tick {
+        // `destroyItemByItemId` — take the upkeep item, or fail.
+        use crate::model::inventory::Inventory;
+        let have = world
+            .objects
+            .get_component::<Inventory>(&owner)
+            .map(|inv| inv.count_of(link.consume_item_id))
+            .unwrap_or(0);
+        let taken = have >= link.consume_item_count;
+        if taken {
+            let changes = world
+                .objects
+                .get_component_mut::<Inventory>(&owner)
+                .map(|inv| inv.remove_item(link.consume_item_id, link.consume_item_count))
+                .unwrap_or_default();
+            if let Some(cid) = client_for_player(world, owner) {
+                if let Some(cs) = world.clients.get(&cid) {
+                    cs.send(crate::network::enter_world::inventory_update_changes(&world.data, &changes));
+                }
+            }
+            notify_owner(world, owner, sm_ids::A_SUMMONED_MONSTER_USES_S1, &[SmParam::ItemName(link.consume_item_id)]);
+            if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
+                l.next_consume_tick = world.tick + CONSUME_INTERVAL_SECS * TICKS_PER_SECOND;
+            }
+        } else {
+            notify_owner(world, owner, sm_ids::NOT_ENOUGH_ITEMS_TO_MAINTAIN_SERVITOR, &[]);
+            unsummon_servitor(world, owner);
+            return;
+        }
+    }
+
+    // 3. The remaining-time bar.
+    if link.life_time_secs > 0 {
+        let remaining = (link.expires_at_tick.saturating_sub(world.tick) / TICKS_PER_SECOND) as i32;
+        if let Some(cid) = client_for_player(world, owner) {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(server_packets::set_summon_remain_time(link.life_time_secs, remaining));
+            }
+        }
+    }
+
+    // 4. The leash — "using same task to check if owner is in visible range".
+    // A servitor left too far behind is dragged back into follow whatever it
+    // was doing, so an ordered attack can't strand it across the map.
+    if let (Some(me), Some(o)) = (
+        world.objects.get_component::<Position>(&servitor_oid).copied(),
+        world.objects.get_component::<Position>(&owner).copied(),
+    ) {
+        let dx = (me.x - o.x) as f64;
+        let dy = (me.y - o.y) as f64;
+        let dz = (me.z - o.z) as f64;
+        if (dx * dx + dy * dy + dz * dz).sqrt() > LEASH_DISTANCE {
+            if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
+                l.following = true;
+            }
+            if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&servitor_oid) {
+                ai.intention = crate::model::npc::NpcIntention::Active;
+            }
+        }
+    }
+
+    world.scheduler.schedule(
+        world.tick + LIFE_TICK_SECS * TICKS_PER_SECOND,
+        crate::scheduler::ScheduledTask::ServitorLifeTick { servitor_oid },
+    );
+}
+
+fn notify_owner(world: &World, owner_oid: i32, sm: i16, params: &[crate::network::server_packets::SmParam]) {
+    let Some(cid) = client_for_player(world, owner_oid) else { return };
+    let Some(cs) = world.clients.get(&cid) else { return };
+    cs.send(server_packets::system_message_with(sm, params));
+}
+
+/// The owner left the world (logout/disconnect) — their servitor goes with
+/// them. Java stores it in `CharSummonTable` for `RestoreServitorOnReconnect`;
+/// persistence is a later slice, so this just removes it.
+pub(crate) fn on_owner_leave_world(world: &mut World, owner_oid: i32) {
+    unsummon_servitor(world, owner_oid);
 }

@@ -16,6 +16,10 @@ use std::collections::BinaryHeap;
 pub enum ScheduledTask {
     /// Placeholder used by tests and as the template for real tasks.
     Noop { object_id: i32 },
+    /// Java `Servitor.run()` — the 5-second summon-upkeep tick: lifetime
+    /// countdown, periodic item consumption, the remain-time packet and the
+    /// far-from-owner leash. Reschedules itself while the servitor lives.
+    ServitorLifeTick { servitor_oid: i32 },
     /// `SkillCaster.run` phase 1 (`launchSkill`), fires `_hitTime` ms after
     /// `startCasting`. The skill/target live in the player's `CastState`;
     /// `cast_seq` must match it or the task is stale (aborted/replaced cast)

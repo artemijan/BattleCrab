@@ -457,3 +457,13 @@ pub fn summon_info(
     w.write_u8(status_mask); // VISUAL_STATE
     w.into_bytes()
 }
+
+/// Port of `serverpackets/SetSummonRemainTime` — refreshes the summon's
+/// remaining-lifetime bar. Sent on every upkeep tick.
+pub fn set_summon_remain_time(max_time: i32, remaining: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::SET_SUMMON_REMAIN_TIME);
+    w.write_i32(max_time);
+    w.write_i32(remaining);
+    w.into_bytes()
+}
