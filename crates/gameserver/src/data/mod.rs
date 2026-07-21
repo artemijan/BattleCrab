@@ -22,6 +22,7 @@ pub mod map_region;
 pub mod multisell_data;
 pub mod npc_ai_skills;
 pub mod npc_data;
+pub mod pet_data;
 pub mod player_template;
 pub mod pledge_skill_tree;
 pub mod recipe_data;
@@ -147,6 +148,8 @@ pub struct GameData {
     pub initial_shortcuts: InitialShortcutData,
     pub skill_data: SkillData,
     pub npc_data: NpcData,
+    /// Pet templates (collar → npc, food, hunger) — see [`pet_data::PetData`].
+    pub pet_data: pet_data::PetData,
     /// Per-template AI skill buckets — see [`NpcAiSkillIndex`].
     pub npc_ai_skills: NpcAiSkillIndex,
     pub spawn_data: SpawnData,
@@ -220,6 +223,7 @@ impl GameData {
             initial_shortcuts: InitialShortcutData::load_from(file_path),
             skill_data,
             npc_data,
+            pet_data: pet_data::PetData::load_from(file_path),
             npc_ai_skills,
             spawn_data: SpawnData::load_from(file_path),
             hit_condition_bonus: HitConditionBonusData::load_from(file_path),
@@ -271,6 +275,7 @@ impl GameData {
             initial_shortcuts: InitialShortcutData::empty(),
             skill_data: SkillData::empty(),
             npc_data: NpcData::empty(),
+            pet_data: Default::default(),
             npc_ai_skills: NpcAiSkillIndex::default(),
             spawn_data: SpawnData::empty(),
             hit_condition_bonus: HitConditionBonusData::default(),
