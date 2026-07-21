@@ -739,7 +739,7 @@ fn add_wolf_level_2(world: &mut World) {
 }
 
 fn saved_row(collar_oid: i32, level: i32, exp: i64, fed: i32, cur_hp: f64) -> crate::db::PetRow {
-    crate::db::PetRow { collar_object_id: collar_oid, name: "Wolf".into(), level, cur_hp, cur_mp: 10.0, exp, sp: 7, fed }
+    crate::db::PetRow { collar_object_id: collar_oid, name: "Wolf".into(), level, cur_hp, cur_mp: 10.0, exp, sp: 7, fed, restore: false }
 }
 
 fn put_saved(world: &mut World, row: crate::db::PetRow) {
@@ -2637,4 +2637,103 @@ fn pet_equipment_round_trips_through_its_own_location() {
         restored.0.paperdoll_slot_of(worn.object_id).is_some(),
         "the pet's armour comes back on, not loose in its bag"
     );
+}
+
+// ---------------------------------------------------------------------------
+// Reconnect resummon (slice 26)
+// ---------------------------------------------------------------------------
+
+/// A pet that was out at logout comes back on the next login —
+/// `RestorePetOnReconnect` is True on this dist, so this is the normal path.
+#[test]
+fn a_pet_that_was_out_at_logout_comes_back() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    wolf_with_exp_curve(&mut world);
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    world.objects.get_component_mut::<PetOf>(&pet_oid).unwrap().fed = 42;
+
+    // Log out with the pet out: the sync marks the row restorable.
+    on_owner_leave_world(&mut world, OWNER);
+    assert!(pet_of(&world, OWNER).is_none(), "the pet left with its owner");
+    assert!(
+        world.objects.get_component::<PlayerPets>(&OWNER).unwrap().0.get(&collar).unwrap().restore,
+        "the row is marked as 'was out'"
+    );
+
+    // Log back in.
+    crate::game_loop::servitor::restore_pet_on_login(&mut world, OWNER);
+    let back = pet_of(&world, OWNER).expect("the pet came back");
+    assert_eq!(
+        world.objects.get_component::<PetOf>(&back).unwrap().fed,
+        42,
+        "and it came back in the state it left in"
+    );
+}
+
+/// A pet deliberately put away before logging out stays in its collar — only
+/// a pet that was *out* is restored.
+#[test]
+fn a_pet_put_away_before_logout_stays_away() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    wolf_with_exp_curve(&mut world);
+    park_collar(&mut world, collar);
+    summon_pet(&mut world, OWNER).unwrap();
+
+    // Put it away by hand first, *then* log out.
+    crate::game_loop::servitor::sync_pet_row(&mut world, OWNER);
+    unsummon_servitor(&mut world, OWNER);
+    world.objects.get_component_mut::<PlayerPets>(&OWNER).unwrap().0.get_mut(&collar).unwrap().restore = false;
+    on_owner_leave_world(&mut world, OWNER);
+
+    crate::game_loop::servitor::restore_pet_on_login(&mut world, OWNER);
+    assert!(pet_of(&world, OWNER).is_none(), "it stayed in its collar");
+}
+
+/// A collar traded away or destroyed between sessions leaves nothing to
+/// restore — and must not leave a dangling holder behind.
+#[test]
+fn a_missing_collar_restores_nothing() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    wolf_with_exp_curve(&mut world);
+    park_collar(&mut world, collar);
+    summon_pet(&mut world, OWNER).unwrap();
+    on_owner_leave_world(&mut world, OWNER);
+
+    // The collar is gone by the time they log back in.
+    world
+        .objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .unwrap()
+        .remove_by_object_id(collar, 1);
+
+    crate::game_loop::servitor::restore_pet_on_login(&mut world, OWNER);
+    assert!(pet_of(&world, OWNER).is_none(), "nothing to restore");
+    assert!(
+        world.objects.get_component::<crate::model::Player>(&OWNER).unwrap().pending_pet_collar.is_none(),
+        "and no dangling collar holder was left set"
+    );
+}
+
+/// With the config off, nothing is restored — the flag is honoured, not
+/// assumed.
+#[test]
+fn the_reconnect_config_is_honoured() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    wolf_with_exp_curve(&mut world);
+    park_collar(&mut world, collar);
+    summon_pet(&mut world, OWNER).unwrap();
+    on_owner_leave_world(&mut world, OWNER);
+
+    world.cfg.character.restore_pet_on_reconnect = false;
+    crate::game_loop::servitor::restore_pet_on_login(&mut world, OWNER);
+    assert!(pet_of(&world, OWNER).is_none(), "config off, no restore");
 }

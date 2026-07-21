@@ -218,10 +218,6 @@ pub struct PlayerSaveData {
 /// collar** (`item_obj_id`), which is what makes two collars of the same kind
 /// two different pets.
 ///
-/// Java's `restore` column ("True restores pet on login") is not carried: this
-/// port has no reconnect-resummon yet, so it always stores `false`.
-/// `TODO(G29)`: honour `RestorePetOnReconnect` once `CharSummonTable`'s
-/// auto-resummon lands.
 #[derive(Debug, Clone)]
 pub struct PetRow {
     pub collar_object_id: i32,
@@ -232,6 +228,10 @@ pub struct PetRow {
     pub exp: i64,
     pub sp: i64,
     pub fed: i32,
+    /// Java's `restore` column — "True restores pet on login". Set when the
+    /// pet was **out** at logout, so the next login brings it back
+    /// (`CharSummonTable.INIT_PET` reads exactly `restore = 'true'`).
+    pub restore: bool,
 }
 
 /// One `character_skills_save` reuse row (Java `Player.storeEffect`'s
@@ -1588,7 +1588,7 @@ async fn load_variables(pool: &SqlitePool, owner_id: i32) -> Vec<(String, String
 /// thread and costs one extra query per login.
 async fn load_pets(pool: &SqlitePool, owner_id: i32) -> Vec<PetRow> {
     let rows = sqlx::query(
-        "SELECT item_obj_id, name, level, curHp, curMp, exp, sp, fed FROM pets WHERE ownerId=?",
+        "SELECT item_obj_id, name, level, curHp, curMp, exp, sp, fed, restore FROM pets WHERE ownerId=?",
     )
     .bind(owner_id)
     .fetch_all(pool)
@@ -1604,6 +1604,7 @@ async fn load_pets(pool: &SqlitePool, owner_id: i32) -> Vec<PetRow> {
             exp: geti(r, "exp"),
             sp: geti(r, "sp"),
             fed: geti(r, "fed") as i32,
+            restore: gets(r, "restore") == "true",
         })
         .collect()
 }
@@ -2402,7 +2403,7 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
         sqlx::query(
             "INSERT OR REPLACE INTO pets \
              (item_obj_id, name, level, curHp, curMp, exp, sp, fed, ownerId, restore) \
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'false')",
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(pet.collar_object_id)
         .bind(&pet.name)
@@ -2413,6 +2414,8 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
         .bind(pet.sp)
         .bind(pet.fed)
         .bind(char_id)
+        // Java writes the flag as the literal string "true"/"false".
+        .bind(if pet.restore { "true" } else { "false" })
         .execute(&mut *tx)
         .await?;
     }

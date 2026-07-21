@@ -17,6 +17,11 @@ pub struct CharacterConfig {
     pub delete_days: i32,
     /// `StartingAdena`: adena a freshly created character receives.
     pub starting_adena: i64,
+    /// `RestorePetOnReconnect` / `RestoreServitorOnReconnect` — a summon that
+    /// was out at logout comes back on the next login. **Both True on this
+    /// dist**, so the reconnect path is live content, not an opt-in.
+    pub restore_pet_on_reconnect: bool,
+    pub restore_servitor_on_reconnect: bool,
     /// `AutoLoot`: monster drops go straight to the killer's inventory (the
     /// ground-drop path is not ported yet — see G9 notes).
     pub auto_loot: bool,
@@ -187,6 +192,8 @@ impl Default for CharacterConfig {
         Self {
             delete_days: 1,
             starting_adena: 0,
+            restore_pet_on_reconnect: true,
+            restore_servitor_on_reconnect: true,
             auto_loot: false,
             respawn_restore_cp: 0.0,
             respawn_restore_hp: 65.0,
@@ -267,6 +274,8 @@ impl CharacterConfig {
         Self {
             delete_days: p.get_int("DeleteCharAfterDays", 1),
             starting_adena: p.get_int("StartingAdena", 0) as i64,
+            restore_pet_on_reconnect: p.get_bool("RestorePetOnReconnect", true),
+            restore_servitor_on_reconnect: p.get_bool("RestoreServitorOnReconnect", true),
             auto_loot: p.get_bool("AutoLoot", d.auto_loot),
             respawn_restore_cp: p.get_float("RespawnRestoreCP", 0.0) as f64,
             respawn_restore_hp: p.get_float("RespawnRestoreHP", 65.0) as f64,
