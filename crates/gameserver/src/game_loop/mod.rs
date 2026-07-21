@@ -345,6 +345,12 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::AntharasMinionWave { antharas_oid } => {
                 antharas::handle_wave(world, antharas_oid);
             }
+            ScheduledTask::AntharasCinematic { antharas_oid, step } => {
+                antharas::handle_cinematic_step(world, antharas_oid, step);
+            }
+            ScheduledTask::AntharasSocial { antharas_oid } => {
+                antharas::handle_social(world, antharas_oid);
+            }
             ScheduledTask::CoreMinionRespawn { npc_id } => {
                 core_boss::handle_minion_respawn(world, npc_id);
             }

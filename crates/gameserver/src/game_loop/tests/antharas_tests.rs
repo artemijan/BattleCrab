@@ -123,3 +123,104 @@ fn a_full_lair_spawns_nothing_but_keeps_ticking() {
     assert_eq!(spawned(&mut world), 0, "the lair is full");
     assert_eq!(world.scheduler.len(), before + 1, "and the next wave is still armed");
 }
+
+// ---------------------------------------------------------------------------
+// The entry cinematic (slice 17)
+// ---------------------------------------------------------------------------
+
+fn drain(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>, opcode: u8) -> usize {
+    let mut n = 0;
+    while let Ok(p) = rx.try_recv() {
+        if p.first() == Some(&opcode) {
+            n += 1;
+        }
+    }
+    n
+}
+
+/// **Antharas chains, Valakas does not.** Each beat schedules exactly the next
+/// one, so at any moment only a single cinematic timer is pending — unlike
+/// Valakas, which arms all ten up front. Reusing the Valakas shape here would
+/// have quietly changed the timing model, so the difference is pinned.
+#[test]
+fn the_cinematic_is_a_chain_not_a_batch() {
+    let (mut world, _db, _l) = antharas_world();
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
+
+    let before = world.scheduler.len();
+    crate::game_loop::antharas::begin_cinematic(&mut world, ANTHARAS_OID);
+    assert_eq!(world.scheduler.len() - before, 1, "one beat armed, not five");
+}
+
+/// Each beat sends its camera shot and arms the next.
+#[test]
+fn each_beat_sends_a_shot_and_arms_the_next() {
+    let (mut world, _db, _l) = antharas_world();
+    let mut rx = ingame_caster(&mut world, 1, 9960, 0, 0);
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
+    while rx.try_recv().is_ok() {}
+
+    let before = world.scheduler.len();
+    crate::game_loop::antharas::handle_cinematic_step(&mut world, ANTHARAS_OID, 0);
+    assert_eq!(drain(&mut rx, 0xD6), 1, "one camera shot");
+    assert_eq!(world.scheduler.len(), before + 1, "and the next beat armed");
+}
+
+/// **Beat 3 forks**: it roars *and* schedules a second social action 5.2 s
+/// later, independent of the camera chain — the only beat that arms two
+/// timers, which a uniform "each beat arms one" port would lose.
+#[test]
+fn the_third_beat_forks_a_second_social() {
+    let (mut world, _db, _l) = antharas_world();
+    let mut rx = ingame_caster(&mut world, 1, 9960, 0, 0);
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
+    while rx.try_recv().is_ok() {}
+
+    let before = world.scheduler.len();
+    crate::game_loop::antharas::handle_cinematic_step(&mut world, ANTHARAS_OID, 2);
+    assert_eq!(world.scheduler.len(), before + 2, "the next beat *and* the forked social");
+    // `SocialAction` is 0x27 — the roar goes out with the shot, not only the
+    // deferred one 5.2 s later.
+    assert_eq!(drain(&mut rx, 0x27), 1, "the roar accompanied the camera shot");
+}
+
+/// The forked social fires on its own, after the chain has moved on.
+#[test]
+fn the_forked_social_fires_independently() {
+    let (mut world, _db, _l) = antharas_world();
+    let mut rx = ingame_caster(&mut world, 1, 9960, 0, 0);
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
+    while rx.try_recv().is_ok() {}
+
+    crate::game_loop::antharas::handle_social(&mut world, ANTHARAS_OID);
+    assert_eq!(drain(&mut rx, 0x27), 1, "the second social went out by itself");
+}
+
+/// The tail hands Antharas his AI back and **starts the minion waves** — so a
+/// boss standing in its lair un-engaged is not already spawning adds.
+#[test]
+fn the_cinematic_tail_starts_the_waves() {
+    let (mut world, _db, _l) = antharas_world();
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
+
+    // One past the last camera beat is `START_MOVE`.
+    crate::game_loop::antharas::handle_cinematic_step(&mut world, ANTHARAS_OID, 5);
+    assert!(
+        world.objects.get_component::<AntharasMinions>(&ANTHARAS_OID).is_some(),
+        "the wave state exists, so the waves are running"
+    );
+}
+
+/// Spawning Antharas runs the cinematic rather than going straight to waves —
+/// the ordering that keeps an un-engaged boss quiet.
+#[test]
+fn spawning_starts_the_cinematic_not_the_waves() {
+    let (mut world, _db, _l) = antharas_world();
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
+    crate::game_loop::antharas::begin_cinematic(&mut world, ANTHARAS_OID);
+
+    assert!(
+        world.objects.get_component::<AntharasMinions>(&ANTHARAS_OID).is_none(),
+        "no adds before the fight begins"
+    );
+}

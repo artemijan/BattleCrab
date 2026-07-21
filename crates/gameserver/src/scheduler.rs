@@ -28,6 +28,10 @@ pub enum ScheduledTask {
     ValakasCinematic { valakas_oid: i32, step: u8 },
     /// One of Antharas's five-minute minion waves.
     AntharasMinionWave { antharas_oid: i32 },
+    /// One beat of Antharas's entry cinematic.
+    AntharasCinematic { antharas_oid: i32, step: u8 },
+    /// The second social action `CAMERA_3` forks.
+    AntharasSocial { antharas_oid: i32 },
     /// A Core minion's 60 s respawn.
     CoreMinionRespawn { npc_id: i32 },
     /// Clearing Core's minions 20 s after it dies.
