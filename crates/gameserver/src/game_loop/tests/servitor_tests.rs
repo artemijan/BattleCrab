@@ -2296,3 +2296,81 @@ fn a_monster_attacking_a_player_flags_nobody() {
         "and neither is the monster"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Summon kill credit (slice 22)
+// ---------------------------------------------------------------------------
+
+/// Java resolves every damage dealer to `getActingPlayer()` when handing out
+/// rewards, so a **summon's killing blow credits its owner**. Without that a
+/// player whose pet lands the last hit gets no exp — the core summoner loop.
+#[test]
+fn a_summon_killing_blow_credits_its_owner() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+    add_test_npc(&mut world, FOE, PANTHER + 1, "Monster", 20, 60, 0, 0);
+    // `default_template` awards nothing, so without this the assertion would
+    // be vacuous — it would read 0 exp whether or not the credit worked.
+    {
+        let mut t = world.data.npc_data.get(PANTHER + 1).unwrap().clone();
+        t.exp = 1000.0;
+        t.sp = 100.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+
+    // Rewards are shares of the aggro list's recorded damage. Seeded directly
+    // rather than by swinging, because a real swing lands on a *scheduled*
+    // tick — this test is about who the damage is credited to, not about
+    // attack timing.
+    world
+        .objects
+        .get_component_mut::<crate::model::npc::AggroList>(&FOE)
+        .unwrap()
+        .0
+        .entry(servitor)
+        .or_default()
+        .damage = 500.0;
+    world.objects.get_component_mut::<crate::model::Player>(&OWNER).unwrap().exp = 0;
+    crate::game_loop::death::npc_do_die(&mut world, FOE, servitor);
+
+    let exp = world.objects.get_component::<crate::model::Player>(&OWNER).unwrap().exp;
+    assert!(exp > 0, "the owner was credited for their summon's kill (exp {exp})");
+}
+
+/// A player who fights *alongside* their summon appears twice in the aggro
+/// list once both resolve to them. Their shares must merge, not double-count —
+/// otherwise fighting with a pet would inflate the owner's slice of a
+/// contested kill against everyone else.
+#[test]
+fn an_owner_and_their_summon_share_one_slice() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let rival = OWNER + 9;
+    let _rx2 = ingame_caster(&mut world, CID + 9, rival, 20, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+    add_test_npc(&mut world, FOE, PANTHER + 1, "Monster", 20, 60, 0, 0);
+    {
+        let mut t = world.data.npc_data.get(PANTHER + 1).unwrap().clone();
+        t.exp = 1000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+
+    // Owner 100 + their summon 100 = 200; the rival also does 200.
+    {
+        let aggro = &mut world.objects.get_component_mut::<crate::model::npc::AggroList>(&FOE).unwrap().0;
+        aggro.entry(OWNER).or_default().damage = 100.0;
+        aggro.entry(servitor).or_default().damage = 100.0;
+        aggro.entry(rival).or_default().damage = 200.0;
+    }
+    for oid in [OWNER, rival] {
+        world.objects.get_component_mut::<crate::model::Player>(&oid).unwrap().exp = 0;
+    }
+
+    crate::game_loop::death::npc_do_die(&mut world, FOE, servitor);
+
+    let owner_exp = world.objects.get_component::<crate::model::Player>(&OWNER).unwrap().exp;
+    let rival_exp = world.objects.get_component::<crate::model::Player>(&rival).unwrap().exp;
+    assert!(owner_exp > 0 && rival_exp > 0, "both earned ({owner_exp} / {rival_exp})");
+    assert_eq!(owner_exp, rival_exp, "equal damage earns equal exp — the pair merged into one slice");
+}
