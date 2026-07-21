@@ -49,6 +49,7 @@ pub(crate) mod regen;
 mod shop;
 mod cubic;
 mod grand_boss;
+mod antharas;
 mod baium;
 mod core_boss;
 mod orfen;
@@ -340,6 +341,9 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::ValakasCinematic { valakas_oid, step } => {
                 valakas::handle_cinematic_step(world, valakas_oid, step);
+            }
+            ScheduledTask::AntharasMinionWave { antharas_oid } => {
+                antharas::handle_wave(world, antharas_oid);
             }
             ScheduledTask::CoreMinionRespawn { npc_id } => {
                 core_boss::handle_minion_respawn(world, npc_id);

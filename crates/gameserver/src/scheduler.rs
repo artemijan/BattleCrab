@@ -26,6 +26,8 @@ pub enum ScheduledTask {
     QueenAntHeal { queen_oid: i32 },
     /// One beat of Valakas's entry cinematic.
     ValakasCinematic { valakas_oid: i32, step: u8 },
+    /// One of Antharas's five-minute minion waves.
+    AntharasMinionWave { antharas_oid: i32 },
     /// A Core minion's 60 s respawn.
     CoreMinionRespawn { npc_id: i32 },
     /// Clearing Core's minions 20 s after it dies.
