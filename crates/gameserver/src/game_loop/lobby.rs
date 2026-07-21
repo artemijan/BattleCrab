@@ -554,6 +554,10 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // Java `spawnMe` → `World.addVisibleObject`: mutual CharInfo with every
     // player visible from the spawn region.
     super::visibility::on_enter_world(world, client_id, object_id);
+    // `CharSummonTable.restorePet` — a pet that was out at logout comes back.
+    // After `on_enter_world` so the owner is already visible to others when
+    // the pet's spawn packets go out.
+    super::servitor::restore_pet_on_login(world, object_id);
     // Schedule the first periodic autosave (Java `PlayerAutoSaveTaskManager.add`)
     // one interval out; `game_loop::autosave_tick` flushes and reschedules it.
     let due = world.tick + world.cfg.character.character_data_store_interval_ticks;

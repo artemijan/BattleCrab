@@ -826,6 +826,9 @@ async fn pets_persist() {
         exp: 12_345,
         sp: 67,
         fed: 140,
+        // Java stores this as the literal string "true"/"false"; the reconnect
+        // resummon reads it back to decide whether the pet was out at logout.
+        restore: true,
     }];
     cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
     cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
@@ -840,6 +843,7 @@ async fn pets_persist() {
             assert_eq!(p.sp, 67);
             assert_eq!(p.fed, 140);
             assert_eq!(p.cur_hp, 91.5, "fractional HP survives the column type");
+            assert!(p.restore, "the 'was out at logout' flag round-trips as a string column");
             assert_eq!(c.items.len(), 1, "the collar itself is untouched");
             c.clone()
         }
@@ -851,6 +855,7 @@ async fn pets_persist() {
     let mut save = save_from(&reloaded);
     save.pets[0].fed = 30;
     save.pets[0].level = 6;
+    save.pets[0].restore = false;
     cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
     cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
     match recv(&event_rx) {
@@ -858,6 +863,7 @@ async fn pets_persist() {
             assert_eq!(chars[0].pets.len(), 1, "re-saving updates in place, no duplicate row");
             assert_eq!(chars[0].pets[0].fed, 30);
             assert_eq!(chars[0].pets[0].level, 6);
+            assert!(!chars[0].pets[0].restore, "and it can be cleared again");
         }
         _ => panic!("expected CharactersLoaded"),
     }

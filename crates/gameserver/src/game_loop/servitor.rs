@@ -649,6 +649,10 @@ pub(crate) fn sync_pet_row(world: &mut World, owner_oid: i32) {
         exp: pet.exp,
         sp: pet.sp,
         fed: pet.fed,
+        // The pet is alive in the world at this moment, so if the owner is on
+        // their way out it should come back next login. `on_owner_leave_world`
+        // calls this *before* the unsummon precisely so this reads true.
+        restore: world.cfg.character.restore_pet_on_reconnect,
     };
     if let Some(pets) = world.objects.get_component_mut::<crate::model::components::PlayerPets>(&owner_oid) {
         pets.0.insert(row.collar_object_id, row);
@@ -1603,4 +1607,47 @@ pub(crate) fn equip_pet_item(world: &mut World, owner_oid: i32, pet_oid: i32, ob
     send_pet_item_list(world, owner_oid);
     send_pet_info(world, owner_oid, pet_oid, PetInfoKind::Default);
     broadcast_summon_info(world, pet_oid, false);
+}
+
+// ---------------------------------------------------------------------------
+// Reconnect resummon (slice 26)
+// ---------------------------------------------------------------------------
+
+/// Java `CharSummonTable.restorePet` — bring back the pet that was out when the
+/// owner logged off.
+///
+/// `RestorePetOnReconnect` is **True** on this dist, so this is the normal
+/// path, not an opt-in. The saved row's `restore` flag is what marks a pet as
+/// "was out"; a pet deliberately unsummoned before logout has it cleared, and
+/// stays in its collar.
+///
+/// Called at enter-world, after the inventory exists — the collar has to be
+/// found before the pet can be rebuilt from it.
+pub(crate) fn restore_pet_on_login(world: &mut World, owner_oid: i32) {
+    if !world.cfg.character.restore_pet_on_reconnect {
+        return;
+    }
+    let collar = world
+        .objects
+        .get_component::<crate::model::components::PlayerPets>(&owner_oid)
+        .and_then(|p| p.0.values().find(|r| r.restore).map(|r| r.collar_object_id));
+    let Some(collar) = collar else { return };
+    // The collar must still be there: it can have been traded or destroyed
+    // between sessions, and `summon_pet` re-checks anyway — but setting the
+    // holder for a collar that is gone would leave it dangling.
+    let have_collar = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&owner_oid)
+        .is_some_and(|inv| inv.items().iter().any(|i| i.object_id == collar));
+    if !have_collar {
+        return;
+    }
+    // Reuse the normal summon path rather than a parallel one, so a restored
+    // pet is identical to a freshly summoned one — same stats, same feed clock,
+    // same packets. It reads its state from the saved row exactly as it does
+    // after a mid-session re-summon.
+    if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&owner_oid) {
+        p.pending_pet_collar = Some(collar);
+    }
+    summon_pet(world, owner_oid);
 }
