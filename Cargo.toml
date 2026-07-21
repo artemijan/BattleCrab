@@ -5,6 +5,7 @@ members = [
     "crates/loginserver",
     "crates/gameserver",
     "crates/launcher",
+    "crates/dashboard_api",
 ]
 
 [workspace.package]
