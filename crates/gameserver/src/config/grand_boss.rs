@@ -70,9 +70,16 @@ impl GrandBossConfig {
 
     /// The window for a boss NPC id, or `None` for an id with no configured
     /// window — which is how a non-grand-boss reaches this by mistake.
+    ///
+    /// **The ids here are the ones `grandboss_data` tracks, which are not
+    /// always the obvious ones.** Antharas is **29068** (the "strong" variant
+    /// the script actually uses), not 29019 — that id exists as an NPC
+    /// template but has no boss row, so keying off it meant Antharas's respawn
+    /// window never resolved at all. Verified against both
+    /// `Antharas.java`'s `ANTHARAS = 29068` and the `grandboss_data` rows.
     pub fn window_for(&self, boss_npc_id: i32) -> Option<RespawnWindow> {
         Some(match boss_npc_id {
-            29019 => self.antharas,
+            29068 => self.antharas,
             29028 => self.valakas,
             29020 => self.baium,
             29006 => self.core,

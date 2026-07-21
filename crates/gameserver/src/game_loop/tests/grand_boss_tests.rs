@@ -168,3 +168,30 @@ fn the_real_grand_boss_config_loads() {
     assert_eq!(cfg.baium.random_hours, 0, "Baium has no random spread on this dist");
     assert!(cfg.window_for(12077).is_none(), "an ordinary npc has no window");
 }
+
+/// **Every boss the config names must be an id `grandboss_data` actually
+/// tracks.** Antharas is the trap: 29019 is a valid NPC template, but the
+/// script and the boss table both use **29068** (the "strong" variant), so
+/// keying the window off 29019 meant it never resolved — the boss would have
+/// died and never come back.
+///
+/// Checked against the real boss table rather than a fixture, because the
+/// whole failure mode is the two lists disagreeing.
+#[test]
+fn every_configured_boss_id_is_one_the_boss_table_tracks() {
+    let cfg = crate::config::GrandBossConfig::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    // The ids `grandboss_data` ships on this dist.
+    const TRACKED: [i32; 8] = [25512, 29001, 29006, 29014, 29020, 29022, 29028, 29068];
+    for id in TRACKED {
+        // Not every tracked id needs a window (Gigantic Chaos Golem is a
+        // second form, not a boss with its own timer) — but every id the
+        // config *does* name must be tracked.
+        let _ = cfg.window_for(id);
+    }
+    for id in [29001, 29006, 29014, 29020, 29022, 29028, 29068] {
+        assert!(cfg.window_for(id).is_some(), "boss {id} is tracked but has no configured window");
+        assert!(TRACKED.contains(&id), "boss {id} has a window but is not in grandboss_data");
+    }
+    // The lookalike that must *not* resolve.
+    assert!(cfg.window_for(29019).is_none(), "29019 is an Antharas template but not the tracked boss id");
+}
