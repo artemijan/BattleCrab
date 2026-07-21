@@ -1822,3 +1822,78 @@ pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i3
     }
     crate::game_loop::npc_cast::start_cast(world, servitor_oid, target_oid, &skill);
 }
+
+/// Charge a summon's Beast Spiritshot from its owner — the magic counterpart of
+/// [`recharge_shots`], costing the pet level's `spiritshot_count`.
+pub(crate) fn recharge_spiritshots(world: &mut World, summon_oid: i32) -> bool {
+    use crate::data::item_data::ActionType;
+    use crate::model::components::ChargedShots;
+
+    if world.objects.get_component::<ChargedShots>(&summon_oid).is_some_and(|c| c.spiritshot) {
+        return true;
+    }
+    let Some(owner) = world.objects.get_component::<ServitorOf>(&summon_oid).map(|s| s.owner_object_id) else {
+        return false;
+    };
+    let per_hit = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&summon_oid)
+        .and_then(|p| {
+            npc_template_id(world, summon_oid)
+                .and_then(|id| world.data.pet_data.get(id))
+                .and_then(|t| t.levels.get(&p.level))
+                .map(|l| l.spiritshot_count)
+        })
+        .unwrap_or(1)
+        .max(1) as i64;
+
+    let shots: Vec<i32> = world
+        .objects
+        .get_component::<crate::model::Player>(&owner)
+        .map(|p| p.auto_shots.clone())
+        .unwrap_or_default();
+    for item_id in shots {
+        if world.data.item_data.get(item_id).map(|t| t.default_action) != Some(ActionType::SummonSpiritshot) {
+            continue;
+        }
+        let have = world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&owner)
+            .map(|inv| inv.count_of(item_id))
+            .unwrap_or(0);
+        if have < per_hit {
+            continue;
+        }
+        let changes = world
+            .objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&owner)
+            .map(|inv| inv.remove_item(item_id, per_hit))
+            .unwrap_or_default();
+        let packet = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
+        if let Some(cs) = client_for_player(world, owner).and_then(|c| world.clients.get(&c)) {
+            cs.send(packet);
+        }
+        if world.objects.get_component::<ChargedShots>(&summon_oid).is_none() {
+            world.objects.add_components(&summon_oid, ChargedShots::default());
+        }
+        if let Some(c) = world.objects.get_component_mut::<ChargedShots>(&summon_oid) {
+            c.spiritshot = true;
+        }
+        return true;
+    }
+    false
+}
+
+/// Spend a summon's charged spiritshot. Unlike the soulshot — spent by a
+/// landed swing — a magic shot is consumed by the **cast**, so this is called
+/// from the effect path.
+pub(crate) fn uncharge_spiritshot(world: &mut World, summon_oid: i32) -> bool {
+    use crate::model::components::ChargedShots;
+    match world.objects.get_component_mut::<ChargedShots>(&summon_oid) {
+        Some(c) if c.spiritshot => {
+            c.spiritshot = false;
+            true
+        }
+        _ => false,
+    }
+}

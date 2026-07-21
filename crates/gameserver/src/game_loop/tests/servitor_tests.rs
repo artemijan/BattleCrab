@@ -2990,3 +2990,127 @@ fn the_real_action_data_binds_servitor_skills() {
     assert_eq!(data.servitor_skill(32), Some(4230), "the attack/move toggle");
     assert_eq!(data.servitor_skill(0), None, "a non-servitor action binds nothing");
 }
+
+// ---------------------------------------------------------------------------
+// Summon spiritshots (slice 30)
+// ---------------------------------------------------------------------------
+
+const BEAST_SPIRITSHOT: i32 = 6646;
+
+fn register_beast_spiritshot(world: &mut World) {
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = BEAST_SPIRITSHOT;
+    t.name = "Beast Spiritshot".into();
+    t.is_stackable = true;
+    t.handler = crate::data::item_data::ItemHandler::BeastSpiritShot;
+    t.default_action = crate::data::item_data::ActionType::SummonSpiritshot;
+    world.data.item_data.insert_for_test(t);
+    let World { data, objects, .. } = world;
+    objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .unwrap()
+        .add_item(&data.item_data, 7_700_001, BEAST_SPIRITSHOT, 10);
+    objects.get_component_mut::<crate::model::Player>(&OWNER).unwrap().auto_shots.push(BEAST_SPIRITSHOT);
+}
+
+fn owner_spiritshots(world: &World) -> i64 {
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .map(|inv| inv.count_of(BEAST_SPIRITSHOT))
+        .unwrap_or(0)
+}
+
+/// A summon charges its Beast Spiritshot from the owner, at the pet level's
+/// `spiritshot_count`.
+#[test]
+fn a_pet_charges_spiritshots_from_its_owner() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    register_beast_spiritshot(&mut world);
+
+    assert!(crate::game_loop::servitor::recharge_spiritshots(&mut world, pet_oid));
+    assert_eq!(owner_spiritshots(&world), 8, "level 1 costs 2 per cast");
+    assert!(
+        world.objects.get_component::<crate::model::components::ChargedShots>(&pet_oid).unwrap().spiritshot
+    );
+}
+
+/// The charge is spent by the **cast**, not a swing — and it doubles the
+/// summon's magic damage while it lasts.
+#[test]
+fn a_spiritshot_doubles_a_summons_magic_damage() {
+    let damage_with = |charged: bool| {
+        let (mut world, _db, _l) = servitor_world();
+        let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+        let pet_oid = summoned_pet(&mut world);
+        add_test_npc(&mut world, FOE, PANTHER + 1, "Monster", 20, 60, 0, 0);
+        {
+            let v = world.objects.get_component_mut::<Vitals>(&FOE).unwrap();
+            v.max_hp = 100_000;
+            v.cur_hp = 100_000.0;
+        }
+        let skill = crate::model::skill::Skill {
+            id: 4079,
+            level: 1,
+            magic_type: 1,
+            effects: vec![crate::model::skill::SkillEffect::MagicalAttack { power: 50.0 }],
+            ..Default::default()
+        };
+        if charged {
+            world
+                .objects
+                .add_components(&pet_oid, crate::model::components::ChargedShots { soulshot: false, spiritshot: true });
+        }
+        let before = world.objects.get_component::<Vitals>(&FOE).unwrap().cur_hp;
+        crate::game_loop::skills::effects::apply_skill_effects(&mut world, pet_oid, FOE, &skill);
+        before - world.objects.get_component::<Vitals>(&FOE).unwrap().cur_hp
+    };
+
+    let plain = damage_with(false);
+    let shotted = damage_with(true);
+    assert!(plain > 0.0, "the summon's spell hit ({plain})");
+    assert!(
+        shotted > plain * 1.5,
+        "a charged spiritshot roughly doubles it ({plain} → {shotted})"
+    );
+}
+
+/// One cast, one shot: the charge does not carry to the next spell.
+#[test]
+fn a_summon_spiritshot_is_spent_by_one_cast() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    register_beast_spiritshot(&mut world);
+    crate::game_loop::servitor::recharge_spiritshots(&mut world, pet_oid);
+
+    assert!(crate::game_loop::servitor::uncharge_spiritshot(&mut world, pet_oid), "spent by the first cast");
+    assert!(!crate::game_loop::servitor::uncharge_spiritshot(&mut world, pet_oid), "and not the second");
+}
+
+/// A physical skill does not burn a magic shot.
+#[test]
+fn a_physical_skill_does_not_spend_a_spiritshot() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    register_beast_spiritshot(&mut world);
+    crate::game_loop::servitor::recharge_spiritshots(&mut world, pet_oid);
+    add_test_npc(&mut world, FOE, PANTHER + 1, "Monster", 20, 60, 0, 0);
+
+    let physical = crate::model::skill::Skill {
+        id: 4080,
+        level: 1,
+        magic_type: 0,
+        effects: vec![crate::model::skill::SkillEffect::MagicalAttack { power: 10.0 }],
+        ..Default::default()
+    };
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, pet_oid, FOE, &physical);
+
+    assert!(
+        world.objects.get_component::<crate::model::components::ChargedShots>(&pet_oid).unwrap().spiritshot,
+        "the magic shot is still charged"
+    );
+}
