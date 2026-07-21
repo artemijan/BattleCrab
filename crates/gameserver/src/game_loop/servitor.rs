@@ -1375,3 +1375,70 @@ pub(crate) fn pet_restore_exp(world: &mut World, pet_oid: i32, restore_percent: 
         p.exp_before_death = 0;
     }
 }
+
+/// `Summon.onDecay` → `unSummon(owner)` + `Pet.deleteMe(owner)` for a pet whose
+/// corpse has decayed.
+///
+/// **This destroys the pet permanently.** Java's `deleteMe` is:
+///
+/// ```java
+/// _inventory.transferItemsToOwner();
+/// super.deleteMe(owner);
+/// destroyControlItem(owner, false); // "this should also delete the pet from the db"
+/// ```
+///
+/// So letting a dead pet rot costs the player the collar *and* everything the
+/// pet was carrying stays only because the inventory is handed back first. The
+/// corpse lasts `DefaultCorpseTime` — **7 seconds** on this dist, since no pet
+/// NPC template overrides `corpseTime` and `DecayTaskManager` has no pet
+/// branch. (The "24 hours" in the death message is flavour text that does not
+/// match the mechanic; checked against the datapack rather than trusted.)
+pub(crate) fn pet_decay(world: &mut World, pet_oid: i32) {
+    let Some(owner) = world.objects.get_component::<ServitorOf>(&pet_oid).map(|s| s.owner_object_id) else {
+        return;
+    };
+    let Some(pet) = world.objects.get_component::<crate::model::components::PetOf>(&pet_oid).copied() else {
+        return;
+    };
+
+    // `_inventory.transferItemsToOwner()` — the pet's bag is handed back
+    // before the collar goes, so its contents are not lost with it.
+    let carried: Vec<(i32, i64)> = world
+        .objects
+        .get_component::<crate::model::inventory::PetInventory>(&owner)
+        .map(|pi| pi.0.items().iter().map(|i| (i.item_id, i.count)).collect())
+        .unwrap_or_default();
+    if let Some(pi) = world.objects.get_component_mut::<crate::model::inventory::PetInventory>(&owner) {
+        pi.0 = Default::default();
+    }
+    for (item_id, count) in carried {
+        let Some(oid) = world.alloc_object_id() else { break };
+        let World { data, objects, .. } = world;
+        if let Some(inv) = objects.get_component_mut::<crate::model::inventory::Inventory>(&owner) {
+            inv.add_item(&data.item_data, oid, item_id, count);
+        }
+    }
+
+    // `destroyControlItem` — the collar is consumed, and with it the pet's
+    // identity: the saved row is keyed by that object id.
+    let collar = pet.collar_object_id;
+    let removed = world
+        .objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&owner)
+        .and_then(|inv| inv.remove_by_object_id(collar, 1));
+    if let Some(change) = removed {
+        let packet = crate::network::enter_world::inventory_update_changes(&world.data, &[change]);
+        if let Some(cs) = client_for_player(world, owner).and_then(|c| world.clients.get(&c)) {
+            cs.send(packet);
+        }
+    }
+    world
+        .objects
+        .get_component_mut::<crate::model::components::PlayerPets>(&owner)
+        .map(|p| p.0.remove(&collar));
+    let _ = world.db.send(crate::db::DbCommand::DeletePetRow { collar_object_id: collar });
+
+    // The owner has no pet any more.
+    set_summon_link(world, owner, None, None, true);
+    send_pet_item_list(world, owner);
+}
