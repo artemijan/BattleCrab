@@ -57,6 +57,13 @@ fn test_config() -> DashboardConfig {
         max_login_length: 45,
         login_rate_limit: 5,
         login_rate_window_secs: 300,
+        // Email stays disabled in tests: the mailer then logs instead of
+        // sending, so nothing tries to reach an SMTP server.
+        smtp_host: String::new(),
+        smtp_port: 587,
+        smtp_from: "BattleCrab <no-reply@battlecrab.com>".into(),
+        smtp_username: String::new(),
+        smtp_password: String::new(),
     }
 }
 

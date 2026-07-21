@@ -141,3 +141,29 @@ Things worth knowing before debugging this:
   every mutation and the CSRF gate rejects requests without it.
 - **A trailing slash breaks matching.** `https://battlecrab.com/` never equals the
   browser's `Origin`; the parser strips it, but be careful with hand-set env vars.
+
+## Email (Amazon SES)
+
+Password-reset and email-verification links are delivered by `mail.rs` over SMTP.
+
+| Setting | Where | Example |
+| --- | --- | --- |
+| `SmtpHost` | `Dashboard.ini` | `email-smtp.eu-west-1.amazonaws.com` |
+| `SmtpPort` | `Dashboard.ini` | `587` |
+| `SmtpFrom` | `Dashboard.ini` | `BattleCrab <no-reply@battlecrab.com>` |
+| `DASHBOARD_SMTP_USERNAME` | environment | SES SMTP username |
+| `DASHBOARD_SMTP_PASSWORD` | environment | SES SMTP password |
+
+Leave `SmtpHost` empty to disable sending: links are written to the log instead, which is how local
+development works without an SES account. The server warns at boot when email is off.
+
+Things that will bite you, roughly in the order they usually do:
+
+1. **SES SMTP credentials are not AWS access keys.** Create them in SES console -> SMTP settings ->
+   *Create SMTP credentials*. SES derives the SMTP password from a secret access key; pasting the
+   access key itself returns `535 Authentication Credentials Invalid`.
+2. **The endpoint is `email-smtp.`, not `smtp.`** — `email-smtp.<region>.amazonaws.com`.
+3. **The sandbox blocks real players.** A new SES account can only send *to* verified addresses, at
+   200/day and 1/second. Request production access before opening registration.
+4. **`SmtpFrom` must be a verified identity** in SES — in production as well as in the sandbox.
+5. **The port picks the TLS mode**: 587/25/2587 STARTTLS, 465/2465 TLS from the first byte.

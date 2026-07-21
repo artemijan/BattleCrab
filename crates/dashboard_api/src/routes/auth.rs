@@ -166,10 +166,19 @@ async fn forgot_password(
         // site_base_url, not public_base_url: /reset-password is a route in the
         // SPA, which no longer lives on the API's origin.
         let link = format!("{}/reset-password?token={raw}", app.config.site_base_url);
-        // TODO(D3): send via lettre once SMTP config lands. Logged at debug so a
-        // dev instance without SMTP is still usable; must not reach production
-        // logs at info level.
-        tracing::debug!("password reset link for {}: {link}", account.login);
+
+        if let Some(email) = account.email.as_deref() {
+            // A delivery failure must NOT change the response: whether the
+            // address exists, and whether SES accepted the message, are both
+            // invisible to the caller by design. Log it and move on.
+            if let Err(e) = app
+                .mailer
+                .send_password_reset(email, &account.login, &link)
+                .await
+            {
+                tracing::error!("failed to send reset email for {}: {e}", account.login);
+            }
+        }
     }
     Ok(StatusCode::ACCEPTED)
 }

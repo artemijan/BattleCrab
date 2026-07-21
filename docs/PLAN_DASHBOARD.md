@@ -605,9 +605,22 @@ the next person doesn't trust a spec the implementation has already moved past.
 
 ### Not yet built
 
-- **Email sending.** `lettre` is not wired up. `forgot-password` and `change-email` generate valid
-  signed links and log them at `debug` instead of mailing them — so both flows are testable but not
-  usable by a real player. **This is the top gap for D3.**
+- ~~**Email sending.**~~ **Done.** `crates/dashboard_api/src/mail.rs` sends both messages over SMTP
+  (Amazon SES) with `lettre` + rustls — rustls specifically, because the deploy cross-compiles with
+  `cargo-zigbuild` and an OpenSSL dependency would need a cross-built C toolchain.
+
+  Email is **disabled unless SmtpHost + username + password are all set**, in which case links are
+  logged instead of sent; that keeps local development working without an SES account, and the
+  server warns loudly at boot. Credentials are environment-only (`DASHBOARD_SMTP_USERNAME` /
+  `DASHBOARD_SMTP_PASSWORD`) for the same reason as the session key.
+
+  Two deliberate asymmetries in error handling: `change-email` returns 500 when delivery fails (the
+  caller is authenticated and chose the address, so telling them beats claiming "check your inbox"),
+  while `forgot-password` still returns 202 and only logs — its response must not reveal whether an
+  address exists. Both verified against real SES.
+
+  STARTTLS vs implicit TLS is derived from the port (465/2465 wrapped, 25/587/2587 upgraded) rather
+  than configured, since choosing wrong either hangs or fails the handshake.
 - **`utoipa` / OpenAPI + generated TS client.** `web/dashboard/src/lib/api.ts` is hand-written and
   its types are maintained by hand against the Rust DTOs. That drift risk is real and is exactly
   what the generator was meant to remove.
@@ -616,8 +629,11 @@ the next person doesn't trust a spec the implementation has already moved past.
   was found escaping the header at 360px, and verified to fail on the pre-fix markup. Nothing else
   covers the UI; there is no test of the register/login *flows* through the browser yet.
   Requires a built `dist/` and Google Chrome; skips with a message when either is absent.
-- **`/auth/reset-password` and `/account/email/verify` have no UI routes** — the endpoints work and
-  are tested, but nothing in the SPA lands on them yet (they need the email links first).
+- **`/auth/reset-password` and `/account/email/verify` have no UI routes.** This is now the top
+  gap: the endpoints work, and as of this slice real emails are sent containing those links — but
+  the SPA has no `/reset-password` or `/verify-email` route, so a clicked link hits the catch-all
+  and lands on the homepage with the token silently discarded (verified in a browser). Neither flow
+  is usable end to end until those two pages exist.
 - **Class names.** The character list shows level and race; `classId` is returned but not resolved
   to a name, which needs the datapack's class table.
 - Landing page "Download client" button is disabled pending a real launcher URL.
