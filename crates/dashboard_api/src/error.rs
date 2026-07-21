@@ -33,6 +33,10 @@ pub enum ApiError {
     #[error("please confirm your email address first")]
     EmailNotVerified,
 
+    /// The master account already owns as many game accounts as it may.
+    #[error("you can have at most {0} game accounts")]
+    TooManyGameAccounts(usize),
+
     #[error("registration is currently disabled")]
     RegistrationDisabled,
 
@@ -70,6 +74,7 @@ impl ApiError {
             ApiError::LoginTaken => (StatusCode::CONFLICT, "login_taken"),
             ApiError::EmailTaken => (StatusCode::CONFLICT, "email_taken"),
             ApiError::EmailNotVerified => (StatusCode::FORBIDDEN, "email_not_verified"),
+            ApiError::TooManyGameAccounts(_) => (StatusCode::CONFLICT, "too_many_game_accounts"),
             ApiError::RegistrationDisabled => (StatusCode::FORBIDDEN, "registration_disabled"),
             ApiError::RateLimited => (StatusCode::TOO_MANY_REQUESTS, "rate_limited"),
             ApiError::InvalidToken => (StatusCode::BAD_REQUEST, "invalid_token"),

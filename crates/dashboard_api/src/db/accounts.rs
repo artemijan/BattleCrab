@@ -144,14 +144,35 @@ pub async fn create_master(
 ///
 /// The column set matches `loginserver::dao`'s auto-create so a
 /// dashboard-created row is indistinguishable from one the game made.
+///
+/// `max_per_master` caps how many a single master may own. The count and the
+/// insert share one transaction because SQLite would otherwise happily let two
+/// concurrent requests both read `max - 1` and both insert.
 pub async fn create_game_account(
     pool: &SqlitePool,
     master_email: &str,
     login: &str,
     password_hash: &str,
+    max_per_master: usize,
 ) -> ApiResult<()> {
     let login = normalize_login(login);
+    let email = normalize_email(master_email);
     let now_millis = crate::auth::now_unix() * 1000;
+
+    // IMMEDIATE takes the write lock up front, so the count cannot be read
+    // against a snapshot that another writer is already invalidating.
+    let mut tx = pool.begin_with("BEGIN IMMEDIATE").await?;
+
+    let (existing,): (i64,) = sqlx::query_as(
+        "SELECT COUNT(*) FROM accounts WHERE login IS NOT NULL AND email = ? COLLATE NOCASE",
+    )
+    .bind(&email)
+    .fetch_one(&mut *tx)
+    .await?;
+
+    if existing as usize >= max_per_master {
+        return Err(ApiError::TooManyGameAccounts(max_per_master));
+    }
 
     let result = sqlx::query(
         "INSERT INTO accounts (login, password, email, is_verified, lastactive, accessLevel, lastIP) \
@@ -159,16 +180,21 @@ pub async fn create_game_account(
     )
     .bind(&login)
     .bind(password_hash)
-    .bind(normalize_email(master_email))
+    .bind(&email)
     .bind(now_millis)
-    .execute(pool)
+    .execute(&mut *tx)
     .await;
 
     match result {
-        Ok(_) => Ok(()),
-        Err(sqlx::Error::Database(e)) if e.is_unique_violation() => Err(ApiError::LoginTaken),
-        Err(e) => Err(e.into()),
+        Ok(_) => {}
+        // Covers a login taken by *anyone*, including another master's game
+        // account — the column is globally unique, as the login server needs.
+        Err(sqlx::Error::Database(e)) if e.is_unique_violation() => return Err(ApiError::LoginTaken),
+        Err(e) => return Err(e.into()),
     }
+
+    tx.commit().await?;
+    Ok(())
 }
 
 /// Every game account belonging to a master address.

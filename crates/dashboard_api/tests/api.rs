@@ -64,6 +64,9 @@ fn test_config() -> DashboardConfig {
         min_password_length: 8,
         max_password_length: 45,
         max_login_length: 45,
+        // Deliberately small so the cap is reachable in a test without
+        // hammering the endpoint.
+        max_game_accounts: 3,
         login_rate_limit: 5,
         login_rate_window_secs: 300,
         // Email stays disabled in tests: the mailer then logs instead of
@@ -117,6 +120,46 @@ fn post(path: &str, body: serde_json::Value) -> Request<Body> {
             .body(Body::from(body.to_string()))
             .unwrap(),
     )
+}
+
+fn post_with_cookie(path: &str, cookie: &str, body: serde_json::Value) -> Request<Body> {
+    with_peer(
+        Request::builder()
+            .method("POST")
+            .uri(path)
+            .header(header::CONTENT_TYPE, "application/json")
+            .header("X-Requested-With", "XMLHttpRequest")
+            .header(header::COOKIE, cookie)
+            .body(Body::from(body.to_string()))
+            .unwrap(),
+    )
+}
+
+/// Registers a master account, confirms its address, and returns the session
+/// cookie.
+///
+/// Game-account creation is gated on a confirmed address, so the interesting
+/// state for these tests is "verified", not "just registered". The column is
+/// set directly rather than through the link — the link itself has its own test
+/// (`a_master_account_starts_unverified_and_the_link_verifies_it`).
+async fn verified_master(pool: &SqlitePool, app: &axum::Router, email: &str) -> String {
+    let registered = app
+        .clone()
+        .oneshot(post(
+            "/api/v1/auth/register",
+            serde_json::json!({ "email": email, "password": "correct-horse" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(registered.status(), StatusCode::CREATED);
+
+    sqlx::query("UPDATE accounts SET is_verified = 1 WHERE login IS NULL AND email = ?")
+        .bind(email)
+        .execute(pool)
+        .await
+        .unwrap();
+
+    session_cookie(&registered)
 }
 
 fn get_with_cookie(path: &str, cookie: &str) -> Request<Body> {
@@ -404,6 +447,221 @@ async fn characters_from_every_game_account_are_listed_together() {
         body_json(listed).await,
         serde_json::json!(["alice1", "alice2"])
     );
+}
+
+#[tokio::test]
+async fn a_game_account_is_created_under_the_masters_address() {
+    let (app, pool) = test_app().await;
+    let cookie = verified_master(&pool, &app, "alice@example.com").await;
+
+    let created = app
+        .clone()
+        .oneshot(post_with_cookie(
+            "/api/v1/account/game-accounts",
+            &cookie,
+            serde_json::json!({ "login": "Alice1", "password": "game-password" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(created.status(), StatusCode::CREATED);
+    assert_eq!(body_json(created).await["login"], "alice1");
+
+    // The whole ownership model is "same address, non-null login, NULL
+    // is_verified". Each part is load-bearing: the address is the only link
+    // back to the master, the login is what the game matches on, and a
+    // non-NULL is_verified would make this row look like a second identity.
+    let (login, email, password, is_verified): (String, String, String, Option<i64>) =
+        sqlx::query_as("SELECT login, email, password, is_verified FROM accounts WHERE login IS NOT NULL")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert_eq!(login, "alice1", "logins are stored lowercased");
+    assert_eq!(email, "alice@example.com");
+    assert_eq!(
+        password,
+        commons::crypt::hash_password("game-password"),
+        "must be the game's own hash or the client cannot log in with it"
+    );
+    assert_eq!(is_verified, None, "a game account is not an identity");
+
+    let listed = app
+        .oneshot(get_with_cookie("/api/v1/account/game-accounts", &cookie))
+        .await
+        .unwrap();
+    assert_eq!(body_json(listed).await, serde_json::json!(["alice1"]));
+}
+
+/// The exploit this design exists to prevent: a game account carries its
+/// master's address, so if the dashboard login ever matched on address alone, a
+/// game password would open the owner's dashboard.
+#[tokio::test]
+async fn a_dashboard_created_game_account_cannot_sign_into_the_dashboard() {
+    let (app, pool) = test_app().await;
+    let cookie = verified_master(&pool, &app, "alice@example.com").await;
+
+    app.clone()
+        .oneshot(post_with_cookie(
+            "/api/v1/account/game-accounts",
+            &cookie,
+            serde_json::json!({ "login": "alice1", "password": "game-password" }),
+        ))
+        .await
+        .unwrap();
+
+    let response = app
+        .oneshot(post(
+            "/api/v1/auth/login",
+            serde_json::json!({ "email": "alice@example.com", "password": "game-password" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+}
+
+#[tokio::test]
+async fn an_unverified_master_cannot_create_game_accounts() {
+    let (app, _pool) = test_app().await;
+
+    // Registered but never confirmed — the address may belong to someone else.
+    let registered = app
+        .clone()
+        .oneshot(post(
+            "/api/v1/auth/register",
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
+        ))
+        .await
+        .unwrap();
+    let cookie = session_cookie(&registered);
+
+    let response = app
+        .oneshot(post_with_cookie(
+            "/api/v1/account/game-accounts",
+            &cookie,
+            serde_json::json!({ "login": "alice1", "password": "game-password" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::FORBIDDEN);
+    assert_eq!(body_json(response).await["error"]["code"], "email_not_verified");
+}
+
+#[tokio::test]
+async fn creating_a_game_account_requires_a_session() {
+    let (app, _pool) = test_app().await;
+
+    let response = app
+        .oneshot(post(
+            "/api/v1/account/game-accounts",
+            serde_json::json!({ "login": "alice1", "password": "game-password" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+}
+
+/// A taken login must be refused rather than reassigned — an UPDATE-shaped bug
+/// here would let anyone take over an existing account by "creating" it.
+#[tokio::test]
+async fn a_login_taken_by_another_master_is_refused_and_left_untouched() {
+    let (app, pool) = test_app().await;
+    add_game_account(&pool, "mallory@example.com", "taken").await;
+
+    let cookie = verified_master(&pool, &app, "alice@example.com").await;
+    let response = app
+        .oneshot(post_with_cookie(
+            "/api/v1/account/game-accounts",
+            &cookie,
+            serde_json::json!({ "login": "taken", "password": "game-password" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::CONFLICT);
+    assert_eq!(body_json(response).await["error"]["code"], "login_taken");
+
+    // Still Mallory's, with Mallory's password.
+    let (email, password): (String, String) =
+        sqlx::query_as("SELECT email, password FROM accounts WHERE login = 'taken'")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert_eq!(email, "mallory@example.com");
+    assert_eq!(password, "x");
+}
+
+#[tokio::test]
+async fn game_accounts_are_capped_per_master() {
+    let (app, pool) = test_app().await;
+    let cookie = verified_master(&pool, &app, "alice@example.com").await;
+
+    // Someone else being at the cap must not consume Alice's allowance.
+    add_game_account(&pool, "mallory@example.com", "mallory1").await;
+
+    // test_config caps at 3.
+    for n in 1..=3 {
+        let response = app
+            .clone()
+            .oneshot(post_with_cookie(
+                "/api/v1/account/game-accounts",
+                &cookie,
+                serde_json::json!({ "login": format!("alice{n}"), "password": "game-password" }),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::CREATED, "account {n} of 3");
+    }
+
+    let over = app
+        .oneshot(post_with_cookie(
+            "/api/v1/account/game-accounts",
+            &cookie,
+            serde_json::json!({ "login": "alice4", "password": "game-password" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(over.status(), StatusCode::CONFLICT);
+    assert_eq!(
+        body_json(over).await["error"]["code"],
+        "too_many_game_accounts"
+    );
+
+    // The refusal must not have written the row anyway.
+    let (count,): (i64,) =
+        sqlx::query_as("SELECT COUNT(*) FROM accounts WHERE email = 'alice@example.com' AND login IS NOT NULL")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert_eq!(count, 3);
+}
+
+#[tokio::test]
+async fn game_account_credentials_are_validated() {
+    let (app, pool) = test_app().await;
+    let cookie = verified_master(&pool, &app, "alice@example.com").await;
+
+    for (login, password, why) in [
+        ("ab", "game-password", "login too short"),
+        ("alice bob", "game-password", "space is untypeable in the client"),
+        ("alice!", "game-password", "punctuation is untypeable in the client"),
+        ("alice1", "short", "password below the minimum"),
+        ("alice1", "pässwörd1", "non-ASCII password is untypeable in the client"),
+    ] {
+        let response = app
+            .clone()
+            .oneshot(post_with_cookie(
+                "/api/v1/account/game-accounts",
+                &cookie,
+                serde_json::json!({ "login": login, "password": password }),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST, "{why}");
+    }
+
+    let (count,): (i64,) = sqlx::query_as("SELECT COUNT(*) FROM accounts WHERE login IS NOT NULL")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    assert_eq!(count, 0, "no rejected request may have created a row");
 }
 
 #[tokio::test]

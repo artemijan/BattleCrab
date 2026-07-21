@@ -147,6 +147,7 @@ mod tests {
             min_password_length: 8,
             max_password_length: 45,
             max_login_length: 45,
+            max_game_accounts: 5,
             login_rate_limit: 10,
             login_rate_window_secs: 300,
             smtp_host: String::new(),

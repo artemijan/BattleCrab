@@ -762,9 +762,43 @@ subject: `(email, email)` confirms, `(old, new)` moves the account. A move rewri
 *and every game account under it* in one transaction — they are joined by the address itself, so a
 partial update would orphan the lot.
 
-### 15.6 Not yet built
+### 15.6 Creating game accounts
 
-Creating game accounts from the dashboard. The schema, `accounts::create_game_account`, and the
-`GET /account/game-accounts` listing are in place; the create endpoint and its UI are not. When
-added, it must validate the login with `validate_login` (the game-client rules still apply to
-*that* name) and hash with the same `commons::crypt::hash_password`.
+`POST /account/game-accounts` — `{login, password}` — creates a game account under the signed-in
+master. It validates the login with `validate_login` (the game-client rules apply to *that* name,
+not to the master's address) and hashes with `commons::crypt::hash_password`, so the row is
+indistinguishable from one the login server auto-created.
+
+Three constraints, each of which is a test:
+
+* **The address comes from the session, never the body.** The shared address is the *only* record
+  of ownership — there is no foreign key — so accepting one from the caller would be an
+  account-adoption primitive.
+* **The master must be verified** (`403 email_not_verified`). Ownership is derived from the
+  address and recovery is delivered to it, so creating game accounts under an unproven address
+  hands real game assets to whoever actually reads that inbox. This is also the first point where
+  leaving an address unconfirmed costs anything, which is what gives the verification step teeth —
+  sign-in itself deliberately still works unverified (§15.5).
+* **A per-master cap** (`MaxGameAccounts`, default 5, `409 too_many_game_accounts`). Creation is
+  authenticated but otherwise unbounded; one user could fill the table. The count and the insert
+  share a `BEGIN IMMEDIATE` transaction, because two concurrent requests would otherwise both read
+  `max - 1` and both insert.
+
+A login already taken by anyone — including another master's game account — is a `409 login_taken`
+off the column's `UNIQUE` constraint, never an update. `login` is globally unique because the login
+server needs it to be.
+
+The UI groups characters under the game account that owns them. Both lists are fetched and joined
+client-side rather than nested server-side: a game account with **no** characters must still
+appear, since it is precisely the one just created and about to be logged into, and a view driven
+off `/account/characters` alone would drop it.
+
+### 15.7 Not yet built
+
+Changing or resetting a *game account's* password from the dashboard. `accounts::
+set_game_account_password` exists and is unused; note its doc — it does not check ownership, so any
+handler calling it must first confirm the login is among `game_accounts_for_master` for the
+session's address. Until then a forgotten game password has no recovery path at all.
+
+There is also no way to delete or rename a game account. Deleting one would orphan its characters
+(`characters.account_name` is a plain string), so it needs a decision about them first.
