@@ -1,0 +1,170 @@
+//! The raid curse — G23's named gate clause.
+
+use super::*;
+
+const PLAYER: i32 = 9950;
+const CID: u32 = 1;
+const BOSS: i32 = NPC_OID + 40;
+const BOSS_NPC: i32 = 29001;
+const MOB_NPC: i32 = 29002;
+
+/// 4515 `RAID_CURSE2` — petrification, for laying hands on the boss.
+const RAID_CURSE2: i32 = 4515;
+/// 4215 `RAID_CURSE` — silence, for helping from a distance.
+const RAID_CURSE: i32 = 4215;
+
+fn curse_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+    let (mut world, db, l) = combat_test_world();
+    for (id, kind) in [(BOSS_NPC, "RaidBoss"), (MOB_NPC, "Monster")] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = kind.into();
+        t.level = 20;
+        t.base_hp_max = 100_000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    for (id, effects) in [
+        (RAID_CURSE2, vec![crate::model::skill::SkillEffect::BlockActions { conditional: false }]),
+        (
+            RAID_CURSE,
+            vec![crate::model::skill::SkillEffect::StatModifier(crate::model::skill::StatModifierEffect {
+                stat: crate::model::stats::Stat::RunSpeed,
+                mode: crate::model::stats::StatModifierType::Diff,
+                amount: -1.0,
+                ..Default::default()
+            })],
+        ),
+    ] {
+        world.data.skill_data.insert_for_test(crate::model::skill::Skill {
+            id,
+            level: 1,
+            abnormal_time: 120,
+            effects,
+            ..Default::default()
+        });
+    }
+    (world, db, l)
+}
+
+fn has_buff(world: &World, oid: i32, skill_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&oid)
+        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill_id))
+}
+
+fn set_level(world: &mut World, oid: i32, level: i32) {
+    world.objects.get_component_mut::<crate::model::Player>(&oid).unwrap().level = level;
+}
+
+/// An over-levelled attacker is petrified. The boss is level 20, so 29 is the
+/// first cursed level (Java's `> level + 8`).
+#[test]
+fn attacking_a_raid_boss_nine_levels_below_curses_the_attacker() {
+    let (mut world, _db, _l) = curse_world();
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_test_npc(&mut world, BOSS, BOSS_NPC, "RaidBoss", 20, 60, 0, 0);
+    set_level(&mut world, PLAYER, 29);
+
+    crate::game_loop::raid_curse::on_raid_attacked(&mut world, BOSS, PLAYER);
+    assert!(has_buff(&world, PLAYER, RAID_CURSE2), "petrified for attacking it");
+}
+
+/// Exactly 8 levels above is **not** cursed — the boundary Java writes as
+/// `> level + 8`, and the one an "improvement" to `>= 9` would move.
+#[test]
+fn eight_levels_above_is_not_cursed() {
+    let (mut world, _db, _l) = curse_world();
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_test_npc(&mut world, BOSS, BOSS_NPC, "RaidBoss", 20, 60, 0, 0);
+    set_level(&mut world, PLAYER, 28);
+
+    crate::game_loop::raid_curse::on_raid_attacked(&mut world, BOSS, PLAYER);
+    assert!(!has_buff(&world, PLAYER, RAID_CURSE2), "28 vs 20 is exactly 8 — no curse");
+}
+
+/// An ordinary monster never curses, however over-levelled the attacker.
+#[test]
+fn an_ordinary_monster_does_not_curse() {
+    let (mut world, _db, _l) = curse_world();
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_test_npc(&mut world, BOSS, MOB_NPC, "Monster", 20, 60, 0, 0);
+    set_level(&mut world, PLAYER, 80);
+
+    crate::game_loop::raid_curse::on_raid_attacked(&mut world, BOSS, PLAYER);
+    assert!(!has_buff(&world, PLAYER, RAID_CURSE2));
+}
+
+/// `DisableRaidCurse` is honoured rather than assumed.
+#[test]
+fn the_disable_config_is_honoured() {
+    let (mut world, _db, _l) = curse_world();
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_test_npc(&mut world, BOSS, BOSS_NPC, "RaidBoss", 20, 60, 0, 0);
+    set_level(&mut world, PLAYER, 40);
+    world.cfg.npc.disable_raid_curse = true;
+
+    crate::game_loop::raid_curse::on_raid_attacked(&mut world, BOSS, PLAYER);
+    assert!(!has_buff(&world, PLAYER, RAID_CURSE2));
+}
+
+/// Casting a **bad** skill near a boss that is fighting petrifies; a **good**
+/// one silences. This is the clause the damage-side check never sees — a
+/// high-level player buffing a low-level party from outside the fight.
+#[test]
+fn casting_near_a_fighting_raid_boss_curses_by_skill_kind() {
+    for (is_bad, expected) in [(true, RAID_CURSE2), (false, RAID_CURSE)] {
+        let (mut world, _db, _l) = curse_world();
+        let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+        add_test_npc(&mut world, BOSS, BOSS_NPC, "RaidBoss", 20, 60, 0, 0);
+        set_level(&mut world, PLAYER, 40);
+        // The boss must be in combat: someone else is fighting it.
+        world
+            .objects
+            .get_component_mut::<crate::model::npc::AggroList>(&BOSS)
+            .unwrap()
+            .0
+            .entry(PLAYER + 1)
+            .or_default()
+            .damage = 100.0;
+
+        crate::game_loop::raid_curse::on_skill_cast_near_raid(&mut world, PLAYER, is_bad);
+        assert!(
+            has_buff(&world, PLAYER, expected),
+            "is_bad={is_bad} should apply {expected}"
+        );
+    }
+}
+
+/// An **idle** boss curses nobody — casting near one that is not fighting is
+/// free, which is what keeps ordinary travel past a spawn point safe.
+#[test]
+fn casting_near_an_idle_raid_boss_is_free() {
+    let (mut world, _db, _l) = curse_world();
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_test_npc(&mut world, BOSS, BOSS_NPC, "RaidBoss", 20, 60, 0, 0);
+    set_level(&mut world, PLAYER, 40);
+
+    crate::game_loop::raid_curse::on_skill_cast_near_raid(&mut world, PLAYER, true);
+    assert!(!has_buff(&world, PLAYER, RAID_CURSE2), "an idle boss does not curse");
+}
+
+/// End-to-end through the real damage path: the helper being right proves
+/// nothing if `apply_physical_damage` never calls it. Also pins Java's
+/// ordering — *"in retail you deal damage to raid before curse"* — so the hit
+/// that earns the curse still lands.
+#[test]
+fn a_real_hit_curses_and_still_deals_its_damage() {
+    let (mut world, _db, _l) = curse_world();
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_test_npc(&mut world, BOSS, BOSS_NPC, "RaidBoss", 20, 60, 0, 0);
+    set_level(&mut world, PLAYER, 40);
+
+    let before = world.objects.get_component::<Vitals>(&BOSS).unwrap().cur_hp;
+    crate::game_loop::combat::apply_physical_damage(&mut world, PLAYER, BOSS, 500.0, false);
+
+    assert!(has_buff(&world, PLAYER, RAID_CURSE2), "the attacker was cursed");
+    assert!(
+        world.objects.get_component::<Vitals>(&BOSS).unwrap().cur_hp < before,
+        "and the hit still dealt its damage"
+    );
+}

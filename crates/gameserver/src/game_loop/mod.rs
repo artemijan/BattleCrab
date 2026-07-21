@@ -48,6 +48,7 @@ mod reco;
 pub(crate) mod regen;
 mod shop;
 mod cubic;
+mod raid_curse;
 mod servitor;
 mod shortcuts;
 mod siege;
