@@ -150,7 +150,7 @@ export function Footer() {
   });
 
   return (
-    <footer className="mx-auto mt-16 w-full max-w-5xl px-4 pb-10">
+    <footer className="mx-auto mt-10 w-full max-w-5xl px-4 pb-6 sm:mt-12 sm:pb-8">
       <div className="glass glass-sheen flex flex-wrap items-center gap-x-6 gap-y-2 rounded-2xl px-5 py-4 text-sm">
         <span className="flex items-center gap-2">
           <span
@@ -168,17 +168,34 @@ export function Footer() {
                 : "Server status unavailable"}
           </span>
         </span>
-        <span className="ml-auto text-[var(--text-faint)]">Lineage II Interlude</span>
+        <span className="ml-auto text-[var(--text-faint)]">
+          Custom Lineage II · Interlude Classic
+        </span>
       </div>
     </footer>
   );
 }
 
-export function Page({ children }: { children: ReactNode }) {
+/**
+ * The page frame: header, content and footer in one `min-h-dvh` column.
+ *
+ * The header must live *inside* this column. Rendered as a sibling above it, a
+ * sticky header still occupies flow space, so the document came out
+ * `100dvh + header` tall and every route scrolled by exactly the header's
+ * height (82px) even when the content fit with room to spare.
+ */
+export function Page({
+  account,
+  children,
+}: {
+  account?: { login: string } | null;
+  children: ReactNode;
+}) {
   return (
     <div className="flex min-h-dvh flex-col">
       <Background />
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-10">{children}</main>
+      <Header account={account} />
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-6 sm:pt-8">{children}</main>
       <Footer />
     </div>
   );
