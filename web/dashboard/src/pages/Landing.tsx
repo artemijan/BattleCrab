@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 
 import logoSmall from "../../assets/logo-420.webp";
 import logo from "../../assets/logo.webp";
-import { Button, Panel } from "../components/ui";
+import { Button, Panel, cx } from "../components/ui";
+import { useAccount } from "../lib/session";
 
 /** The launcher installs and updates the game client. */
 const LAUNCHER_URL = "https://static.battlecrab.com/launcher.exe";
@@ -23,6 +24,15 @@ const FEATURES = [
 ];
 
 export function Landing() {
+  const account = useAccount();
+  const signedIn = !!account.data;
+
+  // Rendered but not painted while the session resolves. Hiding the row
+  // outright would shift the page when it appears; rendering the signed-out
+  // buttons would flash "Create your account" at someone who already has one,
+  // which is the whole complaint.
+  const ctaVisibility = cx(account.isPending && "invisible");
+
   return (
     <div className="pb-8">
       <section className="animate-rise py-10 text-center sm:py-16">
@@ -62,15 +72,32 @@ export function Landing() {
           in Rust. Create an account and play in under a minute.
         </p>
 
-        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-          <Link to="/register">
-            <Button className="px-7 py-3 text-base">Create your account</Button>
-          </Link>
-          <Link to="/login">
-            <Button variant="ghost" className="px-7 py-3 text-base">
-              I already have one
-            </Button>
-          </Link>
+        <div className={cx("mt-9 flex flex-wrap items-center justify-center gap-3", ctaVisibility)}>
+          {signedIn ? (
+            <>
+              <Link to="/account">
+                <Button className="px-7 py-3 text-base">Go to your account</Button>
+              </Link>
+              {/* Still the useful next step once you have an account, so it
+                  takes the slot the sign-in button vacated. */}
+              <a href={LAUNCHER_URL} download>
+                <Button variant="ghost" className="px-7 py-3 text-base">
+                  Download launcher
+                </Button>
+              </a>
+            </>
+          ) : (
+            <>
+              <Link to="/register">
+                <Button className="px-7 py-3 text-base">Create your account</Button>
+              </Link>
+              <Link to="/login">
+                <Button variant="ghost" className="px-7 py-3 text-base">
+                  I already have one
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </section>
 
@@ -91,14 +118,21 @@ export function Landing() {
           <div className="min-w-56 flex-1">
             <h2 className="text-xl font-bold">Ready to play?</h2>
             <p className="mt-1.5 text-sm text-[var(--text-muted)]">
-              Grab the launcher — it installs and updates the game client for you — then create
-              your account. Either order works.
+              {signedIn
+                ? "Grab the launcher — it installs and updates the game client for you — then log in with one of your game accounts."
+                : "Grab the launcher — it installs and updates the game client for you — then create your account. Either order works."}
             </p>
           </div>
-          <div className="flex gap-3">
-            <Link to="/register">
-              <Button>Create account</Button>
-            </Link>
+          <div className={cx("flex gap-3", ctaVisibility)}>
+            {signedIn ? (
+              <Link to="/account">
+                <Button>Your account</Button>
+              </Link>
+            ) : (
+              <Link to="/register">
+                <Button>Create account</Button>
+              </Link>
+            )}
             {/* Direct .exe download, so it leaves the SPA — a plain anchor, not
                 a router Link. */}
             <a href={LAUNCHER_URL} download>

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "bun run --hot src/dev-server.ts",
     "build": "bun run build.ts",
+    "og-image": "bun run scripts/og-image.ts",
     "typecheck": "tsc --noEmit",
     "test": "bun test"
   },

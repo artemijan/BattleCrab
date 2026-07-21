@@ -1,10 +1,11 @@
-import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import { Page } from "./components/Layout";
 import { Spinner } from "./components/ui";
-import { ApiError, api } from "./lib/api";
+import { ApiError } from "./lib/api";
+import { useAccount } from "./lib/session";
 import { ThemeProvider } from "./lib/theme";
 import { AccountPage } from "./pages/AccountPage";
 import { Login, Register } from "./pages/Auth";
@@ -23,21 +24,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-/** Resolves the current session. `null` (not an error) when logged out. */
-function useAccount() {
-  return useQuery({
-    queryKey: ["me"],
-    queryFn: async () => {
-      try {
-        return await api.me();
-      } catch (error) {
-        if (error instanceof ApiError && error.status === 401) return null;
-        throw error;
-      }
-    },
-  });
-}
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const account = useAccount();

@@ -8,12 +8,39 @@
       name="description"
       content="BattleCrab is a custom Lineage II server built on Interlude Classic and written from scratch in Rust. Create your account, manage your characters, and join the world."
     />
+    <!--
+      Link previews.
+
+      og:image MUST be an absolute URL — crawlers do not resolve a relative path
+      the way a browser does, and a relative one is the usual reason a card
+      renders with no picture. The host is hardcoded rather than built from the
+      current origin because these tags are read by bots that never run JS.
+
+      og-image.jpg is copied verbatim by build.ts, deliberately unhashed: a
+      content-hashed name would change on every rebuild and invalidate the URL
+      already cached by every platform that has scraped it.
+    -->
     <meta property="og:title" content="BattleCrab — custom Lineage II Interlude Classic server" />
     <meta
       property="og:description"
       content="BattleCrab is a custom Lineage II server built on Interlude Classic and written from scratch in Rust. Create your account, manage your characters, and join the world."
     />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="BattleCrab" />
+    <meta property="og:url" content="https://battlecrab.com/" />
+    <meta property="og:image" content="https://battlecrab.com/og-image.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="BattleCrab — the world of Lineage II, made our own. A custom server written from scratch in Rust."
+    />
+
+    <!-- Twitter reads og:* for everything except the card type, and without
+         this it renders a small square thumbnail instead of the wide card. -->
+    <meta name="twitter:card" content="summary_large_image" />
+
     <meta name="theme-color" content="#0057b7" />
 
     <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />

@@ -54,7 +54,25 @@ if (!result.success) {
   process.exit(1);
 }
 
+// The link-preview card, copied rather than bundled.
+//
+// It must keep this exact filename: index.html names it in an absolute og:image
+// URL, and every platform that has already scraped the site has that URL
+// cached. A content-hashed name — which importing it would produce — would
+// break all of them on the next rebuild. Regenerate with `bun run og-image`.
+const OG_IMAGE = "og-image.jpg";
+const ogImage = Bun.file(`./assets/${OG_IMAGE}`);
+
+if (!(await ogImage.exists())) {
+  // Failing loudly beats shipping a site whose every shared link renders as a
+  // blank card — nobody notices that until someone posts it somewhere public.
+  console.error(`build failed: assets/${OG_IMAGE} is missing — run \`bun run og-image\``);
+  process.exit(1);
+}
+await Bun.write(`${outdir}/${OG_IMAGE}`, ogImage);
+
 const total = result.outputs.reduce((sum, output) => sum + output.size, 0);
 console.log(
   `built ${result.outputs.length} files (${(total / 1024).toFixed(1)} KiB) -> ${outdir}`,
 );
+console.log(`copied ${OG_IMAGE} (${(ogImage.size / 1024).toFixed(1)} KiB)`);
