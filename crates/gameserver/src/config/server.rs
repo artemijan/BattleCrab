@@ -8,10 +8,10 @@ use commons::config::PropertiesParser;
 /// Unlike the Java server (whose start scripts `cd` into `dist/game`), this one
 /// does not change its working directory. Datapack-relative ini values —
 /// `ScriptRoot`, `GeoDataPath`, `BackupPath` — are resolved against that root
-/// as the config is parsed, while everything else, above all the SQLite `URL`,
-/// resolves against the directory the process was started in. That split is
-/// the point: the database is shared with the login server, so it must not be
-/// addressed relative to the game server's datapack.
+/// as the config is parsed. The SQLite `URL` is deliberately not among them:
+/// it resolves against the *executable's* directory (`commons::db`), because
+/// the database is shared with the login server and so must be addressed
+/// neither relative to this server's datapack nor to its working directory.
 pub const SERVER_CONFIG_FILE: &str = "config/Server.ini";
 
 pub struct ServerConfig {
@@ -82,7 +82,7 @@ impl ServerConfig {
     }
 
     pub fn load_from(root: &str) -> Self {
-        let p = PropertiesParser::load(format!("{root}{SERVER_CONFIG_FILE}"));
+        let p = PropertiesParser::load_rel(root, SERVER_CONFIG_FILE);
 
         let protocol_list = split_ints(&p.get_string("AllowedProtocolRevisions", "603;606;607"), ';');
         let server_restart_schedule =

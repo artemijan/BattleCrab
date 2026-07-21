@@ -16,20 +16,38 @@ pub struct PropertiesParser {
 }
 
 impl PropertiesParser {
+    /// Derives the environment-override prefix from a config path:
+    /// `config/LoginServer.ini` → `CONFIG_LOGINSERVER`.
+    fn env_prefix(path: &Path) -> String {
+        path.to_string_lossy()
+            .replace("./", "")
+            .trim_end_matches(".ini")
+            .replace('.', "")
+            .replace('/', "_")
+            .trim()
+            .to_uppercase()
+    }
+
+    /// Loads `{root}{relative}` while deriving the env-override prefix from
+    /// `relative` **alone**.
+    ///
+    /// Without this the variable name follows the datapack location: started
+    /// inside `dist/game` the key is `CONFIG_SERVER_URL`, started from the repo
+    /// root it becomes `DIST_GAME_CONFIG_SERVER_URL`. An override that works in
+    /// one deployment would then silently do nothing in the other.
+    pub fn load_rel(root: &str, relative: &str) -> Self {
+        let mut parser = Self::load(format!("{root}{relative}"));
+        parser.env_path_prefix = Self::env_prefix(Path::new(relative));
+        parser
+    }
+
     pub fn load(path: impl AsRef<Path>) -> Self {
         let path = path.as_ref();
         let file_name = path
             .file_name()
             .map(|n| n.to_string_lossy().into_owned())
             .unwrap_or_default();
-        let env_path_prefix = path
-            .to_string_lossy()
-            .replace("./", "")
-            .trim_end_matches(".ini")
-            .replace('.', "")
-            .replace('/', "_")
-            .trim()
-            .to_uppercase();
+        let env_path_prefix = Self::env_prefix(path);
 
         let mut properties = HashMap::new();
         match std::fs::read_to_string(path) {

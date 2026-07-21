@@ -34,9 +34,9 @@ as dense, cache-friendly linear scans instead of pointer-chasing a map. See
 
 ```sh
 cargo build --release
-# Run BOTH from the repo root. Neither binary changes its working directory, and
-# the SQLite `URL` in both inis is relative to it, so they must agree on where
-# they were started or they will open different database files.
+# Neither binary changes its working directory. The SQLite `URL` in both inis
+# is relative to the EXECUTABLE, so put interlude_classic.db beside the binary
+# and both servers open the same file whatever directory you start them from.
 ./target/release/loginserver   # reads dist/login/config/LoginServer.ini
 ./target/release/gameserver    # finds the datapack at dist/game automatically
 
