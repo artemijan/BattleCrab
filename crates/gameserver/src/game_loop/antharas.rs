@@ -210,3 +210,139 @@ fn broadcast_to_lair(world: &World, pkt: &[u8]) {
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// The entry gate (Heart of Warding)
+// ---------------------------------------------------------------------------
+
+/// `MAX_PEOPLE` — the lair holds 200.
+const MAX_PEOPLE: usize = 200;
+/// `STONE` — Portal Stone, the entry ticket.
+pub const PORTAL_STONE: i32 = 3865;
+/// Members must be within this of the Heart to be brought along.
+const GATHER_RANGE: f64 = 1000.0;
+/// Zone 12010 is Valakas's; Antharas's lair is its own script zone.
+const LAIR_ZONE_ID: i32 = 12016;
+
+/// Why the Heart of Warding did or didn't let someone in. Each maps to one of
+/// Java's html pages, and keeping them as an enum means the ladder can be
+/// tested without the html plumbing.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum EntryVerdict {
+    /// `13001-01` — Antharas is dead; nothing to fight.
+    BossDead,
+    /// `13001-02` — the fight is already underway; entry is locked.
+    AlreadyFighting,
+    /// `13001-04` — the lair is full, **or** the group would overfill it.
+    LairFull,
+    /// `13001-05` — only the party (or command-channel) leader may enter a
+    /// group.
+    NotLeader,
+    /// `13001-03` — no Portal Stone.
+    NoStone,
+    /// Entry granted; the listed players are teleported in.
+    Admitted(Vec<i32>),
+}
+
+/// `"enter"` on the Heart of Warding.
+///
+/// The ladder's order is Java's, and two rungs are easy to lose:
+///
+/// - **Only the leader may bring a group in**, and for a command channel it is
+///   the *channel* leader, not the party leader — so a party leader inside a CC
+///   is refused.
+/// - **The whole group must fit**: `members > MAX_PEOPLE - inside` refuses
+///   rather than admitting as many as will fit, so a raid is never split in
+///   half by the doorway.
+pub(crate) fn try_enter(world: &mut World, player_oid: i32) -> EntryVerdict {
+    let inside = players_in_lair(world);
+    try_enter_with_occupancy(world, player_oid, inside)
+}
+
+/// The ladder, with the lair's occupancy passed in.
+///
+/// Split out so the "the group would overfill the lair" rung is reachable from
+/// a test: filling a 200-player lair for real is impractical, and a test that
+/// cannot reach a branch is not testing it.
+pub(crate) fn try_enter_with_occupancy(world: &mut World, player_oid: i32, inside: usize) -> EntryVerdict {
+    match crate::game_loop::grand_boss::status(world, ANTHARAS) {
+        Some(3) => return EntryVerdict::BossDead,
+        Some(2) => return EntryVerdict::AlreadyFighting,
+        _ => {}
+    }
+    if inside >= MAX_PEOPLE {
+        return EntryVerdict::LairFull;
+    }
+
+    let group = group_of(world, player_oid);
+    if let Some((leader, members)) = group {
+        if leader != player_oid {
+            return EntryVerdict::NotLeader;
+        }
+        if !has_stone(world, player_oid) {
+            return EntryVerdict::NoStone;
+        }
+        if members.len() > MAX_PEOPLE - inside {
+            return EntryVerdict::LairFull;
+        }
+        // Only members actually gathered at the Heart come along.
+        let near: Vec<i32> = members.into_iter().filter(|m| near_leader(world, player_oid, *m)).collect();
+        return EntryVerdict::Admitted(near);
+    }
+
+    if !has_stone(world, player_oid) {
+        return EntryVerdict::NoStone;
+    }
+    EntryVerdict::Admitted(vec![player_oid])
+}
+
+/// `(leader, members)` for the player's command channel if they are in one,
+/// else their party — `None` when solo.
+///
+/// The **command channel wins over the party**: a CC leader brings everyone,
+/// and a party leader inside a CC is not a leader for this purpose.
+fn group_of(world: &World, player_oid: i32) -> Option<(i32, Vec<i32>)> {
+    let party_id = world.objects.get_component::<crate::model::components::PartyRef>(&player_oid)?.0;
+    let party = world.parties.get(&party_id)?;
+    Some((party.leader(), party.members.clone()))
+}
+
+fn has_stone(world: &World, oid: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&oid)
+        .is_some_and(|inv| inv.count_of(PORTAL_STONE) > 0)
+}
+
+fn near_leader(world: &World, leader: i32, member: i32) -> bool {
+    if leader == member {
+        return true;
+    }
+    let (Some(a), Some(b)) = (
+        world.objects.get_component::<crate::model::components::Position>(&leader),
+        world.objects.get_component::<crate::model::components::Position>(&member),
+    ) else {
+        return false;
+    };
+    let (dx, dy) = ((a.x - b.x) as f64, (a.y - b.y) as f64);
+    (dx * dx + dy * dy).sqrt() <= GATHER_RANGE
+}
+
+fn players_in_lair(world: &World) -> usize {
+    let Some(zone) = world.data.zone_data.by_id(LAIR_ZONE_ID) else { return 0 };
+    world
+        .clients
+        .values()
+        .filter(|cs| matches!(cs, crate::session::ClientSession::InGame(_)))
+        .filter_map(|cs| match cs {
+            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        })
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<crate::model::components::Position>(oid)
+                .is_some_and(|p| zone.contains(p.x, p.y, p.z))
+        })
+        .count()
+}
