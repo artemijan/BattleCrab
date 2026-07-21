@@ -125,6 +125,13 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
     if world.objects.get_component::<Vitals>(&npc_oid).is_some_and(|v| !v.dead) {
         return;
     }
+    // `Summon.onDecay` → `unSummon` + `Pet.deleteMe`: a pet's corpse decaying
+    // **destroys the pet permanently**. Handled before the generic despawn
+    // because it needs the pet's components, which drop with the entity.
+    if world.objects.has_component::<crate::model::components::PetOf>(&npc_oid) {
+        super::servitor::pet_decay(world, npc_oid);
+    }
+
     let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
     // Gather the respawn bookkeeping before despawn (components drop with
     // the entity).

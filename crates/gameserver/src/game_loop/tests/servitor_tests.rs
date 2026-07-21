@@ -1727,3 +1727,105 @@ fn a_pet_revival_does_not_revive_the_owner() {
     assert!(!world.objects.get_component::<Vitals>(&pet_oid).unwrap().dead, "the pet came back");
     assert!(world.objects.get_component::<Vitals>(&OWNER).unwrap().dead, "the owner did not");
 }
+
+// ---------------------------------------------------------------------------
+// Pet corpse decay (slice 16)
+// ---------------------------------------------------------------------------
+
+fn owner_has(world: &World, item_id: i32) -> i64 {
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .map(|inv| inv.count_of(item_id))
+        .unwrap_or(0)
+}
+
+/// Letting a dead pet rot **destroys it permanently**: the collar is consumed
+/// and the saved row goes with it. Java `Summon.onDecay` → `Pet.deleteMe` →
+/// `destroyControlItem`.
+#[test]
+fn a_decayed_pet_corpse_destroys_the_collar_and_the_row() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    wolf_with_exp_curve(&mut world);
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    crate::game_loop::servitor::sync_pet_row(&mut world, OWNER);
+    assert_eq!(owner_has(&world, WOLF_COLLAR), 1);
+
+    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::death::handle_npc_decay(&mut world, pet_oid);
+
+    assert_eq!(owner_has(&world, WOLF_COLLAR), 0, "the collar was consumed");
+    assert!(
+        !world.objects.get_component::<PlayerPets>(&OWNER).unwrap().0.contains_key(&collar),
+        "and the saved row went with it"
+    );
+    assert!(pet_of(&world, OWNER).is_none(), "the owner has no pet");
+}
+
+/// `_inventory.transferItemsToOwner()` runs **before** the collar is
+/// destroyed, so what the pet was carrying is handed back rather than lost.
+#[test]
+fn a_decayed_pet_hands_its_inventory_back() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    wolf_with_exp_curve(&mut world);
+    register_food(&mut world, 100);
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    put_food_in_pet(&mut world, 4);
+    assert_eq!(owner_has(&world, WOLF_FOOD), 0, "the food is in the pet's bag, not the owner's");
+
+    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::death::handle_npc_decay(&mut world, pet_oid);
+
+    assert_eq!(owner_has(&world, WOLF_FOOD), 4, "the pet's cargo came back to the owner");
+    assert_eq!(
+        world.objects.get_component::<PetInventory>(&OWNER).unwrap().0.items().len(),
+        0,
+        "and the pet's bag is empty"
+    );
+}
+
+/// A pet resurrected before its corpse decays is spared entirely — the decay
+/// task still fires, and must find a living pet and do nothing.
+#[test]
+fn resurrecting_before_decay_saves_the_pet() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    wolf_with_exp_curve(&mut world);
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+
+    let reviver = OWNER + 5;
+    let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
+    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0);
+    crate::game_loop::death::handle_revive_answer(&mut world, OWNER, true);
+
+    // The decay task fires regardless; it must be a no-op now.
+    crate::game_loop::death::handle_npc_decay(&mut world, pet_oid);
+
+    assert_eq!(owner_has(&world, WOLF_COLLAR), 1, "the collar survived");
+    assert!(pet_of(&world, OWNER).is_some(), "and so did the pet");
+}
+
+/// A *servitor* corpse decaying must not go through the pet path — it has no
+/// collar to destroy, and the branch is keyed on `PetOf`.
+#[test]
+fn a_decayed_servitor_does_not_take_the_pet_path() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+
+    crate::game_loop::death::npc_do_die(&mut world, servitor, OWNER);
+    crate::game_loop::death::handle_npc_decay(&mut world, servitor);
+
+    assert_eq!(owner_has(&world, WOLF_COLLAR), 1, "an unrelated collar is untouched");
+    let _ = collar;
+}
