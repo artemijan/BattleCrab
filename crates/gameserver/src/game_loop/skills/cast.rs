@@ -220,6 +220,14 @@ pub(crate) fn resolve_cast_target(
             }
             t
         }
+        // `targethandlers/Summon.java` — the caster's own servitor, whatever
+        // they currently have selected. This is the whole Summoner support kit
+        // (Servitor Heal/Recharge/shields/Haste/Wind Walk/Magic Boost and the
+        // four class servitor buffs): 18 learnable skills that resolved to
+        // `INVALID_TARGET` before this arm existed.
+        TargetType::Summon => {
+            super::super::servitor::servitor_of(world, caster.object_id).ok_or(sm_ids::INVALID_TARGET)?
+        }
         TargetType::Other => return Err(sm_ids::INVALID_TARGET),
     };
     let (tx, ty, tz, target_dead) = target_state(world, resolved).ok_or(sm_ids::INVALID_TARGET)?;
