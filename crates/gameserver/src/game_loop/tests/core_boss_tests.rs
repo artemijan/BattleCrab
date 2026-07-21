@@ -126,3 +126,82 @@ fn an_unrelated_npc_is_not_a_core_minion() {
     assert!(!crate::game_loop::core_boss::is_core_minion(12077), "a Wolf is not Core's add");
     assert!(crate::game_loop::core_boss::is_core_minion(DEATH_KNIGHT));
 }
+
+// ---------------------------------------------------------------------------
+// Barks (slice 9)
+// ---------------------------------------------------------------------------
+
+/// `NpcSay` is opcode 0x30 — the packet Core's lines ride on.
+fn count_npc_say(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) -> usize {
+    let mut n = 0;
+    while let Ok(p) = rx.try_recv() {
+        if p.first() == Some(&0x30) {
+            n += 1;
+        }
+    }
+    n
+}
+
+/// The **first** hit of a life plays both intro lines; later hits do not
+/// replay them.
+#[test]
+fn core_says_its_intro_once_per_life() {
+    let (mut world, _db, _l) = core_world();
+    let mut rx = ingame_caster(&mut world, 1, 9980, 0, 0);
+    add_test_npc(&mut world, CORE_OID, CORE, "GrandBoss", 50, 20, 0, 0);
+    while rx.try_recv().is_ok() {}
+
+    crate::game_loop::core_boss::on_core_attacked(&mut world, CORE_OID);
+    assert_eq!(count_npc_say(&mut rx), 2, "both intro lines on the first hit");
+
+    // A later hit: force the taunt roll to fail so only the intro could speak.
+    world.forced_rolls.push_back(7);
+    crate::game_loop::core_boss::on_core_attacked(&mut world, CORE_OID);
+    assert_eq!(count_npc_say(&mut rx), 0, "the intro does not replay");
+}
+
+/// The taunt is 1-in-100, not every swing — forced both ways so the mechanic
+/// rather than the RNG is under test.
+#[test]
+fn the_taunt_is_rare() {
+    let (mut world, _db, _l) = core_world();
+    let mut rx = ingame_caster(&mut world, 1, 9980, 0, 0);
+    add_test_npc(&mut world, CORE_OID, CORE, "GrandBoss", 50, 20, 0, 0);
+    crate::game_loop::core_boss::on_core_attacked(&mut world, CORE_OID); // consume the intro
+    while rx.try_recv().is_ok() {}
+
+    world.forced_rolls.push_back(0); // the 1-in-100 hit
+    crate::game_loop::core_boss::on_core_attacked(&mut world, CORE_OID);
+    assert_eq!(count_npc_say(&mut rx), 1, "taunted");
+
+    world.forced_rolls.push_back(50); // a miss
+    crate::game_loop::core_boss::on_core_attacked(&mut world, CORE_OID);
+    assert_eq!(count_npc_say(&mut rx), 0, "silent");
+}
+
+/// Dying resets the intro, so the next Core greets its killers afresh rather
+/// than staying quiet forever after the first pull of the server's life.
+#[test]
+fn dying_resets_the_intro() {
+    let (mut world, _db, _l) = core_world();
+    let mut rx = ingame_caster(&mut world, 1, 9980, 0, 0);
+    add_test_npc(&mut world, CORE_OID, CORE, "GrandBoss", 50, 20, 0, 0);
+    crate::game_loop::core_boss::on_core_attacked(&mut world, CORE_OID);
+    while rx.try_recv().is_ok() {}
+
+    crate::game_loop::core_boss::on_core_killed(&mut world);
+    crate::game_loop::core_boss::on_core_attacked(&mut world, CORE_OID);
+    assert_eq!(count_npc_say(&mut rx), 2, "the intro plays again next life");
+}
+
+/// Core's death lines are said.
+#[test]
+fn core_says_its_death_lines() {
+    let (mut world, _db, _l) = core_world();
+    let mut rx = ingame_caster(&mut world, 1, 9980, 0, 0);
+    add_test_npc(&mut world, CORE_OID, CORE, "GrandBoss", 50, 20, 0, 0);
+    while rx.try_recv().is_ok() {}
+
+    crate::game_loop::core_boss::say_death_lines(&mut world, CORE_OID);
+    assert_eq!(count_npc_say(&mut rx), 2, "both death lines");
+}

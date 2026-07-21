@@ -1563,6 +1563,9 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
     // react to a hit that has already landed, so they sit alongside the raid
     // curse below. No-op for every other NPC.
     if let Some(npc_id) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).map(|n| n.npc_id) {
+        if npc_id == super::core_boss::CORE {
+            super::core_boss::on_core_attacked(world, npc_oid);
+        }
         if npc_id == super::orfen::ORFEN {
             super::orfen::on_orfen_attacked(world, npc_oid, attacker_oid);
         } else if npc_id == super::orfen::RIBA_IREN {
