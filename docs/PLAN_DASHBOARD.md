@@ -571,6 +571,29 @@ the next person doesn't trust a spec the implementation has already moved past.
 - **Class names.** The character list shows level and race; `classId` is returned but not resolved
   to a name, which needs the datapack's class table.
 - Landing page "Download client" button is disabled pending a real launcher URL.
+- **`og:image` is not set.** Link previews show no artwork. The logo is content-hashed at build
+  time, so wiring it into a static `<meta>` needs either a build step that rewrites the tag or a
+  stable unhashed copy — decide which before the site is shared anywhere social.
+
+### Branding assets
+
+`web/dashboard/assets/` holds what the frontend ships:
+
+| File | Use | Notes |
+| --- | --- | --- |
+| `logo.webp` (761w, 141 KB) + `logo-420.webp` (59 KB) | Landing hero, via `srcset` | Converted from `dist/images/logo2.png` (1.0 MB PNG) at cwebp `-q 75`, trimmed to its solid alpha bounds. q75 is visually indistinguishable from the source at display size. The source PNG has a real alpha channel, so it sits on both themes without a plate. |
+| `favicon.svg` (2.1 KB) | Favicon **and** the header brand mark | An "L2R" wordmark in the logo's gold-on-blue. |
+| `apple-touch-icon.png` (180², 6 KB) | iOS home screen | Rendered from the same SVG, squared and opaque — iOS applies its own mask, and transparent corners render black. |
+
+**Why the header mark is not the crab medallion.** It was measured: cropped out of the artwork and
+drawn at 36px the medallion is unreadable mush, and a favicon renders at 16px. The flat `L2R` mark
+keeps the logo's palette and lettering at sizes where the full artwork cannot survive; the artwork
+itself gets the hero, where it has room. The header `<img>` and the favicon reference the *same*
+file, so the tab icon and the brand mark cannot drift apart.
+
+Its letterforms are geometry rather than `<text>`, so rendering never depends on the viewer's
+fonts. Bun content-hashes all of these at build time, which is what makes the immutable
+`Cache-Control` in `crates/dashboard_api/src/web.rs` safe for them.
 
 ### Operational notes
 

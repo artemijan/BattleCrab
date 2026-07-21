@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="L2R">
+  <!--
+    "L2R" mark — favicon and header brand.
+
+    Deliberately not a crop of dist/images/logo2.png: measured, the crab
+    medallion turns to mush below ~48px, and a favicon renders at 16. This keeps
+    the logo's gold-on-blue and its L2R lettering while staying legible at tab
+    size. The full artwork is used on the landing page, where it has room.
+
+    Letterforms are geometry, not <text>, so rendering never depends on the
+    viewer having a particular font. Each glyph is built from non-overlapping
+    bars on a 16..48 vertical grid with a 6-7px stroke — blocky on purpose, so
+    the shapes survive being drawn 16 pixels tall.
+  -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b6ad4"/>
+      <stop offset="1" stop-color="#00285c"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe680"/>
+      <stop offset="45%" stop-color="#ffd700"/>
+      <stop offset="100%" stop-color="#d9a300"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <rect x="1.75" y="1.75" width="60.5" height="60.5" rx="12.25" fill="none"
+        stroke="#8cccff" stroke-opacity=".4" stroke-width="1.5"/>
+
+  <g fill="url(#gold)">
+    <!-- L : stem + foot -->
+    <rect x="5" y="16" width="7" height="25"/>
+    <rect x="5" y="41" width="16" height="7"/>
+
+    <!-- 2 : top bar, right shoulder, diagonal, base -->
+    <rect x="23" y="16" width="16" height="7"/>
+    <rect x="32" y="23" width="7" height="6"/>
+    <path d="M32 29h7l-9 12h-7z"/>
+    <rect x="23" y="41" width="16" height="7"/>
+
+    <!-- R : stem, bowl (top / right / mid leaves a counter), diagonal leg.
+         The leg must kick right — drawn straight down it reads as "Я". -->
+    <rect x="41" y="16" width="6" height="32"/>
+    <rect x="47" y="16" width="12" height="6"/>
+    <rect x="53" y="22" width="6" height="6"/>
+    <rect x="47" y="28" width="12" height="6"/>
+    <path d="M49 34h7l4 14h-7z"/>
+  </g>
+</svg>

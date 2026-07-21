@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 
+import logoSmall from "../../assets/logo-420.webp";
+import logo from "../../assets/logo.webp";
 import { Button, Panel } from "../components/ui";
 
 const FEATURES = [
@@ -20,7 +22,22 @@ const FEATURES = [
 export function Landing() {
   return (
     <div className="pb-8">
-      <section className="animate-rise py-14 text-center sm:py-20">
+      <section className="animate-rise py-10 text-center sm:py-16">
+        {/* The full artwork gets the hero, where it has room to read; the header
+            and favicon use the flat L2R mark instead (see assets/favicon.svg).
+            eager + fetchpriority because this is the LCP element. */}
+        <img
+          src={logo}
+          srcSet={`${logoSmall} 420w, ${logo} 761w`}
+          sizes="(max-width: 640px) 260px, 340px"
+          width={761}
+          height={711}
+          alt="BattleCrab — Lineage 2 Rust server"
+          loading="eager"
+          fetchPriority="high"
+          className="mx-auto mb-6 h-auto w-[260px] drop-shadow-[0_18px_40px_rgba(0,44,92,0.35)] sm:w-[340px]"
+        />
+
         <p
           className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--surface-border)]
                      bg-[var(--surface)] px-3.5 py-1.5 text-xs font-medium text-[var(--text-muted)] backdrop-blur-md"

@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 
+import markUrl from "../../assets/favicon.svg";
 import { api } from "../lib/api";
 import { Button, cx } from "./ui";
 import { ThemeToggle } from "./ThemeToggle";
@@ -37,14 +38,16 @@ function Brand({ compact = false }: { compact?: boolean }) {
       className="group flex min-w-0 items-center gap-2 sm:gap-2.5"
       aria-label="BattleCrab home"
     >
-      <span
-        className="grid size-9 shrink-0 place-items-center rounded-xl bg-brand-500 text-base font-black
-                   text-accent-400 shadow-[0_8px_22px_-8px_rgba(0,87,183,0.9)] transition-transform
-                   duration-300 group-hover:rotate-6 group-hover:scale-105"
-        aria-hidden
-      >
-        B
-      </span>
+      {/* Same asset as the favicon, so the tab icon and the header mark can
+          never drift apart. */}
+      <img
+        src={markUrl}
+        alt=""
+        width={36}
+        height={36}
+        className="size-9 shrink-0 rounded-xl shadow-[0_8px_22px_-8px_rgba(0,87,183,0.9)]
+                   transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105"
+      />
       <span
         className={cx(
           "truncate text-base font-bold tracking-tight sm:text-lg",
