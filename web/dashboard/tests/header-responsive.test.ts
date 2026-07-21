@@ -120,3 +120,45 @@ describe("header layout", () => {
     }
   });
 });
+
+/**
+ * Regression test for a phantom vertical scrollbar.
+ *
+ * The sticky header was rendered as a *sibling* above the `min-h-dvh` column
+ * rather than inside it. A sticky element still occupies flow space, so the
+ * document came out `100dvh + header` tall and every route scrolled by exactly
+ * the header's height (82px) — even the login page, which otherwise fits with
+ * hundreds of pixels to spare.
+ */
+describe("page height", () => {
+  const DESKTOP = [
+    [1440, 900],
+    [1280, 800],
+    [1366, 768],
+    [1024, 768],
+  ] as const;
+
+  for (const [width, height] of DESKTOP) {
+    test(`/login does not scroll at ${width}x${height}`, async () => {
+      if (!distBuilt || !browser || !server) {
+        console.warn("skipped: needs a built dist and Google Chrome");
+        return;
+      }
+
+      const page = await browser.newPage({ viewport: { width, height } });
+      await page.goto(`http://localhost:${server.port}/login`, { waitUntil: "networkidle" });
+      await page.waitForTimeout(200);
+
+      const measured = await page.evaluate(() => ({
+        scrollHeight: document.documentElement.scrollHeight,
+        clientHeight: document.documentElement.clientHeight,
+      }));
+      await page.close();
+
+      // Login is the short form; it must fit every desktop viewport we claim to
+      // support. (Register carries a third field and legitimately needs ~826px,
+      // so it is deliberately not asserted here.)
+      expect(measured.scrollHeight).toBeLessThanOrEqual(measured.clientHeight);
+    });
+  }
+});

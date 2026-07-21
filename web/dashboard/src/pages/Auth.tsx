@@ -17,13 +17,15 @@ function AuthShell({
   footer: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-md py-8">
-      <Panel strong className="animate-rise p-7">
+    // Vertical rhythm stays tight so the taller form (register, three fields)
+    // still fits an 800px-high laptop viewport without scrolling.
+    <div className="mx-auto max-w-md py-4 sm:py-6">
+      <Panel strong className="animate-rise p-6 sm:p-7">
         <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
         <p className="mt-1.5 text-sm text-[var(--text-muted)]">{subtitle}</p>
-        <div className="mt-6">{children}</div>
+        <div className="mt-5">{children}</div>
       </Panel>
-      <p className="mt-5 text-center text-sm text-[var(--text-muted)]">{footer}</p>
+      <p className="mt-4 text-center text-sm text-[var(--text-muted)]">{footer}</p>
     </div>
   );
 }
@@ -79,7 +81,7 @@ export function Login() {
         </>
       }
     >
-      <form onSubmit={onSubmit} className="flex flex-col gap-4">
+      <form onSubmit={onSubmit} className="flex flex-col gap-3.5">
         {submit.isError && <Alert kind="error">{messageFor(submit.error)}</Alert>}
 
         <Field
@@ -144,14 +146,16 @@ export function Register() {
         </>
       }
     >
-      <form onSubmit={onSubmit} className="flex flex-col gap-4">
+      <form onSubmit={onSubmit} className="flex flex-col gap-3.5">
         {submit.isError && <Alert kind="error">{messageFor(submit.error)}</Alert>}
 
         <Field
           label="Username"
           value={login}
           onChange={(e) => setLogin(e.target.value)}
-          hint="4–45 characters, letters and digits only — this is what you type in the game client."
+          // Kept to one line at the panel's width — a wrapping hint costs 16px
+          // of height on the page that least affords it.
+          hint="4–45 letters and digits — you'll type this in the game client."
           autoComplete="username"
           autoFocus
           required

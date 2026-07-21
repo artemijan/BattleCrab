@@ -4,10 +4,13 @@ import logoSmall from "../../assets/logo-420.webp";
 import logo from "../../assets/logo.webp";
 import { Button, Panel } from "../components/ui";
 
+/** The launcher installs and updates the game client. */
+const LAUNCHER_URL = "https://static.battlecrab.com/launcher.exe";
+
 const FEATURES = [
   {
-    title: "Retail-faithful Interlude",
-    body: "Rates, drops, and skills follow the original datapack — no invented mechanics, no surprises.",
+    title: "Built on Interlude Classic",
+    body: "Interlude Classic is the foundation, not the ceiling — the familiar systems are all here, with our own changes layered on top.",
   },
   {
     title: "Written in Rust",
@@ -43,7 +46,7 @@ export function Landing() {
                      bg-[var(--surface)] px-3.5 py-1.5 text-xs font-medium text-[var(--text-muted)] backdrop-blur-md"
         >
           <span className="size-1.5 rounded-full bg-accent-400" aria-hidden />
-          Chronicle 5 — Interlude
+          Custom server — Interlude Classic
         </p>
 
         <h1 className="mx-auto max-w-3xl text-balance text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl">
@@ -51,12 +54,12 @@ export function Landing() {
           <span className="bg-gradient-to-br from-brand-500 to-brand-300 bg-clip-text text-transparent dark:from-brand-200 dark:to-brand-400">
             Lineage II
           </span>
-          , the way you remember it.
+          , made our own.
         </h1>
 
         <p className="mx-auto mt-5 max-w-xl text-pretty text-lg text-[var(--text-muted)]">
-          BattleCrab is an Interlude server built from scratch in Rust. Create an account and play
-          in under a minute.
+          BattleCrab is a custom server built on Lineage II Interlude Classic, written from scratch
+          in Rust. Create an account and play in under a minute.
         </p>
 
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
@@ -88,18 +91,19 @@ export function Landing() {
           <div className="min-w-56 flex-1">
             <h2 className="text-xl font-bold">Ready to play?</h2>
             <p className="mt-1.5 text-sm text-[var(--text-muted)]">
-              Download the client, then create your account — you can do both in either order.
+              Grab the launcher — it installs and updates the game client for you — then create
+              your account. Either order works.
             </p>
           </div>
           <div className="flex gap-3">
             <Link to="/register">
               <Button>Create account</Button>
             </Link>
-            {/* TODO(D5): point at the real launcher download once the release
-                host is decided (see launcher/README.md). */}
-            <Button variant="secondary" disabled title="Download link coming soon">
-              Download client
-            </Button>
+            {/* Direct .exe download, so it leaves the SPA — a plain anchor, not
+                a router Link. */}
+            <a href={LAUNCHER_URL} download>
+              <Button variant="secondary">Download launcher</Button>
+            </a>
           </div>
         </Panel>
       </section>
