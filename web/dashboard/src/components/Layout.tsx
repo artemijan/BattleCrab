@@ -38,28 +38,51 @@ function Brand({ compact = false }: { compact?: boolean }) {
       className="group flex min-w-0 items-center gap-2 sm:gap-2.5"
       aria-label="BattleCrab home"
     >
-      {/* Same asset as the favicon, so the tab icon and the header mark can
-          never drift apart. */}
-      <img
-        src={markUrl}
-        alt=""
-        width={36}
-        height={36}
-        // Hover is a slow, even magnification — no rotation. The long duration
-        // and a soft ease-out (decelerating, no overshoot) are what make it read
-        // as smooth zoom rather than a pop. The shadow deepens on the same curve
-        // so the mark appears to rise toward the cursor.
-        //
-        // Scaling is transform-only, so it never reflows the wordmark beside it,
-        // and the global prefers-reduced-motion rule collapses the transition.
-        className="size-9 shrink-0 transform-gpu rounded-xl
-                   shadow-[0_8px_22px_-8px_rgba(0,87,183,0.9)]
-                   transition-[scale,box-shadow] duration-500
+      {/*
+        Hover is a slow, even magnification — no rotation. The long duration and
+        a decelerating ease-out (no overshoot) are what make it read as a zoom
+        rather than a pop.
+
+        Only `scale` and `opacity` animate, and both are composited: the GPU
+        transforms an already-painted layer, so no frame repaints.
+
+        This matters more here than it looks. The mark sits inside the header's
+        `backdrop-filter: blur(22px)`, over three 40rem blurred background
+        blobs. Animating `box-shadow` — a paint property, never composited —
+        forced a repaint per frame, and each repaint made that backdrop blur
+        recompute. Measured: frame stalls of 133ms. Removing any one of the
+        three made it clean, so the depth cue moved to the overlay below rather
+        than the shadow itself.
+
+        Scaling also never reflows the wordmark beside it, and the global
+        prefers-reduced-motion rule collapses the transition.
+      */}
+      <span
+        className="relative shrink-0 transform-gpu transition-[scale] duration-500
                    [transition-timing-function:var(--ease-out-soft)]
                    group-hover:scale-[1.18]
-                   group-hover:shadow-[0_14px_30px_-8px_rgba(0,87,183,1)]
                    group-active:scale-[1.06] group-active:duration-150"
-      />
+      >
+        {/* Same asset as the favicon, so the tab icon and the header mark can
+            never drift apart. */}
+        <img
+          src={markUrl}
+          alt=""
+          width={36}
+          height={36}
+          className="size-9 rounded-xl shadow-[0_8px_22px_-8px_rgba(0,87,183,0.9)]"
+        />
+        {/* The deeper shadow is a separate layer faded in by opacity, because a
+            box-shadow that *changes* cannot be composited. */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-xl
+                     shadow-[0_14px_30px_-8px_rgba(0,87,183,1)] opacity-0
+                     transition-opacity duration-500
+                     [transition-timing-function:var(--ease-out-soft)]
+                     group-hover:opacity-100"
+        />
+      </span>
       <span
         className={cx(
           "truncate text-base font-bold tracking-tight sm:text-lg",
