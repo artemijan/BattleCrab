@@ -594,11 +594,16 @@ pub struct PetOf {
     /// Java `PetStat.getLevel()`. A pet levels independently of its owner, so
     /// this is saved rather than derived — the point of the `pets` row.
     pub level: i32,
-    /// Java `PetStat.getExp()` / `getSp()`. Nothing awards either yet
-    /// (`TODO(G29)`: pet exp gain), but they round-trip so a pet that levels
-    /// later needs no schema change.
+    /// Java `PetStat.getExp()` / `getSp()`.
     pub exp: i64,
     pub sp: i64,
+    /// Java `Pet._expBeforeDeath` — the exp total *before* the death penalty,
+    /// so a resurrection can hand back a percentage of what was lost. Zero
+    /// when the pet has not died since it was last revived.
+    ///
+    /// Deliberately **not** persisted: Java holds it on the live instance
+    /// only, so a pet that dies and logs out forfeits the restorable exp.
+    pub exp_before_death: i64,
 }
 
 /// Marks a cubic's stats-only caster entity and links it back to its owner.

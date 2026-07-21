@@ -1228,7 +1228,10 @@ use crate::game_loop::servitor::{add_pet_exp, split_exp_with_pet};
 /// `get_exp_type`, so the split and the level-up both have somewhere to go.
 fn wolf_with_exp_curve(world: &mut World) {
     let mut t = world.data.pet_data.get(WOLF_NPC).unwrap().clone();
-    for (lvl, exp, meal) in [(1, 0i64, 248), (2, 5_000, 300)] {
+    // Three levels, not two: with only two, a level-2 pet sits at the species
+    // cap and the death penalty's level *band* is empty — which made the first
+    // draft of the death tests measure nothing.
+    for (lvl, exp, meal) in [(1, 0i64, 248), (2, 5_000, 300), (3, 20_000, 340)] {
         t.levels.insert(
             lvl,
             crate::data::pet_data::PetLevel {
@@ -1338,7 +1341,7 @@ fn a_pet_stops_at_its_species_max_level() {
     add_pet_exp(&mut world, OWNER, 10_000_000.0, 0.0);
     assert_eq!(
         world.objects.get_component::<PetOf>(&pet_oid).unwrap().level,
-        2,
+        3,
         "capped at the highest level the table defines"
     );
 }
@@ -1478,4 +1481,148 @@ fn a_missing_stat_row_falls_back_to_the_npc_template() {
 
     let max_hp = world.objects.get_component::<Vitals>(&pet_oid).unwrap().max_hp;
     assert!(max_hp > 0, "fell back to the template instead of zeroing the pet");
+}
+
+// ---------------------------------------------------------------------------
+// Pet death (slice 14)
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::servitor::pet_restore_exp;
+
+fn pet_exp(world: &World, pet_oid: i32) -> i64 {
+    world.objects.get_component::<PetOf>(&pet_oid).unwrap().exp
+}
+
+/// Dying costs the pet experience — `percentLost = -0.07 × level + 6.5` of the
+/// current level band.
+#[test]
+fn a_dying_pet_loses_experience() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
+    let before = pet_exp(&world, pet_oid);
+    assert_eq!(world.objects.get_component::<PetOf>(&pet_oid).unwrap().level, 2);
+
+    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    let after = pet_exp(&world, pet_oid);
+    assert!(after < before, "exp was lost on death ({before} → {after})");
+    assert_eq!(
+        world.objects.get_component::<PetOf>(&pet_oid).unwrap().exp_before_death,
+        before,
+        "the pre-death total is recorded for a later resurrection"
+    );
+}
+
+/// The penalty can never drop the pet below its current level's floor —
+/// otherwise dying would de-level it, and Java's `addExp(-lost)` does not.
+#[test]
+fn the_death_penalty_cannot_delevel_a_pet() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    add_pet_exp(&mut world, OWNER, 5_000.0, 0.0);
+    assert_eq!(world.objects.get_component::<PetOf>(&pet_oid).unwrap().level, 2, "exactly at the threshold");
+
+    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    let pet = *world.objects.get_component::<PetOf>(&pet_oid).unwrap();
+    assert_eq!(pet.level, 2, "still level 2");
+    assert_eq!(pet.exp, 5_000, "held at the level floor rather than dropping below it");
+}
+
+/// A duel death costs nothing — Java skips the penalty entirely there.
+#[test]
+fn a_duel_death_costs_the_pet_no_experience() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
+    let before = pet_exp(&world, pet_oid);
+
+    // `is_in_duel` is presence of `DuelRef`, so marking the owner is the whole
+    // condition Java tests.
+    world.objects.add_components(&OWNER, crate::model::components::DuelRef(1));
+    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+
+    assert_eq!(pet_exp(&world, pet_oid), before, "no exp lost to a duel death");
+}
+
+/// Resurrection hands back a share of what death took, and consumes the
+/// record so a second revive restores nothing.
+#[test]
+fn resurrection_restores_a_share_of_the_lost_experience() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
+    let before_death = pet_exp(&world, pet_oid);
+
+    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    let after_death = pet_exp(&world, pet_oid);
+    let lost = before_death - after_death;
+    assert!(lost > 0);
+
+    pet_restore_exp(&mut world, pet_oid, 100.0);
+    assert_eq!(pet_exp(&world, pet_oid), before_death, "a full-power revive restores all of it");
+
+    // The record is spent.
+    pet_restore_exp(&mut world, pet_oid, 100.0);
+    assert_eq!(pet_exp(&world, pet_oid), before_death, "a second revive restores nothing more");
+}
+
+/// A partial-power resurrection restores proportionally.
+#[test]
+fn a_partial_resurrection_restores_part_of_the_loss() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
+    let before_death = pet_exp(&world, pet_oid);
+
+    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    let after_death = pet_exp(&world, pet_oid);
+    let lost = before_death - after_death;
+
+    pet_restore_exp(&mut world, pet_oid, 50.0);
+    let regained = pet_exp(&world, pet_oid) - after_death;
+    assert_eq!(regained, (lost as f64 * 0.5).round() as i64, "half the loss came back");
+}
+
+/// Slice 7 left this branch as a `TODO(G29)` because a pet could not yet be
+/// stored dead. It can now: a pet saved with `curHp < 1` comes back as a
+/// corpse rather than silently alive at 0 HP.
+#[test]
+fn a_pet_stored_dead_is_restored_dead() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    wolf_with_exp_curve(&mut world);
+    put_saved(&mut world, saved_row(collar, 1, 0, 100, 0.0));
+    park_collar(&mut world, collar);
+
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    assert!(
+        world.objects.get_component::<Vitals>(&pet_oid).unwrap().dead,
+        "a pet stored with no HP comes back dead"
+    );
+}
+
+/// At the species' top level there is no next-level band, so the penalty
+/// computes to zero rather than to garbage. Java would throw here (its
+/// `getExpForLevel(level + 1)` has no row and it logs an NPE); a max-level pet
+/// simply losing nothing is the safer reading, and it is pinned because the
+/// death tests silently measured *only* this case until the fixture grew a
+/// third level.
+#[test]
+fn a_max_level_pet_loses_nothing_on_death() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    add_pet_exp(&mut world, OWNER, 10_000_000.0, 0.0);
+    let pet = *world.objects.get_component::<PetOf>(&pet_oid).unwrap();
+    assert_eq!(pet.level, 3, "at the species cap");
+    let before = pet.exp;
+
+    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    assert_eq!(pet_exp(&world, pet_oid), before, "no band above the cap, so no penalty");
 }
