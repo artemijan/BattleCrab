@@ -312,6 +312,18 @@ pub struct Casting(pub crate::model::CastState);
 #[derive(Component, Debug, Clone, Copy)]
 pub struct Intent(pub crate::model::PlayerIntent);
 
+/// Java `Player._currentSkillWorldPosition` — the ground point stored by
+/// `RequestExMagicSkillUseGround` (ex 0x41) that a `targetType GROUND` cast
+/// aims at. **Never cleared, only overwritten** by the next ground cast
+/// (Java's field has exactly one setter call site); the channeling tick
+/// re-reads it, which is safe for the same reason.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct GroundSkillTarget {
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+}
+
 /// The one action a busy actor holds back — Java's three queue slots
 /// (`PlayerAI._nextIntention` MOVE_TO, `Player._queuedSkill`,
 /// `AbstractAI._nextAction` equip) folded into a single presence-based slot.

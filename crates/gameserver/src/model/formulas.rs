@@ -331,8 +331,9 @@ pub fn calc_m_atk_spd_multiplier(
     wit_bonus * mul + add / 333.0
 }
 
-/// `Formulas.calcSkillTimeFactor` — the divisor for hit/cancel time. No
-/// channeling skills or NPCs exist; the spiritshot hit-time term is 0.
+/// `Formulas.calcSkillTimeFactor` — the divisor for hit/cancel time (the
+/// channeling branch in `calc_cast_times` bypasses it for the hit phase);
+/// the spiritshot hit-time term is 0.
 pub fn calc_skill_time_factor(
     p: &Player,
     base: &crate::model::components::BaseStats,
@@ -388,6 +389,16 @@ pub fn calc_cast_times(
 ) -> (i32, i32, i32) {
     let factor = calc_skill_time_factor(p, base, mods, data, skill);
     let cancel = calc_skill_cancel_time(p, base, mods, data, skill);
+    // Channeling (`CA1`) cast time is **static**: `_hitTime = max(hitTime −
+    // cancelTime, 0)`, `_cancelTime = 2866` — no time-factor scaling, so
+    // Volcano channels its full duration regardless of casting speed. (The
+    // cancel term itself still divides by the factor inside
+    // `calcSkillCancelTime`, exactly as Java composes it.)
+    if skill.operate_type == crate::model::skill::OperateType::Channeling {
+        let hit = (skill.hit_time as f64 - cancel).max(0.0) as i32;
+        let cool = calc_atk_spd(combat, skill, skill.cool_time as f64);
+        return (hit, 2866, cool);
+    }
     let hit = (skill.hit_time as f64 / factor - cancel).max(0.0) as i32;
     let cool = calc_atk_spd(combat, skill, skill.cool_time as f64);
     (hit, cancel as i32, cool)

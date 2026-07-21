@@ -797,7 +797,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
                 let Some(player) = world.objects.get_component::<Player>(&object_id) else { continue };
                 let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else { continue };
                 let target_ref = world.objects.get_component::<TargetRef>(&object_id).copied().unwrap_or_default().0;
-                match resolve_cast_target(world, player, &pos, target_ref, &skill, true) {
+                match resolve_cast_target(world, player, &pos, target_ref, &skill, true, false) {
                     Ok(oid) => oid,
                     Err(_) => continue,
                 }

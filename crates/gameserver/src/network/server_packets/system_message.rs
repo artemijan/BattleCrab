@@ -130,6 +130,9 @@ pub mod sm_ids {
     pub const SHIELD_DEFENSE_SUCCEEDED: i16 = 111;
     pub const NOTHING_HAPPENED: i16 = 61;
     pub const CANNOT_SEE_TARGET: i16 = 181;
+    /// "There are not enough necessary items to use the skill." — the reagent
+    /// gate (`SkillCaster.checkUseConditions`, G19).
+    pub const THERE_ARE_NOT_ENOUGH_NECESSARY_ITEMS_TO_USE_THE_SKILL: i16 = 2156;
     // GM silence / message refusal (G13.B)
     pub const THAT_PERSON_IS_IN_MESSAGE_REFUSAL_MODE: i16 = 176;
     pub const MESSAGE_REFUSAL_MODE: i16 = 177;

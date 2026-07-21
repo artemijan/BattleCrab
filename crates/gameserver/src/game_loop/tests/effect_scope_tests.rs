@@ -75,9 +75,10 @@ fn critical_blow_self_buffs_its_own_blow_rate() {
     assert!(self_mods.contains(&Stat::BlowRate), "self-buffs BlowRate: {self_mods:?}");
 }
 
-/// Scopes the port can't act on (`startEffects`, `endEffects`,
-/// `channelingEffects`) are parsed as `Other` and dropped rather than silently
-/// merged into the general list — which would apply them at the wrong time.
+/// Scopes the port can't act on (`startEffects`, `endEffects`) are parsed as
+/// `Other` and dropped rather than silently merged into the general list —
+/// which would apply them at the wrong time. (`channelingEffects` graduated
+/// to `Skill.channeling_effects` in the G19 ground/channeling slice.)
 #[test]
 fn unsupported_scopes_are_dropped_not_merged() {
     let skills = dist_skills();
