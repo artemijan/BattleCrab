@@ -110,3 +110,96 @@ fn a_legitimate_attacker_is_allowed() {
     assert_eq!(verdict, AttackVerdict::Allowed);
     assert!(!world.objects.get_component::<Vitals>(&PLAYER).unwrap().dead);
 }
+
+// ---------------------------------------------------------------------------
+// The entry cinematic (slice 15)
+// ---------------------------------------------------------------------------
+
+/// The cinematic arms all ten beats up front and ends by starting the fight.
+#[test]
+fn the_cinematic_arms_every_beat_and_ends_in_fighting() {
+    let (mut world, _db, _l) = valakas_world();
+    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, 0, 0, 0);
+    world.grand_bosses.get_mut(&VALAKAS).unwrap().status = WAITING;
+
+    let before = world.scheduler.len();
+    crate::game_loop::valakas::begin_cinematic(&mut world, VALAKAS_OID);
+    assert_eq!(world.scheduler.len() - before, 10, "ten beats scheduled at once");
+
+    // The last beat is what starts the fight.
+    crate::game_loop::valakas::handle_cinematic_step(&mut world, VALAKAS_OID, 9);
+    assert_eq!(
+        crate::game_loop::grand_boss::status(&world, VALAKAS),
+        Some(FIGHTING),
+        "the final beat locks entry and starts the fight"
+    );
+}
+
+/// Beginning the cinematic teleports Valakas into his lair first — the camera
+/// shots are framed on him, so a boss still at its spawn point would show the
+/// wrong scene.
+#[test]
+fn the_cinematic_moves_valakas_into_the_lair() {
+    let (mut world, _db, _l) = valakas_world();
+    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, 0, 0, 0);
+
+    crate::game_loop::valakas::begin_cinematic(&mut world, VALAKAS_OID);
+    let p = world.objects.get_component::<Position>(&VALAKAS_OID).unwrap();
+    assert_eq!((p.x, p.y, p.z), IN_LAIR, "moved to the lair");
+}
+
+/// **The cinematic plays for the lair, not the neighbourhood.** A player
+/// inside sees it; one outside sees nothing — which is why Java broadcasts on
+/// the zone rather than the boss's region.
+#[test]
+fn only_players_inside_the_lair_see_the_cinematic() {
+    let (mut world, _db, _l) = valakas_world();
+    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+
+    let mut inside_rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    let outsider = PLAYER + 1;
+    let mut outside_rx = ingame_caster(&mut world, CID + 1, outsider, 0, 0);
+    put_player_at(&mut world, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    {
+        let p = world.objects.get_component_mut::<Position>(&outsider).unwrap();
+        p.x = 0;
+        p.y = 0;
+        p.z = 0;
+    }
+    while inside_rx.try_recv().is_ok() {}
+    while outside_rx.try_recv().is_ok() {}
+
+    crate::game_loop::valakas::handle_cinematic_step(&mut world, VALAKAS_OID, 0);
+
+    let count = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| {
+        let mut n = 0;
+        while let Ok(p) = rx.try_recv() {
+            if p.first() == Some(&0xD6) {
+                n += 1;
+            }
+        }
+        n
+    };
+    assert_eq!(count(&mut inside_rx), 1, "the player in the lair saw the shot");
+    assert_eq!(count(&mut outside_rx), 0, "the player outside saw nothing");
+}
+
+/// The beats are **not evenly spaced** — 330 ms between two of them and 6.7 s
+/// between two others. Scheduling them as a chain of equal steps would look
+/// right and play wrong, so the spacing is pinned.
+#[test]
+fn the_beats_keep_their_uneven_spacing() {
+    let (mut world, _db, _l) = valakas_world();
+    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, 0, 0, 0);
+    let base = world.tick;
+    crate::game_loop::valakas::begin_cinematic(&mut world, VALAKAS_OID);
+
+    let mut ticks: Vec<u64> = world.scheduler.pending_ticks_for_test();
+    ticks.sort_unstable();
+    ticks.dedup();
+    // Steps 5 and 6 are 330 ms apart — under a tick, so they land together;
+    // steps 8 and 9 are 6.7 s apart and must not.
+    assert!(ticks.len() >= 8, "the beats are spread across distinct ticks: {ticks:?}");
+    let span = ticks.last().unwrap() - base;
+    assert_eq!(span, 260, "the sequence runs 26 s end to end");
+}
