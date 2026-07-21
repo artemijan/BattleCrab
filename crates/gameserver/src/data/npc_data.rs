@@ -125,6 +125,9 @@ pub struct NpcTemplate {
 
     // <acquire> (consumed in G9, trivially cheap to carry now).
     pub exp: f64,
+    /// `<acquire raidPoints>` — raid points awarded on death. 374 NPCs on
+    /// this dist carry a non-zero value; ordinary mobs leave it 0.
+    pub raid_points: f64,
     pub sp: f64,
 
     /// `<corpseTime>` (seconds); `None` = `Config.DEFAULT_CORPSE_TIME`.
@@ -442,6 +445,7 @@ pub fn default_template(id: i32) -> NpcTemplate {
         base_rnd_dam: 0,
         base_crit_rate: 4.0,
         exp: 0.0,
+        raid_points: 0.0,
         sp: 0.0,
         corpse_time: None,
         drop_list_death: Vec::new(),
@@ -674,6 +678,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                         if let Some(t) = cur.as_mut() {
                             set_f64(&e, b"exp", &mut t.exp);
                             set_f64(&e, b"sp", &mut t.sp);
+                            set_f64(&e, b"raidPoints", &mut t.raid_points);
                         }
                     }
                     b"equipment" => {

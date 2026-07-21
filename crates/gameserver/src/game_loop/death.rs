@@ -290,6 +290,12 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // The killer fallback resolves too: a pet's killing blow loots for its
     // owner.
     let killer_oid = crate::game_loop::pvp::acting_player(world, killer_oid);
+
+    // Raid points go to the same player the drops do — Java's
+    // `maxDealer != null && isOnline() ? maxDealer : lastAttacker`.
+    if let Some(earner) = max_dealer.map(|(id, _)| id).or(Some(killer_oid)) {
+        award_raid_points(world, npc_oid, earner);
+    }
     let looter = max_dealer.map(|(id, _)| id).or_else(|| world.objects.has_component::<crate::model::Player>(&killer_oid).then_some(killer_oid));
     if let Some(looter) = looter {
         // `doItemDrop`: a mob that died spoiled rolls its `<spoil>` list into
@@ -1772,4 +1778,84 @@ fn revive_pet(
     crate::game_loop::servitor::broadcast_summon_info(world, pet_oid, false);
     // The revived state is what should persist if the owner logs out now.
     crate::game_loop::servitor::sync_pet_row(world, owner_oid);
+}
+
+/// `calculateDistance3D(this) < ALT_PARTY_RANGE` — measured from the corpse.
+fn in_range_of(world: &World, from: i32, to: i32, range: f64) -> bool {
+    let (Some(a), Some(b)) =
+        (world.objects.get_component::<Position>(&from), world.objects.get_component::<Position>(&to))
+    else {
+        return false;
+    };
+    let (dx, dy, dz) = ((a.x - b.x) as f64, (a.y - b.y) as f64, (a.z - b.z) as f64);
+    (dx * dx + dy * dy + dz * dz).sqrt() < range
+}
+
+/// `Attackable.calculateRewards`' raid-point block.
+///
+/// Raid points are a separate currency from exp: they go to the **top damage
+/// dealer** (or the last attacker if that player has gone), and when that
+/// player is in a party they are **split among party members in range**, each
+/// getting at least 1.
+///
+/// Two conditions that are easy to lose:
+/// - `!_isRaidMinion` — a boss's adds award nothing, only the boss itself.
+/// - the party split uses `ALT_PARTY_RANGE` from the **corpse**, so a member
+///   who hung back out of range earns nothing.
+fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32) {
+    use crate::network::server_packets::{sm_ids, SmParam};
+
+    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) else { return };
+    let Some(t) = world.data.npc_data.get(npc.npc_id) else { return };
+    // Only a real raid boss, never its minions.
+    if !matches!(t.type_name.as_str(), "RaidBoss" | "GrandBoss") || t.raid_points <= 0.0 {
+        return;
+    }
+    if world.objects.has_component::<crate::game_loop::minions::MinionOf>(&npc_oid) {
+        return;
+    }
+    let total = (t.raid_points * world.cfg.rates.rate_raidboss_points) as i32;
+
+    // `broadcastPacket(CONGRATULATIONS_YOUR_RAID_WAS_SUCCESSFUL)` — everyone
+    // present hears it, not just the earner.
+    if let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) {
+        super::helpers::broadcast_near_region(
+            world,
+            region,
+            &server_packets::system_message_with(sm_ids::CONGRATULATIONS_YOUR_RAID_WAS_SUCCESSFUL, &[]),
+        );
+    }
+
+    // Party members within range of the corpse, else the earner alone.
+    let range = world.cfg.character.alt_party_range as f64;
+    let members: Vec<i32> = match world
+        .objects
+        .get_component::<crate::model::components::PartyRef>(&earner_oid)
+        .map(|r| r.0)
+        .and_then(|pid| world.parties.get(&pid))
+    {
+        Some(party) => party
+            .members
+            .iter()
+            .copied()
+            .filter(|m| in_range_of(world, npc_oid, *m, range))
+            .collect(),
+        None => vec![earner_oid],
+    };
+    if members.is_empty() {
+        return;
+    }
+    // `Math.max(points / size, 1)` — a split never rounds anyone down to zero.
+    let each = (total / members.len() as i32).max(1);
+    for m in members {
+        if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&m) {
+            p.raidboss_points += each;
+        }
+        if let Some(cs) = client_for_player(world, m).and_then(|c| world.clients.get(&c)) {
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOU_HAVE_EARNED_S1_RAID_POINTS,
+                &[SmParam::Int(each)],
+            ));
+        }
+    }
 }

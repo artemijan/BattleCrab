@@ -165,6 +165,7 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         sp: 0,
         reputation: 0,
         pk_kills: 0,
+        raidboss_points: 0,
         pvp_kills: 0,
         rec_have: 0,
         rec_left: 20,
