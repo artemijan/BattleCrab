@@ -181,6 +181,13 @@ fn pick(
 /// the reuse timer. (No shield/weapon conditions — those are item-gated player
 /// checks — and no `isSkillDisabled` silence handling beyond the abnormal
 /// flags below.)
+/// Test hook: `check_use_conditions` is private, and the reuse gate inside it
+/// is the thing worth pinning.
+#[cfg(test)]
+pub(crate) fn check_use_conditions_for_test(world: &World, npc_oid: i32, skill: &Skill) -> bool {
+    check_use_conditions(world, npc_oid, skill)
+}
+
 fn check_use_conditions(world: &World, npc_oid: i32, skill: &Skill) -> bool {
     let Some(vitals) = world.objects.get_component::<Vitals>(&npc_oid) else {
         return false;

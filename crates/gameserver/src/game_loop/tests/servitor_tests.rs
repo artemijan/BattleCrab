@@ -2486,3 +2486,56 @@ fn a_summon_kill_counts_for_the_clan_war() {
         "the kill was attributed to the owner"
     );
 }
+
+/// NPC skill cooldowns must actually apply. `set_skill_reuse` writes through
+/// `if let Some(Reuses)` — a **silent no-op** when the component is absent —
+/// and the check in `npc_cast` treats absence as "ready". If NPCs are never
+/// given the component, a mob re-casts as fast as its AI loop allows.
+#[test]
+fn an_npc_records_its_skill_reuse() {
+    let (mut world, _db, _l) = servitor_world();
+    add_test_npc(&mut world, FOE, PANTHER + 1, "Monster", 20, 60, 0, 0);
+
+    let skill = crate::model::skill::Skill { id: 4049, level: 1, reuse_delay: 10_000, ..Default::default() };
+    crate::game_loop::skills::cast::set_skill_reuse(&mut world, FOE, &skill);
+
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Reuses>(&FOE)
+            .is_some_and(|r| !r.0.is_empty()),
+        "the NPC's cooldown was recorded"
+    );
+}
+
+/// And the recorded cooldown must actually **block** the re-cast. Recording it
+/// is only half the fix: the check reads the same component, so a test that
+/// stops at "it was written" would not notice if the gate were bypassed.
+#[test]
+fn an_npc_skill_on_cooldown_cannot_be_recast() {
+    let (mut world, _db, _l) = servitor_world();
+    add_test_npc(&mut world, FOE, PANTHER + 1, "Monster", 20, 60, 0, 0);
+    // Enough MP that the cooldown is the only thing that can refuse it.
+    {
+        let v = world.objects.get_component_mut::<Vitals>(&FOE).unwrap();
+        v.max_mp = 1000;
+        v.cur_mp = 1000.0;
+    }
+    let skill = crate::model::skill::Skill { id: 4049, level: 1, reuse_delay: 10_000, ..Default::default() };
+
+    assert!(
+        crate::game_loop::npc_cast::check_use_conditions_for_test(&world, FOE, &skill),
+        "ready before the first cast"
+    );
+    crate::game_loop::skills::cast::set_skill_reuse(&mut world, FOE, &skill);
+    assert!(
+        !crate::game_loop::npc_cast::check_use_conditions_for_test(&world, FOE, &skill),
+        "refused while on cooldown"
+    );
+
+    world.tick += 10_000 / 100 + 1; // past the 10 s reuse
+    assert!(
+        crate::game_loop::npc_cast::check_use_conditions_for_test(&world, FOE, &skill),
+        "ready again once it expires"
+    );
+}
