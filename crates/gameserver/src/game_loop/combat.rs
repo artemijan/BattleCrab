@@ -1559,6 +1559,12 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
         }
         (vitals.cur_hp as i32, vitals.max_hp)
     };
+    // `Attackable.reduceCurrentHp`'s raid-curse check, and Java's own comment
+    // is the reason it sits **here** rather than before the damage block:
+    // "In retail you deal damage to raid before curse." The hit that earns the
+    // curse still lands.
+    super::raid_curse::on_raid_attacked(world, npc_oid, attacker_oid);
+
     // Quest `onAttack` (Java `addAttackId` scripts, notified from
     // `Attackable.reduceCurrentHp` before any death processing). Only
     // players drive quests.

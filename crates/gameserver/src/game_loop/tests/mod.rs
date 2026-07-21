@@ -80,6 +80,7 @@ mod reflect_tests;
 mod resist_tests;
 mod resurrection_tests;
 mod cubic_tests;
+mod raid_curse_tests;
 mod servitor_tests;
 mod shortcuts_tests;
 mod skills_tests;

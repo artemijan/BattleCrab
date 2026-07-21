@@ -744,6 +744,12 @@ pub(crate) fn start_casting(
     // under the shared group id when the skill has one.
     set_skill_reuse(world, object_id, skill);
 
+    // The post-cast raid-curse scan (Java runs it at the tail of the cast, so
+    // the skill itself goes off first). Catches a high-level player *helping*
+    // a low-level raid party from outside the fight, which the damage-side
+    // check never sees.
+    super::super::raid_curse::on_skill_cast_near_raid(world, object_id, skill.is_bad());
+
     // A new cast wipes the queue slot — Java clears `_queuedSkill` on every
     // successful `useMagic`, `changeIntention` drops `_nextIntention` for
     // offensive skills, and `setIntention(CAST)` cancels a pending equip.
