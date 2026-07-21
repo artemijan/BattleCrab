@@ -269,6 +269,7 @@ async fn character_create_inserts_into_real_schema() {
         initial_shortcuts: crate::data::InitialShortcutData::empty(),
         skill_data: crate::data::SkillData::empty(),
         npc_data: crate::data::NpcData::empty(),
+        pet_data: Default::default(),
         npc_ai_skills: Default::default(),
         spawn_data: crate::data::SpawnData::empty(),
         hit_condition_bonus: crate::data::HitConditionBonusData::default(),
