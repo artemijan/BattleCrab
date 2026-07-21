@@ -60,6 +60,13 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     if let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) {
         let npc_id = npc.npc_id;
         super::grand_boss::on_grand_boss_killed(world, npc_id);
+        // Core's script-spawned minions: respawn one, or clear them all when
+        // Core itself falls.
+        if npc_id == super::core_boss::CORE {
+            super::core_boss::on_core_killed(world);
+        } else if super::core_boss::is_core_minion(npc_id) {
+            super::core_boss::on_minion_killed(world, npc_id);
+        }
     }
 
     // `Pet.doDie`: the exp penalty, the owner's warning and the state capture.
