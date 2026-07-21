@@ -97,6 +97,20 @@ pub struct SkillReuse {
 }
 
 /// Java `SubClassHolder` — one subclass slot's saved progress.
+/// A pending resurrection proposal (Java's `_revive*` fields).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ReviveRequest {
+    pub reviver: i32,
+    pub restore_percent: f64,
+    pub hp_percent: i32,
+    pub mp_percent: i32,
+    pub cp_percent: i32,
+    /// Java `_revivePet` — the proposal targets the player's **pet**, not the
+    /// player. The dialog still goes to the owner, which is why one field on
+    /// the player carries both cases.
+    pub is_pet: bool,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct SubClass {
     pub class_id: i32,
@@ -278,10 +292,11 @@ pub struct Player {
     /// recorded here rather than the pre-death total because that difference is
     /// the only thing a resurrection reads. Cleared on revive.
     pub lost_exp_on_death: i64,
-    /// A resurrection proposal awaiting this (dead) player's `ConfirmDlg`
-    /// answer: `(reviver, restore_percent, hp%, mp%, cp%)`. Java's
-    /// `_reviveRequested`/`_revivePower`/`_revive*Percent` block.
-    pub revive_request: Option<(i32, f64, i32, i32, i32)>,
+    /// A resurrection proposal awaiting this player's `ConfirmDlg` answer —
+    /// Java's `_reviveRequested`/`_revivePower`/`_revive*Percent`/`_revivePet`
+    /// block. The dialog always goes to the **player**, even when what is
+    /// being resurrected is their pet.
+    pub revive_request: Option<ReviveRequest>,
     /// The collar item object id a pet summon is about to consume — Java's
     /// `PetItemHolder`, which `SummonItems` attaches to the player as a script
     /// and `SummonPet.instant` pulls back out with `removeScript`.

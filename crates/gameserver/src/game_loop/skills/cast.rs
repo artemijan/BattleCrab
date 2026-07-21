@@ -206,13 +206,16 @@ pub(crate) fn resolve_cast_target(
             }
             t
         }
-        // `targethandlers/PcBody.java` — a dead **player**, which is what a
-        // resurrection is cast on.
+        // `targethandlers/PcBody.java`: `if (!selectedTarget.isPlayer() &&
+        // !selectedTarget.isPet())` — a dead player **or a dead pet**, which
+        // is what a resurrection is cast on. The pet branch was missing, so a
+        // dead pet could not be targeted at all.
         TargetType::PcBody => {
             let t = caster_target.ok_or(sm_ids::INVALID_TARGET)?;
-            let is_dead_player = world.objects.has_component::<Player>(&t)
-                && world.objects.get_component::<Vitals>(&t).is_some_and(|v| v.dead);
-            if !is_dead_player {
+            let is_revivable = world.objects.has_component::<Player>(&t)
+                || world.objects.has_component::<crate::model::components::PetOf>(&t);
+            let is_dead = world.objects.get_component::<Vitals>(&t).is_some_and(|v| v.dead);
+            if !is_revivable || !is_dead {
                 return Err(sm_ids::INVALID_TARGET);
             }
             t
