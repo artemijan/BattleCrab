@@ -59,6 +59,21 @@ impl PetTemplate {
             self.levels.iter().filter(|(l, _)| **l <= level).max_by_key(|(l, _)| **l).map(|(_, r)| r.max_meal).unwrap_or(0)
         })
     }
+
+    /// Java `PetDataTable.getPetMinLevel` — the lowest level this species has a
+    /// row for. A restored pet's level is clamped up to it, so a row written
+    /// under an older datapack can't drop the pet below the table's floor and
+    /// leave every per-level lookup falling off the bottom.
+    pub fn min_level(&self) -> i32 {
+        self.levels.keys().copied().min().unwrap_or(1)
+    }
+
+    /// Cumulative experience required to *be* `level` — Java
+    /// `PetLevelData.getPetMaxExp`, used as a floor when restoring so a pet
+    /// never delevels because the exp curve was retuned under it.
+    pub fn exp_for_level(&self, level: i32) -> i64 {
+        self.levels.get(&level).map(|l| l.exp).unwrap_or(0)
+    }
 }
 
 #[derive(Debug, Default)]

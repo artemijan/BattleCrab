@@ -206,6 +206,32 @@ pub struct PlayerSaveData {
     pub skill_buffs: Vec<SkillBuffRow>,
     /// `character_variables` rows (`PlayerVariables` component) as `(var, val)`.
     pub variables: Vec<(String, String)>,
+    /// Every `pets` row this character owns (`PlayerPets` component), including
+    /// the currently-summoned pet, whose live state is folded in before the
+    /// save. Upserted row by row — **never** deleted as a set, because a row is
+    /// keyed by a collar this character may trade away rather than by the
+    /// character (Java writes one pet at a time for the same reason).
+    pub pets: Vec<PetRow>,
+}
+
+/// One `pets` row — a pet's saved state, keyed by the **object id of its
+/// collar** (`item_obj_id`), which is what makes two collars of the same kind
+/// two different pets.
+///
+/// Java's `restore` column ("True restores pet on login") is not carried: this
+/// port has no reconnect-resummon yet, so it always stores `false`.
+/// `TODO(G29)`: honour `RestorePetOnReconnect` once `CharSummonTable`'s
+/// auto-resummon lands.
+#[derive(Debug, Clone)]
+pub struct PetRow {
+    pub collar_object_id: i32,
+    pub name: String,
+    pub level: i32,
+    pub cur_hp: f64,
+    pub cur_mp: f64,
+    pub exp: i64,
+    pub sp: i64,
+    pub fed: i32,
 }
 
 /// One `character_skills_save` reuse row (Java `Player.storeEffect`'s
@@ -259,6 +285,10 @@ pub enum DbCommand {
     RestoreCharacter { client_id: u32, account: String, char_id: i32 },
     /// Fire-and-forget hard delete (expired characters).
     DeleteCharacter { char_id: i32 },
+    /// Fire-and-forget delete of a `pets` row whose collar was destroyed (Java
+    /// `RequestDestroyItem`). Object ids are recycled, so leaving the row would
+    /// let a future item inherit a stale pet.
+    DeletePetRow { collar_object_id: i32 },
     /// Char count + deletion times for the login server's `ReplyCharacters`.
     CountCharacters { account: String },
     /// Name availability check for `RequestCharacterNameCreatable` (name already
@@ -630,6 +660,12 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
             }
             DbCommand::DeleteCharacter { char_id } => {
                 delete_char(&pool, char_id).await;
+            }
+            DbCommand::DeletePetRow { collar_object_id } => {
+                let _ = sqlx::query("DELETE FROM pets WHERE item_obj_id=?")
+                    .bind(collar_object_id)
+                    .execute(&pool)
+                    .await;
             }
             DbCommand::CountCharacters { account } => {
                 let (count, del_times) = count_characters(&pool, &account).await;
@@ -1407,6 +1443,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
         let hennas_by_index = load_hennas(pool, object_id).await;
         let recipe_book = load_recipe_book(pool, object_id).await;
         let variables = load_variables(pool, object_id).await;
+        let pets = load_pets(pool, object_id).await;
         let shortcuts_by_index = load_shortcuts(pool, object_id).await;
         let macros = load_macros(pool, object_id).await;
         let friends = load_friends(pool, object_id).await;
@@ -1464,6 +1501,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             hennas_by_index,
             recipe_book,
             variables,
+            pets,
             shortcuts: shortcuts_by_index.get(&active_index).cloned().unwrap_or_default(),
             shortcuts_by_index,
             macros,
@@ -1542,6 +1580,32 @@ async fn load_variables(pool: &SqlitePool, owner_id: i32) -> Vec<(String, String
         .await
         .unwrap_or_default();
     rows.iter().map(|r| (gets(r, "var"), gets(r, "val"))).collect()
+}
+
+/// Every pet this character owns (Java `Pet.restore`, hoisted from per-summon
+/// to per-login — see `PlayerPets`). Java reads one row by collar object id at
+/// summon time; loading the whole set here keeps the summon path off the DB
+/// thread and costs one extra query per login.
+async fn load_pets(pool: &SqlitePool, owner_id: i32) -> Vec<PetRow> {
+    let rows = sqlx::query(
+        "SELECT item_obj_id, name, level, curHp, curMp, exp, sp, fed FROM pets WHERE ownerId=?",
+    )
+    .bind(owner_id)
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    rows.iter()
+        .map(|r| PetRow {
+            collar_object_id: geti(r, "item_obj_id") as i32,
+            name: gets(r, "name"),
+            level: geti(r, "level") as i32,
+            cur_hp: getf(r, "curHp"),
+            cur_mp: getf(r, "curMp"),
+            exp: geti(r, "exp"),
+            sp: geti(r, "sp"),
+            fed: geti(r, "fed") as i32,
+        })
+        .collect()
 }
 
 /// A character's `character_skills_save` reuse rows for the **active** class
@@ -2327,6 +2391,30 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
             .bind(val)
             .execute(&mut *tx)
             .await?;
+    }
+
+    // pets — upsert per row, no delete sweep. Java's `Pet.storeMe` picks
+    // INSERT or UPDATE off its `_respawned` flag; `INSERT OR REPLACE` on the
+    // `item_obj_id` primary key collapses both. A pet row is deleted only when
+    // its collar is (Java `RequestDestroyItem`), never by this flush, so a
+    // traded-away collar keeps the pet it carries.
+    for pet in &s.pets {
+        sqlx::query(
+            "INSERT OR REPLACE INTO pets \
+             (item_obj_id, name, level, curHp, curMp, exp, sp, fed, ownerId, restore) \
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'false')",
+        )
+        .bind(pet.collar_object_id)
+        .bind(&pet.name)
+        .bind(pet.level)
+        .bind(pet.cur_hp)
+        .bind(pet.cur_mp)
+        .bind(pet.exp)
+        .bind(pet.sp)
+        .bind(pet.fed)
+        .bind(char_id)
+        .execute(&mut *tx)
+        .await?;
     }
 
     // shortcuts (Java's delete+insert, here scoped to the transaction).

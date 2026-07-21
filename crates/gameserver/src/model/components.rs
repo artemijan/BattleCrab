@@ -591,7 +591,28 @@ pub struct PetOf {
     /// Java `Pet.getCurrentFed()` — the food bar.
     pub fed: i32,
     pub max_fed: i32,
+    /// Java `PetStat.getLevel()`. A pet levels independently of its owner, so
+    /// this is saved rather than derived — the point of the `pets` row.
+    pub level: i32,
+    /// Java `PetStat.getExp()` / `getSp()`. Nothing awards either yet
+    /// (`TODO(G29)`: pet exp gain), but they round-trip so a pet that levels
+    /// later needs no schema change.
+    pub exp: i64,
+    pub sp: i64,
 }
+
+/// Every saved pet row belonging to a character, keyed by the **collar's object
+/// id** — Java's `pets` primary key (`item_obj_id`).
+///
+/// Loaded with the character and written back with it, the memory-first model
+/// again: Java re-reads the row inside `Pet.restore` on every summon, but this
+/// port has the character's whole pet set in hand from login, so summoning is a
+/// map lookup with no DB round-trip in the cast path.
+///
+/// A row here is the pet's state *as last stored*; a live pet's state lives on
+/// [`PetOf`] and is flushed back into this map on unsummon and at save time.
+#[derive(Component, Debug, Clone, Default)]
+pub struct PlayerPets(pub HashMap<i32, crate::db::PetRow>);
 
 /// Panel shortcuts (Java `Player._shortCuts`), keyed by
 /// `slot + page * 12` — a `BTreeMap` so `ShortCutInit` order is stable.

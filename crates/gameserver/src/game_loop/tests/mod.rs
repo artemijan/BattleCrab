@@ -192,6 +192,7 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         hennas: vec![],
         recipe_book: vec![],
         variables: vec![],
+        pets: vec![],
         shortcuts: vec![],
         macros: vec![],
         friends: vec![],
