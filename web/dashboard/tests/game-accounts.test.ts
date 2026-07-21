@@ -173,6 +173,80 @@ describe("game accounts", () => {
     expect(bodyText).toContain("Confirm your email address first");
   });
 
+  test("collapsing one account hides its characters and leaves the others alone", async () => {
+    if (skip()) return;
+
+    const page = await openAccountPage({
+      gameAccounts: ["alice1", "alice2"],
+      characters: [character("alice1", "Warrior", 40), character("alice2", "Mage", 65)],
+    });
+
+    const toggle = page.locator('button[aria-controls="game-account-alice1"]');
+    expect(await toggle.getAttribute("aria-expanded")).toBe("true");
+
+    await toggle.click();
+    await page.waitForTimeout(150);
+
+    const after = await page.evaluate(() => ({
+      alice1Visible: !!document.querySelector("#game-account-alice1"),
+      alice2Visible: !!document.querySelector("#game-account-alice2"),
+      expanded: document
+        .querySelector('button[aria-controls="game-account-alice1"]')
+        ?.getAttribute("aria-expanded"),
+      body: document.body.textContent ?? "",
+    }));
+    await page.close();
+
+    expect(after.alice1Visible).toBe(false);
+    expect(after.expanded).toBe("false");
+    // Collapsing one panel must not touch its neighbour.
+    expect(after.alice2Visible).toBe(true);
+    expect(after.body).toContain("Mage");
+    expect(after.body).not.toContain("Warrior");
+    // The count is what is left to judge a collapsed account by, so it stays.
+    expect(after.body).toContain("1 character");
+    // And the account itself is obviously still listed.
+    expect(after.body).toContain("alice1");
+  });
+
+  test("a collapse survives a reload", async () => {
+    if (skip()) return;
+
+    const page = await openAccountPage({
+      gameAccounts: ["alice1"],
+      characters: [character("alice1", "Warrior", 40)],
+    });
+
+    await page.locator('button[aria-controls="game-account-alice1"]').click();
+    await page.waitForTimeout(150);
+    await page.reload({ waitUntil: "load" });
+    await page.waitForTimeout(400);
+
+    // A panel that springs back open on every visit is not really collapsible.
+    const stillCollapsed = await page.evaluate(
+      () => !document.querySelector("#game-account-alice1"),
+    );
+    await page.close();
+
+    expect(stillCollapsed).toBe(true);
+  });
+
+  test("an account with no characters has no collapse toggle", async () => {
+    if (skip()) return;
+
+    const page = await openAccountPage({ gameAccounts: ["alice1"], characters: [] });
+    const toggles = await page.evaluate(
+      () => document.querySelectorAll("button[aria-controls]").length,
+    );
+    const bodyText = (await page.textContent("body")) ?? "";
+    await page.close();
+
+    // Hiding one line of "log in to create a character" is a control that costs
+    // more than it saves.
+    expect(toggles).toBe(0);
+    expect(bodyText).toContain("No characters");
+  });
+
   test("the account page offers no way to change the email address", async () => {
     if (skip()) return;
 

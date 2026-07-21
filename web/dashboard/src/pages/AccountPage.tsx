@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 
 import { ApiError, api, type Character } from "../lib/api";
-import { Alert, Button, Field, Panel, Spinner } from "../components/ui";
+import { Alert, Button, Field, Panel, Spinner, cx } from "../components/ui";
 
 /** Interlude has five playable races; the ids are the datapack's own. */
 const RACES = ["Human", "Elf", "Dark Elf", "Orc", "Dwarf"] as const;
@@ -42,6 +42,48 @@ export function AccountPage() {
 }
 
 /**
+ * Which accounts the user has collapsed, by login.
+ *
+ * Stored rather than held in component state so a collapse survives navigating
+ * away and back — a panel that springs open again on every visit is not really
+ * collapsible. Storing the *collapsed* set (rather than the expanded one) means
+ * an account the user has never seen defaults to open, including one they just
+ * created.
+ */
+const COLLAPSED_KEY = "battlecrab:collapsed-game-accounts";
+
+function readCollapsed(): Set<string> {
+  try {
+    const raw = localStorage.getItem(COLLAPSED_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    // Anything else in this key is someone else's data or a corrupted write;
+    // fall back to "nothing collapsed" rather than throwing during render.
+    return new Set(Array.isArray(parsed) ? parsed.filter((v) => typeof v === "string") : []);
+  } catch {
+    // Private-mode Safari throws on access, and malformed JSON throws here.
+    return new Set();
+  }
+}
+
+function useCollapsedAccounts() {
+  const [collapsed, setCollapsed] = useState<Set<string>>(readCollapsed);
+
+  const toggle = (login: string) => {
+    const next = new Set(collapsed);
+    if (next.has(login)) next.delete(login);
+    else next.add(login);
+    setCollapsed(next);
+    try {
+      localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...next]));
+    } catch {
+      // Storage unavailable or full — the toggle still works for this visit.
+    }
+  };
+
+  return [collapsed, toggle] as const;
+}
+
+/**
  * Game accounts, each with the characters that live on it.
  *
  * The two lists are fetched separately and joined here rather than server-side:
@@ -53,6 +95,7 @@ function GameAccountsSection() {
   const me = useQuery({ queryKey: ["me"], queryFn: api.me });
   const gameAccounts = useQuery({ queryKey: ["gameAccounts"], queryFn: api.gameAccounts });
   const characters = useQuery({ queryKey: ["characters"], queryFn: api.characters });
+  const [collapsed, toggleCollapsed] = useCollapsedAccounts();
 
   const isPending = gameAccounts.isPending || characters.isPending;
   const isError = gameAccounts.isError || characters.isError;
@@ -99,6 +142,8 @@ function GameAccountsSection() {
                 key={login}
                 login={login}
                 characters={charactersByAccount.get(login) ?? []}
+                expanded={!collapsed.has(login)}
+                onToggle={() => toggleCollapsed(login)}
               />
             ))
           )}
@@ -113,26 +158,100 @@ function GameAccountsSection() {
   );
 }
 
-function GameAccountPanel({ login, characters }: { login: string; characters: Character[] }) {
+function Chevron({ expanded }: { expanded: boolean }) {
   return (
-    <Panel className="overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--surface-border)] px-5 py-3.5">
-        <div className="flex items-center gap-2.5">
-          <span
-            className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-500/12 text-xs font-black
-                       text-brand-600 ring-1 ring-brand-500/20 dark:text-brand-200"
-            aria-hidden
-          >
-            {login.charAt(0).toUpperCase()}
-          </span>
-          <p className="font-semibold">{login}</p>
-        </div>
+    <svg
+      viewBox="0 0 20 20"
+      aria-hidden
+      className={cx(
+        "size-4 shrink-0 text-[var(--text-faint)] transition-transform duration-200",
+        expanded && "rotate-180",
+      )}
+    >
+      <path
+        d="M5 7.5 10 12.5 15 7.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/**
+ * One game account and its characters, collapsible.
+ *
+ * Only an account that *has* characters gets a toggle: collapsing an empty one
+ * would hide a single line of "log in to create a character", which is a
+ * control that costs more than it saves. The character count stays in the
+ * header either way — collapsed, it is the only thing left to judge the account
+ * by.
+ */
+function GameAccountPanel({
+  login,
+  characters,
+  expanded,
+  onToggle,
+}: {
+  login: string;
+  characters: Character[];
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const collapsible = characters.length > 0;
+  const showsContent = expanded || !collapsible;
+  const listId = `game-account-${login}`;
+
+  const summary = (
+    <>
+      <div className="flex min-w-0 items-center gap-2.5">
+        <span
+          className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-500/12 text-xs font-black
+                     text-brand-600 ring-1 ring-brand-500/20 dark:text-brand-200"
+          aria-hidden
+        >
+          {login.charAt(0).toUpperCase()}
+        </span>
+        <p className="truncate font-semibold">{login}</p>
+      </div>
+      <div className="flex items-center gap-2">
         <p className="text-xs text-[var(--text-faint)]">
           {characters.length === 0
             ? "No characters"
             : `${characters.length} character${characters.length === 1 ? "" : "s"}`}
         </p>
+        {collapsible && <Chevron expanded={expanded} />}
       </div>
+    </>
+  );
+
+  // The bottom border is a divider, so it only belongs there when something is
+  // actually below it — on a collapsed panel it reads as a stray line.
+  const headerClass = cx(
+    "flex w-full flex-wrap items-center justify-between gap-2 px-5 py-3.5 text-left",
+    showsContent && "border-b border-[var(--surface-border)]",
+  );
+
+  return (
+    <Panel className="overflow-hidden">
+      {collapsible ? (
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={expanded}
+          aria-controls={listId}
+          className={cx(
+            headerClass,
+            "transition-colors duration-200 hover:bg-[var(--surface-strong)]",
+          )}
+        >
+          {summary}
+        </button>
+      ) : (
+        <div className={headerClass}>{summary}</div>
+      )}
 
       {characters.length === 0 ? (
         <p className="px-5 py-5 text-sm text-[var(--text-muted)]">
@@ -140,11 +259,13 @@ function GameAccountPanel({ login, characters }: { login: string; characters: Ch
           first character.
         </p>
       ) : (
-        <ul className="divide-y divide-[var(--surface-border)]">
-          {characters.map((character) => (
-            <CharacterRow key={character.name} character={character} />
-          ))}
-        </ul>
+        expanded && (
+          <ul id={listId} className="divide-y divide-[var(--surface-border)]">
+            {characters.map((character) => (
+              <CharacterRow key={character.name} character={character} />
+            ))}
+          </ul>
+        )
       )}
     </Panel>
   );
