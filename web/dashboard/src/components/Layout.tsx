@@ -17,18 +17,40 @@ export function Background() {
   );
 }
 
-function Brand() {
+/**
+ * The wordmark is dropped only at widths where it genuinely doesn't fit, so a
+ * clipped "Battl…" never appears — an icon-only mark is deliberate, truncation
+ * reads as breakage.
+ *
+ * Measured at 360px: the nav is 180px of a 302px inner width, leaving the
+ * wordmark 10px short. The signed-in nav is wider still (Account + Log out), so
+ * it needs a higher cutoff than the signed-out one. Both thresholds are set
+ * just above where each actually overflows, which keeps the wordmark on 390px
+ * phones — the common case — rather than hiding it on every phone.
+ */
+function Brand({ compact = false }: { compact?: boolean }) {
   return (
-    <Link to="/" className="group flex items-center gap-2.5">
+    // min-w-0 lets this shrink; without it the flex row's intrinsic width wins
+    // and the nav is pushed out of the header on narrow screens.
+    <Link
+      to="/"
+      className="group flex min-w-0 items-center gap-2 sm:gap-2.5"
+      aria-label="BattleCrab home"
+    >
       <span
-        className="grid size-9 place-items-center rounded-xl bg-brand-500 text-base font-black text-accent-400
-                   shadow-[0_8px_22px_-8px_rgba(0,87,183,0.9)] transition-transform duration-300
-                   group-hover:rotate-6 group-hover:scale-105"
+        className="grid size-9 shrink-0 place-items-center rounded-xl bg-brand-500 text-base font-black
+                   text-accent-400 shadow-[0_8px_22px_-8px_rgba(0,87,183,0.9)] transition-transform
+                   duration-300 group-hover:rotate-6 group-hover:scale-105"
         aria-hidden
       >
         B
       </span>
-      <span className="text-lg font-bold tracking-tight">
+      <span
+        className={cx(
+          "truncate text-base font-bold tracking-tight sm:text-lg",
+          compact ? "max-[479px]:hidden" : "max-[389px]:hidden",
+        )}
+      >
         Battle<span className="text-brand-500 dark:text-brand-300">Crab</span>
       </span>
     </Link>
@@ -51,21 +73,27 @@ export function Header({ account }: { account?: { login: string } | null }) {
 
   return (
     <header className="sticky top-0 z-40 px-4 pt-4">
-      <div className="glass glass-sheen mx-auto flex max-w-5xl items-center gap-3 rounded-2xl px-4 py-3">
-        <Brand />
+      <div
+        className="glass glass-sheen mx-auto flex max-w-5xl items-center gap-2 rounded-2xl
+                   px-3 py-2.5 sm:gap-3 sm:px-4 sm:py-3"
+      >
+        <Brand compact={!!account} />
 
-        <nav className="ml-auto flex items-center gap-1">
+        {/* shrink-0 keeps the controls at their intrinsic width, so any overflow
+            is absorbed by the brand's truncate rather than pushing the theme
+            toggle outside the header. */}
+        <nav className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
           {account ? (
             <>
               <NavItem to="/account">Account</NavItem>
-              <span className="mx-2 hidden text-sm text-[var(--text-muted)] sm:inline">
+              <span className="mx-2 hidden text-sm text-[var(--text-muted)] md:inline">
                 {account.login}
               </span>
               <Button
                 variant="ghost"
                 onClick={() => logout.mutate()}
                 loading={logout.isPending}
-                className="px-3 py-2 text-xs"
+                className="px-2.5 py-2 text-xs sm:px-3"
               >
                 Log out
               </Button>
@@ -74,13 +102,16 @@ export function Header({ account }: { account?: { login: string } | null }) {
             <>
               <NavItem to="/login">Log in</NavItem>
               <Link to="/register">
-                <Button className="px-4 py-2 text-xs">Create account</Button>
+                {/* Shorter label on phones — "Create account" alone is wider
+                    than the space left beside the brand at 360px. */}
+                <Button className="px-3 py-2 text-xs sm:px-4">
+                  <span className="sm:hidden">Sign up</span>
+                  <span className="hidden sm:inline">Create account</span>
+                </Button>
               </Link>
             </>
           )}
-          <div className="ml-1">
-            <ThemeToggle />
-          </div>
+          <ThemeToggle />
         </nav>
       </div>
     </header>
@@ -93,7 +124,7 @@ function NavItem({ to, children }: { to: string; children: ReactNode }) {
       to={to}
       className={({ isActive }) =>
         cx(
-          "rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200",
+          "rounded-lg px-2 py-2 text-sm font-medium transition-colors duration-200 sm:px-3",
           isActive
             ? "text-brand-600 dark:text-brand-200"
             : "text-[var(--text-muted)] hover:text-[var(--text)]",

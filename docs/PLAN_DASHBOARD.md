@@ -561,8 +561,11 @@ the next person doesn't trust a spec the implementation has already moved past.
 - **`utoipa` / OpenAPI + generated TS client.** `web/dashboard/src/lib/api.ts` is hand-written and
   its types are maintained by hand against the Rust DTOs. That drift risk is real and is exactly
   what the generator was meant to remove.
-- **Frontend tests.** No `bun test` or Playwright yet; the Rust integration tests cover the API
-  contract, nothing covers the UI.
+- **Frontend tests are thin.** `web/dashboard/tests/header-responsive.test.ts` (`bun test`) drives
+  real Chrome and asserts the header does not overflow at 320–480px — added after the theme toggle
+  was found escaping the header at 360px, and verified to fail on the pre-fix markup. Nothing else
+  covers the UI; there is no test of the register/login *flows* through the browser yet.
+  Requires a built `dist/` and Google Chrome; skips with a message when either is absent.
 - **`/auth/reset-password` and `/account/email/verify` have no UI routes** — the endpoints work and
   are tested, but nothing in the SPA lands on them yet (they need the email links first).
 - **Class names.** The character list shows level and race; `classId` is returned but not resolved
