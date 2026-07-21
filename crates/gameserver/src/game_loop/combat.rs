@@ -1248,10 +1248,24 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         broadcast_near_region(world, region, &pkt);
     } else {
         broadcast_including_self(world, attacker_oid, &pkt);
-        // `Creature.doAttack` tail: outside a PVP zone, and not self-targeting,
-        // the attacker enters stance and flags against a player target.
-        refresh_attack_stance(world, attacker_oid);
-        super::pvp::update_pvp_status_target(world, attacker_oid, target_oid);
+    }
+
+    // `Creature.doAttack` tail: outside a PVP zone, and not self-targeting, the
+    // attacker enters stance and flags against a player target.
+    //
+    // Java hangs both off `getActingPlayer()`, which is **not** the same as
+    // "the attacker is a player": a summon's acting player is its owner, so a
+    // pet's swing flags and stances the *owner*. This block used to live in the
+    // player-only `else` above, so a summon attacking a player flagged nobody —
+    // a player could attack through their pet and never go purple, leaving the
+    // victim unable to retaliate without taking the karma.
+    //
+    // A plain monster resolves to itself, is not a player, and so still flags
+    // nobody.
+    let actor = super::pvp::acting_player(world, attacker_oid);
+    if world.objects.has_component::<crate::model::Player>(&actor) {
+        refresh_attack_stance(world, actor);
+        super::pvp::update_pvp_status_target(world, actor, target_oid);
     }
 }
 
