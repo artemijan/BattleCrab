@@ -54,6 +54,15 @@ pub enum TargetType {
     /// the target to be **dead**, so the cast pipeline's "no dead targets"
     /// gate is inverted for it.
     NpcBody,
+    /// `SUMMON`: the caster's own summon (Java `targethandlers/Summon.java`).
+    ///
+    /// **Servitors only.** Java is
+    /// `if (isPlayer() && hasSummon()) return getAnyServitor(); return getPet();`
+    /// — and `getAnyServitor()` is null when the player has only a *pet*, so a
+    /// pet owner casting "Servitor Heal" targets nothing. That reads like a bug
+    /// but is thematically right: these are the Summoner's servitor kit, and a
+    /// Wolf is not a servitor. Ported as written.
+    Summon,
     Other,
 }
 

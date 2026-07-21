@@ -2040,3 +2040,89 @@ fn without_the_toggle_a_pet_charges_nothing() {
     assert!(!crate::game_loop::servitor::recharge_shots(&mut world, pet_oid, true));
     assert_eq!(owner_shot_count(&world), 10, "untouched");
 }
+
+// ---------------------------------------------------------------------------
+// SUMMON target type (slice 19)
+// ---------------------------------------------------------------------------
+
+/// The Summoner support kit — 18 learnable skills, all of which resolved to
+/// `INVALID_TARGET` before `TargetType::Summon` existed. Servitor Heal is the
+/// representative case: it must reach the servitor, not the caster.
+#[test]
+fn a_summon_target_skill_reaches_the_servitor() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+    world.objects.get_component_mut::<Vitals>(&servitor).unwrap().cur_hp = 10.0;
+
+    let skill = crate::model::skill::Skill {
+        id: 1127,
+        level: 1,
+        target_type: crate::model::skill::TargetType::Summon,
+        effects: vec![crate::model::skill::SkillEffect::Heal { power: 100.0 }],
+        ..Default::default()
+    };
+    world.data.skill_data.insert_for_test(skill.clone());
+
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, OWNER, servitor, &skill);
+    assert!(
+        world.objects.get_component::<Vitals>(&servitor).unwrap().cur_hp > 10.0,
+        "the servitor was healed"
+    );
+}
+
+/// Target resolution picks the caster's own servitor without needing it
+/// selected — Java's handler ignores the current target entirely.
+#[test]
+fn summon_targeting_finds_the_casters_own_servitor() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+
+    assert_eq!(servitor_of(&world, OWNER), Some(servitor));
+}
+
+/// With no summon out there is nothing to target — the skill must fail rather
+/// than silently falling back to the caster.
+#[test]
+fn summon_targeting_without_a_summon_finds_nothing() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    assert!(servitor_of(&world, OWNER).is_none());
+}
+
+/// **A pet is not a servitor.** Java's handler returns `getAnyServitor()`,
+/// which is null for a pet-only owner — so "Servitor Heal" does nothing for
+/// someone with a Wolf. It reads like a bug and is thematically right: this is
+/// the Summoner's kit. Pinned so a later "fix" has to be deliberate.
+#[test]
+fn a_pet_is_not_a_summon_target() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+
+    assert!(pet_of(&world, OWNER).is_some(), "the pet is out");
+    assert!(
+        servitor_of(&world, OWNER).is_none(),
+        "but it is not what a SUMMON-target skill resolves to (pet {pet_oid})"
+    );
+}
+
+/// The fixture above builds its own skill, so it cannot catch a parse-arm
+/// mistake. This reads the **real** Summoner kit out of the datapack: if
+/// `<targetType>SUMMON</targetType>` stops mapping, all 18 skills silently
+/// return to `INVALID_TARGET`.
+#[test]
+fn the_real_servitor_skills_parse_as_summon_targeted() {
+    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    // Servitor Heal, Servitor Recharge, Mighty Servitor, Final Servitor.
+    for id in [1127, 1126, 1146, 1349] {
+        let s = skills.get(id, 1).unwrap_or_else(|| panic!("skill {id} exists"));
+        assert_eq!(
+            s.target_type,
+            crate::model::skill::TargetType::Summon,
+            "skill {id} ({}) must target the summon",
+            s.id
+        );
+    }
+}
