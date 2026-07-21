@@ -82,3 +82,60 @@ Fixed the fixture and **pinned the behaviour it revealed** as its own test.
   damage but means a cubic can crit off the owner's stats.
 - Agathions — deliberately deferred as unreachable content, with the numbers
   above as the justification.
+
+---
+
+# Addendum — slice 11: `power` was not unconsumed after all
+
+The cubics plan closed with "`power` is parsed but unconsumed … worth checking
+whether any cubic relies on it." Checking said **yes, and the port had it
+wrong.**
+
+`CubicTemplate` in Java:
+
+```java
+_power = set.getDouble("power") / 10;
+@Override public int getBasePAtk() { return (int) _power; }
+@Override public int getBaseMAtk() { return (int) _power; }
+```
+
+`Cubic extends Creature`, and the cast is `skill.activateSkill(this, target)` —
+**the cubic is the caster, not its owner**. The port passed the owner, so cubic
+damage scaled off the *player's* m.atk. Storm Cubic level 1 is `power=282` →
+m.atk **28.2**; a levelled mage's m.atk is many times that, so cubics hit far
+harder than retail.
+
+Nothing would have caught this: damage was non-zero, the cubic "worked", and
+every existing test passed. It took reading the Java for a field the port had
+already parsed. **"Parsed but unconsumed" cuts both ways — the port can also be
+consuming the wrong thing.**
+
+## The fix
+
+A cubic now gets a real caster entity carrying `CombatStats` (p.atk = m.atk =
+`power / 10`), `Vitals` and `Position`, but **no `Npc`, `Player`, `RegionCell`
+or `Movement`** — every store sweep in the server is anchored on one of those
+five, so it stays invisible to visibility, targeting, movement and AI while
+being a valid caster for the damage formulas. That check was done by
+enumerating `for_each_mut::<…>` call sites, not assumed.
+
+The entity is despawned with the cubic; a test asserts it, since otherwise every
+summon leaks one.
+
+## Two bugs found while fixing it
+
+1. **`Cubic.getLevel()` returns `_owner.getLevel()`.** A cubic borrows its
+   owner's *level* while using its own *power*. Without that link the caster
+   resolved to level 1, the level gap made every cast resist, and the cubic did
+   **zero** damage — worse than the bug being fixed. Ported as a `CubicOf`
+   component that `creature_level` checks first.
+2. **`add_components` silently no-ops on an id the store has never seen.** The
+   caster entity was allocated but never `spawn`ed, so it had no stats at all.
+   Worth knowing generally: `spawn` first, then `add_components`.
+
+## Tests
+
+`cubic_tests` 13 → 16. The load-bearing one runs the same cast twice with the
+owner's m.atk at 10 and at 5000 and asserts the damage is **identical** — a
+500× swing in the owner's stats must not move cubic damage. Plus the owner-level
+delegation and caster-entity cleanup.

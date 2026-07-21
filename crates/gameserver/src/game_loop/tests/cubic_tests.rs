@@ -302,3 +302,80 @@ fn a_dead_target_costs_no_charge() {
         "no charge spent on a corpse"
     );
 }
+
+/// The point of the caster entity: cubic damage must scale off the **cubic's**
+/// `power`, not its owner's m.atk.
+///
+/// Java's `Cubic extends Creature` with `getBasePAtk()/getBaseMAtk()` both
+/// returning `power / 10`, and casts with `skill.activateSkill(this, target)`.
+/// Passing the owner instead made a levelled mage's cubic hit many times
+/// harder than retail — a bug that no test would have caught, because damage
+/// was still non-zero and still "worked".
+#[test]
+fn cubic_damage_scales_off_the_cubic_not_the_owner() {
+    let damage_with_owner_matk = |m_atk: f64| {
+        let (mut world, _db, _l) = cubic_world();
+        let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+        register(&mut world, attack_template(1));
+        add_test_npc(&mut world, FOE, 20001, "Monster", 20, 100, 0, 0);
+        {
+            let v = world.objects.get_component_mut::<Vitals>(&FOE).unwrap();
+            v.max_hp = 100_000;
+            v.cur_hp = 100_000.0;
+        }
+        world.objects.get_component_mut::<crate::model::components::TargetRef>(&OWNER).unwrap().0 = Some(FOE);
+        // Give the *owner* wildly different magic attack between runs.
+        world.objects.get_component_mut::<crate::model::components::CombatStats>(&OWNER).unwrap().m_atk = m_atk;
+
+        summon_cubic(&mut world, OWNER, CUBIC_ID, 1);
+        let before = hp(&world, FOE);
+        handle_cubic_action(&mut world, OWNER, CUBIC_ID);
+        before - hp(&world, FOE)
+    };
+
+    let weak_owner = damage_with_owner_matk(10.0);
+    let strong_owner = damage_with_owner_matk(5_000.0);
+    assert!(weak_owner > 0.0, "the cubic actually hit ({weak_owner})");
+    assert_eq!(
+        weak_owner, strong_owner,
+        "a 500x swing in the owner's m.atk must not change cubic damage \
+         ({weak_owner} vs {strong_owner})"
+    );
+}
+
+/// The cubic borrows its owner's **level** even though it uses its own power —
+/// Java `Cubic.getLevel()` is `return _owner.getLevel()`. With the caster
+/// resolving to level 1 instead, every cast was resisted and the cubic did no
+/// damage at all.
+#[test]
+fn the_cubic_borrows_its_owners_level() {
+    let (mut world, _db, _l) = cubic_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register(&mut world, attack_template(1));
+    summon_cubic(&mut world, OWNER, CUBIC_ID, 1);
+
+    let caster = world.objects.get_component::<Cubics>(&OWNER).unwrap().0[0].caster_oid;
+    let owner_level = world.objects.get_component::<crate::model::Player>(&OWNER).unwrap().level;
+    assert_eq!(
+        crate::game_loop::skills::effects::creature_level_for_test(&world, caster),
+        owner_level,
+        "the cubic reports its owner's level"
+    );
+}
+
+/// The caster entity must die with the cubic, or every summon leaks one.
+#[test]
+fn the_caster_entity_is_cleaned_up() {
+    let (mut world, _db, _l) = cubic_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register(&mut world, attack_template(1));
+    summon_cubic(&mut world, OWNER, CUBIC_ID, 1);
+    let caster = world.objects.get_component::<Cubics>(&OWNER).unwrap().0[0].caster_oid;
+    assert!(world.objects.get_component::<crate::model::components::CombatStats>(&caster).is_some());
+
+    crate::game_loop::cubic::remove_cubic(&mut world, OWNER, CUBIC_ID);
+    assert!(
+        world.objects.get_component::<crate::model::components::CombatStats>(&caster).is_none(),
+        "caster entity despawned with the cubic"
+    );
+}

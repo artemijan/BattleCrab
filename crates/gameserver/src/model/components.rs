@@ -601,6 +601,17 @@ pub struct PetOf {
     pub sp: i64,
 }
 
+/// Marks a cubic's stats-only caster entity and links it back to its owner.
+///
+/// Java's `Cubic.getLevel()` is `return _owner.getLevel()` — a cubic borrows
+/// its owner's **level** for accuracy and resist checks while using its own
+/// template `power` for attack. Without this link the caster resolved to level
+/// 1 and every cast was resisted, so the cubic did no damage at all.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct CubicOf {
+    pub owner_object_id: i32,
+}
+
 /// The owner's side of the summon link — Java's `Player._pet` / `_servitors`
 /// fields.
 ///
