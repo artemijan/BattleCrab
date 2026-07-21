@@ -1217,3 +1217,172 @@ fn unsummoning_clears_the_owner_link() {
         "and the party window row goes with it"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Pet experience (slice 12)
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::servitor::{add_pet_exp, split_exp_with_pet};
+
+/// Extend the Wolf with a level-2 row that costs 5000 exp and a real
+/// `get_exp_type`, so the split and the level-up both have somewhere to go.
+fn wolf_with_exp_curve(world: &mut World) {
+    let mut t = world.data.pet_data.get(WOLF_NPC).unwrap().clone();
+    for (lvl, exp, meal) in [(1, 0i64, 248), (2, 5_000, 300)] {
+        t.levels.insert(
+            lvl,
+            crate::data::pet_data::PetLevel {
+                max_meal: meal,
+                consume_meal_in_normal: 10,
+                consume_meal_in_battle: 15,
+                exp,
+                // The owner keeps 73%, so the pet takes 27% — the real value
+                // on this species.
+                owner_exp_taken: 73,
+            },
+        );
+    }
+    world.data.pet_data.insert_for_test(t);
+}
+
+fn summoned_pet(world: &mut World) -> i32 {
+    let collar = give_collar(world);
+    wolf_with_exp_curve(world);
+    park_collar(world, collar);
+    summon_pet(world, OWNER).unwrap()
+}
+
+/// The pet's cut comes **out of** the owner's award, not on top of it.
+#[test]
+fn a_nearby_pet_takes_its_cut_from_the_owner() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    summoned_pet(&mut world);
+
+    let (owner_ratio, pet_exp, pet_sp) = split_exp_with_pet(&world, OWNER, 1000.0, 100.0);
+    assert_eq!(owner_ratio, 0.73, "the owner keeps get_exp_type percent");
+    assert!((pet_exp - 270.0).abs() < 0.001, "the pet takes the remaining 27% ({pet_exp})");
+    assert!((pet_sp - 27.0).abs() < 0.001);
+}
+
+/// Out of range, the pet earns nothing and the owner keeps the lot.
+#[test]
+fn a_distant_pet_earns_nothing() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    world.objects.get_component_mut::<Position>(&pet_oid).unwrap().x += 10_000;
+
+    let (owner_ratio, pet_exp, _) = split_exp_with_pet(&world, OWNER, 1000.0, 100.0);
+    assert_eq!(owner_ratio, 1.0, "the owner keeps everything");
+    assert_eq!(pet_exp, 0.0);
+}
+
+/// With no pet at all the owner's award is untouched — the guard that keeps
+/// this change invisible to every player without one.
+#[test]
+fn no_pet_means_no_split() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let (owner_ratio, pet_exp, pet_sp) = split_exp_with_pet(&world, OWNER, 1000.0, 100.0);
+    assert_eq!((owner_ratio, pet_exp, pet_sp), (1.0, 0.0, 0.0));
+}
+
+/// **A starving pet earns nothing** — Java's `isUncontrollable()` guard in
+/// `PetStat.addExp`. This is the link between the feeding loop and
+/// progression: let the food bar hit zero and the pet stops growing.
+#[test]
+fn a_starving_pet_earns_no_exp() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    world.objects.get_component_mut::<PetOf>(&pet_oid).unwrap().fed = 0;
+
+    add_pet_exp(&mut world, OWNER, 1000.0, 100.0);
+    assert_eq!(world.objects.get_component::<PetOf>(&pet_oid).unwrap().exp, 0, "starving pets do not learn");
+}
+
+/// Crossing the level threshold levels the pet, and the food capacity moves
+/// with it.
+#[test]
+fn a_pet_levels_when_it_earns_enough() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    assert_eq!(world.objects.get_component::<PetOf>(&pet_oid).unwrap().level, 1);
+
+    add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
+    let pet = *world.objects.get_component::<PetOf>(&pet_oid).unwrap();
+    assert_eq!(pet.level, 2, "crossed the 5000-exp threshold");
+    assert_eq!(pet.max_fed, 300, "food capacity follows the level");
+}
+
+/// A pet cannot pass the top level its species table defines — every per-level
+/// lookup would fall off the end.
+#[test]
+fn a_pet_stops_at_its_species_max_level() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+
+    add_pet_exp(&mut world, OWNER, 10_000_000.0, 0.0);
+    assert_eq!(
+        world.objects.get_component::<PetOf>(&pet_oid).unwrap().level,
+        2,
+        "capped at the highest level the table defines"
+    );
+}
+
+/// Java `getControlItem().setEnchantLevel(getLevel())` — the collar's enchant
+/// level *is* the pet's level, which is how a collar advertises its pet
+/// without being summoned.
+#[test]
+fn levelling_stamps_the_pets_level_onto_its_collar() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    wolf_with_exp_curve(&mut world);
+    park_collar(&mut world, collar);
+    summon_pet(&mut world, OWNER).unwrap();
+
+    add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
+    let enchant = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|i| i.object_id == collar)
+        .unwrap()
+        .enchant_level;
+    assert_eq!(enchant, 2, "the collar reads +2 once the pet hits level 2");
+}
+
+/// End-to-end through the real reward path: the helper being right is not
+/// enough if `add_exp_and_sp` never calls it. A pet out of range and a pet
+/// beside its owner must produce *different* owner awards from the same kill.
+#[test]
+fn the_reward_path_actually_splits_with_the_pet() {
+    let owner_exp_after = |pet_nearby: bool| {
+        let (mut world, _db, _l) = servitor_world();
+        let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+        let pet_oid = summoned_pet(&mut world);
+        if !pet_nearby {
+            world.objects.get_component_mut::<Position>(&pet_oid).unwrap().x += 10_000;
+        }
+        world.objects.get_component_mut::<crate::model::Player>(&OWNER).unwrap().exp = 0;
+        crate::game_loop::death::add_exp_and_sp(&mut world, OWNER, 1000.0, 100.0, false);
+        (
+            world.objects.get_component::<crate::model::Player>(&OWNER).unwrap().exp,
+            world.objects.get_component::<PetOf>(&pet_oid).unwrap().exp,
+        )
+    };
+
+    let (owner_alone, pet_idle) = owner_exp_after(false);
+    let (owner_shared, pet_fed) = owner_exp_after(true);
+
+    assert_eq!(pet_idle, 0, "a distant pet learns nothing");
+    assert_eq!(pet_fed, 270, "a nearby pet takes 27% of the kill");
+    assert_eq!(owner_alone, 1000, "without a pet in range the owner keeps it all");
+    assert_eq!(owner_shared, 730, "with a pet in range the owner keeps only 73%");
+}

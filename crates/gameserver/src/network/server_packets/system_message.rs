@@ -163,6 +163,8 @@ pub mod sm_ids {
     pub const M_CRITICAL: i16 = 1280;
     /// "You already have a pet."
     pub const YOU_ALREADY_HAVE_A_PET: i16 = 542;
+    /// "Your pet gained $s1 XP."
+    pub const YOUR_PET_GAINED_S1_XP: i16 = 1014;
     /// "Your pet ate a little, but is still hungry."
     pub const YOUR_PET_ATE_A_LITTLE_BUT_IS_STILL_HUNGRY: i16 = 596;
     /// "This pet cannot use this item."

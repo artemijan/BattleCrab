@@ -742,7 +742,19 @@ pub(crate) fn add_exp_and_sp(world: &mut World, player_oid: i32, exp: f64, sp: f
         (1.0, 1.0)
     };
     let (base_exp, base_sp) = (exp, sp);
-    let (add_exp, add_sp) = (exp * bonus_exp, sp * bonus_sp);
+    let (mut add_exp, mut add_sp) = (exp * bonus_exp, sp * bonus_sp);
+
+    // Java `PlayerStat.addExpAndSp`: a nearby pet takes its cut **out of the
+    // owner's award**, not on top of it — hunting with a pet costs the player
+    // exp. The split happens after the bonuses, so the pet shares them.
+    let (owner_ratio, pet_exp, pet_sp) =
+        super::servitor::split_exp_with_pet(world, player_oid, add_exp, add_sp);
+    if pet_exp > 0.0 || pet_sp > 0.0 {
+        super::servitor::add_pet_exp(world, player_oid, pet_exp, pet_sp);
+    }
+    add_exp *= owner_ratio;
+    add_sp *= owner_ratio;
+
     let (exp, sp) = (add_exp.round() as i64, add_sp.round() as i64);
 
     let max_level = world.data.experience.max_level as i32;
