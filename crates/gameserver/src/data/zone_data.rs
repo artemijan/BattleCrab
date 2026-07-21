@@ -49,6 +49,8 @@ pub enum ZoneKind {
     Damage,
     /// Java `SwampZone`: multiplies a playable's move speed while inside.
     Swamp,
+    /// Java `ScriptZone` — a named region a script addresses by id.
+    Script,
 }
 
 impl ZoneKind {
@@ -65,6 +67,9 @@ impl ZoneKind {
             // membership mask complete so enter/exit diffs work.
             ZoneKind::Effect => 32,
             ZoneKind::Damage => 64,
+            // `ScriptZone` has no `ZoneId` of its own in Java — it is addressed
+            // by id, never by membership mask — so it claims no bit.
+            ZoneKind::Script => 0,
             // `ZoneId.SWAMP` — read by the speed finalizer.
             ZoneKind::Swamp => 128,
         }
@@ -72,6 +77,10 @@ impl ZoneKind {
 }
 
 pub struct Zone {
+    /// `<zone id="…">`. Scripts address zones by this (`getZoneById(12012)` is
+    /// Queen Ant's lair), so it is kept even though the spatial lookups don't
+    /// need it. `0` when the file omits it.
+    pub id: i32,
     pub name: String,
     pub kind: ZoneKind,
     pub territory: Territory,
@@ -171,11 +180,31 @@ impl ZoneData {
             ("plains_of_the_lizardmen.xml", ZoneKind::Effect),
             ("zone.xml", ZoneKind::Effect),
             ("underground_coliseum.xml", ZoneKind::Effect),
+            // `ScriptZone` files. These carry no behaviour of their own — the
+            // zones exist to be addressed by id from a script — but they must
+            // be *loaded* or `by_id` finds nothing, which is how zone 12012
+            // (Queen Ant's lair) was missing on the first run of this slice.
+            ("custom_script.xml", ZoneKind::Script),
+            ("dummy.xml", ZoneKind::Script),
             ("damage.xml", ZoneKind::Damage),
             ("castle_trap.xml", ZoneKind::Damage),
             ("swamp.xml", ZoneKind::Swamp),
         ] {
+            let before = zones.len();
             parse_file(&format!("{file_path}data/zones/{file}"), kind, &mut zones);
+            // The two `ScriptZone` files are pulled in *only* for their script
+            // zones. They also contain unrelated kinds — `custom_script.xml`
+            // ships a stray `SiegeZone` ("GainakSiege", a later-chronicle area
+            // with no `castleId`) — and letting those through would set the
+            // Siege membership bit on players standing there, which
+            // `death.rs`'s free-death-zone check reads: dying in Gainak would
+            // silently skip the exp penalty. Adding a file for one kind must
+            // not change behaviour for another.
+            if kind == ZoneKind::Script {
+                let kept: Vec<Zone> =
+                    zones.split_off(before).into_iter().filter(|z| z.kind == ZoneKind::Script).collect();
+                zones.extend(kept);
+            }
         }
         let mut data = Self { zones, grid: Default::default() };
         data.build_grid();
@@ -259,6 +288,10 @@ fn kind_from_type(ty: &str) -> Option<ZoneKind> {
         "EffectZone" => ZoneKind::Effect,
         "DamageZone" => ZoneKind::Damage,
         "SwampZone" => ZoneKind::Swamp,
+        // `ScriptZone` carries no behaviour of its own — it exists to be looked
+        // up **by id** from a script (`ZoneManager.getZoneById`). The grand-boss
+        // scripts use it for `isInsideZone` and `movePlayersTo`; 133 ship here.
+        "ScriptZone" => ZoneKind::Script,
         _ => return None,
     })
 }
@@ -280,6 +313,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
     let mut reader = Reader::from_str(&content);
 
     struct Pending {
+        id: i32,
         name: String,
         shape: String,
         min_z: i32,
@@ -334,6 +368,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                                 castle_id: p.castle_id,
                             });
                             out.push(Zone {
+                                id: p.id,
                                 name: p.name,
                                 kind: p.kind,
                                 territory: Territory { form, min_z: p.min_z, max_z: p.max_z },
@@ -353,6 +388,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
         match e.name().as_ref() {
             b"zone" => {
                 cur = Some(Pending {
+                    id: attr_i32(&e, b"id").unwrap_or(0),
                     name: attr_str(&e, b"name").unwrap_or_default(),
                     shape: attr_str(&e, b"shape").unwrap_or_else(|| "NPoly".to_string()),
                     min_z: attr_i32(&e, b"minZ").unwrap_or(i32::MIN),
@@ -459,8 +495,15 @@ mod tests {
         // that live in the *mixed* files (devil_isle, zone, underground_
         // coliseum) which the filename→kind loader couldn't read at all — so
         // they were silently missing from the world.
-        assert_eq!(data.zones.len(), 898);
+        // 898 → 1030: the two `ScriptZone` files (custom_script 109, dummy 24)
+        // now load. They carry no behaviour — a script addresses them by id —
+        // but they must be present for `by_id` to find anything. The count is
+        // 1031 rather than 1032 because those files are filtered to script
+        // zones: `custom_script.xml`'s stray `SiegeZone` (GainakSiege) is
+        // deliberately left out (see the loader).
+        assert_eq!(data.zones.len(), 1031);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
+        assert_eq!(count(ZoneKind::Script), 133, "the two ScriptZone files");
         assert_eq!(count(ZoneKind::Peace), 134);
         assert_eq!(count(ZoneKind::Water), 423);
         assert_eq!(count(ZoneKind::NoRestart), 47);
@@ -495,6 +538,7 @@ mod tests {
     fn grid_and_mask_on_synthetic_zone() {
         let mut data = ZoneData::empty();
         data.insert(Zone {
+            id: 0,
             name: "test_peace".into(),
             kind: ZoneKind::Peace,
             territory: Territory {
@@ -548,7 +592,8 @@ mod effect_zone_tests {
             assert!(
                 matches!(
                     z.kind,
-                    ZoneKind::Peace
+                    ZoneKind::Script
+                        | ZoneKind::Peace
                         | ZoneKind::Water
                         | ZoneKind::NoRestart
                         | ZoneKind::Pvp
@@ -564,5 +609,24 @@ mod effect_zone_tests {
                 assert!(z.effect.is_some(), "effect zone {} must carry params", z.name);
             }
         }
+    }
+}
+
+impl ZoneData {
+    /// Java `ZoneManager.getZoneById` — a script addressing a named region.
+    ///
+    /// The grand-boss scripts all open with one of these (`getZoneById(12012)`
+    /// is Queen Ant's lair), so it is the entry point the whole `ai/bosses`
+    /// family needs. Linear over the zone list: there are ~3k zones and this
+    /// runs at script init, not per tick.
+    pub fn by_id(&self, id: i32) -> Option<&Zone> {
+        self.zones.iter().find(|z| z.id == id)
+    }
+}
+
+impl Zone {
+    /// Java `ZoneType.isInsideZone(x, y, z)`.
+    pub fn contains(&self, x: i32, y: i32, z: i32) -> bool {
+        z >= self.territory.min_z && z <= self.territory.max_z && self.territory.contains_2d(x, y)
     }
 }

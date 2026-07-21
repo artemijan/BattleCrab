@@ -33,6 +33,7 @@ fn damage_params(castle_id: i32) -> DamageZoneParams {
 
 fn insert_damage_zone(world: &mut World, p: DamageZoneParams) {
     world.data.zone_data.insert(Zone {
+        id: 0,
         name: "test_damage".into(),
         kind: ZoneKind::Damage,
         territory: cuboid(),
@@ -45,6 +46,7 @@ fn insert_damage_zone(world: &mut World, p: DamageZoneParams) {
 
 fn insert_swamp_zone(world: &mut World, p: SwampZoneParams) {
     world.data.zone_data.insert(Zone {
+        id: 0,
         name: "test_swamp".into(),
         kind: ZoneKind::Swamp,
         territory: cuboid(),
