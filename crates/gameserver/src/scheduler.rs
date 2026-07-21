@@ -22,6 +22,8 @@ pub enum ScheduledTask {
     ServitorLifeTick { servitor_oid: i32 },
     /// A grand boss's respawn window elapsing (Java's `*_unlock` quest timer).
     GrandBossRespawn { boss_id: i32 },
+    /// Queen Ant's 1 s nurse-heal beat.
+    QueenAntHeal { queen_oid: i32 },
     /// Java `Cubic._skillUseTask` — one action attempt by a player's cubic.
     CubicAction { owner_oid: i32, cubic_id: i32 },
     /// Java `Pet.FeedTask` — a fixed 10 s period that burns food and

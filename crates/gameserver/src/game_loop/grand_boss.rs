@@ -119,6 +119,12 @@ fn spawn_from_record(world: &mut World, boss_id: i32) {
     let Some(oid) = crate::model::npc::spawn_npc_at(world, boss_id, b.loc_x, b.loc_y, b.loc_z, b.heading) else {
         return;
     };
+    // Per-boss script hooks. Queen Ant brings out her larva and starts the
+    // nurse rotation; the other nine bosses have no script yet.
+    if boss_id == crate::game_loop::queen_ant::QUEEN {
+        crate::game_loop::queen_ant::on_queen_spawned(world, oid);
+    }
+
     // A stored HP of 0 means "was never wounded" (a fresh respawn), so only a
     // positive value overrides the template's full vitals.
     if b.current_hp > 0.0 {
