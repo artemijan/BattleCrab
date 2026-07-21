@@ -2548,6 +2548,33 @@ fn apply_buff_to_npc(world: &mut World, target_oid: i32, buff: ActiveBuff, skill
     }
     recompute_npc_buffed_stats(world, target_oid);
     broadcast_target_buffs(world, target_oid);
+    refresh_summon_info(world, target_oid);
+}
+
+/// A **summon** whose stats just changed has to tell the client, or a buff the
+/// player cast deliberately appears to do nothing.
+///
+/// A generic mob doesn't get this: the port never re-broadcasts `NpcInfo` on a
+/// buff, so a buffed mob's speed change only shows after respawn. That is
+/// tolerable for a mob nobody is watching closely and wrong for a servitor —
+/// Servitor Haste (attack speed) and Servitor Wind Walk (movement speed) both
+/// land in fields `PetInfo`/`SummonInfo` carry, and both are cast by the owner
+/// *expecting* to see the difference.
+fn refresh_summon_info(world: &mut World, target_oid: i32) {
+    let Some(owner) = world
+        .objects
+        .get_component::<crate::model::components::ServitorOf>(&target_oid)
+        .map(|s| s.owner_object_id)
+    else {
+        return;
+    };
+    crate::game_loop::servitor::send_pet_info(
+        world,
+        owner,
+        target_oid,
+        crate::game_loop::servitor::PetInfoKind::Default,
+    );
+    crate::game_loop::servitor::broadcast_summon_info(world, target_oid, false);
 }
 
 /// Push a creature's current buffs to every player who has it targeted (Java
@@ -2937,6 +2964,9 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         }
         recompute_npc_buffed_stats(world, player_object_id);
         broadcast_target_buffs(world, player_object_id);
+        // The expiry has to reach the client too, or the summon keeps showing
+        // the buffed speed after the buff is gone.
+        refresh_summon_info(world, player_object_id);
         return;
     }
     // `Transformation` buffs carry no stat modifier — `remove_buff` below is a

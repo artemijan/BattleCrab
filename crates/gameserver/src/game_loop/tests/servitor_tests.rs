@@ -2126,3 +2126,77 @@ fn the_real_servitor_skills_parse_as_summon_targeted() {
         );
     }
 }
+
+// ---------------------------------------------------------------------------
+// Summon buff visibility (slice 20)
+// ---------------------------------------------------------------------------
+
+/// Buffing a servitor must change its stats server-side. This is the
+/// end-to-end check slice 19 did not make: it proved a *heal* lands, not that
+/// a **stat buff** actually moves the servitor's numbers.
+#[test]
+fn a_stat_buff_on_a_servitor_changes_its_stats() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+    let before = world.objects.get_component::<crate::model::components::Speeds>(&servitor).unwrap().run_spd;
+
+    // Servitor Wind Walk's shape: a flat speed increase.
+    let skill = crate::model::skill::Skill {
+        id: 1144,
+        level: 1,
+        target_type: crate::model::skill::TargetType::Summon,
+        abnormal_time: 1200,
+        effects: vec![crate::model::skill::SkillEffect::StatModifier(
+            crate::model::skill::StatModifierEffect {
+                stat: crate::model::stats::Stat::RunSpeed,
+                mode: crate::model::stats::StatModifierType::Diff,
+                amount: 50.0,
+                ..Default::default()
+            },
+        )],
+        ..Default::default()
+    };
+    world.data.skill_data.insert_for_test(skill.clone());
+    crate::game_loop::skills::effects::apply_continuous_effects(&mut world, OWNER, servitor, &skill, None);
+
+    let after = world.objects.get_component::<crate::model::components::Speeds>(&servitor).unwrap().run_spd;
+    assert!(after > before, "the servitor actually got faster ({before} → {after})");
+}
+
+/// The buff's stat change must reach the **client**, not just the server:
+/// `PetInfo` carries the summon's speeds, so the owner gets a fresh one.
+/// Without this Servitor Haste and Wind Walk look like no-ops.
+#[test]
+fn buffing_a_servitor_refreshes_its_client_info() {
+    let (mut world, _db, _l) = servitor_world();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+    while rx.try_recv().is_ok() {} // drain the summon packets
+
+    let skill = crate::model::skill::Skill {
+        id: 1144,
+        level: 1,
+        target_type: crate::model::skill::TargetType::Summon,
+        abnormal_time: 1200,
+        effects: vec![crate::model::skill::SkillEffect::StatModifier(
+            crate::model::skill::StatModifierEffect {
+                stat: crate::model::stats::Stat::RunSpeed,
+                mode: crate::model::stats::StatModifierType::Diff,
+                amount: 50.0,
+                ..Default::default()
+            },
+        )],
+        ..Default::default()
+    };
+    crate::game_loop::skills::effects::apply_continuous_effects(&mut world, OWNER, servitor, &skill, None);
+
+    // `PetInfo` is 0xB2 — the packet that carries the summon's speeds.
+    let mut saw_pet_info = false;
+    while let Ok(pkt) = rx.try_recv() {
+        if pkt.first() == Some(&0xB2) {
+            saw_pet_info = true;
+        }
+    }
+    assert!(saw_pet_info, "the owner was told its servitor's stats changed");
+}
