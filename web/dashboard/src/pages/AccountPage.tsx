@@ -228,10 +228,12 @@ function GameAccountPanel({
   );
 
   // The bottom border is a divider, so it only belongs there when something is
-  // actually below it — on a collapsed panel it reads as a stray line.
+  // actually below it — on a collapsed panel it reads as a stray line. It fades
+  // rather than blinking off, so it keeps pace with the collapse itself.
   const headerClass = cx(
-    "flex w-full flex-wrap items-center justify-between gap-2 px-5 py-3.5 text-left",
-    showsContent && "border-b border-[var(--surface-border)]",
+    "flex w-full flex-wrap items-center justify-between gap-2 border-b px-5 py-3.5 text-left",
+    "transition-colors duration-300",
+    showsContent ? "border-[var(--surface-border)]" : "border-transparent",
   );
 
   return (
@@ -242,10 +244,7 @@ function GameAccountPanel({
           onClick={onToggle}
           aria-expanded={expanded}
           aria-controls={listId}
-          className={cx(
-            headerClass,
-            "transition-colors duration-200 hover:bg-[var(--surface-strong)]",
-          )}
+          className={cx(headerClass, "hover:bg-[var(--surface-strong)]")}
         >
           {summary}
         </button>
@@ -259,13 +258,39 @@ function GameAccountPanel({
           first character.
         </p>
       ) : (
-        expanded && (
-          <ul id={listId} className="divide-y divide-[var(--surface-border)]">
+        /*
+         * Animated by transitioning grid-template-rows between 0fr and 1fr.
+         *
+         * The alternative — a max-height guess — either clips a long roster or
+         * spends most of the transition animating empty space, because the
+         * duration is spread over the guess rather than the real height. This
+         * costs no measurement and lands exactly on the content's own height.
+         *
+         * The list stays mounted so there is something to animate, so `inert`
+         * carries the "collapsed" meaning that unmounting used to: it drops the
+         * rows out of the accessibility tree and makes them unfocusable, rather
+         * than leaving them silently readable at zero height.
+         *
+         * Reduced motion needs no branch here — globals.css zeroes every
+         * transition-duration under that query, so this becomes instant.
+         */
+        <div
+          id={listId}
+          inert={!expanded}
+          className={cx(
+            "grid transition-[grid-template-rows] duration-300 ease-[var(--ease-out-soft)]",
+            expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+          )}
+        >
+          {/* Both are required for the row track to actually shrink: a grid
+              item's min-height defaults to auto, which refuses to go below the
+              content's height. */}
+          <ul className="min-h-0 overflow-hidden divide-y divide-[var(--surface-border)]">
             {characters.map((character) => (
               <CharacterRow key={character.name} character={character} />
             ))}
           </ul>
-        )
+        </div>
       )}
     </Panel>
   );
