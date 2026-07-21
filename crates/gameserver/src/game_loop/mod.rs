@@ -49,6 +49,7 @@ pub(crate) mod regen;
 mod shop;
 mod cubic;
 mod grand_boss;
+mod core_boss;
 mod queen_ant;
 mod raid_curse;
 mod servitor;
@@ -333,6 +334,12 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::QueenAntHeal { queen_oid } => {
                 queen_ant::handle_heal_tick(world, queen_oid);
+            }
+            ScheduledTask::CoreMinionRespawn { npc_id } => {
+                core_boss::handle_minion_respawn(world, npc_id);
+            }
+            ScheduledTask::CoreDespawnMinions => {
+                core_boss::handle_despawn_minions(world);
             }
             ScheduledTask::CubicAction { owner_oid, cubic_id } => {
                 cubic::handle_cubic_action(world, owner_oid, cubic_id);
