@@ -177,17 +177,25 @@ fn pick(
     check_use_conditions(world, npc_oid, skill).then(|| skill.clone())
 }
 
-/// `SkillCaster.checkUseConditions`, narrowed to what an NPC can trip: MP and
-/// the reuse timer. (No shield/weapon conditions — those are item-gated player
-/// checks — and no `isSkillDisabled` silence handling beyond the abnormal
-/// flags below.)
-/// Test hook: `check_use_conditions` is private, and the reuse gate inside it
-/// is the thing worth pinning.
+/// The use-condition gate (MP, mutes, cooldown), shared with the owner-ordered
+/// [`ServitorSkillUse`] path so a commanded skill obeys the same rules as an
+/// AI-chosen one.
+///
+/// [`ServitorSkillUse`]: crate::game_loop::servitor::use_servitor_skill
+pub(crate) fn check_use_conditions_pub(world: &World, npc_oid: i32, skill: &Skill) -> bool {
+    check_use_conditions(world, npc_oid, skill)
+}
+
+/// Test hook.
 #[cfg(test)]
 pub(crate) fn check_use_conditions_for_test(world: &World, npc_oid: i32, skill: &Skill) -> bool {
     check_use_conditions(world, npc_oid, skill)
 }
 
+/// `SkillCaster.checkUseConditions`, narrowed to what an NPC can trip: MP and
+/// the reuse timer. (No shield/weapon conditions — those are item-gated player
+/// checks — and no `isSkillDisabled` silence handling beyond the abnormal
+/// flags below.)
 fn check_use_conditions(world: &World, npc_oid: i32, skill: &Skill) -> bool {
     let Some(vitals) = world.objects.get_component::<Vitals>(&npc_oid) else {
         return false;

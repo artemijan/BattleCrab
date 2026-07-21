@@ -393,7 +393,13 @@ pub mod action {
 pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body: &[u8]) {
     use crate::network::server_packets::sm_ids;
     let Some(pkt) = crate::network::client_packets::RequestActionUse::read(body) else { return };
-    if !matches!(pkt.action_id, action::SERVITOR_HOLD | action::SERVITOR_ATTACK | action::SERVITOR_STOP) {
+    // `ServitorSkillUse` — the summon's own action-bar buttons, bound
+    // id → skill in `ActionData.xml`. Looked up rather than matched, because
+    // there are 105 of them.
+    let servitor_skill = world.data.action_data.servitor_skill(pkt.action_id);
+    if servitor_skill.is_none()
+        && !matches!(pkt.action_id, action::SERVITOR_HOLD | action::SERVITOR_ATTACK | action::SERVITOR_STOP)
+    {
         return;
     }
     let Some(owner_oid) = (match world.clients.get(&client_id) {
@@ -413,6 +419,10 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::system_message_with(sm_ids::YOU_DO_NOT_HAVE_A_SERVITOR, &[]));
         }
+        return;
+    }
+    if let Some(skill_id) = servitor_skill {
+        use_servitor_skill(world, owner_oid, skill_id);
         return;
     }
     match pkt.action_id {
@@ -1764,4 +1774,51 @@ pub(crate) fn restore_servitor_on_login(world: &mut World, owner_oid: i32) {
     }
     send_pet_info(world, owner_oid, servitor_oid, PetInfoKind::Summoned);
     broadcast_summon_info(world, servitor_oid, true);
+}
+
+/// `handlers/actionhandlers/ServitorSkillUse` — the owner presses one of the
+/// summon's action-bar buttons and the **servitor** casts it.
+///
+/// The skill must be one the servitor actually knows: the bindings in
+/// `ActionData.xml` cover every summon in the game, so most of the 105 rows
+/// name a skill this particular servitor has never had. Casting one anyway
+/// would let any summon use any other summon's abilities.
+///
+/// The cast itself goes through `npc_cast::start_cast`, the same path the AI
+/// uses, so an ordered skill obeys the same MP cost, mute gates and cooldowns
+/// as one the servitor chose itself.
+pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i32) {
+    use crate::network::server_packets::sm_ids;
+    let Some(servitor_oid) = servitor_of(world, owner_oid) else { return };
+
+    let known_level = npc_template_id(world, servitor_oid)
+        .and_then(|id| world.data.npc_data.get(id))
+        .and_then(|t| t.skill_list.iter().find(|(sid, _)| *sid == skill_id).map(|(_, lvl)| *lvl));
+    let Some(level) = known_level else {
+        // Not this summon's skill — Java's handler simply finds nothing to
+        // cast. Silent, as it is: the client only shows buttons the summon has.
+        return;
+    };
+    let Some(skill) = world.data.skill_data.get(skill_id, level).cloned() else { return };
+
+    // A self/support skill targets the servitor; anything else needs the
+    // owner's current target, exactly like the attack command.
+    let target_oid = if matches!(skill.target_type, crate::model::skill::TargetType::Self_ | crate::model::skill::TargetType::None_) {
+        servitor_oid
+    } else {
+        match world.objects.get_component::<crate::model::components::TargetRef>(&owner_oid).and_then(|t| t.0) {
+            Some(t) => t,
+            None => {
+                if let Some(cs) = client_for_player(world, owner_oid).and_then(|c| world.clients.get(&c)) {
+                    cs.send(server_packets::system_message_with(sm_ids::INVALID_TARGET, &[]));
+                }
+                return;
+            }
+        }
+    };
+
+    if !crate::game_loop::npc_cast::check_use_conditions_pub(world, servitor_oid, &skill) {
+        return;
+    }
+    crate::game_loop::npc_cast::start_cast(world, servitor_oid, target_oid, &skill);
 }
