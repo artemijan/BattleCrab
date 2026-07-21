@@ -108,10 +108,15 @@ impl CommunityBoardConfig {
     /// `data/html/CommunityBoard/...` for the teleport whitelist — the same
     /// relative paths Java uses in `Config.load`.
     pub fn load() -> Self {
-        let general = PropertiesParser::load(GENERAL_CONFIG_FILE);
-        let cb = PropertiesParser::load(CUSTOM_COMMUNITY_BOARD_CONFIG_FILE);
+        Self::load_from("")
+    }
+
+    pub fn load_from(root: &str) -> Self {
+        let general = PropertiesParser::load(format!("{root}{GENERAL_CONFIG_FILE}"));
+        let cb = PropertiesParser::load(format!("{root}{CUSTOM_COMMUNITY_BOARD_CONFIG_FILE}"));
         let mut cfg = Self::from_parsers(&general, &cb);
-        cfg.available_teleports = scan_available_teleports(cfg.custom_enabled, "data/html");
+        cfg.available_teleports =
+            scan_available_teleports(cfg.custom_enabled, &format!("{root}data/html"));
         cfg
     }
 

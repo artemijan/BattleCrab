@@ -2,10 +2,16 @@
 
 use commons::config::PropertiesParser;
 
-/// Matches Java's constant. The game server runs with `dist/game` as its working
-/// directory (as the Java start scripts do), so every path in the ini files —
-/// `URL = ../../interlude_classic.db`, `ScriptRoot = ./data/scripts`, geodata,
-/// `log.cfg` — resolves unedited. `main` chdir's into `dist/game` at startup.
+/// Matches Java's constant, and is **datapack-relative**: `Config::load_from`
+/// joins it onto the datapack root.
+///
+/// Unlike the Java server (whose start scripts `cd` into `dist/game`), this one
+/// does not change its working directory. Datapack-relative ini values —
+/// `ScriptRoot`, `GeoDataPath`, `BackupPath` — are resolved against that root
+/// as the config is parsed, while everything else, above all the SQLite `URL`,
+/// resolves against the directory the process was started in. That split is
+/// the point: the database is shared with the login server, so it must not be
+/// addressed relative to the game server's datapack.
 pub const SERVER_CONFIG_FILE: &str = "config/Server.ini";
 
 pub struct ServerConfig {
@@ -72,7 +78,11 @@ pub struct ServerConfig {
 
 impl ServerConfig {
     pub fn load() -> Self {
-        let p = PropertiesParser::load(SERVER_CONFIG_FILE);
+        Self::load_from("")
+    }
+
+    pub fn load_from(root: &str) -> Self {
+        let p = PropertiesParser::load(format!("{root}{SERVER_CONFIG_FILE}"));
 
         let protocol_list = split_ints(&p.get_string("AllowedProtocolRevisions", "603;606;607"), ';');
         let server_restart_schedule =
@@ -94,11 +104,11 @@ impl ServerConfig {
             database_max_connections: p.get_int("MaximumDatabaseConnections", 10).max(1) as u32,
             database_test_connections: p.get_bool("TestDatabaseConnections", false),
             backup_database: p.get_bool("BackupDatabase", false),
-            backup_path: p.get_string("BackupPath", "../backup/"),
+            backup_path: super::datapack_path(root, &p.get_string("BackupPath", "../backup/")),
             backup_days: p.get_int("BackupDays", 30),
 
-            datapack_root: p.get_string("DatapackRoot", "."),
-            script_root: p.get_string("ScriptRoot", "./data/scripts"),
+            datapack_root: super::datapack_path(root, &p.get_string("DatapackRoot", ".")),
+            script_root: super::datapack_path(root, &p.get_string("ScriptRoot", "./data/scripts")),
 
             pet_name_template: p.get_string("PetNameTemplate", ".*"),
             clan_name_template: p.get_string("ClanNameTemplate", ".*"),

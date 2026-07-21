@@ -71,19 +71,47 @@ pub struct Config {
     pub server_gmonly: bool,
 }
 
+/// Joins a datapack-relative path from an ini file onto the datapack root.
+///
+/// Leading `./` is stripped first, because the shipped inis write paths as
+/// `./data/geodata/` and `{root}./data/...` would only work by accident.
+/// Absolute paths are returned untouched: an operator who wrote one meant it,
+/// and silently reinterpreting it under the datapack would be worse than
+/// ignoring the root.
+pub(crate) fn datapack_path(root: &str, value: &str) -> String {
+    if std::path::Path::new(value).is_absolute() {
+        return value.to_string();
+    }
+    format!("{root}{}", value.trim_start_matches("./"))
+}
+
 impl Config {
-    /// Java: `Config.load(ServerMode.GAME)`.
+    /// Java: `Config.load(ServerMode.GAME)`. Reads from the process working
+    /// directory; `load_from` is the form that takes an explicit datapack root.
     pub fn load() -> Self {
-        let server = ServerConfig::load();
-        let character = CharacterConfig::load();
-        let general = GeneralConfig::load();
-        let geoengine = GeoEngineConfig::load();
-        let npc = NpcConfig::load();
-        let rates = RatesConfig::load();
-        let community_board = CommunityBoardConfig::load();
-        let premium = PremiumConfig::load();
-        let ip_config = IpConfig::load();
-        let hex = HexId::load(server.request_id);
+        Self::load_from("")
+    }
+
+    /// Loads every ini under `root`, which is a **prefix** joined directly onto
+    /// each file's relative path — so it must end in `/` (or be empty, meaning
+    /// the working directory). Same convention as `GameData::load_from`.
+    ///
+    /// This is what lets the server run without chdir'ing into `dist/game`:
+    /// the datapack is addressed explicitly, so paths that are *not* part of
+    /// the datapack — above all the SQLite `URL`, which is shared with the
+    /// login server — keep resolving against the directory the process was
+    /// actually started in.
+    pub fn load_from(root: &str) -> Self {
+        let server = ServerConfig::load_from(root);
+        let character = CharacterConfig::load_from(root);
+        let general = GeneralConfig::load_from(root);
+        let geoengine = GeoEngineConfig::load_from(root);
+        let npc = NpcConfig::load_from(root);
+        let rates = RatesConfig::load_from(root);
+        let community_board = CommunityBoardConfig::load_from(root);
+        let premium = PremiumConfig::load_from(root);
+        let ip_config = IpConfig::load_from(root);
+        let hex = HexId::load_from(root, server.request_id);
         Self {
             server,
             character,
@@ -111,5 +139,42 @@ impl Config {
             community_board: self.community_board.clone(),
             premium: self.premium.clone(),
         }
+    }
+}
+
+#[cfg(test)]
+mod datapack_path_tests {
+    use super::datapack_path;
+
+    #[test]
+    fn joins_relative_paths_onto_the_root() {
+        assert_eq!(datapack_path("dist/game/", "data/html"), "dist/game/data/html");
+    }
+
+    #[test]
+    fn strips_the_leading_dot_slash_the_inis_actually_use() {
+        // The shipped values are written this way; `{root}./data/...` would
+        // only work by accident of path normalisation.
+        assert_eq!(
+            datapack_path("dist/game/", "./data/geodata/"),
+            "dist/game/data/geodata/"
+        );
+    }
+
+    #[test]
+    fn keeps_parent_traversal_so_backup_path_still_escapes_the_datapack() {
+        // BackupPath is `../backup/`, i.e. dist/backup — trimming this the way
+        // `./` is trimmed would silently relocate backups inside the datapack.
+        assert_eq!(datapack_path("dist/game/", "../backup/"), "dist/game/../backup/");
+    }
+
+    #[test]
+    fn leaves_absolute_paths_alone() {
+        assert_eq!(datapack_path("dist/game/", "/srv/l2/geodata"), "/srv/l2/geodata");
+    }
+
+    #[test]
+    fn an_empty_root_is_the_working_directory() {
+        assert_eq!(datapack_path("", "./data/geodata/"), "data/geodata/");
     }
 }
