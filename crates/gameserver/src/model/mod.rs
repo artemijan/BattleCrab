@@ -726,7 +726,8 @@ impl Player {
         let (freight_rows, rest): (Vec<_>, Vec<_>) = rest.into_iter().partition(|r| r.loc == "FREIGHT");
         // Pet-held items (Java `ItemLocation.PET`) are stored against the
         // *player's* owner id, so they arrive in the same batch.
-        let (pet_rows, inv_rows): (Vec<_>, Vec<_>) = rest.into_iter().partition(|r| r.loc == "PET");
+        let (pet_rows, inv_rows): (Vec<_>, Vec<_>) =
+            rest.into_iter().partition(|r| r.loc == "PET" || r.loc == "PET_EQUIP");
         let warehouse = inventory::Warehouse::from_rows(&wh_rows);
         let freight = inventory::Freight::from_rows(&freight_rows);
         let pet_inventory = inventory::PetInventory::from_rows(&pet_rows);

@@ -899,19 +899,39 @@ impl Warehouse {
 pub struct PetInventory(pub Inventory);
 
 impl PetInventory {
+    /// Build from the character's `PET`/`PET_EQUIP` rows. `PET_EQUIP` is
+    /// renamed back to `PAPERDOLL` so the shared loader restores the pet's
+    /// worn slots the same way it restores a player's.
     pub fn from_rows(rows: &[crate::character::ItemRow]) -> Self {
-        Self(Inventory::from_rows(rows))
+        let rows: Vec<_> = rows
+            .iter()
+            .cloned()
+            .map(|mut r| {
+                if r.loc == "PET_EQUIP" {
+                    r.loc = "PAPERDOLL".to_string();
+                }
+                r
+            })
+            .collect();
+        Self(Inventory::from_rows(&rows))
     }
 
-    /// Serialize to `items` rows with `loc="PET"`. Pet paperdoll
-    /// (`PET_EQUIP` — armour/weapon for battle pets) is not modelled yet, so
-    /// everything serializes flat.
-    /// TODO(G29): remap equipped rows to `PET_EQUIP` when pet gear lands.
+    /// Serialize to `items` rows: `loc="PET"` for carried items and
+    /// `loc="PET_EQUIP"` for worn ones, matching Java's
+    /// `PetInventory.getBaseLocation()`/`getEquipLocation()`.
+    ///
+    /// `Inventory::to_rows` already marks equipped rows `PAPERDOLL` with the
+    /// slot in `loc_data`; remapping the name preserves the slot, so a pet's
+    /// armour comes back **on** rather than in its bag.
     pub fn to_rows(&self) -> Vec<crate::character::ItemRow> {
         let mut rows = self.0.to_rows();
         for r in &mut rows {
-            r.loc = "PET".to_string();
-            r.loc_data = 0;
+            if r.loc == "PAPERDOLL" {
+                r.loc = "PET_EQUIP".to_string();
+            } else {
+                r.loc = "PET".to_string();
+                r.loc_data = 0;
+            }
         }
         rows
     }

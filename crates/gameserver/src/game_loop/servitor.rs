@@ -1056,6 +1056,14 @@ pub(crate) fn handle_pet_use_item(world: &mut World, client_id: u32, body: &[u8]
         return;
     };
 
+    // Java `RequestPetUseItem`: an **equippable** item is worn rather than
+    // consumed (`useEquippableItem`), which is how a battle pet gets its
+    // armour. 96 pet-armour items ship on this dist.
+    if world.data.item_data.get(item_id).is_some_and(|t| t.is_equipable()) {
+        equip_pet_item(world, owner, pet_oid, object_id);
+        return;
+    }
+
     // `if (playable.isPet() && !canEatFoodId(item.getId()))` → refuse.
     let eats = npc_template_id(world, pet_oid)
         .and_then(|id| world.data.pet_data.get(id))
@@ -1286,7 +1294,30 @@ pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
     let petted = pet_template_at_level(&template, &row, level);
 
     let buffs = world.objects.get_component::<crate::model::components::Buffs>(&pet_oid).cloned().unwrap_or_default();
-    let (combat, speeds, max_hp, max_mp) = crate::model::npc_finalized_stats(&world.data, &petted, &buffs);
+    let (mut combat, speeds, max_hp, max_mp) = crate::model::npc_finalized_stats(&world.data, &petted, &buffs);
+
+    // A pet's worn armour adds to its defences. Java runs pets through the same
+    // finalizers as everyone else, which sum the paperdoll; the port's NPC
+    // pipeline has no inventory step, so the sum is done here against the
+    // **pet's own** paperdoll (`PetInventory`, held on the owner).
+    //
+    // Only the defensive stats are folded: the 96 pet-armour items on this dist
+    // are armour, and a pet has no weapon slot to speak of.
+    let owner = world.objects.get_component::<ServitorOf>(&pet_oid).map(|s| s.owner_object_id);
+    if let Some(owner) = owner {
+        if let Some(pi) = world.objects.get_component::<crate::model::inventory::PetInventory>(&owner) {
+            for item in pi.0.equipped_items() {
+                let Some(stats) = world.data.item_data.item_stats(item.item_id) else { continue };
+                for &(stat, val) in &stats.bonuses {
+                    match stat {
+                        crate::model::stats::Stat::PhysicalDefence => combat.p_def += val,
+                        crate::model::stats::Stat::MagicalDefence => combat.m_def += val,
+                        _ => {}
+                    }
+                }
+            }
+        }
+    }
 
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&pet_oid) {
         // Keep the bar where it was proportionally — Java's stat recompute does
@@ -1540,4 +1571,36 @@ pub(crate) fn uncharge_soulshot(world: &mut World, summon_oid: i32) -> bool {
         }
         _ => false,
     }
+}
+
+// ---------------------------------------------------------------------------
+// Pet equipment (slice 25)
+// ---------------------------------------------------------------------------
+
+/// Equip or unequip an item in the pet's own paperdoll.
+///
+/// `PetInventory` wraps the ordinary `Inventory`, which already owns a
+/// paperdoll and all the slot-displacement rules — so a pet's armour reuses the
+/// player's equip logic wholesale rather than growing a second copy. Java does
+/// the same: `PetInventory extends Inventory`.
+///
+/// Toggling matches Java's `useEquippableItem`: clicking a worn item takes it
+/// off.
+pub(crate) fn equip_pet_item(world: &mut World, owner_oid: i32, pet_oid: i32, object_id: i32) {
+    let World { data, objects, .. } = world;
+    let Some(pi) = objects.get_component_mut::<crate::model::inventory::PetInventory>(&owner_oid) else {
+        return;
+    };
+    let worn = pi.0.paperdoll_slot_of(object_id).is_some();
+    if worn {
+        pi.0.unequip_item(object_id);
+    } else {
+        pi.0.equip_item(&data.item_data, object_id);
+    }
+    // Gear changes the pet's defences, so its stats and the client's view of
+    // them both have to be rebuilt.
+    recalculate_pet_stats(world, pet_oid);
+    send_pet_item_list(world, owner_oid);
+    send_pet_info(world, owner_oid, pet_oid, PetInfoKind::Default);
+    broadcast_summon_info(world, pet_oid, false);
 }
