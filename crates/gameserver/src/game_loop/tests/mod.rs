@@ -80,6 +80,7 @@ mod reflect_tests;
 mod resist_tests;
 mod resurrection_tests;
 mod cubic_tests;
+mod boss_zone_tests;
 mod raid_curse_tests;
 mod servitor_tests;
 mod shortcuts_tests;
@@ -1345,6 +1346,7 @@ fn decode_npc_html(pkt: &[u8]) -> Option<String> {
 /// A synthetic zone cuboid registered into `world.data.zone_data`.
 fn insert_zone(world: &mut World, kind: crate::data::zone_data::ZoneKind, x1: i32, x2: i32, y1: i32, y2: i32) {
     world.data.zone_data.insert(crate::data::zone_data::Zone {
+        id: 0,
         name: format!("test_{kind:?}"),
         kind,
         territory: crate::data::spawn_data::Territory {
@@ -1362,6 +1364,7 @@ fn insert_zone(world: &mut World, kind: crate::data::zone_data::ZoneKind, x1: i3
 /// A synthetic siege-zone cuboid tied to `castle_id`.
 fn insert_siege_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i32, y2: i32) {
     world.data.zone_data.insert(crate::data::zone_data::Zone {
+        id: 0,
         name: format!("test_siege_{castle_id}"),
         kind: crate::data::zone_data::ZoneKind::Siege,
         territory: crate::data::spawn_data::Territory {

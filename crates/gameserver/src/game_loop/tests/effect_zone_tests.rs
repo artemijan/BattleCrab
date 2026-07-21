@@ -71,6 +71,7 @@ fn params(skills: Vec<(i32, i32)>) -> EffectZoneParams {
 
 fn insert_effect_zone(world: &mut World, p: EffectZoneParams) {
     world.data.zone_data.insert(Zone {
+        id: 0,
         name: "test_effect_zone".into(),
         kind: ZoneKind::Effect,
         territory: crate::data::spawn_data::Territory {
