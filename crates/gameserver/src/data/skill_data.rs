@@ -558,6 +558,11 @@ fn finalize_skill(
             Some("POINT_BLANK") => AffectScope::PointBlank,
             Some("PARTY") => AffectScope::Party,
             Some("PLEDGE") => AffectScope::Pledge,
+            Some("FAN") => AffectScope::Fan,
+            Some("FAN_PB") => AffectScope::FanPointBlank,
+            Some("SQUARE") => AffectScope::Square,
+            Some("SQUARE_PB") => AffectScope::SquarePointBlank,
+            Some("RING_RANGE") => AffectScope::RingRange,
             Some("SINGLE") | Some("NONE") | None => AffectScope::Single,
             _ => AffectScope::Other,
         };
@@ -579,6 +584,17 @@ fn finalize_skill(
                 (parts.next().unwrap_or(0), parts.next().unwrap_or(0))
             })
             .unwrap_or((0, 0));
+        // `<fanRange>unk;startDegree;fanAffectRange;fanAffectAngle</fanRange>`
+        // (Java splits on ';' into `_fanRange[4]`); level-valued in the XML.
+        let fan_range = value_at(values, "fanRange", level)
+            .map(|v| {
+                let mut out = [0i32; 4];
+                for (slot, part) in out.iter_mut().zip(v.split(';')) {
+                    *slot = part.trim().parse().unwrap_or(0);
+                }
+                out
+            })
+            .unwrap_or([0; 4]);
 
         let build_scope = |want: EffectScope| effects
             .iter()
@@ -1448,6 +1464,7 @@ fn finalize_skill(
                 affect_object,
                 affect_range,
                 affect_limit,
+                fan_range,
                 magic_type: get_i("isMagic", 0),
                 magic_level: get_i("magicLevel", 0),
                 activate_rate: get_i("activateRate", -1),
@@ -1594,6 +1611,25 @@ mod tests {
         // Sonic Storm carries the same 5-12 cap over a tighter 150 sweep.
         assert_eq!(sonic_storm.affect_range, 150);
         assert_eq!(sonic_storm.affect_limit, (5, 12));
+
+        // Geometric scopes (PLAN_G19_GEOMETRIC_SCOPES.md). Sonic Buster 9 is
+        // the reference FAN: a 180° half-circle of radius 200 —
+        // `<fanRange>0;0;200;180</fanRange>` as `unk;startDegree;radius;angle`.
+        let sonic_buster = sd.get(9, 1).expect("Sonic Buster lvl 1");
+        assert_eq!(sonic_buster.affect_scope, AffectScope::Fan);
+        assert_eq!(sonic_buster.fan_range, [0, 0, 200, 180]);
+        // Divine Judgment 6314 — RING_RANGE: an annulus of 100..270 around
+        // the target; the inner radius rides in `fan_range[2]`.
+        let judgment = sd.get(6314, 1).expect("Divine Judgment lvl 1");
+        assert_eq!(judgment.affect_scope, AffectScope::RingRange);
+        assert_eq!(judgment.affect_range, 270);
+        assert_eq!(judgment.fan_range, [0, 0, 100, 0]);
+        // Frintezza Charge 5015 — SQUARE with a **level-valued** fanRange
+        // (the only leveled tuple in the dist): 400×150 at level 1, 700×200
+        // at level 3. A skill with no `<fanRange>` parses to all zeroes.
+        assert_eq!(sd.get(5015, 1).expect("Frintezza Charge lvl 1").fan_range, [0, 0, 400, 150]);
+        assert_eq!(sd.get(5015, 3).expect("Frintezza Charge lvl 3").fan_range, [0, 0, 700, 200]);
+        assert_eq!(tempest.fan_range, [0; 4]);
 
         // Over-hit (G20): 59 learnable skills carry `<overHit>true</overHit>` —
         // a killing blow with one pays bonus XP for the excess damage.

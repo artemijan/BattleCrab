@@ -69,13 +69,15 @@ pub enum TargetType {
 /// Java `AffectScope` (`handlers/targethandlers/affectscope/*`) — how the
 /// primary target expands into the set the skill actually lands on.
 ///
-/// Ported: the four scopes that cover the dist's non-single skills —
-/// `RANGE` (820 skills), `POINT_BLANK` (785), `PARTY` (272), `PLEDGE` (44).
-/// The geometric cone/rectangle scopes (`FAN`/`FAN_PB` 179, `SQUARE`/`SQUARE_PB`
-/// 52, `RING_RANGE` 18) and the niche ones (`SUMMON_EXCEPT_MASTER`,
-/// `BALAKAS_SCOPE`, `RANGE_SORT_BY_HP`, the `DEAD_*` family, `WYVERN_SCOPE`,
-/// `STATIC_OBJECT_SCOPE`, `PARTY_PLEDGE`) read as [`AffectScope::Other`] and
-/// fall back to single-target — see the TODO(G19) in `skills::affect`.
+/// Ported: the four radius/group scopes that cover the dist's non-single
+/// skills — `RANGE` (820 skills), `POINT_BLANK` (785), `PARTY` (272), `PLEDGE`
+/// (44) — and the geometric family (plan: PLAN_G19_GEOMETRIC_SCOPES.md) —
+/// `FAN`/`FAN_PB` (163+16, 5 learnable), `SQUARE`/`SQUARE_PB` (35+17),
+/// `RING_RANGE` (18). Still unported (`TODO(G19)`), reading as
+/// [`AffectScope::Other`] and falling back to single-target:
+/// `SUMMON_EXCEPT_MASTER` (22, needs G29), `BALAKAS_SCOPE`/`WYVERN_SCOPE`
+/// (boss/wyvern scripting), `RANGE_SORT_BY_HP` (4), the `DEAD_*` family
+/// (mass-res fan-out), `PARTY_PLEDGE` (5), `STATIC_OBJECT_SCOPE`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AffectScope {
     /// `SINGLE` (and the `NONE`/absent default): only the primary target.
@@ -88,6 +90,22 @@ pub enum AffectScope {
     Party,
     /// `PLEDGE`: the target's clan mates in range.
     Pledge,
+    /// `FAN`: an arc of `fan_range[3]` degrees around the caster's heading
+    /// (rotated by `fan_range[1]`), radius `fan_range[2]`. Can miss the
+    /// primary target — a fan cast at someone behind you hits nobody.
+    Fan,
+    /// `FAN_PB`: FAN minus the corpse-target exemption and the primary
+    /// target's affect-object bypass ("without taking target into account").
+    FanPointBlank,
+    /// `SQUARE`: a `fan_range[2]` × `fan_range[3]` rectangle extending from
+    /// the caster along their heading.
+    Square,
+    /// `SQUARE_PB`: SQUARE, related as FAN_PB is to FAN.
+    SquarePointBlank,
+    /// `RING_RANGE`: an annulus around the **target** — inside `affect_range`
+    /// but outside `fan_range[2]`. The epicenter target itself is never
+    /// affected (that is the donut hole).
+    RingRange,
     /// Any scope not ported yet — treated as [`AffectScope::Single`].
     Other,
 }
@@ -916,6 +934,13 @@ pub struct Skill {
     /// Java `_affectLimit` `[min, max]` from `<affectLimit>min-max</affectLimit>`.
     /// Read through [`Skill::affect_limit`], which reproduces Java's roll.
     pub affect_limit: (i32, i32),
+    /// Java `_fanRange` from `<fanRange>` — `unk;startDegree;fanAffectRange;
+    /// fanAffectAngle`, the geometry behind the FAN/SQUARE/RING_RANGE scopes.
+    /// `[1]` rotates the arc/rect off the caster's heading, `[2]` is the fan
+    /// radius / rect length / ring inner radius, `[3]` the fan's full angle /
+    /// rect width. `[0]` is never read (non-zero exactly once in the dist).
+    /// Level-valued in the XML (one SQUARE breath declares six tuples).
+    pub fan_range: [i32; 4],
     /// Java `isMagic`: 0 physical, 1 magic, 2 static, 3 dance/song, 4 trigger.
     /// Drives cast-time scaling (`calc_skill_time_factor`) and crit rolls.
     pub magic_type: i32,
@@ -1024,6 +1049,7 @@ impl Default for Skill {
             affect_object: AffectObject::All,
             affect_range: 0,
             affect_limit: (0, 0),
+            fan_range: [0; 4],
             magic_type: 0,
             magic_level: 0,
             // Java's "no declared rate", which several gates test for
