@@ -54,9 +54,7 @@ impl PremiumConfig {
     }
 
     pub fn load_from(root: &str) -> Self {
-        Self::from_parser(&PropertiesParser::load(format!(
-            "{root}{PREMIUM_SYSTEM_CONFIG_FILE}"
-        )))
+        Self::from_parser(&PropertiesParser::load_rel(root, PREMIUM_SYSTEM_CONFIG_FILE))
     }
 
     pub fn from_parser(p: &PropertiesParser) -> Self {

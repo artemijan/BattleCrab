@@ -653,16 +653,16 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
     // losing every character and account silently. Catch that here rather than
     // letting it surface hours later as "no such table".
     //
-    // The usual cause is a relative `URL` interpreted against an unexpected
-    // working directory: the game server no longer chdirs into the datapack,
-    // so `URL` resolves against wherever the process was started — which must
-    // be the same directory the login server runs from.
+    // The usual cause is a relative `URL` resolving somewhere unexpected. It is
+    // resolved against the executable's directory, so the database belongs
+    // beside the binary — not in the datapack, and not in whatever directory
+    // the unit file happened to start the process in.
     if let Err(e) = verify_schema(&pool).await {
         error!(
-            "DB thread: {e}\n  URL = {url}\n  resolved against the working directory {}\n\
-             This is not the game database. Start the game server from the same directory as \
-             the login server, or make the URL absolute.",
-            std::env::current_dir().map(|d| d.display().to_string()).unwrap_or_default(),
+            "DB thread: {e}\n  URL = {url}\n  relative paths resolve next to the executable, in {}\n\
+             This is not the game database. Put it beside the binary (the same file the login \
+             server opens), or make the URL absolute.",
+            commons::db::executable_dir().display(),
         );
         return;
     }

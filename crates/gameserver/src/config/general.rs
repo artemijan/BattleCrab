@@ -82,7 +82,7 @@ impl GeneralConfig {
     }
 
     pub fn load_from(root: &str) -> Self {
-        Self::from_parser(&PropertiesParser::load(format!("{root}{GENERAL_CONFIG_FILE}")))
+        Self::from_parser(&PropertiesParser::load_rel(root, GENERAL_CONFIG_FILE))
     }
 
     /// Parse from an already-loaded `General.ini` (split out so tests can point

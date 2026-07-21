@@ -25,7 +25,7 @@ impl GeoEngineConfig {
     }
 
     pub fn load_from(root: &str) -> Self {
-        let p = PropertiesParser::load(format!("{root}{GEOENGINE_CONFIG_FILE}"));
+        let p = PropertiesParser::load_rel(root, GEOENGINE_CONFIG_FILE);
         Self {
             path_finding: p.get_int("PathFinding", 0),
             geodata_path: super::datapack_path(root, &p.get_string("GeoDataPath", "./data/geodata/")),

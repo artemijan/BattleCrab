@@ -272,8 +272,8 @@ impl CharacterConfig {
     }
 
     pub fn load_from(root: &str) -> Self {
-        let p = PropertiesParser::load(format!("{root}{CHARACTER_CONFIG_FILE}"));
-        let general = PropertiesParser::load(format!("{root}{GENERAL_CONFIG_FILE}"));
+        let p = PropertiesParser::load_rel(root, CHARACTER_CONFIG_FILE);
+        let general = PropertiesParser::load_rel(root, GENERAL_CONFIG_FILE);
         let d = Self::default();
         Self {
             delete_days: p.get_int("DeleteCharAfterDays", 1),

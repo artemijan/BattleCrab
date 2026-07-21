@@ -29,13 +29,36 @@ pub struct OpenError {
     pub reason: String,
 }
 
+/// Directory the running executable lives in, which is what a relative database
+/// path is resolved against. Falls back to the working directory only if the
+/// platform cannot report the executable's location.
+pub fn executable_dir() -> std::path::PathBuf {
+    std::env::current_exe()
+        .ok()
+        .and_then(|exe| exe.parent().map(std::path::Path::to_path_buf))
+        .or_else(|| std::env::current_dir().ok())
+        .unwrap_or_default()
+}
+
 pub async fn init(jdbc_url: &str, max_connections: u32) -> Result<SqlitePool, DbError> {
     let (path, params) = parse_jdbc_sqlite_url(jdbc_url)?;
 
-    // Resolve relative to cwd so failures name the real location, and fail
-    // clearly when the parent directory is missing (SQLite's "code 14" is
-    // unhelpfully vague about this).
-    let resolved = std::env::current_dir().map(|d| d.join(&path)).unwrap_or_else(|_| path.clone().into());
+    // A relative path is resolved against the **executable's** directory, not
+    // the working directory.
+    //
+    // All three binaries deploy alongside the database, so this makes one URL
+    // string correct for every one of them and independent of how the unit was
+    // started — the login and game servers previously had to disagree about
+    // the string to name the same file, and a `WorkingDirectory` change was
+    // enough to silently point a server at a different database.
+    let resolved = if std::path::Path::new(&path).is_absolute() {
+        std::path::PathBuf::from(&path)
+    } else {
+        executable_dir().join(&path)
+    };
+
+    // Fail clearly when the parent directory is missing: SQLite's "code 14" is
+    // unhelpfully vague about this.
     if let Some(parent) = resolved.parent() {
         if !parent.as_os_str().is_empty() && !parent.exists() {
             return Err(DbError::Open(OpenError {
@@ -46,8 +69,11 @@ pub async fn init(jdbc_url: &str, max_connections: u32) -> Result<SqlitePool, Db
         }
     }
 
-    let mut options = SqliteConnectOptions::from_str(&format!("sqlite://{path}"))
-        .map_err(DbError::Sqlx)?
+    // `filename` rather than parsing a `sqlite://` URL: the resolved path is
+    // absolute and may contain spaces or `?`/`#`, which URL parsing would
+    // mangle or treat as query separators.
+    let mut options = SqliteConnectOptions::new()
+        .filename(&resolved)
         .create_if_missing(true);
 
     for (key, value) in &params {
@@ -75,7 +101,12 @@ pub async fn init(jdbc_url: &str, max_connections: u32) -> Result<SqlitePool, Db
             reason: e.to_string(),
         })?;
 
-    info!("Database: Initialized ({})", resolved.display());
+    // Canonicalize for the log only: `current_exe` can report the path as it
+    // was invoked, so the join reads like `dist/game/../../target/debug/x.db`
+    // — technically correct, and useless when you are trying to work out which
+    // file the server actually opened.
+    let shown = std::fs::canonicalize(&resolved).unwrap_or_else(|_| resolved.clone());
+    info!("Database: Initialized ({})", shown.display());
     Ok(pool)
 }
 
@@ -116,5 +147,53 @@ mod tests {
     #[test]
     fn rejects_non_sqlite() {
         assert!(parse_jdbc_sqlite_url("jdbc:mariadb://localhost/db").is_err());
+    }
+
+    /// A relative database path must follow the executable, not the working
+    /// directory — that is the whole point of resolving it this way, and it is
+    /// what lets one URL string serve the login server, game server and
+    /// dashboard no matter which directory their unit files start them in.
+    #[tokio::test]
+    async fn a_relative_path_opens_next_to_the_executable() {
+        let exe_dir = executable_dir();
+        let name = format!("commons_db_test_{}.db", std::process::id());
+        let expected = exe_dir.join(&name);
+        let _ = std::fs::remove_file(&expected);
+
+        // Under `cargo test` the working directory is the crate root while the
+        // test binary lives in target/…/deps, so the two are already different
+        // and a cwd-relative implementation would put the file in the crate
+        // root. Deliberately does NOT chdir: that is process-global state and
+        // would race the other tests in this binary.
+        let cwd = std::env::current_dir().unwrap();
+        assert_ne!(cwd, exe_dir, "test needs cwd and exe dir to differ");
+        let _ = std::fs::remove_file(cwd.join(&name));
+
+        let pool = init(&format!("jdbc:sqlite:{name}"), 1).await.unwrap();
+        drop(pool);
+
+        assert!(
+            expected.exists(),
+            "expected the database beside the executable at {}",
+            expected.display()
+        );
+        assert!(
+            !cwd.join(&name).exists(),
+            "must not have been created in the working directory"
+        );
+        let _ = std::fs::remove_file(&expected);
+    }
+
+    #[tokio::test]
+    async fn an_absolute_path_is_left_alone() {
+        let dir = std::env::temp_dir().join(format!("commons_db_abs_{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("abs.db");
+
+        let pool = init(&format!("jdbc:sqlite:{}", file.display()), 1).await.unwrap();
+        drop(pool);
+
+        assert!(file.exists(), "absolute paths must not be re-rooted at the executable");
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

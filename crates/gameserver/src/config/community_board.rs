@@ -112,8 +112,8 @@ impl CommunityBoardConfig {
     }
 
     pub fn load_from(root: &str) -> Self {
-        let general = PropertiesParser::load(format!("{root}{GENERAL_CONFIG_FILE}"));
-        let cb = PropertiesParser::load(format!("{root}{CUSTOM_COMMUNITY_BOARD_CONFIG_FILE}"));
+        let general = PropertiesParser::load_rel(root, GENERAL_CONFIG_FILE);
+        let cb = PropertiesParser::load_rel(root, CUSTOM_COMMUNITY_BOARD_CONFIG_FILE);
         let mut cfg = Self::from_parsers(&general, &cb);
         cfg.available_teleports =
             scan_available_teleports(cfg.custom_enabled, &format!("{root}data/html"));
