@@ -10,7 +10,7 @@ use serde::Deserialize;
 use crate::auth::{cookie, token, verify_password};
 use crate::db::{accounts, characters};
 use crate::error::{ApiError, ApiResult};
-use crate::routes::{current_account, validate_email, validate_password};
+use crate::routes::{current_account, validate_email, validate_login, validate_password};
 use crate::state::AppState;
 
 pub fn router() -> Router<AppState> {
@@ -18,7 +18,10 @@ pub fn router() -> Router<AppState> {
         .route("/password", axum::routing::post(change_password))
         .route("/email", axum::routing::post(change_email))
         .route("/email/verify", axum::routing::get(verify_email))
-        .route("/game-accounts", axum::routing::get(list_game_accounts))
+        .route(
+            "/game-accounts",
+            axum::routing::get(list_game_accounts).post(create_game_account),
+        )
         .route("/characters", axum::routing::get(list_characters))
 }
 
@@ -158,6 +161,60 @@ async fn list_game_accounts(
     let account = current_account(&app, &headers).await?;
     let logins = accounts::game_accounts_for_master(&app.pool, account.subject()).await?;
     Ok(Json(logins))
+}
+
+#[derive(Deserialize)]
+pub struct CreateGameAccountRequest {
+    pub login: String,
+    pub password: String,
+}
+
+#[derive(serde::Serialize)]
+pub struct CreateGameAccountResponse {
+    pub login: String,
+}
+
+/// Creates a game account — a login/password the game client can use — under
+/// the signed-in master account's address.
+///
+/// The shared address is the *only* thing recording ownership (there is no
+/// foreign key), so the address written here is always taken from the session,
+/// never from the request body.
+async fn create_game_account(
+    State(app): State<AppState>,
+    headers: HeaderMap,
+    Json(body): Json<CreateGameAccountRequest>,
+) -> ApiResult<impl IntoResponse> {
+    let account = current_account(&app, &headers).await?;
+
+    // Ownership is derived from the address, and account recovery is delivered
+    // to it. Creating game accounts under an address nobody has proven would
+    // hand real game assets to whoever actually reads that inbox — and this is
+    // the first point where an unconfirmed address costs anything, which is
+    // what makes the verification step meaningful at all.
+    if !account.is_verified() {
+        return Err(ApiError::EmailNotVerified);
+    }
+
+    let login = validate_login(&body.login, &app.config)?;
+    validate_password(&body.password, &app.config)?;
+
+    // Same hash the login server writes, so the row is indistinguishable from
+    // one the game auto-created.
+    let hash = commons::crypt::hash_password(&body.password);
+    let subject = account.subject().to_string();
+
+    accounts::create_game_account(
+        &app.pool,
+        &subject,
+        &login,
+        &hash,
+        app.config.max_game_accounts,
+    )
+    .await?;
+
+    tracing::info!("created game account {login} for {subject}");
+    Ok((StatusCode::CREATED, Json(CreateGameAccountResponse { login })))
 }
 
 async fn list_characters(

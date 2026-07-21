@@ -119,6 +119,13 @@ pub struct DashboardConfig {
     pub max_password_length: usize,
     pub max_login_length: usize,
 
+    /// How many game accounts one master account may own.
+    ///
+    /// A cap is needed because creating them is authenticated and otherwise
+    /// unbounded: one signed-in user could fill the `accounts` table on their
+    /// own. It is also the server's multiboxing policy in practice.
+    pub max_game_accounts: usize,
+
     /// Login attempts per account/IP before the limiter starts rejecting.
     /// Load-bearing: the password hash is unsalted SHA-1 (see PLAN_DASHBOARD.md
     /// §5.2), so throttling is the primary defence against online guessing.
@@ -201,6 +208,9 @@ impl DashboardConfig {
             // client before launch.
             max_password_length: p.get_int("MaxPasswordLength", 45) as usize,
             max_login_length: p.get_int("MaxLoginLength", 45) as usize,
+            // `.max(1)`: zero would make the feature unreachable while looking
+            // like a configured value rather than a mistake.
+            max_game_accounts: p.get_int("MaxGameAccounts", 5).max(1) as usize,
 
             login_rate_limit: p.get_int("LoginRateLimit", 10) as u32,
             login_rate_window_secs: p.get_long("LoginRateWindowSecs", 300) as u64,

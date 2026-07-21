@@ -13,6 +13,7 @@ export type ApiErrorCode =
   | "login_taken"
   | "email_taken"
   | "email_not_verified"
+  | "too_many_game_accounts"
   | "registration_disabled"
   | "rate_limited"
   | "invalid_token"
@@ -140,6 +141,14 @@ export const api = {
     request<void>(`/account/email/verify?token=${encodeURIComponent(token)}`),
 
   gameAccounts: () => request<GameAccount[]>("/account/game-accounts"),
+
+  /**
+   * Creates a game account under the signed-in master account. The address is
+   * taken from the session server-side — there is deliberately no way to name
+   * a different owner from here.
+   */
+  createGameAccount: (login: string, password: string) =>
+    post<{ login: string }>("/account/game-accounts", { login, password }),
 
   characters: () => request<Character[]>("/account/characters"),
 
