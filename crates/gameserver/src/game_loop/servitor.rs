@@ -32,6 +32,10 @@ const CONSUME_INTERVAL_SECS: u64 = 240;
 /// back into follow, regardless of what it was doing.
 const LEASH_DISTANCE: f64 = 2000.0;
 
+/// The Sin Eater's display id — the one species Java summons at its *owner's*
+/// level rather than its template level (`Pet`'s three-arg constructor).
+const SIN_EATER_DISPLAY_ID: i32 = 12564;
+
 use super::helpers::client_for_player;
 
 /// Java `Player.getServitors()` — this port scans rather than caching a second
@@ -568,6 +572,9 @@ fn notify_owner(world: &World, owner_oid: i32, sm: i16, params: &[crate::network
 /// them. Java stores it in `CharSummonTable` for `RestoreServitorOnReconnect`;
 /// persistence is a later slice, so this just removes it.
 pub(crate) fn on_owner_leave_world(world: &mut World, owner_oid: i32) {
+    // Capture the pet's state before the entity goes away — after
+    // `unsummon_servitor` there is nothing left to read it from.
+    sync_pet_row(world, owner_oid);
     unsummon_servitor(world, owner_oid);
 }
 
@@ -600,6 +607,45 @@ pub(crate) fn pet_of(world: &mut World, owner_oid: i32) -> Option<i32> {
 /// inherits follow/attack/leash from the servitor AI — "owned summon" is the
 /// same relationship whether it came from a skill or a collar. Its own state
 /// (collar, food bar) lives in `PetOf`.
+/// Fold a live pet's state back into its owner's `PlayerPets` map (Java
+/// `Pet.storeMe`, minus the DB write — the row rides out with the character's
+/// next flush).
+///
+/// Called before every character save and on unsummon. A no-op when the player
+/// has no pet out, which is the common case, so it is cheap to call
+/// unconditionally rather than tracking a dirty flag.
+pub(crate) fn sync_pet_row(world: &mut World, owner_oid: i32) {
+    let Some(pet_oid) = pet_of(world, owner_oid) else { return };
+    let Some(pet) = world.objects.get_component::<crate::model::components::PetOf>(&pet_oid).copied() else {
+        return;
+    };
+    let (cur_hp, cur_mp) = world
+        .objects
+        .get_component::<Vitals>(&pet_oid)
+        .map(|v| (v.cur_hp, v.cur_mp))
+        .unwrap_or((0.0, 0.0));
+    // Java stores `getName()`, which for an unnamed pet is the template name.
+    let name = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&pet_oid)
+        .and_then(|n| n.template(world))
+        .map(|t| t.name.clone())
+        .unwrap_or_default();
+    let row = crate::db::PetRow {
+        collar_object_id: pet.collar_object_id,
+        name,
+        level: pet.level,
+        cur_hp,
+        cur_mp,
+        exp: pet.exp,
+        sp: pet.sp,
+        fed: pet.fed,
+    };
+    if let Some(pets) = world.objects.get_component_mut::<crate::model::components::PlayerPets>(&owner_oid) {
+        pets.0.insert(row.collar_object_id, row);
+    }
+}
+
 pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
     use crate::model::components::PetOf;
     use crate::network::server_packets::sm_ids;
@@ -629,9 +675,37 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
         .get_component::<crate::model::inventory::Inventory>(&owner_oid)
         .and_then(|inv| inv.items().iter().find(|i| i.object_id == collar_object_id).map(|i| i.item_id))?;
 
-    let (npc_id, max_fed) = {
+    let npc_id = world.data.pet_data.by_item_id(collar_item_id)?.npc_id;
+
+    // Java `Pet.restore`: the saved row keyed by this collar, or a fresh pet.
+    // Here the row is already in memory (`PlayerPets`, loaded at login).
+    let saved = world
+        .objects
+        .get_component::<crate::model::components::PlayerPets>(&owner_oid)
+        .and_then(|p| p.0.get(&collar_object_id).cloned());
+
+    let owner_level =
+        world.objects.get_component::<crate::model::Player>(&owner_oid).map(|p| p.level).unwrap_or(1);
+    let (template_level, display_id) = world
+        .data
+        .npc_data
+        .get(npc_id)
+        .map(|t| (t.level, t.display_id))
+        .unwrap_or((1, npc_id));
+
+    let level = match &saved {
+        Some(row) => row.level,
+        // `new Pet(template, owner, control)`: the Sin Eater (display id 12564)
+        // is summoned at its *owner's* level; every other species starts at its
+        // template level.
+        None if display_id == SIN_EATER_DISPLAY_ID => owner_level,
+        None => template_level,
+    };
+    let (level, max_fed, exp_floor) = {
         let t = world.data.pet_data.by_item_id(collar_item_id)?;
-        (t.npc_id, t.max_meal(1))
+        // `Math.max(level, getPetMinLevel(id))` — see `PetTemplate::min_level`.
+        let level = level.max(t.min_level());
+        (level, t.max_meal(level), t.exp_for_level(level))
     };
 
     // Java spawns the pet beside its owner, not on top of them.
@@ -653,13 +727,40 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
             next_consume_tick: u64::MAX,
         },
     );
-    world.objects.add_components(&pet_oid, PetOf { collar_object_id, fed: max_fed, max_fed });
+    world.objects.add_components(
+        &pet_oid,
+        PetOf {
+            collar_object_id,
+            fed: saved.as_ref().map(|r| r.fed.min(max_fed)).unwrap_or(max_fed),
+            max_fed,
+            level,
+            // "DS: update experience based by level. Avoiding pet delevels due
+            // to exp per level values changed." — a stored exp below what this
+            // level now costs is raised to the level's floor, so a retuned
+            // datapack curve can't demote a pet the player already levelled.
+            exp: saved.as_ref().map(|r| r.exp.max(exp_floor)).unwrap_or(exp_floor),
+            sp: saved.as_ref().map(|r| r.sp).unwrap_or(0),
+        },
+    );
 
-    // `setCurrentHp(getMaxHp())` / `setCurrentMp(getMaxMp())` for a fresh pet.
+    // A fresh pet spawns full; a restored one keeps the vitals it was stored
+    // with (Java `setCurrentHp/Mp` from the row).
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&pet_oid) {
-        v.cur_hp = v.max_hp as f64;
-        v.cur_mp = v.max_mp as f64;
+        match &saved {
+            Some(row) => {
+                v.cur_hp = row.cur_hp.min(v.max_hp as f64);
+                v.cur_mp = row.cur_mp.min(v.max_mp as f64);
+            }
+            None => {
+                v.cur_hp = v.max_hp as f64;
+                v.cur_mp = v.max_mp as f64;
+            }
+        }
     }
+    // TODO(G29): Java's restore marks a pet stored with `curHp < 1` as dead
+    // (`setDead(true)` + `stopHpMpRegeneration()`) and summons the corpse. This
+    // port has no pet death yet, so a pet can never be stored dead; wire this
+    // when pet death/resurrection lands, or the branch is untestable.
     send_pet_info(world, owner_oid, pet_oid, PetInfoKind::Summoned);
     broadcast_summon_info(world, pet_oid, true);
     Some(pet_oid)

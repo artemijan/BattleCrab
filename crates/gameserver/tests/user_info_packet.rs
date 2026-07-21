@@ -89,6 +89,9 @@ async fn user_info_test() {
         transform_id: 0,
         transform_display_id: 0,
         store_type: 0,
+        lost_exp_on_death: 0,
+        revive_request: None,
+        pending_pet_collar: None,
     };
     let position = Position { x: -90939, y: 248_138, z: -3563, heading: 0 };
     let vitals = Vitals { max_hp: 98, cur_hp: 98.0, max_mp: 59, cur_mp: 59.0, dead: false };

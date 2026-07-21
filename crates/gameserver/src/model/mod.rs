@@ -413,6 +413,8 @@ pub struct PlayerData {
     pub recipe_book: components::RecipeBook,
     /// `character_variables` key/value store (Java `PlayerVariables`).
     pub variables: components::PlayerVariables,
+    /// Saved pet rows, keyed by collar object id (Java's `pets` table).
+    pub pets: components::PlayerPets,
     pub shortcuts: Shortcuts,
     pub macros: Macros,
     pub friends: components::Friends,
@@ -502,6 +504,7 @@ impl PlayerData {
                     self.henna,
                     self.recipe_book,
                     self.variables,
+                    self.pets,
                 ),
             ),
         );
@@ -933,6 +936,9 @@ impl Player {
             henna,
             recipe_book,
             variables: components::PlayerVariables(c.variables.iter().cloned().collect()),
+            pets: components::PlayerPets(
+                c.pets.iter().map(|p| (p.collar_object_id, p.clone())).collect(),
+            ),
             shortcuts: Shortcuts::from_list(shortcuts),
             macros: Macros::from_list(c.macros.clone()),
             friends: components::Friends(c.friends.clone()),

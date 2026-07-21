@@ -140,6 +140,15 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
         })
         .unwrap_or_default();
 
+    // `PlayerPets` is expected to already carry the live pet's state: callers
+    // run `servitor::sync_pet_row` first (it needs `&mut World` for the store
+    // sweep, which this read-only builder does not have).
+    let pets = world
+        .objects
+        .get_component::<crate::model::components::PlayerPets>(&object_id)
+        .map(|p| p.0.values().cloned().collect())
+        .unwrap_or_default();
+
     // `PlayerVariables.storeMe` — the whole map, flushed with the character.
     let variables = world
         .objects
@@ -157,6 +166,7 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
 
     Some(db::PlayerSaveData {
         base,
+        pets,
         items,
         skills,
         skills_by_index,
@@ -269,6 +279,10 @@ fn buffs_to_save(world: &World, buffs: Option<&crate::model::components::Buffs>)
 /// Flush a player who stays in the world — the periodic autosave and changes
 /// that shouldn't wait for logout (class transfers).
 pub(crate) fn store_player_now(world: &mut World, player_object_id: i32) {
+    // Fold the live pet's state into `PlayerPets` before the snapshot, or the
+    // autosave persists the row as it was at summon time and discards
+    // everything the pet did this session.
+    crate::game_loop::servitor::sync_pet_row(world, player_object_id);
     if let Some(save) = build_save_data(world, player_object_id) {
         let _ = world.db.send(db::DbCommand::StorePlayer { save });
     }
@@ -380,6 +394,10 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
             let _ = world.db.send(db::DbCommand::StorePlayer {
                 save: db::PlayerSaveData {
                     base: db::PlayerSnapshot::of(&b.player, &b.position, &b.vitals, &b.player_vitals),
+                    // No pet can be summoned before entering the world, so the
+                    // rows loaded at login are still current — but they must be
+                    // written back, since `store_player` reconciles.
+                    pets: b.pets.0.values().cloned().collect(),
                     items: b.inventory.to_rows().into_iter().chain(b.warehouse.to_rows()).chain(b.freight.to_rows()).collect(),
                     skills: b.skills.0.iter().map(|(id, lvl)| (*id, *lvl)).collect(),
                     skills_by_index: Default::default(),

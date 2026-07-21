@@ -76,6 +76,7 @@ fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
         hennas: c.hennas.clone(),
         recipe_book: c.recipe_book.iter().map(|&id| (id, true)).collect(),
         variables: c.variables.clone(),
+        pets: c.pets.clone(),
         shortcuts: c.shortcuts.clone(),
         macros: c.macros.clone(),
         quests: c.quests.clone(),
@@ -760,6 +761,104 @@ async fn active_buffs_persist_with_frozen_countdown() {
     cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => assert!(chars[0].skill_buffs.is_empty()),
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    cmd_tx.send(DbCommand::Shutdown).unwrap();
+    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// G29: a pet row round-trips through the real `pets` table — written by the
+/// character flush, keyed by its collar's object id, and reloaded at login.
+///
+/// This is the gate's "and it persists": the in-memory half is covered by
+/// `servitor_tests`, but only this exercises the actual schema, so a column
+/// name or bind-order mistake shows up here rather than in production.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn pets_persist() {
+    let dir = std::env::temp_dir().join(format!("l2r_g29pets_{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let db_path = dir.join("test.db");
+    let url = format!("jdbc:sqlite:{}", db_path.display());
+
+    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    {
+        let pool = commons::db::init(&url, 1).await.unwrap();
+        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables", "pets"] {
+            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
+            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
+                sqlx::query(stmt).execute(&pool).await.unwrap();
+            }
+        }
+        pool.close().await;
+    }
+
+    let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (event_tx, event_rx) = std::sync::mpsc::channel();
+    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
+
+    let mut data = new_char("Beastmaster");
+    // The Wolf Collar this pet is bound to.
+    data.items = vec![db::NewItem { item_id: 2375, count: 1, paperdoll_index: None }];
+    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharacterCreated { result, .. } => assert_eq!(result, CreateResult::Ok),
+        _ => panic!("expected CharacterCreated"),
+    }
+    let loaded = match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            assert!(chars[0].pets.is_empty(), "a new character owns no pets");
+            chars[0].clone()
+        }
+        _ => panic!("expected CharactersLoaded"),
+    };
+    let collar_oid = loaded.items[0].object_id;
+
+    // Summon + wound the pet, then flush the character.
+    let mut save = save_from(&loaded);
+    save.pets = vec![db::PetRow {
+        collar_object_id: collar_oid,
+        name: "Wolf".into(),
+        level: 5,
+        cur_hp: 91.5,
+        cur_mp: 20.0,
+        exp: 12_345,
+        sp: 67,
+        fed: 140,
+    }];
+    cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    let reloaded = match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            let c = &chars[0];
+            assert_eq!(c.pets.len(), 1, "the pet row came back");
+            let p = &c.pets[0];
+            assert_eq!(p.collar_object_id, collar_oid, "keyed by the collar's object id");
+            assert_eq!(p.level, 5);
+            assert_eq!(p.exp, 12_345);
+            assert_eq!(p.sp, 67);
+            assert_eq!(p.fed, 140);
+            assert_eq!(p.cur_hp, 91.5, "fractional HP survives the column type");
+            assert_eq!(c.items.len(), 1, "the collar itself is untouched");
+            c.clone()
+        }
+        _ => panic!("expected CharactersLoaded"),
+    };
+
+    // A second flush must *update* the row, not duplicate it — the upsert runs
+    // on every save, so a wrong conflict target would grow the table forever.
+    let mut save = save_from(&reloaded);
+    save.pets[0].fed = 30;
+    save.pets[0].level = 6;
+    cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            assert_eq!(chars[0].pets.len(), 1, "re-saving updates in place, no duplicate row");
+            assert_eq!(chars[0].pets[0].fed, 30);
+            assert_eq!(chars[0].pets[0].level, 6);
+        }
         _ => panic!("expected CharactersLoaded"),
     }
 

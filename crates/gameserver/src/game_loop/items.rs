@@ -188,7 +188,6 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
         send_item_message(world, client_id, "This item cannot be destroyed.");
         return;
     };
-    let _ = item_id;
     if is_quest {
         send_item_message(world, client_id, "This item cannot be destroyed.");
         return;
@@ -207,6 +206,27 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
             .map(|inv| inv.unequip_item(pkt.object_id))
             .unwrap_or_default();
         finish_equip_change(world, client_id, object_id, &changed);
+    }
+
+    // `if (itemToRemove.getTemplate().isPetItem())` — destroying a collar
+    // destroys the pet bound to it: unsummon it if it's out, then drop the
+    // saved row. Object ids are recycled, so an orphan row would eventually
+    // bind a stale pet to an unrelated item.
+    if world.data.pet_data.is_pet_collar(item_id) {
+        if let Some(pet_oid) = crate::game_loop::servitor::pet_of(world, object_id) {
+            let bound = world
+                .objects
+                .get_component::<crate::model::components::PetOf>(&pet_oid)
+                .map(|p| p.collar_object_id);
+            if bound == Some(pkt.object_id) {
+                crate::game_loop::servitor::unsummon_servitor(world, object_id);
+            }
+        }
+        world
+            .objects
+            .get_component_mut::<crate::model::components::PlayerPets>(&object_id)
+            .map(|p| p.0.remove(&pkt.object_id));
+        let _ = world.db.send(crate::db::DbCommand::DeletePetRow { collar_object_id: pkt.object_id });
     }
 
     let Some(change) = world.objects.get_component_mut::<Inventory>(&object_id).and_then(|inv| inv.remove_by_object_id(pkt.object_id, count)) else {

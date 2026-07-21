@@ -709,3 +709,171 @@ fn a_pet_declares_the_pet_summon_type() {
         .expect("PetInfo sent");
     assert_eq!(s_pkt[1], 2, "summonType 2 = servitor");
 }
+
+// ---------------------------------------------------------------------------
+// Pet persistence (slice 7)
+// ---------------------------------------------------------------------------
+
+use crate::model::components::{PetOf, PlayerPets};
+
+/// Give the Wolf template a level-2 row so level-dependent lookups have
+/// somewhere to move to — with a single level every "restored at level N"
+/// assertion would pass vacuously.
+fn add_wolf_level_2(world: &mut World) {
+    let mut t = world.data.pet_data.get(WOLF_NPC).unwrap().clone();
+    t.levels.insert(
+        2,
+        crate::data::pet_data::PetLevel { max_meal: 300, exp: 5_000, ..Default::default() },
+    );
+    world.data.pet_data.insert_for_test(t);
+}
+
+fn saved_row(collar_oid: i32, level: i32, exp: i64, fed: i32, cur_hp: f64) -> crate::db::PetRow {
+    crate::db::PetRow { collar_object_id: collar_oid, name: "Wolf".into(), level, cur_hp, cur_mp: 10.0, exp, sp: 7, fed }
+}
+
+fn put_saved(world: &mut World, row: crate::db::PetRow) {
+    world.objects.get_component_mut::<PlayerPets>(&OWNER).unwrap().0.insert(row.collar_object_id, row);
+}
+
+/// With no saved row the pet is brand new: template level, a full food bar and
+/// full vitals — Java's two-arg `Pet` constructor.
+#[test]
+fn a_pet_with_no_saved_row_is_fresh() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    add_wolf_level_2(&mut world);
+    park_collar(&mut world, collar);
+
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    let pet = *world.objects.get_component::<PetOf>(&pet_oid).unwrap();
+    assert_eq!(pet.level, 1, "fresh pet takes the template level");
+    assert_eq!(pet.fed, pet.max_fed, "fresh pet starts fed");
+    assert_eq!(pet.max_fed, 248, "max_meal for level 1");
+    let v = world.objects.get_component::<Vitals>(&pet_oid).unwrap();
+    assert_eq!(v.cur_hp, v.max_hp as f64, "fresh pet spawns at full HP");
+}
+
+/// A saved row is what the pet comes back as — the whole point of the table.
+#[test]
+fn a_saved_pet_is_restored_from_its_row() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    add_wolf_level_2(&mut world);
+    put_saved(&mut world, saved_row(collar, 2, 6_000, 90, 42.0));
+    park_collar(&mut world, collar);
+
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    let pet = *world.objects.get_component::<PetOf>(&pet_oid).unwrap();
+    assert_eq!(pet.level, 2, "restored at the saved level, not the template's");
+    assert_eq!(pet.exp, 6_000);
+    assert_eq!(pet.sp, 7);
+    assert_eq!(pet.fed, 90, "the food bar carries over — it does not refill on summon");
+    assert_eq!(pet.max_fed, 300, "max_meal follows the restored level");
+    assert_eq!(world.objects.get_component::<Vitals>(&pet_oid).unwrap().cur_hp, 42.0, "wounded pet stays wounded");
+}
+
+/// Java's "avoiding pet delevels due to exp per level values changed": a stored
+/// exp below what the pet's level now costs is raised to that level's floor,
+/// rather than the pet silently dropping a level when the curve is retuned.
+#[test]
+fn restored_exp_is_floored_at_the_level_cost() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    add_wolf_level_2(&mut world);
+    // Level 2 now costs 5000 exp; this row predates that and holds only 100.
+    put_saved(&mut world, saved_row(collar, 2, 100, 90, 42.0));
+    park_collar(&mut world, collar);
+
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    let pet = *world.objects.get_component::<PetOf>(&pet_oid).unwrap();
+    assert_eq!(pet.level, 2, "the pet keeps its level");
+    assert_eq!(pet.exp, 5_000, "exp is raised to the level's floor instead");
+}
+
+/// A food bar saved above the level's capacity is clamped, not carried —
+/// otherwise a datapack nerf would leave pets permanently over-full.
+#[test]
+fn restored_fed_is_clamped_to_max_meal() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    put_saved(&mut world, saved_row(collar, 1, 0, 9_999, 42.0));
+
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    let pet = *world.objects.get_component::<PetOf>(&pet_oid).unwrap();
+    assert_eq!(pet.fed, 248, "clamped to level 1's max_meal");
+}
+
+/// `sync_pet_row` is what makes any of this reach the DB: it folds the live
+/// pet's state back into `PlayerPets`, which the character flush reads.
+#[test]
+fn syncing_writes_live_pet_state_back() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+
+    // The pet takes a beating and burns some food.
+    world.objects.get_component_mut::<Vitals>(&pet_oid).unwrap().cur_hp = 33.0;
+    world.objects.get_component_mut::<PetOf>(&pet_oid).unwrap().fed = 12;
+
+    crate::game_loop::servitor::sync_pet_row(&mut world, OWNER);
+    let row = world.objects.get_component::<PlayerPets>(&OWNER).unwrap().0.get(&collar).unwrap().clone();
+    assert_eq!(row.cur_hp, 33.0, "the wound is what gets saved");
+    assert_eq!(row.fed, 12);
+    assert_eq!(row.collar_object_id, collar, "keyed by the collar, as the table is");
+}
+
+/// The round trip the gate actually asks for: summon, take damage, log out,
+/// summon again — the pet comes back as it was left.
+#[test]
+fn a_pet_survives_an_unsummon_round_trip() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    world.objects.get_component_mut::<Vitals>(&pet_oid).unwrap().cur_hp = 25.0;
+    world.objects.get_component_mut::<PetOf>(&pet_oid).unwrap().fed = 60;
+
+    // Owner logs out: state is captured, then the pet leaves the world.
+    crate::game_loop::servitor::on_owner_leave_world(&mut world, OWNER);
+    assert!(pet_of(&mut world, OWNER).is_none(), "the pet is gone with its owner");
+
+    park_collar(&mut world, collar);
+    let pet_oid = summon_pet(&mut world, OWNER).unwrap();
+    let pet = *world.objects.get_component::<PetOf>(&pet_oid).unwrap();
+    assert_eq!(pet.fed, 60, "it comes back as hungry as it was left");
+    assert_eq!(world.objects.get_component::<Vitals>(&pet_oid).unwrap().cur_hp, 25.0, "and as wounded");
+}
+
+/// Destroying the collar destroys the pet bound to it — Java unsummons it and
+/// deletes the row. Object ids are recycled, so a surviving row would
+/// eventually hand a stale pet to an unrelated item.
+#[test]
+fn destroying_the_collar_drops_the_saved_pet() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let _ = summon_pet(&mut world, OWNER).unwrap();
+    crate::game_loop::servitor::sync_pet_row(&mut world, OWNER);
+    assert!(world.objects.get_component::<PlayerPets>(&OWNER).unwrap().0.contains_key(&collar));
+
+    let mut body = Vec::new();
+    body.extend_from_slice(&collar.to_le_bytes());
+    body.extend_from_slice(&1i64.to_le_bytes());
+    crate::game_loop::items::handle_request_destroy_item(&mut world, CID, &body);
+
+    assert!(pet_of(&mut world, OWNER).is_none(), "the summoned pet is unsummoned with its collar");
+    assert!(
+        !world.objects.get_component::<PlayerPets>(&OWNER).unwrap().0.contains_key(&collar),
+        "and its saved row goes with it"
+    );
+}

@@ -112,6 +112,9 @@ pub struct CharData {
     pub recipe_book: Vec<i32>,
     /// `character_variables` rows: (var, val) — the `PlayerVariables` store.
     pub variables: Vec<(String, String)>,
+    /// `pets` rows owned by this character — the `PlayerPets` store, keyed by
+    /// collar object id.
+    pub pets: Vec<crate::db::PetRow>,
     /// `character_shortcuts` rows (class_index 0).
     pub shortcuts: Vec<crate::model::shortcut::Shortcut>,
     /// `character_macroses` rows, commands already decoded.
