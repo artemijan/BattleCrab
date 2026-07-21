@@ -23,6 +23,8 @@ pub use hexid::HexId;
 pub use ipconfig::IpConfig;
 pub use npc::NpcConfig;
 pub use premium::PremiumConfig;
+pub mod grand_boss;
+pub use grand_boss::GrandBossConfig;
 pub use rates::RatesConfig;
 pub use server::ServerConfig;
 
@@ -34,6 +36,8 @@ pub struct CombatConfig {
     pub character: CharacterConfig,
     pub npc: NpcConfig,
     pub rates: RatesConfig,
+    /// `GrandBoss.ini` respawn windows, read by the grand-boss lifecycle.
+    pub grand_boss: GrandBossConfig,
     /// General.ini runtime keys the game thread reads (ground-item auto-destroy,
     /// …). The GM-startup keys of `GeneralConfig` travel separately via
     /// `data.gm`; this carries the rest.
@@ -54,6 +58,7 @@ pub struct Config {
     pub geoengine: GeoEngineConfig,
     pub npc: NpcConfig,
     pub rates: RatesConfig,
+    pub grand_boss: GrandBossConfig,
     pub community_board: CommunityBoardConfig,
     pub premium: PremiumConfig,
 
@@ -108,6 +113,7 @@ impl Config {
         let geoengine = GeoEngineConfig::load_from(root);
         let npc = NpcConfig::load_from(root);
         let rates = RatesConfig::load_from(root);
+        let grand_boss = GrandBossConfig::load_from(root);
         let community_board = CommunityBoardConfig::load_from(root);
         let premium = PremiumConfig::load_from(root);
         let ip_config = IpConfig::load_from(root);
@@ -119,6 +125,7 @@ impl Config {
             geoengine,
             npc,
             rates,
+            grand_boss,
             community_board,
             premium,
             ip_config,
@@ -135,6 +142,7 @@ impl Config {
             character: self.character.clone(),
             npc: self.npc.clone(),
             rates: self.rates.clone(),
+            grand_boss: self.grand_boss.clone(),
             general: self.general.clone(),
             community_board: self.community_board.clone(),
             premium: self.premium.clone(),

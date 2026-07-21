@@ -48,6 +48,7 @@ mod reco;
 pub(crate) mod regen;
 mod shop;
 mod cubic;
+mod grand_boss;
 mod raid_curse;
 mod servitor;
 mod shortcuts;
@@ -192,6 +193,10 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // Java `DailyTaskManager`: the daily 06:30 reset (recommendations only, so
     // far). Scheduled once here; the task reschedules itself every 24 h.
     reco::schedule_initial_daily_reset(&mut world);
+    // Grand bosses: spawn the ones that are up, arm timers for the ones that
+    // aren't, and immediately respawn any whose window elapsed while the
+    // server was down.
+    grand_boss::resolve_at_boot(&mut world);
 
     info!("GameLoop: started ({} ms tick).", TICK.as_millis());
 
@@ -321,6 +326,9 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::ServitorLifeTick { servitor_oid } => {
                 servitor::handle_life_tick(world, servitor_oid);
+            }
+            ScheduledTask::GrandBossRespawn { boss_id } => {
+                grand_boss::handle_grand_boss_respawn(world, boss_id);
             }
             ScheduledTask::CubicAction { owner_oid, cubic_id } => {
                 cubic::handle_cubic_action(world, owner_oid, cubic_id);
