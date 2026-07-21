@@ -124,8 +124,16 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             // `Summon.instant` — bring out a servitor. Java re-summons over any
             // existing one rather than stacking, which `summon_servitor`
             // handles.
-            SkillEffect::Summon { npc_id, life_time, .. } => {
-                crate::game_loop::servitor::summon_servitor(world, target_oid, *npc_id, skill.id, *life_time);
+            SkillEffect::Summon { npc_id, life_time, consume_item_id, consume_item_count } => {
+                crate::game_loop::servitor::summon_servitor(
+                    world,
+                    target_oid,
+                    *npc_id,
+                    skill.id,
+                    *life_time,
+                    *consume_item_id,
+                    *consume_item_count,
+                );
             }
             // `Confuse.instant` — the victim turns on a random bystander.
             //

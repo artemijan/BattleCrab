@@ -50,6 +50,11 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     super::party::on_player_leave_world(world, player_object_id);
     // deleteMe → notifyFriends(MODE_OFFLINE).
     super::friends::on_leave_world(world, player_object_id);
+    // A servitor does not outlive its owner's session. Java stores it in
+    // `CharSummonTable` for `RestoreServitorOnReconnect`; persistence is a
+    // later slice, so for now it simply goes away with them — which is at
+    // least better than leaking an ownerless NPC into the world.
+    super::servitor::on_owner_leave_world(world, player_object_id);
     // deleteMe → clan.broadcastToOnlineMembers(PledgeShowMemberListUpdate offline).
     {
         let clan_id = world

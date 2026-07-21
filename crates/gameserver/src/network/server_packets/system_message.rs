@@ -161,6 +161,13 @@ pub mod sm_ids {
     pub const S1_HP_HAS_BEEN_RESTORED: i16 = 1066;
     pub const S2_HP_HAS_BEEN_RESTORED_BY_C1: i16 = 1067;
     pub const M_CRITICAL: i16 = 1280;
+    /// "Your servitor passed away." — its lifetime ran out.
+    pub const YOUR_SERVITOR_PASSED_AWAY: i16 = 1519;
+    /// "A summoned monster uses $s1." — the periodic upkeep item.
+    pub const A_SUMMONED_MONSTER_USES_S1: i16 = 1027;
+    /// "Since you do not have enough items to maintain the servitor's stay, the
+    /// servitor has disappeared."
+    pub const NOT_ENOUGH_ITEMS_TO_MAINTAIN_SERVITOR: i16 = 1142;
     /// "You do not have a servitor."
     pub const YOU_DO_NOT_HAVE_A_SERVITOR: i16 = 2310;
     /// "Resurrection has already been proposed."

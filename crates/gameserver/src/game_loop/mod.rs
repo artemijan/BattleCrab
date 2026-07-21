@@ -317,6 +317,9 @@ fn apply_due_tasks(world: &mut World) {
                     handle_buff_expire(world, player_object_id, skill_id);
                 }
             }
+            ScheduledTask::ServitorLifeTick { servitor_oid } => {
+                servitor::handle_life_tick(world, servitor_oid);
+            }
             ScheduledTask::DamOverTimeTick { caster, target, skill_id, skill_level } => {
                 skills::effects::handle_dam_over_time_tick(world, caster, target, skill_id, skill_level);
             }

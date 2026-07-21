@@ -11,6 +11,7 @@ use crate::model::components::ServitorOf;
 use crate::model::skill::SkillEffect;
 
 use crate::game_loop::servitor::{
+    handle_life_tick, on_owner_leave_world,
     servitor_attack, servitor_follow_tick, servitor_of, servitor_stop, servitor_toggle_follow, summon_servitor,
     unsummon_servitor,
 };
@@ -53,7 +54,7 @@ fn summoning_spawns_a_servitor_owned_by_the_caster() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 100, 200);
 
-    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200).expect("summoned");
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).expect("summoned");
 
     let link = world.objects.get_component::<ServitorOf>(&oid).expect("linked to its owner");
     assert_eq!(link.owner_object_id, OWNER);
@@ -76,8 +77,8 @@ fn resummoning_replaces_rather_than_stacks() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
 
-    let first = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200).unwrap();
-    let second = summon_servitor(&mut world, OWNER, PANTHER + 1, 283, 1200).unwrap();
+    let first = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).unwrap();
+    let second = summon_servitor(&mut world, OWNER, PANTHER + 1, 283, 1200, 0, 0).unwrap();
 
     assert_ne!(first, second, "a genuinely new entity");
     assert!(world.objects.get_component::<ServitorOf>(&first).is_none(), "the first one is gone");
@@ -89,7 +90,7 @@ fn resummoning_replaces_rather_than_stacks() {
 fn unsummoning_removes_the_servitor() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
-    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200).unwrap();
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).unwrap();
 
     assert_eq!(unsummon_servitor(&mut world, OWNER), Some(oid));
     assert_eq!(servitor_of(&mut world, OWNER), None, "no servitor left");
@@ -112,10 +113,10 @@ fn life_time_zero_means_no_expiry() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
 
-    let forever = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    let forever = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
     assert_eq!(world.objects.get_component::<ServitorOf>(&forever).unwrap().expires_at_tick, u64::MAX);
 
-    let timed = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200).unwrap();
+    let timed = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).unwrap();
     let link = world.objects.get_component::<ServitorOf>(&timed).unwrap();
     assert_eq!(link.expires_at_tick, world.tick + 12_000, "1200 s at 10 ticks/s");
     assert_eq!(link.life_time_secs, 1200);
@@ -126,7 +127,7 @@ fn life_time_zero_means_no_expiry() {
 fn an_npc_cannot_summon() {
     let (mut world, _db, _l) = servitor_world();
     add_test_npc(&mut world, NPC_OID, PANTHER, "Monster", 20, 0, 0, 0);
-    assert_eq!(summon_servitor(&mut world, NPC_OID, PANTHER, 283, 1200), None);
+    assert_eq!(summon_servitor(&mut world, NPC_OID, PANTHER, 283, 1200, 0, 0), None);
 }
 
 // ---------------------------------------------------------------------------
@@ -141,7 +142,7 @@ fn the_owner_is_sent_pet_info() {
     let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let _ = drain(&mut rx);
 
-    summon_servitor(&mut world, OWNER, PANTHER, 283, 1200).unwrap();
+    summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).unwrap();
 
     let opcodes: Vec<u8> = drain(&mut rx).iter().filter_map(|p| p.first().copied()).collect();
     assert!(opcodes.contains(&server_packets::opcodes::PET_INFO), "PetInfo sent, got {opcodes:?}");
@@ -204,7 +205,7 @@ fn every_learnable_summon_skill_parses() {
 fn an_idle_servitor_trails_its_owner() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
-    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
     assert!(world.objects.get_component::<ServitorOf>(&oid).unwrap().following, "follows by default");
 
     // Owner walks well beyond the follow range.
@@ -220,7 +221,7 @@ fn an_idle_servitor_trails_its_owner() {
 fn a_servitor_already_close_does_not_move() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
-    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
 
     world.objects.get_component_mut::<Position>(&OWNER).unwrap().x = 100; // < FOLLOW_RANGE
     servitor_follow_tick(&mut world, oid);
@@ -235,7 +236,7 @@ fn a_servitor_already_close_does_not_move() {
 fn hold_toggles_following() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
-    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
 
     assert_eq!(servitor_toggle_follow(&mut world, OWNER), Some(false), "now holding");
     world.objects.get_component_mut::<Position>(&OWNER).unwrap().x = 900;
@@ -256,7 +257,7 @@ fn hold_toggles_following() {
 fn an_ordered_attack_targets_the_owners_target() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
-    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
     add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 200, 0, 0);
 
     assert!(servitor_attack(&mut world, OWNER, FOE), "the order was accepted");
@@ -285,7 +286,7 @@ fn an_ordered_attack_targets_the_owners_target() {
 fn a_far_target_is_refused_and_the_servitor_keeps_following() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
-    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
     add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 9_000, 0, 0);
 
     assert!(!servitor_attack(&mut world, OWNER, FOE), "refused");
@@ -302,7 +303,7 @@ fn a_far_target_is_refused_and_the_servitor_keeps_following() {
 fn stop_cancels_the_attack_and_resumes_following() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
-    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
     add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 200, 0, 0);
     servitor_attack(&mut world, OWNER, FOE);
 
@@ -321,7 +322,7 @@ fn stop_cancels_the_attack_and_resumes_following() {
 fn a_servitor_does_not_pick_its_own_fights() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
-    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
     // A monster stands right next to it.
     add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 50, 0, 0);
 
@@ -348,7 +349,7 @@ fn other_players_are_sent_summon_info_and_the_owner_is_not() {
     let _ = drain(&mut owner_rx);
     let _ = drain(&mut other_rx);
 
-    summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
 
     let owner_ops: Vec<u8> = drain(&mut owner_rx).iter().filter_map(|p| p.first().copied()).collect();
     let other_ops: Vec<u8> = drain(&mut other_rx).iter().filter_map(|p| p.first().copied()).collect();
@@ -372,7 +373,7 @@ fn summon_info_carries_the_owners_name() {
     let mut other_rx = ingame_caster(&mut world, 2, OWNER + 1, 60, 0);
     let _ = drain(&mut other_rx);
 
-    summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
 
     let owner_name = world.objects.get_component::<crate::model::Player>(&OWNER).unwrap().name.clone();
     let pkt = drain(&mut other_rx)
@@ -394,7 +395,7 @@ fn summon_info_carries_the_owners_name() {
 fn a_servitor_entering_view_is_introduced_as_a_summon() {
     let (mut world, _db, _l) = servitor_world();
     let _owner_rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
-    summon_servitor(&mut world, OWNER, PANTHER, 283, 0).unwrap();
+    summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
 
     // A second player logs in nearby *after* the summon.
     let mut late_rx = ingame_caster(&mut world, 2, OWNER + 1, 60, 0);
@@ -403,4 +404,143 @@ fn a_servitor_entering_view_is_introduced_as_a_summon() {
 
     let ops: Vec<u8> = drain(&mut late_rx).iter().filter_map(|p| p.first().copied()).collect();
     assert!(ops.contains(&server_packets::opcodes::SUMMON_INFO), "introduced as a summon: {ops:?}");
+}
+
+// ---------------------------------------------------------------------------
+// Lifecycle (slice 4)
+// ---------------------------------------------------------------------------
+
+/// The upkeep tick ends a servitor whose lifetime has run out.
+#[test]
+fn a_servitor_passes_away_when_its_lifetime_expires() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 60, 0, 0).unwrap();
+
+    // Just before the deadline it survives.
+    world.tick = world.objects.get_component::<ServitorOf>(&oid).unwrap().expires_at_tick - 1;
+    handle_life_tick(&mut world, oid);
+    assert_eq!(servitor_of(&mut world, OWNER), Some(oid), "still here a tick early");
+
+    world.tick += 1;
+    handle_life_tick(&mut world, oid);
+    assert_eq!(servitor_of(&mut world, OWNER), None, "gone once the lifetime ran out");
+}
+
+/// A no-expiry servitor (`lifeTime <= 0`) is never reaped by the tick.
+#[test]
+fn a_permanent_servitor_is_never_reaped() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
+
+    world.tick += 10_000_000;
+    handle_life_tick(&mut world, oid);
+    assert_eq!(servitor_of(&mut world, OWNER), Some(oid), "no deadline, no expiry");
+}
+
+/// The upkeep item is taken from the owner when it falls due, and the servitor
+/// carries on.
+#[test]
+fn the_upkeep_item_is_consumed_when_due() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let gemstone = 2131;
+    {
+        // Split borrow: the catalog is read while the inventory is written.
+        let World { data, objects, .. } = &mut world;
+        objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+            .unwrap()
+            .add_item(&data.item_data, 7_000_001, gemstone, 5);
+    }
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, gemstone, 1).unwrap();
+
+    world.tick = world.objects.get_component::<ServitorOf>(&oid).unwrap().next_consume_tick;
+    handle_life_tick(&mut world, oid);
+
+    assert_eq!(count_of_item(&world, OWNER, gemstone), 4, "one gemstone paid");
+    assert_eq!(servitor_of(&mut world, OWNER), Some(oid), "and it stays out");
+}
+
+/// Running out of the upkeep item dismisses the servitor — Java's "since you do
+/// not have enough items to maintain the servitor's stay".
+#[test]
+fn running_out_of_the_upkeep_item_dismisses_the_servitor() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let gemstone = 2131;
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, gemstone, 1).unwrap();
+    // The owner has none.
+
+    world.tick = world.objects.get_component::<ServitorOf>(&oid).unwrap().next_consume_tick;
+    handle_life_tick(&mut world, oid);
+
+    assert_eq!(servitor_of(&mut world, OWNER), None, "dismissed for non-payment");
+}
+
+/// A servitor with no upkeep item is never charged.
+#[test]
+fn a_servitor_without_upkeep_is_never_charged() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
+    assert_eq!(
+        world.objects.get_component::<ServitorOf>(&oid).unwrap().next_consume_tick,
+        u64::MAX,
+        "no upkeep clock at all"
+    );
+    world.tick += 100_000;
+    handle_life_tick(&mut world, oid);
+    assert_eq!(servitor_of(&mut world, OWNER), Some(oid));
+}
+
+/// The leash: a servitor stranded far from its owner is pulled back into
+/// following, whatever it was doing — an ordered attack cannot leave it
+/// abandoned across the map.
+#[test]
+fn a_stranded_servitor_is_leashed_back_to_following() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
+    add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 200, 0, 0);
+    servitor_attack(&mut world, OWNER, FOE);
+    assert!(!world.objects.get_component::<ServitorOf>(&oid).unwrap().following, "off following, mid-order");
+
+    // The owner runs far away.
+    world.objects.get_component_mut::<Position>(&OWNER).unwrap().x = 50_000;
+    handle_life_tick(&mut world, oid);
+
+    assert!(
+        world.objects.get_component::<ServitorOf>(&oid).unwrap().following,
+        "leashed back into follow"
+    );
+}
+
+/// A servitor does not outlive its owner's session.
+#[test]
+fn logging_out_takes_the_servitor_with_you() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
+
+    on_owner_leave_world(&mut world, OWNER);
+
+    assert_eq!(servitor_of(&mut world, OWNER), None, "no ownerless NPC left behind");
+    assert!(world.objects.get_component::<Vitals>(&oid).is_none(), "despawned");
+}
+
+/// A dead servitor ends the tick chain rather than rescheduling forever.
+#[test]
+fn a_dead_servitor_stops_ticking() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 60, 0, 0).unwrap();
+    world.objects.get_component_mut::<Vitals>(&oid).unwrap().dead = true;
+
+    // Well past the deadline: a live tick would have unsummoned it and sent
+    // the "passed away" notice. A dead one just stops.
+    world.tick += 100_000;
+    handle_life_tick(&mut world, oid);
+    assert!(world.objects.get_component::<ServitorOf>(&oid).is_some(), "left for the death path to clean up");
 }
