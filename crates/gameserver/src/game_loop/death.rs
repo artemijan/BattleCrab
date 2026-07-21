@@ -1490,8 +1490,23 @@ pub(crate) fn revive_request(
     {
         return;
     }
+    // Java `Resurrection` calls `effected.getActingPlayer().reviveRequest(…,
+    // effected.isPet(), …)`: casting on a dead **pet** puts the dialog in front
+    // of its **owner**, who is the one who answers. So resolve the corpse to
+    // the player who will be asked, and remember which of the two is dying.
+    let is_pet = world.objects.has_component::<crate::model::components::PetOf>(&target_oid);
+    let corpse_oid = target_oid;
+    let target_oid = if is_pet {
+        match world.objects.get_component::<crate::model::components::ServitorOf>(&corpse_oid) {
+            Some(s) => s.owner_object_id,
+            None => return,
+        }
+    } else {
+        target_oid
+    };
+
     let Some(target) = world.objects.get_component::<crate::model::Player>(&target_oid) else { return };
-    if world.objects.get_component::<Vitals>(&target_oid).is_none_or(|v| !v.dead) {
+    if world.objects.get_component::<Vitals>(&corpse_oid).is_none_or(|v| !v.dead) {
         return;
     }
     if target.revive_request.is_some() {
@@ -1510,15 +1525,31 @@ pub(crate) fn revive_request(
         .unwrap_or(1.0);
     let restore_percent = resurrect_restore_percent(power as f64, wit_bonus);
 
-    let lost = world
-        .objects
-        .get_component::<crate::model::Player>(&target_oid)
-        .map(|p| p.lost_exp_on_death)
-        .unwrap_or(0);
+    let lost = if is_pet {
+        // A pet's restorable exp is the gap the death penalty opened.
+        world
+            .objects
+            .get_component::<crate::model::components::PetOf>(&corpse_oid)
+            .map(|p| (p.exp_before_death - p.exp).max(0))
+            .unwrap_or(0)
+    } else {
+        world
+            .objects
+            .get_component::<crate::model::Player>(&target_oid)
+            .map(|p| p.lost_exp_on_death)
+            .unwrap_or(0)
+    };
     let restore_exp = ((lost as f64 * restore_percent) / 100.0).round() as i64;
 
     if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&target_oid) {
-        p.revive_request = Some((reviver_oid, restore_percent, hp_percent, mp_percent, cp_percent));
+        p.revive_request = Some(crate::model::ReviveRequest {
+            reviver: reviver_oid,
+            restore_percent,
+            hp_percent,
+            mp_percent,
+            cp_percent,
+            is_pet,
+        });
     }
     // Java's `ConfirmDlg(C1_IS_ATTEMPTING_TO_DO_A_RESURRECTION_THAT_RESTORES_S2_S3_XP_ACCEPT)`.
     // This port has only the generic text dialog, so the message is rendered
@@ -1551,13 +1582,27 @@ pub(crate) fn handle_revive_answer(world: &mut World, player_oid: i32, accepted:
     };
     // Java re-checks the corpse is still dead — it may have used "to village"
     // while the dialog sat on screen.
-    if world.objects.get_component::<Vitals>(&player_oid).is_none_or(|v| !v.dead) {
+    // The corpse to revive: the pet when this was a pet proposal, else the
+    // answering player themselves.
+    let corpse_oid = if request.is_pet {
+        match crate::game_loop::servitor::pet_of(world, player_oid) {
+            Some(oid) => oid,
+            None => return true, // the pet went away while the dialog sat open
+        }
+    } else {
+        player_oid
+    };
+    if world.objects.get_component::<Vitals>(&corpse_oid).is_none_or(|v| !v.dead) {
         return true;
     }
     if !accepted {
         return true;
     }
-    let (_reviver, restore_percent, hp_percent, mp_percent, cp_percent) = request;
+    if request.is_pet {
+        revive_pet(world, player_oid, corpse_oid, request.restore_percent, request.hp_percent, request.mp_percent);
+        return true;
+    }
+    let crate::model::ReviveRequest { restore_percent, hp_percent, mp_percent, cp_percent, .. } = request;
     do_revive_with(world, player_oid, hp_percent, mp_percent, cp_percent, restore_percent);
     true
 }
@@ -1645,4 +1690,38 @@ pub(crate) fn do_revive(world: &mut World, player_oid: i32) {
             ],
         ),
     );
+}
+
+/// `Pet.doRevive(revivePower)` — restore a share of the exp the death penalty
+/// took, then bring the pet back.
+///
+/// Java's pet revive restores HP/MP by the skill's percentages like a player's,
+/// but there is no CP on a pet.
+fn revive_pet(
+    world: &mut World,
+    owner_oid: i32,
+    pet_oid: i32,
+    restore_percent: f64,
+    hp_percent: i32,
+    mp_percent: i32,
+) {
+    // `restoreExp` runs *before* `doRevive`, and consumes the record.
+    crate::game_loop::servitor::pet_restore_exp(world, pet_oid, restore_percent);
+
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&pet_oid) {
+        v.dead = false;
+        v.cur_hp = (v.max_hp as f64 * hp_percent as f64 / 100.0).max(1.0);
+        v.cur_mp = v.max_mp as f64 * mp_percent as f64 / 100.0;
+    }
+    // The food clock stopped when the pet died; start it again.
+    crate::game_loop::servitor::start_feed(world, pet_oid);
+    crate::game_loop::servitor::send_pet_info(
+        world,
+        owner_oid,
+        pet_oid,
+        crate::game_loop::servitor::PetInfoKind::Default,
+    );
+    crate::game_loop::servitor::broadcast_summon_info(world, pet_oid, false);
+    // The revived state is what should persist if the owner logs out now.
+    crate::game_loop::servitor::sync_pet_row(world, owner_oid);
 }

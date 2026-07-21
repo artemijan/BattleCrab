@@ -1626,3 +1626,104 @@ fn a_max_level_pet_loses_nothing_on_death() {
     crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
     assert_eq!(pet_exp(&world, pet_oid), before, "no band above the cap, so no penalty");
 }
+
+// ---------------------------------------------------------------------------
+// Pet resurrection (slice 15)
+// ---------------------------------------------------------------------------
+
+/// Casting a resurrection on a dead pet puts the dialog in front of its
+/// **owner** — Java's `effected.getActingPlayer().reviveRequest(…, isPet, …)`.
+#[test]
+fn reviving_a_pet_asks_its_owner() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
+    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+
+    let reviver = OWNER + 5;
+    let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
+    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0);
+
+    let req = world.objects.get_component::<crate::model::Player>(&OWNER).unwrap().revive_request;
+    let req = req.expect("the owner holds the proposal, not the pet");
+    assert!(req.is_pet, "and it is flagged as a pet revival");
+}
+
+/// Accepting revives the pet and restores its lost experience.
+#[test]
+fn accepting_revives_the_pet_and_restores_its_exp() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
+    let before_death = world.objects.get_component::<PetOf>(&pet_oid).unwrap().exp;
+    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    let after_death = world.objects.get_component::<PetOf>(&pet_oid).unwrap().exp;
+    assert!(after_death < before_death, "the penalty applied");
+
+    let reviver = OWNER + 5;
+    let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
+    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0);
+    assert!(crate::game_loop::death::handle_revive_answer(&mut world, OWNER, true));
+
+    let v = world.objects.get_component::<Vitals>(&pet_oid).unwrap();
+    assert!(!v.dead, "the pet is alive again");
+    assert!(v.cur_hp > 0.0, "with HP on the bar");
+    let exp_now = world.objects.get_component::<PetOf>(&pet_oid).unwrap().exp;
+    assert!(exp_now > after_death, "some of the lost exp came back ({after_death} → {exp_now})");
+}
+
+/// Declining leaves the pet dead — and, as for a player, consumes the
+/// proposal so it can be offered again.
+#[test]
+fn declining_leaves_the_pet_dead() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+
+    let reviver = OWNER + 5;
+    let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
+    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0);
+    assert!(crate::game_loop::death::handle_revive_answer(&mut world, OWNER, false));
+
+    assert!(world.objects.get_component::<Vitals>(&pet_oid).unwrap().dead, "still dead");
+    assert!(
+        world.objects.get_component::<crate::model::Player>(&OWNER).unwrap().revive_request.is_none(),
+        "the proposal was consumed either way"
+    );
+}
+
+/// A live pet is not a resurrection target.
+#[test]
+fn a_living_pet_is_not_proposed_for_resurrection() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+
+    let reviver = OWNER + 5;
+    let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
+    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0);
+    assert!(world.objects.get_component::<crate::model::Player>(&OWNER).unwrap().revive_request.is_none());
+}
+
+/// Reviving the pet must not revive the *owner*: one field on the player
+/// carries both cases, so the flag has to steer the outcome.
+#[test]
+fn a_pet_revival_does_not_revive_the_owner() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    // Kill the owner too, so "did the wrong one revive?" is answerable.
+    world.objects.get_component_mut::<Vitals>(&OWNER).unwrap().dead = true;
+
+    let reviver = OWNER + 5;
+    let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
+    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0);
+    crate::game_loop::death::handle_revive_answer(&mut world, OWNER, true);
+
+    assert!(!world.objects.get_component::<Vitals>(&pet_oid).unwrap().dead, "the pet came back");
+    assert!(world.objects.get_component::<Vitals>(&OWNER).unwrap().dead, "the owner did not");
+}
