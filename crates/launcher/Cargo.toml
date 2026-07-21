@@ -1,0 +1,38 @@
+[package]
+name = "launcher"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "BattleCrab game client launcher and updater"
+
+[dependencies]
+anyhow = "1.0.104"
+directories = "6.0.0"
+eframe = "0.35.0"
+egui = "0.35.0"
+image = { version = "0.25.10", default-features = false, features = ["png"] }
+# Pinned to 0.12, not 0.13, specifically to get `native-tls` — which on Windows is
+# SChannel, the OS's own TLS stack.
+#
+# 0.13's rustls path drags in aws-lc-rs, which needs CMake and NASM to build and so
+# blocks a Windows build entirely, cross-compiled or not. 0.13 cannot use native-tls
+# either: it pins `native-tls ^0.2.16`, unpublished (crates.io stops at 0.2.14). 0.12
+# has no such pin. SChannel also leaves zero C dependencies in the tree, which is
+# what makes cross-compiling from macOS viable at all.
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "http2", "charset", "native-tls"] }
+rfd = "0.17.2"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+sevenz-rust2 = { version = "0.21.3", default-features = false, features = ["util"] }
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[dev-dependencies]
+egui_kittest = { version = "0.35.0", features = ["wgpu", "snapshot"] }
+sevenz-rust2 = { version = "0.21.3", default-features = false, features = ["util", "compress"] }
+
+[target."cfg(windows)".dependencies]
+# For ShellExecuteExW — the only way to start a program that requests elevation.
+# `Win32_System_Registry` is not used directly; SHELLEXECUTEINFOW is gated behind it
+# because the struct carries an HKEY field.
+windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging", "Win32_System_Registry"] }

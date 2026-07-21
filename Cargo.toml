@@ -4,6 +4,7 @@ members = [
     "crates/commons",
     "crates/loginserver",
     "crates/gameserver",
+    "crates/launcher",
 ]
 
 [workspace.package]
