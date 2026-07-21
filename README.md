@@ -34,10 +34,14 @@ as dense, cache-friendly linear scans instead of pointer-chasing a map. See
 
 ```sh
 cargo build --release
-# run from the repo root; reads dist/login/config/LoginServer.ini
-./target/release/loginserver
-# run with dist/game as the working directory (auto-chdir handles the repo root)
-./target/release/gameserver
+# Run BOTH from the repo root. Neither binary changes its working directory, and
+# the SQLite `URL` in both inis is relative to it, so they must agree on where
+# they were started or they will open different database files.
+./target/release/loginserver   # reads dist/login/config/LoginServer.ini
+./target/release/gameserver    # finds the datapack at dist/game automatically
+
+# Datapack elsewhere? Point the game server at it (it still does not chdir):
+DATAPACK_ROOT=/srv/l2/dist/game ./target/release/gameserver
 ```
 
 Config values can be overridden by environment variables using the Java

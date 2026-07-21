@@ -153,7 +153,11 @@ impl Default for RatesConfig {
 
 impl RatesConfig {
     pub fn load() -> Self {
-        let p = PropertiesParser::load(RATES_CONFIG_FILE);
+        Self::load_from("")
+    }
+
+    pub fn load_from(root: &str) -> Self {
+        let p = PropertiesParser::load(format!("{root}{RATES_CONFIG_FILE}"));
         let d = Self::default();
         Self {
             rate_xp: p.get_float("RateXp", 1.0) as f64,
@@ -202,7 +206,7 @@ impl RatesConfig {
             karma_rate_drop_equip_weapon: p
                 .get_int("KarmaRateDropEquipWeapon", d.karma_rate_drop_equip_weapon),
             // Lives in PVP.ini, not Rates.ini.
-            karma_pk_limit: PropertiesParser::load("config/PVP.ini")
+            karma_pk_limit: PropertiesParser::load(format!("{root}config/PVP.ini"))
                 .get_int("MinimumPKRequiredToDrop", d.karma_pk_limit),
         }
     }

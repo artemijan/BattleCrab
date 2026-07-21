@@ -615,6 +615,30 @@ pub fn spawn(url: String, max_connections: u32, max_characters: i32, cmd_rx: Cmd
         .expect("failed to spawn db thread")
 }
 
+/// Confirms the pool actually points at a game database.
+///
+/// `characters` and `accounts` are the two tables the server cannot run without
+/// and that no other database on the box would have together, which makes them
+/// a cheap and unambiguous fingerprint.
+async fn verify_schema(pool: &sqlx::SqlitePool) -> Result<(), String> {
+    let mut missing = Vec::new();
+    for table in ["characters", "accounts"] {
+        let found: Option<(String,)> =
+            sqlx::query_as("SELECT name FROM sqlite_master WHERE type='table' AND name = ?")
+                .bind(table)
+                .fetch_optional(pool)
+                .await
+                .map_err(|e| format!("cannot inspect database schema: {e}"))?;
+        if found.is_none() {
+            missing.push(table);
+        }
+    }
+    if missing.is_empty() {
+        return Ok(());
+    }
+    Err(format!("database is missing required table(s): {}", missing.join(", ")))
+}
+
 async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx: CmdRx, event_tx: EventTx) {
     let pool = match commons::db::init(&url, max_connections).await {
         Ok(p) => p,
@@ -623,6 +647,26 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
             return;
         }
     };
+
+    // `create_if_missing(true)` means a wrong path does not fail — SQLite
+    // happily makes an empty database, and the server then runs against it,
+    // losing every character and account silently. Catch that here rather than
+    // letting it surface hours later as "no such table".
+    //
+    // The usual cause is a relative `URL` interpreted against an unexpected
+    // working directory: the game server no longer chdirs into the datapack,
+    // so `URL` resolves against wherever the process was started — which must
+    // be the same directory the login server runs from.
+    if let Err(e) = verify_schema(&pool).await {
+        error!(
+            "DB thread: {e}\n  URL = {url}\n  resolved against the working directory {}\n\
+             This is not the game database. Start the game server from the same directory as \
+             the login server, or make the URL absolute.",
+            std::env::current_dir().map(|d| d.display().to_string()).unwrap_or_default(),
+        );
+        return;
+    }
+
     let mut next_id = load_next_id(&pool).await;
 
     // Hand the game thread its initial runtime-id block unprompted (it can't

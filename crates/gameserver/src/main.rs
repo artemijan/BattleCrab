@@ -15,7 +15,7 @@ use gameserver::loginlink::{self, LoginLinkConfig, LoginLinkEvent};
 use gameserver::network::connection::{self, NetworkConfig};
 use gameserver::network::NetEvent;
 use tokio::net::TcpListener;
-use tracing::info;
+use tracing::{info, warn};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -27,16 +27,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let server_load_start = Instant::now();
 
-    // The game server runs with `dist/game` as its working directory (Java's
-    // start scripts cd there) so the ini paths resolve unedited. If launched
-    // from the repo root during development, step into it automatically.
-    ensure_datapack_cwd();
+    // Where the datapack lives, as a path *prefix*. The process deliberately
+    // does NOT chdir into it: everything datapack-relative is addressed through
+    // this root, so anything that is not part of the datapack — above all the
+    // SQLite `URL`, which must name the same file as the login server's —
+    // resolves against the directory the server was actually started in.
+    let datapack_root = resolve_datapack_root();
 
     // Java: Config.load(ServerMode.GAME).
-    let config = Config::load();
+    let config = Config::load_from(&datapack_root);
 
     print_section("Data");
-    let mut data = GameData::load();
+    let mut data = GameData::load_from(&datapack_root);
     // Stat ceilings + run-speed boost live in Character.ini; fold them into the
     // read-only data bundle the stat finalizers read (`GameData::combat_caps`).
     data.combat_caps = gameserver::data::CombatCaps {
@@ -194,17 +196,40 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Ensure the working directory is the game datapack (`dist/game`). No-op if the
-/// config is already reachable (i.e. we were launched from `dist/game`).
-fn ensure_datapack_cwd() {
-    if std::path::Path::new(gameserver::config::server::SERVER_CONFIG_FILE).exists() {
-        return;
+/// Locates the datapack and returns it as a path **prefix** (empty, or ending
+/// in `/`) to be joined onto datapack-relative paths.
+///
+/// Explicitly does not change the working directory. The server used to chdir
+/// into `dist/game`, which made every relative path in every ini resolve
+/// against the datapack — including `URL`, the SQLite file shared with the
+/// login server. That is the wrong default for exactly that one setting: the
+/// two servers then need *different* URL strings to name the *same* file, and
+/// making them match silently points the game server at its own empty database
+/// (SQLite creates rather than fails), which surfaces as "no such table".
+///
+/// `DATAPACK_ROOT` overrides the search for deployments that keep the datapack
+/// somewhere other than beside the binary.
+fn resolve_datapack_root() -> String {
+    const CONFIG: &str = gameserver::config::server::SERVER_CONFIG_FILE;
+
+    if let Ok(root) = std::env::var("DATAPACK_ROOT") {
+        let root = if root.ends_with('/') { root } else { format!("{root}/") };
+        info!("GameServer: datapack root from DATAPACK_ROOT: {root}");
+        return root;
     }
-    let datapack = std::path::Path::new("dist/game");
-    if datapack.join(gameserver::config::server::SERVER_CONFIG_FILE).exists() {
-        std::env::set_current_dir(datapack).expect("failed to chdir into dist/game");
-        info!("GameServer: working directory set to dist/game.");
+    // Launched from inside the datapack (the deployed layout).
+    if std::path::Path::new(CONFIG).exists() {
+        return String::new();
     }
+    // Launched from the repo root (the development layout).
+    if std::path::Path::new("dist/game").join(CONFIG).exists() {
+        info!("GameServer: datapack root: dist/game");
+        return "dist/game/".to_string();
+    }
+    // Fall through with an empty root so the config loader reports the missing
+    // file against the working directory, which is where the user expects it.
+    warn!("GameServer: could not locate {CONFIG}; using the working directory.");
+    String::new()
 }
 
 fn print_section(section: &str) {

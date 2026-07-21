@@ -78,7 +78,11 @@ impl Default for GeneralConfig {
 
 impl GeneralConfig {
     pub fn load() -> Self {
-        Self::from_parser(&PropertiesParser::load(GENERAL_CONFIG_FILE))
+        Self::load_from("")
+    }
+
+    pub fn load_from(root: &str) -> Self {
+        Self::from_parser(&PropertiesParser::load(format!("{root}{GENERAL_CONFIG_FILE}")))
     }
 
     /// Parse from an already-loaded `General.ini` (split out so tests can point

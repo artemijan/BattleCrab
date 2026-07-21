@@ -25,10 +25,15 @@ pub struct IpConfig {
 
 impl IpConfig {
     pub fn load() -> Self {
+        Self::load_from("")
+    }
+
+    pub fn load_from(root: &str) -> Self {
+        let path = format!("{root}{IPCONFIG_FILE}");
         let mut cfg = IpConfig { subnets: Vec::new(), hosts: Vec::new() };
-        if std::path::Path::new(IPCONFIG_FILE).exists() {
+        if std::path::Path::new(&path).exists() {
             info!("Network Config: ipconfig.xml exists using manual configuration...");
-            cfg.parse_file();
+            cfg.parse_file(&path);
         } else {
             info!("Network Config: ipconfig.xml doesn't exist using automatic configuration...");
             cfg.auto_ip_config();
@@ -45,11 +50,11 @@ impl IpConfig {
     }
 
     /// `parseDocument`: `<gameserver address="..."><define subnet address/></gameserver>`.
-    fn parse_file(&mut self) {
-        let content = match std::fs::read_to_string(IPCONFIG_FILE) {
+    fn parse_file(&mut self, path: &str) {
+        let content = match std::fs::read_to_string(path) {
             Ok(c) => c,
             Err(e) => {
-                warn!("Network Config: cannot read {IPCONFIG_FILE}: {e}");
+                warn!("Network Config: cannot read {path}: {e}");
                 return;
             }
         };

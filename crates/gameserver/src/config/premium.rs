@@ -50,7 +50,13 @@ impl Default for PremiumConfig {
 
 impl PremiumConfig {
     pub fn load() -> Self {
-        Self::from_parser(&PropertiesParser::load(PREMIUM_SYSTEM_CONFIG_FILE))
+        Self::load_from("")
+    }
+
+    pub fn load_from(root: &str) -> Self {
+        Self::from_parser(&PropertiesParser::load(format!(
+            "{root}{PREMIUM_SYSTEM_CONFIG_FILE}"
+        )))
     }
 
     pub fn from_parser(p: &PropertiesParser) -> Self {

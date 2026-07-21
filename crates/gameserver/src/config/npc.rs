@@ -134,9 +134,13 @@ impl Default for NpcConfig {
 
 impl NpcConfig {
     pub fn load() -> Self {
-        let p = PropertiesParser::load(NPC_CONFIG_FILE);
-        let g = PropertiesParser::load(GENERAL_CONFIG_FILE);
-        let c = PropertiesParser::load(CHARACTER_CONFIG_FILE);
+        Self::load_from("")
+    }
+
+    pub fn load_from(root: &str) -> Self {
+        let p = PropertiesParser::load(format!("{root}{NPC_CONFIG_FILE}"));
+        let g = PropertiesParser::load(format!("{root}{GENERAL_CONFIG_FILE}"));
+        let c = PropertiesParser::load(format!("{root}{CHARACTER_CONFIG_FILE}"));
         let d = Self::default();
         Self {
             default_corpse_time: p.get_int("DefaultCorpseTime", d.default_corpse_time),
