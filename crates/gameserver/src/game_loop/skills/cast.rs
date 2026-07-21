@@ -113,6 +113,7 @@ pub(crate) fn resolve_cast_target(
     caster_target: Option<i32>,
     skill: &Skill,
     ctrl: bool,
+    shift: bool,
 ) -> Result<i32, i16> {
     use server_packets::sm_ids;
 
@@ -120,6 +121,59 @@ pub(crate) fn resolve_cast_target(
         // `None.java`: returns the caster outright. Unlike `Self`, there is no
         // peace-zone gate — a toggle is not an attack on anyone.
         TargetType::None_ => return Ok(caster.object_id),
+        // `Ground.java`: validate the stored ex-0x41 world position and return
+        // the caster as sentinel — the POINT_BLANK sweep re-reads the point.
+        TargetType::Ground => {
+            // Player-only in Java (`creature.isPlayer()`); NPC casters fall
+            // through to null there, and no NPC cast path reaches here.
+            let Some(gp) = world
+                .objects
+                .get_component::<crate::model::components::GroundSkillTarget>(&caster.object_id)
+                .copied()
+            else {
+                // `use_magic_on` already refused the no-position case; this
+                // guards the tick's quiet re-resolve.
+                return Err(sm_ids::INVALID_TARGET);
+            };
+            // `dontMove`: shift-click refuses beyond `castRange + collision
+            // radius` (2D) instead of walking — Java returns null with no
+            // message; the port sends the same SM 748 the shift-refusal of a
+            // creature target uses (visible refusal beats a silent one, and
+            // the general out-of-range branch below never fires for a
+            // self-sentinel target).
+            if shift {
+                let reach = skill.cast_range as f64
+                    + world
+                        .objects
+                        .get_component::<Collision>(&caster.object_id)
+                        .map(|c| c.radius)
+                        .unwrap_or(0.0);
+                let (dx, dy) = ((gp.x - caster_pos.x) as f64, (gp.y - caster_pos.y) as f64);
+                if dx * dx + dy * dy > reach * reach {
+                    return Err(sm_ids::DISTANCE_TOO_FAR_CASTING_CANCELLED);
+                }
+            }
+            if !world.geo.can_see_target(caster_pos.x, caster_pos.y, caster_pos.z, gp.x, gp.y, gp.z) {
+                return Err(sm_ids::CANNOT_SEE_TARGET);
+            }
+            // `ZoneRegion.checkEffectRangeInsidePeaceZone`: a bad ground cast
+            // is refused when its effect circle would clip a peace zone —
+            // Java samples five points (centre + N/S/E/W at `effectRange`).
+            if skill.is_bad() {
+                let r = skill.effect_range;
+                let clips_peace = [(0, 0), (0, r), (0, -r), (r, 0), (-r, 0)].iter().any(|&(ox, oy)| {
+                    world
+                        .data
+                        .zone_data
+                        .zones_at(gp.x + ox, gp.y + oy, gp.z)
+                        .any(|z| z.kind == crate::data::zone_data::ZoneKind::Peace)
+                });
+                if clips_peace {
+                    return Err(sm_ids::YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE);
+                }
+            }
+            return Ok(caster.object_id);
+        }
         // `Self.java`: a bad (offensive) self-target skill is refused inside
         // a peace zone — SM 2167.
         TargetType::Self_ => {
@@ -359,6 +413,42 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
     );
 }
 
+/// Port of `RequestExMagicSkillUseGround` (ex 0x41): store the aimed world
+/// position (Java `Player._currentSkillWorldPosition` — never cleared, only
+/// overwritten), face it ("normally magicskilluse packet turns char client
+/// side but for these skills, it doesn't"), then enter the normal `useMagic`
+/// path — the `Ground.java` target leg resolves the caster as sentinel from
+/// there.
+pub(crate) fn handle_request_magic_skill_use_ground(world: &mut World, client_id: u32, ex_body: &[u8]) {
+    let Some(pkt) = cp::RequestExMagicSkillUseGround::read(ex_body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let object_id = session.player_object_id();
+    world.objects.add_components(
+        &object_id,
+        crate::model::components::GroundSkillTarget { x: pkt.x, y: pkt.y, z: pkt.z },
+    );
+    if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
+        pos.heading = crate::model::movement::calculate_heading(
+            (pkt.x - pos.x) as f64,
+            (pkt.y - pos.y) as f64,
+        );
+    }
+    if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
+        // `Broadcast.toKnownPlayers(player, new ValidateLocation(player))` —
+        // bystanders only, the caster's own client already turned.
+        crate::game_loop::helpers::broadcast_to_others(
+            world,
+            object_id,
+            &server_packets::validate_location(object_id, pos.x, pos.y, pos.z, pos.heading),
+        );
+    }
+    use_magic(world, client_id, object_id, pkt.skill_id, pkt.ctrl_pressed, pkt.shift_pressed);
+}
+
 /// Port of `Player.useMagic`'s guards + `SkillCaster.castSkill`/
 /// `checkUseConditions`, entered from the packet handler and from the
 /// queued-skill replay (`run_queued_action`). Narrowing: no mute/sit/
@@ -508,10 +598,23 @@ pub(crate) fn use_magic_on(
             cs.send(server_packets::action_failed());
         }
         return;
-    } else if skill.operate_type != OperateType::Active {
+    } else if !matches!(skill.operate_type, OperateType::Active | OperateType::Channeling) {
         return;
     }
     if skill.target_type == TargetType::Other {
+        return;
+    }
+    // `useMagic`: a GROUND cast with no stored world position (the client
+    // always sends ex 0x41 first, which stores one) is refused with a bare
+    // ActionFailed — no system message.
+    if skill.target_type == TargetType::Ground
+        && !world
+            .objects
+            .has_component::<crate::model::components::GroundSkillTarget>(&object_id)
+    {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
         return;
     }
 
@@ -595,7 +698,7 @@ pub(crate) fn use_magic_on(
         return;
     };
     let target_oid =
-        match resolve_cast_target(world, player, &caster_pos, caster_target, &skill, ctrl) {
+        match resolve_cast_target(world, player, &caster_pos, caster_target, &skill, ctrl, shift) {
             Ok(oid) => oid,
             Err(sm_id) => {
                 send_sm_and_action_failed(world, client_id, sm_id, &[]);
@@ -638,6 +741,26 @@ pub(crate) fn use_magic_on(
     if v.cur_hp <= skill.hp_consume as f64 {
         send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_HP, &[]);
         return;
+    }
+    // Reagent gate (`SkillCaster.checkUseConditions`): the skill's
+    // `itemConsumeId × itemConsumeCount` must be in inventory — SM 2156.
+    // (Java uses a different message for SUMMON-effect skills; that path is
+    // G29's.) The consume itself happens at cast start (`start_casting`).
+    if skill.item_consume_id > 0 && skill.item_consume_count > 0 {
+        let have = world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&object_id)
+            .map(|inv| inv.count_of(skill.item_consume_id))
+            .unwrap_or(0);
+        if have < skill.item_consume_count as i64 {
+            send_sm_and_action_failed(
+                world,
+                client_id,
+                sm_ids::THERE_ARE_NOT_ENOUGH_NECESSARY_ITEMS_TO_USE_THE_SKILL,
+                &[],
+            );
+            return;
+        }
     }
 
     // Cast-range gate (`SkillCaster.castSkill` returning null → the AI walks
@@ -692,9 +815,10 @@ pub(crate) fn use_magic_on(
 }
 
 /// Port of `SkillCaster.startCasting` (phase 0). Narrowing: no skill mastery,
-/// no `MAGIC_REUSE_RATE` stat (reuse = the skill's `reuseDelay`), no item/
-/// fame/clan-rep consumes, no `stopEffectsOnAction`, no `MoveToPawn`
-/// cosmetic (only `ExRotation` for target facing).
+/// no `MAGIC_REUSE_RATE` stat (reuse = the skill's `reuseDelay`), no fame/
+/// clan-rep consumes (item reagents ARE consumed — see below), no
+/// `stopEffectsOnAction`, no `MoveToPawn` cosmetic (only `ExRotation` for
+/// target facing).
 pub(crate) fn start_casting(
     world: &mut World,
     client_id: u32,
@@ -743,6 +867,29 @@ pub(crate) fn start_casting(
     // Register the reuse (skipped when trivially short, like Java's `> 10`),
     // under the shared group id when the skill has one.
     set_skill_reuse(world, object_id, skill);
+
+    // Reagent consume (`SkillCaster.startCasting`): bad skills and pure
+    // reagents (Java `defaultAction == NONE` — this port's `ActionType::Other`
+    // covers NONE plus values `checkConsume` never branches on) pay at cast
+    // start; usable items pay in their own handler, so scrolls don't consume
+    // twice. Volcano's Magic Symbol 8876 lands here.
+    if skill.item_consume_id > 0 && skill.item_consume_count > 0 {
+        let is_reagent = skill.is_bad()
+            || world
+                .data
+                .item_data
+                .get(skill.item_consume_id)
+                .is_none_or(|t| t.default_action == crate::data::item_data::ActionType::Other);
+        if is_reagent {
+            crate::game_loop::quests::take_items(
+                world,
+                client_id,
+                object_id,
+                skill.item_consume_id,
+                skill.item_consume_count as i64,
+            );
+        }
+    }
 
     // The post-cast raid-curse scan (Java runs it at the tail of the cast, so
     // the skill itself goes off first). Catches a high-level player *helping*
@@ -901,6 +1048,155 @@ pub(crate) fn start_casting(
             cast_seq,
         },
     );
+
+    // `SkillCaster.startCasting`'s channeling hook: the `SkillChannelizer`
+    // fixed-rate task — first fire after `channelingStart`, then every
+    // `channelingTickInterval` (the tick handler re-schedules itself while
+    // the cast lives; `stop_casting` removing `Casting` is Java's
+    // `stopChanneling`, on completion and abort alike).
+    if skill.operate_type == OperateType::Channeling && skill.channeling_tick_ms > 0 {
+        world.scheduler.schedule(
+            world.tick + ms_to_ticks(skill.channeling_start_ms),
+            ScheduledTask::ChannelingTick {
+                player_object_id: object_id,
+                cast_seq,
+            },
+        );
+    }
+}
+
+/// One `SkillChannelizer.run()` tick: MP upkeep (starvation → SM 140 + abort),
+/// re-resolve the target and **re-sweep the affect scope** (a mob that walked
+/// into the volcano mid-channel burns; one that left stops), then apply the
+/// CHANNELING effect scope per target behind Java's `effectRange` + LOS gate.
+/// The `channelingSkillId > 0` branch (stacking "channelized" buffs — hero
+/// stances 426/427) is TODO(G19); no reachable channeler on this dist uses it.
+pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, cast_seq: u64) {
+    use server_packets::sm_ids;
+
+    // Stale guard, like every scheduled cast phase: the tick belongs to one
+    // specific cast generation.
+    let Some(cast) = live_cast(world, player_object_id, cast_seq) else {
+        return;
+    };
+    let Some(skill) = world
+        .data
+        .skill_data
+        .get(cast.skill_id, cast.skill_level)
+        .cloned()
+    else {
+        return;
+    };
+    let client_id = client_for_player(world, player_object_id);
+
+    // MP upkeep. Java: not enough → SM 140 + `abortCast()`, no reschedule.
+    if skill.mp_per_channeling > 0 {
+        let Some(vitals) = world.objects.get_component_mut::<Vitals>(&player_object_id) else {
+            return;
+        };
+        if vitals.cur_mp < skill.mp_per_channeling as f64 {
+            if let Some(cid) = client_id {
+                if let Some(cs) = world.clients.get(&cid) {
+                    cs.send(server_packets::system_message_with(
+                        sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP,
+                        &[],
+                    ));
+                }
+            }
+            abort_cast(world, player_object_id);
+            return;
+        }
+        vitals.cur_mp -= skill.mp_per_channeling as f64;
+        let mp = vitals.cur_mp as i32;
+        if let Some(cid) = client_id {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(server_packets::status_update(
+                    player_object_id,
+                    &[(server_packets::status_update_type::CUR_MP, mp)],
+                ));
+            }
+        }
+        crate::game_loop::party::notify_party_vitals(world, player_object_id);
+    }
+
+    // Re-schedule first (Java's task is fixed-rate): an empty tick — target
+    // gone, nobody in the area — keeps ticking; only the MP abort above and a
+    // finished/aborted cast (the stale guard) end the series.
+    world.scheduler.schedule(
+        world.tick + ms_to_ticks(skill.channeling_tick_ms),
+        ScheduledTask::ChannelingTick {
+            player_object_id,
+            cast_seq,
+        },
+    );
+
+    // Re-resolve the target quietly (`skill.getTarget(_channelizer, false,
+    // false, false)`) and fan back out over the scope.
+    let target_oid = {
+        let Some(player) = world.objects.get_component::<Player>(&player_object_id) else {
+            return;
+        };
+        let Some(pos) = world.objects.get_component::<Position>(&player_object_id).copied() else {
+            return;
+        };
+        match resolve_cast_target(world, player, &pos, Some(cast.target_object_id), &skill, false, false) {
+            Ok(oid) => oid,
+            Err(_) => return, // quiet: skip this tick, keep channeling
+        }
+    };
+    let affected = super::affect::targets_affected(world, player_object_id, target_oid, &skill);
+    if affected.is_empty() || skill.channeling_effects.is_empty() {
+        return;
+    }
+    let Some(caster_pos) = world.objects.get_component::<Position>(&player_object_id).copied() else {
+        return;
+    };
+    let scoped = Skill {
+        effects: skill.channeling_effects.clone(),
+        ..skill.clone()
+    };
+    for target in affected {
+        if target == player_object_id {
+            continue; // the ground sentinel, never a victim of its own cast
+        }
+        if target_state(world, target).is_none() {
+            continue;
+        }
+        // Java's per-target gates: `checkIfInRange(effectRange, …, true)` +
+        // `canSeeTarget(channelizer, creature)`.
+        let Some(pos) = world.objects.get_component::<Position>(&target).copied() else {
+            continue;
+        };
+        if skill.effect_range > 0 {
+            let (dx, dy, dz) = (
+                (pos.x - caster_pos.x) as f64,
+                (pos.y - caster_pos.y) as f64,
+                (pos.z - caster_pos.z) as f64,
+            );
+            let r = skill.effect_range as f64;
+            if dx * dx + dy * dy + dz * dz > r * r {
+                continue;
+            }
+        }
+        if !world
+            .geo
+            .can_see_target(caster_pos.x, caster_pos.y, caster_pos.z, pos.x, pos.y, pos.z)
+        {
+            continue;
+        }
+        // Just `applyChannelingEffects` — Java's simple path runs **no**
+        // per-tick `callSkill` consequences (no flat `-effectPoint` hate, no
+        // PvP flag; those fire once, at cast finish, through the normal
+        // pipeline). NPC aggro still happens: the damage handler itself wakes
+        // whatever it hurts.
+        apply_skill_effects(world, player_object_id, target, &scoped);
+    }
+
+    // Java uncharges + recharges shots each tick; the port's shot model is
+    // recharge-only, so mirror the cast-start call for magic skills.
+    if skill.magic_type == 1 {
+        crate::game_loop::items::recharge_shots(world, player_object_id, false, true);
+    }
 }
 
 /// Every cast-stop path funnels here — Java `SkillCaster.stopCasting`: free

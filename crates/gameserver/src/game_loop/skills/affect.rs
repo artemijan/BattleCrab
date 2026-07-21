@@ -52,6 +52,11 @@ pub(crate) fn targets_affected(world: &mut World, caster_oid: i32, target_oid: i
         // handled") but which is far less disruptive to treat as single-target.
         AffectScope::Single | AffectScope::Other => vec![target_oid],
         AffectScope::Range => sweep_radius(world, caster_oid, target_oid, skill, limit, Centre::Target),
+        // `PointBlank.java` forks on GROUND: the sweep centres on the stored
+        // world position, and the caster sentinel is NOT in the result.
+        AffectScope::PointBlank if skill.target_type == TargetType::Ground => {
+            sweep_ground(world, caster_oid, skill, limit)
+        }
         AffectScope::PointBlank => sweep_radius(world, caster_oid, target_oid, skill, limit, Centre::Caster),
         AffectScope::Party => sweep_group(world, caster_oid, target_oid, skill, limit, Group::Party),
         AffectScope::Pledge => sweep_group(world, caster_oid, target_oid, skill, limit, Group::Clan),
@@ -204,6 +209,58 @@ fn sweep_group(
             continue;
         }
         out.push(member);
+        affected += 1;
+    }
+    out
+}
+
+/// `PointBlank.java`'s GROUND branch — everything within `affect_range` of
+/// the **stored world position** (3D, `isInsideRadius3D(worldPosition, …)`),
+/// with the usual point-blank filter on top.
+///
+/// The result never contains the caster: they are the ground cast's sentinel
+/// "target", Java's world sweep skips its origin object, and no origin test
+/// re-adds them — so a Volcano cannot burn its own caster even with an `ALL`
+/// affect object. A caster with no stored position sweeps nothing (Java's
+/// `worldPosition != null` gate; non-players never have one).
+fn sweep_ground(world: &World, caster_oid: i32, skill: &Skill, limit: i32) -> Vec<i32> {
+    let Some(gp) = world
+        .objects
+        .get_component::<crate::model::components::GroundSkillTarget>(&caster_oid)
+        .copied()
+    else {
+        return Vec::new();
+    };
+    let centre = Position { x: gp.x, y: gp.y, z: gp.z, heading: 0 };
+    // LOS runs `canSeeTarget(target, c)` and the target sentinel is the
+    // caster, so it is measured from the caster's own position.
+    let Some(caster_pos) = world.objects.get_component::<Position>(&caster_oid).copied() else {
+        return Vec::new();
+    };
+
+    let mut out = Vec::new();
+    let mut affected = 0;
+    for candidate in candidates(world, caster_oid) {
+        if candidate == caster_oid {
+            continue; // Java's sweep skips its origin object.
+        }
+        if limit > 0 && affected >= limit {
+            break;
+        }
+        if is_dead(world, candidate) && !corpse_skill(skill) {
+            continue;
+        }
+        let Some(pos) = world.objects.get_component::<Position>(&candidate).copied() else { continue };
+        if !within(&centre, &pos, skill.affect_range) {
+            continue;
+        }
+        if !passes_affect_object(world, caster_oid, candidate, skill.affect_object) {
+            continue;
+        }
+        if !world.geo.can_see_target(caster_pos.x, caster_pos.y, caster_pos.z, pos.x, pos.y, pos.z) {
+            continue;
+        }
+        out.push(candidate);
         affected += 1;
     }
     out

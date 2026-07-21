@@ -317,6 +317,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::CastEnd { player_object_id, cast_seq } => {
                 handle_cast_end(world, player_object_id, cast_seq);
             }
+            ScheduledTask::ChannelingTick { player_object_id, cast_seq } => {
+                skills::cast::handle_channeling_tick(world, player_object_id, cast_seq);
+            }
             ScheduledTask::BuffExpire { player_object_id, skill_id } => {
                 // A re-cast/refresh pushes a fresh instance with a later expiry
                 // and its own `BuffExpire`; only fire when the *current* buff has

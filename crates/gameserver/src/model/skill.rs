@@ -5,8 +5,8 @@
 
 use crate::model::stats::{Stat, StatModifierType};
 
-/// Java `SkillOperateType`, scoped to what G6 dispatches on. Everything else
-/// (`A2 static, `A3`, channeling, …) reads as `Other` and isn't castable yet.
+/// Java `SkillOperateType`, scoped to what the cast pipeline dispatches on.
+/// Everything else (`A3`, `DA*`, …) reads as `Other` and isn't castable yet.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OperateType {
     /// `A1`/`A2`: an active, targeted or self-cast skill with a cast bar.
@@ -15,6 +15,13 @@ pub enum OperateType {
     Passive,
     /// `T`: toggle — out of scope for G6 (see plan's deferred list).
     Toggle,
+    /// `CA1` (`SkillOperateType.isChanneling()`): an active cast whose payload
+    /// is delivered by `channeling_effects` ticks while the cast bar runs
+    /// (Volcano family — PLAN_G19_GROUND_CHANNELING.md). Cast time is
+    /// **static** for these: Java skips `calcSkillTimeFactor` entirely
+    /// (`_hitTime = max(hitTime − cancelTime, 0)`, `_cancelTime = 2866`).
+    /// `CA5` doesn't occur on this dist's reachable content.
+    Channeling,
     Other,
 }
 
@@ -54,6 +61,14 @@ pub enum TargetType {
     /// the target to be **dead**, so the cast pipeline's "no dead targets"
     /// gate is inverted for it.
     NpcBody,
+    /// `GROUND` (`targethandlers/Ground.java`): the cast is aimed at a world
+    /// position stored by `RequestExMagicSkillUseGround` (ex 0x41), not at a
+    /// creature — the handler validates the point (dontMove range, LOS,
+    /// peace-zone effect clip for bad skills) and returns **the caster** as a
+    /// sentinel; the POINT_BLANK sweep then centres on the stored point.
+    /// Player-only: Java returns null for NPC casters, so NPC GROUND skills
+    /// are inert on both sides.
+    Ground,
     /// `SUMMON`: the caster's own summon (Java `targethandlers/Summon.java`).
     ///
     /// **Servitors only.** Java is
@@ -1025,6 +1040,21 @@ pub struct Skill {
     /// `effector.isPlayable() && effected.isPlayable()` → PVP, else neither.
     pub pve_effects: Vec<SkillEffect>,
     pub pvp_effects: Vec<SkillEffect>,
+    /// Java `EffectScope.CHANNELING` (`<channelingEffects>`) — applied by the
+    /// `SkillChannelizer` tick to each swept target while a `CA1` cast runs
+    /// (Volcano's `MagicalAttack power=500`), never at cast finish.
+    pub channeling_effects: Vec<SkillEffect>,
+    /// Java `mpPerChanneling` — MP drained per channeling tick, **defaulting
+    /// to `mpConsume`** (`set.getInt("mpPerChanneling", _mpConsume)`), so a
+    /// channeling skill without the tag still drains. Running dry aborts the
+    /// cast with SM 140.
+    pub mp_per_channeling: i32,
+    /// Java `channelingTickInterval` in ms (XML seconds × 1000; Java defaults
+    /// the raw value to 2000 s — dead for non-channeling skills, and every
+    /// channeler on this dist declares it).
+    pub channeling_tick_ms: i32,
+    /// Java `channelingStart` in ms — delay before the first tick.
+    pub channeling_start_ms: i32,
 }
 impl Default for Skill {
     /// A blank skill: no effects, no costs, single-target, instant.
@@ -1081,6 +1111,10 @@ impl Default for Skill {
             self_effects: Vec::new(),
             pve_effects: Vec::new(),
             pvp_effects: Vec::new(),
+            channeling_effects: Vec::new(),
+            mp_per_channeling: 0,
+            channeling_tick_ms: 0,
+            channeling_start_ms: 0,
         }
     }
 }

@@ -416,15 +416,17 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
 
 /// Which `<*Effects>` block an effect was declared in — Java `EffectScope`.
 ///
-/// `START`, `END` and `CHANNELING` are parsed as [`Self::Other`] and dropped:
-/// they hang off lifecycle hooks this port doesn't have (cast start, buff end,
-/// channelling ticks). See the slice plan for their reach.
+/// `START` and `END` are parsed as [`Self::Other`] and dropped: they hang off
+/// lifecycle hooks this port doesn't have (cast start, buff end). `CHANNELING`
+/// feeds `Skill.channeling_effects`, applied per `ChannelingTick`
+/// (PLAN_G19_GROUND_CHANNELING.md).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum EffectScope {
     General,
     SelfScope,
     Pve,
     Pvp,
+    Channeling,
     Other,
 }
 
@@ -435,6 +437,7 @@ impl EffectScope {
             "selfEffects" => Self::SelfScope,
             "pveEffects" => Self::Pve,
             "pvpEffects" => Self::Pvp,
+            "channelingEffects" => Self::Channeling,
             _ => Self::Other,
         }
     }
@@ -513,6 +516,9 @@ fn finalize_skill(
             Some("A1") | Some("A2") => OperateType::Active,
             Some("P") => OperateType::Passive,
             Some("T") => OperateType::Toggle,
+            // `SkillOperateType.isChanneling()`: CA1. (CA5 doesn't occur on
+            // this dist's reachable content — it stays `Other`.)
+            Some("CA1") => OperateType::Channeling,
             _ => OperateType::Other,
         };
         // Java `SkillOperateType.isContinuous()` — the A2..A6/DA2..DA5 family.
@@ -533,6 +539,7 @@ fn finalize_skill(
             Some("NPC_BODY") => TargetType::NpcBody,
             Some("SUMMON") => TargetType::Summon,
             Some("PC_BODY") => TargetType::PcBody,
+            Some("GROUND") => TargetType::Ground,
             Some("NONE") => TargetType::None_,
             _ => TargetType::Other,
         };
@@ -1437,12 +1444,13 @@ fn finalize_skill(
             })
             .collect::<Vec<_>>();
         // Java keeps one effect list per `EffectScope`; the port carries the
-        // three it can act on. `START`/`END`/`CHANNELING` parse as `Other` and
-        // are dropped — they hang off lifecycle hooks this port doesn't have.
+        // ones it can act on. `START`/`END` parse as `Other` and are dropped —
+        // they hang off lifecycle hooks this port doesn't have.
         let skill_effects = build_scope(EffectScope::General);
         let self_effects = build_scope(EffectScope::SelfScope);
         let pve_effects = build_scope(EffectScope::Pve);
         let pvp_effects = build_scope(EffectScope::Pvp);
+        let channeling_effects = build_scope(EffectScope::Channeling);
 
 
         // Effect names present in the XML but not in `EFFECT_REGISTRY` are
@@ -1498,6 +1506,13 @@ fn finalize_skill(
                 self_effects,
                 pve_effects,
                 pvp_effects,
+                channeling_effects,
+                // Java `set.getInt("mpPerChanneling", _mpConsume)` — the
+                // default is the skill's own mpConsume, not 0.
+                mp_per_channeling: get_i("mpPerChanneling", get_i("mpConsume", 0)),
+                // XML values are seconds; Java stores ms (`getFloat × 1000`).
+                channeling_tick_ms: (get_f("channelingTickInterval", 0.0) * 1000.0) as i32,
+                channeling_start_ms: (get_f("channelingStart", 0.0) * 1000.0) as i32,
             },
         );
     }

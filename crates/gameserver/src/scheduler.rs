@@ -53,6 +53,13 @@ pub enum ScheduledTask {
     /// `SkillCaster.run` end (`stopCasting(false)`), fires `_coolTime` ms
     /// after the finish: the cast slot frees up.
     CastEnd { player_object_id: i32, cast_seq: u64 },
+    /// One `SkillChannelizer.run()` tick of a `CA1` cast (G19,
+    /// PLAN_G19_GROUND_CHANNELING.md): MP upkeep, re-sweep, apply the
+    /// CHANNELING effect scope. Re-schedules itself while the cast (matched
+    /// by `cast_seq`, same stale contract as the other cast phases) lives —
+    /// `stop_casting` removing the `Casting` component is Java's
+    /// `stopChanneling`.
+    ChannelingTick { player_object_id: i32, cast_seq: u64 },
     /// `BuffFinishTask`: an active buff's `abnormalTime` has elapsed.
     BuffExpire { player_object_id: i32, skill_id: i32 },
     /// A `DamOverTime` effect's periodic tick (Java `EffectTickTask`, armed by

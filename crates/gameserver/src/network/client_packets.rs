@@ -148,6 +148,9 @@ pub mod ex_opcodes {
     /// Mobius registers a `null` handler (no packet class), so it is consumed
     /// and ignored.
     pub const EX_SEND_CLIENT_INI: u16 = 0x104;
+    /// `RequestExMagicSkillUseGround` — a GROUND-target cast aimed at a world
+    /// position (G19, PLAN_G19_GROUND_CHANNELING.md).
+    pub const REQUEST_EX_MAGIC_SKILL_USE_GROUND: u16 = 0x41;
     /// Duels (G20) — `RequestDuelStart` / `AnswerStart` / `Surrender`.
     pub const REQUEST_DUEL_START: u16 = 0x1B;
     pub const REQUEST_DUEL_ANSWER_START: u16 = 0x1C;
@@ -593,6 +596,30 @@ impl RequestMagicSkillUse {
         let ctrl_pressed = r.read_i32()? != 0;
         let shift_pressed = r.read_u8().is_some_and(|b| b != 0);
         Some(Self { magic_id, ctrl_pressed, shift_pressed })
+    }
+}
+
+/// Port of `clientpackets/RequestExMagicSkillUseGround` (ex 0x41) — a
+/// `targetType GROUND` cast aimed at a world position (format `dddddc`).
+pub struct RequestExMagicSkillUseGround {
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+    pub skill_id: i32,
+    pub ctrl_pressed: bool,
+    pub shift_pressed: bool,
+}
+
+impl RequestExMagicSkillUseGround {
+    pub fn read(ex_body: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(ex_body);
+        let x = r.read_i32()?;
+        let y = r.read_i32()?;
+        let z = r.read_i32()?;
+        let skill_id = r.read_i32()?;
+        let ctrl_pressed = r.read_i32()? != 0;
+        let shift_pressed = r.read_u8().is_some_and(|b| b != 0);
+        Some(Self { x, y, z, skill_id, ctrl_pressed, shift_pressed })
     }
 }
 
