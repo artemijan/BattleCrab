@@ -130,6 +130,11 @@ mod tests {
             max_login_length: 45,
             login_rate_limit: 10,
             login_rate_window_secs: 300,
+            smtp_host: String::new(),
+            smtp_port: 587,
+            smtp_from: "BattleCrab <no-reply@battlecrab.com>".into(),
+            smtp_username: String::new(),
+            smtp_password: String::new(),
         }
     }
 

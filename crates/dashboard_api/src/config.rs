@@ -26,6 +26,16 @@ pub const SESSION_SECRET_ENV: &str = "DASHBOARD_SESSION_SECRET";
 /// cookies. `openssl rand -hex 32` produces 64.
 pub const MIN_SESSION_SECRET_LEN: usize = 32;
 
+/// SMTP credentials, environment-only for the same reason as the session key:
+/// `Dashboard.ini` is committed, so no secret may live in it.
+///
+/// With Amazon SES these are **SES SMTP credentials** (SES console -> SMTP
+/// settings -> Create SMTP credentials), not AWS access keys. SES derives the
+/// SMTP password from a secret access key; pasting the access key itself is a
+/// common and confusing failure.
+pub const SMTP_USERNAME_ENV: &str = "DASHBOARD_SMTP_USERNAME";
+pub const SMTP_PASSWORD_ENV: &str = "DASHBOARD_SMTP_PASSWORD";
+
 pub struct DashboardConfig {
     pub bind_address: String,
     pub port: u16,
@@ -79,6 +89,20 @@ pub struct DashboardConfig {
     /// §5.2), so throttling is the primary defence against online guessing.
     pub login_rate_limit: u32,
     pub login_rate_window_secs: u64,
+
+    /// SES SMTP endpoint, e.g. `email-smtp.eu-west-1.amazonaws.com`. Empty
+    /// disables email entirely (links are logged instead — see `mail`).
+    pub smtp_host: String,
+    /// 587/25/2587 use STARTTLS; 465/2465 are TLS from the first byte. `mail`
+    /// picks the right mode from this number.
+    pub smtp_port: u16,
+    /// Envelope sender. Must be an identity verified in SES, in production as
+    /// well as in the sandbox.
+    pub smtp_from: String,
+    /// From `DASHBOARD_SMTP_USERNAME` — never the config file.
+    pub smtp_username: String,
+    /// From `DASHBOARD_SMTP_PASSWORD` — never the config file.
+    pub smtp_password: String,
 }
 
 impl DashboardConfig {
@@ -88,6 +112,18 @@ impl DashboardConfig {
         // A secret in the committed ini is ignored, but its presence means one
         // may already have been committed — say so loudly rather than silently
         // doing the right thing.
+        for key in ["SmtpUsername", "SmtpPassword", "SmtpUser"] {
+            if p.contains_key(key) {
+                tracing::error!(
+                    "{} defines {key} — it is IGNORED (SMTP credentials come from ${} / ${} only). \
+                     Remove the key, and rotate the credential if it was ever committed.",
+                    DASHBOARD_CONFIG_FILE,
+                    SMTP_USERNAME_ENV,
+                    SMTP_PASSWORD_ENV,
+                );
+            }
+        }
+
         if p.contains_key("SessionSecret") {
             tracing::error!(
                 "{} defines SessionSecret — it is IGNORED (the secret comes from ${} only). \
@@ -128,6 +164,13 @@ impl DashboardConfig {
 
             login_rate_limit: p.get_int("LoginRateLimit", 10) as u32,
             login_rate_window_secs: p.get_long("LoginRateWindowSecs", 300) as u64,
+
+            smtp_host: p.get_string("SmtpHost", ""),
+            smtp_port: p.get_int("SmtpPort", 587) as u16,
+            smtp_from: p.get_string("SmtpFrom", "BattleCrab <no-reply@battlecrab.com>"),
+            // Secrets: environment only, like the session key.
+            smtp_username: std::env::var(SMTP_USERNAME_ENV).unwrap_or_default(),
+            smtp_password: std::env::var(SMTP_PASSWORD_ENV).unwrap_or_default(),
         }
     }
 }

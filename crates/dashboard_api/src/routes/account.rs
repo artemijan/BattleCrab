@@ -80,8 +80,19 @@ async fn change_email(
     let raw = token::issue_verify_email(&app.key, &account.login, &email);
     // site_base_url: /verify-email is an SPA route, not an API one.
     let link = format!("{}/verify-email?token={raw}", app.config.site_base_url);
-    // TODO(D3): send via lettre once SMTP config lands.
-    tracing::debug!("email verification link for {}: {link}", account.login);
+
+    // Unlike the reset flow there is nothing to hide here — the caller is
+    // authenticated and chose this address — so a delivery failure is reported.
+    // Otherwise the UI would claim "check your inbox" for mail that never left.
+    app.mailer
+        .send_email_verification(&email, &account.login, &link)
+        .await
+        .map_err(|e| {
+            tracing::error!("failed to send verification email for {}: {e}", account.login);
+            ApiError::Internal(crate::error::anyhow_lite::Error(
+                "could not send the verification email".into(),
+            ))
+        })?;
 
     Ok(StatusCode::ACCEPTED)
 }

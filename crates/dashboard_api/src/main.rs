@@ -102,6 +102,17 @@ async fn main() {
     }
 
     let state = Arc::new(App::new(pool, config));
+
+    if !state.mailer.is_enabled() {
+        // Not fatal — the API is fully usable without it — but password reset
+        // and email verification silently do nothing useful, so it must not be
+        // discoverable only by a user never receiving mail.
+        tracing::warn!(
+            "email is DISABLED (SmtpHost / ${} / ${} not all set). Password-reset and              verification links will be written to this log instead of being sent.",
+            dashboard_api::config::SMTP_USERNAME_ENV,
+            dashboard_api::config::SMTP_PASSWORD_ENV,
+        );
+    }
     let app = dashboard_api::app(state);
 
     let listener = match tokio::net::TcpListener::bind(addr).await {
