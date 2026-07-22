@@ -766,6 +766,25 @@ fn finalize_skill(
                         return vec![SkillEffect::BlockActions { conditional }];
                     }
                     "Root" => return vec![SkillEffect::Root],
+                    // The elemental attribute pair (PLAN_G19_ATTRIBUTES.md):
+                    // one flat StatModifier per element named in the
+                    // (comma-separable) `attribute` param, default FIRE —
+                    // Java's `Stat.valueOf(attribute + "_POWER"/"_RES")`.
+                    "AttackAttribute" | "DefenceAttribute" => {
+                        let Some(amount) = param("amount") else { return Vec::new() };
+                        let defence = xml_name.as_str() == "DefenceAttribute";
+                        return value_at(params, "attribute", level)
+                            .unwrap_or("FIRE")
+                            .split(',')
+                            .filter_map(|n| crate::model::stats::Element::from_xml(n.trim()))
+                            .map(|el| {
+                                stat_mod(
+                                    if defence { el.res_stat() } else { el.power_stat() },
+                                    amount,
+                                )
+                            })
+                            .collect();
+                    }
                     // Polearm Mastery 216: `HitNumber` is a plain
                     // AbstractStatEffect over ATTACK_COUNT_MAX (amount 5).
                     "HitNumber" => {
@@ -1448,14 +1467,15 @@ fn finalize_skill(
                         vec![SkillEffect::DamageBlock { block_hp: ty == Some("BLOCK_HP"), block_mp: ty == Some("BLOCK_MP") }]
                     }
                     // Community-board dance/song buffs whose combat/cost math
-                    // isn't modeled yet — Dance of Light (277, `AttackAttribute`),
-                    // Song of Champion/Renewal (`MagicMpCost`/`Reuse`), Gift of
-                    // Seraphim (4703, `Reuse`), Song of Vengeance (305,
-                    // `DamageShield`). Each maps to a per-magic-type or element
-                    // stat the port doesn't have, so carry an icon-only marker
-                    // (like `DefenceTrait`) rather than dropping the buff whole at
-                    // the empty-effects guard — the buff must show and expire.
-                    "AttackAttribute" => vec![SkillEffect::AttackAttribute],
+                    // isn't modeled yet — Song of Champion/Renewal
+                    // (`MagicMpCost`/`Reuse`), Gift of Seraphim (4703, `Reuse`),
+                    // Song of Vengeance (305, `DamageShield`). Each maps to a
+                    // per-magic-type stat the port doesn't have, so carry an
+                    // icon-only marker (like `DefenceTrait`) rather than
+                    // dropping the buff whole at the empty-effects guard — the
+                    // buff must show and expire. (`AttackAttribute` graduated
+                    // to a real element-POWER modifier in the G19 attributes
+                    // slice; its arm above wins.)
                     "MagicMpCost" => vec![SkillEffect::MagicMpCost],
                     "Reuse" => vec![SkillEffect::Reuse],
                     "DamageShield" => vec![SkillEffect::DamageShield],
@@ -1558,6 +1578,12 @@ fn finalize_skill(
                 // XML values are seconds; Java stores ms (`getFloat × 1000`).
                 channeling_tick_ms: (get_f("channelingTickInterval", 0.0) * 1000.0) as i32,
                 channeling_start_ms: (get_f("channelingStart", 0.0) * 1000.0) as i32,
+                // `<attributeType>FIRE</attributeType>` + `<attributeValue>20`
+                // — the skill's element for `calcAttributeBonus`. `NONE` and
+                // unknown names read as no element, like Java's enum default.
+                attribute_type: value_at(values, "attributeType", level)
+                    .and_then(crate::model::stats::Element::from_xml),
+                attribute_value: get_i("attributeValue", 0),
             },
         );
     }
@@ -2245,9 +2271,15 @@ mod tests {
         parse_str(xml, &mut out);
 
         let dol = out.get(&(277, 1)).expect("Dance of Light parsed");
+        // `AttackAttribute` graduated from icon-only marker to a real element
+        // POWER modifier in the G19 attributes slice.
         assert!(
-            matches!(dol.effects.as_slice(), [SkillEffect::AttackAttribute]),
-            "AttackAttribute is not dropped"
+            matches!(
+                dol.effects.as_slice(),
+                [SkillEffect::StatModifier(StatModifierEffect { stat: Stat::HolyPower, amount, .. })] if *amount == 20.0
+            ),
+            "Dance of Light grants HolyPower +20: {:?}",
+            dol.effects
         );
         let soc = out.get(&(8547, 1)).expect("Song of Champion parsed");
         assert!(

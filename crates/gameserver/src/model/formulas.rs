@@ -1,12 +1,13 @@
 //! Port of `model/stats/Formulas.java`, scoped to what the single-target cast
 //! pipeline needs: magic damage, magic crit, cast timing, heal, and the
 //! cast-break-on-hit roll. Every function documents the Java method it ports
-//! and which terms are dropped. The dropped terms are all identity values for
-//! an unarmed, shotless player with no trait/attribute stats — the only kind
-//! of actor that exists so far: `SHOTS_BONUS`/spiritshots (1.0/absent),
-//! trait/weakness/attribute mods (1.0), `SKILL_POWER_ADD` (0),
+//! and which terms are dropped. The dropped terms are identity values for
+//! an unarmed, shotless player with no trait stats: `SHOTS_BONUS`/spiritshots
+//! (1.0/absent), trait/weakness mods (1.0), `SKILL_POWER_ADD` (0),
 //! `RANDOM_DAMAGE` (weapon-supplied, unarmed = 0 → randomMod 1.0),
 //! pvp/pve config multipliers (1.0 by default), `MAGICAL_SKILL_POWER` (1.0).
+//! The **attribute mod is real** since the G19 attributes slice
+//! ([`calc_attribute_bonus`]) — callers multiply it in at Java's spots.
 
 use crate::data::GameData;
 use crate::model::skill::Skill;
@@ -274,8 +275,8 @@ fn java_round_float(v: f64) -> i32 {
 /// `magicLevel <= -1` falls back to `targetLevel + 3` (Java). `activateRate == -1`
 /// means the debuff always lands → 100. The 10/90 clamp is dist `Character.ini`'s
 /// Min/MaxAbnormalStateSuccessRate (no Interlude skill overrides minChance/maxChance).
-/// TODO(G16): fold in the element/trait/`ABNORMAL_RESIST_*`/`RESIST_ABNORMAL_DEBUFF`/
-/// `BasicPropertyResist` bonuses once those stats land.
+/// TODO(G16): fold in the trait/`ABNORMAL_RESIST_*`/`BasicPropertyResist`
+/// bonuses once those stats land (element + `RESIST_ABNORMAL_DEBUFF` are in).
 pub fn calc_effect_land_rate(
     magic_level: i32,
     activate_rate: i32,
@@ -286,17 +287,37 @@ pub fn calc_effect_land_rate(
     // vulnerable (Touch of Death). Callers pass 1.0 for a non-debuff skill,
     // which is what Java's `skill.isDebuff() ? … : 1` does.
     debuff_resist_mod: f64,
+    // `calcAttributeBonus` for the skill's element (Java's `elementMod`) —
+    // an elemental debuff lands more easily on a target weak to its element.
+    // 1.0 when neither side carries the element.
+    element_mod: f64,
 ) -> f64 {
     if activate_rate == -1 {
         return 100.0;
     }
     let magic_level = if magic_level <= -1 { target_level + 3 } else { magic_level };
     let base_mod = (magic_level - target_level + 3) * lvl_bonus_rate + activate_rate + 30;
-    // Java multiplies the raw rate by the resist mod and clamps *after*
-    // (`constrain(baseMod * … * buffDebuffMod, minChance, maxChance)`), so a
-    // heavy resistance can pull an otherwise-capped debuff below the 90 ceiling
-    // but never under the 10 floor.
-    (base_mod as f64 * debuff_resist_mod).clamp(10.0, 90.0)
+    // Java multiplies the raw rate by the mods and clamps *after*
+    // (`constrain(baseMod * elementMod * … * buffDebuffMod, minChance,
+    // maxChance)`), so heavy resistance can pull an otherwise-capped debuff
+    // below the 90 ceiling but never under the 10 floor.
+    (base_mod as f64 * element_mod * debuff_resist_mod).clamp(10.0, 90.0)
+}
+
+/// `Formulas.calcAttributeBonus`'s arithmetic tail (PLAN_G19_ATTRIBUTES.md):
+/// `diff = attack − defence`; a positive gap scales up as
+/// `min(1.025 + √(diff³/2)·0.0001, 1.25)`, a negative one down as
+/// `max(0.975 − √(−diff³/2)·0.0001, 0.75)`, zero is exactly 1. Note the
+/// discontinuity at ±1 (1.0 jumps past 1.025) — Java's, kept.
+pub fn calc_attribute_bonus(attack: f64, defence: f64) -> f64 {
+    let diff = attack - defence;
+    if diff > 0.0 {
+        (1.025 + ((diff.powi(3) / 2.0).sqrt() * 0.0001)).min(1.25)
+    } else if diff < 0.0 {
+        (0.975 - (((-diff).powi(3) / 2.0).sqrt() * 0.0001)).max(0.75)
+    } else {
+        1.0
+    }
 }
 
 /// `Formulas.calcAtkSpdMultiplier` (armorBonus = 1). The "weapon base" attack
@@ -868,14 +889,14 @@ mod tests {
     #[test]
     fn effect_land_rate_clamps_and_special_cases() {
         // (35 - 5 + 3)·30 + 80 + 30 = 1100 → clamp to 90.
-        assert!((calc_effect_land_rate(35, 80, 30, 5, 1.0) - 90.0).abs() < 1e-9);
+        assert!((calc_effect_land_rate(35, 80, 30, 5, 1.0, 1.0) - 90.0).abs() < 1e-9);
         // (35 - 80 + 3)·30 + 80 + 30 = -1150 → clamp to 10.
-        assert!((calc_effect_land_rate(35, 80, 30, 80, 1.0) - 10.0).abs() < 1e-9);
+        assert!((calc_effect_land_rate(35, 80, 30, 80, 1.0, 1.0) - 10.0).abs() < 1e-9);
         // activateRate -1 → guaranteed.
-        assert!((calc_effect_land_rate(35, -1, 30, 5, 1.0) - 100.0).abs() < 1e-9);
+        assert!((calc_effect_land_rate(35, -1, 30, 5, 1.0, 1.0) - 100.0).abs() < 1e-9);
         // magicLevel <= -1 falls back to targetLevel + 3, so the level term is
         // (23 - 20 + 3) = 6: 6·5 + 10 + 30 = 70.
-        assert!((calc_effect_land_rate(-1, 10, 5, 20, 1.0) - 70.0).abs() < 1e-9);
+        assert!((calc_effect_land_rate(-1, 10, 5, 20, 1.0, 1.0) - 70.0).abs() < 1e-9);
     }
 
     /// Good skills cap the per-mille rate at 320, bad skills at 200; the

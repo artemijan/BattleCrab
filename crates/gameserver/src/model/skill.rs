@@ -702,14 +702,6 @@ pub enum SkillEffect {
     /// `npc_receive_damage`); `MP_BLOCK` doesn't, matching Java's own dead
     /// `isMpBlocked()`.
     DamageBlock { block_hp: bool, block_mp: bool },
-    /// `handlers/effecthandlers/AttackAttribute.java` — adds `amount` to the
-    /// target's `<attribute>_POWER` attack-element stat (`mergeAdd`). Backs the
-    /// elemental dance/song buffs (Dance of Light 277 → HOLY, …). Attribute-based
-    /// attack math isn't modeled yet, so like `VampiricAttack` this carries no
-    /// stat modifier and lands as an icon-only timed `ActiveBuff` (abnormal +
-    /// duration honored) so the buff shows and expires.
-    /// TODO(G16): apply the attack-element power in the elemental damage math.
-    AttackAttribute,
     /// `handlers/effecthandlers/MagicMpCost.java` — multiplies the target's
     /// MP-consume rate for a given `magicType` (`mergeMpConsumeTypeValue`, factor
     /// `amount/100 + 1`). Backs the MP-cost-reduction songs (Song of Champion
@@ -1068,6 +1060,12 @@ pub struct Skill {
     /// of the **caster** exist (`is_around`) / don't exist (`!is_around`).
     /// The symbol skills use it to stop you re-casting next to a live seal.
     pub op_exist_npc: Option<OpExistNpcCondition>,
+    /// Java `<attributeType>`/`<attributeValue>` — the skill's element and its
+    /// flat attack contribution (Volcano is FIRE 20). Feeds
+    /// `Formulas.calcAttributeBonus`'s attack side; `None` = no element, and
+    /// the attacker's strongest POWER stat elects the element instead.
+    pub attribute_type: Option<crate::model::stats::Element>,
+    pub attribute_value: i32,
 }
 
 /// See [`Skill::op_exist_npc`].
@@ -1137,6 +1135,8 @@ impl Default for Skill {
             channeling_tick_ms: 0,
             channeling_start_ms: 0,
             op_exist_npc: None,
+            attribute_type: None,
+            attribute_value: 0,
         }
     }
 }

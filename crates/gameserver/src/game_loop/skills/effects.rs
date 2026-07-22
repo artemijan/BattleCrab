@@ -130,6 +130,8 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 };
                 let m_def = target_m_def(world, target_oid);
                 let failure = roll_magic_failure(world, caster_oid, target_oid, skill, false);
+                // `calcMagicDam`'s `attributeMod` term (Volcano's FIRE 20 vs
+                // the target's fire resistance).
                 let damage = formulas::calc_magic_dam(
                     m_atk,
                     m_def,
@@ -138,7 +140,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
                     magic_shots_bonus,
                     failure,
-                );
+                ) * attribute_mod(world, caster_oid, target_oid, skill);
                 apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false);
             }
             // The MP-restore family (`ManaHeal`, `ManaHealByLevel`,
@@ -370,6 +372,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 let p_def = target_p_def(world, target_oid);
                 let crit = formulas::calc_physical_skill_crit(*critical_chance, str_bonus, world.roll(100));
                 let rand_roll = if random_dmg > 0 { world.roll(2 * random_dmg + 1) - random_dmg } else { 0 };
+                // `PhysicalAttack.instant`'s `attributeMod` term.
                 let damage = formulas::calc_physical_skill_damage(
                     p_atk,
                     *p_atk_mod,
@@ -381,7 +384,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     crit,
                     crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
                     ss,
-                );
+                ) * attribute_mod(world, caster_oid, target_oid, skill);
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false);
             }
             SkillEffect::Blow { power, chance_boost, critical_chance, backstab } => {
@@ -452,6 +455,8 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     formulas::random_damage_multiplier(rand_roll),
                     ss,
                 );
+                // `calcBlowDamage`'s `attributeMod` term.
+                damage *= attribute_mod(world, caster_oid, target_oid, skill);
                 // FatalBlow/Backstab double on a `calcCrit` roll; SoulBlow
                 // (`critical_chance == None`) doesn't.
                 if let Some(cc) = critical_chance {
@@ -493,7 +498,10 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 // parameters (`"Lethal Strike!"`, `"Half-Kill!"`, …).
                 let caster_client = client_for_player(world, caster_oid);
                 let is_player_target = world.objects.get_component::<crate::model::Player>(&target_oid).is_some();
-                if world.roll(100) < (*full_lethal) as i32 {
+                // `Lethal.instant`'s `chanceMultiplier` — the attribute half
+                // (its trait half stays unported with the trait system).
+                let lethal_amod = attribute_mod(world, caster_oid, target_oid, skill);
+                if world.roll(100) < ((*full_lethal) as f64 * lethal_amod) as i32 {
                     if is_player_target {
                         if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&target_oid) {
                             v.cur_cp = 1.0;
@@ -517,7 +525,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                             cs.send(server_packets::system_message_with(sm_ids::HIT_WITH_LETHAL_STRIKE, &[]));
                         }
                     }
-                } else if world.roll(100) < (*half_lethal) as i32 {
+                } else if world.roll(100) < ((*half_lethal) as f64 * lethal_amod) as i32 {
                     if is_player_target {
                         if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&target_oid) {
                             v.cur_cp = 1.0;
@@ -563,7 +571,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
                     magic_shots_bonus,
                     failure,
-                );
+                ) * attribute_mod(world, caster_oid, target_oid, skill);
 
                 // `HpDrain.instant()`: the drained HP is what's actually removed
                 // — CP absorbs first (player targets only; NPCs have no CP),
@@ -821,7 +829,9 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                     crit,
                     crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
                     ss,
-                ) * energy_charges_boost;
+                ) * energy_charges_boost
+                    // `EnergyAttack.instant`'s `attributeMod` term.
+                    * attribute_mod(world, caster_oid, target_oid, skill);
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false);
             }
             SkillEffect::GiveItem { item_id, item_count, item_enchant_level } => {
@@ -1257,14 +1267,13 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             // real server too (see its doc comment) — nothing to model.
             // TODO(G16/G20): honor the trait-defense and HP-absorb effects.
             SkillEffect::DefenceTrait | SkillEffect::VampiricAttack | SkillEffect::AttackTrait => {}
-            // Community-board dance/song buffs (Dance of Light, Song of Champion/
-            // Renewal/Vengeance, Gift of Seraphim): no instant action — they land
+            // Community-board dance/song buffs (Song of Champion/Renewal/
+            // Vengeance, Gift of Seraphim): no instant action — they land
             // purely as icon-only timed buffs (kept off the empty-`buff_effects`
-            // bail via `has_iconless_buff`). Their real mechanics (attack element /
-            // MP-consume rate / reuse rate / damage reflect) aren't modeled yet.
-            // TODO(G16/G20): honor the element/MP-cost/reuse/reflect effects.
-            SkillEffect::AttackAttribute
-            | SkillEffect::MagicMpCost
+            // bail via `has_iconless_buff`). Their real mechanics (MP-consume
+            // rate / reuse rate / damage reflect) aren't modeled yet.
+            // TODO(G16/G20): honor the MP-cost/reuse/reflect effects.
+            SkillEffect::MagicMpCost
             | SkillEffect::Reuse
             | SkillEffect::DamageShield => {}
         }
@@ -1346,7 +1355,6 @@ pub(crate) fn apply_continuous_effects(
             SkillEffect::ProtectionBlessing
                 | SkillEffect::DefenceTrait
                 | SkillEffect::VampiricAttack
-                | SkillEffect::AttackAttribute
                 | SkillEffect::MagicMpCost
                 | SkillEffect::Reuse
                 | SkillEffect::DamageShield
@@ -1388,6 +1396,9 @@ pub(crate) fn apply_continuous_effects(
             skill.lvl_bonus_rate,
             target_level,
             debuff_resist_mod,
+            // `calcEffectSuccess`'s `elementMod` — an elemental debuff lands
+            // more easily on a target weak to its element.
+            attribute_mod(world, caster_oid, target_oid, skill),
         );
         // Java: resisted when `finalRate <= Rnd.get(100)` (0-99). Roll before the
         // message so the outcome line reflects it and the roll order stays stable.
@@ -2475,6 +2486,77 @@ fn target_p_def(world: &World, target_oid: i32) -> f64 {
         return p_def;
     }
     1.0
+}
+
+/// `Formulas.calcAttributeBonus(attacker, target, skill)` — the elemental
+/// damage/land-rate multiplier (PLAN_G19_ATTRIBUTES.md). With a skill element
+/// (Volcano FIRE 20): attacker's matching POWER stat + the skill's value vs
+/// the target's matching RES. Without one, the attacker's **strongest POWER
+/// stat elects the element** (Java `CreatureStat.getAttackElement`'s "temp
+/// fix" scan) — which is how Holy Weapon colors an attribute-less skill holy.
+/// Nothing elected (both sides bare) → 1.0.
+pub(crate) fn attribute_mod(world: &World, caster_oid: i32, target_oid: i32, skill: &Skill) -> f64 {
+    use crate::model::stats::Element;
+    let (attack, element) = match skill.attribute_type {
+        Some(el) => (element_stat(world, caster_oid, el, false) + skill.attribute_value as f64, el),
+        None => {
+            let mut best: Option<(Element, f64)> = None;
+            for el in Element::ALL {
+                let v = element_stat(world, caster_oid, el, false);
+                if v > best.map_or(0.0, |(_, b)| b) {
+                    best = Some((el, v));
+                }
+            }
+            match best {
+                Some((el, v)) => (v, el),
+                None => return 1.0,
+            }
+        }
+    };
+    let defence = element_stat(world, target_oid, element, true);
+    crate::model::formulas::calc_attribute_bonus(attack, defence)
+}
+
+/// One element stat (`*_POWER` / `*_RES`) read the `AttributeFinalizer` way:
+/// template base (NPCs — players have none), then the merged modifiers.
+/// Players read their rebuilt `StatModifiers`; NPCs keep none, so their
+/// active buffs are folded on read (the abnormal-flags pattern) — which is
+/// what lets Day of Doom's −50s bite a mob.
+fn element_stat(world: &World, oid: i32, element: crate::model::stats::Element, defence: bool) -> f64 {
+    let stat = if defence { element.res_stat() } else { element.power_stat() };
+    let base = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&oid)
+        .and_then(|n| n.template(world))
+        .map(|t| {
+            if defence {
+                t.base_element_res[element.index()] as f64
+            } else {
+                match t.base_attack_element {
+                    Some((el, v)) if el == element => v as f64,
+                    _ => 0.0,
+                }
+            }
+        })
+        .unwrap_or(0.0);
+    if let Some(mods) = world.objects.get_component::<crate::model::components::StatModifiers>(&oid) {
+        return base * mods.mul.get(&stat).copied().unwrap_or(1.0) + mods.add.get(&stat).copied().unwrap_or(0.0);
+    }
+    // NPC: fold the active buffs' stat modifiers for this stat.
+    let (mut add, mut mul) = (0.0, 1.0);
+    if let Some(buffs) = world.objects.get_component::<Buffs>(&oid) {
+        for b in &buffs.0 {
+            for m in &b.effects {
+                if m.stat == stat {
+                    match m.mode {
+                        crate::model::stats::StatModifierType::Diff => add += m.amount,
+                        crate::model::stats::StatModifierType::Per => mul *= 1.0 + m.amount / 100.0,
+                    }
+                }
+            }
+        }
+    }
+    base * mul + add
 }
 
 fn target_m_def(world: &World, target_oid: i32) -> f64 {
