@@ -1066,6 +1066,9 @@ pub struct Skill {
     /// the attacker's strongest POWER stat elects the element instead.
     pub attribute_type: Option<crate::model::stats::Element>,
     pub attribute_value: i32,
+    /// The enchant sub-level this instance was built for (0 = unenchanted;
+    /// 1001–3020 = an enchant-route step — PLAN_G19_SKILL_ENCHANT.md).
+    pub sub_level: i32,
 }
 
 /// See [`Skill::op_exist_npc`].
@@ -1137,6 +1140,7 @@ impl Default for Skill {
             op_exist_npc: None,
             attribute_type: None,
             attribute_value: 0,
+            sub_level: 0,
         }
     }
 }

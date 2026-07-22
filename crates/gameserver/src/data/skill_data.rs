@@ -95,6 +95,21 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
 
 pub struct SkillData {
     skills: HashMap<(i32, i32), Skill>,
+    /// The enchanted variants, keyed `(id, level, subLevel)` — Java pre-builds
+    /// one `Skill` per declared sub-level (routes 1001–1020 / 2001–2020 /
+    /// 3001–3020) exactly like this (PLAN_G19_SKILL_ENCHANT.md).
+    enchanted: HashMap<(i32, i32, i32), Skill>,
+    /// `EnchantSkillGroupsData`'s route map: which sub-level ranges each
+    /// `(id, level)` can enchant into. Non-empty = `Skill.isEnchantable()`.
+    routes: HashMap<(i32, i32), Vec<(i32, i32)>>,
+}
+
+/// The three maps one parse pass fills (skills + enchanted variants + routes).
+#[derive(Default)]
+pub(crate) struct ParsedSkills {
+    pub(crate) skills: HashMap<(i32, i32), Skill>,
+    pub(crate) enchanted: HashMap<(i32, i32, i32), Skill>,
+    pub(crate) routes: HashMap<(i32, i32), Vec<(i32, i32)>>,
 }
 
 impl SkillData {
@@ -103,22 +118,42 @@ impl SkillData {
     }
 
     pub fn load_from(file_path: &str) -> Self {
-        let mut skills = HashMap::new();
+        let mut out = ParsedSkills::default();
         if let Ok(dir) = std::fs::read_dir(format!("{file_path}{SKILLS_DIR}")) {
             for entry in dir.flatten() {
                 let path = entry.path();
                 if path.extension().and_then(|e| e.to_str()) != Some("xml") {
                     continue;
                 }
-                parse_file(&path, &mut skills);
+                parse_file(&path, &mut out);
             }
         }
-        info!("SkillData: Loaded {} skill levels.", skills.len());
-        Self { skills }
+        info!(
+            "SkillData: Loaded {} skill levels (+{} enchanted variants, {} enchantable).",
+            out.skills.len(),
+            out.enchanted.len(),
+            out.routes.len()
+        );
+        Self { skills: out.skills, enchanted: out.enchanted, routes: out.routes }
     }
 
     pub fn get(&self, id: i32, level: i32) -> Option<&Skill> {
         self.skills.get(&(id, level))
+    }
+
+    /// The skill at an enchant sub-level (`sub <= 0` = the plain skill).
+    pub fn get_enchanted(&self, id: i32, level: i32, sub: i32) -> Option<&Skill> {
+        if sub <= 0 {
+            self.get(id, level)
+        } else {
+            self.enchanted.get(&(id, level, sub))
+        }
+    }
+
+    /// The enchant routes available to `(id, level)` as `(first, last)`
+    /// sub-level bounds — empty for a non-enchantable skill.
+    pub fn enchant_routes(&self, id: i32, level: i32) -> &[(i32, i32)] {
+        self.routes.get(&(id, level)).map(Vec::as_slice).unwrap_or(&[])
     }
 
     /// Java `SkillData.getMaxLevel(id)` — the highest loaded level for a skill
@@ -153,7 +188,7 @@ impl SkillData {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { skills: HashMap::new() }
+        Self { skills: HashMap::new(), enchanted: HashMap::new(), routes: HashMap::new() }
     }
 
     #[doc(hidden)]
@@ -172,7 +207,7 @@ fn value_at<'a>(values: &'a LeveledValues, field: &str, level: i32) -> Option<&'
     table.get(&level).or_else(|| table.get(&0)).map(String::as_str)
 }
 
-fn parse_file(path: &std::path::Path, out: &mut HashMap<(i32, i32), Skill>) {
+fn parse_file(path: &std::path::Path, out: &mut ParsedSkills) {
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
     };
@@ -193,7 +228,38 @@ fn effect_level_attrs(e: &quick_xml::events::BytesStart) -> (Option<i32>, Option
     )
 }
 
-fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
+/// One `<value fromLevel toLevel [fromSubLevel toSubLevel]>` ranged row —
+/// held raw and resolved per (level, sub) at finalize, where the `{…}`
+/// expression variables (`base`/`index`/`subIndex`) are known.
+#[derive(Debug, Clone)]
+struct RangedRow {
+    from_level: i32,
+    to_level: i32,
+    /// 0 for a plain per-level row; ≥ 1001 for an enchant-route row.
+    from_sub: i32,
+    to_sub: i32,
+    text: String,
+}
+
+/// The ranged bounds off a `<value>` tag, `None` for a plain `level=`-keyed
+/// (or bare) row. `fromLevel` defaults to 1 and `toLevel` to "all levels",
+/// matching Java's `parseValues` defaults.
+fn ranged_bounds(e: &quick_xml::events::BytesStart) -> Option<RangedRow> {
+    let from_level = attr_i32(e, b"fromLevel");
+    let from_sub = attr_i32(e, b"fromSubLevel");
+    if from_level.is_none() && from_sub.is_none() {
+        return None;
+    }
+    Some(RangedRow {
+        from_level: from_level.unwrap_or(1),
+        to_level: attr_i32(e, b"toLevel").unwrap_or(i32::MAX),
+        from_sub: from_sub.unwrap_or(0),
+        to_sub: attr_i32(e, b"toSubLevel").or(from_sub).unwrap_or(0),
+        text: String::new(),
+    })
+}
+
+fn parse_str(content: &str, out: &mut ParsedSkills) {
     let mut reader = Reader::from_str(content);
 
     // Current `<skill>` being built (id/name/toLevel + the generic field map).
@@ -221,6 +287,11 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
     let mut cur_cond_range: i32 = 0;
     let mut cur_cond_is_around = false;
     let mut op_exist_npc: Option<crate::model::skill::OpExistNpcCondition> = None;
+    // Ranged `<value>` rows (fromLevel/fromSubLevel bounds) — collected raw
+    // per skill field / effect param, resolved at finalize.
+    let mut pending_range: Option<RangedRow> = None;
+    let mut field_rows: HashMap<String, Vec<RangedRow>> = HashMap::new();
+    let mut cur_effect_sub_params: HashMap<String, Vec<RangedRow>> = HashMap::new();
     let mut cur_effect_name: Option<String> = None;
     let mut cur_effect_params: LeveledValues = HashMap::new();
     let mut cur_effect_mode = String::from("DIFF");
@@ -274,6 +345,7 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                             scope: cur_scope,
                             name: effect_name,
                             params: HashMap::new(),
+                            sub_params: HashMap::new(),
                             mode: String::from("DIFF"),
                             groups: Vec::new(),
                             armor_condition: 0,
@@ -304,6 +376,8 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                     in_effects = false;
                     in_conditions = false;
                     op_exist_npc = None;
+                    field_rows.clear();
+                    pending_range = None;
                 } else if path.len() == 1 {
                     cur_field = name.clone();
                     // Any `<*Effects>` block opens the effect section; which one
@@ -316,6 +390,7 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                     }
                 } else if path.len() == 2 && name == "value" && !in_effects && !in_conditions {
                     pending_level = attr_i32(&e, b"level").unwrap_or(0);
+                    pending_range = ranged_bounds(&e);
                 } else if path.len() == 2 && in_conditions && name == "condition" {
                     cur_cond_name = attr_str(&e, b"name");
                     cur_cond_npc_ids = Vec::new();
@@ -331,10 +406,12 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                     cur_effect_armor = 0;
                     cur_effect_weapon = 0;
                     cur_restoration_groups = Vec::new();
+                    cur_effect_sub_params = HashMap::new();
                 } else if path.len() == 3 && in_effects {
                     cur_effect_field = name.clone();
                 } else if path.len() == 4 && in_effects && name == "value" {
                     pending_level = attr_i32(&e, b"level").unwrap_or(0);
+                    pending_range = ranged_bounds(&e);
                 } else if path.len() == 4 && in_effects && cur_effect_field == "items" && name == "item" {
                     // `RestorationRandom`'s outer `<item chance="30">` group tag.
                     cur_group_chance = attr_f64(&e, b"chance").unwrap_or(0.0);
@@ -379,6 +456,13 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                         4 => {
                             cur_effect_params.entry(cur_effect_field.clone()).or_default().insert(0, text.to_string());
                         }
+                        // `<effect><param><value fromLevel=… [fromSubLevel=…]>`
+                        // — a ranged (possibly computed) row.
+                        5 if pending_range.is_some() => {
+                            let mut row = pending_range.take().expect("checked");
+                            row.text = text.to_string();
+                            cur_effect_sub_params.entry(cur_effect_field.clone()).or_default().push(row);
+                        }
                         // `<effect><param><value level="N">...`
                         5 => {
                             cur_effect_params
@@ -394,6 +478,16 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                         2 => {
                             values.entry(cur_field.clone()).or_default().insert(0, text.to_string());
                         }
+                        // `<field><value fromLevel=… [fromSubLevel=…]>` — a
+                        // ranged (possibly computed) row. Before this branch
+                        // these rows fell into the level-0 slot below, where
+                        // the last row's `{…}` text clobbered the field's
+                        // scalar fallback.
+                        3 if pending_range.is_some() => {
+                            let mut row = pending_range.take().expect("checked");
+                            row.text = text.to_string();
+                            field_rows.entry(cur_field.clone()).or_default().push(row);
+                        }
                         // `<field><value level="N">...`
                         3 => {
                             values.entry(cur_field.clone()).or_default().insert(pending_level, text.to_string());
@@ -405,7 +499,7 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
             Ok(Event::End(_)) => {
                 let closed = path.pop().unwrap_or_default();
                 if closed == "skill" {
-                    finalize_skill(skill_id, &skill_name, to_level, &values, &effects, &op_exist_npc, out);
+                    finalize_skill(skill_id, &skill_name, to_level, &values, &effects, &field_rows, &op_exist_npc, out);
                     skill_id = -1;
                 } else if closed.ends_with("ffects") {
                     in_effects = false;
@@ -431,6 +525,7 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                             scope: cur_scope,
                             name,
                             params: cur_effect_params.clone(),
+                            sub_params: std::mem::take(&mut cur_effect_sub_params),
                             mode: cur_effect_mode.clone(),
                             groups: std::mem::take(&mut cur_restoration_groups),
                             armor_condition: cur_effect_armor,
@@ -481,10 +576,14 @@ impl EffectScope {
 
 /// One `<effect>` element as parsed, before it is resolved into a per-level
 /// [`Skill`]. Java's `SkillData.NamedParamInfo`.
+#[derive(Clone)]
 struct ParsedEffect {
     scope: EffectScope,
     name: String,
     params: LeveledValues,
+    /// Ranged `<value>` rows inside this effect's params, resolved per
+    /// (level, sub) at finalize.
+    sub_params: HashMap<String, Vec<RangedRow>>,
     mode: String,
     groups: Vec<RestorationGroup>,
     armor_condition: u8,
@@ -516,19 +615,18 @@ impl ParsedEffect {
     /// range. Frenzy 176's `PAtk`/`CriticalRate` (`fromLevel="6" toLevel="9"`)
     /// were live at levels 1-5, for instance.
     ///
-    /// `sub_level` is fixed at 0 here: skill enchanting isn't modelled, so the
-    /// sub-level clause rejects every effect that names a range (all of which
-    /// start at 1001 or 2001) — matching what Java would do for an unenchanted
-    /// skill.
-    fn applies_at(&self, level: i32) -> bool {
-        const SUB_LEVEL: i32 = 0;
+    /// `sub` is 0 for the unenchanted skill — the sub-level clause then
+    /// rejects every effect that names a range (all of which start at 1001+),
+    /// matching Java; the enchanted variants pass their real sub-level.
+    fn applies_at(&self, level: i32, sub: i32) -> bool {
+        let sub_level: i32 = sub;
         let level_ok = match (self.from_level, self.to_level) {
             (None, None) => true,
             (from, to) => from.is_none_or(|f| f <= level) && to.is_none_or(|t| t >= level),
         };
         let sub_ok = match (self.from_sub_level, self.to_sub_level) {
             (None, None) => true,
-            (from, to) => from.is_none_or(|f| f <= SUB_LEVEL) && to.is_none_or(|t| t >= SUB_LEVEL),
+            (from, to) => from.is_none_or(|f| f <= sub_level) && to.is_none_or(|t| t >= sub_level),
         };
         level_ok && sub_ok
     }
@@ -540,14 +638,191 @@ fn finalize_skill(
     to_level: i32,
     values: &LeveledValues,
     effects: &[ParsedEffect],
+    field_rows: &HashMap<String, Vec<RangedRow>>,
     op_exist_npc: &Option<crate::model::skill::OpExistNpcCondition>,
-    out: &mut HashMap<(i32, i32), Skill>,
+    out: &mut ParsedSkills,
 ) {
     if id < 0 {
         return;
     }
     for level in 1..=to_level {
-        let get_i = |field: &str, default: i32| value_at(values, field, level).and_then(|v| v.parse().ok()).unwrap_or(default);
+        // The plain (sub 0) skill: ranged level rows resolved, sub rows inert.
+        let vals = patched_values(values, field_rows, level, 0);
+        let effs = patched_effects(effects, level, 0);
+        out.skills.insert((id, level), build_skill(id, name, level, 0, &vals, &effs, op_exist_npc));
+
+        // The enchanted variants — one instance per declared sub-level, like
+        // Java's parse loop, plus the route registration `addRouteForSkill`
+        // does per instance.
+        for (from_sub, to_sub) in declared_sub_ranges(field_rows, effects, level) {
+            out.routes.entry((id, level)).or_default().push((from_sub, to_sub));
+            for sub in from_sub..=to_sub {
+                let vals = patched_values(values, field_rows, level, sub);
+                let effs = patched_effects(effects, level, sub);
+                out.enchanted.insert((id, level, sub), build_skill(id, name, level, sub, &vals, &effs, op_exist_npc));
+            }
+        }
+    }
+}
+
+/// Resolve `values` for one (level, sub): ranged level rows first (they form
+/// the level's base — and `{N+index}` magic-level tables now actually parse),
+/// then, for `sub > 0`, the matching enchant-route rows on top. `base` in an
+/// expression is the field's value *before* the row applies, `index`/`subIndex`
+/// are 1-based offsets into the row's ranges — Java `SkillData.parseValues`.
+fn patched_values(
+    values: &LeveledValues,
+    field_rows: &HashMap<String, Vec<RangedRow>>,
+    level: i32,
+    sub: i32,
+) -> LeveledValues {
+    if field_rows.is_empty() {
+        return values.clone();
+    }
+    let mut out = values.clone();
+    for pass_sub in [false, true] {
+        if pass_sub && sub == 0 {
+            break;
+        }
+        for (field, rows) in field_rows {
+            for r in rows {
+                let is_sub_row = r.from_sub > 0;
+                if is_sub_row != pass_sub || !(r.from_level <= level && level <= r.to_level) {
+                    continue;
+                }
+                if is_sub_row && !(r.from_sub <= sub && sub <= r.to_sub) {
+                    continue;
+                }
+                if let Some(resolved) = resolve_row(&out, field, r, level, sub) {
+                    out.entry(field.clone()).or_default().insert(level, resolved);
+                }
+            }
+        }
+    }
+    out
+}
+
+/// Resolve one ranged row's text: `{…}` through the expression evaluator
+/// (`None` drops the row, like Java's exception path), plain text verbatim.
+fn resolve_row(current: &LeveledValues, field: &str, r: &RangedRow, level: i32, sub: i32) -> Option<String> {
+    let text = r.text.trim();
+    if !text.starts_with('{') {
+        return Some(text.to_string());
+    }
+    let vars = crate::data::skill_expr::ExprVars {
+        base: value_at(current, field, level).and_then(|v| v.parse().ok()),
+        index: (level - r.from_level + 1) as f64,
+        sub_index: if r.from_sub > 0 { (sub - r.from_sub + 1) as f64 } else { 0.0 },
+    };
+    crate::data::skill_expr::eval_braced(text, vars).map(fmt_num)
+}
+
+/// Format an evaluated number so the downstream `parse::<i32>()`/`::<f64>()`
+/// readers both work: whole values print bare (`214`, not `214.0`).
+fn fmt_num(v: f64) -> String {
+    if v.fract() == 0.0 && v.abs() < 1e15 {
+        format!("{}", v as i64)
+    } else {
+        v.to_string()
+    }
+}
+
+/// The same two-pass resolution over each effect's ranged param rows.
+fn patched_effects(effects: &[ParsedEffect], level: i32, sub: i32) -> Vec<ParsedEffect> {
+    effects
+        .iter()
+        .map(|e| {
+            if e.sub_params.is_empty() {
+                return e.clone();
+            }
+            let mut out = e.clone();
+            for pass_sub in [false, true] {
+                if pass_sub && sub == 0 {
+                    break;
+                }
+                for (field, rows) in &e.sub_params {
+                    for r in rows {
+                        let is_sub_row = r.from_sub > 0;
+                        if is_sub_row != pass_sub || !(r.from_level <= level && level <= r.to_level) {
+                            continue;
+                        }
+                        if is_sub_row && !(r.from_sub <= sub && sub <= r.to_sub) {
+                            continue;
+                        }
+                        if let Some(resolved) = resolve_row(&out.params, field, r, level, sub) {
+                            out.params.entry(field.clone()).or_default().insert(level, resolved);
+                        }
+                    }
+                }
+            }
+            out
+        })
+        .collect()
+}
+
+/// The distinct enchant-route sub-level ranges declared for this level —
+/// from field rows, effect param rows and effect-level sub gates.
+fn declared_sub_ranges(
+    field_rows: &HashMap<String, Vec<RangedRow>>,
+    effects: &[ParsedEffect],
+    level: i32,
+) -> Vec<(i32, i32)> {
+    // Rows within one route are often fragmented (`1001–1005`, `1006–1006`,
+    // …), so merge by the route bucket (`sub / 1000`) — the registry's unit
+    // is the route, and instances are built over the merged span.
+    let mut buckets: std::collections::BTreeMap<i32, (i32, i32)> = std::collections::BTreeMap::new();
+    let mut add = |from_sub: i32, to_sub: i32| {
+        let e = buckets.entry(from_sub / 1000).or_insert((from_sub, to_sub));
+        e.0 = e.0.min(from_sub);
+        e.1 = e.1.max(to_sub);
+    };
+    let covers = |from: i32, to: i32| from <= level && level <= to;
+    for rows in field_rows.values() {
+        for r in rows {
+            if r.from_sub > 0 && covers(r.from_level, r.to_level) {
+                add(r.from_sub, r.to_sub);
+            }
+        }
+    }
+    for e in effects {
+        for rows in e.sub_params.values() {
+            for r in rows {
+                if r.from_sub > 0 && covers(r.from_level, r.to_level) {
+                    add(r.from_sub, r.to_sub);
+                }
+            }
+        }
+        if let Some(from_sub) = e.from_sub_level.filter(|&f| f > 0) {
+            let level_ok = match (e.from_level, e.to_level) {
+                (None, None) => true,
+                (f, t) => f.is_none_or(|f| f <= level) && t.is_none_or(|t| t >= level),
+            };
+            if level_ok {
+                add(from_sub, e.to_sub_level.unwrap_or(from_sub));
+            }
+        }
+    }
+    buckets.into_values().collect()
+}
+
+fn build_skill(
+    id: i32,
+    name: &str,
+    level: i32,
+    sub: i32,
+    values: &LeveledValues,
+    effects: &[ParsedEffect],
+    op_exist_npc: &Option<crate::model::skill::OpExistNpcCondition>,
+) -> Skill {
+    {
+        // Integer reads fall back through f64 truncation — an enchant-route
+        // expression can evaluate fractionally (`Curse Gloom +1` abnormalTime
+        // = 10.5) and Java's `StatSet.getInt` truncates via `Number.intValue`.
+        let get_i = |field: &str, default: i32| {
+            value_at(values, field, level)
+                .and_then(|v| v.parse::<i32>().ok().or_else(|| v.parse::<f64>().ok().map(|f| f as i32)))
+                .unwrap_or(default)
+        };
         let get_f = |field: &str, default: f64| value_at(values, field, level).and_then(|v| v.parse().ok()).unwrap_or(default);
         let operate_type = match value_at(values, "operateType", level) {
             Some("A1") | Some("A2") => OperateType::Active,
@@ -592,7 +867,7 @@ fn finalize_skill(
         // damage effect in practice, so hoisting "any effect declares it" to the
         // skill is behaviourally identical and avoids threading the flag
         // through every `SkillEffect` variant.
-        let over_hit = effects.iter().filter(|e| e.applies_at(level)).any(|e| {
+        let over_hit = effects.iter().filter(|e| e.applies_at(level, sub)).any(|e| {
             value_at(&e.params, "overHit", level).is_some_and(|v| v.trim().eq_ignore_ascii_case("true"))
         });
         let toggle_group_id = get_i("toggleGroupId", 0);
@@ -644,7 +919,7 @@ fn finalize_skill(
             .iter()
             // Java `forEachNamedParamInfoParam`: an effect whose declared level
             // range excludes this level is simply not part of the skill here.
-            .filter(|e| e.applies_at(level) && e.scope == want)
+            .filter(|e| e.applies_at(level, sub) && e.scope == want)
             .flat_map(|e| {
                 let (xml_name, params, mode, groups, armor_condition, weapon_condition) =
                     (&e.name, &e.params, &e.mode, &e.groups, &e.armor_condition, &e.weapon_condition);
@@ -1520,11 +1795,10 @@ fn finalize_skill(
         // Effect names present in the XML but not in `EFFECT_REGISTRY` are
         // silently dropped (see module docs) — expected for the vast majority
         // of skills, which are outside G6's scope.
-        out.insert(
-            (id, level),
-            Skill {
+        Skill {
                 id,
                 level,
+                sub_level: sub,
                 name: name.to_string(),
                 operate_type,
                 is_continuous,
@@ -1584,8 +1858,7 @@ fn finalize_skill(
                 attribute_type: value_at(values, "attributeType", level)
                     .and_then(crate::model::stats::Element::from_xml),
                 attribute_value: get_i("attributeValue", 0),
-            },
-        );
+        }
     }
 }
 
@@ -1615,6 +1888,93 @@ mod tests {
     /// Regression guard: the real dist XMLs are `<list>`-rooted, which the
     /// original parser mis-indexed (it tracked the root on the tag stack and
     /// loaded 0 skills). Wind Strike 1177 is the canonical probe.
+    #[test]
+    /// Skill-enchant sub-levels against the real dist (PLAN_G19_SKILL_ENCHANT.md).
+    /// Sonic Storm 7 at level 40 declares all three routes: route 1 enchants
+    /// the `EnergyAttack` power (`{base + base/100*subIndex}` off base 20732),
+    /// route 2 the crit chance (base 15 — itself a *ranged* `fromLevel 1–44`
+    /// row, the shape the parser used to mis-key), route 3 the pDefMod
+    /// (`{0.99 − 0.006·(subIndex−1)}`).
+    #[test]
+    fn skill_enchant_sublevels_resolve() {
+        let sd = SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+
+        assert_eq!(
+            sd.enchant_routes(7, 40),
+            &[(1001, 1020), (2001, 2020), (3001, 3020)],
+            "Sonic Storm 40's three routes"
+        );
+        assert!(sd.enchant_routes(7, 39).is_empty(), "the routes open at level 40");
+        assert!(sd.enchant_routes(1177, 1).is_empty(), "Wind Strike is not enchantable");
+
+        let base = sd.get(7, 40).expect("Sonic Storm 40");
+        let (p0, c0, d0) = match base.effects.as_slice() {
+            [SkillEffect::EnergyAttack { power, critical_chance, p_def_mod, .. }] => (*power, *critical_chance, *p_def_mod),
+            other => panic!("EnergyAttack expected: {other:?}"),
+        };
+        assert_eq!((p0, c0, d0), (20732.0, 15.0, 1.0));
+        assert_eq!(base.sub_level, 0);
+
+        // Route 1, +1 and +10: power scales, the other params hold their base.
+        let e1 = sd.get_enchanted(7, 40, 1001).expect("+1 power route");
+        assert_eq!(e1.sub_level, 1001);
+        match e1.effects.as_slice() {
+            [SkillEffect::EnergyAttack { power, critical_chance, p_def_mod, .. }] => {
+                assert!((power - (20732.0 + 20732.0 / 100.0)).abs() < 1e-6, "+1: {power}");
+                assert_eq!((*critical_chance, *p_def_mod), (15.0, 1.0));
+            }
+            other => panic!("{other:?}"),
+        }
+        let e10 = sd.get_enchanted(7, 40, 1010).expect("+10 power route");
+        match e10.effects.as_slice() {
+            [SkillEffect::EnergyAttack { power, .. }] => {
+                assert!((power - (20732.0 * 1.10)).abs() < 1e-6, "+10: {power}");
+            }
+            other => panic!("{other:?}"),
+        }
+
+        // Route 2 enchants the crit chance; route 3 the pDefMod.
+        match sd.get_enchanted(7, 40, 2001).expect("+1 crit route").effects.as_slice() {
+            [SkillEffect::EnergyAttack { power, critical_chance, .. }] => {
+                assert!((critical_chance - 15.15).abs() < 1e-6, "{critical_chance}");
+                assert_eq!(*power, 20732.0, "power keeps its base on route 2");
+            }
+            other => panic!("{other:?}"),
+        }
+        match sd.get_enchanted(7, 40, 3005).expect("+5 pdef route").effects.as_slice() {
+            [SkillEffect::EnergyAttack { p_def_mod, .. }] => {
+                assert!((p_def_mod - (0.99 - 0.006 * 4.0)).abs() < 1e-6, "{p_def_mod}");
+            }
+            other => panic!("{other:?}"),
+        }
+
+        // A skill-FIELD route (not an effect param): Curse Gloom 1263's
+        // duration route — `abnormalTime` base 10 (itself a ranged 1–24 row),
+        // `{base + 0.5 * subIndex}` on 2001–2020. Java's `StatSet.getInt`
+        // truncates the fractional +1 (10.5 → 10); +2 is a clean 11. The
+        // fragmented power-route rows (1001–1005, 1006–1006, …) bucket-merge
+        // into one (1001, 1020) route.
+        assert_eq!(sd.enchant_routes(1263, 20), &[(1001, 1020), (2001, 2020)]);
+        let cg = sd.get(1263, 20).expect("Curse Gloom 20");
+        assert_eq!(cg.abnormal_time, 10);
+        assert_eq!(sd.get_enchanted(1263, 20, 2001).expect("+1 duration").abnormal_time, 10);
+        assert_eq!(sd.get_enchanted(1263, 20, 2002).expect("+2 duration").abnormal_time, 11);
+        assert_eq!(sd.get_enchanted(1263, 20, 2020).expect("+20 duration").abnormal_time, 20);
+
+        // The cost table (data/EnchantSkillGroups.xml): 30 levels; +1 costs
+        // 90% NORMAL with a Superior Giant's Codex 30297 and adena.
+        let groups = crate::data::enchant_skill_groups::EnchantSkillGroups::load_from(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../dist/game/"
+        ));
+        assert_eq!(groups.len(), 30);
+        let one = groups.cost_for(1).expect("level 1");
+        assert_eq!(one.chance.get("NORMAL"), Some(&90));
+        assert_eq!(one.sp.get("NORMAL"), Some(&4_250_000));
+        let items = one.items.get("NORMAL").expect("NORMAL items");
+        assert!(items.contains(&(30297, 1)) && items.contains(&(57, 2_380_000)), "{items:?}");
+    }
+
     #[test]
     fn loads_real_dist_files() {
         let sd = SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
@@ -2128,10 +2488,10 @@ mod tests {
                 </effects>
             </skill>
         </list>"#;
-        let mut out = HashMap::new();
+        let mut out = ParsedSkills::default();
         parse_str(xml, &mut out);
 
-        let l1 = out.get(&(1177, 1)).expect("level 1 parsed");
+        let l1 = out.skills.get(&(1177, 1)).expect("level 1 parsed");
         assert_eq!(l1.target_type, TargetType::EnemyOnly);
         assert_eq!(l1.magic_type, 1);
         assert_eq!(l1.effect_point, -92);
@@ -2144,7 +2504,7 @@ mod tests {
         assert_eq!(l1.mp_initial_consume, 2);
         assert!(matches!(l1.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 12.0));
 
-        let l2 = out.get(&(1177, 2)).expect("level 2 parsed");
+        let l2 = out.skills.get(&(1177, 2)).expect("level 2 parsed");
         assert_eq!(l2.target_type, TargetType::Enemy);
         assert!(matches!(l2.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 13.0));
     }
@@ -2173,10 +2533,10 @@ mod tests {
                 </effects>
             </skill>
         </list>"#;
-        let mut out = HashMap::new();
+        let mut out = ParsedSkills::default();
         parse_str(xml, &mut out);
 
-        let s = out.get(&(1015, 1)).expect("skill parsed");
+        let s = out.skills.get(&(1015, 1)).expect("skill parsed");
         assert_eq!(s.target_type, TargetType::Target);
         assert_eq!(s.effects.len(), 2, "unknown effect dropped");
         assert!(matches!(s.effects[0], SkillEffect::Heal { power } if power == 83.0));
@@ -2206,10 +2566,10 @@ mod tests {
                 </effects>
             </skill>
         </list>"#;
-        let mut out = HashMap::new();
+        let mut out = ParsedSkills::default();
         parse_str(xml, &mut out);
 
-        let s = out.get(&(1078, 1)).expect("skill parsed");
+        let s = out.skills.get(&(1078, 1)).expect("skill parsed");
         assert_eq!(s.effects.len(), 1, "the ReduceCancel effect is not dropped");
         assert!(matches!(
             s.effects[0],
@@ -2267,10 +2627,10 @@ mod tests {
                 </effects>
             </skill>
         </list>"#;
-        let mut out = HashMap::new();
+        let mut out = ParsedSkills::default();
         parse_str(xml, &mut out);
 
-        let dol = out.get(&(277, 1)).expect("Dance of Light parsed");
+        let dol = out.skills.get(&(277, 1)).expect("Dance of Light parsed");
         // `AttackAttribute` graduated from icon-only marker to a real element
         // POWER modifier in the G19 attributes slice.
         assert!(
@@ -2281,12 +2641,12 @@ mod tests {
             "Dance of Light grants HolyPower +20: {:?}",
             dol.effects
         );
-        let soc = out.get(&(8547, 1)).expect("Song of Champion parsed");
+        let soc = out.skills.get(&(8547, 1)).expect("Song of Champion parsed");
         assert!(
             matches!(soc.effects.as_slice(), [SkillEffect::MagicMpCost, SkillEffect::Reuse]),
             "MagicMpCost/Reuse are not dropped"
         );
-        let sov = out.get(&(305, 1)).expect("Song of Vengeance parsed");
+        let sov = out.skills.get(&(305, 1)).expect("Song of Vengeance parsed");
         assert!(
             matches!(sov.effects.as_slice(), [SkillEffect::DamageShield]),
             "DamageShield is not dropped"
@@ -2342,20 +2702,20 @@ mod tests {
                 </effects>
             </skill>
         </list>"#;
-        let mut out = HashMap::new();
+        let mut out = ParsedSkills::default();
         parse_str(xml, &mut out);
 
-        let inv = out.get(&(1372, 1)).expect("Expand Inventory parsed");
+        let inv = out.skills.get(&(1372, 1)).expect("Expand Inventory parsed");
         assert!(
             matches!(inv.effects.as_slice(), [SkillEffect::StatModifier(StatModifierEffect { stat: Stat::InventoryNormal, amount, .. })] if *amount == 6.0),
             "no <type> defaults to INVENTORY_NORMAL: {:?}", inv.effects
         );
-        let dwc = out.get(&(1368, 1)).expect("Expand Dwarven Craft parsed");
+        let dwc = out.skills.get(&(1368, 1)).expect("Expand Dwarven Craft parsed");
         assert!(
             matches!(dwc.effects.as_slice(), [SkillEffect::StatModifier(StatModifierEffect { stat: Stat::RecipeDwarven, amount, .. })] if *amount == 6.0),
             "type=RECIPE_DWARVEN picked: {:?}", dwc.effects
         );
-        let trade = out.get(&(1370, 1)).expect("Expand Trade parsed");
+        let trade = out.skills.get(&(1370, 1)).expect("Expand Trade parsed");
         assert!(
             matches!(
                 trade.effects.as_slice(),
@@ -2414,25 +2774,25 @@ mod tests {
                 </effects>
             </skill>
         </list>"#;
-        let mut out = HashMap::new();
+        let mut out = ParsedSkills::default();
         parse_str(xml, &mut out);
 
-        let aggression = out.get(&(28, 1)).expect("Aggression parsed");
+        let aggression = out.skills.get(&(28, 1)).expect("Aggression parsed");
         assert!(
             matches!(aggression.effects.as_slice(), [SkillEffect::GetAgro]),
             "GetAgro lands (TargetMe stays unported, dropped): {:?}", aggression.effects
         );
-        let charm = out.get(&(15, 1)).expect("Charm parsed");
+        let charm = out.skills.get(&(15, 1)).expect("Charm parsed");
         assert!(
             matches!(charm.effects.as_slice(), [SkillEffect::AddHate { power }] if *power == 500.0),
             "AddHate power=500: {:?}", charm.effects
         );
-        let eva = out.get(&(1273, 1)).expect("Eva's Serenade parsed");
+        let eva = out.skills.get(&(1273, 1)).expect("Eva's Serenade parsed");
         assert!(
             matches!(eva.effects.as_slice(), [SkillEffect::DeleteHate { chance: 80 }]),
             "DeleteHate chance=80: {:?}", eva.effects
         );
-        let forget = out.get(&(1156, 1)).expect("Forget parsed");
+        let forget = out.skills.get(&(1156, 1)).expect("Forget parsed");
         assert!(
             matches!(forget.effects.as_slice(), [SkillEffect::DeleteHateOfMe { chance: 80 }]),
             "DeleteHateOfMe chance=80: {:?}", forget.effects
@@ -2472,10 +2832,10 @@ mod tests {
                 </effects>
             </skill>
         </list>"#;
-        let mut out = HashMap::new();
+        let mut out = ParsedSkills::default();
         parse_str(xml, &mut out);
 
-        let cancellation = out.get(&(1056, 1)).expect("Cancellation parsed");
+        let cancellation = out.skills.get(&(1056, 1)).expect("Cancellation parsed");
         assert!(
             matches!(
                 cancellation.effects.as_slice(),
@@ -2483,7 +2843,7 @@ mod tests {
             ),
             "BUFF/25/5: {:?}", cancellation.effects
         );
-        let cleanse = out.get(&(1409, 1)).expect("Cleanse parsed");
+        let cleanse = out.skills.get(&(1409, 1)).expect("Cleanse parsed");
         assert!(
             matches!(
                 cleanse.effects.as_slice(),
@@ -2524,10 +2884,10 @@ mod tests {
                 </effects>
             </skill>
         </list>"#;
-        let mut out = HashMap::new();
+        let mut out = ParsedSkills::default();
         parse_str(xml, &mut out);
 
-        let archery = out.get(&(431, 1)).expect("Archery parsed");
+        let archery = out.skills.get(&(431, 1)).expect("Archery parsed");
         assert!(
             matches!(
                 archery.effects.as_slice(),
@@ -2536,7 +2896,7 @@ mod tests {
             ),
             "DIFF +50, bow-conditioned: {:?}", archery.effects
         );
-        let rapid_fire = out.get(&(413, 1)).expect("Rapid Fire parsed");
+        let rapid_fire = out.skills.get(&(413, 1)).expect("Rapid Fire parsed");
         assert!(
             matches!(
                 rapid_fire.effects.as_slice(),
@@ -2570,9 +2930,9 @@ mod tests {
                 <targetType>TARGET</targetType>
             </skill>
         </list>"#;
-        let mut out = HashMap::new();
+        let mut out = ParsedSkills::default();
         parse_str(xml, &mut out);
-        let mut sd = SkillData { skills: out };
+        let mut sd = SkillData { skills: out.skills, enchanted: out.enchanted, routes: out.routes };
 
         let list = HashMap::from([(1078, 7200), (9999, 7200)]);
         sd.apply_skill_duration_list(&list);
