@@ -413,6 +413,33 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
     );
 }
 
+/// `World.getVisibleObjectsInRange(caster, Npc.class, range)` filtered to the
+/// condition's id list — the sweep half of `OpExistNpcSkillCondition`.
+fn op_exist_npc_around(world: &World, caster_oid: i32, cond: &crate::model::skill::OpExistNpcCondition) -> bool {
+    let Some(region) = world
+        .objects
+        .get_component::<crate::model::components::RegionCell>(&caster_oid)
+        .map(|r| r.0)
+    else {
+        return false;
+    };
+    let Some(origin) = world.objects.get_component::<Position>(&caster_oid).copied() else {
+        return false;
+    };
+    let range = cond.range as f64;
+    world.npcs_visible_from(region).into_iter().any(|oid| {
+        let listed = world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&oid)
+            .is_some_and(|n| cond.npc_ids.contains(&n.npc_id));
+        listed
+            && world.objects.get_component::<Position>(&oid).is_some_and(|p| {
+                let (dx, dy, dz) = ((p.x - origin.x) as f64, (p.y - origin.y) as f64, (p.z - origin.z) as f64);
+                dx * dx + dy * dy + dz * dz <= range * range
+            })
+    })
+}
+
 /// Port of `RequestExMagicSkillUseGround` (ex 0x41): store the aimed world
 /// position (Java `Player._currentSkillWorldPosition` — never cleared, only
 /// overwritten), face it ("normally magicskilluse packet turns char client
@@ -616,6 +643,21 @@ pub(crate) fn use_magic_on(
             cs.send(server_packets::action_failed());
         }
         return;
+    }
+    // `OpExistNpcSkillCondition.canUse`: sweep NPCs within `range` of the
+    // **caster** (not the aimed point); finding a listed id returns
+    // `is_around`, finding none returns `!is_around`. The symbol skills use
+    // `is_around = false` to refuse a re-cast next to a live seal. Refusal is
+    // a bare ActionFailed, like every unmet skill condition in Java.
+    if let Some(cond) = &skill.op_exist_npc {
+        let found = op_exist_npc_around(world, object_id, cond);
+        let can_use = if found { cond.is_around } else { !cond.is_around };
+        if !can_use {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
+            return;
+        }
     }
 
     // `SkillCaster.checkDoCastConditions`' mute checks: a magic skill is

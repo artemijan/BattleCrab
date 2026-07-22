@@ -196,9 +196,23 @@ pub struct NpcTemplate {
     /// AI holders (those are parameters, not `getSkills()`). Stored as
     /// `(skillId, level)`; effects are resolved against `SkillData` at spawn.
     pub skill_list: Vec<(i32, i32)>,
+    /// `<parameters><param name value/>` — Java `NpcTemplate.getParameters()`'s
+    /// scalar rows (`despawn_time`, `skill_delay`, `cast_time`, …). Read via
+    /// [`Self::ai_param_f64`].
+    pub ai_params: std::collections::HashMap<String, String>,
+    /// `<parameters><skill name id level/>` — the parameter `SkillHolder`s
+    /// (`union_skill` on the EffectPoint totems, boss AI skills, …). These are
+    /// NOT template skills (`getSkills()`); see `skill_list`'s note.
+    pub ai_skill_params: std::collections::HashMap<String, (i32, i32)>,
 }
 
 impl NpcTemplate {
+    /// A `<parameters><param>` scalar as f64 with a default — Java
+    /// `template.getParameters().getFloat(name, default)`.
+    pub fn ai_param_f64(&self, name: &str, default: f64) -> f64 {
+        self.ai_params.get(name).and_then(|v| v.parse().ok()).unwrap_or(default)
+    }
+
     /// Membership in Java's `Monster` subtree (`Npc.isMonster()` —
     /// `instanceof Monster`): the auto-attackable mob types.
     pub fn is_monster(&self) -> bool {
@@ -470,6 +484,8 @@ pub fn default_template(id: i32) -> NpcTemplate {
         aggro_range: 0,
         clan_help_range: 0,
         skill_list: Vec::new(),
+        ai_params: std::collections::HashMap::new(),
+        ai_skill_params: std::collections::HashMap::new(),
     }
 }
 
@@ -586,6 +602,26 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                         if let (Some(t), Some(id)) = (cur.as_mut(), attr_i32(&e, b"id")) {
                             let level = attr_i32(&e, b"level").unwrap_or(1);
                             t.skill_list.push((id, level));
+                        }
+                    }
+                    // `<parameters><skill name id level/>` — a parameter
+                    // SkillHolder (`union_skill`, boss AI skills). Keyed by
+                    // its `name` attribute, never merged into `skill_list`.
+                    b"skill" if in_parameters => {
+                        if let (Some(t), Some(pname), Some(id)) =
+                            (cur.as_mut(), attr_str(&e, b"name"), attr_i32(&e, b"id"))
+                        {
+                            let level = attr_i32(&e, b"level").unwrap_or(1);
+                            t.ai_skill_params.insert(pname, (id, level));
+                        }
+                    }
+                    // `<parameters><param name value/>` — a scalar AI
+                    // parameter (`despawn_time`, `skill_delay`, …).
+                    b"param" if in_parameters => {
+                        if let (Some(t), Some(pname), Some(v)) =
+                            (cur.as_mut(), attr_str(&e, b"name"), attr_str(&e, b"value"))
+                        {
+                            t.ai_params.insert(pname, v);
                         }
                     }
                     // Minion references inside `<parameters>` are not templates

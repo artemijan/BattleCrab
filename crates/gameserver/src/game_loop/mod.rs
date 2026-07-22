@@ -19,6 +19,7 @@ pub(crate) mod death;
 mod dispatch;
 mod doors;
 pub(crate) mod duel;
+mod effect_point;
 mod enchant;
 mod expertise;
 mod friends;
@@ -319,6 +320,12 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::ChannelingTick { player_object_id, cast_seq } => {
                 skills::cast::handle_channeling_tick(world, player_object_id, cast_seq);
+            }
+            ScheduledTask::EffectPointCast { npc_oid } => {
+                effect_point::handle_effect_point_cast(world, npc_oid);
+            }
+            ScheduledTask::EffectPointDespawn { npc_oid } => {
+                effect_point::handle_effect_point_despawn(world, npc_oid);
             }
             ScheduledTask::BuffExpire { player_object_id, skill_id } => {
                 // A re-cast/refresh pushes a fresh instance with a later expiry

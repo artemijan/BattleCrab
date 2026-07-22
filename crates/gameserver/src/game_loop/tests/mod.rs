@@ -36,6 +36,7 @@ mod affect_tests;
 mod clans_tests;
 mod geometric_scope_tests;
 mod ground_channeling_tests;
+mod symbol_tests;
 mod combat_tests;
 mod confuse_tests;
 mod crit_damage_tests;
@@ -475,6 +476,7 @@ fn cast_test_world() -> (
         affect_range: 0,
         affect_limit: (0, 0),
         fan_range: [0; 4],
+        op_exist_npc: None,
         channeling_effects: Vec::new(),
         mp_per_channeling: 0,
         channeling_tick_ms: 0,
@@ -1254,6 +1256,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         affect_range: 0,
         affect_limit: (0, 0),
         fan_range: [0; 4],
+        op_exist_npc: None,
         channeling_effects: Vec::new(),
         mp_per_channeling: 0,
         channeling_tick_ms: 0,
@@ -1319,6 +1322,7 @@ fn clan_advent_test_skill() -> Skill {
         affect_range: 0,
         affect_limit: (0, 0),
         fan_range: [0; 4],
+        op_exist_npc: None,
         channeling_effects: Vec::new(),
         mp_per_channeling: 0,
         channeling_tick_ms: 0,

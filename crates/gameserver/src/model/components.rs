@@ -324,6 +324,15 @@ pub struct GroundSkillTarget {
     pub z: i32,
 }
 
+/// Java `Npc.setSummoner` + `EffectPoint.getActingPlayer()` — the player who
+/// summoned this NPC (a symbol totem). Distinct from [`ServitorOf`]: a totem
+/// has an owner but none of the servitor bookkeeping (no follow AI, no
+/// PetInfo, no upkeep). `acting_player` hops through it, so the friend/foe
+/// filter and PvP rules treat the seal's pulses as the owner's actions —
+/// which is why a seal never debuffs its own owner or their party/clan.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct SummonerRef(pub i32);
+
 /// The one action a busy actor holds back — Java's three queue slots
 /// (`PlayerAI._nextIntention` MOVE_TO, `Player._queuedSkill`,
 /// `AbstractAI._nextAction` equip) folded into a single presence-based slot.

@@ -542,6 +542,11 @@ pub(crate) fn passes_affect_object(world: &World, caster_oid: i32, candidate: i3
 /// friends — Java's check runs through `getActingPlayer()`, which is null for a
 /// monster, so a mob always falls through to "not a friend".
 fn is_friend(world: &World, caster_oid: i32, candidate: i32) -> bool {
+    // Java's friend tests run on `getActingPlayer()` — an owned summon (a
+    // symbol totem, a servitor) counts as its owner, so a Day of Doom seal
+    // never curses the player who dropped it, or their party/clan.
+    let caster_oid = crate::game_loop::pvp::acting_player(world, caster_oid);
+    let candidate = crate::game_loop::pvp::acting_player(world, candidate);
     if caster_oid == candidate {
         return true;
     }

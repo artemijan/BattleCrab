@@ -167,6 +167,14 @@ pub(crate) fn acting_player(world: &World, object_id: i32) -> i32 {
         .objects
         .get_component::<crate::model::components::ServitorOf>(&object_id)
         .map(|s| s.owner_object_id)
+        // A symbol totem (`EffectPoint`) also acts as its summoner — Java's
+        // `EffectPoint.getActingPlayer()` returns `_owner`.
+        .or_else(|| {
+            world
+                .objects
+                .get_component::<crate::model::components::SummonerRef>(&object_id)
+                .map(|s| s.0)
+        })
         .unwrap_or(object_id)
 }
 
