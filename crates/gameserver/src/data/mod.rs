@@ -11,6 +11,7 @@ pub mod cursed_weapon_data;
 pub mod door_data;
 pub mod siege_data;
 pub mod enchant_data;
+pub mod enchant_skill_groups;
 pub mod experience;
 pub mod henna_data;
 pub mod hit_condition_bonus;
@@ -30,6 +31,7 @@ pub mod recipe_data;
 pub mod route_data;
 pub mod scheme_buffer;
 pub mod skill_data;
+pub mod skill_expr;
 pub mod skill_tree;
 pub mod spawn_data;
 pub mod stat_bonus;
@@ -47,6 +49,7 @@ pub use category_data::CategoryData;
 pub use cursed_weapon_data::CursedWeaponData;
 pub use door_data::DoorData;
 pub use enchant_data::EnchantData;
+pub use enchant_skill_groups::EnchantSkillGroups;
 pub use experience::ExperienceData;
 pub use henna_data::HennaData;
 pub use hit_condition_bonus::HitConditionBonusData;
@@ -185,6 +188,8 @@ pub struct GameData {
     pub transforms: TransformData,
     /// Enchant chance engine (rate groups + branded scrolls), see [`EnchantData`].
     pub enchant: EnchantData,
+    /// Skill-enchant cost table — see [`EnchantSkillGroups`].
+    pub enchant_skill_groups: EnchantSkillGroups,
     /// Augmentation roll engine (life stone → option pair + fees), see
     /// [`VariationData`].
     pub variations: VariationData,
@@ -250,6 +255,7 @@ impl GameData {
             teleporters: TeleporterData::load_from(file_path),
             transforms: TransformData::load_from(file_path),
             enchant: EnchantData::load_from(file_path),
+            enchant_skill_groups: EnchantSkillGroups::load_from(file_path),
             variations: VariationData::load_from(file_path),
             admin: AdminData::load_from(file_path),
             // Overwritten from the parsed `CharacterConfig` at boot (`main.rs`);
@@ -303,6 +309,7 @@ impl GameData {
             teleporters: TeleporterData::empty(),
             transforms: TransformData::empty(),
             enchant: EnchantData::empty(),
+            enchant_skill_groups: EnchantSkillGroups::empty(),
             variations: VariationData::empty(),
             admin: AdminData::empty(),
             combat_caps: CombatCaps::default(),
