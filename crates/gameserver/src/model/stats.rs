@@ -179,6 +179,88 @@ pub enum Stat {
     /// nothing grants it, matching `INSTANT_KILL_RESIST`/`MAX_MOMENTUM`'s
     /// established "dead in Java too" pattern.
     BlowRate,
+    /// The elemental attack values — Java `Stat.FIRE_POWER`… (`AttributeFinalizer`,
+    /// PLAN_G19_ATTRIBUTES.md). Fed by `AttackAttribute` effects (Holy Weapon
+    /// 1043's `HOLY +20`); read by `Formulas.calcAttributeBonus`'s attack side.
+    FirePower,
+    WaterPower,
+    WindPower,
+    EarthPower,
+    HolyPower,
+    DarkPower,
+    /// The elemental defence values — Java `Stat.FIRE_RES`…. Base comes from
+    /// the NPC template's `<attribute><defence …/>`; `DefenceAttribute`
+    /// effects (the Resist Fire family, Day of Doom's −50s) merge on top.
+    FireRes,
+    WaterRes,
+    WindRes,
+    EarthRes,
+    HolyRes,
+    DarkRes,
+}
+
+/// Java `AttributeType` minus `NONE` (represented as `Option<Element>`): the
+/// six combat elements. Order matches the client ids (`findByClientId`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Element {
+    Fire,
+    Water,
+    Wind,
+    Earth,
+    Holy,
+    Dark,
+}
+
+impl Element {
+    pub const ALL: [Element; 6] = [Element::Fire, Element::Water, Element::Wind, Element::Earth, Element::Holy, Element::Dark];
+
+    pub fn from_xml(name: &str) -> Option<Self> {
+        Some(match name {
+            "FIRE" => Element::Fire,
+            "WATER" => Element::Water,
+            "WIND" => Element::Wind,
+            "EARTH" => Element::Earth,
+            "HOLY" => Element::Holy,
+            "DARK" => Element::Dark,
+            _ => return None,
+        })
+    }
+
+    /// Index into per-element arrays (client-id order).
+    pub fn index(self) -> usize {
+        match self {
+            Element::Fire => 0,
+            Element::Water => 1,
+            Element::Wind => 2,
+            Element::Earth => 3,
+            Element::Holy => 4,
+            Element::Dark => 5,
+        }
+    }
+
+    /// `Stat.valueOf(attribute + "_POWER")`.
+    pub fn power_stat(self) -> Stat {
+        match self {
+            Element::Fire => Stat::FirePower,
+            Element::Water => Stat::WaterPower,
+            Element::Wind => Stat::WindPower,
+            Element::Earth => Stat::EarthPower,
+            Element::Holy => Stat::HolyPower,
+            Element::Dark => Stat::DarkPower,
+        }
+    }
+
+    /// `Stat.valueOf(attribute + "_RES")`.
+    pub fn res_stat(self) -> Stat {
+        match self {
+            Element::Fire => Stat::FireRes,
+            Element::Water => Stat::WaterRes,
+            Element::Wind => Stat::WindRes,
+            Element::Earth => Stat::EarthRes,
+            Element::Holy => Stat::HolyRes,
+            Element::Dark => Stat::DarkRes,
+        }
+    }
 }
 
 impl Stat {

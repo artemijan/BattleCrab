@@ -108,24 +108,24 @@ fn resist_multiplier_lowers_the_landing_rate() {
 
     // magic_level 40 vs target level 40, activate_rate 50, lvl_bonus 0
     // → base_mod = 3*0 + 50 + 30 = 80.
-    let unresisted = calc_effect_land_rate(40, 50, 0, 40, 1.0);
+    let unresisted = calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0);
     assert!((unresisted - 80.0).abs() < 1e-9, "got {unresisted}");
 
     // Guts (x0.5): 80 * 0.5 = 40.
-    let resisted = calc_effect_land_rate(40, 50, 0, 40, 0.5);
+    let resisted = calc_effect_land_rate(40, 50, 0, 40, 0.5, 1.0);
     assert!((resisted - 40.0).abs() < 1e-9, "got {resisted}");
 
     // Touch of Death (x1.3): 80 * 1.3 = 104, clamped down to the 90 ceiling.
-    let vulnerable = calc_effect_land_rate(40, 50, 0, 40, 1.3);
+    let vulnerable = calc_effect_land_rate(40, 50, 0, 40, 1.3, 1.0);
     assert!((vulnerable - 90.0).abs() < 1e-9, "clamped after the multiply, got {vulnerable}");
 
     // The 10 floor still holds under a crushing resistance.
-    let crushed = calc_effect_land_rate(40, 50, 0, 40, 0.01);
+    let crushed = calc_effect_land_rate(40, 50, 0, 40, 0.01, 1.0);
     assert!((crushed - 10.0).abs() < 1e-9, "got {crushed}");
 
     // An always-lands debuff (`activate_rate == -1`) ignores resistance
     // entirely, as in Java (the early return precedes the whole formula).
-    assert_eq!(calc_effect_land_rate(40, -1, 0, 40, 0.01), 100.0);
+    assert_eq!(calc_effect_land_rate(40, -1, 0, 40, 0.01, 1.0), 100.0);
 }
 
 // ---------------------------------------------------------------------------

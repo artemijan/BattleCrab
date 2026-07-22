@@ -204,6 +204,13 @@ pub struct NpcTemplate {
     /// (`union_skill` on the EffectPoint totems, boss AI skills, …). These are
     /// NOT template skills (`getSkills()`); see `skill_list`'s note.
     pub ai_skill_params: std::collections::HashMap<String, (i32, i32)>,
+    /// `<attribute><defence fire water wind earth holy dark/>` — the template
+    /// base for the six `Stat.*_RES` values (`AttributeFinalizer`'s
+    /// `getBaseValue`), indexed by [`Element::index`](crate::model::stats::Element::index).
+    pub base_element_res: [i32; 6],
+    /// `<attribute><attack type value/>` — the template's attack element
+    /// (`Stat.*_POWER` base). `None` when the tag is absent or `NONE`.
+    pub base_attack_element: Option<(crate::model::stats::Element, i32)>,
 }
 
 impl NpcTemplate {
@@ -486,6 +493,8 @@ pub fn default_template(id: i32) -> NpcTemplate {
         skill_list: Vec::new(),
         ai_params: std::collections::HashMap::new(),
         ai_skill_params: std::collections::HashMap::new(),
+        base_element_res: [0; 6],
+        base_attack_element: None,
     }
 }
 
@@ -675,6 +684,28 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                             set_f64(&e, b"mp", &mut t.base_mp_max);
                             set_f64(&e, b"hpRegen", &mut t.base_hp_reg);
                             set_f64(&e, b"mpRegen", &mut t.base_mp_reg);
+                        }
+                    }
+                    // `<attribute><defence fire=… dark=…/>` — the six element
+                    // defence bases (PLAN_G19_ATTRIBUTES.md).
+                    b"defence" if in_attribute => {
+                        if let Some(t) = cur.as_mut() {
+                            for (i, key) in [b"fire" as &[u8], b"water", b"wind", b"earth", b"holy", b"dark"].iter().enumerate() {
+                                if let Some(v) = attr_f64(&e, key) {
+                                    t.base_element_res[i] = v as i32;
+                                }
+                            }
+                        }
+                    }
+                    // `<attribute><attack type value/>` — the attack element.
+                    // A handful of templates declare several rows; last wins,
+                    // matching a repeated `set` of the same base stat.
+                    b"attack" if in_attribute => {
+                        if let (Some(t), Some(ty)) = (cur.as_mut(), attr_str(&e, b"type")) {
+                            if let Some(el) = crate::model::stats::Element::from_xml(&ty) {
+                                let v = attr_f64(&e, b"value").unwrap_or(0.0) as i32;
+                                t.base_attack_element = Some((el, v));
+                            }
                         }
                     }
                     b"attack" if !in_attribute => {
