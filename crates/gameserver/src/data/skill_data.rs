@@ -213,6 +213,14 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
     let mut in_effects = false;
     let mut cur_scope = EffectScope::General;
     let mut in_conditions = false;
+    // The one parsed skill condition: `OpExistNpc` (see `Skill::op_exist_npc`).
+    // Everything else under `<conditions>` is still skipped.
+    let mut cur_cond_name: Option<String> = None;
+    let mut cur_cond_field = String::new();
+    let mut cur_cond_npc_ids: Vec<i32> = Vec::new();
+    let mut cur_cond_range: i32 = 0;
+    let mut cur_cond_is_around = false;
+    let mut op_exist_npc: Option<crate::model::skill::OpExistNpcCondition> = None;
     let mut cur_effect_name: Option<String> = None;
     let mut cur_effect_params: LeveledValues = HashMap::new();
     let mut cur_effect_mode = String::from("DIFF");
@@ -295,6 +303,7 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                     effects.clear();
                     in_effects = false;
                     in_conditions = false;
+                    op_exist_npc = None;
                 } else if path.len() == 1 {
                     cur_field = name.clone();
                     // Any `<*Effects>` block opens the effect section; which one
@@ -307,6 +316,13 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                     }
                 } else if path.len() == 2 && name == "value" && !in_effects && !in_conditions {
                     pending_level = attr_i32(&e, b"level").unwrap_or(0);
+                } else if path.len() == 2 && in_conditions && name == "condition" {
+                    cur_cond_name = attr_str(&e, b"name");
+                    cur_cond_npc_ids = Vec::new();
+                    cur_cond_range = 0;
+                    cur_cond_is_around = false;
+                } else if path.len() == 3 && in_conditions {
+                    cur_cond_field = name.clone();
                 } else if path.len() == 2 && in_effects && name == "effect" {
                     cur_effect_name = attr_str(&e, b"name");
                     cur_effect_levels = effect_level_attrs(&e);
@@ -333,7 +349,19 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
                     continue;
                 }
                 if in_conditions {
-                    // Not parsed (see module docs) — nothing to record.
+                    // Only `OpExistNpc`'s fields are read; every other
+                    // condition is still skipped (see module docs).
+                    match (path.len(), cur_cond_field.as_str()) {
+                        (4, "range") => cur_cond_range = text.parse().unwrap_or(0),
+                        (4, "isAround") => cur_cond_is_around = text.eq_ignore_ascii_case("true"),
+                        // `<npcIds><item>13018</item>…`
+                        (5, "npcIds") => {
+                            if let Ok(v) = text.parse() {
+                                cur_cond_npc_ids.push(v);
+                            }
+                        }
+                        _ => {}
+                    }
                 } else if in_effects && cur_effect_field == "armorType" && path.len() == 5 {
                     // `<effect><armorType><item>MAGIC</item>...` — OR each armor
                     // kind's bit into the effect's condition mask.
@@ -377,12 +405,20 @@ fn parse_str(content: &str, out: &mut HashMap<(i32, i32), Skill>) {
             Ok(Event::End(_)) => {
                 let closed = path.pop().unwrap_or_default();
                 if closed == "skill" {
-                    finalize_skill(skill_id, &skill_name, to_level, &values, &effects, out);
+                    finalize_skill(skill_id, &skill_name, to_level, &values, &effects, &op_exist_npc, out);
                     skill_id = -1;
                 } else if closed.ends_with("ffects") {
                     in_effects = false;
                 } else if closed == "conditions" {
                     in_conditions = false;
+                } else if closed == "condition" && in_conditions {
+                    if cur_cond_name.take().as_deref() == Some("OpExistNpc") {
+                        op_exist_npc = Some(crate::model::skill::OpExistNpcCondition {
+                            npc_ids: std::mem::take(&mut cur_cond_npc_ids),
+                            range: cur_cond_range,
+                            is_around: cur_cond_is_around,
+                        });
+                    }
                 } else if closed == "item" && in_effects && cur_effect_field == "items" {
                     // Closes a `RestorationRandom` group (the inner
                     // `<item id=".." count=".."/>` is self-closing, so this
@@ -504,6 +540,7 @@ fn finalize_skill(
     to_level: i32,
     values: &LeveledValues,
     effects: &[ParsedEffect],
+    op_exist_npc: &Option<crate::model::skill::OpExistNpcCondition>,
     out: &mut HashMap<(i32, i32), Skill>,
 ) {
     if id < 0 {
@@ -782,6 +819,13 @@ fn finalize_skill(
                     // `power`). Mirror that default here; do NOT drop the effect,
                     // or the skill becomes a silent no-op.
                     "MagicalAttack" => vec![SkillEffect::MagicalAttack { power: param("power").unwrap_or(0.0) }],
+                    // The EffectPoint totem spawner (Symbol of Noise 455, Day
+                    // of Doom 1422, Anti-summoning Field 1424; PLAN_G19_SYMBOLS.md).
+                    "SummonNpc" => vec![SkillEffect::SummonNpc {
+                        npc_id: param("npcId").unwrap_or(0.0) as i32,
+                        npc_count: param("npcCount").unwrap_or(1.0) as i32,
+                        despawn_delay: param("despawnDelay").unwrap_or(0.0) as i32,
+                    }],
                     // Ranged magical nuke (e.g. Prominence 1230). Java's
                     // `MagicalAttackRange` computes the same
                     // `calcMagicDam(mAtk, power, mDef, sps, bss, mcrit)` core as
@@ -1507,6 +1551,7 @@ fn finalize_skill(
                 pve_effects,
                 pvp_effects,
                 channeling_effects,
+                op_exist_npc: op_exist_npc.clone(),
                 // Java `set.getInt("mpPerChanneling", _mpConsume)` — the
                 // default is the skill's own mpConsume, not 0.
                 mp_per_channeling: get_i("mpPerChanneling", get_i("mpConsume", 0)),

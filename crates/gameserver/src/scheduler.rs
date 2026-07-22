@@ -60,6 +60,14 @@ pub enum ScheduledTask {
     /// `stop_casting` removing the `Casting` component is Java's
     /// `stopChanneling`.
     ChannelingTick { player_object_id: i32, cast_seq: u64 },
+    /// An `EffectPoint` totem's fixed-rate `union_skill` cast (G19,
+    /// PLAN_G19_SYMBOLS.md). Re-schedules itself while the totem lives; a
+    /// dead/despawned totem ends the series (Java cancels the task in
+    /// `deleteMe`).
+    EffectPointCast { npc_oid: i32 },
+    /// `Npc.scheduleDespawn` for an `EffectPoint` totem — the seal's 15 s
+    /// lifetime running out.
+    EffectPointDespawn { npc_oid: i32 },
     /// `BuffFinishTask`: an active buff's `abnormalTime` has elapsed.
     BuffExpire { player_object_id: i32, skill_id: i32 },
     /// A `DamOverTime` effect's periodic tick (Java `EffectTickTask`, armed by

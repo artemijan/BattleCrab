@@ -70,6 +70,57 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             SkillEffect::SummonCubic { cubic_id, cubic_level } => {
                 crate::game_loop::cubic::summon_cubic(world, target_oid, *cubic_id, *cubic_level);
             }
+            // `SummonNpc.instant`, narrowed to the `EffectPoint` branch — the
+            // symbol totems (PLAN_G19_SYMBOLS.md). `Decoy` and the default
+            // plain-spawn branch are TODO(G19) (no learnable carriers).
+            SkillEffect::SummonNpc { npc_id, npc_count, despawn_delay } => {
+                // Java: effected must be a live player (dead/observer gated).
+                let effected_alive_player = world.objects.has_component::<crate::model::Player>(&target_oid)
+                    && world
+                        .objects
+                        .get_component::<Vitals>(&target_oid)
+                        .is_some_and(|v| !v.dead);
+                if !effected_alive_player {
+                    continue;
+                }
+                let is_effect_point = world
+                    .data
+                    .npc_data
+                    .get(*npc_id)
+                    .is_some_and(|t| t.type_name == "EffectPoint");
+                if !is_effect_point {
+                    // TODO(G19): Java's Decoy and default-spawn branches
+                    // (`SummonNpc.java` `switch (npcTemplate.getType())`).
+                    continue;
+                }
+                // GROUND skills spawn at the stored world position; everything
+                // else at the effected creature (`SummonNpc.instant`).
+                let fallback = world
+                    .objects
+                    .get_component::<crate::model::components::Position>(&target_oid)
+                    .map(|p| (p.x, p.y, p.z))
+                    .unwrap_or((0, 0, 0));
+                let (x, y, z) = if skill.target_type == crate::model::skill::TargetType::Ground {
+                    world
+                        .objects
+                        .get_component::<crate::model::components::GroundSkillTarget>(&target_oid)
+                        .map(|g| (g.x, g.y, g.z))
+                        .unwrap_or(fallback)
+                } else {
+                    fallback
+                };
+                for _ in 0..(*npc_count).max(1) {
+                    crate::game_loop::effect_point::spawn_effect_point(
+                        world,
+                        target_oid,
+                        *npc_id,
+                        x,
+                        y,
+                        z,
+                        *despawn_delay,
+                    );
+                }
+            }
             SkillEffect::MagicalAttack { power } => {
                 let power = *power;
                 let (m_atk, caster_name) = {

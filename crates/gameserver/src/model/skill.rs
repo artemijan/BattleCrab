@@ -426,6 +426,13 @@ pub enum SkillEffect {
     Root,
     /// `handlers/effecthandlers/MagicalAttack.java` — instant magic damage.
     MagicalAttack { power: f64 },
+    /// `handlers/effecthandlers/SummonNpc.java`, narrowed to the `EffectPoint`
+    /// branch (PLAN_G19_SYMBOLS.md): drop a totem NPC at the aimed ground
+    /// point that pulses its template's `union_skill` every `skill_delay`
+    /// seconds until `despawn_time`. The `Decoy` and default-spawn branches
+    /// are TODO(G19) (no learnable carriers); `despawn_delay` is the effect's
+    /// fallback when the template declares no `despawn_time`.
+    SummonNpc { npc_id: i32, npc_count: i32, despawn_delay: i32 },
     /// `handlers/effecthandlers/PhysicalAttack.java` — instant physical skill
     /// damage (`77·((pAtk·pAtkMod)·levelMod + power) / (pDef·pDefMod)`, crit ×2,
     /// soulshot ×2). Also backs `PhysicalSoulAttack` (identical formula; its
@@ -1055,6 +1062,20 @@ pub struct Skill {
     pub channeling_tick_ms: i32,
     /// Java `channelingStart` in ms — delay before the first tick.
     pub channeling_start_ms: i32,
+    /// The `OpExistNpc` skill condition (`skillconditionhandlers/
+    /// OpExistNpcSkillCondition.java`) — the first entry of a condition
+    /// layer: the cast is allowed only if NPCs from `npc_ids` within `range`
+    /// of the **caster** exist (`is_around`) / don't exist (`!is_around`).
+    /// The symbol skills use it to stop you re-casting next to a live seal.
+    pub op_exist_npc: Option<OpExistNpcCondition>,
+}
+
+/// See [`Skill::op_exist_npc`].
+#[derive(Debug, Clone, PartialEq)]
+pub struct OpExistNpcCondition {
+    pub npc_ids: Vec<i32>,
+    pub range: i32,
+    pub is_around: bool,
 }
 impl Default for Skill {
     /// A blank skill: no effects, no costs, single-target, instant.
@@ -1115,6 +1136,7 @@ impl Default for Skill {
             mp_per_channeling: 0,
             channeling_tick_ms: 0,
             channeling_start_ms: 0,
+            op_exist_npc: None,
         }
     }
 }
