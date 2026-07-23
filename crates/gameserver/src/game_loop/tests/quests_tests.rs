@@ -9325,3 +9325,139 @@ fn quest_q00218_testimony_of_life() {
     assert_eq!(item_count(&world, 3001, 57), a + 342288, "final adena reward");
     assert_ne!(quest_cond(&world, 3001, q), Some(21), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00229_test_of_witchcraft() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = (3308..=3335).map(|id| (id, "Q229", true)).collect();
+    items.push((3029, "Sword of Binding", true));
+    items.push((3307, "Mark of Witchcraft", false));
+    add_quest_items(&mut world, &items);
+    for id in [20557, 20565, 20577, 20601, 27099, 27100, 27101] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        t.base_hp_max = 100_000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let orim = NPC_OID;
+    let alexandria = NPC_OID + 1;
+    let iker = NPC_OID + 2;
+    let kaira = NPC_OID + 3;
+    let lara = NPC_OID + 4;
+    let nestle = NPC_OID + 5;
+    let leopold = NPC_OID + 6;
+    let vasper = NPC_OID + 7;
+    let vadin = NPC_OID + 8;
+    let evert = NPC_OID + 9;
+    for (oid, npc) in [
+        (orim, 30630),
+        (alexandria, 30098),
+        (iker, 30110),
+        (kaira, 30476),
+        (lara, 30063),
+        (nestle, 30314),
+        (leopold, 30435),
+        (vasper, 30417),
+        (vadin, 30188),
+        (evert, 30633),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 11; // Wizard
+    }
+    let q = "Q00229_TestOfWitchcraft";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 40;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, orim);
+    ev(&mut world, orim, "ACCEPT");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    talk(&mut world, alexandria);
+    ev(&mut world, alexandria, "30098-03.htm"); // Diagram → Alexandria's Book, cond 2
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    // Gem 1 (Iker): 20 each of three reagents.
+    ev(&mut world, iker, "30110-03.htm"); // Iker's List
+    inject(&mut world, 3001, 0x0229_0000, 3311, 19); // dire wyrm fang
+    kill(&mut world, 20557); // +1 → 20
+    inject(&mut world, 3001, 0x0229_0001, 3313, 20); // golem heartstone
+    inject(&mut world, 3001, 0x0229_0002, 3312, 20); // leto charm
+    talk(&mut world, iker); // → Aklantoth 1st Gem
+    assert_eq!(item_count(&world, 3001, 3317), 1, "Aklantoth 1st Gem");
+    // Gem 2 (Kaira)
+    ev(&mut world, kaira, "30476-02.htm");
+    assert_eq!(item_count(&world, 3001, 3318), 1, "Aklantoth 2nd Gem");
+    // Gem 3 (Lara → Nameless Revenant)
+    ev(&mut world, lara, "30063-02.htm"); // Lara's Memo
+    kill(&mut world, 27099); // Nameless Revenant → 3rd Gem
+    assert_eq!(item_count(&world, 3001, 3319), 1, "Aklantoth 3rd Gem");
+    // Gems 4-6 (Nestle/Leopold → Skeletal Mercenary)
+    ev(&mut world, nestle, "30314-02.htm"); // Nestle's Memo
+    ev(&mut world, leopold, "30435-02.htm"); // Leopold's Journal
+    kill(&mut world, 27100); // 4th Gem
+    kill(&mut world, 27100); // 5th Gem
+    kill(&mut world, 27100); // 6th Gem → cond 3
+    assert_eq!(item_count(&world, 3001, 3322), 1, "Aklantoth 6th Gem");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    // Orim forges the First Brimstone and summons Zeruel.
+    talk(&mut world, orim);
+    ev(&mut world, orim, "30630-14.htm"); // gems → First Brimstone, cond 4
+    assert_eq!(item_count(&world, 3001, 3323), 1, "First Brimstone");
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    // Driving Zeruel off (attack while holding the brimstone) → cond 5.
+    add_test_npc(&mut world, NPC_OID + 20, 27101, "Monster", 40, 40, 0, 0);
+    combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0);
+    assert_eq!(quest_cond(&world, 3001, q), Some(5), "Zeruel driven off → cond 5");
+    talk(&mut world, orim);
+    ev(&mut world, orim, "30630-16.htm"); // → Orim's Instructions + two letters, cond 6
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    // Sword of Binding path.
+    ev(&mut world, vasper, "30417-03.htm"); // 1st Letter → Sir Vasper's Letter
+    talk(&mut world, vadin); // Vasper's Letter → Vadin's Crucifix
+    assert_eq!(item_count(&world, 3001, 3328), 1, "Vadin's Crucifix");
+    inject(&mut world, 3001, 0x0229_0003, 3329, 19); // 19 Tamlin amulets
+    world.forced_rolls.push_back(0); // roll(100)=0 < 50 → drop
+    kill(&mut world, 20601); // +1 → 20
+    talk(&mut world, vadin); // amulets → Vadin's Sanctions
+    assert_eq!(item_count(&world, 3001, 3330), 1, "Vadin's Sanctions");
+    talk(&mut world, vasper); // Sanctions → Sword of Binding
+    assert_eq!(item_count(&world, 3001, 3029), 1, "Sword of Binding");
+    // Soultrap Crystal path → cond 7.
+    ev(&mut world, iker, "30110-08.htm"); // 2nd Letter → Soultrap Crystal, cond 7
+    assert_eq!(item_count(&world, 3001, 3332), 1, "Soultrap Crystal");
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    talk(&mut world, orim); // cond 8
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    // Evert summons Zeruel for the binding.
+    ev(&mut world, evert, "30633-02.htm"); // → Second Brimstone, cond 9
+    assert_eq!(item_count(&world, 3001, 3335), 1, "Second Brimstone");
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    // Bind Zeruel with a killing blow from the Sword of Binding.
+    equip_weapon_row(&mut world, 3001, 3029);
+    for (obj, item) in [(0x0229_0004, 3324), (0x0229_0005, 3335), (0x0229_0006, 3029), (0x0229_0007, 3332)] {
+        inject(&mut world, 3001, obj, item, 1); // instructions, brimstone2, sword, soultrap
+    }
+    kill(&mut world, 27101); // Zeruel (sword-struck) → Zeruel Bind Crystal, cond 10
+    assert_eq!(item_count(&world, 3001, 3334), 1, "Zeruel Bind Crystal");
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    // --- Completion at Orim ---
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, orim);
+    ev(&mut world, orim, "30630-22.htm");
+    assert_eq!(item_count(&world, 3001, 3307), 1, "Mark of Witchcraft awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 372154, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(10), "one-time quest finished");
+}

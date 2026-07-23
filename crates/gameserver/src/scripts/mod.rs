@@ -112,6 +112,7 @@ pub mod q00218_testimony_of_life;
 pub mod q00219_testimony_of_fate;
 pub mod q00226_test_of_the_healer;
 pub mod q00228_test_of_magus;
+pub mod q00229_test_of_witchcraft;
 pub mod q00232_test_of_the_lord;
 pub mod q00233_test_of_the_war_spirit;
 pub mod q00225_test_of_the_searcher;
@@ -207,6 +208,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00219_testimony_of_fate::Q00219TestimonyOfFate),
         Arc::new(q00226_test_of_the_healer::Q00226TestOfTheHealer),
         Arc::new(q00228_test_of_magus::Q00228TestOfMagus),
+        Arc::new(q00229_test_of_witchcraft::Q00229TestOfWitchcraft),
         Arc::new(q00232_test_of_the_lord::Q00232TestOfTheLord),
         Arc::new(q00233_test_of_the_war_spirit::Q00233TestOfTheWarSpirit),
         Arc::new(q00225_test_of_the_searcher::Q00225TestOfTheSearcher),
