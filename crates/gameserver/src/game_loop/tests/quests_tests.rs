@@ -4967,3 +4967,76 @@ fn quest_q00300_refused_above_level_39() {
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-03.htm")));
     assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-40 starter never begins");
 }
+
+/// Q00296 Tarantula's Spider Silk: the rare spinnerette drop, Nathan spinning
+/// each spinnerette into 15+rnd(9) silk, and Mion's adena turn-in.
+#[test]
+fn quest_q00296_spider_silk_loop() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1493, "Tarantula Spider Silk", true), (1494, "Tarantula Spinnerette", true)]);
+    let mut t = crate::data::npc_data::default_template(20394);
+    t.type_name = "Monster".into();
+    t.level = 18;
+    world.data.npc_data.insert_for_test(t);
+    let (mion, nathan) = (NPC_OID, NPC_OID + 1);
+    add_test_npc(&mut world, mion, 30519, "Folk", 5, 100, 0, 0);
+    add_test_npc(&mut world, nathan, 30548, "Folk", 5, 120, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 18;
+    drain_db(&mut db_rx);
+
+    let q = "Q00296_TarantulasSpiderSilk";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{mion}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{mion}_Quest {q} 30519-03.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+    drain(&mut rx);
+
+    let mob = NPC_OID + 2;
+    // 2 rare spinnerettes (gate roll 96 > 95, then the give_item_randomly roll).
+    for i in 0..2 {
+        add_test_npc(&mut world, mob + i, 20394, "Monster", 18, 30, 0, 0);
+        world.forced_rolls.push_back(96);
+        world.forced_rolls.push_back(0);
+        death::npc_do_die(&mut world, mob + i, 3001);
+    }
+    // 3 plain silks (gate 50).
+    for i in 2..5 {
+        add_test_npc(&mut world, mob + i, 20394, "Monster", 18, 30, 0, 0);
+        world.forced_rolls.push_back(50);
+        world.forced_rolls.push_back(0);
+        death::npc_do_die(&mut world, mob + i, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, 1494), 2, "two spinnerettes");
+    assert_eq!(item_count(&world, 3001, 1493), 3, "three silks");
+    drain(&mut rx);
+
+    // Nathan spins: (15 + rnd(9)=0) * 2 spinnerettes = 30 silk; spinnerettes consumed.
+    world.forced_rolls.push_back(0);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{nathan}_Quest {q} 30548-03.html")));
+    assert_eq!(item_count(&world, 3001, 1493), 33, "3 + 15*2 silk");
+    assert_eq!(item_count(&world, 3001, 1494), 0, "spinnerettes consumed");
+
+    // Spinning again with none does nothing (30548-02).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{nathan}_Quest {q} 30548-03.html")));
+    assert_eq!(item_count(&world, 3001, 1493), 33, "no silk added without a spinnerette");
+
+    // Mion pays 5a per silk (+1000 for 10+): 33*5 + 1000 = 1165.
+    let adena_before = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{mion}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), adena_before + 1165, "silk turn-in");
+    assert_eq!(item_count(&world, 3001, 1493), 0, "silk handed in");
+}
+
+/// Q00296 refuses a starter above level 21 (`addCondMaxLevel(21)`).
+#[test]
+fn quest_q00296_refused_above_level_21() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1493, "Silk", true)]);
+    add_test_npc(&mut world, NPC_OID, 30519, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 22;
+    let q = "Q00296_TarantulasSpiderSilk";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30519-03.htm")));
+    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-22 starter never begins");
+}
