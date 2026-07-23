@@ -7288,3 +7288,72 @@ fn quest_q00235_mimirs_elixir() {
     assert_eq!(item_count(&world, 3001, 6319), 0, "elixir consumed");
     assert_ne!(quest_cond(&world, 3001, q), Some(8), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00222_test_of_the_duelist() {
+    let (mut world, _db, _l) = quest_test_world();
+    // 5 orders + 10 stage-1 trophies + final order + 5 stage-2 trophies + mark.
+    let mut items: Vec<(i32, &str, bool)> = (2762..=2783).map(|id| (id, "Q222", true)).collect();
+    items.push((2762, "Mark of Duelist", false)); // reward (overwrites, non-quest)
+    add_quest_items(&mut world, &items);
+    let stage1_mobs = [20085, 20090, 20202, 20234, 20270, 20552, 20564, 20582, 20601, 20602];
+    let stage2_mobs = [20214, 20217, 20554, 20588, 20604];
+    for &id in stage1_mobs.iter().chain(stage2_mobs.iter()) {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30623, "Folk", 40, 100, 0, 0); // Kaien
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 1; // Warrior
+    }
+    let q = "Q00222_TestOfTheDuelist";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} ACCEPT")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    assert_eq!(item_count(&world, 3001, 2763), 1, "Order of Gludio given");
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30623-08.html")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    // Stage 1: 9 of each of 10 trophies pre-stocked, then one kill of each mob.
+    // The kill counter reaches 9 exactly as the 10th kill fills the last trophy.
+    for id in 2768..=2777 {
+        inject(&mut world, 3001, 0x0222_0000 + id, id, 9);
+    }
+    let mut oid = NPC_OID + 100;
+    for &mob in &stage1_mobs {
+        add_test_npc(&mut world, oid, mob, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(&mut world, oid, 3001);
+        oid += 1;
+    }
+    assert_eq!(quest_cond(&world, 3001, q), Some(3), "all ten trophies + kill counter → cond 3");
+    assert_eq!(item_count(&world, 3001, 2768), 10, "Puncher's Shard capped at 10");
+    // Turn in the ten trophies + five orders for the Final Order (memo 2, cond 4).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30623-16.html")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    assert_eq!(item_count(&world, 3001, 2778), 1, "Final Order received");
+    assert_eq!(item_count(&world, 3001, 2768), 0, "stage-1 trophies consumed");
+    assert_eq!(item_count(&world, 3001, 2763), 0, "region orders consumed");
+    // Stage 2: 2 each of four trophies + 1 of the fifth, then kills. The counter
+    // needs >= 5, so the fifth trophy takes two kills to cap.
+    for id in [2779, 2780, 2781, 2782] {
+        inject(&mut world, 3001, 0x0222_1000 + id, id, 2);
+    }
+    inject(&mut world, 3001, 0x0222_1000 + 2783, 2783, 1);
+    let s2_kills = [20214, 20217, 20554, 20588, 20604, 20604]; // last mob twice
+    for &mob in &s2_kills {
+        add_test_npc(&mut world, oid, mob, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(&mut world, oid, 3001);
+        oid += 1;
+    }
+    assert_eq!(quest_cond(&world, 3001, q), Some(5), "stage-2 trophies + counter → cond 5");
+    // Kaien awards the Mark of Duelist and finishes.
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 2762), 1, "Mark of Duelist awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 161806, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(5), "one-time quest finished");
+}
