@@ -13,13 +13,15 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent, type ReactNode } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import {
   ApiError,
   api,
   type AdminGameAccount,
   type AdminMasterSummary,
+  type AdminSortDir,
+  type AdminSortKey,
   type Character,
 } from "../lib/api";
 import { Alert, Button, Field, Panel, Spinner, cx } from "../components/ui";
@@ -77,13 +79,28 @@ function MasterBadges({ master }: { master: AdminMasterSummary }) {
 /* /admin — the account list                                                  */
 /* -------------------------------------------------------------------------- */
 
+/** Column definitions: label + which direction a fresh click starts with.
+ *  Text sorts open ascending, count/date sorts open with the biggest first. */
+const COLUMNS: Array<{ key: AdminSortKey; label: string; firstDir: AdminSortDir }> = [
+  { key: "email", label: "Email", firstDir: "asc" },
+  { key: "accessLevel", label: "Level", firstDir: "desc" },
+  { key: "verified", label: "Verified", firstDir: "desc" },
+  { key: "gameAccounts", label: "Game accts", firstDir: "desc" },
+  { key: "characters", label: "Characters", firstDir: "desc" },
+  { key: "lastActive", label: "Last active", firstDir: "desc" },
+  { key: "created", label: "Created", firstDir: "desc" },
+];
+
 export function AdminAccounts() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [offset, setOffset] = useState(0);
+  const [sort, setSort] = useState<AdminSortKey>("created");
+  const [dir, setDir] = useState<AdminSortDir>("desc");
 
   const list = useQuery({
-    queryKey: ["admin", "accounts", query, offset],
-    queryFn: () => api.admin.accounts(query, offset, PAGE_SIZE),
+    queryKey: ["admin", "accounts", query, offset, sort, dir],
+    queryFn: () => api.admin.accounts(query, offset, PAGE_SIZE, sort, dir),
     // Typing a new search resets paging; keeping the previous page on screen
     // while the next loads stops the list from flashing empty.
     placeholderData: (previous) => previous,
@@ -92,6 +109,16 @@ export function AdminAccounts() {
   const total = list.data?.total ?? 0;
   const shownFrom = offset + 1;
   const shownTo = Math.min(offset + PAGE_SIZE, total);
+
+  const onSort = (column: (typeof COLUMNS)[number]) => {
+    if (sort === column.key) {
+      setDir(dir === "asc" ? "desc" : "asc");
+    } else {
+      setSort(column.key);
+      setDir(column.firstDir);
+    }
+    setOffset(0);
+  };
 
   return (
     <div className="space-y-5 pb-6">
@@ -102,6 +129,8 @@ export function AdminAccounts() {
           its owner.
         </p>
       </section>
+
+      <CreateGameAccountPanel />
 
       <Field
         label="Search"
@@ -126,30 +155,81 @@ export function AdminAccounts() {
         </Panel>
       ) : (
         <>
-          <Panel className="overflow-hidden">
-            <ul className="divide-y divide-[var(--surface-border)]">
-              {list.data.accounts.map((master) => (
-                <li key={master.email}>
-                  <Link
-                    to={`/admin/accounts/${encodeURIComponent(master.email)}`}
-                    className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3.5
-                               transition-colors hover:bg-[var(--surface-strong)]"
+          {/* The table scrolls inside the panel on narrow screens rather than
+              stretching the page. */}
+          <Panel className="overflow-x-auto">
+            <table className="w-full min-w-[44rem] text-sm">
+              <thead>
+                <tr className="border-b border-[var(--surface-border)] text-left">
+                  {COLUMNS.map((column) => (
+                    <th key={column.key} className="px-4 py-2.5 font-medium">
+                      <button
+                        type="button"
+                        onClick={() => onSort(column)}
+                        className={cx(
+                          "inline-flex items-center gap-1 transition-colors hover:text-[var(--text)]",
+                          sort === column.key
+                            ? "text-[var(--text)]"
+                            : "text-[var(--text-muted)]",
+                        )}
+                      >
+                        {column.label}
+                        <span aria-hidden className="text-xs">
+                          {sort === column.key ? (dir === "asc" ? "▲" : "▼") : ""}
+                        </span>
+                      </button>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--surface-border)]">
+                {list.data.accounts.map((master) => (
+                  <tr
+                    key={master.email}
+                    onClick={() =>
+                      navigate(`/admin/accounts/${encodeURIComponent(master.email)}`)
+                    }
+                    className="cursor-pointer transition-colors hover:bg-[var(--surface-strong)]"
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="truncate font-medium">{master.email}</p>
-                        <MasterBadges master={master} />
-                      </div>
-                      <p className="mt-0.5 text-sm text-[var(--text-muted)]">
-                        {master.gameAccounts} game account{master.gameAccounts === 1 ? "" : "s"} ·{" "}
-                        {master.characters} character{master.characters === 1 ? "" : "s"} · last
-                        active {formatLastActive(master.lastActive)}
-                      </p>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+                    <td className="max-w-64 px-4 py-3">
+                      {/* A real link so middle-click / copy address work; the
+                          row onClick covers the rest of the row. */}
+                      <Link
+                        to={`/admin/accounts/${encodeURIComponent(master.email)}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="block truncate font-medium hover:underline"
+                      >
+                        {master.email}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3">
+                      {master.accessLevel < 0 ? (
+                        <StatusBadge kind="bad">Banned</StatusBadge>
+                      ) : master.accessLevel > 0 ? (
+                        <StatusBadge kind="ok">{master.accessLevel}</StatusBadge>
+                      ) : (
+                        <span className="text-[var(--text-muted)]">0</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {master.isVerified ? (
+                        <span className="text-[var(--text-muted)]">Yes</span>
+                      ) : (
+                        <StatusBadge kind="warn">No</StatusBadge>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 tabular-nums">{master.gameAccounts}</td>
+                    <td className="px-4 py-3 tabular-nums">{master.characters}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-[var(--text-muted)]">
+                      {formatLastActive(master.lastActive)}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-[var(--text-muted)]">
+                      {master.createdTime || "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </Panel>
 
           <div className="flex items-center justify-between text-sm text-[var(--text-muted)]">
@@ -178,6 +258,109 @@ export function AdminAccounts() {
         </>
       )}
     </div>
+  );
+}
+
+/**
+ * Creates a game account under the admin's own master address. The server
+ * copies the admin's accessLevel onto it, so what comes out is a GM game
+ * account — hence the explicit warning in the form.
+ */
+function CreateGameAccountPanel() {
+  const invalidate = useInvalidateAdmin();
+  const [open, setOpen] = useState(false);
+  const [login, setLogin] = useState("");
+  const [password, setPassword] = useState("");
+
+  const create = useMutation({
+    mutationFn: () => api.admin.createGameAccount(login, password),
+    onSuccess: () => {
+      setLogin("");
+      setPassword("");
+      setOpen(false);
+      invalidate();
+    },
+  });
+
+  if (!open) {
+    return (
+      <div className="flex items-center gap-3">
+        <Button
+          variant="secondary"
+          className="px-3 py-2 text-xs"
+          onClick={() => {
+            create.reset();
+            setOpen(true);
+          }}
+        >
+          Create GM game account…
+        </Button>
+        {create.isSuccess && (
+          <span className="text-sm text-emerald-600 dark:text-emerald-300">
+            Created — it appears under your own master account.
+          </span>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <Panel className="p-5">
+      <form
+        onSubmit={(e: FormEvent) => {
+          e.preventDefault();
+          create.mutate();
+        }}
+        className="flex flex-wrap items-end gap-3"
+      >
+        {create.isError && (
+          <div className="w-full">
+            <Alert kind="error">
+              {create.error instanceof ApiError && create.error.code === "login_taken"
+                ? "That username is already taken."
+                : errorMessage(create.error)}
+            </Alert>
+          </div>
+        )}
+        <div className="min-w-48 flex-1">
+          <Field
+            label="Game account username"
+            value={login}
+            onChange={(e) => setLogin(e.target.value)}
+            autoComplete="off"
+            required
+          />
+        </div>
+        <div className="min-w-48 flex-1">
+          <Field
+            label="Password"
+            type="text"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            hint="At least 8 characters."
+            autoComplete="off"
+            required
+          />
+        </div>
+        <div className="flex gap-2 pb-6">
+          <Button type="submit" loading={create.isPending} className="px-3 py-2 text-xs">
+            Create
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setOpen(false)}
+            className="px-3 py-2 text-xs"
+          >
+            Cancel
+          </Button>
+        </div>
+        <p className="w-full text-xs text-[var(--text-faint)]">
+          The new account is created under your master account and copies your access level — it
+          logs into the game as a GM.
+        </p>
+      </form>
+    </Panel>
   );
 }
 

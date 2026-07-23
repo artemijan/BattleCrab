@@ -893,6 +893,18 @@ verify/ban actions; per-game-account cards with ban and password-reset, characte
 their account). Non-admins never see the nav link and get bounced by `RequireAdmin`; the server
 would 403 them regardless.
 
+**MVP additions (2026-07-23).** The master list became a real table with server-side column
+sorting: `?sort=` / `?dir=` on `GET /admin/accounts`, whitelisted through the `MasterSort` /
+`SortDir` enums so caller input never reaches the SQL text (count columns sort by their SELECT
+alias; unknown names are a 400, not a silently different order). And admins can mint GM game
+accounts: `POST /admin/game-accounts` creates a game account under the **actor's own** master
+address with the actor's `accessLevel` copied onto it. That is the crate's second `accessLevel`
+write, and it preserves the no-elevation property structurally — `db::admin::create_gm_game_account`
+reads the level off the `Account` it is passed rather than accepting an integer, so no caller can
+write a level the actor does not already hold. The player-facing `MaxGameAccounts` cap deliberately
+does not apply (privileged, logged path). Characters and their levels were already in the detail
+view via `CharacterSummary.level`.
+
 ### 16.5 Auditability, and what stays out
 
 Every mutation logs `admin`, `target` and the action at `info` — with shared level-100 accounts the
@@ -903,6 +915,22 @@ that decision unlocks, and it should ride along when that lands.
 Also consciously out, with reasons rather than TODOs:
 
 - **In-game actions** (kick, mute, item grants, announcements): need the game-server network
-  endpoint §4 declined to add; revisit alongside §12's live-status question.
+  endpoint §4 declined to add; §16.6 is the plan for it.
 - **Deleting accounts**: orphans `characters.account_name` rows (§15.7's unresolved decision).
 - **Editing characters**: forbidden by §3.2, full stop.
+
+### 16.6 Planned: game-server control channel
+
+In-game administration (reboot, config reload, kick, announce, …) needs a channel from
+`dashboard_api` to the running game server — the DB cannot carry it, because live state is
+memory-first (§3.2) and command-shaped writes need acknowledgement, not polling. Plan when it
+lands:
+
+- A small authenticated command endpoint on the game server (localhost/private-network bind, shared
+  token from the environment like every other secret), mirroring how the login server and game
+  server already trust each other.
+- `dashboard_api` stays the only thing the browser talks to: admin UI → REST here → internal
+  channel → game server, so the browser-facing auth model (§16.2) is unchanged.
+- First commands: config reload and graceful restart; kick/announce ride the same channel later.
+- Each command logs actor + action like every §16 mutation, and lands in the audit table once §7's
+  storage decision unlocks it.
