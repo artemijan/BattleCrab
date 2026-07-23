@@ -8924,3 +8924,145 @@ fn quest_q00233_test_of_the_war_spirit() {
     assert_eq!(item_count(&world, 3001, 57), a + 161806, "final adena reward");
     assert_ne!(quest_cond(&world, 3001, q), Some(5), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00217_testimony_of_trust() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = (2735..=2761).map(|id| (id, "Q217", true)).collect();
+    items.push((2734, "Mark of Trust", false));
+    add_quest_items(&mut world, &items);
+    for id in [20013, 27121, 20036, 27120, 20550, 20082, 20157, 20553, 20213] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        t.base_hp_max = 100_000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let hollint = NPC_OID;
+    let biotin = NPC_OID + 1;
+    let asterios = NPC_OID + 2;
+    let thifiell = NPC_OID + 3;
+    let clayton = NPC_OID + 4;
+    let manakia = NPC_OID + 5;
+    let lockirin = NPC_OID + 6;
+    let kakai = NPC_OID + 7;
+    let nikola = NPC_OID + 8;
+    let seresin = NPC_OID + 9;
+    for (oid, npc) in [
+        (hollint, 30191),
+        (biotin, 30031),
+        (asterios, 30154),
+        (thifiell, 30358),
+        (clayton, 30464),
+        (manakia, 30515),
+        (lockirin, 30531),
+        (kakai, 30565),
+        (nikola, 30621),
+        (seresin, 30657),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 1; // Warrior (Human, HUMAN_2ND_GROUP)
+        p.race = 0; // Human
+    }
+    world.data.categories.insert_for_test("HUMAN_2ND_GROUP", &[1]);
+    let q = "Q00217_TestimonyOfTrust";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 40;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, hollint);
+    ev(&mut world, hollint, "ACCEPT");
+    assert_eq!(quest_memo(&world, 3001, q), 1);
+    talk(&mut world, asterios);
+    ev(&mut world, asterios, "30154-03.html"); // → Order of Asterios, memo 2, cond 2
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    // --- Elf leg: conjure and slay Actea and Luell ---
+    world.forced_rolls.push_back(0); // roll(100)=0 < 33 → spawn Actea
+    kill(&mut world, 20013); // Dryad
+    assert_eq!(npcs_of(&mut world, 27121).len(), 1, "Actea conjured");
+    kill(&mut world, 27121); // Actea → Seed of Verdure
+    assert_eq!(item_count(&world, 3001, 2747), 1, "Seed of Verdure");
+    world.forced_rolls.push_back(0);
+    kill(&mut world, 20036); // Lirein → spawn Luell
+    kill(&mut world, 27120); // Luell → Breath of Winds, memo 3, cond 3
+    assert_eq!(item_count(&world, 3001, 2746), 1, "Breath of Winds");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    talk(&mut world, asterios); // → Scroll of Elf Trust, memo 4, cond 4
+    assert_eq!(item_count(&world, 3001, 2741), 1, "Scroll of Elf Trust");
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    // --- Dark Elf leg: Thifiell → Clayton → three reagents ---
+    talk(&mut world, thifiell);
+    ev(&mut world, thifiell, "30358-02.html"); // → Letter of Thifiell, memo 5, cond 5
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    talk(&mut world, clayton); // → Order of Clayton, memo 6, cond 6
+    assert_eq!(item_count(&world, 3001, 2755), 1, "Order of Clayton");
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    inject(&mut world, 3001, 0x0217_0000, 2749, 4); // 4 basilisk blood
+    kill(&mut world, 20550); // 5th → Basilisk Plasma
+    inject(&mut world, 3001, 0x0217_0001, 2750, 4); // 4 giant aphid
+    kill(&mut world, 20082); // 5th → Honey Dew
+    inject(&mut world, 3001, 0x0217_0002, 2751, 4); // 4 stakato fluids
+    kill(&mut world, 20157); // 5th → Stakato Ichor, cond 7
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    talk(&mut world, clayton); // cond 8
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    talk(&mut world, thifiell); // → Scroll of Dark Elf Trust, memo 7, cond 9
+    assert_eq!(item_count(&world, 3001, 2740), 1, "Scroll of Dark Elf Trust");
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    talk(&mut world, hollint); // → Letter to Seresin, memo 8, cond 10
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    talk(&mut world, seresin);
+    ev(&mut world, seresin, "30657-03.html"); // → Letters to Dwarf + Orc, memo 9, cond 12
+    assert_eq!(quest_cond(&world, 3001, q), Some(12));
+    // --- Orc leg: Kakai → Manakia → windsus parasites ---
+    talk(&mut world, kakai);
+    ev(&mut world, kakai, "30565-02.html"); // → Letter to Manakia, memo 10, cond 13
+    assert_eq!(quest_cond(&world, 3001, q), Some(13));
+    talk(&mut world, manakia);
+    ev(&mut world, manakia, "30515-02.html"); // memo 11, cond 14
+    assert_eq!(quest_cond(&world, 3001, q), Some(14));
+    inject(&mut world, 3001, 0x0217_0003, 2756, 8); // 8 parasites
+    kill(&mut world, 20553); // +2 → 10, memo 12, cond 15
+    assert_eq!(quest_cond(&world, 3001, q), Some(15));
+    talk(&mut world, manakia); // → Letter of Manakia, memo 13, cond 16
+    assert_eq!(quest_cond(&world, 3001, q), Some(16));
+    talk(&mut world, kakai); // → Scroll of Orc Trust, memo 14, cond 17
+    assert_eq!(item_count(&world, 3001, 2743), 1, "Scroll of Orc Trust");
+    assert_eq!(quest_cond(&world, 3001, q), Some(17));
+    // --- Dwarf leg: Lockirin → Nikola → Porta heart ---
+    talk(&mut world, lockirin);
+    ev(&mut world, lockirin, "30531-02.html"); // → Letter to Nichola, memo 15, cond 18
+    assert_eq!(quest_cond(&world, 3001, q), Some(18));
+    talk(&mut world, nikola);
+    ev(&mut world, nikola, "30621-02.html"); // → Order of Nichola, memo 16, cond 19
+    assert_eq!(quest_cond(&world, 3001, q), Some(19));
+    kill(&mut world, 20213); // Porta → Heart of Porta, cond 20
+    assert_eq!(quest_cond(&world, 3001, q), Some(20));
+    talk(&mut world, nikola); // heart → memo 17, cond 21
+    assert_eq!(quest_cond(&world, 3001, q), Some(21));
+    talk(&mut world, lockirin); // → Scroll of Dwarf Trust, memo 18, cond 22
+    assert_eq!(item_count(&world, 3001, 2742), 1, "Scroll of Dwarf Trust");
+    assert_eq!(quest_cond(&world, 3001, q), Some(22));
+    talk(&mut world, hollint); // → Recommendation of Hollin, memo 19, cond 23
+    assert_eq!(item_count(&world, 3001, 2744), 1, "Recommendation of Hollin");
+    assert_eq!(quest_cond(&world, 3001, q), Some(23));
+    // --- Completion at Biotin ---
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, biotin);
+    assert_eq!(item_count(&world, 3001, 2734), 1, "Mark of Trust awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 252212, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(23), "one-time quest finished");
+}
