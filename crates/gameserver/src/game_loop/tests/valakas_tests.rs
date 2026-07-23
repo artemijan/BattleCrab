@@ -369,3 +369,85 @@ fn the_bypass_reaches_the_entry_through_the_router() {
     assert_eq!(world.valakas_entry_count, 1, "the bypass admitted through the router");
     assert_eq!(crate::game_loop::grand_boss::status(&world, VALAKAS), Some(WAITING), "WAITING set");
 }
+
+// ---------------------------------------------------------------------------
+// The death tail — exit cubes + zone clear (`onKill` / `remove_players`).
+// ---------------------------------------------------------------------------
+
+const CUBE: i32 = 31759;
+
+fn register_cube(world: &mut World) {
+    let mut t = crate::data::npc_data::default_template(CUBE);
+    t.type_name = "Folk".into();
+    world.data.npc_data.insert_for_test(t);
+}
+
+fn spawned_cubes(world: &World) -> usize {
+    world
+        .npc_regions
+        .values()
+        .flatten()
+        .filter(|oid| world.objects.get_component::<crate::model::npc::Npc>(oid).is_some_and(|n| n.npc_id == CUBE))
+        .count()
+}
+
+/// Killing Valakas (through the real `npc_do_die` death path) arms the
+/// eight-beat death cinematic.
+#[test]
+fn killing_valakas_arms_the_death_cinematic() {
+    let (mut world, _db, _l) = valakas_world();
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+
+    crate::game_loop::death::npc_do_die(&mut world, VALAKAS_OID, PLAYER);
+
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .iter()
+            .any(|t| matches!(t, ScheduledTask::ValakasDeathCinematic { step: 0, .. })),
+        "the death cinematic's first beat is armed"
+    );
+}
+
+/// The death cinematic's final beat (`die_8`) drops the fifteen exit cubes and
+/// arms the 15-minute `remove_players` oust — driven through the loop dispatch.
+#[test]
+fn the_death_cinematic_spawns_the_exit_cubes() {
+    let (mut world, _db, _l) = valakas_world();
+    register_cube(&mut world);
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+
+    crate::game_loop::death::npc_do_die(&mut world, VALAKAS_OID, PLAYER);
+    assert_eq!(spawned_cubes(&world), 0, "no cubes until die_8");
+
+    // die_8 fires at 16_500 ms → 160 ticks; advance past it.
+    advance_ticks(&mut world, 170);
+
+    assert_eq!(spawned_cubes(&world), 15, "die_8 dropped all fifteen exit cubes");
+    assert!(
+        world.scheduler.pending_tasks_for_test().iter().any(|t| matches!(t, ScheduledTask::ValakasRemovePlayers)),
+        "remove_players armed"
+    );
+}
+
+/// `remove_players`, fired through the loop dispatch, ousts a lingering player
+/// from the lair to the exit.
+#[test]
+fn remove_players_ousts_lingering_players_through_the_loop() {
+    let (mut world, _db, _l) = valakas_world();
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    put_player_at(&mut world, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+
+    world.scheduler.schedule(world.tick, ScheduledTask::ValakasRemovePlayers);
+    advance_ticks(&mut world, 1);
+
+    let p = world.objects.get_component::<Position>(&PLAYER).copied().unwrap();
+    assert!(
+        (150_037..=150_537).contains(&p.x) && (-57_720..=-57_220).contains(&p.y),
+        "the lingering player was ousted to the exit: {p:?}"
+    );
+}
