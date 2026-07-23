@@ -234,8 +234,11 @@ const MAX_PEOPLE: usize = 200;
 pub const PORTAL_STONE: i32 = 3865;
 /// Members must be within this of the Heart to be brought along.
 const GATHER_RANGE: f64 = 1000.0;
-/// Zone 12010 is Valakas's; Antharas's lair is its own script zone.
-const LAIR_ZONE_ID: i32 = 12016;
+/// `antaras_no_restart` (`no_restart.xml`) — Java's `getZoneById(70050,
+/// NoRestartZone.class)`, the "Antharas Nest" the script broadcasts to and
+/// counts occupancy against. (The old `12016` was a Talking Island script zone;
+/// it read as empty, so occupancy silently failed open.)
+const LAIR_ZONE_ID: i32 = 70050;
 
 /// Why the Heart of Warding did or didn't let someone in. Each maps to one of
 /// Java's html pages, and keeping them as an enum means the ladder can be
@@ -647,5 +650,114 @@ pub(crate) fn handle_spawn_timer(world: &mut World) {
 pub(crate) fn teleport_out(world: &mut World, player_oid: i32) {
     let (dx, dy) = (world.roll(600), world.roll(1100));
     crate::game_loop::death::teleport_player(world, player_oid, EXIT_POINT.0 + dx, EXIT_POINT.1 + dy, EXIT_POINT.2);
+}
+
+// ---------------------------------------------------------------------------
+// The death tail (`onKill` + `CLEAR_ZONE`)
+// ---------------------------------------------------------------------------
+
+/// The Teleportation Cubic (`html/default/31859.htm`, wired to `teleportOut`).
+const CUBE: i32 = 31859;
+/// `addSpawn(CUBE, 177615, 114941, -7709, 0, …)` — where the exit cube stands
+/// after the kill (distinct from the entry cube location).
+const DEATH_CUBE: (i32, i32, i32) = (177615, 114941, -7709);
+/// `startQuestTimer("CLEAR_ZONE", 900000)` — the lair empties 15 minutes after
+/// the kill.
+const CLEAR_ZONE_SECS: u64 = 900;
+
+/// `onKill` for Antharas: despawn the adds, play the death cinematic, drop the
+/// exit cube, and arm the 15-minute zone clear. The respawn window and the DEAD
+/// status are already set by `grand_boss::on_grand_boss_killed`, which runs
+/// first on the shared death path.
+pub(crate) fn on_antharas_killed(world: &mut World) {
+    // `DESPAWN_MINIONS`: delete every Behemoth/Terasque left in the lair.
+    for oid in lair_minions(world) {
+        if let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&oid).map(|r| r.0) {
+            crate::game_loop::death::despawn_npc(world, oid, region);
+        }
+    }
+
+    // Death cinematic + sound, to the lair.
+    let cam = crate::network::server_packets::special_camera(0, 1200, 20, -10, 0, 10000, 13000, 0, 0, 0, 0, 0);
+    broadcast_to_lair(world, &cam);
+    broadcast_to_lair(world, &crate::network::server_packets::play_sound("BS01_D"));
+
+    // The exit cube — `AntharasHeart` already routes its `teleportOut` talk.
+    crate::model::npc::spawn_npc_at(world, CUBE, DEATH_CUBE.0, DEATH_CUBE.1, DEATH_CUBE.2, 0);
+
+    world
+        .scheduler
+        .schedule(world.tick + CLEAR_ZONE_SECS * TICKS_PER_SECOND, ScheduledTask::AntharasClearZone);
+}
+
+/// `CLEAR_ZONE`: teleport every lingering player out, then despawn every NPC
+/// still in the lair (the cube and any straggler minions).
+pub(crate) fn handle_clear_zone(world: &mut World) {
+    for player_oid in players_in_lair_oids(world) {
+        teleport_out(world, player_oid);
+    }
+    for oid in npcs_in_lair(world) {
+        if let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&oid).map(|r| r.0) {
+            crate::game_loop::death::despawn_npc(world, oid, region);
+        }
+    }
+}
+
+/// Behemoth/Terasque adds standing in the lair zone.
+fn lair_minions(world: &World) -> Vec<i32> {
+    let Some(zone) = world.data.zone_data.by_id(LAIR_ZONE_ID) else { return Vec::new() };
+    world
+        .npc_regions
+        .values()
+        .flatten()
+        .copied()
+        .filter(|oid| {
+            let is_minion = world
+                .objects
+                .get_component::<crate::model::npc::Npc>(oid)
+                .is_some_and(|n| n.npc_id == BEHEMOTH || n.npc_id == TERASQUE);
+            is_minion
+                && world
+                    .objects
+                    .get_component::<crate::model::components::Position>(oid)
+                    .is_some_and(|p| zone.contains(p.x, p.y, p.z))
+        })
+        .collect()
+}
+
+/// Every NPC currently standing in the lair zone.
+fn npcs_in_lair(world: &World) -> Vec<i32> {
+    let Some(zone) = world.data.zone_data.by_id(LAIR_ZONE_ID) else { return Vec::new() };
+    world
+        .npc_regions
+        .values()
+        .flatten()
+        .copied()
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<crate::model::components::Position>(oid)
+                .is_some_and(|p| zone.contains(p.x, p.y, p.z))
+        })
+        .collect()
+}
+
+/// Object ids of the online players standing in the lair zone.
+fn players_in_lair_oids(world: &World) -> Vec<i32> {
+    let Some(zone) = world.data.zone_data.by_id(LAIR_ZONE_ID) else { return Vec::new() };
+    world
+        .clients
+        .values()
+        .filter_map(|cs| match cs {
+            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        })
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<crate::model::components::Position>(oid)
+                .is_some_and(|p| zone.contains(p.x, p.y, p.z))
+        })
+        .collect()
 }
 

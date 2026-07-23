@@ -763,3 +763,98 @@ fn the_enter_bypass_reaches_the_ladder_through_the_router() {
     let pos = world.objects.get_component::<Position>(&LEADER).copied().unwrap();
     assert!((79800..=80400).contains(&pos.x), "teleportOut through the router: {pos:?}");
 }
+
+// ---------------------------------------------------------------------------
+// The death tail — exit cube + zone clear (`onKill` / `CLEAR_ZONE`).
+// ---------------------------------------------------------------------------
+
+const CUBE: i32 = 31859;
+/// A point inside the lair zone (12016) — Java's death-cube location.
+const LAIR_POINT: (i32, i32, i32) = (177615, 114941, -7709);
+const MINION_A: i32 = NPC_OID + 140;
+const MINION_B: i32 = NPC_OID + 141;
+const KILLER: i32 = 9960;
+
+fn register_cube(world: &mut World) {
+    let mut t = crate::data::npc_data::default_template(CUBE);
+    t.type_name = "Folk".into();
+    world.data.npc_data.insert_for_test(t);
+}
+
+fn cube_in_lair(world: &World) -> Option<i32> {
+    let zone = world.data.zone_data.by_id(70050)?;
+    world.npc_regions.values().flatten().copied().find(|oid| {
+        world.objects.get_component::<crate::model::npc::Npc>(oid).is_some_and(|n| n.npc_id == CUBE)
+            && world.objects.get_component::<Position>(oid).is_some_and(|p| zone.contains(p.x, p.y, p.z))
+    })
+}
+
+/// Killing Antharas (through the real `npc_do_die` death path) despawns the
+/// adds, drops the exit cube in the lair, and arms the 15-minute zone clear.
+#[test]
+fn killing_antharas_spawns_the_exit_cube_and_clears_minions() {
+    let (mut world, _db, _l) = gate_world();
+    world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST_GAME);
+    register_cube(&mut world);
+    let _rx = ingame_caster(&mut world, 1, KILLER, LAIR_POINT.0, LAIR_POINT.1);
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, LAIR_POINT.0, LAIR_POINT.1, LAIR_POINT.2);
+    add_test_npc(&mut world, MINION_A, BEHEMOTH, "Monster", 85, LAIR_POINT.0, LAIR_POINT.1, LAIR_POINT.2);
+    add_test_npc(&mut world, MINION_B, TERASQUE, "Monster", 85, LAIR_POINT.0, LAIR_POINT.1, LAIR_POINT.2);
+    assert_eq!(spawned(&mut world), 2, "two adds before the kill");
+
+    crate::game_loop::death::npc_do_die(&mut world, ANTHARAS_OID, KILLER);
+
+    assert_eq!(spawned(&mut world), 0, "DESPAWN_MINIONS cleared the adds");
+    assert!(cube_in_lair(&world).is_some(), "the exit cube stands in the lair");
+    assert!(
+        world.scheduler.pending_tasks_for_test().iter().any(|t| matches!(t, ScheduledTask::AntharasClearZone)),
+        "CLEAR_ZONE armed"
+    );
+}
+
+/// The auto-spawned death cube is talkable: `Quest Antharas teleportOut`
+/// through the real bypass router sends the player to the Giran-side exit.
+#[test]
+fn the_death_cube_teleports_out_through_the_router() {
+    let (mut world, _db, _l) = gate_world();
+    world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST_GAME);
+    register_cube(&mut world);
+    let _rx = ingame_caster(&mut world, 1, KILLER, LAIR_POINT.0, LAIR_POINT.1);
+    world.objects.get_component_mut::<Position>(&KILLER).unwrap().z = LAIR_POINT.2; // beside the cube, deep underground
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, LAIR_POINT.0, LAIR_POINT.1, LAIR_POINT.2);
+
+    crate::game_loop::death::npc_do_die(&mut world, ANTHARAS_OID, KILLER);
+    let cube_oid = cube_in_lair(&world).expect("cube spawned on death");
+
+    // The killer stands beside the cube; the named bypass reaches teleportOut.
+    world.objects.add_components(&KILLER, crate::model::components::LastFolkNpc(cube_oid));
+    crate::game_loop::bypass::handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest Antharas teleportOut"));
+
+    let pos = world.objects.get_component::<Position>(&KILLER).copied().unwrap();
+    assert!(
+        (79800..=80400).contains(&pos.x) && (151200..=152300).contains(&pos.y),
+        "the death cube teleported the player out: {pos:?}"
+    );
+}
+
+/// The scheduled `CLEAR_ZONE` task, fired through the loop dispatch, ousts a
+/// lingering player to the exit and despawns the cube (and any straggler).
+#[test]
+fn clear_zone_ousts_players_and_despawns_the_cube_through_the_loop() {
+    let (mut world, _db, _l) = gate_world();
+    world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST_GAME);
+    register_cube(&mut world);
+    let _rx = ingame_caster(&mut world, 1, KILLER, LAIR_POINT.0, LAIR_POINT.1);
+    world.objects.get_component_mut::<Position>(&KILLER).unwrap().z = LAIR_POINT.2; // the lair sits deep underground
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, LAIR_POINT.0, LAIR_POINT.1, LAIR_POINT.2);
+    crate::game_loop::death::npc_do_die(&mut world, ANTHARAS_OID, KILLER);
+    assert!(cube_in_lair(&world).is_some(), "cube present before the clear");
+
+    // Fire the armed clear immediately through the real dispatch.
+    world.scheduler.schedule(world.tick, ScheduledTask::AntharasClearZone);
+    advance_ticks(&mut world, 1);
+
+    let pos = world.objects.get_component::<Position>(&KILLER).copied().unwrap();
+    assert!((79800..=80400).contains(&pos.x), "the lingering player was ousted to the exit: {pos:?}");
+    assert!(cube_in_lair(&world).is_none(), "the cube was despawned with the zone");
+}
