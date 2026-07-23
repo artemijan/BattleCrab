@@ -102,6 +102,7 @@ pub mod q00235_mimirs_elixir;
 pub mod q00222_test_of_the_duelist;
 pub mod q00223_test_of_the_champion;
 pub mod q00224_test_of_sagittarius;
+pub mod q00211_trial_of_the_challenger;
 pub mod q00225_test_of_the_searcher;
 pub mod q00231_test_of_the_maestro;
 pub mod antharas_heart;
@@ -185,6 +186,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00222_test_of_the_duelist::Q00222TestOfTheDuelist),
         Arc::new(q00223_test_of_the_champion::Q00223TestOfTheChampion),
         Arc::new(q00224_test_of_sagittarius::Q00224TestOfSagittarius),
+        Arc::new(q00211_trial_of_the_challenger::Q00211TrialOfTheChallenger),
         Arc::new(q00225_test_of_the_searcher::Q00225TestOfTheSearcher),
         Arc::new(q00231_test_of_the_maestro::Q00231TestOfTheMaestro),
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),

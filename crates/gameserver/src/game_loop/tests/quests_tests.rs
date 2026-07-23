@@ -7869,3 +7869,94 @@ fn quest_q00225_test_of_the_searcher() {
     assert_eq!(item_count(&world, 3001, 57), a + 161806, "final adena reward");
     assert_ne!(quest_cond(&world, 3001, q), Some(19), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00211_trial_of_the_challenger() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> =
+        [2628, 2629, 2630, 2631, 2632].iter().map(|&id| (id, "Q211", true)).collect();
+    for id in [2627, 1904, 1936, 1940, 1943, 1946, 2918, 2927, 2030] {
+        items.push((id, "reward", false));
+    }
+    add_quest_items(&mut world, &items);
+    for id in [27110, 27112, 27113, 27114] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    world.data.npc_data.insert_for_test(crate::data::npc_data::default_template(30647));
+    world.data.npc_data.insert_for_test(crate::data::npc_data::default_template(30646));
+    let kash = NPC_OID;
+    let martian = NPC_OID + 1;
+    let raldo = NPC_OID + 2;
+    let filaur = NPC_OID + 3;
+    let chest = NPC_OID + 4;
+    for (oid, npc) in
+        [(kash, 30644), (martian, 30645), (raldo, 30646), (filaur, 30535), (chest, 30647)]
+    {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 1; // Warrior (WARRIOR_GROUP)
+    }
+    let q = "Q00211_TrialOfTheChallenger";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 30;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, kash);
+    ev(&mut world, kash, "30644-06.htm"); // startQuest, cond 1
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    kill(&mut world, 27110); // Shyslassys → Scroll + Broken Key + chest, cond 2
+    assert_eq!(item_count(&world, 3001, 2631), 1, "Scroll of Shyslassys");
+    assert_eq!(item_count(&world, 3001, 2632), 1, "Broken Key");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    assert!(!npcs_of(&mut world, 30647).is_empty(), "Shyslassys conjures a chest");
+    // Chest gamble: force the jackpot (roll(10) < 2), then the top reward tier (roll > 90).
+    world.forced_rolls.push_back(0); // roll(10) = 0 → jackpot
+    world.forced_rolls.push_back(95); // roll(100) = 95 → top tier
+    talk(&mut world, chest);
+    ev(&mut world, chest, "30647-02.html");
+    assert_eq!(item_count(&world, 3001, 2918), 1, "jackpot: Mithril Scale Gaiters Material");
+    assert_eq!(item_count(&world, 3001, 2927), 1, "jackpot: Brigamdine Gauntlet Pattern");
+    assert_eq!(item_count(&world, 3001, 2632), 0, "Broken Key consumed by the gamble");
+    talk(&mut world, kash); // Scroll → Letter of Kash, cond 3
+    assert_eq!(item_count(&world, 3001, 2628), 1, "Letter of Kash");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    talk(&mut world, martian);
+    ev(&mut world, martian, "30645-02.html"); // cond 4
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    kill(&mut world, 27112); // Gorr → Watcher's Eye 1, cond 5
+    assert_eq!(item_count(&world, 3001, 2629), 1, "Watcher's Eye 1");
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    talk(&mut world, martian); // Eye 1 → cond 6
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    kill(&mut world, 27113); // Baraham → Watcher's Eye 2 + Raldo, cond 7
+    assert_eq!(item_count(&world, 3001, 2630), 1, "Watcher's Eye 2");
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    talk(&mut world, raldo);
+    ev(&mut world, raldo, "30646-04.html"); // Eye 2 → cond 8
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    talk(&mut world, filaur); // cond 9
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    kill(&mut world, 27114); // Queen of Succubus → cond 10
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    // Completion at Raldo.
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, raldo);
+    assert_eq!(item_count(&world, 3001, 2627), 1, "Mark of the Challenger awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 194556, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(10), "one-time quest finished");
+}
