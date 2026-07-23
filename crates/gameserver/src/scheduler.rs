@@ -29,6 +29,11 @@ pub enum ScheduledTask {
     /// `"beginning"` — Valakas's wait window elapsed after the first entry;
     /// the boss takes the lair and the entry cinematic runs (G23 slice 21).
     ValakasBeginning,
+    /// One beat of Valakas's death cinematic (`die_1`..`die_8`); the last beat
+    /// spawns the exit cubes and arms `ValakasRemovePlayers`.
+    ValakasDeathCinematic { valakas_oid: i32, step: u8 },
+    /// `remove_players` — 15 min after the death cubes appear, the lair empties.
+    ValakasRemovePlayers,
     /// Dr. Chaos's paranoia tick (1 s while NORMAL) — drains the timer by the
     /// nearby-player count and transforms at ≤0 (G23 slice 22).
     DrChaosParanoia { dr_chaos_oid: i32 },

@@ -79,6 +79,11 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         if npc_id == super::antharas::ANTHARAS {
             super::antharas::on_antharas_killed(world);
         }
+        // Valakas's `onKill` tail: the death cinematic, the exit cubes, and the
+        // 15-minute lair clear — the symmetric counterpart to Antharas's.
+        if npc_id == super::valakas::VALAKAS {
+            super::valakas::on_valakas_killed(world, npc_oid);
+        }
     }
 
     // `Pet.doDie`: the exp penalty, the owner's warning and the state capture.

@@ -360,6 +360,12 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::ValakasBeginning => {
                 valakas::handle_beginning_timer(world);
             }
+            ScheduledTask::ValakasDeathCinematic { valakas_oid, step } => {
+                valakas::handle_death_cinematic_step(world, valakas_oid, step);
+            }
+            ScheduledTask::ValakasRemovePlayers => {
+                valakas::handle_remove_players(world);
+            }
             ScheduledTask::DrChaosParanoia { dr_chaos_oid } => {
                 dr_chaos::handle_paranoia(world, dr_chaos_oid);
             }

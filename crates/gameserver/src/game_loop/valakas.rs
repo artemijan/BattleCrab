@@ -171,6 +171,119 @@ pub(crate) fn handle_cinematic_step(world: &mut World, valakas_oid: i32, step: u
     }
 }
 
+// ---------------------------------------------------------------------------
+// The death tail (`onKill` → `die_1`..`die_8` → `remove_players`)
+// ---------------------------------------------------------------------------
+
+/// The Teleport Cubic — its `teleportOut` talk is already routed by
+/// `scripts::valakas_teleporters`; the kill just has to spawn the cubes.
+const CUBE: i32 = 31759;
+
+/// `TELEPORT_CUBE_LOCATIONS` — the fifteen exit cubes `die_8` drops around the
+/// lair (Java's array, verbatim).
+const TELEPORT_CUBE_LOCATIONS: [(i32, i32, i32); 15] = [
+    (214_880, -116_144, -1_644),
+    (213_696, -116_592, -1_644),
+    (212_112, -116_688, -1_644),
+    (211_184, -115_472, -1_664),
+    (210_336, -114_592, -1_644),
+    (211_360, -113_904, -1_644),
+    (213_152, -112_352, -1_644),
+    (214_032, -113_232, -1_644),
+    (214_752, -114_592, -1_644),
+    (209_824, -115_568, -1_421),
+    (210_528, -112_192, -1_403),
+    (213_120, -111_136, -1_408),
+    (215_184, -111_504, -1_392),
+    (215_456, -117_328, -1_392),
+    (213_200, -118_160, -1_424),
+];
+
+/// The eight death-cinematic beats: `(delay_ms_from_kill, camera args)`,
+/// transcribed from Java's `die_N` `startQuestTimer`/`SpecialCamera` chain in
+/// the packet's argument order (`range` included, as the entry table does).
+/// The eighth beat also spawns the cubes and arms `remove_players`.
+const DEATH_CINEMATIC: [(u64, [i32; 11]); 8] = [
+    (300, [2000, 130, -1, 0, 15000, 10000, 0, 0, 1, 1, 0]),
+    (600, [1100, 210, -5, 3000, 15000, 10000, -13, 0, 1, 1, 0]),
+    (3_800, [1300, 200, -8, 3000, 15000, 10000, 0, 15, 1, 1, 0]),
+    (8_200, [1000, 190, 0, 500, 15000, 10000, 0, 10, 1, 1, 0]),
+    (8_700, [1700, 120, 0, 2500, 15000, 10000, 12, 40, 1, 1, 0]),
+    (13_300, [1700, 20, 0, 700, 15000, 10000, 10, 10, 1, 1, 0]),
+    (14_000, [1700, 10, 0, 1000, 15000, 10000, 20, 70, 1, 1, 0]),
+    (16_500, [1700, 10, 0, 300, 15000, 250, 20, -20, 1, 1, 0]),
+];
+
+/// `startQuestTimer("remove_players", 900000)` — the lair empties 15 minutes
+/// after the cubes appear.
+const REMOVE_PLAYERS_SECS: u64 = 900;
+
+/// `onKill` for Valakas: the death sound + opening camera, then the eight-beat
+/// death cinematic scheduled up front from the kill (as Java does). The respawn
+/// window and DEAD status are already set by `grand_boss::on_grand_boss_killed`,
+/// which runs first on the shared death path.
+pub(crate) fn on_valakas_killed(world: &mut World, valakas_oid: i32) {
+    // TODO(G23): Java plays the type-1 music variant `PlaySound(1, "B03_D", …)`;
+    // the ported builder emits the type-0 quest-sound form.
+    broadcast_to_lair(world, &crate::network::server_packets::play_sound("B03_D"));
+    let open = crate::network::server_packets::special_camera(valakas_oid, 1200, 20, -10, 0, 10000, 13000, 0, 0, 0, 0, 0);
+    broadcast_to_lair(world, &open);
+
+    for (i, (delay_ms, _)) in DEATH_CINEMATIC.iter().enumerate() {
+        world.scheduler.schedule(
+            world.tick + (delay_ms / 1000 * TICKS_PER_SECOND).max(1),
+            crate::scheduler::ScheduledTask::ValakasDeathCinematic { valakas_oid, step: i as u8 },
+        );
+    }
+}
+
+/// One death-cinematic beat. The eighth (`die_8`) also drops the fifteen exit
+/// cubes and arms the 15-minute `remove_players` oust.
+pub(crate) fn handle_death_cinematic_step(world: &mut World, valakas_oid: i32, step: u8) {
+    let Some((_, a)) = DEATH_CINEMATIC.get(step as usize).copied() else { return };
+    let pkt = crate::network::server_packets::special_camera(
+        valakas_oid, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10],
+    );
+    broadcast_to_lair(world, &pkt);
+
+    if step as usize == DEATH_CINEMATIC.len() - 1 {
+        for (x, y, z) in TELEPORT_CUBE_LOCATIONS {
+            crate::model::npc::spawn_npc_at(world, CUBE, x, y, z, 0);
+        }
+        world
+            .scheduler
+            .schedule(world.tick + REMOVE_PLAYERS_SECS * TICKS_PER_SECOND, crate::scheduler::ScheduledTask::ValakasRemovePlayers);
+    }
+}
+
+/// `remove_players` → `BOSS_ZONE.oustAllPlayers()`: teleport everyone still in
+/// the lair out to the exit. (The cubes despawn on their own 15-minute
+/// `addSpawn` lifetime — a despawn task per cube is deferred, TODO(G23).)
+pub(crate) fn handle_remove_players(world: &mut World) {
+    for player_oid in players_in_lair_oids(world) {
+        teleport_out(world, player_oid);
+    }
+}
+
+/// Object ids of the online players standing in the lair zone.
+fn players_in_lair_oids(world: &World) -> Vec<i32> {
+    let Some(zone) = world.data.zone_data.by_id(BOSS_ZONE_ID) else { return Vec::new() };
+    world
+        .clients
+        .values()
+        .filter_map(|cs| match cs {
+            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        })
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<Position>(oid)
+                .is_some_and(|p| zone.contains(p.x, p.y, p.z))
+        })
+        .collect()
+}
+
 /// `BOSS_ZONE.broadcastPacket` — the cinematic plays for everyone **in the
 /// lair**, not everyone nearby: a player outside the zone sees nothing, which
 /// is the point of running it on the zone rather than the boss's region.
