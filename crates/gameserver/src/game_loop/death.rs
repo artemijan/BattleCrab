@@ -73,6 +73,12 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         if npc_id == super::dr_chaos::CHAOS_GOLEM {
             super::dr_chaos::on_golem_killed(world, npc_oid);
         }
+        // Antharas's `onKill` tail: despawn the adds, drop the exit cube, and
+        // arm the 15-minute lair clear (the respawn window is already set
+        // above). Without it players are stranded in the lair after the kill.
+        if npc_id == super::antharas::ANTHARAS {
+            super::antharas::on_antharas_killed(world);
+        }
     }
 
     // `Pet.doDie`: the exp penalty, the owner's warning and the state capture.

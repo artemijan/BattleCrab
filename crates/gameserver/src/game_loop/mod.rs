@@ -384,6 +384,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::AntharasSocial { antharas_oid } => {
                 antharas::handle_social(world, antharas_oid);
             }
+            ScheduledTask::AntharasClearZone => {
+                antharas::handle_clear_zone(world);
+            }
             ScheduledTask::CoreMinionRespawn { npc_id } => {
                 core_boss::handle_minion_respawn(world, npc_id);
             }

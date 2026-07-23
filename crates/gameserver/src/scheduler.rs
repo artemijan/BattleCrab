@@ -47,6 +47,10 @@ pub enum ScheduledTask {
     AntharasCinematic { antharas_oid: i32, step: u8 },
     /// The second social action `CAMERA_3` forks.
     AntharasSocial { antharas_oid: i32 },
+    /// `CLEAR_ZONE` — 15 min after Antharas dies, everything left in the lair
+    /// leaves: NPCs (the exit cube, straggler minions) despawn, players are
+    /// teleported to the exit.
+    AntharasClearZone,
     /// A Core minion's 60 s respawn.
     CoreMinionRespawn { npc_id: i32 },
     /// Clearing Core's minions 20 s after it dies.
