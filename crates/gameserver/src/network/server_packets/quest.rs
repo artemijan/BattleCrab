@@ -30,6 +30,9 @@ pub mod quest_sounds {
     /// `QuestSound.ITEMSOUND_QUEST_BEFORE_BATTLE` — played when a quest
     /// conjures something hostile (quest 416's Durka Spirit).
     pub const BEFORE_BATTLE: &str = "ItemSound.quest_before_battle";
+    /// `QuestSound.ETCSOUND_ELROKI_SONG_FULL` — the Elroki flute cue (quest
+    /// 111). The client sound name has the "elcroki" spelling; keep it.
+    pub const ELROKI_SONG_FULL: &str = "EtcSound.elcroki_song_full";
 }
 
 /// Port of `serverpackets/ExShowQuestMark` — the on-screen quest marker,

@@ -7000,3 +7000,100 @@ fn quest_q00643_rise_and_fall_of_the_elroki_tribe() {
     assert_eq!(item_count(&world, 3001, 8712), 5, "exchange yields 5 weapon pieces");
     assert_eq!(item_count(&world, 3001, 8776), 0, "300 bones consumed");
 }
+
+#[test]
+fn quest_q00111_elrokian_hunters_proof() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (8768, "Diary Fragment", true),
+            (8769, "Expedition Member's Letter", true),
+            (8770, "Ornithomimus Claw", true),
+            (8771, "Deinonychus Bone", true),
+            (8772, "Pachycephalosaurus Skin", true),
+            (8773, "Practice Elrokian Trap", true),
+            (8763, "Elrokian Trap", false),
+            (8764, "Trap Stone", false),
+        ],
+    );
+    for id in [22196, 22200] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 75;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let marquez = NPC_OID;
+    let mushika = NPC_OID + 1;
+    let asamah = NPC_OID + 2;
+    let kirikachin = NPC_OID + 3;
+    add_test_npc(&mut world, marquez, 32113, "Folk", 70, 100, 0, 0);
+    add_test_npc(&mut world, mushika, 32114, "Folk", 70, 100, 0, 0);
+    add_test_npc(&mut world, asamah, 32115, "Folk", 70, 100, 0, 0);
+    add_test_npc(&mut world, kirikachin, 32116, "Folk", 70, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 75;
+    let q = "Q00111_ElrokianHuntersProof";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    // Start (memo 1 / cond 1) and walk the intro dialog steps.
+    talk(&mut world, marquez);
+    ev(&mut world, marquez, "32113-03.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    talk(&mut world, mushika); // memo 1 → 2, cond 2
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    ev(&mut world, asamah, "32115-03.html"); // memo 2 → 3, cond 3
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    ev(&mut world, marquez, "32113-15.html"); // memo 3 → 4, cond 4
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    // Diary stage: 49 + one kill topping to 50 → cond 5.
+    inject(&mut world, 3001, 0x0111_0000, 8768, 49);
+    add_test_npc(&mut world, NPC_OID + 10, 22196, "Monster", 75, 30, 0, 0);
+    world.forced_rolls.push_back(0); // give_item_randomly roll_f64 (0.0 < 0.51)
+    death::npc_do_die(&mut world, NPC_OID + 10, 3001);
+    assert_eq!(item_count(&world, 3001, 8768), 50, "diary tops to 50");
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    // Marquez takes the diary (memo 4 → 5); then hands out the Expedition Letter.
+    talk(&mut world, marquez);
+    assert_eq!(item_count(&world, 3001, 8768), 0, "diary consumed");
+    ev(&mut world, marquez, "32113-25.html"); // memo 5 → 6, cond 6, letter
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    assert_eq!(item_count(&world, 3001, 8769), 1, "expedition letter received");
+    // Kirikachin (memo 6 → 7, takes letter, cond 7) then the flute steps.
+    talk(&mut world, kirikachin);
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    assert_eq!(item_count(&world, 3001, 8769), 0, "letter consumed");
+    ev(&mut world, kirikachin, "32116-04.html"); // memo 7 → 8 (cond stays 7)
+    ev(&mut world, kirikachin, "32116-07.html"); // memo 8 → 9, cond 8
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    ev(&mut world, asamah, "32115-06.html"); // memo 9 → 10, cond 9
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    ev(&mut world, asamah, "32115-09.html"); // memo 10 → 11, cond 10
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    // Trophy stage: 9 claws + one kill to 10, with bone/skin already full → cond 11.
+    inject(&mut world, 3001, 0x0111_1000, 8770, 9);
+    inject(&mut world, 3001, 0x0111_2000, 8771, 10);
+    inject(&mut world, 3001, 0x0111_3000, 8772, 10);
+    add_test_npc(&mut world, NPC_OID + 11, 22200, "Monster", 75, 30, 0, 0);
+    world.forced_rolls.push_back(0); // give_item_randomly roll_f64 (0.0 < 0.66)
+    death::npc_do_die(&mut world, NPC_OID + 11, 3001);
+    assert_eq!(item_count(&world, 3001, 8770), 10, "claws top to 10");
+    assert_eq!(quest_cond(&world, 3001, q), Some(11));
+    // Asamah forges the Practice Elrokian Trap (memo 11 → 12, cond 12, takes trophies).
+    talk(&mut world, asamah);
+    assert_eq!(quest_cond(&world, 3001, q), Some(12));
+    assert_eq!(item_count(&world, 3001, 8773), 1, "practice trap forged");
+    assert_eq!(item_count(&world, 3001, 8770) + item_count(&world, 3001, 8771) + item_count(&world, 3001, 8772), 0, "trophies consumed");
+    // Kirikachin redeems it for the real trap + stones + reward, then exits.
+    let a = item_count(&world, 3001, 57);
+    ev(&mut world, kirikachin, "32116-10.html");
+    assert_eq!(item_count(&world, 3001, 8763), 1, "real Elrokian Trap awarded");
+    assert_eq!(item_count(&world, 3001, 8764), 100, "100 Trap Stones awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 1702800, "final adena reward");
+    assert_eq!(item_count(&world, 3001, 8773), 0, "practice trap consumed");
+    assert_ne!(quest_cond(&world, 3001, q), Some(12), "one-time quest finished");
+}
