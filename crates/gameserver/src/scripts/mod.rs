@@ -27,6 +27,7 @@ pub mod q00261_collectors_dream;
 pub mod q00263_orc_subjugation;
 pub mod q00265_bonds_of_slavery;
 pub mod q00266_pleas_of_pixies;
+pub mod q00271_proof_of_valor;
 pub mod q00273_invaders_of_the_holy_land;
 pub mod q00293_the_hidden_veins;
 pub mod q00296_tarantulas_spider_silk;
@@ -79,6 +80,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00263_orc_subjugation::Q00263OrcSubjugation),
         Arc::new(q00265_bonds_of_slavery::Q00265BondsOfSlavery),
         Arc::new(q00266_pleas_of_pixies::Q00266PleasOfPixies),
+        Arc::new(q00271_proof_of_valor::Q00271ProofOfValor),
         Arc::new(q00273_invaders_of_the_holy_land::Q00273InvadersOfTheHolyLand),
         Arc::new(q00293_the_hidden_veins::Q00293TheHiddenVeins),
         Arc::new(q00296_tarantulas_spider_silk::Q00296TarantulasSpiderSilk),
