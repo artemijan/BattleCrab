@@ -229,3 +229,45 @@ describe("email link routes", () => {
     expect(body).toMatch(/missing its token/i);
   });
 });
+
+/**
+ * The mobile hamburger: below `sm` the nav links live behind it, above `sm`
+ * they are inline and the button is gone. Both halves matter — a hamburger
+ * that also renders on desktop means the breakpoint regressed, and links
+ * visible before opening mean the menu is decorative.
+ */
+describe("mobile menu", () => {
+  test("the hamburger reveals the nav on phones", async () => {
+    if (!distBuilt || !browser || !server) {
+      console.warn("skipped: needs a built dist and Google Chrome");
+      return;
+    }
+
+    const page = await openPage(360, 740, "/");
+    const burger = page.locator("header button[aria-expanded]");
+    const menu = page.locator('nav[aria-label="Mobile navigation"]');
+
+    expect(await burger.isVisible()).toBe(true);
+    expect(await menu.count()).toBe(0);
+
+    await burger.click();
+    expect(await menu.getByRole("link", { name: "Log in" }).isVisible()).toBe(true);
+
+    // Escape closes it again.
+    await page.keyboard.press("Escape");
+    expect(await menu.count()).toBe(0);
+    await page.close();
+  });
+
+  test("desktop keeps the inline nav and no hamburger", async () => {
+    if (!distBuilt || !browser || !server) {
+      console.warn("skipped: needs a built dist and Google Chrome");
+      return;
+    }
+
+    const page = await openPage(1024, 800, "/");
+    expect(await page.locator("header button[aria-expanded]").isVisible()).toBe(false);
+    expect(await page.locator("header nav").first().getByRole("link", { name: "Log in" }).isVisible()).toBe(true);
+    await page.close();
+  });
+});

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { ReactNode } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useEffect, useState, type ReactNode } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 
 import markUrl from "../../assets/favicon.svg";
 import { api, type Account } from "../lib/api";
@@ -19,17 +19,13 @@ export function Background() {
 }
 
 /**
- * The wordmark is dropped only at widths where it genuinely doesn't fit, so a
- * clipped "Battl…" never appears — an icon-only mark is deliberate, truncation
- * reads as breakage.
- *
- * Measured at 360px: the nav is 180px of a 302px inner width, leaving the
- * wordmark 10px short. The signed-in nav is wider still (Account + Log out), so
- * it needs a higher cutoff than the signed-out one. Both thresholds are set
- * just above where each actually overflows, which keeps the wordmark on 390px
- * phones — the common case — rather than hiding it on every phone.
+ * Below `sm` the nav collapses into the hamburger, so the brand shares the row
+ * with just two icon buttons and the wordmark fits at every supported width —
+ * only the truly tiny screens (<340px) drop it. `truncate` stays as the
+ * guarantee that whatever happens, a clipped "Battl…" never renders: the
+ * wordmark is whole or absent.
  */
-function Brand({ compact = false }: { compact?: boolean }) {
+function Brand() {
   return (
     // min-w-0 lets this shrink; without it the flex row's intrinsic width wins
     // and the nav is pushed out of the header on narrow screens.
@@ -83,12 +79,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
                      group-hover:opacity-100"
         />
       </span>
-      <span
-        className={cx(
-          "truncate text-base font-bold tracking-tight sm:text-lg",
-          compact ? "max-[479px]:hidden" : "max-[389px]:hidden",
-        )}
-      >
+      <span className="truncate text-base font-bold tracking-tight max-[339px]:hidden sm:text-lg">
         Battle<span className="text-brand-500 dark:text-brand-300">Crab</span>
       </span>
     </Link>
@@ -98,6 +89,22 @@ function Brand({ compact = false }: { compact?: boolean }) {
 export function Header({ account }: { account?: Account | null }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Navigating (from a menu link or anywhere else) closes the menu; without
+  // this the panel would sit open over the page the user just moved to.
+  useEffect(() => setMenuOpen(false), [location.pathname]);
+
+  // Escape closes, matching what everyone expects of an overlay.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
 
   const logout = useMutation({
     mutationFn: () => api.logout(),
@@ -143,51 +150,145 @@ export function Header({ account }: { account?: Account | null }) {
         className="glass glass-sheen mx-auto flex max-w-5xl items-center gap-2 rounded-2xl
                    px-3 py-2.5 sm:gap-3 sm:px-4 sm:py-3"
       >
-        <Brand compact={!!account} />
+        <Brand />
 
         {/* shrink-0 keeps the controls at their intrinsic width, so any overflow
             is absorbed by the brand's truncate rather than pushing the theme
             toggle outside the header. */}
-        <nav className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
-          {account ? (
-            <>
-              <NavItem to="/account">Account</NavItem>
-              {/* Cosmetic only — the server 403s a non-admin regardless. */}
-              {account.isAdmin && <NavItem to="/admin">Admin</NavItem>}
-              {/* An address is far longer than the login name this replaced, so
-                  it is truncated rather than allowed to push the nav around. */}
-              <span
-                className="mx-2 hidden max-w-[16ch] truncate text-sm text-[var(--text-muted)] md:inline"
-                title={account.email ?? undefined}
-              >
-                {account.email}
-              </span>
-              <Button
-                variant="ghost"
-                onClick={() => logout.mutate()}
-                loading={logout.isPending}
-                className="px-2.5 py-2 text-xs sm:px-3"
-              >
-                Log out
-              </Button>
-            </>
-          ) : (
-            <>
-              <NavItem to="/login">Log in</NavItem>
-              <Link to="/register">
-                {/* Shorter label on phones — "Create account" alone is wider
-                    than the space left beside the brand at 360px. */}
-                <Button className="px-3 py-2 text-xs sm:px-4">
-                  <span className="sm:hidden">Sign up</span>
-                  <span className="hidden sm:inline">Create account</span>
+        <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
+          {/* Full nav from `sm` up; below that it lives in the hamburger. */}
+          <nav className="hidden items-center gap-0.5 sm:flex sm:gap-1">
+            {account ? (
+              <>
+                <NavItem to="/account">Account</NavItem>
+                {/* Cosmetic only — the server 403s a non-admin regardless. */}
+                {account.isAdmin && <NavItem to="/admin">Admin</NavItem>}
+                {/* An address is far longer than the login name this replaced, so
+                    it is truncated rather than allowed to push the nav around. */}
+                <span
+                  className="mx-2 hidden max-w-[16ch] truncate text-sm text-[var(--text-muted)] md:inline"
+                  title={account.email ?? undefined}
+                >
+                  {account.email}
+                </span>
+                <Button
+                  variant="ghost"
+                  onClick={() => logout.mutate()}
+                  loading={logout.isPending}
+                  className="px-2.5 py-2 text-xs sm:px-3"
+                >
+                  Log out
                 </Button>
-              </Link>
-            </>
-          )}
+              </>
+            ) : (
+              <>
+                <NavItem to="/login">Log in</NavItem>
+                <Link to="/register">
+                  <Button className="px-3 py-2 text-xs sm:px-4">Create account</Button>
+                </Link>
+              </>
+            )}
+          </nav>
+
           <ThemeToggle />
-        </nav>
+
+          {/* The hamburger. aria-expanded ties the button to the panel state
+              for assistive tech; the icon swap is the visual equivalent. */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            className="grid size-9 place-items-center rounded-lg text-[var(--text-muted)]
+                       transition-colors hover:text-[var(--text)] sm:hidden"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="size-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              {menuOpen ? (
+                <path d="M6 6l12 12M18 6L6 18" />
+              ) : (
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
+
+      {menuOpen && (
+        <>
+          {/* Click-away layer. Sits under the dropdown inside the header's
+              stacking context, dimming the page it covers. */}
+          <div
+            aria-hidden
+            onClick={() => setMenuOpen(false)}
+            className="fixed inset-0 bg-black/25 sm:hidden"
+          />
+          {/* Absolutely positioned so opening the menu overlays the content
+              instead of shifting it — a sticky header that grows would push
+              the whole page down. */}
+          <div className="absolute inset-x-4 top-full z-50 mt-2 sm:hidden">
+            <nav
+              aria-label="Mobile navigation"
+              className="glass mx-auto flex max-w-5xl flex-col gap-0.5 rounded-2xl p-2"
+            >
+              {account ? (
+                <>
+                  <span
+                    className="truncate px-3 pb-1.5 pt-2 text-xs text-[var(--text-faint)]"
+                    title={account.email ?? undefined}
+                  >
+                    {account.email}
+                  </span>
+                  <MenuItem to="/account">Account</MenuItem>
+                  {account.isAdmin && <MenuItem to="/admin">Admin</MenuItem>}
+                  <button
+                    type="button"
+                    onClick={() => logout.mutate()}
+                    disabled={logout.isPending}
+                    className="rounded-lg px-3 py-2.5 text-left text-sm font-medium
+                               text-[var(--text-muted)] transition-colors
+                               hover:bg-[var(--surface-strong)] hover:text-[var(--text)]"
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <MenuItem to="/login">Log in</MenuItem>
+                  <MenuItem to="/register">Create account</MenuItem>
+                </>
+              )}
+            </nav>
+          </div>
+        </>
+      )}
     </header>
+  );
+}
+
+/** A nav link inside the mobile dropdown: full-width row, same active colours
+ *  as the desktop `NavItem`. */
+function MenuItem({ to, children }: { to: string; children: ReactNode }) {
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        cx(
+          "rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+          isActive
+            ? "bg-[var(--surface-strong)] text-brand-600 dark:text-brand-200"
+            : "text-[var(--text-muted)] hover:bg-[var(--surface-strong)] hover:text-[var(--text)]",
+        )
+      }
+    >
+      {children}
+    </NavLink>
   );
 }
 
