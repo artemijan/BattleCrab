@@ -460,6 +460,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::SiegeEnd { castle_id } => {
                 siege::end_siege(world, castle_id);
             }
+            ScheduledTask::SiegeStart { castle_id } => {
+                siege::handle_scheduled_siege_start(world, castle_id);
+            }
         }
     }
 }

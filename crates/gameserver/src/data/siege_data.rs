@@ -66,3 +66,68 @@ mod tests {
         );
     }
 }
+
+// ---------------------------------------------------------------------------
+// The weekly siege calendar (`config/SiegeSchedule.xml`, Java
+// `SiegeScheduleData`). G24 slice 1, PLAN_G24_SIEGE_SCHEDULE.md.
+// ---------------------------------------------------------------------------
+
+const SIEGE_SCHEDULE_FILE: &str = "config/SiegeSchedule.xml";
+
+/// One castle's siege slot: the weekday (`Mon=0..Sun=6`), the hour of day, and
+/// whether sieges are enabled for it.
+#[derive(Debug, Clone, Copy)]
+pub struct SiegeScheduleEntry {
+    pub weekday: u32,
+    pub hour: u32,
+    pub enabled: bool,
+}
+
+/// `data/xsd`-validated `<schedule castleId day hour siegeEnabled …/>` rows.
+pub fn load_siege_schedule(file_path: &str) -> HashMap<i32, SiegeScheduleEntry> {
+    let mut out = HashMap::new();
+    let path = format!("{file_path}{SIEGE_SCHEDULE_FILE}");
+    let Ok(content) = std::fs::read_to_string(&path) else { return out };
+    let mut reader = quick_xml::Reader::from_str(&content);
+    reader.config_mut().trim_text(true);
+    loop {
+        match reader.read_event() {
+            Ok(quick_xml::events::Event::Eof) | Err(_) => break,
+            Ok(quick_xml::events::Event::Empty(e)) | Ok(quick_xml::events::Event::Start(e))
+                if e.name().as_ref() == b"schedule" =>
+            {
+                let attr = |k: &[u8]| {
+                    e.attributes()
+                        .flatten()
+                        .find(|a| a.key.as_ref() == k)
+                        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
+                };
+                let (Some(castle_id), Some(day), Some(hour)) = (
+                    attr(b"castleId").and_then(|v| v.parse::<i32>().ok()),
+                    attr(b"day").and_then(|v| weekday_from_name(&v)),
+                    attr(b"hour").and_then(|v| v.parse::<u32>().ok()),
+                ) else {
+                    continue;
+                };
+                let enabled = attr(b"siegeEnabled").is_none_or(|v| v.eq_ignore_ascii_case("true"));
+                out.insert(castle_id, SiegeScheduleEntry { weekday: day, hour, enabled });
+            }
+            _ => {}
+        }
+    }
+    out
+}
+
+/// Day name → `Mon=0..Sun=6` (the convention `next_siege_millis` uses).
+fn weekday_from_name(name: &str) -> Option<u32> {
+    Some(match name.to_ascii_uppercase().as_str() {
+        "MONDAY" => 0,
+        "TUESDAY" => 1,
+        "WEDNESDAY" => 2,
+        "THURSDAY" => 3,
+        "FRIDAY" => 4,
+        "SATURDAY" => 5,
+        "SUNDAY" => 6,
+        _ => return None,
+    })
+}

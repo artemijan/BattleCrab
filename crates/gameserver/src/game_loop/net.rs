@@ -693,6 +693,9 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 }
                 tracing::info!("GameLoop: loaded sieges for {} castles ({} registered clans).", sieges.len(), rows.len());
                 world.sieges = sieges;
+                // The per-castle Siege records now exist — arm the weekly
+                // auto-start schedule (`SiegeSchedule.xml`).
+                crate::game_loop::siege::schedule_all_at_boot(world);
             }
             DbEvent::SiegeGuardsLoaded { guards } => {
                 let mut by_castle: std::collections::HashMap<i32, Vec<crate::model::siege::SiegeSpawn>> =

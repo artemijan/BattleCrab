@@ -171,6 +171,9 @@ pub enum ScheduledTask {
     /// `Siege.ScheduleEndSiegeTask`: a castle siege's timed window elapsed —
     /// auto-end the siege.
     SiegeEnd { castle_id: i32 },
+    /// A castle's scheduled weekly siege start (`SiegeSchedule.xml`) — begins
+    /// the siege and re-arms next week (G24 slice 1).
+    SiegeStart { castle_id: i32 },
 }
 
 struct Entry {
@@ -234,6 +237,13 @@ impl Scheduler {
     #[cfg(test)]
     pub fn pending_ticks_for_test(&self) -> Vec<u64> {
         self.heap.iter().map(|e| e.fire_at).collect()
+    }
+
+    /// The task variants currently queued — a test hook for asserting *which*
+    /// tasks are pending (not just how many), e.g. counting `SiegeStart`s.
+    #[cfg(test)]
+    pub fn pending_tasks_for_test(&self) -> Vec<ScheduledTask> {
+        self.heap.iter().map(|e| e.task.clone()).collect()
     }
 
     pub fn len(&self) -> usize {
