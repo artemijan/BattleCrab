@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { ApiError, api, type Account } from "../lib/api";
 import { Alert, Button, Field, Panel } from "../components/ui";
-import * as React from "react";
 
 export function AuthShell({
   title,
