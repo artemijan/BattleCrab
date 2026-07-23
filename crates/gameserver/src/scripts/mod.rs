@@ -31,6 +31,7 @@ pub mod q00271_proof_of_valor;
 pub mod q00273_invaders_of_the_holy_land;
 pub mod q00277_gatekeepers_offering;
 pub mod q00293_the_hidden_veins;
+pub mod q00295_dreaming_of_the_skies;
 pub mod q00296_tarantulas_spider_silk;
 pub mod q00300_hunting_leto_lizardman;
 pub mod q00303_collect_arrowheads;
@@ -85,6 +86,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00273_invaders_of_the_holy_land::Q00273InvadersOfTheHolyLand),
         Arc::new(q00277_gatekeepers_offering::Q00277GatekeepersOffering),
         Arc::new(q00293_the_hidden_veins::Q00293TheHiddenVeins),
+        Arc::new(q00295_dreaming_of_the_skies::Q00295DreamingOfTheSkies),
         Arc::new(q00296_tarantulas_spider_silk::Q00296TarantulasSpiderSilk),
         Arc::new(q00300_hunting_leto_lizardman::Q00300HuntingLetoLizardman),
         Arc::new(q00303_collect_arrowheads::Q00303CollectArrowheads),
