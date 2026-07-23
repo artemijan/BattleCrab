@@ -2164,3 +2164,49 @@ fn admin_event_trigger_and_playmovie_send_their_packets() {
         "ExStartScenePlayer with the movie id"
     );
 }
+
+/// `//announce_screen <msg>` puts the text on every player's screen as an
+/// `ExShowScreenMessage` (top-centre, free text); `//announce_crit` stays a
+/// plain system-message line, not a banner.
+#[test]
+fn admin_announce_screen_broadcasts_a_banner() {
+    let (mut world, ..) = admin_world();
+    let mut gm = ingame_player_access(&mut world, 1, 7601, 100);
+    let mut user = ingame_player_access(&mut world, 2, 7602, 0);
+    drain(&mut gm);
+    drain(&mut user);
+
+    /// Decode `ExShowScreenMessage`: the 11-int field block, then the text.
+    fn decode_screen(pkt: &[u8]) -> Option<(i32, i32, i32, String)> {
+        if pkt[0] != server_packets::opcodes::EX
+            || i16::from_le_bytes([pkt[1], pkt[2]]) != server_packets::opcodes::EX_SHOW_SCREEN_MESSAGE
+        {
+            return None;
+        }
+        let mut r = commons::network::PacketReader::new(&pkt[3..]);
+        let msg_type = r.read_i32()?;
+        r.read_i32()?; // sysMessageId
+        let position = r.read_i32()?;
+        for _ in 0..7 {
+            r.read_i32()?; // unk1, size, unk2, unk3, effect, time, fade
+        }
+        let npc_string = r.read_i32()?;
+        Some((msg_type, position, npc_string, r.read_string()?))
+    }
+
+    on_packet(&mut world, 1, build_admin("announce_screen hello world"));
+    let (msg_type, position, npc_string, text) =
+        drain(&mut user).iter().find_map(|p| decode_screen(p)).expect("screen message");
+    assert_eq!(text, "hello world", "banner text broadcast");
+    assert_eq!(msg_type, 2, "the (text, time) constructor's type");
+    assert_eq!(position, 2, "TOP_CENTER");
+    assert_eq!(npc_string, -1, "free text, no NpcString");
+
+    // //announce_crit is the ordinary text line, not a screen banner.
+    drain(&mut user);
+    on_packet(&mut world, 1, build_admin("announce_crit red alert"));
+    assert!(
+        drain(&mut user).iter().all(|p| decode_screen(p).is_none()),
+        "crit does not put a banner on screen"
+    );
+}

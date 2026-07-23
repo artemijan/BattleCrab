@@ -146,6 +146,7 @@ pub const EX_UI_SETTING: i16 = 0x71;
 pub const EX_ASK_MODIFY_PARTY_LOOTING: i16 = 0xC0;
 pub const EX_SET_PARTY_LOOTING: i16 = 0xC1;
 pub const EX_SHOW_QUEST_MARK: i16 = 0x21;
+pub const EX_SHOW_SCREEN_MESSAGE: i16 = 0x39;
 pub const EX_NPC_QUEST_HTML_MESSAGE: i16 = 0x8E;
 pub const EX_QUEST_ITEM_LIST: i16 = 0xC7;
 pub const EX_SET_COMPASS_ZONE_CODE: i16 = 0x33;
