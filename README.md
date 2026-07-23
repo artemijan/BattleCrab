@@ -48,6 +48,30 @@ Config values can be overridden by environment variables using the Java
 `PropertiesParser` convention: `CONFIG_LOGINSERVER_<KEY>`
 (e.g. `CONFIG_LOGINSERVER_URL=jdbc:sqlite:./data/l2.db`).
 
+## Testing
+
+The suite runs under [cargo-nextest](https://nexte.st):
+
+```sh
+cargo install cargo-nextest --locked   # once
+cargo nextest run                        # whole workspace (~1600 tests)
+cargo nextest run -p gameserver          # just the game server
+cargo nextest run -p gameserver stealth  # substring filter
+cargo nextest run --profile ci           # retries + JUnit (see .config/nextest.toml)
+```
+
+nextest runs each test in its own process, which **isolates tests from each
+other's global state** — the game-server suite used to hang under plain
+`cargo test` because a few integration tests mutate process-global state (the
+current directory, a PID-named temp DB). The `.config/nextest.toml` `default`
+profile also **terminates any test that runs past ~2 minutes**, so a single
+deadlocked test is reported as a `TIMEOUT` failure instead of wedging the run.
+
+Two integration tests copy the real `interlude_classic.db` (an untracked
+working-tree file); they run on a full checkout / CI and self-skip on a fresh
+checkout or `git worktree` that lacks it. Plain `cargo test` still works for a
+single filtered test, but prefer nextest for anything broad.
+
 ## Docs
 
 - [`docs/PROGRESS.md`](docs/PROGRESS.md) — **milestone progress & current state** (start here)

@@ -7,6 +7,23 @@ use std::time::Duration;
 
 use gameserver::db::{self, CreateResult, DbCommand, DbEvent, NewCharacter};
 
+/// The DB thread's `verify_schema` fingerprint requires both `characters` and
+/// `accounts`; the character-schema fixtures here build only the former, so add
+/// a stock `accounts` table (from the login installer SQL) before the thread
+/// starts — otherwise it exits immediately and every `recv` sees `Disconnected`.
+async fn add_accounts_table(url: &str) {
+    let sql = std::fs::read_to_string(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/db_installer/sql/sqlite/login/accounts.sql"
+    ))
+    .unwrap();
+    let pool = commons::db::init(url, 1).await.unwrap();
+    for stmt in sql.split(';').map(str::trim).filter(|s| !s.is_empty()) {
+        sqlx::query(stmt).execute(&pool).await.unwrap();
+    }
+    pool.close().await;
+}
+
 fn new_char(name: &str) -> NewCharacter {
     NewCharacter {
         account: "acc".into(),
@@ -132,6 +149,7 @@ async fn create_persist_delete_restore() {
     // Run the DB thread against it.
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
+    add_accounts_table(&url).await;
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
     // Create a character.
@@ -228,6 +246,7 @@ async fn login_char_count_excludes_expired_deletions() {
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
+    add_accounts_table(&url).await;
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
     // Three characters on the account.
@@ -311,6 +330,7 @@ async fn shortcuts_and_macros_persist() {
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
+    add_accounts_table(&url).await;
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
     let sc = |slot: i32, kind: ShortcutType, id: i32, level: i32| db::NewShortcut { slot, page: 0, kind, id, level };
@@ -424,6 +444,7 @@ async fn friendships_persist() {
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
+    add_accounts_table(&url).await;
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
     // Two characters on separate accounts.
@@ -501,6 +522,7 @@ async fn quest_states_persist() {
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
+    add_accounts_table(&url).await;
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
     cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Ques") }).unwrap();
@@ -591,6 +613,7 @@ async fn recommendations_persist() {
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
+    add_accounts_table(&url).await;
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
     // Create → the seed row grants 20 recommendations to give.
@@ -660,6 +683,7 @@ async fn skill_reuse_cooldowns_persist() {
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
+    add_accounts_table(&url).await;
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
     cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Cooldown") }).unwrap();
@@ -728,6 +752,7 @@ async fn active_buffs_persist_with_frozen_countdown() {
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
+    add_accounts_table(&url).await;
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
     cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Buffed") }).unwrap();
@@ -801,6 +826,7 @@ async fn pets_persist() {
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
+    add_accounts_table(&url).await;
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
     let mut data = new_char("Beastmaster");
