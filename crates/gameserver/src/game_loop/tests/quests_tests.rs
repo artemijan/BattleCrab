@@ -5307,3 +5307,72 @@ fn quest_q00271_gates_and_necklace_page() {
     handle_request_bypass_to_server(&mut world, 4, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30577-04.htm")));
     assert!(quest_cond(&world, 3004, q).is_none_or(|c| c == 0), "level-9 Orc refused");
 }
+
+/// Q00277 Gatekeeper's Offering: collect 20 starstones (unrolled, capped) for
+/// 2 Gatekeeper Charms; the min-level gate lives in the start event.
+#[test]
+fn quest_q00277_gatekeepers_offering_loop() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1572, "Starstone", true), (1658, "Gatekeeper Charm", true)]);
+    let mut t = crate::data::npc_data::default_template(20333);
+    t.type_name = "Monster".into();
+    t.level = 18;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30576, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 18;
+    drain_db(&mut db_rx);
+
+    let q = "Q00277_GatekeepersOffering";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30576-03.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+    drain(&mut rx);
+
+    // Inject 19, then one golem kill hits the cap → cond 2.
+    {
+        let World { objects, data, .. } = &mut world;
+        objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(&data.item_data, 0x5500_0000, 1572, 19);
+    }
+    add_test_npc(&mut world, NPC_OID + 1, 20333, "Monster", 18, 30, 0, 0);
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 1572), 20);
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at 20 starstones");
+
+    // A further kill past the cap adds nothing.
+    add_test_npc(&mut world, NPC_OID + 2, 20333, "Monster", 18, 30, 0, 0);
+    death::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    assert_eq!(item_count(&world, 3001, 1572), 20, "capped at 20");
+
+    // Turn in: 2 charms, starstones cleared by the repeatable exit.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 1658), 2, "two Gatekeeper Charms");
+    assert_eq!(item_count(&world, 3001, 1572), 0, "starstones removed on exit");
+    assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit");
+}
+
+/// The start-event min-level gate (`30576-01.htm`, not a talk gate) and the
+/// `addCondMaxLevel(21)` max-level gate.
+#[test]
+fn quest_q00277_level_gates() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1572, "Starstone", true)]);
+    add_test_npc(&mut world, NPC_OID, 30576, "Folk", 5, 100, 0, 0);
+    let q = "Q00277_GatekeepersOffering";
+
+    // A level-14 player reaches the start button (the talk has no level gate)
+    // but the event refuses with 30576-01.htm and does not start.
+    let mut low_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 14;
+    drain(&mut low_rx);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30576-03.htm")));
+    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-14 start refused by the event");
+
+    // A fresh level-22 player is blocked before the state is even created.
+    let _hi_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3002).unwrap().level = 22;
+    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30576-03.htm")));
+    assert!(quest_cond(&world, 3002, q).is_none_or(|c| c == 0), "level-22 refused by addCondMaxLevel");
+}
