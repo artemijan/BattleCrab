@@ -8437,3 +8437,135 @@ fn quest_q00216_trial_of_the_guildsman() {
     assert_eq!(item_count(&world, 3001, 57), a + 187606, "final adena reward");
     assert_ne!(quest_cond(&world, 3001, q), Some(6), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00226_test_of_the_healer() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = (2810..=2819).map(|id| (id, "Q226", true)).collect();
+    items.push((2820, "Mark of Healer", false));
+    add_quest_items(&mut world, &items);
+    for id in [27122, 27123, 27124, 27125, 27126, 27127, 27134] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let bandellos = NPC_OID;
+    let perrin = NPC_OID + 1;
+    let allana = NPC_OID + 2;
+    let gupu = NPC_OID + 3;
+    let windy = NPC_OID + 4;
+    let sorius = NPC_OID + 5;
+    let daurin = NPC_OID + 6;
+    let mde = NPC_OID + 7;
+    let piper = NPC_OID + 8;
+    let kristina = NPC_OID + 9;
+    for (oid, npc) in [
+        (bandellos, 30473),
+        (perrin, 30428),
+        (allana, 30424),
+        (gupu, 30658),
+        (windy, 30660),
+        (sorius, 30327),
+        (daurin, 30674),
+        (mde, 30661),
+        (piper, 30662),
+        (kristina, 30665),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 15; // Cleric (WHITE_MAGIC_GROUP)
+    }
+    world.data.categories.insert_for_test("WHITE_MAGIC_GROUP", &[15]);
+    let q = "Q00226_TestOfTheHealer";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 30;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, bandellos);
+    ev(&mut world, bandellos, "ACCEPT");
+    assert_eq!(quest_memo(&world, 3001, q), 1);
+    talk(&mut world, perrin);
+    ev(&mut world, perrin, "30428-02.html"); // cond 2 + Tatoma ambush
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    assert!(!npcs_of(&mut world, 27134).is_empty(), "Tatoma ambush spawned");
+    kill(&mut world, 27134); // Tatoma → memo 2, cond 3
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    talk(&mut world, perrin); // memo 3, cond 4
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    talk(&mut world, allana); // memo 4, cond 5
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    talk(&mut world, gupu); // cond 6
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    inject(&mut world, 3001, 0x0226_0000, 57, 1000);
+    ev(&mut world, gupu, "30658-02.html"); // 1000 adena → Picture of Windy, cond 7
+    assert_eq!(item_count(&world, 3001, 2812), 1, "Picture of Windy");
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    talk(&mut world, windy);
+    ev(&mut world, windy, "30660-03.html"); // → Windy's Pebbles, cond 8
+    assert_eq!(item_count(&world, 3001, 2814), 1, "Windy's Pebbles");
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    talk(&mut world, gupu); // pebbles → Golden Statue, memo 5
+    assert_eq!(item_count(&world, 3001, 2813), 1, "Golden Statue");
+    talk(&mut world, gupu); // memo 5 → cond 9
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    talk(&mut world, sorius); // Order of Sorius, memo 6, cond 10
+    assert_eq!(item_count(&world, 3001, 2815), 1, "Order of Sorius");
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    talk(&mut world, daurin);
+    ev(&mut world, daurin, "30674-02.html"); // cond 11, spawn Leros
+    assert_eq!(quest_cond(&world, 3001, q), Some(11));
+    kill(&mut world, 27123); // Lero Leader → Secret Letter 1, cond 12
+    assert_eq!(item_count(&world, 3001, 2816), 1, "Secret Letter 1");
+    assert_eq!(quest_cond(&world, 3001, q), Some(12));
+    talk(&mut world, daurin); // memo 8, cond 13
+    assert_eq!(quest_cond(&world, 3001, q), Some(13));
+    // Four secret letters: the Mysterious Dark Elf deletes itself each step.
+    let mut re_add_mde = |w: &mut World| add_test_npc(w, mde, 30661, "Folk", 40, 100, 0, 0);
+    re_add_mde(&mut world);
+    talk(&mut world, mde); // spawn assassins, cond 14
+    assert_eq!(quest_cond(&world, 3001, q), Some(14));
+    kill(&mut world, 27124); // Assassin → Secret Letter 2, cond 15
+    assert_eq!(item_count(&world, 3001, 2817), 1, "Secret Letter 2");
+    assert_eq!(quest_cond(&world, 3001, q), Some(15));
+    re_add_mde(&mut world);
+    talk(&mut world, mde); // spawn snipers, cond 16
+    assert_eq!(quest_cond(&world, 3001, q), Some(16));
+    kill(&mut world, 27125); // Sniper → Secret Letter 3, cond 17
+    assert_eq!(item_count(&world, 3001, 2818), 1, "Secret Letter 3");
+    assert_eq!(quest_cond(&world, 3001, q), Some(17));
+    re_add_mde(&mut world);
+    talk(&mut world, mde); // spawn wizards + lord, cond 18
+    assert_eq!(quest_cond(&world, 3001, q), Some(18));
+    kill(&mut world, 27127); // Lord → Secret Letter 4, cond 19
+    assert_eq!(item_count(&world, 3001, 2819), 1, "Secret Letter 4");
+    assert_eq!(quest_cond(&world, 3001, q), Some(19));
+    re_add_mde(&mut world);
+    talk(&mut world, mde); // all four → cond 20
+    assert_eq!(quest_cond(&world, 3001, q), Some(20));
+    talk(&mut world, piper); // directions → cond 21
+    assert_eq!(quest_cond(&world, 3001, q), Some(21));
+    talk(&mut world, kristina);
+    ev(&mut world, kristina, "30665-02.html"); // 4 letters → Cristina's Letter, memo 9, cond 22
+    assert_eq!(item_count(&world, 3001, 2811), 1, "Cristina's Letter");
+    assert_eq!(quest_cond(&world, 3001, q), Some(22));
+    talk(&mut world, sorius); // Cristina's Letter → memo 10, cond 23
+    assert_eq!(quest_cond(&world, 3001, q), Some(23));
+    // Completion at Bandellos (healer kept the Golden Statue → lesser reward path).
+    talk(&mut world, bandellos); // memo 10 + statue → 30473-07
+    ev(&mut world, bandellos, "30473-09.html");
+    assert_eq!(item_count(&world, 3001, 2820), 1, "Mark of the Healer awarded");
+    assert_ne!(quest_cond(&world, 3001, q), Some(23), "one-time quest finished");
+}
