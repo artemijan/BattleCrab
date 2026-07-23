@@ -71,6 +71,9 @@ pub mod q00417_path_of_the_scavenger;
 pub mod q00418_path_of_the_artisan;
 pub mod q00407_path_of_the_elven_scout;
 pub mod q00324_sweetest_venom;
+pub mod q00369_collector_of_jewels;
+pub mod q00619_relics_of_the_old_empire;
+pub mod q00623_the_finest_food;
 pub mod antharas_heart;
 mod valakas_teleporters;
 mod dr_chaos_talk;
@@ -121,6 +124,9 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00317_catch_the_wind::Q00317CatchTheWind),
         Arc::new(q00320_bones_tell_the_future::Q00320BonesTellTheFuture),
         Arc::new(q00324_sweetest_venom::Q00324SweetestVenom),
+        Arc::new(q00369_collector_of_jewels::Q00369CollectorOfJewels),
+        Arc::new(q00619_relics_of_the_old_empire::Q00619RelicsOfTheOldEmpire),
+        Arc::new(q00623_the_finest_food::Q00623TheFinestFood),
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),
         Arc::new(q00402_path_of_the_human_knight::Q00402PathOfTheHumanKnight),
         Arc::new(q00403_path_of_the_rogue::Q00403PathOfTheRogue),

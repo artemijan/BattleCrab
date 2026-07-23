@@ -5889,3 +5889,154 @@ fn quest_q00360_plunder_their_supplies() {
     assert_eq!(item_count(&world, 3001, 57), a + 14000, "500 supplies → 14000 adena");
     assert_eq!(item_count(&world, 3001, 5872), 0);
 }
+
+#[test]
+fn quest_q00619_relics_of_the_old_empire() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(7254, "Relics", true), (7075, "Entrance", false), (6881, "Recipe", false)],
+    );
+    // A killable Imperial Tomb monster in the registered 21396..=21434 range.
+    let mut t = crate::data::npc_data::default_template(21400);
+    t.type_name = "Monster".into();
+    t.level = 74;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 31538, "Folk", 70, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 74;
+    let q = "Q00619_RelicsOfTheOldEmpire";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31538-03.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // Kill: roll(2)=0 → 2 relics; roll(100)=50 (> 10) → no entrance pass.
+    add_test_npc(&mut world, NPC_OID + 1, 21400, "Monster", 74, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    world.forced_rolls.push_back(50);
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 7254), 2, "2 relics from kill");
+    assert_eq!(item_count(&world, 3001, 7075), 0, "no entrance pass (roll 50 > 10)");
+    // Fast-forward to 1000 relics and turn in (force recipe index 0 → 6881).
+    inject(&mut world, 3001, 0x7254_0000, 7254, 998);
+    world.forced_rolls.push_back(0);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31538-09.htm")),
+    );
+    assert_eq!(item_count(&world, 3001, 6881), 1, "one S-grade recipe");
+    assert_eq!(item_count(&world, 3001, 7254), 0, "1000 relics consumed");
+    // Repeatable: the quest is still started after turn-in.
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+}
+
+#[test]
+fn quest_q00369_collector_of_jewels() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(5882, "Flare Shard", true), (5883, "Freezing Shard", true)],
+    );
+    // death_fire (20749): flare shard, chance 100, count 2.
+    let mut t = crate::data::npc_data::default_template(20749);
+    t.type_name = "Monster".into();
+    t.level = 30;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30376, "Folk", 30, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 30;
+    let q = "Q00369_CollectorOfJewels";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30376-02.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // Stage-1 kill: death_fire drops 2 flare (roll(100)=0 < chance 100).
+    add_test_npc(&mut world, NPC_OID + 1, 20749, "Monster", 30, 30, 0, 0);
+    world.forced_rolls.push_back(0); // outer roll(100) < chance
+    world.forced_rolls.push_back(0); // give_item_randomly roll_f64 → hit
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 5882), 2, "death_fire drops 2 flare shards");
+    // Fast-forward to 100 combined shards and turn in stage 1 → 3000 adena.
+    inject(&mut world, 3001, 0x5882_0000, 5882, 48); // 50 flare
+    inject(&mut world, 3001, 0x5883_0000, 5883, 50); // 50 freezing
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), a + 3000, "stage 1: 100 shards → 3000 adena");
+    assert_eq!(
+        item_count(&world, 3001, 5882) + item_count(&world, 3001, 5883),
+        0,
+        "shards consumed"
+    );
+    // Advance to stage 2 (memoState 2 → 3, cond 3).
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30376-06.html")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    // Fast-forward to 400 combined shards and turn in stage 2 → 12000 adena, exit.
+    inject(&mut world, 3001, 0x5882_0001, 5882, 200);
+    inject(&mut world, 3001, 0x5883_0001, 5883, 200);
+    let b = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), b + 12000, "stage 2: 400 shards → 12000 adena");
+    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+}
+
+#[test]
+fn quest_q00623_the_finest_food() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (7199, "Leaf of Flava", true),
+            (7200, "Buffalo Meat", true),
+            (7201, "Horn of Antelope", true),
+            (6849, "Ring of Aurakyra", false),
+        ],
+    );
+    // Thermal Antelope (21318) drops Horn of Antelope.
+    let mut t = crate::data::npc_data::default_template(21318);
+    t.type_name = "Monster".into();
+    t.level = 71;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 31521, "Folk", 70, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 71;
+    let q = "Q00623_TheFinestFood";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31521-03.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // Two ingredients full and horn one short, so a single antelope kill tops
+    // horn to its cap and flips cond → 2.
+    inject(&mut world, 3001, 0x7199_0000, 7199, 100);
+    inject(&mut world, 3001, 0x7200_0000, 7200, 100);
+    inject(&mut world, 3001, 0x7201_0000, 7201, 99);
+    add_test_npc(&mut world, NPC_OID + 1, 21318, "Monster", 71, 30, 0, 0);
+    world.forced_rolls.push_back(0); // give_item_randomly roll_f64 → hit
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 7201), 100, "antelope tops horn to 100");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "all three ingredients → cond 2");
+    // Turn in: force reward roll 0 (< 120) → Ring of Aurakyra + 25000 adena, exit.
+    let a = item_count(&world, 3001, 57);
+    world.forced_rolls.push_back(0);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31521-06.html")),
+    );
+    assert_eq!(item_count(&world, 3001, 6849), 1, "ring reward");
+    assert_eq!(item_count(&world, 3001, 57), a + 25000, "25000 adena");
+    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+}
