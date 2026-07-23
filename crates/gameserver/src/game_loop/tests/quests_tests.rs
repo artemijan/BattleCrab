@@ -7468,3 +7468,122 @@ fn quest_q00231_test_of_the_maestro() {
     assert_eq!(item_count(&world, 3001, 57), a + 372154, "final adena reward");
     assert_ne!(quest_cond(&world, 3001, q), Some(2), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00223_test_of_the_champion() {
+    let (mut world, _db, _l) = quest_test_world();
+    let qitems: Vec<(i32, &str, bool)> = [
+        3277, 3278, 3279, 3280, 3281, 3282, 3283, 3284, 3285, 3286, 3287, 3288, 3289, 3290, 3291,
+        3292,
+    ]
+    .iter()
+    .map(|&id| (id, "Q223", true))
+    .collect();
+    let mut items = qitems;
+    items.push((3276, "Mark of Champion", false));
+    add_quest_items(&mut world, &items);
+    for id in [20145, 20158, 20551, 20553, 20577, 20780] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        t.base_hp_max = 100_000.0; // survive the on_attack probe without dying
+        world.data.npc_data.insert_for_test(t);
+    }
+    let ascalon = NPC_OID;
+    let groot = NPC_OID + 1;
+    let mouen = NPC_OID + 2;
+    let mason = NPC_OID + 3;
+    for (oid, npc) in [(ascalon, 30624), (groot, 30093), (mouen, 30196), (mason, 30625)] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 1; // Warrior
+    }
+    let q = "Q00223_TestOfTheChampion";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 30;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, ascalon);
+    ev(&mut world, ascalon, "ACCEPT");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    assert_eq!(item_count(&world, 3001, 3277), 1, "Ascalon's 1st Letter");
+    // --- Leg 1: Mason → Iron Rose Ring → Bloody Axe Elite heads. ---
+    talk(&mut world, mason);
+    ev(&mut world, mason, "30625-03.html");
+    assert_eq!(item_count(&world, 3001, 3279), 1, "Iron Rose Ring");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    // onAttack ambush: first hit on an elite (ring held, heads<10, roll 0) conjures a second elite.
+    add_test_npc(&mut world, NPC_OID + 20, 20780, "Monster", 40, 40, 0, 0);
+    world.forced_rolls.push_back(0); // roll(2) == 0 → spawn
+    combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0);
+    assert_eq!(npcs_of(&mut world, 20780).len(), 2, "on_attack conjures a second Bloody Axe Elite");
+    inject(&mut world, 3001, 0x0223_0000, 3290, 9); // 9 heads
+    kill(&mut world, 20780); // 10th head → cond 3
+    assert_eq!(item_count(&world, 3001, 3290), 10, "Bloody Axe Head reaches 10");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    talk(&mut world, mason); // ring + heads → Mason's Letter
+    assert_eq!(item_count(&world, 3001, 3278), 1, "Mason's Letter");
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    // --- Leg 2: Ascalon relay → Groot → White Rose Insignia. ---
+    ev(&mut world, ascalon, "30624-10.html"); // Mason's Letter → 2nd Letter, cond 5
+    assert_eq!(item_count(&world, 3001, 3280), 1, "Ascalon's 2nd Letter");
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    talk(&mut world, groot);
+    ev(&mut world, groot, "30093-02.html"); // 2nd Letter → Insignia, cond 6
+    assert_eq!(item_count(&world, 3001, 3281), 1, "White Rose Insignia");
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    // --- Leg 3: hunt 30 each of eggs/venom/bile → cond 7. ---
+    kill(&mut world, 20145); // one real Harpy kill drops 2 eggs
+    assert_eq!(item_count(&world, 3001, 3287), 2, "Harpy drops eggs (insignia-gated)");
+    inject(&mut world, 3001, 0x0223_0001, 3287, 28); // eggs → 30
+    inject(&mut world, 3001, 0x0223_0002, 3288, 30); // venom → 30
+    inject(&mut world, 3001, 0x0223_0003, 3289, 27); // bile → 27
+    kill(&mut world, 20553); // Windsus: 27 → 30, all three complete → cond 7
+    assert_eq!(item_count(&world, 3001, 3289), 30, "Windsus Bile reaches 30");
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    talk(&mut world, groot); // insignia + all → Groot's Letter, cond 8
+    assert_eq!(item_count(&world, 3001, 3282), 1, "Groot's Letter");
+    assert_eq!(item_count(&world, 3001, 3287), 0, "eggs consumed");
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    // --- Leg 4: Ascalon relay → Mouen → 1st Order. ---
+    ev(&mut world, ascalon, "30624-14.html"); // Groot's Letter → 3rd Letter, cond 9
+    assert_eq!(item_count(&world, 3001, 3283), 1, "Ascalon's 3rd Letter");
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    talk(&mut world, mouen);
+    ev(&mut world, mouen, "30196-03.html"); // 3rd Letter → 1st Order, cond 10
+    assert_eq!(item_count(&world, 3001, 3284), 1, "Mouen's 1st Order");
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    // --- Leg 5: Road Scavenger ratman heads → 2nd Order. ---
+    inject(&mut world, 3001, 0x0223_0004, 3291, 9); // 9 ratman heads
+    kill(&mut world, 20551); // 10th → cond 11
+    assert_eq!(quest_cond(&world, 3001, q), Some(11));
+    ev(&mut world, mouen, "30196-06.html"); // 1st Order + heads → 2nd Order, cond 12
+    assert_eq!(item_count(&world, 3001, 3285), 1, "Mouen's 2nd Order");
+    assert_eq!(item_count(&world, 3001, 3291), 0, "ratman heads consumed");
+    assert_eq!(quest_cond(&world, 3001, q), Some(12));
+    // --- Leg 6: Leto Lizardman fangs → Mouen's Letter. ---
+    inject(&mut world, 3001, 0x0223_0005, 3292, 9); // 9 fangs
+    kill(&mut world, 20577); // 10th → cond 13
+    assert_eq!(quest_cond(&world, 3001, q), Some(13));
+    talk(&mut world, mouen); // 2nd Order + fangs → Mouen's Letter, cond 14
+    assert_eq!(item_count(&world, 3001, 3286), 1, "Mouen's Letter");
+    assert_eq!(quest_cond(&world, 3001, q), Some(14));
+    // --- Completion: Ascalon awards the Mark of the Champion. ---
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, ascalon);
+    assert_eq!(item_count(&world, 3001, 3276), 1, "Mark of the Champion awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 229764, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(14), "one-time quest finished");
+}
