@@ -104,8 +104,12 @@ pub(crate) fn use_admin_command(world: &mut World, client_id: u32, full: &str, u
     let display = command.strip_prefix("admin_").unwrap_or(&command).to_string();
 
     // Handler existence (Java `getHandler(command) == null`). The "known" set
-    // is the AdminCommands.xml command table.
-    if !world.data.admin.has_command(&command) {
+    // is the AdminCommands.xml command table — but Java's `AdminData.hasAccess`
+    // **auto-grants unlisted commands to the highest access level** (the dist
+    // xml genuinely lacks e.g. `admin_settargetable`, which AdminEffects
+    // registers), so a top-level GM's unlisted command falls through to the
+    // dispatch instead of "does not exist".
+    if !world.data.admin.has_command(&command) && !world.data.admin.has_access(&command, access_level) {
         send_message(world, client_id, &format!("The command '{display}' does not exist!"));
         warn!("No handler registered for admin command '{command}'.");
         return;
@@ -497,6 +501,30 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_earthquake" | "admin_earthquake_menu" => admin_earthquake(world, client_id, object_id, &args),
         "admin_atmosphere" | "admin_atmosphere_menu" => admin_atmosphere(world, client_id, &args),
         "admin_play_sound" => admin_play_sound(world, client_id, object_id, &args),
+        // AdminEffects' G19 tail (see effects.rs).
+        "admin_setteam" => effects::admin_setteam(world, client_id, object_id, &args, false),
+        "admin_setteam_close" => effects::admin_setteam(world, client_id, object_id, &args, true),
+        "admin_clearteams" => effects::admin_clearteams(world, client_id, object_id),
+        "admin_settargetable" => effects::admin_settargetable(world, client_id, object_id),
+        "admin_para" | "admin_para_menu" => effects::admin_para(world, client_id, object_id, &args, true, false),
+        "admin_unpara" | "admin_unpara_menu" => effects::admin_para(world, client_id, object_id, &args, false, false),
+        "admin_para_all" | "admin_para_all_menu" => effects::admin_para(world, client_id, object_id, &args, true, true),
+        "admin_unpara_all" | "admin_unpara_all_menu" => {
+            effects::admin_para(world, client_id, object_id, &args, false, true)
+        }
+        "admin_bighead" => effects::admin_bighead(world, client_id, object_id, true),
+        "admin_shrinkhead" => effects::admin_bighead(world, client_id, object_id, false),
+        "admin_playmovie" => effects::admin_playmovie(world, client_id, &args),
+        "admin_event_trigger" => effects::admin_event_trigger(world, client_id, object_id, &args),
+        "admin_set_displayeffect" | "admin_set_displayeffect_menu" => {
+            effects::admin_set_displayeffect(world, client_id, object_id, &args)
+        }
+        // `//invis`/`//vis` aliases route to the same toggle as `//hide`
+        // (Java's explicit set collapses onto the toggle when the state
+        // already differs; a double-invis is a no-op message either way).
+        "admin_invis" | "admin_invisible" | "admin_setinvis" | "admin_vis" | "admin_visible" => {
+            admin_hide(world, client_id, object_id)
+        }
         _ => return false,
     }
     true

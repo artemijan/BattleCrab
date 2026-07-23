@@ -155,6 +155,34 @@ pub fn skill_list(
     w.into_bytes()
 }
 
+/// `OnEventTrigger` (0xCF) — toggle a client-side emitter (bridges, castle
+/// gates FX, …). `//event_trigger`'s payload.
+pub fn event_trigger(emitter_id: i32, enabled: bool) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(0xCF);
+    w.write_i32(emitter_id);
+    w.write_u8(enabled as u8);
+    w.into_bytes()
+}
+
+/// `ExChangeNpcState` (0xFE 0xBF) — an NPC's display-effect state
+/// (`//set_displayeffect`).
+pub fn ex_change_npc_state(object_id: i32, state: i32) -> Vec<u8> {
+    let mut w = ex(0xBF);
+    w.write_i32(object_id);
+    w.write_i32(state);
+    w.into_bytes()
+}
+
+/// `ExStartScenePlayer` (0xFE 0x9A) — play a client cinematic
+/// (`//playmovie`). The port sends the raw id; Java's `MovieHolder`
+/// bookkeeping (freeze/escape handling) is TODO(G19) — GM preview only.
+pub fn ex_start_scene_player(movie_id: i32) -> Vec<u8> {
+    let mut w = ex(0x9A);
+    w.write_i32(movie_id);
+    w.into_bytes()
+}
+
 /// `ExEnchantSkillInfo` (0xFE 0x2A) — the routes a skill can enchant into
 /// (PLAN_G19_SKILL_ENCHANT.md). Java's per-route entry math ported verbatim,
 /// including the `min(subLevel + 1, route + MAX_ENCHANT − 1)` clamp against
