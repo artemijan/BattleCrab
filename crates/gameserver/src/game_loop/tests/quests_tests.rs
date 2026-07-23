@@ -6216,3 +6216,123 @@ fn quest_q00617_gather_the_flames() {
     assert_eq!(item_count(&world, 3001, 6883), 1, "chosen recipe 6883");
     assert_eq!(item_count(&world, 3001, 7264), 0, "1200 torches consumed");
 }
+
+#[test]
+fn quest_q00358_illegitimate_child_of_the_goddess() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(5868, "Snake Scale", true), (4975, "Recipe", false)]);
+    // Trives (20672) drops snake scales at 71%.
+    let mut t = crate::data::npc_data::default_template(20672);
+    t.type_name = "Monster".into();
+    t.level = 65;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30862, "Folk", 60, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 65;
+    let q = "Q00358_IllegitimateChildOfTheGoddess";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30862-04.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // At 107 scales, one more kill tops to 108 (the cap) and flips cond → 2.
+    inject(&mut world, 3001, 0x5868_0000, 5868, 107);
+    add_test_npc(&mut world, NPC_OID + 1, 20672, "Monster", 65, 30, 0, 0);
+    world.forced_rolls.push_back(0); // give_item_randomly roll_f64 (0.0 < 0.71) → hit
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 5868), 108, "108th scale tops the cap");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "cap reached → cond 2");
+    // Turn in: 108 scales → one random recipe (force index 0 → 4975), exit.
+    world.forced_rolls.push_back(0); // REWARDS index
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 4975), 1, "random recipe reward");
+    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+}
+
+#[test]
+fn quest_q00354_conquest_of_alligator_island() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(5863, "Alligator Tooth", true)]);
+    for id in [20804, 20808] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30895, "Folk", 40, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 40;
+    let q = "Q00354_ConquestOfAlligatorIsland";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30895-02.html")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // crokian_lad (20804, 84%): one tooth.
+    add_test_npc(&mut world, NPC_OID + 1, 20804, "Monster", 40, 30, 0, 0);
+    world.forced_rolls.push_back(0); // roll_f64 (0.0 < 0.84) → hit
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 5863), 1, "crokian_lad drops a tooth");
+    // nos_lad (20808): roll(100)=0 < 14 → double drop.
+    add_test_npc(&mut world, NPC_OID + 2, 20808, "Monster", 40, 30, 0, 0);
+    world.forced_rolls.push_back(0); // roll(100) < 14 → count 2
+    world.forced_rolls.push_back(0); // give_item_randomly roll_f64 (chance 1.0) → hit
+    death::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    assert_eq!(item_count(&world, 3001, 5863), 3, "nos_lad drops 2 teeth");
+    // 400 teeth → 2000 adena via the ADENA bypass, teeth cleared.
+    inject(&mut world, 3001, 0x5863_0000, 5863, 397);
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} ADENA")),
+    );
+    assert_eq!(item_count(&world, 3001, 57), a + 2000, "400 teeth → 2000 adena");
+    assert_eq!(item_count(&world, 3001, 5863), 0, "teeth consumed");
+    // Repeatable: still started after turn-in.
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+}
+
+#[test]
+fn quest_q00356_dig_up_the_sea_of_spores() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(5865, "Carnivore Spore", true), (5866, "Herbivorous Spore", true)]);
+    let mut t = crate::data::npc_data::default_template(20558); // Rotting Tree → herb
+    t.type_name = "Monster".into();
+    t.level = 45;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30717, "Folk", 45, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 45;
+    let q = "Q00356_DigUpTheSeaOfSpores";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30717-05.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // Carnivore already full, herbivorous one short → a Rotting Tree kill tops
+    // herb to 100 with the other kind already full, so cond → 3.
+    inject(&mut world, 3001, 0x5865_0000, 5865, 100);
+    inject(&mut world, 3001, 0x5866_0000, 5866, 99);
+    add_test_npc(&mut world, NPC_OID + 1, 20558, "Monster", 45, 30, 0, 0);
+    world.forced_rolls.push_back(0); // roll_f64 (0.0 < 0.73) → hit
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 5866), 100, "herb spore tops to 100");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3), "both kinds full → cond 3");
+    // FINISH: roll(100)=0 < 20 → 3000 adena, exit.
+    let a = item_count(&world, 3001, 57);
+    world.forced_rolls.push_back(0);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} FINISH")),
+    );
+    assert_eq!(item_count(&world, 3001, 57), a + 3000, "top reward bucket → 3000 adena");
+    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+}
