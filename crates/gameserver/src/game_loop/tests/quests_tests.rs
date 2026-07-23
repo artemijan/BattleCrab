@@ -8208,3 +8208,127 @@ fn quest_q00213_trial_of_the_seeker() {
     assert_eq!(item_count(&world, 3001, 57), a + 187606, "final adena reward");
     assert_ne!(quest_cond(&world, 3001, q), Some(17), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00215_trial_of_the_pilgrim() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = (2722..=2733).map(|id| (id, "Q215", true)).collect();
+    items.push((2721, "Mark of Pilgrim", false));
+    add_quest_items(&mut world, &items);
+    for id in [27116, 27117, 27118] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let santiago = NPC_OID;
+    let tanapi = NPC_OID + 1;
+    let martankus = NPC_OID + 2;
+    let gauri = NPC_OID + 3;
+    let gerald = NPC_OID + 4;
+    let dorf = NPC_OID + 5;
+    let primos = NPC_OID + 6;
+    let petron = NPC_OID + 7;
+    let andellia = NPC_OID + 8;
+    let uruha = NPC_OID + 9;
+    let casian = NPC_OID + 10;
+    for (oid, npc) in [
+        (santiago, 30648),
+        (tanapi, 30571),
+        (martankus, 30649),
+        (gauri, 30550),
+        (gerald, 30650),
+        (dorf, 30651),
+        (primos, 30117),
+        (petron, 30036),
+        (andellia, 30362),
+        (uruha, 30652),
+        (casian, 30612),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 15; // Cleric (HEAL_GROUP)
+    }
+    world.data.categories.insert_for_test("HEAL_GROUP", &[15]);
+    let q = "Q00215_TrialOfThePilgrim";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 30;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, santiago);
+    ev(&mut world, santiago, "ACCEPT");
+    assert_eq!(quest_memo(&world, 3001, q), 1);
+    talk(&mut world, tanapi); // voucher → memo 2, cond 2
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    talk(&mut world, martankus); // memo 3, cond 3
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    kill(&mut world, 27116); // Lava Salamander → Essence of Flame, memo 4, cond 4
+    assert_eq!(item_count(&world, 3001, 2725), 1, "Essence of Flame");
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    ev(&mut world, martankus, "30649-04.html"); // → Spirit of Flame, memo 5, cond 5
+    assert_eq!(item_count(&world, 3001, 2724), 1, "Spirit of Flame");
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    talk(&mut world, tanapi); // memo 5 + spirit → cond 6
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    talk(&mut world, gauri); // spirit → Tag of Rumor, memo 6, cond 7
+    assert_eq!(item_count(&world, 3001, 2733), 1, "Tag of Rumor");
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    // Gerald sells the Book of Gerald for 5000 adena.
+    inject(&mut world, 3001, 0x0215_0000, 57, 5000);
+    talk(&mut world, gerald);
+    ev(&mut world, gerald, "30650-02.html"); // 5000 adena → Book of Gerald, memo 7
+    assert_eq!(item_count(&world, 3001, 2726), 1, "Book of Gerald");
+    assert_eq!(item_count(&world, 3001, 57), 0, "5000 adena spent");
+    talk(&mut world, dorf); // tag → Grey Badge, memo 8
+    assert_eq!(item_count(&world, 3001, 2727), 1, "Grey Badge");
+    // Gerald refunds the 5000 adena for the finished badge + book.
+    talk(&mut world, gerald);
+    assert_eq!(item_count(&world, 3001, 57), 5000, "Gerald refunds 5000 adena");
+    assert_eq!(item_count(&world, 3001, 2726), 0, "Book of Gerald returned");
+    talk(&mut world, dorf); // memo 8 → cond 8
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    talk(&mut world, primos); // memo 9, cond 9
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    talk(&mut world, petron); // Picture of Nahir, memo 10, cond 10
+    assert_eq!(item_count(&world, 3001, 2728), 1, "Picture of Nahir");
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    kill(&mut world, 27117); // Nahir → Hair of Nahir, memo 11, cond 11
+    assert_eq!(item_count(&world, 3001, 2729), 1, "Hair of Nahir");
+    assert_eq!(quest_cond(&world, 3001, q), Some(11));
+    talk(&mut world, petron); // picture + hair → Statue of Einhasad, memo 12, cond 12
+    assert_eq!(item_count(&world, 3001, 2730), 1, "Statue of Einhasad");
+    assert_eq!(quest_cond(&world, 3001, q), Some(12));
+    talk(&mut world, andellia); // memo 13, cond 13
+    assert_eq!(quest_cond(&world, 3001, q), Some(13));
+    kill(&mut world, 27118); // Black Willow → Debris of Willow, memo 14, cond 14
+    assert_eq!(item_count(&world, 3001, 2732), 1, "Debris of Willow");
+    assert_eq!(quest_cond(&world, 3001, q), Some(14));
+    talk(&mut world, uruha);
+    ev(&mut world, uruha, "30652-02.html"); // debris → Book of Darkness, memo 15, cond 15
+    assert_eq!(item_count(&world, 3001, 2731), 1, "Book of Darkness");
+    assert_eq!(quest_cond(&world, 3001, q), Some(15));
+    talk(&mut world, andellia);
+    ev(&mut world, andellia, "30362-04.html"); // memo 16, cond 16 (keeps book)
+    assert_eq!(quest_cond(&world, 3001, q), Some(16));
+    talk(&mut world, casian); // memo 17: Book of Sage + consumes badge/spirit/statue/darkness
+    assert_eq!(item_count(&world, 3001, 2722), 1, "Book of Sage");
+    assert_eq!(item_count(&world, 3001, 2731), 0, "Book of Darkness consumed for the bonus");
+    talk(&mut world, casian); // memo 17 → cond 17
+    assert_eq!(quest_cond(&world, 3001, q), Some(17));
+    // Completion at Santiago.
+    talk(&mut world, santiago);
+    assert_eq!(item_count(&world, 3001, 2721), 1, "Mark of the Pilgrim awarded");
+    assert_ne!(quest_cond(&world, 3001, q), Some(17), "one-time quest finished");
+}
