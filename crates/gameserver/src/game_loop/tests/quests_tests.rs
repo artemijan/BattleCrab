@@ -6040,3 +6040,179 @@ fn quest_q00623_the_finest_food() {
     assert_eq!(item_count(&world, 3001, 57), a + 25000, "25000 adena");
     assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
 }
+
+#[test]
+fn quest_q00292_brigands_sweep() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (1483, "Goblin Necklace", true),
+            (1484, "Goblin Pendant", true),
+            (1485, "Goblin Lord Pendant", true),
+            (1486, "Suspicious Memo", true),
+            (1487, "Suspicious Contract", true),
+        ],
+    );
+    // Goblin Brigand (20322) drops the necklace.
+    let mut t = crate::data::npc_data::default_template(20322);
+    t.type_name = "Monster".into();
+    t.level = 10;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30532, "Folk", 5, 100, 0, 0); // Spiron
+    add_test_npc(&mut world, NPC_OID + 1, 30533, "Folk", 5, 100, 0, 0); // Balanki
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 10;
+        p.race = 4; // Dwarf
+    }
+    let q = "Q00292_BrigandsSweep";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30532-03.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // Memo path: three chance==5 kills assemble a Suspicious Contract and flip
+    // cond → 2 (each give_item_randomly for the memo has its roll_f64 forced).
+    let mob = NPC_OID + 2;
+    for i in 0..3 {
+        add_test_npc(&mut world, mob + i, 20322, "Monster", 10, 30, 0, 0);
+        world.forced_rolls.push_back(5); // roll(10)==5 → memo branch
+        world.forced_rolls.push_back(0); // give_item_randomly(MEMO) roll_f64 → hit
+        death::npc_do_die(&mut world, mob + i, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, 1487), 1, "3 memos assemble a contract");
+    assert_eq!(item_count(&world, 3001, 1486), 0, "memos consumed");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "contract → cond 2");
+    // Balanki pays 620 for the contract.
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q}", NPC_OID + 1)),
+    );
+    assert_eq!(item_count(&world, 3001, 57), a + 620, "Balanki pays 620");
+    assert_eq!(item_count(&world, 3001, 1487), 0, "contract consumed");
+    // Goblin-token turn-in at Spiron: 10 necklaces → 10*6 + 1000 bonus.
+    inject(&mut world, 3001, 0x1483_0000, 1483, 10);
+    let b = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), b + 1060, "10 necklaces → 60 + 1000 bonus");
+    assert_eq!(item_count(&world, 3001, 1483), 0, "necklaces consumed");
+}
+
+#[test]
+fn quest_q00276_totem_of_the_hestui() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (1480, "Kasha Parasite", true),
+            (1481, "Kasha Crystal", true),
+            (29, "Leather Shirt", false),
+            (1500, "Reward Token", false),
+        ],
+    );
+    for id in [20479, 27044] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 18;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30571, "Folk", 5, 100, 0, 0); // Tanapi
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 18;
+        p.race = 3; // Orc
+    }
+    let q = "Q00276_TotemOfTheHestui";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30571-03.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // Kasha Bear kill at 0 parasites → below every ladder threshold, so no totem;
+    // one parasite is paid instead.
+    let bear = NPC_OID + 10;
+    add_test_npc(&mut world, bear, 20479, "Monster", 18, 30, 0, 0);
+    world.forced_rolls.push_back(50); // roll(100) chance2 (irrelevant with 0 parasites)
+    world.forced_rolls.push_back(0); // give_item_randomly(PARASITE) roll_f64 → hit
+    death::npc_do_die(&mut world, bear, 3001);
+    assert_eq!(item_count(&world, 3001, 1480), 1, "kasha bear yields a parasite");
+    assert!(npcs_of(&mut world, 27044).is_empty(), "no totem below threshold");
+    // Stock 79 parasites → the next bear kill certainly conjures the totem
+    // (ladder head (79, 100)) and wipes the hoard.
+    inject(&mut world, 3001, 0x1480_0000, 1480, 78);
+    let bear2 = NPC_OID + 11;
+    add_test_npc(&mut world, bear2, 20479, "Monster", 18, 30, 0, 0);
+    world.forced_rolls.push_back(0); // roll(100)=0 ≤ 100 → spawn
+    death::npc_do_die(&mut world, bear2, 3001);
+    assert_eq!(item_count(&world, 3001, 1480), 0, "spawning the totem consumes the hoard");
+    let totems = npcs_of(&mut world, 27044);
+    assert_eq!(totems.len(), 1, "a Kasha Bear Totem was conjured");
+    // Slaying the totem yields the Kasha Crystal and advances to cond 2.
+    world.forced_rolls.push_back(0); // give_item_randomly(CRYSTAL) roll_f64 → hit
+    death::npc_do_die(&mut world, totems[0], 3001);
+    assert_eq!(item_count(&world, 3001, 1481), 1, "totem drops the crystal");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    // Turn in at Tanapi → both rewards, repeatable exit.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 29), 1, "leather shirt reward");
+    assert_eq!(item_count(&world, 3001, 1500), 1, "second reward");
+    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+}
+
+#[test]
+fn quest_q00617_gather_the_flames() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(7264, "Torch", true), (6881, "Recipe A", false), (6883, "Recipe B", false)],
+    );
+    let mut t = crate::data::npc_data::default_template(22634);
+    t.type_name = "Monster".into();
+    t.level = 74;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 31539, "Folk", 70, 100, 0, 0); // Vulcan
+    add_test_npc(&mut world, NPC_OID + 1, 32049, "Folk", 70, 100, 0, 0); // Rooney
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 74;
+    let q = "Q00617_GatherTheFlames";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31539-03.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // Kill 22634 (threshold 639): roll(1000)=0 < 639 → 2 torches (plain giveItems).
+    add_test_npc(&mut world, NPC_OID + 2, 22634, "Monster", 74, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    assert_eq!(item_count(&world, 3001, 7264), 2, "22634 drops 2 torches on a low roll");
+    // Vulcan: 1000 torches → one random S-grade recipe (force index 0 → 6881).
+    inject(&mut world, 3001, 0x7264_0000, 7264, 998);
+    world.forced_rolls.push_back(0); // getRandomEntry index
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31539-07.html")),
+    );
+    assert_eq!(item_count(&world, 3001, 6881), 1, "random S-grade recipe");
+    assert_eq!(item_count(&world, 3001, 7264), 0, "1000 torches consumed");
+    // Rooney: 1200 torches → the chosen recipe 6883.
+    inject(&mut world, 3001, 0x7264_0001, 7264, 1200);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q} 6883", NPC_OID + 1)),
+    );
+    assert_eq!(item_count(&world, 3001, 6883), 1, "chosen recipe 6883");
+    assert_eq!(item_count(&world, 3001, 7264), 0, "1200 torches consumed");
+}

@@ -74,6 +74,9 @@ pub mod q00324_sweetest_venom;
 pub mod q00369_collector_of_jewels;
 pub mod q00619_relics_of_the_old_empire;
 pub mod q00623_the_finest_food;
+pub mod q00276_totem_of_the_hestui;
+pub mod q00292_brigands_sweep;
+pub mod q00617_gather_the_flames;
 pub mod antharas_heart;
 mod valakas_teleporters;
 mod dr_chaos_talk;
@@ -127,6 +130,9 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00369_collector_of_jewels::Q00369CollectorOfJewels),
         Arc::new(q00619_relics_of_the_old_empire::Q00619RelicsOfTheOldEmpire),
         Arc::new(q00623_the_finest_food::Q00623TheFinestFood),
+        Arc::new(q00276_totem_of_the_hestui::Q00276TotemOfTheHestui),
+        Arc::new(q00292_brigands_sweep::Q00292BrigandsSweep),
+        Arc::new(q00617_gather_the_flames::Q00617GatherTheFlames),
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),
         Arc::new(q00402_path_of_the_human_knight::Q00402PathOfTheHumanKnight),
         Arc::new(q00403_path_of_the_rogue::Q00403PathOfTheRogue),
