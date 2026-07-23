@@ -132,6 +132,15 @@ pub struct DashboardConfig {
     pub login_rate_limit: u32,
     pub login_rate_window_secs: u64,
 
+    /// Minimum `accounts.accessLevel` a *master* account needs to reach the
+    /// `/admin` API. Defaults to 100 — "Master" in the game's AccessLevels.xml —
+    /// so lower GM tiers get nothing until this is deliberately lowered.
+    ///
+    /// There is no way to set an access level through the dashboard itself;
+    /// promotion is a manual `UPDATE accounts SET accessLevel = 100 WHERE login
+    /// IS NULL AND email = '…'` by someone who already has DB access.
+    pub admin_access_level: i32,
+
     /// SES SMTP endpoint, e.g. `email-smtp.eu-west-1.amazonaws.com`. Empty
     /// disables email entirely (links are logged instead — see `mail`).
     pub smtp_host: String,
@@ -214,6 +223,10 @@ impl DashboardConfig {
 
             login_rate_limit: p.get_int("LoginRateLimit", 10) as u32,
             login_rate_window_secs: p.get_long("LoginRateWindowSecs", 300) as u64,
+
+            // `.max(1)`: zero or negative would make every ordinary account an
+            // admin, which is the one direction this knob must never fail in.
+            admin_access_level: p.get_int("AdminAccessLevel", 100).max(1),
 
             // SMTP is environment-only, all of it — see SMTP_HOST_ENV.
             smtp_host: std::env::var(SMTP_HOST_ENV).unwrap_or_default(),

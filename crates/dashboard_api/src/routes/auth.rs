@@ -40,13 +40,20 @@ pub struct Credentials {
 pub struct AccountView {
     pub email: Option<String>,
     pub is_verified: bool,
+    /// Whether the `/admin` API and the SPA's admin routes are open to this
+    /// session. A boolean rather than the raw level: the number is a server
+    /// detail, and the SPA only ever branches on yes/no.
+    pub is_admin: bool,
 }
 
-impl From<&accounts::Account> for AccountView {
-    fn from(account: &accounts::Account) -> Self {
+impl AccountView {
+    /// Needs the config because "is an admin" is a comparison against
+    /// `AdminAccessLevel`, not a fact stored on the row.
+    pub fn new(account: &accounts::Account, config: &crate::config::DashboardConfig) -> Self {
         AccountView {
             email: account.email.clone(),
             is_verified: account.is_verified(),
+            is_admin: account.access_level >= config.admin_access_level,
         }
     }
 }
@@ -107,7 +114,8 @@ async fn register(
     send_verification(&app, &email).await;
 
     let headers = session_headers(&app, account.subject(), &hash)?;
-    Ok((StatusCode::CREATED, headers, Json(AccountView::from(&account))))
+    let view = AccountView::new(&account, &app.config);
+    Ok((StatusCode::CREATED, headers, Json(view)))
 }
 
 async fn login(
@@ -142,6 +150,13 @@ async fn login(
         return Err(ApiError::InvalidCredentials);
     };
 
+    // Only after the password verified — a banned answer for a wrong password
+    // would leak which addresses exist. `current_account` re-checks on every
+    // later request, so a ban also kills sessions that are already open.
+    if account.access_level < 0 {
+        return Err(ApiError::AccountBanned);
+    }
+
     // A legitimate user who fumbled a few attempts shouldn't stay throttled.
     app.login_limiter.reset(&ip_key);
     app.login_limiter.reset(&account_key);
@@ -150,7 +165,8 @@ async fn login(
     // false` so the SPA can nag. Locking the account out would strand anyone
     // whose verification mail bounced, with no way to ask for another.
     let headers = session_headers(&app, account.subject(), &account.password)?;
-    Ok((headers, Json(AccountView::from(&account))))
+    let view = AccountView::new(&account, &app.config);
+    Ok((headers, Json(view)))
 }
 
 async fn logout(State(app): State<AppState>) -> ApiResult<impl IntoResponse> {
@@ -167,7 +183,7 @@ async fn logout(State(app): State<AppState>) -> ApiResult<impl IntoResponse> {
 
 async fn me(State(app): State<AppState>, headers: HeaderMap) -> ApiResult<Json<AccountView>> {
     let account = current_account(&app, &headers).await?;
-    Ok(Json(AccountView::from(&account)))
+    Ok(Json(AccountView::new(&account, &app.config)))
 }
 
 /// Re-sends the confirmation mail for the signed-in account.

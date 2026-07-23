@@ -40,6 +40,21 @@ pub enum ApiError {
     #[error("registration is currently disabled")]
     RegistrationDisabled,
 
+    /// Authenticated, but not allowed to do this — the admin gate, and the
+    /// peer-protection rule (an admin cannot touch an account at or above their
+    /// own level).
+    #[error("you don't have permission to do that")]
+    Forbidden,
+
+    /// The account exists and the password was right, but `accessLevel < 0`.
+    /// Only ever returned *after* the password verified, so it is not an
+    /// enumeration oracle.
+    #[error("this account is suspended")]
+    AccountBanned,
+
+    #[error("not found")]
+    NotFound,
+
     #[error("too many attempts, try again later")]
     RateLimited,
 
@@ -76,6 +91,9 @@ impl ApiError {
             ApiError::EmailNotVerified => (StatusCode::FORBIDDEN, "email_not_verified"),
             ApiError::TooManyGameAccounts(_) => (StatusCode::CONFLICT, "too_many_game_accounts"),
             ApiError::RegistrationDisabled => (StatusCode::FORBIDDEN, "registration_disabled"),
+            ApiError::Forbidden => (StatusCode::FORBIDDEN, "forbidden"),
+            ApiError::AccountBanned => (StatusCode::FORBIDDEN, "account_banned"),
+            ApiError::NotFound => (StatusCode::NOT_FOUND, "not_found"),
             ApiError::RateLimited => (StatusCode::TOO_MANY_REQUESTS, "rate_limited"),
             ApiError::InvalidToken => (StatusCode::BAD_REQUEST, "invalid_token"),
             ApiError::Internal(_) => (StatusCode::INTERNAL_SERVER_ERROR, "internal"),

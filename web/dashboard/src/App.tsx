@@ -8,6 +8,7 @@ import { ApiError } from "./lib/api";
 import { useAccount } from "./lib/session";
 import { ThemeProvider } from "./lib/theme";
 import { AccountPage } from "./pages/AccountPage";
+import { AdminAccountDetail, AdminAccounts } from "./pages/Admin";
 import { Login, Register } from "./pages/Auth";
 import { ForgotPassword, ResetPassword } from "./pages/PasswordReset";
 import { VerifyEmail } from "./pages/VerifyEmail";
@@ -38,6 +39,30 @@ function RequireAuth({ children }: { children: ReactNode }) {
   }
   if (!account.data) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  }
+  return <>{children}</>;
+}
+
+/**
+ * Gates the /admin routes on `isAdmin`. UX only — every /admin API call is
+ * re-checked server-side, so this hides pages that could only render errors.
+ * A signed-in non-admin lands on /account rather than a 403 dead end.
+ */
+function RequireAdmin({ children }: { children: ReactNode }) {
+  const account = useAccount();
+
+  if (account.isPending) {
+    return (
+      <div className="grid place-items-center py-24 text-[var(--text-muted)]">
+        <Spinner className="size-6" />
+      </div>
+    );
+  }
+  if (!account.data) {
+    return <Navigate to="/login" replace />;
+  }
+  if (!account.data.isAdmin) {
+    return <Navigate to="/account" replace />;
   }
   return <>{children}</>;
 }
@@ -85,6 +110,22 @@ function Shell() {
             <RequireAuth>
               <AccountPage />
             </RequireAuth>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <RequireAdmin>
+              <AdminAccounts />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/admin/accounts/:email"
+          element={
+            <RequireAdmin>
+              <AdminAccountDetail />
+            </RequireAdmin>
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />
