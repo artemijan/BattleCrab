@@ -95,6 +95,7 @@ pub mod q00634_in_search_of_fragments_of_dimension;
 pub mod q00124_meeting_the_elroki;
 pub mod q00325_grim_collector;
 pub mod q00643_rise_and_fall_of_the_elroki_tribe;
+pub mod q00111_elrokian_hunters_proof;
 pub mod antharas_heart;
 mod valakas_teleporters;
 mod dr_chaos_talk;
@@ -169,6 +170,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00124_meeting_the_elroki::Q00124MeetingTheElroki),
         Arc::new(q00325_grim_collector::Q00325GrimCollector),
         Arc::new(q00643_rise_and_fall_of_the_elroki_tribe::Q00643RiseAndFallOfTheElrokiTribe::new()),
+        Arc::new(q00111_elrokian_hunters_proof::Q00111ElrokianHuntersProof),
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),
         Arc::new(q00402_path_of_the_human_knight::Q00402PathOfTheHumanKnight),
         Arc::new(q00403_path_of_the_rogue::Q00403PathOfTheRogue),
