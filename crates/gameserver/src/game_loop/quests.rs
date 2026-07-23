@@ -555,6 +555,12 @@ impl<'w> QuestCtx<'w> {
         self.world.objects.get_component::<crate::model::Player>(&self.player).map(|p| p.level).unwrap_or(0)
     }
 
+    /// `npc.getLevel()` — the in-context NPC's template level (regular mobs do
+    /// not level up, so the template value is authoritative). 0 when unknown.
+    pub fn npc_level(&self) -> i32 {
+        self.world.data.npc_data.get(self.npc_id).map(|t| t.level).unwrap_or(0)
+    }
+
     /// The `Race` ordinal (`characters.race` — 0 Human, 1 Elf, 2 Dark Elf,
     /// 3 Orc, 4 Dwarf).
     pub fn player_race(&self) -> i32 {
