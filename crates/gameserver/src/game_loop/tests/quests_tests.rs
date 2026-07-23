@@ -7097,3 +7097,56 @@ fn quest_q00111_elrokian_hunters_proof() {
     assert_eq!(item_count(&world, 3001, 8773), 0, "practice trap consumed");
     assert_ne!(quest_cond(&world, 3001, q), Some(12), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00373_supplier_of_reagents() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (5904, "Mixing Stone", true),
+            (6317, "Mixing Manual", true),
+            (6011, "Wyrm's Blood", false),
+            (6017, "Blood Root", false),
+            (6021, "Dracoplasm", false),
+            (6010, "Reagent Box", false),
+        ],
+    );
+    for id in [21111, 21066] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 60;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let wesley = NPC_OID;
+    let urn = NPC_OID + 1;
+    add_test_npc(&mut world, wesley, 30166, "Folk", 55, 100, 0, 0);
+    add_test_npc(&mut world, urn, 31149, "Folk", 55, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 60;
+    let q = "Q00373_SupplierOfReagents";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{wesley}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{wesley}_Quest {q} 30166-04.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    assert_eq!(item_count(&world, 3001, 5904), 1, "mixing stone given");
+    assert_eq!(item_count(&world, 3001, 6317), 1, "mixing manual given");
+    // Pair drop: Lava Wyrm, roll(1000)=0 < 505 → Wyrm's Blood.
+    add_test_npc(&mut world, NPC_OID + 10, 21111, "Monster", 60, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 10, 3001);
+    assert_eq!(item_count(&world, 3001, 6011), 1, "Lava Wyrm drops Wyrm's Blood on a low roll");
+    // Single drop: Platinum Guardian Shaman, roll(1_000_000)=0 < 442000 → Reagent Box.
+    add_test_npc(&mut world, NPC_OID + 11, 21066, "Monster", 60, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 11, 3001);
+    assert_eq!(item_count(&world, 3001, 6010), 1, "Platinum Guardian Shaman drops a Reagent Box");
+    // Alchemy: 10 Wyrm's Blood + 1 Blood Root, mixed at temperature 1 → Dracoplasm.
+    inject(&mut world, 3001, 0x0373_0000, 6011, 9); // 10 total
+    inject(&mut world, 3001, 0x0373_0001, 6017, 1);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{urn}_Quest {q} 31149-03-6011.htm")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{urn}_Quest {q} 31149-06-6017.htm")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{urn}_Quest {q} 31149-12-1")));
+    assert_eq!(item_count(&world, 3001, 6021), 1, "temperature-1 mix yields one Dracoplasm");
+    assert_eq!(item_count(&world, 3001, 6011), 0, "10 Wyrm's Blood consumed");
+    assert_eq!(item_count(&world, 3001, 6017), 0, "Blood Root consumed");
+}
