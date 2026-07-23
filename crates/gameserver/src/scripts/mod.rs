@@ -30,6 +30,13 @@ pub mod q00265_bonds_of_slavery;
 pub mod q00266_pleas_of_pixies;
 pub mod q00267_wrath_of_verdure;
 pub mod q00271_proof_of_valor;
+pub mod q00272_wrath_of_ancestors;
+pub mod q00274_skirmish_with_the_werewolves;
+pub mod q00294_covert_business;
+pub mod q00297_gatekeepers_favor;
+pub mod q00326_vanquish_remnants;
+pub mod q00328_sense_for_business;
+pub mod q00331_arrow_of_vengeance;
 pub mod q00273_invaders_of_the_holy_land;
 pub mod q00277_gatekeepers_offering;
 pub mod q00293_the_hidden_veins;
@@ -87,6 +94,13 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00266_pleas_of_pixies::Q00266PleasOfPixies),
         Arc::new(q00267_wrath_of_verdure::Q00267WrathOfVerdure),
         Arc::new(q00271_proof_of_valor::Q00271ProofOfValor),
+        Arc::new(q00272_wrath_of_ancestors::Q00272WrathOfAncestors),
+        Arc::new(q00274_skirmish_with_the_werewolves::Q00274SkirmishWithTheWerewolves),
+        Arc::new(q00294_covert_business::Q00294CovertBusiness),
+        Arc::new(q00297_gatekeepers_favor::Q00297GatekeepersFavor),
+        Arc::new(q00326_vanquish_remnants::Q00326VanquishRemnants),
+        Arc::new(q00328_sense_for_business::Q00328SenseForBusiness),
+        Arc::new(q00331_arrow_of_vengeance::Q00331ArrowOfVengeance),
         Arc::new(q00273_invaders_of_the_holy_land::Q00273InvadersOfTheHolyLand),
         Arc::new(q00277_gatekeepers_offering::Q00277GatekeepersOffering),
         Arc::new(q00293_the_hidden_veins::Q00293TheHiddenVeins),

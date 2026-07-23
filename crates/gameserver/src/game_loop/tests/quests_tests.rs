@@ -5602,3 +5602,180 @@ fn quest_q00267_race_and_level_gates() {
     handle_request_bypass_to_server(&mut world, 3, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31853-04.htm")));
     assert!(quest_cond(&world, 3003, q).is_none_or(|c| c == 0), "level-10 Elf refused");
 }
+
+// ===== G22 quest batch (Q297/272/328/331/294/274/326) =====
+
+fn inject(world: &mut World, oid: i32, obj: i32, item: i32, count: i64) {
+    let World { objects, data, .. } = world;
+    objects.get_component_mut::<crate::model::inventory::Inventory>(&oid).unwrap().add_item(&data.item_data, obj, item, count);
+}
+
+#[test]
+fn quest_q00297_gatekeepers_favor() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(1573, "Starstone", true), (736, "Gatekeeper Token", true)]);
+    let mut t = crate::data::npc_data::default_template(20521); t.type_name = "Monster".into(); t.level = 18;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30540, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 18;
+    let q = "Q00297_GatekeepersFavor";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30540-03.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    inject(&mut world, 3001, 0x6000_0000, 1573, 19);
+    add_test_npc(&mut world, NPC_OID + 1, 20521, "Monster", 18, 30, 0, 0);
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 736), 2, "two Gatekeeper Tokens");
+    assert!(quest_cond(&world, 3001, q).is_none());
+}
+
+#[test]
+fn quest_q00272_wrath_of_ancestors() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(1474, "Grave Robber's Head", true)]);
+    let mut t = crate::data::npc_data::default_template(20319); t.type_name = "Monster".into(); t.level = 8;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30572, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    { let p = world.objects.get_component_mut::<Player>(&3001).unwrap(); p.level = 8; p.race = 3; }
+    let q = "Q00272_WrathOfAncestors";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30572-04.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    inject(&mut world, 3001, 0x6100_0000, 1474, 49);
+    add_test_npc(&mut world, NPC_OID + 1, 20319, "Monster", 8, 30, 0, 0);
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), a + 100);
+    assert!(quest_cond(&world, 3001, q).is_none());
+}
+
+#[test]
+fn quest_q00328_sense_for_business() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(1347, "Carcass", true), (1366, "Lens", true), (1348, "Gizzard", true)]);
+    for id in [20055, 20070] { let mut t = crate::data::npc_data::default_template(id); t.type_name = "Monster".into(); t.level = 22; world.data.npc_data.insert_for_test(t); }
+    add_test_npc(&mut world, NPC_OID, 30436, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 22;
+    let q = "Q00328_SenseForBusiness";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30436-03.htm")));
+    let mut m = NPC_OID + 1;
+    let mut kill = |world: &mut World, sp: i32, roll: i32| { add_test_npc(world, m, sp, "Monster", 22, 30, 0, 0); world.forced_rolls.push_back(roll); death::npc_do_die(world, m, 3001); m += 1; };
+    kill(&mut world, 20055, 60); // < 61 → carcass
+    kill(&mut world, 20055, 61); // 61 < 62 → lens
+    kill(&mut world, 20070, 59); // < 60 → gizzard
+    assert_eq!(item_count(&world, 3001, 1347), 1);
+    assert_eq!(item_count(&world, 3001, 1366), 1);
+    assert_eq!(item_count(&world, 3001, 1348), 1);
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), a + 14, "carcass 2 + lens 10 + gizzard 2");
+    assert_eq!(item_count(&world, 3001, 1347) + item_count(&world, 3001, 1366) + item_count(&world, 3001, 1348), 0);
+}
+
+#[test]
+fn quest_q00331_arrow_of_vengeance() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(1452, "Feather", true), (1453, "Venom", true), (1454, "Tooth", true)]);
+    let mut t = crate::data::npc_data::default_template(20145); t.type_name = "Monster".into(); t.level = 35;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30125, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 35;
+    let q = "Q00331_ArrowOfVengeance";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30125-03.htm")));
+    add_test_npc(&mut world, NPC_OID + 1, 20145, "Monster", 35, 30, 0, 0);
+    world.forced_rolls.push_back(58); // < 59 → feather
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    add_test_npc(&mut world, NPC_OID + 2, 20145, "Monster", 35, 30, 0, 0);
+    world.forced_rolls.push_back(59); // ≥ 59 → nothing
+    death::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    assert_eq!(item_count(&world, 3001, 1452), 1);
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), a + 6, "one feather = 6a");
+}
+
+#[test]
+fn quest_q00294_covert_business() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(1491, "Bat Fang", true), (1508, "Ring of Raccoon", false)]);
+    let mut t = crate::data::npc_data::default_template(20370); t.type_name = "Monster".into(); t.level = 12;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30534, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    { let p = world.objects.get_component_mut::<Player>(&3001).unwrap(); p.level = 12; p.race = 4; }
+    let q = "Q00294_CovertBusiness";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30534-03.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    inject(&mut world, 3001, 0x6200_0000, 1491, 96);
+    // 20370 table [6,3,1,-1], roll 0 → count 4 → 96+4 = 100 → cond 2.
+    add_test_npc(&mut world, NPC_OID + 1, 20370, "Monster", 12, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at 100 fangs");
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 1508), 1, "Ring of Raccoon");
+    assert_eq!(item_count(&world, 3001, 1491), 0);
+}
+
+#[test]
+fn quest_q00274_skirmish_with_the_werewolves() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(1477, "Werewolf Head", true), (1501, "Totem", true), (1507, "Necklace of Valor", false)]);
+    let mut t = crate::data::npc_data::default_template(20363); t.type_name = "Monster".into(); t.level = 12;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30569, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    { let p = world.objects.get_component_mut::<Player>(&3001).unwrap(); p.level = 12; p.race = 3; }
+    inject(&mut world, 3001, 0x6300_0000, 1507, 1); // Necklace of Valor gates the start
+    let q = "Q00274_SkirmishWithTheWerewolves";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30569-04.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    inject(&mut world, 3001, 0x6301_0000, 1477, 39);
+    add_test_npc(&mut world, NPC_OID + 1, 20363, "Monster", 12, 30, 0, 0);
+    world.forced_rolls.push_back(50); // > 5 → no totem
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 1477), 40);
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at 40 heads");
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), a + 200);
+    assert!(quest_cond(&world, 3001, q).is_none());
+}
+
+#[test]
+fn quest_q00326_vanquish_remnants() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(1359, "Red Badge", true), (1360, "Blue Badge", true), (1361, "Black Badge", true), (1369, "Black Lion Mark", false)]);
+    let mut t = crate::data::npc_data::default_template(20053); t.type_name = "Monster".into(); t.level = 25;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30435, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 25;
+    let q = "Q00326_VanquishRemnants";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30435-03.htm")));
+    add_test_npc(&mut world, NPC_OID + 1, 20053, "Monster", 25, 30, 0, 0);
+    world.forced_rolls.push_back(60); // < 61 → red badge
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 1359), 1);
+    // Push to 100 red badges to earn the Black Lion Mark.
+    inject(&mut world, 3001, 0x6400_0000, 1359, 99);
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 1369), 1, "Black Lion Mark at 100 badges");
+    assert_eq!(item_count(&world, 3001, 57), a + 2000, "100*10 + 1000 bonus");
+    assert_eq!(item_count(&world, 3001, 1359), 0, "badges taken (mark kept)");
+}
