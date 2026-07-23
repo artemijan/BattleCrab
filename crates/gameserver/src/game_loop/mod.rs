@@ -21,6 +21,7 @@ pub(crate) mod doors;
 pub(crate) mod duel;
 mod effect_point;
 pub(crate) mod dr_chaos;
+pub(crate) mod cursed_weapon;
 mod skill_enchant;
 mod enchant;
 mod expertise;
@@ -462,6 +463,9 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::SiegeStart { castle_id } => {
                 siege::handle_scheduled_siege_start(world, castle_id);
+            }
+            ScheduledTask::CursedWeaponExpiry { item_id } => {
+                cursed_weapon::handle_expiry(world, item_id);
             }
         }
     }

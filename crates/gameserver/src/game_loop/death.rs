@@ -88,6 +88,10 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
 
     calculate_rewards(world, npc_oid, killer_oid);
 
+    // `CursedWeaponsManager.checkDrop`: an ordinary monster slain by an
+    // un-cursed player has a tiny chance to drop a cursed weapon.
+    super::cursed_weapon::on_monster_killed(world, npc_oid, killer_oid);
+
     // `Attackable.doDie`'s minion notifications, in Java's order: tell this
     // NPC's leader it lost a minion, then (if it led a pack itself) clear its
     // own escort.

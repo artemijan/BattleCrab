@@ -91,6 +91,7 @@ mod boss_zone_tests;
 mod core_boss_tests;
 mod dr_chaos_tests;
 mod siege_schedule_tests;
+mod cursed_weapon_tests;
 mod grand_boss_tests;
 mod orfen_tests;
 mod queen_ant_tests;

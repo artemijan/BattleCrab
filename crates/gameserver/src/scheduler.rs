@@ -174,6 +174,11 @@ pub enum ScheduledTask {
     /// A castle's scheduled weekly siege start (`SiegeSchedule.xml`) — begins
     /// the siege and re-arms next week (G24 slice 1).
     SiegeStart { castle_id: i32 },
+    /// A cursed weapon's expiry — the wielder's duration ran out, or a
+    /// monster-dropped weapon lay un-grabbed past its disappear deadline
+    /// (G28). Keyed by item id; a stale timer no-ops via the `end_time`
+    /// guard.
+    CursedWeaponExpiry { item_id: i32 },
 }
 
 struct Entry {

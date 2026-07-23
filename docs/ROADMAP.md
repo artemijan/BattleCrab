@@ -1044,6 +1044,14 @@ TvT event runs start-to-finish; a cursed weapon can be dropped and equipped.
 the seven seasonal `scripts/events/*` (SquashEvent, MerrySquashmas, …) as the
 breadth list — subject to the scope gate (customs default out).
 
+**Progress (2026-07-23):** the **cursed-weapon half of the gate is met** — the
+autonomous drop → pickup → expiry loop landed (`game_loop/cursed_weapon.rs`,
+[PLAN_G28_CURSED_WEAPONS.md](PLAN_G28_CURSED_WEAPONS.md)); a cursed weapon can be
+dropped by a monster kill and equipped by whoever picks it up. Deferred to a
+follow-up: kill-count level-up, hungry decay, drop-on-PK-death, login restore.
+**Remaining for G28:** the events engine (TvT / `AbstractEvent` /
+`EventManager`) + `AdminEvents`/`//tvt_*`.
+
 ---
 
 ## Track F — Social, comms, moderation & support

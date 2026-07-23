@@ -4,9 +4,12 @@
 //! (`//cw_reload`), the GM teleport (`//cw_goto`), and the give/remove pair
 //! (`//cw_add` / `//cw_remove`) with the activate / end-of-life lifecycle.
 //!
-//! Deferred (TODO(G21), the autonomous half of the system): drop-from-monster,
-//! drop-on-PK-death, the "hungry" HP-drain / decay task, the login restore, and
-//! the "already wields another cursed weapon" bonus branch of `activate`.
+//! The autonomous half of the system — drop-from-monster, pickup, and the
+//! expiry `RemoveTask` — now lives in [`crate::game_loop::cursed_weapon`] (G28),
+//! which calls back into `activate` / `end_of_life` here. Still deferred
+//! (TODO(G28)): drop-on-PK-death, the "hungry" HP-drain / decay task, the login
+//! restore, and the "already wields another cursed weapon" stage-kill bonus
+//! branch of `activate`.
 
 use crate::db::DbCommand;
 use crate::model::components::{Position, SkillBook};
@@ -19,13 +22,18 @@ use crate::world::World;
 use super::{current_target, send_message};
 
 /// Wall-clock millis (Java `System.currentTimeMillis()`).
-fn now_millis() -> i64 {
+pub(crate) fn now_millis() -> i64 {
     std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis() as i64).unwrap_or(0)
 }
 
 /// Resolve the `<itemid|name>` argument to a cursed-weapon index in
 /// `world.cursed_weapons` (Java: digit → item id, else case-insensitive name
 /// substring). `None` when unmatched.
+/// The index of the cursed weapon with `item_id`, if this dist has it.
+pub(crate) fn idx_by_item(world: &World, item_id: i32) -> Option<usize> {
+    world.cursed_weapons.iter().position(|cw| cw.item_id == item_id)
+}
+
 fn resolve(world: &World, arg: &str) -> Option<usize> {
     if arg.chars().all(|c| c.is_ascii_digit()) {
         let id: i32 = arg.parse().ok()?;
@@ -138,8 +146,8 @@ pub(super) fn admin_cw_reload(world: &mut World) {
 }
 
 /// `//cw_goto <id|name>` — teleport the GM to the weapon (Java `cw.goTo`).
-/// Dropped-on-ground weapons aren't modelled yet (G21), so only an activated
-/// weapon (its wielder) is reachable.
+/// Only an activated weapon (its wielder) is reachable here; teleporting to a
+/// ground drop's position is a TODO(G28) nicety.
 pub(super) fn admin_cw_goto(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&str]) {
     let Some(idx) = args.first().and_then(|a| resolve(world, a)) else {
         send_message(world, client_id, "Usage: //cw_remove|//cw_goto|//cw_add <itemid|name>");
@@ -195,7 +203,7 @@ pub(super) fn admin_cw_add(world: &mut World, client_id: u32, gm_object_id: i32,
 
 /// Port of `CursedWeapon.activate` (via `addItem`) + the admin `setEndTime`/
 /// `reActivate` tail. `target` holds no cursed weapon (checked by the caller).
-fn activate(world: &mut World, idx: usize, target: i32) {
+pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
     let (item_id, skill_id, duration, skill_max_level, stage_kills) = {
         let cw = &world.cursed_weapons[idx];
         (cw.item_id, cw.skill_id, cw.duration, cw.skill_max_level, cw.stage_kills)
@@ -286,7 +294,7 @@ fn activate(world: &mut World, idx: usize, target: i32) {
 /// Port of `CursedWeapon.endOfLife` for an activated (online) or not-in-world
 /// weapon: restore the wielder, strip the weapon, announce, clear the DB row,
 /// and reset the state.
-fn end_of_life(world: &mut World, idx: usize) {
+pub(crate) fn end_of_life(world: &mut World, idx: usize) {
     let (item_id, name, is_activated, player_id, saved_rep, saved_pk) = {
         let cw = &world.cursed_weapons[idx];
         (cw.item_id, cw.name.clone(), cw.is_activated, cw.player_id, cw.player_reputation, cw.player_pk_kills)
