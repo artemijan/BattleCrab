@@ -28,6 +28,7 @@ pub mod q00263_orc_subjugation;
 pub mod q00265_bonds_of_slavery;
 pub mod q00273_invaders_of_the_holy_land;
 pub mod q00293_the_hidden_veins;
+pub mod q00300_hunting_leto_lizardman;
 pub mod q00303_collect_arrowheads;
 pub mod q00313_collect_spores;
 pub mod q00316_destroy_plague_carriers;
@@ -77,6 +78,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00265_bonds_of_slavery::Q00265BondsOfSlavery),
         Arc::new(q00273_invaders_of_the_holy_land::Q00273InvadersOfTheHolyLand),
         Arc::new(q00293_the_hidden_veins::Q00293TheHiddenVeins),
+        Arc::new(q00300_hunting_leto_lizardman::Q00300HuntingLetoLizardman),
         Arc::new(q00303_collect_arrowheads::Q00303CollectArrowheads),
         Arc::new(q00313_collect_spores::Q00313CollectSpores),
         Arc::new(q00316_destroy_plague_carriers::Q00316DestroyPlagueCarriers),
