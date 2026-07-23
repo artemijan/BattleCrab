@@ -8093,3 +8093,118 @@ fn quest_q00212_trial_of_duty() {
     assert_eq!(item_count(&world, 3001, 57), a + 138968, "final adena reward");
     assert_ne!(quest_cond(&world, 3001, q), Some(18), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00213_trial_of_the_seeker() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = (2647..=2672).map(|id| (id, "Q213", true)).collect();
+    items.push((2673, "Mark of Seeker", false));
+    add_quest_items(&mut world, &items);
+    for id in [20198, 20211, 20495, 20080, 20249, 20158, 20234, 20270, 20088, 20580] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let dufner = NPC_OID;
+    let terry = NPC_OID + 1;
+    let viktor = NPC_OID + 2;
+    let marina = NPC_OID + 3;
+    let brunon = NPC_OID + 4;
+    for (oid, npc) in
+        [(dufner, 30106), (terry, 30064), (viktor, 30684), (marina, 30715), (brunon, 30526)]
+    {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 7; // Rogue
+    }
+    let q = "Q00213_TrialOfTheSeeker";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 30;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, dufner);
+    ev(&mut world, dufner, "ACCEPT");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    assert_eq!(item_count(&world, 3001, 2647), 1, "Dufner's Letter");
+    talk(&mut world, terry);
+    ev(&mut world, terry, "30064-03.html"); // Dufner's Letter → 1st Order, cond 2
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    world.forced_rolls.push_back(0); // getRandomBoolean → true
+    kill(&mut world, 20198); // Neer Ghoul → Mysterious Spirit Ore, cond 3
+    assert_eq!(item_count(&world, 3001, 2653), 1, "Mysterious Spirit Ore");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    talk(&mut world, terry);
+    ev(&mut world, terry, "30064-06.html"); // 1st Order → 2nd Order, cond 4
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    // Four class spirit ores (set completes in order; last → cond 5).
+    kill(&mut world, 20211); // Ol Mahum
+    kill(&mut world, 20495); // Turek
+    kill(&mut world, 20080); // Ant
+    assert_ne!(quest_cond(&world, 3001, q), Some(5), "three ores is not the set");
+    kill(&mut world, 20249); // Turak Bugbear → set complete, cond 5
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    talk(&mut world, terry);
+    ev(&mut world, terry, "30064-10.html"); // ores → Terry's Letter + Box, cond 6
+    assert_eq!(item_count(&world, 3001, 2650), 1, "Terry's Letter");
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    talk(&mut world, viktor);
+    ev(&mut world, viktor, "30684-05.html"); // Terry's Letter → Viktor's Letter, cond 7
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    talk(&mut world, terry); // Viktor's Letter → Hawkeye's Letter, cond 8
+    assert_eq!(item_count(&world, 3001, 2652), 1, "Hawkeye's Letter");
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    talk(&mut world, viktor);
+    ev(&mut world, viktor, "30684-11.html"); // → Viktor's Request, cond 9
+    assert_eq!(item_count(&world, 3001, 2659), 1, "Viktor's Request");
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    inject(&mut world, 3001, 0x0213_0000, 2660, 9); // 9 Medusa Scales
+    kill(&mut world, 20158); // 10th scale → cond 10
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    talk(&mut world, viktor);
+    ev(&mut world, viktor, "30684-15.html"); // → Shilen's Ore + Analysis Request, cond 11
+    assert_eq!(item_count(&world, 3001, 2661), 1, "Shilen's Spirit Ore");
+    assert_eq!(quest_cond(&world, 3001, q), Some(11));
+    talk(&mut world, marina);
+    ev(&mut world, marina, "30715-02.html"); // → Marina's Letter, cond 12
+    assert_eq!(item_count(&world, 3001, 2663), 1, "Marina's Letter");
+    assert_eq!(quest_cond(&world, 3001, q), Some(12));
+    talk(&mut world, brunon); // Marina's Letter → Experiment Tools, cond 13
+    assert_eq!(item_count(&world, 3001, 2664), 1, "Experiment Tools");
+    assert_eq!(quest_cond(&world, 3001, q), Some(13));
+    talk(&mut world, marina);
+    ev(&mut world, marina, "30715-05.html"); // → Analysis Result, cond 14
+    assert_eq!(item_count(&world, 3001, 2665), 1, "Analysis Result");
+    assert_eq!(quest_cond(&world, 3001, q), Some(14));
+    talk(&mut world, terry);
+    ev(&mut world, terry, "30064-18.html"); // → List of Host, cond 15
+    assert_eq!(item_count(&world, 3001, 2667), 1, "List of Host");
+    assert_eq!(quest_cond(&world, 3001, q), Some(15));
+    // Four Abyss spirit ores.
+    kill(&mut world, 20234); // Marsh Stakato Drone
+    kill(&mut world, 20270); // Breka Orc Overlord
+    kill(&mut world, 20088); // Ant Warrior Captain
+    kill(&mut world, 20580); // Leto Lizardman Warrior → set complete, cond 16
+    assert_eq!(quest_cond(&world, 3001, q), Some(16));
+    talk(&mut world, terry); // abyss ores → Terry's Report, cond 17
+    assert_eq!(item_count(&world, 3001, 2672), 1, "Terry's Report");
+    assert_eq!(quest_cond(&world, 3001, q), Some(17));
+    // Completion at Dufner.
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, dufner);
+    assert_eq!(item_count(&world, 3001, 2673), 1, "Mark of the Seeker awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 187606, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(17), "one-time quest finished");
+}
