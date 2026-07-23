@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { ApiError, api, type Account } from "../lib/api";
@@ -65,7 +65,7 @@ export function Login() {
     },
   });
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     submit.mutate();
   };
@@ -141,7 +141,7 @@ export function Register() {
     },
   });
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     if (mismatch) return;
     submit.mutate();

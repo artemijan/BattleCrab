@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { ApiError, api } from "../lib/api";
@@ -20,7 +20,7 @@ export function ForgotPassword() {
     mutationFn: () => api.forgotPassword(email),
   });
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     submit.mutate();
   };
@@ -86,7 +86,7 @@ export function ResetPassword() {
     mutationFn: () => api.resetPassword(token, password),
   });
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     if (mismatch) return;
     submit.mutate();

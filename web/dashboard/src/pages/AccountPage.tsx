@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 
 import { ApiError, api, type Character } from "../lib/api";
 import { Alert, Button, Field, Panel, Spinner, cx } from "../components/ui";
@@ -344,7 +344,7 @@ function CreateGameAccountCard({ isVerified, count }: { isVerified: boolean; cou
     },
   });
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     submit.mutate();
   };
@@ -486,7 +486,7 @@ function ChangePasswordCard() {
     },
   });
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     submit.mutate();
   };

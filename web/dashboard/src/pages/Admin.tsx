@@ -12,7 +12,7 @@
  *   so they are displayed and nothing more.
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useState, type SubmitEvent, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -303,7 +303,7 @@ function CreateGameAccountPanel() {
   return (
     <Panel className="p-5">
       <form
-        onSubmit={(e: FormEvent) => {
+        onSubmit={(e: SubmitEvent) => {
           e.preventDefault();
           create.mutate();
         }}
@@ -612,7 +612,7 @@ function ResetPasswordRow({ login }: { login: string }) {
 
   return (
     <form
-      onSubmit={(e: FormEvent) => {
+      onSubmit={(e: SubmitEvent) => {
         e.preventDefault();
         reset.mutate();
       }}
