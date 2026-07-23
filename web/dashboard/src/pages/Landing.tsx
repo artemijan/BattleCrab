@@ -38,7 +38,7 @@ function ProjectStatus() {
                   Live now
                 </span>
               </p>
-              <p className="mt-1 text-sm leading-relaxed text-[var(--text-muted)]">
+              <p className="mt-1 text-sm/relaxed  text-(--text-muted)">
                 The server is up and open to everyone — no key or invite. It is genuinely early, so
                 expect rough edges, occasional restarts and content that is still landing. Bug
                 reports are worth a lot right now.
@@ -48,17 +48,17 @@ function ProjectStatus() {
 
           <li className="flex gap-3.5">
             <span
-              className="mt-1.5 size-2.5 shrink-0 rounded-full border-2 border-[var(--text-faint)] bg-transparent"
+              className="mt-1.5 size-2.5 shrink-0 rounded-full border-2 border-(--text-faint) bg-transparent"
               aria-hidden
             />
             <div className="min-w-0">
-              <p className="font-semibold text-[var(--text-muted)]">
+              <p className="font-semibold text-(--text-muted)">
                 {STATUS.next}
-                <span className="ml-2 rounded-full bg-[var(--surface-strong)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-faint)]">
+                <span className="ml-2 rounded-full bg-(--surface-strong) px-2 py-0.5 text-[11px] font-medium text-(--text-faint)">
                   {STATUS.nextWhen}
                 </span>
               </p>
-              <p className="mt-1 text-sm leading-relaxed text-[var(--text-muted)]">
+              <p className="mt-1 text-sm/relaxed  text-(--text-muted)">
                 Roughly a month out. The target is a server steady enough to play properly, with the
                 rest of the Interlude Classic content in place.
               </p>
@@ -114,8 +114,8 @@ export function Landing() {
         />
 
         <p
-          className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--surface-border)]
-                     bg-[var(--surface)] px-3.5 py-1.5 text-xs font-medium text-[var(--text-muted)] backdrop-blur-md"
+          className="mb-4 inline-flex items-center gap-2 rounded-full border border-(--surface-border)
+                     bg-(--surface) px-3.5 py-1.5 text-xs font-medium text-(--text-muted) backdrop-blur-md"
         >
           {/* The pulse reads as "running right now", which is the part people
               miss: an alpha is usually something you wait for. */}
@@ -128,13 +128,13 @@ export function Landing() {
 
         <h1 className="mx-auto max-w-3xl text-balance text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl">
           The world of{" "}
-          <span className="bg-gradient-to-br from-brand-500 to-brand-300 bg-clip-text text-transparent dark:from-brand-200 dark:to-brand-400">
+          <span className="bg-linear-to-br from-brand-500 to-brand-300 bg-clip-text text-transparent dark:from-brand-200 dark:to-brand-400">
             Lineage II
           </span>
           , made our own.
         </h1>
 
-        <p className="mx-auto mt-5 max-w-xl text-pretty text-lg text-[var(--text-muted)]">
+        <p className="mx-auto mt-5 max-w-xl text-pretty text-lg text-(--text-muted)">
           {/* The phase is in the badge directly above and spelled out in the
               status panel below — a third mention in between is just noise. */}
           BattleCrab is a custom server built on Lineage II Interlude Classic, written from scratch
@@ -179,7 +179,7 @@ export function Landing() {
             className="p-6 transition-[translate] duration-300 hover:-translate-y-1"
           >
             <h2 className="text-base font-semibold">{feature.title}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--text-muted)]">{feature.body}</p>
+            <p className="mt-2 text-sm/relaxed  text-(--text-muted)">{feature.body}</p>
           </Panel>
         ))}
       </section>
@@ -188,7 +188,7 @@ export function Landing() {
         <Panel strong className="animate-rise flex flex-wrap items-center gap-5 p-7">
           <div className="min-w-56 flex-1">
             <h2 className="text-xl font-bold">Ready to play?</h2>
-            <p className="mt-1.5 text-sm text-[var(--text-muted)]">
+            <p className="mt-1.5 text-sm text-(--text-muted)">
               {signedIn
                 ? "Grab the launcher — it installs and updates the game client for you — then log in with one of your game accounts."
                 : "Grab the launcher — it installs and updates the game client for you — then create your account. Either order works."}

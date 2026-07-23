@@ -22,10 +22,10 @@ export function AuthShell({
     <div className="mx-auto max-w-md py-4 sm:py-6">
       <Panel strong className="animate-rise p-6 sm:p-7">
         <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-        <p className="mt-1.5 text-sm text-[var(--text-muted)]">{subtitle}</p>
+        <p className="mt-1.5 text-sm text-(--text-muted)">{subtitle}</p>
         <div className="mt-5">{children}</div>
       </Panel>
-      <p className="mt-4 text-center text-sm text-[var(--text-muted)]">{footer}</p>
+      <p className="mt-4 text-center text-sm text-(--text-muted)">{footer}</p>
     </div>
   );
 }
@@ -109,7 +109,7 @@ export function Login() {
             can trigger a reset email. */}
         <Link
           to="/forgot-password"
-          className="-mt-1 self-end text-xs font-medium text-[var(--text-muted)]
+          className="-mt-1 self-end text-xs font-medium text-(--text-muted)
                      transition-colors hover:text-brand-600 dark:hover:text-brand-300"
         >
           Forgot your password?

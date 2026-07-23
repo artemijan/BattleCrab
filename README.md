@@ -86,6 +86,9 @@ issue; remove the `#[ignore]` once it is fixed. Run it explicitly with
   delete an entry there, fix what surfaces, and commit both together to burn the list down.
 - **Frontend**: [Biome](https://biomejs.dev) (formatter + linter in one binary) — `cd web/dashboard`
   then `bun run lint` / `bun run format`. Config in `web/dashboard/biome.json`.
+- **Tailwind classes**: `eslint-plugin-better-tailwindcss` (`bun run lint:tw`, config in
+  `web/dashboard/eslint.config.js`) — conflicting/duplicate/unknown classes and canonical forms
+  (`text-(--x)` over `text-[var(--x)]`). ESLint exists in the repo for these rules only.
 - **Pre-commit hook** runs both, scoped to what is staged. Activate once per clone:
 
   ```

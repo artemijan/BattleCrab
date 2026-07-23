@@ -32,7 +32,7 @@ function RequireAuth({ children }: { children: ReactNode }) {
 
   if (account.isPending) {
     return (
-      <div className="grid place-items-center py-24 text-[var(--text-muted)]">
+      <div className="grid place-items-center py-24 text-(--text-muted)">
         <Spinner className="size-6" />
       </div>
     );
@@ -53,7 +53,7 @@ function RequireAdmin({ children }: { children: ReactNode }) {
 
   if (account.isPending) {
     return (
-      <div className="grid place-items-center py-24 text-[var(--text-muted)]">
+      <div className="grid place-items-center py-24 text-(--text-muted)">
         <Spinner className="size-6" />
       </div>
     );

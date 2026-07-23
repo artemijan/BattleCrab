@@ -8,7 +8,8 @@
     "build": "bun run build.ts",
     "og-image": "bun run scripts/og-image.ts",
     "typecheck": "tsc --noEmit",
-    "lint": "biome check .",
+    "lint": "biome check . && eslint .",
+    "lint:tw": "eslint .",
     "format": "biome check --write .",
     "test": "bun test"
   },
@@ -24,8 +25,11 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "bun-plugin-tailwind": "^0.1.0",
+    "eslint": "^10.7.0",
+    "eslint-plugin-better-tailwindcss": "^4.7.0",
     "playwright": "^1.61.1",
     "tailwindcss": "^4.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.65.0"
   }
 }

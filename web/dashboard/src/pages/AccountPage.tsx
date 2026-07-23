@@ -23,7 +23,7 @@ export function AccountPage() {
     <div className="space-y-5 pb-6">
       <section className="animate-rise">
         <h1 className="text-3xl font-black tracking-tight">Your account</h1>
-        <p className="mt-1.5 text-[var(--text-muted)]">
+        <p className="mt-1.5 text-(--text-muted)">
           Manage your game accounts, characters and credentials.
         </p>
       </section>
@@ -111,17 +111,17 @@ function GameAccountsSection() {
     <section>
       <div className="mb-3 flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--text-faint)]">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-(--text-faint)">
             Game accounts
           </h2>
-          <p className="mt-1 text-sm text-[var(--text-muted)]">
+          <p className="mt-1 text-sm text-(--text-muted)">
             These are the usernames you log into the game client with.
           </p>
         </div>
       </div>
 
       {isPending ? (
-        <Panel className="flex items-center gap-3 p-6 text-sm text-[var(--text-muted)]">
+        <Panel className="flex items-center gap-3 p-6 text-sm text-(--text-muted)">
           <Spinner /> Loading your game accounts…
         </Panel>
       ) : isError ? (
@@ -131,7 +131,7 @@ function GameAccountsSection() {
           {gameAccounts.data!.length === 0 ? (
             <Panel className="p-8 text-center">
               <p className="font-medium">No game accounts yet</p>
-              <p className="mt-1.5 text-sm text-[var(--text-muted)]">
+              <p className="mt-1.5 text-sm text-(--text-muted)">
                 Create one below, then use it to log into the game client. Your characters will
                 appear here.
               </p>
@@ -164,7 +164,7 @@ function Chevron({ expanded }: { expanded: boolean }) {
       viewBox="0 0 20 20"
       aria-hidden
       className={cx(
-        "size-4 shrink-0 text-[var(--text-faint)] transition-transform duration-200",
+        "size-4 shrink-0 text-(--text-faint) transition-transform duration-200",
         expanded && "rotate-180",
       )}
     >
@@ -217,7 +217,7 @@ function GameAccountPanel({
         <p className="truncate font-semibold">{login}</p>
       </div>
       <div className="flex items-center gap-2">
-        <p className="text-xs text-[var(--text-faint)]">
+        <p className="text-xs text-(--text-faint)">
           {characters.length === 0
             ? "No characters"
             : `${characters.length} character${characters.length === 1 ? "" : "s"}`}
@@ -244,7 +244,7 @@ function GameAccountPanel({
           onClick={onToggle}
           aria-expanded={expanded}
           aria-controls={listId}
-          className={cx(headerClass, "hover:bg-[var(--surface-strong)]")}
+          className={cx(headerClass, "hover:bg-(--surface-strong)")}
         >
           {summary}
         </button>
@@ -253,7 +253,7 @@ function GameAccountPanel({
       )}
 
       {characters.length === 0 ? (
-        <p className="px-5 py-5 text-sm text-[var(--text-muted)]">
+        <p className="p-5  text-sm text-(--text-muted)">
           Log into the game client as <span className="font-medium">{login}</span> to create your
           first character.
         </p>
@@ -278,14 +278,14 @@ function GameAccountPanel({
           id={listId}
           inert={!expanded}
           className={cx(
-            "grid transition-[grid-template-rows] duration-300 ease-[var(--ease-out-soft)]",
+            "grid transition-[grid-template-rows] duration-300 ease-out-soft",
             expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
           )}
         >
           {/* Both are required for the row track to actually shrink: a grid
               item's min-height defaults to auto, which refuses to go below the
               content's height. */}
-          <ul className="min-h-0 overflow-hidden divide-y divide-[var(--surface-border)]">
+          <ul className="min-h-0 overflow-hidden divide-y divide-(--surface-border)">
             {characters.map((character) => (
               <CharacterRow key={character.name} character={character} />
             ))}
@@ -313,7 +313,7 @@ function CharacterRow({ character }: { character: Character }) {
           )}
         </div>
         {/* The owning account is the panel heading now, so it is not repeated. */}
-        <p className="mt-0.5 truncate text-sm text-[var(--text-muted)]">
+        <p className="mt-0.5 truncate text-sm text-(--text-muted)">
           Level {character.level} · {raceName(character.race)} · {playtime(character.onlineTime)}
         </p>
       </div>
@@ -353,7 +353,7 @@ function CreateGameAccountCard({ isVerified, count }: { isVerified: boolean; cou
     return (
       <Panel className="p-6">
         <h3 className="font-semibold">Create a game account</h3>
-        <p className="mt-1.5 text-sm text-[var(--text-muted)]">
+        <p className="mt-1.5 text-sm text-(--text-muted)">
           Confirm your email address first — it's the only record of which game accounts are yours,
           and the only way to recover them.
         </p>
@@ -366,7 +366,7 @@ function CreateGameAccountCard({ isVerified, count }: { isVerified: boolean; cou
       <Panel className="flex flex-wrap items-center justify-between gap-3 p-5">
         <div>
           <h3 className="font-semibold">Create a game account</h3>
-          <p className="mt-0.5 text-sm text-[var(--text-muted)]">
+          <p className="mt-0.5 text-sm text-(--text-muted)">
             {count === 0
               ? "You'll need one to log into the game."
               : "Add another username for the game client."}
@@ -383,7 +383,7 @@ function CreateGameAccountCard({ isVerified, count }: { isVerified: boolean; cou
   return (
     <Panel className="animate-rise p-6">
       <h3 className="font-semibold">Create a game account</h3>
-      <p className="mt-1 text-sm text-[var(--text-muted)]">
+      <p className="mt-1 text-sm text-(--text-muted)">
         This username and password are what you type into the game client — they're separate from
         the ones you sign in here with.
       </p>
@@ -494,7 +494,7 @@ function ChangePasswordCard() {
   return (
     <Panel className="animate-rise p-6">
       <h2 className="font-semibold">Change password</h2>
-      <p className="mt-1 text-sm text-[var(--text-muted)]">
+      <p className="mt-1 text-sm text-(--text-muted)">
         This changes your game password too — and signs out every other device.
       </p>
 

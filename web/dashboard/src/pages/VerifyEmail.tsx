@@ -73,7 +73,7 @@ export function VerifyEmail() {
       footer={footer}
     >
       {verify.isPending && (
-        <p className="flex items-center gap-3 text-sm text-[var(--text-muted)]">
+        <p className="flex items-center gap-3 text-sm text-(--text-muted)">
           <Spinner /> Confirming…
         </p>
       )}

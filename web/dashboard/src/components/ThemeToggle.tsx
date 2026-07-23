@@ -17,7 +17,7 @@ export function ThemeToggle() {
       title={isDark ? "Light theme" : "Dark theme"}
       // Tailwind v4 compiles these to the standalone `translate` and `scale`
       // properties, which `transition-transform` does not animate.
-      className="glass glass-sheen relative grid size-9 shrink-0 place-items-center rounded-xl
+      className="glass glass-sheen grid size-9 shrink-0 place-items-center rounded-xl
                  transition-[translate,scale] duration-200 hover:-translate-y-0.5
                  active:scale-95 sm:size-10"
     >
@@ -30,7 +30,7 @@ export function ThemeToggle() {
           strokeWidth="2"
           strokeLinecap="round"
           className="absolute inset-0 size-5 text-accent-500 transition-all duration-400
-                     [transition-timing-function:var(--ease-spring)]"
+                     ease-spring"
           style={{
             opacity: isDark ? 0 : 1,
             transform: isDark ? "rotate(-90deg) scale(0.4)" : "rotate(0) scale(1)",
@@ -49,7 +49,7 @@ export function ThemeToggle() {
           strokeLinecap="round"
           strokeLinejoin="round"
           className="absolute inset-0 size-5 text-accent-300 transition-all duration-400
-                     [transition-timing-function:var(--ease-spring)]"
+                     ease-spring"
           style={{
             opacity: isDark ? 1 : 0,
             transform: isDark ? "rotate(0) scale(1)" : "rotate(90deg) scale(0.4)",
