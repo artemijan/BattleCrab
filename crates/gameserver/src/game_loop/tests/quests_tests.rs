@@ -4663,3 +4663,92 @@ fn quest_q00257_refused_above_level_16() {
     assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-17 starter never begins");
     assert_eq!(item_count(&world, 3001, 1084), 0, "no Lord's Mark handed out");
 }
+
+/// Q00259 Request from the Farm Owner — the Edmond adena path: kill spiders for
+/// skins, hand them in for 25a each (+250 for 10+), repeatable.
+#[test]
+fn quest_q00259_edmond_adena_path() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1495, "Spider Skin", true)]);
+    for id in [20103, 20106, 20108] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 18;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30497, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 18;
+    drain_db(&mut db_rx);
+
+    let q = "Q00259_RequestFromTheFarmOwner";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30497-03.html")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+    drain(&mut rx);
+
+    let mob = NPC_OID + 1;
+    for i in 0..10 {
+        add_test_npc(&mut world, mob + i, [20103, 20106, 20108][(i % 3) as usize], "Monster", 18, 30, 0, 0);
+        death::npc_do_die(&mut world, mob + i, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, 1495), 10, "one skin per kill (unrolled)");
+
+    let adena_before = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), adena_before + 500, "10*25 + 250 bonus");
+    assert_eq!(item_count(&world, 3001, 1495), 0, "skins handed in");
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30497-06.html")));
+    assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit");
+}
+
+/// The Marius branch: 10 skins trade for a batch of consumables (Greater
+/// Healing Potions) instead of adena, and the skins are consumed.
+#[test]
+fn quest_q00259_marius_consumables_path() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1495, "Spider Skin", true), (1061, "Greater Healing Potion", false)]);
+    let mut t = crate::data::npc_data::default_template(20103);
+    t.type_name = "Monster".into();
+    t.level = 18;
+    world.data.npc_data.insert_for_test(t);
+    let edmond = NPC_OID;
+    let marius = NPC_OID + 1;
+    add_test_npc(&mut world, edmond, 30497, "Folk", 5, 100, 0, 0);
+    add_test_npc(&mut world, marius, 30405, "Folk", 5, 120, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 18;
+    drain_db(&mut db_rx);
+
+    let q = "Q00259_RequestFromTheFarmOwner";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{edmond}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{edmond}_Quest {q} 30497-03.html")));
+    let mob = NPC_OID + 2;
+    for i in 0..10 {
+        add_test_npc(&mut world, mob + i, 20103, "Monster", 18, 30, 0, 0);
+        death::npc_do_die(&mut world, mob + i, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, 1495), 10);
+    drain(&mut rx);
+
+    // Trade the batch at Marius for 2 Greater Healing Potions.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{marius}_Quest {q} 30405-04.html")));
+    assert_eq!(item_count(&world, 3001, 1061), 2, "two potions from the trade");
+    assert_eq!(item_count(&world, 3001, 1495), 0, "ten skins consumed by the trade");
+}
+
+/// Q00259 refuses a starter above level 21 (`addCondMaxLevel(21)`).
+#[test]
+fn quest_q00259_refused_above_level_21() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1495, "Spider Skin", true)]);
+    add_test_npc(&mut world, NPC_OID, 30497, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 22;
+
+    let q = "Q00259_RequestFromTheFarmOwner";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30497-03.html")));
+    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-22 starter never begins");
+}
