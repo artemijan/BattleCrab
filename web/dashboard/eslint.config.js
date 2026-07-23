@@ -1,16 +1,28 @@
 // ESLint here exists for exactly one thing: Tailwind class linting, which
 // Biome cannot do. Biome stays the formatter and general linter; keep this
 // config to `better-tailwindcss` rules only, so the two tools never disagree.
+import babelParser from "@babel/eslint-parser";
 import betterTailwindcss from "eslint-plugin-better-tailwindcss";
-import tseslint from "typescript-eslint";
 
-export default [
-  {
-    files: ["src/**/*.{ts,tsx}"],
-    languageOptions: {
-      parser: tseslint.parser,
-      parserOptions: { ecmaFeatures: { jsx: true } },
+// Babel's parser, not typescript-eslint: these rules are purely syntactic
+// (no type information), and typescript-eslint couples to specific TypeScript
+// versions — it rejected TS 7.0 outright. Babel parses the TS/TSX shape
+// without touching the typescript package at all.
+//
+// JSX must be per-extension: forced on in .ts it misparses generics
+// (`request<T>(...)`), and off in .tsx nothing parses at all.
+const parserFor = (jsx) => ({
+  parser: babelParser,
+  parserOptions: {
+    requireConfigFile: false,
+    babelOptions: {
+      presets: ["@babel/preset-typescript"],
+      plugins: jsx ? ["@babel/plugin-syntax-jsx"] : [],
     },
+  },
+});
+
+const shared = {
     plugins: { "better-tailwindcss": betterTailwindcss },
     settings: {
       "better-tailwindcss": {
@@ -48,6 +60,10 @@ export default [
       "better-tailwindcss/enforce-canonical-classes": "error",
       // `mt-1 mb-1` → `my-1`.
       "better-tailwindcss/enforce-shorthand-classes": "error",
-    },
   },
+};
+
+export default [
+  { ...shared, files: ["src/**/*.tsx"], languageOptions: parserFor(true) },
+  { ...shared, files: ["src/**/*.ts"], languageOptions: parserFor(false) },
 ];
